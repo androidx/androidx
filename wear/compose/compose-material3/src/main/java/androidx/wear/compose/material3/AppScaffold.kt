@@ -76,17 +76,17 @@ public fun AppScaffold(
     // Run the animator coordinator if needed.
     AnimationCoordinator.Looper()
 
-    val isStatusBarSupportedState = rememberUpdatedState(LocalStatusBarEnabled.current)
+    val appShowStatusBarState =
+        rememberShowStatusBarState(
+            if (isStatusBarEnabled) StatusBarMode.Enabled else StatusBarMode.Disabled
+        )
     val timeTextState = rememberUpdatedState(timeText)
-    val showStatusBarState = rememberUpdatedState(isStatusBarEnabled)
-    val appWindowView = LocalView.current
-    val appWindowViewState = rememberUpdatedState(appWindowView)
+    val appWindowViewState = rememberUpdatedState(LocalView.current)
 
     val scaffoldState = remember {
         ScaffoldState(
             appTimeText = timeTextState,
-            appShowStatusBar = showStatusBarState,
-            isStatusBarSupported = isStatusBarSupportedState,
+            appShowStatusBar = appShowStatusBarState,
             appWindowView = appWindowViewState,
         )
     }
@@ -95,18 +95,19 @@ public fun AppScaffold(
     // regardless of whether AppScaffold has isStatusBarEnabled set to true or false. This allows
     // the orchestrator to actively hide the system bar when disabled and honor per-screen
     // overrides.
-    if (isStatusBarSupportedState.value) {
+    if (LocalStatusBarEnabled.current) {
         val showStatusBarOverlay by remember {
             derivedStateOf {
-                val isEnabled = scaffoldState.screenContent.currentScreenShowStatusBar.value
-                val stage = scaffoldState.screenContent.screenStage.value
-                val provider = scaffoldState.screenContent.currentScrollInfoProvider.value
-                val offset = scaffoldState.screenContent.currentAnchorItemOffset.value
+                val screenContent = scaffoldState.screenContent
+                if (!screenContent.currentScreenShowStatusBar.value) return@derivedStateOf false
 
-                isEnabled &&
-                    (stage != ScreenStage.Scrolling ||
-                        provider?.isScrollAwayValid != true ||
-                        (!offset.isNaN() && offset <= 0f))
+                val stage = screenContent.screenStage.value
+                val provider = screenContent.currentScrollInfoProvider.value
+                val offset = screenContent.currentAnchorItemOffset.value
+
+                stage != ScreenStage.Scrolling ||
+                    provider?.isScrollAwayValid != true ||
+                    (!offset.isNaN() && offset <= 0f)
             }
         }
 
@@ -128,6 +129,7 @@ public fun AppScaffold(
     CompositionLocalProvider(
         LocalScaffoldState provides scaffoldState,
         LocalContentColor provides contentColor,
+        LocalInheritedShowStatusBar provides appShowStatusBarState.value,
     ) {
         Box(Modifier.fillMaxSize().background(containerColor)) {
             Box(
