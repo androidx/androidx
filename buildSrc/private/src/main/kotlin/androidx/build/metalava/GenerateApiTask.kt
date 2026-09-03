@@ -138,17 +138,24 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
         }
 
         generateApiConfigs.forEach { (generateApiMode, apiLintMode) ->
-            val args =
-                getGenerateApiArgs(
-                    projectXml,
-                    sourcePaths.files,
-                    includeCompiledSources = true,
-                    apiLocation.get(),
-                    generateApiMode,
-                    apiLintMode,
-                    apiLevelsArgs,
-                    multiplatform,
+            val args = buildList {
+                addAll(
+                    getMultiSurfaceArgs(
+                        projectXml,
+                        sourcePaths.files,
+                        includeCompiledSources = true,
+                    )
                 )
+                addAll(
+                    getSingleSurfaceArgs(
+                        apiLocation.get(),
+                        generateApiMode,
+                        apiLintMode,
+                        apiLevelsArgs,
+                        multiplatform,
+                    )
+                )
+            }
             runWithArgs(args)
         }
     }
