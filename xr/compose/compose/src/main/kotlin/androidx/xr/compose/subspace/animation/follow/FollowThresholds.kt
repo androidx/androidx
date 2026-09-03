@@ -16,7 +16,7 @@
 
 package androidx.xr.compose.subspace.animation.follow
 
-import androidx.annotation.RestrictTo
+import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 
 /**
  * Defines a movement threshold range for [FollowMode] within which follow motion is not triggered.
@@ -33,7 +33,8 @@ import androidx.annotation.RestrictTo
  * @param yawDegrees The yaw rotation threshold, in degrees, required to trigger follow motion.
  * @param rollDegrees The roll rotation threshold, in degrees, required to trigger follow motion.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@ExperimentalFollowingSubspaceApi
+// TODO(b/556372003): Add float range to FollowThresholds
 public class FollowThresholds(
     public val translationMeters: Float = 0.0f,
     public val pitchDegrees: Float = 0.0f,

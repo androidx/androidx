@@ -839,8 +839,10 @@ package @SuppressCompatibility androidx.xr.compose.subspace.animation.follow {
   @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public static final class FollowMode.Companion {
     method public androidx.xr.compose.subspace.animation.follow.FollowMode snap(optional androidx.xr.compose.subspace.animation.follow.TrackedDimensions dimensions);
     method @BytecodeOnly public static androidx.xr.compose.subspace.animation.follow.FollowMode! snap$default(androidx.xr.compose.subspace.animation.follow.FollowMode.Companion!, androidx.xr.compose.subspace.animation.follow.TrackedDimensions!, int, Object!);
-    method public androidx.xr.compose.subspace.animation.follow.FollowMode soft(optional @IntRange(from=100L) int durationMs, optional androidx.xr.compose.subspace.animation.follow.TrackedDimensions dimensions);
-    method @BytecodeOnly public static androidx.xr.compose.subspace.animation.follow.FollowMode! soft$default(androidx.xr.compose.subspace.animation.follow.FollowMode.Companion!, int, androidx.xr.compose.subspace.animation.follow.TrackedDimensions!, int, Object!);
+    method public androidx.xr.compose.subspace.animation.follow.FollowMode soft(optional androidx.xr.compose.subspace.animation.follow.TrackedDimensions dimensions, optional @IntRange(from=1L) long halfLifeMs, optional @IntRange(from=0L) long startDelay, optional androidx.xr.compose.subspace.animation.follow.FollowThresholds startThresholds);
+    method @Deprecated public androidx.xr.compose.subspace.animation.follow.FollowMode soft(@IntRange(from=100L) int durationMs, optional androidx.xr.compose.subspace.animation.follow.TrackedDimensions dimensions);
+    method @BytecodeOnly public static androidx.xr.compose.subspace.animation.follow.FollowMode! soft$default(androidx.xr.compose.subspace.animation.follow.FollowMode.Companion!, androidx.xr.compose.subspace.animation.follow.TrackedDimensions!, long, long, androidx.xr.compose.subspace.animation.follow.FollowThresholds!, int, Object!);
+    method @BytecodeOnly @Deprecated public static androidx.xr.compose.subspace.animation.follow.FollowMode! soft$default(androidx.xr.compose.subspace.animation.follow.FollowMode.Companion!, int, androidx.xr.compose.subspace.animation.follow.TrackedDimensions!, int, Object!);
     method public androidx.xr.compose.subspace.animation.follow.FollowMode tight(optional androidx.xr.compose.subspace.animation.follow.TrackedDimensions dimensions);
     method @BytecodeOnly public static androidx.xr.compose.subspace.animation.follow.FollowMode! tight$default(androidx.xr.compose.subspace.animation.follow.FollowMode.Companion!, androidx.xr.compose.subspace.animation.follow.TrackedDimensions!, int, Object!);
   }
@@ -854,6 +856,26 @@ package @SuppressCompatibility androidx.xr.compose.subspace.animation.follow {
     method @BytecodeOnly public static androidx.xr.compose.subspace.animation.follow.FollowTarget! anchor$default(androidx.xr.compose.subspace.animation.follow.FollowTarget.Companion!, androidx.xr.arcore.Anchor!, androidx.xr.compose.subspace.animation.follow.FollowMode!, int, Object!);
     method public androidx.xr.compose.subspace.animation.follow.FollowTarget view(optional androidx.xr.compose.subspace.animation.follow.FollowMode mode);
     method @BytecodeOnly public static androidx.xr.compose.subspace.animation.follow.FollowTarget! view$default(androidx.xr.compose.subspace.animation.follow.FollowTarget.Companion!, androidx.xr.compose.subspace.animation.follow.FollowMode!, int, Object!);
+  }
+
+  @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public final class FollowThresholds {
+    ctor public FollowThresholds();
+    ctor public FollowThresholds(optional float translationMeters, optional float pitchDegrees, optional float yawDegrees, optional float rollDegrees);
+    ctor @BytecodeOnly public FollowThresholds(float, float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public float getPitchDegrees();
+    method @InaccessibleFromKotlin public float getRollDegrees();
+    method @InaccessibleFromKotlin public float getTranslationMeters();
+    method @InaccessibleFromKotlin public float getYawDegrees();
+    property public float pitchDegrees;
+    property public float rollDegrees;
+    property public float translationMeters;
+    property public float yawDegrees;
+    field public static final androidx.xr.compose.subspace.animation.follow.FollowThresholds.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public static final class FollowThresholds.Companion {
+    method @InaccessibleFromKotlin public androidx.xr.compose.subspace.animation.follow.FollowThresholds getZero();
+    property public androidx.xr.compose.subspace.animation.follow.FollowThresholds Zero;
   }
 
   @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public final class TrackedDimensions {

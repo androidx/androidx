@@ -271,7 +271,7 @@ class FollowingSubspaceV2Test {
             assertNotNull(composeTestRule.session)
 
             composeTestRule.setContent {
-                Subspace(follow = FollowTarget.view(mode = FollowMode.soft(durationMs = 1000))) {
+                Subspace(follow = FollowTarget.view(mode = FollowMode.soft())) {
                     SpatialPanel(modifier = SubspaceModifier.testTag("panel")) {}
                 }
             }
@@ -452,8 +452,8 @@ class FollowingSubspaceV2Test {
             composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
-            val durationMs = 1000L
-            var followMode by mutableStateOf(FollowMode.soft(durationMs = durationMs.toInt()))
+            val timeElapsed = 2000L
+            var followMode by mutableStateOf(FollowMode.soft())
 
             composeTestRule.setContent {
                 Subspace(
@@ -463,8 +463,8 @@ class FollowingSubspaceV2Test {
             }
 
             val unitVector = Vector3(x = 1F, y = 1F, z = 1F)
-            translateDevice(fakeRuntime, unitVector, durationMs)
-            translateDevice(fakeRuntime, unitVector, durationMs)
+            translateDevice(fakeRuntime, unitVector, timeElapsed)
+            translateDevice(fakeRuntime, unitVector, timeElapsed)
 
             // With Soft mode, subspace should have moved 2 unit vectors.
             var subspaceCurrentPose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
@@ -472,8 +472,8 @@ class FollowingSubspaceV2Test {
 
             followMode = FollowMode.snap()
             composeTestRule.waitForIdle()
-            translateDevice(fakeRuntime, unitVector, durationMs)
-            translateDevice(fakeRuntime, unitVector, durationMs)
+            translateDevice(fakeRuntime, unitVector, timeElapsed)
+            translateDevice(fakeRuntime, unitVector, timeElapsed)
             testDispatcher.scheduler.advanceUntilIdle()
 
             // With Snap mode, it should not move any more.
@@ -532,7 +532,10 @@ class FollowingSubspaceV2Test {
 
             composeTestRule.setContent {
                 Subspace(
-                    follow = FollowTarget.view(mode = FollowMode.soft(durationMs = animationTime)),
+                    follow =
+                        FollowTarget.view(
+                            mode = FollowMode.soft(halfLifeMs = animationTime.toLong())
+                        ),
                     modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
                 ) {}
             }
@@ -545,7 +548,7 @@ class FollowingSubspaceV2Test {
             )
 
             // The first device pose should cause the subspace to instantly spawn at that location.
-            // The animation durationMs parameter only affects subsequent movements.
+            // The animation halfLifeMs parameter only affects subsequent movements.
             var subspaceTranslation =
                 assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2").translation
             assertThat(subspaceTranslation).isEqualTo(unitVector)
@@ -874,21 +877,20 @@ class FollowingSubspaceV2Test {
             composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
-            val durationMs = 1000L
+            val timeElapsed = 3000L
 
             composeTestRule.setContent {
                 Subspace(
-                    follow =
-                        FollowTarget.view(mode = FollowMode.soft(durationMs = durationMs.toInt())),
+                    follow = FollowTarget.view(mode = FollowMode.soft()),
                     modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
                 ) {}
             }
 
             val offsetTranslation = Vector3(x = 1F, y = 2F, z = 3F)
-            translateDevice(fakeRuntime, offsetTranslation, durationMs)
+            translateDevice(fakeRuntime, offsetTranslation, timeElapsed)
 
             val offsetRotation = Quaternion.fromEulerAngles(pitch = 15F, yaw = 30F, roll = 45F)
-            rotateDevice(fakeRuntime, offsetRotation, durationMs)
+            rotateDevice(fakeRuntime, offsetRotation, timeElapsed)
 
             val subspaceWorldPose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
             assertThat(subspaceWorldPose)
@@ -1058,7 +1060,7 @@ class FollowingSubspaceV2Test {
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
             val fakeArDevice = fakeRuntime.perceptionManager.arDevice
-            val durationMs = 1000L
+            val timeElapsed = 3000L
 
             composeTestRule.setContent {
                 Subspace(
@@ -1066,13 +1068,12 @@ class FollowingSubspaceV2Test {
                         FollowTarget.view(
                             mode =
                                 FollowMode.soft(
-                                    durationMs = durationMs.toInt(),
                                     dimensions =
                                         TrackedDimensions(
                                             isPitchTracked = true,
                                             isYawTracked = true,
                                             isRollTracked = true,
-                                        ),
+                                        )
                                 )
                         ),
                     modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
@@ -1081,10 +1082,10 @@ class FollowingSubspaceV2Test {
 
             val subspaceInitialPose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
             val offsetTranslation = Vector3(x = 1F, y = 2F, z = 3F)
-            translateDevice(fakeRuntime, offsetTranslation, durationMs)
+            translateDevice(fakeRuntime, offsetTranslation, timeElapsed)
 
             val offsetRotation = Quaternion.fromEulerAngles(pitch = 15F, yaw = 30F, roll = 45F)
-            rotateDevice(fakeRuntime, offsetRotation, durationMs)
+            rotateDevice(fakeRuntime, offsetRotation, timeElapsed)
 
             assertThat(assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2").rotation)
                 .isEqualTo(fakeArDevice.devicePose.rotation)
@@ -1882,7 +1883,7 @@ class FollowingSubspaceV2Test {
             translateDevice(fakeRuntime, offset = Vector3(x = 1f, y = 2f, z = 3f))
 
             // Swap the target to ViewTarget.
-            targetState = FollowTarget.view(mode = FollowMode.soft(durationMs = 1000))
+            targetState = FollowTarget.view(mode = FollowMode.soft())
             composeTestRule.waitForIdle()
             testDispatcher.scheduler.advanceUntilIdle()
 
