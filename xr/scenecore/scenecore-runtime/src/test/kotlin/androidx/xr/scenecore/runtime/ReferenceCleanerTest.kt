@@ -18,6 +18,7 @@ package androidx.xr.scenecore.runtime
 
 import java.lang.ref.WeakReference
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
@@ -258,5 +259,66 @@ class ReferenceCleanerTest {
         cleanupAction.run()
 
         assertEquals("Cleanup action should have executed exactly once.", 1, counter.get())
+    }
+
+    @Test
+    fun cleanerDoesNotExecuteActionWhenDeregistered() {
+        val cleaner = ReferenceCleaner.getInstance()
+        val executor = Executors.newSingleThreadExecutor()
+        val latch = CountDownLatch(1)
+
+        fun createAndDeregister(): WeakReference<Any> {
+            val obj = Any()
+            val cleanable = cleaner.register(obj, executor) { latch.countDown() }
+            cleanable.cancel()
+            return WeakReference(obj)
+        }
+
+        val weakRef = createAndDeregister()
+
+        var gcAttempts = 0
+        while (weakRef.get() != null && gcAttempts < 10) {
+            System.gc()
+            System.runFinalization()
+            if (latch.await(100, TimeUnit.MILLISECONDS)) {
+                break
+            }
+            gcAttempts++
+        }
+
+        val actionExecuted = latch.await(500, TimeUnit.MILLISECONDS)
+        assertTrue("Object should have been garbage collected", weakRef.get() == null)
+        assertTrue("Cleanup action should not execute after being deregistered", !actionExecuted)
+
+        executor.shutdown()
+    }
+
+    @Test
+    fun cleanableCancelIsThreadSafeAndIdempotent() {
+        val cleaner = ReferenceCleaner.getInstance()
+        val executor = Executors.newSingleThreadExecutor()
+        val counter = AtomicInteger(0)
+
+        val obj = Any()
+        val cleanable = cleaner.register(obj, executor) { counter.incrementAndGet() }
+
+        val threadCount = 16
+        val barrier = CyclicBarrier(threadCount)
+        val threads =
+            List(threadCount) {
+                Thread {
+                    barrier.await()
+                    cleanable.cancel()
+                }
+            }
+        threads.forEach { it.start() }
+        threads.forEach { it.join() }
+
+        assertEquals(
+            "Cleanup action should not execute when cancelled concurrently",
+            0,
+            counter.get(),
+        )
+        executor.shutdown()
     }
 }
