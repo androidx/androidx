@@ -75,6 +75,7 @@ import java.lang.ref.WeakReference;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -1558,15 +1559,14 @@ public class AccessibilityNodeInfoCompat {
      * class for holding structured semantic information about a node.
      *
      * @see AccessibilityNodeInfo.StructuredDataInfo
-     *
-     * Compatibility:
-     * <ul>
-     *     <li>API &lt: 36.1: Class methods perform no-op behavior.</li>
-     * </ul>
      */
     public abstract static class StructuredDataInfoCompat {
         @Nullable
         final StructuredDataInfo mStructuredDataInfo;
+        @Nullable
+        final String mTag;
+        @NonNull
+        final Map<String, String> mAttributes = new HashMap<>();
 
         /**
          * Instantiates a new StructuredDataInfoCompat.
@@ -1574,16 +1574,17 @@ public class AccessibilityNodeInfoCompat {
          * @param structuredDataInfo The underlying StructuredDataInfo to wrap.
          */
         protected StructuredDataInfoCompat(@Nullable StructuredDataInfo structuredDataInfo) {
+            this(structuredDataInfo, null);
+        }
+
+        StructuredDataInfoCompat(@Nullable StructuredDataInfo structuredDataInfo,
+                @Nullable String tag) {
             mStructuredDataInfo = structuredDataInfo;
+            mTag = tag;
         }
 
         /**
          * @return The tag for this structured semantic information.
-         *
-         * Compatibility:
-         * <ul>
-         *     <li>API &lt: 36.1: Always returns {@code null}</li>
-         * </ul>
          */
         @Nullable
         public String getTag() {
@@ -1591,7 +1592,7 @@ public class AccessibilityNodeInfoCompat {
                 return Api37Impl.getStructuredDataInfoTag(mStructuredDataInfo);
             }
 
-            return null;
+            return mTag;
         }
 
         /**
@@ -1599,16 +1600,13 @@ public class AccessibilityNodeInfoCompat {
          *
          * @param attributeKey The attribute key.
          * @param value The attribute value.
-         *
-         * Compatibility:
-         * <ul>
-         *     <li>API &lt: 36.1: Performs no-op behavior</li>
-         * </ul>
          */
         public void putAttribute(@NonNull String attributeKey,
                 @NonNull String value) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
                 Api37Impl.putStructuredDataInfoAttribute(mStructuredDataInfo, attributeKey, value);
+            } else {
+                mAttributes.put(attributeKey, value);
             }
         }
 
@@ -1616,15 +1614,12 @@ public class AccessibilityNodeInfoCompat {
          * Removes an attribute.
          *
          * @param attributeKey The attribute key.
-         *
-         * Compatibility:
-         * <ul>
-         *     <li>API &lt: 36.1: Performs no-op behavior</li>
-         * </ul>
          */
         public void removeAttribute(@NonNull String attributeKey) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
                 Api37Impl.removeStructuredDataInfoAttribute(mStructuredDataInfo, attributeKey);
+            } else {
+                mAttributes.remove(attributeKey);
             }
         }
 
@@ -1633,11 +1628,6 @@ public class AccessibilityNodeInfoCompat {
          *
          * @param attributeKey The attribute key.
          * @return The attribute value.
-         *
-         * Compatibility:
-         * <ul>
-         *     <li>API &lt: 36.1: Always returns {@code null}</li>
-         * </ul>
          */
         @Nullable
         public String getAttribute(@NonNull String attributeKey) {
@@ -1645,48 +1635,35 @@ public class AccessibilityNodeInfoCompat {
                 return Api37Impl.getStructuredDataInfoAttribute(mStructuredDataInfo, attributeKey);
             }
 
-            return null;
+            return mAttributes.get(attributeKey);
         }
 
         /**
-         * @return The map of attributes.
+         * Returns an unmodifiable map of attributes.
          *
-         * Compatibility:
-         * <ul>
-         *     <li>API &lt: 36.1: Always returns an empty map</li>
-         * </ul>
+         * @return An unmodifiable {@link Map} of attribute keys to values.
          */
         @NonNull
         public Map<String, String> getAttributes() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
-                return Api37Impl.getStructuredDataInfoAttributes(mStructuredDataInfo);
+                return Collections.unmodifiableMap(
+                        Api37Impl.getStructuredDataInfoAttributes(mStructuredDataInfo));
             }
 
-            return Collections.emptyMap();
+            return Collections.unmodifiableMap(mAttributes);
         }
 
-        /**
-         * Compatibility:
-         * <ul>
-         *     <li>API &lt: 36.1: Always returns {@code 0}</li>
-         * </ul>
-         */
         @Override
         public int hashCode() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
                 return Api37Impl.structuredDataInfoHashCode(mStructuredDataInfo);
             }
 
-            return 0;
+            int result = mTag != null ? mTag.hashCode() : 0;
+            result = 31 * result + mAttributes.hashCode();
+            return result;
         }
 
-        /**
-         * Compatibility:
-         * <ul>
-         *     <li>API &lt: 36.1: Returns {@code true} if this object is identical to {@code obj},
-         *     else {@code false}</li>
-         * </ul>
-         */
         @Override
         public boolean equals(Object obj) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
@@ -1694,9 +1671,24 @@ public class AccessibilityNodeInfoCompat {
                     return Api37Impl.structuredDataInfoEquals(mStructuredDataInfo,
                             ((StructuredDataInfoCompat) obj).mStructuredDataInfo);
                 }
+                return false;
             }
 
-            return this == obj;
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof StructuredDataInfoCompat)) {
+                return false;
+            }
+            StructuredDataInfoCompat other = (StructuredDataInfoCompat) obj;
+            if (mTag == null) {
+                if (other.mTag != null) {
+                    return false;
+                }
+            } else if (!mTag.equals(other.mTag)) {
+                return false;
+            }
+            return mAttributes.equals(other.mAttributes);
         }
     }
 
@@ -1705,11 +1697,6 @@ public class AccessibilityNodeInfoCompat {
      * information about a node that represents a mathematical expression.
      *
      * @see AccessibilityNodeInfo.MathInfo
-     *
-     * Compatibility:
-     * <ul>
-     *     <li>API &lt: 36.1: Class methods perform no-op behavior.</li>
-     * </ul>
      */
     public static class MathInfoCompat extends StructuredDataInfoCompat {
         @StringDef(
@@ -1847,7 +1834,7 @@ public class AccessibilityNodeInfoCompat {
          */
         public MathInfoCompat(@NonNull @MathTag String tag) {
             super(Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN
-                    ? (StructuredDataInfo) Api37Impl.createMathInfo(tag) : null);
+                    ? (StructuredDataInfo) Api37Impl.createMathInfo(tag) : null, tag);
         }
 
         /**
@@ -2646,6 +2633,18 @@ public class AccessibilityNodeInfoCompat {
     @VisibleForTesting
     static final String EXTRA_SELECTION_END_OFFSET_TYPE =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat.SELECTION_END_OFFSET_TYPE";
+
+    private static final String STRUCTURED_DATA_TYPE_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.STRUCTURED_DATA_TYPE_KEY";
+
+    private static final String STRUCTURED_DATA_TAG_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.STRUCTURED_DATA_TAG_KEY";
+
+    private static final String STRUCTURED_DATA_ATTRIBUTES_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat."
+                    + "STRUCTURED_DATA_ATTRIBUTES_KEY";
+
+    private static final String STRUCTURED_DATA_TYPE_MATH = "math";
 
     // These don't line up with the internal framework constants, since they are independent
     // and we might as well get all 32 bits of utility here.
@@ -5189,11 +5188,6 @@ public class AccessibilityNodeInfoCompat {
      *         additional structured data for this node, or {@code null} if this node does not have
      *         additional structured data attached.
      * @see #setStructuredDataInfo(StructuredDataInfoCompat)
-     *
-     * Compatibility:
-     * <ul>
-     *     <li>API &lt: 36.1: Always returns {@code null}</li>
-     * </ul>
      */
     @Nullable
     public StructuredDataInfoCompat getStructuredDataInfo() {
@@ -5209,6 +5203,27 @@ public class AccessibilityNodeInfoCompat {
             return null;
         }
 
+        if (mInfo.getExtras() != null) {
+            String type = mInfo.getExtras().getString(STRUCTURED_DATA_TYPE_KEY);
+            if (STRUCTURED_DATA_TYPE_MATH.equals(type)) {
+                String tag = mInfo.getExtras().getString(STRUCTURED_DATA_TAG_KEY);
+                if (tag != null) {
+                    MathInfoCompat mathInfo = new MathInfoCompat(tag);
+                    Bundle attributesBundle =
+                            mInfo.getExtras().getBundle(STRUCTURED_DATA_ATTRIBUTES_KEY);
+                    if (attributesBundle != null) {
+                        for (String key : attributesBundle.keySet()) {
+                            String value = attributesBundle.getString(key);
+                            if (value != null) {
+                                mathInfo.putAttribute(key, value);
+                            }
+                        }
+                    }
+                    return mathInfo;
+                }
+            }
+        }
+
         return null;
     }
 
@@ -5219,16 +5234,28 @@ public class AccessibilityNodeInfoCompat {
      * @param structuredDataInfoCompat The {@link StructuredDataInfoCompat} object (e.g., an
      *                                 instance of {@link MathInfoCompat}) describing the node.
      * @see #getStructuredDataInfo()
-     *
-     * Compatibility:
-     * <ul>
-     *     <li>API &lt: 36.1: Do nothing</li>
-     * </ul>
      */
     public void setStructuredDataInfo(@Nullable StructuredDataInfoCompat structuredDataInfoCompat) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
             Api37Impl.setStructuredDataInfo(mInfo, structuredDataInfoCompat == null
                     ? null : structuredDataInfoCompat.mStructuredDataInfo);
+        } else {
+            if (mInfo.getExtras() != null) {
+                mInfo.getExtras().remove(STRUCTURED_DATA_TYPE_KEY);
+                mInfo.getExtras().remove(STRUCTURED_DATA_TAG_KEY);
+                mInfo.getExtras().remove(STRUCTURED_DATA_ATTRIBUTES_KEY);
+            }
+            if (structuredDataInfoCompat instanceof MathInfoCompat) {
+                Bundle extras = mInfo.getExtras();
+                extras.putString(STRUCTURED_DATA_TYPE_KEY, STRUCTURED_DATA_TYPE_MATH);
+                extras.putString(STRUCTURED_DATA_TAG_KEY, structuredDataInfoCompat.getTag());
+                Bundle attributesBundle = new Bundle();
+                for (Map.Entry<String, String> entry :
+                        structuredDataInfoCompat.getAttributes().entrySet()) {
+                    attributesBundle.putString(entry.getKey(), entry.getValue());
+                }
+                extras.putBundle(STRUCTURED_DATA_ATTRIBUTES_KEY, attributesBundle);
+            }
         }
     }
 
