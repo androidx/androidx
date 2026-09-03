@@ -60,6 +60,7 @@ android {
         noCompress = "js"
     }
     namespace = "androidx.javascriptengine"
+    enableKotlin = false
 }
 
 androidx {
