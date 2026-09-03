@@ -28,6 +28,8 @@ import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -1064,22 +1066,19 @@ class NavHostTest {
     @Test
     fun testStateSaved() {
         lateinit var navController: NavHostController
-        lateinit var text: MutableState<String>
+        val textFieldState = TextFieldState()
 
         composeTestRule.setContent {
             navController = rememberNavController()
             NavHost(navController, "start") {
-                composable("start") {
-                    text = rememberSaveable { mutableStateOf("") }
-                    Column { TextField(value = text.value, onValueChange = { text.value = it }) }
-                }
+                composable("start") { Column { TextField(textFieldState) } }
                 composable("second") {}
             }
         }
 
         composeTestRule.onNodeWithText("test").assertDoesNotExist()
 
-        text.value = "test"
+        textFieldState.setTextAndPlaceCursorAtEnd("test")
 
         composeTestRule.onNodeWithText("test").assertExists()
 

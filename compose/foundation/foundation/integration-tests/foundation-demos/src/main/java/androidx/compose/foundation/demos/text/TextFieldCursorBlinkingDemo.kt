@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Surface
@@ -184,8 +185,7 @@ fun ChangingSelectionShowsCursor() {
 @Composable
 fun CursorNotBlinkingInUnfocusedWindowDemo() {
     Column(Modifier.fillMaxSize()) {
-        var text by remember { mutableStateOf("hello") }
-        TextField(value = text, onValueChange = { text = it })
+        TextField(rememberTextFieldState("hello"))
 
         var showDialog by remember { mutableStateOf(false) }
         Button(

@@ -21,16 +21,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
@@ -40,9 +38,7 @@ import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -50,7 +46,7 @@ import kotlinx.coroutines.launch
 fun InterceptEnterToSendMessageDemo() {
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
-    var textFieldValue by remember { mutableStateOf(TextFieldValue("")) }
+    val textFieldState = rememberTextFieldState()
     Scaffold(scaffoldState = scaffoldState) { innerPadding ->
         Column(Modifier.padding(innerPadding)) {
             Text(
@@ -61,8 +57,7 @@ fun InterceptEnterToSendMessageDemo() {
             )
             Spacer(modifier = Modifier.height(30.dp))
             OutlinedTextField(
-                value = textFieldValue,
-                onValueChange = { textFieldValue = it },
+                state = textFieldState,
                 modifier =
                     Modifier.padding(10.dp).fillMaxSize().onPreviewKeyEvent {
                         // Intercept all the "Enter" key events.
@@ -73,13 +68,13 @@ fun InterceptEnterToSendMessageDemo() {
                             // a
                             // new line, so we have to add the new line ourselves.
                             if (it.isCtrlPressed || it.isShiftPressed) {
-                                textFieldValue = textFieldValue.insertString("\n")
+                                textFieldState.edit { append("\n") }
                             } else {
                                 // Perform Send Message and clear the textfield.
                                 coroutineScope.launch {
                                     scaffoldState.snackbarHostState.showSnackbar("Message is sent")
                                 }
-                                textFieldValue = TextFieldValue("")
+                                textFieldState.clearText()
                             }
                             // Consume the key event so that it is not propagated further.
                             true
@@ -92,12 +87,4 @@ fun InterceptEnterToSendMessageDemo() {
             )
         }
     }
-}
-
-private fun TextFieldValue.insertString(value: String): TextFieldValue {
-    val cursorLocation = selection.start + value.length
-    return copy(
-        annotatedString.replaceRange(selection.start, selection.end, value).toString(),
-        TextRange(cursorLocation, cursorLocation),
-    )
 }

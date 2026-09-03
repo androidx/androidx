@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -651,7 +652,12 @@ class FocusSearchForwardInteropTest(private val moveFocusProgrammatically: Boole
                         composeView =
                             ComposeView(linearLayout.context).apply {
                                 setContent {
-                                    Column { TextField("Hello World", {}, Modifier.testTag(tag)) }
+                                    Column {
+                                        TextField(
+                                            rememberTextFieldState("Hello World"),
+                                            Modifier.testTag(tag),
+                                        )
+                                    }
                                 }
                             }
                         linearLayout.addView(composeView)

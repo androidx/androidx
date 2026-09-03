@@ -33,6 +33,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
@@ -43,7 +45,6 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -144,20 +145,19 @@ private fun MessageCard(message: Message) {
 @Composable
 private fun MessageUpdater(onMessageAdded: (message: String, isReceived: Boolean) -> Unit) {
     Row {
-        var text by remember { mutableStateOf("") }
+        val state = rememberTextFieldState()
 
         TextField(
             modifier = Modifier.weight(1.0f),
-            value = text,
-            onValueChange = { text = it },
+            state = state,
             placeholder = { Text("Input message here") },
         )
 
         Button(
             onClick = {
-                if (text.isNotEmpty()) {
-                    onMessageAdded(text, true)
-                    text = ""
+                if (state.text.isNotEmpty()) {
+                    onMessageAdded(state.text.toString(), true)
+                    state.clearText()
                 }
             }
         ) {
@@ -166,9 +166,9 @@ private fun MessageUpdater(onMessageAdded: (message: String, isReceived: Boolean
 
         Button(
             onClick = {
-                if (text.isNotEmpty()) {
-                    onMessageAdded(text, false)
-                    text = ""
+                if (state.text.isNotEmpty()) {
+                    onMessageAdded(state.text.toString(), false)
+                    state.clearText()
                 }
             }
         ) {

@@ -488,7 +488,6 @@ public object TextFieldDefaults {
      *
      * Example of custom text field based on [TextFieldDecorationBox]:
      *
-     * @sample androidx.compose.material.samples.CustomTextFieldBasedOnDecorationBox
      * @param value the input [String] shown by the text field
      * @param innerTextField input text field that this decoration box wraps. Pass the
      *   framework-controlled composable parameter `innerTextField` from the `decorationBox` lambda
@@ -529,6 +528,7 @@ public object TextFieldDefaults {
      *   [TextFieldDefaults.textFieldWithLabelPadding] and
      *   [TextFieldDefaults.textFieldWithoutLabelPadding].
      */
+    @Deprecated(DecorationBoxDeprecated)
     @Composable
     public fun TextFieldDecorationBox(
         value: String,
@@ -584,7 +584,6 @@ public object TextFieldDefaults {
      *
      * Example of custom text field based on [OutlinedTextFieldDecorationBox]:
      *
-     * @sample androidx.compose.material.samples.CustomOutlinedTextFieldBasedOnDecorationBox
      * @param value the input [String] shown by the text field
      * @param innerTextField input text field that this decoration box wraps. Pass the
      *   framework-controlled composable parameter `innerTextField` from the `decorationBox` lambda
@@ -627,6 +626,7 @@ public object TextFieldDefaults {
      *   they are incompatible with the text field's size constraints or layout. See
      *   [TextFieldDefaults.outlinedTextFieldPadding].
      */
+    @Deprecated(DecorationBoxDeprecated)
     @Composable
     public fun OutlinedTextFieldDecorationBox(
         value: String,
@@ -969,3 +969,8 @@ private fun animateBorderStrokeAsState(
         BorderStroke(animatedThickness.value, SolidColor(indicatorColor.value))
     )
 }
+
+private const val DecorationBoxDeprecated: String =
+    "VisualTransformation has been deprecated, so text field decoration boxes have been " +
+        "deprecated as well. If you need text field customization, create a TextFieldDecorator " +
+        "to use with BasicTextField, or consider migrating to Material 3."

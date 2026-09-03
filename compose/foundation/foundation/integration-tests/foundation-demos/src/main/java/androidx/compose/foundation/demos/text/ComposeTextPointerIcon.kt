@@ -29,8 +29,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -128,16 +126,16 @@ private fun IconDemoColumn(overrideDescendants: Boolean) {
 
         SelectionContainer { Text("Selectable Text, icon crosshair", iconMod) }
 
-        var nonMod by remember { mutableStateOf("TextField, icon not set") }
-        TextField(nonMod, { nonMod = it }, borderMod)
+        val nonModTfs1 = rememberTextFieldState("TextField, icon not set")
+        TextField(nonModTfs1, borderMod)
 
-        var mod by remember { mutableStateOf("TextField, icon crosshair") }
-        TextField(mod, { mod = it }, iconMod)
+        val modTfs1 = rememberTextFieldState("TextField, icon crosshair")
+        TextField(modTfs1, iconMod)
 
-        val nonModTfs = rememberTextFieldState("BTF2, icon not set")
-        BasicTextField(nonModTfs, borderMod)
+        val nonModTfs2 = rememberTextFieldState("BTF2, icon not set")
+        BasicTextField(nonModTfs2, borderMod)
 
-        val modTfs = rememberTextFieldState("BTF2, icon crosshair")
-        BasicTextField(modTfs, iconMod)
+        val modTfs2 = rememberTextFieldState("BTF2, icon crosshair")
+        BasicTextField(modTfs2, iconMod)
     }
 }

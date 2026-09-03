@@ -173,6 +173,7 @@ fun BasicSecureTextFieldAutofillDemo() {
     }
 }
 
+@Suppress("DEPRECATION")
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
@@ -204,6 +205,7 @@ fun LegacyTextFieldAutofillDemo() {
     }
 }
 
+@Suppress("DEPRECATION")
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable

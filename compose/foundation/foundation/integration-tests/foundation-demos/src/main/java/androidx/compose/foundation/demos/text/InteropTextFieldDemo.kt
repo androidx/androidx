@@ -21,12 +21,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
@@ -35,14 +34,11 @@ import androidx.compose.ui.viewinterop.AndroidView
 
 @Composable
 fun InteropTextFieldDemo() {
-    var firstTextField by remember { mutableStateOf("") }
-    var secondTextField by remember { mutableStateOf("") }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("First TextField")
         TextField(
-            value = firstTextField,
-            onValueChange = { firstTextField = it },
-            Modifier.fillMaxWidth(),
+            state = rememberTextFieldState(),
+            modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
         )
 
@@ -51,9 +47,8 @@ fun InteropTextFieldDemo() {
 
         Text("Second TextField")
         TextField(
-            value = secondTextField,
-            onValueChange = { secondTextField = it },
-            Modifier.fillMaxWidth(),
+            state = rememberTextFieldState(),
+            modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
         )
 
