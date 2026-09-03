@@ -60,6 +60,7 @@ import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.core.operations.layout.managers.Custom
+import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout
 import androidx.compose.remote.core.operations.layout.managers.LayoutManager
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
 import androidx.compose.remote.core.operations.layout.managers.StateLayout
@@ -1165,6 +1166,21 @@ internal val StateLayout.indexIdReflection: Int
 
 private val stateLayoutIndexIdField =
     StateLayout::class.java.getDeclaredField("mIndexId").apply { isAccessible = true }
+
+// --- FitBoxLayout Helpers ---
+internal val FitBoxLayout.horizontalPositioningReflection: Int
+    get() = fitBoxHorizontalPositioningField.getInt(this)
+
+private val fitBoxHorizontalPositioningField =
+    FitBoxLayout::class.java.getDeclaredField("mHorizontalPositioning").apply {
+        isAccessible = true
+    }
+
+internal val FitBoxLayout.verticalPositioningReflection: Int
+    get() = fitBoxVerticalPositioningField.getInt(this)
+
+private val fitBoxVerticalPositioningField =
+    FitBoxLayout::class.java.getDeclaredField("mVerticalPositioning").apply { isAccessible = true }
 
 // --- CoreDocument updateVariables Helper ---
 internal fun CoreDocument.updateVariablesReflection(

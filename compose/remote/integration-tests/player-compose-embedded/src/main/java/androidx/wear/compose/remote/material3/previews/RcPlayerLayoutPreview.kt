@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteFitBox
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -37,9 +38,11 @@ import androidx.compose.remote.creation.compose.modifier.border
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.offset
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -356,6 +359,111 @@ private fun RcStateLayoutSharedElementPreview(
                                     fontSize = 11.rsp,
                                 )
                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+/**
+ * FitBox shared element transition preview: displays responsive layout adaptation across
+ * constraints with shared element animation between alternatives.
+ */
+@Preview(showBackground = true, widthDp = 220, heightDp = 220)
+@Composable
+private fun RcFitBoxSharedElementsPreview(
+    @PreviewParameter(PlayerImplPreviewParameterProvider::class) playerImpl: PlayerImpl
+) =
+    ExperimentalRemoteContentPreview(playerImpl = playerImpl) {
+        Frame {
+            RemoteBox(
+                modifier =
+                    RemoteModifier.clip(RemoteRoundedCornerShape(16.rdp))
+                        .background(Color(0xFF1E1E2C).rc)
+                        .padding(12.rdp)
+            ) {
+                RemoteFitBox(
+                    modifier =
+                        RemoteModifier.animationSpec(
+                            animationId = 100,
+                            motionDuration = 400f,
+                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
+                            visibilityDuration = 400f,
+                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
+                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
+                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                        )
+                ) {
+                    // Wide alternative (fits >= 170dp)
+                    RemoteBox(modifier = RemoteModifier.width(170.rdp).height(56.rdp)) {
+                        RemoteRow(
+                            verticalAlignment = RemoteAlignment.CenterVertically,
+                            horizontalArrangement = RemoteArrangement.spacedBy(10.rdp),
+                        ) {
+                            RemoteBox(
+                                modifier =
+                                    RemoteModifier.animationSpec(
+                                            animationId = 1,
+                                            motionDuration = 400f,
+                                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
+                                            visibilityDuration = 400f,
+                                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
+                                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
+                                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                        )
+                                        .size(36.rdp)
+                                        .clip(RemoteRoundedCornerShape(18.rdp))
+                                        .background(Color(0xFF7C4DFF).rc),
+                                contentAlignment = RemoteAlignment.Center,
+                            ) {
+                                RemoteText(text = "🎵".rs, fontSize = 16.rsp)
+                            }
+                            RemoteColumn(
+                                modifier =
+                                    RemoteModifier.animationSpec(
+                                        animationId = 2,
+                                        motionDuration = 400f,
+                                        motionEasingType = GeneralEasing.CUBIC_STANDARD,
+                                        visibilityDuration = 400f,
+                                        visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
+                                        enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
+                                        exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    )
+                            ) {
+                                RemoteText(
+                                    text = "FitBox Player".rs,
+                                    color = Color.White.rc,
+                                    fontSize = 13.rsp,
+                                )
+                                RemoteText(
+                                    text = "Responsive".rs,
+                                    color = Color.Gray.rc,
+                                    fontSize = 10.rsp,
+                                )
+                            }
+                        }
+                    }
+
+                    // Compact alternative
+                    RemoteBox(modifier = RemoteModifier.width(80.rdp).height(50.rdp)) {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.animationSpec(
+                                        animationId = 1,
+                                        motionDuration = 400f,
+                                        motionEasingType = GeneralEasing.CUBIC_STANDARD,
+                                        visibilityDuration = 400f,
+                                        visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
+                                        enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
+                                        exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    )
+                                    .size(44.rdp)
+                                    .clip(RemoteRoundedCornerShape(22.rdp))
+                                    .background(Color(0xFF7C4DFF).rc),
+                            contentAlignment = RemoteAlignment.Center,
+                        ) {
+                            RemoteText(text = "🎵".rs, fontSize = 18.rsp)
                         }
                     }
                 }
