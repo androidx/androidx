@@ -56,6 +56,7 @@ private fun Project.createTestConfigurationGenerationTask(
     minSdk: Int,
     testRunner: Provider<String>,
     useOrchestrator: Provider<Boolean>,
+    maxShardCount: Int?,
     instrumentationRunnerArgs: Provider<Map<String, String>>,
     variant: Variant?,
     projectIsolationEnabled: Boolean,
@@ -70,6 +71,7 @@ private fun Project.createTestConfigurationGenerationTask(
         minSdk,
         testRunner,
         useOrchestrator,
+        maxShardCount,
         instrumentationRunnerArgs,
         variant,
         projectIsolationEnabled,
@@ -109,6 +111,7 @@ private fun Project.registerGenerateTestConfigurationTask(
     minSdk: Int,
     testRunner: Provider<String>,
     useOrchestrator: Provider<Boolean>,
+    maxShardCount: Int?,
     instrumentationRunnerArgs: Provider<Map<String, String>>,
     variant: Variant?,
     projectIsolationEnabled: Boolean,
@@ -125,6 +128,7 @@ private fun Project.registerGenerateTestConfigurationTask(
             jsonName?.let { task.outputJson.set(getFileInTestConfigDirectory(it)) }
             task.presubmit.set(project.providers.isPresubmitBuild())
             task.useOrchestrator.set(useOrchestrator)
+            maxShardCount?.let { task.maxShardCount.set(it) }
             task.instrumentationArgs.putAll(instrumentationRunnerArgs)
             task.minSdk.set(minSdk)
             task.hasBenchmarkPlugin.set(hasBenchmarkPlugin())
@@ -299,6 +303,7 @@ fun Project.configureTestConfigGeneration(
                                 ?: deviceTest.minSdk.apiLevel,
                             deviceTest.instrumentationRunner,
                             androidXExtension.deviceTests.useOrchestrator,
+                            androidXExtension.deviceTests.maxShardCount,
                             deviceTest.instrumentationRunnerArguments,
                             variant,
                             projectIsolationEnabled,
@@ -313,6 +318,7 @@ fun Project.configureTestConfigGeneration(
                         variant.minSdk.apiLevel,
                         provider { testExtension.defaultConfig.testInstrumentationRunner!! },
                         androidXExtension.deviceTests.useOrchestrator,
+                        androidXExtension.deviceTests.maxShardCount,
                         provider { testExtension.defaultConfig.testInstrumentationRunnerArguments },
                         variant,
                         projectIsolationEnabled,
