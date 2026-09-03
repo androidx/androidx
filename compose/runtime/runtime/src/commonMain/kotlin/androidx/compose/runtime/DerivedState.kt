@@ -340,11 +340,6 @@ private class DerivedSnapshotState<T>(
  * updates on each dependency change. To avoid invalidation on update, provide suitable
  * [SnapshotMutationPolicy] through [derivedStateOf] overload.
  *
- * For trivial [calculation] implementations, this caching may be more expensive than computing the
- * value each time due to the snapshot management overhead. In these situations, prefer
- * [computedStateOf], which omits the caching behavior but yields a state that takes on the value of
- * a calculation that will only invalidate readers when the calculation returns a new value.
- *
  * @sample androidx.compose.runtime.samples.DerivedStateSample
  * @param calculation the calculation to create the value this state object represents.
  */
@@ -359,11 +354,6 @@ public fun <T> derivedStateOf(calculation: () -> T): State<T> =
  * objects that got read during the [calculation] to be read in the current [Snapshot], meaning that
  * this will correctly subscribe to the derived state objects if the value is being read in an
  * observed context such as a [Composable] function.
- *
- * For trivial [calculation] implementations, this caching may be more expensive than computing the
- * value each time due to the snapshot management overhead. In these situations, prefer
- * [computedStateOf], which omits the caching behavior but yields a state that takes on the value of
- * a calculation that will only invalidate readers when the calculation returns a new value.
  *
  * @sample androidx.compose.runtime.samples.DerivedStateSample
  * @param policy mutation policy to control when changes to the [calculation] result trigger update.

@@ -21,7 +21,6 @@ import android.os.Handler
 import android.os.Looper
 import androidx.benchmark.junit4.measureRepeatedOnMainThread
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.computedStateOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.Snapshot
@@ -124,82 +123,6 @@ class SnapshotStateObserverBenchmark : ComposeBenchmarkBase() {
                 states.forEach { it.value += 1 }
                 Snapshot.sendApplyNotifications()
             }
-        }
-    }
-
-    @Test
-    fun derivedStateObservationSingleRead() {
-        val node = Any()
-        val states = models.take(3)
-        val derivedState = derivedStateOf { states[0].value + states[1].value + states[2].value }
-        benchmarkRule.measureRepeatedOnMainThread {
-            stateObserver.observeReads(node, doNothing) { derivedState.value }
-
-            runWithMeasurementDisabled {
-                states.forEach { it.value += 1 }
-                Snapshot.sendApplyNotifications()
-            }
-        }
-    }
-
-    @Test
-    fun derivedStateObserveReadsAfterWrite() {
-        val node = Any()
-        val states = models.take(3)
-        val derivedState = derivedStateOf { states[0].value + states[1].value + states[2].value }
-        benchmarkRule.measureRepeatedOnMainThread {
-            runWithMeasurementDisabled { states.forEach { it.value += 1 } }
-            stateObserver.observeReads(node, doNothing) { derivedState.value }
-        }
-    }
-
-    @Test
-    fun computedStateObservation() {
-        val node = Any()
-        val states = models.take(3)
-        val computedState = computedStateOf { states[0].value + states[1].value + states[2].value }
-        runOnUiThread {
-            stateObserver.observeReads(node, doNothing) {
-                // read derived state a few times
-                repeat(10) { computedState.value }
-            }
-        }
-        benchmarkRule.measureRepeatedOnMainThread {
-            stateObserver.observeReads(node, doNothing) {
-                // read derived state a few times
-                repeat(10) { computedState.value }
-            }
-
-            runWithMeasurementDisabled {
-                states.forEach { it.value += 1 }
-                Snapshot.sendApplyNotifications()
-            }
-        }
-    }
-
-    @Test
-    fun computedStateObservationSingleRead() {
-        val node = Any()
-        val states = models.take(3)
-        val derivedState = computedStateOf { states[0].value + states[1].value + states[2].value }
-        benchmarkRule.measureRepeatedOnMainThread {
-            stateObserver.observeReads(node, doNothing) { derivedState.value }
-
-            runWithMeasurementDisabled {
-                states.forEach { it.value += 1 }
-                Snapshot.sendApplyNotifications()
-            }
-        }
-    }
-
-    @Test
-    fun computedStateObserveReadsAfterWrite() {
-        val node = Any()
-        val states = models.take(3)
-        val computedState = computedStateOf { states[0].value + states[1].value + states[2].value }
-        benchmarkRule.measureRepeatedOnMainThread {
-            runWithMeasurementDisabled { states.forEach { it.value += 1 } }
-            stateObserver.observeReads(node, doNothing) { computedState.value }
         }
     }
 
