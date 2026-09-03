@@ -17,10 +17,14 @@
 package androidx.build.metalava
 
 import androidx.build.checkapi.ApiBaselinesLocation
+import androidx.build.checkapi.ApiLocation
 import androidx.build.checkapi.SourceSetInputs
+import androidx.build.logging.TERMINAL_RED
+import androidx.build.logging.TERMINAL_RESET
 import java.io.File
 import kotlin.collections.isNotEmpty
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -34,6 +38,7 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.workers.WorkerExecutor
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 /** A metalava task that takes source code as input (other tasks take signature files). */
 @CacheableTask
@@ -112,5 +117,357 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
             outputFile,
         )
         return outputFile
+    }
+
+    fun getApiLintArgs(targetsJavaConsumers: Boolean): List<String> {
+        val args =
+            mutableListOf(
+                "--api-lint",
+                "--hide",
+                listOf(
+                        // The list of checks that are hidden as they are not useful in androidx
+                        "Enum", // Enums are allowed to be use in androidx
+                        "CallbackInterface", // With target Java 8, we have default methods
+                        "ProtectedMember", // We allow using protected members in androidx
+                        "ManagerLookup", // Managers in androidx are not the same as platform
+                        // services
+                        "ManagerConstructor",
+                        "RethrowRemoteException", // This check is for calls into system_server
+                        "PackageLayering", // This check is not relevant to androidx.* code.
+                        "UserHandle", // This check is not relevant to androidx.* code.
+                        "ParcelableList", // This check is only relevant to android platform that
+                        // has
+                        // managers.
+
+                        // List of checks that have bugs, but should be enabled once fixed.
+                        "StaticUtils", // b/135489083
+                        "StartWithLower", // b/135710527
+
+                        // The list of checks that are API lint warnings and are yet to be enabled
+                        "SamShouldBeLast",
+
+                        // We should only treat these as warnings
+                        "IntentBuilderName",
+                        "OnNameExpected",
+                        "UserHandleName",
+                    )
+                    .joinToString(),
+                "--error",
+                listOf(
+                        "AllUpper",
+                        "GetterSetterNames",
+                        "MinMaxConstant",
+                        "TopLevelBuilder",
+                        "BuilderSetStyle",
+                        "MissingBuildMethod",
+                        "SetterReturnsThis",
+                        "OverlappingConstants",
+                        "ListenerLast",
+                        "ExecutorRegistration",
+                        "StreamFiles",
+                        "AbstractInner",
+                        "NotCloseable",
+                        "MethodNameTense",
+                        "UseIcu",
+                        "NoByteOrShort",
+                        "GetterOnBuilder",
+                        "CallbackMethodName",
+                        "StaticFinalBuilder",
+                        "MissingGetterMatchingBuilder",
+                        "HiddenSuperclass",
+                        "KotlinOperator",
+                        "DataClassDefinition",
+                        "TypeParameterName",
+                        "HiddenAbstractMethodInInterface",
+                    )
+                    .joinToString(),
+            )
+        // Acronyms that can be used in their all-caps form. "SQ" is included to allow "SQLite".
+        val allowedAcronyms = listOf("SQL", "SQ", "URL", "EGL", "GL", "KHR")
+        for (acronym in allowedAcronyms) {
+            args.add("--api-lint-allowed-acronym")
+            args.add(acronym)
+        }
+        val javaOnlyIssues =
+            listOf(
+                "MissingJvmstatic",
+                "ArrayReturn",
+                "ValueClassDefinition",
+                "FacadeClassJvmName",
+                "ValueClassUsageFromConstructor",
+                "ValueClassUsageWithoutJvmName",
+            )
+        val javaOnlyErrorLevel =
+            if (targetsJavaConsumers) {
+                "--error"
+            } else {
+                "--hide"
+            }
+        args.add(javaOnlyErrorLevel)
+        args.add(javaOnlyIssues.joinToString())
+        return args
+    }
+
+    sealed class GenerateApiMode {
+        object PublicApi : GenerateApiMode()
+
+        object AllRestrictedApis : GenerateApiMode()
+
+        object RestrictToLibraryGroupPrefixApis : GenerateApiMode()
+    }
+
+    sealed class ApiLintMode {
+        class CheckBaseline(val apiLintBaseline: File, val targetsJavaConsumers: Boolean) :
+            ApiLintMode()
+
+        object Skip : ApiLintMode()
+    }
+
+    /**
+     * Generates all of the specified api files, as well as a version history JSON for the public
+     * API.
+     */
+    internal fun generateApi(
+        metalavaClasspath: FileCollection,
+        projectXml: File,
+        sourcePaths: Collection<File>,
+        compiledSources: File?,
+        apiLocation: ApiLocation,
+        apiLintMode: ApiLintMode,
+        includeRestrictToLibraryGroupApis: Boolean,
+        apiLevelsArgs: List<String>,
+        kotlinSourceLevel: KotlinVersion,
+        workerExecutor: WorkerExecutor,
+        pathToManifest: String? = null,
+        multiplatform: Boolean,
+        hasJvmOrAndroidTarget: Boolean,
+        configFile: File? = null,
+    ) {
+        val generateApiConfigs: MutableList<Pair<GenerateApiMode, ApiLintMode>> =
+            mutableListOf(GenerateApiMode.PublicApi to apiLintMode)
+
+        // Generate `RestrictTo` APIs as a separate API surface. This does not make sense to do for
+        // projects without a jvm/android target, because the purpose of tracking `RestrictTo` is
+        // for
+        // maintaining binary compatibility, but metalava can only enforce binary compatibility for
+        // jvm
+        // based projects.
+        @Suppress("LiftReturnOrAssignment")
+        if (hasJvmOrAndroidTarget) {
+            if (includeRestrictToLibraryGroupApis) {
+                generateApiConfigs += GenerateApiMode.AllRestrictedApis to ApiLintMode.Skip
+            } else {
+                generateApiConfigs +=
+                    GenerateApiMode.RestrictToLibraryGroupPrefixApis to ApiLintMode.Skip
+            }
+        }
+
+        generateApiConfigs.forEach { (generateApiMode, apiLintMode) ->
+            generateApi(
+                metalavaClasspath,
+                projectXml,
+                sourcePaths,
+                compiledSources,
+                apiLocation,
+                generateApiMode,
+                apiLintMode,
+                apiLevelsArgs,
+                kotlinSourceLevel,
+                workerExecutor,
+                pathToManifest,
+                multiplatform,
+                hasJvmOrAndroidTarget,
+                configFile,
+            )
+        }
+    }
+
+    /**
+     * Gets arguments for generating the specified api file (and a version history JSON if the
+     * [generateApiMode] is [GenerateApiMode.PublicApi].
+     */
+    private fun generateApi(
+        metalavaClasspath: FileCollection,
+        projectXml: File,
+        sourcePaths: Collection<File>,
+        compiledSources: File?,
+        outputLocation: ApiLocation,
+        generateApiMode: GenerateApiMode,
+        apiLintMode: ApiLintMode,
+        apiLevelsArgs: List<String>,
+        kotlinSourceLevel: KotlinVersion,
+        workerExecutor: WorkerExecutor,
+        pathToManifest: String? = null,
+        multiplatform: Boolean,
+        hasJvmOrAndroidTarget: Boolean,
+        configFile: File? = null,
+    ) {
+        val args =
+            getGenerateApiArgs(
+                projectXml,
+                sourcePaths,
+                compiledSources,
+                outputLocation,
+                generateApiMode,
+                apiLintMode,
+                apiLevelsArgs,
+                pathToManifest,
+                multiplatform,
+                hasJvmOrAndroidTarget,
+            )
+        val allArgs = buildList {
+            addAll(args)
+            if (configFile != null) {
+                add("--config-file")
+                add(configFile.absolutePath)
+            }
+        }
+        runMetalavaWithArgs(metalavaClasspath, allArgs, kotlinSourceLevel, workerExecutor)
+    }
+
+    /**
+     * Generates the specified api file, and a version history JSON if the [generateApiMode] is
+     * [GenerateApiMode.PublicApi].
+     */
+    fun getGenerateApiArgs(
+        projectXml: File,
+        sourcePaths: Collection<File>,
+        compiledSources: File?,
+        outputLocation: ApiLocation?,
+        generateApiMode: GenerateApiMode,
+        apiLintMode: ApiLintMode,
+        apiLevelsArgs: List<String>,
+        pathToManifest: String? = null,
+        multiplatform: Boolean,
+        hasJvmOrAndroidTarget: Boolean,
+    ): List<String> {
+        val args =
+            mutableListOf("--project", projectXml.path, "--format=4.0", "--warnings-as-errors")
+
+        // Generate public API txt if there is a jvm/android target. If there isn't, the
+        // `generateApi`
+        // task will just run API lint without creating a signature file.
+        if (hasJvmOrAndroidTarget) {
+            args +=
+                listOf(
+                    "--source-path",
+                    sourcePaths.filter { it.exists() }.joinToString(File.pathSeparator),
+                )
+
+            // Include the jar file to generate bytecode-only APIs if this project has any Kotlin
+            // source.
+            if (compiledSources != null && sourcePaths.any { containsKotlinFiles(it) }) {
+                args += listOf("--compiled-sources", compiledSources.absolutePath)
+            }
+
+            pathToManifest?.let { args += listOf("--manifest", pathToManifest) }
+
+            if (outputLocation != null) {
+                when (generateApiMode) {
+                    is GenerateApiMode.PublicApi -> {
+                        args +=
+                            listOf(
+                                "--trace-file",
+                                ApiLocation.toTraceFilePath(outputLocation.publicApiFile),
+                            )
+                        args += listOf("--api", outputLocation.publicApiFile.toString())
+                        // Generate API levels just for the public API
+                        args += apiLevelsArgs
+                    }
+
+                    is GenerateApiMode.AllRestrictedApis,
+                    GenerateApiMode.RestrictToLibraryGroupPrefixApis -> {
+                        args +=
+                            listOf(
+                                "--trace-file",
+                                ApiLocation.toTraceFilePath(outputLocation.restrictedApiFile),
+                            )
+                        args += listOf("--api", outputLocation.restrictedApiFile.toString())
+                    }
+                }
+            }
+        } else {
+            // If there is no jvm/android target, generate multiplatform API files instead.
+            if (outputLocation != null) {
+                args +=
+                    listOf(
+                        "--trace-file",
+                        ApiLocation.toTraceFilePath(outputLocation.multiplatformApiDirectory),
+                    )
+                args +=
+                    listOf(
+                        "--multiplatform-api-directory",
+                        outputLocation.multiplatformApiDirectory.toString(),
+                    )
+            }
+        }
+
+        val apiSurfaceName =
+            when (generateApiMode) {
+                is GenerateApiMode.PublicApi -> "public"
+                is GenerateApiMode.RestrictToLibraryGroupPrefixApis -> "restricted-non-atomic-group"
+                is GenerateApiMode.AllRestrictedApis -> "restricted-atomic-group"
+            }
+        args += listOf("--api-surface", apiSurfaceName)
+
+        if (generateApiMode is GenerateApiMode.PublicApi && multiplatform) {
+            args += "--multiplatform-enabled"
+        }
+
+        when (apiLintMode) {
+            is ApiLintMode.CheckBaseline -> {
+                args += getApiLintArgs(apiLintMode.targetsJavaConsumers)
+                if (apiLintMode.apiLintBaseline.exists()) {
+                    args += listOf("--baseline", apiLintMode.apiLintBaseline.toString())
+                }
+                args.addAll(
+                    listOf(
+                        "--error",
+                        "ReferencesDeprecated",
+                        "--error-message:api-lint",
+                        """
+    ${TERMINAL_RED}Your change has API lint issues. Fix the code according to the messages above.$TERMINAL_RESET
+
+    If a check is broken, suppress it in code in Kotlin with @Suppress("id")/@get:Suppress("id")
+    and in Java with @SuppressWarnings("id") and file bug to
+    https://issuetracker.google.com/issues/new?component=739152&template=1344623
+
+    If you are doing a refactoring or suppression above does not work, use ./gradlew updateApiLintBaseline
+""",
+                    )
+                )
+            }
+            is ApiLintMode.Skip -> {
+                args.addAll(
+                    listOf(
+                        "--hide",
+                        "UnhiddenSystemApi",
+                        "--hide",
+                        "ReferencesHidden",
+                        "--hide",
+                        "ReferencesDeprecated",
+                        "--hide",
+                        "HiddenSuperclass",
+                        "--hide",
+                        "HiddenAbstractMethod",
+                        "--hide",
+                        "HiddenTypeParameter",
+                        "--hide",
+                        "UnavailableSymbol",
+                    )
+                )
+            }
+        }
+
+        return args
+    }
+
+    /** Whether the [file] is a kotlin file or is a directory containing one (recursively). */
+    private fun containsKotlinFiles(file: File): Boolean {
+        return if (file.isDirectory) {
+            file.listFiles().any { containsKotlinFiles(it) }
+        } else {
+            file.extension == "kt"
+        }
     }
 }

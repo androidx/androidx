@@ -22,8 +22,8 @@
  */
 import androidx.build.SoftwareType
 import androidx.build.Release
-import androidx.build.metalava.MetalavaRunnerKt
 import androidx.build.metalava.MetalavaTask
+import androidx.build.metalava.MetalavaTasksKt
 import androidx.build.uptodatedness.EnableCachingKt
 import androidx.build.Version
 
@@ -130,7 +130,7 @@ abstract class ProtocolApiTask extends MetalavaTask {
         ]
         standardArgs.addAll(additionalArgs)
 
-        MetalavaRunnerKt.runMetalavaWithArgs(
+        runMetalavaWithArgs(
                 metalavaClasspath,
                 standardArgs,
                 kotlinSourceLevel.get(),
@@ -385,7 +385,7 @@ androidComponents {
         FileCollection javaCollection   = project.files(variant.sources.java?.all)
         FileCollection sourceCollection = kotlinCollection + javaCollection
         FileCollection dependencyClasspath = variant.compileClasspath
-        FileCollection metalavaClasspath = MetalavaRunnerKt.getMetalavaClasspath(project)
+        FileCollection metalavaClasspath = MetalavaTasksKt.getMetalavaClasspath(project)
         FileCollection bootClasspath = project.files(sdkComponents.bootClasspath)
         Provider<KotlinVersion> kotlinSourceLevel = androidx.kotlinApiVersion
 
