@@ -1219,7 +1219,6 @@ includeProject(":wear:compose:compose-navigation3-integration-tests", "wear/comp
 includeProject(":wear:compose:compose-navigation3-samples", "wear/compose/compose-navigation3/samples", [BuildType.COMPOSE])
 includeProject(":wear:compose:compose-navigation-samples", "wear/compose/compose-navigation/samples", [BuildType.COMPOSE])
 includeProject(":wear:compose:compose-ui-tooling", [BuildType.COMPOSE])
-includeProject(":wear:compose:prototypes:windowinsets", [BuildType.COMPOSE])
 includeProject(":wear:compose:integration-tests:demos", [BuildType.COMPOSE])
 includeProject(":wear:compose:integration-tests:demos:common", [BuildType.COMPOSE])
 includeProject(":wear:compose:integration-tests:macrobenchmark", [BuildType.COMPOSE])
