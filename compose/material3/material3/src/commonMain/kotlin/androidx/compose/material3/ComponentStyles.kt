@@ -517,12 +517,10 @@ internal class SearchBarStyleScope(
     }
 }
 
-@JvmInline
-internal value class AppBarWithSearchStyle(
-    private val block: AppBarWithSearchStyleScope.() -> Unit
-) {
-    fun AppBarWithSearchStyleScope.applyStyle() {
-        block()
+internal fun interface AppBarWithSearchStyle : ComponentStyle<AppBarWithSearchStyleScope> {
+    infix fun then(other: AppBarWithSearchStyle): AppBarWithSearchStyle = AppBarWithSearchStyle {
+        this.applyStyle()
+        with(other) { applyStyle() }
     }
 
     companion object {
@@ -542,7 +540,7 @@ internal value class AppBarWithSearchStyle(
 }
 
 internal class AppBarWithSearchStyleScope(override val theme: MaterialTheme.Values) :
-    MaterialThemeAccessorScope {
+    MaterialThemeAccessorScope, StyleResolver by StyleResolverImpl() {
     var searchBarContainerColor: Color = Color.Unspecified
         private set
 
@@ -626,13 +624,13 @@ internal class AppBarWithSearchStyleScope(override val theme: MaterialTheme.Valu
     }
 }
 
-@JvmInline
-internal value class ExpandedDockedSearchBarStyle(
-    private val block: ExpandedDockedSearchBarStyleScope.() -> Unit
-) {
-    fun ExpandedDockedSearchBarStyleScope.applyStyle() {
-        block()
-    }
+internal fun interface ExpandedDockedSearchBarStyle :
+    ComponentStyle<ExpandedDockedSearchBarStyleScope> {
+    infix fun then(other: ExpandedDockedSearchBarStyle): ExpandedDockedSearchBarStyle =
+        ExpandedDockedSearchBarStyle {
+            this.applyStyle()
+            with(other) { applyStyle() }
+        }
 
     companion object {
         val Default = ExpandedDockedSearchBarStyle {
@@ -657,7 +655,7 @@ internal value class ExpandedDockedSearchBarStyle(
 }
 
 internal class ExpandedDockedSearchBarStyleScope(override val theme: MaterialTheme.Values) :
-    MaterialThemeAccessorScope {
+    MaterialThemeAccessorScope, StyleResolver by StyleResolverImpl() {
     var shape: Shape = RectangleShape
         private set
 
