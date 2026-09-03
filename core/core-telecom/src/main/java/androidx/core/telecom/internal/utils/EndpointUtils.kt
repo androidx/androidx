@@ -201,6 +201,52 @@ internal class EndpointUtils {
                 endpoint.type == CallEndpointCompat.TYPE_WIRED_HEADSET
         }
 
+        /**
+         * Determines if an endpoint transition represents an unexpected switch away from the user's
+         * preferred starting endpoint to the speaker endpoint.
+         *
+         * @param preferredEndpoint The user's preferred starting endpoint, if any.
+         * @param prevEndpoint The endpoint active before the transition.
+         * @param currentEndpoint The new endpoint active after the transition.
+         * @return `true` if the call transitioned from the preferred starting endpoint to speaker
+         *   unexpectedly.
+         */
+        fun isUnexpectedSwitchFromPreferredToSpeaker(
+            preferredEndpoint: CallEndpointCompat?,
+            prevEndpoint: CallEndpointCompat?,
+            currentEndpoint: CallEndpointCompat?,
+        ): Boolean {
+            if (preferredEndpoint == null || prevEndpoint == null || currentEndpoint == null) {
+                return false
+            }
+            if (!isSpeakerEndpoint(currentEndpoint) || preferredEndpoint == currentEndpoint) {
+                return false
+            }
+            return isPreferredStartingEndpoint(preferredEndpoint, prevEndpoint)
+        }
+
+        /**
+         * Checks whether [targetEndpoint] matches the [preferredEndpoint].
+         *
+         * For Bluetooth endpoints, strict equality (matching name, type, and UUID) is required so
+         * that different Bluetooth devices (e.g. watch vs headset) are not conflated. For physical
+         * non-Bluetooth endpoints (such as earpiece), matching on endpoint type is permitted to
+         * handle discrepancies between pre-call and in-call endpoint representations.
+         */
+        fun isPreferredStartingEndpoint(
+            preferredEndpoint: CallEndpointCompat?,
+            targetEndpoint: CallEndpointCompat?,
+        ): Boolean {
+            if (preferredEndpoint == null || targetEndpoint == null) {
+                return false
+            }
+            if (preferredEndpoint == targetEndpoint) {
+                return true
+            }
+            return !preferredEndpoint.isBluetoothType() &&
+                preferredEndpoint.type == targetEndpoint.type
+        }
+
         fun toCallEndpointCompat(state: CallAudioState, sessionId: Int): CallEndpointCompat {
             val type: Int = mapRouteToType(state.route)
             return if (

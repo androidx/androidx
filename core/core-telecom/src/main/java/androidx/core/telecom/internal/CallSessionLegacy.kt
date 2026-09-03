@@ -40,6 +40,7 @@ import androidx.core.telecom.internal.utils.EndpointUtils.Companion.getMaskedMac
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.getSpeakerEndpoint
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isEarpieceEndpoint
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isSpeakerEndpoint
+import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isUnexpectedSwitchFromPreferredToSpeaker
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isWiredHeadsetOrBtEndpoint
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.maybeRemoveEarpieceIfWiredEndpointPresent
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.toCallEndpointCompat
@@ -48,8 +49,10 @@ import androidx.core.telecom.internal.utils.Utils.Companion.isBuildAtLeastP
 import androidx.core.telecom.internal.utils.Utils.Companion.toCallTypeCompat
 import androidx.core.telecom.internal.utils.Utils.Companion.toVideoProfileState
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -71,7 +74,7 @@ internal class CallSessionLegacy(
     val onSetInactiveCallback: suspend () -> Unit,
     val onEventCallback: suspend (event: String, extras: Bundle) -> Unit,
     val onStateChangedCallback: MutableSharedFlow<CallStateEvent>,
-    private val preferredStartingCallEndpoint: CallEndpointCompat? = null,
+    @get:VisibleForTesting internal var preferredStartingCallEndpoint: CallEndpointCompat? = null,
     private val blockingSessionExecution: CompletableDeferred<Unit>,
 ) : android.telecom.Connection(), AutoCloseable {
     // instance vars
@@ -100,6 +103,9 @@ internal class CallSessionLegacy(
      * has been processed.
      */
     private var mWasPreferredOverrideChecked: Boolean = false
+    // Stores the job responsible for disarming the preferred starting endpoint guard after
+    // the initial call setup stabilization window has elapsed.
+    private var mStartingEndpointStabilizationJob: Job? = null
 
     init {
         if (isBuildAtLeastP()) {
@@ -136,6 +142,8 @@ internal class CallSessionLegacy(
 
     companion object {
         private const val DELAY_INITIAL_ENDPOINT_SWITCH: Long = 2000L
+        private const val INITIAL_ENDPOINT_SWITCH_TIMEOUT: Long =
+            DELAY_INITIAL_ENDPOINT_SWITCH + 1000L
         private const val WAIT_FOR_RINGING_OR_DIALING: Long = 5000L
         // CallStates. All these states mirror the values in the platform.
         const val STATE_INITIALIZING = 0
@@ -275,6 +283,7 @@ internal class CallSessionLegacy(
     private fun switchStartingCallEndpointOnCallStart(endpoints: List<CallEndpointCompat>) {
         if (preferredStartingCallEndpoint != null) {
             if (!mAlreadyRequestedStartingEndpointSwitch) {
+                startPreferredEndpointStabilizationTimer()
                 CoroutineScope(coroutineContext).launch {
                     // Delay the switch to a new [CallEndpointCompat] if there is a BT device
                     // because the request will be overridden once the BT device connects!
@@ -283,13 +292,33 @@ internal class CallSessionLegacy(
                         delay(DELAY_INITIAL_ENDPOINT_SWITCH)
                         Log.i(TAG, "switchStartingCallEndpointOnCallStart: BT delay END")
                     }
-                    requestEndpointChange(preferredStartingCallEndpoint)
+                    preferredStartingCallEndpoint?.let { requestEndpointChange(it) }
                 }
             }
         } else {
             maybeSwitchToSpeakerOnCallStart(mCurrentCallEndpoint!!, endpoints)
         }
         mAlreadyRequestedStartingEndpointSwitch = true
+    }
+
+    @VisibleForTesting
+    internal fun startPreferredEndpointStabilizationTimer() {
+        mStartingEndpointStabilizationJob?.cancel()
+        mStartingEndpointStabilizationJob =
+            CoroutineScope(coroutineContext).launch {
+                try {
+                    delay(INITIAL_ENDPOINT_SWITCH_TIMEOUT)
+                    Log.i(
+                        TAG,
+                        "startPreferredEndpointStabilizationTimer: Call-start stabilization " +
+                            "window elapsed. Disarming preferred override guard.",
+                    )
+                    mWasPreferredOverrideChecked = true
+                    preferredStartingCallEndpoint = null
+                } catch (e: CancellationException) {
+                    // Normal cancellation when call ends or route stabilizes early
+                }
+            }
     }
 
     /**
@@ -303,8 +332,12 @@ internal class CallSessionLegacy(
             return
         }
 
-        // If the client explicitly requested the earpiece, respect their choice
-        if (isEarpieceEndpoint(mLastClientRequestedEndpoint)) {
+        // If the client explicitly requested the earpiece or preferred it as the starting
+        // endpoint, respect their choice
+        if (
+            isEarpieceEndpoint(mLastClientRequestedEndpoint) ||
+                isEarpieceEndpoint(preferredStartingCallEndpoint)
+        ) {
             return
         }
 
@@ -351,18 +384,18 @@ internal class CallSessionLegacy(
      * phase.
      *
      * @param prevEndpoint The audio endpoint active before the current change.
-     * @param currentEndpoint The new audio endpoint that has just become active.
+     * @param nextEndpoint The new audio endpoint that has just become active.
      */
     fun avoidSpeakerOverrideOnCallStart(
         prevEndpoint: CallEndpointCompat?,
-        currentEndpoint: CallEndpointCompat?,
+        nextEndpoint: CallEndpointCompat?,
     ) {
         if (mWasPreferredOverrideChecked) {
-            Log.v(TAG, "avoidSpeakerOverrideOnCallStart: Already checked. Skipping.")
+            Log.d(TAG, "avoidSpeakerOverrideOnCallStart: Already checked. Skipping.")
             return
         }
 
-        // Check 1: Did the user explicitly request the current 'currentEndpoint' if it's SPEAKER?
+        // Check 1: Did the user explicitly request the current 'nextEndpoint' if it's SPEAKER?
         // This check is performed before the prevEndpoint == null check because if the user
         // intentionally switched to SPEAKER, we should mark this stabilization check as
         // completed even if it was the very first endpoint update. This value is cleared after
@@ -370,15 +403,16 @@ internal class CallSessionLegacy(
         if (
             mLastClientRequestedEndpoint != null &&
                 isSpeakerEndpoint(mLastClientRequestedEndpoint) &&
-                isSpeakerEndpoint(currentEndpoint)
+                isSpeakerEndpoint(nextEndpoint)
         ) {
             Log.i(
                 TAG,
                 "avoidSpeakerOverrideOnCallStart: User explicitly requested SPEAKER " +
-                    "($mLastClientRequestedEndpoint). Current endpoint is $currentEndpoint. " +
+                    "($mLastClientRequestedEndpoint). Current endpoint is $nextEndpoint. " +
                     "Assuming intentional. No override.",
             )
             mWasPreferredOverrideChecked = true
+            mStartingEndpointStabilizationJob?.cancel()
             return
         }
 
@@ -392,27 +426,26 @@ internal class CallSessionLegacy(
             return
         }
 
-        // Since prevEndpoint is now non-null, we are proceeding with the one-time check.
-        // Set the flag to true immediately to ensure this block of logic runs at most once
-        // under these stable conditions (prevEndpoint is known).
-        mWasPreferredOverrideChecked = true
         Log.i(
             TAG,
             "avoidSpeakerOverrideOnCallStart: Evaluating. " +
                 "mPreferredStartingCallEndpoint=[$preferredStartingCallEndpoint], " +
                 "mLastClientRequestedEndpoint=[$mLastClientRequestedEndpoint], " +
                 "prevEndpoint=[$prevEndpoint], " +
-                "currentEndpoint=[$currentEndpoint]",
+                "nextEndpoint=[$nextEndpoint]",
         )
 
         // Check 2: bug fix logic - an unexpected switch from PreferredStartingCallEndpoint
         // to SPEAKER.
         if (
-            preferredStartingCallEndpoint != null &&
-                preferredStartingCallEndpoint == prevEndpoint &&
-                preferredStartingCallEndpoint != currentEndpoint &&
-                isSpeakerEndpoint(currentEndpoint) // Current endpoint is SPEAKER
+            isUnexpectedSwitchFromPreferredToSpeaker(
+                preferredEndpoint = preferredStartingCallEndpoint,
+                prevEndpoint = prevEndpoint,
+                currentEndpoint = nextEndpoint,
+            )
         ) {
+            mWasPreferredOverrideChecked = true
+            mStartingEndpointStabilizationJob?.cancel()
             CoroutineScope(coroutineContext).launch {
                 Log.i(
                     TAG,
@@ -421,7 +454,7 @@ internal class CallSessionLegacy(
                         "Requesting switch back to preferred: $preferredStartingCallEndpoint",
                 )
                 // Request change back to the originally preferred endpoint
-                requestEndpointChange(preferredStartingCallEndpoint)
+                preferredStartingCallEndpoint?.let { requestEndpointChange(it) }
             }
         } else {
             Log.d(TAG, "avoidSpeakerOverrideOnCallStart: Conditions for override not met.")
@@ -863,6 +896,7 @@ internal class CallSessionLegacy(
 
     override fun close() {
         Log.i(TAG, "close: CallSessionLegacyId=[$mCallSessionLegacyId]")
+        mStartingEndpointStabilizationJob?.cancel()
         CallEndpointUuidTracker.endSession(mCallSessionLegacyId)
         if (isBuildAtLeastP() && mGlobalMuteStateReceiver != null) {
             mContext.unregisterReceiver(mGlobalMuteStateReceiver)

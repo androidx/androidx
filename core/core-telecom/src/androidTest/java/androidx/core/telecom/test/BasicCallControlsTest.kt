@@ -408,6 +408,70 @@ class BasicCallControlsTest : BaseTelecomTest() {
     }
 
     /**
+     * Assert that an outgoing video call with a preferred starting endpoint of EARPIECE
+     * successfully settles on the EARPIECE endpoint, resisting any automatic platform or fallback
+     * overrides to the speaker endpoint.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @LargeTest
+    @Test(timeout = 20000)
+    fun testVideoCall_preferredStartingEndpointEarpiece_settlesOnEarpiece() {
+        runBlocking {
+            val videoOutgoingAttributes =
+                CallAttributesCompat(
+                    OUTGOING_NAME,
+                    TEST_ADDRESS,
+                    CallAttributesCompat.DIRECTION_OUTGOING,
+                    CallAttributesCompat.CALL_TYPE_VIDEO_CALL,
+                    ALL_CALL_CAPABILITIES,
+                    preferredStartingCallEndpoint = mEarpieceEndpoint,
+                )
+
+            assertWithinTimeout_addCall(videoOutgoingAttributes, timeout = 15000L) {
+                launch {
+                    // Set the call active
+                    assertEquals(CallControlResult.Success(), setActive())
+
+                    val availableEndpointsList = availableEndpoints.first()
+                    if (
+                        availableEndpointsList.any { it.type == CallEndpointCompat.TYPE_EARPIECE }
+                    ) {
+                        // 1. Keep track of the most recent endpoint the platform emits
+                        var settledEndpoint: CallEndpointCompat? = null
+                        val endpointCollectorJob = launch {
+                            currentCallEndpoint.collect { endpoint -> settledEndpoint = endpoint }
+                        }
+
+                        // 2. Allow the platform time to run through its noisy initial routing
+                        //    and allow Jetpack time to stabilize on the preferred endpoint.
+                        delay(3000)
+
+                        // Stop collecting now that the route should be stable
+                        endpointCollectorJob.cancel()
+
+                        // 3. Assert that the FINAL, settled state is EARPIECE.
+                        assertNotNull(
+                            "Never received an endpoint update from the platform",
+                            settledEndpoint,
+                        )
+                        assertEquals(
+                            "Video call with preferred earpiece should settle on EARPIECE",
+                            CallEndpointCompat.TYPE_EARPIECE,
+                            settledEndpoint?.type,
+                        )
+                    }
+
+                    // Clean up
+                    assertEquals(
+                        CallControlResult.Success(),
+                        disconnect(DisconnectCause(DisconnectCause.LOCAL)),
+                    )
+                }
+            }
+        }
+    }
+
+    /**
      * Assert that an outgoing audio call settles on the earpiece endpoint and remains an audio
      * call, recovering from any platform bugs that might incorrectly upgrade the call to video and
      * speaker.
