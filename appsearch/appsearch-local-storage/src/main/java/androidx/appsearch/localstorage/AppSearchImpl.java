@@ -1694,17 +1694,26 @@ public final class AppSearchImpl implements Closeable {
      *
      * <p>This method belongs to mutate group.
      *
+     * <p>When Private Compute Core (PCC) data encapsulation is enabled and {@code callingUid} is a
+     * PCC UID, documents can only be put into schema types that were set by a PCC caller. Putting
+     * a document of any other schema type fails with {@link AppSearchResult#RESULT_SECURITY_ERROR}
+     * in {@code batchResultBuilder}. To put such documents, the PCC caller needs to resend a
+     * setSchema request to update the visibility of the schema type first.
+     *
      * @param packageName             The package name that owns this document.
      * @param databaseName            The databaseName this document resides in.
-     * @param documents               A list of documents to index.
+     * @param documents               A list of {@link GenericDocument} to index.
+     * @param callingUid              The UID of the caller calling putDocuments.
      * @param batchResultBuilder      The builder for returning the batch result.
      * @param sendChangeNotifications Whether to dispatch
      *                                {@link DocumentChangeInfo}
      *                                messages to observers for this change.
+     * @param logger                  Optional logger for logging stats.
      * @param persistType             The persist type used to call PersistToDisk inside Icing at
      *                                the end of the Put request. If UNKNOWN, PersistToDisk will not
      *                                be called. See also {@link #persistToDisk(String, int,
      *                                PersistType.Code, AppSearchLogger, CallStats.Builder)}
+     *
      * @throws AppSearchException on IcingSearchEngine error.
      */
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
@@ -1712,6 +1721,7 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull List<GenericDocument> documents,
+            int callingUid,
             AppSearchBatchResult.@NonNull Builder<String, InternalPutDocumentResponse>
                     batchResultBuilder,
             boolean sendChangeNotifications,
@@ -1765,6 +1775,7 @@ public final class AppSearchImpl implements Closeable {
                             packageName,
                             databaseName,
                             docProtos,
+                            callingUid,
                             statsBuilders,
                             batchResultBuilder,
                             /* sendChangeNotifications= */ true,
@@ -1789,6 +1800,7 @@ public final class AppSearchImpl implements Closeable {
         batchPutDocuments(packageName,
                 databaseName,
                 docProtos,
+                callingUid,
                 statsBuilders,
                 batchResultBuilder,
                 sendChangeNotifications,
@@ -1805,9 +1817,14 @@ public final class AppSearchImpl implements Closeable {
      *
      * <p>This method belongs to mutate group.
      *
+     * <p>When Private Compute Core (PCC) data encapsulation is enabled and {@code callingUid} is a
+     * PCC UID, a document of a schema type that was not set by a PCC caller fails with
+     * {@link AppSearchResult#RESULT_SECURITY_ERROR} in {@code batchResultBuilder}.
+     *
      * @param packageName             The package name that owns this document.
      * @param databaseName            The databaseName this document resides in.
      * @param documents               A list of {@link DocumentProto} to index.
+     * @param callingUid              The UID of the caller calling putDocuments.
      * @param statsBuilders           The corresponding {@link PutDocumentStats.Builder} to
      *                                the documents.
      * @param batchResultBuilder      The builder for returning the batch result.
@@ -1820,10 +1837,12 @@ public final class AppSearchImpl implements Closeable {
      *                                {@link #persistToDisk(String, int, PersistType.Code, AppSearchLogger, CallStats.Builder)}.
      * @throws AppSearchException on IcingSearchEngine error.
      */
+    @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
     private void batchPutDocuments(
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull List<DocumentProto> documents,
+            int callingUid,
             @NonNull List<PutDocumentStats.Builder> statsBuilders,
             AppSearchBatchResult.@NonNull Builder<String, InternalPutDocumentResponse>
                     batchResultBuilder,
@@ -1849,6 +1868,12 @@ public final class AppSearchImpl implements Closeable {
             }
             throwIfClosedLocked();
 
+            boolean shouldCheckPcc =
+                    Flags.enablePccDataEncapsulation()
+                            && callingUid != InternalVisibilityConfig.INVALID_UID
+                            && mDocumentVisibilityStoreLocked != null
+                            && PccEncapsulationUtil.isPccUid(mVisibilityCheckerLocked, callingUid);
+
             PutDocumentRequest.Builder putRequestBuilder =
                     PutDocumentRequest.newBuilder().setPersistType(persistType);
             for (int i = 0; i < documents.size(); ++i) {
@@ -1866,6 +1891,28 @@ public final class AppSearchImpl implements Closeable {
                                 .setLastBlockingOperationLatencyMillis(
                                         mLastReadOrWriteOperationLatencyMillisLocked);
                 try {
+                    // A PCC caller can only put documents of schema types set by a PCC caller.
+                    // Schema types set by a non-PCC caller or without a recorded writer are
+                    // readable by non-PCC callers, so PCC data put into them would cross the PCC
+                    // boundary. The schema type is not implicitly upgraded to PCC ownership here;
+                    // the PCC caller needs to resend a setSchema request instead.
+                    if (shouldCheckPcc) {
+                        String prefixedSchema = finalDocument.getSchema();
+                        InternalVisibilityConfig existingConfig =
+                                mDocumentVisibilityStoreLocked.getVisibility(prefixedSchema);
+                        if (existingConfig == null
+                                || !PccEncapsulationUtil.isPccUid(
+                                mVisibilityCheckerLocked, existingConfig.getWriterUid())) {
+                            throw new AppSearchException(
+                                    AppSearchResult.RESULT_SECURITY_ERROR,
+                                    "Cannot put a document of schema type \""
+                                            + PrefixUtil.removePrefix(prefixedSchema)
+                                            + "\" from a PCC caller. The visibility of the schema"
+                                            + " type needs to be updated by resending a setSchema "
+                                            + " request from the PCC caller.");
+                        }
+                    }
+
                     // Check limits
                     int serializedSizeBytes = finalDocument.getSerializedSize();
                     enforceLimitConfigLocked(packageName, docId,
@@ -2023,7 +2070,7 @@ public final class AppSearchImpl implements Closeable {
      * @throws AppSearchException on IcingSearchEngine error.
      *
      * @deprecated use {@link #batchPutDocuments(String, String, List,
-     *                          AppSearchBatchResult.Builder, boolean, AppSearchLogger,
+     *                          int, AppSearchBatchResult.Builder, boolean, AppSearchLogger,
      *                          PersistType.Code, CallStats.Builder)}
      */
     // TODO(b/394875109) keep this for now to make code sync easier.

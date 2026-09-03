@@ -16,6 +16,8 @@
 
 package androidx.appsearch.localstorage;
 
+import static androidx.appsearch.app.AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -118,16 +120,14 @@ public class AppSearchImplPccTest {
                 new AppSearchSchema.Builder("SchemaA")
                         .addProperty(
                                 new AppSearchSchema.StringPropertyConfig.Builder("prop")
-                                        .setCardinality(
-                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setCardinality(CARDINALITY_OPTIONAL)
                                         .build())
                         .build();
         AppSearchSchema schemaB =
                 new AppSearchSchema.Builder("SchemaB")
                         .addProperty(
                                 new AppSearchSchema.StringPropertyConfig.Builder("prop")
-                                        .setCardinality(
-                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setCardinality(CARDINALITY_OPTIONAL)
                                         .build())
                         .build();
         InternalSetSchemaResponse response =
@@ -162,16 +162,14 @@ public class AppSearchImplPccTest {
                 new AppSearchSchema.Builder("SchemaA")
                         .addProperty(
                                 new AppSearchSchema.StringPropertyConfig.Builder("prop")
-                                        .setCardinality(
-                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setCardinality(CARDINALITY_OPTIONAL)
                                         .build())
                         .build();
         AppSearchSchema schemaB =
                 new AppSearchSchema.Builder("SchemaB")
                         .addProperty(
                                 new AppSearchSchema.StringPropertyConfig.Builder("prop")
-                                        .setCardinality(
-                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setCardinality(CARDINALITY_OPTIONAL)
                                         .build())
                         .build();
         InternalSetSchemaResponse response =
@@ -206,16 +204,14 @@ public class AppSearchImplPccTest {
                 new AppSearchSchema.Builder("SchemaA")
                         .addProperty(
                                 new AppSearchSchema.StringPropertyConfig.Builder("prop")
-                                        .setCardinality(
-                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setCardinality(CARDINALITY_OPTIONAL)
                                         .build())
                         .build();
         AppSearchSchema schemaB =
                 new AppSearchSchema.Builder("SchemaB")
                         .addProperty(
                                 new AppSearchSchema.StringPropertyConfig.Builder("prop")
-                                        .setCardinality(
-                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setCardinality(CARDINALITY_OPTIONAL)
                                         .build())
                         .build();
         // First set schema with PCC_UID
@@ -244,7 +240,7 @@ public class AppSearchImplPccTest {
         assertThat(configB).isNotNull();
         assertThat(configB.getWriterUid()).isEqualTo(PCC_UID);
 
-        // Next set schema with Process.INVALID_UID
+        // Next set schema with INVALID_UID
         InternalVisibilityConfig inputConfigA =
                 new InternalVisibilityConfig.Builder(configA).setSchemaType("SchemaA").build();
         InternalVisibilityConfig inputConfigB =
@@ -280,16 +276,14 @@ public class AppSearchImplPccTest {
                 new AppSearchSchema.Builder("SchemaA")
                         .addProperty(
                                 new AppSearchSchema.StringPropertyConfig.Builder("prop")
-                                        .setCardinality(
-                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setCardinality(CARDINALITY_OPTIONAL)
                                         .build())
                         .build();
         AppSearchSchema schemaB =
                 new AppSearchSchema.Builder("SchemaB")
                         .addProperty(
                                 new AppSearchSchema.StringPropertyConfig.Builder("prop")
-                                        .setCardinality(
-                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setCardinality(CARDINALITY_OPTIONAL)
                                         .build())
                         .build();
         // Non-PCC caller sets schemas
@@ -320,6 +314,7 @@ public class AppSearchImplPccTest {
                 "pkg",
                 "db",
                 ImmutableList.of(docA, docB),
+                /* callingUid= */ NON_PCC_UID,
                 resultBuilder,
                 /* sendChangeNotifications= */ false,
                 /* logger= */ null,
@@ -383,16 +378,14 @@ public class AppSearchImplPccTest {
                 new AppSearchSchema.Builder("SchemaA")
                         .addProperty(
                                 new AppSearchSchema.StringPropertyConfig.Builder("prop")
-                                        .setCardinality(
-                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setCardinality(CARDINALITY_OPTIONAL)
                                         .build())
                         .build();
         AppSearchSchema schemaB =
                 new AppSearchSchema.Builder("SchemaB")
                         .addProperty(
                                 new AppSearchSchema.StringPropertyConfig.Builder("prop")
-                                        .setCardinality(
-                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setCardinality(CARDINALITY_OPTIONAL)
                                         .build())
                         .build();
         mAppSearchImpl.setSchema(
@@ -438,16 +431,14 @@ public class AppSearchImplPccTest {
                 new AppSearchSchema.Builder("SchemaA")
                         .addProperty(
                                 new AppSearchSchema.StringPropertyConfig.Builder("prop")
-                                        .setCardinality(
-                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setCardinality(CARDINALITY_OPTIONAL)
                                         .build())
                         .build();
         AppSearchSchema schemaB =
                 new AppSearchSchema.Builder("SchemaB")
                         .addProperty(
                                 new AppSearchSchema.StringPropertyConfig.Builder("prop")
-                                        .setCardinality(
-                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setCardinality(CARDINALITY_OPTIONAL)
                                         .build())
                         .build();
         mAppSearchImpl.setSchema(
@@ -476,6 +467,7 @@ public class AppSearchImplPccTest {
                 "pkg",
                 "db",
                 ImmutableList.of(docA, docB),
+                /* callingUid= */ PCC_UID,
                 resultBuilder,
                 /* sendChangeNotifications= */ false,
                 /* logger= */ null,
@@ -576,24 +568,21 @@ public class AppSearchImplPccTest {
                 new AppSearchSchema.Builder("SchemaPcc1")
                         .addProperty(
                                 new AppSearchSchema.StringPropertyConfig.Builder("prop")
-                                        .setCardinality(
-                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setCardinality(CARDINALITY_OPTIONAL)
                                         .build())
                         .build();
         AppSearchSchema schemaNonPcc1 =
                 new AppSearchSchema.Builder("SchemaNonPcc1")
                         .addProperty(
                                 new AppSearchSchema.StringPropertyConfig.Builder("prop")
-                                        .setCardinality(
-                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setCardinality(CARDINALITY_OPTIONAL)
                                         .build())
                         .build();
         AppSearchSchema schemaNonPcc2 =
                 new AppSearchSchema.Builder("SchemaNonPcc2")
                         .addProperty(
                                 new AppSearchSchema.StringPropertyConfig.Builder("prop")
-                                        .setCardinality(
-                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setCardinality(CARDINALITY_OPTIONAL)
                                         .build())
                         .build();
 
@@ -648,6 +637,7 @@ public class AppSearchImplPccTest {
                 "pkg",
                 "db",
                 ImmutableList.of(docPcc1, docNonPcc1, docNonPcc2),
+                /* callingUid= */ NON_PCC_UID,
                 resultBuilder,
                 /* sendChangeNotifications= */ false,
                 /* logger= */ null,
@@ -740,16 +730,14 @@ public class AppSearchImplPccTest {
                 new AppSearchSchema.Builder("SchemaA")
                         .addProperty(
                                 new AppSearchSchema.StringPropertyConfig.Builder("prop")
-                                        .setCardinality(
-                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setCardinality(CARDINALITY_OPTIONAL)
                                         .build())
                         .build();
         AppSearchSchema schemaB =
                 new AppSearchSchema.Builder("SchemaB")
                         .addProperty(
                                 new AppSearchSchema.StringPropertyConfig.Builder("prop")
-                                        .setCardinality(
-                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setCardinality(CARDINALITY_OPTIONAL)
                                         .build())
                         .build();
 
@@ -795,5 +783,227 @@ public class AppSearchImplPccTest {
                 Iterables.getOnlyElement(observer.getSchemaChanges())
                         .getChangedSchemaNames())
                 .containsExactly("SchemaA", "SchemaB");
+    }
+
+    @Test
+    public void testBatchPutDocuments_pccCaller_nonPccSchema_returnsSecurityError()
+            throws Exception {
+        // Non-PCC caller registers SchemaA
+        setSchemaTypes(NON_PCC_UID, "SchemaA");
+        assertThat(getWriterUid("SchemaA")).isEqualTo(NON_PCC_UID);
+
+        // PCC caller cannot put a document of SchemaA
+        AppSearchBatchResult<String, InternalPutDocumentResponse> result =
+                putDocuments(PCC_UID, createDocument("id1", "SchemaA"));
+        assertThat(result.getSuccesses()).isEmpty();
+        AppSearchResult<InternalPutDocumentResponse> failure = result.getFailures().get("id1");
+        assertThat(failure.getResultCode()).isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
+
+        // The document is not indexed, and SchemaA is not upgraded to PCC ownership
+        AppSearchException e =
+                assertThrows(
+                        AppSearchException.class,
+                        () ->
+                                mAppSearchImpl.getDocument(
+                                        "pkg",
+                                        "db",
+                                        "namespace",
+                                        "id1",
+                                        /* typePropertyPaths= */ Collections.emptyMap(),
+                                        /* callStatsBuilder= */ null));
+        assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+        assertThat(getWriterUid("SchemaA")).isEqualTo(NON_PCC_UID);
+    }
+
+    @Test
+    public void testBatchPutDocuments_pccCaller_afterPccSetSchema_succeeds() throws Exception {
+        // Non-PCC caller registers SchemaA, so the PCC caller cannot put documents of it
+        setSchemaTypes(NON_PCC_UID, "SchemaA");
+        assertThat(putDocuments(PCC_UID, createDocument("id1", "SchemaA")).isSuccess()).isFalse();
+
+        // Once the PCC caller resends the setSchema request, SchemaA is owned by PCC and the PCC
+        // caller can put documents of it
+        setSchemaTypes(PCC_UID, "SchemaA");
+        assertThat(getWriterUid("SchemaA")).isEqualTo(PCC_UID);
+        assertThat(putDocuments(PCC_UID, createDocument("id1", "SchemaA")).isSuccess()).isTrue();
+    }
+
+    @Test
+    public void testBatchPutDocuments_pccCaller_pccSchema_succeeds() throws Exception {
+        setSchemaTypes(PCC_UID, "SchemaA");
+
+        assertThat(putDocuments(PCC_UID, createDocument("id1", "SchemaA")).isSuccess()).isTrue();
+        assertThat(getWriterUid("SchemaA")).isEqualTo(PCC_UID);
+    }
+
+    @Test
+    public void testBatchPutDocuments_nonPccCaller_nonPccSchema_succeeds() throws Exception {
+        setSchemaTypes(NON_PCC_UID, "SchemaA");
+
+        assertThat(putDocuments(NON_PCC_UID, createDocument("id1", "SchemaA")).isSuccess())
+                .isTrue();
+        assertThat(getWriterUid("SchemaA")).isEqualTo(NON_PCC_UID);
+    }
+
+    @Test
+    public void testBatchPutDocuments_nonPccCaller_pccSchema_succeeds() throws Exception {
+        setSchemaTypes(PCC_UID, "SchemaA");
+
+        // Data can flow from non-PCC callers into PCC, so a non-PCC caller can put documents of a
+        // PCC schema type. This doesn't downgrade the schema type.
+        assertThat(putDocuments(NON_PCC_UID, createDocument("id1", "SchemaA")).isSuccess())
+                .isTrue();
+        assertThat(getWriterUid("SchemaA")).isEqualTo(PCC_UID);
+    }
+
+    @Test
+    public void testBatchPutDocuments_pccCaller_mixedSchemas_rejectsNonPccSchemaDocuments()
+            throws Exception {
+        // Register SchemaA and SchemaB, then set SchemaA as non-PCC and SchemaB as PCC in the
+        // VisibilityStore
+        setSchemaTypes(InternalVisibilityConfig.INVALID_UID, "SchemaA", "SchemaB");
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        mAppSearchImpl.mDocumentVisibilityStoreLocked.setVisibility(
+                ImmutableList.of(
+                        new InternalVisibilityConfig.Builder(prefix + "SchemaA")
+                                .setWriterUid(NON_PCC_UID)
+                                .build(),
+                        new InternalVisibilityConfig.Builder(prefix + "SchemaB")
+                                .setWriterUid(PCC_UID)
+                                .build()),
+                /* callStatsBuilder= */ null);
+
+        // PCC caller puts documents of SchemaA and SchemaB in a single batch. Only the document of
+        // the non-PCC SchemaA is rejected.
+        AppSearchBatchResult<String, InternalPutDocumentResponse> result =
+                putDocuments(
+                        PCC_UID,
+                        createDocument("idA", "SchemaA"),
+                        createDocument("idB", "SchemaB"));
+        assertThat(result.getSuccesses().keySet()).containsExactly("idB");
+        assertThat(result.getFailures().keySet()).containsExactly("idA");
+        assertThat(result.getFailures().get("idA").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
+
+        // Neither schema type's writerUid is changed
+        assertThat(getWriterUid("SchemaA")).isEqualTo(NON_PCC_UID);
+        assertThat(getWriterUid("SchemaB")).isEqualTo(PCC_UID);
+    }
+
+    @Test
+    public void testBatchPutDocuments_pccCaller_multipleDocumentsOfNonPccSchema_rejectsAll()
+            throws Exception {
+        setSchemaTypes(NON_PCC_UID, "SchemaA");
+
+        AppSearchBatchResult<String, InternalPutDocumentResponse> result =
+                putDocuments(
+                        PCC_UID,
+                        createDocument("id1", "SchemaA"),
+                        createDocument("id2", "SchemaA"),
+                        createDocument("id3", "SchemaA"));
+        assertThat(result.getSuccesses()).isEmpty();
+        assertThat(result.getFailures().keySet()).containsExactly("id1", "id2", "id3");
+        for (AppSearchResult<InternalPutDocumentResponse> failure :
+                result.getFailures().values()) {
+            assertThat(failure.getResultCode()).isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
+        }
+        assertThat(getWriterUid("SchemaA")).isEqualTo(NON_PCC_UID);
+    }
+
+    @Test
+    public void testBatchPutDocuments_pccCaller_noVisibilityConfig_returnsSecurityError()
+            throws Exception {
+        // Register the schema with INVALID_UID so no visibility config is created, like for a
+        // schema type that was set before PCC data encapsulation was enabled
+        setSchemaTypes(InternalVisibilityConfig.INVALID_UID, "SchemaA");
+        String prefixedSchema = PrefixUtil.createPrefix("pkg", "db") + "SchemaA";
+        assertThat(mAppSearchImpl.mDocumentVisibilityStoreLocked.getVisibility(prefixedSchema))
+                .isNull();
+
+        // A schema type without a recorded writer is not owned by PCC
+        AppSearchBatchResult<String, InternalPutDocumentResponse> result =
+                putDocuments(PCC_UID, createDocument("id1", "SchemaA"));
+        assertThat(result.getFailures().get("id1").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
+
+        // No visibility config is created for the schema type
+        assertThat(mAppSearchImpl.mDocumentVisibilityStoreLocked.getVisibility(prefixedSchema))
+                .isNull();
+    }
+
+    @Test
+    public void testBatchPutDocuments_invalidUidCaller_nonPccSchema_succeeds() throws Exception {
+        setSchemaTypes(NON_PCC_UID, "SchemaA");
+
+        // PCC data encapsulation is not enforced for callers without a UID
+        AppSearchBatchResult<String, InternalPutDocumentResponse> result =
+                putDocuments(
+                        InternalVisibilityConfig.INVALID_UID, createDocument("id1", "SchemaA"));
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(getWriterUid("SchemaA")).isEqualTo(NON_PCC_UID);
+    }
+
+    /**
+     * Sets the given schema types, each with a single string property "prop", in database "db" of
+     * package "pkg" as the caller with {@code callingUid}.
+     */
+    private void setSchemaTypes(int callingUid, String... schemaTypes) throws Exception {
+        ImmutableList.Builder<AppSearchSchema> schemas = ImmutableList.builder();
+        for (String schemaType : schemaTypes) {
+            schemas.add(
+                    new AppSearchSchema.Builder(schemaType)
+                            .addProperty(
+                                    new AppSearchSchema.StringPropertyConfig.Builder("prop")
+                                            .setCardinality(CARDINALITY_OPTIONAL)
+                                            .build())
+                            .build());
+        }
+        InternalSetSchemaResponse response =
+                mAppSearchImpl.setSchema(
+                        "pkg",
+                        "db",
+                        schemas.build(),
+                        /* visibilityConfigs= */ Collections.emptyList(),
+                        /* accountPropertyPaths= */ Collections.emptyMap(),
+                        /* forceOverride= */ false,
+                        /* version= */ 1,
+                        callingUid,
+                        /* setSchemaStatsBuilder= */ null,
+                        /* callStatsBuilder= */ null);
+        assertThat(response.isSuccess()).isTrue();
+    }
+
+    /**
+     * Puts the given documents into database "db" of package "pkg" as the caller with {@code
+     * callingUid}.
+     */
+    private AppSearchBatchResult<String, InternalPutDocumentResponse> putDocuments(
+            int callingUid, GenericDocument... documents) throws Exception {
+        AppSearchBatchResult.Builder<String, InternalPutDocumentResponse> resultBuilder =
+                new AppSearchBatchResult.Builder<>();
+        mAppSearchImpl.batchPutDocuments(
+                "pkg",
+                "db",
+                ImmutableList.copyOf(documents),
+                callingUid,
+                resultBuilder,
+                /* sendChangeNotifications= */ false,
+                /* logger= */ null,
+                PersistType.Code.LITE,
+                /* callStatsBuilder= */ null);
+        return resultBuilder.build();
+    }
+
+    private static GenericDocument createDocument(String id, String schemaType) {
+        return new GenericDocument.Builder<>("namespace", id, schemaType)
+                .setPropertyString("prop", "val")
+                .build();
+    }
+
+    /** Returns the writerUid of the given schema type in database "db" of package "pkg". */
+    private int getWriterUid(String schemaType) {
+        return mAppSearchImpl.mDocumentVisibilityStoreLocked
+                .getVisibility(PrefixUtil.createPrefix("pkg", "db") + schemaType)
+                .getWriterUid();
     }
 }
