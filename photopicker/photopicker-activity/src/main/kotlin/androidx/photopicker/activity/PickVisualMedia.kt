@@ -284,6 +284,12 @@ public open class PickVisualMedia : ActivityResultContract<PickVisualMediaReques
         }
 
         @JvmStatic
+        internal fun arePhotoPickerSelectionParamsAvailable(): Boolean {
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 22
+        }
+
+        @JvmStatic
         internal fun isLocationMetadataAvailable(): Boolean {
             return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
                 getExtensionVersion(Build.VERSION_CODES.TIRAMISU) >= 23
@@ -470,6 +476,12 @@ public open class PickVisualMedia : ActivityResultContract<PickVisualMediaReques
                 if (isLocationMetadataAvailable()) {
                     if (input.isLocationMetadataAccessRequested) {
                         putExtra(MediaStore.EXTRA_REQUEST_LOCATION_METADATA_ACCESS, true)
+                    }
+                }
+
+                if (arePhotoPickerSelectionParamsAvailable()) {
+                    input.selectionParams?.toPhotoPickerSelectionParams()?.let { selectionParams ->
+                        putExtra(MediaStore.EXTRA_PICK_IMAGES_SELECTION_PARAMS, selectionParams)
                     }
                 }
             }

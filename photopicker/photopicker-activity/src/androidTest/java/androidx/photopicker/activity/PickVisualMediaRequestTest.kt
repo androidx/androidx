@@ -19,6 +19,8 @@ package androidx.photopicker.activity
 import android.os.Build
 import android.os.ext.SdkExtensions
 import android.provider.MediaStore
+import android.widget.photopicker.PhotoPickerSelectionParams
+import androidx.annotation.RequiresExtension
 import androidx.photopicker.activity.PickVisualMedia.MediaCapabilities
 import androidx.photopicker.activity.PickVisualMedia.MediaCapabilities.Companion.TYPE_HDR10
 import androidx.photopicker.activity.PickVisualMedia.MediaCapabilities.Companion.TYPE_HDR10_PLUS
@@ -26,11 +28,13 @@ import androidx.photopicker.activity.PickVisualMedia.MediaCapabilities.Companion
 import androidx.photopicker.activity.params.HighlightAlbumParams
 import androidx.photopicker.activity.params.HighlightSearchResultsParams
 import androidx.photopicker.activity.params.HighlightType
+import androidx.photopicker.activity.params.SelectionParams
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import java.time.Duration
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Assert.assertThrows
 import org.junit.Rule
@@ -506,6 +510,96 @@ class PickVisualMediaRequestTest {
                 .isEqualTo(MediaStore.PICK_IMAGES_HIGHLIGHT_TYPE_COLLAPSED)
             assertThat(albumBundle?.getString(MediaStore.KEY_PICK_IMAGES_HIGHLIGHT_ALBUM_ID))
                 .isEqualTo(MediaStore.PICK_IMAGES_HIGHLIGHT_ALBUM_FAVORITES)
+        }
+    }
+
+    @Test
+    @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 22)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun testPickVisualMediaRequest_selectionParams() {
+        // test default
+        var request = PickVisualMediaRequest()
+        assertThat(request.selectionParams).isNull()
+
+        // test given selectionParams in PickVisualMediaRequest
+        val selectionParams =
+            SelectionParams.Builder().setMinMediaItemResolutionInPixels(100L).build()
+        request = PickVisualMediaRequest.Builder().setSelectionParams(selectionParams).build()
+        assertThat(request.selectionParams).isEqualTo(selectionParams)
+    }
+
+    @Test
+    @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 22)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun testPickVisualMedia_createIntent_selectionParams() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val minResolution = 1000L
+        val maxResolution = 50000L
+        val minDuration = Duration.ofSeconds(5)
+        val maxDuration = Duration.ofMinutes(2)
+        val maxSize = 10 * 1024 * 1024L
+        val maxBatchSize = 50 * 1024 * 1024L
+        val mimeTypes = listOf("image/png", "video/mp4")
+
+        val selectionParams =
+            SelectionParams.Builder()
+                .setMinMediaItemResolutionInPixels(minResolution)
+                .setMaxMediaItemResolutionInPixels(maxResolution)
+                .setMinVideoDuration(minDuration)
+                .setMaxVideoDuration(maxDuration)
+                .setMaxMediaItemSizeInBytes(maxSize)
+                .setMaxSelectionBatchSizeInBytes(maxBatchSize)
+                .setMimeTypes(mimeTypes)
+                .build()
+
+        val request = PickVisualMediaRequest.Builder().setSelectionParams(selectionParams).build()
+
+        val intentSingle = PickVisualMedia().createIntent(context, request)
+        if (PickVisualMedia.isSystemPickerAvailable()) {
+            if (PickVisualMedia.arePhotoPickerSelectionParamsAvailable()) {
+                assertThat(intentSingle.hasExtra(MediaStore.EXTRA_PICK_IMAGES_SELECTION_PARAMS))
+                    .isTrue()
+                val parcelable =
+                    intentSingle.getParcelableExtra(
+                        MediaStore.EXTRA_PICK_IMAGES_SELECTION_PARAMS,
+                        PhotoPickerSelectionParams::class.java,
+                    )
+                assertThat(parcelable).isNotNull()
+                assertThat(parcelable?.minMediaItemResolutionInPixels).isEqualTo(minResolution)
+                assertThat(parcelable?.maxMediaItemResolutionInPixels).isEqualTo(maxResolution)
+                assertThat(parcelable?.minVideoDuration).isEqualTo(minDuration)
+                assertThat(parcelable?.maxVideoDuration).isEqualTo(maxDuration)
+                assertThat(parcelable?.maxMediaItemSizeInBytes).isEqualTo(maxSize)
+                assertThat(parcelable?.maxSelectionBatchSizeInBytes).isEqualTo(maxBatchSize)
+                assertThat(parcelable?.mimeTypes).containsExactly("image/png", "video/mp4")
+            } else {
+                assertThat(intentSingle.hasExtra(MediaStore.EXTRA_PICK_IMAGES_SELECTION_PARAMS))
+                    .isFalse()
+            }
+        }
+
+        val intentMultiple = PickMultipleVisualMedia().createIntent(context, request)
+        if (PickVisualMedia.isSystemPickerAvailable()) {
+            if (PickVisualMedia.arePhotoPickerSelectionParamsAvailable()) {
+                assertThat(intentMultiple.hasExtra(MediaStore.EXTRA_PICK_IMAGES_SELECTION_PARAMS))
+                    .isTrue()
+                val parcelable =
+                    intentMultiple.getParcelableExtra(
+                        MediaStore.EXTRA_PICK_IMAGES_SELECTION_PARAMS,
+                        PhotoPickerSelectionParams::class.java,
+                    )
+                assertThat(parcelable).isNotNull()
+                assertThat(parcelable?.minMediaItemResolutionInPixels).isEqualTo(minResolution)
+                assertThat(parcelable?.maxMediaItemResolutionInPixels).isEqualTo(maxResolution)
+                assertThat(parcelable?.minVideoDuration).isEqualTo(minDuration)
+                assertThat(parcelable?.maxVideoDuration).isEqualTo(maxDuration)
+                assertThat(parcelable?.maxMediaItemSizeInBytes).isEqualTo(maxSize)
+                assertThat(parcelable?.maxSelectionBatchSizeInBytes).isEqualTo(maxBatchSize)
+                assertThat(parcelable?.mimeTypes).containsExactly("image/png", "video/mp4")
+            } else {
+                assertThat(intentMultiple.hasExtra(MediaStore.EXTRA_PICK_IMAGES_SELECTION_PARAMS))
+                    .isFalse()
+            }
         }
     }
 }
