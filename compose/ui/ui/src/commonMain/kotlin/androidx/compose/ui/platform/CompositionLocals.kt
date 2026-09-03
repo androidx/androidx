@@ -322,6 +322,8 @@ internal fun ProvideCommonCompositionLocals(owner: Owner, content: @Composable (
             LocalWindowInfo provides owner.windowInfo,
             LocalViewConfiguration provides owner.viewConfiguration,
             LocalFontFamilyResolver providesDefault owner.fontFamilyResolver,
+            LocalGraphicsContext provides owner.graphicsContext,
+            LocalClipboard provides owner.clipboard,
             content = content,
         )
     } else {
