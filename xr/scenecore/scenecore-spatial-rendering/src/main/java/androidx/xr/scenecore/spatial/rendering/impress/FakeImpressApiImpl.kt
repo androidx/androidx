@@ -1179,7 +1179,7 @@ public class FakeImpressApiImpl : ImpressApi {
 
     override fun getCustomMeshAabb(customMeshHandle: Long, outAabb: FloatArray) {}
 
-    override fun setCustomMeshBoundingBox(
+    override fun setCustomMeshAabb(
         customMeshHandle: Long,
         centerX: Float,
         centerY: Float,
