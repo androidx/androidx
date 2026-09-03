@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,20 @@
 
 package androidx.room3.util
 
-internal enum class PlatformType {
-    ANDROID,
-    JVM,
-    NATIVE,
-    WEB,
+import java.io.File
+
+internal actual fun ensureParentDirectoryExists(fileName: String) {
+    val file = File(fileName)
+    file.parentFile?.mkdirs()
 }
 
-internal expect val platform: PlatformType
-
-/** Ensures that the parent directory of the given [fileName] exists. */
-internal expect fun ensureParentDirectoryExists(fileName: String)
-
-/**
- * Deletes database files for the given [fileName], including secondary files.
- *
- * Returns `true` if any file was deleted, or `false` otherwise.
- */
-internal expect fun deleteDatabaseFiles(fileName: String): Boolean
+internal actual fun deleteDatabaseFiles(fileName: String): Boolean {
+    var deleted = false
+    for (postfix in arrayOf("", "-wal", "-shm", "-journal")) {
+        val dbFile = File(fileName + postfix)
+        if (dbFile.exists()) {
+            deleted = dbFile.delete() || deleted
+        }
+    }
+    return deleted
+}
