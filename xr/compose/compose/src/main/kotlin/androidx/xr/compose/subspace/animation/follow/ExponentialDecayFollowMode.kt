@@ -32,10 +32,10 @@ import kotlinx.coroutines.withContext
 @OptIn(ExperimentalFollowingSubspaceApi::class)
 internal class ExponentialDecayFollowMode(
     private val dimensions: TrackedDimensions = TrackedDimensions.All,
-    private val halfLifeMs: Long = DEFAULT_HALF_LIFE_MS,
-    private val startDelay: Long = DEFAULT_START_DELAY,
-    private val startThresholds: FollowThresholds = DEFAULT_START_THRESHOLDS,
-    private val settleThresholds: FollowThresholds = DEFAULT_SETTLE_THRESHOLDS,
+    private val halfLifeMs: Long = SoftFollowMode.DEFAULT_HALF_LIFE_MS,
+    private val startDelay: Long = SoftFollowMode.DEFAULT_START_DELAY,
+    private val startThresholds: FollowThresholds = SoftFollowMode.DEFAULT_START_THRESHOLDS,
+    private val settleThresholds: FollowThresholds = SoftFollowMode.DEFAULT_SETTLE_THRESHOLDS,
 ) : FollowMode() {
 
     override suspend fun start(
@@ -210,24 +210,5 @@ internal class ExponentialDecayFollowMode(
         result = 31 * result + settleThresholds.hashCode()
         result = 31 * result + dimensions.hashCode()
         return result
-    }
-
-    internal companion object {
-        internal const val DEFAULT_HALF_LIFE_MS: Long = 80L
-        internal val DEFAULT_START_DELAY: Long = 0L
-        internal val DEFAULT_START_THRESHOLDS: FollowThresholds =
-            FollowThresholds(
-                translationMeters = 0.1f,
-                pitchDegrees = 3f,
-                yawDegrees = 3f,
-                rollDegrees = 3f,
-            )
-        internal val DEFAULT_SETTLE_THRESHOLDS: FollowThresholds =
-            FollowThresholds(
-                translationMeters = 0.01f,
-                pitchDegrees = 0.01f,
-                yawDegrees = 0.01f,
-                rollDegrees = 0.01f,
-            )
     }
 }
