@@ -295,6 +295,24 @@ class FakeImpressApiImplTest {
     }
 
     @Test
+    fun setGltfModelAnimationLoop_setsLoop() = runBlocking {
+        val entityNode = fakeImpressApi.createImpressNode()
+        val channel = 1
+        fakeImpressApi.animateGltfModel(
+            entityNode,
+            "animation_name",
+            looping = true,
+            speed = 1.0f,
+            startTime = 0.0f,
+            channel = channel,
+        )
+        fakeImpressApi.setGltfModelAnimationLoop(entityNode, false, channel)
+        val channelAnimations = fakeImpressApi.getChannelAnimations(entityNode)
+        val animation = channelAnimations!![channel]
+        assertThat(animation!!.looping).isFalse()
+    }
+
+    @Test
     fun getGltfModelAnimationCount_returnsZero() {
         val entityNode = fakeImpressApi.createImpressNode()
         val count = fakeImpressApi.getGltfModelAnimationCount(entityNode)
