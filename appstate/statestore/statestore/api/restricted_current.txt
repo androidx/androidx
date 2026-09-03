@@ -1,0 +1,28 @@
+// Signature format: 4.0
+package androidx.appstate.statestore {
+
+  public final class StateStore {
+    ctor public StateStore();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.appstate.statestore.StateStoreKey<? extends java.lang.Object?>> getKeys();
+    method public <T> androidx.compose.runtime.State<T> getState(androidx.appstate.statestore.StateStoreKey<T> stateKey, optional T defaultValue);
+    method @BytecodeOnly public static androidx.compose.runtime.State! getState$default(androidx.appstate.statestore.StateStore!, androidx.appstate.statestore.StateStoreKey!, Object!, int, Object!);
+    method public <T> void setState(androidx.appstate.statestore.StateStoreKey<T> stateKey, T value);
+    method public inline <T> void updateState(androidx.appstate.statestore.StateStoreKey<T> stateKey, optional T defaultValue, kotlin.jvm.functions.Function1<? super T,? extends T> update);
+    method @BytecodeOnly public static void updateState$default(androidx.appstate.statestore.StateStore!, androidx.appstate.statestore.StateStoreKey!, Object!, kotlin.jvm.functions.Function1!, int, Object!);
+    property public java.util.Set<androidx.appstate.statestore.StateStoreKey<? extends java.lang.Object?>> keys;
+  }
+
+  @kotlinx.serialization.Serializable public class StateStoreKey<T> {
+    ctor @BytecodeOnly public StateStoreKey(int, Object!, kotlinx.serialization.internal.SerializationConstructorMarker!);
+    ctor @BytecodeOnly public StateStoreKey(Object!, androidx.appstate.statestore.StateStoreKey!, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public StateStoreKey(T defaultValue, optional androidx.appstate.statestore.StateStoreKey<T>? autoClearKey, optional kotlin.jvm.functions.Function1<? super androidx.appstate.statestore.StateStore,java.lang.Boolean> shouldClearState);
+    method @InaccessibleFromKotlin public final androidx.appstate.statestore.StateStoreKey<T>? getAutoClearKey();
+    method @InaccessibleFromKotlin public final T getDefaultValue();
+    method @InaccessibleFromKotlin public final kotlin.jvm.functions.Function1<androidx.appstate.statestore.StateStore,java.lang.Boolean> getShouldClearState();
+    property @kotlinx.serialization.Transient public final androidx.appstate.statestore.StateStoreKey<T>? autoClearKey;
+    property public final T defaultValue;
+    property @kotlinx.serialization.Transient public final kotlin.jvm.functions.Function1<androidx.appstate.statestore.StateStore,java.lang.Boolean> shouldClearState;
+  }
+
+}
+
