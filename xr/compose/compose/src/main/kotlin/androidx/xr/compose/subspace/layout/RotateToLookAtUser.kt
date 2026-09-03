@@ -129,7 +129,7 @@ private class RotateToLookAtUserElement(
 }
 
 @OptIn(ExperimentalRotateToLookAtUserApi::class)
-internal class RotateToLookAtUserNode(
+private class RotateToLookAtUserNode(
     var isYawUpdateEnabled: Boolean,
     var isPitchUpdateEnabled: Boolean,
     var pitchLimits: PitchLimits,
