@@ -30,9 +30,9 @@ import androidx.tracing.TRACK_DESCRIPTOR_TYPE_COUNTER
 import androidx.tracing.TRACK_DESCRIPTOR_TYPE_PROCESS
 import androidx.tracing.TRACK_DESCRIPTOR_TYPE_THREAD
 import androidx.tracing.TraceEvent
-import androidx.tracing.wire.protos.MutableCallstack
 import androidx.tracing.wire.protos.MutableCounterDescriptor
 import androidx.tracing.wire.protos.MutableDebugAnnotation
+import androidx.tracing.wire.protos.MutableInlineCallstack
 import androidx.tracing.wire.protos.MutableProcessDescriptor
 import androidx.tracing.wire.protos.MutableThreadDescriptor
 import androidx.tracing.wire.protos.MutableTraceAttributes
@@ -64,11 +64,11 @@ internal class WireTraceEventSerializer(sequenceId: Int) {
     private val scratchAnnotationIndex = IntArray(1) { _ -> -1 }
 
     /** Scratch call stack */
-    private var scratchCallStack = MutableCallstack()
+    private var scratchCallStack = MutableInlineCallstack()
 
     /** Private scratchpad of callstack information. */
-    private var scratchFrames: MutableList<MutableCallstack.MutableFrame> =
-        MutableList(size = FRAMES_EXPECTED_SIZE) { MutableCallstack.MutableFrame() }
+    private var scratchFrames: MutableList<MutableInlineCallstack.MutableFrame> =
+        MutableList(size = FRAMES_EXPECTED_SIZE) { MutableInlineCallstack.MutableFrame() }
 
     /** This is passed by ref, to avoid unnecessary computation. */
     private val scratchFrameIndex = IntArray(1) { _ -> -1 }
@@ -210,8 +210,8 @@ internal class WireTraceEventSerializer(sequenceId: Int) {
             scratchTrackEvent: MutableTrackEvent,
             scratchAnnotations: MutableList<MutableDebugAnnotation>,
             scratchAnnotationIndex: IntArray,
-            scratchCallStack: MutableCallstack,
-            scratchFrames: MutableList<MutableCallstack.MutableFrame>,
+            scratchCallStack: MutableInlineCallstack,
+            scratchFrames: MutableList<MutableInlineCallstack.MutableFrame>,
             scratchFrameIndex: IntArray,
             scratchTraceAttributes: MutableTraceAttributes,
             scratchAttributes: MutableList<MutableTraceAttributes.MutableAttribute>,
@@ -327,7 +327,7 @@ internal class WireTraceEventSerializer(sequenceId: Int) {
                 repeat(event.lastFrameIndex + 1) {
                     index += 1
                     if (index >= scratchFrames.size) {
-                        scratchFrames += MutableCallstack.MutableFrame()
+                        scratchFrames += MutableInlineCallstack.MutableFrame()
                     }
                     val frameEntry = event.frames[it]
                     val frame = scratchFrames[it]
