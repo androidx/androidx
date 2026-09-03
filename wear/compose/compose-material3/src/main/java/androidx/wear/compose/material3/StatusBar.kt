@@ -351,10 +351,12 @@ private class StatusBarOrchestratorImpl(private val view: View) : StatusBarOrche
         }
     }
 
-    override fun isForWindow(view: View): Boolean {
-        if (this.view === view) return true
-        val ourRoot = this.view.rootView
-        val targetRoot = view.rootView
-        return ourRoot != null && targetRoot != null && ourRoot === targetRoot
-    }
+    override fun isForWindow(view: View): Boolean = this.view.isSameWindow(view)
+}
+
+internal fun View.isSameWindow(other: View): Boolean {
+    if (this === other) return true
+    val ourRoot = this.rootView
+    val targetRoot = other.rootView
+    return ourRoot != null && targetRoot != null && ourRoot === targetRoot
 }

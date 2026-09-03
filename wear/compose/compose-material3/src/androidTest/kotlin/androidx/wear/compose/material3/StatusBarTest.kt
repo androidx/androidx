@@ -101,7 +101,7 @@ class StatusBarTest {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
                 AppScaffold(isStatusBarEnabled = true) {
                     showStatusBar =
-                        LocalScaffoldState.current?.screenContent?.currentShowStatusBar?.value
+                        LocalScaffoldState.current?.screenContent?.currentScreenShowStatusBar?.value
                             ?: false
                     Box(modifier = Modifier.fillMaxSize())
                 }
@@ -120,7 +120,7 @@ class StatusBarTest {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
                 AppScaffold(isStatusBarEnabled = true) {
                     resolvedStatus =
-                        LocalScaffoldState.current?.screenContent?.currentShowStatusBar?.value
+                        LocalScaffoldState.current?.screenContent?.currentScreenShowStatusBar?.value
                     Box(modifier = Modifier.fillMaxSize())
                 }
             }
@@ -135,7 +135,7 @@ class StatusBarTest {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides false) {
                 AppScaffold(isStatusBarEnabled = true) {
                     resolvedStatus =
-                        LocalScaffoldState.current?.screenContent?.currentShowStatusBar?.value
+                        LocalScaffoldState.current?.screenContent?.currentScreenShowStatusBar?.value
                     Box(modifier = Modifier.fillMaxSize())
                 }
             }
@@ -193,7 +193,7 @@ class StatusBarTest {
             }
         }
         composeTestRule.waitForIdle()
-        Assert.assertEquals(false, scaffoldState?.screenContent?.currentShowStatusBar?.value)
+        Assert.assertEquals(false, scaffoldState?.screenContent?.currentScreenShowStatusBar?.value)
     }
 
     @Test
@@ -762,7 +762,7 @@ class StatusBarTest {
         Assert.assertEquals(
             "Innermost ScreenScaffold override (false) should take precedence over parent (true)",
             false,
-            scaffoldState?.screenContent?.currentShowStatusBar?.value,
+            scaffoldState?.screenContent?.currentScreenShowStatusBar?.value,
         )
     }
 
@@ -1435,6 +1435,167 @@ class StatusBarTest {
     }
 
     @Test
+    fun view_isSameWindow_matchesByIdentityAndRootView() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val decorView1 = TestView(targetContext)
+        val decorView2 = TestView(targetContext)
+        val view1 = TestView(targetContext)
+        val view2 = TestView(targetContext)
+
+        // Same instance matches
+        Assert.assertTrue(view1.isSameWindow(view1))
+
+        // Different unattached instances do not match
+        Assert.assertFalse(view1.isSameWindow(view2))
+
+        // Same root view matches
+        view1.mockRootView = decorView1
+        view2.mockRootView = decorView1
+        Assert.assertTrue(view1.isSameWindow(view2))
+
+        // Different root views do not match
+        view2.mockRootView = decorView2
+        Assert.assertFalse(view1.isSameWindow(view2))
+    }
+
+    @Test
+    fun screenContent_shouldAppWindowShowStatusBar_isolatesLayeredViewsFromAppWindow() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val appDecor = TestView(targetContext)
+        val dialogDecor = TestView(targetContext)
+        val appView = TestView(targetContext).apply { mockRootView = appDecor }
+        val dialogView = TestView(targetContext).apply { mockRootView = dialogDecor }
+
+        val screenContent =
+            ScreenContent(
+                appWindowView = mutableStateOf(appView),
+                appShowStatusBar = mutableStateOf(true),
+                isStatusBarSupported = mutableStateOf(true),
+                appTimeText = mutableStateOf({}),
+            )
+
+        val appScreenKey = Any()
+        val dialogScreenKey = Any()
+
+        // 1. App screen with StatusBarMode.Enabled
+        screenContent.addScreen(
+            key = appScreenKey,
+            view = mutableStateOf(appView),
+            statusBarMode = mutableStateOf(StatusBarMode.Enabled),
+        )
+        Assert.assertTrue(screenContent.currentScreenShowStatusBar.value)
+        Assert.assertTrue(screenContent.shouldAppWindowShowStatusBar.value)
+
+        // 2. Dialog screen added on top with StatusBarMode.Disabled
+        screenContent.addScreen(
+            key = dialogScreenKey,
+            view = mutableStateOf(dialogView),
+            statusBarMode = mutableStateOf(StatusBarMode.Disabled),
+        )
+
+        // Top-of-stack (dialog) drives currentScreenShowStatusBar to false (for System status bar
+        // hide)
+        Assert.assertFalse(screenContent.currentScreenShowStatusBar.value)
+        // BUT App window status bar state remains true (TimeText won't show in app window)
+        Assert.assertTrue(screenContent.shouldAppWindowShowStatusBar.value)
+    }
+
+    @Test
+    fun multiWindow_layeredViewWithDisabledStatusBar_doesNotShowLocalTimeTextInAppScaffold() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val appWindowView = TestView(targetContext)
+        val dialogView = TestView(targetContext)
+        val mockInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        appWindowView.mockRootWindowInsets = mockInsets
+        dialogView.mockRootWindowInsets = mockInsets
+
+        var showDialog by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides appWindowView,
+            ) {
+                AppScaffold(isStatusBarEnabled = true, timeText = { Text("AppTimeText") }) {
+                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                        Box(modifier = Modifier.fillMaxSize())
+                    }
+
+                    if (showDialog) {
+                        CompositionLocalProvider(LocalView provides dialogView) {
+                            ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {
+                                Box(modifier = Modifier.fillMaxSize())
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        // App window has status bar enabled -> AppTimeText is NOT displayed
+        composeTestRule.onNodeWithText("AppTimeText").assertDoesNotExist()
+
+        // Open Dialog with StatusBarMode.Disabled
+        composeTestRule.runOnUiThread { showDialog = true }
+        composeTestRule.waitForIdle()
+
+        // Dialog orchestrator should have received hide()
+        Assert.assertTrue(
+            "Dialog window should receive hide()",
+            dialogView.testController.hideCount > 0,
+        )
+
+        // But local AppTimeText in AppScaffold must STILL NOT be displayed!
+        composeTestRule.onNodeWithText("AppTimeText").assertDoesNotExist()
+    }
+
+    @Test
+    fun multiWindow_realDialogWithDisabledStatusBar_doesNotShowLocalTimeTextInAppScaffold() {
+        var showDialog by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true, timeText = { Text("AppTimeText") }) {
+                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                        Box(modifier = Modifier.fillMaxSize())
+                    }
+
+                    Dialog(visible = showDialog, onDismissRequest = { showDialog = false }) {
+                        ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {
+                            Box(modifier = Modifier.fillMaxSize()) { Text("DialogContent") }
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        // App window has status bar enabled -> AppTimeText is NOT displayed
+        composeTestRule.onNodeWithText("AppTimeText").assertDoesNotExist()
+        composeTestRule.onNodeWithText("DialogContent").assertDoesNotExist()
+
+        // Open Real Dialog with StatusBarMode.Disabled
+        composeTestRule.runOnUiThread { showDialog = true }
+        composeTestRule.waitForIdle()
+
+        // Dialog content is displayed
+        composeTestRule.onNodeWithText("DialogContent").assertIsDisplayed()
+
+        // Local AppTimeText in AppScaffold must STILL NOT be displayed because AppScaffold's
+        // window status bar remains enabled for the app window
+        composeTestRule.onNodeWithText("AppTimeText").assertDoesNotExist()
+
+        // Dismiss Dialog
+        composeTestRule.runOnUiThread { showDialog = false }
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("DialogContent").assertDoesNotExist()
+        composeTestRule.onNodeWithText("AppTimeText").assertDoesNotExist()
+    }
+
+    @Test
     fun screenContent_resolveShowStatusBarForScreen_isolatesScreensInStack() {
         val dummyView = mutableStateOf(View(ApplicationProvider.getApplicationContext()))
         val screenContent =
@@ -1455,11 +1616,11 @@ class StatusBarTest {
             statusBarMode = mutableStateOf(StatusBarMode.Enabled),
         )
 
-        // Background screen resolves to true, currentShowStatusBar is true
+        // Background screen resolves to true, currentScreenShowStatusBar is true
         Assert.assertTrue(
             screenContent.resolveShowStatusBarForScreen(backgroundScreenKey, StatusBarMode.Enabled)
         )
-        Assert.assertTrue(screenContent.currentShowStatusBar.value)
+        Assert.assertTrue(screenContent.currentScreenShowStatusBar.value)
 
         // 2. Add overlay screen with StatusBarMode.Disabled
         screenContent.addScreen(
@@ -1468,8 +1629,8 @@ class StatusBarTest {
             statusBarMode = mutableStateOf(StatusBarMode.Disabled),
         )
 
-        // Active top screen (overlay) sets currentShowStatusBar to false
-        Assert.assertFalse(screenContent.currentShowStatusBar.value)
+        // Active top screen (overlay) sets currentScreenShowStatusBar to false
+        Assert.assertFalse(screenContent.currentScreenShowStatusBar.value)
         // Overlay screen resolves to false
         Assert.assertFalse(
             screenContent.resolveShowStatusBarForScreen(overlayScreenKey, StatusBarMode.Disabled)
