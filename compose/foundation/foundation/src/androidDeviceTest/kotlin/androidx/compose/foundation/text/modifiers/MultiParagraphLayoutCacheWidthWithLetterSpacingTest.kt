@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
+import androidx.compose.foundation.text.TEST_LOCALE_LIST
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
@@ -46,6 +47,7 @@ class MultiParagraphLayoutCacheWidthWithLetterSpacingTest {
     private val context = InstrumentationRegistry.getInstrumentation().context
     @OptIn(ExperimentalTextApi::class)
     private val fontFamilyResolver = createFontFamilyResolver(context)
+    private val defaultLocaleList = TEST_LOCALE_LIST
 
     @Test
     fun letterSpacing_and_lineHeight() {
@@ -73,6 +75,7 @@ class MultiParagraphLayoutCacheWidthWithLetterSpacingTest {
                     text = AnnotatedString(text = "This is a callout message"),
                     style = style.copy(fontFamily = fontFamily, fontSize = fontSize),
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocaleList = defaultLocaleList,
                     softWrap = true,
                     overflow = TextOverflow.Clip,
                 )

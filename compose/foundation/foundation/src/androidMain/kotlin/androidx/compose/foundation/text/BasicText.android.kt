@@ -31,6 +31,7 @@ import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.resolveDefaults
 import androidx.compose.ui.util.trace
 import java.text.BreakIterator
@@ -70,6 +71,7 @@ internal actual fun BackgroundTextMeasurement(
     text: String,
     style: TextStyle,
     fontFamilyResolver: FontFamily.Resolver,
+    defaultLocaleList: LocaleList,
     softWrap: Boolean,
 ) {
     val executor = LocalBackgroundTextMeasurementExecutor.current
@@ -92,6 +94,7 @@ internal actual fun BackgroundTextMeasurement(
                                     emptyList<AnnotatedString.Range<AnnotatedString.Annotation>>(),
                                 placeholders = emptyList(),
                                 softWrap = softWrap,
+                                defaultLocaleList = defaultLocaleList,
                             )
                         // maxIntrinsicWidth premeasures all words in the given text. This warms
                         // the platform word layout cache so that when the UI thread starts
@@ -113,6 +116,7 @@ internal actual fun BackgroundTextMeasurement(
     text: AnnotatedString,
     style: TextStyle,
     fontFamilyResolver: FontFamily.Resolver,
+    defaultLocaleList: LocaleList,
     placeholders: List<AnnotatedString.Range<Placeholder>>?,
     softWrap: Boolean,
 ) {
@@ -134,6 +138,7 @@ internal actual fun BackgroundTextMeasurement(
                                 placeholders = placeholders ?: emptyList(),
                                 fontFamilyResolver = fontFamilyResolver,
                                 softWrap = softWrap,
+                                defaultLocaleList = defaultLocaleList,
                             )
                         // maxIntrinsicWidth premeasures all words in the given text. This warms
                         // the platform word layout cache so that when the UI thread starts

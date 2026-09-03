@@ -34,6 +34,8 @@ import androidx.compose.ui.text.font.PlatformFontFamilyTypefaceAdapter
 import androidx.compose.ui.text.font.PlatformFontLoader
 import androidx.compose.ui.text.font.PlatformResolveInterceptor
 import androidx.compose.ui.text.font.TypefaceRequestCache
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextDecoration
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -236,3 +238,7 @@ internal fun CharSequence.rangeOf(ch: Char): TextRange {
 internal fun CharSequence.rangeOf(from: Char, to: Char): TextRange {
     return TextRange(indexOf(from), indexOf(to) + 1)
 }
+
+/** The standard testing locale used throughout tests. */
+internal val TEST_LOCALE = Locale("en")
+internal val TEST_LOCALE_LIST = LocaleList("en")

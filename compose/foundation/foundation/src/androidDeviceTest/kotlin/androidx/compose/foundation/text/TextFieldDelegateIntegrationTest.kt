@@ -46,6 +46,7 @@ class TextFieldDelegateIntegrationTest {
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val fontFamilyResolver = createFontFamilyResolver(context)
     private val layoutDirection = LayoutDirection.Ltr
+    private val defaultLocaleList = TEST_LOCALE_LIST
 
     @Test
     fun draw_selection_test() {
@@ -56,6 +57,7 @@ class TextFieldDelegateIntegrationTest {
                 maxLines = 2,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocaleList = defaultLocaleList,
             )
         val selection = TextRange(0, 1)
         val selectionColor = Color.Blue
@@ -93,6 +95,7 @@ class TextFieldDelegateIntegrationTest {
                 maxLines = 2,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocaleList = defaultLocaleList,
             )
         val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024), layoutDirection)
         val deletionPreviewHighlightRange = TextRange(3, 5)
@@ -128,6 +131,7 @@ class TextFieldDelegateIntegrationTest {
                 maxLines = 2,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocaleList = defaultLocaleList,
             )
         val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024), layoutDirection)
         val requestHeight = layoutResult.size.height / 2
@@ -151,6 +155,7 @@ class TextFieldDelegateIntegrationTest {
                 maxLines = 2,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocaleList = defaultLocaleList,
             )
         val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024), layoutDirection)
         val requestHeight = layoutResult.size.height * 2
@@ -173,6 +178,7 @@ class TextFieldDelegateIntegrationTest {
                 style = TextStyle.Default,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocaleList = defaultLocaleList,
             )
         val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024), layoutDirection)
         val requestHeight = layoutResult.size.height * 2
@@ -195,6 +201,7 @@ class TextFieldDelegateIntegrationTest {
                 style = TextStyle.Default,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocaleList = defaultLocaleList,
             )
         val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024), layoutDirection)
         val requestHeight = layoutResult.size.height / 2
@@ -220,6 +227,7 @@ class TextFieldDelegateIntegrationTest {
                 style = TextStyle.Default,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocaleList = defaultLocaleList,
             )
 
         val layoutResult = textDelegate.layout(Constraints(), layoutDirection)

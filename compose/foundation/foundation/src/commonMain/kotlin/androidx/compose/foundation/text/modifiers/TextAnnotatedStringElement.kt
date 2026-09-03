@@ -27,6 +27,7 @@ import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextOverflow
 
 /**
@@ -38,6 +39,7 @@ internal class TextAnnotatedStringElement(
     private val text: AnnotatedString,
     private val style: TextStyle,
     private val fontFamilyResolver: FontFamily.Resolver,
+    private val defaultLocaleList: LocaleList,
     private val onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     private val overflow: TextOverflow = TextOverflow.Clip,
     private val softWrap: Boolean = true,
@@ -57,6 +59,7 @@ internal class TextAnnotatedStringElement(
             text,
             style,
             fontFamilyResolver,
+            defaultLocaleList,
             onTextLayout,
             overflow,
             softWrap,
@@ -82,6 +85,7 @@ internal class TextAnnotatedStringElement(
                     maxLines = maxLines,
                     softWrap = softWrap,
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocaleList = defaultLocaleList,
                     overflow = overflow,
                     autoSize = autoSize,
                 ),
@@ -108,6 +112,7 @@ internal class TextAnnotatedStringElement(
 
         // these are equally unlikely to change
         if (fontFamilyResolver != other.fontFamilyResolver) return false
+        if (defaultLocaleList != other.defaultLocaleList) return false
         if (onTextLayout !== other.onTextLayout) return false
         if (onShowTranslation !== other.onShowTranslation) return false
         if (overflow != other.overflow) return false
@@ -126,6 +131,7 @@ internal class TextAnnotatedStringElement(
         var result = text.hashCode()
         result = 31 * result + style.hashCode()
         result = 31 * result + fontFamilyResolver.hashCode()
+        result = 31 * result + defaultLocaleList.hashCode()
         result = 31 * result + (onTextLayout?.hashCode() ?: 0)
         result = 31 * result + overflow.hashCode()
         result = 31 * result + softWrap.hashCode()
