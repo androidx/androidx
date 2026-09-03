@@ -17,7 +17,6 @@
 package androidx.wear.compose.material3
 
 import android.os.Build
-import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
@@ -63,6 +61,7 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.foundation.pager.rememberPagerState
 import com.google.common.truth.Truth.assertThat
 import junit.framework.TestCase.assertEquals
 import kotlin.OptIn
@@ -1061,141 +1060,133 @@ class ScaffoldTest {
     }
 
     @Test
-    fun resolveShowStatusBarForScreen_explicitModes_returnDirectly() {
-        var screenContent: ScreenContent? = null
-        val dummyKey = Any()
+    fun screenScaffold_explicitStatusBarModes_resolveDirectly() {
+        var enabledScreenShow: Boolean? = null
+        var disabledScreenShow: Boolean? = null
+
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
                 AppScaffold(isStatusBarEnabled = true) {
-                    screenContent = LocalScaffoldState.current?.screenContent
-                    // Even with a disabled screen registered on the stack
-                    ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {}
+                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                        enabledScreenShow = LocalInheritedShowStatusBar.current
+                    }
+                    ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {
+                        disabledScreenShow = LocalInheritedShowStatusBar.current
+                    }
                 }
             }
         }
 
         rule.runOnIdle {
-            assertThat(
-                    screenContent?.resolveShowStatusBarForScreen(dummyKey, StatusBarMode.Enabled)
-                )
-                .isTrue()
-            assertThat(
-                    screenContent?.resolveShowStatusBarForScreen(dummyKey, StatusBarMode.Disabled)
-                )
-                .isFalse()
+            assertThat(enabledScreenShow).isTrue()
+            assertThat(disabledScreenShow).isFalse()
         }
     }
 
     @Test
-    fun resolveShowStatusBarForScreen_inheritMode_scansDownwardFromCallingScreen() {
-        var screenContent: ScreenContent? = null
-        var view: View? = null
-        val key1 = Any()
-        val key2 = Any()
-        val key3 = Any()
+    fun screenScaffold_inheritStatusBarMode_inheritsFromParentScreen() {
+        var outerShow: Boolean? = null
+        var innerShow: Boolean? = null
 
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
                 AppScaffold(isStatusBarEnabled = true) {
-                    screenContent = LocalScaffoldState.current?.screenContent
-                    view = LocalView.current
+                    ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {
+                        outerShow = LocalInheritedShowStatusBar.current
+                        ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {
+                            innerShow = LocalInheritedShowStatusBar.current
+                        }
+                    }
                 }
             }
         }
 
         rule.runOnIdle {
-            val content = screenContent!!
-            val currentView = mutableStateOf(view!!)
-            // Screen 1: Disabled
-            content.addScreen(
-                key1,
-                view = currentView,
-                statusBarMode = mutableStateOf(StatusBarMode.Disabled),
-            )
-            // Screen 2: Inherit
-            content.addScreen(
-                key2,
-                view = currentView,
-                statusBarMode = mutableStateOf(StatusBarMode.Inherit),
-            )
-            // Screen 3: Enabled
-            content.addScreen(
-                key3,
-                view = currentView,
-                statusBarMode = mutableStateOf(StatusBarMode.Enabled),
-            )
-
-            // Screen 3 is Enabled -> true
-            assertThat(content.resolveShowStatusBarForScreen(key3, StatusBarMode.Enabled)).isTrue()
-
-            // Screen 2 has Inherit mode; scanning downward from Screen 2 finds Screen 1 (Disabled)
-            // -> false. Note that it must NOT see Screen 3 above it.
-            assertThat(content.resolveShowStatusBarForScreen(key2, StatusBarMode.Inherit)).isFalse()
-
-            // Screen 1 is Disabled -> false
-            assertThat(content.resolveShowStatusBarForScreen(key1, StatusBarMode.Disabled))
-                .isFalse()
+            assertThat(outerShow).isFalse()
+            assertThat(innerShow).isFalse()
         }
     }
 
     @Test
-    fun resolveShowStatusBarForScreen_inheritMode_whenNoAncestors_fallsBackToAppScaffold() {
-        var screenContent: ScreenContent? = null
-        val dummyKey = Any()
+    fun screenScaffold_inheritStatusBarMode_whenNoParentScreen_inheritsFromAppScaffold() {
+        var screenShow: Boolean? = null
         var appShowStatusBar by mutableStateOf(true)
 
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
                 AppScaffold(isStatusBarEnabled = appShowStatusBar) {
-                    screenContent = LocalScaffoldState.current?.screenContent
-                    ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {}
+                    ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {
+                        screenShow = LocalInheritedShowStatusBar.current
+                    }
                 }
             }
         }
 
-        rule.runOnIdle {
-            assertThat(
-                    screenContent?.resolveShowStatusBarForScreen(dummyKey, StatusBarMode.Inherit)
-                )
-                .isTrue()
-        }
+        rule.runOnIdle { assertThat(screenShow).isTrue() }
 
         rule.runOnUiThread { appShowStatusBar = false }
-        rule.runOnIdle {
-            assertThat(
-                    screenContent?.resolveShowStatusBarForScreen(dummyKey, StatusBarMode.Inherit)
-                )
-                .isFalse()
-        }
+        rule.runOnIdle { assertThat(screenShow).isFalse() }
     }
 
     @Test
-    fun resolveShowStatusBarForScreen_whenHardwareUnsupported_alwaysReturnsFalse() {
-        var screenContent: ScreenContent? = null
-        val dummyKey = Any()
+    fun pagerScaffold_inheritStatusBarMode_inheritsFromAppScaffold() {
+        var pageScreenShow: Boolean? = null
+        var appShowStatusBar by mutableStateOf(true)
+
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = appShowStatusBar) {
+                    val pagerState = rememberPagerState { 1 }
+                    HorizontalPagerScaffold(pagerState = pagerState) {
+                        ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {
+                            pageScreenShow = LocalInheritedShowStatusBar.current
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle { assertThat(pageScreenShow).isTrue() }
+
+        rule.runOnUiThread { appShowStatusBar = false }
+        rule.runOnIdle { assertThat(pageScreenShow).isFalse() }
+    }
+
+    @Test
+    fun localInheritedShowStatusBar_defaultIsFalse() {
+        var inheritedShow: Boolean? = null
+
+        rule.setContentWithTheme { inheritedShow = LocalInheritedShowStatusBar.current }
+
+        rule.runOnIdle { assertThat(inheritedShow).isFalse() }
+    }
+
+    @Test
+    fun screenScaffold_whenHardwareUnsupported_alwaysResolvesToDisabled() {
+        var enabledScreenShow: Boolean? = null
+        var disabledScreenShow: Boolean? = null
+        var inheritScreenShow: Boolean? = null
 
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides false) {
                 AppScaffold(isStatusBarEnabled = true) {
-                    screenContent = LocalScaffoldState.current?.screenContent
-                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {}
+                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                        enabledScreenShow = LocalInheritedShowStatusBar.current
+                    }
+                    ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {
+                        disabledScreenShow = LocalInheritedShowStatusBar.current
+                    }
+                    ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {
+                        inheritScreenShow = LocalInheritedShowStatusBar.current
+                    }
                 }
             }
         }
 
         rule.runOnIdle {
-            assertThat(
-                    screenContent?.resolveShowStatusBarForScreen(dummyKey, StatusBarMode.Enabled)
-                )
-                .isFalse()
-            assertThat(
-                    screenContent?.resolveShowStatusBarForScreen(dummyKey, StatusBarMode.Disabled)
-                )
-                .isFalse()
-            assertThat(
-                    screenContent?.resolveShowStatusBarForScreen(dummyKey, StatusBarMode.Inherit)
-                )
-                .isFalse()
+            assertThat(enabledScreenShow).isFalse()
+            assertThat(disabledScreenShow).isFalse()
+            assertThat(inheritScreenShow).isFalse()
         }
     }
 

@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
@@ -46,7 +45,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastForEachReversed
+import androidx.compose.ui.util.fastLastOrNull
 import androidx.wear.compose.foundation.ScrollInfoProvider
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.delay
@@ -62,19 +61,16 @@ import kotlinx.coroutines.launch
  *
  * @param appTimeText The default time text composable provided by [AppScaffold].
  * @param appShowStatusBar Whether the system status bar overlay is enabled at the app level.
- * @param isStatusBarSupported Whether status bar management is supported on this device/platform.
  * @param appWindowView The [View] associated with the root [AppScaffold] window.
  */
 internal class ScaffoldState(
     appTimeText: State<@Composable () -> Unit> = mutableStateOf({}),
     appShowStatusBar: State<Boolean> = mutableStateOf(true),
-    isStatusBarSupported: State<Boolean> = mutableStateOf(false),
     appWindowView: State<View>,
 ) {
     val screenContent =
         ScreenContent(
             appShowStatusBar = appShowStatusBar,
-            isStatusBarSupported = isStatusBarSupported,
             appTimeText = appTimeText,
             appWindowView = appWindowView,
         )
@@ -98,13 +94,11 @@ internal class ScaffoldState(
  * longer in use.
  *
  * @param appShowStatusBar Default status bar overlay visibility configured by [AppScaffold].
- * @param isStatusBarSupported Whether the device platform supports status bar overlay control.
  * @param appTimeText Default application-level [TimeText] composable.
  * @param appWindowView The [View] associated with the root [AppScaffold] window.
  */
 internal class ScreenContent(
     private val appShowStatusBar: State<Boolean>,
-    private val isStatusBarSupported: State<Boolean>,
     private val appTimeText: State<@Composable () -> Unit>,
     private val appWindowView: State<View>,
 ) {
@@ -125,87 +119,27 @@ internal class ScreenContent(
     }
 
     /**
-     * Evaluates status bar visibility for the active top-most screen on the stack by scanning down
-     * the screen stack for the nearest explicit mode ([StatusBarMode.Enabled] or
-     * [StatusBarMode.Disabled]), falling back to [appShowStatusBar] if all active screens specify
-     * [StatusBarMode.Inherit].
+     * Evaluates status bar visibility for the active top-most screen on the stack, falling back to
+     * [appShowStatusBar] if no screen is on the stack.
      */
     val currentScreenShowStatusBar: State<Boolean> = derivedStateOf {
-        if (!isStatusBarSupported.value) {
-            return@derivedStateOf false
-        }
-
-        contentItems.toList().fastForEachReversed {
-            when (it.statusBarMode.value) {
-                StatusBarMode.Enabled -> return@derivedStateOf true
-                StatusBarMode.Disabled -> return@derivedStateOf false
-                StatusBarMode.Inherit -> {}
-            }
-        }
-        appShowStatusBar.value
+        contentItems.lastOrNull()?.showStatusBar?.value ?: appShowStatusBar.value
     }
 
     /**
-     * Evaluates status bar visibility specifically for the root App Window by scanning down the
-     * screen stack for screens belonging to [appWindowView], falling back to [appShowStatusBar].
+     * Evaluates status bar visibility specifically for the root App Window by selecting the
+     * top-most screen belonging to [appWindowView], falling back to [appShowStatusBar].
      *
-     * Used by [AppScaffold] to determine if the local [TimeText] should be rendered in the App View
-     * hierarchy.
+     * Used by [AppScaffold] to determine whether the status bar should be shown on the root App
+     * Window.
      */
     val shouldAppWindowShowStatusBar: State<Boolean> = derivedStateOf {
-        if (!isStatusBarSupported.value) {
-            return@derivedStateOf false
-        }
-
         val appView = appWindowView.value
-        contentItems.toList().fastForEachReversed {
-            if (appView.isSameWindow(it.view.value)) {
-                when (it.statusBarMode.value) {
-                    StatusBarMode.Enabled -> return@derivedStateOf true
-                    StatusBarMode.Disabled -> return@derivedStateOf false
-                    StatusBarMode.Inherit -> {}
-                }
-            }
-        }
-        appShowStatusBar.value
-    }
-
-    /**
-     * Resolves status bar visibility for a specific screen in the stack to determine its local
-     * layout padding.
-     *
-     * Note on why [statusBarMode] is passed directly: [ScreenScaffold] calculates its layout insets
-     * during the **Composition Phase**, whereas screen registration in [contentItems] commits
-     * during the post-composition **Effect Phase** ([DisposableEffect]). Passing [statusBarMode]
-     * directly ensures that on Frame 1, the screen's intended mode is known immediately during
-     * initial composition without waiting for [addScreen] to commit, preventing a 1-frame layout
-     * shift.
-     *
-     * If the screen specifies [StatusBarMode.Inherit], this function locates the screen by [key]
-     * and scans downward through ancestor screens in [contentItems] (e.g. an enclosing Dialog
-     * container) to inherit from the nearest parent, falling back to [appShowStatusBar].
-     *
-     * @param key The unique key identifying the screen in [contentItems].
-     * @param statusBarMode The [StatusBarMode] configured on the screen.
-     * @return `true` if the status bar should be visible and space reserved for insets on this
-     *   screen; `false` otherwise.
-     */
-    fun resolveShowStatusBarForScreen(key: Any, statusBarMode: StatusBarMode): Boolean {
-        if (!isStatusBarSupported.value) return false
-
-        if (statusBarMode == StatusBarMode.Enabled) return true
-        if (statusBarMode == StatusBarMode.Disabled) return false
-
-        val index = contentItems.indexOfFirst { it.key === key }
-        val startIndex = if (index != -1) index - 1 else contentItems.lastIndex
-        for (i in startIndex downTo 0) {
-            when (contentItems[i].statusBarMode.value) {
-                StatusBarMode.Enabled -> return true
-                StatusBarMode.Disabled -> return false
-                StatusBarMode.Inherit -> {}
-            }
-        }
-        return appShowStatusBar.value
+        contentItems
+            .toList()
+            .fastLastOrNull { appView.isSameWindow(it.view.value) }
+            ?.showStatusBar
+            ?.value ?: appShowStatusBar.value
     }
 
     /**
@@ -263,14 +197,14 @@ internal class ScreenContent(
      * @param view The [View] state associated with this screen, used to resolve its root window.
      * @param timeText The custom time text composable state for this screen.
      * @param scrollInfoProvider The [ScrollInfoProvider] state for scroll-driven effects.
-     * @param statusBarMode The [StatusBarMode] state configured for this screen.
+     * @param showStatusBar Whether status bar overlay is enabled for this screen.
      */
     fun addScreen(
         key: Any,
         view: State<View>,
-        timeText: State<(@Composable () -> Unit)?> = mutableStateOf(null),
-        scrollInfoProvider: State<ScrollInfoProvider?> = mutableStateOf(null),
-        statusBarMode: State<StatusBarMode> = mutableStateOf(StatusBarMode.Inherit),
+        timeText: State<(@Composable () -> Unit)?>,
+        scrollInfoProvider: State<ScrollInfoProvider?>,
+        showStatusBar: State<Boolean>,
     ) {
         // If a screen with this key is already present, remove it first. This ensures no duplicate
         // entries exist in contentItems (which would cause removeScreen to orphan duplicate
@@ -286,7 +220,7 @@ internal class ScreenContent(
                 key = key,
                 view = view,
                 scrollInfoProvider = scrollInfoProvider,
-                statusBarMode = statusBarMode,
+                showStatusBar = showStatusBar,
                 timeText = timeText,
             )
         )
@@ -370,15 +304,15 @@ internal class ScreenContent(
      * @property view The Android [View] associated with the screen, used to resolve its root
      *   window.
      * @property scrollInfoProvider Provider for scroll information used for scroll-away effects.
-     * @property statusBarMode The status bar overlay mode configured for this screen.
+     * @property showStatusBar Whether the status bar overlay is enabled for this screen.
      * @property timeText Optional custom time text composable for this screen.
      */
     private class ScreenContentData(
         val key: Any,
         val view: State<View>,
-        val scrollInfoProvider: State<ScrollInfoProvider?> = mutableStateOf(null),
-        val statusBarMode: State<StatusBarMode> = mutableStateOf(StatusBarMode.Inherit),
-        val timeText: State<(@Composable () -> Unit)?> = mutableStateOf(null),
+        val scrollInfoProvider: State<ScrollInfoProvider?>,
+        val showStatusBar: State<Boolean>,
+        val timeText: State<(@Composable () -> Unit)?>,
     )
 }
 
