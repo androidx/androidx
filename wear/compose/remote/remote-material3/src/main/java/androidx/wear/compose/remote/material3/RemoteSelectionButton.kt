@@ -366,24 +366,35 @@ internal fun RemoteSwitchControl(
         }
         drawCircle(paint = thumbPaint, radius = thumbRadiusPx, center = thumbCenter)
 
-        // Thumb tick icon
+        // Thumb tick icon. The tick's design box is placed so that its centre lands on the thumb,
+        // which is how Wear Material 3 positions the same shape, and scaled around the thumb centre
+        // by progress.
         val tickPaint = RemotePaint {
             style = PaintingStyle.Stroke
-            strokeWidth = strokeWidthPx
+            strokeWidth = strokeWidthPx * progress
             strokeCap = StrokeCap.Round
             color = thumbIconColor
         }
-        drawLine(
-            paint = tickPaint,
-            start =
-                RemoteOffset(thumbCenterXPx - 4.6f.rdp.toPx(), thumbCenterYPx + 1.0f.rdp.toPx()),
-            end = RemoteOffset(thumbCenterXPx - 2.0f.rdp.toPx(), thumbCenterYPx + 3.5f.rdp.toPx()),
-        )
-        drawLine(
-            paint = tickPaint,
-            start =
-                RemoteOffset(thumbCenterXPx - 2.0f.rdp.toPx(), thumbCenterYPx + 3.5f.rdp.toPx()),
-            end = RemoteOffset(thumbCenterXPx + 4.5f.rdp.toPx(), thumbCenterYPx - 2.9f.rdp.toPx()),
-        )
+        val baseStart =
+            RemoteOffset(
+                thumbCenterXPx +
+                    (TICK_BASE_START_X_DP - TICK_DESIGN_CENTER_DP).rdp.toPx() * progress,
+                thumbCenterYPx +
+                    (TICK_BASE_START_Y_DP - TICK_DESIGN_CENTER_DP).rdp.toPx() * progress,
+            )
+        val baseEnd =
+            RemoteOffset(
+                thumbCenterXPx + (TICK_BASE_END_X_DP - TICK_DESIGN_CENTER_DP).rdp.toPx() * progress,
+                thumbCenterYPx + (TICK_BASE_END_Y_DP - TICK_DESIGN_CENTER_DP).rdp.toPx() * progress,
+            )
+        val stickEnd =
+            RemoteOffset(
+                thumbCenterXPx +
+                    (TICK_STICK_END_X_DP - TICK_DESIGN_CENTER_DP).rdp.toPx() * progress,
+                thumbCenterYPx +
+                    (TICK_STICK_END_Y_DP - TICK_DESIGN_CENTER_DP).rdp.toPx() * progress,
+            )
+        drawLine(paint = tickPaint, start = baseStart, end = baseEnd)
+        drawLine(paint = tickPaint, start = baseEnd, end = stickEnd)
     }
 }
