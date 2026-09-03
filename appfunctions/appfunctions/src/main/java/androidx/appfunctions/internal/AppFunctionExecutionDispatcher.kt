@@ -26,6 +26,7 @@ import androidx.appfunctions.AppFunctionException
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.metadata.AppFunctionMetadata
 import java.util.function.Consumer
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -40,8 +41,7 @@ public object AppFunctionExecutionDispatcher {
      *
      * @param coroutineScope The [CoroutineScope] used to launch the execution coroutine.
      * @param request The [ExecuteAppFunctionRequest] to execute.
-     * @param inventory The [AppFunctionInventory] to look up
-     *   [androidx.appfunctions.metadata.AppFunctionMetadata] for [request].
+     * @param metadata The [AppFunctionMetadata] for target function.
      * @param cancellationSignal The [CancellationSignal] used to cancel the execution.
      * @param callback The [Consumer] to receive the [ExecuteAppFunctionResponse].
      * @param block The block of code to execute. The block will be invoked with a map of parameter
@@ -50,7 +50,7 @@ public object AppFunctionExecutionDispatcher {
     public fun dispatchExecuteAppFunction(
         coroutineScope: CoroutineScope,
         request: ExecuteAppFunctionRequest,
-        inventory: AppFunctionInventory,
+        metadata: AppFunctionMetadata,
         cancellationSignal: CancellationSignal,
         callback: Consumer<ExecuteAppFunctionResponse>,
         block: suspend (Map<String, Any?>) -> Any?,
@@ -58,7 +58,7 @@ public object AppFunctionExecutionDispatcher {
         val job = coroutineScope.launch {
             val response =
                 try {
-                    executeAppFunction(inventory, request, block)
+                    executeAppFunction(metadata, request, block)
                 } catch (e: AppFunctionException) {
                     ExecuteAppFunctionResponse.Error(e)
                 }
@@ -72,8 +72,7 @@ public object AppFunctionExecutionDispatcher {
     /**
      * Executes an AppFunction with the given request.
      *
-     * @param inventory The inventory to look up
-     *   [androidx.appfunctions.metadata.AppFunctionMetadata] for [request].
+     * @param metadata The target function's [AppFunctionMetadata].
      * @param request The request to execute.
      * @param block The block of code to execute. The block will be invoked with a map of parameter
      *   names to their extracted values.
@@ -85,28 +84,22 @@ public object AppFunctionExecutionDispatcher {
      * @throws AppFunctionAppUnknownException if any other exception is thrown during execution.
      */
     private suspend fun executeAppFunction(
-        inventory: AppFunctionInventory,
+        metadata: AppFunctionMetadata,
         request: ExecuteAppFunctionRequest,
         block: suspend (Map<String, Any?>) -> Any?,
     ): ExecuteAppFunctionResponse {
         try {
-            val appFunctionMetadata = inventory.functionIdToMetadataMap[request.functionIdentifier]
-            if (appFunctionMetadata == null) {
-                throw AppFunctionFunctionNotFoundException(
-                    "${request.functionIdentifier} is not available"
-                )
-            }
             val parameters = buildMap {
-                for (parameterMetadata in appFunctionMetadata.parameters) {
+                for (parameterMetadata in metadata.parameters) {
                     this[parameterMetadata.name] =
                         request.functionParameters.unsafeGetParameterValue(parameterMetadata)
                 }
             }
             val result = block(parameters)
             val returnValue =
-                appFunctionMetadata.response.unsafeBuildReturnValue(
+                metadata.response.unsafeBuildReturnValue(
                     result,
-                    inventory.componentsMetadata,
+                    metadata.components,
                 )
             return ExecuteAppFunctionResponse.Success(returnValue)
         } catch (e: CancellationException) {

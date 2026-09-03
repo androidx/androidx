@@ -30,6 +30,7 @@ import androidx.annotation.RequiresApi
 import androidx.appfunctions.ExecuteAppFunctionRequest.Companion.toCompatExecuteAppFunctionRequest
 import androidx.appfunctions.internal.AppFunctionInventoryProvider
 import androidx.appfunctions.internal.AppFunctionMetadataUtils.getAppFunctionMetadata
+import androidx.appfunctions.metadata.AppFunctionMetadata
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.function.Consumer
@@ -111,6 +112,7 @@ public abstract class AppFunctionService :
             this@AppFunctionService.mainExecutor.execute {
                 onExecuteFunction(
                     request.toCompatExecuteAppFunctionRequest(appFunctionMetadata),
+                    appFunctionMetadata,
                     delegateCancellationSignal,
                 ) { response ->
                     when (response) {
@@ -150,12 +152,14 @@ public abstract class AppFunctionService :
      * The implementation should try to respect the provided [CancellationSignal], if possible.
      *
      * @param request The function execution request.
+     * @param metadata The target function's [AppFunctionMetadata].
      * @param cancellationSignal A signal to cancel the execution.
      * @param callback A callback to report back the result or error.
      */
     @MainThread
     public abstract fun onExecuteFunction(
         request: ExecuteAppFunctionRequest,
+        metadata: AppFunctionMetadata,
         cancellationSignal: CancellationSignal,
         callback: Consumer<ExecuteAppFunctionResponse>,
     )

@@ -24,15 +24,14 @@ import androidx.appfunctions.AppFunctionFunctionNotFoundException
 import androidx.appfunctions.AppFunctionService
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
-import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
-import androidx.appfunctions.metadata.AppFunctionIntTypeMetadata
-import androidx.appfunctions.metadata.AppFunctionResponseMetadata
+import androidx.appfunctions.metadata.AppFunctionMetadata
 import java.util.function.Consumer
 
 @RequiresApi(Build.VERSION_CODES.BAKLAVA)
 class CustomAppFunctionService : AppFunctionService() {
     override fun onExecuteFunction(
         request: ExecuteAppFunctionRequest,
+        metadata: AppFunctionMetadata,
         cancellationSignal: CancellationSignal,
         callback: Consumer<ExecuteAppFunctionResponse>,
     ) {
@@ -43,10 +42,8 @@ class CustomAppFunctionService : AppFunctionService() {
                 callback.accept(
                     ExecuteAppFunctionResponse.Success(
                         AppFunctionData.Builder(
-                                AppFunctionResponseMetadata(
-                                    AppFunctionIntTypeMetadata(isNullable = false)
-                                ),
-                                AppFunctionComponentsMetadata(),
+                                metadata.response,
+                                metadata.components,
                             )
                             .setInt(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE, a + b)
                             .build()

@@ -24,6 +24,7 @@ import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.internal.AppFunctionInventoryProvider
 import androidx.appfunctions.internal.AppFunctionMetadataUtils.getAppFunctionMetadata
+import androidx.appfunctions.metadata.AppFunctionMetadata
 import com.android.extensions.appfunctions.AppFunctionException as ExtensionAppFunctionException
 import com.android.extensions.appfunctions.AppFunctionService
 import com.android.extensions.appfunctions.ExecuteAppFunctionRequest as ExtensionExecuteAppFunctionRequest
@@ -143,6 +144,7 @@ public abstract class ExtensionsAppFunctionService :
                         request,
                         appFunctionMetadata,
                     ),
+                    appFunctionMetadata,
                     delegateCancellationSignal,
                 ) { response ->
                     when (response) {
@@ -182,12 +184,14 @@ public abstract class ExtensionsAppFunctionService :
      * The implementation should try to respect the provided [CancellationSignal], if possible.
      *
      * @param request The function execution request.
+     * @param metadata The target function's [AppFunctionMetadata].
      * @param cancellationSignal A signal to cancel the execution.
      * @param callback A callback to report back the result or error.
      */
     @MainThread
     public abstract fun onExecuteFunction(
         request: ExecuteAppFunctionRequest,
+        metadata: AppFunctionMetadata,
         cancellationSignal: CancellationSignal,
         callback: Consumer<ExecuteAppFunctionResponse>,
     )

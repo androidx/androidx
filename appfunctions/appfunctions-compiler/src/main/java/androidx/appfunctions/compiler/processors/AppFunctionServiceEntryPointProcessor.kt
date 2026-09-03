@@ -26,6 +26,7 @@ import androidx.appfunctions.compiler.core.AppFunctionInventoryCodeBuilder
 import androidx.appfunctions.compiler.core.AppFunctionLegacySchemaXmlGenerator
 import androidx.appfunctions.compiler.core.AppFunctionSymbolResolver
 import androidx.appfunctions.compiler.core.AppFunctionXmlGenerator
+import androidx.appfunctions.compiler.core.IntrospectionHelper
 import androidx.appfunctions.compiler.core.IntrospectionHelper.APP_FUNCTION_FUNCTION_NOT_FOUND_EXCEPTION_CLASS
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionExecutionDispatcherClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionInventoryInterface
@@ -244,6 +245,10 @@ class AppFunctionServiceEntryPointProcessor(
                 ExecuteAppFunctionRequestClass.CLASS_NAME,
             )
             .addParameter(
+                AppFunctionServiceClass.ExecuteFunctionMethod.METADATA_PARAM_NAME,
+                IntrospectionHelper.AppFunctionMetadataClass.CLASS_NAME,
+            )
+            .addParameter(
                 AppFunctionServiceClass.ExecuteFunctionMethod.CANCELLATION_SIGNAL_PARAM_NAME,
                 CancellationSignalClass.CLASS_NAME,
             )
@@ -286,7 +291,7 @@ class AppFunctionServiceEntryPointProcessor(
                 return %T.%L(
                   %L,
                   %L,
-                  %N(),
+                  %L,
                   %L,
                   %L,
                 ) { %L ->
@@ -296,7 +301,7 @@ class AppFunctionServiceEntryPointProcessor(
                 AppFunctionExecutionDispatcherClass.DispatchExecuteAppFunctionMethod.METHOD_NAME,
                 PROPERTY_SCOPE,
                 AppFunctionServiceClass.ExecuteFunctionMethod.REQUEST_PARAM_NAME,
-                AppFunctionInventoryProviderInterface.ResolveInventoryMethod.METHOD_NAME,
+                AppFunctionServiceClass.ExecuteFunctionMethod.METADATA_PARAM_NAME,
                 AppFunctionServiceClass.ExecuteFunctionMethod.CANCELLATION_SIGNAL_PARAM_NAME,
                 AppFunctionServiceClass.ExecuteFunctionMethod.CALLBACK_PARAM_NAME,
                 innerParametersName,
