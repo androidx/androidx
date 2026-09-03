@@ -21,9 +21,14 @@ import android.os.Build
 import android.util.Log
 import android.view.View
 import android.view.WindowInsets
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.State
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
 import androidx.wear.utils.WearApiVersionHelper
 import com.google.wear.settings.WearSettings
@@ -60,6 +65,36 @@ public val LocalStatusBarEnabled: CompositionLocal<Boolean> =
     compositionLocalWithComputedDefaultOf {
         isStatusBarEnabled(LocalContext.currentValue.applicationContext)
     }
+
+/**
+ * CompositionLocal to determine the inherited status bar overlay visibility for a screen.
+ *
+ * Defaults to `false`. Inside [AppScaffold] and [ScreenScaffold], this is provided with the
+ * resolved status bar visibility of the enclosing scaffold.
+ */
+internal val LocalInheritedShowStatusBar: ProvidableCompositionLocal<Boolean> = compositionLocalOf {
+    false
+}
+
+/**
+ * Resolves the effective status bar overlay visibility state for a scaffold component.
+ *
+ * @param statusBarMode The requested mode, specifying whether to enable, disable, or inherit status
+ *   bar visibility from [LocalInheritedShowStatusBar].
+ * @return A [State] handle tracking whether the status bar overlay is enabled.
+ */
+@Composable
+internal fun rememberShowStatusBarState(statusBarMode: StatusBarMode): State<Boolean> {
+    val isSupported = LocalStatusBarEnabled.current
+    val isVisible =
+        isSupported &&
+            when (statusBarMode) {
+                StatusBarMode.Enabled -> true
+                StatusBarMode.Disabled -> false
+                else -> LocalInheritedShowStatusBar.current
+            }
+    return rememberUpdatedState(isVisible)
+}
 
 private const val TAG = "StatusBar"
 // TODO(b/548550572): Replace with WearApiVersionHelper.WEAR_CINNAMON_BUN_2 once wear-core

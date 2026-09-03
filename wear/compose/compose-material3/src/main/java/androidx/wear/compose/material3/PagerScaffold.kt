@@ -23,10 +23,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -339,12 +339,13 @@ private fun PagerScaffoldImpl(
     pageIndicatorAlignment: Alignment,
     pageIndicatorAnimationSpec: AnimationSpec<Float>?,
 ) {
-    val currentView = LocalView.current
     val scaffoldState = LocalScaffoldState.current
     val key = remember { Any() }
 
+    val showStatusBarState = rememberShowStatusBarState(StatusBarMode.Inherit)
+    val timeTextState = rememberUpdatedState<(@Composable () -> Unit)?>(null)
     val scrollInfoProviderState = rememberUpdatedState(scrollInfoProvider)
-    val viewState = rememberUpdatedState(currentView)
+    val viewState = rememberUpdatedState(LocalView.current)
 
     scaffoldState?.screenContent?.UpdateIdlingDetectorIfNeeded()
 
@@ -356,26 +357,28 @@ private fun PagerScaffoldImpl(
                 ?.addScreen(
                     key = key,
                     view = viewState,
-                    timeText = mutableStateOf(null),
+                    timeText = timeTextState,
                     scrollInfoProvider = scrollInfoProviderState,
-                    statusBarMode = mutableStateOf(StatusBarMode.Inherit),
+                    showStatusBar = showStatusBarState,
                 )
         }
         onDispose { scaffoldState?.screenContent?.removeScreen(key) }
     }
 
-    Box(modifier) {
-        pager()
+    CompositionLocalProvider(LocalInheritedShowStatusBar provides showStatusBarState.value) {
+        Box(modifier) {
+            pager()
 
-        AnimatedIndicator(
-            isVisible = {
-                (scaffoldState?.screenContent?.screenStage?.value ?: ScreenStage.New) !=
-                    ScreenStage.Idle || pagerState.isScrollInProgress
-            },
-            animationSpec = pageIndicatorAnimationSpec,
-            modifier = Modifier.align(pageIndicatorAlignment),
-            content = pageIndicator,
-        )
+            AnimatedIndicator(
+                isVisible = {
+                    (scaffoldState?.screenContent?.screenStage?.value ?: ScreenStage.New) !=
+                        ScreenStage.Idle || pagerState.isScrollInProgress
+                },
+                animationSpec = pageIndicatorAnimationSpec,
+                modifier = Modifier.align(pageIndicatorAlignment),
+                content = pageIndicator,
+            )
+        }
     }
 }
 
