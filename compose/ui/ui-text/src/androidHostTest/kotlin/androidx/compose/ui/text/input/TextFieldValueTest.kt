@@ -184,7 +184,7 @@ class TextFieldValueTest {
                     baselineShift = BaselineShift.Superscript,
                     textGeometricTransform = TextGeometricTransform(2f, 3f),
                     localeList =
-                        LocaleList(Locale("sr-Latn-SR"), Locale("sr-Cyrl-SR"), Locale.current),
+                        LocaleList(Locale("sr-Latn-SR"), Locale("sr-Cyrl-SR"), Locale("en")),
                     background = Color.Blue,
                     textDecoration = TextDecoration.LineThrough,
                     shadow = Shadow(color = Color.Red, offset = Offset(2f, 2f), blurRadius = 4f),

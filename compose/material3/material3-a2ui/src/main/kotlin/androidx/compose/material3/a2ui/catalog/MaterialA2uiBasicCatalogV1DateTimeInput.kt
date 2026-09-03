@@ -52,8 +52,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import java.text.DateFormat
 import java.util.Calendar
@@ -82,7 +82,7 @@ internal object MaterialA2uiBasicCatalogV1DateTimeInput : A2uiBasicCatalogV1.Dat
         var showStartDateDialog by rememberSaveable { mutableStateOf(false) }
         var showStartTimeDialog by rememberSaveable { mutableStateOf(false) }
 
-        val currentLocale = Locale.current.platformLocale
+        val currentLocale = LocalLocale.current.platformLocale
 
         val selectDateText = stringResource(R.string.select_date)
         val startDateText =
