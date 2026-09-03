@@ -27,8 +27,6 @@ import androidx.appfunctions.metadata.AppFunctionSchemaMetadata
 import androidx.appfunctions.metadata.AppFunctionUnitTypeMetadata
 import androidx.appfunctions.testing.FakeAppFunctionManagerApi
 import androidx.appfunctions.testing.FakeAppFunctionReader
-import androidx.appfunctions.testing.FakeTranslator
-import androidx.appfunctions.testing.FakeTranslatorSelector
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
@@ -46,9 +44,7 @@ import org.robolectric.shadows.ShadowUserManager
 class AppFunctionManagerUnitTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val fakeAppFunctionReader = FakeAppFunctionReader()
-    private val fakeTranslateSelector = FakeTranslatorSelector()
     private val fakeAppFunctionApi = FakeAppFunctionManagerApi()
-    private val fakeTranslator = FakeTranslator()
     private lateinit var mAppFunctionManager: AppFunctionManager
 
     @Before
@@ -58,7 +54,6 @@ class AppFunctionManagerUnitTest {
                 context,
                 fakeAppFunctionReader,
                 fakeAppFunctionApi,
-                fakeTranslateSelector,
             )
     }
 
@@ -78,7 +73,7 @@ class AppFunctionManagerUnitTest {
     }
 
     @Test
-    fun executeAppFunction_appUsesV1AndHaveTranslator_enableTranslation() = runTest {
+    fun executeAppFunction_success() = runTest {
         val functionId = "functionId"
         val packageName = "com.pkg"
         fakeAppFunctionReader.addAppFunctionMetadata(
@@ -97,7 +92,6 @@ class AppFunctionManagerUnitTest {
                 scope = AppFunctionMetadata.SCOPE_GLOBAL,
             )
         )
-        fakeTranslateSelector.setTranslator(fakeTranslator)
         fakeAppFunctionApi.executeAppFunctionResponse =
             ExecuteAppFunctionResponse.Success(AppFunctionData.EMPTY)
 
@@ -106,46 +100,6 @@ class AppFunctionManagerUnitTest {
                 request = ExecuteAppFunctionRequest(packageName, functionId, AppFunctionData.EMPTY)
             )
         assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
-        assertThat(fakeTranslator.downgradeRequestCalled).isTrue()
-        assertThat(fakeTranslator.upgradeRequestCalled).isFalse()
-        assertThat(fakeTranslator.downgradeResponseCalled).isFalse()
-        assertThat(fakeTranslator.upgradeResponseCalled).isTrue()
-    }
-
-    @Test
-    fun executeAppFunction_appUsesV2AndHaveTranslator_NoTranslation() = runTest {
-        val functionId = "functionId"
-        val packageName = "com.pkg"
-        fakeAppFunctionReader.addAppFunctionMetadata(
-            AppFunctionMetadata(
-                name = AppFunctionName(packageName = packageName, functionIdentifier = functionId),
-                packageMetadata =
-                    AppFunctionPackageMetadata(
-                        packageName = packageName,
-                        components = AppFunctionComponentsMetadata(),
-                    ),
-                schema =
-                    AppFunctionSchemaMetadata(category = "notes", name = "createNote", version = 2),
-                parameters = emptyList(),
-                response =
-                    AppFunctionResponseMetadata(AppFunctionUnitTypeMetadata(isNullable = false)),
-                scope = AppFunctionMetadata.SCOPE_GLOBAL,
-            )
-        )
-        fakeTranslateSelector.setTranslator(fakeTranslator)
-        fakeAppFunctionApi.executeAppFunctionResponse =
-            ExecuteAppFunctionResponse.Success(AppFunctionData.EMPTY)
-
-        val response =
-            mAppFunctionManager.executeAppFunction(
-                request = ExecuteAppFunctionRequest(packageName, functionId, AppFunctionData.EMPTY)
-            )
-
-        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
-        assertThat(fakeTranslator.downgradeRequestCalled).isFalse()
-        assertThat(fakeTranslator.upgradeRequestCalled).isFalse()
-        assertThat(fakeTranslator.downgradeResponseCalled).isFalse()
-        assertThat(fakeTranslator.upgradeResponseCalled).isFalse()
     }
 
     @Test
