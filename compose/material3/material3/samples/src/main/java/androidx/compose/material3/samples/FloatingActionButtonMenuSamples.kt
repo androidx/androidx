@@ -67,6 +67,7 @@ import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
@@ -77,8 +78,11 @@ import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.traversalIndex
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlin.math.ceil
+import kotlin.math.floor
 
 @Preview
 @Sampled
@@ -221,7 +225,32 @@ fun FloatingActionButtonMenuSample() {
                             ),
                     onClick = { fabMenuExpanded = false },
                     icon = { Icon(item.first, contentDescription = null) },
-                    text = { Text(text = item.second) },
+                    text = {
+                        // Adjust Text width to match longest line if multiline, since Text doesn't
+                        // do that automatically (https://issuetracker.google.com/issues/206039942).
+                        var textLayoutResult: TextLayoutResult? by remember { mutableStateOf(null) }
+                        Text(
+                            modifier =
+                                Modifier.layout { measurable, constraints ->
+                                    val placeable = measurable.measure(constraints)
+                                    val newTextLayoutResult = textLayoutResult!!
+                                    val minX =
+                                        (0 until newTextLayoutResult.lineCount).minOf(
+                                            newTextLayoutResult::getLineLeft
+                                        )
+                                    val maxX =
+                                        (0 until newTextLayoutResult.lineCount).maxOf(
+                                            newTextLayoutResult::getLineRight
+                                        )
+
+                                    layout(ceil(maxX - minX).toInt(), placeable.height) {
+                                        placeable.place(-floor(minX).toInt(), 0)
+                                    }
+                                },
+                            text = item.second,
+                            onTextLayout = { textLayoutResult = it },
+                        )
+                    },
                 )
             }
         }
