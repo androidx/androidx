@@ -50,14 +50,11 @@ import androidx.compose.ui.unit.sp
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi
-import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialColumn
-import androidx.xr.compose.subspace.SpatialExternalSurface
 import androidx.xr.compose.subspace.SpatialGltfModel
 import androidx.xr.compose.subspace.SpatialGltfModelSource
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
-import androidx.xr.compose.subspace.StereoMode
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.ExperimentalMoveAnchorPolicy
 import androidx.xr.compose.subspace.layout.MovePolicy
@@ -65,7 +62,6 @@ import androidx.xr.compose.subspace.layout.PlaneOrientation
 import androidx.xr.compose.subspace.layout.PlaneSemantic
 import androidx.xr.compose.subspace.layout.SpatialArrangement
 import androidx.xr.compose.subspace.layout.SubspaceModifier
-import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
@@ -113,10 +109,10 @@ class AnchorableActivity : ComponentActivity() {
         var selectedSemantic by remember { mutableStateOf("Any") }
 
         IntegrationTestsAppTheme {
-            Subspace(modifier = SubspaceModifier.width(1800.dp).height(1000.dp)) {
+            Subspace(modifier = SubspaceModifier.width(1400.dp).height(1200.dp)) {
                 SpatialRow(
                     modifier = SubspaceModifier.offset(y = 100.dp),
-                    horizontalArrangement = SpatialArrangement.spacedBy(40.dp),
+                    horizontalArrangement = SpatialArrangement.spacedBy(60.dp),
                 ) {
                     ControlPanel(
                         isAnchorableOn = isAnchorableOn,
@@ -127,142 +123,37 @@ class AnchorableActivity : ComponentActivity() {
                         onSemanticChange = { selectedSemantic = it },
                     )
 
-                    // Column 1: Standard Spatial Panels, Surfaces, and Row
-                    SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(20.dp)) {
-                        TestPanelContainer(
-                            title = "SpatialPanel",
-                            isAnchorableOn = isAnchorableOn,
-                            orientationStr = selectedOrientation,
-                            semanticStr = selectedSemantic,
-                        ) { modifier, content ->
-                            SpatialPanel(modifier = modifier, content = content)
-                        }
-
-                        TestPanelContainer(
-                            title = "SpatialExternalSurface",
-                            isAnchorableOn = isAnchorableOn,
-                            orientationStr = selectedOrientation,
-                            semanticStr = selectedSemantic,
-                        ) { modifier, content ->
-                            SpatialExternalSurface(
-                                modifier = modifier,
-                                stereoMode = StereoMode.Mono,
+                    SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(150.dp)) {
+                        // SpatialPanel
+                        SpatialPanel(
+                            modifier =
+                                SubspaceModifier.width(360.dp)
+                                    .height(200.dp)
+                                    .movable(
+                                        enabled = isAnchorableOn,
+                                        movePolicy =
+                                            MovePolicy.anchor(
+                                                anchorPlaneOrientations =
+                                                    parseOrientations(selectedOrientation),
+                                                anchorPlaneSemantics =
+                                                    parseSemantics(selectedSemantic),
+                                            ),
+                                    )
+                        ) {
+                            Box(
+                                modifier =
+                                    Modifier.fillMaxSize()
+                                        .background(if (isAnchorableOn) Purple40 else PurpleGrey40)
+                                        .padding(16.dp),
+                                contentAlignment = Alignment.Center,
                             ) {
-                                SpatialPanel(
-                                    modifier = SubspaceModifier.fillMaxSize(),
-                                    content = content,
+                                Text(
+                                    text = "SpatialPanel",
+                                    color = Color.White,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    textAlign = TextAlign.Center,
                                 )
-                            }
-                        }
-
-                        TestPanelContainer(
-                            title = "SpatialRow",
-                            isAnchorableOn = isAnchorableOn,
-                            orientationStr = selectedOrientation,
-                            semanticStr = selectedSemantic,
-                        ) { modifier, content ->
-                            SpatialRow(
-                                modifier = modifier,
-                                horizontalArrangement = SpatialArrangement.spacedBy(20.dp),
-                            ) {
-                                SpatialPanel(
-                                    modifier = SubspaceModifier.width(170.dp).height(200.dp),
-                                    content = content,
-                                )
-                                SpatialPanel(
-                                    modifier = SubspaceModifier.width(170.dp).height(200.dp)
-                                ) {
-                                    Box(
-                                        modifier =
-                                            Modifier.fillMaxSize()
-                                                .background(PurpleGrey40)
-                                                .padding(16.dp),
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        Text(
-                                            text = "Row Child 2",
-                                            color = Color.White,
-                                            fontSize = 16.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            textAlign = TextAlign.Center,
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // Column 2: Spatial Column, Box, and GltfModel
-                    SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(20.dp)) {
-                        TestPanelContainer(
-                            title = "SpatialColumn",
-                            isAnchorableOn = isAnchorableOn,
-                            orientationStr = selectedOrientation,
-                            semanticStr = selectedSemantic,
-                        ) { modifier, content ->
-                            SpatialColumn(
-                                modifier = modifier,
-                                verticalArrangement = SpatialArrangement.spacedBy(20.dp),
-                            ) {
-                                SpatialPanel(
-                                    modifier = SubspaceModifier.width(360.dp).height(90.dp),
-                                    content = content,
-                                )
-                                SpatialPanel(
-                                    modifier = SubspaceModifier.width(360.dp).height(90.dp)
-                                ) {
-                                    Box(
-                                        modifier =
-                                            Modifier.fillMaxSize()
-                                                .background(PurpleGrey40)
-                                                .padding(16.dp),
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        Text(
-                                            text = "Col Child 2",
-                                            color = Color.White,
-                                            fontSize = 16.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            textAlign = TextAlign.Center,
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        TestPanelContainer(
-                            title = "SpatialBox",
-                            isAnchorableOn = isAnchorableOn,
-                            orientationStr = selectedOrientation,
-                            semanticStr = selectedSemantic,
-                        ) { modifier, content ->
-                            SpatialBox(modifier = modifier) {
-                                SpatialPanel(
-                                    modifier = SubspaceModifier.fillMaxSize(),
-                                    content = content,
-                                )
-                                SpatialPanel(
-                                    modifier =
-                                        SubspaceModifier.width(180.dp)
-                                            .height(100.dp)
-                                            .offset(x = 90.dp, y = 50.dp, z = 50.dp)
-                                ) {
-                                    Box(
-                                        modifier =
-                                            Modifier.fillMaxSize()
-                                                .background(PurpleGrey40)
-                                                .padding(8.dp),
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        Text(
-                                            text = "Box Child 2 (Z+50dp)",
-                                            color = Color.White,
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            textAlign = TextAlign.Center,
-                                        )
-                                    }
-                                }
                             }
                         }
 
@@ -421,53 +312,6 @@ class AnchorableActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    @SubspaceComposable
-    @Composable
-    private fun TestPanelContainer(
-        title: String,
-        isAnchorableOn: Boolean,
-        orientationStr: String,
-        semanticStr: String,
-        modifier: SubspaceModifier = SubspaceModifier,
-        width: Int = 360,
-        height: Int = 200,
-        container:
-            @Composable
-            @SubspaceComposable
-            (SubspaceModifier, @Composable () -> Unit) -> Unit,
-    ) {
-        var finalModifier = modifier.width(width.dp).height(height.dp)
-        finalModifier =
-            finalModifier.movable(
-                enabled = isAnchorableOn,
-                movePolicy =
-                    MovePolicy.anchor(
-                        anchorPlaneOrientations = parseOrientations(orientationStr),
-                        anchorPlaneSemantics = parseSemantics(semanticStr),
-                    ),
-            )
-
-        val innerContent: @Composable () -> Unit = {
-            Box(
-                modifier =
-                    Modifier.fillMaxSize()
-                        .background(if (isAnchorableOn) Purple40 else PurpleGrey40)
-                        .padding(16.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = title,
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.Center,
-                )
-            }
-        }
-
-        container(finalModifier, innerContent)
     }
 
     companion object {

@@ -144,6 +144,10 @@ public sealed interface MovePolicy {
          * orientations or semantics are provided (i.e., the sets are empty), the element is
          * permitted to anchor to any detected plane.
          *
+         * Note: Anchoring is currently only supported for
+         * [androidx.xr.compose.subspace.SpatialPanel] and
+         * [androidx.xr.compose.subspace.SpatialGltfModel].
+         *
          * Note: Once a composable is anchored to an external plane using this policy, it is
          * reparented outside the normal Compose hierarchy. As a result, conventional layout pose
          * calculations and pose-based modifiers (such as `rotate` or `gravityAligned`) are not
