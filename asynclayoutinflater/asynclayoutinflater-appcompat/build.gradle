@@ -13,10 +13,10 @@ plugins {
 
 dependencies {
     api(libs.jspecify)
-    api("androidx.annotation:annotation:1.8.1")
-    api("androidx.core:core:1.1.0")
+    api(project(":asynclayoutinflater:asynclayoutinflater"))
+
     implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation(project(":asynclayoutinflater:asynclayoutinflater"))
+    implementation("androidx.appcompat:appcompat-resources:1.7.0")
 }
 
 androidx {
