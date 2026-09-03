@@ -3153,6 +3153,8 @@ public class AccessibilityNodeInfoCompat {
 
     /**
      * Checked state for a node that is not checked.
+     * <p>
+     * This value may represent similar states based on the node's {@code className}.
      *
      * @see #getChecked()
      * @see #setChecked(int)
@@ -3161,6 +3163,8 @@ public class AccessibilityNodeInfoCompat {
 
     /**
      * Checked state for a node that is checked.
+     * <p>
+     * This value may represent similar states based on the node's {@code className}.
      *
      * @see #getChecked()
      * @see #setChecked(int)
@@ -3168,9 +3172,12 @@ public class AccessibilityNodeInfoCompat {
     public static final int CHECKED_STATE_TRUE = 1;
 
     /**
-     * Checked state for a node that is partially checked. For example,
-     * when a checkbox owns a number of sub-options and they have
-     * different states, then the main checkbox is in a partially-checked state.
+     * Checked state for a node that is partially checked.
+     * <p>
+     * For example, a check box representing multiple sub-options that have different states may be
+     * considered partially checked.
+     * <p>
+     * This value may represent similar states based on the node's {@code className}.
      *
      * @see #getChecked()
      * @see #setChecked(int)
@@ -4164,12 +4171,18 @@ public class AccessibilityNodeInfoCompat {
     /**
      * Gets the checked state of this node.
      * <p>
-     * Note that this is only meaningful when {@link #isCheckable()} returns {@code true}.
+     * This value is only meaningful when {@link #isCheckable()} returns {@code true}.
+     * <p>
+     * This property may also be used to indicate similar internal states for nodes that have
+     * different visual appearances, such as a {@link android.widget.ToggleButton} that is pressed
+     * or unpressed, or a {@link android.widget.Switch} that is on or off. Accessibility services
+     * may choose to interpret and convey these states differently based on the value returned by
+     * {@link #getClassName()}, which indicates the type of UI element this node represents.
      *
      * @see #setCheckable(boolean)
      * @see #isCheckable()
      * @see #setChecked(int)
-     * @return The checked state, one of:
+     * @return the checked state of this node, one of:
      *          <ul>
      *          <li>{@link AccessibilityNodeInfoCompat#CHECKED_STATE_FALSE}
      *          <li>{@link AccessibilityNodeInfoCompat#CHECKED_STATE_TRUE}
@@ -4188,26 +4201,33 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
-     * Sets the checked state of this node. This is only meaningful
-     * when {@link #isCheckable()} returns {@code true}.
-     * <p><strong>Note:</strong> Cannot be called from an
-     *   {@link android.accessibilityservice.AccessibilityService}. This class is made immutable
-     *   before being delivered to an AccessibilityService.
+     * Sets the checked state of this node.
+     * <p>
+     * This value is only meaningful when {@link #isCheckable()} returns {@code true}.
+     * <p>
+     * This property may also be used to indicate similar internal states for nodes that have
+     * different visual appearances, such as a {@link android.widget.ToggleButton} that is pressed
+     * or unpressed, or a {@link android.widget.Switch} that is on or off. Accessibility services
+     * may choose to interpret and convey these states differently based on the value returned by
+     * {@link #getClassName()}, which indicates the type of UI element this node represents.
+     *
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
      *
      * @see #setCheckable(boolean)
      * @see #isCheckable()
      * @see #getChecked()
-     * @param checked The checked state. One of
+     * @param checked the checked state for this node, one of
      *          <ul>
      *          <li>{@link AccessibilityNodeInfoCompat#CHECKED_STATE_FALSE}
      *          <li>{@link AccessibilityNodeInfoCompat#CHECKED_STATE_TRUE}
      *          <li>{@link AccessibilityNodeInfoCompat#CHECKED_STATE_PARTIAL}
      *          </ul>
      * @throws IllegalStateException If called from an AccessibilityService.
-     * @throws IllegalArgumentException if {@code checked} is not one of
-     * {@link AccessibilityNodeInfoCompat#CHECKED_STATE_FALSE},
-     *          {@link AccessibilityNodeInfoCompat#CHECKED_STATE_TRUE}, or
-     *          {@link AccessibilityNodeInfoCompat#CHECKED_STATE_PARTIAL}.
+     * @throws IllegalArgumentException If {@code checked} is not one of the supported values.
      */
     public void setChecked(@CheckedState int checked) {
         if (Build.VERSION.SDK_INT >= 36) {
