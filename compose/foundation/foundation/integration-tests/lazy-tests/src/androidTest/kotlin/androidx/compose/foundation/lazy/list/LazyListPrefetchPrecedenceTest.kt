@@ -13,11 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress(
-    "INVISIBLE_MEMBER",
-    "INVISIBLE_REFERENCE",
-    "DEPRECATION",
-) // b/407927787 // b/420551535
+@file:Suppress("INVISIBLE_MEMBER", "DEPRECATION")
 @file:OptIn(ExperimentalFoundationApi::class)
 
 package androidx.compose.foundation.lazy.list

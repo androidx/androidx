@@ -309,7 +309,6 @@ class ListRemeasureTestCase(
     }
 
     override fun setUp() {
-        @Suppress("INVISIBLE_REFERENCE") // b/407927787
         listState.prefetchingEnabled = false
         runBlocking { listState.scrollToItem(0, 0) }
     }

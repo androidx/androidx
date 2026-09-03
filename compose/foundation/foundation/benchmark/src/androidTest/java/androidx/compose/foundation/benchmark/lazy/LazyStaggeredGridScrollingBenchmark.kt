@@ -268,7 +268,6 @@ class StaggeredGridRemeasureTestCase(
     }
 
     override fun setUp() {
-        @Suppress("INVISIBLE_REFERENCE") // b/407927787
         state.prefetchingEnabled = false
         runBlocking { state.scrollToItem(firstItemIndex, 0) }
     }

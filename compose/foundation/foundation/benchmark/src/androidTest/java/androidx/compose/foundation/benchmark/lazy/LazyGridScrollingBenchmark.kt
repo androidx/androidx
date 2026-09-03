@@ -258,7 +258,6 @@ class GridRemeasureTestCase(
     }
 
     override fun setUp() {
-        @Suppress("INVISIBLE_REFERENCE") // b/407927787
         state.prefetchingEnabled = false
         runBlocking { state.scrollToItem(0, 0) }
     }

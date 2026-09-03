@@ -22,6 +22,7 @@
  */
 import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.gradle.api.attributes.java.TargetJvmEnvironment
 
 plugins {
     id("AndroidXPlugin")
@@ -30,7 +31,26 @@ plugins {
     id("androidx.benchmark")
 }
 
+configurations {
+    // Configuration to access internal implementation of foundation library
+    // This removes need for suppressing INVISIBLE_REFERENCE and INVISIBLE_MEMBER in codebase
+    // IDE does not support this configuration yet, so you will still see references to internal
+    // members marked as an error. You can ignore them.
+    friends {
+        canBeResolved = true
+        canBeConsumed = false
+        transitive = false
+        attributes {
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_API))
+            attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, objects.named(TargetJvmEnvironment, TargetJvmEnvironment.ANDROID))
+            attribute(Attribute.of("artifactType", String), "android-classes-jar")
+        }
+    }
+    androidTestImplementation.extendsFrom(friends)
+}
+
 dependencies {
+    friends(project(":compose:foundation:foundation"))
     androidTestImplementation(project(":compose:material3:material3"))
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(project(":compose:runtime:runtime"))
@@ -53,6 +73,7 @@ tasks.withType(KotlinCompile).configureEach { task ->
                 "-opt-in=androidx.benchmark.ExperimentalBenchmarkConfigApi",
         )
     }
+    task.friendPaths.from(configurations.friends.incoming.files)
 }
 
 android {
