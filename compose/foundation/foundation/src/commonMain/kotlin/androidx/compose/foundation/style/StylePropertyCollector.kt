@@ -46,9 +46,7 @@ internal class StylePropertyCollector : CommonStyleScope {
     private var toSpecs: SpecMap? = null
     private var fromSpecs: SpecMap? = null
     private var previousFromSpecs: SpecMap? = null
-    private var nestedStyleKey: NestedStyleKey? = null
-    private var nestedStateOverride: StyleState? = null
-    private var nestedStyleKeys: MutableScatterSet<NestedStyleKey>? = null
+
     private var defaultToSpec: AnimationSpec<Float>? = UnspecifiedAnimationSpec
     private var defaultFromSpec: AnimationSpec<Float>? = UnspecifiedAnimationSpec
 
@@ -59,13 +57,12 @@ internal class StylePropertyCollector : CommonStyleScope {
         get() = _fontScale
 
     override val state: StyleState
-        get() = nestedStateOverride ?: node!!.state
+        get() = node!!.state
 
     override val <T> CompositionLocal<T>.currentValue: T
         get() = node!!.currentValueOf(this)
 
     override fun <T> ProvidableStyleProperty<T>.provide(value: T) {
-        if (nestedStyleKey != null) return
         recordWrite(this, defaultToSpec, defaultFromSpec)
         properties!![this] = value
     }
@@ -93,49 +90,6 @@ internal class StylePropertyCollector : CommonStyleScope {
         } finally {
             defaultToSpec = previousToSpec
             defaultFromSpec = previousFromSpec
-        }
-    }
-
-    override fun applyNestedStyle(key: NestedStyleKey) {
-        val previousKey = nestedStyleKey
-        try {
-            nestedStyleKey = key
-            node!!.styleResolverField.resolveNestedStyle(key) { style, state ->
-                val previousStateOverride = nestedStateOverride
-                nestedStateOverride = state
-                try {
-                    with(style) { applyStyle() }
-                } finally {
-                    nestedStateOverride = previousStateOverride
-                }
-            }
-        } finally {
-            nestedStyleKey = previousKey
-        }
-    }
-
-    /**
-     * A style with nested styles is applied in two modes. The first is for the main style. The
-     * second mode occurs when [applyNestedStyle] is called in the nested composable. In the first
-     * mode, the nested style is skipped (the key is recorded to ensure the nested style is
-     * invalidated if a key is added). In the second, everything but the nested style being applied
-     * is ignored.
-     */
-    override fun provideNestedStyle(key: NestedStyleKey, style: CommonStyle) {
-        if (nestedStyleKey != key) {
-            // Record that the key was provided, but otherwise ignore the style
-            (nestedStyleKeys ?: mutableScatterSetOf<NestedStyleKey>().also { nestedStyleKeys = it })
-                .add(key)
-        } else {
-            nestedStyleKey = null
-            val previousStateOverride = nestedStateOverride
-            nestedStateOverride = null
-            try {
-                with(style) { applyStyle() }
-            } finally {
-                nestedStyleKey = key
-                nestedStateOverride = previousStateOverride
-            }
         }
     }
 
@@ -208,7 +162,7 @@ internal class StylePropertyCollector : CommonStyleScope {
         val node = node!!
         this.node = null
         val resolver = node.styleResolverField
-        resolver.updateProperties(properties!!, nestedStyleKeys)
+        resolver.updateProperties(properties!!)
         val animations = resolver.animations
         val animatingProperties = animatingProperties
         val previousAnimatingProperties = previousAnimatingProperties
