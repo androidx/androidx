@@ -58,6 +58,7 @@ android {
     // Don't change this value without contacting the WebKit owners.
     compileSdk  { version = release(33) }
     namespace = "androidx.webkit"
+    enableKotlin = false
 }
 
 androidComponents {
