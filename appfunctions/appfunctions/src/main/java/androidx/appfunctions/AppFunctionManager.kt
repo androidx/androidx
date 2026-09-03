@@ -39,7 +39,6 @@ import androidx.appfunctions.internal.TranslatorSelector
 import androidx.appfunctions.internal.findImpl
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
-import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import java.util.concurrent.Executor
 import kotlin.coroutines.ContinuationInterceptor
 import kotlinx.coroutines.CancellationException
@@ -197,36 +196,6 @@ public constructor(
                 )
             )
         }
-    }
-
-    /**
-     * Observes available app functions metadata based on the provided filters.
-     *
-     * Allows discovering app functions that match the given [searchSpec] criteria and continuously
-     * emits updates when relevant metadata changes.
-     *
-     * Updates to [AppFunctionPackageMetadata] can occur when the app defining the function is
-     * updated or when a function's enabled state changes, and if multiple updates happen within a
-     * short duration, only the latest update might be emitted.
-     *
-     * The calling app can observe metadata for:
-     * - Functions in its own package (no permission required).
-     * - When holding the `android.permission.EXECUTE_APP_FUNCTIONS` permission - functions in other
-     *   packages that it is allowed to query via
-     *   [android.content.pm.PackageManager.canPackageQuery].
-     *
-     * @param searchSpec an [AppFunctionSearchSpec] instance specifying the filters for searching
-     *   the app function metadata.
-     * @return a flow that emits a list of [AppFunctionPackageMetadata] matching the search criteria
-     *   and updated versions of this list when underlying data changes.
-     */
-    // TODO(b/508188326): Remove this API completely after migrating usages.
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @RequiresPermission(value = "android.permission.EXECUTE_APP_FUNCTIONS", conditional = true)
-    public fun observeAppFunctions(
-        searchSpec: AppFunctionSearchSpec
-    ): Flow<List<AppFunctionPackageMetadata>> {
-        return appFunctionReader.searchAppFunctionsPackageMetadata(searchSpec)
     }
 
     /**
