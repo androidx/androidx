@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -39,7 +40,7 @@ fun RequestRectangleOnScreenDemo() {
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val coroutineScope = rememberCoroutineScope()
     Column {
-        TextField(value = "Click here to bring up the soft keyboard", onValueChange = {})
+        TextField(state = rememberTextFieldState("Click here to bring up the soft keyboard"))
         Button(onClick = { coroutineScope.launch { bringIntoViewRequester.bringIntoView() } }) {
             Text("Bring blue rectangle into view")
         }

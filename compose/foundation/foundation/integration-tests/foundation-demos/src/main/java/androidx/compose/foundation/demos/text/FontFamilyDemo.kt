@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -153,8 +154,7 @@ fun AsyncFontFamilyDemo() {
         }
 
         TextField(
-            value = "(W200, Normal) 500ms",
-            onValueChange = {},
+            state = rememberTextFieldState("(W200, Normal) 500ms"),
             textStyle =
                 TextStyle.Default.copy(fontFamily = fontFamily, fontWeight = FontWeight.W200),
         )

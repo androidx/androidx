@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.OutlinedButton
@@ -36,7 +37,6 @@ import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -273,7 +273,7 @@ fun TextDemoSelection2DArrayVertical() {
 fun TextDemoSelectionEnableAndDisable() {
     val textSelectable = "This text is selectable."
     val textNotSelectable = "This text is not selectable."
-    var textEditable by remember { mutableStateOf("This text is editable.") }
+    val textFieldState = rememberTextFieldState("This text is editable.")
     var clickCount by remember { mutableIntStateOf(0) }
 
     OutlinedSelectionContainer {
@@ -296,8 +296,7 @@ fun TextDemoSelectionEnableAndDisable() {
                 style = TextStyle(fontSize = fontSize8),
             )
             TextField(
-                value = textEditable,
-                onValueChange = { textEditable = it },
+                state = textFieldState,
                 modifier = textBorderModifier,
                 textStyle = TextStyle(fontSize = fontSize8),
             )

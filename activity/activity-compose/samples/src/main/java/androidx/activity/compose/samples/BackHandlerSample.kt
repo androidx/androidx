@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // b/556234973
+
 package androidx.activity.compose.samples
 
 import androidx.activity.BackEventCompat

@@ -16,6 +16,7 @@
 
 package androidx.compose.material.demos
 
+import android.R.attr.text
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +37,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Checkbox
 import androidx.compose.material.ContentAlpha
@@ -118,7 +121,7 @@ fun VerticalAlignmentsInTextField() {
     Column {
         val singleLine = remember { mutableStateOf(false) }
         val label = remember { mutableStateOf(false) }
-        val text = remember { mutableStateOf("") }
+        val state = rememberTextFieldState()
 
         Spacer(Modifier.requiredHeight(10.dp))
         OptionRow(
@@ -135,24 +138,26 @@ fun VerticalAlignmentsInTextField() {
                 .requiredHeightIn(max = 200.dp)
                 .then(if (singleLine.value) Modifier else Modifier.requiredHeightIn(min = 100.dp))
         TextField(
-            value = text.value,
-            onValueChange = { text.value = it },
+            state = state,
             label =
                 if (label.value) {
                     @Composable { Text("Label") }
                 } else null,
-            singleLine = singleLine.value,
+            lineLimits =
+                if (singleLine.value) TextFieldLineLimits.SingleLine
+                else TextFieldLineLimits.MultiLine(),
             modifier = textFieldModifier,
         )
         Spacer(Modifier.requiredHeight(10.dp))
         OutlinedTextField(
-            value = text.value,
-            onValueChange = { text.value = it },
+            state = state,
             label =
                 if (label.value) {
                     @Composable { Text("Label") }
                 } else null,
-            singleLine = singleLine.value,
+            lineLimits =
+                if (singleLine.value) TextFieldLineLimits.SingleLine
+                else TextFieldLineLimits.MultiLine(),
             modifier = textFieldModifier,
         )
     }
@@ -161,7 +166,7 @@ fun VerticalAlignmentsInTextField() {
 @Composable
 fun MaterialTextFieldDemo() {
     Column(Modifier.verticalScroll(rememberScrollState()).padding(PaddingValues(10.dp))) {
-        var text by rememberSaveable { mutableStateOf("") }
+        val state = rememberTextFieldState()
         var leadingChecked by rememberSaveable { mutableStateOf(false) }
         var trailingChecked by rememberSaveable { mutableStateOf(false) }
         val characterCounterChecked by rememberSaveable { mutableStateOf(false) }
@@ -176,11 +181,12 @@ fun MaterialTextFieldDemo() {
                 when (selectedTextField) {
                     TextFieldType.Filled ->
                         TextField(
-                            value = text,
-                            onValueChange = { text = it },
+                            state = state,
                             enabled = !disabled,
                             readOnly = readOnly,
-                            singleLine = singleLineChecked,
+                            lineLimits =
+                                if (singleLineChecked) TextFieldLineLimits.SingleLine
+                                else TextFieldLineLimits.MultiLine(),
                             label = {
                                 val label =
                                     "Label" + if (selectedOption == Option.Error) "*" else ""
@@ -203,11 +209,12 @@ fun MaterialTextFieldDemo() {
                         )
                     TextFieldType.Outlined ->
                         OutlinedTextField(
-                            value = text,
-                            onValueChange = { text = it },
+                            state = state,
                             enabled = !disabled,
                             readOnly = readOnly,
-                            singleLine = singleLineChecked,
+                            lineLimits =
+                                if (singleLineChecked) TextFieldLineLimits.SingleLine
+                                else TextFieldLineLimits.MultiLine(),
                             label = {
                                 val label =
                                     "Label" + if (selectedOption == Option.Error) "*" else ""
@@ -316,11 +323,8 @@ fun MaterialTextFieldDemo() {
 
 @Composable
 fun CustomShapeOutlinedTextFieldSample() {
-    var text by rememberSaveable { mutableStateOf("") }
-
     OutlinedTextField(
-        value = text,
-        onValueChange = { text = it },
+        state = rememberTextFieldState(),
         label = { Text("Label") },
         shape = CutCornerShape(5.dp),
     )

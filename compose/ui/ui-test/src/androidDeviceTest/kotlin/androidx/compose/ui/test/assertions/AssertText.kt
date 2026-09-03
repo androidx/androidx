@@ -18,6 +18,7 @@ package androidx.compose.ui.test.assertions
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
@@ -90,7 +91,7 @@ class AssertText {
             Box(Modifier.semantics(mergeDescendants = true) { testTag = "test" }) {
                 Text("Hello")
                 Text("World")
-                TextField("TextField", onValueChange = {})
+                TextField(rememberTextFieldState("TextField"))
             }
         }
         rule.onNodeWithTag("test").assertTextEquals("Hello", "World", "TextField")

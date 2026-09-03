@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Switch
@@ -186,7 +187,7 @@ fun ScreenCoordinatesDemo(navigateBack: () -> Unit) {
                         "${gestureAreaCoords?.positionOnScreen()}",
                     style = MaterialTheme.typography.body2,
                 )
-                TextField(value = "Tap to show keyboard", onValueChange = {})
+                TextField(rememberTextFieldState("Tap to show keyboard"))
                 Button(onClick = navigateBack) { Text("Close") }
 
                 // Hack to get the window offset to update while keyboard is animating.

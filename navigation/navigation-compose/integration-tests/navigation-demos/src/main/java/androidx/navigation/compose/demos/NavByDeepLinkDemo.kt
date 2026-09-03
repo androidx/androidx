@@ -22,14 +22,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -64,18 +63,12 @@ fun ProfileWithDeepLink(navController: NavController, uri: String) {
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
         Text(text = stringResource(Profile.resourceId))
         Divider(color = Color.Black)
-        val state = rememberSaveable { mutableStateOf("") }
-        Box {
-            TextField(
-                value = state.value,
-                onValueChange = { state.value = it },
-                placeholder = { Text("Enter userId here") },
-            )
-        }
+        val state = rememberTextFieldState()
+        Box { TextField(state = state, placeholder = { Text("Enter userId here") }) }
         Divider(color = Color.Black)
         Button(
             // navigate with deeplink
-            onClick = { navController.navigate(Uri.parse(uri + state.value)) },
+            onClick = { navController.navigate(Uri.parse(uri + state.text)) },
             colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
             modifier = Modifier.fillMaxWidth(),
         ) {

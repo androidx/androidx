@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.unit.dp
 
+@Suppress("DEPRECATION")
 @Composable
 fun CaptureFocusDemo() {
     Column {

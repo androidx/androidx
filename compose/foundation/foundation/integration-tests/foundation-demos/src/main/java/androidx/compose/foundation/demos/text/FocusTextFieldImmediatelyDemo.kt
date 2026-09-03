@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -38,7 +39,7 @@ import androidx.compose.ui.focus.focusRequester
 
 @Composable
 fun FocusTextFieldImmediatelyDemo() {
-    var value by remember { mutableStateOf("") }
+    val textFieldState = rememberTextFieldState()
     var launchedEffect by remember { mutableStateOf(false) }
 
     Column {
@@ -57,8 +58,7 @@ fun FocusTextFieldImmediatelyDemo() {
             LaunchedEffect(focusRequester) { focusRequester.requestFocus() }
 
             TextField(
-                value,
-                onValueChange = { value = it },
+                textFieldState,
                 modifier = Modifier.wrapContentSize().focusRequester(focusRequester),
             )
         } else {
@@ -69,8 +69,7 @@ fun FocusTextFieldImmediatelyDemo() {
             }
 
             TextField(
-                value,
-                onValueChange = { value = it },
+                textFieldState,
                 modifier = Modifier.wrapContentSize().focusRequester(focusRequester),
             )
         }
