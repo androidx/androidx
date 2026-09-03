@@ -119,24 +119,76 @@ class PickVisualMediaRequestTest {
 
     @Test
     fun testPickVisualMediaRequest_defaultTab() {
-        // test default
-        var request = PickVisualMediaRequest()
+        val context = InstrumentationRegistry.getInstrumentation().context
+
+        // test default from Builder
+        var request = PickVisualMediaRequest.Builder().build()
         assertThat(request.defaultTab).isEqualTo(PickVisualMedia.DefaultTab.PhotosTab)
+        assertThat(request.isCustomDefaultTabApplied).isEqualTo(false)
+
+        var singleIntent = PickVisualMedia().createIntent(context, request)
+        assertThat(singleIntent.hasExtra(MediaStore.EXTRA_PICK_IMAGES_LAUNCH_TAB)).isFalse()
+
+        // test builder setDefaultTab with PhotosTab
+        request =
+            PickVisualMediaRequest.Builder()
+                .setDefaultTab(PickVisualMedia.DefaultTab.PhotosTab)
+                .build()
+        assertThat(request.defaultTab).isEqualTo(PickVisualMedia.DefaultTab.PhotosTab)
+        assertThat(request.isCustomDefaultTabApplied).isEqualTo(true)
+
+        singleIntent = PickVisualMedia().createIntent(context, request)
+        if (PickVisualMedia.isSystemPickerAvailable()) {
+            assertThat(singleIntent.hasExtra(MediaStore.EXTRA_PICK_IMAGES_LAUNCH_TAB)).isTrue()
+            assertThat(singleIntent.getIntExtra(MediaStore.EXTRA_PICK_IMAGES_LAUNCH_TAB, -1))
+                .isEqualTo(PickVisualMedia.DefaultTab.PhotosTab.value)
+        }
 
         // test given default tab in PickVisualMediaRequest
         request = PickVisualMediaRequest(defaultTab = PickVisualMedia.DefaultTab.AlbumsTab)
         assertThat(request.defaultTab).isEqualTo(PickVisualMedia.DefaultTab.AlbumsTab)
+        assertThat(request.isCustomDefaultTabApplied).isEqualTo(true)
+
+        singleIntent = PickVisualMedia().createIntent(context, request)
+        if (PickVisualMedia.isSystemPickerAvailable()) {
+            assertThat(singleIntent.hasExtra(MediaStore.EXTRA_PICK_IMAGES_LAUNCH_TAB)).isTrue()
+            assertThat(singleIntent.getIntExtra(MediaStore.EXTRA_PICK_IMAGES_LAUNCH_TAB, -1))
+                .isEqualTo(PickVisualMedia.DefaultTab.AlbumsTab.value)
+        }
     }
 
     @Test
     fun testPickVisualMediaRequest_isOrderedSelection() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+
         // test default
         var request = PickVisualMediaRequest()
         assertThat(request.isOrderedSelection).isEqualTo(false)
 
+        var multipleIntent = PickMultipleVisualMedia().createIntent(context, request)
+        assertThat(multipleIntent.hasExtra(MediaStore.EXTRA_PICK_IMAGES_IN_ORDER)).isFalse()
+
+        // test builder setOrderedSelection(true)
+        request = PickVisualMediaRequest.Builder().setOrderedSelection(true).build()
+        assertThat(request.isOrderedSelection).isEqualTo(true)
+
+        multipleIntent = PickMultipleVisualMedia().createIntent(context, request)
+        if (PickVisualMedia.isSystemPickerAvailable()) {
+            assertThat(multipleIntent.hasExtra(MediaStore.EXTRA_PICK_IMAGES_IN_ORDER)).isTrue()
+            assertThat(multipleIntent.getBooleanExtra(MediaStore.EXTRA_PICK_IMAGES_IN_ORDER, false))
+                .isTrue()
+        }
+
         // test given isOrderedSelection in PickVisualMediaRequest
         request = PickVisualMediaRequest(isOrderedSelection = true)
         assertThat(request.isOrderedSelection).isEqualTo(true)
+
+        multipleIntent = PickMultipleVisualMedia().createIntent(context, request)
+        if (PickVisualMedia.isSystemPickerAvailable()) {
+            assertThat(multipleIntent.hasExtra(MediaStore.EXTRA_PICK_IMAGES_IN_ORDER)).isTrue()
+            assertThat(multipleIntent.getBooleanExtra(MediaStore.EXTRA_PICK_IMAGES_IN_ORDER, false))
+                .isTrue()
+        }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)

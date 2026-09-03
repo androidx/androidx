@@ -106,11 +106,13 @@ package androidx.photopicker.activity {
     method @InaccessibleFromKotlin public androidx.photopicker.activity.PickVisualMedia.MediaCapabilities? getMediaCapabilitiesForTranscoding();
     method @InaccessibleFromKotlin public androidx.photopicker.activity.PickVisualMedia.VisualMediaType getMediaType();
     method @InaccessibleFromKotlin public boolean isCustomAccentColorApplied();
+    method @InaccessibleFromKotlin public boolean isCustomDefaultTabApplied();
     method @InaccessibleFromKotlin public boolean isLocationMetadataAccessRequested();
     method @InaccessibleFromKotlin public boolean isOrderedSelection();
     property public long accentColor;
     property public androidx.photopicker.activity.PickVisualMedia.DefaultTab defaultTab;
     property public boolean isCustomAccentColorApplied;
+    property public boolean isCustomDefaultTabApplied;
     property public boolean isLocationMetadataAccessRequested;
     property public boolean isOrderedSelection;
     property public int maxItems;

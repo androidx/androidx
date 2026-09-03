@@ -83,8 +83,12 @@ public open class PickMultipleVisualMedia(private val maxItems: Int = getMaxItem
                 }
 
                 putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, currentMaxItems)
-                putExtra(MediaStore.EXTRA_PICK_IMAGES_LAUNCH_TAB, input.defaultTab.value)
-                putExtra(MediaStore.EXTRA_PICK_IMAGES_IN_ORDER, input.isOrderedSelection)
+                if (input.isCustomDefaultTabApplied) {
+                    putExtra(MediaStore.EXTRA_PICK_IMAGES_LAUNCH_TAB, input.defaultTab.value)
+                }
+                if (input.isOrderedSelection) {
+                    putExtra(MediaStore.EXTRA_PICK_IMAGES_IN_ORDER, true)
+                }
 
                 if (input.isCustomAccentColorApplied) {
                     putExtra(MediaStore.EXTRA_PICK_IMAGES_ACCENT_COLOR, input.accentColor)
@@ -116,14 +120,15 @@ public open class PickMultipleVisualMedia(private val maxItems: Int = getMaxItem
                 require(currentMaxItems > 1) { "Max items must be greater than 1" }
 
                 putExtra(PickVisualMedia.EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX, currentMaxItems)
-                putExtra(
-                    PickVisualMedia.EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_LAUNCH_TAB,
-                    input.defaultTab.value,
-                )
-                putExtra(
-                    PickVisualMedia.EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_IN_ORDER,
-                    input.isOrderedSelection,
-                )
+                if (input.isCustomDefaultTabApplied) {
+                    putExtra(
+                        PickVisualMedia.EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_LAUNCH_TAB,
+                        input.defaultTab.value,
+                    )
+                }
+                if (input.isOrderedSelection) {
+                    putExtra(PickVisualMedia.EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_IN_ORDER, true)
+                }
 
                 if (input.isCustomAccentColorApplied) {
                     putExtra(

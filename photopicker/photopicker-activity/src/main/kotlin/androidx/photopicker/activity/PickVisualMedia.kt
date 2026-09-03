@@ -345,7 +345,10 @@ public open class PickVisualMedia : ActivityResultContract<PickVisualMediaReques
         return if (isSystemPickerAvailable()) {
             Intent(MediaStore.ACTION_PICK_IMAGES).apply {
                 type = getVisualMimeType(input.mediaType)
-                putExtra(MediaStore.EXTRA_PICK_IMAGES_LAUNCH_TAB, input.defaultTab.value)
+
+                if (input.isCustomDefaultTabApplied) {
+                    putExtra(MediaStore.EXTRA_PICK_IMAGES_LAUNCH_TAB, input.defaultTab.value)
+                }
 
                 if (input.isCustomAccentColorApplied) {
                     putExtra(MediaStore.EXTRA_PICK_IMAGES_ACCENT_COLOR, input.accentColor)
@@ -371,7 +374,10 @@ public open class PickVisualMedia : ActivityResultContract<PickVisualMediaReques
             Intent(ACTION_SYSTEM_FALLBACK_PICK_IMAGES).apply {
                 setClassName(fallbackPicker.applicationInfo.packageName, fallbackPicker.name)
                 type = getVisualMimeType(input.mediaType)
-                putExtra(EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_LAUNCH_TAB, input.defaultTab.value)
+
+                if (input.isCustomDefaultTabApplied) {
+                    putExtra(EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_LAUNCH_TAB, input.defaultTab.value)
+                }
 
                 if (input.isCustomAccentColorApplied) {
                     putExtra(EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_ACCENT_COLOR, input.accentColor)
