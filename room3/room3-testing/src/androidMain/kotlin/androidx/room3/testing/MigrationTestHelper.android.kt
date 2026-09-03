@@ -32,6 +32,7 @@ import java.io.FileNotFoundException
 import java.lang.ref.WeakReference
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
@@ -291,6 +292,8 @@ private sealed class AndroidMigrationTestHelper(
             sqliteDriver = sqliteDriver,
             queryCoroutineContext = Dispatchers.IO,
             connectionPoolConfiguration = SingleConnection,
+            connectionPoolTimeout = 30.seconds,
+            allowDataLossOnRecovery = false,
         )
 }
 

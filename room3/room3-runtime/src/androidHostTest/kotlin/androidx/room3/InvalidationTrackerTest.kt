@@ -20,6 +20,7 @@ import androidx.annotation.RequiresApi
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import androidx.room3.concurrent.AtomicBoolean
+import androidx.room3.coroutines.DEFAULT_CONNECTION_POOL_TIMEOUT
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.SQLiteStatement
@@ -85,6 +86,8 @@ class InvalidationTrackerTest {
                     sqliteDriver = sqliteDriver,
                     queryCoroutineContext = testCoroutineScope.coroutineContext,
                     connectionPoolConfiguration = SingleConnection,
+                    connectionPoolTimeout = DEFAULT_CONNECTION_POOL_TIMEOUT,
+                    allowDataLossOnRecovery = false,
                 )
                 .apply { this.preparedStatementCacheSize = 0 }
         )

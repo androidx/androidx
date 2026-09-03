@@ -23,6 +23,7 @@ import androidx.room3.Entity
 import androidx.room3.PrimaryKey
 import androidx.room3.RoomDatabase
 import androidx.room3.SingleConnection
+import androidx.room3.coroutines.DEFAULT_CONNECTION_POOL_TIMEOUT
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import kotlinx.coroutines.Dispatchers
 
@@ -51,4 +52,6 @@ fun createDefaultConfiguration(instrumentation: Instrumentation) =
         sqliteDriver = AndroidSQLiteDriver(),
         queryCoroutineContext = Dispatchers.IO,
         connectionPoolConfiguration = SingleConnection,
+        connectionPoolTimeout = DEFAULT_CONNECTION_POOL_TIMEOUT,
+        allowDataLossOnRecovery = false,
     )

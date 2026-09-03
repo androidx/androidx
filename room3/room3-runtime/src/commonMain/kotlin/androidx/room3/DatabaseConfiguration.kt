@@ -53,5 +53,7 @@ public expect class DatabaseConfiguration {
     /* The connection pool configuration. */
     public val connectionPoolConfiguration: ConnectionPoolConfiguration
     /* The connection pool timeout. */
-    internal var connectionPoolTimeout: Duration
+    public val connectionPoolTimeout: Duration
+    /* Whether Room is allowed to delete and recreate the database file on corruption. */
+    public val allowDataLossOnRecovery: Boolean
 }
