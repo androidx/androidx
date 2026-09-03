@@ -16,8 +16,11 @@
 
 package androidx.appfunctions
 
+import androidx.annotation.RestrictTo
+
 /** The configuration object used to customize AppFunction setup. */
-// TODO(b/517876475): Remove this class once migration is finished
+// TODO(b/500281348): Remove this class once migration is finished
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AppFunctionConfiguration
 internal constructor(
     /**
