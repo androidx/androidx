@@ -80,6 +80,7 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(project(":xr:runtime:runtime-testing")) {
         exclude group: "org.robolectric"
     }
