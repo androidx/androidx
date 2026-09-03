@@ -383,11 +383,6 @@ package androidx.compose.runtime {
     method public void traceEventStart(int key, int dirty1, int dirty2, String info);
   }
 
-  public final class ComputedStateKt {
-    method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.State<T> computedStateOf(optional androidx.compose.runtime.SnapshotMutationPolicy<T> policy, kotlin.jvm.functions.Function0<? extends T> calculation);
-    method @BytecodeOnly @androidx.compose.runtime.snapshots.StateFactoryMarker public static androidx.compose.runtime.State! computedStateOf$default(androidx.compose.runtime.SnapshotMutationPolicy!, kotlin.jvm.functions.Function0!, int, Object!);
-  }
-
   public sealed nonexhaustive interface ControlledComposition extends androidx.compose.runtime.Composition {
     method public void abandonChanges();
     method public void applyChanges();

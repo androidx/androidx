@@ -664,52 +664,6 @@ class CompositionAndDerivedStateTests {
         expectChanges()
         validate { Text("evenActiveNumber = 8") }
     }
-
-    @Test
-    fun derivedStateChangesDependencies() = compositionTest {
-        var a by mutableIntStateOf(10)
-        var b by mutableIntStateOf(20)
-        var c by mutableIntStateOf(30)
-        var cond by mutableStateOf(true)
-        val derived by derivedStateOf { if (cond) a + b else c }
-        var compositionCount = 0
-
-        compose {
-            compositionCount++
-            Text("Value is $derived")
-        }
-
-        validate { Text("Value is 30") }
-        assertEquals(1, compositionCount)
-
-        cond = false
-        expectNoChanges()
-        revalidate()
-        assertEquals(1, compositionCount)
-
-        a = 30
-        expectNoChanges()
-        revalidate()
-        assertEquals(1, compositionCount)
-
-        c = 0
-        expectChanges()
-        validate { Text("Value is 0") }
-        assertEquals(2, compositionCount)
-
-        Snapshot.withMutableSnapshot {
-            cond = true
-            a = -20
-        }
-        expectNoChanges()
-        revalidate()
-        assertEquals(2, compositionCount)
-
-        a = 0
-        expectChanges()
-        validate { Text("Value is 20") }
-        assertEquals(3, compositionCount)
-    }
 }
 
 private class NestedItem(val number: Int) {
