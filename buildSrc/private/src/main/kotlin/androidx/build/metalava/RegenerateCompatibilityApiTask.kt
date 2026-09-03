@@ -73,17 +73,10 @@ constructor(workerExecutor: WorkerExecutor, private val objectFactory: ObjectFac
             }
         generateApi(
             projectXml = createProjectXmlFile(sourceSets),
-            sourcePaths = sourceSets.flatMap { it.sourcePaths.files },
-            compiledSources = compiledSources.single(),
-            apiLocation = apiLocation.get(),
             apiLintMode = ApiLintMode.Skip,
-            includeRestrictToLibraryGroupApis = generateRestrictToLibraryGroupAPIs.get(),
-            // Don't generate an API version history file
             apiLevelsArgs = emptyList(),
             // Even if this is a KMP project, don't run multiplatform checks on it
             multiplatform = false,
-            pathToManifest = null,
-            hasJvmOrAndroidTarget = hasJvmOrAndroidTarget.get(),
         )
     }
 

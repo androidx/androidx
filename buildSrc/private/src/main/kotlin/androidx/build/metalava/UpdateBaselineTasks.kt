@@ -53,15 +53,13 @@ constructor(workerExecutor: WorkerExecutor) : SourceMetalavaTask(workerExecutor)
                 sourcePaths.files.filter { it.exists() },
                 // API lint is not run on bytecode-only APIs, so don't bother processing the jar
                 // when generating a baseline.
-                compiledSources = null,
-                null,
+                includeCompiledSources = false,
+                outputLocation = null,
                 GenerateApiMode.PublicApi,
                 ApiLintMode.CheckBaseline(baselineFile, targetsJavaConsumers.get()),
                 // API version history doesn't need to be generated
-                emptyList(),
-                manifestPath.orNull?.asFile?.absolutePath,
-                multiplatform.get(),
-                hasJvmOrAndroidTarget.get(),
+                apiLevelsArgs = emptyList(),
+                multiplatform = multiplatform.get(),
             )
         val args = checkArgs + getCommonBaselineUpdateArgs(baselineFile)
 

@@ -228,14 +228,12 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
     protected fun getGenerateApiArgs(
         projectXml: File,
         sourcePaths: Collection<File>,
-        compiledSources: File?,
+        includeCompiledSources: Boolean,
         outputLocation: ApiLocation?,
         generateApiMode: GenerateApiMode,
         apiLintMode: ApiLintMode,
         apiLevelsArgs: List<String>,
-        pathToManifest: String? = null,
         multiplatform: Boolean,
-        hasJvmOrAndroidTarget: Boolean,
     ): List<String> {
         val args =
             mutableListOf("--project", projectXml.path, "--format=4.0", "--warnings-as-errors")
@@ -243,7 +241,7 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
         // Generate public API txt if there is a jvm/android target. If there isn't, the
         // `generateApi`
         // task will just run API lint without creating a signature file.
-        if (hasJvmOrAndroidTarget) {
+        if (hasJvmOrAndroidTarget.get()) {
             args +=
                 listOf(
                     "--source-path",
@@ -252,11 +250,14 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
 
             // Include the jar file to generate bytecode-only APIs if this project has any Kotlin
             // source.
-            if (compiledSources != null && sourcePaths.any { containsKotlinFiles(it) }) {
-                args += listOf("--compiled-sources", compiledSources.absolutePath)
+            if (includeCompiledSources) {
+                val compiledSources = compiledSources.singleOrNull()
+                if (compiledSources != null && sourcePaths.any { containsKotlinFiles(it) }) {
+                    args += listOf("--compiled-sources", compiledSources.absolutePath)
+                }
             }
 
-            pathToManifest?.let { args += listOf("--manifest", pathToManifest) }
+            manifestPath.orNull?.asFile?.absolutePath?.let { args += listOf("--manifest", it) }
 
             if (outputLocation != null) {
                 when (generateApiMode) {
