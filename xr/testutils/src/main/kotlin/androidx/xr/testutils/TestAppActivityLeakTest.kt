@@ -40,4 +40,20 @@ abstract class TestAppActivityLeakTest(activityClass: Class<out Activity>) :
 
         assertGarbageCollected(weakActivityRef)
     }
+
+    @Test
+    @XrDeviceTest
+    fun activity_stressTest_consecutiveLaunchAndDestroy_doesNotLeak() {
+        for (i in 1..5) {
+            val weakActivityRef = WeakReference(startActivity())
+
+            // Finish the Activity to close it
+            instrumentation.runOnMainSync { weakActivityRef.get()?.finish() }
+
+            // Wait for the main thread to be idle again
+            instrumentation.waitForIdleSync()
+
+            assertGarbageCollected(weakActivityRef)
+        }
+    }
 }
