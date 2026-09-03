@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalFoundationStyleApi::class)
+
 package androidx.compose.foundation.style
 
 import androidx.compose.animation.core.Spring.StiffnessHigh
@@ -21,7 +23,6 @@ import androidx.compose.animation.core.Spring.StiffnessMediumLow
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -82,7 +83,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationStyleApi::class)
 class StyleUxTaskTests {
     @get:Rule val rule = createComposeRule()
 
@@ -1130,7 +1130,6 @@ class StyleUxTaskTests {
         rule.setContent(content)
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     private fun interactiveTask(isDone: Boolean = true, content: @Composable () -> Unit) {
         var done = isDone
         rule.setContent {
@@ -1179,7 +1178,7 @@ private fun Text_n(
         softWrap = softWrap,
         maxLines = maxLines,
         minLines = minLines,
-        color = { styleResolver.resolve { contentFillLocal.value.asColor() } },
+        color = { styleResolver.resolve { contentColor } },
         autoSize = autoSize,
     )
 }
