@@ -571,6 +571,8 @@ private constructor(
                 LocalHostDefaultProvider providesComputed { owner.hostDefaultProvider },
                 LocalView provides owner.view,
                 LocalViewConfiguration provides owner.viewConfiguration,
+                LocalImageVectorCache provides imageVectorCache,
+                LocalResourceIdCache provides resourceIdCache,
             ) {
                 ProvideCommonCompositionLocals(owner = owner, content = content)
             }
