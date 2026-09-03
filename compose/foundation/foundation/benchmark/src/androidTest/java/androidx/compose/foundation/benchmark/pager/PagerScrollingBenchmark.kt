@@ -248,7 +248,6 @@ class PagerRemeasureTestCase(
     }
 
     override fun setUp() {
-        @Suppress("INVISIBLE_REFERENCE") // b/407927787
         pagerState.prefetchingEnabled = false
         runBlocking { pagerState.scrollToPage(0, 0.0f) }
     }
