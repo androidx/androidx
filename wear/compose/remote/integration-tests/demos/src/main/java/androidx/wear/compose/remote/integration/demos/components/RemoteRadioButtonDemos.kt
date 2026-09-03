@@ -17,6 +17,9 @@
 package androidx.wear.compose.remote.integration.demos.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -28,6 +31,8 @@ import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
+import androidx.wear.compose.remote.material3.RemoteRadioButton
+import androidx.wear.compose.remote.material3.RemoteText
 import androidx.wear.compose.remote.material3.previews.RemoteRadioButtonDisabledSelected
 import androidx.wear.compose.remote.material3.previews.RemoteRadioButtonDisabledUnselected
 import androidx.wear.compose.remote.material3.previews.RemoteRadioButtonSelected
@@ -68,6 +73,17 @@ fun RemoteRadioButtonDemos(modifier: Modifier = Modifier) {
             remoteDemoItem("With Icon") { RemoteRadioButtonWithIcon() }
             remoteDemoItem("With Secondary Label") { RemoteRadioButtonWithSecondaryLabel() }
             remoteDemoItem("Sample") { RemoteRadioButtonSample() }
+            remoteDemoItem("Animated Toggle") {
+                val selected = rememberMutableRemoteBoolean(false)
+                RemoteRadioButton(
+                    selected = selected,
+                    onSelect = valueChange(selected, !selected),
+                    secondaryLabel = {
+                        RemoteText(selected.select("State: Selected".rs, "State: Unselected".rs))
+                    },
+                    label = { RemoteText("Tap to animate".rs) },
+                )
+            }
         }
     }
 }
