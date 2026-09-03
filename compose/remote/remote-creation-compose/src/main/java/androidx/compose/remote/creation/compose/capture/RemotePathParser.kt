@@ -99,7 +99,11 @@ internal fun List<RemotePathNode>.toRemotePath(
                     val endX = centerX + radiusX * cos(end)
                     val endY = centerY + radiusY * sin(end)
 
-                    target.moveTo(startX, startY)
+                    if (node.forceMoveTo || target.isEmpty()) {
+                        target.moveTo(startX, startY)
+                    } else {
+                        target.lineTo(startX, startY)
+                    }
                     arcToBezier(
                         target,
                         centerX,
