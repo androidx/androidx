@@ -35,7 +35,6 @@ import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import androidx.appfunctions.metadata.CompileTimeAppFunctionMetadata
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 
@@ -84,53 +83,6 @@ internal class FakeAppFunctionReader(context: Context) : AppFunctionReader {
 
         packageToFunctionMetadataMapState = MutableStateFlow(packageToFunctionMetadataMap)
         packageToComponentsMetadataMapState = MutableStateFlow(packageToComponentsMetadataMap)
-    }
-
-    override fun searchAppFunctionsPackageMetadata(
-        searchFunctionSpec: AppFunctionSearchSpec
-    ): Flow<List<AppFunctionPackageMetadata>> {
-        val functionNames = searchFunctionSpec.functionNames
-        return packageToFunctionMetadataMapState.combine(packageToComponentsMetadataMapState) {
-            packageToFunctionMetadataMap:
-                Map<String, Map<String, AppFunctionStaticAndRuntimeMetadata>>,
-            packageToComponentsMetadataMap: Map<String, AppFunctionComponentsMetadata> ->
-            packageToFunctionMetadataMap
-                .filterKeys { packageName ->
-                    searchFunctionSpec.packageNames == null ||
-                        packageName in checkNotNull(searchFunctionSpec.packageNames)
-                }
-                .mapNotNull { (packageName, metadataMap) ->
-                    val appFunctions =
-                        metadataMap.values
-                            .filter { metadata ->
-                                matchesSchemaSpec(metadata, searchFunctionSpec) &&
-                                    (functionNames == null ||
-                                        AppFunctionName(packageName, metadata.staticMetadata.id) in
-                                            functionNames)
-                            }
-                            .map { metadata ->
-                                AppFunctionMetadata(
-                                    name = AppFunctionName(packageName, metadata.staticMetadata.id),
-                                    schema = metadata.staticMetadata.schema,
-                                    parameters = metadata.staticMetadata.parameters,
-                                    response = metadata.staticMetadata.response,
-                                    packageMetadata =
-                                        AppFunctionPackageMetadata(
-                                            packageName,
-                                            checkNotNull(
-                                                packageToComponentsMetadataMap[packageName]
-                                            ),
-                                        ),
-                                    scope = metadata.staticMetadata.scope,
-                                )
-                            }
-                    if (appFunctions.isNotEmpty()) {
-                        AppFunctionPackageMetadata(packageName, appFunctions)
-                    } else {
-                        null
-                    }
-                }
-        }
     }
 
     override suspend fun searchAppFunctionsMetadata(

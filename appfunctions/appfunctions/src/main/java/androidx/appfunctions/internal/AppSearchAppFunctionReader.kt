@@ -42,25 +42,17 @@ import androidx.appsearch.app.JoinSpec
 import androidx.appsearch.app.PropertyPath
 import androidx.appsearch.app.SearchResult
 import androidx.appsearch.app.SearchSpec
-import androidx.appsearch.observer.DocumentChangeInfo
-import androidx.appsearch.observer.ObserverCallback
 import androidx.appsearch.observer.ObserverSpec
-import androidx.appsearch.observer.SchemaChangeInfo
 import com.android.extensions.appfunctions.AppFunctionManager
 import java.util.concurrent.Executor
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.asExecutor
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 
@@ -196,48 +188,6 @@ internal class AppSearchAppFunctionReader(
             .filterNotNull()
     }
 
-    @OptIn(FlowPreview::class)
-    override fun searchAppFunctionsPackageMetadata(
-        searchFunctionSpec: AppFunctionSearchSpec
-    ): Flow<List<AppFunctionPackageMetadata>> {
-        if (searchFunctionSpec.packageNames?.isEmpty() == true) {
-            return flow { emit(emptyList()) }
-        }
-
-        return callbackFlow {
-            val session = createSearchSession(context)
-
-            // Perform initial search immediately
-            send(performSearchAppFunctionPackageMetadata(session, searchFunctionSpec))
-
-            val appSearchChannelObserver = AppSearchChannelObserver()
-            // Register the observer callback
-            session.registerObserverCallback(
-                SYSTEM_PACKAGE_NAME,
-                buildObserverSpec(searchFunctionSpec.packageNames ?: emptySet()),
-                Dispatchers.Worker.asExecutor(),
-                appSearchChannelObserver,
-            )
-
-            // Coroutine to react to updates from the observer
-            val observerJob = launch {
-                appSearchChannelObserver.observe().debounce(OBSERVER_DEBOUNCE_MILLIS).collect {
-                    // TODO(b/403264749): Check if we can skip the running a full search again by
-                    // caching the results.
-                    send(performSearchAppFunctionPackageMetadata(session, searchFunctionSpec))
-                }
-            }
-
-            // Clean up when collection stops
-            awaitClose {
-                observerJob.cancel()
-                appSearchChannelObserver.close()
-                session.unregisterObserverCallback(SYSTEM_PACKAGE_NAME, appSearchChannelObserver)
-                session.close()
-            }
-        }
-    }
-
     override suspend fun searchAppFunctionsMetadata(
         searchFunctionSpec: AppFunctionSearchSpec
     ): List<AppFunctionMetadata> {
@@ -253,50 +203,6 @@ internal class AppSearchAppFunctionReader(
         } finally {
             session.close()
         }
-    }
-
-    // TODO(b/508188326): Remove this once legacy observeAppFunctions API is migrated.
-    private class AppSearchChannelObserver : ObserverCallback {
-        private val updateChannel = Channel<Unit>(Channel.RENDEZVOUS)
-
-        override fun onSchemaChanged(changeInfo: SchemaChangeInfo) {
-            updateChannel.trySend(Unit)
-        }
-
-        override fun onDocumentChanged(changeInfo: DocumentChangeInfo) {
-            updateChannel.trySend(Unit)
-        }
-
-        fun observe(): Flow<Unit> = updateChannel.receiveAsFlow()
-
-        fun close() {
-            updateChannel.close()
-        }
-    }
-
-    private fun buildObserverSpec(packageNames: Set<String>) =
-        ObserverSpec.Builder()
-            .addFilterSchemas(
-                packageNames.flatMap {
-                    listOf(
-                        "${AppFunctionMetadataDocument.SCHEMA_TYPE}-$it",
-                        "${AppFunctionRuntimeMetadata.SCHEMA_TYPE}-$it",
-                        // TODO: b/418723242 - Add tests for observing changes in components
-                        "${AppFunctionComponentsMetadataDocument.SCHEMA_TYPE}-$it",
-                    )
-                }
-            )
-            .build()
-
-    private suspend fun performSearchAppFunctionPackageMetadata(
-        session: GlobalSearchSession,
-        searchFunctionSpec: AppFunctionSearchSpec,
-    ): List<AppFunctionPackageMetadata> {
-        return performSearchAppFunctionMetadata(session, searchFunctionSpec)
-            .groupBy { it.packageName }
-            .map { (packageName, appFunctions) ->
-                AppFunctionPackageMetadata(packageName, appFunctions)
-            }
     }
 
     private suspend fun performSearchAppFunctionMetadata(
