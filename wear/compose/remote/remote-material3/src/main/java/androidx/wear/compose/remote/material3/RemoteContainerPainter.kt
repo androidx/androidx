@@ -22,6 +22,7 @@ import androidx.compose.remote.creation.compose.painter.RemotePainter
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.image
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
+import androidx.compose.remote.creation.compose.shapes.drawOutline
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemotePaint
@@ -61,7 +62,7 @@ private class DefaultRemoteContainerPainter(
                 color = Color.Black.rc.copy(alpha = this@DefaultRemoteContainerPainter.alpha)
             }
             val outline = shape.createOutline(size, remoteDensity, layoutDirection)
-            with(outline) { drawOutline(paint) }
+            drawOutline(outline, paint)
         }
     }
 }
@@ -80,7 +81,7 @@ internal class ShapedBitmapPainter(
         }
 
         val outline = shape.createOutline(size, remoteDensity, layoutDirection)
-        with(outline) { drawOutline(paint) }
+        drawOutline(outline, paint)
     }
 
     override val intrinsicSize: RemoteSize
