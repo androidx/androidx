@@ -55,19 +55,15 @@ internal constructor(
     /**
      * Whether this animation should loop when playing.
      *
+     * This can be changed while the animation is playing or paused.
+     *
      * The default value is `false` (playback does not loop). When looping is disabled (`false`) and
      * playback reaches the end of the animation, the animation state transitions to
      * [AnimationState.STOPPED], while remaining clamped at the final frame pose.
-     *
-     * Changes to the loop configuration only take effect during [start]. Modifying this property
-     * while the animation is actively playing is currently not supported. The setter will remain
-     * annotated with [ExperimentalGltfAnimationApi] until dynamic loop updates during active
-     * playback are supported.
      */
     @get:MainThread
     @set:MainThread
     @get:Suppress("GetterSetterNames")
-    @set:ExperimentalGltfAnimationApi
     public var loop: Boolean = false
         set(value) {
             field = value
