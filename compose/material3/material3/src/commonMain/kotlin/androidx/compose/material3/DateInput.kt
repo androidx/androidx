@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION") // b/553982004
-
 package androidx.compose.material3
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.OutputTransformation
+import androidx.compose.foundation.text.input.TextFieldBuffer
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.insert
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.internal.CalendarDate
 import androidx.compose.material3.internal.CalendarModel
 import androidx.compose.material3.internal.DateInputFormat
@@ -33,11 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -45,14 +46,8 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import kotlin.jvm.JvmInline
 import kotlinx.coroutines.delay
@@ -129,33 +124,65 @@ internal fun DateInputTextField(
     colors: DatePickerColors,
     focusRequester: FocusRequester?,
 ) {
-    var text by
-        rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
+    val initialText =
+        remember(initialDateMillis, dateInputFormat, locale) {
+            initialDateMillis?.let {
+                calendarModel.formatWithPattern(
+                    it,
+                    dateInputFormat.patternWithoutDelimiters,
+                    locale,
+                )
+            } ?: ""
+        }
+    val state = rememberTextFieldState(initialText = initialText)
+
     val errorText =
-        rememberSaveable(text) {
-            // Run an initial validation if the text is not empty.
-            var initialError = ""
-            if (text.text.isNotEmpty()) {
-                initialError =
-                    dateInputValidator.validate(
-                        dateToValidate =
-                            calendarModel.parse(
-                                date = text.text,
-                                pattern = dateInputFormat.patternWithoutDelimiters,
-                                locale = locale,
-                            ),
-                        inputIdentifier = inputIdentifier,
+        remember(state.text, dateInputValidator, dateInputFormat, locale, inputIdentifier) {
+            val text = state.text.trim()
+            if (text.length == dateInputFormat.patternWithoutDelimiters.length) {
+                val parsedDate =
+                    calendarModel.parse(
+                        date = text.toString(),
+                        pattern = dateInputFormat.patternWithoutDelimiters,
                         locale = locale,
                     )
+                dateInputValidator.validate(
+                    dateToValidate = parsedDate,
+                    inputIdentifier = inputIdentifier,
+                    locale = locale,
+                )
+            } else {
+                ""
             }
-            mutableStateOf(initialError)
         }
+
+    val inputTransformation =
+        remember(
+            dateInputFormat,
+            calendarModel,
+            dateInputValidator,
+            inputIdentifier,
+            locale,
+            onDateSelectionChange,
+        ) {
+            DateInputTransformation(
+                dateInputFormat = dateInputFormat,
+                calendarModel = calendarModel,
+                dateInputValidator = dateInputValidator,
+                inputIdentifier = inputIdentifier,
+                locale = locale,
+                onDateSelectionChange = onDateSelectionChange,
+            )
+        }
+
+    val outputTransformation =
+        remember(dateInputFormat) { DateOutputTransformation(dateInputFormat) }
 
     // Calculate how much bottom padding should be added. In case there is an error text, which is
     // added as a supportingText, take into account the default supportingText padding to ensure
     // the padding does not trigger a component height change.
     val bottomPadding =
-        if (errorText.value.isBlank()) {
+        if (errorText.isBlank()) {
             InputTextNonErroneousBottomPadding
         } else {
             val textFieldPadding = TextFieldDefaults.supportingTextPadding()
@@ -163,49 +190,11 @@ internal fun DateInputTextField(
                 (textFieldPadding.calculateBottomPadding() + textFieldPadding.calculateTopPadding())
         }
     OutlinedTextField(
-        value = text,
-        onValueChange = { input ->
-            if (
-                input.text.length <= dateInputFormat.patternWithoutDelimiters.length &&
-                    input.text.all { it.isDigit() }
-            ) {
-                text = input
-                val trimmedText = input.text.trim()
-                if (
-                    trimmedText.isEmpty() ||
-                        trimmedText.length < dateInputFormat.patternWithoutDelimiters.length
-                ) {
-                    errorText.value = ""
-                    onDateSelectionChange(null)
-                } else {
-                    val parsedDate =
-                        calendarModel.parse(
-                            date = trimmedText,
-                            pattern = dateInputFormat.patternWithoutDelimiters,
-                            locale = locale,
-                        )
-                    errorText.value =
-                        dateInputValidator.validate(
-                            dateToValidate = parsedDate,
-                            inputIdentifier = inputIdentifier,
-                            locale = locale,
-                        )
-                    // Set the parsed date only if the error validation returned an empty string.
-                    // Otherwise, set it to null, as the validation failed.
-                    onDateSelectionChange(
-                        if (errorText.value.isEmpty()) {
-                            parsedDate?.utcTimeMillis
-                        } else {
-                            null
-                        }
-                    )
-                }
-            }
-        },
+        state = state,
         modifier =
             modifier
                 .padding(bottom = bottomPadding)
-                .semantics { if (errorText.value.isNotBlank()) error(errorText.value) }
+                .semantics { if (errorText.isNotBlank()) error(description = errorText) }
                 .then(
                     if (focusRequester != null) {
                         Modifier.focusRequester(focusRequester)
@@ -213,18 +202,24 @@ internal fun DateInputTextField(
                         Modifier
                     }
                 ),
-        label = label,
+        label =
+            if (label != null) {
+                { label() }
+            } else {
+                null
+            },
         placeholder = placeholder,
-        supportingText = { if (errorText.value.isNotBlank()) Text(errorText.value) },
-        isError = errorText.value.isNotBlank(),
-        visualTransformation = DateVisualTransformation(dateInputFormat),
+        supportingText = { if (errorText.isNotBlank()) Text(errorText) },
+        isError = errorText.isNotBlank(),
+        inputTransformation = inputTransformation,
+        outputTransformation = outputTransformation,
         keyboardOptions =
             KeyboardOptions(
                 autoCorrectEnabled = false,
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Done,
             ),
-        singleLine = true,
+        lineLimits = TextFieldLineLimits.SingleLine,
         colors = colors.dateTextFieldColors,
     )
 
@@ -239,23 +234,15 @@ internal fun DateInputTextField(
 
     LaunchedEffect(initialDateMillis) {
         initialDateMillis?.let {
-            val initialText =
+            val dateText =
                 calendarModel.formatWithPattern(
                     it,
                     dateInputFormat.patternWithoutDelimiters,
                     locale,
                 )
-            text =
-                TextFieldValue(
-                    text = initialText,
-                    // Ensures that the initial cursor position is at the end of the text.
-                    selection =
-                        if (initialText.isEmpty()) {
-                            TextRange.Zero
-                        } else {
-                            TextRange(initialText.length, initialText.length)
-                        },
-                )
+            if (state.text.toString() != dateText) {
+                state.setTextAndPlaceCursorAtEnd(dateText)
+            }
         }
     }
 }
@@ -391,55 +378,68 @@ internal value class InputIdentifier internal constructor(internal val value: In
 }
 
 /**
- * A [VisualTransformation] for date input. The transformation will automatically display the date
+ * An [InputTransformation] for date input. Rejects input changes that contain non-digit characters
+ * or exceed the date format pattern length, and triggers date selection validation callback.
+ */
+private class DateInputTransformation(
+    private val dateInputFormat: DateInputFormat,
+    private val calendarModel: CalendarModel,
+    private val dateInputValidator: DateInputValidator,
+    private val inputIdentifier: InputIdentifier,
+    private val locale: CalendarLocale,
+    private val onDateSelectionChange: (Long?) -> Unit,
+) : InputTransformation {
+
+    override fun TextFieldBuffer.transformInput() {
+        if (
+            length > dateInputFormat.patternWithoutDelimiters.length ||
+                !asCharSequence().all { it.isDigit() }
+        ) {
+            revertAllChanges()
+            return
+        }
+
+        val text = asCharSequence().trim()
+        if (text.length < dateInputFormat.patternWithoutDelimiters.length) {
+            onDateSelectionChange(null)
+        } else {
+            val parsedDate =
+                calendarModel.parse(
+                    date = text.toString(),
+                    pattern = dateInputFormat.patternWithoutDelimiters,
+                    locale = locale,
+                )
+            val error =
+                dateInputValidator.validate(
+                    dateToValidate = parsedDate,
+                    inputIdentifier = inputIdentifier,
+                    locale = locale,
+                )
+            onDateSelectionChange(if (error.isEmpty()) parsedDate?.utcTimeMillis else null)
+        }
+    }
+}
+
+/**
+ * An [OutputTransformation] for date input. The transformation will automatically display the date
  * delimiters provided by the [DateInputFormat] as the date is being entered into the text field.
  */
-private class DateVisualTransformation(private val dateInputFormat: DateInputFormat) :
-    VisualTransformation {
+private class DateOutputTransformation(private val dateInputFormat: DateInputFormat) :
+    OutputTransformation {
 
     private val firstDelimiterOffset: Int =
         dateInputFormat.patternWithDelimiters.indexOf(dateInputFormat.delimiter)
     private val secondDelimiterOffset: Int =
         dateInputFormat.patternWithDelimiters.lastIndexOf(dateInputFormat.delimiter)
-    private val dateFormatLength: Int = dateInputFormat.patternWithoutDelimiters.length
+    private val delimiterString: String = dateInputFormat.delimiter.toString()
 
-    private val dateOffsetTranslator =
-        object : OffsetMapping {
-
-            override fun originalToTransformed(offset: Int): Int {
-                return when {
-                    offset < firstDelimiterOffset -> offset
-                    offset < secondDelimiterOffset -> offset + 1
-                    offset <= dateFormatLength -> offset + 2
-                    else -> dateFormatLength + 2 // 10
-                }
-            }
-
-            override fun transformedToOriginal(offset: Int): Int {
-                return when {
-                    offset <= firstDelimiterOffset - 1 -> offset
-                    offset <= secondDelimiterOffset - 1 -> offset - 1
-                    offset <= dateFormatLength + 1 -> offset - 2
-                    else -> dateFormatLength // 8
-                }
-            }
+    override fun TextFieldBuffer.transformOutput() {
+        if (firstDelimiterOffset in 0..length) {
+            insert(firstDelimiterOffset, delimiterString)
         }
-
-    override fun filter(text: AnnotatedString): TransformedText {
-        val trimmedText =
-            if (text.text.length > dateFormatLength) {
-                text.text.substring(0 until dateFormatLength)
-            } else {
-                text.text
-            }
-        var transformedText = ""
-        trimmedText.forEachIndexed { index, char ->
-            transformedText += char
-            if (index + 1 == firstDelimiterOffset || index + 2 == secondDelimiterOffset) {
-                transformedText += dateInputFormat.delimiter
-            }
+        if (secondDelimiterOffset > firstDelimiterOffset && secondDelimiterOffset in 0..length) {
+            insert(secondDelimiterOffset, delimiterString)
         }
-        return TransformedText(AnnotatedString(transformedText), dateOffsetTranslator)
     }
 }
 
