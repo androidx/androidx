@@ -1346,4 +1346,20 @@ class MeasureAndLayoutDelegateTest {
         assertFalse(togglableMeasureNode.children[0].lookaheadMeasurePending)
         assertFalse(togglableMeasureNode.lookaheadMeasurePending)
     }
+
+    @Test
+    fun deactivatedNode_removedFromRelayoutNodes() {
+        val child = node()
+        val root = root { add(child) }
+        val delegate = createDelegate(root)
+
+        child.requestRemeasure()
+        assertTrue(delegate.hasPendingMeasureOrLayout)
+
+        child.onDeactivate()
+
+        assertFalse(delegate.hasPendingMeasureOrLayout)
+        // MeasureAndLayout should succeed without attempting to remeasure the deactivated node
+        assertThat(delegate.measureAndLayout()).isFalse()
+    }
 }

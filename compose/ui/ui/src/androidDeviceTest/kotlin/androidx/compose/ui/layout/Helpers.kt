@@ -161,7 +161,9 @@ private class FakeOwner(
 
     override fun onLayoutChange(layoutNode: LayoutNode) {}
 
-    override fun onLayoutNodeDeactivated(layoutNode: LayoutNode) {}
+    override fun onLayoutNodeDeactivated(layoutNode: LayoutNode) {
+        delegate.onNodeDeactivated(layoutNode)
+    }
 
     override fun onInteropViewLayoutChange(view: InteropView) {}
 

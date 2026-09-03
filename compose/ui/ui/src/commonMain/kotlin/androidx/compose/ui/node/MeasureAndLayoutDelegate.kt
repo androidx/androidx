@@ -823,6 +823,15 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         onPositionedDispatcher.remove(node)
     }
 
+    /**
+     * Removes [node] from the list of LayoutNodes being scheduled for the remeasure/relayout as it
+     * was deactivated.
+     */
+    fun onNodeDeactivated(node: LayoutNode) {
+        relayoutNodes.remove(node)
+        onPositionedDispatcher.remove(node)
+    }
+
     private val LayoutNode.remeasureCanAffectParentSize: Boolean
         get() =
             measuredByParent == InMeasureBlock ||
