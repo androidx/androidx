@@ -16,6 +16,7 @@
 
 package androidx.camera.testing.impl
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import androidx.test.core.app.ApplicationProvider
@@ -146,5 +147,73 @@ class FileUtilTest {
         val expectedFile = File(tempDir, "sample_image.png")
         assertThat(savedFile).isEqualTo(expectedFile)
         assertThat(expectedFile.exists()).isTrue()
+    }
+
+    @Test
+    fun saveBitmap_withRecycledBitmap_returnsNullAndLeavesNoFile() {
+        val bitmap = createTestBitmap(Color.CYAN)
+        bitmap.recycle()
+        val testName = "test_recycled_bitmap_${System.currentTimeMillis()}"
+        val savedFile = FileUtil.saveBitmap(bitmap, tempDir, testName)
+
+        assertThat(savedFile).isNull()
+        val targetFile = File(tempDir, "$testName.png")
+        assertThat(targetFile.exists()).isFalse()
+    }
+
+    @Test
+    fun saveBitmap_withExistingFile_overwritesSuccessfully() {
+        val bitmap1 = createTestBitmap(Color.RED)
+        val testName = "test_overwrite_${System.currentTimeMillis()}"
+        val savedFile1 = FileUtil.saveBitmap(bitmap1, tempDir, testName)
+        assertThat(savedFile1?.exists()).isTrue()
+        savedFile1?.let { testFiles.add(it) }
+
+        val bitmap2 = createTestBitmap(Color.BLUE)
+        val savedFile2 = FileUtil.saveBitmap(bitmap2, tempDir, testName)
+        assertThat(savedFile2?.exists()).isTrue()
+        assertThat(savedFile2).isEqualTo(savedFile1)
+    }
+
+    @Config(minSdk = 29)
+    @Test
+    fun saveBitmapToMediaStore_createsFileAndSavesContent() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val bitmap = createTestBitmap(Color.RED)
+        val testName = "test_save_mediastore_${System.currentTimeMillis()}"
+        val savedFile =
+            FileUtil.saveBitmapToMediaStore(
+                context.contentResolver,
+                bitmap,
+                "Pictures/test_output",
+                testName,
+            )
+
+        assertThat(savedFile).isNotNull()
+        val file = requireNotNull(savedFile)
+        testFiles.add(file)
+
+        assertThat(file.exists()).isTrue()
+        assertThat(file.length()).isGreaterThan(0L)
+        assertThat(file.name).startsWith(testName)
+        assertThat(file.name).endsWith(".png")
+    }
+
+    @Config(minSdk = 29)
+    @Test
+    fun saveBitmapToMediaStore_withRecycledBitmap_returnsNull() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val bitmap = createTestBitmap(Color.BLUE)
+        bitmap.recycle()
+        val testName = "test_save_mediastore_recycled_${System.currentTimeMillis()}"
+        val savedFile =
+            FileUtil.saveBitmapToMediaStore(
+                context.contentResolver,
+                bitmap,
+                "Pictures/test_output",
+                testName,
+            )
+
+        assertThat(savedFile).isNull()
     }
 }
