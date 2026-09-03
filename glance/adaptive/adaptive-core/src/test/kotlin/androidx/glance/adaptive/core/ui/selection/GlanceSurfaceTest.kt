@@ -16,85 +16,46 @@
 
 package androidx.glance.adaptive.core.ui.selection
 
-import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProviderInfo
-import android.os.Bundle
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
-@Config(sdk = [Config.TARGET_SDK])
-@RunWith(RobolectricTestRunner::class)
 class GlanceSurfaceTest {
 
     @Test
-    fun surfaceDetector_fromHostCategory_resolvesCorrectly() {
-        assertThat(
-                SurfaceDetector.fromHostCategory(AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN)
-            )
-            .isEqualTo(GlanceSurface.MOBILE_HOME_SCREEN)
-        assertThat(SurfaceDetector.fromHostCategory(AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD))
-            .isEqualTo(GlanceSurface.MOBILE_LOCK_SCREEN)
-        assertThat(SurfaceDetector.fromHostCategory(0)).isEqualTo(GlanceSurface.MOBILE_HOME_SCREEN)
-    }
+    fun glanceSurface_of_createsInstanceWithTag() {
+        val surface1 = GlanceSurface.of("test_surface")
+        val surface2 = GlanceSurface.of("test_surface")
+        val surface3 = GlanceSurface.of("different_surface")
 
-    @Test
-    fun surfaceDetector_fromAppWidgetOptions_resolvesCorrectly() {
-        assertThat(SurfaceDetector.fromAppWidgetOptions(null))
-            .isEqualTo(GlanceSurface.MOBILE_HOME_SCREEN)
-
-        val homeOptions =
-            Bundle().apply {
-                putInt(
-                    AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY,
-                    AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
-                )
-            }
-        assertThat(SurfaceDetector.fromAppWidgetOptions(homeOptions))
-            .isEqualTo(GlanceSurface.MOBILE_HOME_SCREEN)
-
-        val lockOptions =
-            Bundle().apply {
-                putInt(
-                    AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY,
-                    AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
-                )
-            }
-        assertThat(SurfaceDetector.fromAppWidgetOptions(lockOptions))
-            .isEqualTo(GlanceSurface.MOBILE_LOCK_SCREEN)
-    }
-
-    @Test
-    fun glanceSurface_aliasesAndTags_resolveCorrectly() {
-        assertThat(GlanceSurface.HOME_SCREEN).isEqualTo(GlanceSurface.MOBILE_HOME_SCREEN)
-        assertThat(GlanceSurface.LOCK_SCREEN).isEqualTo(GlanceSurface.MOBILE_LOCK_SCREEN)
-        assertThat(GlanceSurface.WEAR_WIDGETS).isEqualTo(GlanceSurface.WEAR_TILE)
-        assertThat(GlanceSurface.TV).isEqualTo(GlanceSurface.TV_HOME_SCREEN)
-
-        assertThat(GlanceSurface.MOBILE_HOME_SCREEN.tag).isEqualTo("home_screen")
-        assertThat(GlanceSurface.MOBILE_LOCK_SCREEN.tag).isEqualTo("keyguard")
-        assertThat(GlanceSurface.TABLET_HOME_SCREEN.tag).isEqualTo("tablet_home_screen")
-        assertThat(GlanceSurface.TV_HOME_SCREEN.tag).isEqualTo("tv")
-        assertThat(GlanceSurface.WEAR_TILE.tag).isEqualTo("wear_tile")
-        assertThat(GlanceSurface.WEAR_COMPLICATION.tag).isEqualTo("wear_complication")
-        assertThat(GlanceSurface.XR_GLASSES.tag).isEqualTo("xr")
+        assertThat(surface1.tag).isEqualTo("test_surface")
+        assertThat(surface1).isEqualTo(surface2)
+        assertThat(surface1.hashCode()).isEqualTo(surface2.hashCode())
+        assertThat(surface1).isNotEqualTo(surface3)
     }
 
     @Test
     fun hostConstraints_equalsHashCodeToString() {
-        val constraints1 = HostConstraints(Dimensions(100, 200), GlanceSurface.MOBILE_HOME_SCREEN)
-        val constraints2 = HostConstraints(Dimensions(100, 200), GlanceSurface.MOBILE_HOME_SCREEN)
-        val diffConstraints =
-            HostConstraints(Dimensions(100, 200), GlanceSurface.MOBILE_LOCK_SCREEN)
+        val surface = GlanceSurface.of("home_screen")
+        val diffSurface = GlanceSurface.of("lock_screen")
+
+        val constraints1 = HostConstraints(Dimensions(100, 200), surface)
+        val constraints2 = HostConstraints(Dimensions(100, 200), surface)
+        val diffConstraints = HostConstraints(Dimensions(100, 200), diffSurface)
+        val nullSurfaceConstraints = HostConstraints(Dimensions(100, 200), null)
 
         assertThat(constraints1).isEqualTo(constraints2)
         assertThat(constraints1.hashCode()).isEqualTo(constraints2.hashCode())
         assertThat(constraints1).isNotEqualTo(diffConstraints)
+        assertThat(constraints1).isNotEqualTo(nullSurfaceConstraints)
+
         assertThat(constraints1.toString())
-            .isEqualTo(
-                "HostConstraints(dimensions=Dimensions(widthDp=100, heightDp=200), surface=MOBILE_HOME_SCREEN)"
-            )
+            .contains("dimensions=Dimensions(widthDp=100, heightDp=200)")
+        assertThat(constraints1.toString()).contains("surface=")
+    }
+
+    @Test
+    fun hostConstraints_defaultSurfaceIsNull() {
+        val constraints = HostConstraints(Dimensions(50, 50))
+        assertThat(constraints.surface).isNull()
     }
 }

@@ -58,9 +58,23 @@ constructor(
 
         if (widgetName != other.widgetName) return false
         if (widgetId != other.widgetId) return false
-        if (surfacePlacements != other.surfacePlacements) return false
+        if (!areSurfacePlacementsEqual(surfacePlacements, other.surfacePlacements)) return false
         if (!BundleUtils.areBundlesEqual(options, other.options)) return false
 
+        return true
+    }
+
+    private fun areSurfacePlacementsEqual(
+        a: ObjectIntMap<GlanceSurface>,
+        b: ObjectIntMap<GlanceSurface>,
+    ): Boolean {
+        if (a === b) return true
+        if (a.size != b.size) return false
+        a.forEach { key, value ->
+            if (!b.contains(key) || b.getOrDefault(key, Int.MIN_VALUE) != value) {
+                return false
+            }
+        }
         return true
     }
 
@@ -68,8 +82,16 @@ constructor(
         var result = widgetName.hashCode()
         result = 31 * result + widgetId.hashCode()
         result = 31 * result + BundleUtils.bundleHashCode(options)
-        result = 31 * result + surfacePlacements.hashCode()
+        result = 31 * result + surfacePlacementsHashCode(surfacePlacements)
         return result
+    }
+
+    private fun surfacePlacementsHashCode(map: ObjectIntMap<GlanceSurface>): Int {
+        var hash = 0
+        map.forEach { key, value ->
+            hash += (key.hashCode() xor value)
+        }
+        return hash
     }
 
     override fun toString(): String {
