@@ -130,6 +130,10 @@ public class AppSearchTestUtils {
                     @NonNull String packageName,
                     @NonNull String prefixedSchema,
                     @NonNull VisibilityStore visibilityStore) {
+                if (callerAccess.doesCallerHaveSelfAccess()
+                        && callerAccess.getCallingPackageName().equals(packageName)) {
+                    return true;
+                }
                 return visiblePrefixedSchemas.contains(prefixedSchema);
             }
 
@@ -161,6 +165,10 @@ public class AppSearchTestUtils {
                     @NonNull String packageName,
                     @NonNull String prefixedSchema,
                     @NonNull VisibilityStore visibilityStore) {
+                if (callerAccess.doesCallerHaveSelfAccess()
+                        && callerAccess.getCallingPackageName().equals(packageName)) {
+                    return true;
+                }
                 return isSchemaSearchableByCaller;
             }
 
@@ -176,14 +184,14 @@ public class AppSearchTestUtils {
         };
     }
 
-    /** Generate an array contains random bytes for the given length.     */
+    /** Generate an array contains random bytes for the given length. */
     public static byte @NonNull [] generateRandomBytes(int length) {
         byte[] bytes = new byte[length];
         ThreadLocalRandom.current().nextBytes(bytes);
         return bytes;
     }
 
-    /** Calculate the sha-256 digest for the given data.     */
+    /** Calculate the sha-256 digest for the given data. */
     public static byte @NonNull [] calculateDigest(byte @NonNull [] data)
             throws NoSuchAlgorithmException {
         MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");

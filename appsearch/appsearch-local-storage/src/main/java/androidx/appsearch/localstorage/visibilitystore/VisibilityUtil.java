@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage.visibilitystore;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.HideInPlatform;
+import androidx.appsearch.flags.Flags;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -56,19 +57,35 @@ public class VisibilityUtil {
         Preconditions.checkNotNull(targetPackageName);
         Preconditions.checkNotNull(prefixedSchema);
 
-        // If the caller is allowed default access to its own data, check if the calling package
-        // and the target package are the same.
-        if (callerAccess.doesCallerHaveSelfAccess()
-                && callerAccess.getCallingPackageName().equals(targetPackageName)) {
-            return true;   // Caller is allowed to retrieve its own data.
+        if (!Flags.enablePccDataEncapsulation()) {
+            // Before enabling pcc data encapsulation, callers that have self access can always
+            // retrieve its own data, so self-access is granted unconditionally before checking
+            // visibility store.
+            //
+            // If the caller is allowed default access to its own data, check if the calling package
+            // and the target package are the same.
+            if (callerAccess.doesCallerHaveSelfAccess()
+                    && callerAccess.getCallingPackageName().equals(targetPackageName)) {
+                return true; // Caller is allowed to retrieve its own data.
+            }
+            if (visibilityStore == null || visibilityChecker == null) {
+                return false; // No visibility is configured at this time; no other access possible.
+            }
+            return visibilityChecker.isSchemaSearchableByCaller(
+                    callerAccess, targetPackageName, prefixedSchema, visibilityStore);
         }
+
         if (visibilityStore == null || visibilityChecker == null) {
-            return false;  // No visibility is configured at this time; no other access possible.
+            // No visibility is configured at this time; only access to own data will be allowed.
+            // This is the default for local-storage.
+            return callerAccess.doesCallerHaveSelfAccess()
+                    && callerAccess.getCallingPackageName().equals(targetPackageName);
         }
+
+        // If PCC encapsulation is enabled, self-access is no longer automatic and must be
+        // verified by the VisibilityChecker, which takes the writer UID into account and does a
+        // per-type check.
         return visibilityChecker.isSchemaSearchableByCaller(
-                callerAccess,
-                targetPackageName,
-                prefixedSchema,
-                visibilityStore);
+                callerAccess, targetPackageName, prefixedSchema, visibilityStore);
     }
 }
