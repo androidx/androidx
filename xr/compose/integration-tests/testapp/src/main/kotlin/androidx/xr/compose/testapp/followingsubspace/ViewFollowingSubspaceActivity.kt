@@ -111,11 +111,11 @@ class ViewFollowingSubspaceActivity : ComponentActivity() {
                 TodoItem("Review PRs", false),
             )
         }
-        // State for the soft follow duration slider
-        var softFollowDuration by remember { mutableIntStateOf(1000) }
+        // State for the soft follow half life slider
+        var softFollowHalfLife by remember { mutableIntStateOf(300) }
         var uiBehaviorSelection by remember { mutableStateOf(UiBehaviorSelection.SOFT) }
         val selectedMode =
-            remember(uiBehaviorSelection, softFollowDuration) {
+            remember(uiBehaviorSelection, softFollowHalfLife) {
                 val dimensions =
                     TrackedDimensions(
                         isXTracked = true,
@@ -127,7 +127,10 @@ class ViewFollowingSubspaceActivity : ComponentActivity() {
                     )
                 when (uiBehaviorSelection) {
                     UiBehaviorSelection.SOFT ->
-                        FollowMode.soft(durationMs = softFollowDuration, dimensions = dimensions)
+                        FollowMode.soft(
+                            dimensions = dimensions,
+                            halfLifeMs = softFollowHalfLife.toLong(),
+                        )
                     UiBehaviorSelection.EXPONENTIAL_DECAY ->
                         FollowMode.exponentialDecay(dimensions = dimensions)
                 }
@@ -148,7 +151,7 @@ class ViewFollowingSubspaceActivity : ComponentActivity() {
                         text =
                             buildAnnotatedString {
                                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                    append("Duration")
+                                    append("Half Life")
                                 }
                                 append(
                                     " - Adjusts the time, in milliseconds, it takes for the " +
@@ -220,8 +223,8 @@ class ViewFollowingSubspaceActivity : ComponentActivity() {
 
                         if (uiBehaviorSelection == UiBehaviorSelection.SOFT) {
                             SoftFollowSlider(
-                                duration = softFollowDuration,
-                                onDurationChange = { softFollowDuration = it.toInt() },
+                                halfLife = softFollowHalfLife,
+                                onHalfLifeChange = { softFollowHalfLife = it.toInt() },
                             )
                         }
                     }
@@ -232,13 +235,13 @@ class ViewFollowingSubspaceActivity : ComponentActivity() {
             follow =
                 FollowTarget.view(
                     FollowMode.soft(
-                        durationMs = softFollowDuration,
                         dimensions =
                             TrackedDimensions(
                                 isXTracked = true,
                                 isYTracked = true,
                                 isZTracked = true,
                             ),
+                        halfLifeMs = softFollowHalfLife.toLong(),
                     )
                 )
         ) {
@@ -265,24 +268,24 @@ class ViewFollowingSubspaceActivity : ComponentActivity() {
 
     @Suppress("DEPRECATION")
     @Composable
-    private fun SoftFollowSlider(duration: Int, onDurationChange: (Float) -> Unit) {
+    private fun SoftFollowSlider(halfLife: Int, onHalfLifeChange: (Float) -> Unit) {
         Column(
             modifier = Modifier.width(400.dp).padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "Duration: $duration milliseconds",
+                text = "Half Life: $halfLife milliseconds",
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
             )
             val min = 1f
-            val max = 3000f
+            val max = 1000f
             val increment = 100f
             val totalValues = ((max - min) / increment) + 1
             val steps = (totalValues - 1).toInt()
             Slider(
-                value = duration.toFloat(),
-                onValueChange = onDurationChange,
+                value = halfLife.toFloat(),
+                onValueChange = onHalfLifeChange,
                 valueRange = min..max,
                 steps = steps,
             )
