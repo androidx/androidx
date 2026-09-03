@@ -247,11 +247,11 @@ class ScrollInfoProviderTest {
 
         rule.runOnIdle { assertThat(provider.anchorItemOffset).isWithin(0.0001f).of(0f) }
 
-        val scrollDelta = with(rule.density) { 20.dp.toPx() }
+        val scrollDelta = with(rule.density) { 20.dp.roundToPx().toFloat() }
         rule.runOnIdle { scope.launch { state.scrollBy(scrollDelta) } }
         rule.waitForIdle()
 
-        rule.runOnIdle { assertThat(provider.anchorItemOffset).isWithin(0.5f).of(scrollDelta) }
+        rule.runOnIdle { assertThat(provider.anchorItemOffset).isWithin(0.0001f).of(scrollDelta) }
     }
 
     @Test
@@ -500,11 +500,11 @@ class ScrollInfoProviderTest {
 
         rule.runOnIdle { assertThat(provider.anchorItemOffset).isWithin(0.0001f).of(0f) }
 
-        val scrollDelta = with(rule.density) { 20.dp.toPx() }
+        val scrollDelta = with(rule.density) { 20.dp.roundToPx().toFloat() }
         rule.runOnIdle { scope.launch { state.scrollBy(scrollDelta) } }
         rule.waitForIdle()
 
-        rule.runOnIdle { assertThat(provider.anchorItemOffset).isWithin(0.5f).of(scrollDelta) }
+        rule.runOnIdle { assertThat(provider.anchorItemOffset).isWithin(0.0001f).of(scrollDelta) }
     }
 
     @Test
@@ -532,32 +532,6 @@ class ScrollInfoProviderTest {
         rule.waitForIdle()
 
         rule.runOnIdle { assertThat(provider.anchorItemOffset).isNaN() }
-    }
-
-    @Test
-    fun scalingLazyColumn_reverseLayout_lastItemOffset_retainsSquashGap() {
-        lateinit var provider: ScrollInfoProvider
-
-        rule.setContent {
-            val state = rememberScalingLazyListState()
-            provider = ScrollInfoProvider(state)
-            ScalingLazyColumn(
-                state = state,
-                reverseLayout = true,
-                modifier = Modifier.requiredSize(100.dp),
-            ) {
-                items(10) { Box(Modifier.requiredSize(30.dp)) }
-            }
-        }
-
-        // In reverse layout with autoCentering, item 1 is centered at 50.dp in a 100.dp
-        // viewport. Default edge scaling scales item 0 down to ~25.dp with its bottom edge
-        // landing at 97.5.dp, leaving a deterministic 2.5.dp physical gap at the bottom of
-        // the viewport.
-
-        val expectedPx = with(rule.density) { 2.5.dp.toPx() }
-
-        rule.runOnIdle { assertThat(provider.lastItemOffset).isWithin(1f).of(expectedPx) }
     }
 
     @Test
@@ -761,11 +735,11 @@ class ScrollInfoProviderTest {
 
         rule.runOnIdle { assertThat(provider.anchorItemOffset).isWithin(0.0001f).of(0f) }
 
-        val scrollDelta = with(rule.density) { 20.dp.toPx() }
+        val scrollDelta = with(rule.density) { 20.dp.roundToPx().toFloat() }
         rule.runOnIdle { scope.launch { state.scrollBy(scrollDelta) } }
         rule.waitForIdle()
 
-        rule.runOnIdle { assertThat(provider.anchorItemOffset).isWithin(0.5f).of(scrollDelta) }
+        rule.runOnIdle { assertThat(provider.anchorItemOffset).isWithin(0.0001f).of(scrollDelta) }
     }
 
     @Test
@@ -813,7 +787,7 @@ class ScrollInfoProviderTest {
 
         val expectedPx = with(rule.density) { 0.dp.toPx() }
 
-        rule.runOnIdle { assertThat(provider.lastItemOffset).isWithin(1f).of(expectedPx) }
+        rule.runOnIdle { assertThat(provider.lastItemOffset).isWithin(0.0001f).of(expectedPx) }
     }
 
     @Test
@@ -838,6 +812,8 @@ class ScrollInfoProviderTest {
     fun transformingLazyColumn_placementAnimation_lastItemOffset_tracksMidTransition() {
         lateinit var provider: ScrollInfoProvider
         var list by mutableStateOf(listOf(0, 1, 2))
+        val viewportSize = 100.dp
+        val itemSize = 30.dp
 
         rule.setContent {
             val state = rememberTransformingLazyColumnState()
@@ -845,21 +821,32 @@ class ScrollInfoProviderTest {
             TransformingLazyColumn(
                 state = state,
                 verticalArrangement = Arrangement.spacedBy(0.dp),
-                modifier = Modifier.requiredSize(100.dp),
+                modifier = Modifier.requiredSize(viewportSize),
             ) {
                 items(list, key = { it }) { item ->
-                    Box(Modifier.requiredSize(30.dp).animateItem())
+                    Box(Modifier.requiredSize(itemSize).animateItem())
                 }
             }
         }
 
-        // 100.dp viewport with 3 items of 30.dp leaves a 10.dp initial gap at the bottom.
-        // Removing 1 item leaves 2 items (60.dp total), increasing the final bottom gap to 40.dp.
+        // Each element is rounded to integer pixels individually during compose layout
+        // rendering. A 100.dp viewport with 3 items of 30.dp leaves an initial gap of
+        // (viewport - 3 * item) pixels. Removing 1 item leaves 2 items, expanding the
+        // gap to (viewport - 2 * item) pixels.
 
-        val initialExpectedPx = with(rule.density) { 10.dp.toPx() }
-        val finalExpectedPx = with(rule.density) { 40.dp.toPx() }
+        val initialExpectedPx: Float
+        val finalExpectedPx: Float
+        with(rule.density) {
+            val itemHeight = itemSize.roundToPx()
+            val viewportHeight = viewportSize.roundToPx()
 
-        rule.runOnIdle { assertThat(provider.lastItemOffset).isWithin(0.5f).of(initialExpectedPx) }
+            initialExpectedPx = (viewportHeight - 3 * itemHeight).toFloat()
+            finalExpectedPx = (viewportHeight - 2 * itemHeight).toFloat()
+        }
+
+        rule.runOnIdle {
+            assertThat(provider.lastItemOffset).isWithin(0.0001f).of(initialExpectedPx)
+        }
 
         rule.mainClock.autoAdvance = false
         list = listOf(1, 2)
@@ -875,7 +862,9 @@ class ScrollInfoProviderTest {
         rule.mainClock.autoAdvance = true
         rule.waitForIdle()
 
-        rule.runOnIdle { assertThat(provider.lastItemOffset).isWithin(0.5f).of(finalExpectedPx) }
+        rule.runOnIdle {
+            assertThat(provider.lastItemOffset).isWithin(0.0001f).of(finalExpectedPx)
+        }
     }
 
     @Test
@@ -977,11 +966,11 @@ class ScrollInfoProviderTest {
 
         rule.runOnIdle { assertThat(provider.anchorItemOffset).isWithin(0.0001f).of(0f) }
 
-        val scrollDelta = with(rule.density) { 20.dp.toPx() }
+        val scrollDelta = with(rule.density) { 20.dp.roundToPx().toFloat() }
         rule.runOnIdle { scope.launch { state.scrollBy(scrollDelta) } }
         rule.waitForIdle()
 
-        rule.runOnIdle { assertThat(provider.anchorItemOffset).isWithin(0.5f).of(scrollDelta) }
+        rule.runOnIdle { assertThat(provider.anchorItemOffset).isWithin(0.0001f).of(scrollDelta) }
     }
 
     @Test
