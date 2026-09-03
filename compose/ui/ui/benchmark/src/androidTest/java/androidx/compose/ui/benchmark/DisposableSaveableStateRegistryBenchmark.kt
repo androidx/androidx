@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+@file:Suppress("INVISIBLE_MEMBER")
 
 package androidx.compose.ui.benchmark
 
