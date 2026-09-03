@@ -1039,14 +1039,13 @@ public fun ScreenScaffold(
     statusBarMode: StatusBarMode = StatusBarMode.Inherit,
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit {
-    val currentView = LocalView.current
     val scaffoldState = LocalScaffoldState.current
     val key = remember { Any() }
 
+    val showStatusBarState = rememberShowStatusBarState(statusBarMode)
     val timeTextState = rememberUpdatedState(timeText)
     val scrollInfoProviderState = rememberUpdatedState(scrollInfoProvider)
-    val statusBarModeState = rememberUpdatedState(statusBarMode)
-    val viewState = rememberUpdatedState(currentView)
+    val viewState = rememberUpdatedState(LocalView.current)
 
     scaffoldState?.screenContent?.UpdateIdlingDetectorIfNeeded()
 
@@ -1060,15 +1059,11 @@ public fun ScreenScaffold(
                     view = viewState,
                     timeText = timeTextState,
                     scrollInfoProvider = scrollInfoProviderState,
-                    statusBarMode = statusBarModeState,
+                    showStatusBar = showStatusBarState,
                 )
         }
         onDispose { scaffoldState?.screenContent?.removeScreen(key) }
     }
-
-    val resolvedShowStatusBar =
-        scaffoldState?.screenContent?.resolveShowStatusBarForScreen(key, statusBarMode)
-            ?: (LocalStatusBarEnabled.current && statusBarMode == StatusBarMode.Enabled)
 
     // Resolve the system status bar top inset boundaries.
     // - When showStatusBar is true (and supported on hardware):
@@ -1080,7 +1075,7 @@ public fun ScreenScaffold(
     //   the screen's layout to fill the viewport (with local TimeText overlaying content if
     // provided).
     val baseInsets =
-        if (resolvedShowStatusBar) {
+        if (showStatusBarState.value) {
             WindowInsets.statusBarsIgnoringVisibility
         } else {
             WindowInsets(0.dp)
@@ -1100,28 +1095,30 @@ public fun ScreenScaffold(
             }
         }
 
-    WrapWithOverscrollFactoryIfRequired(overscrollEffect) {
-        Box(modifier.fillMaxSize()) {
-            Box(
-                modifier =
-                    Modifier.overscroll(overscrollEffect).onConsumedWindowInsetsChanged { consumed
-                        ->
-                        safeInsets.insets = baseInsets.exclude(consumed)
-                    }
-            ) {
-                content(finalContentPadding)
-            }
+    CompositionLocalProvider(LocalInheritedShowStatusBar provides showStatusBarState.value) {
+        WrapWithOverscrollFactoryIfRequired(overscrollEffect) {
+            Box(modifier.fillMaxSize()) {
+                Box(
+                    modifier =
+                        Modifier.overscroll(overscrollEffect).onConsumedWindowInsetsChanged {
+                            consumed ->
+                            safeInsets.insets = baseInsets.exclude(consumed)
+                        }
+                ) {
+                    content(finalContentPadding)
+                }
 
-            scrollInfoProvider?.let {
-                AnimatedIndicator(
-                    isVisible = {
-                        (scaffoldState?.screenContent?.screenStage?.value ?: ScreenStage.New) !=
-                            ScreenStage.Idle && scrollInfoProvider.isScrollable
-                    },
-                    modifier = Modifier.align(Alignment.CenterEnd),
-                    content = scrollIndicator,
-                )
-            } ?: scrollIndicator?.let { it() }
+                scrollInfoProvider?.let {
+                    AnimatedIndicator(
+                        isVisible = {
+                            (scaffoldState?.screenContent?.screenStage?.value ?: ScreenStage.New) !=
+                                ScreenStage.Idle && scrollInfoProvider.isScrollable
+                        },
+                        modifier = Modifier.align(Alignment.CenterEnd),
+                        content = scrollIndicator,
+                    )
+                } ?: scrollIndicator?.let { it() }
+            }
         }
     }
 }
