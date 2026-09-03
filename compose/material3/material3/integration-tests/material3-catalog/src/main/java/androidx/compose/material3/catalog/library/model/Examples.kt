@@ -100,6 +100,7 @@ import androidx.compose.material3.samples.ExitUntilCollapsedMediumTopAppBar
 import androidx.compose.material3.samples.ExpandableHorizontalFloatingToolbarSample
 import androidx.compose.material3.samples.ExpandableVerticalFloatingToolbarSample
 import androidx.compose.material3.samples.ExposedDropdownMenuSample
+import androidx.compose.material3.samples.ExpressiveConnectedTextFieldsSample
 import androidx.compose.material3.samples.ExpressiveOutlinedPasswordTextField
 import androidx.compose.material3.samples.ExpressiveOutlinedTextFieldSample
 import androidx.compose.material3.samples.ExpressiveOutlinedTextFieldWithErrorState
@@ -2860,6 +2861,16 @@ val TextFieldsExamples =
                 isExpressive = true,
             ) {
                 ExpressiveOutlinedPasswordTextField()
+            },
+            Example(
+                name = "ExpressiveConnectedTextFieldsSample",
+                description =
+                    "Text fields can be customized to group a small number of related text fields" +
+                        " together, making content easier to digest.",
+                sourceUrl = TextFieldsExampleSourceUrl,
+                isExpressive = true,
+            ) {
+                ExpressiveConnectedTextFieldsSample()
             },
             Example(
                 name = "SimpleTextFieldSample",
