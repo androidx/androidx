@@ -367,13 +367,7 @@ internal class RecomposeScopeImpl(internal var owner: RecomposeScopeOwner?) :
             trackedInstances?.let { trackedInstances ->
                 rereading = true
                 try {
-                    trackedInstances.forEach { value, _ ->
-                        if (value is ComputedState<*>) {
-                            value.value
-                        } else {
-                            owner.recordReadOf(value)
-                        }
-                    }
+                    trackedInstances.forEach { value, _ -> owner.recordReadOf(value) }
                 } finally {
                     rereading = false
                 }
