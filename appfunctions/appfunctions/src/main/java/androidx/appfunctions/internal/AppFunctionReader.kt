@@ -22,25 +22,11 @@ import androidx.appfunctions.AppFunctionState
 import androidx.appfunctions.ObserveAppFunctionsEvent
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
-import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import kotlinx.coroutines.flow.Flow
 
 /** Searches AppFunctions. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface AppFunctionReader {
-
-    /**
-     * Searches for app function packages based on the provided search specification.
-     *
-     * @param searchFunctionSpec The search specification, which includes filters for searching
-     *   matching documents.
-     * @return A flow emitting a list of app function package metadata matching the search criteria.
-     * @see androidx.appfunctions.AppFunctionSearchSpec
-     */
-    // TODO(b/508188326): Remove this once legacy observeAppFunctions API is migrated.
-    public fun searchAppFunctionsPackageMetadata(
-        searchFunctionSpec: AppFunctionSearchSpec
-    ): Flow<List<AppFunctionPackageMetadata>>
 
     /**
      * Searches for app functions based on the provided search specification.

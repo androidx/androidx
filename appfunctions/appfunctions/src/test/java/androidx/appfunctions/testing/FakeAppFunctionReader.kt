@@ -37,9 +37,6 @@ class FakeAppFunctionReader : AppFunctionReader {
         appFunctionMetadataMap.clear()
     }
 
-    override fun searchAppFunctionsPackageMetadata(searchFunctionSpec: AppFunctionSearchSpec) =
-        TODO("Not yet implemented")
-
     override suspend fun searchAppFunctionsMetadata(
         searchFunctionSpec: AppFunctionSearchSpec
     ): List<AppFunctionMetadata> = TODO("Not yet implemented")
