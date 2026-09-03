@@ -214,11 +214,14 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/loop_constraint_layout"
-                android:layout_width="400dp"
-                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:padding="8dp"
+                app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/speed_constraint_layout">
+                app:layout_constraintEnd_toStartOf="@id/speed_constraint_layout"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
 
                 <TextView
                     android:id="@+id/loop_animation_text"
@@ -227,31 +230,39 @@
                     android:layout_margin="5dp"
                     android:text="Loop animation"
                     android:textAlignment="center"
+                    android:textStyle="bold"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/loop_toggle_button"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
 
                 <ToggleButton
                     android:id="@+id/loop_toggle_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
-                    android:text="Loop Animation"
+                    android:textOn="Set Loop: ON"
+                    android:textOff="Set Loop: OFF"
+                    android:text="Set Loop: OFF"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@id/loop_animation_text"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/speed_constraint_layout"
-                android:layout_width="400dp"
-                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:padding="8dp"
+                app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintStart_toEndOf="@id/loop_constraint_layout"
-                app:layout_constraintEnd_toEndOf="parent">
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
 
                 <TextView
                     android:id="@+id/speed_min_text"
