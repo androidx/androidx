@@ -98,7 +98,7 @@ public fun AppScaffold(
     if (isStatusBarSupportedState.value) {
         val showStatusBarOverlay by remember {
             derivedStateOf {
-                val isEnabled = scaffoldState.screenContent.currentShowStatusBar.value
+                val isEnabled = scaffoldState.screenContent.currentScreenShowStatusBar.value
                 val stage = scaffoldState.screenContent.screenStage.value
                 val provider = scaffoldState.screenContent.currentScrollInfoProvider.value
                 val offset = scaffoldState.screenContent.currentAnchorItemOffset.value
@@ -138,9 +138,10 @@ public fun AppScaffold(
                     }
             ) {
                 content()
-                // Draw local time text when status bar is disabled or unsupported.
+                // Draw local time text when status bar is disabled or unsupported on the app
+                // window.
                 // When system status bar is enabled and supported, system overlay takes over.
-                if (!scaffoldState.screenContent.currentShowStatusBar.value) {
+                if (!scaffoldState.screenContent.shouldAppWindowShowStatusBar.value) {
                     scaffoldState.screenContent.timeText()
                 }
             }
