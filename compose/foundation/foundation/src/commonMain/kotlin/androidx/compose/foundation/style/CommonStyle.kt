@@ -22,7 +22,12 @@ package androidx.compose.foundation.style
  * to collect the properties set by a style.
  */
 @ExperimentalFoundationStyleApi
-public interface CommonStyleScope : CustomStyleScope, AnimateStyleScope, StyleStateScope
+public interface CommonStyleScope :
+    CustomStyleScope,
+    AnimateStyleScope,
+    StyleStateScope,
+    NestedStyleProviderStyleScope,
+    NestedStyleConsumerStyleScope
 
 /**
  * The [CommonStyle] is the style all style types must be converted to be resolved by the
