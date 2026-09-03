@@ -18,6 +18,7 @@
 
 package androidx.compose.runtime
 
+import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
 import androidx.collection.ObjectList
 import androidx.collection.ScatterMap
@@ -35,10 +36,12 @@ import androidx.compose.runtime.internal.trace
 import androidx.compose.runtime.platform.makeSynchronizedObject
 import androidx.compose.runtime.platform.synchronized
 import androidx.compose.runtime.snapshots.IndirectState
+import androidx.compose.runtime.snapshots.IndirectStateObserver
 import androidx.compose.runtime.snapshots.ReaderKind
 import androidx.compose.runtime.snapshots.StateObjectImpl
 import androidx.compose.runtime.snapshots.fastAll
 import androidx.compose.runtime.snapshots.fastAny
+import androidx.compose.runtime.snapshots.observeIndirectStateRecalculations
 import androidx.compose.runtime.tooling.CompositionErrorContextImpl
 import androidx.compose.runtime.tooling.CompositionObserver
 import androidx.compose.runtime.tooling.CompositionObserverHandle
@@ -557,6 +560,32 @@ internal class CompositionImpl(
     /** A map of object read during derived states to the corresponding derived/computed state. */
     private val indirectStates = ScopeMap<Any, IndirectState<*>>()
 
+    private val computingStates = mutableListOf<ComputedState<*>>()
+    private val recordedIndirectStateValues = MutableScatterMap<IndirectState<*>, Any?>()
+
+    internal val indirectStateObserver =
+        object : IndirectStateObserver {
+            override fun start(state: IndirectState<*>) {
+                if (state is ComputedState<*>) {
+                    indirectStates.removeScope(state)
+                    computingStates.add(state)
+                }
+            }
+
+            override fun done(state: IndirectState<*>, calculatedValue: Any?) {
+                if (state is ComputedState<*>) {
+                    computingStates.removeAt(computingStates.lastIndex)
+                    recordedIndirectStateValues[state] = calculatedValue
+                    if (computingStates.isEmpty()) {
+                        composer.currentRecomposeScope?.recordDerivedStateValue(
+                            state,
+                            calculatedValue,
+                        )
+                    }
+                }
+            }
+        }
+
     /** Used for testing. Returns dependencies of derived states that are currently observed. */
     internal val derivedStateDependencies
         @TestOnly @Suppress("AsCollectionCall") get() = indirectStates.map.asMap().keys
@@ -903,7 +932,9 @@ internal class CompositionImpl(
             synchronized(lock) {
                 drainPendingModificationsForCompositionLocked()
                 guardInvalidationsLocked { invalidations ->
-                    composer.composeContent(invalidations, content, shouldPause)
+                    observeIndirectStateRecalculations(indirectStateObserver) {
+                        composer.composeContent(invalidations, content, shouldPause)
+                    }
                 }
             }
         }
@@ -1075,15 +1106,38 @@ internal class CompositionImpl(
         }
     }
 
+    private fun addPendingInvalidationsForDerivedStatesLocked(
+        value: Any,
+        forgetConditionalScopes: Boolean,
+    ) {
+        indirectStates.forEachScopeOf(value) { indirectState ->
+            addPendingInvalidationsLocked(indirectState, forgetConditionalScopes)
+            if (indirectState !in observations) {
+                val previousValue = recordedIndirectStateValues[indirectState]
+                @Suppress("UNCHECKED_CAST")
+                if (
+                    previousValue == null ||
+                        (indirectState as IndirectState<Any?>).isInvalidFor(previousValue)
+                ) {
+                    addPendingInvalidationsForDerivedStatesLocked(
+                        indirectState,
+                        forgetConditionalScopes,
+                    )
+                } else {
+                    // Re-read state to ensure its dependencies are up-to-date
+                    indirectState.value
+                }
+            }
+        }
+    }
+
     private fun addPendingInvalidationsLocked(values: Set<Any>, forgetConditionalScopes: Boolean) {
         values.fastForEach { value ->
             if (value is RecomposeScopeImpl) {
                 value.invalidateForResult(null)
             } else {
                 addPendingInvalidationsLocked(value, forgetConditionalScopes)
-                indirectStates.forEachScopeOf(value) {
-                    addPendingInvalidationsLocked(it, forgetConditionalScopes)
-                }
+                addPendingInvalidationsForDerivedStatesLocked(value, forgetConditionalScopes)
             }
         }
 
@@ -1103,14 +1157,35 @@ internal class CompositionImpl(
     }
 
     private fun cleanUpDerivedStateObservations() {
-        indirectStates.removeScopeIf { derivedState -> derivedState !in observations }
-        if (conditionallyInvalidatedScopes.isNotEmpty()) {
-            conditionallyInvalidatedScopes.removeIf { scope -> !scope.isConditional }
+        indirectStates.removeScopeIf { state ->
+            (state !in observations).also {
+                if (it) {
+                    recordedIndirectStateValues.remove(state)
+                }
+            }
         }
     }
 
     override fun recordReadOf(value: Any) {
         // Not acquiring lock since this happens during composition with it already held
+        val currentComputingState = computingStates.lastOrNull()
+        if (currentComputingState != null) {
+            if (value is StateObjectImpl) {
+                value.recordReadIn(ReaderKind.Composition)
+            }
+            indirectStates.add(value, currentComputingState)
+            if (value is DerivedState<*>) {
+                val record = value.currentRecord
+                record.dependencies.forEach { dependency, _ ->
+                    if (dependency is StateObjectImpl) {
+                        dependency.recordReadIn(ReaderKind.Composition)
+                    }
+                    indirectStates.add(dependency, currentComputingState)
+                }
+            }
+            return
+        }
+
         if (!areChildrenComposing) {
             composer.currentRecomposeScope?.let { scope ->
                 scope.used = true
@@ -1150,7 +1225,7 @@ internal class CompositionImpl(
                 // If we process this during recordWriteOf, ignore it when recording modifications
                 // We ignore DerivedState<*> as it will never be sent as an invalidation; only
                 // the objects it reads will.
-                if (value !is IndirectState<*>) {
+                if (value !is DerivedState<*>) {
                     observationsProcessed.add(value, scope)
                 }
             }
@@ -1182,9 +1257,12 @@ internal class CompositionImpl(
             drainPendingModificationsForCompositionLocked()
             guardChanges {
                 guardInvalidationsLocked { invalidations ->
-                    composer.recompose(invalidations, shouldPause).also { shouldDrain ->
-                        // Apply would normally do this for us; do it now if apply shouldn't happen.
-                        if (!shouldDrain) drainPendingModificationsLocked()
+                    observeIndirectStateRecalculations(indirectStateObserver) {
+                        composer.recompose(invalidations, shouldPause).also { shouldDrain ->
+                            // Apply would normally do this for us; do it now if apply shouldn't
+                            // happen.
+                            if (!shouldDrain) drainPendingModificationsLocked()
+                        }
                     }
                 }
             }
@@ -1450,6 +1528,7 @@ internal class CompositionImpl(
         // remove derived state if it is not observed in other scopes
         if (state !in observations) {
             indirectStates.removeScope(state)
+            recordedIndirectStateValues.remove(state)
         }
     }
 

@@ -83,12 +83,14 @@ internal inline fun <R> notifyObservers(state: IndirectState<*>, block: () -> R)
 internal inline fun <R> observeIndirectStateRecalculations(
     observer: IndirectStateObserver,
     block: () -> R,
-) {
+): R {
     val observers = indirectStateObservers()
-    try {
-        observers.add(observer)
-        block()
-    } finally {
-        observers.removeAt(observers.lastIndex)
-    }
+    observers.add(observer)
+    val result =
+        try {
+            block()
+        } finally {
+            observers.removeAt(observers.lastIndex)
+        }
+    return result
 }
