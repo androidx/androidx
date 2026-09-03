@@ -51,6 +51,7 @@ public final class SetSchemaStats extends BaseStats {
     private final int mJoinIndexIncompatibleTypeChangeCount;
     private final int mScorablePropertyIncompatibleTypeChangeCount;
     private final int mBackwardsIncompatibleTypeChangeCount;
+    private final int mPccToNonPccTypesCount;
     private final int mDeletedDocumentCount;
     private final boolean mIsTermIndexRestored;
     private final boolean mIsIntegerIndexRestored;
@@ -75,6 +76,7 @@ public final class SetSchemaStats extends BaseStats {
     private final int mGetOldSchemaLatencyMillis;
     private final int mGetObserverLatencyMillis;
     private final int mPreparingChangeNotificationLatencyMillis;
+    private final int mPccSchemaDowngradeWipeLatencyMillis;
     @SchemaMigrationStats.SchemaMigrationCallType
     private final int mSchemaMigrationCallType;
     private final boolean mSkippedIcingInteraction;
@@ -94,6 +96,7 @@ public final class SetSchemaStats extends BaseStats {
         mScorablePropertyIncompatibleTypeChangeCount =
                 builder.mScorablePropertyIncompatibleTypeChangeCount;
         mBackwardsIncompatibleTypeChangeCount = builder.mBackwardsIncompatibleTypeChangeCount;
+        mPccToNonPccTypesCount = builder.mPccToNonPccTypesCount;
         mDeletedDocumentCount = builder.mDeletedDocumentCount;
         mIsTermIndexRestored = builder.mIsTermIndexRestored;
         mIsIntegerIndexRestored = builder.mIsIntegerIndexRestored;
@@ -124,6 +127,7 @@ public final class SetSchemaStats extends BaseStats {
         mGetObserverLatencyMillis = builder.mGetObserverLatencyMillis;
         mPreparingChangeNotificationLatencyMillis =
                 builder.mPreparingChangeNotificationLatencyMillis;
+        mPccSchemaDowngradeWipeLatencyMillis = builder.mPccSchemaDowngradeWipeLatencyMillis;
         mSchemaMigrationCallType = builder.mSchemaMigrationCallType;
         mSkippedIcingInteraction = builder.mSkippedIcingInteraction;
         mNativeSchemaProtoByteSize = builder.mNativeSchemaProtoByteSize;
@@ -205,6 +209,14 @@ public final class SetSchemaStats extends BaseStats {
      */
     public int getBackwardsIncompatibleTypeChangeCount() {
         return mBackwardsIncompatibleTypeChangeCount;
+    }
+
+    /**
+     * Returns number of schema types that were previously written by a Private Compute Core (PCC)
+     * UID and modified by a non-PCC caller.
+     */
+    public int getPccToNonPccTypesCount() {
+        return mPccToNonPccTypesCount;
     }
 
     /**
@@ -330,6 +342,14 @@ public final class SetSchemaStats extends BaseStats {
         return mPreparingChangeNotificationLatencyMillis;
     }
 
+    /**
+     * Gets latency for wiping existing documents of PCC schemas downgraded to non-PCC in
+     * milliseconds.
+     */
+    public int getPccSchemaDowngradeWipeLatencyMillis() {
+        return mPccSchemaDowngradeWipeLatencyMillis;
+    }
+
     /** Gets the type indicate how this set schema call relative to schema migration cases */
     @SchemaMigrationStats.SchemaMigrationCallType
     public int getSchemaMigrationCallType() {
@@ -362,6 +382,7 @@ public final class SetSchemaStats extends BaseStats {
                         + "  joinIndexIncompatibleTypeChangeCount=%d,\n"
                         + "  scorablePropertyIncompatibleTypeChangeCount=%d,\n"
                         + "  backwardsIncompatibleTypeChangeCount=%d,\n"
+                        + "  pccToNonPccTypesCount=%d,\n"
                         + "  deletedDocumentCount=%d,\n"
                         + "  isTermIndexRestored=%b,\n"
                         + "  isIntegerIndexRestored=%b,\n"
@@ -386,6 +407,7 @@ public final class SetSchemaStats extends BaseStats {
                         + "  getOldSchemaLatencyMillis=%d,\n"
                         + "  getObserverLatencyMillis=%d,\n"
                         + "  preparingChangeNotificationLatencyMillis=%d,\n"
+                        + "  pccSchemaDowngradeWipeLatencyMillis=%d,\n"
                         + "  schemaMigrationCallType=%d,\n"
                         + "  skippedIcingInteraction=%b,\n"
                         + "  nativeSchemaProtoByteSize=%d,\n"
@@ -403,6 +425,7 @@ public final class SetSchemaStats extends BaseStats {
                 mJoinIndexIncompatibleTypeChangeCount,
                 mScorablePropertyIncompatibleTypeChangeCount,
                 mBackwardsIncompatibleTypeChangeCount,
+                mPccToNonPccTypesCount,
                 mDeletedDocumentCount,
                 mIsTermIndexRestored,
                 mIsIntegerIndexRestored,
@@ -427,6 +450,7 @@ public final class SetSchemaStats extends BaseStats {
                 mGetOldSchemaLatencyMillis,
                 mGetObserverLatencyMillis,
                 mPreparingChangeNotificationLatencyMillis,
+                mPccSchemaDowngradeWipeLatencyMillis,
                 mSchemaMigrationCallType,
                 mSkippedIcingInteraction,
                 mNativeSchemaProtoByteSize);
@@ -446,6 +470,7 @@ public final class SetSchemaStats extends BaseStats {
         int mJoinIndexIncompatibleTypeChangeCount;
         int mScorablePropertyIncompatibleTypeChangeCount;
         int mBackwardsIncompatibleTypeChangeCount;
+        int mPccToNonPccTypesCount;
         int mDeletedDocumentCount;
         boolean mIsTermIndexRestored;
         boolean mIsIntegerIndexRestored;
@@ -470,6 +495,7 @@ public final class SetSchemaStats extends BaseStats {
         int mGetOldSchemaLatencyMillis;
         int mGetObserverLatencyMillis;
         int mPreparingChangeNotificationLatencyMillis;
+        int mPccSchemaDowngradeWipeLatencyMillis;
         @SchemaMigrationStats.SchemaMigrationCallType
         int mSchemaMigrationCallType;
         boolean mSkippedIcingInteraction;
@@ -546,6 +572,16 @@ public final class SetSchemaStats extends BaseStats {
         public @NonNull Builder setBackwardsIncompatibleTypeChangeCount(
                 int backwardsIncompatibleTypeChangeCount) {
             mBackwardsIncompatibleTypeChangeCount = backwardsIncompatibleTypeChangeCount;
+            return this;
+        }
+
+        /**
+         * Sets number of schema types that were previously written by a Private Compute Core (PCC)
+         * UID and modified by a non-PCC caller.
+         */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setPccToNonPccTypesCount(int pccToNonPccTypesCount) {
+            mPccToNonPccTypesCount = pccToNonPccTypesCount;
             return this;
         }
 
@@ -735,6 +771,17 @@ public final class SetSchemaStats extends BaseStats {
         public @NonNull Builder setPreparingChangeNotificationLatencyMillis(
                 int preparingChangeNotificationLatencyMillis) {
             mPreparingChangeNotificationLatencyMillis = preparingChangeNotificationLatencyMillis;
+            return this;
+        }
+
+        /**
+         * Sets latency for wiping existing documents of PCC schemas downgraded to non-PCC in
+         * milliseconds.
+         */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setPccSchemaDowngradeWipeLatencyMillis(
+                int pccSchemaDowngradeWipeLatencyMillis) {
+            mPccSchemaDowngradeWipeLatencyMillis = pccSchemaDowngradeWipeLatencyMillis;
             return this;
         }
 

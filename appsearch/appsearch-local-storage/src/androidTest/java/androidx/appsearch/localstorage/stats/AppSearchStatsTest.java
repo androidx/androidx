@@ -767,6 +767,8 @@ public class AppSearchStatsTest {
         int nativeScorablePropertyCacheRegenerationLatencyMillis = 29;
         long schemaProtoByteSize = 30;
         int nativeSchemaStoreReinitializationLatencyMillis = 31;
+        int pccToNonPccTypesCount = 32;
+        int pccSchemaDowngradeWipeLatencyMillis = 33;
         SetSchemaStats sStats = new SetSchemaStats.Builder(TEST_PACKAGE_NAME, TEST_DATA_BASE)
                 .setStatusCode(TEST_STATUS_CODE)
                 .setTotalLatencyMillis(TEST_TOTAL_LATENCY_MILLIS)
@@ -778,6 +780,7 @@ public class AppSearchStatsTest {
                 .setScorablePropertyIncompatibleTypeChangeCount(
                         scorablePropertyIncompatibleTypeChangeCount)
                 .setBackwardsIncompatibleTypeChangeCount(backwardsIncompatibleTypeChangeCount)
+                .setPccToNonPccTypesCount(pccToNonPccTypesCount)
                 .setDeletedDocumentCount(deletedDocumentCount)
                 .setIsTermIndexRestored(isTermIndexRestored)
                 .setIsIntegerIndexRestored(isIntegerIndexRestored)
@@ -809,6 +812,7 @@ public class AppSearchStatsTest {
                 .setGetOldSchemaLatencyMillis(getOldSchemaLatencyMillis)
                 .setGetObserverLatencyMillis(getObserverLatencyMillis)
                 .setPreparingChangeNotificationLatencyMillis(sendNotificationLatencyMillis)
+                .setPccSchemaDowngradeWipeLatencyMillis(pccSchemaDowngradeWipeLatencyMillis)
                 .setSchemaMigrationCallType(SchemaMigrationStats.SECOND_CALL_APPLY_NEW_SCHEMA)
                 .setLaunchVmEnabled(true)
                 .setLaunchAiSealEnabled(true)
@@ -834,6 +838,7 @@ public class AppSearchStatsTest {
                 scorablePropertyIncompatibleTypeChangeCount);
         assertThat(sStats.getBackwardsIncompatibleTypeChangeCount()).isEqualTo(
                 backwardsIncompatibleTypeChangeCount);
+        assertThat(sStats.getPccToNonPccTypesCount()).isEqualTo(pccToNonPccTypesCount);
         assertThat(sStats.getDeletedDocumentCount()).isEqualTo(deletedDocumentCount);
         assertThat(sStats.isTermIndexRestored()).isEqualTo(isTermIndexRestored);
         assertThat(sStats.isIntegerIndexRestored()).isEqualTo(isIntegerIndexRestored);
@@ -875,6 +880,8 @@ public class AppSearchStatsTest {
         assertThat(sStats.getGetObserverLatencyMillis()).isEqualTo(getObserverLatencyMillis);
         assertThat(sStats.getPreparingChangeNotificationLatencyMillis())
                 .isEqualTo(sendNotificationLatencyMillis);
+        assertThat(sStats.getPccSchemaDowngradeWipeLatencyMillis())
+                .isEqualTo(pccSchemaDowngradeWipeLatencyMillis);
         assertThat(sStats.getSchemaMigrationCallType())
                 .isEqualTo(SchemaMigrationStats.SECOND_CALL_APPLY_NEW_SCHEMA);
         assertThat(sStats.getEnabledFeatures())
@@ -897,6 +904,7 @@ public class AppSearchStatsTest {
                 + "  joinIndexIncompatibleTypeChangeCount=22,\n"
                 + "  scorablePropertyIncompatibleTypeChangeCount=23,\n"
                 + "  backwardsIncompatibleTypeChangeCount=5,\n"
+                + "  pccToNonPccTypesCount=32,\n"
                 + "  deletedDocumentCount=24,\n"
                 + "  isTermIndexRestored=true,\n"
                 + "  isIntegerIndexRestored=true,\n"
@@ -921,6 +929,7 @@ public class AppSearchStatsTest {
                 + "  getOldSchemaLatencyMillis=16,\n"
                 + "  getObserverLatencyMillis=17,\n"
                 + "  preparingChangeNotificationLatencyMillis=18,\n"
+                + "  pccSchemaDowngradeWipeLatencyMillis=33,\n"
                 + "  schemaMigrationCallType=2,\n"
                 + "  skippedIcingInteraction=false,\n"
                 + "  nativeSchemaProtoByteSize=30,\n"
