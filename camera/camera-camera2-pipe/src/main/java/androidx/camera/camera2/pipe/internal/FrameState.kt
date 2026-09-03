@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.internal.FrameState.State.COMPLETE
 import androidx.camera.camera2.pipe.internal.FrameState.State.FRAME_INFO_COMPLETE
 import androidx.camera.camera2.pipe.internal.FrameState.State.STARTED
@@ -57,7 +58,16 @@ internal class FrameState(
 ) {
     val frameId = nextFrameId()
     val frameInfoOutput: FrameInfoOutput = FrameInfoOutput()
-    val imageOutputs: List<ImageOutput> = buildList {
+    val exposureImageOutputs: List<ImageOutput>
+    val readoutImageOutputs: List<ImageOutput>
+    val imageOutputs: List<ImageOutput>
+    val expectsReadoutTimestamp: Boolean
+        get() = readoutImageOutputs.isNotEmpty()
+
+    init {
+        val exposureList = mutableListOf<ImageOutput>()
+        val readoutList = mutableListOf<ImageOutput>()
+        val allList = mutableListOf<ImageOutput>()
         for (streamId in requestMetadata.streams.keys) {
             // Only create StreamResult's for streams that this OutputFrameDistributor supports.
             val imageStream = imageStreams.find { it.id == streamId }
@@ -65,11 +75,27 @@ internal class FrameState(
                 val outputs = imageStream.outputs
                 val remainingOutputResults = atomic(outputs.size)
                 for (i in outputs.indices) {
-                    val imageOutput = ImageOutput(streamId, outputs[i].id, remainingOutputResults)
-                    add(imageOutput)
+                    val useReadoutTimestamp =
+                        (outputs[i] as StreamGraphImpl.OutputStreamImpl).useReadoutTimestamp
+                    val imageOutput =
+                        ImageOutput(
+                            streamId,
+                            outputs[i].id,
+                            useReadoutTimestamp,
+                            remainingOutputResults,
+                        )
+                    if (useReadoutTimestamp) {
+                        readoutList.add(imageOutput)
+                    } else {
+                        exposureList.add(imageOutput)
+                    }
+                    allList.add(imageOutput)
                 }
             }
         }
+        exposureImageOutputs = exposureList
+        readoutImageOutputs = readoutList
+        imageOutputs = allList
     }
 
     /**
@@ -244,6 +270,7 @@ internal class FrameState(
     inner class ImageOutput(
         val streamId: StreamId,
         val outputId: OutputId,
+        val useReadoutTimestamp: Boolean,
         private val remainingOutputResults: AtomicInt, // Number of remaining outputs in this stream
     ) : FrameOutput<SharedOutputImage>(), OutputDistributor.OutputListener<OutputImage> {
         // This tracks the external use calls registered before the arrival of the image.
