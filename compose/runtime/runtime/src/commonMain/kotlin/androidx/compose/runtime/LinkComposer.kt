@@ -340,15 +340,11 @@ internal class LinkComposer(
     private val indirectStateObserver =
         object : IndirectStateObserver {
             override fun start(state: IndirectState<*>) {
-                if (state is DerivedState<*>) {
-                    childrenComposing++
-                }
+                childrenComposing++
             }
 
             override fun done(state: IndirectState<*>, calculatedValue: Any?) {
-                if (state is DerivedState<*>) {
-                    childrenComposing--
-                }
+                childrenComposing--
             }
         }
 
