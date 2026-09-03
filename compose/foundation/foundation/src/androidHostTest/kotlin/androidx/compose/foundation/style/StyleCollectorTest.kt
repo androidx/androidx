@@ -226,8 +226,8 @@ class StyleCollectorTest {
     }
 
     @Test
-    fun can_update_local() {
-        collectNested(
+    fun can_update_update_local() {
+        collectLocal(
             parentStyle = {
                 floatLocal(10f)
                 pressed { floatLocal(100f) }
@@ -239,48 +239,9 @@ class StyleCollectorTest {
 
     @Test
     fun can_unprovide_local() {
-        collectNested(parentStyle = { pressed { floatLocal(100f) } }) { state ->
+        collectLocal(parentStyle = { pressed { floatLocal(100f) } }) { state ->
             if (state.isPressed) assertEquals(100f, floatLocal) else assertEquals(0f, floatLocal)
         }
-    }
-
-    @Test
-    fun can_provide_nested_style() {
-        val parentStyle = CommonStyle {
-            customFloat(100f)
-            nested { customFloat(10f) }
-        }
-        val childStyle = CommonStyle { applyNested() }
-        collect(style = parentStyle) {
-            // Ensure nested style is ignored in the parent style
-            assertEquals(100f, customFloat)
-        }
-        collectNested(style = childStyle, parentStyle = parentStyle) {
-            // Ensure it is visible in the child style
-            assertEquals(10f, customFloat)
-        }
-    }
-
-    @Test
-    fun can_observe_changes_in_parent_nested_style() {
-        // Validate checking state in a nested style
-        validateObserve(
-            property = customFloatProperty,
-            style = { applyNested() },
-            parentStyle = {
-                customFloat(10f)
-                nested { pressed { customFloat(100f) } }
-            },
-        )
-        // Validate conditionally providing a nested style
-        validateObserve(
-            property = customFloatProperty,
-            style = { applyNested() },
-            parentStyle = {
-                customFloat(100f)
-                pressed { nested { customFloat(10f) } }
-            },
-        )
     }
 }
 
@@ -316,16 +277,6 @@ private fun StylePropertyProviderScope.floatLocal(value: Float) {
 private val StylePropertyAccessorScope.floatLocal: Float
     get() = customFloatLocal.value
 
-private val customNestedStyleKey = NestedStyleKey("custom")
-
-private fun CommonStyleScope.nested(style: CommonStyle) {
-    provideNestedStyle(customNestedStyleKey, style)
-}
-
-private fun CommonStyleScope.applyNested() {
-    applyNestedStyle(customNestedStyleKey)
-}
-
 private fun collect(
     resolver: StyleResolver,
     coroutineScope: CoroutineScope? = null,
@@ -347,32 +298,26 @@ private fun collect(
     collect(resolver, coroutineScope, block)
 }
 
-private fun collectNested(
+private fun collectLocal(
     style: CommonStyle = CommonStyle,
     styleState: MutableStyleState? = null,
     parentStyle: CommonStyle = CommonStyle,
     coroutineScope: CoroutineScope? = null,
     block: StylePropertyAccessorScope.(state: StyleState) -> Unit,
 ) {
-    val rootResolver = StyleResolver(CommonStyle, MutableStyleState(null))
-    val root = StyleResolverNode(rootResolver, coroutineScope)
-    rootResolver.bind(root)
-
     val state = styleState ?: MutableStyleState(null)
     val density = Density(100f)
     val parentResolver = StyleResolver(parentStyle, state)
     val parentNode = StyleResolverNode(parentResolver, coroutineScope)
     parentResolver.bind(parentNode)
-    parentResolver.bindParent(rootResolver)
 
     val childResolver = StyleResolver(style, state)
     val childNode = StyleResolverNode(childResolver, coroutineScope)
     childResolver.bind(childNode)
-    childResolver.bindParent(parentResolver)
+
     fun resolve() {
-        rootResolver.collectForTests(density)
-        parentResolver.collectForTests(density)
-        childResolver.collectForTests(density)
+        parentResolver.collectForTests(density) { null }
+        childResolver.collectForTests(density) { parentResolver.accessorScope.getOrNull(it) }
         childResolver.accessorScope.block(state)
     }
 
@@ -453,25 +398,18 @@ private fun <T> validateObserve(
     // Use the same state for both the parent and child
     val state = MutableStyleState(null)
 
-    val rootResolver = StyleResolver(CommonStyle, state)
-    val root = StyleResolverNode(rootResolver, null)
-    rootResolver.bind(root)
-
     // Set up a parent resolver
     val parentResolver = StyleResolver(parentStyle, state)
     val parentNode = StyleResolverNode(parentResolver, null)
     parentResolver.bind(parentNode)
-    parentResolver.bindParent(rootResolver)
 
     // Set up the child style resolver
     val resolver = StyleResolver(style, state)
     val node = StyleResolverNode(resolver, null)
     resolver.bind(node)
-    resolver.bindParent(parentResolver)
 
-    rootResolver.collectForTests(density)
     parentResolver.collectForTests(density)
-    resolver.collectForTests(density)
+    resolver.collectForTests(density) { parentResolver.accessorScope.getOrNull(it) }
     state.isPressed = true
     Snapshot.notifyObjectsInitialized()
 
@@ -483,9 +421,8 @@ private fun <T> validateObserve(
     // Collect all the objects changed after applying
     val handle = Snapshot.registerApplyObserver { set, _ -> changes += set }
     try {
-        rootResolver.collectForTests(density)
         parentResolver.collectForTests(density)
-        resolver.collectForTests(density)
+        resolver.collectForTests(density) { parentResolver.accessorScope.getOrNull(it) }
         Snapshot.sendApplyNotifications()
     } finally {
         handle.dispose()
