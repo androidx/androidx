@@ -97,6 +97,15 @@ internal class FakeGltfAnimationFeature(
         }
     }
 
+    override fun setAnimationLoop(loop: Boolean) {
+        if (
+            _animationState == GltfEntity.AnimationState.PLAYING ||
+                _animationState == GltfEntity.AnimationState.PAUSED
+        ) {
+            this.isLooping = loop
+        }
+    }
+
     override fun addAnimationStateListener(executor: Executor, listener: Consumer<Int>) {
         _animationStateListeners[listener] = executor
     }

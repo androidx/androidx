@@ -1519,6 +1519,35 @@ class EntityTest {
     }
 
     @Test
+    fun gltfAnimation_loop_setsAnimationLoopWhilePlaying() {
+        val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
+        gltfModelEntityTester.addAnimation(animation)
+        val animations = gltfModelEntity.getAnimations()
+        val gltfAnimation = animations[0]
+
+        gltfAnimation.start()
+        gltfAnimation.loop = true
+
+        assertThat(gltfAnimation.loop).isTrue()
+        assertThat(animation.shouldLoop).isTrue()
+    }
+
+    @Test
+    fun gltfAnimation_loop_setsAnimationLoopWhilePaused() {
+        val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
+        gltfModelEntityTester.addAnimation(animation)
+        val animations = gltfModelEntity.getAnimations()
+        val gltfAnimation = animations[0]
+
+        gltfAnimation.start()
+        gltfAnimation.pause()
+        gltfAnimation.loop = true
+
+        assertThat(gltfAnimation.loop).isTrue()
+        assertThat(animation.shouldLoop).isTrue()
+    }
+
+    @Test
     fun gltfAnimation_animationStateListener_receivesUpdates() {
         val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
         gltfModelEntityTester.addAnimation(animation)

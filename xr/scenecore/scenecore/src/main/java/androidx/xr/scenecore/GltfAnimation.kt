@@ -69,6 +69,10 @@ internal constructor(
     @get:Suppress("GetterSetterNames")
     @set:ExperimentalGltfAnimationApi
     public var loop: Boolean = false
+        set(value) {
+            field = value
+            rtGltfAnimation.setAnimationLoop(value)
+        }
 
     /**
      * The playback speed multiplier for this animation.
