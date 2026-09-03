@@ -51,9 +51,19 @@ public abstract class BaseEntity public constructor(private var _context: Contex
     private var _scale = Vector3(1.0f, 1.0f, 1.0f)
     private var _alpha = 1.0f
     private var _hidden = false
-    private var _isDisposed = false
+    @Volatile private var _isDisposed = false
     private var accessibilityLayout: ViewGroup? = null
-    private val _cleanupActions = mutableListOf<Pair<Executor, CleanupAction>>()
+
+    private data class CleanupRegistration(
+        val executor: Executor,
+        val action: CleanupAction,
+        val cleanable: ReferenceCleaner.Cleanable,
+    )
+
+    // Holds the chain of cleanup actions registered for this Entity. Subclasses clean up things
+    // at their layers, like CPM nodes or SurfaceControlViewHosts, by registering their cleanup
+    // actions via [registerCleanup].
+    private val _cleanupActions = mutableListOf<CleanupRegistration>()
 
     private val cleanupAction =
         BaseEntityCleanupAction(BaseEntityCleanupState(WeakReference(_context)))
@@ -62,9 +72,31 @@ public abstract class BaseEntity public constructor(private var _context: Contex
         registerCleanup(HandlerExecutor.mainThreadExecutor, cleanupAction)
     }
 
+    /**
+     * Registers a cleanup action to run when this entity is disposed or garbage collected.
+     *
+     * Subclasses clean up resources at their layers (such as CPM nodes or SurfaceControlViewHosts)
+     * by registering their cleanup actions here. If this entity is already disposed, runs the
+     * action immediately.
+     */
     protected fun registerCleanup(executor: Executor, action: CleanupAction) {
-        synchronized(_cleanupActions) { _cleanupActions.add(executor to action) }
-        ReferenceCleaner.getInstance().register(this, executor, action)
+        val runImmediately =
+            synchronized(_cleanupActions) {
+                if (_isDisposed) {
+                    true
+                } else {
+                    val cleanable = ReferenceCleaner.getInstance().register(this, executor, action)
+                    _cleanupActions.add(CleanupRegistration(executor, action, cleanable))
+                    false
+                }
+            }
+        if (runImmediately) {
+            if (executor is HandlerExecutor && executor.handler.looper != Looper.myLooper()) {
+                executor.execute(action)
+            } else {
+                action.run()
+            }
+        }
     }
 
     protected fun addChildInternal(child: Entity) {
@@ -304,21 +336,33 @@ public abstract class BaseEntity public constructor(private var _context: Contex
         _hidden = hidden
     }
 
+    /**
+     * Disposes this entity and immediately executes all registered cleanup actions.
+     *
+     * This is typically triggered during explicit Session shutdown, as opposed to if this Entity is
+     * GC'ed.
+     */
     override fun dispose() {
-        if (_isDisposed) {
-            return
-        }
-        _isDisposed = true
-
-        synchronized(_cleanupActions) {
-            _cleanupActions.forEach { (executor, action) ->
-                if (executor is HandlerExecutor && executor.handler.looper != Looper.myLooper()) {
-                    executor.execute(action)
-                } else {
-                    action.run()
+        val cleanupsToRun =
+            synchronized(_cleanupActions) {
+                if (_isDisposed) {
+                    return
                 }
+                _isDisposed = true
+                val copy = ArrayList(_cleanupActions)
+                _cleanupActions.clear()
+                copy
             }
-            _cleanupActions.clear()
+
+        cleanupsToRun.forEach { (executor, action, cleanable) ->
+            // Prevents the cleanup action from being run when the Entity is GC'ed, since we've
+            // already run it explicitly.
+            cleanable.cancel()
+            if (executor is HandlerExecutor && executor.handler.looper != Looper.myLooper()) {
+                executor.execute(action)
+            } else {
+                action.run()
+            }
         }
 
         if (parent != null) {

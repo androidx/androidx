@@ -25,6 +25,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.CleanupAction
 import androidx.xr.scenecore.runtime.Entity
+import androidx.xr.scenecore.runtime.HandlerExecutor
 import androidx.xr.scenecore.runtime.InputEventListener
 import androidx.xr.scenecore.testing.MemoryUtils
 import com.google.common.truth.Truth.assertThat
@@ -74,6 +75,79 @@ class BaseEntityTest {
         entity.dispose()
 
         // Cleanup action should only run once
+        verify(cleanupAction, times(1)).run()
+    }
+
+    @Test
+    fun disposeCancelsReferenceCleanerRegistration() {
+        val context = mock<Context>()
+        val tasksExecuted = java.util.concurrent.atomic.AtomicInteger(0)
+        val executor = Executor {
+            tasksExecuted.incrementAndGet()
+            it.run()
+        }
+        val cleanupAction = mock<CleanupAction>()
+
+        fun createAndDispose(): WeakReference<TestBaseEntity> {
+            val entity = TestBaseEntity(context)
+            entity.publicRegisterCleanup(executor, cleanupAction)
+            entity.dispose()
+            return WeakReference(entity)
+        }
+
+        val entityRef = createAndDispose()
+        // During dispose(), action.run() was executed directly on current thread
+        verify(cleanupAction, times(1)).run()
+
+        // Force GC to verify that ReferenceCleaner was cancelled and never dispatches to executor
+        MemoryUtils.assertGarbageCollected(entityRef)
+        assertThat(entityRef.get()).isNull()
+
+        // Verify ReferenceCleaner never submitted to the executor post-GC
+        assertThat(tasksExecuted.get()).isEqualTo(0)
+    }
+
+    @Test
+    fun registerCleanupAfterDisposeRunsImmediatelyAndDoesNotRegister() {
+        val context = mock<Context>()
+        val entity = TestBaseEntity(context)
+        entity.dispose()
+
+        val tasksExecuted = java.util.concurrent.atomic.AtomicInteger(0)
+        val executor = Executor {
+            tasksExecuted.incrementAndGet()
+            it.run()
+        }
+        val cleanupAction = mock<CleanupAction>()
+
+        entity.publicRegisterCleanup(executor, cleanupAction)
+
+        // Action runs immediately upon registration
+        verify(cleanupAction, times(1)).run()
+        assertThat(tasksExecuted.get()).isEqualTo(0)
+    }
+
+    @Test
+    fun registerCleanupAfterDisposeWithHandlerExecutorDispatchesToLooper() {
+        val context = mock<Context>()
+        val entity = TestBaseEntity(context)
+        entity.dispose()
+
+        val mainLooper = Looper.getMainLooper()
+        val handler = android.os.Handler(mainLooper)
+        val handlerExecutor = HandlerExecutor(handler)
+        val cleanupAction = mock<CleanupAction>()
+
+        val thread = Thread { entity.publicRegisterCleanup(handlerExecutor, cleanupAction) }
+        thread.start()
+        thread.join()
+
+        // Action was dispatched to handler looper, so not executed yet
+        verify(cleanupAction, times(0)).run()
+
+        // Run looper
+        shadowOf(mainLooper).idle()
+
         verify(cleanupAction, times(1)).run()
     }
 
