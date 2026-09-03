@@ -117,6 +117,7 @@ class TextFieldsSemanticAutofillTest {
     // Tests to verify TextField populating and filling.
     // ============================================================================================
 
+    @Suppress("DEPRECATION")
     @Test
     @SmallTest
     fun performAutofill_credentials_legacyTF() {
@@ -153,6 +154,7 @@ class TextFieldsSemanticAutofillTest {
         assertEquals(usernameInput, "testUsername")
     }
 
+    @Suppress("DEPRECATION")
     @Test
     @SmallTest
     fun performAutofill_credentials_outlinedTF() {
@@ -189,6 +191,7 @@ class TextFieldsSemanticAutofillTest {
         assertEquals(usernameInput, "testUsername")
     }
 
+    @Suppress("DEPRECATION")
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = 26)
@@ -236,6 +239,7 @@ class TextFieldsSemanticAutofillTest {
         rule.onNodeWithTag(usernameTag).captureToImage().assertContainsColor(customHighlightColor)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = 26)
@@ -287,6 +291,7 @@ class TextFieldsSemanticAutofillTest {
             .assertContainsColor(gradientEndColor)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = 26)

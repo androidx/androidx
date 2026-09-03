@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
@@ -42,7 +43,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -116,10 +116,8 @@ private fun EditTextsInScrollView() {
 
 @Composable
 private fun DemoTextField(index: Int) {
-    var text by rememberSaveable { mutableStateOf("") }
     TextField(
-        value = text,
-        onValueChange = { text = it },
+        state = rememberTextFieldState(),
         leadingIcon = { Text(index.toString()) },
         modifier = Modifier.padding(4.dp).border(1.dp, Color.Black).fillMaxWidth(),
     )

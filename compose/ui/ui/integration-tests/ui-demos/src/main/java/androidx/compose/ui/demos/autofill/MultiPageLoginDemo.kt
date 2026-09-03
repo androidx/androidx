@@ -20,16 +20,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.focus.FocusRequester
@@ -61,13 +59,10 @@ fun MultiPageLoginDemo() {
 
 @Composable
 fun Screen1(navController: NavController) {
-    var username by remember { mutableStateOf("") }
-
     Column(Modifier.fillMaxSize()) {
         Text("Enter username")
         TextField(
-            value = username,
-            onValueChange = { username = it },
+            rememberTextFieldState(),
             modifier = Modifier.fillMaxWidth().semantics { contentType = ContentType.Username },
         )
 
@@ -80,15 +75,13 @@ fun Screen1(navController: NavController) {
 @Composable
 fun Screen2(navController: NavController) {
     Column(Modifier.fillMaxSize()) {
-        var password by remember { mutableStateOf("") }
         val focusRequester = remember { FocusRequester() }
 
         LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
         Text("Enter password")
         TextField(
-            value = password,
-            onValueChange = { password = it },
+            rememberTextFieldState(),
             modifier =
                 Modifier.fillMaxWidth().focusRequester(focusRequester).semantics {
                     contentType = ContentType.Password

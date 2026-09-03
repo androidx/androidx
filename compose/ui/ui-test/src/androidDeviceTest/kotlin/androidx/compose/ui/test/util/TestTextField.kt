@@ -19,19 +19,16 @@ package androidx.compose.ui.test.util
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.util.TestTextField.Content
 import androidx.compose.ui.test.util.TestTextField.Height
 import androidx.compose.ui.test.util.TestTextField.Tag
 import androidx.compose.ui.test.util.TestTextField.Width
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 
 object TestTextField {
@@ -49,13 +46,11 @@ fun TestTextField(
     textContent: String = Content,
 ) {
     Column(Modifier.padding(20.dp)) {
-        val textState = remember { mutableStateOf(TextFieldValue()) }
+        val textFieldState = rememberTextFieldState()
         TextField(
             modifier = Modifier.padding(20.dp).testTag(tag).requiredSize(width.dp, height.dp),
-            keyboardActions = KeyboardActions.Default,
-            value = textState.value,
-            onValueChange = { textState.value = it },
+            state = textFieldState,
         )
-        Text("$textContent ${textState.value.text}")
+        Text("$textContent ${textFieldState.text}")
     }
 }

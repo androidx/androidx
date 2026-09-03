@@ -322,6 +322,9 @@ public fun TextField(
  *   (including label, placeholder, leading and trailing icons, indicator line) and background for
  *   this text field in different states. See [TextFieldDefaults.textFieldColors]
  */
+@Deprecated(
+    "This overload of TextField is deprecated in favor of the overload that uses TextFieldState to hoist its state."
+)
 @Composable
 public fun TextField(
     value: String,
@@ -512,6 +515,9 @@ public fun TextField(
  *   (including label, placeholder, leading and trailing icons, indicator line) and background for
  *   this text field in different states. See [TextFieldDefaults.textFieldColors]
  */
+@Deprecated(
+    "This overload of TextField is deprecated in favor of the overload that uses TextFieldState to hoist its state."
+)
 @Composable
 public fun TextField(
     value: TextFieldValue,

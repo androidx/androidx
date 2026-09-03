@@ -20,6 +20,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -32,15 +33,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 
 @Composable
 fun FocusInDialogDemo() {
     var showDialog by remember { mutableStateOf(false) }
-    var mainText by remember { mutableStateOf(TextFieldValue("Enter Value")) }
-    var dialogText by remember { mutableStateOf(TextFieldValue("Enter Value")) }
+    val mainTextState = rememberTextFieldState("Enter Value")
+    val dialogTextState = rememberTextFieldState("Enter Value")
     val windowInfo = LocalWindowInfo.current
 
     Column(Modifier.background(if (windowInfo.isWindowFocused) White else LightGray)) {
@@ -51,14 +51,14 @@ fun FocusInDialogDemo() {
         Spacer(Modifier.requiredHeight(50.dp))
 
         Text("Click this text field to bring the main app in focus.")
-        TextField(value = mainText, onValueChange = { mainText = it })
+        TextField(mainTextState)
         FocusStatus()
 
         if (showDialog) {
             Dialog(onDismissRequest = { showDialog = false }) {
                 Column(Modifier.background(White)) {
                     Text("Click this text field to bring the dialog in focus")
-                    TextField(value = dialogText, onValueChange = { dialogText = it })
+                    TextField(dialogTextState)
                     FocusStatus()
                 }
             }

@@ -195,6 +195,7 @@ private fun TextTestContent(colors: Colors) {
 private fun FilledTextFieldTestContent(colors: Colors) {
     MaterialTheme(colors) {
         Surface(Modifier.testTag(Tag)) {
+            @Suppress("DEPRECATION")
             TextField(
                 value = TextFieldText,
                 onValueChange = {},
@@ -208,6 +209,7 @@ private fun FilledTextFieldTestContent(colors: Colors) {
 private fun OutlinedTextFieldTestContent(colors: Colors) {
     MaterialTheme(colors) {
         Surface(Modifier.testTag(Tag)) {
+            @Suppress("DEPRECATION")
             OutlinedTextField(
                 value = TextFieldText,
                 onValueChange = {},

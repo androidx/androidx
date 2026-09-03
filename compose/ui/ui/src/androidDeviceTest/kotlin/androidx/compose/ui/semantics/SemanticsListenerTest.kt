@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
@@ -337,7 +339,7 @@ class SemanticsListenerTest {
     fun EditTextChange() {
         // Arrange.
         val events = mutableListOf<Event<String>>()
-        var text by mutableStateOf("text1")
+        val textFieldState = TextFieldState("text1")
         rule.setTestContent(
             onSemanticsChange = { info, prev ->
                 events.add(
@@ -349,15 +351,11 @@ class SemanticsListenerTest {
                 )
             }
         ) {
-            TextField(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.testTag("item"),
-            )
+            TextField(state = textFieldState, modifier = Modifier.testTag("item"))
         }
 
         // Act.
-        rule.runOnIdle { text = "text2" }
+        rule.runOnIdle { textFieldState.setTextAndPlaceCursorAtEnd("text2") }
 
         // Assert.
         val semanticsId = rule.onNodeWithTag("item").semanticsId()

@@ -1498,6 +1498,7 @@ class TextFieldTest {
         // Nothing to assert; just make sure it doesn't crash
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun textField_stringOverload_doesNotCallOnValueChange_whenCompositionUpdatesOnly() {
         var callbackCounter = 0

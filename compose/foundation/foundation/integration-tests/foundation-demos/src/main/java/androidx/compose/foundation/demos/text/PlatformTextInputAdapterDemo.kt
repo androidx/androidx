@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Divider
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -83,9 +84,8 @@ fun PlatformTextInputAdapterDemo() {
     val textFieldState = remember { WackyTextState("") }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row {
-            var value by remember { mutableStateOf("") }
             Text("Standard text field: ")
-            TextField(value = value, onValueChange = { value = it })
+            TextField(rememberTextFieldState())
         }
         Divider()
         Row {

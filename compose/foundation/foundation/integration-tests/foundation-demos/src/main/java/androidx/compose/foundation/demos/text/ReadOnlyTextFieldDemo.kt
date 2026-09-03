@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Button
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
@@ -39,7 +40,6 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ReadOnlyTextFieldDemo() {
     var readOnly by remember { mutableStateOf(true) }
-    var text by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
 
     Column(Modifier.padding(8.dp)) {
@@ -50,8 +50,7 @@ fun ReadOnlyTextFieldDemo() {
         }
 
         TextField(
-            value = text,
-            onValueChange = { text = it },
+            state = rememberTextFieldState(),
             readOnly = readOnly,
             modifier = Modifier.fillMaxWidth(),
         )

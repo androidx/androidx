@@ -19,13 +19,11 @@ package androidx.compose.foundation.demos.text
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -46,15 +44,6 @@ fun EmojiCompatDemo() {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(text = text, modifier = Modifier.padding(16.dp))
 
-        val textFieldValue =
-            rememberSaveable(stateSaver = TextFieldValue.Saver) {
-                mutableStateOf(TextFieldValue(text))
-            }
-
-        TextField(
-            value = textFieldValue.value,
-            modifier = Modifier.padding(16.dp),
-            onValueChange = { textFieldValue.value = it },
-        )
+        TextField(state = rememberTextFieldState(text), modifier = Modifier.padding(16.dp))
     }
 }

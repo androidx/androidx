@@ -25,6 +25,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
@@ -95,7 +97,7 @@ fun AppContent() {
     }
 
     var currentUrl by rememberSaveable { mutableStateOf("https://www.example.com") }
-    var urlInput by rememberSaveable { mutableStateOf(currentUrl) }
+    val urlInputState = rememberTextFieldState(currentUrl)
     var showWebView by rememberSaveable { mutableStateOf(true) }
 
     Scaffold(
@@ -103,13 +105,12 @@ fun AppContent() {
             Column(Modifier.padding(8.dp)) {
                 Row(Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = urlInput,
-                        onValueChange = { urlInput = it },
+                        state = urlInputState,
                         modifier = Modifier.weight(1f),
-                        singleLine = true,
+                        lineLimits = TextFieldLineLimits.SingleLine,
                     )
                     Button(
-                        onClick = { currentUrl = urlInput },
+                        onClick = { currentUrl = urlInputState.text.toString() },
                         modifier = Modifier.padding(start = 8.dp),
                     ) {
                         Text("Go")

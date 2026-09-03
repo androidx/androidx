@@ -3403,8 +3403,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         val tag = "TextField"
         rule.setContentWithAccessibilityEnabled {
             TextField(
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 placeholder = { Text("Placeholder", color = placeholderColor) },
                 textStyle = TextStyle(color = mainColor),
                 modifier = Modifier.semantics { testTag = tag },

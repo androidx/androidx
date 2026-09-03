@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.LocalTextStyle
@@ -162,7 +163,10 @@ fun TextOverflowedSelectionDemo() {
             DisableSelection {
                 Text(text = "Copied Text", modifier = Modifier.padding(top = 16.dp))
             }
-            TextField(value = copiedText, onValueChange = {}, modifier = Modifier.fillMaxWidth())
+            TextField(
+                state = rememberTextFieldState(copiedText),
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 }
