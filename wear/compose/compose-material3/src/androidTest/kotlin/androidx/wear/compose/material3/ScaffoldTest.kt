@@ -1018,7 +1018,7 @@ class ScaffoldTest {
         }
 
         rule.runOnIdle {
-            assertThat(scaffoldState?.screenContent?.currentShowStatusBar?.value).isTrue()
+            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isTrue()
         }
     }
 
@@ -1037,7 +1037,7 @@ class ScaffoldTest {
         }
 
         rule.runOnIdle {
-            assertThat(scaffoldState?.screenContent?.currentShowStatusBar?.value).isFalse()
+            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isFalse()
         }
     }
 
@@ -1056,7 +1056,7 @@ class ScaffoldTest {
         }
 
         rule.runOnIdle {
-            assertThat(scaffoldState?.screenContent?.currentShowStatusBar?.value).isTrue()
+            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isTrue()
         }
     }
 
@@ -1217,19 +1217,19 @@ class ScaffoldTest {
 
         rule.runOnIdle {
             // When screen is active, its Disabled mode takes precedence
-            assertThat(scaffoldState?.screenContent?.currentShowStatusBar?.value).isFalse()
+            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isFalse()
         }
 
         rule.runOnUiThread { screenIsActive = false }
         rule.runOnIdle {
             // When screen is inactive, it leaves the stack and falls back to AppScaffold (true)
-            assertThat(scaffoldState?.screenContent?.currentShowStatusBar?.value).isTrue()
+            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isTrue()
         }
 
         rule.runOnUiThread { screenIsActive = true }
         rule.runOnIdle {
             // When reactivated, it re-joins the top of stack and its Disabled mode takes precedence
-            assertThat(scaffoldState?.screenContent?.currentShowStatusBar?.value).isFalse()
+            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isFalse()
         }
     }
 
