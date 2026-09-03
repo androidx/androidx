@@ -1662,6 +1662,60 @@ class SliderTest {
                 .isEqualTo(initialTrackHeight)
         }
     }
+
+    @Test
+    fun slider_directCallbacks_invokedDuringDrag() {
+        val state = SliderState(0f)
+        val valueChanges = mutableListOf<Float>()
+        var valueChangeFinishedCount = 0
+
+        rule.setMaterialContent(lightColorScheme()) {
+            Slider(
+                state = state,
+                modifier = Modifier.testTag(tag),
+                onValueChange = { valueChanges.add(it) },
+                onValueChangeFinished = { valueChangeFinishedCount += 1 },
+            )
+        }
+
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(center)
+            moveBy(Offset(100f, 0f))
+            up()
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(valueChanges.size).isGreaterThan(0)
+            Truth.assertThat(valueChangeFinishedCount).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun rangeSlider_directCallbacks_invokedDuringDrag() {
+        val state = RangeSliderState(0f, 1f)
+        val valueChanges = mutableListOf<ClosedFloatingPointRange<Float>>()
+        var valueChangeFinishedCount = 0
+
+        rule.setMaterialContent(lightColorScheme()) {
+            RangeSlider(
+                state = state,
+                modifier = Modifier.testTag(tag),
+                onValueChange = { valueChanges.add(it) },
+                onValueChangeFinished = { valueChangeFinishedCount += 1 },
+            )
+        }
+
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(center)
+            moveBy(Offset(100f, 0f))
+            up()
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(valueChanges.size).isGreaterThan(0)
+            Truth.assertThat(valueChangeFinishedCount).isEqualTo(1)
+        }
+    }
 }
 
 @Stable

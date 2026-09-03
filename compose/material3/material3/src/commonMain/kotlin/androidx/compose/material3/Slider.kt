@@ -33,6 +33,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.horizontalDrag
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.DragInteraction
@@ -66,6 +67,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -73,6 +75,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -208,8 +211,6 @@ public fun Slider(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val state = remember(steps, valueRange) { SliderState(value, steps, valueRange) }
-    state.onValueChangeFinishedInternal = onValueChangeFinished
-    state.onValueChangeInternal = onValueChange
     state.value = value
 
     Slider(
@@ -322,8 +323,6 @@ public fun Slider(
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
 ) {
     val state = remember(steps, valueRange) { SliderState(value, steps, valueRange) }
-    state.onValueChangeFinishedInternal = onValueChangeFinished
-    state.onValueChangeInternal = onValueChange
     state.value = value
 
     Slider(
@@ -428,8 +427,6 @@ public fun Slider(
     },
 ) {
     val state = remember(steps, valueRange) { SliderState(value, steps, valueRange) }
-    state.onValueChangeFinishedInternal = onValueChangeFinished
-    state.onValueChangeInternal = onValueChange
     state.value = value
 
     Slider(
@@ -832,8 +829,6 @@ public fun RangeSlider(
             RangeSliderState(value.start, value.endInclusive, steps, valueRange)
         }
 
-    state.onValueChangeFinishedInternal = onValueChangeFinished
-    state.onValueChangeInternal = { onValueChange(it.start..it.endInclusive) }
     state.startValue = value.start
     state.endValue = value.endInclusive
 
@@ -966,8 +961,6 @@ public fun RangeSlider(
             RangeSliderState(value.start, value.endInclusive, steps, valueRange)
         }
 
-    state.onValueChangeFinishedInternal = onValueChangeFinished
-    state.onValueChangeInternal = { onValueChange(it.start..it.endInclusive) }
     state.startValue = value.start
     state.endValue = value.endInclusive
 
@@ -1082,8 +1075,6 @@ public fun RangeSlider(
             RangeSliderState(value.start, value.endInclusive, steps, valueRange)
         }
 
-    state.onValueChangeFinishedInternal = onValueChangeFinished
-    state.onValueChangeInternal = { onValueChange(it.start..it.endInclusive) }
     state.startValue = value.start
     state.endValue = value.endInclusive
 
@@ -1299,12 +1290,6 @@ private fun SliderImpl(
     thumb: @Composable (SliderState) -> Unit,
     track: @Composable (SliderState) -> Unit,
 ) {
-    if (onValueChange != null) {
-        state.onValueChangeInternal = onValueChange
-    }
-    if (onValueChangeFinished != null) {
-        state.onValueChangeFinishedInternal = onValueChangeFinished
-    }
     state.isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val isFocused by interactionSource.collectIsFocusedAsState()
     state.isFocused = isFocused
@@ -1312,16 +1297,30 @@ private fun SliderImpl(
     val reverseDirection =
         (state.orientation == Horizontal && state.isRtl) ||
             (state.isVertical && state.reverseVerticalDirection)
-    val press = Modifier.sliderTapModifier(state, interactionSource, enabled)
+    val press =
+        Modifier.sliderTapModifier(
+            state = state,
+            interactionSource = interactionSource,
+            enabled = enabled,
+            onValueChange = onValueChange,
+            onValueChangeFinished = onValueChangeFinished,
+        )
+    val draggableState = rememberDraggableState { delta ->
+        state.dispatchRawDeltaInternal(delta, onValueChange)
+    }
     val drag =
         Modifier.draggable(
             orientation = state.orientation,
             reverseDirection = reverseDirection,
             enabled = enabled,
             interactionSource = interactionSource,
-            onDragStopped = { state.gestureEndAction() },
+            onDragStarted = { state.isDragging = true },
+            onDragStopped = {
+                state.isDragging = false
+                onValueChangeFinished?.invoke()
+            },
             startDragImmediately = state.isDragging,
-            state = state.draggableState,
+            state = draggableState,
         )
     val thumbModifier =
         if (state.isVertical) {
@@ -1379,7 +1378,7 @@ private fun SliderImpl(
                     minWidth = if (state.isVertical) TrackHeight else ThumbWidth,
                     minHeight = if (state.isVertical) ThumbWidth else TrackHeight,
                 )
-                .sliderSemantics(state, enabled)
+                .sliderSemantics(state, enabled, onValueChange, onValueChangeFinished)
                 .focusable(enabled, interactionSource)
                 .slideOnKeyEvents(
                     enabled,
@@ -1388,13 +1387,13 @@ private fun SliderImpl(
                     state.value,
                     reverseDirection,
                     { updatedValue ->
-                        if (state.onValueChangeInternal != null) {
-                            state.onValueChangeInternal!!.invoke(updatedValue)
+                        if (onValueChange != null) {
+                            onValueChange(updatedValue)
                         } else {
                             state.value = updatedValue
                         }
                     },
-                    state.onValueChangeFinishedInternal,
+                    onValueChangeFinished,
                     state.isVertical,
                 )
                 .then(press)
@@ -1813,12 +1812,12 @@ private fun RangeSliderImpl(
     endThumb: @Composable ((RangeSliderState) -> Unit),
     track: @Composable ((RangeSliderState) -> Unit),
 ) {
-    if (onValueChange != null) {
-        state.onValueChangeInternal = { onValueChange(it.start..it.endInclusive) }
-    }
-    if (onValueChangeFinished != null) {
-        state.onValueChangeFinishedInternal = onValueChangeFinished
-    }
+    val onRangeValueChange: ((SliderRange) -> Unit)? =
+        if (onValueChange != null) {
+            { onValueChange(it.start..it.endInclusive) }
+        } else {
+            null
+        }
     state.isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val isStartFocused by startThumbInteractionSource.collectIsFocusedAsState()
     val isEndFocused by endThumbInteractionSource.collectIsFocusedAsState()
@@ -1831,6 +1830,8 @@ private fun RangeSliderImpl(
             startThumbInteractionSource,
             endThumbInteractionSource,
             enabled,
+            onRangeValueChange,
+            onValueChangeFinished,
         )
 
     val startContentDescription = getString(Strings.SliderRangeStart)
@@ -1894,7 +1895,12 @@ private fun RangeSliderImpl(
                             state.startThumbWidth = (it.width - padding).toFloat()
                             state.startThumbHeight = (it.height - padding).toFloat()
                         }
-                        .rangeSliderStartThumbSemantics(state, enabled)
+                        .rangeSliderStartThumbSemantics(
+                            state,
+                            enabled,
+                            onRangeValueChange,
+                            onValueChangeFinished,
+                        )
                         .semantics(mergeDescendants = true) {
                             contentDescription = startContentDescription
                         }
@@ -1907,13 +1913,13 @@ private fun RangeSliderImpl(
                             true,
                             state.isRtl,
                             { sliderRange ->
-                                if (state.onValueChangeInternal != null) {
-                                    state.onValueChangeInternal!!.invoke(sliderRange)
+                                if (onRangeValueChange != null) {
+                                    onRangeValueChange(sliderRange)
                                 } else {
                                     state.startValue = sliderRange.start
                                 }
                             },
-                            state.onValueChangeFinishedInternal,
+                            onValueChangeFinished,
                         )
                         .focusable(enabled, startThumbInteractionSource)
             ) {
@@ -1934,7 +1940,12 @@ private fun RangeSliderImpl(
                             state.endThumbWidth = (it.width - padding).toFloat()
                             state.endThumbHeight = (it.height - padding).toFloat()
                         }
-                        .rangeSliderEndThumbSemantics(state, enabled)
+                        .rangeSliderEndThumbSemantics(
+                            state,
+                            enabled,
+                            onRangeValueChange,
+                            onValueChangeFinished,
+                        )
                         .semantics(mergeDescendants = true) {
                             contentDescription = endContentDescription
                         }
@@ -1947,13 +1958,13 @@ private fun RangeSliderImpl(
                             false,
                             state.isRtl,
                             { sliderRange ->
-                                if (state.onValueChangeInternal != null) {
-                                    state.onValueChangeInternal!!.invoke(sliderRange)
+                                if (onRangeValueChange != null) {
+                                    onRangeValueChange(sliderRange)
                                 } else {
                                     state.endValue = sliderRange.endInclusive
                                 }
                             },
-                            state.onValueChangeFinishedInternal,
+                            onValueChangeFinished,
                         )
                         .focusable(enabled, endThumbInteractionSource)
             ) {
@@ -3239,7 +3250,12 @@ private fun scale(
 private fun calcFraction(a: Float, b: Float, pos: Float) =
     (if (b - a == 0f) 0f else (pos - a) / (b - a)).coerceIn(0f, 1f)
 
-private fun Modifier.sliderSemantics(state: SliderState, enabled: Boolean): Modifier {
+private fun Modifier.sliderSemantics(
+    state: SliderState,
+    enabled: Boolean,
+    onValueChange: ((Float) -> Unit)?,
+    onValueChangeFinished: (() -> Unit)?,
+): Modifier {
     return semantics {
             if (!enabled) disabled()
             stateDescription = state.value.formatForSemantics()
@@ -3274,13 +3290,13 @@ private fun Modifier.sliderSemantics(state: SliderState, enabled: Boolean): Modi
                         false
                     } else {
                         if (resolvedValue != state.value) {
-                            if (state.onValueChangeInternal != null) {
-                                state.onValueChangeInternal?.let { it(resolvedValue) }
+                            if (onValueChange != null) {
+                                onValueChange(resolvedValue)
                             } else {
                                 state.value = resolvedValue
                             }
                         }
-                        state.onValueChangeFinishedInternal?.invoke()
+                        onValueChangeFinished?.invoke()
                         true
                     }
                 }
@@ -3303,6 +3319,8 @@ private fun Modifier.sliderSemantics(state: SliderState, enabled: Boolean): Modi
 private fun Modifier.rangeSliderStartThumbSemantics(
     state: RangeSliderState,
     enabled: Boolean,
+    onValueChange: ((SliderRange) -> Unit)?,
+    onValueChangeFinished: (() -> Unit)?,
 ): Modifier {
     val trackRange = state.trackRange.start..state.endValue
     return semantics {
@@ -3340,14 +3358,14 @@ private fun Modifier.rangeSliderStartThumbSemantics(
                         val resolvedRange = SliderRange(resolvedValue, state.endValue)
                         val activeRange = SliderRange(state.startValue, state.endValue)
                         if (resolvedRange != activeRange) {
-                            if (state.onValueChangeInternal != null) {
-                                state.onValueChangeInternal?.let { it(resolvedRange) }
+                            if (onValueChange != null) {
+                                onValueChange(resolvedRange)
                             } else {
                                 state.startValue = resolvedRange.start
                                 state.endValue = resolvedRange.endInclusive
                             }
                         }
-                        state.onValueChangeFinishedInternal?.invoke()
+                        onValueChangeFinished?.invoke()
                         true
                     }
                 }
@@ -3360,6 +3378,8 @@ private fun Modifier.rangeSliderStartThumbSemantics(
 private fun Modifier.rangeSliderEndThumbSemantics(
     state: RangeSliderState,
     enabled: Boolean,
+    onValueChange: ((SliderRange) -> Unit)?,
+    onValueChangeFinished: (() -> Unit)?,
 ): Modifier {
     val trackRange = state.startValue..state.trackRange.endInclusive
     return semantics {
@@ -3397,14 +3417,14 @@ private fun Modifier.rangeSliderEndThumbSemantics(
                         val resolvedRange = SliderRange(state.startValue, resolvedValue)
                         val activeRange = SliderRange(state.startValue, state.endValue)
                         if (resolvedRange != activeRange) {
-                            if (state.onValueChangeInternal != null) {
-                                state.onValueChangeInternal?.let { it(resolvedRange) }
+                            if (onValueChange != null) {
+                                onValueChange(resolvedRange)
                             } else {
                                 state.startValue = resolvedRange.start
                                 state.endValue = resolvedRange.endInclusive
                             }
                         }
-                        state.onValueChangeFinishedInternal?.invoke()
+                        onValueChangeFinished?.invoke()
                         true
                     }
                 }
@@ -3416,189 +3436,197 @@ private fun Modifier.rangeSliderEndThumbSemantics(
 
 private fun Float.formatForSemantics() = "${(this * 100).roundToInt() / 100f}"
 
-@Stable
+@Composable
 private fun Modifier.sliderTapModifier(
     state: SliderState,
     interactionSource: MutableInteractionSource,
     enabled: Boolean,
-) =
-    if (enabled) {
-        pointerInput(state, interactionSource) {
-            coroutineScope {
-                detectTapGestures(
-                    onPress = { offset ->
-                        var press: PressInteraction.Press? = null
-                        try {
-                            press = PressInteraction.Press(offset)
-                            interactionSource.tryEmit(press)
-                            state.onPress(offset)
-                            val success = tryAwaitRelease()
-                            val release =
-                                if (success) {
-                                    PressInteraction.Release(press)
-                                } else {
-                                    PressInteraction.Cancel(press)
-                                }
-                            // Emit the release or cancel interaction
-                            interactionSource.tryEmit(release)
-                            press = null
-                        } finally {
-                            press?.let { interactionSource.emit(PressInteraction.Cancel(it)) }
-                        }
-                    },
-                    onTap = {
-                        state.dispatchRawDeltaInternal(0f)
-                        state.gestureEndAction()
-                    },
-                )
-            }
+    onValueChange: ((Float) -> Unit)?,
+    onValueChangeFinished: (() -> Unit)?,
+): Modifier {
+    if (!enabled) return this
+    val currentOnValueChange = rememberUpdatedState(onValueChange)
+    val currentOnValueChangeFinished = rememberUpdatedState(onValueChangeFinished)
+    return this.pointerInput(state, interactionSource) {
+        coroutineScope {
+            detectTapGestures(
+                onPress = { offset ->
+                    var press: PressInteraction.Press? = null
+                    try {
+                        press = PressInteraction.Press(offset)
+                        interactionSource.tryEmit(press)
+                        state.onPress(offset)
+                        val success = tryAwaitRelease()
+                        val release =
+                            if (success) {
+                                PressInteraction.Release(press)
+                            } else {
+                                PressInteraction.Cancel(press)
+                            }
+                        // Emit the release or cancel interaction
+                        interactionSource.tryEmit(release)
+                        press = null
+                    } finally {
+                        press?.let { interactionSource.emit(PressInteraction.Cancel(it)) }
+                    }
+                },
+                onTap = {
+                    state.dispatchRawDeltaInternal(0f, currentOnValueChange.value)
+                    if (!state.isDragging) {
+                        currentOnValueChangeFinished.value?.invoke()
+                    }
+                },
+            )
         }
-    } else {
-        this
     }
+}
 
-@Stable
+@Composable
 private fun Modifier.rangeSliderPressDragModifier(
     state: RangeSliderState,
     startThumbInteractionSource: MutableInteractionSource,
     endThumbInteractionSource: MutableInteractionSource,
     enabled: Boolean,
-): Modifier =
-    if (enabled) {
-        pointerInput(startThumbInteractionSource, endThumbInteractionSource, state) {
-            val rangeSliderLogic =
-                RangeSliderLogic(state, startThumbInteractionSource, endThumbInteractionSource)
-            coroutineScope {
-                awaitEachGesture {
-                    var activeDragInteraction: DragInteraction.Start? = null
-                    var draggingStart = false
-                    var press: PressInteraction.Press? = null
+    onValueChange: ((SliderRange) -> Unit)?,
+    onValueChangeFinished: (() -> Unit)?,
+): Modifier {
+    if (!enabled) return this
+    val currentOnValueChange = rememberUpdatedState(onValueChange)
+    val currentOnValueChangeFinished = rememberUpdatedState(onValueChangeFinished)
+    return this.pointerInput(startThumbInteractionSource, endThumbInteractionSource, state) {
+        val rangeSliderLogic =
+            RangeSliderLogic(
+                state,
+                startThumbInteractionSource,
+                endThumbInteractionSource,
+                currentOnValueChange,
+            )
+        coroutineScope {
+            awaitEachGesture {
+                var activeDragInteraction: DragInteraction.Start? = null
+                var draggingStart = false
+                var press: PressInteraction.Press? = null
 
-                    try {
-                        val down = awaitFirstDown(requireUnconsumed = false)
+                try {
+                    val down = awaitFirstDown(requireUnconsumed = false)
 
-                        val posX =
-                            if (state.isRtl) state.totalWidth - down.position.x else down.position.x
-                        val compare = rangeSliderLogic.compareOffsets(posX)
+                    val posX =
+                        if (state.isRtl) state.totalWidth - down.position.x else down.position.x
+                    val compare = rangeSliderLogic.compareOffsets(posX)
 
-                        draggingStart =
-                            if (compare != 0) compare < 0 else state.rawOffsetStart > posX
+                    draggingStart = if (compare != 0) compare < 0 else state.rawOffsetStart > posX
 
-                        val interactionSource = rangeSliderLogic.activeInteraction(draggingStart)
-                        press = PressInteraction.Press(down.position)
-                        press?.let { launch { interactionSource.emit(it) } }
+                    val interactionSource = rangeSliderLogic.activeInteraction(draggingStart)
+                    press = PressInteraction.Press(down.position)
+                    press?.let { launch { interactionSource.emit(it) } }
 
-                        var drag: PointerInputChange?
-                        var overSlop = Offset.Zero
-                        val pointerSlop = viewConfiguration.pointerSlop(down.type)
+                    var drag: PointerInputChange?
+                    var overSlop = Offset.Zero
+                    val pointerSlop = viewConfiguration.pointerSlop(down.type)
 
-                        do {
-                            drag = awaitPointerEvent().changes.firstOrNull()
-                            if (drag != null) {
-                                overSlop += drag.positionChange()
-                            }
-                        } while (
-                            drag != null &&
-                                drag.pressed &&
-                                overSlop.getDistanceSquared() < pointerSlop * pointerSlop
-                        )
-
-                        if (drag != null && abs(overSlop.x) > abs(overSlop.y)) {
-                            // The press is converted to a drag, so we cancel the press interaction
-                            press?.let {
-                                launch { interactionSource.emit(PressInteraction.Cancel(it)) }
-                            }
-
-                            press = null
-
-                            val interaction = DragInteraction.Start()
-                            activeDragInteraction = interaction
-                            launch { interactionSource.emit(interaction) }
-
-                            // Apply the slop from the initial drag detection
-                            val initialOffset =
-                                posX -
-                                    (if (draggingStart) state.rawOffsetStart
-                                    else state.rawOffsetEnd)
-                            val totalDragOffset =
-                                initialOffset + (if (state.isRtl) -overSlop.x else overSlop.x)
-                            state.onDrag(draggingStart, totalDragOffset)
-
-                            // The main drag block now handles all subsequent movement.
-                            state.isDragging = true
-                            val success =
-                                horizontalDrag(down.id) { change ->
-                                    val deltaX = change.positionChange().x
-                                    state.onDrag(
-                                        draggingStart,
-                                        if (state.isRtl) -deltaX else deltaX,
-                                    )
-                                    change.consume()
-                                }
-
-                            state.isDragging = false
-
-                            val finishInteraction =
-                                if (success) {
-                                    DragInteraction.Stop(interaction)
-                                } else {
-                                    DragInteraction.Cancel(interaction)
-                                }
-                            state.gestureEndAction(draggingStart)
-                            launch { interactionSource.emit(finishInteraction) }
-                            activeDragInteraction = null
-                        } else if (drag?.pressed == false) {
-                            // The press is completed, so emit a release.
-                            press?.let {
-                                launch { interactionSource.emit(PressInteraction.Release(it)) }
-                            }
-
-                            press = null
-
-                            // Perform the tap action to update the slider value
-                            val offset =
-                                posX -
-                                    if (draggingStart) state.rawOffsetStart else state.rawOffsetEnd
-                            state.onDrag(draggingStart, offset)
-                            state.gestureEndAction(draggingStart)
-                        } else { // Gesture is not a horizontal drag and pointer is still down
-                            // (e.g.,
-                            // vertical scroll)
-                            // Cancel the press to dismiss the ripple and allow scrolling
-                            press?.let {
-                                launch { interactionSource.emit(PressInteraction.Cancel(it)) }
-                            }
-                            press = null
+                    do {
+                        drag = awaitPointerEvent().changes.firstOrNull()
+                        if (drag != null) {
+                            overSlop += drag.positionChange()
                         }
-                    } finally {
-                        if (state.isDragging) {
-                            // If we were dragging, clean up the state
-                            activeDragInteraction?.let {
-                                val interactionSource =
-                                    rangeSliderLogic.activeInteraction(draggingStart)
-                                launch { interactionSource.emit(DragInteraction.Cancel(it)) }
-                            }
-                            state.gestureEndAction(draggingStart)
-                            state.isDragging = false
-                        }
+                    } while (
+                        drag != null &&
+                            drag.pressed &&
+                            overSlop.getDistanceSquared() < pointerSlop * pointerSlop
+                    )
 
+                    if (drag != null && abs(overSlop.x) > abs(overSlop.y)) {
+                        // The press is converted to a drag, so we cancel the press interaction
                         press?.let {
-                            val interactionSource =
-                                rangeSliderLogic.activeInteraction(draggingStart)
                             launch { interactionSource.emit(PressInteraction.Cancel(it)) }
                         }
+
+                        press = null
+
+                        val interaction = DragInteraction.Start()
+                        activeDragInteraction = interaction
+                        launch { interactionSource.emit(interaction) }
+
+                        // Apply the slop from the initial drag detection
+                        val initialOffset =
+                            posX - (if (draggingStart) state.rawOffsetStart else state.rawOffsetEnd)
+                        val totalDragOffset =
+                            initialOffset + (if (state.isRtl) -overSlop.x else overSlop.x)
+                        state.onDrag(draggingStart, totalDragOffset, currentOnValueChange.value)
+
+                        // The main drag block now handles all subsequent movement.
+                        state.isDragging = true
+                        val success =
+                            horizontalDrag(down.id) { change ->
+                                val deltaX = change.positionChange().x
+                                state.onDrag(
+                                    draggingStart,
+                                    if (state.isRtl) -deltaX else deltaX,
+                                    currentOnValueChange.value,
+                                )
+                                change.consume()
+                            }
+
+                        state.isDragging = false
+
+                        val finishInteraction =
+                            if (success) {
+                                DragInteraction.Stop(interaction)
+                            } else {
+                                DragInteraction.Cancel(interaction)
+                            }
+                        currentOnValueChangeFinished.value?.invoke()
+                        launch { interactionSource.emit(finishInteraction) }
+                        activeDragInteraction = null
+                    } else if (drag?.pressed == false) {
+                        // The press is completed, so emit a release.
+                        press?.let {
+                            launch { interactionSource.emit(PressInteraction.Release(it)) }
+                        }
+
+                        press = null
+
+                        // Perform the tap action to update the slider value
+                        val offset =
+                            posX - if (draggingStart) state.rawOffsetStart else state.rawOffsetEnd
+                        state.onDrag(draggingStart, offset, currentOnValueChange.value)
+                        currentOnValueChangeFinished.value?.invoke()
+                    } else { // Gesture is not a horizontal drag and pointer is still down
+                        // (e.g.,
+                        // vertical scroll)
+                        // Cancel the press to dismiss the ripple and allow scrolling
+                        press?.let {
+                            launch { interactionSource.emit(PressInteraction.Cancel(it)) }
+                        }
+                        press = null
+                    }
+                } finally {
+                    if (state.isDragging) {
+                        // If we were dragging, clean up the state
+                        activeDragInteraction?.let {
+                            val interactionSource =
+                                rangeSliderLogic.activeInteraction(draggingStart)
+                            launch { interactionSource.emit(DragInteraction.Cancel(it)) }
+                        }
+                        currentOnValueChangeFinished.value?.invoke()
+                        state.isDragging = false
+                    }
+
+                    press?.let {
+                        val interactionSource = rangeSliderLogic.activeInteraction(draggingStart)
+                        launch { interactionSource.emit(PressInteraction.Cancel(it)) }
                     }
                 }
             }
         }
-    } else {
-        this
     }
+}
 
 private class RangeSliderLogic(
     val state: RangeSliderState,
     val startThumbInteractionSource: MutableInteractionSource,
     val endThumbInteractionSource: MutableInteractionSource,
+    val onValueChange: State<((SliderRange) -> Unit)?>,
 ) {
     fun activeInteraction(draggingStart: Boolean): MutableInteractionSource =
         if (draggingStart) startThumbInteractionSource else endThumbInteractionSource
@@ -3618,6 +3646,7 @@ private class RangeSliderLogic(
         state.onDrag(
             draggingStart,
             posX - if (draggingStart) state.rawOffsetStart else state.rawOffsetEnd,
+            onValueChange.value,
         )
         scope.launch { activeInteraction(draggingStart).emit(interaction) }
     }
@@ -3860,9 +3889,7 @@ public constructor(
         @IntRange(from = 0) steps: Int = 0,
         onValueChangeFinished: (() -> Unit)? = null,
         valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    ) : this(value, steps, valueRange) {
-        this.onValueChangeFinishedInternal = onValueChangeFinished
-    }
+    ) : this(value, steps, valueRange)
 
     private var valueState by mutableFloatStateOf(value)
 
@@ -3916,7 +3943,7 @@ public constructor(
         dispatchRawDeltaInternal(delta)
     }
 
-    internal fun dispatchRawDeltaInternal(delta: Float) {
+    internal fun dispatchRawDeltaInternal(delta: Float, onValueChange: ((Float) -> Unit)? = null) {
         val maxPx: Float
         val minPx: Float
         if (isVertical) {
@@ -3931,35 +3958,23 @@ public constructor(
         val offsetInTrack = snapValueToTick(rawOffset, tickFractions, minPx, maxPx)
         val scaledUserValue = scaleToUserValue(minPx, maxPx, offsetInTrack)
         if (scaledUserValue != this.value) {
-            if (onValueChangeInternal != null) {
-                onValueChangeInternal?.let { it(scaledUserValue) }
+            if (onValueChange != null) {
+                onValueChange(scaledUserValue)
             } else {
                 this.value = scaledUserValue
             }
         }
     }
 
-    internal var onValueChangeInternal: ((Float) -> Unit)? = null
-
     /** Callback in which value should be updated. */
     @Deprecated(message = "Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
     @ExperimentalMaterial3Api
-    public var onValueChange: ((Float) -> Unit)?
-        get() = onValueChangeInternal
-        set(value) {
-            onValueChangeInternal = value
-        }
-
-    internal var onValueChangeFinishedInternal: (() -> Unit)? = null
+    public var onValueChange: ((Float) -> Unit)? = null
 
     /** Lambda to be invoked when value change has ended. */
     @Deprecated(message = "Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
     @ExperimentalMaterial3Api
-    public var onValueChangeFinished: (() -> Unit)?
-        get() = onValueChangeFinishedInternal
-        set(value) {
-            onValueChangeFinishedInternal = value
-        }
+    public var onValueChangeFinished: (() -> Unit)? = null
 
     /**
      * Controls the auto-snapping mechanism for slider steps.
@@ -4015,18 +4030,11 @@ public constructor(
      * cancelled.
      */
     public var isDragging: Boolean by mutableStateOf(false)
-        private set
+        internal set
 
     internal fun updateDimensions(newTotalWidth: Int, newTotalHeight: Int) {
         totalWidth = newTotalWidth
         totalHeight = newTotalHeight
-    }
-
-    internal val gestureEndAction = {
-        if (!isDragging) {
-            // check isDragging in case the change is still in progress (touch -> drag case)
-            onValueChangeFinishedInternal?.invoke()
-        }
     }
 
     internal fun onPress(pos: Offset) {
@@ -4226,9 +4234,7 @@ public constructor(
         endValue = activeRangeEnd,
         steps = steps,
         trackRange = valueRange,
-    ) {
-        this.onValueChangeFinishedInternal = onValueChangeFinished
-    }
+    )
 
     private val coercedStart = startValue.coerceIn(trackRange)
     private val coercedEnd = endValue.coerceIn(trackRange)
@@ -4283,18 +4289,10 @@ public constructor(
             endValue = value
         }
 
-    internal var onValueChangeInternal: ((SliderRange) -> Unit)? = null
-
-    internal var onValueChangeFinishedInternal: (() -> Unit)? = null
-
     /** Lambda to be invoked when value change has ended. */
     @Deprecated(message = "maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
     @ExperimentalMaterial3Api
-    public var onValueChangeFinished: (() -> Unit)?
-        get() = onValueChangeFinishedInternal
-        set(value) {
-            onValueChangeFinishedInternal = value
-        }
+    public var onValueChangeFinished: (() -> Unit)? = null
 
     internal val tickFractions = stepsToTickFractions(steps)
 
@@ -4311,12 +4309,14 @@ public constructor(
     internal var isStartFocused by mutableStateOf(false)
     internal var isEndFocused by mutableStateOf(false)
 
-    internal val gestureEndAction: (Boolean) -> Unit = { onValueChangeFinishedInternal?.invoke() }
-
     private var maxPx by mutableFloatStateOf(0f)
     private var minPx by mutableFloatStateOf(0f)
 
-    internal fun onDrag(isStart: Boolean, offset: Float) {
+    internal fun onDrag(
+        isStart: Boolean,
+        offset: Float,
+        onValueChange: ((SliderRange) -> Unit)? = null,
+    ) {
         val offsetRange =
             if (isStart) {
                 rawOffsetStart = (rawOffsetStart + offset)
@@ -4335,8 +4335,8 @@ public constructor(
             }
         val scaledUserValue = scaleToUserValue(isStart, minPx, maxPx, offsetRange)
         if (scaledUserValue != SliderRange(startValue, endValue)) {
-            if (onValueChangeInternal != null) {
-                onValueChangeInternal?.let { it(scaledUserValue) }
+            if (onValueChange != null) {
+                onValueChange(scaledUserValue)
             } else {
                 this.startValue = scaledUserValue.start
                 this.endValue = scaledUserValue.endInclusive
