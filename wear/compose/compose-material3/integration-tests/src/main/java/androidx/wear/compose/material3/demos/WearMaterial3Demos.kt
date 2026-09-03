@@ -42,6 +42,7 @@ import androidx.wear.compose.material3.samples.NonClickableImageCardSample
 import androidx.wear.compose.material3.samples.NonClickableTitleCardWithImageWithTimeAndTitleSample
 import androidx.wear.compose.material3.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material3.samples.StatefulSwipeToDismissBox
+import androidx.wear.compose.material3.samples.SurfaceTransformationOnCustomComponent
 import androidx.wear.compose.material3.samples.SwipeToRevealNoPartialRevealWithScalingLazyColumnSample
 import androidx.wear.compose.material3.samples.SwipeToRevealSample
 import androidx.wear.compose.material3.samples.SwipeToRevealSingleActionCardSample
@@ -317,6 +318,9 @@ val WearMaterial3Demos =
                             TransformingLazyColumnFirstLayoutItemProviderSample()
                         },
                         ComposableDemo("Button Group") { TransformationSpecButtonRowSample() },
+                        ComposableDemo("SurfaceTransformation on custom component") {
+                            SurfaceTransformationOnCustomComponent()
+                        },
                     ),
                 ),
                 Material3DemoCategory("One Handed Gestures", OneHandedGestureDemos),
