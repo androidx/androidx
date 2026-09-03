@@ -23,7 +23,7 @@ import androidx.tracing.PooledTracePacketArray
 import androidx.tracing.TRACE_PACKET_BUFFER_SIZE
 import androidx.tracing.TRACE_PACKET_POOL_ARRAY_POOL_SIZE
 import androidx.tracing.Tracer
-import androidx.tracing.wire.protos.MutableCallstack
+import androidx.tracing.wire.protos.MutableInlineCallstack
 import androidx.tracing.wire.protos.MutableTrace
 import androidx.tracing.wire.protos.MutableTraceAttributes
 import androidx.tracing.wire.protos.MutableTracePacket
@@ -85,7 +85,7 @@ class TestSink : AbstractTraceSink() {
                             // We don't reset in tests & allocations are okay here.
                             scratchAnnotations = mutableListOf(),
                             scratchAnnotationIndex = IntArray(size = 1) { _ -> -1 },
-                            scratchCallStack = MutableCallstack(),
+                            scratchCallStack = MutableInlineCallstack(),
                             scratchFrames = mutableListOf(),
                             scratchFrameIndex = IntArray(size = 1) { _ -> -1 },
                             scratchTraceAttributes = MutableTraceAttributes(),
