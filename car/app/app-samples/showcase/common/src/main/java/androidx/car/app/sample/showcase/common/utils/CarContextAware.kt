@@ -49,9 +49,12 @@ interface CarContextAware {
      * [CarIconStyle].
      */
     fun getCarIcon(@DrawableRes resId: Int, style: CarIconStyle? = null): CarIcon {
-        return CarIcon.Builder(IconCompat.createWithResource(getCarContext(), resId))
-            .also { builder -> style?.let { builder.setStyle(it) } }
-            .build()
+        val iconCompat = IconCompat.createWithResource(getCarContext(), resId)
+        return if (style != null) {
+            CarIcon.Builder(iconCompat, style).build()
+        } else {
+            CarIcon.createTintedIcon(iconCompat)
+        }
     }
 
     /** Creates a [CarToast] with a default short duration, ready to be shown. */

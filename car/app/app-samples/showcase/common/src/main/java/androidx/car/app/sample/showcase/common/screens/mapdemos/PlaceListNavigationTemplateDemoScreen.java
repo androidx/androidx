@@ -74,13 +74,12 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
                 .setStartHeaderAction(Action.BACK)
                 .addEndHeaderAction(new Action.Builder()
                         .setIcon(
-                                new CarIcon.Builder(
+                                CarIcon.createTintedIcon(
                                         IconCompat.createWithResource(
                                                 getCarContext(),
                                                 mIsFavorite
                                                         ? R.drawable.ic_favorite_filled_white_24dp
-                                                        : R.drawable.ic_favorite_white_24dp))
-                                        .build())
+                                                        : R.drawable.ic_favorite_white_24dp)))
                         .setOnClickListener(() -> {
                             mIsFavorite = !mIsFavorite;
                             CarToast.makeText(
@@ -98,11 +97,10 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
                 .addEndHeaderAction(new Action.Builder()
                         .setOnClickListener(this::finish)
                         .setIcon(
-                                new CarIcon.Builder(
+                                CarIcon.createTintedIcon(
                                         IconCompat.createWithResource(
                                                 getCarContext(),
-                                                R.drawable.ic_close_white_24dp))
-                                        .build())
+                                                R.drawable.ic_close_white_24dp)))
                         .build())
                 .setTitle(getCarContext().getString(R.string.place_list_nav_template_demo_title));
 
@@ -110,11 +108,10 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
             headerBuilder.addEndHeaderAction(new Action.Builder()
                     .setOnClickListener(this::invalidate)
                     .setIcon(
-                            new CarIcon.Builder(
+                            CarIcon.createTintedIcon(
                                     IconCompat.createWithResource(
                                             getCarContext(),
-                                            R.drawable.baseline_refresh_24))
-                                    .build())
+                                            R.drawable.baseline_refresh_24)))
                     .build());
         }
 

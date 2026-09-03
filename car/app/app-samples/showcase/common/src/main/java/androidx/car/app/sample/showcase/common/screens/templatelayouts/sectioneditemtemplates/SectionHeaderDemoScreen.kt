@@ -43,9 +43,9 @@ import androidx.core.graphics.drawable.IconCompat
 /** A comprehensive screen demonstrating all RSL validation scenarios for SectionHeader. */
 class SectionHeaderDemoScreen(carContext: CarContext) : Screen(carContext) {
     override fun onGetTemplate(): Template {
-        val iconDefault = createCarIcon(R.drawable.test_image_square)
-        val iconTrailing = createCarIcon(R.drawable.ic_chevron_right_24)
-        val iconAvatar = createCarIcon(R.drawable.ic_face_24px)
+        val iconDefault = createOriginalCarIcon(R.drawable.test_image_square)
+        val iconTrailing = createTintedCarIcon(R.drawable.ic_chevron_right_24)
+        val iconAvatar = createTintedCarIcon(R.drawable.ic_face_24px)
 
         val header1 = createSectionHeader("Simple Title")
         val header2 =
@@ -113,8 +113,12 @@ class SectionHeaderDemoScreen(carContext: CarContext) : Screen(carContext) {
             .build()
     }
 
-    private fun createCarIcon(@DrawableRes resId: Int): CarIcon {
-        return CarIcon.Builder(IconCompat.createWithResource(carContext, resId)).build()
+    private fun createTintedCarIcon(@DrawableRes resId: Int): CarIcon {
+        return CarIcon.createTintedIcon(IconCompat.createWithResource(carContext, resId))
+    }
+
+    private fun createOriginalCarIcon(@DrawableRes resId: Int): CarIcon {
+        return CarIcon.createOriginalIcon(IconCompat.createWithResource(carContext, resId))
     }
 
     private fun createSectionHeader(

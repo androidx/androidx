@@ -199,8 +199,8 @@ public class RoutingDemoModelFactory {
                 .setTripIcon(
                         new CarIcon.Builder(
                                         IconCompat.createWithResource(
-                                                mCarContext, R.drawable.ic_face_24px))
-                                .setStyle(carIconStyle)
+                                                mCarContext, R.drawable.ic_face_24px),
+                                        carIconStyle)
                                 .build())
                 .build();
     }
@@ -243,6 +243,6 @@ public class RoutingDemoModelFactory {
     }
 
     private CarIcon createCarIcon(@DrawableRes int iconRes) {
-        return new CarIcon.Builder(IconCompat.createWithResource(mCarContext, iconRes)).build();
+        return CarIcon.createTintedIcon(IconCompat.createWithResource(mCarContext, iconRes));
     }
 }

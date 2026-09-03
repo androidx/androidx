@@ -175,8 +175,12 @@ class AlphaJumpDemoScreen(carContext: CarContext) : Screen(carContext) {
         builder.addAction(
             Action.Builder()
                 .setIcon(
-                    CarIcon.Builder(IconCompat.createWithResource(carContext, R.drawable.ic_mic))
-                        .build()
+                    CarIcon.createTintedIcon(
+                        IconCompat.createWithResource(
+                            carContext,
+                            R.drawable.ic_mic,
+                        )
+                    )
                 )
                 .setOnClickListener {}
                 .setBackgroundColor(CarColor.GREEN)
@@ -232,12 +236,10 @@ class AlphaJumpDemoScreen(carContext: CarContext) : Screen(carContext) {
                                 IconCompat.createWithResource(
                                     carContext,
                                     imageResources[i % imageResources.size],
-                                )
-                            )
-                            .setStyle(
+                                ),
                                 CarIconStyle.Builder(CarIconStyle.TINTED)
                                     .setTint(CarColor.PRIMARY)
-                                    .build()
+                                    .build(),
                             )
                             .build()
                     )

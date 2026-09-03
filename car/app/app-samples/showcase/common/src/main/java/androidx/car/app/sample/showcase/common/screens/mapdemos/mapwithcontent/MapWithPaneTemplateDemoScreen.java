@@ -78,7 +78,7 @@ public class MapWithPaneTemplateDemoScreen extends Screen {
         }
 
         // Also set a large image outside of the rows.
-        paneBuilder.setImage(new CarIcon.Builder(mPaneImage).build());
+        paneBuilder.setImage(CarIcon.createOriginalIcon(mPaneImage));
 
         Action.Builder primaryActionBuilder = new Action.Builder()
                 .setTitle(getCarContext().getString(R.string.primary_action_title))
@@ -111,13 +111,12 @@ public class MapWithPaneTemplateDemoScreen extends Screen {
                 .setStartHeaderAction(Action.BACK)
                 .addEndHeaderAction(new Action.Builder()
                         .setIcon(
-                                new CarIcon.Builder(
+                                CarIcon.createTintedIcon(
                                         IconCompat.createWithResource(
                                                 getCarContext(),
                                                 mIsFavorite
                                                         ? R.drawable.ic_favorite_filled_white_24dp
-                                                        : R.drawable.ic_favorite_white_24dp))
-                                        .build())
+                                                        : R.drawable.ic_favorite_white_24dp)))
                         .setOnClickListener(() -> {
                             mIsFavorite = !mIsFavorite;
                             CarToast.makeText(
@@ -135,11 +134,10 @@ public class MapWithPaneTemplateDemoScreen extends Screen {
                 .addEndHeaderAction(new Action.Builder()
                         .setOnClickListener(() -> finish())
                         .setIcon(
-                                new CarIcon.Builder(
+                                CarIcon.createTintedIcon(
                                         IconCompat.createWithResource(
                                                 getCarContext(),
-                                                R.drawable.ic_close_white_24dp))
-                                        .build())
+                                                R.drawable.ic_close_white_24dp)))
                         .build())
                 .setTitle(getCarContext().getString(R.string.map_template_pane_demo_title))
                 .build();
@@ -160,11 +158,10 @@ public class MapWithPaneTemplateDemoScreen extends Screen {
                                                         CarToast.LENGTH_SHORT)
                                                 .show())
                                 .setIcon(
-                                        new CarIcon.Builder(
+                                        CarIcon.createTintedIcon(
                                                 IconCompat.createWithResource(
                                                         getCarContext(),
-                                                        R.drawable.ic_bug_report_24px))
-                                                .build())
+                                                        R.drawable.ic_bug_report_24px)))
                                 .setFlags(Action.FLAG_IS_PERSISTENT)
                                 .build())
                 .build();
@@ -191,7 +188,7 @@ public class MapWithPaneTemplateDemoScreen extends Screen {
         return new Row.Builder()
             .setTitle(getCarContext().getString(R.string.first_row_title))
             .addText(getCarContext().getString(R.string.long_line_text))
-            .setImage(new CarIcon.Builder(mRowLargeIcon).build())
+            .setImage(CarIcon.createTintedIcon(mRowLargeIcon))
             .build();
     }
 
@@ -218,10 +215,9 @@ public class MapWithPaneTemplateDemoScreen extends Screen {
     }
 
     private CarIcon buildCarIconWithResources(int imageId) {
-        return new CarIcon.Builder(
+        return CarIcon.createTintedIcon(
                 IconCompat.createWithResource(
                         getCarContext(),
-                        imageId))
-                .build();
+                        imageId));
     }
 }

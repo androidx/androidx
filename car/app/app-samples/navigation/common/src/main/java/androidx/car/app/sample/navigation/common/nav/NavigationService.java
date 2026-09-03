@@ -605,8 +605,8 @@ public class NavigationService extends Service {
     private Alert createAlert() {
         CarText title =
                 CarText.create(getString(R.string.navigation_alert_title));
-        CarIcon icon = new CarIcon.Builder(
-                IconCompat.createWithResource(this, R.drawable.ic_police)).build();
+        CarIcon icon = CarIcon.createTintedIcon(
+                IconCompat.createWithResource(this, R.drawable.ic_police));
 
         CarText yesTitle = CarText.create(getString(R.string.yes_action_title));
         Action yesAction = new Action.Builder().setTitle(yesTitle).setOnClickListener(

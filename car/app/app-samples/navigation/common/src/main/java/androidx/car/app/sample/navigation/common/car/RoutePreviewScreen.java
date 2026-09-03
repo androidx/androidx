@@ -61,8 +61,8 @@ public final class RoutePreviewScreen extends Screen {
         mSettingsAction = settingsAction;
         mSurfaceRenderer = surfaceRenderer;
 
-        CarIcon actionIcon = new CarIcon.Builder(IconCompat.createWithResource(
-                getCarContext(), R.drawable.baseline_assistant_navigation_24)).build();
+        CarIcon actionIcon = CarIcon.createTintedIcon(IconCompat.createWithResource(
+                getCarContext(), R.drawable.baseline_assistant_navigation_24));
         Action navigateAction = new Action.Builder()
                 .setIcon(actionIcon)
                 .setOnClickListener(this::onNavigate)
