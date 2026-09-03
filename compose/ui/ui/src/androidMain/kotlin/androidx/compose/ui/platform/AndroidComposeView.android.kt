@@ -2419,6 +2419,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     }
 
     override fun onLayoutNodeDeactivated(layoutNode: LayoutNode) {
+        measureAndLayoutDelegate.onNodeDeactivated(layoutNode)
         if (autofillSupported()) {
             autofillManager?.onLayoutNodeDeactivated(layoutNode)
         }
