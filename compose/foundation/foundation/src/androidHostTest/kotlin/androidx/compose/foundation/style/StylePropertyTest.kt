@@ -218,10 +218,6 @@ internal fun simpleScope() =
         ) {
             if (active(key, state)) block()
         }
-
-        override fun provideNestedStyle(key: NestedStyleKey, style: CommonStyle) {}
-
-        override fun applyNestedStyle(key: NestedStyleKey) {}
     }
 
 private fun Shape.toTestOutline(): Outline {
