@@ -19,6 +19,7 @@ package androidx.compose.runtime.snapshots
 import androidx.collection.MutableObjectIntMap
 import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
+import androidx.compose.runtime.ComputedState
 import androidx.compose.runtime.DerivedState
 import androidx.compose.runtime.TestOnly
 import androidx.compose.runtime.collection.MutableVector
@@ -410,12 +411,29 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
         /** Observer for derived state recalculation */
         val derivedStateObserver =
             object : IndirectStateObserver {
+                private var computedStateDepth = 0
+
                 override fun start(state: IndirectState<*>) {
-                    deriveStateScopeCount++
+                    if (state is DerivedState<*>) {
+                        deriveStateScopeCount++
+                    } else if (state is ComputedState<*>) {
+                        if (deriveStateScopeCount == 0 && computedStateDepth == 0) {
+                            dependencyToIndirectStates.remove(state)
+                            rootComputingState = state
+                        }
+                        computedStateDepth++
+                    }
                 }
 
                 override fun done(state: IndirectState<*>, calculatedValue: Any?) {
-                    deriveStateScopeCount--
+                    if (state is DerivedState<*>) {
+                        deriveStateScopeCount--
+                    } else if (state is ComputedState<*>) {
+                        if (--computedStateDepth == 0) {
+                            recordedIndirectStateValues[state] = calculatedValue
+                            rootComputingState = null
+                        }
+                    }
                 }
             }
 
@@ -431,6 +449,8 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
          * [DerivedState.Record.dependencies].
          */
         private var deriveStateScopeCount = 0
+
+        private var rootComputingState: ComputedState<*>? = null
 
         /** Invalidation index from state objects to derived states reading them. */
         private var _dependencyToIndirectStates: ScopeMap<Any, IndirectState<*>>? = null
@@ -473,6 +493,24 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
                 return
             }
 
+            val rootComputingState = rootComputingState
+            if (rootComputingState != null) {
+                if (value is StateObjectImpl) {
+                    value.recordReadIn(ReaderKind.SnapshotStateObserver)
+                }
+                dependencyToIndirectStates.add(value, rootComputingState)
+                if (value is DerivedState<*>) {
+                    val record = value.currentRecord
+                    record.dependencies.forEach { dependency, _ ->
+                        if (dependency is StateObjectImpl) {
+                            dependency.recordReadIn(ReaderKind.SnapshotStateObserver)
+                        }
+                        dependencyToIndirectStates.add(dependency, rootComputingState)
+                    }
+                }
+                return
+            }
+
             val previousToken = recordedValues.put(value, currentToken, -1)
             if (value is DerivedState<*> && previousToken != currentToken) {
                 val record = value.currentRecord
@@ -482,7 +520,6 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
                 val dependencyToIndirectStates = dependencyToIndirectStates
 
                 dependencyToIndirectStates.removeScope(value)
-                record as DerivedState.Record<*>
                 record.dependencies.forEach { dependency, _ ->
                     if (dependency is StateObjectImpl) {
                         dependency.recordReadIn(ReaderKind.SnapshotStateObserver)
@@ -633,13 +670,29 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
         fun rereadIndirectState(indirectState: IndirectState<*>) {
             val scopeToValues = scopeToValues
             val token = currentSnapshot().snapshotId.hashCode()
-            valueToScopes.forEachScopeOf(indirectState) { scope ->
-                recordRead(
-                    value = indirectState,
-                    currentToken = token,
-                    currentScope = scope,
-                    recordedValues = scopeToValues.getOrPut(scope) { MutableObjectIntMap() },
-                )
+            if (indirectState is ComputedState<*>) {
+                Snapshot.observeInternal({
+                    valueToScopes.forEachScopeOf(indirectState) { scope ->
+                        recordRead(
+                            value = it,
+                            currentToken = token,
+                            currentScope = scope,
+                            recordedValues =
+                                scopeToValues.getOrPut(scope) { MutableObjectIntMap() },
+                        )
+                    }
+                }) {
+                    indirectState.value
+                }
+            } else {
+                valueToScopes.forEachScopeOf(indirectState) { scope ->
+                    recordRead(
+                        value = indirectState,
+                        currentToken = token,
+                        currentScope = scope,
+                        recordedValues = scopeToValues.getOrPut(scope) { MutableObjectIntMap() },
+                    )
+                }
             }
         }
 
