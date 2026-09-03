@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.creation.compose.shapes
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
@@ -33,18 +34,28 @@ import androidx.compose.ui.unit.LayoutDirection
  * @param bottomStart a size of the bottom start corner
  * @see RemoteRoundedCornerShape for an example of the usage.
  */
-public abstract class RemoteCornerBasedShape(
+public abstract class RemoteCornerBasedShape
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public constructor(
     public val topStart: RemoteCornerSize,
     public val topEnd: RemoteCornerSize,
     public val bottomEnd: RemoteCornerSize,
     public val bottomStart: RemoteCornerSize,
 ) : RemoteShape {
-
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     final override fun createOutline(
         size: RemoteSize,
         density: RemoteDensity,
         layoutDirection: LayoutDirection,
-    ): RemoteOutline = createOutline(size, density, layoutDirection, 0f.rf)
+    ): RemoteOutline {
+        return createOutline(
+            size = size,
+            density = density,
+            layoutDirection = layoutDirection,
+            strokeWidth = 0f.rf,
+            offset = RemoteOffset.Zero,
+        )
+    }
 
     /**
      * Creates a [RemoteOutline] for this shape, optionally configured for drawing a stroked border.
@@ -58,6 +69,7 @@ public abstract class RemoteCornerBasedShape(
      * @param offset the top-left offset of the outline (defaults to `(strokeWidth/2,
      *   strokeWidth/2)` for stroked borders)
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun createOutline(
         size: RemoteSize,
         density: RemoteDensity,
@@ -108,13 +120,32 @@ public abstract class RemoteCornerBasedShape(
      * @param size the resolved size of the shape outline
      * @param offset the top-left offset of the shape outline
      */
-    public abstract fun createOutline(
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public open fun createOutline(
         topStart: RemoteFloat,
         topEnd: RemoteFloat,
         bottomEnd: RemoteFloat,
         bottomStart: RemoteFloat,
         size: RemoteSize? = null,
         offset: RemoteOffset = RemoteOffset.Zero,
+    ): RemoteOutline {
+        return createOutline(topStart, topEnd, bottomEnd, bottomStart)
+    }
+
+    /**
+     * Creates [RemoteOutline] of this shape.
+     *
+     * @param topStart the resolved size of the top start corner
+     * @param topEnd the resolved size for the top end corner
+     * @param bottomEnd the resolved size for the bottom end corner
+     * @param bottomStart the resolved size for the bottom start corner
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public abstract fun createOutline(
+        topStart: RemoteFloat,
+        topEnd: RemoteFloat,
+        bottomEnd: RemoteFloat,
+        bottomStart: RemoteFloat,
     ): RemoteOutline
 
     /**
@@ -125,6 +156,7 @@ public abstract class RemoteCornerBasedShape(
      * @param bottomEnd a size of the bottom end corner
      * @param bottomStart a size of the bottom start corner
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract fun copy(
         topStart: RemoteCornerSize = this.topStart,
         topEnd: RemoteCornerSize = this.topEnd,

@@ -30,7 +30,6 @@ import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
-import androidx.compose.remote.creation.compose.shapes.drawOutline
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -39,7 +38,6 @@ import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -168,8 +166,10 @@ class RemoteShapeTest {
                 val w = width
                 val h = height
                 val size = RemoteSize(w, h)
-                val paint = RemotePaint { color = Color.Red.rc }
-                drawOutline(shape.createOutline(size, remoteDensity, layoutDirection), paint)
+                val paint = RemotePaint { color = androidx.compose.ui.graphics.Color.Red.rc }
+                with(shape.createOutline(size, remoteDensity, layoutDirection)) {
+                    drawOutline(paint)
+                }
             }
         }
     }

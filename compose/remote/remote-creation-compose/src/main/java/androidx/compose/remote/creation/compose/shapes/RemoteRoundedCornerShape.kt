@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.shapes
 
 import androidx.annotation.IntRange
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteDp
@@ -35,7 +36,9 @@ import androidx.compose.ui.unit.LayoutDirection
  * @param bottomEnd a size of the bottom end corner
  * @param bottomStart a size of the bottom start corner
  */
-public class RemoteRoundedCornerShape(
+public class RemoteRoundedCornerShape
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+constructor(
     topStart: RemoteCornerSize,
     topEnd: RemoteCornerSize,
     bottomEnd: RemoteCornerSize,
@@ -47,6 +50,7 @@ public class RemoteRoundedCornerShape(
         bottomEnd = bottomEnd,
         bottomStart = bottomStart,
     ) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun createOutline(
         topStart: RemoteFloat,
         topEnd: RemoteFloat,
@@ -65,6 +69,17 @@ public class RemoteRoundedCornerShape(
         )
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun createOutline(
+        topStart: RemoteFloat,
+        topEnd: RemoteFloat,
+        bottomEnd: RemoteFloat,
+        bottomStart: RemoteFloat,
+    ): RemoteOutline {
+        return RemoteOutline.Rounded(topStart, topEnd, bottomEnd, bottomStart)
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun copy(
         topStart: RemoteCornerSize,
         topEnd: RemoteCornerSize,
@@ -91,6 +106,7 @@ public val RemoteRectangleShape: RemoteRoundedCornerShape = RemoteRoundedCornerS
  *
  * @param corner [RemoteCornerSize] to apply.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteRoundedCornerShape(corner: RemoteCornerSize): RemoteRoundedCornerShape =
     RemoteRoundedCornerShape(corner, corner, corner, corner)
 
@@ -107,6 +123,7 @@ public fun RemoteRoundedCornerShape(size: RemoteDp): RemoteRoundedCornerShape =
  *
  * @param size Size in pixels to apply.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteRoundedCornerShape(size: RemoteFloat): RemoteRoundedCornerShape =
     RemoteRoundedCornerShape(RemoteCornerSize(size))
 
@@ -115,11 +132,12 @@ public fun RemoteRoundedCornerShape(size: RemoteFloat): RemoteRoundedCornerShape
  *
  * @param percent Size in percents to apply.
  */
-public fun RemoteRoundedCornerShape(
-    @IntRange(from = 0, to = 100) percent: Int
-): RemoteRoundedCornerShape = RemoteRoundedCornerShape(RemoteCornerSize(percent))
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteRoundedCornerShape(percent: Int): RemoteRoundedCornerShape =
+    RemoteRoundedCornerShape(RemoteCornerSize(percent))
 
 /** Creates [RemoteRoundedCornerShape] with sizes defined in [RemoteDp]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteRoundedCornerShape(
     topStart: RemoteDp = 0.rdp,
     topEnd: RemoteDp = 0.rdp,
@@ -134,6 +152,7 @@ public fun RemoteRoundedCornerShape(
     )
 
 /** Creates [RemoteRoundedCornerShape] with sizes defined in pixels. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteRoundedCornerShape(
     topStart: RemoteFloat = 0.rf,
     topEnd: RemoteFloat = 0.rf,
@@ -159,6 +178,7 @@ public fun RemoteRoundedCornerShape(
  * @param bottomStartPercent The bottom start corner radius as a percentage of the smaller side,
  *   with a range of 0 - 100.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteRoundedCornerShape(
     @IntRange(from = 0, to = 100) topStartPercent: Int = 0,
     @IntRange(from = 0, to = 100) topEndPercent: Int = 0,

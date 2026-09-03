@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.shapes
 
 import androidx.annotation.IntRange
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
 import androidx.compose.remote.creation.compose.layout.RemoteSize
@@ -52,6 +53,7 @@ internal data class RemoteDpCornerSize(val size: RemoteDp) : RemoteCornerSize {
  *
  * @param size the corner size defined in pixels.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteCornerSize(size: RemoteFloat): RemoteCornerSize = PxCornerSize(size)
 
 internal data class PxCornerSize(val size: RemoteFloat) : RemoteCornerSize {

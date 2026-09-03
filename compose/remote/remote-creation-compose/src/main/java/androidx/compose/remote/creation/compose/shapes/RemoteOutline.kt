@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.creation.compose.shapes
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
@@ -36,8 +37,13 @@ import androidx.compose.ui.unit.LayoutDirection
 public sealed class RemoteOutline {
 
     /** Rectangular area. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class Rectangle(public val topLeft: RemoteOffset, public val size: RemoteSize) :
-        RemoteOutline()
+        RemoteOutline() {
+        override fun RemoteDrawScope.drawOutline(paint: RemotePaint) {
+            drawRect(paint, topLeft, size)
+        }
+    }
 
     /**
      * Rectangular area with rounded corners.
@@ -53,54 +59,24 @@ public sealed class RemoteOutline {
      *   strokeWidth, height - strokeWidth)` for an inset stroked border). If null, defaults to the
      *   full canvas width and height.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class Rounded(
-        public val topStart: RemoteFloat,
-        public val topEnd: RemoteFloat,
-        public val bottomEnd: RemoteFloat,
-        public val bottomStart: RemoteFloat,
-        public val offset: RemoteOffset = RemoteOffset.Zero,
-        public val size: RemoteSize? = null,
-    ) : RemoteOutline()
-
-    /** An area defined as a path. */
-    public class Generic : RemoteOutline {
-        public val path: RemotePath?
-        internal val block: (RemotePathScope.() -> Unit)?
-
-        public constructor(path: RemotePath) : super() {
-            this.path = path
-            this.block = null
-        }
-
-        public constructor(block: RemotePathScope.() -> Unit) : super() {
-            this.path = null
-            this.block = block
-        }
-    }
-
-    private object NonExhaustive : RemoteOutline()
-}
-
-/**
- * Draws the [RemoteOutline] on a [RemoteDrawScope].
- *
- * @param outline the outline to draw.
- * @param paint the paint used for the drawing.
- */
-public fun RemoteDrawScope.drawOutline(outline: RemoteOutline, paint: RemotePaint) {
-    when (outline) {
-        is RemoteOutline.Rectangle -> {
-            drawRect(paint, outline.topLeft, outline.size)
-        }
-        is RemoteOutline.Rounded -> {
+        internal val topStart: RemoteFloat,
+        internal val topEnd: RemoteFloat,
+        internal val bottomEnd: RemoteFloat,
+        internal val bottomStart: RemoteFloat,
+        internal val offset: RemoteOffset = RemoteOffset.Zero,
+        internal val size: RemoteSize? = null,
+    ) : RemoteOutline() {
+        override fun RemoteDrawScope.drawOutline(paint: RemotePaint) {
             // Compute the bounding rectangle [left, top, right, bottom] from origin `offset`
             // and dimensions `size`. When drawing a centered stroke of width S, `offset` is
             // (S/2, S/2) and `size` is (W - S, H - S), yielding bounds [S/2, S/2, W - S/2, H -
             // S/2].
-            val left = outline.offset.x
-            val top = outline.offset.y
-            val right = left + (outline.size?.width ?: width)
-            val bottom = top + (outline.size?.height ?: height)
+            val left = offset.x
+            val top = offset.y
+            val right = left + (this@Rounded.size?.width ?: width)
+            val bottom = top + (this@Rounded.size?.height ?: height)
 
             // Remap corner radii based on layout direction
             val rTopLeft: RemoteFloat
@@ -110,16 +86,16 @@ public fun RemoteDrawScope.drawOutline(outline: RemoteOutline, paint: RemotePain
 
             when (remoteCanvas.layoutDirection) {
                 LayoutDirection.Ltr -> {
-                    rTopLeft = outline.topStart
-                    rTopRight = outline.topEnd
-                    rBottomRight = outline.bottomEnd
-                    rBottomLeft = outline.bottomStart
+                    rTopLeft = topStart
+                    rTopRight = topEnd
+                    rBottomRight = bottomEnd
+                    rBottomLeft = bottomStart
                 }
                 LayoutDirection.Rtl -> {
-                    rTopLeft = outline.topEnd
-                    rTopRight = outline.topStart
-                    rBottomRight = outline.bottomStart
-                    rBottomLeft = outline.bottomEnd
+                    rTopLeft = topEnd
+                    rTopRight = topStart
+                    rBottomRight = bottomStart
+                    rBottomLeft = bottomEnd
                 }
             }
 
@@ -200,14 +176,32 @@ public fun RemoteDrawScope.drawOutline(outline: RemoteOutline, paint: RemotePain
             }
             drawPath(path, paint)
         }
-        is RemoteOutline.Generic -> {
-            val p = outline.path ?: outline.block?.let { remotePath(it) }
-            if (p != null) {
-                drawPath(p, paint)
-            }
-        }
-        else -> {}
     }
+
+    /** An area defined as a path. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public class Generic : RemoteOutline {
+        public val path: RemotePath?
+        private val block: (RemotePathScope.() -> Unit)?
+
+        public constructor(path: RemotePath) : super() {
+            this.path = path
+            this.block = null
+        }
+
+        public constructor(block: RemotePathScope.() -> Unit) : super() {
+            this.path = null
+            this.block = block
+        }
+
+        override fun RemoteDrawScope.drawOutline(paint: RemotePaint) {
+            val p = path ?: remotePath(block!!)
+            drawPath(p, paint)
+        }
+    }
+
+    /** Draws the outline to the canvas with paint. */
+    public abstract fun RemoteDrawScope.drawOutline(paint: RemotePaint)
 }
 
 private fun areEqual(a: RemoteFloat, b: RemoteFloat): Boolean =
