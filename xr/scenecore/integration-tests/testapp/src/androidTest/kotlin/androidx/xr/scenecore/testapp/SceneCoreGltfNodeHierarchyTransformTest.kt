@@ -71,7 +71,9 @@ class SceneCoreGltfNodeHierarchyTransformTest {
 
             val node = entity.nodes.first()
 
-            val targetLocalPose = Pose(translation = Vector3(0.5f, 0.2f, -0.3f))
+            val initialLocalRotation = node.localPose.rotation
+            val targetLocalPose =
+                Pose(translation = Vector3(0.5f, 0.2f, -0.3f), rotation = initialLocalRotation)
             node.localPose = targetLocalPose
             assertPose(node.localPose, targetLocalPose, 1e-4f)
 
@@ -79,7 +81,9 @@ class SceneCoreGltfNodeHierarchyTransformTest {
             node.localScale = targetLocalScale
             assertVector3(node.localScale, targetLocalScale, 1e-4f)
 
-            val targetModelPose = Pose(translation = Vector3(1.0f, 0.0f, -2.0f))
+            val initialModelRotation = node.modelPose.rotation
+            val targetModelPose =
+                Pose(translation = Vector3(1.0f, 0.0f, -2.0f), rotation = initialModelRotation)
             node.modelPose = targetModelPose
             assertPose(node.modelPose, targetModelPose, 1e-4f)
 
@@ -104,7 +108,9 @@ class SceneCoreGltfNodeHierarchyTransformTest {
             entity.setEnabled(false)
 
             val node = entity.nodes.first()
-            val hiddenPose = Pose(translation = Vector3(0.3f, 0.4f, 0.5f))
+            val initialRotation = node.localPose.rotation
+            val hiddenPose =
+                Pose(translation = Vector3(0.3f, 0.4f, 0.5f), rotation = initialRotation)
             node.localPose = hiddenPose
 
             val entityNewPose = Pose(translation = Vector3(1f, 2f, 3f))
