@@ -257,7 +257,12 @@ public open class ComponentActivity() :
 
     private val isExported: Boolean by lazy {
         try {
-            val info = packageManager.getActivityInfo(componentName, 0)
+            val info =
+                packageManager.getActivityInfo(
+                    componentName,
+                    PackageManager.MATCH_DIRECT_BOOT_AWARE or
+                        PackageManager.MATCH_DIRECT_BOOT_UNAWARE,
+                )
             info.exported
         } catch (_: PackageManager.NameNotFoundException) {
             false
