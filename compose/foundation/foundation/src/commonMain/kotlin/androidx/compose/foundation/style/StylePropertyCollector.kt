@@ -26,6 +26,8 @@ import androidx.compose.animation.core.spring
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.unit.Density
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 @OptIn(ExperimentalFoundationStyleApi::class)
 private typealias SpecMap = MutableScatterMap<StyleProperty<*>, AnimationSpec<Float>>
@@ -258,19 +260,21 @@ private fun <T> ScatterSet<T>?.unionInto(
 ): MutableScatterSet<T>? {
     var newUnion = union
     newUnion.clearIfNotNull()
-
-    when {
-        this == null || isEmpty() -> {}
-        other == null || other.isEmpty() ->
-            (newUnion ?: mutableScatterSetOf<T>().also { newUnion = it }).addAll(this)
-        else -> {
-            (newUnion ?: mutableScatterSetOf<T>().also { newUnion = it }).let {
-                it.addAll(this@unionInto)
-                it.addAll(other)
-            }
-        }
+    if (isNotNullOrEmpty()) {
+        (newUnion ?: mutableScatterSetOf<T>().also { newUnion = it }).addAll(this)
+    }
+    if (other.isNotNullOrEmpty()) {
+        (newUnion ?: mutableScatterSetOf<T>().also { newUnion = it }).addAll(other)
     }
     return newUnion
+}
+
+@OptIn(ExperimentalContracts::class)
+private fun <T> ScatterSet<T>?.isNotNullOrEmpty(): Boolean {
+    contract {
+        returns(true) implies (this@isNotNullOrEmpty != null)
+    }
+    return this != null && isNotEmpty()
 }
 
 internal fun <T> MutableScatterSet<T>?.clearIfNotNull() = this?.let { if (isNotEmpty()) clear() }
