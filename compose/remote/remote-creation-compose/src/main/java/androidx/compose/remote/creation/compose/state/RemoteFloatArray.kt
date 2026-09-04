@@ -65,12 +65,48 @@ internal constructor(
                 }
             }
         },
+        IdList {
+            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+                "${args[0].toDebugString()}.asIdList()"
+
+            override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> = args[0]
+        },
     }
 
+    private val idListCacheKey: RemoteStateCacheKey =
+        RemoteOperationCacheKey.create(OperationKey.IdList, this)
+
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
+        // If this instance represents an existing allocated ID (e.g. a formal parameter in a
+        // pattern definition), return that ID directly instead of writing to the document.
+        if (cacheKey is RemoteStateIdKey) {
+            return (cacheKey as RemoteStateIdKey).id
+        }
         val asFloat =
             with(creationState) { constantValueOrNull!!.fastMap { it.floatId }.toFloatArray() }
         return Utils.idFromNan(creationState.document.addFloatArray(asFloat))
+    }
+
+    /**
+     * Returns an ID for this array represented as an ID list collection.
+     *
+     * Writes each float element as a variable into the document and collects their IDs into a
+     * [androidx.compose.remote.core.operations.DataListIds], suitable for pattern iteration.
+     *
+     * @param creationState creation state associated with the document being written
+     * @return document ID allocated for the ID list
+     */
+    internal fun getIdListForCreationState(creationState: RemoteComposeCreationState): Int {
+        if (cacheKey is RemoteStateIdKey) {
+            return (cacheKey as RemoteStateIdKey).id
+        }
+        return creationState.getOrPutVariableId(idListCacheKey) {
+            val ids =
+                constantValueOrNull!!
+                    .fastMap { it.getIdForCreationState(creationState) }
+                    .toIntArray()
+            Utils.idFromNan(creationState.document.addList(ids))
+        }
     }
 
     /**
@@ -78,8 +114,10 @@ internal constructor(
      * dereference operation on a remote float array.
      */
     public operator fun get(v: RemoteFloat): RemoteFloat {
-        v.constantValueOrNull?.let {
-            return constantValueOrNull!![it.toInt()]
+        val constArray = constantValueOrNull
+        val constIndex = v.constantValueOrNull
+        if (constArray != null && constIndex != null) {
+            return constArray[constIndex.toInt()]
         }
         return RemoteFloatExpression(
             constantValueOrNull = null,
@@ -97,15 +135,18 @@ internal constructor(
      * Array access operator for [RemoteFloatArray] with an [Int] index. Performs a dereference
      * operation on a remote float array.
      */
-    public operator fun get(v: Int): RemoteFloat = constantValueOrNull!![v]
+    public operator fun get(v: Int): RemoteFloat =
+        constantValueOrNull?.get(v) ?: get(RemoteFloat(v.toFloat()))
 
     /**
      * Array access operator for [RemoteFloatArray] with a [RemoteInt] index. Performs a dereference
      * operation on a remote float array.
      */
     public operator fun get(v: RemoteInt): RemoteFloat {
-        v.constantValueOrNull?.let {
-            return constantValueOrNull!![it]
+        val constArray = constantValueOrNull
+        val constIndex = v.constantValueOrNull
+        if (constArray != null && constIndex != null) {
+            return constArray[constIndex]
         }
         return RemoteFloatExpression(
             constantValueOrNull = null,
