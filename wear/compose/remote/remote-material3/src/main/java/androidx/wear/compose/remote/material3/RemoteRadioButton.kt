@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.wear.compose.remote.material3
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
@@ -119,7 +116,6 @@ public fun RemoteRadioButton(
 }
 
 /** Contains the default values used by [RemoteRadioButton]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RemoteRadioButtonDefaults {
     /** The default height of [RemoteRadioButton]. */
     public val Height: RemoteDp = 52.rdp
@@ -307,7 +303,6 @@ public object RemoteRadioButtonDefaults {
  * @param disabledUnselectedControlColor Control color when unselected and disabled.
  */
 @Immutable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteRadioButtonColors(
     public val selectedContainerColor: RemoteColor,
     public val selectedContentColor: RemoteColor,
