@@ -92,6 +92,8 @@ class ScrollableListActivity : ComponentActivity() {
             MODE_COMPOSE -> setContent { LiveCompose() }
             MODE_WEB_VIEW -> setWebViewContent()
             MODE_REMOTE_VIEW -> setRemoteViewsScrollContent()
+            MODE_EMBEDDED_PLAYER -> setContent { RemoteCompose(playerMode = MODE_EMBEDDED_PLAYER) }
+            MODE_JAVA_PLAYER -> setContent { RemoteCompose(playerMode = MODE_JAVA_PLAYER) }
             else -> setContent { RemoteCompose() }
         }
     }
@@ -192,7 +194,7 @@ class ScrollableListActivity : ComponentActivity() {
     }
 
     @Composable
-    fun RemoteCompose() {
+    fun RemoteCompose(playerMode: String = MODE_JAVA_PLAYER) {
         var documentBytes by remember { mutableStateOf<ByteArray?>(null) }
         val context = LocalContext.current
         LaunchedEffect(Unit) {
@@ -220,6 +222,6 @@ class ScrollableListActivity : ComponentActivity() {
                     .bytes
         }
 
-        documentBytes?.let { RemoteComposePlayer(it) }
+        documentBytes?.let { RemotePlayerHost(playerMode = playerMode, remoteDocumentBytes = it) }
     }
 }

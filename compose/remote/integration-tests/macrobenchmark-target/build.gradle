@@ -43,6 +43,7 @@ dependencies {
     implementation(project(":compose:remote:remote-creation-core"))
     implementation(project(":compose:remote:remote-player-compose"))
     implementation(project(":compose:remote:remote-player-core"))
+    implementation(project(":compose:remote:remote-player-view"))
     implementation("androidx.core:core-remoteviews:1.1.0")
     implementation("androidx.compose.foundation:foundation-layout:1.12.0")
     implementation("androidx.compose.ui:ui:1.12.0")
