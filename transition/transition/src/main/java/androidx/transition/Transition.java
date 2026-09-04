@@ -2122,8 +2122,10 @@ public abstract class Transition implements Cloneable {
         if (mSeekingCloneRoot != null) {
             Transition seekingClone = mSeekingCloneRoot;
             mSeekingCloneRoot = null;
-            seekingClone.removeSeekingAnimators();
+            seekingClone.cancel();
         }
+
+        ArrayMap<Animator, AnimationInfo> runningAnimators = getRunningAnimators();
         int numAnimators = mCurrentAnimators.size();
         Animator[] cache = mCurrentAnimators.toArray(mAnimatorCache);
         mAnimatorCache = EMPTY_ANIMATOR_ARRAY;
@@ -2131,6 +2133,7 @@ public abstract class Transition implements Cloneable {
             Animator animator = cache[i];
             cache[i] = null;
             animator.cancel();
+            runningAnimators.remove(animator);
         }
         mAnimatorCache = cache;
         notifyListeners(TransitionNotification.ON_CANCEL, false);
