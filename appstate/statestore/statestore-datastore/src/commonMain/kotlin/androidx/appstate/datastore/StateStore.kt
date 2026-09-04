@@ -27,7 +27,6 @@ import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.okio.OkioStorage
-import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.allSupertypes
 import kotlinx.coroutines.CoroutineScope
@@ -41,9 +40,10 @@ import okio.FileSystem
 import okio.Path.Companion.toPath
 
 /**
- * Tracks changes to [StateStore] and persists annotated keys to a [DataStore] backed by a file.
+ * Tracks changes to [StateStore] and persists keys implementing [PersistToDataStore] to a
+ * [DataStore] backed by a file.
  *
- * Keys must be annotated with [PersistToDataStore] to be saved.
+ * Keys must implement [PersistToDataStore] to be saved.
  *
  * @sample androidx.appstate.datastore.samples.SyncStateStoreDataStorePathSample
  * @param path the file path to save and restore state from
@@ -60,9 +60,9 @@ public suspend fun StateStore.syncToDataStore(path: String, coroutineScope: Coro
 }
 
 /**
- * Tracks changes to [StateStore] and syncs annotated keys to [DataStore].
+ * Tracks changes to [StateStore] and syncs keys implementing [PersistToDataStore] to [DataStore].
  *
- * Keys must be annotated with [PersistToDataStore] to be saved.
+ * Keys must implement [PersistToDataStore] to be saved.
  *
  * @sample androidx.appstate.datastore.samples.SyncStateStoreDataStoreSample
  * @param dataStore the [DataStore] used to save and restore state
@@ -72,7 +72,7 @@ public suspend fun StateStore.syncToDataStore(dataStore: DataStore<StateStorePre
     listener {
         val activeKeys = keys
         for (key in activeKeys) {
-            if (key::class.hasAnnotation<PersistToDataStore>()) {
+            if (key is PersistToDataStore) {
                 val restored = remember(key) { mutableStateOf(false) }
                 val restoredValue = remember(key) { mutableStateOf<Any?>(null) }
                 val state = getUntypedState<Any>(key, null)
@@ -82,7 +82,7 @@ public suspend fun StateStore.syncToDataStore(dataStore: DataStore<StateStorePre
                     val preferences = dataStore.data.first()
                     val keyName =
                         checkNotNull(key::class.qualifiedName) {
-                            "Keys annotated with @PersistToDataStore must have a qualified name."
+                            "Keys implementing PersistToDataStore must have a qualified name."
                         }
                     val valueJson = preferences.asMap()[keyName]
                     if (valueJson != null) {
@@ -110,7 +110,7 @@ public suspend fun StateStore.syncToDataStore(dataStore: DataStore<StateStorePre
                         if (value != null && value != restoredValue.value) {
                             val keyName =
                                 checkNotNull(key::class.qualifiedName) {
-                                    "Keys annotated with @PersistToDataStore must have a qualified name."
+                                    "Keys implementing PersistToDataStore must have a qualified name."
                                 }
                             withContext(Dispatchers.IO) {
                                 dataStore.edit { settings ->
@@ -146,13 +146,6 @@ private fun StateStoreKey<*>.getValueType(): KType {
         this::class.allSupertypes.firstOrNull { it.classifier == StateStoreKey::class }
     return stateStoreKeySupertype?.arguments?.firstOrNull()?.type
         ?: error("Could not find StateStoreKey supertype for ")
-}
-
-private inline fun <reified T : Annotation> KClass<*>.hasAnnotation(): Boolean {
-    for (i in this.annotations.indices) {
-        if (this.annotations[i] is T) return true
-    }
-    return false
 }
 
 @Suppress("UNCHECKED_CAST")

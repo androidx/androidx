@@ -27,7 +27,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
 
-@Serializable @PersistToDataStore private object SampleKey : StateStoreKey<String>("default")
+@Serializable private object SampleKey : StateStoreKey<String>("default"), PersistToDataStore
 
 @Sampled
 suspend fun SyncStateStoreDataStoreSample(dataStore: DataStore<StateStorePreferences>) {
