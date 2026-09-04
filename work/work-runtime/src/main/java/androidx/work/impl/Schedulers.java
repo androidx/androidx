@@ -28,6 +28,7 @@ import androidx.work.Clock;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.Logger;
+import androidx.work.WorkInfo;
 import androidx.work.impl.background.systemjob.SystemJobScheduler;
 import androidx.work.impl.background.systemjob.SystemJobService;
 import androidx.work.impl.model.WorkSpec;
@@ -121,12 +122,24 @@ public class Schedulers {
                 eligibleWorkSpecsForLimitedSlots = workSpecDao.getEligibleWorkForScheduling(
                         configuration.getMaxSchedulerLimit());
             } else {
+                List<WorkSpec> scheduledWork = workSpecDao.getScheduledWork();
+                int runningCount = 0;
+                List<WorkSpec> enqueuedScheduledWork = new ArrayList<>();
+                for (WorkSpec workSpec : scheduledWork) {
+                    if (workSpec.state == WorkInfo.State.RUNNING) {
+                        runningCount++;
+                    } else {
+                        enqueuedScheduledWork.add(workSpec);
+                    }
+                }
 
+                int availableSlots = Math.max(
+                        configuration.getMaxSchedulerLimit() - runningCount, 0);
                 Set<WorkSpec> uniqueConstraintsPrioritySet =
                         getRepresentativeJobsPrioritizedWorkToSchedule(
                                 workSpecDao.getAllUnblockedWork(),
-                                configuration.getMaxSchedulerLimit());
-                for (WorkSpec workSpec : workSpecDao.getScheduledWork()) {
+                                availableSlots);
+                for (WorkSpec workSpec : enqueuedScheduledWork) {
                     // Remove workSpecs that are already scheduled from the priority set.
                     // Collect those that are no longer in the priority set since they should be
                     // unscheduled.
@@ -183,6 +196,15 @@ public class Schedulers {
 
     private static void cancelWorkSpecsForLimitedSlots(
             @NonNull List<WorkSpec> workSpecs, @NonNull List<Scheduler> schedulers) {
+        if (workSpecs.isEmpty()) {
+            return;
+        }
+
+        Logger.get().debug(TAG,
+                "Cancelling " + workSpecs.size()
+                        + " workSpecs that are no longer representative: "
+                        + workSpecs);
+
         for (Scheduler scheduler : schedulers) {
             if (!scheduler.hasLimitedSchedulingSlots()) {
                 continue;
@@ -212,6 +234,10 @@ public class Schedulers {
      */
     private static @NonNull Set<WorkSpec> getRepresentativeJobsPrioritizedWorkToSchedule(
             @NonNull List<WorkSpec> allEligibleWorkSpecs, int maxSlots) {
+        if (maxSlots <= 0) {
+            return Collections.emptySet();
+        }
+
         if (allEligibleWorkSpecs.size() <= maxSlots) {
             return new HashSet<>(allEligibleWorkSpecs);
         }
