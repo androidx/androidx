@@ -38,17 +38,17 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-data class PerfettoStartResult(
+public data class PerfettoStartResult(
     /** `true` iff in-process tracing is enabled during capture start */
-    val inProcessTracingEnabled: Boolean = false,
+    public val inProcessTracingEnabled: Boolean = false,
     /** `true` iff perfetto sdk is enabled during capture start */
-    val isPerfettoSdkEnabled: Boolean = false,
+    public val isPerfettoSdkEnabled: Boolean = false,
     /** `true` iff system tracing is enabled */
-    val started: Boolean = false,
+    public val started: Boolean = false,
 )
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class PerfettoCaptureWrapper {
+public class PerfettoCaptureWrapper {
     private var capture: PerfettoCapture? = null
     private val traceEnabledProp = "persist.traced.enable"
 
@@ -56,15 +56,15 @@ class PerfettoCaptureWrapper {
         capture = PerfettoCapture()
     }
 
-    companion object {
-        val inUseLock = Any()
+    public companion object {
+        public val inUseLock: Any = Any()
 
         /**
          * Prevents re-entrance of perfetto trace capture, as it doesn't handle this correctly
          *
          * (Single file output location, process cleanup, etc.)
          */
-        var inUse = false
+        public var inUse: Boolean = false
     }
 
     private fun start(
@@ -142,7 +142,7 @@ class PerfettoCaptureWrapper {
     }
 
     /** Starts in-process tracing in the [TracingLibraryConfig.targetPackage] */
-    fun startInProcessTracing(config: TracingLibraryConfig): Response {
+    public fun startInProcessTracing(config: TracingLibraryConfig): Response {
         return inMemoryTrace("start in-process tracing") {
             val connectedProfiler = ConnectedProfilerTracing(targetPackage = config.targetPackage)
             connectedProfiler.enable()
@@ -150,7 +150,7 @@ class PerfettoCaptureWrapper {
     }
 
     /** Stops in-process tracing in the [TracingLibraryConfig.targetPackage] */
-    fun stopInProcessTracing(config: TracingLibraryConfig): List<String> {
+    public fun stopInProcessTracing(config: TracingLibraryConfig): List<String> {
         return inMemoryTrace("stop in-process tracing") {
             val connectedProfiler = ConnectedProfilerTracing(targetPackage = config.targetPackage)
             with(connectedProfiler) {
@@ -170,7 +170,7 @@ class PerfettoCaptureWrapper {
     }
 
     @OptIn(ExperimentalContracts::class)
-    fun record(
+    public fun record(
         fileLabel: String,
         config: PerfettoConfig,
         tracingLibraryConfig: TracingLibraryConfig?,

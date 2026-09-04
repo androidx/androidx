@@ -49,10 +49,10 @@ import java.io.OutputStream
  * [Shell.executeScriptSilent] for android multiuser.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-sealed class VirtualFile {
+public sealed class VirtualFile {
 
-    companion object {
-        fun fromPath(path: String): VirtualFile {
+    public companion object {
+        public fun fromPath(path: String): VirtualFile {
             val file = File(path)
             // It's only a `UserFile` iff we have the ability to write to the path,
             // or it's parentFile.
@@ -76,32 +76,32 @@ sealed class VirtualFile {
         }
     }
 
-    abstract val absolutePath: String
-    abstract val fileType: String
+    public abstract val absolutePath: String
+    public abstract val fileType: String
 
-    fun writeText(content: String) = copyFrom(content.byteInputStream())
+    public fun writeText(content: String): Unit = copyFrom(content.byteInputStream())
 
-    fun writeBytes(bytes: ByteArray) = copyFrom(bytes.inputStream())
+    public fun writeBytes(bytes: ByteArray): Unit = copyFrom(bytes.inputStream())
 
-    fun readText(): String = useInputStream { it.bufferedReader().readText() }
+    public fun readText(): String = useInputStream { it.bufferedReader().readText() }
 
-    fun readBytes(): ByteArray = useInputStream { it.readBytes() }
+    public fun readBytes(): ByteArray = useInputStream { it.readBytes() }
 
-    abstract fun delete(): Boolean
+    public abstract fun delete(): Boolean
 
     protected abstract fun <T> useInputStream(block: (InputStream) -> (T)): T
 
     protected abstract fun useOutputStream(block: (OutputStream) -> (Unit))
 
-    fun copyFrom(otherInputStream: InputStream) = useOutputStream { o ->
+    public fun copyFrom(otherInputStream: InputStream): Unit = useOutputStream { o ->
         otherInputStream.copyTo(o)
     }
 
-    fun copyTo(otherOutputStream: OutputStream) = useInputStream { i ->
+    public fun copyTo(otherOutputStream: OutputStream): Long = useInputStream { i ->
         i.copyTo(otherOutputStream)
     }
 
-    fun copyFrom(otherVirtualFile: VirtualFile) {
+    public fun copyFrom(otherVirtualFile: VirtualFile) {
         if (this is ShellFile && otherVirtualFile is ShellFile) {
             // Optimization: reading and writing a shell file require 2 processes to run.
             // We don't need to do that if the file is copied in shell storage.
@@ -111,7 +111,7 @@ sealed class VirtualFile {
         otherVirtualFile.useInputStream { i -> useOutputStream { o -> i.copyTo(o) } }
     }
 
-    fun copyTo(otherVirtualFile: VirtualFile) {
+    public fun copyTo(otherVirtualFile: VirtualFile) {
         if (this is ShellFile && otherVirtualFile is ShellFile) {
             // Optimization: reading and writing a shell file require 2 processes to run.
             // We don't need to do that if the file is copied in shell storage.
@@ -121,7 +121,7 @@ sealed class VirtualFile {
         useInputStream { i -> otherVirtualFile.useOutputStream { o -> i.copyTo(o) } }
     }
 
-    fun moveTo(otherVirtualFile: VirtualFile) {
+    public fun moveTo(otherVirtualFile: VirtualFile) {
         if (this is ShellFile && otherVirtualFile is ShellFile) {
             // Optimization: reading and writing a shell file require 2 processes to run.
             // We don't need to do that if the file is moved in shell storage.
@@ -131,52 +131,56 @@ sealed class VirtualFile {
         copyTo(otherVirtualFile).also { this.delete() }
     }
 
-    abstract fun executeCommand(block: (String) -> String): String
+    public abstract fun executeCommand(block: (String) -> String): String
 
-    fun md5sum(): String = executeCommand { "md5sum $it" }.substringBefore(" ")
+    public fun md5sum(): String = executeCommand { "md5sum $it" }.substringBefore(" ")
 
-    fun chmod(args: String) = executeCommand { "chmod $args $it" }
+    public fun chmod(args: String): String = executeCommand { "chmod $args $it" }
 
-    fun ls(): List<String> = executeCommand { "ls -1 $it" }.lines().filter { it.isNotBlank() }
+    public fun ls(): List<String> = executeCommand {
+        "ls -1 $it"
+    }
+        .lines()
+        .filter { it.isNotBlank() }
 
-    fun listFiles(): List<String> = executeCommand {
+    public fun listFiles(): List<String> = executeCommand {
         "ls -1tp $it"
     }
         .lines()
         .filter { it.isNotBlank() && !it.endsWith("/") }
 
-    abstract fun mkdir()
+    public abstract fun mkdir()
 
-    abstract fun exists(): Boolean
+    public abstract fun exists(): Boolean
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class UserFile(private val file: File) : VirtualFile() {
+public class UserFile(private val file: File) : VirtualFile() {
 
-    companion object {
-        fun inOutputsDir(name: String): UserFile {
+    public companion object {
+        public fun inOutputsDir(name: String): UserFile {
             val file = File(Outputs.dirUsableByAppAndShell, name)
             return UserFile(file)
         }
     }
 
-    constructor(path: String) : this(File(path))
+    public constructor(path: String) : this(File(path))
 
-    override val absolutePath: String
+    public override val absolutePath: String
         get() = file.absolutePath
 
-    override val fileType: String
+    public override val fileType: String
         get() = "UserFile"
 
-    override fun <T> useInputStream(block: (InputStream) -> T): T =
+    public override fun <T> useInputStream(block: (InputStream) -> T): T =
         file.inputStream().use { block(it) }
 
-    override fun useOutputStream(block: (OutputStream) -> Unit) =
+    public override fun useOutputStream(block: (OutputStream) -> Unit): Unit =
         file.outputStream().use { block(it) }
 
-    override fun delete() = file.deleteRecursively()
+    public override fun delete(): Boolean = file.deleteRecursively()
 
-    override fun executeCommand(block: (String) -> String): String {
+    public override fun executeCommand(block: (String) -> String): String {
         val cmd = block(absolutePath)
         return trace("UserFile#executeCommand $cmd".take(127)) {
             DataInputStream(Runtime.getRuntime().exec(cmd).inputStream)
@@ -186,29 +190,29 @@ class UserFile(private val file: File) : VirtualFile() {
         }
     }
 
-    override fun mkdir() {
+    public override fun mkdir() {
         file.mkdirs()
     }
 
-    override fun exists() = file.exists()
+    public override fun exists(): Boolean = file.exists()
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class ShellFile(override val absolutePath: String) : VirtualFile() {
+public class ShellFile(public override val absolutePath: String) : VirtualFile() {
 
     override val fileType: String
         get() = "ShellFile"
 
-    companion object {
+    public companion object {
         private const val TAG = "ShellFile"
         private val uiAutomation: UiAutomation =
             InstrumentationRegistry.getInstrumentation().uiAutomation
         private val rootState by lazy { RootState.check() }
 
-        fun inTempDir(name: String) = ShellFile("/data/local/tmp/", name)
+        public fun inTempDir(name: String): ShellFile = ShellFile("/data/local/tmp/", name)
     }
 
-    constructor(
+    public constructor(
         directory: String,
         filename: String,
     ) : this("${if (directory.endsWith("/")) directory else "$directory/"}$filename")

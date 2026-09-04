@@ -22,28 +22,28 @@ import java.io.File
 import java.io.IOException
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object CpuInfo {
+public object CpuInfo {
     private const val TAG = "Benchmark"
 
-    val coreDirs: List<CoreDir>
-    val locked: Boolean
-    val maxFreqHz: Long
+    public val coreDirs: List<CoreDir>
+    public val locked: Boolean
+    public val maxFreqHz: Long
 
     /** Representation of clock info in `/sys/devices/system/cpu/cpu#/` */
-    data class CoreDir(
-        val path: String,
+    public data class CoreDir(
+        public val path: String,
 
         // online, or true if can't access
-        val online: Boolean,
+        public val online: Boolean,
 
         // sorted list of scaling_available_frequencies, or listOf(-1) if can't access
-        val availableFreqs: List<Long>,
+        public val availableFreqs: List<Long>,
 
         // scaling_setspeed, or scaling_min_freq if inaccessible, or -1 if can't access either
-        val setSpeedKhz: Long,
+        public val setSpeedKhz: Long,
 
         // cpuinfo_max_freq, or -1 if can't access
-        val maxFreqKhz: Long,
+        public val maxFreqKhz: Long,
     )
 
     init {
@@ -96,7 +96,7 @@ object CpuInfo {
         coreDirs.forEach { coreDir -> Log.d(TAG, coreDir.toString()) }
     }
 
-    fun isCpuLocked(coreDirs: List<CoreDir>): Boolean {
+    public fun isCpuLocked(coreDirs: List<CoreDir>): Boolean {
         val onlineCores = coreDirs.filter { it.online }
 
         onlineCores
@@ -133,10 +133,10 @@ object CpuInfo {
         }
     }
 
-    object Error {
-        const val ID = "UNLOCKED"
-        const val SUMMARY = "Unlocked CPU clocks"
-        const val MESSAGE =
+    public object Error {
+        public const val ID: String = "UNLOCKED"
+        public const val SUMMARY: String = "Unlocked CPU clocks"
+        public const val MESSAGE: String =
             """
                 |    Benchmark appears to be running on a rooted device with unlocked CPU
                 |    clocks. Unlocked CPU clocks can lead to inconsistent results due to
@@ -146,7 +146,7 @@ object CpuInfo {
                 |    in the arguments.
             """
 
-        fun hasError() =
+        public fun hasError(): Boolean =
             Arguments.requireLockedClocks &&
                 !DeviceInfo.isEmulator &&
                 DeviceInfo.isRooted &&

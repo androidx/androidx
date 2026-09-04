@@ -34,7 +34,7 @@ import java.io.IOException
  * file to destination folder.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class PerfettoHelper(
+public class PerfettoHelper(
     private val unbundled: Boolean = Build.VERSION.SDK_INT < MIN_BUNDLED_SDK_VERSION
 ) {
     init {
@@ -44,7 +44,7 @@ class PerfettoHelper(
         }
     }
 
-    var perfettoPid: Int? = null
+    public var perfettoPid: Int? = null
 
     /** --background-wait requires unbundled or API 33 bundled version of perfetto */
     private val useBackgroundWait = unbundled || Build.VERSION.SDK_INT >= 33
@@ -311,11 +311,11 @@ class PerfettoHelper(
     // Perfetto executable
     private val perfettoProcessName = if (unbundled) "tracebox" else "perfetto"
 
-    companion object {
+    public companion object {
         internal const val LOG_TAG = "PerfettoCapture"
 
-        const val MIN_SDK_VERSION = 23
-        const val MIN_BUNDLED_SDK_VERSION = 29
+        public const val MIN_SDK_VERSION: Int = 23
+        public const val MIN_BUNDLED_SDK_VERSION: Int = 29
 
         // Command to start the perfetto tracing in the background.
         // perfetto --background -c /data/misc/perfetto-traces/trace_config.pb -o
@@ -365,16 +365,16 @@ class PerfettoHelper(
         private const val TRACING_ON_PATH = "/sys/kernel/tracing/tracing_on"
         private const val TRACING_ON_FALLBACK_PATH = "/sys/kernel/debug/tracing/tracing_on"
 
-        fun isAbiSupported(): Boolean {
+        public fun isAbiSupported(): Boolean {
             Log.d(LOG_TAG, "Supported ABIs: ${Build.SUPPORTED_ABIS.joinToString()}")
             return Build.SUPPORTED_64_BIT_ABIS.any { SUPPORTED_64_ABIS.contains(it) } ||
                 Build.SUPPORTED_32_BIT_ABIS.any { SUPPORTED_32_ABIS.contains(it) }
         }
 
         @get:VisibleForTesting
-        val unbundledPerfettoShellPath: String by lazy { createExecutable("tracebox") }
+        public val unbundledPerfettoShellPath: String by lazy { createExecutable("tracebox") }
 
-        fun createExecutable(tool: String): String {
+        public fun createExecutable(tool: String): String {
             inMemoryTrace("create executable: $tool") {
                 if (!isAbiSupported()) {
                     throw IllegalStateException(
@@ -412,7 +412,7 @@ class PerfettoHelper(
          * Parses the output of the perfetto start command, and pulls the `exitCode` and the `pid`
          * of the process from the output.
          */
-        fun parsePerfettoCommandOutput(output: String): Pair<Int, Int>? {
+        public fun parsePerfettoCommandOutput(output: String): Pair<Int, Int>? {
             val matchResult = PERFETTO_COMMAND_OUTPUT_REGEX.matchEntire(output)
             return if (matchResult == null) {
                 null
@@ -428,7 +428,7 @@ class PerfettoHelper(
             }
         }
 
-        fun cleanupPerfettoState(
+        public fun cleanupPerfettoState(
             killExistingPerfettoRecordings: Boolean = Arguments.killExistingPerfettoRecordings
         ) {
             if (killExistingPerfettoRecordings) {

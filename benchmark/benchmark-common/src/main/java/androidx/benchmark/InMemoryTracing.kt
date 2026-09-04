@@ -43,7 +43,7 @@ import perfetto.protos.TrackEvent
  * on-disk.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object InMemoryTracing {
+public object InMemoryTracing {
     /**
      * All events emitted by the benchmark annotation should have the same value. the value needs to
      * not conflict with any sequence id emitted in the trace. You can rely on the fact that traces
@@ -67,7 +67,7 @@ object InMemoryTracing {
      * For perf/simplicity, this isn't protected by a lock - it should only ever be accessed by the
      * test thread, and dumped/reset between tests.
      */
-    val events = mutableListOf<TracePacket>()
+    public val events: MutableList<TracePacket> = mutableListOf()
 
     /** Map of counter name to UUID, populated by [counterNameToTrackUuid] */
     private val counterTracks = mutableMapOf<String, Long>()
@@ -76,13 +76,13 @@ object InMemoryTracing {
         return counterTracks.getOrPut(name) { UUID + 1 + counterTracks.size }
     }
 
-    fun clearEvents() {
+    public fun clearEvents() {
         events.clear()
         counterTracks.clear()
     }
 
     /** Capture trace state, and return as a Trace(), which can be appended to a trace file. */
-    fun commitToTrace(label: String): Trace {
+    public fun commitToTrace(label: String): Trace {
         val capturedEvents = events.toList()
         val capturedCounterDescriptors = counterTracks.map { (name, uuid) ->
             TracePacket(
@@ -115,7 +115,7 @@ object InMemoryTracing {
         )
     }
 
-    fun beginSection(
+    public fun beginSection(
         label: String,
         nanoTime: Long = System.nanoTime(),
         counterNames: List<String> = emptyList(),
@@ -140,7 +140,7 @@ object InMemoryTracing {
         )
     }
 
-    fun endSection(nanoTime: Long = System.nanoTime()) {
+    public fun endSection(nanoTime: Long = System.nanoTime()) {
         events.add(
             TracePacket(
                 timestamp = nanoTime,
@@ -150,7 +150,7 @@ object InMemoryTracing {
         )
     }
 
-    fun counter(name: String, value: Double, nanoTime: Long = System.nanoTime()) {
+    public fun counter(name: String, value: Double, nanoTime: Long = System.nanoTime()) {
         events.add(
             TracePacket(
                 timestamp = nanoTime,
@@ -168,7 +168,7 @@ object InMemoryTracing {
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-inline fun <T> inMemoryTrace(label: String, block: () -> T): T {
+public inline fun <T> inMemoryTrace(label: String, block: () -> T): T {
     InMemoryTracing.beginSection(label)
     return try {
         block()

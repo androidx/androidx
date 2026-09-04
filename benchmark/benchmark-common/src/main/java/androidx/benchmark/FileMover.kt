@@ -28,8 +28,8 @@ import java.nio.file.Files
 /** Uses Java NIO APIs to move files. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(Build.VERSION_CODES.O)
-object FileMover {
-    fun File.moveTo(destination: File, overwrite: Boolean = false) {
+public object FileMover {
+    public fun File.moveTo(destination: File, overwrite: Boolean = false) {
         try {
             if (overwrite) {
                 destination.delete()

@@ -54,7 +54,7 @@ private fun List<Insight>.toObserved(linkFormat: LinkFormat): String {
  * [Insight.Category]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-fun List<Insight>.createInsightSummaries(): List<InsightSummary> {
+public fun List<Insight>.createInsightSummaries(): List<InsightSummary> {
     return this.groupBy { it.category }
         .map { (category, insights) ->
             InsightSummary(
@@ -84,8 +84,12 @@ fun List<Insight>.createInsightSummaries(): List<InsightSummary> {
  * TODO(364598145): generalize
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-data class InsightSummary(val category: String, val observedV2: String, val observedV3: String) {
-    constructor(
+public data class InsightSummary(
+    public val category: String,
+    public val observedV2: String,
+    public val observedV3: String,
+) {
+    public constructor(
         category: Insight.Category,
         insights: List<Insight>,
     ) : this(
