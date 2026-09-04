@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.5.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha01)" variant="all" version="9.5.0-alpha01">
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(InternalComposeTracingApi::class, ExperimentalContextPropagation::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/runtime/tracing/ComposeTracer.kt"/>
+    </issue>
+
+</issues>

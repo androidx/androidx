@@ -1,20 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.3.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.3.0-alpha05)" variant="all" version="9.3.0-alpha05">
+<issues format="6" by="lint 9.5.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha01)" variant="all" version="9.5.0-alpha01">
 
     <issue
         id="KotlinRunTestResultUnused"
         message="Result of runTest is ignored."
         errorLine1="        runEmptyComposeUiTest {"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/junit4/ComposeInFragmentTest.kt"/>
-    </issue>
-
-    <issue
-        id="KotlinRunTestResultUnused"
-        message="Result of runTest is ignored."
-        errorLine1="        runComposeUiTest {"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/junit4/ComposeInFragmentTest.kt"/>
     </issue>
@@ -67,34 +58,7 @@
     <issue
         id="KotlinRunTestResultUnused"
         message="Result of runTest is ignored."
-        errorLine1="        runComposeUiTest(effectContext = testElement) {"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/CustomEffectContextTest.kt"/>
-    </issue>
-
-    <issue
-        id="KotlinRunTestResultUnused"
-        message="Result of runTest is ignored."
-        errorLine1="        runComposeUiTest(effectContext = motionDurationScale) {"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/CustomEffectContextTest.kt"/>
-    </issue>
-
-    <issue
-        id="KotlinRunTestResultUnused"
-        message="Result of runTest is ignored."
-        errorLine1="        runComposeUiTest(effectContext = notATestDispatcher) {"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/CustomEffectContextTest.kt"/>
-    </issue>
-
-    <issue
-        id="KotlinRunTestResultUnused"
-        message="Result of runTest is ignored."
-        errorLine1="        runAndroidComposeUiTest&lt;ComponentActivity>(effectContext = StandardTestDispatcher()) {"
+        errorLine1="        runAndroidComposeUiTest&lt;ComponentActivity> {"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/CustomEffectContextTest.kt"/>
@@ -103,17 +67,8 @@
     <issue
         id="KotlinRunTestResultUnused"
         message="Result of runTest is ignored."
-        errorLine1="        runAndroidComposeUiTest&lt;ComponentActivity>(effectContext = UnconfinedTestDispatcher()) {"
+        errorLine1="        runAndroidComposeUiTest&lt;ComponentActivity>("
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/CustomEffectContextTest.kt"/>
-    </issue>
-
-    <issue
-        id="KotlinRunTestResultUnused"
-        message="Result of runTest is ignored."
-        errorLine1="        runComposeUiTest(scheduler) {"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/CustomEffectContextTest.kt"/>
     </issue>
@@ -139,17 +94,8 @@
     <issue
         id="KotlinRunTestResultUnused"
         message="Result of runTest is ignored."
-        errorLine1="        runComposeUiTest {"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/junit4/TimeOutTest.kt"/>
-    </issue>
-
-    <issue
-        id="KotlinRunTestResultUnused"
-        message="Result of runTest is ignored."
-        errorLine1="        runComposeUiTest {"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
+        errorLine1="        runAndroidComposeUiTest&lt;ComponentActivity> {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidHostTest/kotlin/androidx/compose/ui/test/ViewVisibilityRobolectricTest.kt"/>
     </issue>
@@ -160,40 +106,13 @@
         errorLine1="        runAndroidComposeUiTest&lt;ComponentActivity> {"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidHostTest/kotlin/androidx/compose/ui/test/ViewVisibilityRobolectricTest.kt"/>
-    </issue>
-
-    <issue
-        id="KotlinRunTestResultUnused"
-        message="Result of runTest is ignored."
-        errorLine1="        runComposeUiTest {"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
             file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/junit4/ViewVisibilityTest.kt"/>
-    </issue>
-
-    <issue
-        id="KotlinRunTestResultUnused"
-        message="Result of runTest is ignored."
-        errorLine1="        runAndroidComposeUiTest&lt;ComponentActivity> {"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/junit4/ViewVisibilityTest.kt"/>
-    </issue>
-
-    <issue
-        id="CoroutineCreationDuringComposition"
-        message="Calls to launch should happen inside a LaunchedEffect and not composition"
-        errorLine1="            setContent { rememberCoroutineScope().launch { withFrameNanos {} } }"
-        errorLine2="                                                  ~~~~~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/CustomEffectContextTest.kt"/>
     </issue>
 
     <issue
         id="ModifierFactoryExtensionFunction"
         message="Modifier factory functions should be extensions on Modifier"
-        errorLine1="    private fun rowModifier(): Modifier ="
+        errorLine1="    private fun rowModifier(): Modifier = Modifier.composed {"
         errorLine2="                ~~~~~~~~~~~">
         <location
             file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/actions/ScrollToNodeTest.kt"/>
@@ -202,7 +121,7 @@
     <issue
         id="ModifierFactoryExtensionFunction"
         message="Modifier factory functions should be extensions on Modifier"
-        errorLine1="    private fun columnModifier(): Modifier ="
+        errorLine1="    private fun columnModifier(): Modifier = Modifier.composed {"
         errorLine2="                ~~~~~~~~~~~~~~">
         <location
             file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/actions/ScrollToNodeTest.kt"/>
@@ -211,7 +130,7 @@
     <issue
         id="ModifierFactoryExtensionFunction"
         message="Modifier factory functions should be extensions on Modifier"
-        errorLine1="    private fun rowModifier(scrollState: ScrollState): Modifier ="
+        errorLine1="    private fun rowModifier(scrollState: ScrollState): Modifier = Modifier.composed {"
         errorLine2="                ~~~~~~~~~~~">
         <location
             file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/actions/ScrollToTest.kt"/>
@@ -220,7 +139,7 @@
     <issue
         id="ModifierFactoryExtensionFunction"
         message="Modifier factory functions should be extensions on Modifier"
-        errorLine1="    private fun columnModifier(scrollState: ScrollState): Modifier ="
+        errorLine1="    private fun columnModifier(scrollState: ScrollState): Modifier = Modifier.composed {"
         errorLine2="                ~~~~~~~~~~~~~~">
         <location
             file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/actions/ScrollToTest.kt"/>
@@ -328,8 +247,8 @@
     <issue
         id="PrimitiveInCollection"
         message="method withKeysDown has parameter keys with type List&lt;Key>: replace with LongList"
-        errorLine1="fun KeyInjectionScope.withKeysDown(keys: List&lt;Key>, block: KeyInjectionScope.() -> Unit) {"
-        errorLine2="                                         ~~~~~~~~~">
+        errorLine1="public fun KeyInjectionScope.withKeysDown(keys: List&lt;Key>, block: KeyInjectionScope.() -> Unit) {"
+        errorLine2="                                                ~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/test/KeyInjectionScope.kt"/>
     </issue>
@@ -337,8 +256,8 @@
     <issue
         id="PrimitiveInCollection"
         message="method withKeysToggled has parameter keys with type List&lt;Key>: replace with LongList"
-        errorLine1="fun KeyInjectionScope.withKeysToggled(keys: List&lt;Key>, block: KeyInjectionScope.() -> Unit) {"
-        errorLine2="                                            ~~~~~~~~~">
+        errorLine1="public fun KeyInjectionScope.withKeysToggled(keys: List&lt;Key>, block: KeyInjectionScope.() -> Unit) {"
+        errorLine2="                                                   ~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/test/KeyInjectionScope.kt"/>
     </issue>
