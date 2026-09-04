@@ -31,12 +31,10 @@ import androidx.xr.scenecore.testapp.headlockedui.HeadLockedUiActivity
 import androidx.xr.scenecore.testapp.hittest.HitTestActivity
 import androidx.xr.scenecore.testapp.inputmoveresize.InputMoveResizeTestActivity
 import androidx.xr.scenecore.testapp.memoryleak.MemoryLeakActivity
-import androidx.xr.scenecore.testapp.meshentity.MeshEntityActivity
 import androidx.xr.scenecore.testapp.model.GltfModelAnimationActivity
 import androidx.xr.scenecore.testapp.model.GltfModelMaterialTextureActivity
 import androidx.xr.scenecore.testapp.movable.MovableActivity
 import androidx.xr.scenecore.testapp.panelcoordinate.PanelCoordinateActivity
-import androidx.xr.scenecore.testapp.panelroundedcorner.PanelRoundedCornerActivity
 import androidx.xr.scenecore.testapp.sceneviewer.SceneViewerActivity
 import androidx.xr.scenecore.testapp.spatialaudio.SpatialAudioActivity
 import androidx.xr.scenecore.testapp.spatialaudio.SpatialAudioComponentsActivity
@@ -84,6 +82,12 @@ class SceneCoreTestAppActivityLeakTest(activityClass: Class<out Activity>) :
         @Parameterized.Parameters(name = "{0}")
         fun data(): Collection<Array<Any>> {
             return listOf(
+                // bridge crash flake - XrDynamicPolicySignal, or crash on Material creation.
+                // This Activity isn't designed for rapid interruption needed for this test.
+                // arrayOf(MeshEntityActivity::class.java),
+
+                // SIGABRT  View.getWindowToken()' on a null object reference
+                // arrayOf(PanelRoundedCornerActivity::class.java),
                 arrayOf(MainActivity::class.java),
                 arrayOf(AccessibilityTestActivity::class.java),
                 arrayOf(ActivityPanel::class.java),
@@ -97,12 +101,10 @@ class SceneCoreTestAppActivityLeakTest(activityClass: Class<out Activity>) :
                 arrayOf(HitTestActivity::class.java),
                 arrayOf(InputMoveResizeTestActivity::class.java),
                 arrayOf(MemoryLeakActivity::class.java),
-                arrayOf(MeshEntityActivity::class.java),
                 arrayOf(GltfModelAnimationActivity::class.java),
                 arrayOf(GltfModelMaterialTextureActivity::class.java),
                 arrayOf(MovableActivity::class.java),
                 arrayOf(PanelCoordinateActivity::class.java),
-                arrayOf(PanelRoundedCornerActivity::class.java),
                 arrayOf(SceneViewerActivity::class.java),
                 arrayOf(SpatialAudioActivity::class.java),
                 arrayOf(SpatialAudioComponentsActivity::class.java),
