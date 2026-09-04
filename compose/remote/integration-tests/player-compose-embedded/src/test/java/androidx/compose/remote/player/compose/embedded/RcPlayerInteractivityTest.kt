@@ -26,17 +26,20 @@ import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
+import androidx.compose.remote.creation.compose.action.combinedAction
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.action.lambdaAction
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.contentDescription
 import androidx.compose.remote.creation.compose.modifier.height
+import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
@@ -44,6 +47,7 @@ import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.modifier.visibility
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.modifier.widthIn
+import androidx.compose.remote.creation.compose.state.Hoist
 import androidx.compose.remote.creation.compose.state.RemoteEasing
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.abs
@@ -83,6 +87,7 @@ import androidx.compose.remote.creation.compose.state.toRad
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -98,6 +103,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
+import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -1092,6 +1098,126 @@ class RcPlayerInteractivityTest {
             rule.waitForIdle()
 
             assert(lambdaCalled) { "Expected lambda to be called" }
+        }
+    }
+
+    @Test
+    fun testStateLayoutMultiPageScoring() {
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            var uploadedScore = -1
+
+            val content: @Composable @RemoteComposable () -> Unit = {
+                val currentPage = rememberMutableRemoteInt(0)
+                val choices = (0..2).map { rememberMutableRemoteInt(-1) }
+                val answers = listOf(1, 2, 0)
+                val scores = (0..2).map { i -> choices[i].isEqualTo(answers[i].ri).toRemoteInt() }
+                val totalScore = remember { scores.reduce { acc, s -> acc + s } }
+
+                RemoteBox(modifier = RemoteModifier.size(400.rdp)) {
+                    Hoist(totalScore)
+                    RemoteStateLayout(currentState = currentPage, 0, 1, 2, 3) { pageIndex: Int ->
+                        if (pageIndex < 3) {
+                            RemoteBox(modifier = RemoteModifier.size(400.rdp)) {
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.size(100.rdp)
+                                            .semantics {
+                                                contentDescription = "P${pageIndex}_Opt_Correct".rs
+                                            }
+                                            .clickable(
+                                                valueChange(
+                                                    choices[pageIndex],
+                                                    answers[pageIndex].ri,
+                                                )
+                                            )
+                                )
+                                val nextAction =
+                                    if (pageIndex < 2) {
+                                        combinedAction(
+                                            valueChange(currentPage, (pageIndex + 1).ri),
+                                            valueChange(choices[pageIndex + 1], (-1).ri),
+                                        )
+                                    } else {
+                                        valueChange(currentPage, (pageIndex + 1).ri)
+                                    }
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.size(50.rdp)
+                                            .semantics {
+                                                contentDescription = "P${pageIndex}_Next".rs
+                                            }
+                                            .clickable(nextAction)
+                                )
+                            }
+                        } else {
+                            val retakeAction =
+                                combinedAction(
+                                    valueChange(currentPage, 0.ri),
+                                    *choices.map { valueChange(it, (-1).ri) }.toTypedArray(),
+                                )
+                            RemoteBox(modifier = RemoteModifier.size(200.rdp)) {
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.size(100.rdp)
+                                            .semantics { contentDescription = "Submit".rs }
+                                            .clickable(hostAction("submit".rs, value = totalScore))
+                                )
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.size(100.rdp)
+                                            .padding(top = 100.rdp)
+                                            .semantics { contentDescription = "Retake".rs }
+                                            .clickable(retakeAction)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            val capturedDocument = captureSingleRemoteDocument(context = context, content = content)
+            rule.setContent {
+                Box(modifier = Modifier.size(400.dp)) {
+                    RcPlayer(
+                        capturedDocument = capturedDocument,
+                        onNamedAction = { name, value, _ ->
+                            if (name == "submit") {
+                                uploadedScore = (value as? Number)?.toInt() ?: -1
+                            }
+                        },
+                    )
+                }
+            }
+            rule.waitForIdle()
+
+            // Page 0: click correct option then Next
+            rule.onNodeWithContentDescription("P0_Opt_Correct").performClick()
+            rule.waitForIdle()
+            rule.onNodeWithContentDescription("P0_Next").performClick()
+            rule.waitForIdle()
+
+            // Page 1: click correct option then Next
+            rule.onNodeWithContentDescription("P1_Opt_Correct").performClick()
+            rule.waitForIdle()
+            rule.onNodeWithContentDescription("P1_Next").performClick()
+            rule.waitForIdle()
+
+            // Page 2: click correct option then Next
+            rule.onNodeWithContentDescription("P2_Opt_Correct").performClick()
+            rule.waitForIdle()
+            rule.onNodeWithContentDescription("P2_Next").performClick()
+            rule.waitForIdle()
+
+            // Page 3: Submit
+            rule.onNodeWithContentDescription("Submit").performClick()
+            rule.waitForIdle()
+
+            assertThat(uploadedScore).isEqualTo(3)
+
+            // Click Retake
+            rule.onNodeWithContentDescription("Retake").performClick()
+            rule.waitForIdle()
         }
     }
 }
