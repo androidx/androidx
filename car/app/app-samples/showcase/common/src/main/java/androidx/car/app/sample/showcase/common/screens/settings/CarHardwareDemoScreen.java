@@ -79,8 +79,8 @@ public final class CarHardwareDemoScreen extends Screen {
                                         new CarIcon.Builder(
                                                 IconCompat.createWithResource(
                                                         getCarContext(),
-                                                        R.drawable.info_gm_grey_24dp))
-                                                .setStyle(carIconStyle)
+                                                        R.drawable.info_gm_grey_24dp),
+                                                carIconStyle)
                                                 .build())
                                 .setOnClickListener(() -> getScreenManager().push(
                                         new CarHardwareInfoScreen(getCarContext())))

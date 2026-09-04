@@ -36,10 +36,10 @@ import org.jspecify.annotations.Nullable;
 
 /** Creates a screen that demonstrate the image loading in the library using a content provider. */
 public final class ContentProviderIconsDemoScreen extends Screen {
-    private static final int[] ICON_DRAWABLES = {
-            R.drawable.arrow_right_turn, R.drawable.arrow_straight, R.drawable.ic_i5,
-            R.drawable.ic_520
+    private static final int[] TINTED_ICON_DRAWABLES = {
+        R.drawable.arrow_right_turn, R.drawable.arrow_straight
     };
+    private static final int[] ORIGINAL_ICON_DRAWABLES = {R.drawable.ic_i5, R.drawable.ic_520};
     private final @Nullable String mHostPackageName;
 
     public ContentProviderIconsDemoScreen(@NonNull CarContext carContext) {
@@ -59,31 +59,50 @@ public final class ContentProviderIconsDemoScreen extends Screen {
             listBuilder.setNoItemsMessage(
                     getCarContext().getString(R.string.images_unknown_host_error));
         } else {
-            for (int i = 0; i < ICON_DRAWABLES.length; i++) {
-                int resId = ICON_DRAWABLES[i];
-                Uri uri = DelayedFileProvider.getUriForResource(getCarContext(), hostPackageName,
-                        resId);
+            int index = 0;
+            for (int resId : TINTED_ICON_DRAWABLES) {
+                Uri uri =
+                        DelayedFileProvider.getUriForResource(
+                                getCarContext(), hostPackageName, resId);
                 listBuilder.addItem(
                         new Row.Builder()
                                 .setImage(
-                                        new CarIcon.Builder(
-                                                IconCompat.createWithContentUri(uri))
-                                                .build())
+                                        CarIcon.createTintedIcon(
+                                                IconCompat.createWithContentUri(uri)))
                                 .setTitle(
-                                        getCarContext().getString(R.string.icon_title_prefix) + " "
-                                                + i)
+                                        getCarContext().getString(R.string.icon_title_prefix)
+                                                + " "
+                                                + index++)
+                                .build());
+            }
+
+            for (int resId : ORIGINAL_ICON_DRAWABLES) {
+                Uri uri =
+                        DelayedFileProvider.getUriForResource(
+                                getCarContext(), hostPackageName, resId);
+                listBuilder.addItem(
+                        new Row.Builder()
+                                .setImage(
+                                        CarIcon.createOriginalIcon(
+                                                IconCompat.createWithContentUri(uri)))
+                                .setTitle(
+                                        getCarContext().getString(R.string.icon_title_prefix)
+                                                + " "
+                                                + index++)
                                 .build());
             }
         }
 
-
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setHeader(new Header.Builder()
-                        .setTitle(getCarContext()
-                                .getString(R.string.content_provider_icons_demo_title))
-                        .setStartHeaderAction(Action.BACK)
-                        .build())
+                .setHeader(
+                        new Header.Builder()
+                                .setTitle(
+                                        getCarContext()
+                                                .getString(
+                                                        R.string.content_provider_icons_demo_title))
+                                .setStartHeaderAction(Action.BACK)
+                                .build())
                 .build();
     }
 }

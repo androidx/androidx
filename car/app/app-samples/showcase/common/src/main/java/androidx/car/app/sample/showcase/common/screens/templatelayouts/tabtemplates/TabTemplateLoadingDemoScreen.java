@@ -71,8 +71,10 @@ public final class TabTemplateLoadingDemoScreen extends Screen {
         Tab loadingTab =
                 new Tab.Builder()
                         .setTitle(getCarContext().getString(R.string.tab_title_loading))
-                        .setIcon(new CarIcon.Builder(IconCompat.createWithResource(getCarContext(),
-                                R.drawable.ic_explore_white_24dp)).build())
+                        .setIcon(
+                                CarIcon.createTintedIcon(
+                                        IconCompat.createWithResource(
+                                                getCarContext(), R.drawable.ic_explore_white_24dp)))
                         .setContentId(LOADING_ID)
                         .build();
         mTabTemplateBuilder.addTab(loadingTab);
@@ -80,8 +82,10 @@ public final class TabTemplateLoadingDemoScreen extends Screen {
         Tab otherTab =
                 new Tab.Builder()
                         .setTitle(getCarContext().getString(R.string.tab_title_search))
-                        .setIcon(new CarIcon.Builder(IconCompat.createWithResource(getCarContext(),
-                                R.drawable.ic_face_24px)).build())
+                        .setIcon(
+                                CarIcon.createTintedIcon(
+                                        IconCompat.createWithResource(
+                                                getCarContext(), R.drawable.ic_face_24px)))
                         .setContentId(SEARCH_ID)
                         .build();
         mTabTemplateBuilder.addTab(otherTab);

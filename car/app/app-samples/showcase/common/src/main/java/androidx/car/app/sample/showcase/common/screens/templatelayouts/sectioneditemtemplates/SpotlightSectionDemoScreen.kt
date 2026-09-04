@@ -36,8 +36,9 @@ import androidx.core.graphics.drawable.IconCompat
 /** A screen demonstrating SpotlightSection within the SectionedItemTemplate. */
 class SpotlightSectionDemoScreen(carContext: CarContext) : Screen(carContext) {
     private val testImage: CarIcon by lazy {
-        CarIcon.Builder(IconCompat.createWithResource(carContext, R.drawable.test_image_square))
-            .build()
+        CarIcon.createOriginalIcon(
+            IconCompat.createWithResource(carContext, R.drawable.test_image_square)
+        )
     }
 
     override fun onGetTemplate(): Template {

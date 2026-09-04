@@ -108,11 +108,10 @@ public final class RadioButtonListDemoScreen extends Screen {
     }
 
     private CarIcon buildImageWithResource(int imageId) {
-        return new CarIcon.Builder(
+        return CarIcon.createTintedIcon(
                 IconCompat.createWithResource(
                         getCarContext(),
-                        imageId))
-                .build();
+                        imageId));
     }
 
     private Row buildRowForTemplate(int title, int text, CarIcon icon, int imageType) {

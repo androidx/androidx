@@ -90,11 +90,10 @@ public class SecondaryActionsAndDecorationDemoScreen extends Screen {
     }
 
     private CarIcon buildCarIconWithResources(int imageId) {
-        return new CarIcon.Builder(
+        return CarIcon.createTintedIcon(
                 IconCompat.createWithResource(
                         getCarContext(),
-                        imageId))
-                .build();
+                        imageId));
     }
 
     private Row buildRowForTemplate(int title, int numericDecoration) {

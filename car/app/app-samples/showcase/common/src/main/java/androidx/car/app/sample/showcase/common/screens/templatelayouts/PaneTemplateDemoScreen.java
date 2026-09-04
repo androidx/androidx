@@ -82,7 +82,7 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
                         .setTitle(getCarContext().getString(R.string.first_row_title))
                         .addText(getCarContext().getString(R.string.first_row_text))
                         .addText(getCarContext().getString(R.string.first_row_text))
-                        .setImage(new CarIcon.Builder(mRowLargeIcon).build())
+                        .setImage(CarIcon.createTintedIcon(mRowLargeIcon))
                         .build();
             default:
                 return new Row.Builder()
@@ -117,7 +117,7 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
         }
 
         // Also set a large image outside of the rows.
-        paneBuilder.setImage(new CarIcon.Builder(mPaneImage).build());
+        paneBuilder.setImage(CarIcon.createOriginalIcon(mPaneImage));
 
         Action.Builder primaryActionBuilder = new Action.Builder()
                 .setTitle(getCarContext().getString(R.string.search_action_title))
@@ -151,8 +151,7 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
         Action mapXAction = new Action.Builder()
                 .setTitle("Map+X this!")
                 .setIcon(
-                        new CarIcon.Builder(mCommuteIcon)
-                                .setStyle(carIconStyle)
+                        new CarIcon.Builder(mCommuteIcon, carIconStyle)
                                 .build())
                 .setOnClickListener(
                         () -> getScreenManager().push(new MapPaneDemoScreen(getCarContext())))

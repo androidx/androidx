@@ -47,11 +47,10 @@ public final class JunctionImageDemoScreen extends Screen implements DefaultLife
                                         mRoutingDemoModelFactory.getCurrentStep(),
                                         Distance.create(200, Distance.UNIT_METERS))
                                 .setJunctionImage(
-                                        new CarIcon.Builder(
+                                        CarIcon.createOriginalIcon(
                                                 IconCompat.createWithResource(
                                                         carContext,
-                                                        R.drawable.junction_image))
-                                                .build())
+                                                        R.drawable.junction_image)))
                                 .build())
                 .setDestinationTravelEstimate(mRoutingDemoModelFactory.getTravelEstimate())
                 .setActionStrip(mRoutingDemoModelFactory.getActionStrip(this::finish))

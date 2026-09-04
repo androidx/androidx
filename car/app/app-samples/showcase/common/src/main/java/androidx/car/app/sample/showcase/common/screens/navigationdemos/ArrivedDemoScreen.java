@@ -43,14 +43,13 @@ public final class ArrivedDemoScreen extends Screen implements DefaultLifecycleO
         return new NavigationTemplate.Builder()
                 .setNavigationInfo(
                         new MessageInfo.Builder(
-                                getCarContext().getString(R.string.arrived_exclamation_msg))
+                                        getCarContext().getString(R.string.arrived_exclamation_msg))
                                 .setText(getCarContext().getString(R.string.arrived_address_msg))
                                 .setImage(
-                                        new CarIcon.Builder(
+                                        CarIcon.createTintedIcon(
                                                 IconCompat.createWithResource(
                                                         getCarContext(),
-                                                        R.drawable.ic_place_white_24dp))
-                                                .build())
+                                                        R.drawable.ic_place_white_24dp)))
                                 .build())
                 .setActionStrip(mRoutingDemoModelFactory.getActionStrip(this::finish))
                 .setBackgroundColor(CarColor.SECONDARY)
