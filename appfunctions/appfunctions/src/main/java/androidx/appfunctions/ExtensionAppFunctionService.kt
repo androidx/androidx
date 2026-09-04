@@ -47,7 +47,6 @@ public class ExtensionAppFunctionService : ExtensionsAppFunctionService() {
                 this@ExtensionAppFunctionService,
                 Dispatchers.Main,
                 Dependencies.aggregatedAppFunctionInvoker,
-                Dependencies.translatorSelector,
             )
     }
 

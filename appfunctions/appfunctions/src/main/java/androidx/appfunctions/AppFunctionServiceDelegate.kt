@@ -23,13 +23,10 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.internal.AggregatedAppFunctionInvoker
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
-import androidx.appfunctions.internal.Translator
-import androidx.appfunctions.internal.TranslatorSelector
 import androidx.appfunctions.internal.unsafeBuildReturnValue
 import androidx.appfunctions.internal.unsafeGetParameterValue
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
-import androidx.appfunctions.metadata.AppFunctionSchemaMetadata
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withContext
@@ -40,7 +37,6 @@ public class AppFunctionServiceDelegate(
     context: Context,
     private val mainCoroutineContext: CoroutineContext,
     private val aggregatedInvoker: AggregatedAppFunctionInvoker,
-    private val translatorSelector: TranslatorSelector,
 ) {
     private val appContext = context.applicationContext
 
@@ -49,15 +45,12 @@ public class AppFunctionServiceDelegate(
         metadata: AppFunctionMetadata,
     ): ExecuteAppFunctionResponse =
         try {
-            val translator = getTranslator(executeAppFunctionRequest, metadata.schema)
-
-            val parameters = extractParameters(executeAppFunctionRequest, metadata, translator)
+            val parameters = extractParameters(executeAppFunctionRequest, metadata)
             unsafeInvokeFunction(
                 executeAppFunctionRequest,
                 metadata,
                 metadata.components,
                 parameters,
-                translator,
             )
         } catch (e: CancellationException) {
             Log.d(
@@ -82,29 +75,14 @@ public class AppFunctionServiceDelegate(
             throw AppFunctionAppUnknownException(e.message)
         }
 
-    private fun getTranslator(
-        request: ExecuteAppFunctionRequest,
-        schemaMetadata: AppFunctionSchemaMetadata?,
-    ): Translator? {
-        if (request.useJetpackSchema) {
-            return null
-        }
-        return schemaMetadata?.let { translatorSelector.getTranslator(it) }
-    }
-
     private fun extractParameters(
         request: ExecuteAppFunctionRequest,
         appFunctionMetadata: AppFunctionMetadata,
-        translator: Translator?,
     ): Map<String, Any?> {
-        // Upgrade the parameters from the agents, if they are using the old format.
-        val translatedParameters =
-            translator?.upgradeRequest(request.functionParameters) ?: request.functionParameters
-
         return buildMap {
             for (parameterMetadata in appFunctionMetadata.parameters) {
                 this[parameterMetadata.name] =
-                    translatedParameters.unsafeGetParameterValue(parameterMetadata)
+                    request.functionParameters.unsafeGetParameterValue(parameterMetadata)
             }
         }
     }
@@ -114,7 +92,6 @@ public class AppFunctionServiceDelegate(
         appFunctionMetadata: AppFunctionMetadata,
         componentsMetadata: AppFunctionComponentsMetadata,
         parameters: Map<String, Any?>,
-        translator: Translator?,
     ): ExecuteAppFunctionResponse {
         val result =
             withContext(mainCoroutineContext) {
@@ -126,10 +103,7 @@ public class AppFunctionServiceDelegate(
             }
         val returnValue =
             appFunctionMetadata.response.unsafeBuildReturnValue(result, componentsMetadata)
-
-        // Downgrade the return value from the agents, if they are using the old format.
-        val translatedReturnValue = translator?.downgradeResponse(returnValue) ?: returnValue
-        return ExecuteAppFunctionResponse.Success(translatedReturnValue)
+        return ExecuteAppFunctionResponse.Success(returnValue)
     }
 
     private fun buildAppFunctionContext(): AppFunctionContext {

@@ -20,7 +20,6 @@ import android.app.AppInteractionAttribution
 import android.os.Build
 import android.os.Bundle
 import androidx.appfunctions.ExecuteAppFunctionRequest.Companion.EXTRA_PARAMETERS
-import androidx.appfunctions.ExecuteAppFunctionRequest.Companion.EXTRA_USE_JETPACK_SCHEMA
 import androidx.appfunctions.ExecuteAppFunctionRequest.Companion.toCompatExecuteAppFunctionRequest
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
@@ -47,7 +46,6 @@ class ExecuteAppFunctionRequestTest {
         assertThat(platformRequest.functionIdentifier).isEqualTo("method")
         assertThat(platformRequest.parameters).isEqualTo(TEST_APP_FUNCTION_DATA.genericDocument)
         assertThat(platformRequest.extras.getBundle(EXTRA_PARAMETERS)?.isEmpty()).isTrue()
-        assertThat(platformRequest.extras.getBoolean(EXTRA_USE_JETPACK_SCHEMA)).isTrue()
 
         // Test with extras set
         val bundle = Bundle()
@@ -75,7 +73,6 @@ class ExecuteAppFunctionRequestTest {
         assertThat(platformRequest.functionIdentifier).isEqualTo("method")
         assertThat(platformRequest.parameters).isEqualTo(TEST_APP_FUNCTION_DATA.genericDocument)
         assertThat(platformRequest.extras.getBundle(EXTRA_PARAMETERS)?.isEmpty()).isTrue()
-        assertThat(platformRequest.extras.getBoolean(EXTRA_USE_JETPACK_SCHEMA)).isTrue()
 
         // Test with extras set
         val bundle = Bundle()
@@ -103,7 +100,6 @@ class ExecuteAppFunctionRequestTest {
         assertThat(platformRequest.functionIdentifier).isEqualTo("method")
         assertThat(platformRequest.parameters).isEqualTo(TEST_APP_FUNCTION_DATA.genericDocument)
         assertThat(platformRequest.extras.getBundle(EXTRA_PARAMETERS)?.isEmpty()).isTrue()
-        assertThat(platformRequest.extras.getBoolean(EXTRA_USE_JETPACK_SCHEMA)).isTrue()
         assertThat(platformRequest.attribution).isNull()
         assertThat(platformRequest.activityId).isNull()
 
@@ -130,8 +126,6 @@ class ExecuteAppFunctionRequestTest {
             .isEqualTo(TEST_APP_FUNCTION_DATA.genericDocument)
         assertThat(platformRequestWithAttribution.extras.getBundle(EXTRA_PARAMETERS)?.isEmpty())
             .isTrue()
-        assertThat(platformRequestWithAttribution.extras.getBoolean(EXTRA_USE_JETPACK_SCHEMA))
-            .isTrue()
         assertThat(platformRequestWithAttribution.attribution).isEqualTo(attribution)
         assertThat(platformRequestWithAttribution.activityId).isEqualTo(activityId)
     }
@@ -156,7 +150,6 @@ class ExecuteAppFunctionRequestTest {
         assertThat(request.functionParameters.genericDocument)
             .isEqualTo(TEST_APP_FUNCTION_DATA.genericDocument)
         assertThat(request.functionParameters.extras.isEmpty).isTrue()
-        assertThat(request.useJetpackSchema).isFalse()
     }
 
     @Test
@@ -174,7 +167,6 @@ class ExecuteAppFunctionRequestTest {
         assertThat(request.functionParameters.genericDocument)
             .isEqualTo(TEST_APP_FUNCTION_DATA.genericDocument)
         assertThat(request.functionParameters.extras.isEmpty).isTrue()
-        assertThat(request.useJetpackSchema).isFalse()
     }
 
     @Test
@@ -199,42 +191,8 @@ class ExecuteAppFunctionRequestTest {
         assertThat(request.functionParameters.genericDocument)
             .isEqualTo(TEST_APP_FUNCTION_DATA.genericDocument)
         assertThat(request.functionParameters.extras.isEmpty).isTrue()
-        assertThat(request.useJetpackSchema).isFalse()
         assertThat(request.attribution).isEqualTo(attribution)
         assertThat(request.activityId).isEqualTo(activityId)
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
-    fun fromPlatformExtensionClass_fromJetPackInExtrasIsTrue_fromJetPackIsTrue() {
-        assumeAppFunctionExtensionLibraryAvailable()
-        val platformRequest =
-            com.android.extensions.appfunctions.ExecuteAppFunctionRequest.Builder("pkg", "method")
-                .setParameters(TEST_APP_FUNCTION_DATA.genericDocument)
-                .setExtras(Bundle().apply { putBoolean(EXTRA_USE_JETPACK_SCHEMA, true) })
-                .build()
-
-        val request =
-            ExecuteAppFunctionRequest.fromPlatformExtensionClass(
-                platformRequest,
-                TEST_APP_FUNCTION_METADATA,
-            )
-
-        assertThat(request.useJetpackSchema).isTrue()
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
-    fun toCompatExecuteAppFunctionRequest_fromJetPackInExtrasIsTrue_fromJetPackIsTrue() {
-        val platformRequest =
-            android.app.appfunctions.ExecuteAppFunctionRequest.Builder("pkg", "method")
-                .setParameters(TEST_APP_FUNCTION_DATA.genericDocument)
-                .setExtras(Bundle().apply { putBoolean(EXTRA_USE_JETPACK_SCHEMA, true) })
-                .build()
-
-        val request = platformRequest.toCompatExecuteAppFunctionRequest(TEST_APP_FUNCTION_METADATA)
-
-        assertThat(request.useJetpackSchema).isTrue()
     }
 
     private fun assumeAppFunctionExtensionLibraryAvailable() {

@@ -20,7 +20,6 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionManager
-import androidx.appfunctions.internal.NullTranslatorSelector
 import androidx.appfunctions.testing.internal.FakeAppFunctionManagerApi
 import androidx.appfunctions.testing.internal.FakeAppFunctionReader
 import org.junit.rules.TestRule
@@ -179,7 +178,6 @@ public class AppFunctionTestRule(private val context: Context) : TestRule {
             context = context,
             appFunctionReader = appFunctionReader,
             appFunctionManagerApi = appFunctionManagerApi,
-            translatorSelector = NullTranslatorSelector(),
         )
     }
 

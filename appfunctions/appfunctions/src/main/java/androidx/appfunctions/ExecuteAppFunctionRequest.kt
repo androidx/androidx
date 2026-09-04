@@ -43,14 +43,6 @@ constructor(
      */
     public val functionParameters: AppFunctionData,
     /**
-     * The attribution that can be used by the privacy setting to provide transparency to the user
-     * about why an app function was invoked.
-     */
-    @get:RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
-    public val attribution: AppInteractionAttribution? = null,
-    /** Whether the parameters in this request is encoded in the jetpack format or not. */
-    @get:RestrictTo(LIBRARY_GROUP) public val useJetpackSchema: Boolean,
-    /**
      * The [AppFunctionActivityId] for this request.
      *
      * This identifier is used to disambiguate between instances of the same app function running in
@@ -62,6 +54,12 @@ constructor(
      */
     @get:RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
     public val activityId: AppFunctionActivityId? = null,
+    /**
+     * The attribution that can be used by the privacy setting to provide transparency to the user
+     * about why an app function was invoked.
+     */
+    @get:RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    public val attribution: AppInteractionAttribution? = null,
 ) {
     /**
      * Creates a new [ExecuteAppFunctionRequest].
@@ -78,12 +76,11 @@ constructor(
         functionIdentifier: String,
         functionParameters: AppFunctionData,
     ) : this(
-        targetPackageName,
-        functionIdentifier,
-        functionParameters,
-        attribution = null,
-        useJetpackSchema = true,
+        targetPackageName = targetPackageName,
+        functionIdentifier = functionIdentifier,
+        functionParameters = functionParameters,
         activityId = null,
+        attribution = null,
     )
 
     /**
@@ -114,9 +111,8 @@ constructor(
         targetPackageName,
         functionIdentifier,
         functionParameters,
-        attribution = attribution,
-        useJetpackSchema = true,
-        activityId = activityId,
+        activityId,
+        attribution,
     )
 
     internal fun toPlatformExtensionClass():
@@ -129,7 +125,6 @@ constructor(
             .setExtras(
                 Bundle().apply {
                     putBundle(EXTRA_PARAMETERS, functionParameters.extras)
-                    putBoolean(EXTRA_USE_JETPACK_SCHEMA, useJetpackSchema)
                 }
             )
             .build()
@@ -152,14 +147,11 @@ constructor(
             .setExtras(
                 Bundle().apply {
                     putBundle(EXTRA_PARAMETERS, functionParameters.extras)
-                    putBoolean(EXTRA_USE_JETPACK_SCHEMA, useJetpackSchema)
                 }
             )
             .apply {
                 if (Build.VERSION.SDK_INT >= 37) {
-                    if (attribution != null) {
-                        setAttribution(attribution)
-                    }
+                    attribution?.let { setAttribution(it) }
                     setActivityId(activityId)
                 }
             }
@@ -172,26 +164,24 @@ constructor(
             "activityId=$activityId)"
     }
 
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
     @RestrictTo(LIBRARY_GROUP)
     public fun copy(
         targetPackageName: String = this.targetPackageName,
         functionIdentifier: String = this.functionIdentifier,
         functionParameters: AppFunctionData = this.functionParameters,
-        useJetpackSchema: Boolean = this.useJetpackSchema,
         activityId: AppFunctionActivityId? = this.activityId,
     ): ExecuteAppFunctionRequest =
         ExecuteAppFunctionRequest(
-            targetPackageName,
-            functionIdentifier,
-            functionParameters,
-            attribution,
-            useJetpackSchema,
-            activityId,
+            targetPackageName = targetPackageName,
+            functionIdentifier = functionIdentifier,
+            functionParameters = functionParameters,
+            activityId = activityId,
+            attribution = attribution,
         )
 
     public companion object {
         internal const val EXTRA_PARAMETERS = "androidXAppfunctionsExtraParameters"
-        internal const val EXTRA_USE_JETPACK_SCHEMA = "androidXAppfunctionsExtraUseJetpackSchema"
 
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         internal fun fromPlatformExtensionClass(
@@ -209,8 +199,6 @@ constructor(
                             request.extras.getBundle(EXTRA_PARAMETERS) ?: Bundle.EMPTY,
                         ),
                     ),
-                useJetpackSchema = request.extras.getBoolean(EXTRA_USE_JETPACK_SCHEMA, false),
-                activityId = null,
             )
 
         /**
@@ -240,16 +228,15 @@ constructor(
                             this.extras.getBundle(EXTRA_PARAMETERS) ?: Bundle.EMPTY,
                         ),
                     ),
-                useJetpackSchema = this.extras.getBoolean(EXTRA_USE_JETPACK_SCHEMA, false),
-                attribution =
-                    if (Build.VERSION.SDK_INT >= 37) {
-                        this.attribution
-                    } else {
-                        null
-                    },
                 activityId =
                     if (Build.VERSION.SDK_INT >= 37) {
                         this.activityId
+                    } else {
+                        null
+                    },
+                attribution =
+                    if (Build.VERSION.SDK_INT >= 37) {
+                        this.attribution
                     } else {
                         null
                     },
