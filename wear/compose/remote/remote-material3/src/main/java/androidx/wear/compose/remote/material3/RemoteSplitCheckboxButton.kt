@@ -45,6 +45,7 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.widthIn
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
+import androidx.compose.remote.creation.compose.shapes.drawOutline
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
@@ -649,12 +650,12 @@ private fun RemoteDrawScope.drawCheckboxControl(
     )
 }
 
+/** Draws a solid color fill for [shape] using [color]. */
 internal fun RemoteDrawScope.drawSolidColorShape(shape: RemoteShape, color: RemoteColor) =
-    with(shape.createOutline(RemoteSize(width, height), remoteDensity, layoutDirection)) {
-        drawOutline(
-            RemotePaint {
-                style = PaintingStyle.Fill
-                this.color = color
-            }
-        )
-    }
+    drawOutline(
+        shape.createOutline(RemoteSize(width, height), remoteDensity, layoutDirection),
+        RemotePaint {
+            style = PaintingStyle.Fill
+            this.color = color
+        },
+    )
