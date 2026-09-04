@@ -26,15 +26,6 @@ import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 @RequiresApi(Build.VERSION_CODES.S)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object Dependencies {
-    public val translatorSelector: TranslatorSelector by lazy {
-        try {
-            TranslatorSelector::class.java.findImpl(prefix = "", suffix = "Impl")
-        } catch (ex: Exception) {
-            Log.d(APP_FUNCTIONS_TAG, "Cannot find TranslatorSelectorImpl")
-            NullTranslatorSelector()
-        }
-    }
-
     internal val schemaAppFunctionInventory: SchemaAppFunctionInventory? by lazy {
         try {
             SchemaAppFunctionInventory::class.java.findImpl(prefix = "$", suffix = "_Impl")

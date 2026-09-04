@@ -31,11 +31,8 @@ import androidx.appfunctions.internal.AppFunctionReader
 import androidx.appfunctions.internal.AppSearchAppFunctionReader
 import androidx.appfunctions.internal.Dependencies
 import androidx.appfunctions.internal.ExtensionAppFunctionManagerApi
-import androidx.appfunctions.internal.NullTranslatorSelector
 import androidx.appfunctions.internal.PlatformAppFunctionManagerApi
 import androidx.appfunctions.internal.PlatformAppFunctionReader
-import androidx.appfunctions.internal.Translator
-import androidx.appfunctions.internal.TranslatorSelector
 import androidx.appfunctions.internal.findImpl
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
@@ -64,7 +61,6 @@ public constructor(
     private val context: Context,
     private val appFunctionReader: AppFunctionReader,
     private val appFunctionManagerApi: AppFunctionManagerApi,
-    private val translatorSelector: TranslatorSelector = NullTranslatorSelector(),
 ) {
 
     /**
@@ -151,31 +147,14 @@ public constructor(
                 )
             }
 
-        // Translate the request when necessary by looking into the target schema version.
-        val translator =
-            if (functionMetadata?.schema?.version == LEGACY_SDK_GLOBAL_SCHEMA_VERSION) {
-                translatorSelector.getTranslator(functionMetadata.schema)
-            } else {
-                null
-            }
-        val translatedRequest: ExecuteAppFunctionRequest =
-            if (translator != null) {
-                val functionParametersToExecute =
-                    translator.downgradeRequest(request.functionParameters)
-                request.copy(functionParameters = functionParametersToExecute)
-            } else {
-                request
-            }
-
         val executeAppFunctionResponse =
-            appFunctionManagerApi.executeAppFunction(translatedRequest, functionMetadata)
+            appFunctionManagerApi.executeAppFunction(request, functionMetadata)
 
-        return processResponse(translator, functionMetadata, executeAppFunctionResponse)
+        return processResponse(functionMetadata, executeAppFunctionResponse)
     }
 
     @Suppress("NewApi") // AppFunctionManager is only available when SDK >= 33
     private fun processResponse(
-        translator: Translator?,
         functionMetadata: AppFunctionMetadata?,
         response: ExecuteAppFunctionResponse,
     ): ExecuteAppFunctionResponse {
@@ -183,14 +162,11 @@ public constructor(
             return response
         }
 
-        val currentVersionReturnValue =
-            translator?.upgradeResponse(response.returnValue) ?: response.returnValue
-
         return if (functionMetadata == null) {
-            ExecuteAppFunctionResponse.Success(currentVersionReturnValue)
+            response
         } else {
             ExecuteAppFunctionResponse.Success(
-                currentVersionReturnValue.replaceSpecWith(
+                response.returnValue.replaceSpecWith(
                     functionMetadata.response,
                     functionMetadata.components,
                 )
@@ -621,9 +597,6 @@ public constructor(
         public const val APP_FUNCTION_STATE_DISABLED: Int =
             PlatformAppFunctionManager.APP_FUNCTION_STATE_DISABLED
 
-        /** The version shared across all schema defined in the legacy SDK. */
-        private const val LEGACY_SDK_GLOBAL_SCHEMA_VERSION = 1L
-
         /**
          * Checks whether the AppFunction extension library is available.
          *
@@ -670,7 +643,6 @@ public constructor(
                         context,
                         reader,
                         PlatformAppFunctionManagerApi(context, reader),
-                        Dependencies.translatorSelector,
                     )
                 }
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA -> {
@@ -680,7 +652,6 @@ public constructor(
                         context,
                         reader,
                         PlatformAppFunctionManagerApi(context, reader),
-                        Dependencies.translatorSelector,
                     )
                 }
                 isExtensionLibraryAvailable() -> {
@@ -691,7 +662,6 @@ public constructor(
                             Dependencies.schemaAppFunctionInventory,
                         ),
                         ExtensionAppFunctionManagerApi(context),
-                        Dependencies.translatorSelector,
                     )
                 }
                 else -> {

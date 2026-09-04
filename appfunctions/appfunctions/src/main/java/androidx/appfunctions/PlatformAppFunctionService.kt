@@ -45,7 +45,6 @@ public class PlatformAppFunctionService : AppFunctionService() {
                 this@PlatformAppFunctionService,
                 Dispatchers.Main,
                 Dependencies.aggregatedAppFunctionInvoker,
-                Dependencies.translatorSelector,
             )
     }
 

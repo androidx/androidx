@@ -30,7 +30,6 @@ import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.RegisterAppFunctionRequest
 import androidx.appfunctions.internal.AggregatedAppFunctionInvoker
 import androidx.appfunctions.internal.AppFunctionManagerApi
-import androidx.appfunctions.internal.NullTranslatorSelector
 import androidx.appfunctions.internal.findImpl
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
@@ -52,7 +51,6 @@ internal class FakeAppFunctionManagerApi(
                 context,
                 Dispatchers.Default,
                 AggregatedAppFunctionInvoker::class.java.findImpl(prefix = "$", suffix = "_Impl"),
-                NullTranslatorSelector(),
             )
             .executeFunction(request, functionMetadata)
 
