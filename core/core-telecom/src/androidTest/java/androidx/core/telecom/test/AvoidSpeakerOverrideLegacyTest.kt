@@ -30,6 +30,7 @@ import androidx.test.filters.SmallTest
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
@@ -132,6 +133,125 @@ class AvoidSpeakerOverrideLegacyTest : BaseTelecomTest() {
                 "Should have reverted to earpiece",
                 CallEndpointCompat.TYPE_EARPIECE,
                 callSession.mLastClientRequestedEndpoint?.type,
+            )
+        }
+    }
+
+    /**
+     * Verifies that if platform Telecom starts on SPEAKER, Core-Telecom reverts to EARPIECE, and
+     * then a delayed speaker switch event arrives from the platform,
+     * avoidSpeakerOverrideOnCallStart catches it and reverts back to EARPIECE.
+     */
+    @SmallTest
+    @Test
+    fun testAvoidSpeakerOverride_DelayedEchoToSpeaker_StillReverts() {
+        runBlocking {
+            val callSession = initCallSessionLegacy(coroutineContext, mEarpieceEndpoint)
+            val supportedRouteMask = CallAudioState.ROUTE_EARPIECE or CallAudioState.ROUTE_SPEAKER
+
+            val platformSpeaker =
+                CallAudioState(false, CallAudioState.ROUTE_SPEAKER, supportedRouteMask)
+            val platformEarpiece =
+                CallAudioState(false, CallAudioState.ROUTE_EARPIECE, supportedRouteMask)
+
+            // 1. Platform starts call on SPEAKER
+            callSession.onCallAudioStateChanged(platformSpeaker)
+            yield()
+
+            // 2. Core-Telecom requested EARPIECE, and platform switches to EARPIECE
+            callSession.mLastClientRequestedEndpoint = mEarpieceEndpoint
+            callSession.onCallAudioStateChanged(platformEarpiece)
+            yield()
+
+            // At this point, the route is EARPIECE and mLastClientRequestedEndpoint is cleared
+            assertNull(callSession.mLastClientRequestedEndpoint)
+
+            // 3. Platform's delayed speaker echo arrives (~1s later in real world)
+            callSession.onCallAudioStateChanged(platformSpeaker)
+            yield()
+
+            // 4. Assert: avoidSpeakerOverrideOnCallStart must NOT have been disarmed by the
+            // earlier SPEAKER -> EARPIECE transition, and must request a switch back to EARPIECE!
+            assertEquals(
+                "Delayed speaker echo must be caught and reverted back to earpiece",
+                CallEndpointCompat.TYPE_EARPIECE,
+                callSession.mLastClientRequestedEndpoint?.type,
+            )
+        }
+    }
+
+    /**
+     * Verifies that when the call-start stabilization timer expires:
+     * 1. The preferred starting endpoint is cleared (set to null).
+     * 2. Any subsequent switch to SPEAKER (e.g. via System UI) is NOT overridden.
+     */
+    @SmallTest
+    @Test
+    fun testAvoidSpeakerOverride_stabilizationTimerExpires_disarmsGuard() {
+        runBlocking {
+            val callSession = initCallSessionLegacy(coroutineContext, mEarpieceEndpoint)
+            val supportedRouteMask = CallAudioState.ROUTE_EARPIECE or CallAudioState.ROUTE_SPEAKER
+
+            val platformEarpiece =
+                CallAudioState(false, CallAudioState.ROUTE_EARPIECE, supportedRouteMask)
+            callSession.onCallAudioStateChanged(platformEarpiece)
+            yield()
+            // Platform confirms EARPIECE route, clearing in-flight request
+            callSession.onCallAudioStateChanged(platformEarpiece)
+            yield()
+            assertNull(callSession.mLastClientRequestedEndpoint)
+
+            // Start the non-blocking stabilization timer
+            callSession.startPreferredEndpointStabilizationTimer()
+
+            // Advance time past the 3-second stabilization window
+            delay(3500)
+
+            // 1. Preferred starting endpoint should be disarmed (cleared to null)
+            assertNull(
+                "Preferred starting endpoint should be cleared once stabilization timer expires",
+                callSession.preferredStartingCallEndpoint,
+            )
+
+            // 2. User or System UI now switches to SPEAKER mid-call
+            val platformSpeaker =
+                CallAudioState(false, CallAudioState.ROUTE_SPEAKER, supportedRouteMask)
+            callSession.onCallAudioStateChanged(platformSpeaker)
+            yield()
+
+            // 3. Assert: Core-Telecom must NOT try to switch back to EARPIECE
+            assertNull(
+                "Mid-call switch to speaker after timer expires must not be overridden",
+                callSession.mLastClientRequestedEndpoint,
+            )
+        }
+    }
+
+    /**
+     * Verifies that different Bluetooth devices (e.g. a Watch vs. a Headset) are NOT treated as
+     * equivalent by avoidSpeakerOverrideOnCallStart, even though both share TYPE_BLUETOOTH.
+     */
+    @SmallTest
+    @Test
+    fun testAvoidSpeakerOverride_watchVsHeadset_doesNotConflateBluetoothEndpoints() {
+        runBlocking {
+            val callSession = initCallSessionLegacy(coroutineContext, mBluetoothEndpoint)
+
+            // User preferred BLUETOOTH headset (e.g. Pixel Buds)
+            // Call was active on WATCH (a different Bluetooth device)
+            // Transition from WATCH to SPEAKER is evaluated
+            callSession.avoidSpeakerOverrideOnCallStart(
+                prevEndpoint = mWatchEndpoint,
+                nextEndpoint = mSpeakerEndpoint,
+            )
+            yield()
+
+            // Assert: Because WATCH is NOT the preferred BLUETOOTH headset,
+            // avoidSpeakerOverrideOnCallStart must NOT treat them as equal based on type,
+            // and must NOT trigger a reversion.
+            assertNull(
+                "Different Bluetooth endpoints must not match on type alone",
+                callSession.mLastClientRequestedEndpoint,
             )
         }
     }

@@ -202,4 +202,67 @@ class EndpointUtilsTest {
 
         assertThat(result).isTrue() // Heuristic evaluates Bose Headphones to true
     }
+
+    @Test
+    fun testIsUnexpectedSwitchFromPreferredToSpeaker_earpieceToSpeaker_returnsTrue() {
+        val preferredEarpiece = createEndpoint("EARPIECE", CallEndpointCompat.TYPE_EARPIECE)
+        val inCallEarpiece = createEndpoint("Phone", CallEndpointCompat.TYPE_EARPIECE)
+        val speaker = createEndpoint("Speaker", CallEndpointCompat.TYPE_SPEAKER)
+
+        assertThat(
+                EndpointUtils.isUnexpectedSwitchFromPreferredToSpeaker(
+                    preferredEndpoint = preferredEarpiece,
+                    prevEndpoint = inCallEarpiece,
+                    currentEndpoint = speaker,
+                )
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun testIsUnexpectedSwitchFromPreferredToSpeaker_notSpeaker_returnsFalse() {
+        val preferredEarpiece = createEndpoint("EARPIECE", CallEndpointCompat.TYPE_EARPIECE)
+        val inCallEarpiece = createEndpoint("Phone", CallEndpointCompat.TYPE_EARPIECE)
+        val bt = createEndpoint("Headset", CallEndpointCompat.TYPE_BLUETOOTH)
+
+        assertThat(
+                EndpointUtils.isUnexpectedSwitchFromPreferredToSpeaker(
+                    preferredEndpoint = preferredEarpiece,
+                    prevEndpoint = inCallEarpiece,
+                    currentEndpoint = bt,
+                )
+            )
+            .isFalse()
+    }
+
+    @Test
+    fun testIsUnexpectedSwitchFromPreferredToSpeaker_bluetoothWatchVsHeadset_returnsFalse() {
+        val preferredHeadset = createEndpoint("Pixel Buds Pro", CallEndpointCompat.TYPE_BLUETOOTH)
+        val inCallWatch = createEndpoint("Pixel Watch", CallEndpointCompat.TYPE_BLUETOOTH)
+        val speaker = createEndpoint("Speaker", CallEndpointCompat.TYPE_SPEAKER)
+
+        assertThat(
+                EndpointUtils.isUnexpectedSwitchFromPreferredToSpeaker(
+                    preferredEndpoint = preferredHeadset,
+                    prevEndpoint = inCallWatch,
+                    currentEndpoint = speaker,
+                )
+            )
+            .isFalse()
+    }
+
+    @Test
+    fun testIsUnexpectedSwitchFromPreferredToSpeaker_identicalBluetooth_returnsTrue() {
+        val preferredHeadset = createEndpoint("Pixel Buds Pro", CallEndpointCompat.TYPE_BLUETOOTH)
+        val speaker = createEndpoint("Speaker", CallEndpointCompat.TYPE_SPEAKER)
+
+        assertThat(
+                EndpointUtils.isUnexpectedSwitchFromPreferredToSpeaker(
+                    preferredEndpoint = preferredHeadset,
+                    prevEndpoint = preferredHeadset,
+                    currentEndpoint = speaker,
+                )
+            )
+            .isTrue()
+    }
 }
