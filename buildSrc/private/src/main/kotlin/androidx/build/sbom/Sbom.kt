@@ -128,7 +128,7 @@ private fun Project.listSbomConfigurationNamesForArchive(task: AbstractArchiveTa
     }
 
     if (excludeTaskNames.contains(taskName)) return listOf()
-    if (projectPath == ":compose:lint:internal-lint-checks")
+    if (projectPath.endsWith("internal-lint-checks"))
         return listOf() // we don't publish these lint checks
     if (projectPath.contains("integration-tests"))
         return listOf() // we don't publish integration tests
