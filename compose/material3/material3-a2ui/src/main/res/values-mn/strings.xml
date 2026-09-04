@@ -17,13 +17,9 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for button_cancel (5182872944385772172) -->
-    <skip />
-    <!-- no translation found for button_ok (6817595491491320691) -->
-    <skip />
+    <string name="button_cancel" msgid="5182872944385772172">"Цуцлах"</string>
+    <string name="button_ok" msgid="6817595491491320691">"OK"</string>
     <string name="error" msgid="6647806155663918015">"Алдаа"</string>
-    <!-- no translation found for select_date (3625754389149364766) -->
-    <skip />
-    <!-- no translation found for select_time (3530281639148646682) -->
-    <skip />
+    <string name="select_date" msgid="3625754389149364766">"Огноо сонгох"</string>
+    <string name="select_time" msgid="3530281639148646682">"Цаг сонгох"</string>
 </resources>
