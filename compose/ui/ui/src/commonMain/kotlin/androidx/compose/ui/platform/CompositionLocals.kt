@@ -324,6 +324,7 @@ internal fun ProvideCommonCompositionLocals(owner: Owner, content: @Composable (
             LocalFontFamilyResolver providesDefault owner.fontFamilyResolver,
             LocalGraphicsContext provides owner.graphicsContext,
             LocalClipboard provides owner.clipboard,
+            LocalProvidableLocaleList provides owner.localeList,
             content = content,
         )
     } else {
