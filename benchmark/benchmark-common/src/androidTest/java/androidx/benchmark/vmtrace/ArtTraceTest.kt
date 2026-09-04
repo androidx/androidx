@@ -85,6 +85,17 @@ class ArtTraceTest {
                 )
             }
 
+        // check for clock sync packet
+        tracePackets
+            .single {
+                it.clock_snapshot != null
+            }
+            .apply {
+                assertEquals(2, clock_snapshot!!.clocks.size)
+                assertEquals(1, clock_snapshot.clocks.filter { it.clock_id == 3 }.size)
+                assertEquals(1, clock_snapshot.clocks.filter { it.clock_id == 6 }.size)
+            }
+
         val targetIid =
             tracePackets
                 .first { it.interned_data != null }

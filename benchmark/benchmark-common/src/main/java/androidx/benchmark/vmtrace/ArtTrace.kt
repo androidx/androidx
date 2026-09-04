@@ -16,10 +16,12 @@
 
 package androidx.benchmark.vmtrace
 
+import android.os.SystemClock
 import androidx.annotation.VisibleForTesting
 import java.io.File
 import java.io.OutputStream
 import java.util.UUID
+import perfetto.protos.ClockSnapshot
 import perfetto.protos.EventName
 import perfetto.protos.InternedData
 import perfetto.protos.ThreadDescriptor
@@ -43,7 +45,8 @@ internal class ArtTrace(
     private fun convertToPerfetto(flushEvents: (List<TracePacket>) -> Unit) {
         val parser =
             PerfettoVmTraceParser(
-                clockId = clockId,
+                clockId = CLOCK_ID_MONOTONIC,
+                deviceClockId = CLOCK_ID_BOOTTIME,
                 uuidProvider = uuidProvider,
                 pid = pid,
                 flushEvents,
@@ -65,6 +68,7 @@ internal class ArtTrace(
 
     private class PerfettoVmTraceParser(
         private val clockId: Int,
+        deviceClockId: Int,
         private val uuidProvider: UuidProvider,
         private val pid: Int,
         private val flushEvents: (List<TracePacket>) -> Unit,
@@ -79,6 +83,25 @@ internal class ArtTrace(
         )
 
         private val events = mutableListOf<TracePacket>()
+
+        init {
+            val timestampNs = System.nanoTime()
+            val deviceTimestampNs = SystemClock.elapsedRealtimeNanos()
+
+            val clockSnapshot =
+                ClockSnapshot(
+                    clocks =
+                        listOf(
+                            ClockSnapshot.Clock(
+                                clock_id = deviceClockId,
+                                timestamp = deviceTimestampNs,
+                            ),
+                            ClockSnapshot.Clock(clock_id = clockId, timestamp = timestampNs),
+                        )
+                )
+            events.add(TracePacket(clock_snapshot = clockSnapshot))
+        }
+
         private val threads = mutableMapOf<Int, ThreadTrack>()
         private val eventNames =
             mutableListOf<EventName>(
@@ -285,7 +308,8 @@ internal class ArtTrace(
     }
 
     companion object {
-        private const val clockId = 3
+        private const val CLOCK_ID_MONOTONIC: Int = 3
+        private const val CLOCK_ID_BOOTTIME: Int = 6
         private const val trustedPacketSequenceId: Int = 1_234_565_432
         private const val eventsBetweenFlush = 10_000
         /**
