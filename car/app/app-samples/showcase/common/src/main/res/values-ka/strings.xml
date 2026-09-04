@@ -282,8 +282,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"ბადისებრი ჩანართი გრძელი სათაურით"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"ძიების ჩანართი"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"მიმდინარეობს ჩანართის ჩატვირთვა"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"შაბლონის სტილი 1"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"შაბლონის სტილი 2"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"უგულებელყოფილი სტილი"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"წარუმატებელი სტილი"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ჩანართის შაბლონის ჩატვირთვის დემო"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ჩანართის შაბლონის უჩანართო დემო"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"ჩანართის შაბლონის სტილის დემო"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"ჩანართის შაბლონის სტილი (ჩანართი 1)\nმემკვიდრეობით იღებს შაბლონის დონის სტილს"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"ჩანართის შაბლონის სტილი (ჩანართი 2)\nმემკვიდრეობით იღებს შაბლონის დონის სტილს"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"ჩანართის უგულებელყოფილი სტილი\nუგულებელყოფს შაბლონის სტილს მორგებული ლურჯი ფერებით"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"ჩანართის წარუმატებელი სტილი\nწითელი ხატულა წითელ ფონზე"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"სურათების უცნობის მასპინძლისთვის ჩვენება შეუძლებელია"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"ხატულა"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"კონტენტის მომწოდებლის ხატულის დემო"</string>
