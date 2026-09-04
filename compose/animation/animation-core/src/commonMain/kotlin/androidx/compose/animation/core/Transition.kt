@@ -412,9 +412,19 @@ public class SeekableTransitionState<S>(initialState: S) : TransitionState<S>() 
 
     /** Lambda instance used for animating a single frame within [withFrameNanos]. */
     private val animateOneFrameLambda: (Long) -> Unit = { frameTimeNanos ->
-        val delta = frameTimeNanos - lastFrameTimeNanos
+        val delta =
+            if (lastFrameTimeNanos == AnimationConstants.UnspecifiedTime) {
+                0L
+            } else {
+                frameTimeNanos - lastFrameTimeNanos
+            }
         lastFrameTimeNanos = frameTimeNanos
-        val deltaPlayTimeNanos = (delta / durationScale.toDouble()).roundToLong()
+        val deltaPlayTimeNanos =
+            if (durationScale <= 0f || durationScale.isNaN()) {
+                0L
+            } else {
+                (delta / durationScale.toDouble()).roundToLong()
+            }
         if (initialValueAnimations.isNotEmpty()) {
             initialValueAnimations.forEach { animation ->
                 // updateInitialValues will set to false if the animation isn't
@@ -462,7 +472,8 @@ public class SeekableTransitionState<S>(initialState: S) : TransitionState<S>() 
             // nothing to animate
             return
         }
-        if (coroutineContext.durationScale == 0f) {
+        val durationScale = coroutineContext.durationScale
+        if (durationScale <= 0f || durationScale.isNaN()) {
             endAllAnimations()
             lastFrameTimeNanos = AnimationConstants.UnspecifiedTime
             return
@@ -493,11 +504,15 @@ public class SeekableTransitionState<S>(initialState: S) : TransitionState<S>() 
     /** Advances all animations by one frame. */
     private suspend fun animateOneFrame() {
         val durationScale = coroutineContext.durationScale
-        if (durationScale <= 0f) {
+        if (durationScale <= 0f || durationScale.isNaN()) {
             endAllAnimations()
         } else {
             this@SeekableTransitionState.durationScale = durationScale
-            withFrameNanos(animateOneFrameLambda)
+            if (lastFrameTimeNanos == AnimationConstants.UnspecifiedTime) {
+                withFrameNanos(firstFrameLambda)
+            } else {
+                withFrameNanos(animateOneFrameLambda)
+            }
         }
     }
 
@@ -513,12 +528,12 @@ public class SeekableTransitionState<S>(initialState: S) : TransitionState<S>() 
         val playTimeNanos = animation.progressNanos + deltaPlayTimeNanos
         animation.progressNanos = playTimeNanos
         val durationNanos = animation.animationSpecDuration
-        if (playTimeNanos >= durationNanos) {
+        if (durationNanos <= 0L || playTimeNanos >= durationNanos) {
             animation.value = 1f
         } else {
             val animationSpec = animation.animationSpec
-            if (animationSpec != null) {
-                animation.value =
+            val newValue =
+                if (animationSpec != null) {
                     animationSpec
                         .getValueFromNanos(
                             playTimeNanos,
@@ -526,11 +541,10 @@ public class SeekableTransitionState<S>(initialState: S) : TransitionState<S>() 
                             Target1,
                             animation.initialVelocity ?: ZeroVelocity,
                         )[0]
-                        .coerceIn(0f, 1f)
-            } else {
-                animation.value =
+                } else {
                     lerp(animation.start[0], 1f, playTimeNanos.toFloat() / durationNanos)
-            }
+                }
+            animation.value = if (newValue.isNaN()) 1f else newValue.coerceIn(0f, 1f)
         }
     }
 
@@ -1188,13 +1202,13 @@ protected constructor(
 
         val deltaT = frameTimeNanos - startTimeNanos
         val scaledPlayTimeNanos =
-            if (durationScale == 0f) {
+            if (durationScale <= 0f || durationScale.isNaN()) {
                 deltaT
             } else {
                 (deltaT / durationScale.toDouble()).roundToLong()
             }
         playTimeNanos = scaledPlayTimeNanos
-        onFrame(scaledPlayTimeNanos, durationScale == 0f)
+        onFrame(scaledPlayTimeNanos, durationScale <= 0f || durationScale.isNaN())
     }
 
     internal fun onFrame(scaledPlayTimeNanos: Long, scaleToEnd: Boolean) {

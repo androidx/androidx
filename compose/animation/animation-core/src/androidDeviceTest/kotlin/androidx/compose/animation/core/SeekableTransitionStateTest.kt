@@ -2686,4 +2686,182 @@ class SeekableTransitionStateTest {
         rule.waitForIdle()
         assertThat(transition.playTimeNanos).isEqualTo(0L)
     }
+
+    @Test
+    fun animateToWithZeroDurationOrNaNDoesNotCrash() {
+        val seekableTransitionState = SeekableTransitionState(AnimStates.From)
+        lateinit var coroutineScope: CoroutineScope
+        lateinit var transition: Transition<AnimStates>
+
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            transition = rememberTransition(seekableTransitionState, label = "Test")
+            // Zero duration transition (no animated values or 0ms tween)
+            transition.animateFloat(transitionSpec = { tween(0) }) {
+                if (it == AnimStates.From) 0f else 1f
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+
+        rule.runOnIdle {
+            coroutineScope.launch {
+                seekableTransitionState.animateTo(
+                    AnimStates.To,
+                    animationSpec =
+                        object : FiniteAnimationSpec<Float> {
+                            override fun <V : AnimationVector> vectorize(
+                                converter: TwoWayConverter<Float, V>
+                            ): VectorizedFiniteAnimationSpec<V> {
+                                return object : VectorizedFiniteAnimationSpec<V> {
+                                    override val isInfinite: Boolean = false
+
+                                    override fun getValueFromNanos(
+                                        playTimeNanos: Long,
+                                        initialValue: V,
+                                        targetValue: V,
+                                        initialVelocity: V,
+                                    ): V {
+                                        @Suppress("UNCHECKED_CAST")
+                                        return AnimationVector1D(Float.NaN) as V
+                                    }
+
+                                    override fun getVelocityFromNanos(
+                                        playTimeNanos: Long,
+                                        initialValue: V,
+                                        targetValue: V,
+                                        initialVelocity: V,
+                                    ): V = initialVelocity
+
+                                    override fun getDurationNanos(
+                                        initialValue: V,
+                                        targetValue: V,
+                                        initialVelocity: V,
+                                    ): Long = 100_000_000L
+                                }
+                            }
+                        },
+                )
+            }
+        }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        assertThat(seekableTransitionState.currentState).isEqualTo(AnimStates.To)
+        assertThat(seekableTransitionState.fraction).isEqualTo(0f)
+    }
+
+    @Test
+    fun animateToWithZeroTotalDurationLinearLerpDoesNotCrash() {
+        val seekableTransitionState = SeekableTransitionState(AnimStates.From)
+        lateinit var coroutineScope: CoroutineScope
+        lateinit var transition: Transition<AnimStates>
+
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            transition = rememberTransition(seekableTransitionState, label = "Test")
+            transition.animateFloat(transitionSpec = { tween(0) }) {
+                if (it == AnimStates.From) 0f else 1f
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+
+        rule.runOnIdle {
+            coroutineScope.launch {
+                seekableTransitionState.seekTo(0.5f, AnimStates.To)
+            }
+        }
+        rule.mainClock.advanceTimeByFrame()
+
+        var frameCount = 0
+        val nonMonotonicClock =
+            object : androidx.compose.runtime.MonotonicFrameClock {
+                override suspend fun <R> withFrameNanos(onFrame: (Long) -> R): R {
+                    frameCount++
+                    // Frame 1 sets lastFrameTimeNanos = 100_000_000L.
+                    // Frame 2 passes 50_000_000L (negative delta), which with totalDurationNanos =
+                    // 0L
+                    // causes playTimeNanos < 0L, -50_000_000f / 0L -> -Infinity,
+                    // and -Infinity * 0L -> Float.NaN in seekToFraction().
+                    val time = if (frameCount == 1) 100_000_000L else 50_000_000L
+                    return onFrame(time)
+                }
+            }
+
+        rule.runOnIdle {
+            coroutineScope.launch(nonMonotonicClock) {
+                // Default animationSpec = null uses linear lerp over totalDurationNanos (0L)
+                seekableTransitionState.animateTo(AnimStates.To)
+            }
+        }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        assertThat(seekableTransitionState.currentState).isEqualTo(AnimStates.To)
+        assertThat(seekableTransitionState.fraction).isEqualTo(0f)
+    }
+
+    @Test
+    fun animateToWithUnspecifiedLastFrameTimeDoesNotCrash() {
+        val seekableTransitionState = SeekableTransitionState(AnimStates.From)
+        lateinit var coroutineScope: CoroutineScope
+        lateinit var transition: Transition<AnimStates>
+
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            transition = rememberTransition(seekableTransitionState, label = "Test")
+            transition.animateFloat(transitionSpec = { tween(0) }) {
+                if (it == AnimStates.From) 0f else 1f
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+
+        rule.runOnIdle {
+            coroutineScope.launch {
+                seekableTransitionState.seekTo(0.5f, AnimStates.To)
+            }
+        }
+        rule.mainClock.advanceTimeByFrame()
+
+        var frameCount = 0
+        val unspecifiedFirstFrameClock =
+            object : androidx.compose.runtime.MonotonicFrameClock {
+                override suspend fun <R> withFrameNanos(onFrame: (Long) -> R): R {
+                    frameCount++
+                    // Frame 1 returns AnimationConstants.UnspecifiedTime (Long.MIN_VALUE).
+                    // Frame 2 returns 100_000_000L, which without the UnspecifiedTime guard
+                    // overflows 64-bit signed Long (100_000_000L - Long.MIN_VALUE < 0),
+                    // producing negative playTimeNanos and Float.NaN in seekToFraction().
+                    val time =
+                        if (frameCount == 1) {
+                            AnimationConstants.UnspecifiedTime
+                        } else {
+                            100_000_000L
+                        }
+                    return onFrame(time)
+                }
+            }
+
+        rule.runOnIdle {
+            coroutineScope.launch(unspecifiedFirstFrameClock) {
+                seekableTransitionState.animateTo(AnimStates.To)
+            }
+        }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        assertThat(seekableTransitionState.currentState).isEqualTo(AnimStates.To)
+        assertThat(seekableTransitionState.fraction).isEqualTo(0f)
+    }
 }
