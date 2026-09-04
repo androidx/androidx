@@ -61,7 +61,8 @@ class StackBenchmark {
     @Test
     fun stackBenchmark() {
         val instance = Any()
-        val stack = Stack<Any>(blkCount = 2)
+        @Suppress("DEPRECATION")
+        val stack = Stack<Any>(tid = Thread.currentThread().id, blkCount = 2)
         benchmarkRule.measureRepeated {
             repeat(256) { stack += instance }
             repeat(times = 256) { stack.removeLastOrNull() }

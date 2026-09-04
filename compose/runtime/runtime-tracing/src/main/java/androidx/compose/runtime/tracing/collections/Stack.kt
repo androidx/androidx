@@ -26,7 +26,11 @@ internal const val BLOCK_CAPACITY = 1.shl(bitCount = BIT_COUNT)
 internal const val BLOCK_POOL_SIZE = 8
 
 @RestrictTo(Scope.LIBRARY)
-public class Stack<T>(blkCount: Int = 4, blkPoolSize: Int = BLOCK_POOL_SIZE) {
+public class Stack<T>(
+    @JvmField internal val tid: Long,
+    blkCount: Int = 4,
+    blkPoolSize: Int = BLOCK_POOL_SIZE,
+) {
     @JvmField public val blkCount: Int = blkCount.coerceIn(1, Int.MAX_VALUE)
     @JvmField
     internal val pool: Pool<Array<Any?>> =
