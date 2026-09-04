@@ -50,12 +50,12 @@ public class AnimateSpecModifier(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.animationSpec(
     animationId: Int = -1,
-    motionDuration: Float,
-    motionEasingType: Int,
-    visibilityDuration: Float,
-    visibilityEasingType: Int,
-    enterAnimation: ANIMATION,
-    exitAnimation: ANIMATION,
+    motionDuration: Float = 300f,
+    motionEasingType: Int = GeneralEasing.CUBIC_STANDARD,
+    visibilityDuration: Float = motionDuration,
+    visibilityEasingType: Int = motionEasingType,
+    enterAnimation: ANIMATION = ANIMATION.FADE_IN,
+    exitAnimation: ANIMATION = ANIMATION.FADE_OUT,
     enabled: Boolean = true,
 ): RemoteModifier {
     val id = if (enabled) animationId else 0

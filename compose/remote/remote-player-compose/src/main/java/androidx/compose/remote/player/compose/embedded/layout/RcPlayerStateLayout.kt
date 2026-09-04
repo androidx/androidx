@@ -21,12 +21,16 @@ package androidx.compose.remote.player.compose.embedded.layout
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.core.operations.layout.Component
+import androidx.compose.remote.core.operations.layout.LayoutComponent
+import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
 import androidx.compose.remote.core.operations.layout.managers.StateLayout
 import androidx.compose.remote.player.compose.embedded.LocalAnimatedVisibilityScope
 import androidx.compose.remote.player.compose.embedded.LocalSharedTransitionScope
@@ -41,6 +45,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.fastForEach
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -54,8 +60,34 @@ internal fun RcPlayerStateLayout(layout: StateLayout, modifier: Modifier) {
     }
 
     val targetIndex = index.coerceIn(0, children.size - 1)
-    val duration = layout.animationSpecReflection?.motionDuration?.toInt() ?: 300
-    val easing = mapEasing(layout.animationSpecReflection?.motionEasingType ?: 0)
+
+    val layoutSpec =
+        layout.componentModifiers?.list?.fastFirstOrNull { it is AnimationSpec } as? AnimationSpec
+            ?: layout.animationSpecReflection?.takeIf { it != AnimationSpec.DEFAULT }
+
+    val spec =
+        layoutSpec
+            ?: remember(children) {
+                var found: AnimationSpec? = null
+                fun search(comp: Component) {
+                    val s =
+                        (comp as? LayoutComponent)?.componentModifiers?.list?.fastFirstOrNull {
+                            it is AnimationSpec
+                        } as? AnimationSpec
+                            ?: comp.animationSpecReflection?.takeIf { it != AnimationSpec.DEFAULT }
+                    if (s != null && (found == null || s.motionDuration > found!!.motionDuration)) {
+                        found = s
+                    }
+                    if (comp is LayoutComponent) {
+                        comp.childrenComponents.fastForEach { search(it) }
+                    }
+                }
+                children.fastForEach { search(it) }
+                found
+            }
+
+    val duration = spec?.motionDuration?.toInt() ?: 300
+    val easing = mapEasing(spec?.motionEasingType ?: 0)
 
     SharedTransitionLayout(modifier = modifier) {
         AnimatedContent(
@@ -63,10 +95,19 @@ internal fun RcPlayerStateLayout(layout: StateLayout, modifier: Modifier) {
             contentAlignment = Alignment.Center,
             label = "RcPlayerStateLayout",
             transitionSpec = {
-                fadeIn(
-                    animationSpec = tween(durationMillis = duration, easing = easing)
-                ) togetherWith
-                    fadeOut(animationSpec = tween(durationMillis = duration, easing = easing))
+                (fadeIn(
+                        animationSpec = tween(durationMillis = duration, easing = easing)
+                    ) togetherWith
+                        fadeOut(animationSpec = tween(durationMillis = duration, easing = easing)))
+                    .using(
+                        SizeTransform(clip = false) { _, _ ->
+                            if (duration <= 0) {
+                                snap()
+                            } else {
+                                tween(durationMillis = duration, easing = easing)
+                            }
+                        }
+                    )
             },
         ) { currentIndex ->
             CompositionLocalProvider(
