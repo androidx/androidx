@@ -51,6 +51,7 @@ import androidx.compose.remote.player.compose.test.utils.R
 import androidx.compose.remote.player.compose.test.utils.RemappingTypefaceResolver
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.remote.player.compose.test.utils.createMockContextWithFont
+import androidx.compose.remote.player.compose.test.utils.createMockContextWithFonts
 import androidx.compose.remote.player.core.platform.FontInstance
 import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.runtime.Composable
@@ -74,7 +75,6 @@ import androidx.wear.compose.remote.material3.util.TestProfiles
 import java.text.DecimalFormat
 import kotlin.test.Test
 import org.junit.Assert.assertTrue
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -93,7 +93,6 @@ class RemoteTextTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    @Ignore("b/555248075")
     @Test
     fun remoteText_customRemoteFontFamily() {
         val width = 400
@@ -138,7 +137,6 @@ class RemoteTextTest {
         }
     }
 
-    @Ignore("b/555248075")
     @Test
     fun text_withDefaultColor() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -147,7 +145,6 @@ class RemoteTextTest {
         }
     }
 
-    @Ignore("b/555248075")
     @Test
     fun text_withColorAndTextAlign_rtl() {
         remoteComposeTestRule.runScreenshotTestCustomProfile(
@@ -207,7 +204,6 @@ class RemoteTextTest {
         }
     }
 
-    @Ignore("b/555248075")
     @Test
     fun text_withStyle() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -223,7 +219,6 @@ class RemoteTextTest {
         }
     }
 
-    @Ignore("b/555248075")
     @Test
     fun text_withColor() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -233,7 +228,6 @@ class RemoteTextTest {
         }
     }
 
-    @Ignore("b/555248075")
     @Test
     fun text_withOverridingColor() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -252,7 +246,6 @@ class RemoteTextTest {
         }
     }
 
-    @Ignore("b/555248075")
     @Test
     fun text_withParamAndStyle_paramIsPreserved() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -268,7 +261,6 @@ class RemoteTextTest {
         }
     }
 
-    @Ignore("b/555248075")
     @Test
     fun text_withColorAndTextAlign() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -303,7 +295,6 @@ class RemoteTextTest {
         }
     }
 
-    @Ignore("b/555248075")
     @Test
     fun text_withWeight() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -315,7 +306,6 @@ class RemoteTextTest {
         }
     }
 
-    @Ignore("b/555248075")
     @Test
     fun text_withWidth() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -327,7 +317,6 @@ class RemoteTextTest {
         }
     }
 
-    @Ignore("b/555248075")
     @Test
     fun text_withGrade() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -339,12 +328,10 @@ class RemoteTextTest {
         }
     }
 
-    @Ignore("b/555248075")
     @Test
     fun text_withTnum() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
             val robotoFont = RemoteFontFamily.Named("google:Roboto Flex")
-            val googleSansFont = RemoteFontFamily.Named("google:Google Sans Flex")
             val sampleText = "11111 vs 88888"
             RemoteColumn(RemoteModifier.fillMaxSize()) {
                 RemoteText(
@@ -367,31 +354,10 @@ class RemoteTextTest {
                     fontFamily = robotoFont,
                     fontVariationSettings = Settings(Setting("tnum", 1f)),
                 )
-                RemoteText(
-                    text = RemoteString("GSans Default: $sampleText"),
-                    modifier = RemoteModifier.fillMaxWidth(),
-                    fontSize = 14.rsp,
-                    fontFamily = googleSansFont,
-                )
-                RemoteText(
-                    text = RemoteString("GSans pnum: $sampleText"),
-                    modifier = RemoteModifier.fillMaxWidth(),
-                    fontSize = 14.rsp,
-                    fontFamily = googleSansFont,
-                    fontVariationSettings = Settings(Setting("pnum", 1f)),
-                )
-                RemoteText(
-                    text = RemoteString("GSans tnum: $sampleText"),
-                    modifier = RemoteModifier.fillMaxWidth(),
-                    fontSize = 14.rsp,
-                    fontFamily = googleSansFont,
-                    fontVariationSettings = Settings(Setting("tnum", 1f)),
-                )
             }
         }
     }
 
-    @Ignore("b/555248075")
     @Test
     fun text_withSlant() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -404,7 +370,6 @@ class RemoteTextTest {
         }
     }
 
-    @Ignore("b/555248075")
     @Test
     fun text_withRoundness() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -416,7 +381,6 @@ class RemoteTextTest {
         }
     }
 
-    @Ignore("b/555248075")
     @Test
     fun text_withRobotoFlex_minMax() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -436,23 +400,10 @@ class RemoteTextTest {
         }
     }
 
-    @Ignore("b/555248075")
     @Test
     fun text_withLobsterTwo() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
-            val fonts =
-                listOf(
-                    "google:Lobster Two",
-                    "google:Pacifico",
-                    "google:Caveat",
-                    "google:Dancing Script",
-                    "google:Cinzel",
-                    "google:Oswald",
-                    "google:Comfortaa",
-                    "google:Press Start 2P",
-                    "google:Bebas Neue",
-                    "google:Playfair Display",
-                )
+            val fonts = listOf("google:Roboto Flex", "google:Inconsolata", "google:Karla")
             RemoteColumn(RemoteModifier.fillMaxSize()) {
                 for (font in fonts) {
                     RemoteText(
@@ -466,7 +417,6 @@ class RemoteTextTest {
         }
     }
 
-    @Ignore("b/555248075")
     @Test
     fun text_withDecoration() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -498,7 +448,6 @@ class RemoteTextTest {
         }
     }
 
-    @Ignore("b/555248075")
     @Test
     fun text_withSpacing() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -542,7 +491,6 @@ class RemoteTextTest {
         )
     }
 
-    @Ignore("b/555248075")
     @Test
     fun longText_overflow() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -593,7 +541,6 @@ class RemoteTextTest {
         }
     }
 
-    @Ignore("b/555248075")
     @Test
     fun text_withLineBreakAndHyphens() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -737,10 +684,18 @@ class RemoteTextTest {
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
-        createMockContextWithFont(
-            baseContext = context,
-            fontInputStream = context.resources.openRawResource(R.font.inconsolata_regular),
-        )
+        val mockContext =
+            createMockContextWithFonts(
+                baseContext = context,
+                fontStreams =
+                    mapOf(
+                        "roboto" to context.resources.openRawResource(R.font.robotoflex_variable),
+                        "inconsolata" to
+                            context.resources.openRawResource(R.font.inconsolata_regular),
+                        "karla" to context.resources.openRawResource(R.font.karla_regular),
+                    ),
+                defaultFontKey = "roboto",
+            )
         val current = FallbackCreateTypefaceResolver()
         val remappingResolver =
             RemappingTypefaceResolver(current).apply {
@@ -750,29 +705,13 @@ class RemoteTextTest {
             }
         val resolver =
             DownloadableTypefaceResolver(
-                context = context,
+                context = mockContext,
                 next = remappingResolver,
                 isBlocking = true,
             )
         // Trigger a pre-fetch of fonts so they are loaded and cached in
         // DownloadableTypefaceResolver before screenshot capture in CI.
-        resolver.prefetchFonts(
-            listOf(
-                "google:Fraunces",
-                "google:Roboto Flex",
-                "google:Google Sans Flex",
-                "google:Lobster Two",
-                "google:Pacifico",
-                "google:Caveat",
-                "google:Dancing Script",
-                "google:Cinzel",
-                "google:Oswald",
-                "google:Comfortaa",
-                "google:Press Start 2P",
-                "google:Bebas Neue",
-                "google:Playfair Display",
-            )
-        )
+        resolver.prefetchFonts(listOf("google:Roboto Flex", "google:Inconsolata", "google:Karla"))
 
         var resolveCalled = false
         val trackingResolver =
