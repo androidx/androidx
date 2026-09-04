@@ -137,6 +137,22 @@ class StyleCollectorTest {
     }
 
     @Test
+    fun can_animate_an_exit_property() = runTest {
+        collectAnimated(customFloatProperty, 0f, 100f) { list ->
+            assertEquals(0f, list.first())
+            assertTrue(list.contains(100f))
+
+            val exitValues = list.dropWhile { it < 100f }.dropWhile { it == 100f }
+
+            // It must end with 0f
+            assertEquals(0f, exitValues.last())
+
+            // It must also have a value other than 0f and 100f
+            assertTrue(exitValues.any { it > 0f && it < 100f })
+        }
+    }
+
+    @Test
     fun can_animate_between_color_and_brush() = runTest {
         val color = Fill(Color.Blue)
         val brush = Fill(SolidColor(Color.Red))
