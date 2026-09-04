@@ -16,6 +16,9 @@
 
 package androidx.compose.material3.benchmark
 
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.OnBackPressedDispatcherOwner
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +35,8 @@ import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
 import androidx.test.filters.LargeTest
 import org.junit.Rule
 import org.junit.Test
@@ -102,7 +108,22 @@ internal class SearchBarTestCase(private val type: SearchBarType) :
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme { content() }
+        val dispatcherOwner = remember {
+            object : OnBackPressedDispatcherOwner {
+                override val onBackPressedDispatcher = OnBackPressedDispatcher()
+                override val lifecycle =
+                    object : Lifecycle() {
+                        override fun addObserver(observer: LifecycleObserver) {}
+
+                        override fun removeObserver(observer: LifecycleObserver) {}
+
+                        override val currentState = Lifecycle.State.RESUMED
+                    }
+            }
+        }
+        CompositionLocalProvider(LocalOnBackPressedDispatcherOwner provides dispatcherOwner) {
+            MaterialTheme { content() }
+        }
     }
 
     override fun toggleState() {
