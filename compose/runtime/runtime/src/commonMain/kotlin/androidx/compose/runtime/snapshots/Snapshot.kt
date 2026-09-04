@@ -417,7 +417,7 @@ public sealed class Snapshot(
             (currentSnapshot() as? MutableSnapshot)?.takeNestedMutableSnapshot(
                 readObserver,
                 writeObserver,
-            ) ?: error("Cannot create a mutable snapshot of an read-only snapshot")
+            ) ?: error("Cannot create a mutable snapshot of a read-only snapshot")
 
         /**
          * Escape the current snapshot, if there is one. All state objects will have the value
@@ -699,6 +699,32 @@ public sealed class Snapshot(
         public fun sendApplyNotifications() {
             val changes = sync { globalSnapshot.hasPendingChanges() }
             if (changes) advanceGlobalSnapshot()
+        }
+
+        // TODO(anbailey): Make this API public
+        /**
+         * Executes [block] in the current snapshot, throwing an exception if the lambda attempts to
+         * write to any snapshot state during its execution. The writes prohibited mode only lasts
+         * for the scope of the lambda. This read-only state applies to this snapshot and all nested
+         * snapshots on this thread only. Any arbitrary snapshots that are entered during [block]
+         * will not have the read-only restriction.
+         *
+         * If the current snapshot is read-only, function executes block without altering the
+         * current snapshot.
+         *
+         * @param block The lambda to execute without writes
+         * @return The result of [block]
+         */
+        internal inline fun <R> readOnly(crossinline block: () -> R): R {
+            val current = current
+            if (current.readOnly) return block()
+
+            val readOnlySnapshot = obtainTransparentReadOnlySnapshot(current)
+            try {
+                return readOnlySnapshot.enter(block)
+            } finally {
+                releaseTransparentReadOnlySnapshot(readOnlySnapshot)
+            }
         }
 
         @InternalComposeApi public fun openSnapshotCount(): Int = openSnapshots.toList().size
@@ -1471,6 +1497,77 @@ internal constructor(
     }
 }
 
+internal fun obtainTransparentReadOnlySnapshot(snapshot: Snapshot): Snapshot {
+    return reusableTransparentReadOnlySnapshot.replace(null)?.apply {
+        reuse(snapshot)
+    } ?: TransparentReadOnlySnapshot(snapshot)
+}
+
+internal fun releaseTransparentReadOnlySnapshot(snapshot: Snapshot) {
+    (snapshot as? TransparentReadOnlySnapshot)?.let {
+        reusableTransparentReadOnlySnapshot.setIfEmpty(it)
+    }
+}
+
+/** A pseudo snapshot that doesn't introduce isolation and is read-only. */
+internal class TransparentReadOnlySnapshot(private var parentSnapshot: Snapshot) :
+    Snapshot(
+        INVALID_SNAPSHOT,
+        SnapshotIdSet.EMPTY,
+    ) {
+
+    internal fun reuse(newParent: Snapshot) {
+        parentSnapshot = newParent
+    }
+
+    override val readObserver
+        get() = parentSnapshot.readObserver
+
+    override val writeObserver: ((Any) -> Unit)?
+        get() = parentSnapshot.writeObserver
+
+    override val root: Snapshot
+        get() = parentSnapshot.root
+
+    override var snapshotId: SnapshotId
+        get() = parentSnapshot.snapshotId
+        @Suppress("UNUSED_PARAMETER")
+        set(value) {
+            unsupported()
+        }
+
+    override var invalid
+        get() = parentSnapshot.invalid
+        @Suppress("UNUSED_PARAMETER") set(value) = unsupported()
+
+    override fun hasPendingChanges(): Boolean = parentSnapshot.hasPendingChanges()
+
+    override var modified: MutableScatterSet<StateObject>?
+        get() = parentSnapshot.modified
+        @Suppress("UNUSED_PARAMETER") set(value) = unsupported()
+
+    override var writeCount: Int
+        get() = parentSnapshot.writeCount
+        set(value) {
+            parentSnapshot.writeCount = value
+        }
+
+    override val readOnly: Boolean = true
+
+    override fun recordModified(state: StateObject) = reportReadonlySnapshotWrite()
+
+    override fun takeNestedSnapshot(readObserver: ((Any) -> Unit)?): Snapshot {
+        return parentSnapshot.takeNestedSnapshot(readObserver)
+    }
+
+    override fun notifyObjectsInitialized() = parentSnapshot.notifyObjectsInitialized()
+
+    /** Should never be called. */
+    override fun nestedActivated(snapshot: Snapshot) = unsupported()
+
+    override fun nestedDeactivated(snapshot: Snapshot) = unsupported()
+}
+
 internal class NestedReadonlySnapshot(
     snapshotId: SnapshotId,
     invalid: SnapshotIdSet,
@@ -1985,6 +2082,9 @@ private val threadSnapshot = SnapshotThreadLocal<Snapshot>()
 
 /** Reusable transparent snapshot, used to avoid allocations on frequent observer transitions */
 private val reusableTransparentSnapshot = SnapshotThreadLocal<TransparentObserverMutableSnapshot>()
+
+/** Reusable transparent snapshot, used to avoid allocations on frequent observer transitions */
+private val reusableTransparentReadOnlySnapshot = SnapshotThreadLocal<TransparentReadOnlySnapshot>()
 
 /**
  * A global synchronization object. This synchronization object should be taken before modifying any

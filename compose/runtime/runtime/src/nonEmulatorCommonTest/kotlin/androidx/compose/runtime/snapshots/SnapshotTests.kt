@@ -1488,6 +1488,231 @@ class SnapshotTests {
         }
     }
 
+    @Test
+    fun readOnly_returnsResultOfBlock() {
+        val result = Snapshot.readOnly {
+            42
+        }
+        assertEquals(42, result)
+
+        val snapshot = takeMutableSnapshot()
+        try {
+            val resultMutable = snapshot.enter {
+                Snapshot.readOnly {
+                    "hello"
+                }
+            }
+            assertEquals("hello", resultMutable)
+        } finally {
+            snapshot.dispose()
+        }
+    }
+
+    @Test
+    fun readOnly_globalSnapshot_prohibitsWritesDuringBlockOnly() {
+        val state = mutableStateOf(0)
+        state.value = 1
+        assertEquals(1, state.value)
+
+        assertFailsWith<IllegalStateException> {
+            Snapshot.readOnly {
+                state.value = 2
+            }
+        }
+        assertEquals(1, state.value)
+
+        state.value = 3
+        assertEquals(3, state.value)
+    }
+
+    @Test
+    fun readOnly_mutableSnapshot_prohibitsWritesDuringBlockOnly() {
+        val state = mutableStateOf(0)
+        val snapshot = takeMutableSnapshot()
+        try {
+            snapshot.enter {
+                state.value = 1
+                assertEquals(1, state.value)
+
+                assertFailsWith<IllegalStateException> {
+                    Snapshot.readOnly {
+                        state.value = 2
+                    }
+                }
+                assertEquals(1, state.value)
+
+                state.value = 3
+                assertEquals(3, state.value)
+            }
+        } finally {
+            snapshot.dispose()
+        }
+    }
+
+    @Test
+    fun readOnly_readOnlySnapshot_prohibitsWrites() {
+        val state = mutableStateOf(0)
+        val snapshot = takeSnapshot()
+        try {
+            snapshot.enter {
+                val result = Snapshot.readOnly {
+                    assertFailsWith<IllegalStateException> {
+                        state.value = 1
+                    }
+                    state.value
+                }
+                assertEquals(0, result)
+            }
+        } finally {
+            snapshot.dispose()
+        }
+    }
+
+    @Test
+    fun readOnly_insideReadOnlySnapshot() {
+        val state = mutableStateOf(0)
+        val snapshot = takeSnapshot()
+        try {
+            snapshot.enter {
+                assertFailsWith<IllegalStateException> {
+                    Snapshot.readOnly {
+                        state.value = 1
+                    }
+                }
+            }
+        } finally {
+            snapshot.dispose()
+        }
+    }
+
+    @Test
+    fun readOnly_nestedMutableSnapshot_prohibitsWritesDuringBlockOnly() {
+        val state = mutableStateOf(0)
+        val parent = takeMutableSnapshot()
+        try {
+            val nested = parent.takeNestedMutableSnapshot()
+            try {
+                nested.enter {
+                    state.value = 1
+                    assertEquals(1, state.value)
+
+                    assertFailsWith<IllegalStateException> {
+                        Snapshot.readOnly {
+                            state.value = 2
+                        }
+                    }
+                    assertEquals(1, state.value)
+
+                    state.value = 3
+                    assertEquals(3, state.value)
+                }
+            } finally {
+                nested.dispose()
+            }
+        } finally {
+            parent.dispose()
+        }
+    }
+
+    @Test
+    fun readOnly_nestedReadOnlySnapshot_prohibitsWrites() {
+        val state = mutableStateOf(0)
+        val parent = takeMutableSnapshot()
+        try {
+            val nested = parent.takeNestedSnapshot()
+            try {
+                nested.enter {
+                    assertFailsWith<IllegalStateException> {
+                        Snapshot.readOnly {
+                            state.value = 1
+                        }
+                    }
+                }
+            } finally {
+                nested.dispose()
+            }
+        } finally {
+            parent.dispose()
+        }
+    }
+
+    @Test
+    fun readOnly_transparentObserverSnapshot_prohibitsWritesDuringBlockOnly() {
+        val state = mutableStateOf(0)
+        Snapshot.observe(readObserver = {}) {
+            state.value = 1
+            assertEquals(1, state.value)
+
+            assertFailsWith<IllegalStateException> {
+                Snapshot.readOnly {
+                    state.value = 2
+                }
+            }
+            assertEquals(1, state.value)
+
+            state.value = 3
+            assertEquals(3, state.value)
+        }
+    }
+
+    @Test
+    fun readOnly_transparentObserverSnapshotFromReadOnly_prohibitsWrites() {
+        val state = mutableStateOf(0)
+        val snapshot = takeSnapshot()
+        try {
+            snapshot.enter {
+                Snapshot.withoutReadObservation {
+                    assertFailsWith<IllegalStateException> {
+                        Snapshot.readOnly {
+                            state.value = 1
+                        }
+                    }
+                }
+            }
+        } finally {
+            snapshot.dispose()
+        }
+    }
+
+    @Test
+    fun readOnly_nestedReadOnlyBlocks() {
+        val state = mutableStateOf(0)
+        Snapshot.readOnly {
+            assertFailsWith<IllegalStateException> {
+                state.value = 1
+            }
+
+            Snapshot.readOnly {
+                assertFailsWith<IllegalStateException> {
+                    state.value = 2
+                }
+            }
+
+            assertFailsWith<IllegalStateException> {
+                state.value = 3
+            }
+        }
+
+        state.value = 4
+        assertEquals(4, state.value)
+    }
+
+    @Test
+    fun readOnly_exceptionInBlockReleasesReadOnly() {
+        val state = mutableStateOf(0)
+        class CustomTestException : Exception()
+
+        assertFailsWith<CustomTestException> {
+            Snapshot.readOnly {
+                throw CustomTestException()
+            }
+        }
+
+        // Writes should succeed after block threw
+        state.value = 1
+        assertEquals(1, state.value)
+    }
+
     @Test // b/442791065 -- test adapted from the report.
     fun testMergePolicy() {
         var mergeCalled = false
