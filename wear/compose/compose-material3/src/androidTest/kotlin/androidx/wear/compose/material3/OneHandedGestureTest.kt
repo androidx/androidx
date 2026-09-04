@@ -1665,7 +1665,7 @@ class OneHandedGestureTest {
     }
 
     @Test
-    fun gesture_scroll_indicator_holds_scroll_during_animation_and_releases_on_completion() {
+    fun gesture_scroll_indicator_keeps_visible_during_animation() {
         lateinit var coroutineScope: CoroutineScope
         val scrollState = TransformingLazyColumnState()
         val indicatorState = OneHandedGestureScrollIndicatorState()
@@ -1694,20 +1694,20 @@ class OneHandedGestureTest {
             }
         }
         rule.waitForIdle()
-        assertThat(scrollState.isScrollInProgress).isFalse()
+        assertThat(indicatorState.keepIndicatorVisible?.value).isFalse()
         coroutineScope.launch { indicatorState.showIndicator() }
 
-        // Advance mid-animation and verify the scroll lock is active
+        // Advance to mid-animation and verify keepIndicatorVisible is true
         rule.mainClock.advanceTimeBy(1000)
-        assertThat(scrollState.isScrollInProgress).isTrue()
-        // Advance to completion and verify the scroll lock is released
+        assertThat(indicatorState.keepIndicatorVisible?.value).isTrue()
+        // Advance to completion and verify keepIndicatorVisible is false
         rule.mainClock.advanceTimeBy(3000)
         rule.waitForIdle()
-        assertThat(scrollState.isScrollInProgress).isFalse()
+        assertThat(indicatorState.keepIndicatorVisible?.value).isFalse()
     }
 
     @Test
-    fun gesture_scroll_indicator_cancelled_while_animating_releases_scroll_lock() {
+    fun gesture_scroll_indicator_cancelled_while_animating_resets_keep_visible() {
         lateinit var coroutineScope: CoroutineScope
         val scrollState = TransformingLazyColumnState()
         val indicatorState = OneHandedGestureScrollIndicatorState()
@@ -1735,18 +1735,72 @@ class OneHandedGestureTest {
             }
         }
         rule.waitForIdle()
-        assertThat(scrollState.isScrollInProgress).isFalse()
+        assertThat(indicatorState.keepIndicatorVisible?.value).isFalse()
         val hintJob = coroutineScope.launch { indicatorState.showIndicator() }
 
-        // Advance to mid-animation and verify scroll lock is active
+        // Advance to mid-animation and verify keepIndicatorVisible is true
         rule.mainClock.advanceTimeBy(1000)
-        assertThat(scrollState.isScrollInProgress).isTrue()
+        assertThat(indicatorState.keepIndicatorVisible?.value).isTrue()
+
+        // Cancel hint animation and verify keepIndicatorVisible is false
         hintJob.cancel()
         rule.mainClock.advanceTimeBy(100)
         rule.waitForIdle()
+        assertThat(indicatorState.keepIndicatorVisible?.value).isFalse()
+    }
 
-        // Verify scroll lock is released
-        assertThat(scrollState.isScrollInProgress).isFalse()
+    @Test
+    fun gesture_scroll_indicator_disposed_clears_keep_indicator_visible() {
+        lateinit var coroutineScope: CoroutineScope
+        val scrollState = TransformingLazyColumnState()
+        val indicatorState = OneHandedGestureScrollIndicatorState()
+        var showIndicatorComposable by mutableStateOf(true)
+        lateinit var scaffoldState: ScaffoldState
+
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            AppScaffold {
+                scaffoldState = LocalScaffoldState.current!!
+                val gestureConfig =
+                    rememberOneHandedGestureConfiguration(
+                        action = OneHandedGestureAction.Primary,
+                        priority = OneHandedGesturePriority.Scrollable,
+                    )
+                ScreenScaffold(
+                    scrollState = scrollState,
+                    scrollIndicator = {
+                        if (showIndicatorComposable) {
+                            OneHandedGestureScrollIndicator(
+                                gestureConfiguration = gestureConfig,
+                                indicatorState = indicatorState,
+                                scrollState = scrollState,
+                            )
+                        }
+                    },
+                ) {
+                    TransformingLazyColumn(state = scrollState, modifier = Modifier.fillMaxSize()) {
+                        items(20) { index -> Text("Item $index") }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertThat(indicatorState.keepIndicatorVisible?.value).isFalse()
+        assertThat(scaffoldState.keepIndicatorVisible.value).isFalse()
+
+        // Advance to mid-animation and verify keepIndicatorVisible is true
+        coroutineScope.launch { indicatorState.showIndicator() }
+        rule.mainClock.advanceTimeBy(1000)
+        assertThat(indicatorState.keepIndicatorVisible?.value).isTrue()
+        assertThat(scaffoldState.keepIndicatorVisible.value).isTrue()
+
+        // Dispose the indicator composable while animating
+        rule.runOnIdle { showIndicatorComposable = false }
+        rule.waitForIdle()
+
+        // Verify keepIndicatorVisible reference is cleared and scaffold state is reset to false
+        assertThat(indicatorState.keepIndicatorVisible).isNull()
+        assertThat(scaffoldState.keepIndicatorVisible.value).isFalse()
     }
 
     /**
