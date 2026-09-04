@@ -208,12 +208,13 @@ abstract class BaseTelecomTest {
      */
     suspend fun assertWithinTimeout_addCall(
         attributes: CallAttributesCompat,
+        timeout: Long = TestUtils.WAIT_ON_ASSERTS_TO_FINISH_TIMEOUT,
         assertBlock: CallControlScope.() -> (Unit),
     ) {
         Log.i(TestUtils.LOG_TAG, "assertWithinTimeout_addCall")
         var callControlScope: CallControlScope? = null
         try {
-            withTimeout(TestUtils.WAIT_ON_ASSERTS_TO_FINISH_TIMEOUT) {
+            withTimeout(timeout) {
                 mCallsManager.addCall(
                     attributes,
                     TestUtils.mOnAnswerLambda,

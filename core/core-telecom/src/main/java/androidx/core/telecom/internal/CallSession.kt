@@ -37,12 +37,14 @@ import androidx.core.telecom.internal.utils.EndpointUtils
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.getSpeakerEndpoint
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isEarpieceEndpoint
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isSpeakerEndpoint
+import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isUnexpectedSwitchFromPreferredToSpeaker
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isWiredHeadsetOrBtEndpoint
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.maybeRemoveEarpieceIfWiredEndpointPresent
 import androidx.core.telecom.internal.utils.Utils.Companion.toCallTypeCompat
 import java.util.function.Consumer
 import kotlin.Int
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -96,6 +98,9 @@ internal open class CallSession(
      * been processed.
      */
     private var mWasPreferredOverrideChecked: Boolean = false
+    // Stores the job responsible for disarming the preferred starting endpoint guard after
+    // the initial call setup stabilization window has elapsed.
+    private var mStartingEndpointStabilizationJob: Job? = null
     /**
      * Flag to ensure that the logic to switch the starting call endpoint is only attempted once.
      */
@@ -185,6 +190,7 @@ internal open class CallSession(
             mIsCurrentEndpointSet.complete(Unit)
             Log.i(TAG, "onCallEndpointChanged: mCurrentCallEndpoint was set")
         }
+
         maybeSwitchToSpeakerOnHeadsetDisconnect(mCurrentCallEndpoint!!, previousCallEndpoint)
         avoidSpeakerOverrideOnCallStart(previousCallEndpoint, mCurrentCallEndpoint)
 
@@ -209,8 +215,12 @@ internal open class CallSession(
             return
         }
 
-        // If the client explicitly requested the earpiece, respect their choice
-        if (isEarpieceEndpoint(mLastClientRequestedEndpoint)) {
+        // If the client explicitly requested the earpiece or preferred it as the starting
+        // endpoint, respect their choice
+        if (
+            isEarpieceEndpoint(mLastClientRequestedEndpoint) ||
+                isEarpieceEndpoint(mPreferredStartingCallEndpoint)
+        ) {
             return
         }
 
@@ -286,6 +296,7 @@ internal open class CallSession(
                     "Assuming intentional. No override.",
             )
             mWasPreferredOverrideChecked = true
+            mStartingEndpointStabilizationJob?.cancel()
             return
         }
 
@@ -299,10 +310,6 @@ internal open class CallSession(
             return
         }
 
-        // Since prevEndpoint is now non-null, we are proceeding with the one-time check.
-        // Set the flag to true immediately to ensure this block of logic runs at most once
-        // under these stable conditions (prevEndpoint is known).
-        mWasPreferredOverrideChecked = true
         Log.i(
             TAG,
             "avoidSpeakerOverrideOnCallStart: Evaluating. " +
@@ -315,11 +322,14 @@ internal open class CallSession(
         // Check 2: bug fix logic - an unexpected switch from PreferredStartingCallEndpoint
         // to SPEAKER.
         if (
-            mPreferredStartingCallEndpoint != null &&
-                mPreferredStartingCallEndpoint == prevEndpoint &&
-                mPreferredStartingCallEndpoint != nextEndpoint &&
-                isSpeakerEndpoint(nextEndpoint) // Current endpoint is SPEAKER
+            isUnexpectedSwitchFromPreferredToSpeaker(
+                preferredEndpoint = mPreferredStartingCallEndpoint,
+                prevEndpoint = prevEndpoint,
+                currentEndpoint = nextEndpoint,
+            )
         ) {
+            mWasPreferredOverrideChecked = true
+            mStartingEndpointStabilizationJob?.cancel()
             CoroutineScope(coroutineContext).launch {
                 Log.i(
                     TAG,
@@ -395,10 +405,31 @@ internal open class CallSession(
     suspend fun maybeSwitchStartingEndpoint(preferredStartingCallEndpoint: CallEndpointCompat?) {
         mPreferredStartingCallEndpoint = preferredStartingCallEndpoint
         if (preferredStartingCallEndpoint != null) {
+            startPreferredEndpointStabilizationTimer()
             switchStartingCallEndpointOnCallStart(preferredStartingCallEndpoint)
         } else {
             switchToSpeakerForVideoCallIfNeeded()
         }
+    }
+
+    @VisibleForTesting
+    internal fun startPreferredEndpointStabilizationTimer() {
+        mStartingEndpointStabilizationJob?.cancel()
+        mStartingEndpointStabilizationJob =
+            CoroutineScope(coroutineContext).launch {
+                try {
+                    delay(INITIAL_ENDPOINT_SWITCH_TIMEOUT)
+                    Log.i(
+                        TAG,
+                        "startPreferredEndpointStabilizationTimer: Call-start stabilization " +
+                            "window elapsed. Disarming preferred override guard.",
+                    )
+                    mWasPreferredOverrideChecked = true
+                    mPreferredStartingCallEndpoint = null
+                } catch (e: CancellationException) {
+                    // Normal cancellation when call ends or route stabilizes early
+                }
+            }
     }
 
     internal suspend fun switchToSpeakerForVideoCallIfNeeded(): Boolean {
@@ -833,6 +864,7 @@ internal open class CallSession(
 
     override fun close() {
         Log.i(TAG, "close: CallSessionId=[$mCallSessionId]")
+        mStartingEndpointStabilizationJob?.cancel()
         CallEndpointUuidTracker.endSession(mCallSessionId)
     }
 }
