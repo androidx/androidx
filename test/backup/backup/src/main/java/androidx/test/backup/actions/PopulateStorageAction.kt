@@ -22,19 +22,36 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import androidx.test.backup.ActionPhase
 import androidx.test.backup.BackupDeviceAction
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_DB_NAME
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_ERROR
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_IS_BINARY
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_IS_DEVICE_PROTECTED
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_PATH
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_PREF_KEY
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_PREF_NAME
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_STATUS
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_STORAGE_TYPE
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_TABLE
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_VALUE
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_VALUES
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_VALUE_TYPE
+import androidx.test.backup.BackupDeviceAction.Companion.STATUS_FAILURE
+import androidx.test.backup.BackupDeviceAction.Companion.STATUS_SUCCESS
+import androidx.test.backup.BackupDeviceAction.Companion.STORAGE_TYPE_DATABASE
+import androidx.test.backup.BackupDeviceAction.Companion.STORAGE_TYPE_FILES
+import androidx.test.backup.BackupDeviceAction.Companion.STORAGE_TYPE_PREFS
 import androidx.test.backup.BackupDeviceActionArgs
 import androidx.test.backup.BackupDeviceActionResult
 import java.io.File
 
 /**
- * A generic on-device action that populates test data before a backup is performed.
+ * Populates test data inside the application sandbox before a backup.
  *
- * It parses the incoming `storage_type` argument from [BackupDeviceActionArgs] and seeds the
- * specified data into SharedPreferences, an SQLite database, or raw file storage. It automatically
- * notifies the `BackupManager` of state changes upon completion.
+ * Parses the incoming [BackupDeviceAction.KEY_STORAGE_TYPE] argument and seeds the specified data
+ * into [android.content.SharedPreferences], SQLite database, or raw file storage.
  */
 public class PopulateStorageAction : BackupDeviceAction {
-    override val phase: ActionPhase = ActionPhase.POPULATE
+    @get:ActionPhase override val phase: Int = BackupDeviceAction.PHASE_POPULATE
 
     override fun execute(context: Context, args: BackupDeviceActionArgs): BackupDeviceActionResult {
         val payload = args.payload
@@ -155,90 +172,6 @@ public class PopulateStorageAction : BackupDeviceAction {
     }
 
     private fun errorResult(message: String): BackupDeviceActionResult {
-        return BackupDeviceActionResult(mapOf(KEY_STATUS to STATUS_FAILURE, "error" to message))
-    }
-
-    /** Constants and action payload keys used to configure populate and verification behavior. */
-    public companion object {
-        /**
-         * The payload key specifying whether to use device-protected (DE) storage instead of
-         * default CE storage.
-         *
-         * The corresponding value must be a string representation of a boolean: `"true"` or
-         * `"false"`.
-         */
-        public const val KEY_IS_DEVICE_PROTECTED: String = "is_device_protected"
-
-        /**
-         * Payload key containing the action status result.
-         *
-         * The value returned will be one of the status constants: [STATUS_SUCCESS] or
-         * [STATUS_FAILURE]. Since this key tracks non-binary, extensible status categories (e.g.,
-         * which could include future warnings or partial success info), it is represented as a
-         * string rather than a simple boolean.
-         */
-        public const val KEY_STATUS: String = "status"
-
-        /**
-         * The payload key specifying whether the file value is base64-encoded binary data.
-         *
-         * The corresponding value must be a string representation of a boolean: `"true"` or
-         * `"false"`.
-         */
-        public const val KEY_IS_BINARY: String = "is_binary"
-
-        /**
-         * The payload key for specifying the target storage medium.
-         *
-         * Must be set to one of the following string storage type constants:
-         * - [STORAGE_TYPE_PREFS]
-         * - [STORAGE_TYPE_DATABASE]
-         * - [STORAGE_TYPE_FILES]
-         */
-        public const val KEY_STORAGE_TYPE: String = "storage_type"
-
-        /** The payload key specifying the name of the SharedPreferences file. */
-        public const val KEY_PREF_NAME: String = "pref_name"
-
-        /** The payload key specifying the SharedPreferences key. */
-        public const val KEY_PREF_KEY: String = "pref_key"
-
-        /** The payload key specifying the string value to write to storage. */
-        public const val KEY_VALUE: String = "value"
-
-        /** The payload key specifying the SQLite database filename. */
-        public const val KEY_DB_NAME: String = "db_name"
-
-        /** The payload key specifying the table name inside the SQLite database. */
-        public const val KEY_TABLE: String = "table"
-
-        /**
-         * The payload key specifying query/insert key-value pairs formatted as an
-         * ampersand-separated string.
-         */
-        public const val KEY_VALUES: String = "values"
-
-        /** The payload key specifying the relative or absolute file path. */
-        public const val KEY_PATH: String = "path"
-
-        /**
-         * The payload key specifying the primitive type of the preference value (e.g. INT, LONG).
-         */
-        public const val KEY_VALUE_TYPE: String = "value_type"
-
-        /** Storage type value indicating SharedPreferences. */
-        public const val STORAGE_TYPE_PREFS: String = "PREFS"
-
-        /** Storage type value indicating SQLite database. */
-        public const val STORAGE_TYPE_DATABASE: String = "DATABASE"
-
-        /** Storage type value indicating raw file storage. */
-        public const val STORAGE_TYPE_FILES: String = "FILES"
-
-        /** Status response indicating the action succeeded. */
-        public const val STATUS_SUCCESS: String = "success"
-
-        /** Status response indicating the action failed. */
-        public const val STATUS_FAILURE: String = "failure"
+        return BackupDeviceActionResult(mapOf(KEY_STATUS to STATUS_FAILURE, KEY_ERROR to message))
     }
 }

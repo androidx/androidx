@@ -152,15 +152,15 @@ internal class BackupRestoreControllerImpl(
         return verifyArgs
     }
 
-    override suspend fun runStandardBackupRestoreFlow(
+    override suspend fun runBackupRestoreFlow(
         storage: StorageDomain,
         outputDir: Path,
         mode: BackupTransportMode,
     ): BackupRestoreController {
-        return runStandardBackupRestoreFlow(listOf(storage), outputDir, mode)
+        return runBackupRestoreFlow(listOf(storage), outputDir, mode)
     }
 
-    override suspend fun runStandardBackupRestoreFlow(
+    override suspend fun runBackupRestoreFlow(
         storages: List<StorageDomain>,
         outputDir: Path,
         mode: BackupTransportMode,
@@ -709,19 +709,19 @@ internal class BackupRestoreControllerImpl(
     ): ListenableFuture<BackupActionResult> =
         adbSession.scope.future { runOnDevice(actionClassName, args, timeout, waitForDebugger) }
 
-    override fun runStandardBackupRestoreFlowAsync(
+    override fun runBackupRestoreFlowAsync(
         storage: StorageDomain,
         outputDir: Path,
         mode: BackupTransportMode,
     ): ListenableFuture<BackupRestoreController> =
-        adbSession.scope.future { runStandardBackupRestoreFlow(storage, outputDir, mode) }
+        adbSession.scope.future { runBackupRestoreFlow(storage, outputDir, mode) }
 
-    override fun runStandardBackupRestoreFlowAsync(
+    override fun runBackupRestoreFlowAsync(
         storages: List<StorageDomain>,
         outputDir: Path,
         mode: BackupTransportMode,
     ): ListenableFuture<BackupRestoreController> =
-        adbSession.scope.future { runStandardBackupRestoreFlow(storages, outputDir, mode) }
+        adbSession.scope.future { runBackupRestoreFlow(storages, outputDir, mode) }
 
     override fun performBackupAsync(
         mode: BackupTransportMode,

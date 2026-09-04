@@ -24,6 +24,7 @@ plugins {
 dependencies {
     implementation(libs.androidx.annotation)
 
+    testImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
 }
