@@ -74,13 +74,13 @@ public class CallEndpointCompat(
 
     override fun equals(other: Any?): Boolean {
         return other is CallEndpointCompat &&
-            name == other.name &&
+            name.contentEquals(other.name) &&
             type == other.type &&
             identifier == other.identifier
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(name, type, identifier)
+        return Objects.hash(name.toString(), type, identifier)
     }
 
     public companion object {
