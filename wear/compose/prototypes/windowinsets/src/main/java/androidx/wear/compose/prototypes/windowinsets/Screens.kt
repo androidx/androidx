@@ -24,24 +24,47 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.items
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.ListHeaderDefaults
+import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.lazy.rememberTransformationSpec
+import androidx.wear.compose.material3.lazy.transformedHeight
+
+private val menuScreens =
+    listOf(
+        Screen.Recents,
+        Screen.GlobalStatusBarSandbox,
+        Screen.HorizontalPager,
+        Screen.VerticalPager,
+        Screen.SelfRenderedSandbox,
+    )
 
 @Composable
-fun MenuScreen(backStack: NavBackStack<NavKey>) {
-    val listState = rememberScalingLazyListState()
-    ScalingLazyColumn(
+fun MenuScreen(onNavigateTo: (Screen) -> Unit) {
+    val listState = rememberTransformingLazyColumnState()
+    val transformationSpec = rememberTransformationSpec()
+    TransformingLazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            ListHeader {
+            ListHeader(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .minimumVerticalContentPadding(
+                            ListHeaderDefaults.minimumTopListContentPadding,
+                            ListHeaderDefaults.minimumBottomListContentPadding,
+                        )
+                        .transformedHeight(this, transformationSpec),
+                transformation = SurfaceTransformation(transformationSpec),
+            ) {
                 Text(
                     text = "Wear Windowinsets Prototypes",
                     textAlign = TextAlign.Center,
@@ -49,32 +72,17 @@ fun MenuScreen(backStack: NavBackStack<NavKey>) {
                 )
             }
         }
-        item {
+        items(menuScreens) { screen ->
             Button(
-                onClick = { backStack.add(Screen.GlobalStatusBarSandbox) },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Global Status Bar Sandbox") },
-            )
-        }
-        item {
-            Button(
-                onClick = { backStack.add(Screen.HorizontalPager) },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Horizontal Pager") },
-            )
-        }
-        item {
-            Button(
-                onClick = { backStack.add(Screen.VerticalPager) },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Vertical Pager") },
-            )
-        }
-        item {
-            Button(
-                onClick = { backStack.add(Screen.SelfRenderedSandbox) },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Self Rendered Sandbox") },
+                onClick = { onNavigateTo(screen) },
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .minimumVerticalContentPadding(
+                            ButtonDefaults.minimumVerticalListContentPadding
+                        )
+                        .transformedHeight(this, transformationSpec),
+                transformation = SurfaceTransformation(transformationSpec),
+                label = { Text(screen.title) },
             )
         }
     }
@@ -136,6 +144,63 @@ fun SelfRenderedSandboxScreen(onBack: () -> Unit) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = "Placeholder Screen")
             Button(onClick = onBack, label = { Text("Back") })
+        }
+    }
+}
+
+@Composable
+fun RecentsScreen(recents: List<Screen>, onNavigateTo: (Screen) -> Unit) {
+    val listState = rememberTransformingLazyColumnState()
+    val transformationSpec = rememberTransformationSpec()
+    TransformingLazyColumn(
+        state = listState,
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        item {
+            ListHeader(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .minimumVerticalContentPadding(
+                            ListHeaderDefaults.minimumTopListContentPadding,
+                            ListHeaderDefaults.minimumBottomListContentPadding,
+                        )
+                        .transformedHeight(this, transformationSpec),
+                transformation = SurfaceTransformation(transformationSpec),
+            ) {
+                Text(
+                    text = "Recents",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
+        if (recents.isEmpty()) {
+            item {
+                Text(
+                    text = "No recent screens",
+                    textAlign = TextAlign.Center,
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .minimumVerticalContentPadding(
+                                ButtonDefaults.minimumVerticalListContentPadding
+                            )
+                            .transformedHeight(this, transformationSpec),
+                )
+            }
+        }
+        items(recents) { screen ->
+            Button(
+                onClick = { onNavigateTo(screen) },
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .minimumVerticalContentPadding(
+                            ButtonDefaults.minimumVerticalListContentPadding
+                        )
+                        .transformedHeight(this, transformationSpec),
+                transformation = SurfaceTransformation(transformationSpec),
+                label = { Text(screen.title) },
+            )
         }
     }
 }
