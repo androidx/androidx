@@ -389,6 +389,1950 @@
     </issue>
 
     <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;modifier&apos; (tier MODIFIER) should come after &apos;dismissButton&apos; (tier REQUIRED_INPUT)"
+        errorLine1="    dismissButton: @Composable (() -> Unit)?,"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/material3/AndroidAlertDialog.android.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;modifier&apos; (tier MODIFIER) should come after &apos;offset&apos; (tier REQUIRED_INPUT)"
+        errorLine1="    offset: DpOffset,"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/material3/AndroidMenu.android.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;modifier&apos; (tier MODIFIER) should come after &apos;leadingIcon&apos; (tier REQUIRED_INPUT)"
+        errorLine1="    leadingIcon: @Composable (() -> Unit)?,"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/material3/AndroidMenu.android.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;maxWidth&apos; (tier VISUAL_STYLING) should come after &apos;gesturesEnabled&apos; (tier SLOT_CONFIG)"
+        errorLine1="    gesturesEnabled: Boolean = true,"
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/BottomSheet.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;sheetShadowElevation&apos; (tier VISUAL_STYLING) should come after &apos;sheetDragHandle&apos; (tier SLOT_CONFIG)"
+        errorLine1="    sheetDragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },"
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/BottomSheetScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;flingBehavior&apos; (tier AUXILIARY_BEHAVIOR) should come after &apos;userScrollEnabled&apos; (tier SLOT_CONFIG)"
+        errorLine1="    userScrollEnabled: Boolean = true,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/carousel/Carousel.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;flingBehavior&apos; (tier AUXILIARY_BEHAVIOR) should come after &apos;userScrollEnabled&apos; (tier SLOT_CONFIG)"
+        errorLine1="    userScrollEnabled: Boolean = true,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/carousel/Carousel.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;flingBehavior&apos; (tier AUXILIARY_BEHAVIOR) should come after &apos;userScrollEnabled&apos; (tier SLOT_CONFIG)"
+        errorLine1="    userScrollEnabled: Boolean = true,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/carousel/Carousel.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;title&apos; (tier SLOT_CONFIG)"
+        errorLine1="    title: (@Composable () -> Unit)? = {"
+        errorLine2="    ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/DatePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;modifier&apos; (tier MODIFIER) should come after &apos;dismissButton&apos; (tier REQUIRED_INPUT)"
+        errorLine1="    dismissButton: @Composable (() -> Unit)?,"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/material3/DatePickerDialog.android.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;title&apos; (tier SLOT_CONFIG)"
+        errorLine1="    title: (@Composable () -> Unit)? = {"
+        errorLine2="    ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/DateRangePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;shapes&apos; (tier SLOT_CONFIG)"
+        errorLine1="    shapes: DragHandleShapes = VerticalDragHandleDefaults.shapes(),"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/DragHandle.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentAlignment&apos; (tier VISUAL_STYLING) should come after &apos;containerSize&apos; (tier SLOT_CONFIG)"
+        errorLine1="    containerSize: (Float) -> Dp = ToggleFloatingActionButtonDefaults.containerSize(),"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/FloatingActionButtonMenu.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;shape&apos; (tier VISUAL_STYLING) should come after &apos;leadingContent&apos; (tier SLOT_CONFIG)"
+        errorLine1="    leadingContent: @Composable (RowScope.() -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/FloatingToolbar.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;shape&apos; (tier VISUAL_STYLING) should come after &apos;floatingActionButtonPosition&apos; (tier SLOT_CONFIG)"
+        errorLine1="    floatingActionButtonPosition: FloatingToolbarHorizontalFabPosition ="
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/FloatingToolbar.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;shape&apos; (tier VISUAL_STYLING) should come after &apos;leadingContent&apos; (tier SLOT_CONFIG)"
+        errorLine1="    leadingContent: @Composable (ColumnScope.() -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/FloatingToolbar.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;shape&apos; (tier VISUAL_STYLING) should come after &apos;floatingActionButtonPosition&apos; (tier SLOT_CONFIG)"
+        errorLine1="    floatingActionButtonPosition: FloatingToolbarVerticalFabPosition ="
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/FloatingToolbar.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;shape&apos; (tier VISUAL_STYLING)"
+        errorLine1="    shape: Shape = IconButtonDefaults.standardShape,"
+        errorLine2="    ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;shape&apos; (tier VISUAL_STYLING)"
+        errorLine1="    shape: Shape = IconButtonDefaults.standardShape,"
+        errorLine2="    ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;isPersistent&apos; (tier SLOT_CONFIG)"
+        errorLine1="    isPersistent: Boolean = false,"
+        errorLine2="    ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Label.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;verticalAlignment&apos; (tier VISUAL_STYLING) should come after &apos;shapes&apos; (tier SLOT_CONFIG)"
+        errorLine1="    shapes: ListItemShapes = ListItemDefaults.shapes(),"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ListItem.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;verticalAlignment&apos; (tier VISUAL_STYLING) should come after &apos;onLongClick&apos; (tier SLOT_CONFIG)"
+        errorLine1="    onLongClick: (() -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ListItem.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;verticalAlignment&apos; (tier VISUAL_STYLING) should come after &apos;onLongClick&apos; (tier SLOT_CONFIG)"
+        errorLine1="    onLongClick: (() -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ListItem.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;verticalAlignment&apos; (tier VISUAL_STYLING) should come after &apos;onLongClick&apos; (tier SLOT_CONFIG)"
+        errorLine1="    onLongClick: (() -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ListItem.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;verticalAlignment&apos; (tier VISUAL_STYLING) should come after &apos;onLongClick&apos; (tier SLOT_CONFIG)"
+        errorLine1="    onLongClick: (() -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ListItem.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;verticalAlignment&apos; (tier VISUAL_STYLING) should come after &apos;onLongClick&apos; (tier SLOT_CONFIG)"
+        errorLine1="    onLongClick: (() -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ListItem.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;verticalAlignment&apos; (tier VISUAL_STYLING) should come after &apos;onLongClick&apos; (tier SLOT_CONFIG)"
+        errorLine1="    onLongClick: (() -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ListItem.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;color&apos; (tier VISUAL_STYLING) should come after &apos;polygons&apos; (tier SLOT_CONFIG)"
+        errorLine1="    polygons: List&lt;RoundedPolygon> = LoadingIndicatorDefaults.DeterminateIndicatorPolygons,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/LoadingIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;color&apos; (tier VISUAL_STYLING) should come after &apos;polygons&apos; (tier SLOT_CONFIG)"
+        errorLine1="    polygons: List&lt;RoundedPolygon> = LoadingIndicatorDefaults.IndeterminateIndicatorPolygons,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/LoadingIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;containerShape&apos; (tier VISUAL_STYLING) should come after &apos;polygons&apos; (tier SLOT_CONFIG)"
+        errorLine1="    polygons: List&lt;RoundedPolygon> = LoadingIndicatorDefaults.DeterminateIndicatorPolygons,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/LoadingIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;containerShape&apos; (tier VISUAL_STYLING) should come after &apos;polygons&apos; (tier SLOT_CONFIG)"
+        errorLine1="    polygons: List&lt;RoundedPolygon> = LoadingIndicatorDefaults.IndeterminateIndicatorPolygons,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/LoadingIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;offset&apos; (tier SLOT_CONFIG) should come after &apos;scrollState&apos; (tier STATE_CONTROLLER)"
+        errorLine1="    scrollState: ScrollState = rememberScrollState(),"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Menu.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;properties&apos; (tier PLATFORM_WINDOW_CONFIG) should come after &apos;shape&apos; (tier VISUAL_STYLING)"
+        errorLine1="    shape: Shape = MenuDefaults.shape,"
+        errorLine2="    ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Menu.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;trailingIcon&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Menu.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;supportingText&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Menu.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;supportingText&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Menu.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;supportingText&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Menu.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;sheetMaxWidth&apos; (tier VISUAL_STYLING) should come after &apos;sheetGesturesEnabled&apos; (tier SLOT_CONFIG)"
+        errorLine1="    sheetGesturesEnabled: Boolean = true,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ModalBottomSheet.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;scrimColor&apos; (tier VISUAL_STYLING) should come after &apos;dragHandle&apos; (tier SLOT_CONFIG)"
+        errorLine1="    dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },"
+        errorLine2="    ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ModalBottomSheet.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentColor&apos; (tier VISUAL_STYLING) should come after &apos;header&apos; (tier SLOT_CONFIG)"
+        errorLine1="    header: @Composable (ColumnScope.() -> Unit)? = null,"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationRail.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;textStyle&apos; (tier VISUAL_STYLING) should come after &apos;labelPosition&apos; (tier SLOT_CONFIG)"
+        errorLine1="    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Cutout(),"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;textStyle&apos; (tier VISUAL_STYLING) should come after &apos;label&apos; (tier SLOT_CONFIG)"
+        errorLine1="    label: @Composable (() -> Unit)? = null,"
+        errorLine2="    ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;shape&apos; (tier VISUAL_STYLING)"
+        errorLine1="    shape: Shape = OutlinedTextFieldDefaults.shape,"
+        errorLine2="    ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;textStyle&apos; (tier VISUAL_STYLING) should come after &apos;label&apos; (tier SLOT_CONFIG)"
+        errorLine1="    label: @Composable (() -> Unit)? = null,"
+        errorLine2="    ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;shape&apos; (tier VISUAL_STYLING)"
+        errorLine1="    shape: Shape = OutlinedTextFieldDefaults.shape,"
+        errorLine2="    ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;trackColor&apos; (tier VISUAL_STYLING) should come after &apos;strokeCap&apos; (tier SLOT_CONFIG)"
+        errorLine1="    strokeCap: StrokeCap = ProgressIndicatorDefaults.LinearStrokeCap,"
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;trackColor&apos; (tier VISUAL_STYLING) should come after &apos;strokeCap&apos; (tier SLOT_CONFIG)"
+        errorLine1="    strokeCap: StrokeCap = ProgressIndicatorDefaults.CircularDeterminateStrokeCap,"
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentAlignment&apos; (tier VISUAL_STYLING) should come after &apos;indicator&apos; (tier SLOT_CONFIG)"
+        errorLine1="    indicator: @Composable BoxScope.() -> Unit = {"
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/pulltorefresh/PullToRefresh.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;indicator&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/pulltorefresh/PullToRefresh.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;color&apos; (tier VISUAL_STYLING) should come after &apos;maxDistance&apos; (tier SLOT_CONFIG)"
+        errorLine1="        maxDistance: Dp = IndicatorMaxDistance,"
+        errorLine2="        ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/pulltorefresh/PullToRefresh.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;elevation&apos; (tier VISUAL_STYLING) should come after &apos;maxDistance&apos; (tier SLOT_CONFIG)"
+        errorLine1="        maxDistance: Dp = IndicatorMaxDistance,"
+        errorLine2="        ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/pulltorefresh/PullToRefresh.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;fieldAccessibilityDescription&apos; (tier SLOT_CONFIG)"
+        errorLine1="    fieldAccessibilityDescription: (index: Int) -> String = { index -> index.toLocalString() },"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ScrollField.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;trackColor&apos; (tier VISUAL_STYLING) should come after &apos;thickness&apos; (tier SLOT_CONFIG)"
+        errorLine1="    thickness: Dp = NonInteractiveScrollbarDefaults.Thickness,"
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Scrollbar.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;dropdownShape&apos; (tier VISUAL_STYLING) should come after &apos;dropdownGapSize&apos; (tier SLOT_CONFIG)"
+        errorLine1="    dropdownGapSize: Dp = SearchBarDefaults.dockedDropdownGapSize,"
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SearchBar.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;textStyle&apos; (tier VISUAL_STYLING) should come after &apos;placeholder&apos; (tier SLOT_CONFIG)"
+        errorLine1="        placeholder: @Composable (() -> Unit)? = null,"
+        errorLine2="        ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SearchBar.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;outputTransformation&apos; (tier SLOT_CONFIG) should come after &apos;scrollState&apos; (tier STATE_CONTROLLER)"
+        errorLine1="        scrollState: ScrollState = rememberScrollState(),"
+        errorLine2="        ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SearchBar.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;keyboardOptions&apos; (tier SLOT_CONFIG)"
+        errorLine1="        keyboardOptions: KeyboardOptions = KeyboardOptions.Default,"
+        errorLine2="        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SearchBar.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;textStyle&apos; (tier VISUAL_STYLING) should come after &apos;labelPosition&apos; (tier SLOT_CONFIG)"
+        errorLine1="    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Inside(),"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SecureTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;textStyle&apos; (tier VISUAL_STYLING) should come after &apos;labelPosition&apos; (tier SLOT_CONFIG)"
+        errorLine1="    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Cutout(),"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SecureTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;icon&apos; (tier SLOT_CONFIG)"
+        errorLine1="    icon: @Composable () -> Unit = { SegmentedButtonDefaults.Icon(checked) },"
+        errorLine2="    ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SegmentedButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;icon&apos; (tier SLOT_CONFIG)"
+        errorLine1="    icon: @Composable () -> Unit = { SegmentedButtonDefaults.Icon(selected) },"
+        errorLine2="    ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SegmentedButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;selectedIconColor&apos; (tier VISUAL_STYLING) should come after &apos;selectedTextColorTopIconPosition&apos; (tier SLOT_CONFIG)"
+        errorLine1="        selectedTextColorTopIconPosition: Color ="
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ShortNavigationBar.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;thumb&apos; (tier SLOT_CONFIG)"
+        errorLine1="    thumb: @Composable (SliderState) -> Unit = { _ ->"
+        errorLine2="    ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;thumb&apos; (tier SLOT_CONFIG)"
+        errorLine1="    thumb: @Composable (SliderState) -> Unit = { _ ->"
+        errorLine2="    ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;startThumbInteractionSource&apos; (tier SLOT_CONFIG)"
+        errorLine1="    startThumbInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="        modifier: Modifier = Modifier,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;modifier&apos; (tier MODIFIER)"
+        errorLine1="        modifier: Modifier = Modifier,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="        enabled: Boolean = true,"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;isVertical&apos; (tier REQUIRED_INPUT)"
+        errorLine1="        isVertical: Boolean,"
+        errorLine2="        ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="        enabled: Boolean = true,"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;drawStopIndicator&apos; (tier SLOT_CONFIG)"
+        errorLine1="        drawStopIndicator: (DrawScope.(Offset) -> Unit)? = {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;drawStopIndicator&apos; (tier SLOT_CONFIG)"
+        errorLine1="        drawStopIndicator: (DrawScope.(Offset) -> Unit)? = {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;drawStopIndicator&apos; (tier SLOT_CONFIG)"
+        errorLine1="        drawStopIndicator: (DrawScope.(Offset) -> Unit)? = {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;drawStopIndicator&apos; (tier SLOT_CONFIG)"
+        errorLine1="        drawStopIndicator: (DrawScope.(Offset) -> Unit)? = {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;drawStopIndicator&apos; (tier SLOT_CONFIG)"
+        errorLine1="        drawStopIndicator: (DrawScope.(Offset) -> Unit)? = {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;thumbContent&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Switch.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentColor&apos; (tier VISUAL_STYLING) should come after &apos;indicator&apos; (tier SLOT_CONFIG)"
+        errorLine1="    indicator: @Composable TabIndicatorScope.() -> Unit = {"
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentColor&apos; (tier VISUAL_STYLING) should come after &apos;indicator&apos; (tier SLOT_CONFIG)"
+        errorLine1="    indicator: @Composable TabIndicatorScope.() -> Unit ="
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;color&apos; (tier VISUAL_STYLING) should come after &apos;autoSize&apos; (tier SLOT_CONFIG)"
+        errorLine1="    autoSize: TextAutoSize? = null,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Text.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;letterSpacing&apos; (tier VISUAL_STYLING) should come after &apos;textDecoration&apos; (tier SLOT_CONFIG)"
+        errorLine1="    textDecoration: TextDecoration? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Text.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;lineHeight&apos; (tier VISUAL_STYLING) should come after &apos;overflow&apos; (tier SLOT_CONFIG)"
+        errorLine1="    overflow: TextOverflow = TextOverflow.Clip,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Text.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;letterSpacing&apos; (tier VISUAL_STYLING) should come after &apos;textDecoration&apos; (tier SLOT_CONFIG)"
+        errorLine1="    textDecoration: TextDecoration? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Text.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;lineHeight&apos; (tier VISUAL_STYLING) should come after &apos;overflow&apos; (tier SLOT_CONFIG)"
+        errorLine1="    overflow: TextOverflow = TextOverflow.Clip,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Text.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;color&apos; (tier VISUAL_STYLING) should come after &apos;autoSize&apos; (tier SLOT_CONFIG)"
+        errorLine1="    autoSize: TextAutoSize? = null,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Text.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;letterSpacing&apos; (tier VISUAL_STYLING) should come after &apos;textDecoration&apos; (tier SLOT_CONFIG)"
+        errorLine1="    textDecoration: TextDecoration? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Text.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;lineHeight&apos; (tier VISUAL_STYLING) should come after &apos;overflow&apos; (tier SLOT_CONFIG)"
+        errorLine1="    overflow: TextOverflow = TextOverflow.Clip,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Text.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;letterSpacing&apos; (tier VISUAL_STYLING) should come after &apos;textDecoration&apos; (tier SLOT_CONFIG)"
+        errorLine1="    textDecoration: TextDecoration? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Text.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;lineHeight&apos; (tier VISUAL_STYLING) should come after &apos;overflow&apos; (tier SLOT_CONFIG)"
+        errorLine1="    overflow: TextOverflow = TextOverflow.Clip,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Text.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;textStyle&apos; (tier VISUAL_STYLING) should come after &apos;labelPosition&apos; (tier SLOT_CONFIG)"
+        errorLine1="    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Inside(),"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;textStyle&apos; (tier VISUAL_STYLING) should come after &apos;label&apos; (tier SLOT_CONFIG)"
+        errorLine1="    label: @Composable (() -> Unit)? = null,"
+        errorLine2="    ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;shape&apos; (tier VISUAL_STYLING)"
+        errorLine1="    shape: Shape = TextFieldDefaults.shape,"
+        errorLine2="    ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;textStyle&apos; (tier VISUAL_STYLING) should come after &apos;label&apos; (tier SLOT_CONFIG)"
+        errorLine1="    label: @Composable (() -> Unit)? = null,"
+        errorLine2="    ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;shape&apos; (tier VISUAL_STYLING)"
+        errorLine1="    shape: Shape = TextFieldDefaults.shape,"
+        errorLine2="    ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;shape&apos; (tier VISUAL_STYLING) should come after &apos;focusedIndicatorLineThickness&apos; (tier SLOT_CONFIG)"
+        errorLine1="        focusedIndicatorLineThickness: Dp = FocusedIndicatorThickness,"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextFieldDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;layoutType&apos; (tier SLOT_CONFIG)"
+        errorLine1="    layoutType: TimePickerLayoutType = TimePickerDefaults.layoutType(),"
+        errorLine2="    ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;layoutType&apos; (tier SLOT_CONFIG)"
+        errorLine1="    layoutType: TimePickerLayoutType = TimePickerDefaults.layoutType(),"
+        errorLine2="    ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;properties&apos; (tier PLATFORM_WINDOW_CONFIG) should come after &apos;modeToggleButton&apos; (tier SLOT_CONFIG)"
+        errorLine1="    modeToggleButton: @Composable (() -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePickerDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;properties&apos; (tier PLATFORM_WINDOW_CONFIG) should come after &apos;modeToggleButton&apos; (tier SLOT_CONFIG)"
+        errorLine1="    modeToggleButton: @Composable (() -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePickerDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;buttonSize&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;buttonSize&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;buttonSize&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;buttonSize&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;trackColor&apos; (tier VISUAL_STYLING) should come after &apos;stroke&apos; (tier SLOT_CONFIG)"
+        errorLine1="    stroke: Stroke = WavyProgressIndicatorDefaults.linearIndicatorStroke,"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WavyProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;trackColor&apos; (tier VISUAL_STYLING) should come after &apos;stroke&apos; (tier SLOT_CONFIG)"
+        errorLine1="    stroke: Stroke = WavyProgressIndicatorDefaults.linearIndicatorStroke,"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WavyProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;trackColor&apos; (tier VISUAL_STYLING) should come after &apos;stroke&apos; (tier SLOT_CONFIG)"
+        errorLine1="    stroke: Stroke = WavyProgressIndicatorDefaults.circularIndicatorStroke,"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WavyProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;trackColor&apos; (tier VISUAL_STYLING) should come after &apos;stroke&apos; (tier SLOT_CONFIG)"
+        errorLine1="    stroke: Stroke = WavyProgressIndicatorDefaults.circularIndicatorStroke,"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WavyProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;header&apos; (tier SLOT_CONFIG)"
+        errorLine1="    header: @Composable (() -> Unit)? = null,"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WideNavigationRail.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;header&apos; (tier SLOT_CONFIG)"
+        errorLine1="    header: @Composable (() -> Unit)? = null,"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WideNavigationRail.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;expandedProperties&apos; (tier PLATFORM_WINDOW_CONFIG) should come after &apos;contentPadding&apos; (tier VISUAL_STYLING)"
+        errorLine1="    contentPadding: PaddingValues = WideNavigationRailDefaults.ContentPadding,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WideNavigationRail.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;indicatorPadding&apos; (tier VISUAL_STYLING)"
+        errorLine1="    indicatorPadding: PaddingValues ="
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WideNavigationRail.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;selectedIconColor&apos; (tier VISUAL_STYLING) should come after &apos;selectedTextColorTopIconPosition&apos; (tier SLOT_CONFIG)"
+        errorLine1="        selectedTextColorTopIconPosition: Color ="
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WideNavigationRail.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsCamelCaseWithoutConst"
+        message="Properties on Defaults objects should be camelCase"
+        errorLine1="    public val AllDates: SelectableDates = object : SelectableDates {}"
+        errorLine2="               ~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/DatePicker.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsCamelCaseWithoutConst"
+        message="Properties on Defaults objects should be camelCase"
+        errorLine1="    public val IndeterminateIndicatorPolygons: List&lt;RoundedPolygon> ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/LoadingIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsCamelCaseWithoutConst"
+        message="Properties on Defaults objects should be camelCase"
+        errorLine1="    public val DeterminateIndicatorPolygons: List&lt;RoundedPolygon> ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/LoadingIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsCamelCaseWithoutConst"
+        message="Properties on Defaults objects should be camelCase"
+        errorLine1="    public val OpacityFocusThemeConfiguration: RippleThemeConfiguration ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Ripple.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsCamelCaseWithoutConst"
+        message="Properties on Defaults objects should be camelCase"
+        errorLine1="    public val InsetFocusRingThemeConfiguration: RippleThemeConfiguration ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Ripple.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsCamelCaseWithoutConst"
+        message="Properties on Defaults objects should be camelCase"
+        errorLine1="    public val ThemeConfiguration: RippleThemeConfiguration = OpacityFocusThemeConfiguration"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Ripple.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsCamelCaseWithoutConst"
+        message="Properties on Defaults objects should be camelCase"
+        errorLine1="    public val ProgressAnimationSpec: AnimationSpec&lt;Float> ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WavyProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., TextAlertDialogDefaults.colors) instead of prefixed member &apos;textContentColor&apos; in monolithic defaults"
+        errorLine1="    public val textContentColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AlertDialog.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;topAppBarColors&apos; starts with &apos;topAppBar&apos;"
+        errorLine1="    public fun topAppBarColors(): TopAppBarColors = MaterialTheme.colorScheme.defaultTopAppBarColors"
+        errorLine2="               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AppBar.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;topAppBarColors&apos; starts with &apos;topAppBar&apos;"
+        errorLine1="    public fun topAppBarColors("
+        errorLine2="               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AppBar.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;topAppBarColors&apos; starts with &apos;topAppBar&apos;"
+        errorLine1="    public fun topAppBarColors("
+        errorLine2="               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AppBar.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;bottomAppBarFabColor&apos; starts with &apos;bottomAppBar&apos;"
+        errorLine1="    public val bottomAppBarFabColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AppBar.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., ElevatedButtonDefaults.colors) instead of prefixed member &apos;elevatedShape&apos; in monolithic defaults"
+        errorLine1="    public val elevatedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledTonalButtonDefaults.colors) instead of prefixed member &apos;filledTonalShape&apos; in monolithic defaults"
+        errorLine1="    public val filledTonalShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedButtonDefaults.colors) instead of prefixed member &apos;outlinedShape&apos; in monolithic defaults"
+        errorLine1="    public val outlinedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., TextButtonDefaults.colors) instead of prefixed member &apos;textShape&apos; in monolithic defaults"
+        errorLine1="    public val textShape: Shape"
+        errorLine2="               ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;buttonColors&apos; starts with &apos;button&apos;"
+        errorLine1="    public fun buttonColors(): ButtonColors = MaterialTheme.colorScheme.defaultButtonColors"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;buttonColors&apos; starts with &apos;button&apos;"
+        errorLine1="    public fun buttonColors("
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., ElevatedButtonDefaults.colors) instead of prefixed member &apos;elevatedButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun elevatedButtonColors(): ButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., ElevatedButtonDefaults.colors) instead of prefixed member &apos;elevatedButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun elevatedButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledTonalButtonDefaults.colors) instead of prefixed member &apos;filledTonalButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledTonalButtonColors(): ButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledTonalButtonDefaults.colors) instead of prefixed member &apos;filledTonalButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledTonalButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedButtonDefaults.colors) instead of prefixed member &apos;outlinedButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedButtonColors(): ButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedButtonDefaults.colors) instead of prefixed member &apos;outlinedButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., TextButtonDefaults.colors) instead of prefixed member &apos;textButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun textButtonColors(): ButtonColors = MaterialTheme.colorScheme.defaultTextButtonColors"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., TextButtonDefaults.colors) instead of prefixed member &apos;textButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun textButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;buttonElevation&apos; starts with &apos;button&apos;"
+        errorLine1="    public fun buttonElevation("
+        errorLine2="               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., ElevatedButtonDefaults.colors) instead of prefixed member &apos;elevatedButtonElevation&apos; in monolithic defaults"
+        errorLine1="    public fun elevatedButtonElevation("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledTonalButtonDefaults.colors) instead of prefixed member &apos;filledTonalButtonElevation&apos; in monolithic defaults"
+        errorLine1="    public fun filledTonalButtonElevation("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedButtonDefaults.colors) instead of prefixed member &apos;outlinedButtonBorder&apos; in monolithic defaults"
+        errorLine1="    public val outlinedButtonBorder: BorderStroke"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedButtonDefaults.colors) instead of prefixed member &apos;outlinedButtonBorder&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedButtonBorder(enabled: Boolean = true): BorderStroke ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., TextButtonDefaults.colors) instead of prefixed member &apos;textStyleFor&apos; in monolithic defaults"
+        errorLine1="    public fun textStyleFor(buttonHeight: Dp): TextStyle {"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., ElevatedCardDefaults.colors) instead of prefixed member &apos;elevatedShape&apos; in monolithic defaults"
+        errorLine1="    public val elevatedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedCardDefaults.colors) instead of prefixed member &apos;outlinedShape&apos; in monolithic defaults"
+        errorLine1="    public val outlinedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;cardElevation&apos; starts with &apos;card&apos;"
+        errorLine1="    public fun cardElevation("
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., ElevatedCardDefaults.colors) instead of prefixed member &apos;elevatedCardElevation&apos; in monolithic defaults"
+        errorLine1="    public fun elevatedCardElevation("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedCardDefaults.colors) instead of prefixed member &apos;outlinedCardElevation&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedCardElevation("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;cardColors&apos; starts with &apos;card&apos;"
+        errorLine1="    @Composable public fun cardColors(): CardColors = MaterialTheme.colorScheme.defaultCardColors"
+        errorLine2="                           ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;cardColors&apos; starts with &apos;card&apos;"
+        errorLine1="    public fun cardColors("
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., ElevatedCardDefaults.colors) instead of prefixed member &apos;elevatedCardColors&apos; in monolithic defaults"
+        errorLine1="    public fun elevatedCardColors(): CardColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., ElevatedCardDefaults.colors) instead of prefixed member &apos;elevatedCardColors&apos; in monolithic defaults"
+        errorLine1="    public fun elevatedCardColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedCardDefaults.colors) instead of prefixed member &apos;outlinedCardColors&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedCardColors(): CardColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedCardDefaults.colors) instead of prefixed member &apos;outlinedCardColors&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedCardColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedCardDefaults.colors) instead of prefixed member &apos;outlinedCardBorder&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedCardBorder(enabled: Boolean = true): BorderStroke {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;assistChipColors&apos; starts with &apos;assistChip&apos;"
+        errorLine1="    public fun assistChipColors(): ChipColors = MaterialTheme.colorScheme.defaultAssistChipColors"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;assistChipColors&apos; starts with &apos;assistChip&apos;"
+        errorLine1="    public fun assistChipColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;assistChipElevation&apos; starts with &apos;assistChip&apos;"
+        errorLine1="    public fun assistChipElevation("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;assistChipBorder&apos; starts with &apos;assistChip&apos;"
+        errorLine1="    public fun assistChipBorder("
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;assistChipBorder&apos; starts with &apos;assistChip&apos;"
+        errorLine1="    public fun assistChipBorder("
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., ElevatedAssistChipDefaults.colors) instead of prefixed member &apos;elevatedAssistChipColors&apos; in monolithic defaults"
+        errorLine1="    public fun elevatedAssistChipColors(): ChipColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., ElevatedAssistChipDefaults.colors) instead of prefixed member &apos;elevatedAssistChipColors&apos; in monolithic defaults"
+        errorLine1="    public fun elevatedAssistChipColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., ElevatedAssistChipDefaults.colors) instead of prefixed member &apos;elevatedAssistChipElevation&apos; in monolithic defaults"
+        errorLine1="    public fun elevatedAssistChipElevation("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;filterChipColors&apos; starts with &apos;filterChip&apos;"
+        errorLine1="    public fun filterChipColors(): SelectableChipColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., TonalFilterChipDefaults.colors) instead of prefixed member &apos;tonalFilterChipColors&apos; in monolithic defaults"
+        errorLine1="    public fun tonalFilterChipColors(): SelectableChipColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;filterChipColors&apos; starts with &apos;filterChip&apos;"
+        errorLine1="    public fun filterChipColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;filterChipElevation&apos; starts with &apos;filterChip&apos;"
+        errorLine1="    public fun filterChipElevation("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;filterChipBorder&apos; starts with &apos;filterChip&apos;"
+        errorLine1="    public fun filterChipBorder("
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., ElevatedFilterChipDefaults.colors) instead of prefixed member &apos;elevatedFilterChipColors&apos; in monolithic defaults"
+        errorLine1="    public fun elevatedFilterChipColors(): SelectableChipColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., TonalFilterChipDefaults.colors) instead of prefixed member &apos;tonalElevatedFilterChipColors&apos; in monolithic defaults"
+        errorLine1="    public fun tonalElevatedFilterChipColors(): SelectableChipColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., ElevatedFilterChipDefaults.colors) instead of prefixed member &apos;elevatedFilterChipColors&apos; in monolithic defaults"
+        errorLine1="    public fun elevatedFilterChipColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., ElevatedFilterChipDefaults.colors) instead of prefixed member &apos;elevatedFilterChipElevation&apos; in monolithic defaults"
+        errorLine1="    public fun elevatedFilterChipElevation("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;inputChipColors&apos; starts with &apos;inputChip&apos;"
+        errorLine1="    public fun inputChipColors(): SelectableChipColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., TonalInputChipDefaults.colors) instead of prefixed member &apos;tonalInputChipColors&apos; in monolithic defaults"
+        errorLine1="    public fun tonalInputChipColors(): SelectableChipColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;inputChipColors&apos; starts with &apos;inputChip&apos;"
+        errorLine1="    public fun inputChipColors("
+        errorLine2="               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;inputChipElevation&apos; starts with &apos;inputChip&apos;"
+        errorLine1="    public fun inputChipElevation("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;inputChipBorder&apos; starts with &apos;inputChip&apos;"
+        errorLine1="    public fun inputChipBorder("
+        errorLine2="               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;suggestionChipColors&apos; starts with &apos;suggestionChip&apos;"
+        errorLine1="    public fun suggestionChipColors(): ChipColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;suggestionChipColors&apos; starts with &apos;suggestionChip&apos;"
+        errorLine1="    public fun suggestionChipColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;suggestionChipElevation&apos; starts with &apos;suggestionChip&apos;"
+        errorLine1="    public fun suggestionChipElevation("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;suggestionChipBorder&apos; starts with &apos;suggestionChip&apos;"
+        errorLine1="    public fun suggestionChipBorder("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;suggestionChipBorder&apos; starts with &apos;suggestionChip&apos;"
+        errorLine1="    public fun suggestionChipBorder("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., ElevatedSuggestionChipDefaults.colors) instead of prefixed member &apos;elevatedSuggestionChipColors&apos; in monolithic defaults"
+        errorLine1="    public fun elevatedSuggestionChipColors(): ChipColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., ElevatedSuggestionChipDefaults.colors) instead of prefixed member &apos;elevatedSuggestionChipColors&apos; in monolithic defaults"
+        errorLine1="    public fun elevatedSuggestionChipColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., ElevatedSuggestionChipDefaults.colors) instead of prefixed member &apos;elevatedSuggestionChipElevation&apos; in monolithic defaults"
+        errorLine1="    public fun elevatedSuggestionChipElevation("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., TextExposedDropdownMenuDefaults.colors) instead of prefixed member &apos;textFieldColors&apos; in monolithic defaults"
+        errorLine1="    public fun textFieldColors("
+        errorLine2="               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ExposedDropdownMenu.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedExposedDropdownMenuDefaults.colors) instead of prefixed member &apos;outlinedTextFieldColors&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedTextFieldColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ExposedDropdownMenu.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;floatingToolbarVerticalNestedScroll&apos; starts with &apos;floatingToolbar&apos;"
+        errorLine1="    public fun Modifier.floatingToolbarVerticalNestedScroll("
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/FloatingToolbar.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;iconButtonColors&apos; starts with &apos;iconButton&apos;"
+        errorLine1="    public fun iconButtonColors(): IconButtonColors {"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;iconButtonColors&apos; starts with &apos;iconButton&apos;"
+        errorLine1="    public fun iconButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;iconButtonVibrantColors&apos; starts with &apos;iconButton&apos;"
+        errorLine1="    public fun iconButtonVibrantColors(): IconButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;iconButtonVibrantColors&apos; starts with &apos;iconButton&apos;"
+        errorLine1="    public fun iconButtonVibrantColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledIconButtonDefaults.colors) instead of prefixed member &apos;filledIconButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledIconButtonColors(): IconButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledIconButtonDefaults.colors) instead of prefixed member &apos;filledIconButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledIconButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledIconButtonDefaults.colors) instead of prefixed member &apos;filledIconToggleButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledIconToggleButtonColors(): IconToggleButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledIconButtonDefaults.colors) instead of prefixed member &apos;filledIconToggleButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledIconToggleButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledTonalIconButtonDefaults.colors) instead of prefixed member &apos;filledTonalIconButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledTonalIconButtonColors(): IconButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledTonalIconButtonDefaults.colors) instead of prefixed member &apos;filledTonalIconButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledTonalIconButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledTonalIconButtonDefaults.colors) instead of prefixed member &apos;filledTonalIconToggleButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledTonalIconToggleButtonColors(): IconToggleButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledTonalIconButtonDefaults.colors) instead of prefixed member &apos;filledTonalIconToggleButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledTonalIconToggleButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedIconButtonDefaults.colors) instead of prefixed member &apos;outlinedIconButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedIconButtonColors(): IconButtonColors {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedIconButtonDefaults.colors) instead of prefixed member &apos;outlinedIconButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedIconButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedIconButtonDefaults.colors) instead of prefixed member &apos;outlinedIconButtonVibrantColors&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedIconButtonVibrantColors(): IconButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedIconButtonDefaults.colors) instead of prefixed member &apos;outlinedIconButtonVibrantColors&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedIconButtonVibrantColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedIconButtonDefaults.colors) instead of prefixed member &apos;outlinedIconToggleButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedIconToggleButtonColors(): IconToggleButtonColors {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedIconButtonDefaults.colors) instead of prefixed member &apos;outlinedIconToggleButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedIconToggleButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedIconButtonDefaults.colors) instead of prefixed member &apos;outlinedIconToggleButtonVibrantColors&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedIconToggleButtonVibrantColors(): IconToggleButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedIconButtonDefaults.colors) instead of prefixed member &apos;outlinedIconToggleButtonVibrantColors&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedIconToggleButtonVibrantColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedIconButtonDefaults.colors) instead of prefixed member &apos;outlinedIconToggleButtonBorder&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedIconToggleButtonBorder(enabled: Boolean, checked: Boolean): BorderStroke? {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedIconButtonDefaults.colors) instead of prefixed member &apos;outlinedIconToggleButtonVibrantBorder&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedIconToggleButtonVibrantBorder("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedIconButtonDefaults.colors) instead of prefixed member &apos;outlinedIconButtonBorder&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedIconButtonBorder(enabled: Boolean): BorderStroke {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedIconButtonDefaults.colors) instead of prefixed member &apos;outlinedIconButtonVibrantBorder&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedIconButtonVibrantBorder(enabled: Boolean): BorderStroke {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledIconButtonDefaults.colors) instead of prefixed member &apos;filledShape&apos; in monolithic defaults"
+        errorLine1="    public val filledShape: Shape"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedIconButtonDefaults.colors) instead of prefixed member &apos;outlinedShape&apos; in monolithic defaults"
+        errorLine1="    public val outlinedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;textFieldWithLabelPadding&apos; starts with &apos;textField&apos;"
+        errorLine1="    public fun textFieldWithLabelPadding("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextFieldDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;textFieldWithoutLabelPadding&apos; starts with &apos;textField&apos;"
+        errorLine1="    public fun textFieldWithoutLabelPadding("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextFieldDefaults.kt"/>
+    </issue>
+
+    <issue
         id="RememberInComposition"
         message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
         errorLine1="        rule.setContent { Slider(SliderState(value = 0f, steps = -1)) }"
@@ -440,6 +2384,1959 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/androidDeviceTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingConstructorOrCopy"
+        message="State holder class &apos;DragHandleColors&apos; must provide a public constructor, a public copy() function, or a public non-composable factory function to allow creation/modification outside of composables"
+        errorLine1="public class DragHandleColors("
+        errorLine2="             ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/DragHandle.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingConstructorOrCopy"
+        message="State holder class &apos;AppBarWithSearchColors&apos; must provide a public constructor, a public copy() function, or a public non-composable factory function to allow creation/modification outside of composables"
+        errorLine1="public class AppBarWithSearchColors("
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SearchBar.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;AppBarMenuState&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public class AppBarMenuState {"
+        errorLine2="             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AppBarDsl.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;ButtonGroupMenuState&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public class ButtonGroupMenuState(initialIsShowing: Boolean = false) {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ButtonGroup.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;CarouselParallaxScrollEffectState&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public interface CarouselParallaxScrollEffectState {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/carousel/CarouselParallaxScrollEffect.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;CarouselState&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public class CarouselState("
+        errorLine2="             ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/carousel/CarouselState.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;FloatingToolbarState&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public interface FloatingToolbarState {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/FloatingToolbar.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;SliderState&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public class SliderState"
+        errorLine2="             ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;RangeSliderState&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public class RangeSliderState"
+        errorLine2="             ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;SwipeToDismissBoxState&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public class SwipeToDismissBoxState {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SwipeToDismissBox.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;TimePickerState&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public interface TimePickerState {"
+        errorLine2="                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;TooltipState&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public interface TooltipState {"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Tooltip.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;WideNavigationRailState&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public interface WideNavigationRailState {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WideNavigationRailState.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AlertDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val containerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AlertDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val iconContentColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AlertDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val titleContentColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AlertDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val textContentColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AlertDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val windowInsets: WindowInsets"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AppBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val snapAnimationSpec: AnimationSpec&lt;Float>"
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AppBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val flingAnimationSpec: DecayAnimationSpec&lt;Float>"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AppBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val containerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AppBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val windowInsets: WindowInsets"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AppBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val bottomAppBarFabColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AppBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val snapAnimationSpec: AnimationSpec&lt;Float>"
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AppBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val flingAnimationSpec: DecayAnimationSpec&lt;Float>"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AppBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val containerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Badge.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val squareShape: Shape"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val pressedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val extraSmallPressedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val mediumPressedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val largePressedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val extraLargePressedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val elevatedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val filledTonalShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val outlinedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val textShape: Shape"
+        errorLine2="               ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val outlinedButtonBorder: BorderStroke"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val connectedLeadingButtonShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ButtonGroup.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val connectedLeadingButtonPressShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ButtonGroup.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val connectedTrailingButtonShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ButtonGroup.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val connectedTrailingButtonPressShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ButtonGroup.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val connectedMiddleButtonPressShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ButtonGroup.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val elevatedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val outlinedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    internal val ColorScheme.defaultDatePickerColors: DatePickerColors"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/DatePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/DatePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val color: Color"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Divider.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/FloatingActionButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val smallShape: Shape"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/FloatingActionButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val mediumShape: Shape"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/FloatingActionButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val largeShape: Shape"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/FloatingActionButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val extendedFabShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/FloatingActionButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val smallExtendedFabShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/FloatingActionButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val mediumExtendedFabShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/FloatingActionButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val largeExtendedFabShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/FloatingActionButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val containerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/FloatingActionButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val ContainerShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/FloatingToolbar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val standardShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val filledShape: Shape"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val outlinedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val extraSmallRoundShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val extraSmallSquareShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val extraSmallPressedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val extraSmallSelectedRoundShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val extraSmallSelectedSquareShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val smallRoundShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val smallSquareShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val smallPressedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val smallSelectedRoundShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val smallSelectedSquareShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val SmallSelectedSquareShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val mediumRoundShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val mediumSquareShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val mediumPressedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val mediumSelectedRoundShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val mediumSelectedSquareShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val largeRoundShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val largeSquareShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val largePressedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val largeSelectedRoundShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val largeSelectedSquareShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val extraLargeRoundShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val extraLargeSquareShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val extraLargePressedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val extraLargeSelectedRoundShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val extraLargeSelectedSquareShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/IconButtonDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val containerShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/LoadingIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val indicatorColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/LoadingIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val containedIndicatorColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/LoadingIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val containedContainerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/LoadingIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val containerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val groupStandardContainerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val groupVibrantContainerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val leadingGroupShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val middleGroupShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val trailingGroupShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val leadingItemShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val middleItemShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val trailingItemShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val standaloneItemShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val selectedItemShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val standaloneGroupShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val inactiveGroupShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val containerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val windowInsets: WindowInsets"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationDrawer.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val scrimColor: Color"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationDrawer.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val containerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationDrawer.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val standardContainerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationDrawer.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val modalContainerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationDrawer.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val windowInsets: WindowInsets"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationDrawer.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val ContainerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationRail.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val windowInsets: WindowInsets"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationRail.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val linearColor: Color"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val circularColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val linearTrackColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val circularTrackColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val circularDeterminateTrackColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val circularIndeterminateTrackColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val containerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/pulltorefresh/PullToRefresh.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val indicatorContainerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/pulltorefresh/PullToRefresh.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val loadingIndicatorContainerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/pulltorefresh/PullToRefresh.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val indicatorColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/pulltorefresh/PullToRefresh.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val loadingIndicatorColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/pulltorefresh/PullToRefresh.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val contentWindowInsets: WindowInsets"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Scaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ScrollField.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    internal val ColorScheme.defaultScrollFieldColors: ScrollFieldColors"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ScrollField.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val thumbColor: Color"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Scrollbar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val inputFieldShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SearchBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val fullScreenShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SearchBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val collapsedContainedSearchBarColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SearchBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val fullScreenContainedSearchBarColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SearchBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val dockedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SearchBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val dockedDropdownScrimColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SearchBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val windowInsets: WindowInsets"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SearchBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val fullScreenWindowInsets: WindowInsets"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SearchBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val HiddenShape: Shape"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SheetDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val ExpandedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SheetDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val ContainerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SheetDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val ScrimColor: Color"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SheetDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val windowInsets: WindowInsets"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SheetDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val standardWindowInsets: WindowInsets"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SheetDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val modalWindowInsets: WindowInsets"
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SheetDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val containerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ShortNavigationBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val contentColor: Color"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ShortNavigationBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val windowInsets: WindowInsets"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ShortNavigationBar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Snackbar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val color: Color"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Snackbar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val contentColor: Color"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Snackbar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val actionColor: Color"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Snackbar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val actionContentColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Snackbar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val dismissActionContentColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Snackbar.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val positionalThreshold: (totalDistance: Float) -> Float"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SwipeToDismissBox.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val containerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val primaryContainerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val secondaryContainerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val contentColor: Color"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val primaryContentColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val secondaryContentColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextFieldDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val roundedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextFieldDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val outlinedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextFieldDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val filledShape: Shape"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextFieldDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextFieldDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val roundedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextFieldDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    internal val ColorScheme.defaultOutlinedTextFieldColors: TextFieldColors"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextFieldDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    internal val ColorScheme.defaultTimeInputColors: TimeInputColors"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    internal val ColorScheme.defaultVibrantTimeInputColors: TimeInputColors"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val containerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePickerDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePickerDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val vibrantContainerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePickerDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val vibrantShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePickerDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val pressedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val checkedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    internal val extraSmallPressedShape: Shape"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    internal val mediumPressedShape: Shape"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    internal val largePressedShape: Shape"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    internal val extraLargePressedShape: Shape"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    internal val extraSmallCheckedShape: Shape"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    internal val mediumCheckedShape: Shape"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    internal val largeCheckedShape: Shape"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    internal val extraLargeCheckedShape: Shape"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val pressedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val checkedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val pressedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val checkedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val pressedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val checkedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val plainTooltipContainerShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Tooltip.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val plainTooltipContainerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Tooltip.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val plainTooltipContentColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Tooltip.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val richTooltipContainerShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Tooltip.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val indicatorColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WavyProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val trackColor: Color"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WavyProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val linearIndicatorStroke: Stroke"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WavyProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val circularIndicatorStroke: Stroke"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WavyProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val linearTrackStroke: Stroke"
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WavyProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val circularTrackStroke: Stroke"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WavyProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WideNavigationRail.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val windowInsets: WindowInsets"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WideNavigationRail.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val modalCollapsedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WideNavigationRail.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val modalExpandedShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WideNavigationRail.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    private val containerColor: Color"
+        errorLine2="                ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WideNavigationRail.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    private val modalContainerColor: Color"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WideNavigationRail.kt"/>
+    </issue>
+
+    <issue
+        id="ThemeGetterMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    private val ColorScheme.defaultWideWideNavigationRailColors: WideNavigationRailColors"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/WideNavigationRail.kt"/>
     </issue>
 
     <issue
@@ -854,15 +4751,6 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/material3/internal/CalendarModel.android.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="@RequiresApi(23)"
-        errorLine2="~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/material3/DynamicTonalPalette.android.kt"/>
     </issue>
 
     <issue
