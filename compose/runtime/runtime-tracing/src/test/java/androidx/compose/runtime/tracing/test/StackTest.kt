@@ -28,7 +28,7 @@ class StackTest {
     @Test
     fun basicTest() {
         val instance = Any()
-        val stack = Stack<Any>()
+        val stack = Stack<Any>(tid = Thread.currentThread().id)
         // Add
         repeat(256) { stack += instance }
         // Remove
@@ -37,14 +37,14 @@ class StackTest {
 
     @Test
     fun testRemoveBeforeAdd() {
-        val stack = Stack<Any>()
+        val stack = Stack<Any>(tid = Thread.currentThread().id)
         assertNull(stack.removeLastOrNull())
     }
 
     @Test
     fun testPooling() {
         val instance = Any()
-        val stack = Stack<Any>(blkCount = 2)
+        val stack = Stack<Any>(tid = Thread.currentThread().id, blkCount = 2)
         repeat(2) {
             // Add
             repeat(256) { stack += instance }
@@ -55,8 +55,8 @@ class StackTest {
             }
             assertTrue { stack.isEmpty() }
             assertFalse { stack.isNotEmpty() }
-            assertEquals(stack.blkIdx, 0)
-            assertEquals(stack.blkArray.size, 256 / BLOCK_CAPACITY)
+            assertEquals(0, stack.blkIdx)
+            assertEquals(256 / BLOCK_CAPACITY, stack.blkArray.size)
             assertTrue(stack.blkArray.contentsAreNull())
         }
     }
