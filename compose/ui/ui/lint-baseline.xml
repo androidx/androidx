@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.4.0-alpha05)" variant="all" version="9.4.0-alpha05">
+<issues format="6" by="lint 9.5.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha01)" variant="all" version="9.5.0-alpha01">
 
     <issue
         id="BanThreadSleep"
@@ -8,6 +8,24 @@
         errorLine2="                                        ~~~~~">
         <location
             file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/AndroidPointerInputTest.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="    @OptIn(ComposeToolingApi::class)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/node/MeasureAndLayoutDelegate.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="    @OptIn(ComposeToolingApi::class)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/node/MeasureAndLayoutDelegate.kt"/>
     </issue>
 
     <issue
@@ -552,24 +570,6 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 24"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat.android.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 24"
-        errorLine1="    @RequiresApi(Build.VERSION_CODES.N)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat.android.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
         message="Unnecessary; `Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.S` is never true here"
         errorLine1="            if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.S) {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -850,7 +850,7 @@
     <issue
         id="PrimitiveInCollection"
         message="variable deltas with type List&lt;? extends Offset>: replace with LongList"
-        errorLine1="    val deltas ="
+        errorLine1="    val deltas = items.fastZipWithNext { el1, el2 ->"
         errorLine2="    ^">
         <location
             file="src/androidMain/kotlin/androidx/compose/ui/platform/accessibility/CollectionInfo.android.kt"/>
