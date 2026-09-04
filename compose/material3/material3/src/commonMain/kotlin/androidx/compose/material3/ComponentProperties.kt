@@ -16,12 +16,18 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.ui.unit.Dp
+
 internal class ComponentProperties(
     val checkboxProperties: CheckboxProperties = CheckboxProperties.Default,
     val radioButtonProperties: RadioButtonProperties = RadioButtonProperties.Default,
     val searchBarProperties: SearchBarProperties = SearchBarProperties.Default,
     val appBarWithSearchBarProperties: AppBarWithSearchProperties =
         AppBarWithSearchProperties.Default,
+    val navigationBarProperties: NavigationBarProperties = NavigationBarProperties.Default,
+    val navigationBarItemProperties: NavigationBarItemProperties =
+        NavigationBarItemProperties.Default,
     // TODO(b/543061101): Add properties for components.
 ) {
     companion object {
@@ -54,3 +60,24 @@ internal class AppBarWithSearchProperties(
         val Default = AppBarWithSearchProperties()
     }
 }
+
+internal class NavigationBarProperties(
+    val style: NavigationBarStyle = NavigationBarStyle.Default,
+    var windowInsets: WindowInsets = WindowInsets.Unspecified,
+    val arrangement: ShortNavigationBarArrangement = ShortNavigationBarArrangement.EqualWeight,
+) {
+    companion object {
+        val Default = NavigationBarProperties()
+    }
+}
+
+internal class NavigationBarItemProperties(
+    val style: NavigationBarItemStyle = NavigationBarItemStyle.Default
+) {
+    companion object {
+        val Default = NavigationBarItemProperties()
+    }
+}
+
+internal val WindowInsets.Companion.Unspecified: WindowInsets
+    get() = WindowInsets(Dp.Unspecified, Dp.Unspecified, Dp.Unspecified, Dp.Unspecified)
