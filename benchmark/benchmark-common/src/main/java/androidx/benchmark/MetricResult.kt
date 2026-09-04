@@ -27,23 +27,23 @@ import kotlin.math.sqrt
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MetricResult(
-    val name: String,
-    val data: List<Double>,
-    val iterationData: List<List<Double>>? = null,
+    public val name: String,
+    public val data: List<Double>,
+    public val iterationData: List<List<Double>>? = null,
 ) {
-    val median: Double
-    val medianIndex: Int
-    val min: Double
-    val minIndex: Int
-    val max: Double
-    val maxIndex: Int
-    val standardDeviation: Double
-    val coefficientOfVariation: Double
+    public val median: Double
+    public val medianIndex: Int
+    public val min: Double
+    public val minIndex: Int
+    public val max: Double
+    public val maxIndex: Int
+    public val standardDeviation: Double
+    public val coefficientOfVariation: Double
 
-    val p50: Double
-    val p90: Double
-    val p95: Double
-    val p99: Double
+    public val p50: Double
+    public val p90: Double
+    public val p95: Double
+    public val p99: Double
 
     init {
         val values = data.sorted()
@@ -135,12 +135,12 @@ public class MetricResult(
         return result
     }
 
-    companion object {
+    public companion object {
         internal fun lerp(a: Double, b: Double, ratio: Double): Double {
             return (a * (1 - ratio) + b * (ratio))
         }
 
-        fun getPercentile(sortedData: List<Double>, percentile: Int): Double {
+        public fun getPercentile(sortedData: List<Double>, percentile: Int): Double {
             val idealIndex = percentile.coerceIn(0, 100) / 100.0 * (sortedData.size - 1)
             val firstIndex = idealIndex.toInt()
             val secondIndex = firstIndex + 1

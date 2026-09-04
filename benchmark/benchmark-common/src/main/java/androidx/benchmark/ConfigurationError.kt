@@ -20,25 +20,25 @@ import androidx.annotation.RestrictTo
 
 /** Represents an error in configuration of a benchmark. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-data class ConfigurationError(
+public data class ConfigurationError(
     /**
      * All-caps, publicly visible ID for the error.
      *
      * Used for suppression via instrumentation arguments.
      */
-    val id: String,
+    public val id: String,
 
     /** One-line summary of the problem. */
-    val summary: String,
+    public val summary: String,
 
     /** Multi-line, preformatted detailed description of the problem. */
-    val message: String,
+    public val message: String,
 ) {
     init {
         validateParams(id, summary)
     }
 
-    companion object {
+    internal companion object {
         internal fun validateParams(id: String, summary: String) {
             require(!id.contains("[a-z]".toRegex())) {
                 "IDs must be ALL-CAPs by convention (id=$id)"
@@ -51,17 +51,17 @@ data class ConfigurationError(
     }
 
     /** Representation of suppressed errors during a running benchmark. */
-    class SuppressionState(
+    public class SuppressionState(
         /** Prefix for output data to mark as potentially invalid. */
-        val prefix: String,
+        public val prefix: String,
 
         /** Warning message to present to the user. */
-        val warningMessage: String,
+        public val warningMessage: String,
     )
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun conditionalError(
+public fun conditionalError(
     hasError: Boolean,
     id: String,
     summary: String,
@@ -83,7 +83,7 @@ internal fun List<ConfigurationError>.prettyPrint(prefix: String): String {
  * SuppressionState if errors are suppressed, or null otherwise.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun List<ConfigurationError>.checkAndGetSuppressionState(
+public fun List<ConfigurationError>.checkAndGetSuppressionState(
     suppressedErrorIds: Set<String>
 ): ConfigurationError.SuppressionState? {
     if (isEmpty()) {

@@ -19,9 +19,9 @@ package androidx.benchmark
 import androidx.annotation.RestrictTo
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object Markdown {
+public object Markdown {
     /** Creates a Markdown link. Escapes relevant Markdown characters (e.g. brackets). */
-    fun createLink(label: String, uri: String) = buildString {
+    public fun createLink(label: String, uri: String): String = buildString {
         fun emit(content: String, prefix: Char, suffix: Char) {
             append(prefix)
             var prev: Char? = null
@@ -38,5 +38,6 @@ object Markdown {
         emit(uri, '(', ')')
     }
 
-    fun createFileLink(label: String, path: String) = createLink(label, "file://$path")
+    public fun createFileLink(label: String, path: String): String =
+        createLink(label, "file://$path")
 }

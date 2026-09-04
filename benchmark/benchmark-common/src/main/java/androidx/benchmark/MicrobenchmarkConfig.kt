@@ -22,15 +22,15 @@ package androidx.benchmark
  * [instrumentation arguments](https://developer.android.com/topic/performance/benchmarking/microbenchmark-instrumentation-args).
  */
 @ExperimentalBenchmarkConfigApi
-class MicrobenchmarkConfig
+public class MicrobenchmarkConfig
 @JvmOverloads
-constructor(
+public constructor(
     /**
      * Timing metrics for primary phase, post-warmup
      *
      * Defaults to [TimeCapture].
      */
-    val metrics: List<MetricCapture> =
+    public val metrics: List<MetricCapture> =
         if (Arguments.cpuEventCounterMask != 0) {
             listOf(
                 TimeCapture(),
@@ -51,7 +51,7 @@ constructor(
      */
     @get:Suppress("GetterSetterNames") // enabled is more idiomatic for config constructor
     @get:JvmName("isTraceAppTagEnabled")
-    val traceAppTagEnabled: Boolean = false,
+    public val traceAppTagEnabled: Boolean = false,
 
     /**
      * Set to true to enable capture of tracing-perfetto trace events, such as in Compose
@@ -61,20 +61,20 @@ constructor(
      */
     @get:Suppress("GetterSetterNames") // enabled is more idiomatic for config constructor
     @get:JvmName("isPerfettoSdkTracingEnabled")
-    val perfettoSdkTracingEnabled: Boolean = false,
+    public val perfettoSdkTracingEnabled: Boolean = false,
 
     /** Optional profiler to be used after the primary timing phase. */
-    val profiler: ProfilerConfig? = null,
+    public val profiler: ProfilerConfig? = null,
 
     /**
      * Number of non-measured warmup iterations to perform, leave `null` to determine automatically.
      */
     @Suppress("AutoBoxing") // null is distinct, and boxing cost is trivial (off critical path)
     @get:Suppress("AutoBoxing") // null is distinct, and boxing cost is trivial (off critical path)
-    val warmupCount: Int? = null,
+    public val warmupCount: Int? = null,
 
     /** Number of measurements to perform, leave `null` for default behavior. */
     @Suppress("AutoBoxing") // null is distinct, and boxing cost is trivial (off critical path)
     @get:Suppress("AutoBoxing") // null is distinct, and boxing cost is trivial (off critical path)
-    val measurementCount: Int? = null,
+    public val measurementCount: Int? = null,
 )

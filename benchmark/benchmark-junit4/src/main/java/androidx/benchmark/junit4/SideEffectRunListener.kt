@@ -28,7 +28,7 @@ import org.junit.runner.notification.RunListener
 /** Enables the use of side-effects that reduce the noise during a benchmark run. */
 @Suppress("unused") // referenced by inst arg at runtime
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class SideEffectRunListener : RunListener() {
+public class SideEffectRunListener : RunListener() {
     private val delegate: RunListenerDelegate =
         RunListenerDelegate(sideEffects = listOf(DisablePackages(), DisableDexOpt()))
 

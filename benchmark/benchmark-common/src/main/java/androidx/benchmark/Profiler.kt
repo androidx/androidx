@@ -49,25 +49,25 @@ import java.io.File
  * from warmup -> timing phase, when [start] would be called.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-sealed class Profiler() {
-    class ResultFile
+public sealed class Profiler() {
+    public class ResultFile
     private constructor(
-        val label: String,
-        val type: ProfilerOutput.Type,
-        val outputRelativePath: String,
-        val source: Profiler?,
-        val convertBeforeSync: (() -> Unit)? = null,
+        public val label: String,
+        public val type: ProfilerOutput.Type,
+        public val outputRelativePath: String,
+        public val source: Profiler?,
+        public val convertBeforeSync: (() -> Unit)? = null,
     ) {
 
-        fun embedInPerfettoTrace(perfettoTracePath: String) {
+        public fun embedInPerfettoTrace(perfettoTracePath: String) {
             source?.embedInPerfettoTrace(
                 File(Outputs.outputDirectory, outputRelativePath),
                 File(perfettoTracePath),
             )
         }
 
-        companion object {
-            fun ofPerfettoTrace(label: String, absolutePath: String) =
+        public companion object {
+            public fun ofPerfettoTrace(label: String, absolutePath: String): ResultFile =
                 ResultFile(
                     label = label,
                     outputRelativePath = Outputs.relativePathFor(absolutePath),
@@ -75,7 +75,7 @@ sealed class Profiler() {
                     source = null,
                 )
 
-            fun ofMethodTrace(label: String, absolutePath: String) =
+            public fun ofMethodTrace(label: String, absolutePath: String): ResultFile =
                 ResultFile(
                     label = label,
                     outputRelativePath = Outputs.relativePathFor(absolutePath),
@@ -83,13 +83,13 @@ sealed class Profiler() {
                     source = null,
                 )
 
-            fun of(
+            public fun of(
                 label: String,
                 type: ProfilerOutput.Type,
                 outputRelativePath: String,
                 source: Profiler,
                 convertBeforeSync: (() -> Unit)? = null,
-            ) =
+            ): ResultFile =
                 ResultFile(
                     label = label,
                     outputRelativePath = outputRelativePath,
@@ -100,10 +100,10 @@ sealed class Profiler() {
         }
     }
 
-    abstract fun start(traceUniqueName: String): ResultFile?
+    public abstract fun start(traceUniqueName: String): ResultFile?
 
     /** Start profiling only if expected trace duration is unlikely to trigger an ANR */
-    fun startIfNotRiskingAnrDeadline(
+    public fun startIfNotRiskingAnrDeadline(
         traceUniqueName: String,
         estimatedDurationNs: Long,
     ): ResultFile? {
@@ -131,36 +131,36 @@ sealed class Profiler() {
         }
     }
 
-    abstract fun stop()
+    public abstract fun stop()
 
     internal open fun config(packageNames: List<String>): StackSamplingConfig? = null
 
-    open fun embedInPerfettoTrace(profilerTrace: File, perfettoTrace: File) {}
+    public open fun embedInPerfettoTrace(profilerTrace: File, perfettoTrace: File) {}
 
     /**
      * Measure exactly one loop (one repeat, one iteration).
      *
      * Generally only set for tracing profilers.
      */
-    open val requiresSingleMeasurementIteration = false
+    public open val requiresSingleMeasurementIteration: Boolean = false
 
     /** Generally only set for sampling profilers. */
-    open val requiresExtraRuntime = false
+    public open val requiresExtraRuntime: Boolean = false
 
     /**
      * Currently, debuggable is required to support studio-connected profiling.
      *
      * Remove this once stable Studio supports profileable.
      */
-    open val requiresDebuggable = false
+    public open val requiresDebuggable: Boolean = false
 
     /** Connected modes don't need dir, since library isn't doing the capture. */
-    open val requiresLibraryOutputDir = true
+    public open val requiresLibraryOutputDir: Boolean = true
 
-    companion object {
-        const val CONNECTED_PROFILING_SLEEP_MS = 20_000L
+    public companion object {
+        public const val CONNECTED_PROFILING_SLEEP_MS: Long = 20_000L
 
-        fun getByName(name: String): Profiler? =
+        public fun getByName(name: String): Profiler? =
             mapOf(
                     "MethodTracing" to MethodTracing,
                     "StackSampling" to
@@ -183,7 +183,7 @@ sealed class Profiler() {
                 )
                 .mapKeys { it.key.lowercase() }[name.lowercase()]
 
-        fun traceName(traceUniqueName: String, traceTypeLabel: String): String {
+        public fun traceName(traceUniqueName: String, traceTypeLabel: String): String {
             return Outputs.sanitizeFilename(
                 "$traceUniqueName-$traceTypeLabel-${dateToFileName()}.trace"
             )

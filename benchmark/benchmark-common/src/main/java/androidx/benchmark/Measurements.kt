@@ -20,9 +20,9 @@ import androidx.annotation.RestrictTo
 
 /** Final metric results from a full benchmark test, merged across multiple iterations. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-data class Measurements(
-    val singleMetrics: List<MetricResult>,
-    val sampledMetrics: List<MetricResult>,
+public data class Measurements(
+    public val singleMetrics: List<MetricResult>,
+    public val sampledMetrics: List<MetricResult>,
 ) {
-    fun isNotEmpty() = singleMetrics.isNotEmpty() || sampledMetrics.isNotEmpty()
+    public fun isNotEmpty(): Boolean = singleMetrics.isNotEmpty() || sampledMetrics.isNotEmpty()
 }

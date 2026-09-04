@@ -28,9 +28,9 @@ public data class Response(
     val data: String? = null,
     val throwable: Throwable? = null,
 ) {
-    fun isSuccess() = code > 0
+    public fun isSuccess(): Boolean = code > 0
 
-    fun isFailure() = code <= 0
+    public fun isFailure(): Boolean = code <= 0
 }
 
 /**
@@ -87,7 +87,7 @@ public class ConnectedProfilerTracing(private val targetPackage: String) {
         return Response(code = code, data = data)
     }
 
-    companion object {
+    public companion object {
         internal const val RECEIVER_NAME =
             "androidx.tracing.profiler.ConnectedProfilerTracingReceiver"
 

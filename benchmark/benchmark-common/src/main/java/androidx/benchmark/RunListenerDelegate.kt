@@ -26,9 +26,9 @@ import androidx.annotation.RestrictTo
  * (with minimal additional overheads).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class RunListenerDelegate(private val sideEffects: List<SideEffect>) {
+public class RunListenerDelegate(private val sideEffects: List<SideEffect>) {
     /** Called before any tests have been run. */
-    fun onTestRunStarted() {
+    public fun onTestRunStarted() {
         sideEffects.forEach { sideEffect ->
             Log.d(BenchmarkState.TAG, "Setting up side effect ${sideEffect.name()}")
             sideEffect.setup()
@@ -36,7 +36,7 @@ class RunListenerDelegate(private val sideEffects: List<SideEffect>) {
     }
 
     /** Called after all tests have been completed. */
-    fun onTestRunFinished() {
+    public fun onTestRunFinished() {
         sideEffects.forEach { sideEffect ->
             Log.d(BenchmarkState.TAG, "Tearing down side effect ${sideEffect.name()}")
             sideEffect.tearDown()

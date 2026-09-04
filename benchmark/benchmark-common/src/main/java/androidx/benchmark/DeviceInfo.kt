@@ -34,8 +34,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object DeviceInfo {
-    val isEmulator =
+public object DeviceInfo {
+    public val isEmulator: Boolean =
         Build.FINGERPRINT.startsWith("generic") ||
             Build.FINGERPRINT.startsWith("unknown") ||
             Build.FINGERPRINT.contains("emulator") ||
@@ -48,14 +48,14 @@ object DeviceInfo {
             Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic") ||
             "google_sdk" == Build.PRODUCT
 
-    val typeLabel = if (isEmulator) "emulator" else "device"
+    public val typeLabel: String = if (isEmulator) "emulator" else "device"
 
-    val isEngBuild = Build.FINGERPRINT.contains(":eng/")
+    public val isEngBuild: Boolean = Build.FINGERPRINT.contains(":eng/")
     private val isUserdebugBuild = Build.FINGERPRINT.contains(":userdebug/")
 
-    val profileableEnforced = !isEngBuild && !isUserdebugBuild
+    public val profileableEnforced: Boolean = !isEngBuild && !isUserdebugBuild
 
-    val isRooted =
+    public val isRooted: Boolean =
         Build.FINGERPRINT.contains(":userdebug/") ||
             arrayOf(
                     "/system/app/Superuser.apk",
@@ -78,7 +78,7 @@ object DeviceInfo {
      *
      * Lazy to allow late init, after shell connection is set up
      */
-    val supportsBaselineProfileCaptureError: String? by lazy {
+    public val supportsBaselineProfileCaptureError: String? by lazy {
         if (
             Build.VERSION.SDK_INT >= 33 || (Build.VERSION.SDK_INT >= 28 && Shell.isSessionRooted())
         ) {
@@ -97,12 +97,12 @@ object DeviceInfo {
      * [BatteryManager.EXTRA_BATTERY_LOW] is a better source of truth for this, but we want to be
      * conservative in case the device loses power slowly while benchmarks run.
      */
-    const val MINIMUM_BATTERY_PERCENT = 25
+    public const val MINIMUM_BATTERY_PERCENT: Int = 25
 
-    val initialBatteryPercent: Int
+    public val initialBatteryPercent: Int
 
     /** String summarizing device hardware and software, for bug reporting purposes. */
-    val deviceSummaryString: String
+    public val deviceSummaryString: String
 
     /**
      * General errors about device configuration, applicable to all types of benchmark.
@@ -110,14 +110,14 @@ object DeviceInfo {
      * These errors indicate no performance tests should be performed on this device, in it's
      * current conditions.
      */
-    val errors: List<ConfigurationError>
+    public val errors: List<ConfigurationError>
 
     /**
      * Tracks whether the virtual kernel files have been properly configured on this OS build.
      *
      * If not, only recourse is to try a different device.
      */
-    val misconfiguredForTracing =
+    public val misconfiguredForTracing: Boolean =
         !File("/sys/kernel/tracing/trace_marker").exists() &&
             !File("/sys/kernel/debug/tracing/trace_marker").exists()
 
@@ -126,7 +126,7 @@ object DeviceInfo {
      *
      * See b/522895306
      */
-    val expectedToSupportTracingInTests = !isEmulator || Build.VERSION.SDK_INT >= 26
+    public val expectedToSupportTracingInTests: Boolean = !isEmulator || Build.VERSION.SDK_INT >= 26
 
     private fun getMainlinePackageInfo(packageName: String): PackageInfo? {
         return try {
@@ -162,7 +162,7 @@ object DeviceInfo {
         return artMainlinePackage.longVersionCode
     }
 
-    val isLowRamDevice: Boolean
+    public val isLowRamDevice: Boolean
 
     init {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
@@ -251,7 +251,7 @@ object DeviceInfo {
      *
      * See b/292294133
      */
-    const val ART_MAINLINE_MIN_VERSION_CLASS_LOAD_TRACING = 341511000L
+    public const val ART_MAINLINE_MIN_VERSION_CLASS_LOAD_TRACING: Long = 341511000L
 
     /**
      * Starting with an API 34 change cherry-picked to mainline, when `verify`-compiled, ART will
@@ -297,47 +297,47 @@ object DeviceInfo {
      * Used when mainline version failed to detect, but this is accepted due to low API level (<34)
      * where presence isn't guaranteed (e.g. go devices)
      */
-    const val ART_MAINLINE_VERSION_UNDETECTED = -1L
+    public const val ART_MAINLINE_VERSION_UNDETECTED: Long = -1L
 
     /**
      * Used when mainline version failed to detect, and should throw an error when running a
      * microbenchmark
      */
-    const val ART_MAINLINE_VERSION_UNDETECTED_ERROR = -100L
+    public const val ART_MAINLINE_VERSION_UNDETECTED_ERROR: Long = -100L
 
-    val artMainlineVersion =
+    public val artMainlineVersion: Long =
         when {
             Build.VERSION.SDK_INT >= 31 -> queryArtMainlineVersion()
             Build.VERSION.SDK_INT == 30 -> 1
             else -> ART_MAINLINE_VERSION_UNDETECTED
         }
 
-    fun willMethodTracingAffectMeasurements(sdkInt: Int, artVersion: Long): Boolean =
+    public fun willMethodTracingAffectMeasurements(sdkInt: Int, artVersion: Long): Boolean =
         sdkInt in 26..30 || // b/313868903
             artVersion in ART_MAINLINE_VERSIONS_AFFECTING_METHOD_TRACING || // b/303660864
             (sdkInt == 34 && artVersion >= ART_MAINLINE_INTERNAL_BUILD_MIN) // b/303686344#comment31
 
-    val methodTracingAffectsMeasurements =
+    public val methodTracingAffectsMeasurements: Boolean =
         willMethodTracingAffectMeasurements(Build.VERSION.SDK_INT, artMainlineVersion)
 
-    fun isClassLoadTracingAvailable(sdkInt: Int, artVersion: Long?): Boolean =
+    public fun isClassLoadTracingAvailable(sdkInt: Int, artVersion: Long?): Boolean =
         sdkInt >= 35 ||
             (sdkInt >= 31 &&
                 (artVersion == null || artVersion >= ART_MAINLINE_MIN_VERSION_CLASS_LOAD_TRACING))
 
-    val supportsClassLoadTracing =
+    public val supportsClassLoadTracing: Boolean =
         isClassLoadTracingAvailable(Build.VERSION.SDK_INT, artMainlineVersion)
 
-    val supportsRuntimeImages =
+    public val supportsRuntimeImages: Boolean =
         Build.VERSION.SDK_INT >= 34 || artMainlineVersion >= ART_MAINLINE_MIN_VERSION_RUNTIME_IMAGE
 
-    val verifyClearsRuntimeImage =
+    public val verifyClearsRuntimeImage: Boolean =
         Build.VERSION.SDK_INT >= 35 ||
             (Build.VERSION.SDK_INT == 34 &&
                 artMainlineVersion >= ART_MAINLINE_MIN_VERSION_VERIFY_CLEARS_RUNTIME_IMAGE)
 
     @SuppressLint("BanThreadSleep") // see b/372921569
-    fun sleepToAwaitRuntimeImageFlush() {
+    public fun sleepToAwaitRuntimeImageFlush() {
         // Unfortunately, there's no way to force runtime image flush to disk other than waiting,
         // see (b/372921569)
         InstrumentationResults.scheduleIdeWarningOnNextReport("Delay to await runtime image flush")
@@ -350,15 +350,15 @@ object DeviceInfo {
      * So instead of reinstalling (which wreaks havoc in benchmark control of target app state) we
      * poison it - intentionally create a runtime image with extremely few relevant classes within.
      */
-    val poisonTheRuntimeImage = !verifyClearsRuntimeImage && supportsRuntimeImages
+    public val poisonTheRuntimeImage: Boolean = !verifyClearsRuntimeImage && supportsRuntimeImages
 
-    val supportsCpuEventCounters = isRooted
+    public val supportsCpuEventCounters: Boolean = isRooted
 
     @get:VisibleForTesting
     @set:VisibleForTesting
-    var canShellAccessAppFilesOverride: Boolean? = null
+    public var canShellAccessAppFilesOverride: Boolean? = null
 
-    val canShellAccessAppFiles: Boolean
+    public val canShellAccessAppFiles: Boolean
         get() = canShellAccessAppFilesOverride ?: canShellAccessAppFilesImpl
 
     private val canShellAccessAppFilesImpl: Boolean by lazy {

@@ -33,7 +33,7 @@ import perfetto.protos.TrackEvent
 import perfetto.protos.TrackEventDefaults
 
 @Suppress("TypealiasDefinition")
-typealias UuidProvider = () -> (Long)
+public typealias UuidProvider = () -> (Long)
 
 internal class ArtTrace(
     private val artTrace: File,

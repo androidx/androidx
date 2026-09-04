@@ -33,17 +33,17 @@ import java.util.Locale
  * - security.perf_harden 0
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class CpuEventCounter : Closeable {
+public class CpuEventCounter : Closeable {
     private var profilerPtr = CpuCounterJni.newProfiler()
     private var hasReset = false
     internal var currentEventFlags = 0
         private set
 
-    fun resetEvents(events: List<Event>) {
+    public fun resetEvents(events: List<Event>) {
         resetEvents(events.getFlags())
     }
 
-    fun resetEvents(eventFlags: Int) {
+    public fun resetEvents(eventFlags: Int) {
         if (currentEventFlags != eventFlags) {
             // set up the flags
             CpuCounterJni.resetEvents(profilerPtr, eventFlags)
@@ -55,18 +55,18 @@ class CpuEventCounter : Closeable {
         hasReset = true
     }
 
-    override fun close() {
+    public override fun close() {
         CpuCounterJni.freeProfiler(profilerPtr)
         profilerPtr = 0
     }
 
-    fun reset() {
+    public fun reset() {
         CpuCounterJni.reset(profilerPtr)
     }
 
-    fun start() = CpuCounterJni.start(profilerPtr)
+    public fun start(): Unit = CpuCounterJni.start(profilerPtr)
 
-    fun stop() = CpuCounterJni.stop(profilerPtr)
+    public fun stop(): Unit = CpuCounterJni.stop(profilerPtr)
 
     /**
      * Read the values from the native profiler implementation and write them into [outValues]. Does
@@ -74,7 +74,7 @@ class CpuEventCounter : Closeable {
      *
      * @param outValues The object to write the output into
      */
-    fun read(outValues: Values) {
+    public fun read(outValues: Values) {
         check(profilerPtr != 0L) { "Error: attempted to read counters after close" }
         check(hasReset) { "Error: attempted to read counters without reset" }
         CpuCounterJni.read(profilerPtr, outValues.longArray)
@@ -91,7 +91,7 @@ class CpuEventCounter : Closeable {
      * @param events performance events requested for capture
      * @return validation exception if verification fails, or null if successful
      */
-    fun validateValues(values: Values, events: List<Event>): IllegalStateException? {
+    public fun validateValues(values: Values, events: List<Event>): IllegalStateException? {
         val eventFlags = events.getFlags()
         val validateFlags = eventFlags.and(Event.CpuCycles.flag.or(Event.Instructions.flag))
         if (validateFlags != 0) {
@@ -112,7 +112,7 @@ class CpuEventCounter : Closeable {
         return null
     }
 
-    enum class Event(val id: Int) {
+    public enum class Event(public val id: Int) {
         Instructions(0),
         CpuCycles(1),
         L1DReferences(2),
@@ -122,10 +122,10 @@ class CpuEventCounter : Closeable {
         L1IReferences(6),
         L1IMisses(7);
 
-        val flag: Int
+        public val flag: Int
             inline get() = 1 shl id
 
-        val outputName = name.replaceFirstChar { it.lowercase(Locale.US) }
+        public val outputName: String = name.replaceFirstChar { it.lowercase(Locale.US) }
     }
 
     /**
@@ -134,41 +134,41 @@ class CpuEventCounter : Closeable {
      */
     @JvmInline
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    value class Values(val longArray: LongArray = LongArray(19)) {
+    public value class Values(public val longArray: LongArray = LongArray(19)) {
         init {
             // See CountersLongCount static_assert in native
             require(longArray.size == 19)
         }
 
-        inline val numberOfCounters: Long
+        public inline val numberOfCounters: Long
             get() = longArray[0]
 
-        inline val timeEnabled: Long
+        public inline val timeEnabled: Long
             get() = longArray[1]
 
-        inline val timeRunning: Long
+        public inline val timeRunning: Long
             get() = longArray[2]
 
         @Suppress("NOTHING_TO_INLINE")
-        inline fun getValue(spec: Event): Long = longArray[3 + (2 * spec.id)]
+        public inline fun getValue(spec: Event): Long = longArray[3 + (2 * spec.id)]
     }
 
-    companion object {
-        fun checkPerfEventSupport(): String? = CpuCounterJni.checkPerfEventSupport()
+    public companion object {
+        public fun checkPerfEventSupport(): String? = CpuCounterJni.checkPerfEventSupport()
 
         /**
          * Forces system properties and selinux into correct mode for capture
          *
          * Reset still required if failure occurs partway through
          */
-        fun forceEnable(): String? {
+        public fun forceEnable(): String? {
             Api23Enabler.forceEnable()?.let {
                 return it
             }
             return checkPerfEventSupport()
         }
 
-        fun reset() {
+        public fun reset() {
             Api23Enabler.reset()
         }
 
@@ -178,11 +178,11 @@ class CpuEventCounter : Closeable {
          * Lower APIs not tested, but selinux is documented to be enforced starting in Android 5
          * (API 23).
          */
-        object Api23Enabler {
+        public object Api23Enabler {
             private val perfHardenProp = PropOverride("security.perf_harden", "0")
             private var shouldResetEnforce1 = false
 
-            fun forceEnable(): String? {
+            public fun forceEnable(): String? {
                 if (Shell.isSELinuxEnforced()) {
                     if (DeviceInfo.isRooted) {
                         Shell.executeScriptSilent("setenforce 0")
@@ -195,7 +195,7 @@ class CpuEventCounter : Closeable {
                 return null
             }
 
-            fun reset() {
+            public fun reset() {
                 perfHardenProp.resetIfOverridden()
                 if (shouldResetEnforce1) {
                     Shell.executeScriptSilent("setenforce 1")
@@ -212,21 +212,21 @@ private object CpuCounterJni {
     }
 
     // Profiler methods
-    external fun checkPerfEventSupport(): String?
+    public external fun checkPerfEventSupport(): String?
 
-    external fun newProfiler(): Long
+    public external fun newProfiler(): Long
 
-    external fun freeProfiler(profilerPtr: Long)
+    public external fun freeProfiler(profilerPtr: Long)
 
-    external fun resetEvents(profilerPtr: Long, mask: Int): Int
+    public external fun resetEvents(profilerPtr: Long, mask: Int): Int
 
-    external fun reset(profilerPtr: Long)
+    public external fun reset(profilerPtr: Long)
 
-    external fun start(profilerPtr: Long)
+    public external fun start(profilerPtr: Long)
 
-    external fun stop(profilerPtr: Long)
+    public external fun stop(profilerPtr: Long)
 
-    external fun read(profilerPtr: Long, outData: LongArray)
+    public external fun read(profilerPtr: Long, outData: LongArray)
 }
 
 internal fun List<CpuEventCounter.Event>.getFlags() = fold(0) { acc, event -> acc.or(event.flag) }

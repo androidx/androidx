@@ -21,7 +21,7 @@ import androidx.annotation.VisibleForTesting
 
 /** Provides information about Android Studio Device mirroring */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object DeviceMirroring {
+public object DeviceMirroring {
     /**
      * Whether Android Studio Device Mirroring is active by querying `dumpsys SurfaceFlinger`.
      * Device Mirroring presents to an additional (virtual) display, which can impact performance.
@@ -30,7 +30,7 @@ object DeviceMirroring {
      *
      * @throws IllegalStateException If the status cannot be determined.
      */
-    fun isAndroidStudioDeviceMirroringActive(): Boolean {
+    public fun isAndroidStudioDeviceMirroringActive(): Boolean {
         if (isAndroidStudioDeviceMirroringActiveOverride != null) {
             return isAndroidStudioDeviceMirroringActiveOverride!!
         }
@@ -42,13 +42,14 @@ object DeviceMirroring {
      * Whether a `dumpsys SurfaceFlinger` output has a registered display for Studio Device
      * Mirroring.
      */
-    fun hasDisplayForStudioDeviceMirroringInSurfaceFlingerDump(dumpsysOutput: String): Boolean =
-        dumpsysOutput.contains("studio.screen.sharing")
+    public fun hasDisplayForStudioDeviceMirroringInSurfaceFlingerDump(
+        dumpsysOutput: String
+    ): Boolean = dumpsysOutput.contains("studio.screen.sharing")
 
-    object Error {
-        const val ID = "DEVICE-MIRRORING"
-        const val SUMMARY = "Android Studio Device Mirroring is active"
-        const val MESSAGE =
+    public object Error {
+        public const val ID: String = "DEVICE-MIRRORING"
+        public const val SUMMARY: String = "Android Studio Device Mirroring is active"
+        public const val MESSAGE: String =
             """
             This device's screen is being mirrored in Android Studio. Device mirroring can
             impact performance since the device has to send frames to an extra display.
@@ -59,5 +60,5 @@ object DeviceMirroring {
 
     @get:VisibleForTesting
     @set:VisibleForTesting
-    var isAndroidStudioDeviceMirroringActiveOverride: Boolean? = null
+    public var isAndroidStudioDeviceMirroringActiveOverride: Boolean? = null
 }

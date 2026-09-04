@@ -25,35 +25,35 @@ import dalvik.annotation.optimization.FastNative
  * Both the Kotlin compiler and R8 can remove code you intend to benchmark. To prevent this, pass
  * the result to [BlackHole.consume].
  */
-object BlackHole {
+public object BlackHole {
     init {
         System.loadLibrary("benchmarkNative")
     }
 
     /** Prevent dead code elimination of [value] and its computation. */
-    @JvmStatic @CriticalNative external fun consume(value: Byte)
+    @JvmStatic @CriticalNative public external fun consume(value: Byte)
 
     /** Prevent dead code elimination of [value] and its computation. */
-    @JvmStatic @CriticalNative external fun consume(value: Short)
+    @JvmStatic @CriticalNative public external fun consume(value: Short)
 
     /** Prevent dead code elimination of [value] and its computation. */
-    @JvmStatic @CriticalNative external fun consume(value: Int)
+    @JvmStatic @CriticalNative public external fun consume(value: Int)
 
     /** Prevent dead code elimination of [value] and its computation. */
-    @JvmStatic @CriticalNative external fun consume(value: Long)
+    @JvmStatic @CriticalNative public external fun consume(value: Long)
 
     /** Prevent dead code elimination of [value] and its computation. */
-    @JvmStatic @CriticalNative external fun consume(value: Float)
+    @JvmStatic @CriticalNative public external fun consume(value: Float)
 
     /** Prevent dead code elimination of [value] and its computation. */
-    @JvmStatic @CriticalNative external fun consume(value: Double)
+    @JvmStatic @CriticalNative public external fun consume(value: Double)
 
     /** Prevent dead code elimination of [value] and its computation. */
-    @JvmStatic @CriticalNative external fun consume(value: Boolean)
+    @JvmStatic @CriticalNative public external fun consume(value: Boolean)
 
     /** Prevent dead code elimination of [value] and its computation. */
-    @JvmStatic @CriticalNative external fun consume(value: Char)
+    @JvmStatic @CriticalNative public external fun consume(value: Char)
 
     /** Prevent dead code elimination of [value] and its computation. */
-    @JvmStatic @FastNative external fun consume(value: Any)
+    @JvmStatic @FastNative public external fun consume(value: Any)
 }

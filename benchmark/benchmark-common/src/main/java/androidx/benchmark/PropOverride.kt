@@ -32,7 +32,7 @@ import androidx.annotation.RestrictTo
 public class PropOverride(private val propName: String, private val overrideValue: String) {
     private var resetValue: String? = null
 
-    fun forceValue() {
+    public fun forceValue() {
         if (resetValue != null) {
             // Value was left overridden, skip
             return
@@ -46,7 +46,7 @@ public class PropOverride(private val propName: String, private val overrideValu
         }
     }
 
-    fun resetIfOverridden() {
+    public fun resetIfOverridden() {
         if (resetValue != null) {
             Log.d(BenchmarkState.TAG, "resetting $propName to $resetValue")
         }

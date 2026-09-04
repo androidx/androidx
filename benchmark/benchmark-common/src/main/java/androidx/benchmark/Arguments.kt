@@ -28,13 +28,13 @@ import androidx.test.platform.app.InstrumentationRegistry
 @get:RestrictTo(RestrictTo.Scope.LIBRARY)
 @set:RestrictTo(RestrictTo.Scope.LIBRARY)
 @VisibleForTesting
-var argumentSource: Bundle? = null
+public var argumentSource: Bundle? = null
 
 @Suppress("NullableBooleanElvis") // suggestion makes boolean argument defaults less clear
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object Arguments {
+public object Arguments {
     // public properties are shared by micro + macro benchmarks
-    val suppressedErrors: Set<String>
+    public val suppressedErrors: Set<String>
 
     /**
      * Set to true to enable androidx.tracing.perfetto tracepoints (such as composition tracing)
@@ -42,11 +42,11 @@ object Arguments {
      * Note that when StartupMode.COLD is used, additional work must be performed during target app
      * startup to initialize tracing.
      */
-    val perfettoSdkTracingEnable: Boolean
+    public val perfettoSdkTracingEnable: Boolean
         get() = perfettoSdkTracingEnableOverride ?: _perfettoSdkTracingEnable
 
     private val _perfettoSdkTracingEnable: Boolean
-    @VisibleForTesting var perfettoSdkTracingEnableOverride: Boolean? = null
+    @VisibleForTesting public var perfettoSdkTracingEnableOverride: Boolean? = null
 
     /**
      * Base URL for help articles for Startup Insights.
@@ -54,35 +54,35 @@ object Arguments {
      * This property should only be used while the Startup Insights feature is under development. It
      * can be overridden for testing purposes using [startupInsightsHelpUrlBaseOverride].
      */
-    val startupInsightsHelpUrlBase: String?
+    public val startupInsightsHelpUrlBase: String?
         get() = startupInsightsHelpUrlBaseOverride ?: _startupInsightsHelpUrlBase
 
     private val _startupInsightsHelpUrlBase: String?
-    @VisibleForTesting var startupInsightsHelpUrlBaseOverride: String? = null
+    @VisibleForTesting public var startupInsightsHelpUrlBaseOverride: String? = null
 
     /**
      * Whether to require clocks to be locked. Important: This is *disabled* by default as it was
      * introduced in later versions of benchmark, and running with unlocked clocks is a legitimate
      * use case for Macrobenchmarks.
      */
-    val requireLockedClocks: Boolean
+    public val requireLockedClocks: Boolean
 
-    val enabledRules: Set<RuleType>
+    public val enabledRules: Set<RuleType>
 
-    enum class RuleType {
+    public enum class RuleType {
         Microbenchmark,
         Macrobenchmark,
         BaselineProfile,
     }
 
-    val enableCompilation: Boolean
-    val killProcessDelayMillis: Long
-    val dryRunMode: Boolean
-    val dropShadersEnable: Boolean
-    val dropShadersThrowOnFailure: Boolean
-    val skipBenchmarksOnEmulator: Boolean
-    val saveProfileWaitMillis: Long
-    val killExistingPerfettoRecordings: Boolean
+    public val enableCompilation: Boolean
+    public val killProcessDelayMillis: Long
+    public val dryRunMode: Boolean
+    public val dropShadersEnable: Boolean
+    public val dropShadersThrowOnFailure: Boolean
+    public val skipBenchmarksOnEmulator: Boolean
+    public val saveProfileWaitMillis: Long
+    public val killExistingPerfettoRecordings: Boolean
 
     // internal properties are microbenchmark only
     internal val outputEnable: Boolean
@@ -95,18 +95,18 @@ object Arguments {
     internal val profilerSkipWhenDurationRisksAnr: Boolean
     internal val profilerPerfCompareEnable: Boolean
     internal val thermalThrottleSleepDurationSeconds: Long
-    val cpuEventCounterEnable: Boolean // non-internal, checked in CpuEventCounterBenchmark
+    public val cpuEventCounterEnable: Boolean // non-internal, checked in CpuEventCounterBenchmark
     internal val cpuEventCounterMask: Int
     internal val requireAot: Boolean
     internal val requireJitDisabledIfRooted: Boolean
-    val throwOnMainThreadMeasureRepeated: Boolean // non-internal, used in BenchmarkRule
-    val measureRepeatedOnMainThrowOnDeadline: Boolean // non-internal, used in BenchmarkRule
+    public val throwOnMainThreadMeasureRepeated: Boolean // non-internal, used in BenchmarkRule
+    public val measureRepeatedOnMainThrowOnDeadline: Boolean // non-internal, used in BenchmarkRule
 
     internal var error: String? = null
     internal val additionalTestOutputDir: String?
     private val targetPackageName: String?
 
-    val payload: Map<String, String>
+    public val payload: Map<String, String>
 
     private const val prefix = "androidx.benchmark."
 
@@ -367,7 +367,7 @@ object Arguments {
         payload = arguments.getBenchmarkArgumentsWithPrefix("output.payload")
     }
 
-    fun macrobenchMethodTracingEnabled(): Boolean {
+    public fun macrobenchMethodTracingEnabled(): Boolean {
         return when {
             dryRunMode -> false
             profilerDefault -> false // don't enable tracing by default in macrobench
@@ -375,7 +375,7 @@ object Arguments {
         }
     }
 
-    fun throwIfError() {
+    public fun throwIfError() {
         if (error != null) {
             throw AssertionError(error)
         }
@@ -386,7 +386,7 @@ object Arguments {
      * this is supported only when MacrobenchmarkRule and BaselineProfileRule are used with the
      * baseline profile gradle plugin. This feature requires AGP 8.3.0-alpha10 as minimum version.
      */
-    fun getTargetPackageNameOrThrow(): String =
+    public fun getTargetPackageNameOrThrow(): String =
         targetPackageName
             ?: throw IllegalArgumentException(
                 """

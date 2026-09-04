@@ -129,10 +129,10 @@ internal class ShellServerLifecycleManager : ServerLifecycleManager {
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun <T> TraceProcessor.Companion.runSingleSessionServer(
+public fun <T> TraceProcessor.Companion.runSingleSessionServer(
     absoluteTracePath: String,
     block: TraceProcessor.Session.() -> T,
-) = TraceProcessor.runServer { loadTrace(PerfettoTrace(absoluteTracePath), block) }
+): T = TraceProcessor.runServer { loadTrace(PerfettoTrace(absoluteTracePath), block) }
 
 /**
  * Starts a Perfetto TraceProcessor shell server in http mode.
@@ -146,7 +146,7 @@ fun <T> TraceProcessor.Companion.runSingleSessionServer(
  */
 @JvmOverloads
 @ExperimentalTraceProcessorApi
-fun <T> TraceProcessor.Companion.runServer(
+public fun <T> TraceProcessor.Companion.runServer(
     timeoutMs: Long = DEFAULT_TIMEOUT_MS,
     block: TraceProcessor.() -> T,
 ): T = startServer(timeoutMs).use { block(it.traceProcessor) }
@@ -161,7 +161,7 @@ fun <T> TraceProcessor.Companion.runServer(
 @JvmOverloads
 @ExperimentalTraceProcessorApi
 @CheckResult
-fun TraceProcessor.Companion.startServer(
+public fun TraceProcessor.Companion.startServer(
     timeoutMs: Long = DEFAULT_TIMEOUT_MS
 ): TraceProcessor.Handle =
     startServer(
