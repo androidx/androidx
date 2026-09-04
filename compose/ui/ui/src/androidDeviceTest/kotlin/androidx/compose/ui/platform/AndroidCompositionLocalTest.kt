@@ -28,6 +28,8 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -198,5 +200,20 @@ class AndroidCompositionLocalTest {
             }
         }
         rule.runOnIdle { assertThat(resources).isNotNull() }
+    }
+
+    @Test
+    fun localLocaleList_and_localLocale_areProvided() {
+        var localeList: LocaleList? = null
+        var locale: Locale? = null
+        rule.setContent {
+            localeList = LocalLocaleList.current
+            locale = LocalLocale.current
+        }
+        rule.runOnIdle {
+            assertThat(localeList).isNotNull()
+            assertThat(locale).isNotNull()
+            assertThat(locale).isEqualTo(localeList!!.first())
+        }
     }
 }
