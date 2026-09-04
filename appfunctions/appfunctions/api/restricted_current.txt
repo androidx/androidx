@@ -242,7 +242,7 @@ package androidx.appfunctions {
   @RequiresApi(android.os.Build.VERSION_CODES.BAKLAVA) public abstract class AppFunctionService extends android.app.appfunctions.AppFunctionService {
     ctor public AppFunctionService();
     method public final void onExecuteFunction(android.app.appfunctions.ExecuteAppFunctionRequest request, String callingPackage, android.content.pm.SigningInfo signingInfo, android.os.CancellationSignal cancellationSignal, android.os.OutcomeReceiver<android.app.appfunctions.ExecuteAppFunctionResponse,android.app.appfunctions.AppFunctionException> callback);
-    method @MainThread public abstract void onExecuteFunction(androidx.appfunctions.ExecuteAppFunctionRequest request, android.os.CancellationSignal cancellationSignal, java.util.function.Consumer<androidx.appfunctions.ExecuteAppFunctionResponse> callback);
+    method @MainThread public abstract void onExecuteFunction(androidx.appfunctions.ExecuteAppFunctionRequest request, androidx.appfunctions.metadata.AppFunctionMetadata metadata, android.os.CancellationSignal cancellationSignal, java.util.function.Consumer<androidx.appfunctions.ExecuteAppFunctionResponse> callback);
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface AppFunctionServiceEntryPoint {
@@ -375,7 +375,7 @@ package androidx.appfunctions {
 
   @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public abstract class ExtensionsAppFunctionService extends com.android.extensions.appfunctions.AppFunctionService {
     ctor public ExtensionsAppFunctionService();
-    method @MainThread public abstract void onExecuteFunction(androidx.appfunctions.ExecuteAppFunctionRequest request, android.os.CancellationSignal cancellationSignal, java.util.function.Consumer<androidx.appfunctions.ExecuteAppFunctionResponse> callback);
+    method @MainThread public abstract void onExecuteFunction(androidx.appfunctions.ExecuteAppFunctionRequest request, androidx.appfunctions.metadata.AppFunctionMetadata metadata, android.os.CancellationSignal cancellationSignal, java.util.function.Consumer<androidx.appfunctions.ExecuteAppFunctionResponse> callback);
     method public final void onExecuteFunction(com.android.extensions.appfunctions.ExecuteAppFunctionRequest request, String callingPackage, android.os.CancellationSignal cancellationSignal, android.os.OutcomeReceiver<com.android.extensions.appfunctions.ExecuteAppFunctionResponse,com.android.extensions.appfunctions.AppFunctionException> callback);
     field public static final String SERVICE_INTERFACE = "android.app.appfunctions.AppFunctionService";
   }

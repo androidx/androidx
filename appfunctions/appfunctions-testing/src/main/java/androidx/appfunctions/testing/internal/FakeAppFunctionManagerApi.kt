@@ -28,7 +28,6 @@ import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.RegisterAppFunctionRequest
-import androidx.appfunctions.internal.AggregatedAppFunctionInventory
 import androidx.appfunctions.internal.AggregatedAppFunctionInvoker
 import androidx.appfunctions.internal.AppFunctionManagerApi
 import androidx.appfunctions.internal.NullTranslatorSelector
@@ -52,11 +51,10 @@ internal class FakeAppFunctionManagerApi(
         AppFunctionServiceDelegate(
                 context,
                 Dispatchers.Default,
-                AggregatedAppFunctionInventory::class.java.findImpl(prefix = "$", suffix = "_Impl"),
                 AggregatedAppFunctionInvoker::class.java.findImpl(prefix = "$", suffix = "_Impl"),
                 NullTranslatorSelector(),
             )
-            .executeFunction(request)
+            .executeFunction(request, functionMetadata)
 
     override suspend fun isAppFunctionEnabled(packageName: String, functionId: String): Boolean =
         appFunctionReader
