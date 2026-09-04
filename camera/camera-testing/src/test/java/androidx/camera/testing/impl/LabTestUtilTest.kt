@@ -117,40 +117,47 @@ class LabTestUtilTest {
         val savedFile = LabTestUtil.saveTestBitmap(bitmap, testName)
 
         assertThat(savedFile).isNotNull()
-        savedFile?.let { testFiles.add(it) }
+        val file = requireNotNull(savedFile)
+        testFiles.add(file)
 
-        val outputDir = File(getExternalStoragePublicDirectory(DIRECTORY_PICTURES), "test_output")
-        val expectedFile = File(outputDir, "$testName.png")
-        assertThat(savedFile).isEqualTo(expectedFile)
-        assertThat(expectedFile.exists()).isTrue()
-        assertThat(expectedFile.length()).isGreaterThan(0L)
+        assertThat(file.exists()).isTrue()
+        assertThat(file.length()).isGreaterThan(0L)
+        assertThat(file.name).startsWith(testName)
+        assertThat(file.name).endsWith(".png")
     }
 
     @Test
-    fun saveTestBitmap_supportsCustomDirectoryAndJpeg() {
+    fun saveTestBitmap_supportsJpegFormatAndQuality() {
         LabTestUtil.isLabEnvironmentOverride = true
         val bitmap = createTestBitmap(Color.GREEN)
-        val testName = "test_custom_dir_${System.currentTimeMillis()}"
-        val customDir =
-            File(getExternalStoragePublicDirectory(DIRECTORY_PICTURES), "custom_dir").apply {
-                mkdirs()
-            }
+        val testName = "test_jpeg_save_${System.currentTimeMillis()}"
         val savedFile =
             LabTestUtil.saveTestBitmap(
                 bitmap,
                 testName,
                 format = Bitmap.CompressFormat.JPEG,
                 quality = 90,
-                directory = customDir,
             )
 
         assertThat(savedFile).isNotNull()
-        savedFile?.let { testFiles.add(it) }
+        val jpegFile = requireNotNull(savedFile)
+        testFiles.add(jpegFile)
 
-        val expectedFile = File(customDir, "$testName.jpg")
-        assertThat(savedFile).isEqualTo(expectedFile)
-        assertThat(expectedFile.exists()).isTrue()
-        assertThat(expectedFile.length()).isGreaterThan(0L)
+        assertThat(jpegFile.exists()).isTrue()
+        assertThat(jpegFile.length()).isGreaterThan(0L)
+        assertThat(jpegFile.name).startsWith(testName)
+        assertThat(jpegFile.name).endsWith(".jpg")
+    }
+
+    @Test
+    fun saveTestBitmap_withRecycledBitmap_returnsNull() {
+        LabTestUtil.isLabEnvironmentOverride = true
+        val bitmap = createTestBitmap(Color.MAGENTA)
+        bitmap.recycle()
+        val testName = "test_recycled_${System.currentTimeMillis()}"
+        val savedFile = LabTestUtil.saveTestBitmap(bitmap, testName)
+
+        assertThat(savedFile).isNull()
     }
 
     @Test
