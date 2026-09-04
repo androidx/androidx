@@ -19,8 +19,8 @@ package androidx.compose.runtime.tracing
 import android.content.Context
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.InternalComposeTracingApi
+import androidx.startup.AppInitializer
 import androidx.startup.Initializer
-import androidx.tracing.Tracer
 
 // This is the initializer responsible in bootstrapping Tracing 2.0.
 // We cannot refer to this class directly, because apps in g3 are not using initializers at all.
@@ -36,19 +36,15 @@ internal const val CONNECTED_PROFILER_TRACING_INITIALIZER =
 @OptIn(InternalComposeTracingApi::class)
 public class ComposeTracingInitializer : Initializer<Unit> {
     override fun create(context: Context) {
-        composeTraceSink = ComposeTracer(Tracer.global)
-        Composer.setTracer(composeTraceSink)
+        val composeTracer =
+            AppInitializer.getInstance(context)
+                .initializeComponent(ComposeTracerInitializer::class.java)
+        Composer.setTracer(composeTracer)
     }
 
     override fun dependencies(): List<Class<out Initializer<*>>> {
         @Suppress("UNCHECKED_CAST")
         val klass = Class.forName(CONNECTED_PROFILER_TRACING_INITIALIZER) as Class<Initializer<*>>?
-        // Be graceful when we cannot find the class on the class path.
-        val dependencies = if (klass != null) listOf(klass) else emptyList()
-        return dependencies
-    }
-
-    internal companion object {
-        internal var composeTraceSink: ComposeTracer? = null
+        return listOfNotNull(ComposeTracerInitializer::class.java, klass)
     }
 }
