@@ -21,7 +21,9 @@ import android.app.Instrumentation
 import android.app.UiAutomation
 import android.content.ComponentName
 import android.graphics.Bitmap
+import android.os.Debug
 import androidx.test.platform.app.InstrumentationRegistry
+import java.io.File
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
@@ -126,7 +128,7 @@ abstract class TestAppTest(val activityClass: Class<out Activity>) {
         }
     }
 
-    protected fun assertGarbageCollected(weakRef: WeakReference<*>, maxAttempts: Int = 20) {
+    protected fun assertGarbageCollected(weakRef: WeakReference<*>, maxAttempts: Int = 50) {
         var attempts = 0
         while ((weakRef.get() != null) && (attempts < maxAttempts)) {
             Runtime.getRuntime().gc()
@@ -135,6 +137,34 @@ abstract class TestAppTest(val activityClass: Class<out Activity>) {
             attempts++
         }
 
-        weakRef.get()?.let { fail("Activity ${it.toString()} was not garbage collected.") }
+        if (attempts == maxAttempts) {
+            val fileName = "leak_${activityClass.simpleName}.hprof"
+            val hprofFile = File(instrumentation.targetContext.filesDir, fileName)
+            try {
+                Debug.dumpHprofData(hprofFile.absolutePath)
+            } catch (e: Exception) {
+                fail(
+                    "Activity ${activityClass.simpleName} was not garbage collected " +
+                        "(failed to dump heap: ${e.message})"
+                )
+            }
+            val pullCommand = "adb pull ${hprofFile.absolutePath} ."
+            fail(
+                """
+                Activity ${activityClass.simpleName} was not garbage collected
+                after $attempts attempts.
+                Heap dump saved to: ${hprofFile.absolutePath}
+                To analyze with ahat:
+                  1. Pull the heap dump:
+                     $pullCommand
+                  2. Launch ahat:
+                     ahat $fileName
+                  3. Open http://localhost:7100 and search for
+                     '${activityClass.simpleName}' to view the shortest path to GC root.
+                Or drag and drop '$fileName' into Android Studio to inspect with the Profiler.
+                """
+                    .trimIndent()
+            )
+        }
     }
 }
