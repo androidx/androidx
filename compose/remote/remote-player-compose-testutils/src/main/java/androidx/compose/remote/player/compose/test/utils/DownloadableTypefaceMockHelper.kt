@@ -36,11 +36,36 @@ public fun createMockContextWithFont(
     fontName: String = "karla_regular.ttf",
     authority: String = "com.google.android.gms.fonts",
 ): Context {
-    val fontFile = File(baseContext.cacheDir, fontName)
-    val info = ProviderInfo().apply { this.authority = authority }
-    fontInputStream.use { input -> fontFile.outputStream().use { output -> input.copyTo(output) } }
+    val key = fontName.substringBefore(".").lowercase()
+    return createMockContextWithFonts(
+        baseContext = baseContext,
+        fontStreams = mapOf(key to fontInputStream),
+        defaultFontKey = key,
+        authority = authority,
+    )
+}
+
+public fun createMockContextWithFonts(
+    baseContext: Context,
+    fontStreams: Map<String, InputStream>,
+    defaultFontKey: String = fontStreams.keys.first(),
+    authority: String = "com.google.android.gms.fonts",
+): Context {
+    val fontsByName = mutableMapOf<String, File>()
+    val fontFiles = mutableListOf<File>()
+
+    for ((name, stream) in fontStreams) {
+        val fileName = if (name.endsWith(".ttf")) name else "$name.ttf"
+        val fontFile = File(baseContext.cacheDir, fileName)
+        stream.use { input -> fontFile.outputStream().use { output -> input.copyTo(output) } }
+        fontFiles.add(fontFile)
+        fontsByName[name.lowercase()] = fontFile
+    }
+
+    val defaultFile = fontsByName[defaultFontKey.lowercase()] ?: fontFiles.first()
     val mockResolver = MockContentResolver(baseContext)
-    val mockProvider = MockFontProvider(fontFile)
+    val mockProvider = MockMultiFontProvider(fontsByName, fontFiles, defaultFile)
+    val info = ProviderInfo().apply { this.authority = authority }
     mockProvider.attachInfo(baseContext, info)
     mockResolver.addProvider(authority, mockProvider)
     return MockContext(baseContext, mockResolver)
@@ -57,7 +82,11 @@ private class MockContext(base: Context, private val mockResolver: ContentResolv
     }
 }
 
-private class MockFontProvider(private val fontFile: File) : ContentProvider() {
+private class MockMultiFontProvider(
+    private val fontsByName: Map<String, File>,
+    private val fontFiles: List<File>,
+    private val defaultFile: File,
+) : ContentProvider() {
     override fun onCreate(): Boolean = true
 
     override fun query(
@@ -67,6 +96,14 @@ private class MockFontProvider(private val fontFile: File) : ContentProvider() {
         selectionArgs: Array<out String>?,
         sortOrder: String?,
     ): Cursor {
+        val queryParam = selectionArgs?.firstOrNull() ?: uri.getQueryParameter("q") ?: ""
+        val matchedFile =
+            fontsByName.entries
+                .firstOrNull { (key, _) -> queryParam.contains(key, ignoreCase = true) }
+                ?.value ?: defaultFile
+
+        val id = (fontFiles.indexOf(matchedFile).coerceAtLeast(0) + 1).toLong()
+
         val cursor =
             MatrixCursor(
                 arrayOf(
@@ -79,11 +116,13 @@ private class MockFontProvider(private val fontFile: File) : ContentProvider() {
                     "result_code",
                 )
             )
-        cursor.addRow(arrayOf(1L, 1L, 0, null, 400, 0, 0))
+        cursor.addRow(arrayOf(id, id, 0, null, 400, 0, 0))
         return cursor
     }
 
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
+        val index = uri.lastPathSegment?.toIntOrNull()
+        val fontFile = index?.let { fontFiles.getOrNull(it - 1) } ?: defaultFile
         return ParcelFileDescriptor.open(fontFile, ParcelFileDescriptor.MODE_READ_ONLY)
     }
 
