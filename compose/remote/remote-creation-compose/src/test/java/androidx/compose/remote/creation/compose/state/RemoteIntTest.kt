@@ -733,6 +733,343 @@ class RemoteIntTest {
     }
 
     @Test
+    fun peepholeOptimization_select_div() {
+        val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
+        val expr = myBool.select(10.ri, 20.ri) / 2
+        expr.getIdForCreationState(creationState)
+
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:myBool\" type=4",
+                "IntegerConstant[43] = 1",
+                "IntegerExpression[44] = (10 5 [43] ifElse)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_select_rem() {
+        val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
+        val expr = myBool.select(10.ri, 20.ri) % 3
+        expr.getIdForCreationState(creationState)
+
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:myBool\" type=4",
+                "IntegerConstant[43] = 1",
+                "IntegerExpression[44] = (2 1 [43] ifElse)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_select_times() {
+        val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
+        val expr = myBool.select(10.ri, 20.ri) * 3
+        expr.getIdForCreationState(creationState)
+
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:myBool\" type=4",
+                "IntegerConstant[43] = 1",
+                "IntegerExpression[44] = (60 30 [43] ifElse)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_select_plus() {
+        val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
+        val expr = myBool.select(10.ri, 20.ri) + 5
+        expr.getIdForCreationState(creationState)
+
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:myBool\" type=4",
+                "IntegerConstant[43] = 1",
+                "IntegerExpression[44] = (25 15 [43] ifElse)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_select_minus() {
+        val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
+        val expr = myBool.select(10.ri, 20.ri) - 5
+        expr.getIdForCreationState(creationState)
+
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:myBool\" type=4",
+                "IntegerConstant[43] = 1",
+                "IntegerExpression[44] = (15 5 [43] ifElse)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_select_chained() {
+        val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
+        val expr = (myBool.select(10.ri, 20.ri) + 10) * 2 / 4
+        expr.getIdForCreationState(creationState)
+
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:myBool\" type=4",
+                "IntegerConstant[43] = 1",
+                "IntegerExpression[44] = (15 10 [43] ifElse)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_selectIfLt_div() {
+        val x = RemoteInt.createNamedRemoteInt("x", 5)
+        val y = RemoteInt.createNamedRemoteInt("y", 10)
+        val expr = selectIfLt(x, y, 100.ri, 200.ri) / 10
+        expr.getIdForCreationState(creationState)
+
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:y\" type=4",
+                "IntegerConstant[43] = 10",
+                "VariableName[44] = \"USER:x\" type=4",
+                "IntegerConstant[44] = 5",
+                "IntegerExpression[45] = (20 10 [43] [44] - ifElse)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_selectIfGt_times() {
+        val x = RemoteInt.createNamedRemoteInt("x", 5)
+        val expr = selectIfGt(x, 10.ri, 10.ri, 20.ri) * 2
+        expr.getIdForCreationState(creationState)
+
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:x\" type=4",
+                "IntegerConstant[43] = 5",
+                "IntegerExpression[44] = (40 20 [43] 10 - ifElse)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_selectIfLe_plus() {
+        val x = RemoteInt.createNamedRemoteInt("x", 5)
+        val expr = selectIfLe(x, 10.ri, 10.ri, 20.ri) + 5
+        expr.getIdForCreationState(creationState)
+
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:x\" type=4",
+                "IntegerConstant[43] = 5",
+                "IntegerExpression[44] = (15 25 [43] 10 - ifElse)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_selectIfGe_minus() {
+        val x = RemoteInt.createNamedRemoteInt("x", 5)
+        val expr = selectIfGe(x, 10.ri, 10.ri, 20.ri) - 5
+        expr.getIdForCreationState(creationState)
+
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:x\" type=4",
+                "IntegerConstant[43] = 5",
+                "IntegerExpression[44] = (5 15 10 [43] - ifElse)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_booleanComparisonSelect_times() {
+        val x = RemoteInt.createNamedRemoteInt("x", 5)
+        val y = RemoteInt.createNamedRemoteInt("y", 10)
+        val expr = (x.isLessThan(y)).select(10.ri, 20.ri) * 3
+        expr.getIdForCreationState(creationState)
+
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:y\" type=4",
+                "IntegerConstant[43] = 10",
+                "VariableName[44] = \"USER:x\" type=4",
+                "IntegerConstant[44] = 5",
+                "IntegerExpression[45] = (60 30 [43] [44] - ifElse)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_selectWithConsumingCondition_doesNotFoldBranches() {
+        val x = RemoteInt.createNamedRemoteInt("x", 5)
+        val y = RemoteInt.createNamedRemoteInt("y", 10)
+
+        // Represents: [10, 20, x, SUB, y, IFELSE]
+        val rawSelect =
+            RemoteIntExpression(constantValueOrNull = null, cacheKey = RemoteStateInstanceKey()) {
+                creationState ->
+                longArrayOf(
+                    10L,
+                    20L,
+                    0x100000000L + x.getIdForCreationState(creationState),
+                    0x100000000L + IntegerExpressionEvaluator.I_SUB,
+                    0x100000000L + y.getIdForCreationState(creationState),
+                    0x100000000L + IntegerExpressionEvaluator.I_IFELSE,
+                )
+            }
+
+        val expr = rawSelect * 2
+        expr.getIdForCreationState(creationState)
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:x\" type=4",
+                "IntegerConstant[43] = 5",
+                "VariableName[44] = \"USER:y\" type=4",
+                "IntegerConstant[44] = 10",
+                "IntegerExpression[45] = (10 20 [43] - [44] ifElse 2 *)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_divByZeroOnMultiplication_doesNotCrashDuringPeepHole() {
+        val x = RemoteInt.createNamedRemoteInt("x", 5)
+        val y = RemoteInt.createNamedRemoteInt("y", 10)
+        val mult = x * y
+        val divExpr = mult / 0
+        divExpr.getIdForCreationState(creationState)
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:x\" type=4",
+                "IntegerConstant[43] = 5",
+                "VariableName[44] = \"USER:y\" type=4",
+                "IntegerConstant[44] = 10",
+                "IntegerExpression[45] = ([43] [44] * 0 /)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_select_divByZero_doesNotCrashDuringPeepHole() {
+        val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
+        val expr = myBool.select(10.ri, 20.ri) / 0
+        expr.getIdForCreationState(creationState)
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:myBool\" type=4",
+                "IntegerConstant[43] = 1",
+                "IntegerExpression[44] = (20 10 [43] ifElse 0 /)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_select_remByZero_doesNotCrashDuringPeepHole() {
+        val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
+        val expr = myBool.select(10.ri, 20.ri) % 0
+        expr.getIdForCreationState(creationState)
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:myBool\" type=4",
+                "IntegerConstant[43] = 1",
+                "IntegerExpression[44] = (20 10 [43] ifElse 0 %)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_divVariableMultiplication_doesNotPerformModuloOnVariableId() {
+        val x = RemoteInt.createNamedRemoteInt("x", 5)
+        val y = RemoteInt.createNamedRemoteInt("y", 10)
+        val mult = x * y
+        val divExpr = mult / 2
+        divExpr.getIdForCreationState(creationState)
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:x\" type=4",
+                "IntegerConstant[43] = 5",
+                "VariableName[44] = \"USER:y\" type=4",
+                "IntegerConstant[44] = 10",
+                "IntegerExpression[45] = ([43] [44] * 2 /)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_divTimes_notAssociative_doesNotFold() {
+        val x = RemoteInt.createNamedRemoteInt("x", 19)
+        // (19 / 10) * 2 = 1 * 2 = 2.
+        // If incorrectly folded to x / (10 / 2) = 19 / 5 = 3.
+        val expr = (x / 10) * 2
+        expr.getIdForCreationState(creationState)
+
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:x\" type=4",
+                "IntegerConstant[43] = 19",
+                "IntegerExpression[44] = ([43] 10 / 2 *)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_foldTrailingConstant_overflow_doesNotLeakIntoIdSpace() {
+        val x = RemoteInt.createNamedRemoteInt("x", 5)
+        // 2_000_000_000L * 3L = 6_000_000_000L >= 0x100000000L.
+        // Truncated to 32-bit int: 1_705_032_704.
+        val expr = (x * 2_000_000_000) * 3
+        expr.getIdForCreationState(creationState)
+
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:x\" type=4",
+                "IntegerConstant[43] = 5",
+                "IntegerExpression[44] = ([43] 1705032704 *)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_foldSelectBranches_overflow_doesNotLeakIntoIdSpace() {
+        val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
+        // 2_000_000_000L * 3L = 6_000_000_000L >= 0x100000000L -> 1_705_032_704
+        // 1_000_000_000L * 3L = 3_000_000_000L -> -1_294_967_296
+        val expr = myBool.select(2_000_000_000.ri, 1_000_000_000.ri) * 3
+        expr.getIdForCreationState(creationState)
+
+        val ops = getOperationsStrings()
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:myBool\" type=4",
+                "IntegerConstant[43] = 1",
+                "IntegerExpression[44] = (-1294967296 1705032704 [43] ifElse)",
+            )
+            .inOrder()
+    }
+
+    @Test
     fun peepholeOptimization_zeroDiv() {
         val expr = RemoteInt(0) / time
         expr.getIdForCreationState(creationState)
