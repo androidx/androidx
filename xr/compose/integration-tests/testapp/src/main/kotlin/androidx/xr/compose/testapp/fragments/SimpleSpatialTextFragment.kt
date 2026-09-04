@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,56 +19,39 @@ package androidx.xr.compose.testapp.fragments
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.compose.content
-import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterPosition
-import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.spatial.Subspace
-import androidx.xr.compose.subspace.SpatialMainPanel
+import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.width
-import androidx.xr.compose.unit.DpVolumeOffset
 
-class MainPanelFragment : Fragment() {
+class SimpleSpatialTextFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ) = content {
-        val xOffset = arguments?.getFloat("x_offset") ?: 0f
-        val displayText = arguments?.getString("text") ?: "MainPanelFragment"
-        MainPanelContent(displayText)
+        val displayText = arguments?.getString("text") ?: "Simple Text Fragment"
         Subspace {
-            SpatialMainPanel(
-                modifier = SubspaceModifier.width(300.dp).height(200.dp).offset(x = xOffset.dp)
-            )
-            Orbiter(
-                position =
-                    OrbiterPosition.TopCenter(
-                        EdgeAlignment.Outside,
-                        offset = DpVolumeOffset(x = 0.dp, y = 10.dp, z = 0.dp),
-                    )
+            SpatialPanel(
+                modifier =
+                    SubspaceModifier.width(400.dp).height(200.dp).offset(x = 500.dp, y = 300.dp)
             ) {
-                Button(onClick = { parentFragmentManager.popBackStack() }) { Text("Back") }
+                Surface(color = Color.White, modifier = Modifier.fillMaxSize()) {
+                    Column(modifier = Modifier.padding(16.dp)) { Text(displayText) }
+                }
             }
-        }
-    }
-
-    @Composable
-    private fun MainPanelContent(displayText: String) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(text = displayText)
         }
     }
 }
