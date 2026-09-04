@@ -105,6 +105,74 @@ class StyleCollectorTest {
     }
 
     @Test
+    fun validate_property_layers() {
+        collect(
+            style = {
+                customFloat(10f)
+                styleLayer { customFloat(20f) }
+                customFloat(30f)
+            }
+        ) {
+            assertEquals(20f, customFloat)
+        }
+    }
+
+    @Test
+    fun validate_disjoint_property_layers() {
+        collect(
+            style = {
+                customFloat(10f)
+                styleLayer { customFloat(100f) }
+                styleLayer { customFloat(200f) }
+                customFloat(30f)
+            }
+        ) {
+            assertEquals(200f, customFloat)
+        }
+    }
+
+    @Test
+    fun validate_state_helpers_are_layers() {
+        val startValue = 10f
+        val pressedValue = 200f
+        val hoveredValue = 300f
+        val pressedAndHoveredValue = 400f
+        val lastValue = 20f
+
+        val startStyle = CommonStyle { customFloat(startValue) }
+        val pressedHoverStyle = CommonStyle {
+            pressed { hovered { customFloat(pressedAndHoveredValue) } }
+        }
+        val pressedStyle = CommonStyle { pressed { customFloat(pressedValue) } }
+        val hoveredStyle = CommonStyle { hovered { customFloat(hoveredValue) } }
+        val lastStyle = CommonStyle { customFloat(lastValue) }
+
+        // Where pressedHoverStyle should be able to be anywhere and start should be able to move
+        // to anywhere as long as it is in front of lastStyle.
+        listOf(
+                CommonStyle(pressedHoverStyle, startStyle, pressedStyle, hoveredStyle, lastStyle),
+                CommonStyle(startStyle, pressedHoverStyle, pressedStyle, hoveredStyle, lastStyle),
+                CommonStyle(startStyle, pressedStyle, pressedHoverStyle, hoveredStyle, lastStyle),
+                CommonStyle(startStyle, pressedStyle, hoveredStyle, pressedHoverStyle, lastStyle),
+                CommonStyle(pressedHoverStyle, pressedStyle, startStyle, hoveredStyle, lastStyle),
+                CommonStyle(pressedHoverStyle, pressedStyle, startStyle, hoveredStyle, lastStyle),
+                CommonStyle(pressedStyle, pressedHoverStyle, hoveredStyle, startStyle, lastStyle),
+            )
+            .forEach { style ->
+                collect(style) { assertEquals(lastValue, customFloat) }
+                val state = MutableStyleState(null)
+                state.isPressed = true
+                collect(style, state) { assertEquals(pressedValue, customFloat) }
+                state.isHovered = true
+                collect(style, state) { assertEquals(pressedAndHoveredValue, customFloat) }
+                state.isPressed = false
+                collect(style, state) { assertEquals(hoveredValue, customFloat) }
+                state.isHovered = false
+                collect(style, state) { assertEquals(lastValue, customFloat) }
+            }
+    }
+
+    @Test
     fun can_animate_a_float_property() = runTest {
         collectAnimated(customFloatProperty, 0f, 100f) {
             // It must start and end with 0f and have 100f somewhere in it.

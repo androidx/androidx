@@ -27,7 +27,8 @@ public interface CommonStyleScope :
     AnimateStyleScope,
     StyleStateScope,
     NestedStyleProviderStyleScope,
-    NestedStyleConsumerStyleScope
+    NestedStyleConsumerStyleScope,
+    StyleLayerScope
 
 /**
  * The [CommonStyle] is the style all style types must be converted to be resolved by the

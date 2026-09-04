@@ -2456,7 +2456,7 @@ package androidx.compose.foundation.style {
     method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static infix androidx.compose.foundation.style.CommonStyle then(androidx.compose.foundation.style.CommonStyle, androidx.compose.foundation.style.CommonStyle other);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface CommonStyleScope extends androidx.compose.foundation.style.CustomStyleScope androidx.compose.foundation.style.AnimateStyleScope androidx.compose.foundation.style.NestedStyleConsumerStyleScope androidx.compose.foundation.style.NestedStyleProviderStyleScope androidx.compose.foundation.style.StyleStateScope {
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface CommonStyleScope extends androidx.compose.foundation.style.CustomStyleScope androidx.compose.foundation.style.AnimateStyleScope androidx.compose.foundation.style.NestedStyleConsumerStyleScope androidx.compose.foundation.style.NestedStyleProviderStyleScope androidx.compose.foundation.style.StyleLayerScope androidx.compose.foundation.style.StyleStateScope {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface ContentColorScope {
@@ -2776,6 +2776,10 @@ package androidx.compose.foundation.style {
     method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.foundation.style.CommonStyle toCommonStyle(androidx.compose.foundation.style.Style);
   }
 
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface StyleLayerScope {
+    method public void styleLayer(kotlin.jvm.functions.Function0<kotlin.Unit> block);
+  }
+
   public final class StyleModifierKt {
     method public static androidx.compose.ui.Modifier styleable(androidx.compose.ui.Modifier, androidx.compose.foundation.style.StyleResolver styleResolver);
     method @Deprecated @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.Modifier styleable(androidx.compose.ui.Modifier, androidx.compose.foundation.style.StyleState? styleState);
@@ -2848,8 +2852,8 @@ package androidx.compose.foundation.style {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public final class StyleResolver implements androidx.compose.runtime.RememberObserver {
-    ctor public StyleResolver(androidx.compose.foundation.style.CommonStyle style, optional androidx.compose.foundation.style.StyleState styleState);
-    ctor @BytecodeOnly public StyleResolver(androidx.compose.foundation.style.CommonStyle!, androidx.compose.foundation.style.StyleState!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public StyleResolver(androidx.compose.foundation.style.CommonStyle style, optional androidx.compose.foundation.style.StyleState styleState);
+    ctor @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public StyleResolver(androidx.compose.foundation.style.CommonStyle!, androidx.compose.foundation.style.StyleState!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void onAbandoned();
     method public void onForgotten();
     method public void onRemembered();
