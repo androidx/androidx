@@ -68,7 +68,7 @@ class TabTemplateDemoScreen(carContext: CarContext) : Screen(carContext) {
                 .setContentId("$index")
                 .setTitle(carContext.getString(entry.key))
                 .setIcon(
-                    CarIcon.Builder(IconCompat.createWithResource(carContext, entry.value)).build()
+                    CarIcon.createTintedIcon(IconCompat.createWithResource(carContext, entry.value))
                 )
                 .setStyle(TabStyle.Builder().setShape(Shape.CORNER_MEDIUM).build())
                 .build()
@@ -216,13 +216,12 @@ class TabTemplateDemoScreen(carContext: CarContext) : Screen(carContext) {
     private fun buildGridItemForTemplate(title: CharSequence?): GridItem {
         return GridItem.Builder()
             .setImage(
-                CarIcon.Builder(
-                        IconCompat.createWithResource(
-                            carContext,
-                            R.drawable.ic_emoji_food_beverage_white_48dp,
-                        )
+                CarIcon.createTintedIcon(
+                    IconCompat.createWithResource(
+                        carContext,
+                        R.drawable.ic_emoji_food_beverage_white_48dp,
                     )
-                    .build()
+                )
             )
             .setTitle(title)
             .build()
@@ -237,8 +236,9 @@ class TabTemplateDemoScreen(carContext: CarContext) : Screen(carContext) {
                 .build()
         return MessageTemplate.Builder(carContext.getString(R.string.msg_template_demo_text))
             .setIcon(
-                CarIcon.Builder(IconCompat.createWithResource(carContext, R.drawable.ic_launcher))
-                    .build()
+                CarIcon.createOriginalIcon(
+                    IconCompat.createWithResource(carContext, R.drawable.ic_launcher)
+                )
             )
             .addAction(action)
             .build()
@@ -248,10 +248,9 @@ class TabTemplateDemoScreen(carContext: CarContext) : Screen(carContext) {
         val paneBuilder =
             Pane.Builder()
                 .setImage(
-                    CarIcon.Builder(
-                            IconCompat.createWithResource(carContext, R.drawable.ic_launcher)
-                        )
-                        .build()
+                    CarIcon.createOriginalIcon(
+                        IconCompat.createWithResource(carContext, R.drawable.ic_launcher)
+                    )
                 )
         for (i in 0..<LIST_SIZE) {
             paneBuilder.addRow(buildRowForTemplate("$i Row", false))

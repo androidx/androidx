@@ -136,14 +136,13 @@ public class DemoScripts {
         DateTimeWithZone arrivalTimeAtDestination = getCurrentDateTimeZoneWithOffset(30);
 
         CarIcon lanesImage =
-                new CarIcon.Builder(IconCompat.createWithResource(carContext, R.drawable.lanes))
-                        .build();
+                CarIcon.createOriginalIcon(
+                        IconCompat.createWithResource(carContext, R.drawable.lanes));
         CarIcon junctionImage =
-                new CarIcon.Builder(
+                CarIcon.createOriginalIcon(
                         IconCompat.createWithResource(
                                 carContext,
-                                R.drawable.junction_image))
-                        .build();
+                                R.drawable.junction_image));
 
         Lane straightNormal =
                 new Lane.Builder()
@@ -482,7 +481,7 @@ public class DemoScripts {
 
     /** Generates a {@link CarIcon} representing the turn. */
     private static CarIcon getCarIcon(@NonNull CarContext carContext, int resourceId) {
-        return new CarIcon.Builder(IconCompat.createWithResource(carContext, resourceId)).build();
+        return CarIcon.createTintedIcon(IconCompat.createWithResource(carContext, resourceId));
     }
 
     private static int getTurnIconResourceId(int type) {

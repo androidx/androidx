@@ -113,8 +113,8 @@ public class SamplePlaces {
                                         new CarIcon.Builder(
                                                 IconCompat.createWithResource(
                                                         carContext,
-                                                        R.drawable.ic_commute_24px))
-                                                .setStyle(carIconStyle)
+                                                        R.drawable.ic_commute_24px),
+                                                carIconStyle)
                                                 .build(),
                                         PlaceMarker.TYPE_ICON)
                                 .build()));
@@ -131,10 +131,9 @@ public class SamplePlaces {
                         location2,
                         new PlaceMarker.Builder()
                                 .setIcon(
-                                        new CarIcon.Builder(
+                                        CarIcon.createOriginalIcon(
                                                 IconCompat.createWithResource(
-                                                        carContext, R.drawable.ic_520))
-                                                .build(),
+                                                        carContext, R.drawable.ic_520)),
                                         PlaceMarker.TYPE_IMAGE)
                                 .build()));
 
@@ -327,10 +326,10 @@ public class SamplePlaces {
 
     private static CarIcon createCarIconWithBitmap(CarContext carContext,
             @DrawableRes int drawable) {
-        return new CarIcon.Builder(
+        return CarIcon.createOriginalIcon(
                 IconCompat.createWithBitmap(
                         BitmapFactory.decodeResource(carContext.getResources(), drawable)
                 )
-        ).build();
+        );
     }
 }

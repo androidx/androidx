@@ -109,11 +109,7 @@ public final class StartScreen extends Screen {
     * Given an imageId (as a drawable resource), this function outputs an CarIcon
     */
     public @NonNull CarIcon createCarIconForImage(int imageId) {
-        return new CarIcon.Builder(
-                IconCompat.createWithResource(
-                        getCarContext(),
-                        imageId))
-                .build();
+        return CarIcon.createTintedIcon(IconCompat.createWithResource(getCarContext(), imageId));
     }
 }
 

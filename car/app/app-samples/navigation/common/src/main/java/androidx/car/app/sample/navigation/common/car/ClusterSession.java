@@ -62,10 +62,9 @@ class ClusterSession extends Session implements NavigationScreen.Listener {
         mSettingsAction =
                 new Action.Builder()
                         .setIcon(
-                                new CarIcon.Builder(
+                                CarIcon.createTintedIcon(
                                         IconCompat.createWithResource(
-                                                getCarContext(), R.drawable.ic_settings))
-                                        .build())
+                                                getCarContext(), R.drawable.ic_settings)))
                         .setOnClickListener(
                                 () -> {
                                     getCarContext()

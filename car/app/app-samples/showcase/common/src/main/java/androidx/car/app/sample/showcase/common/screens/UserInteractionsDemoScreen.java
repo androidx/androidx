@@ -90,11 +90,12 @@ public final class UserInteractionsDemoScreen extends Screen {
     private Item buildRowForVoiceInteractionDemo() {
         return new Row.Builder()
                 .setTitle(getCarContext().getString(R.string.voice_access_demo_title))
-                .setImage(new CarIcon.Builder(
-                        IconCompat.createWithResource(
-                                getCarContext(),
-                                R.drawable.ic_mic))
-                        .build(), Row.IMAGE_TYPE_SMALL)
+                .setImage(
+                        CarIcon.createTintedIcon(
+                                IconCompat.createWithResource(
+                                        getCarContext(),
+                                        R.drawable.ic_mic)),
+                        Row.IMAGE_TYPE_SMALL)
                 .setOnClickListener(new VoiceInteraction(getCarContext())::voiceInteractionDemo)
                 .build();
     }
@@ -116,10 +117,11 @@ public final class UserInteractionsDemoScreen extends Screen {
         return new Row.Builder()
                 .setTitle(title)
                 .addText(subTitle)
-                .setImage(new CarIcon.Builder(
-                        IconCompat.createWithResource(
-                                getCarContext(), R.drawable.baseline_task_24))
-                        .build(), Row.IMAGE_TYPE_SMALL)
+                .setImage(
+                        CarIcon.createTintedIcon(
+                                IconCompat.createWithResource(
+                                        getCarContext(), R.drawable.baseline_task_24)),
+                        Row.IMAGE_TYPE_SMALL)
                 .setOnClickListener(
                         () -> {
                             if (mStep < MAX_STEPS_ALLOWED) {
@@ -147,11 +149,12 @@ public final class UserInteractionsDemoScreen extends Screen {
         return new Row.Builder()
                 .setTitle(getCarContext().getString(
                         R.string.request_permission_menu_demo_title))
-                .setImage(new CarIcon.Builder(
-                        IconCompat.createWithResource(
-                                getCarContext(),
-                                R.drawable.baseline_question_mark_24))
-                        .build(), Row.IMAGE_TYPE_SMALL)
+                .setImage(
+                        CarIcon.createTintedIcon(
+                                IconCompat.createWithResource(
+                                        getCarContext(),
+                                        R.drawable.baseline_question_mark_24)),
+                        Row.IMAGE_TYPE_SMALL)
                 .setOnClickListener(() -> getScreenManager().push(
                         new RequestPermissionMenuDemoScreen(getCarContext())))
                 .build();

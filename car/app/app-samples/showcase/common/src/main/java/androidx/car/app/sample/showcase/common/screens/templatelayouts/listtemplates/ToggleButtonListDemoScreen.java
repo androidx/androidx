@@ -115,27 +115,25 @@ public final class ToggleButtonListDemoScreen extends Screen {
     }
 
     private CarIcon buildCarIconForVectorDrawable() {
-        CarIcon.Builder carIconBuilder = new CarIcon.Builder(
-                IconCompat.createWithResource(
-                        getCarContext(),
-                        R.drawable.ic_fastfood_white_48dp));
-
-        if (mSetTintToVector) {
-            carIconBuilder =
-                    carIconBuilder.setStyle(
-                            new CarIconStyle.Builder(CarIconStyle.TINTED)
-                                    .setTint(CarColor.GREEN)
-                                    .build());
-        }
-        return carIconBuilder.build();
-    }
-
-    private CarIcon buildCarIconForImageTest() {
+        CarIconStyle style =
+                mSetTintToVector
+                        ? new CarIconStyle.Builder(CarIconStyle.TINTED)
+                                .setTint(CarColor.GREEN)
+                                .build()
+                        : CarIconStyle.TINTED;
         return new CarIcon.Builder(
                 IconCompat.createWithResource(
                         getCarContext(),
-                        R.drawable.ic_fastfood_yellow_48dp))
+                        R.drawable.ic_fastfood_white_48dp),
+                style)
                 .build();
+    }
+
+    private CarIcon buildCarIconForImageTest() {
+        return CarIcon.createOriginalIcon(
+                IconCompat.createWithResource(
+                        getCarContext(),
+                        R.drawable.ic_fastfood_yellow_48dp));
     }
 
     private int titleForVectorDrawable() {

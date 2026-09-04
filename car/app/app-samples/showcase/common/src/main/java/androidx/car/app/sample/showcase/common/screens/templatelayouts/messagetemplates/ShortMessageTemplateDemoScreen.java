@@ -53,18 +53,23 @@ public class ShortMessageTemplateDemoScreen extends Screen {
      * Helper method to build the MessageTemplate
      */
     private MessageTemplate buildMessageTemplate() {
-        Action.Builder primaryActionBuilder = new Action.Builder()
-                .setOnClickListener(() -> {
-                    CarToast.makeText(
-                            getCarContext(),
-                            getCarContext().getString(R.string.primary_action_title),
-                            LENGTH_LONG
-                    ).show();
-                })
-                .setTitle(getCarContext().getString(R.string.ok_action_title))
-                .setIcon(new CarIcon.Builder(
-                        IconCompat.createWithResource(getCarContext(), R.drawable.baseline_task_24))
-                        .build());
+        Action.Builder primaryActionBuilder =
+                new Action.Builder()
+                        .setOnClickListener(
+                                () -> {
+                                    CarToast.makeText(
+                                                    getCarContext(),
+                                                    getCarContext()
+                                                            .getString(
+                                                                    R.string.primary_action_title),
+                                                    LENGTH_LONG)
+                                            .show();
+                                })
+                        .setTitle(getCarContext().getString(R.string.ok_action_title))
+                        .setIcon(
+                                CarIcon.createTintedIcon(
+                                        IconCompat.createWithResource(
+                                                getCarContext(), R.drawable.baseline_task_24)));
         if (getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_4) {
             primaryActionBuilder.setFlags(FLAG_PRIMARY);
         }
@@ -73,11 +78,10 @@ public class ShortMessageTemplateDemoScreen extends Screen {
                 .setTitle("Map+X this!")
                 .setOnClickListener(
                         () -> getScreenManager().push(new MapMessageDemoScreen(getCarContext())))
-                .setIcon(new CarIcon.Builder(
+                .setIcon(CarIcon.createTintedIcon(
                         IconCompat.createWithResource(
                                 getCarContext(),
-                                R.drawable.ic_emoji_food_beverage_white_48dp))
-                        .build())
+                                R.drawable.ic_emoji_food_beverage_white_48dp)))
                 .build();
 
         CarIconStyle carIconStyle =
@@ -92,8 +96,8 @@ public class ShortMessageTemplateDemoScreen extends Screen {
                         new CarIcon.Builder(
                                 IconCompat.createWithResource(
                                         getCarContext(),
-                                        R.drawable.ic_emoji_food_beverage_white_48dp))
-                                .setStyle(carIconStyle)
+                                        R.drawable.ic_emoji_food_beverage_white_48dp),
+                                carIconStyle)
                                 .build())
                 .addAction(primaryActionBuilder.build())
                 .addAction(

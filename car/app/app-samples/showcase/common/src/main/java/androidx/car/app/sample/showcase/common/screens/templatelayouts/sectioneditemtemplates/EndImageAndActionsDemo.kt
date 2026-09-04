@@ -52,10 +52,9 @@ class EndImageAndActionsDemo(carContext: CarContext) : Screen(carContext) {
     private val actionIconClickable: Action =
         Action.Builder()
             .setIcon(
-                CarIcon.Builder(
-                        IconCompat.createWithResource(carContext, R.drawable.ic_commute_24px)
-                    )
-                    .build()
+                CarIcon.createTintedIcon(
+                    IconCompat.createWithResource(carContext, R.drawable.ic_commute_24px)
+                )
             )
             .setOnClickListener { showToast("Clicked on Commute") }
             .build()
@@ -63,20 +62,20 @@ class EndImageAndActionsDemo(carContext: CarContext) : Screen(carContext) {
     private val actionIconNonClickable: Action =
         Action.Builder()
             .setIcon(
-                CarIcon.Builder(
-                        IconCompat.createWithResource(
-                            carContext,
-                            R.drawable.baseline_directions_boat_filled_24,
-                        )
+                CarIcon.createTintedIcon(
+                    IconCompat.createWithResource(
+                        carContext,
+                        R.drawable.baseline_directions_boat_filled_24,
                     )
-                    .build()
+                )
             )
             // No setOnClickListener means this action is NOT interactable/clickable
             .build()
 
     private val endImage: CarIcon =
-        CarIcon.Builder(IconCompat.createWithResource(carContext, R.drawable.test_image_square))
-            .build()
+        CarIcon.createOriginalIcon(
+            IconCompat.createWithResource(carContext, R.drawable.test_image_square)
+        )
 
     override fun onGetTemplate(): Template {
         return SectionedItemTemplate.Builder()
@@ -196,13 +195,12 @@ class EndImageAndActionsDemo(carContext: CarContext) : Screen(carContext) {
     private fun createAction(toastString: String): Action {
         return Action.Builder()
             .setIcon(
-                CarIcon.Builder(
-                        IconCompat.createWithResource(
-                            carContext,
-                            R.drawable.baseline_question_mark_24,
-                        )
+                CarIcon.createTintedIcon(
+                    IconCompat.createWithResource(
+                        carContext,
+                        R.drawable.baseline_question_mark_24,
                     )
-                    .build()
+                )
             )
             .setOnClickListener { showToast(toastString) }
             .setBackgroundColor(CarColor.BLUE)

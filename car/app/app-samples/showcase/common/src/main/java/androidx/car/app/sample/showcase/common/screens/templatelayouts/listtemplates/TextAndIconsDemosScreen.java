@@ -89,29 +89,27 @@ public final class TextAndIconsDemosScreen extends Screen {
     }
 
     private CarIcon buildCarIconWithResource(int imageId) {
-        return new CarIcon.Builder(
+        return CarIcon.createOriginalIcon(
                 IconCompat.createWithResource(
                         getCarContext(),
-                        imageId))
-                .build();
+                        imageId));
     }
 
     private CarIcon buildCarIconWithResource(int imageId, CarColor color) {
         return new CarIcon.Builder(
                 IconCompat.createWithResource(
                         getCarContext(),
-                        imageId))
-                .setStyle(new CarIconStyle.Builder(CarIconStyle.TINTED).setTint(color).build())
+                        imageId),
+                new CarIconStyle.Builder(CarIconStyle.TINTED).setTint(color).build())
                 .build();
     }
 
     private CarIcon buildCarIconWithBitmap(int imageId) {
-        return new CarIcon.Builder(
+        return CarIcon.createOriginalIcon(
                 IconCompat.createWithBitmap(
                         BitmapFactory.decodeResource(
                                 getCarContext().getResources(),
-                                imageId)))
-                .build();
+                                imageId)));
     }
 
     /**
