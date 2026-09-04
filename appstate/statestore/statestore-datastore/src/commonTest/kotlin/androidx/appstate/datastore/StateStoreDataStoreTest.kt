@@ -51,9 +51,9 @@ class StateStoreDataStoreTest {
 
     val defaultValue = "default"
 
-    @Serializable @PersistToDataStore object StringKey : StateStoreKey<String>("default")
+    @Serializable object StringKey : StateStoreKey<String>("default"), PersistToDataStore
 
-    @Serializable @PersistToDataStore object IntKey : StateStoreKey<Int>(0)
+    @Serializable object IntKey : StateStoreKey<Int>(0), PersistToDataStore
 
     @Serializable object NonPersistedStringKey : StateStoreKey<String>("default")
 
@@ -149,7 +149,7 @@ class StateStoreDataStoreTest {
     }
 
     @Test
-    fun testStateStoreSetStateDoesNotUpdateDataStoreWhenNotAnnotated() = runTest {
+    fun testStateStoreSetStateDoesNotUpdateDataStoreWhenNotPersisted() = runTest {
         // Required for Compose state observation in JVM tests, even though our logic runs on
         // Dispatchers.Default.
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
