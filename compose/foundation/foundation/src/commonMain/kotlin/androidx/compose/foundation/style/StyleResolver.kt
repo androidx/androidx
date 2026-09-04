@@ -22,6 +22,7 @@ import androidx.collection.mutableObjectListOf
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalAccessorScope
 import androidx.compose.runtime.RememberObserver
+import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.snapshots.SnapshotStateSet
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.requireDensity
@@ -50,7 +51,9 @@ public interface StyleResolverScope :
  *   hovered, etc. in addition to custom states such as `isPlaying`.
  */
 @ExperimentalFoundationStyleApi
-public class StyleResolver(
+public class StyleResolver
+@RememberInComposition
+constructor(
     internal val style: CommonStyle,
     internal val styleState: StyleState = MutableStyleState(null),
 ) : RememberObserver {
