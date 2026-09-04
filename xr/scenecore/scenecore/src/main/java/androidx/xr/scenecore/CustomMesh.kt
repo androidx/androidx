@@ -58,8 +58,8 @@ private constructor(
     public var bounds: BoundingBox = bounds
         @MainThread
         set(value) {
-            field = value
             session.renderingRuntime.setCustomMeshBoundingBox(resource, value)
+            field = value
         }
 
     /**

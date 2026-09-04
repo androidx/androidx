@@ -1754,7 +1754,7 @@ public class ImpressApiImpl : ImpressApi {
         )
     }
 
-    override fun setCustomMeshBoundingBox(
+    override fun setCustomMeshAabb(
         customMeshHandle: Long,
         centerX: Float,
         centerY: Float,
