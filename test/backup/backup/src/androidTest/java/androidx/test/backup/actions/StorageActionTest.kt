@@ -17,6 +17,7 @@
 package androidx.test.backup.actions
 
 import android.content.Context
+import androidx.test.backup.BackupDeviceAction
 import androidx.test.backup.BackupDeviceActionArgs
 import androidx.test.backup.BackupRestoreTestRunner
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -63,18 +64,17 @@ public class StorageActionTest {
         val putArgs =
             BackupDeviceActionArgs(
                 mapOf(
-                    PopulateStorageAction.KEY_STORAGE_TYPE to
-                        PopulateStorageAction.STORAGE_TYPE_PREFS,
-                    PopulateStorageAction.KEY_PREF_NAME to prefName,
-                    PopulateStorageAction.KEY_PREF_KEY to key,
-                    PopulateStorageAction.KEY_VALUE to value,
-                    PopulateStorageAction.KEY_VALUE_TYPE to "STRING",
+                    BackupDeviceAction.KEY_STORAGE_TYPE to BackupDeviceAction.STORAGE_TYPE_PREFS,
+                    BackupDeviceAction.KEY_PREF_NAME to prefName,
+                    BackupDeviceAction.KEY_PREF_KEY to key,
+                    BackupDeviceAction.KEY_VALUE to value,
+                    BackupDeviceAction.KEY_VALUE_TYPE to "STRING",
                 )
             )
         val putResult = putAction.execute(context, putArgs)
         assertEquals(
-            PopulateStorageAction.STATUS_SUCCESS,
-            putResult.payload[PopulateStorageAction.KEY_STATUS],
+            BackupDeviceAction.STATUS_SUCCESS,
+            putResult.payload[BackupDeviceAction.KEY_STATUS],
         )
 
         // Assert preference was physically seeded
@@ -86,18 +86,17 @@ public class StorageActionTest {
         val verifyArgs =
             BackupDeviceActionArgs(
                 mapOf(
-                    PopulateStorageAction.KEY_STORAGE_TYPE to
-                        PopulateStorageAction.STORAGE_TYPE_PREFS,
-                    PopulateStorageAction.KEY_PREF_NAME to prefName,
-                    PopulateStorageAction.KEY_PREF_KEY to key,
-                    PopulateStorageAction.KEY_VALUE to value,
-                    PopulateStorageAction.KEY_VALUE_TYPE to "STRING",
+                    BackupDeviceAction.KEY_STORAGE_TYPE to BackupDeviceAction.STORAGE_TYPE_PREFS,
+                    BackupDeviceAction.KEY_PREF_NAME to prefName,
+                    BackupDeviceAction.KEY_PREF_KEY to key,
+                    BackupDeviceAction.KEY_VALUE to value,
+                    BackupDeviceAction.KEY_VALUE_TYPE to "STRING",
                 )
             )
         val verifyResult = verifyAction.execute(context, verifyArgs)
         assertEquals(
-            PopulateStorageAction.STATUS_SUCCESS,
-            verifyResult.payload[PopulateStorageAction.KEY_STATUS],
+            BackupDeviceAction.STATUS_SUCCESS,
+            verifyResult.payload[BackupDeviceAction.KEY_STATUS],
         )
     }
 
@@ -116,18 +115,17 @@ public class StorageActionTest {
         val putArgs =
             BackupDeviceActionArgs(
                 mapOf(
-                    PopulateStorageAction.KEY_STORAGE_TYPE to
-                        PopulateStorageAction.STORAGE_TYPE_PREFS,
-                    PopulateStorageAction.KEY_PREF_NAME to prefName,
-                    PopulateStorageAction.KEY_PREF_KEY to key,
-                    PopulateStorageAction.KEY_VALUE to value.toString(),
-                    PopulateStorageAction.KEY_VALUE_TYPE to "INT",
+                    BackupDeviceAction.KEY_STORAGE_TYPE to BackupDeviceAction.STORAGE_TYPE_PREFS,
+                    BackupDeviceAction.KEY_PREF_NAME to prefName,
+                    BackupDeviceAction.KEY_PREF_KEY to key,
+                    BackupDeviceAction.KEY_VALUE to value.toString(),
+                    BackupDeviceAction.KEY_VALUE_TYPE to "INT",
                 )
             )
         val putResult = putAction.execute(context, putArgs)
         assertEquals(
-            PopulateStorageAction.STATUS_SUCCESS,
-            putResult.payload[PopulateStorageAction.KEY_STATUS],
+            BackupDeviceAction.STATUS_SUCCESS,
+            putResult.payload[BackupDeviceAction.KEY_STATUS],
         )
 
         // Assert preference was physically seeded with correct type
@@ -139,18 +137,17 @@ public class StorageActionTest {
         val verifyArgs =
             BackupDeviceActionArgs(
                 mapOf(
-                    PopulateStorageAction.KEY_STORAGE_TYPE to
-                        PopulateStorageAction.STORAGE_TYPE_PREFS,
-                    PopulateStorageAction.KEY_PREF_NAME to prefName,
-                    PopulateStorageAction.KEY_PREF_KEY to key,
-                    PopulateStorageAction.KEY_VALUE to value.toString(),
-                    PopulateStorageAction.KEY_VALUE_TYPE to "INT",
+                    BackupDeviceAction.KEY_STORAGE_TYPE to BackupDeviceAction.STORAGE_TYPE_PREFS,
+                    BackupDeviceAction.KEY_PREF_NAME to prefName,
+                    BackupDeviceAction.KEY_PREF_KEY to key,
+                    BackupDeviceAction.KEY_VALUE to value.toString(),
+                    BackupDeviceAction.KEY_VALUE_TYPE to "INT",
                 )
             )
         val verifyResult = verifyAction.execute(context, verifyArgs)
         assertEquals(
-            PopulateStorageAction.STATUS_SUCCESS,
-            verifyResult.payload[PopulateStorageAction.KEY_STATUS],
+            BackupDeviceAction.STATUS_SUCCESS,
+            verifyResult.payload[BackupDeviceAction.KEY_STATUS],
         )
     }
 
@@ -169,18 +166,17 @@ public class StorageActionTest {
         val putArgs =
             BackupDeviceActionArgs(
                 mapOf(
-                    PopulateStorageAction.KEY_STORAGE_TYPE to
-                        PopulateStorageAction.STORAGE_TYPE_PREFS,
-                    PopulateStorageAction.KEY_PREF_NAME to prefName,
-                    PopulateStorageAction.KEY_PREF_KEY to key,
-                    PopulateStorageAction.KEY_VALUE to value.toString(),
-                    PopulateStorageAction.KEY_VALUE_TYPE to "BOOLEAN",
+                    BackupDeviceAction.KEY_STORAGE_TYPE to BackupDeviceAction.STORAGE_TYPE_PREFS,
+                    BackupDeviceAction.KEY_PREF_NAME to prefName,
+                    BackupDeviceAction.KEY_PREF_KEY to key,
+                    BackupDeviceAction.KEY_VALUE to value.toString(),
+                    BackupDeviceAction.KEY_VALUE_TYPE to "BOOLEAN",
                 )
             )
         val putResult = putAction.execute(context, putArgs)
         assertEquals(
-            PopulateStorageAction.STATUS_SUCCESS,
-            putResult.payload[PopulateStorageAction.KEY_STATUS],
+            BackupDeviceAction.STATUS_SUCCESS,
+            putResult.payload[BackupDeviceAction.KEY_STATUS],
         )
 
         // Assert preference was physically seeded with correct type
@@ -192,18 +188,17 @@ public class StorageActionTest {
         val verifyArgs =
             BackupDeviceActionArgs(
                 mapOf(
-                    PopulateStorageAction.KEY_STORAGE_TYPE to
-                        PopulateStorageAction.STORAGE_TYPE_PREFS,
-                    PopulateStorageAction.KEY_PREF_NAME to prefName,
-                    PopulateStorageAction.KEY_PREF_KEY to key,
-                    PopulateStorageAction.KEY_VALUE to value.toString(),
-                    PopulateStorageAction.KEY_VALUE_TYPE to "BOOLEAN",
+                    BackupDeviceAction.KEY_STORAGE_TYPE to BackupDeviceAction.STORAGE_TYPE_PREFS,
+                    BackupDeviceAction.KEY_PREF_NAME to prefName,
+                    BackupDeviceAction.KEY_PREF_KEY to key,
+                    BackupDeviceAction.KEY_VALUE to value.toString(),
+                    BackupDeviceAction.KEY_VALUE_TYPE to "BOOLEAN",
                 )
             )
         val verifyResult = verifyAction.execute(context, verifyArgs)
         assertEquals(
-            PopulateStorageAction.STATUS_SUCCESS,
-            verifyResult.payload[PopulateStorageAction.KEY_STATUS],
+            BackupDeviceAction.STATUS_SUCCESS,
+            verifyResult.payload[BackupDeviceAction.KEY_STATUS],
         )
     }
 
@@ -225,16 +220,15 @@ public class StorageActionTest {
         val putArgs =
             BackupDeviceActionArgs(
                 mapOf(
-                    PopulateStorageAction.KEY_STORAGE_TYPE to
-                        PopulateStorageAction.STORAGE_TYPE_FILES,
-                    PopulateStorageAction.KEY_PATH to file.absolutePath,
-                    PopulateStorageAction.KEY_VALUE to fileContent,
+                    BackupDeviceAction.KEY_STORAGE_TYPE to BackupDeviceAction.STORAGE_TYPE_FILES,
+                    BackupDeviceAction.KEY_PATH to file.absolutePath,
+                    BackupDeviceAction.KEY_VALUE to fileContent,
                 )
             )
         val putResult = putAction.execute(context, putArgs)
         assertEquals(
-            PopulateStorageAction.STATUS_SUCCESS,
-            putResult.payload[PopulateStorageAction.KEY_STATUS],
+            BackupDeviceAction.STATUS_SUCCESS,
+            putResult.payload[BackupDeviceAction.KEY_STATUS],
         )
 
         // Assert file was physically created
@@ -245,16 +239,15 @@ public class StorageActionTest {
         val verifyArgs =
             BackupDeviceActionArgs(
                 mapOf(
-                    PopulateStorageAction.KEY_STORAGE_TYPE to
-                        PopulateStorageAction.STORAGE_TYPE_FILES,
-                    PopulateStorageAction.KEY_PATH to file.absolutePath,
-                    PopulateStorageAction.KEY_VALUE to fileContent,
+                    BackupDeviceAction.KEY_STORAGE_TYPE to BackupDeviceAction.STORAGE_TYPE_FILES,
+                    BackupDeviceAction.KEY_PATH to file.absolutePath,
+                    BackupDeviceAction.KEY_VALUE to fileContent,
                 )
             )
         val verifyResult = verifyAction.execute(context, verifyArgs)
         assertEquals(
-            PopulateStorageAction.STATUS_SUCCESS,
-            verifyResult.payload[PopulateStorageAction.KEY_STATUS],
+            BackupDeviceAction.STATUS_SUCCESS,
+            verifyResult.payload[BackupDeviceAction.KEY_STATUS],
         )
     }
 
@@ -276,17 +269,16 @@ public class StorageActionTest {
         val putArgs =
             BackupDeviceActionArgs(
                 mapOf(
-                    PopulateStorageAction.KEY_STORAGE_TYPE to
-                        PopulateStorageAction.STORAGE_TYPE_DATABASE,
-                    PopulateStorageAction.KEY_DB_NAME to dbName,
-                    PopulateStorageAction.KEY_TABLE to table,
-                    PopulateStorageAction.KEY_VALUES to "$colName=$colVal",
+                    BackupDeviceAction.KEY_STORAGE_TYPE to BackupDeviceAction.STORAGE_TYPE_DATABASE,
+                    BackupDeviceAction.KEY_DB_NAME to dbName,
+                    BackupDeviceAction.KEY_TABLE to table,
+                    BackupDeviceAction.KEY_VALUES to "$colName=$colVal",
                 )
             )
         val putResult = putAction.execute(context, putArgs)
         assertEquals(
-            PopulateStorageAction.STATUS_SUCCESS,
-            putResult.payload[PopulateStorageAction.KEY_STATUS],
+            BackupDeviceAction.STATUS_SUCCESS,
+            putResult.payload[BackupDeviceAction.KEY_STATUS],
         )
 
         // 2. Verify
@@ -294,19 +286,18 @@ public class StorageActionTest {
         val verifyArgs =
             BackupDeviceActionArgs(
                 mapOf(
-                    PopulateStorageAction.KEY_STORAGE_TYPE to
-                        PopulateStorageAction.STORAGE_TYPE_DATABASE,
-                    PopulateStorageAction.KEY_DB_NAME to dbName,
-                    PopulateStorageAction.KEY_TABLE to table,
-                    AssertStorageAction.KEY_KEY_COL to colName,
-                    AssertStorageAction.KEY_KEY_VAL to colVal,
-                    PopulateStorageAction.KEY_VALUES to "$colName=$colVal",
+                    BackupDeviceAction.KEY_STORAGE_TYPE to BackupDeviceAction.STORAGE_TYPE_DATABASE,
+                    BackupDeviceAction.KEY_DB_NAME to dbName,
+                    BackupDeviceAction.KEY_TABLE to table,
+                    BackupDeviceAction.KEY_KEY_COL to colName,
+                    BackupDeviceAction.KEY_KEY_VAL to colVal,
+                    BackupDeviceAction.KEY_VALUES to "$colName=$colVal",
                 )
             )
         val verifyResult = verifyAction.execute(context, verifyArgs)
         assertEquals(
-            PopulateStorageAction.STATUS_SUCCESS,
-            verifyResult.payload[PopulateStorageAction.KEY_STATUS],
+            BackupDeviceAction.STATUS_SUCCESS,
+            verifyResult.payload[BackupDeviceAction.KEY_STATUS],
         )
     }
 
@@ -330,17 +321,16 @@ public class StorageActionTest {
         val putArgs =
             BackupDeviceActionArgs(
                 mapOf(
-                    PopulateStorageAction.KEY_STORAGE_TYPE to
-                        PopulateStorageAction.STORAGE_TYPE_DATABASE,
-                    PopulateStorageAction.KEY_DB_NAME to dbName,
-                    PopulateStorageAction.KEY_TABLE to table,
-                    PopulateStorageAction.KEY_VALUES to "$col1Name=$col1Val&$col2Name=$col2Val",
+                    BackupDeviceAction.KEY_STORAGE_TYPE to BackupDeviceAction.STORAGE_TYPE_DATABASE,
+                    BackupDeviceAction.KEY_DB_NAME to dbName,
+                    BackupDeviceAction.KEY_TABLE to table,
+                    BackupDeviceAction.KEY_VALUES to "$col1Name=$col1Val&$col2Name=$col2Val",
                 )
             )
         val putResult = putAction.execute(context, putArgs)
         assertEquals(
-            PopulateStorageAction.STATUS_SUCCESS,
-            putResult.payload[PopulateStorageAction.KEY_STATUS],
+            BackupDeviceAction.STATUS_SUCCESS,
+            putResult.payload[BackupDeviceAction.KEY_STATUS],
         )
 
         // 2. Verify using multi-column KEY_VALUES
@@ -348,19 +338,18 @@ public class StorageActionTest {
         val verifyArgs =
             BackupDeviceActionArgs(
                 mapOf(
-                    PopulateStorageAction.KEY_STORAGE_TYPE to
-                        PopulateStorageAction.STORAGE_TYPE_DATABASE,
-                    PopulateStorageAction.KEY_DB_NAME to dbName,
-                    PopulateStorageAction.KEY_TABLE to table,
-                    AssertStorageAction.KEY_KEY_COL to col1Name,
-                    AssertStorageAction.KEY_KEY_VAL to col1Val,
-                    PopulateStorageAction.KEY_VALUES to "$col1Name=$col1Val&$col2Name=$col2Val",
+                    BackupDeviceAction.KEY_STORAGE_TYPE to BackupDeviceAction.STORAGE_TYPE_DATABASE,
+                    BackupDeviceAction.KEY_DB_NAME to dbName,
+                    BackupDeviceAction.KEY_TABLE to table,
+                    BackupDeviceAction.KEY_KEY_COL to col1Name,
+                    BackupDeviceAction.KEY_KEY_VAL to col1Val,
+                    BackupDeviceAction.KEY_VALUES to "$col1Name=$col1Val&$col2Name=$col2Val",
                 )
             )
         val verifyResult = verifyAction.execute(context, verifyArgs)
         assertEquals(
-            PopulateStorageAction.STATUS_SUCCESS,
-            verifyResult.payload[PopulateStorageAction.KEY_STATUS],
+            BackupDeviceAction.STATUS_SUCCESS,
+            verifyResult.payload[BackupDeviceAction.KEY_STATUS],
         )
     }
 
@@ -384,17 +373,16 @@ public class StorageActionTest {
         val putArgs =
             BackupDeviceActionArgs(
                 mapOf(
-                    PopulateStorageAction.KEY_STORAGE_TYPE to
-                        PopulateStorageAction.STORAGE_TYPE_FILES,
-                    PopulateStorageAction.KEY_PATH to file.absolutePath,
-                    PopulateStorageAction.KEY_VALUE to base64Encoded,
-                    PopulateStorageAction.KEY_IS_BINARY to "true",
+                    BackupDeviceAction.KEY_STORAGE_TYPE to BackupDeviceAction.STORAGE_TYPE_FILES,
+                    BackupDeviceAction.KEY_PATH to file.absolutePath,
+                    BackupDeviceAction.KEY_VALUE to base64Encoded,
+                    BackupDeviceAction.KEY_IS_BINARY to "true",
                 )
             )
         val putResult = putAction.execute(context, putArgs)
         assertEquals(
-            PopulateStorageAction.STATUS_SUCCESS,
-            putResult.payload[PopulateStorageAction.KEY_STATUS],
+            BackupDeviceAction.STATUS_SUCCESS,
+            putResult.payload[BackupDeviceAction.KEY_STATUS],
         )
 
         // Assert file was physically created with exact bytes
@@ -406,17 +394,16 @@ public class StorageActionTest {
         val verifyArgs =
             BackupDeviceActionArgs(
                 mapOf(
-                    PopulateStorageAction.KEY_STORAGE_TYPE to
-                        PopulateStorageAction.STORAGE_TYPE_FILES,
-                    PopulateStorageAction.KEY_PATH to file.absolutePath,
-                    PopulateStorageAction.KEY_VALUE to base64Encoded,
-                    PopulateStorageAction.KEY_IS_BINARY to "true",
+                    BackupDeviceAction.KEY_STORAGE_TYPE to BackupDeviceAction.STORAGE_TYPE_FILES,
+                    BackupDeviceAction.KEY_PATH to file.absolutePath,
+                    BackupDeviceAction.KEY_VALUE to base64Encoded,
+                    BackupDeviceAction.KEY_IS_BINARY to "true",
                 )
             )
         val verifyResult = verifyAction.execute(context, verifyArgs)
         assertEquals(
-            PopulateStorageAction.STATUS_SUCCESS,
-            verifyResult.payload[PopulateStorageAction.KEY_STATUS],
+            BackupDeviceAction.STATUS_SUCCESS,
+            verifyResult.payload[BackupDeviceAction.KEY_STATUS],
         )
     }
 
@@ -438,17 +425,16 @@ public class StorageActionTest {
         val verifyArgs =
             BackupDeviceActionArgs(
                 mapOf(
-                    PopulateStorageAction.KEY_STORAGE_TYPE to
-                        PopulateStorageAction.STORAGE_TYPE_PREFS,
-                    PopulateStorageAction.KEY_PREF_NAME to prefName,
-                    PopulateStorageAction.KEY_PREF_KEY to key,
-                    AssertStorageAction.KEY_EXPECT_NULL to "true",
+                    BackupDeviceAction.KEY_STORAGE_TYPE to BackupDeviceAction.STORAGE_TYPE_PREFS,
+                    BackupDeviceAction.KEY_PREF_NAME to prefName,
+                    BackupDeviceAction.KEY_PREF_KEY to key,
+                    BackupDeviceAction.KEY_EXPECT_NULL to "true",
                 )
             )
         val verifyResult = verifyAction.execute(context, verifyArgs)
         assertEquals(
-            PopulateStorageAction.STATUS_SUCCESS,
-            verifyResult.payload[PopulateStorageAction.KEY_STATUS],
+            BackupDeviceAction.STATUS_SUCCESS,
+            verifyResult.payload[BackupDeviceAction.KEY_STATUS],
         )
     }
 }
