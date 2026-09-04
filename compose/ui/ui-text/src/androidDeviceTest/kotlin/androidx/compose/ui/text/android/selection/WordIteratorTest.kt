@@ -41,7 +41,10 @@ class WordIteratorTest {
             EmojiCompat.reset(null)
             // we want a temporary thread, we don't need to control the font loading thread
             // for this test, hence the deprecation suppression
-            @Suppress("DEPRECATION") EmojiCompat.init(BundledEmojiCompatConfig(context))
+            @Suppress("DEPRECATION")
+            EmojiCompat.init(
+                BundledEmojiCompatConfig(context).setUseAfterUpdatableSystemFonts(true)
+            )
         }
 
         @AfterClass

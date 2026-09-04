@@ -90,7 +90,10 @@ class ParagraphIntegrationTest {
             EmojiCompat.reset(null)
             // we want a temporary thread, we don't need to control the font loading thread
             // for this test, hence the deprecation suppression
-            @Suppress("DEPRECATION") EmojiCompat.init(BundledEmojiCompatConfig(appContext))
+            @Suppress("DEPRECATION")
+            EmojiCompat.init(
+                BundledEmojiCompatConfig(appContext).setUseAfterUpdatableSystemFonts(true)
+            )
 
             // wait for EmojiCompat instance to fully load
             while (EmojiCompat.get().loadState != EmojiCompat.LOAD_STATE_SUCCEEDED) {}

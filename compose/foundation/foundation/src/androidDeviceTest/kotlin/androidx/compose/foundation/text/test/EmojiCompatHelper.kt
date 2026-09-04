@@ -30,7 +30,10 @@ internal fun withEmojiCompat(context: Context, enabled: Boolean = true, block: (
 
     try {
         val synchronousExecutor = Executor { runnable -> runnable.run() }
-        EmojiCompat.init(BundledEmojiCompatConfig(context, synchronousExecutor))
+        EmojiCompat.init(
+            BundledEmojiCompatConfig(context, synchronousExecutor)
+                .setUseAfterUpdatableSystemFonts(true)
+        )
         assertThat(EmojiCompat.get().loadState).isEqualTo(EmojiCompat.LOAD_STATE_SUCCEEDED)
         block()
     } finally {
