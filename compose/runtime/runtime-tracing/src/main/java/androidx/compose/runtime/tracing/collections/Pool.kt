@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.runtime.tracing.stack
+package androidx.compose.runtime.tracing.collections
 
 internal class Pool<T>(
     @JvmField internal val capacity: Int,
