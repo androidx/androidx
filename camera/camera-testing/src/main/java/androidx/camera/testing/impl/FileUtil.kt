@@ -25,6 +25,7 @@ import android.os.Environment.DIRECTORY_MOVIES
 import android.os.Environment.getExternalStoragePublicDirectory
 import android.provider.MediaStore
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.camera.core.Logger
 import androidx.camera.video.FileOutputOptions
 import androidx.camera.video.MediaStoreOutputOptions
@@ -98,41 +99,202 @@ public object FileUtil {
         format: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
         quality: Int = 100,
     ): File? {
+        if (bitmap.isRecycled) {
+            Logger.e(TAG, "Cannot save a recycled bitmap for: $name")
+            return null
+        }
         var testFile: File? = null
         try {
             if (!directory.exists() && !directory.mkdirs()) {
                 Logger.e(TAG, "Failed to create directory: $directory")
                 return null
             }
-            val ext =
-                when {
-                    format == Bitmap.CompressFormat.JPEG -> "jpg"
-                    format == Bitmap.CompressFormat.PNG -> "png"
-                    format.name.startsWith("WEBP") -> "webp"
-                    else -> format.name.lowercase()
-                }
-            val sanitizedName =
-                File(name)
-                    .name
-                    .replace(STRIP_IMAGE_EXTENSION_REGEX, "")
-                    .replace(SANITIZE_FILENAME_REGEX, "_")
-            val fileName = "$sanitizedName.$ext"
+            val fileName = buildSanitizedFileName(name, format)
             testFile = File(directory, fileName)
 
-            FileOutputStream(testFile).use { out -> bitmap.compress(format, quality, out) }
+            val compressed =
+                FileOutputStream(testFile).use { fos ->
+                    bitmap.compress(format, quality, fos)
+                }
+            if (!compressed) {
+                Logger.e(TAG, "Failed to compress bitmap for: $name")
+                testFile.delete()
+                return null
+            }
+
             Logger.d(TAG, "Saved bitmap to: $testFile")
             return testFile
         } catch (t: Throwable) {
             Logger.e(TAG, "Failed to save bitmap for: $name", t)
             testFile?.let {
-                // Clean up any empty or corrupt file left behind if an error occurred before data
-                // was written.
                 if (it.exists() && it.length() == 0L) {
                     it.delete()
                 }
             }
             return null
         }
+    }
+
+    /**
+     * Saves a [Bitmap] to the MediaStore under the specified relative path (Android 10+ / API 29+).
+     *
+     * An entry is created in MediaStore primary storage volume
+     * ([MediaStore.VOLUME_EXTERNAL_PRIMARY]) with [MediaStore.Images.Media.IS_PENDING] set to 1
+     * while streaming content. Once finished, [MediaStore.Images.Media.IS_PENDING] is set back to 0
+     * to make it available to the system.
+     *
+     * @param contentResolver the [ContentResolver] used to access the MediaStore.
+     * @param bitmap the [Bitmap] to save.
+     * @param relativePath the relative path under external storage (e.g., "Pictures/test_output").
+     * @param name the file name to save the bitmap as (e.g., "testName_methodName").
+     * @param format the [Bitmap.CompressFormat] to use (default: [Bitmap.CompressFormat.PNG]).
+     * @param quality the compression quality from 0 to 100 (default: 100).
+     * @return the saved [File] if successful, or `null` if failed.
+     */
+    @RequiresApi(29)
+    @JvmStatic
+    @JvmOverloads
+    public fun saveBitmapToMediaStore(
+        contentResolver: ContentResolver,
+        bitmap: Bitmap,
+        relativePath: String,
+        name: String,
+        format: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
+        quality: Int = 100,
+    ): File? {
+        if (bitmap.isRecycled) {
+            Logger.e(TAG, "Cannot save a recycled bitmap for: $name")
+            return null
+        }
+        val fileName = buildSanitizedFileName(name, format)
+        val mimeType = getMimeTypeForFormat(format)
+
+        var uri: Uri? = null
+        val resolver = contentResolver
+        val normalizedRelativePath =
+            if (relativePath.endsWith("/")) relativePath else "$relativePath/"
+        val collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+
+        try {
+            // Remove any pre-existing MediaStore entry with same display name and relative path to
+            // avoid duplicate "(1)" files.
+            try {
+                val selection =
+                    "${MediaStore.MediaColumns.DISPLAY_NAME} = ? AND " +
+                        "${MediaStore.MediaColumns.RELATIVE_PATH} = ?"
+                val selectionArgs = arrayOf(fileName, normalizedRelativePath)
+                resolver.delete(collection, selection, selectionArgs)
+            } catch (e: Exception) {
+                Logger.w(
+                    TAG,
+                    "Failed to delete existing entry for $fileName in $normalizedRelativePath",
+                    e,
+                )
+            }
+
+            val currentTimeMs = System.currentTimeMillis()
+            val contentValues =
+                ContentValues().apply {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                    put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, normalizedRelativePath)
+                    put(MediaStore.MediaColumns.IS_PENDING, 1)
+                    put(MediaStore.MediaColumns.DATE_ADDED, currentTimeMs / 1000)
+                    put(MediaStore.MediaColumns.DATE_MODIFIED, currentTimeMs / 1000)
+                }
+
+            uri = resolver.insert(collection, contentValues)
+            if (uri == null) {
+                Logger.e(TAG, "Failed to create MediaStore entry for $fileName")
+                return null
+            }
+
+            val compressed =
+                resolver.openOutputStream(uri)?.use { outputStream ->
+                    bitmap.compress(format, quality, outputStream)
+                } ?: false
+
+            if (!compressed) {
+                Logger.e(TAG, "Failed to compress bitmap to MediaStore for: $name")
+                resolver.delete(uri, null, null)
+                return null
+            }
+
+            contentValues.clear()
+            contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
+            resolver.update(uri, contentValues, null, null)
+
+            val targetFile =
+                try {
+                    @Suppress("DEPRECATION")
+                    resolver
+                        .query(
+                            uri,
+                            arrayOf(MediaStore.MediaColumns.DATA),
+                            null,
+                            null,
+                            null,
+                        )
+                        ?.use { cursor ->
+                            @Suppress("DEPRECATION")
+                            val columnIndex =
+                                cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
+                            if (cursor.moveToFirst()) {
+                                File(cursor.getString(columnIndex))
+                            } else {
+                                null
+                            }
+                        }
+                } catch (e: RuntimeException) {
+                    Logger.e(TAG, "Failed to resolve file path for MediaStore Uri: $uri", e)
+                    null
+                }
+
+            if (targetFile == null) {
+                Logger.e(TAG, "Failed to resolve file path for: $fileName (uri: $uri)")
+                try {
+                    resolver.delete(uri, null, null)
+                } catch (ignored: Exception) {}
+                return null
+            }
+
+            Logger.d(TAG, "Saved bitmap to MediaStore: $targetFile (uri: $uri)")
+            return targetFile
+        } catch (t: Throwable) {
+            Logger.e(TAG, "Failed to save bitmap to MediaStore for: $name", t)
+            uri?.let {
+                try {
+                    resolver.delete(it, null, null)
+                } catch (ignored: Exception) {}
+            }
+            return null
+        }
+    }
+
+    private fun getExtensionForFormat(format: Bitmap.CompressFormat): String =
+        when {
+            format == Bitmap.CompressFormat.JPEG -> "jpg"
+            format == Bitmap.CompressFormat.PNG -> "png"
+            format.name.startsWith("WEBP") -> "webp"
+            else -> format.name.lowercase()
+        }
+
+    private fun getMimeTypeForFormat(format: Bitmap.CompressFormat): String =
+        when {
+            format == Bitmap.CompressFormat.JPEG -> "image/jpeg"
+            format == Bitmap.CompressFormat.PNG -> "image/png"
+            format.name.startsWith("WEBP") -> "image/webp"
+            else -> "image/${getExtensionForFormat(format)}"
+        }
+
+    private fun buildSanitizedFileName(name: String, format: Bitmap.CompressFormat): String {
+        val ext = getExtensionForFormat(format)
+        val sanitizedName =
+            File(name)
+                .name
+                .replace(STRIP_IMAGE_EXTENSION_REGEX, "")
+                .replace(SANITIZE_FILENAME_REGEX, "_")
+        return "$sanitizedName.$ext"
     }
 
     /**
