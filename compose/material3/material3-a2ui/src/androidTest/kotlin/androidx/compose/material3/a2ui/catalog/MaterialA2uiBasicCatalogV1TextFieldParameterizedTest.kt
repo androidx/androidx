@@ -14,27 +14,30 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.a2ui
+package androidx.compose.material3.a2ui.catalog
 
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.testing.A2uiTestController
 import androidx.a2ui.compose.ui.testing.A2uiTestSurface
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.v2.runComposeUiTest
+import androidx.test.filters.MediumTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalTestApi::class)
+@MediumTest
 @RunWith(Parameterized::class)
-class MaterialTextFieldComponentParameterizedTest(private val variantToken: String) {
+class MaterialA2uiBasicCatalogV1TextFieldParameterizedTest(private val variantToken: String) {
 
     private val testCatalog =
-        A2uiCatalog(catalogId = "test_catalog", components = listOf(MaterialTextFieldComponent))
+        A2uiCatalog(
+            catalogId = "test_catalog",
+            components = listOf(MaterialA2uiBasicCatalogV1Defaults.textField),
+        )
 
     companion object {
         @JvmStatic

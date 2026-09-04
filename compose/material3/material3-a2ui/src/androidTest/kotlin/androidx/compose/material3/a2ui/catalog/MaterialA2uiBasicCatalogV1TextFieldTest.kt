@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.a2ui
+package androidx.compose.material3.a2ui.catalog
 
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.testing.A2uiTestController
@@ -38,17 +38,19 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@MediumTest
 @RunWith(AndroidJUnit4::class)
-class MaterialTextFieldComponentTest {
+class MaterialA2uiBasicCatalogV1TextFieldTest {
 
     private val testCatalog =
         A2uiCatalog(
             catalogId = "test_catalog",
-            components = listOf(MaterialTextFieldComponent),
+            components = listOf(MaterialA2uiBasicCatalogV1Defaults.textField),
             functions = listOf(A2uiFormatStringFunction.INSTANCE),
         )
 
@@ -513,5 +515,146 @@ class MaterialTextFieldComponentTest {
 
         onNodeWithText("Error: Invalid validationRegexp '[invalid(regex'", substring = true)
             .assertIsDisplayed()
+    }
+
+    @Test
+    fun recompositionDuringInFlightTyping_doesNotRevertTypedText() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "TextField",
+                properties =
+                    mapOf(
+                        "label" to mapOf("path" to "/form/label"),
+                        "value" to mapOf("path" to "/form/value"),
+                    ),
+            )
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents = listOf(payload),
+                initialData = mapOf("form" to mapOf("label" to "Name", "value" to "Initial")),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithText("Initial").assertIsDisplayed()
+
+        // User updates the text in the field
+        onNodeWithText("Initial").performTextReplacement("Initial Extra")
+
+        // Trigger a recomposition by updating an unrelated dynamic property (label)
+        // while the value path in the data model has not been updated with the new text yet
+        controller.updateData("/form/label", "Updated Name")
+        controller.waitForIdle()
+
+        // The field should retain the typed text and not be reverted to the old value
+        onNodeWithText("Updated Name").assertIsDisplayed()
+        onNodeWithText("Initial Extra").assertIsDisplayed()
+    }
+
+    @Test
+    fun externalUpdate_whileUserHasTyped_overridesLocalText() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "TextField",
+                properties = mapOf("label" to "Name", "value" to mapOf("path" to "/form/value")),
+            )
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents = listOf(payload),
+                initialData = mapOf("form" to mapOf("value" to "Initial")),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithText("Initial").assertIsDisplayed()
+
+        // User types something
+        onNodeWithText("Initial").performTextReplacement("Initial Extra")
+        onNodeWithText("Initial Extra").assertIsDisplayed()
+
+        // External update resets or changes the data model to something else
+        controller.updateData("/form/value", "ResetByServer")
+        controller.waitForIdle()
+
+        // The external update must take precedence over the local buffer
+        onNodeWithText("ResetByServer").assertIsDisplayed()
+    }
+
+    @Test
+    fun userDeletesBackToInitialValue_updatesDataModel() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "TextField",
+                properties = mapOf("label" to "Field", "value" to mapOf("path" to "/form/text")),
+            )
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents = listOf(payload),
+                initialData = mapOf("form" to mapOf("text" to "Hello")),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithText("Hello").assertIsDisplayed()
+
+        // Replace text with a new value
+        onNodeWithText("Hello").performTextReplacement("Hello World")
+        controller.waitForIdle()
+        assertThat(controller.getData<String>("/form/text")).isEqualTo("Hello World")
+
+        // Replace text back to the initial value "Hello"
+        onNodeWithText("Hello World").performTextReplacement("Hello")
+        controller.waitForIdle()
+        assertThat(controller.getData<String>("/form/text")).isEqualTo("Hello")
+    }
+
+    @Test
+    fun externalUpdate_immediatelyUpdatesValidationErrorState() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "TextField",
+                properties =
+                    mapOf(
+                        "label" to "PIN",
+                        "value" to mapOf("path" to "/form/pin"),
+                        "validationRegexp" to "^[0-9]{4}$",
+                    ),
+            )
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents = listOf(payload),
+                initialData = mapOf("form" to mapOf("pin" to "1234")),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithText("1234").assertIsDisplayed()
+        onNodeWithText("1234").assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
+
+        // Externally update to invalid PIN
+        controller.updateData("/form/pin", "abc")
+        controller.waitForIdle()
+
+        onNodeWithText("abc").assertIsDisplayed()
+        onNodeWithText("abc").assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
+
+        // Externally update back to valid PIN
+        controller.updateData("/form/pin", "5678")
+        controller.waitForIdle()
+
+        onNodeWithText("5678").assertIsDisplayed()
+        onNodeWithText("5678").assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
     }
 }
