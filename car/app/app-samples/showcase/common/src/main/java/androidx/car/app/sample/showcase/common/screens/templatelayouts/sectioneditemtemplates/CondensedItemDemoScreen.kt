@@ -51,16 +51,14 @@ class CondensedItemDemoScreen(carContext: CarContext) : Screen(carContext) {
 
     override fun onGetTemplate(): Template {
         val mediaIcon =
-            CarIcon.Builder(
-                    IconCompat.createWithResource(carContext, R.drawable.test_android_media)
-                )
-                .build()
+            CarIcon.createOriginalIcon(
+                IconCompat.createWithResource(carContext, R.drawable.test_android_media)
+            )
         val playIcon = CarIcon.MEDIA_PLAYBACK
         val arrowIcon =
-            CarIcon.Builder(
-                    IconCompat.createWithResource(carContext, android.R.drawable.ic_media_play)
-                )
-                .build()
+            CarIcon.createTintedIcon(
+                IconCompat.createWithResource(carContext, android.R.drawable.ic_media_play)
+            )
 
         val grayColor = Color.rgb(60, 62, 65)
         val grayBackground =
@@ -322,8 +320,8 @@ class CondensedItemDemoScreen(carContext: CarContext) : Screen(carContext) {
                     CondensedItem.Builder()
                         .setTitle("Custom Alpha Tint")
                         .setLeadingImage(
-                            CarIcon.Builder(mediaIcon)
-                                .setStyle(
+                            CarIcon.Builder(
+                                    mediaIcon.icon!!,
                                     CarIconStyle.Builder(CarIconStyle.TINTED)
                                         .setTint(
                                             CarColor.createCustom(
@@ -331,7 +329,7 @@ class CondensedItemDemoScreen(carContext: CarContext) : Screen(carContext) {
                                                 Color.argb(100, 0, 255, 0),
                                             )
                                         )
-                                        .build()
+                                        .build(),
                                 )
                                 .build()
                         )

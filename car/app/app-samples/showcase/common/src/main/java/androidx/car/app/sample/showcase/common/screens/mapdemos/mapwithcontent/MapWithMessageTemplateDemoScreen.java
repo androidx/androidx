@@ -67,8 +67,8 @@ public class MapWithMessageTemplateDemoScreen extends Screen {
                 .setIcon(new CarIcon.Builder(
                         IconCompat.createWithResource(
                                 getCarContext(),
-                                R.drawable.ic_commute_24px))
-                        .setStyle(carIconStyle)
+                                R.drawable.ic_commute_24px),
+                        carIconStyle)
                         .build())
                 .addAction(new Action.Builder()
                         .setOnClickListener(() -> {

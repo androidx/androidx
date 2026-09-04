@@ -50,12 +50,14 @@ class ProgressBarDemoScreen(carContext: CarContext) : Screen(carContext) {
             .build()
 
     private val testImage: CarIcon =
-        CarIcon.Builder(IconCompat.createWithResource(carContext, R.drawable.test_image_square))
-            .build()
+        CarIcon.createOriginalIcon(
+            IconCompat.createWithResource(carContext, R.drawable.test_image_square)
+        )
 
     private val largeTestImage: CarIcon =
-        CarIcon.Builder(IconCompat.createWithResource(carContext, R.drawable.test_android_media))
-            .build()
+        CarIcon.createOriginalIcon(
+            IconCompat.createWithResource(carContext, R.drawable.test_android_media)
+        )
 
     override fun onGetTemplate(): Template {
         return SectionedItemTemplate.Builder()

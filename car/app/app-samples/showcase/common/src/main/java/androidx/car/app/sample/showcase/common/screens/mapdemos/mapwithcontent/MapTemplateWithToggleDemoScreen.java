@@ -79,11 +79,10 @@ public class MapTemplateWithToggleDemoScreen extends Screen {
                 .addEndHeaderAction(new Action.Builder()
                         .setOnClickListener(() -> finish())
                         .setIcon(
-                                new CarIcon.Builder(
+                                CarIcon.createTintedIcon(
                                         IconCompat.createWithResource(
                                                 getCarContext(),
-                                                R.drawable.ic_close_white_24dp))
-                                        .build())
+                                                R.drawable.ic_close_white_24dp)))
                         .build())
                 .setTitle(getCarContext().getString(R.string.route_options_demo_title))
                 .build();
@@ -97,8 +96,7 @@ public class MapTemplateWithToggleDemoScreen extends Screen {
     }
 
     private CarIcon buildCarIcon(int icon) {
-        return new CarIcon.Builder(IconCompat.createWithResource(getCarContext(), icon))
-                .build();
+        return CarIcon.createTintedIcon(IconCompat.createWithResource(getCarContext(), icon));
     }
 
     private Row buildRowForTemplate(int title, Toggle toggle, CarIcon icon) {

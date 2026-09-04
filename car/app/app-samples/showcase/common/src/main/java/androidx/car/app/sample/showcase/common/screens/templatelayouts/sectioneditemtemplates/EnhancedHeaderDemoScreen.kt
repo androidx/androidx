@@ -60,14 +60,16 @@ class EnhancedHeaderDemoScreen(carContext: CarContext) : Screen(carContext) {
         }
 
         val backgroundIcon =
-            CarIcon.Builder(IconCompat.createWithResource(carContext, R.drawable.test_image_square))
-                .build()
+            CarIcon.createOriginalIcon(
+                IconCompat.createWithResource(carContext, R.drawable.test_image_square)
+            )
 
         val background = Background.Builder().setImage(backgroundIcon).build()
 
         val startHeaderIcon =
-            CarIcon.Builder(IconCompat.createWithResource(carContext, R.drawable.ic_commute_24px))
-                .build()
+            CarIcon.createTintedIcon(
+                IconCompat.createWithResource(carContext, R.drawable.ic_commute_24px)
+            )
 
         val primaryAction =
             Action.Builder()
@@ -85,10 +87,9 @@ class EnhancedHeaderDemoScreen(carContext: CarContext) : Screen(carContext) {
                 .build()
 
         val templateActionIcon =
-            CarIcon.Builder(
-                    IconCompat.createWithResource(carContext, R.drawable.ic_place_white_24dp)
-                )
-                .build()
+            CarIcon.createTintedIcon(
+                IconCompat.createWithResource(carContext, R.drawable.ic_place_white_24dp)
+            )
 
         val templateAction =
             Action.Builder()

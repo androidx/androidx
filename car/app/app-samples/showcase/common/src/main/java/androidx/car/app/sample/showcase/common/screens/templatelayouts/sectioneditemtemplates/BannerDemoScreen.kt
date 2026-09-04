@@ -60,19 +60,17 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
 
     override fun onGetTemplate(): Template {
         val mediaIcon =
-            CarIcon.Builder(
-                    IconCompat.createWithResource(carContext, R.drawable.test_android_media)
-                )
-                .build()
+            CarIcon.createOriginalIcon(
+                IconCompat.createWithResource(carContext, R.drawable.test_android_media)
+            )
         val playIcon = CarIcon.MEDIA_PLAYBACK
         val settingsIcon =
-            CarIcon.Builder(
-                    IconCompat.createWithResource(
-                        carContext,
-                        android.R.drawable.ic_menu_preferences,
-                    )
+            CarIcon.createTintedIcon(
+                IconCompat.createWithResource(
+                    carContext,
+                    android.R.drawable.ic_menu_preferences,
                 )
-                .build()
+            )
 
         val grayColor = Color.rgb(154, 160, 166)
         val grayBackground =

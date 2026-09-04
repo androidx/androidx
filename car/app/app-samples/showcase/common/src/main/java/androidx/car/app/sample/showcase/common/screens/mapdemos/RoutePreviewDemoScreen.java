@@ -114,8 +114,8 @@ public final class RoutePreviewDemoScreen extends Screen {
         mItemLimit = getCarContext().getCarService(ConstraintManager.class).getContentLimit(
                 ConstraintManager.CONTENT_LIMIT_TYPE_ROUTE_LIST);
 
-        CarIcon navigateActionIcon = new CarIcon.Builder(IconCompat.createWithResource(
-                getCarContext(), R.drawable.ic_place_white_24dp)).build();
+        CarIcon navigateActionIcon = CarIcon.createTintedIcon(IconCompat.createWithResource(
+                getCarContext(), R.drawable.ic_place_white_24dp));
         Action navigateAction = new Action.Builder()
                 .setIcon(navigateActionIcon)
                 .setOnClickListener(this::onNavigate)
@@ -131,13 +131,12 @@ public final class RoutePreviewDemoScreen extends Screen {
                 .setStartHeaderAction(Action.BACK)
                 .addEndHeaderAction(new Action.Builder()
                         .setIcon(
-                                new CarIcon.Builder(
+                                CarIcon.createTintedIcon(
                                         IconCompat.createWithResource(
                                                 getCarContext(),
                                                 mIsFavorite
                                                         ? R.drawable.ic_favorite_filled_white_24dp
-                                                        : R.drawable.ic_favorite_white_24dp))
-                                        .build())
+                                                        : R.drawable.ic_favorite_white_24dp)))
                         .setOnClickListener(() -> {
                             mIsFavorite = !mIsFavorite;
                             CarToast.makeText(
@@ -155,11 +154,10 @@ public final class RoutePreviewDemoScreen extends Screen {
                 .addEndHeaderAction(new Action.Builder()
                         .setOnClickListener(() -> finish())
                         .setIcon(
-                                new CarIcon.Builder(
+                                CarIcon.createTintedIcon(
                                         IconCompat.createWithResource(
                                                 getCarContext(),
-                                                R.drawable.ic_close_white_24dp))
-                                        .build())
+                                                R.drawable.ic_close_white_24dp)))
                         .build())
                 .setTitle(getCarContext().getString(R.string.route_preview_template_demo_title))
                 .build();
