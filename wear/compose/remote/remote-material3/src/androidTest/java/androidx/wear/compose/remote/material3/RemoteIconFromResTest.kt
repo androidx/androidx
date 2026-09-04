@@ -17,7 +17,10 @@
 package androidx.wear.compose.remote.material3
 
 import android.content.Context
+import androidx.annotation.DrawableRes
+import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.vectorResource
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.padding
@@ -28,8 +31,6 @@ import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRul
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -82,10 +83,13 @@ class RemoteIconFromResTest {
     }
 
     @Composable
-    private fun Icon(modifier: RemoteModifier = RemoteModifier.padding(8.rdp), resId: Int) {
+    private fun Icon(
+        modifier: RemoteModifier = RemoteModifier.padding(8.rdp),
+        @DrawableRes resId: Int,
+    ) {
         RemoteIcon(
             modifier = modifier,
-            imageVector = ImageVector.vectorResource(resId),
+            imageVector = RemoteImageVector.vectorResource(resId),
             contentDescription = null,
             tint = Color.Black.rc,
         )

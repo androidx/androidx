@@ -23,6 +23,8 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.remote.creation.compose.action.hostAction
+import androidx.compose.remote.creation.compose.capture.RemoteImageVector
+import androidx.compose.remote.creation.compose.capture.toRemoteImageVector
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -37,7 +39,6 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.wear.compose.remote.material3.RemoteButtonDefaults
 import androidx.wear.compose.remote.material3.RemoteButtonGroup
@@ -53,9 +54,9 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @RemoteComposable
 fun RemoteButtonGroupThreeButtons() {
     RemoteButtonGroup(modifier = RemoteModifier.fillMaxWidth()) {
-        Button(Icons.Filled.MailOutline, RemoteModifier.weight(1f))
-        Button(Icons.Filled.Favorite, RemoteModifier.weight(1.5f))
-        Button(Icons.Filled.Call, RemoteModifier.weight(1f))
+        Button(Icons.Filled.MailOutline.toRemoteImageVector(), RemoteModifier.weight(1f))
+        Button(Icons.Filled.Favorite.toRemoteImageVector(), RemoteModifier.weight(1.5f))
+        Button(Icons.Filled.Call.toRemoteImageVector(), RemoteModifier.weight(1f))
     }
 }
 
@@ -69,8 +70,8 @@ private fun RemoteButtonGroupThreeButtonsPreview(
 @RemoteComposable
 fun RemoteButtonGroupTwoButtons() {
     RemoteButtonGroup(modifier = RemoteModifier.fillMaxWidth()) {
-        Button(Icons.Filled.MailOutline, RemoteModifier.weight(1f))
-        Button(Icons.Filled.Call, RemoteModifier.weight(1f))
+        Button(Icons.Filled.MailOutline.toRemoteImageVector(), RemoteModifier.weight(1f))
+        Button(Icons.Filled.Call.toRemoteImageVector(), RemoteModifier.weight(1f))
     }
 }
 
@@ -82,7 +83,7 @@ private fun RemoteButtonGroupTwoButtonsPreview(
 
 @Composable
 @RemoteComposable
-private fun Button(imageVector: ImageVector, modifier: RemoteModifier) {
+private fun Button(imageVector: RemoteImageVector, modifier: RemoteModifier) {
     RemoteIconButton(
         testAction,
         modifier = modifier.widthIn(RemoteButtonGroupDefaults.MinWidth),

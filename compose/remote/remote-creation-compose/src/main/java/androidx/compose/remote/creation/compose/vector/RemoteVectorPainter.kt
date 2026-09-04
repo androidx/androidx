@@ -166,6 +166,7 @@ internal fun createVectorPainterFromRemoteImageVector(
 ): RemoteVectorPainter {
     val root = RemoteGroupComponent().createGroupComponent(imageVector.root)
     val viewport = RemoteSize(imageVector.viewportWidth, imageVector.viewportHeight)
+    val defaultSize = RemoteSize(imageVector.defaultWidth, imageVector.defaultHeight)
     return RemoteVectorPainter()
         .configureRemoteVectorPainter(
             root = root,
@@ -173,7 +174,7 @@ internal fun createVectorPainterFromRemoteImageVector(
             name = imageVector.name,
             intrinsicColorFilter = createColorFilter(tintColor, blendMode),
             autoMirror = imageVector.autoMirror,
-            defaultSize = viewport,
+            defaultSize = defaultSize,
         )
 }
 
