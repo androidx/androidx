@@ -20,6 +20,7 @@ import android.media.EncoderProfiles.VideoProfile.HDR_DOLBY_VISION
 import android.media.EncoderProfiles.VideoProfile.HDR_HDR10
 import android.media.EncoderProfiles.VideoProfile.HDR_HDR10PLUS
 import android.media.EncoderProfiles.VideoProfile.HDR_HLG
+import android.media.MediaFormat.MIMETYPE_VIDEO_AVC
 import android.media.MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION
 import android.media.MediaFormat.MIMETYPE_VIDEO_HEVC
 import android.media.MediaFormat.MIMETYPE_VIDEO_VP9
@@ -29,11 +30,17 @@ import android.media.MediaRecorder.VideoEncoder.VP9
 import android.util.Range
 import android.util.Size
 import androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT
+import androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT_SMPTE_2094_50
 import androidx.camera.core.DynamicRange.DOLBY_VISION_8_BIT
+import androidx.camera.core.DynamicRange.DOLBY_VISION_8_BIT_SMPTE_2094_50
 import androidx.camera.core.DynamicRange.HDR10_10_BIT
+import androidx.camera.core.DynamicRange.HDR10_10_BIT_SMPTE_2094_50
 import androidx.camera.core.DynamicRange.HDR10_PLUS_10_BIT
+import androidx.camera.core.DynamicRange.HDR10_PLUS_10_BIT_SMPTE_2094_50
 import androidx.camera.core.DynamicRange.HLG_10_BIT
+import androidx.camera.core.DynamicRange.HLG_10_BIT_SMPTE_2094_50
 import androidx.camera.core.DynamicRange.SDR
+import androidx.camera.core.DynamicRange.SDR_SMPTE_2094_50
 import androidx.camera.core.SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_10
@@ -97,6 +104,40 @@ class VideoConfigUtilTest {
 
         assertThat(result.captureRate).isEqualTo(60)
         assertThat(result.encodeRate).isEqualTo(30)
+    }
+
+    @Test
+    fun getDynamicRangeDefaultMime_returnsCorrectMime() {
+        // SDR
+        assertThat(VideoConfigUtil.getDynamicRangeDefaultMime(SDR)).isEqualTo(MIMETYPE_VIDEO_AVC)
+        assertThat(VideoConfigUtil.getDynamicRangeDefaultMime(SDR_SMPTE_2094_50))
+            .isEqualTo(MIMETYPE_VIDEO_AVC)
+
+        // HLG
+        assertThat(VideoConfigUtil.getDynamicRangeDefaultMime(HLG_10_BIT))
+            .isEqualTo(MIMETYPE_VIDEO_HEVC)
+        assertThat(VideoConfigUtil.getDynamicRangeDefaultMime(HLG_10_BIT_SMPTE_2094_50))
+            .isEqualTo(MIMETYPE_VIDEO_HEVC)
+
+        // HDR10 & HDR10+
+        assertThat(VideoConfigUtil.getDynamicRangeDefaultMime(HDR10_10_BIT))
+            .isEqualTo(MIMETYPE_VIDEO_HEVC)
+        assertThat(VideoConfigUtil.getDynamicRangeDefaultMime(HDR10_10_BIT_SMPTE_2094_50))
+            .isEqualTo(MIMETYPE_VIDEO_HEVC)
+        assertThat(VideoConfigUtil.getDynamicRangeDefaultMime(HDR10_PLUS_10_BIT))
+            .isEqualTo(MIMETYPE_VIDEO_HEVC)
+        assertThat(VideoConfigUtil.getDynamicRangeDefaultMime(HDR10_PLUS_10_BIT_SMPTE_2094_50))
+            .isEqualTo(MIMETYPE_VIDEO_HEVC)
+
+        // Dolby Vision
+        assertThat(VideoConfigUtil.getDynamicRangeDefaultMime(DOLBY_VISION_10_BIT))
+            .isEqualTo(MIMETYPE_VIDEO_DOLBY_VISION)
+        assertThat(VideoConfigUtil.getDynamicRangeDefaultMime(DOLBY_VISION_10_BIT_SMPTE_2094_50))
+            .isEqualTo(MIMETYPE_VIDEO_DOLBY_VISION)
+        assertThat(VideoConfigUtil.getDynamicRangeDefaultMime(DOLBY_VISION_8_BIT))
+            .isEqualTo(MIMETYPE_VIDEO_DOLBY_VISION)
+        assertThat(VideoConfigUtil.getDynamicRangeDefaultMime(DOLBY_VISION_8_BIT_SMPTE_2094_50))
+            .isEqualTo(MIMETYPE_VIDEO_DOLBY_VISION)
     }
 
     @Test

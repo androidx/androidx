@@ -611,7 +611,8 @@ public final class GLUtils {
     public static int @NonNull [] chooseSurfaceAttrib(@NonNull String eglExtensions,
             @NonNull DynamicRange dynamicRange) {
         int[] attribs = EMPTY_ATTRIBS;
-        if (dynamicRange.getEncoding() == DynamicRange.ENCODING_HLG) {
+        if (dynamicRange.getEncoding() == DynamicRange.ENCODING_HLG
+                || dynamicRange.getEncoding() == DynamicRange.ENCODING_HLG_SMPTE_2094_50) {
             if (eglExtensions.contains("EGL_EXT_gl_colorspace_bt2020_hlg")) {
                 attribs = HLG_SURFACE_ATTRIBS;
             } else {

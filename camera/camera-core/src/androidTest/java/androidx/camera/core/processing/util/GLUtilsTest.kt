@@ -128,6 +128,28 @@ class GLUtilsTest {
     }
 
     @Test
+    fun chooseSurfaceAttrib_returnsHlgAttribs_whenHlg10Smpte209450() {
+        val eglExtensions = "EGL_EXT_gl_colorspace_bt2020_hlg"
+        val attribs =
+            GLUtils.chooseSurfaceAttrib(
+                eglExtensions,
+                DynamicRange.HLG_10_BIT_SMPTE_2094_50,
+            )
+        assertThat(attribs).isEqualTo(GLUtils.HLG_SURFACE_ATTRIBS)
+    }
+
+    @Test
+    fun chooseSurfaceAttrib_returnsEmptyAttribs_whenHlg10Smpte209450AndNotSupported() {
+        val eglExtensions = ""
+        val attribs =
+            GLUtils.chooseSurfaceAttrib(
+                eglExtensions,
+                DynamicRange.HLG_10_BIT_SMPTE_2094_50,
+            )
+        assertThat(attribs).isEqualTo(GLUtils.EMPTY_ATTRIBS)
+    }
+
+    @Test
     fun getGlVersionNumber_returnsValidVersion() {
         runBlocking(glHandler.asCoroutineDispatcher()) {
             val version = GLUtils.getGlVersionNumber()
