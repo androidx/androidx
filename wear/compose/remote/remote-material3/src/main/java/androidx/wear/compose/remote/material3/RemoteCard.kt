@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -119,7 +118,6 @@ public fun RemoteCard(
  *   content
  * @param content The main slot for a content of this card
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RemoteComposable
 @Composable
 public fun RemoteCard(
@@ -277,13 +275,12 @@ public object RemoteCardDefaults {
     public val ContentPadding: RemotePaddingValues = RemotePaddingValues(12.rdp)
 
     /** Additional bottom padding added for TitleCard with an image background */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val ImageBottomPadding: RemoteDp = 12.rdp
+    public val ImageBottomPadding: RemoteDp = 12.rdp
 
     /**
      * ContentPadding for use in cards that have an image background in order to show more of the
      * image.
      */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val CardWithContainerPainterContentPadding: RemotePaddingValues =
         RemotePaddingValues(
             leftPadding = 12.rdp,
@@ -310,7 +307,6 @@ public object RemoteCardDefaults {
      * @param contentScale Strategy for scaling the painter if its size does not match the
      *   container.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Composable
     @RemoteComposable
     public fun containerPainter(
@@ -327,7 +323,6 @@ public object RemoteCardDefaults {
      * Creates a [RemoteBrush] for the recommended scrim drawn on top of image container
      * backgrounds.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Composable
     @RemoteComposable
     public fun scrimBrush(size: RemoteSize): RemoteBrush {
@@ -344,7 +339,6 @@ public object RemoteCardDefaults {
      * text drawn over the image is legible.
      */
     public val scrimColor: RemoteColor
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Composable
         @RemoteComposable
         get() = RemoteMaterialTheme.colorScheme.background.copy(alpha = 0.5f.rf)
@@ -353,7 +347,6 @@ public object RemoteCardDefaults {
      * Creates a [RemoteCardColors] that represents the default container and content colors used in
      * a [RemoteCard] with image container painter.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Composable
     @RemoteComposable
     public fun cardWithContainerPainterColors(): RemoteCardColors =
@@ -369,7 +362,6 @@ public object RemoteCardDefaults {
      * @param titleColor the color used for title, applies to [RemoteAppCard] and [RemoteTitleCard].
      * @param subtitleColor the color used for subtitle, applies to [RemoteTitleCard].
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Composable
     @RemoteComposable
     public fun cardWithContainerPainterColors(
