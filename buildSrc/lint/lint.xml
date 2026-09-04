@@ -45,6 +45,8 @@
         <!-- playground builds have dependency files in "transformed" instead of ".transforms" -->
         <ignore path="**/.gradle/**/transforms*/**/transformed/**" />
     </issue>
+    <!-- Ensure this issue is always fatal even though it is reported on transformed paths -->
+    <issue id="ObsoleteLintCustomCheck" severity="fatal" />
     <issue id="AndroidXFlaggedApi">
         <!-- Comma-delimited list of libraries which are allowed to call flagged APIs, where
              `groupId:artifactId` represents a single module and `groupId` represents an entire
