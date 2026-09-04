@@ -266,6 +266,32 @@ class DialogTest {
             (flags and WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN) == 0,
         )
     }
+
+    @Test
+    fun plainDialog_withoutScaffold_providesLocalInheritedShowStatusBarFalse() {
+        var inheritedShow: Boolean? = null
+        rule.setContentWithTheme {
+            Dialog(visible = true, onDismissRequest = {}) {
+                inheritedShow = LocalInheritedShowStatusBar.current
+            }
+        }
+        rule.waitForIdle()
+        Assert.assertEquals(false, inheritedShow)
+    }
+
+    @Test
+    fun plainDialog_withInnerScreenScaffoldInherit_inheritsDisabled() {
+        var innerShow: Boolean? = null
+        rule.setContentWithTheme {
+            Dialog(visible = true, onDismissRequest = {}) {
+                ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {
+                    innerShow = LocalInheritedShowStatusBar.current
+                }
+            }
+        }
+        rule.waitForIdle()
+        Assert.assertEquals(false, innerShow)
+    }
 }
 
 private const val SHOW_BUTTON_TAG = "show-button"
