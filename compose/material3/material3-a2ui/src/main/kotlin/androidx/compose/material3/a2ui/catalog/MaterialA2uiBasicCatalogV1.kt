@@ -61,6 +61,8 @@ import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
  *   [MaterialA2uiBasicCatalogV1Defaults.divider]
  * @param button [A2uiBasicCatalogV1.Button] component implementation, defaults to
  *   [MaterialA2uiBasicCatalogV1Defaults.button]
+ * @param textField [A2uiBasicCatalogV1.TextField] component implementation, defaults to
+ *   [MaterialA2uiBasicCatalogV1Defaults.textField]
  * @param checkBox [A2uiBasicCatalogV1.CheckBox] component implementation, defaults to
  *   [MaterialA2uiBasicCatalogV1Defaults.checkBox]
  * @param slider [A2uiBasicCatalogV1.Slider] component implementation, defaults to
@@ -85,6 +87,7 @@ public fun materialA2uiBasicCatalogV1(
     tabs: A2uiBasicCatalogV1.Tabs = MaterialA2uiBasicCatalogV1Defaults.tabs,
     divider: A2uiBasicCatalogV1.Divider = MaterialA2uiBasicCatalogV1Defaults.divider,
     button: A2uiBasicCatalogV1.Button = MaterialA2uiBasicCatalogV1Defaults.button,
+    textField: A2uiBasicCatalogV1.TextField = MaterialA2uiBasicCatalogV1Defaults.textField,
     checkBox: A2uiBasicCatalogV1.CheckBox = MaterialA2uiBasicCatalogV1Defaults.checkBox,
     slider: A2uiBasicCatalogV1.Slider = MaterialA2uiBasicCatalogV1Defaults.slider,
     dateTimeInput: A2uiBasicCatalogV1.DateTimeInput =
@@ -105,6 +108,7 @@ public fun materialA2uiBasicCatalogV1(
             tabs = tabs,
             divider = divider,
             button = button,
+            textField = textField,
             checkBox = checkBox,
             slider = slider,
             dateTimeInput = dateTimeInput,
@@ -170,6 +174,9 @@ public object MaterialA2uiBasicCatalogV1Defaults {
 
     /** Default Material 3 implementation of the [A2uiBasicCatalogV1.Button] component. */
     public val button: A2uiBasicCatalogV1.Button = MaterialA2uiBasicCatalogV1Button
+
+    /** Default Material 3 implementation of the [A2uiBasicCatalogV1.TextField] component. */
+    public val textField: A2uiBasicCatalogV1.TextField = MaterialA2uiBasicCatalogV1TextField
 
     /** Default Material 3 implementation of the [A2uiBasicCatalogV1.CheckBox] component. */
     public val checkBox: A2uiBasicCatalogV1.CheckBox = MaterialA2uiBasicCatalogV1CheckBox

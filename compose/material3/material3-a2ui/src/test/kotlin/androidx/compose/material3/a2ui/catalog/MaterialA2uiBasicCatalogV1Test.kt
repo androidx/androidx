@@ -80,6 +80,8 @@ class MaterialA2uiBasicCatalogV1Test {
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.divider)
         assertThat(catalog.components["Button"])
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.button)
+        assertThat(catalog.components["TextField"])
+            .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.textField)
         assertThat(catalog.components["CheckBox"])
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.checkBox)
         assertThat(catalog.components["Slider"])
@@ -435,6 +437,39 @@ class MaterialA2uiBasicCatalogV1Test {
     }
 
     @Test
+    fun factory_withCustomTextFieldComponent_overridesDefaultMaterialTextField() {
+        val customTextField =
+            object : A2uiBasicCatalogV1.TextField {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    label: String,
+                    value: String?,
+                    variant: A2uiBasicCatalogV1.TextField.Variant,
+                    validationRegexp: String?,
+                    onValueChange: (String) -> Unit,
+                    enabled: Boolean,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        val catalog =
+            materialA2uiBasicCatalogV1(
+                image = MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer),
+                video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
+                audioPlayer =
+                    MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
+                urlOpener = fakeUrlOpener,
+                messageFormatter = fakeMessageFormatter,
+                localeProvider = fakeLocaleProvider,
+                textField = customTextField,
+            )
+
+        assertThat(catalog.components["TextField"]).isSameInstanceAs(customTextField)
+        assertThat(catalog.components["TextField"])
+            .isNotSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.textField)
+    }
+
+    @Test
     fun factory_withCustomCheckBoxComponent_overridesDefaultMaterialCheckBox() {
         val customCheckBox =
             object : A2uiBasicCatalogV1.CheckBox {
@@ -558,6 +593,8 @@ class MaterialA2uiBasicCatalogV1Test {
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Divider)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.button)
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Button)
+        assertThat(MaterialA2uiBasicCatalogV1Defaults.textField)
+            .isSameInstanceAs(MaterialA2uiBasicCatalogV1TextField)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.checkBox)
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1CheckBox)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.slider)

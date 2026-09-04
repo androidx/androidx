@@ -145,6 +145,7 @@ class A2uiCatalogTest {
         assertThat(catalog.components["Tabs"]).isSameInstanceAs(basicCatalog.tabs)
         assertThat(catalog.components["Divider"]).isSameInstanceAs(basicCatalog.divider)
         assertThat(catalog.components["Button"]).isSameInstanceAs(basicCatalog.button)
+        assertThat(catalog.components["TextField"]).isSameInstanceAs(basicCatalog.textField)
         assertThat(catalog.components["CheckBox"]).isSameInstanceAs(basicCatalog.checkBox)
         assertThat(catalog.components["Slider"]).isSameInstanceAs(basicCatalog.slider)
         assertThat(catalog.components["DateTimeInput"]).isSameInstanceAs(basicCatalog.dateTimeInput)
@@ -345,6 +346,7 @@ class A2uiCatalogTest {
             tabs: A2uiBasicCatalogV1.Tabs = createStubTabs(),
             divider: A2uiBasicCatalogV1.Divider = createStubDivider(),
             button: A2uiBasicCatalogV1.Button = createStubButton(),
+            textField: A2uiBasicCatalogV1.TextField = createStubTextField(),
             checkBox: A2uiBasicCatalogV1.CheckBox = createStubCheckBox(),
             slider: A2uiBasicCatalogV1.Slider = createStubSlider(),
             dateTimeInput: A2uiBasicCatalogV1.DateTimeInput = createStubDateTimeInput(),
@@ -363,6 +365,7 @@ class A2uiCatalogTest {
                 tabs = tabs,
                 divider = divider,
                 button = button,
+                textField = textField,
                 checkBox = checkBox,
                 slider = slider,
                 dateTimeInput = dateTimeInput,
@@ -481,6 +484,20 @@ class A2uiCatalogTest {
                     childId: String,
                     variant: A2uiBasicCatalogV1.Button.Variant,
                     action: Map<String, Any?>,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        fun createStubTextField() =
+            object : A2uiBasicCatalogV1.TextField {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    label: String,
+                    value: String?,
+                    variant: A2uiBasicCatalogV1.TextField.Variant,
+                    validationRegexp: String?,
+                    onValueChange: (String) -> Unit,
+                    enabled: Boolean,
                     modifier: Modifier,
                 ) {}
             }
