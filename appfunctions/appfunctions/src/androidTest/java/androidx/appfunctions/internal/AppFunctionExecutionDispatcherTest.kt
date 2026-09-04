@@ -22,17 +22,16 @@ import androidx.appfunctions.AppFunctionAppUnknownException
 import androidx.appfunctions.AppFunctionCancelledException
 import androidx.appfunctions.AppFunctionData
 import androidx.appfunctions.AppFunctionDeniedException
-import androidx.appfunctions.AppFunctionFunctionNotFoundException
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionIntTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionParameterMetadata
 import androidx.appfunctions.metadata.AppFunctionResponseMetadata
 import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionUnitTypeMetadata
-import androidx.appfunctions.metadata.CompileTimeAppFunctionMetadata
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.time.Duration.Companion.milliseconds
@@ -66,7 +65,7 @@ class AppFunctionExecutionDispatcherTest {
         AppFunctionExecutionDispatcher.dispatchExecuteAppFunction(
             this,
             request,
-            FakeAppFunctionInventory,
+            FAKE_METADATA_MAP[request.functionIdentifier]!!,
             CancellationSignal(),
             { response -> responseDeferred.complete(response) },
         ) { params ->
@@ -78,34 +77,6 @@ class AppFunctionExecutionDispatcherTest {
 
         assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
         assertThat(intParamValue).isEqualTo(100)
-    }
-
-    @Test
-    fun dispatchExecuteAppFunction_returnsError_whenFunctionNotFound() = runBlocking {
-        val request =
-            ExecuteAppFunctionRequest(
-                "test_target_package",
-                "non_existent_function_id",
-                AppFunctionData.EMPTY,
-            )
-
-        val responseDeferred = CompletableDeferred<ExecuteAppFunctionResponse>()
-        AppFunctionExecutionDispatcher.dispatchExecuteAppFunction(
-            this,
-            request,
-            FakeAppFunctionInventory,
-            CancellationSignal(),
-            { response -> responseDeferred.complete(response) },
-        ) { params ->
-            "Result"
-        }
-
-        val response = responseDeferred.await()
-
-        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Error::class.java)
-        val error = (response as ExecuteAppFunctionResponse.Error).error
-        assertThat(error).isInstanceOf(AppFunctionFunctionNotFoundException::class.java)
-        assertThat(error.errorMessage).isEqualTo("non_existent_function_id is not available")
     }
 
     @Test
@@ -121,7 +92,7 @@ class AppFunctionExecutionDispatcherTest {
         AppFunctionExecutionDispatcher.dispatchExecuteAppFunction(
             this,
             request,
-            FakeAppFunctionInventory,
+            FAKE_METADATA_MAP[request.functionIdentifier]!!,
             CancellationSignal(),
             { response -> responseDeferred.complete(response) },
         ) { params ->
@@ -149,7 +120,7 @@ class AppFunctionExecutionDispatcherTest {
         AppFunctionExecutionDispatcher.dispatchExecuteAppFunction(
             this,
             request,
-            FakeAppFunctionInventory,
+            FAKE_METADATA_MAP[request.functionIdentifier]!!,
             CancellationSignal(),
             { response -> responseDeferred.complete(response) },
         ) { params ->
@@ -177,7 +148,7 @@ class AppFunctionExecutionDispatcherTest {
         AppFunctionExecutionDispatcher.dispatchExecuteAppFunction(
             this,
             request,
-            FakeAppFunctionInventory,
+            FAKE_METADATA_MAP[request.functionIdentifier]!!,
             CancellationSignal(),
             { response -> responseDeferred.complete(response) },
         ) { params ->
@@ -208,7 +179,7 @@ class AppFunctionExecutionDispatcherTest {
             AppFunctionExecutionDispatcher.dispatchExecuteAppFunction(
                 this,
                 request,
-                FakeAppFunctionInventory,
+                FAKE_METADATA_MAP[request.functionIdentifier]!!,
                 cancellationSignal,
                 { response -> responseDeferred.complete(response) },
             ) { params ->
@@ -227,46 +198,40 @@ class AppFunctionExecutionDispatcherTest {
         assertThat(exception).isInstanceOf(AppFunctionCancelledException::class.java)
     }
 
-    private object FakeAppFunctionInventory : AppFunctionInventory {
-        override val functionIdToMetadataMap: Map<String, CompileTimeAppFunctionMetadata>
-            get() =
-                mapOf(
-                    AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT to
-                        CompileTimeAppFunctionMetadata(
-                            id =
-                                AppFunctionMetadataTestHelper.FunctionIds
-                                    .NO_SCHEMA_ENABLED_BY_DEFAULT,
-                            isEnabledByDefault = true,
-                            schema = null,
-                            parameters =
-                                listOf(
-                                    AppFunctionParameterMetadata(
-                                        name = "intParam",
-                                        isRequired = true,
-                                        dataType = AppFunctionIntTypeMetadata(isNullable = false),
-                                    )
-                                ),
-                            response =
-                                AppFunctionResponseMetadata(
-                                    valueType = AppFunctionUnitTypeMetadata(isNullable = false)
-                                ),
-                        ),
-                    AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_EXECUTION_SUCCEED to
-                        CompileTimeAppFunctionMetadata(
-                            id =
-                                AppFunctionMetadataTestHelper.FunctionIds
-                                    .NO_SCHEMA_EXECUTION_SUCCEED,
-                            isEnabledByDefault = true,
-                            schema = null,
-                            parameters = listOf(),
-                            response =
-                                AppFunctionResponseMetadata(
-                                    valueType = AppFunctionStringTypeMetadata(isNullable = false)
-                                ),
-                        ),
-                )
-
-        override val componentsMetadata: AppFunctionComponentsMetadata
-            get() = AppFunctionComponentsMetadata()
+    private companion object {
+        private val FAKE_METADATA_MAP =
+            mapOf(
+                AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT to
+                    AppFunctionMetadata(
+                        id = AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT,
+                        packageName = "test_target_package",
+                        isEnabled = true,
+                        schema = null,
+                        parameters =
+                            listOf(
+                                AppFunctionParameterMetadata(
+                                    name = "intParam",
+                                    isRequired = true,
+                                    dataType = AppFunctionIntTypeMetadata(isNullable = false),
+                                )
+                            ),
+                        response =
+                            AppFunctionResponseMetadata(
+                                valueType = AppFunctionUnitTypeMetadata(isNullable = false)
+                            ),
+                    ),
+                AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_EXECUTION_SUCCEED to
+                    AppFunctionMetadata(
+                        id = AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_EXECUTION_SUCCEED,
+                        packageName = "test_target_package",
+                        isEnabled = true,
+                        schema = null,
+                        parameters = listOf(),
+                        response =
+                            AppFunctionResponseMetadata(
+                                valueType = AppFunctionStringTypeMetadata(isNullable = false)
+                            ),
+                    ),
+            )
     }
 }

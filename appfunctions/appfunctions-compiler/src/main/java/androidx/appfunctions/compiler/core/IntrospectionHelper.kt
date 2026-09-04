@@ -299,6 +299,7 @@ object IntrospectionHelper {
         object ExecuteFunctionMethod {
             const val METHOD_NAME = "onExecuteFunction"
             const val REQUEST_PARAM_NAME = "request"
+            const val METADATA_PARAM_NAME = "metadata"
             const val CANCELLATION_SIGNAL_PARAM_NAME = "cancellationSignal"
             const val CALLBACK_PARAM_NAME = "callback"
         }

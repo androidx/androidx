@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.appfunctions.internal.AppFunctionInventory
 import androidx.appfunctions.internal.Dependencies
 import androidx.appfunctions.internal.Dispatchers
+import androidx.appfunctions.metadata.AppFunctionMetadata
 import com.android.extensions.appfunctions.AppFunctionService
 import java.util.function.Consumer
 import kotlinx.coroutines.CoroutineScope
@@ -45,7 +46,6 @@ public class ExtensionAppFunctionService : ExtensionsAppFunctionService() {
             AppFunctionServiceDelegate(
                 this@ExtensionAppFunctionService,
                 Dispatchers.Main,
-                checkNotNull(Dependencies.aggregatedAppFunctionInventory),
                 Dependencies.aggregatedAppFunctionInvoker,
                 Dependencies.translatorSelector,
             )
@@ -58,11 +58,12 @@ public class ExtensionAppFunctionService : ExtensionsAppFunctionService() {
 
     override fun onExecuteFunction(
         request: ExecuteAppFunctionRequest,
+        metadata: AppFunctionMetadata,
         cancellationSignal: CancellationSignal,
         callback: Consumer<ExecuteAppFunctionResponse>,
     ) {
         val job = scope.launch {
-            val response = executeFunction(request)
+            val response = executeFunction(request, metadata)
             // We don't check isActive here since AppFunction implementation is expected
             // to return ERROR_CANCELLED when the operation is caneled.
             callback.accept(response)
@@ -71,10 +72,11 @@ public class ExtensionAppFunctionService : ExtensionsAppFunctionService() {
     }
 
     private suspend fun executeFunction(
-        request: ExecuteAppFunctionRequest
+        request: ExecuteAppFunctionRequest,
+        metadata: AppFunctionMetadata,
     ): ExecuteAppFunctionResponse =
         try {
-            delegate.executeFunction(request)
+            delegate.executeFunction(request, metadata)
         } catch (e: AppFunctionException) {
             ExecuteAppFunctionResponse.Error(e)
         } catch (e: Exception) {
