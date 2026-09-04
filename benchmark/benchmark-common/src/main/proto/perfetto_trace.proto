@@ -31,6 +31,16 @@ package perfetto.protos;
 // Others - kept only what is necessary
 ///////////////////////////////////////////////////////////////////////////////
 
+message ClockSnapshot {
+  message Clock {
+    optional uint32 clock_id = 1;
+    optional uint64 timestamp = 2;
+    optional bool is_incremental = 3;
+  }
+  repeated Clock clocks = 1;
+  optional uint32 primary_trace_clock = 2;
+}
+
 message EventName {
   optional uint64 iid = 1;
   optional string name = 2;
@@ -97,6 +107,7 @@ message TracePacket {
   oneof data {
     TrackEvent track_event = 11;
     TrackDescriptor track_descriptor = 60;
+    ClockSnapshot clock_snapshot = 6;
     bytes compressed_packets = 50; // kept for testing purposes
   }
   oneof optional_trusted_packet_sequence_id {
