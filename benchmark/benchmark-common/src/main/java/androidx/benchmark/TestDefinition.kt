@@ -20,13 +20,13 @@ import androidx.annotation.RestrictTo
 import androidx.benchmark.Errors.PREFIX
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class TestDefinition(
-    val fullClassName: String,
-    val simpleClassName: String,
-    val methodName: String,
+public class TestDefinition(
+    public val fullClassName: String,
+    public val simpleClassName: String,
+    public val methodName: String,
 ) {
-    val outputMethodName: String = PREFIX + methodName
-    val outputTestName: String = "$PREFIX$simpleClassName.$methodName"
-    val fullNameUnsanitized: String = "$fullClassName#$methodName"
-    val traceUniqueName: String = simpleClassName + "_" + methodName
+    public val outputMethodName: String = PREFIX + methodName
+    public val outputTestName: String = "$PREFIX$simpleClassName.$methodName"
+    public val fullNameUnsanitized: String = "$fullClassName#$methodName"
+    public val traceUniqueName: String = simpleClassName + "_" + methodName
 }

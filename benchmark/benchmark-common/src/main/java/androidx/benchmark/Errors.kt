@@ -26,7 +26,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 
 /** Lazy-initialized test-suite global state for errors around measurement inaccuracy. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-object Errors {
+public object Errors {
     /** Same as trimMargins, but add newlines on either side. */
     @Suppress("MemberVisibilityCanBePrivate")
     internal fun String.trimMarginWrapNewlines(): String {
@@ -38,7 +38,7 @@ object Errors {
         return toList().sorted().joinToString(" ")
     }
 
-    val PREFIX: String
+    public val PREFIX: String
     private val UNSUPPRESSED_WARNING_MESSAGE: String?
 
     /**
@@ -304,7 +304,7 @@ object Errors {
      * deeply buried in a stack of initializer errors. Instead, they're deferred until this method
      * call.
      */
-    fun throwIfError() {
+    public fun throwIfError() {
         // Note - we ignore configuration errors in dry run mode, since we don't care about
         // measurement accuracy, and we want to support e.g. running on emulators, -eng builds, and
         // unlocked devices in presubmit.

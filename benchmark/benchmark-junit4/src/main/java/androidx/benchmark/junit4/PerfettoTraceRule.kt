@@ -66,18 +66,18 @@ import org.junit.runners.model.Statement
  * `BenchmarkRule`, `MacrobenchmarkRule`, or `PerfettoTrace.record`.
  */
 @ExperimentalPerfettoCaptureApi
-class PerfettoTraceRule
+public class PerfettoTraceRule
 @JvmOverloads
 constructor(
     /** Config used to record Perfetto trace. */
-    val config: PerfettoConfig,
+    public val config: PerfettoConfig,
 
     /**
      * Pass true to enable userspace tracing.
      *
      * Defaults to false.
      */
-    val enableUserspaceTracing: Boolean = false,
+    public val enableUserspaceTracing: Boolean = false,
     /**
      * Configure the label, used both as the filename prefix for the trace, and label shown in
      * Android Studio.
@@ -87,15 +87,15 @@ constructor(
      *
      * Defaults to `<description.className>_<description.methodName>
      */
-    val labelProvider: (Description) -> String = { description ->
+    public val labelProvider: (Description) -> String = { description ->
         "${description.className}_${description.methodName}"
     },
 
     /** Callback for each captured trace. */
-    val traceCallback: ((PerfettoTrace) -> Unit)? = null,
+    public val traceCallback: ((PerfettoTrace) -> Unit)? = null,
 ) : TestRule {
     @JvmOverloads
-    constructor(
+    public constructor(
         /**
          * Pass false to disable android.os.Trace API tracing in this process
          *

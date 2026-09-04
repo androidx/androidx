@@ -53,7 +53,7 @@ import java.util.concurrent.TimeUnit
  * @see androidx.benchmark.junit4.BenchmarkRule.getState()
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // temporarily left in place
-class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase.Config) {
+public class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase.Config) {
 
     /**
      * Create a BenchmarkState for custom measurement behavior.
@@ -63,7 +63,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
      * @param repeatCount Number of measurements to perform, leave null for default behavior
      */
     @ExperimentalBenchmarkStateApi
-    constructor(
+    public constructor(
         @SuppressWarnings("AutoBoxing") // allocations for tests not relevant, not in critical path
         warmupCount: Int? = null,
         @SuppressWarnings("AutoBoxing") // allocations for tests not relevant, not in critical path
@@ -76,7 +76,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
 
     /** Constructor used for standard uses of BenchmarkState, e.g. in BenchmarkRule */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor(
+    public constructor(
         config: MicrobenchmarkConfig? = null
     ) : this(warmupCount = null, simplifiedTimingOnlyMode = false, config = config)
 
@@ -128,7 +128,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    var traceUniqueName: String = "benchmark"
+    public var traceUniqueName: String = "benchmark"
 
     internal var warmupRepeats = 0 // number of warmup repeats that occurred
 
@@ -143,7 +143,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
 
     @Suppress("NOTHING_TO_INLINE")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    inline fun getIterationsRemaining() = iterationsRemaining
+    public inline fun getIterationsRemaining(): Int = iterationsRemaining
 
     /**
      * Number of iterations in a repeat.
@@ -181,7 +181,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
 
     @SuppressLint("MethodNameUnits")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun getMinTimeNanos(): Double {
+    public fun getMinTimeNanos(): Double {
         checkFinished()
         return metricResults.first { it.name == "timeNs" }.min
     }
@@ -219,7 +219,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
      * @throws [IllegalStateException] if the benchmark is already paused.
      * @see resumeTiming
      */
-    fun pauseTiming() {
+    public fun pauseTiming() {
         check(!paused) { "Unable to pause the benchmark. The benchmark has already paused." }
         currentMetrics.capturePaused()
         paused = true
@@ -248,7 +248,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
      * @throws [IllegalStateException] if the benchmark is already running.
      * @see pauseTiming
      */
-    fun resumeTiming() {
+    public fun resumeTiming() {
         check(paused) { "Unable to resume the benchmark. The benchmark is already running." }
         currentMetrics.captureResumed()
         paused = false
@@ -387,7 +387,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
      */
     @Suppress("NOTHING_TO_INLINE")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    inline fun keepRunningInline(): Boolean {
+    public inline fun keepRunningInline(): Boolean {
         if (iterationsRemaining > 1) {
             iterationsRemaining--
             return true
@@ -405,7 +405,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
      * }
      * ```
      */
-    fun keepRunning(): Boolean {
+    public fun keepRunning(): Boolean {
         if (iterationsRemaining > 1) {
             iterationsRemaining--
             return true
@@ -429,7 +429,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
      * account for java callers, we explicitly trigger before throwing as well.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun cleanupBeforeThrow() {
+    public fun cleanupBeforeThrow() {
         if (phaseIndex >= 0 && phaseIndex <= phases.size) {
             Log.d(TAG, "aborting and cancelling benchmark")
             // current phase cancelled, complete current phase cleanup (trace event and profiling)
@@ -552,7 +552,8 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
         )
 
     @ExperimentalBenchmarkStateApi
-    fun getMeasurementTimeNs(): List<Double> = metricResults.first { it.name == "timeNs" }.data
+    public fun getMeasurementTimeNs(): List<Double> =
+        metricResults.first { it.name == "timeNs" }.data
 
     internal fun peekTestResult() =
         checkFinished().run {
@@ -596,7 +597,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun report(
+    public fun report(
         fullClassName: String,
         simpleClassName: String,
         methodName: String,
@@ -629,7 +630,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
         )
     }
 
-    companion object {
+    public companion object {
         internal const val TAG = "Benchmark"
 
         internal const val REPEAT_COUNT_ALLOCATION = 5
@@ -661,7 +662,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
         @RequiresOptIn
         @Retention(AnnotationRetention.BINARY)
         @Target(AnnotationTarget.FUNCTION)
-        annotation class ExperimentalExternalReport
+        public annotation class ExperimentalExternalReport
 
         /**
          * Hooks for benchmarks not using [androidx.benchmark.junit4.BenchmarkRule] to register
@@ -682,7 +683,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
          */
         @JvmStatic
         @ExperimentalExternalReport
-        fun reportData(
+        public fun reportData(
             className: String,
             testName: String,
             @IntRange(from = 0) totalRunTimeNs: Long,

@@ -61,7 +61,7 @@ import org.junit.runners.model.Statement
  * @sample androidx.benchmark.samples.benchmarkRuleSample
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class BenchmarkRuleLegacy
+public class BenchmarkRuleLegacy
 private constructor(
     private val config: MicrobenchmarkConfig?,
     /**
@@ -74,10 +74,10 @@ private constructor(
      */
     @Suppress("UNUSED_PARAMETER") ignored: Boolean = true,
 ) : TestRule {
-    constructor() : this(config = null, ignored = true)
+    public constructor() : this(config = null, ignored = true)
 
     @ExperimentalBenchmarkConfigApi
-    constructor(config: MicrobenchmarkConfig) : this(config, ignored = true)
+    public constructor(config: MicrobenchmarkConfig) : this(config, ignored = true)
 
     internal // synthetic access
     var internalState = BenchmarkStateLegacy(config)
@@ -120,7 +120,7 @@ private constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY) public val scope: Scope = Scope()
 
     /** Handle used for controlling timing during [measureRepeated]. */
-    inner class Scope internal constructor() {
+    public inner class Scope internal constructor() {
         /**
          * Disable timing for a block of code.
          *
@@ -251,7 +251,7 @@ private constructor(
  * @sample androidx.benchmark.samples.benchmarkRuleSample
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-inline fun BenchmarkRuleLegacy.measureRepeated(
+public inline fun BenchmarkRuleLegacy.measureRepeated(
     crossinline block: BenchmarkRuleLegacy.Scope.() -> Unit
 ) {
     // Note: this is an extension function to discourage calling from Java.
@@ -291,7 +291,7 @@ inline fun BenchmarkRuleLegacy.measureRepeated(
  * @sample androidx.benchmark.samples.measureRepeatedOnMainThreadSample
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-inline fun BenchmarkRuleLegacy.measureRepeatedOnMainThread(
+public inline fun BenchmarkRuleLegacy.measureRepeatedOnMainThread(
     crossinline block: BenchmarkRuleLegacy.Scope.() -> Unit
 ) {
     check(Looper.myLooper() != Looper.getMainLooper()) {

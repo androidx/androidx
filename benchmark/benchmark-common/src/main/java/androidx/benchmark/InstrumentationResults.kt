@@ -27,8 +27,11 @@ import org.jetbrains.annotations.TestOnly
 
 /** Wrapper for multi studio version link format */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-data class IdeSummaryPair(val summaryV2: String, val summaryV3: String = summaryV2) {
-    constructor(
+public data class IdeSummaryPair(
+    public val summaryV2: String,
+    public val summaryV3: String = summaryV2,
+) {
+    public constructor(
         v2lines: List<String>,
         v3lines: List<String> = v2lines,
     ) : this(summaryV2 = v2lines.joinToString("\n"), summaryV3 = v3lines.joinToString("\n"))
@@ -40,7 +43,7 @@ data class IdeSummaryPair(val summaryV2: String, val summaryV3: String = summary
 
 /** Provides a way to capture all the instrumentation results which needs to be reported. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class InstrumentationResultScope(val bundle: Bundle = Bundle()) {
+public class InstrumentationResultScope(public val bundle: Bundle = Bundle()) {
 
     private fun reportIdeSummary(
         /**
@@ -68,7 +71,7 @@ class InstrumentationResultScope(val bundle: Bundle = Bundle()) {
         bundle.putString(IDE_V3_SUMMARY_KEY, summaryV3)
     }
 
-    fun reportSummaryToIde(
+    public fun reportSummaryToIde(
         warningMessage: String? = null,
         testName: String? = null,
         message: String? = null,
@@ -113,17 +116,17 @@ class InstrumentationResultScope(val bundle: Bundle = Bundle()) {
 
 /** Provides way to report additional results via `Instrumentation.sendStatus()` / `addResult()`. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object InstrumentationResults {
+public object InstrumentationResults {
 
     /**
      * Bundle containing values to be reported at end of run, instead of for each test.
      *
      * See androidx.benchmark.junit.InstrumentationResultsRunListener
      */
-    val runEndResultBundle: Bundle = Bundle()
+    public val runEndResultBundle: Bundle = Bundle()
 
     /** Creates an Instrumentation Result. */
-    fun instrumentationReport(block: InstrumentationResultScope.() -> Unit) {
+    public fun instrumentationReport(block: InstrumentationResultScope.() -> Unit) {
         val scope = InstrumentationResultScope()
         block.invoke(scope)
         reportBundle(scope.bundle)
@@ -159,7 +162,7 @@ object InstrumentationResults {
     private var ideWarningPrefix = ""
 
     @TestOnly
-    fun clearIdeWarningPrefix() {
+    public fun clearIdeWarningPrefix() {
         println("clear ide warning")
         ideWarningPrefix = ""
     }
@@ -172,7 +175,7 @@ object InstrumentationResults {
      *
      * Note that this also prints to logcat.
      */
-    fun scheduleIdeWarningOnNextReport(string: String) {
+    public fun scheduleIdeWarningOnNextReport(string: String) {
         ideWarningPrefix =
             if (ideWarningPrefix.isEmpty()) {
                 string

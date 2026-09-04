@@ -22,8 +22,8 @@ import android.os.Process
 import androidx.annotation.RestrictTo
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object UserInfo {
-    val currentUserId: Int
+public object UserInfo {
+    public val currentUserId: Int
         get() {
             Overrides.currentUserId?.let {
                 return it
@@ -36,7 +36,7 @@ object UserInfo {
             return parcel.readInt()
         }
 
-    val isAdditionalUser: Boolean
+    public val isAdditionalUser: Boolean
         get() = currentUserId > 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
     internal object Overrides {

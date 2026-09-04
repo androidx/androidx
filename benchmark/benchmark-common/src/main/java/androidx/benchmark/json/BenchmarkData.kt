@@ -36,30 +36,34 @@ import com.squareup.moshi.JsonClass
  * metalava: b/331978183.
  */
 @JsonClass(generateAdapter = true)
-data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>) {
+public data class BenchmarkData(
+    public val context: Context,
+    public val benchmarks: List<TestResult>,
+) {
     /** Device & OS information */
     @JsonClass(generateAdapter = true)
-    data class Context(
-        val build: Build,
-        val cpuCoreCount: Int,
+    public data class Context(
+        public val build: Build,
+        public val cpuCoreCount: Int,
         @Suppress("GetterSetterNames") // 1.0 JSON compat
         @get:Suppress("GetterSetterNames") // 1.0 JSON compat
-        val cpuLocked: Boolean,
-        val cpuMaxFreqHz: Long,
-        val memTotalBytes: Long,
+        public val cpuLocked: Boolean,
+        public val cpuMaxFreqHz: Long,
+        public val memTotalBytes: Long,
         @Suppress("GetterSetterNames") // 1.0 JSON compat
         @get:Suppress("GetterSetterNames") // 1.0 JSON compat
-        val sustainedPerformanceModeEnabled: Boolean,
-        val artMainlineVersion: Long, // -1 if not found
-        val osCodenameAbbreviated: String,
-        val compilationMode: String,
+        public val sustainedPerformanceModeEnabled: Boolean,
+        public val artMainlineVersion: Long, // -1 if not found
+        public val osCodenameAbbreviated: String,
+        public val compilationMode: String,
         // additional data that can be passed from instrumentation arguments and copied into
         // the json output.
-        val payload: Map<String, String> = emptyMap(), // need default value for backwards compat
+        public val payload: Map<String, String> =
+            emptyMap(), // need default value for backwards compat
         // Note: Convention is to add new entries at bottom
     ) {
         /** Default constructor populates with current run state */
-        constructor() :
+        public constructor() :
             this(
                 build = Build(),
                 cpuCoreCount = CpuInfo.coreDirs.size,
@@ -95,18 +99,18 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
          * instead
          */
         @JsonClass(generateAdapter = true)
-        data class Build(
-            val brand: String,
-            val device: String,
-            val fingerprint: String,
-            val id: String,
-            val model: String,
-            val type: String,
-            val version: Version,
+        public data class Build(
+            public val brand: String,
+            public val device: String,
+            public val fingerprint: String,
+            public val id: String,
+            public val model: String,
+            public val type: String,
+            public val version: Version,
             // Note: Convention is alphabetical
         ) {
             /** Default constructor which populates values from `android.os.BUILD` */
-            constructor() :
+            public constructor() :
                 this(
                     brand = android.os.Build.BRAND,
                     device = android.os.Build.DEVICE,
@@ -122,7 +126,7 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
                 )
 
             @JsonClass(generateAdapter = true)
-            data class Version(val codename: String, val sdk: Int)
+            public data class Version(val codename: String, val sdk: Int)
         }
     }
 
@@ -132,17 +136,19 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
      * Note that one parameterized test in code can produce more than one test result.
      */
     @JsonClass(generateAdapter = true)
-    data class TestResult(
-        val name: String,
-        val params: Map<String, String>,
-        val className: String,
-        @Suppress("MethodNameUnits") @get:Suppress("MethodNameUnits") val totalRunTimeNs: Long,
-        val metrics: Map<String, SingleMetricResult>,
-        val sampledMetrics: Map<String, SampledMetricResult>,
-        val warmupIterations: Int?,
-        val repeatIterations: Int?,
-        val thermalThrottleSleepSeconds: Long?,
-        val profilerOutputs: List<ProfilerOutput>?,
+    public data class TestResult(
+        public val name: String,
+        public val params: Map<String, String>,
+        public val className: String,
+        @Suppress("MethodNameUnits")
+        @get:Suppress("MethodNameUnits")
+        public val totalRunTimeNs: Long,
+        public val metrics: Map<String, SingleMetricResult>,
+        public val sampledMetrics: Map<String, SampledMetricResult>,
+        public val warmupIterations: Int?,
+        public val repeatIterations: Int?,
+        public val thermalThrottleSleepSeconds: Long?,
+        public val profilerOutputs: List<ProfilerOutput>?,
     ) {
         init {
             profilerOutputs?.let { profilerOutput ->
@@ -154,7 +160,7 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
             }
         }
 
-        constructor(
+        public constructor(
             name: String,
             className: String,
             totalRunTimeNs: Long,
@@ -187,7 +193,7 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
         )
 
         @JsonClass(generateAdapter = true)
-        data class ProfilerOutput(
+        public data class ProfilerOutput(
             /**
              * Type of trace.
              *
@@ -196,18 +202,18 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
              *
              * This isn't meant to be a specific data format, but more conceptual category.
              */
-            val type: Type,
+            public val type: Type,
             /**
              * User facing label for the profiler output.
              *
              * If more than one profiler output has the same type, this label gives context
              * explaining the distinction.
              */
-            val label: String,
+            public val label: String,
             /** Filename of trace file. */
-            val filename: String,
+            public val filename: String,
         ) {
-            constructor(
+            public constructor(
                 profilerResult: Profiler.ResultFile
             ) : this(
                 type = profilerResult.type,
@@ -215,24 +221,24 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
                 filename = profilerResult.outputRelativePath,
             )
 
-            enum class Type {
+            public enum class Type {
                 MethodTrace,
                 PerfettoTrace,
                 StackSamplingTrace,
             }
         }
 
-        sealed class MetricResult
+        public sealed class MetricResult
 
         @JsonClass(generateAdapter = true)
-        data class SingleMetricResult(
-            val minimum: Double,
-            val maximum: Double,
-            val median: Double,
-            val coefficientOfVariation: Double,
-            val runs: List<Double>,
+        public data class SingleMetricResult(
+            public val minimum: Double,
+            public val maximum: Double,
+            public val median: Double,
+            public val coefficientOfVariation: Double,
+            public val runs: List<Double>,
         ) : MetricResult() {
-            constructor(
+            public constructor(
                 metricResult: androidx.benchmark.MetricResult
             ) : this(
                 minimum = metricResult.min,
@@ -244,14 +250,14 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
         }
 
         @JsonClass(generateAdapter = true)
-        data class SampledMetricResult(
-            @Suppress("PropertyName") val P50: Double,
-            @Suppress("PropertyName") val P90: Double,
-            @Suppress("PropertyName") val P95: Double,
-            @Suppress("PropertyName") val P99: Double,
-            val runs: List<List<Double>>,
+        public data class SampledMetricResult(
+            @Suppress("PropertyName") public val P50: Double,
+            @Suppress("PropertyName") public val P90: Double,
+            @Suppress("PropertyName") public val P95: Double,
+            @Suppress("PropertyName") public val P99: Double,
+            public val runs: List<List<Double>>,
         ) : MetricResult() {
-            constructor(
+            public constructor(
                 metricResult: androidx.benchmark.MetricResult
             ) : this(
                 P50 = metricResult.p50,

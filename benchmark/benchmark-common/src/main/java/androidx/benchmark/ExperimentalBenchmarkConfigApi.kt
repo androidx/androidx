@@ -37,10 +37,10 @@ public annotation class ExperimentalBenchmarkConfigApi
 @ExperimentalBenchmarkConfigApi
 public class ExperimentalConfig(
     /** The PerfettoConfig for the benchmark - `null` to use the default config. */
-    val perfettoConfig: PerfettoConfig? = null,
+    public val perfettoConfig: PerfettoConfig? = null,
 
     /** The StartupInsightsConfig for the benchmark - `null` to not enable insights reporting. */
-    val startupInsightsConfig: StartupInsightsConfig? = null,
+    public val startupInsightsConfig: StartupInsightsConfig? = null,
 )
 
 /**
@@ -55,7 +55,7 @@ public class ExperimentalConfig(
 @ExperimentalBenchmarkConfigApi
 public class StartupInsightsConfig(
     /** Set to true to enable reporting of Startup Insights. */
-    val isEnabled: Boolean
+    public val isEnabled: Boolean
 ) {
     /**
      * Base URL for linking to more information about specific startup reasons. This URL should
@@ -64,7 +64,7 @@ public class StartupInsightsConfig(
      * of `MAIN_THREAD_MONITOR_CONTENTION` to create a complete URL like:
      * `https://developer.android.com/[...]/slow-start-reason#MAIN_THREAD_MONITOR_CONTENTION`
      */
-    val reasonHelpUrlBase: String? = Arguments.startupInsightsHelpUrlBase
+    public val reasonHelpUrlBase: String? = Arguments.startupInsightsHelpUrlBase
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get
 }
 

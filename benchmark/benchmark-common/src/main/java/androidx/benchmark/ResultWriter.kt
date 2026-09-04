@@ -38,7 +38,7 @@ public object ResultWriter {
             .adapter(BenchmarkData::class.java)
             .indent("    ") // chosen for test compat, will be changed later
 
-    fun appendTestResult(testResult: BenchmarkData.TestResult) {
+    public fun appendTestResult(testResult: BenchmarkData.TestResult) {
         reports.add(testResult)
         if (Arguments.outputEnable) {
             // Currently, we just overwrite the whole file
@@ -90,7 +90,7 @@ public object ResultWriter {
         FileSystem.SYSTEM.write(file.absolutePath.toPath()) { adapter.toJson(this, benchmarkData) }
     }
 
-    fun getParams(testName: String): Map<String, String> {
+    public fun getParams(testName: String): Map<String, String> {
         val parameterStrStart = testName.indexOf('[')
         val parameterStrEnd = testName.lastIndexOf(']')
 
