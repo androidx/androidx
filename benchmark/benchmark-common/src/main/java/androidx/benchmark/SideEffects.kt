@@ -23,7 +23,7 @@ import androidx.annotation.RestrictTo
  * Disables the [packages] during the course of a benchmark thereby reducing the amount of noise.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class DisablePackages(private val packages: List<String> = DEFAULT_PACKAGES_TO_DISABLE) :
+public class DisablePackages(private val packages: List<String> = DEFAULT_PACKAGES_TO_DISABLE) :
     SideEffect {
     override fun name(): String {
         return "DisablePackages"
@@ -39,7 +39,7 @@ class DisablePackages(private val packages: List<String> = DEFAULT_PACKAGES_TO_D
         Shell.enablePackages(packages)
     }
 
-    companion object {
+    public companion object {
         // A list of packages to disable
         // google3/configs/wireless/android/testing/atp/prod/android-crystalball-eng/health/microbench/power/modifications.gcl
         // https://source.corp.google.com/piper///depot/google3/java/com/google/android/libraries/swpower/fixture/DisableModule.java
@@ -91,7 +91,7 @@ class DisablePackages(private val packages: List<String> = DEFAULT_PACKAGES_TO_D
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class DisableDexOpt : SideEffect {
+public class DisableDexOpt : SideEffect {
     override fun name(): String {
         return "DisableDexOpt"
     }

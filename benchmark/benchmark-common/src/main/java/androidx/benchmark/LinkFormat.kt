@@ -19,7 +19,7 @@ package androidx.benchmark
 import androidx.annotation.RestrictTo
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-enum class LinkFormat {
+public enum class LinkFormat {
     /**
      * Compat version for old versions of studio, which does not support any URI parameters.
      *

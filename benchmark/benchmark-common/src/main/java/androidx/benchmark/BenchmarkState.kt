@@ -168,16 +168,18 @@ private class SuspendedLoopTrigger(private val dispatcher: LoopDispatcher) : Con
  *
  * Note that BenchmarkState does not give access to Perfetto traces.
  */
-class BenchmarkState
+public class BenchmarkState
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(testDefinition: TestDefinition, private val config: MicrobenchmarkConfig) {
     // Secondary explicit constructor allows for internal usage without experimental config opt in
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor(testDefinition: TestDefinition) : this(testDefinition, MicrobenchmarkConfig())
+    public constructor(
+        testDefinition: TestDefinition
+    ) : this(testDefinition, MicrobenchmarkConfig())
 
     @JvmField
     @PublishedApi // Previously used by [BenchmarkState.keepRunningInline()]
-    internal var iterationsRemaining = 0
+    internal var iterationsRemaining: Int = 0
 
     /** Ideally we'd call into the top level function, but it's non-suspending */
     private var internalIter = createSuspendedLoop {
@@ -196,13 +198,15 @@ constructor(testDefinition: TestDefinition, private val config: MicrobenchmarkCo
         )
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) @JvmField var scope: MicrobenchmarkScope? = null
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @JvmField
+    public var scope: MicrobenchmarkScope? = null
 
-    fun pauseTiming() {
+    public fun pauseTiming() {
         scope!!.pauseMeasurement()
     }
 
-    fun resumeTiming() {
+    public fun resumeTiming() {
         scope!!.resumeMeasurement()
     }
 
@@ -216,7 +220,7 @@ constructor(testDefinition: TestDefinition, private val config: MicrobenchmarkCo
         return false
     }
 
-    fun keepRunning(): Boolean {
+    public fun keepRunning(): Boolean {
         if (iterationsRemaining > 0) {
             iterationsRemaining--
             return true
@@ -226,7 +230,7 @@ constructor(testDefinition: TestDefinition, private val config: MicrobenchmarkCo
 
     // Note: Constants left here to avoid churn, but should eventually be moved out to more
     // appropriate locations
-    companion object {
+    public companion object {
         internal const val TAG = "Benchmark"
 
         /**

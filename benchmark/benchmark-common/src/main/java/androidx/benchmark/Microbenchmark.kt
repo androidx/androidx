@@ -37,7 +37,7 @@ import kotlinx.coroutines.yield
  * This is functionally an equivalent to `BenchmarkRule.Scope` which will work without the JUnit
  * dependency.
  */
-open class MicrobenchmarkScope
+public open class MicrobenchmarkScope
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(internal val state: MicrobenchmarkRunningState) {
     /**
@@ -50,7 +50,7 @@ constructor(internal val state: MicrobenchmarkRunningState) {
      *
      * @sample androidx.benchmark.samples.runWithMeasurementDisabledSample
      */
-    inline fun <T> runWithMeasurementDisabled(block: () -> T): T {
+    public inline fun <T> runWithMeasurementDisabled(block: () -> T): T {
         pauseMeasurement()
         // Note: we only bother with tracing for the runWithMeasurementDisabled function for
         // Kotlin callers, since we want to avoid corrupting the trace with incorrectly paired
@@ -76,7 +76,7 @@ constructor(internal val state: MicrobenchmarkRunningState) {
      *
      * Kotlin callers should generally instead use [runWithMeasurementDisabled].
      */
-    fun pauseMeasurement() {
+    public fun pauseMeasurement() {
         state.pauseMeasurement()
     }
 
@@ -85,7 +85,7 @@ constructor(internal val state: MicrobenchmarkRunningState) {
      *
      * Kotlin callers should generally instead use [runWithMeasurementDisabled].
      */
-    fun resumeMeasurement() {
+    public fun resumeMeasurement() {
         state.resumeMeasurement()
     }
 }
@@ -97,8 +97,11 @@ constructor(internal val state: MicrobenchmarkRunningState) {
  * allocation
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class MicrobenchmarkRunningState
-internal constructor(internal var metrics: MetricsContainer, val yieldThreadPeriodically: Boolean) {
+public class MicrobenchmarkRunningState
+internal constructor(
+    internal var metrics: MetricsContainer,
+    public val yieldThreadPeriodically: Boolean,
+) {
     internal var warmupEstimatedIterationTimeNs: Long = 0
     internal var warmupIterations: Int = 0
     internal var totalThermalThrottleSleepSeconds: Long = 0
@@ -111,19 +114,19 @@ internal constructor(internal var metrics: MetricsContainer, val yieldThreadPeri
     internal var softDeadlineNs: Long = 0
     internal var hardDeadlineNs: Long = 0
 
-    fun pauseMeasurement() {
+    public fun pauseMeasurement() {
         check(!paused) { "Unable to pause the benchmark. The benchmark has already paused." }
         metrics.capturePaused()
         paused = true
     }
 
-    fun resumeMeasurement() {
+    public fun resumeMeasurement() {
         check(paused) { "Unable to resume the benchmark. The benchmark is already running." }
         metrics.captureResumed()
         paused = false
     }
 
-    fun beginTaskTrace() {
+    public fun beginTaskTrace() {
         if (yieldThreadPeriodically) {
             Trace.beginSection("benchmark task")
             initialTimeNs = System.nanoTime()
@@ -134,7 +137,7 @@ internal constructor(internal var metrics: MetricsContainer, val yieldThreadPeri
         }
     }
 
-    fun endTaskTrace() {
+    public fun endTaskTrace() {
         if (yieldThreadPeriodically) {
             Trace.endSection()
         }
@@ -416,7 +419,7 @@ internal suspend fun measureRepeatedImplNoTracing(
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun measureRepeatedImplWithTracing(
+public fun measureRepeatedImplWithTracing(
     definition: TestDefinition,
     config: MicrobenchmarkConfig?,
     postToMainThread: Boolean,
@@ -449,7 +452,7 @@ fun measureRepeatedImplWithTracing(
  * Eventually this method (or one like it) should be public, and also expose a results object
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-inline fun measureRepeated(
+public inline fun measureRepeated(
     definition: TestDefinition,
     config: MicrobenchmarkConfig? = null,
     crossinline measureBlock: MicrobenchmarkScope.() -> Unit,

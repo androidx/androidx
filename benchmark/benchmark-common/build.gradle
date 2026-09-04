@@ -117,7 +117,6 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Android Benchmark - Common"
-    legacyDisableKotlinStrictApiMode = true
     deviceTests {
         enableAlsoRunningOnPhysicalDevices = true
         minSdkForFtlOverride = 25 // b/539512562

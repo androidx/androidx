@@ -40,7 +40,7 @@ import androidx.test.platform.app.InstrumentationRegistry
  * If the block throws, the trace is still captured and passed to [traceCallback].
  */
 @ExperimentalPerfettoCaptureApi
-fun PerfettoTrace.Companion.record(
+public fun PerfettoTrace.Companion.record(
     /**
      * Output trace file names are labelled `<fileLabel>_<timestamp>.perfetto_trace`
      *
@@ -71,7 +71,7 @@ fun PerfettoTrace.Companion.record(
     traceCallback: ((PerfettoTrace) -> Unit)? = null,
     /** Block to be traced. */
     block: () -> Unit,
-) =
+): Unit =
     record(
         fileLabel = fileLabel,
         config =
@@ -100,7 +100,7 @@ fun PerfettoTrace.Companion.record(
  * If the block throws, the trace is still captured and passed to [traceCallback].
  */
 @ExperimentalPerfettoCaptureApi
-fun PerfettoTrace.Companion.record(
+public fun PerfettoTrace.Companion.record(
     /**
      * Output trace file names are labelled `<fileLabel>_<timestamp>.perfetto_trace`
      *

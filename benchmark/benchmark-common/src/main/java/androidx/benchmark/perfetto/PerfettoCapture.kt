@@ -54,10 +54,10 @@ public class PerfettoCapture(
 
     private val helper: PerfettoHelper = PerfettoHelper(unbundled)
 
-    fun isRunning() = helper.isRunning()
+    public fun isRunning(): Boolean = helper.isRunning()
 
     /** Start collecting perfetto trace. */
-    fun start(config: PerfettoConfig) =
+    public fun start(config: PerfettoConfig): Unit =
         inMemoryTrace("start perfetto") {
             // Write config proto to dir that shell can read
             //     We use `.pb` even with textproto so we'll only ever have one file
@@ -88,7 +88,7 @@ public class PerfettoCapture(
         destinationPath: String,
         inMemoryTracingLabel: String?,
         additionalPaths: List<String>,
-    ) =
+    ): Unit =
         inMemoryTrace("stop perfetto") {
             helper.stopCollecting(
                 destination = destinationPath,
@@ -105,7 +105,7 @@ public class PerfettoCapture(
      */
     @RequiresApi(30) // TODO(234351579): Support API < 30
     @CheckResult
-    fun enableAndroidxTracingPerfetto(config: TracingLibraryConfig): Pair<Int, String> =
+    public fun enableAndroidxTracingPerfetto(config: TracingLibraryConfig): Pair<Int, String> =
         enableAndroidxTracingPerfetto(
             targetPackage = config.targetPackage,
             provideBinariesIfMissing = config.provideBinariesIfMissing,
@@ -245,15 +245,15 @@ public class PerfettoCapture(
         )
     }
 
-    class TracingLibraryConfig(
-        val targetPackage: String,
-        val processState: InitialProcessState = InitialProcessState.Unknown,
-        val enablePerfettoSdk: Boolean = false,
-        val inProcessTracingMode: InProcessTracingMode = InProcessTracingMode.Disable,
-        val provideBinariesIfMissing: Boolean = true,
+    public class TracingLibraryConfig(
+        public val targetPackage: String,
+        public val processState: InitialProcessState = InitialProcessState.Unknown,
+        public val enablePerfettoSdk: Boolean = false,
+        public val inProcessTracingMode: InProcessTracingMode = InProcessTracingMode.Disable,
+        public val provideBinariesIfMissing: Boolean = true,
     ) {
         /** State of process before tracing begins. */
-        enum class InitialProcessState {
+        public enum class InitialProcessState {
             /** will schedule tracing on next cold start */
             NotAlive,
 
@@ -268,7 +268,7 @@ public class PerfettoCapture(
          * Returns true if the target package is not running, and thus will require a cold start
          * tracing handshake
          */
-        fun launchWouldBeCold(): Boolean {
+        public fun launchWouldBeCold(): Boolean {
             return when (processState) {
                 InitialProcessState.NotAlive -> true
                 InitialProcessState.Alive -> false

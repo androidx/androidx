@@ -30,14 +30,14 @@ import android.os.Debug
  * @sample androidx.benchmark.samples.metricCaptureMultiMetricSample
  */
 @ExperimentalBenchmarkConfigApi
-abstract class MetricCapture(
+public abstract class MetricCapture(
     /**
      * List of names of metrics produced by this MetricCapture.
      *
      * The length of this list defines how many metrics will be produced by [captureStart] and
      * [captureStop].
      */
-    val names: List<String>
+    public val names: List<String>
 ) {
     /**
      * Starts collecting data for a run.
@@ -47,7 +47,7 @@ abstract class MetricCapture(
      * @param timeNs Current time, just before starting metrics. Can be used directly to drive a
      *   timing metric produced.
      */
-    abstract fun captureStart(timeNs: Long)
+    public abstract fun captureStart(timeNs: Long)
 
     /**
      * Mark the end of a run, and store offset metrics in the output array, per sub metric.
@@ -60,13 +60,13 @@ abstract class MetricCapture(
      *   the initial position in `output` to start writing submetrics.
      * @param offset Offset into the output array to start writing sub metrics.
      */
-    abstract fun captureStop(timeNs: Long, output: LongArray, offset: Int)
+    public abstract fun captureStop(timeNs: Long, output: LongArray, offset: Int)
 
     /** Pause data collection. */
-    abstract fun capturePaused()
+    public abstract fun capturePaused()
 
     /** Resume data collection */
-    abstract fun captureResumed()
+    public abstract fun captureResumed()
 
     override fun equals(other: Any?): Boolean {
         return (other is MetricCapture && other.names == this.names)
@@ -85,7 +85,7 @@ abstract class MetricCapture(
  * @param name Metric name of the measured time, defaults to `timeNs`.
  */
 @ExperimentalBenchmarkConfigApi
-class TimeCapture @JvmOverloads constructor(name: String = "timeNs") :
+public class TimeCapture @JvmOverloads constructor(name: String = "timeNs") :
     MetricCapture(names = listOf(name)) {
     private var currentStarted = 0L
     private var currentPausedStarted = 0L

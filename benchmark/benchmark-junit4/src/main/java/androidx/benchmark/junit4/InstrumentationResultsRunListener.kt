@@ -31,7 +31,7 @@ import org.junit.runner.Result
  */
 @Suppress("unused", "RestrictedApiAndroidX") // referenced by inst arg at runtime
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class InstrumentationResultsRunListener : InstrumentationRunListener() {
+public class InstrumentationResultsRunListener : InstrumentationRunListener() {
     override fun instrumentationRunFinished(
         streamResult: PrintStream?,
         resultBundle: Bundle,

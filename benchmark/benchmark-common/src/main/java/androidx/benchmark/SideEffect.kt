@@ -27,17 +27,17 @@ import androidx.annotation.RestrictTo
  * the benchmark are hermetic.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface SideEffect {
+public interface SideEffect {
 
     /** Returns the canonical name of the [SideEffect]. */
-    fun name(): String
+    public fun name(): String
 
     /** This method is executed when the benchmark starts. */
-    fun setup()
+    public fun setup()
 
     /**
      * This method is executed when the benchmark is complete. A [SideEffect] should undo the
      * changes to the state of the device app, to ensure hermetic benchmarks.
      */
-    fun tearDown()
+    public fun tearDown()
 }
