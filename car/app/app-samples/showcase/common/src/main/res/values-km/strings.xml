@@ -282,8 +282,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"ផ្ទាំងក្រឡាដែលមានចំណងជើងផ្ទាំងវែង"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"ផ្ទាំងស្វែងរក"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"កំពុងផ្ទុកផ្ទាំង"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"រចនាបថទម្រង់គំរូទី 1"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"រចនាបថទម្រង់គំរូទី 2"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"រចនាបថដែលត្រូវបានលុបពីលើ"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"រចនាបថ \"មិនដំណើរការ\""</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"គំរូបង្ហាញផ្ទុកទម្រង់គំរូផ្ទាំង"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"គំរូបង្ហាញគ្មានផ្ទាំងទម្រង់គំរូផ្ទាំង"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"គំរូបង្ហាញរចនាបថទម្រង់គំរូផ្ទាំង"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"រចនាបថទម្រង់គំរូផ្ទាំង (ផ្ទាំងទី 1)\nស្នងមរតកពីការកំណត់រចនាបថកម្រិតទម្រង់គំរូ"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"រចនាបថទម្រង់គំរូផ្ទាំង (ផ្ទាំងទី 2)\nស្នងមរតកពីការកំណត់រចនាបថកម្រិតទម្រង់គំរូ"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"រចនាបថដែលត្រូវបានលុបពីលើរបស់ផ្ទាំង\nលុបពីលើរចនាបថទម្រង់គំរូដោយប្រើពណ៌ខៀវផ្ទាល់ខ្លួន"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"រចនាបថនៃផ្ទាំងដែលមិនដំណើរការ\nរូបតំណាងពណ៌ក្រហមនៅលើផ្ទៃខាងក្រោយពណ៌ក្រហម"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"មិនអាចបង្ហាញរូបភាព​សម្រាប់ម៉ាស៊ីនដែល​មិនស្គាល់បានទេ"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"រូប​តំណាង"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"គំរូបង្ហាញរូប​ក្រុមហ៊ុនផ្ដល់ខ្លឹមសារ"</string>
