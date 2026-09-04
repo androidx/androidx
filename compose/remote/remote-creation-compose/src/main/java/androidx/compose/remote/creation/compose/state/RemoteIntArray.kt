@@ -20,20 +20,19 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 
-/** Represents an array of remote strings. */
+/** Represents an array of remote integers. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteStringArray
+public class RemoteIntArray
 internal constructor(
-    public override val constantValueOrNull: List<RemoteString>?,
+    public override val constantValueOrNull: List<RemoteInt>?,
     internal override val cacheKey: RemoteStateCacheKey,
-) : BaseRemoteState<List<RemoteString>>(cacheKey) {
+) : BaseRemoteState<List<RemoteInt>>(cacheKey) {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
-        constantValueOrNull: List<RemoteString>?
+        constantValueOrNull: List<RemoteInt>?
     ) : this(
         constantValueOrNull,
         constantValueOrNull?.let { values ->
@@ -41,13 +40,15 @@ internal constructor(
         } ?: RemoteStateInstanceKey(),
     )
 
+    public constructor(vararg values: Int) : this(values.map { RemoteInt(it) })
+
     internal enum class OperationKey : RemoteOperation {
         Create {
             override fun toDebugString(args: List<RemoteStateCacheKey>) =
                 "arrayOf(${args.joinToDebugString()})"
 
             override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
-                RemoteStringArray(args.fastMap { it as RemoteString })
+                RemoteIntArray(args.fastMap { it as RemoteInt })
         },
         Get {
             override val precedence: Int
@@ -56,8 +57,14 @@ internal constructor(
             override fun toDebugString(args: List<RemoteStateCacheKey>) =
                 args.formatArrayAccess(precedence)
 
-            override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
-                (args[0] as RemoteStringArray)[args[1] as RemoteInt]
+            override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> {
+                val array = args[0] as RemoteIntArray
+                return when (val index = args[1]) {
+                    is RemoteInt -> array[index]
+                    is RemoteFloat -> array[index]
+                    else -> throw IllegalArgumentException("Unsupported index type: $index")
+                }
+            }
         },
     }
 
@@ -67,52 +74,59 @@ internal constructor(
         if (cacheKey is RemoteStateIdKey) {
             return (cacheKey as RemoteStateIdKey).id
         }
-        val ids =
+        val values =
             constantValueOrNull!!.fastMap { it.getIdForCreationState(creationState) }.toIntArray()
-        val nanId = creationState.document.addStringList(*ids)
-        return Utils.idFromNan(nanId)
+        return Utils.idFromNan(creationState.document.addList(values))
     }
 
-    /** Array access operator for [RemoteStringArray] with an [Int] index. */
-    public operator fun get(v: Int): RemoteString = constantValueOrNull?.get(v) ?: get(RemoteInt(v))
+    /** Array access operator for [RemoteIntArray] with an [Int] index. */
+    public operator fun get(v: Int): RemoteInt = constantValueOrNull?.get(v) ?: get(RemoteInt(v))
 
-    /** Array access operator for [RemoteStringArray] with a [RemoteInt] index. */
-    public operator fun get(v: RemoteInt): RemoteString {
+    /**
+     * Array access operator for [RemoteIntArray] with a [RemoteInt] index. Performs an ID lookup on
+     * a remote integer array.
+     */
+    public operator fun get(v: RemoteInt): RemoteInt {
         val constArray = constantValueOrNull
         val constIndex = v.constantValueOrNull
         if (constArray != null && constIndex != null) {
             return constArray[constIndex]
         }
-        return MutableRemoteString(
+        return RemoteIntExpression(
             constantValueOrNull = null,
             cacheKey = RemoteOperationCacheKey.create(OperationKey.Get, this, v),
-            lazyRemoteString = StringArrayDerefImpl(this, v),
-        )
-    }
-}
-
-private class StringArrayDerefImpl(val array: RemoteStringArray, val index: RemoteInt) :
-    LazyRemoteString {
-    override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
-        val arrayId = Utils.asNan(array.getIdForCreationState(creationState))
-        val indexId = index.getIdForCreationState(creationState)
-        return creationState.document.textLookup(arrayId, indexId)
+        ) { creationState ->
+            val arrayId = getIdForCreationState(creationState)
+            val resultId =
+                creationState.document.idLookup(
+                    Utils.asNan(arrayId),
+                    v.getFloatIdForCreationState(creationState),
+                )
+            longArrayOf(resultId.toLong() + 0x100000000L)
+        }
     }
 
-    override fun computeRequiredCodePointSet(
-        creationState: RemoteComposeCreationState
-    ): Set<String>? {
-        val constIndex = index.constantValueOrNull
-        if (constIndex != null && array.constantValueOrNull != null) {
-            return array.constantValueOrNull[constIndex].computeRequiredCodePointSet(creationState)
+    /**
+     * Array access operator for [RemoteIntArray] with a [RemoteFloat] index. Performs an ID lookup
+     * on a remote integer array.
+     */
+    public operator fun get(v: RemoteFloat): RemoteInt {
+        val constArray = constantValueOrNull
+        val constIndex = v.constantValueOrNull
+        if (constArray != null && constIndex != null) {
+            return constArray[constIndex.toInt()]
         }
-        if (array.constantValueOrNull != null) {
-            var merged: Set<String>? = HashSet()
-            array.constantValueOrNull.fastForEach { str ->
-                merged = mergeSets(merged, str.computeRequiredCodePointSet(creationState))
-            }
-            return merged
+        return RemoteIntExpression(
+            constantValueOrNull = null,
+            cacheKey = RemoteOperationCacheKey.create(OperationKey.Get, this, v),
+        ) { creationState ->
+            val arrayId = getIdForCreationState(creationState)
+            val resultId =
+                creationState.document.idLookup(
+                    Utils.asNan(arrayId),
+                    v.getFloatIdForCreationState(creationState),
+                )
+            longArrayOf(resultId.toLong() + 0x100000000L)
         }
-        return null
     }
 }
