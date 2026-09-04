@@ -59,7 +59,7 @@ private fun Project.configureCommonStudioTask(task: ManagedIdeTask) {
         IdePlugin(
             downloadUrl =
                 "https://downloads.marketplace.jetbrains.com/files/14912/923152/ktfmt_idea_plugin-$studioKtfmtPluginVersion.zip",
-            checksum = "3280c1d7b6311f697f768ca80bd1c241ce0570fa76d43cd50055fee0808ac8fe",
+            checksum = "a824bc7739e226e1b40ea0f8c4e4f4c6f796fc3b4abfa6e9abe3bd119a30d938",
             zipName = "ktfmt-$studioKtfmtPluginVersion.zip",
             targetDirectoryName = "ktfmt_idea_plugin",
         )
