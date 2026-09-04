@@ -26,6 +26,7 @@ plugins {
 dependencies {
 
     androidTestImplementation("androidx.compose.material:material-icons-core:1.6.7")
+    androidTestImplementation(project(":activity:activity-compose"))
     androidTestImplementation(project(":compose:material3:material3"))
     androidTestImplementation(project(":compose:material3:material3-adaptive-navigation-suite"))
     androidTestImplementation(project(":compose:material3:material3-ripple"))
