@@ -291,6 +291,13 @@ public class TransitionManager {
                     currentTransitions.remove(transition);
                     transition.removeListener(this);
                 }
+
+                @Override
+                public void onTransitionCancel(@NonNull Transition transition) {
+                    ArrayList<Transition> currentTransitions = runningTransitions.get(mSceneRoot);
+                    currentTransitions.remove(transition);
+                    transition.removeListener(this);
+                }
             });
             mTransition.captureValues(mSceneRoot, false);
             if (previousRunningTransitions != null) {
