@@ -29,9 +29,10 @@ import androidx.xr.scenecore.scene
 import androidx.xr.testutils.XrDeviceTest
 import com.google.common.truth.Truth.assertThat
 import java.nio.file.Paths
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.function.Consumer
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -43,11 +44,11 @@ class SceneCoreGltfMultiAnimationTest {
 
     @Test
     fun animation_singleChannelFsm_transitionsThroughStates() = runTestWithSession { session ->
-        val playingLatch = CountDownLatch(1)
+        val playingDeferred = CompletableDeferred<Unit>()
         val listener =
             Consumer<GltfAnimation.AnimationState> { state ->
                 if (state == GltfAnimation.AnimationState.PLAYING) {
-                    playingLatch.countDown()
+                    playingDeferred.complete(Unit)
                 }
             }
 
@@ -72,12 +73,17 @@ class SceneCoreGltfMultiAnimationTest {
         walkingAnim.speed = 1.0f
         walkingAnim.start()
 
-        assertThat(playingLatch.await(5, TimeUnit.SECONDS)).isTrue()
+        if (walkingAnim.animationState == GltfAnimation.AnimationState.PLAYING) {
+            playingDeferred.complete(Unit)
+        }
+        withTimeout(5000) { playingDeferred.await() }
         assertThat(walkingAnim.animationState).isEqualTo(GltfAnimation.AnimationState.PLAYING)
 
+        delay(500)
         walkingAnim.pause()
         assertThat(walkingAnim.animationState).isEqualTo(GltfAnimation.AnimationState.PAUSED)
 
+        delay(200)
         walkingAnim.resume()
         assertThat(walkingAnim.animationState).isEqualTo(GltfAnimation.AnimationState.PLAYING)
 
@@ -90,18 +96,18 @@ class SceneCoreGltfMultiAnimationTest {
 
     @Test
     fun animation_multiChannelConcurrency_playsSimultaneously() = runTestWithSession { session ->
-        val playingLatch1 = CountDownLatch(1)
-        val playingLatch2 = CountDownLatch(1)
+        val playingDeferred1 = CompletableDeferred<Unit>()
+        val playingDeferred2 = CompletableDeferred<Unit>()
         val listener1 =
             Consumer<GltfAnimation.AnimationState> { state ->
                 if (state == GltfAnimation.AnimationState.PLAYING) {
-                    playingLatch1.countDown()
+                    playingDeferred1.complete(Unit)
                 }
             }
         val listener2 =
             Consumer<GltfAnimation.AnimationState> { state ->
                 if (state == GltfAnimation.AnimationState.PLAYING) {
-                    playingLatch2.countDown()
+                    playingDeferred2.complete(Unit)
                 }
             }
 
@@ -129,16 +135,24 @@ class SceneCoreGltfMultiAnimationTest {
         walkingAnim.start()
         waveAnim.start()
 
-        assertThat(playingLatch1.await(5, TimeUnit.SECONDS)).isTrue()
-        assertThat(playingLatch2.await(5, TimeUnit.SECONDS)).isTrue()
+        if (walkingAnim.animationState == GltfAnimation.AnimationState.PLAYING) {
+            playingDeferred1.complete(Unit)
+        }
+        if (waveAnim.animationState == GltfAnimation.AnimationState.PLAYING) {
+            playingDeferred2.complete(Unit)
+        }
+        withTimeout(5000) { playingDeferred1.await() }
+        withTimeout(5000) { playingDeferred2.await() }
 
         assertThat(walkingAnim.animationState).isEqualTo(GltfAnimation.AnimationState.PLAYING)
         assertThat(waveAnim.animationState).isEqualTo(GltfAnimation.AnimationState.PLAYING)
 
+        delay(500)
         walkingAnim.pause()
         assertThat(walkingAnim.animationState).isEqualTo(GltfAnimation.AnimationState.PAUSED)
         assertThat(waveAnim.animationState).isEqualTo(GltfAnimation.AnimationState.PLAYING)
 
+        delay(200)
         walkingAnim.resume()
         assertThat(walkingAnim.animationState).isEqualTo(GltfAnimation.AnimationState.PLAYING)
         assertThat(waveAnim.animationState).isEqualTo(GltfAnimation.AnimationState.PLAYING)
@@ -155,11 +169,11 @@ class SceneCoreGltfMultiAnimationTest {
 
     @Test
     fun animation_speedAndLooping_updatesLivePlayback() = runTestWithSession { session ->
-        val playingLatch = CountDownLatch(1)
+        val playingDeferred = CompletableDeferred<Unit>()
         val listener =
             Consumer<GltfAnimation.AnimationState> { state ->
                 if (state == GltfAnimation.AnimationState.PLAYING) {
-                    playingLatch.countDown()
+                    playingDeferred.complete(Unit)
                 }
             }
 
@@ -178,9 +192,13 @@ class SceneCoreGltfMultiAnimationTest {
         anim.addAnimationStateListener(listener)
         anim.start()
 
-        assertThat(playingLatch.await(5, TimeUnit.SECONDS)).isTrue()
+        if (anim.animationState == GltfAnimation.AnimationState.PLAYING) {
+            playingDeferred.complete(Unit)
+        }
+        withTimeout(5000) { playingDeferred.await() }
         assertThat(anim.animationState).isEqualTo(GltfAnimation.AnimationState.PLAYING)
 
+        delay(200)
         anim.speed = 0.5f
         assertThat(anim.speed).isWithin(1e-4f).of(0.5f)
 
@@ -195,18 +213,18 @@ class SceneCoreGltfMultiAnimationTest {
 
     @Test
     fun animation_stopAllAnimations_abortsAllActiveChannels() = runTestWithSession { session ->
-        val playingLatch1 = CountDownLatch(1)
-        val playingLatch2 = CountDownLatch(1)
+        val playingDeferred1 = CompletableDeferred<Unit>()
+        val playingDeferred2 = CompletableDeferred<Unit>()
         val listener1 =
             Consumer<GltfAnimation.AnimationState> { state ->
                 if (state == GltfAnimation.AnimationState.PLAYING) {
-                    playingLatch1.countDown()
+                    playingDeferred1.complete(Unit)
                 }
             }
         val listener2 =
             Consumer<GltfAnimation.AnimationState> { state ->
                 if (state == GltfAnimation.AnimationState.PLAYING) {
-                    playingLatch2.countDown()
+                    playingDeferred2.complete(Unit)
                 }
             }
 
@@ -230,12 +248,19 @@ class SceneCoreGltfMultiAnimationTest {
         anim2.addAnimationStateListener(listener2)
         anim2.start()
 
-        assertThat(playingLatch1.await(5, TimeUnit.SECONDS)).isTrue()
-        assertThat(playingLatch2.await(5, TimeUnit.SECONDS)).isTrue()
+        if (anim1.animationState == GltfAnimation.AnimationState.PLAYING) {
+            playingDeferred1.complete(Unit)
+        }
+        if (anim2.animationState == GltfAnimation.AnimationState.PLAYING) {
+            playingDeferred2.complete(Unit)
+        }
+        withTimeout(5000) { playingDeferred1.await() }
+        withTimeout(5000) { playingDeferred2.await() }
 
         assertThat(anim1.animationState).isEqualTo(GltfAnimation.AnimationState.PLAYING)
         assertThat(anim2.animationState).isEqualTo(GltfAnimation.AnimationState.PLAYING)
 
+        delay(200)
         entity.stopAllAnimations()
 
         assertThat(anim1.animationState).isEqualTo(GltfAnimation.AnimationState.STOPPED)
