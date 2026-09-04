@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.runtime.tracing.stack
+package androidx.compose.runtime.tracing.collections
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
