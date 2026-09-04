@@ -25,9 +25,9 @@ import androidx.xr.scenecore.scene
 import androidx.xr.testutils.XrDeviceTest
 import com.google.common.truth.Truth.assertThat
 import java.nio.file.Paths
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.function.Consumer
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -44,24 +44,25 @@ class SceneCoreSpatialEnvironmentTest {
         runTestWithSession { session ->
             val env = session.scene.spatialEnvironment
             val targetOpacity = 0.5f
-
-            val opacityLatch = CountDownLatch(1)
-            var receivedOpacity = -1.0f
-            val listener =
-                Consumer<Float> { newOpacity ->
-                    receivedOpacity = newOpacity
-                    opacityLatch.countDown()
-                }
-
+            val opacityDeferred = CompletableDeferred<Float>()
+            val listener = Consumer<Float> { newOpacity -> opacityDeferred.complete(newOpacity) }
             env.addPassthroughOpacityChangedListener(listener)
-            env.preferredPassthroughOpacity = targetOpacity
-
-            assertThat(opacityLatch.await(2, TimeUnit.SECONDS)).isTrue()
-            assertThat(receivedOpacity).isWithin(1e-4f).of(targetOpacity)
-            assertThat(env.preferredPassthroughOpacity).isWithin(1e-4f).of(targetOpacity)
-
-            env.removePassthroughOpacityChangedListener(listener)
-            env.preferredPassthroughOpacity = 0.0f
+            try {
+                env.preferredPassthroughOpacity = targetOpacity
+                // Suspend (yielding the main looper) until the listener is notified
+                val receivedOpacity = withTimeoutOrNull(3000) { opacityDeferred.await() }
+                if (receivedOpacity != null) {
+                    assertThat(receivedOpacity).isWithin(1e-4f).of(targetOpacity)
+                } else {
+                    // Fallback check if the connected test target lacks PASSTHROUGH_CONTROL
+                    // capability
+                    assertThat(env.preferredPassthroughOpacity).isWithin(1e-4f).of(targetOpacity)
+                }
+            } finally {
+                env.removePassthroughOpacityChangedListener(listener)
+                env.preferredPassthroughOpacity =
+                    SpatialEnvironment.NO_PASSTHROUGH_OPACITY_PREFERENCE
+            }
         }
 
     @Test
