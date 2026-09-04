@@ -59,6 +59,8 @@ android {
     aaptOptions {
         noCompress = "js"
     }
+    // Don't change this value without contacting the JSE owners.
+    compileSdk  { version = release(33) }
     namespace = "androidx.javascriptengine"
     enableKotlin = false
 }
