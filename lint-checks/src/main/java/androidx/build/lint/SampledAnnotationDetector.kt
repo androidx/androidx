@@ -107,7 +107,8 @@ class SampledAnnotationDetector : Detector(), SourceCodeScanner {
         }
 
         // Only report errors on the sample module
-        if (context.project.name != "samples") return
+        // b/559621195: skip jvm variant because partial results from dependencies are missing
+        if (context.project.name != "samples" || context.project.buildVariant?.name == "jvm") return
 
         /**
          * Returns whether this [Location] represents a file that we want to report errors for. We

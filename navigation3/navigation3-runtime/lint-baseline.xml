@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.5.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha04)" variant="all" version="9.5.0-alpha04">
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(isHierarchical())"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/nonAndroidMain/kotlin/androidx/navigation3/runtime/deeplink/DeepLinkUri.nonAndroid.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(isHierarchical())"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/nonAndroidMain/kotlin/androidx/navigation3/runtime/deeplink/DeepLinkUri.nonAndroid.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            path.split(&apos;/&apos;).map { InternalUri.decode(it) }"
+        errorLine2="                            ~~~">
+        <location
+            file="src/nonAndroidMain/kotlin/androidx/navigation3/runtime/deeplink/DeepLinkUri.nonAndroid.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        return query.split(&apos;&amp;&apos;).mapNotNull {"
+        errorLine2="                                ~~~~~~~~~~">
+        <location
+            file="src/nonAndroidMain/kotlin/androidx/navigation3/runtime/deeplink/DeepLinkUri.nonAndroid.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            .map {"
+        errorLine2="             ~~~">
+        <location
+            file="src/nonAndroidMain/kotlin/androidx/navigation3/runtime/deeplink/DeepLinkUri.nonAndroid.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            .toSet()"
+        errorLine2="             ~~~~~">
+        <location
+            file="src/nonAndroidMain/kotlin/androidx/navigation3/runtime/deeplink/DeepLinkUri.nonAndroid.kt"/>
+    </issue>
+
+</issues>
