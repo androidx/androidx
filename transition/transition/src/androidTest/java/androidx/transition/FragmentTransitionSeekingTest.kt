@@ -421,6 +421,88 @@ class FragmentTransitionSeekingTest {
     }
 
     @Test
+    fun cancelledBackTransitionIsNotResumedOnPop() {
+        withUse(ActivityScenario.launch(FragmentTransitionTestActivity::class.java)) {
+            val fm1 = withActivity { supportFragmentManager }
+            val startedEnterCountDownLatch = CountDownLatch(1)
+            val fragment1 = StrictViewFragment(R.layout.scene1)
+            val transitionEndCountDownLatch = CountDownLatch(1)
+            fragment1.reenterTransition =
+                (Fade().apply {
+                    duration = 300
+                    addListener(
+                        object : TransitionListenerAdapter() {
+                            override fun onTransitionStart(transition: Transition) {
+                                startedEnterCountDownLatch.countDown()
+                            }
+
+                            override fun onTransitionCancel(transition: Transition) {
+                                transitionEndCountDownLatch.countDown()
+                            }
+                        }
+                    )
+                })
+
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment1, "1")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            waitForExecution()
+
+            var startedExitCountDownLatch = CountDownLatch(1)
+            val fragment2 = StrictViewFragment()
+            var wasResumed = false
+            fragment2.returnTransition =
+                (Fade().apply {
+                    duration = 300
+                    addListener(
+                        object : TransitionListenerAdapter() {
+                            override fun onTransitionStart(transition: Transition) {
+                                startedExitCountDownLatch.countDown()
+                            }
+
+                            override fun onTransitionResume(transition: Transition) {
+                                wasResumed = true
+                            }
+                        }
+                    )
+                })
+
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment2, "2")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            waitForExecution()
+
+            val dispatcher = withActivity { onBackPressedDispatcher }
+            withActivity {
+                dispatcher.dispatchOnBackStarted(
+                    BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+                )
+                dispatcher.dispatchOnBackProgressed(
+                    BackEventCompat(0.2F, 0.2F, 0.2F, BackEvent.EDGE_LEFT)
+                )
+            }
+
+            assertThat(startedEnterCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            assertThat(startedExitCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+
+            withActivity { dispatcher.dispatchOnBackCancelled() }
+            executePendingTransactions()
+
+            startedExitCountDownLatch = CountDownLatch(1)
+
+            fm1.popBackStack()
+            executePendingTransactions()
+
+            assertThat(startedExitCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            assertThat(wasResumed).isFalse()
+        }
+    }
+
+    @Test
     fun replaceOperationWithTransitionsThenGestureBackTwice() {
         withUse(ActivityScenario.launch(FragmentTransitionTestActivity::class.java)) {
             val fm1 = withActivity { supportFragmentManager }
