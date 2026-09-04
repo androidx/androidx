@@ -16,7 +16,7 @@
 
 package androidx.compose.runtime.tracing.test
 
-import androidx.compose.runtime.tracing.stack.Pool
+import androidx.compose.runtime.tracing.collections.Pool
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
