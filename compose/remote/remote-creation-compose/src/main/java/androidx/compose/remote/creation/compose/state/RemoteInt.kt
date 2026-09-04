@@ -216,10 +216,15 @@ internal constructor(
             val key = cacheKey // Needed because smart cast with cacheKey is impossible.
             if (key is RemoteOperationCacheKey && key.op == RemoteFloat.OperationKey.ToInt) {
                 // Force conversion from float to int with a no-op expression so that truncation
-                // occurs as expected for a float->int->float round trip. Note calling binaryOp like
-                // this skips the peephole optimizer.
+                // occurs as expected for a float->int->float round trip. Directly instantiating
+                // [RemoteIntExpression] skips the peephole optimizer.
                 val temp =
-                    binaryOp(this, 0, OperationKey.Add, OP_ADD, { a, _ -> a }) { _, _ -> null }
+                    RemoteIntExpression(
+                        constantValueOrNull = null,
+                        cacheKey = RemoteOperationCacheKey.create(OperationKey.Add, this, 0),
+                    ) { cs ->
+                        combineToLongArray(cs, arrayOf(this), 0L, OP_ADD)
+                    }
                 floatArrayOf(temp.getFloatIdForCreationState(creationState))
             } else {
                 floatArrayOf(getFloatIdForCreationState(creationState))
@@ -335,21 +340,7 @@ internal constructor(
         if (v == 0) {
             return this
         }
-        return binaryOp(this, v, OperationKey.Add, OP_ADD, { a, b -> a + b }) { array, opId ->
-            when (opId) {
-                OP_ADD -> {
-                    val arrayCopy = array.clone()
-                    arrayCopy[arrayCopy.size - 2] += v
-                    maybeTrimIfZero(arrayCopy)
-                }
-                OP_SUB -> {
-                    val arrayCopy = array.clone()
-                    arrayCopy[arrayCopy.size - 2] -= v
-                    maybeTrimIfZero(arrayCopy)
-                }
-                else -> null
-            }
-        }
+        return binaryOp(this, v, OperationKey.Add, OP_ADD) { a, b -> a + b }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -357,21 +348,7 @@ internal constructor(
         if (v == 0) {
             return this
         }
-        return binaryOp(this, v, OperationKey.Sub, OP_SUB, { a, b -> a - b }) { array, opId ->
-            when (opId) {
-                OP_ADD -> {
-                    val arrayCopy = array.clone()
-                    arrayCopy[arrayCopy.size - 2] -= v
-                    maybeTrimIfZero(arrayCopy)
-                }
-                OP_SUB -> {
-                    val arrayCopy = array.clone()
-                    arrayCopy[arrayCopy.size - 2] += v
-                    maybeTrimIfZero(arrayCopy)
-                }
-                else -> null
-            }
-        }
+        return binaryOp(this, v, OperationKey.Sub, OP_SUB) { a, b -> a - b }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -385,21 +362,7 @@ internal constructor(
         if (constantValueOrNull != null && constantValueOrNull == 1) {
             return RemoteInt(v)
         }
-        return binaryOp(this, v, OperationKey.Mul, OP_MUL, { a, b -> a * b }) { array, opId ->
-            when (opId) {
-                OP_MUL -> {
-                    val arrayCopy = array.clone()
-                    arrayCopy[arrayCopy.size - 2] *= v
-                    maybeTrimIfOne(arrayCopy)
-                }
-                OP_DIV -> {
-                    val arrayCopy = array.clone()
-                    arrayCopy[arrayCopy.size - 2] /= v
-                    maybeTrimIfOne(arrayCopy)
-                }
-                else -> null
-            }
-        }
+        return binaryOp(this, v, OperationKey.Mul, OP_MUL) { a, b -> a * b }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -410,40 +373,8 @@ internal constructor(
         if (v == 1) {
             return this
         }
-        return binaryOp(this, v, OperationKey.Div, OP_DIV, { a, b -> a / b }) { array, opId ->
-            when (opId) {
-                OP_MUL -> {
-                    val arrayCopy = array.clone()
-                    if (arrayCopy[arrayCopy.size - 2] % v == 0L) {
-                        arrayCopy[arrayCopy.size - 2] /= v
-                        maybeTrimIfOne(arrayCopy)
-                    } else {
-                        null
-                    }
-                }
-                OP_DIV -> {
-                    val arrayCopy = array.clone()
-                    arrayCopy[arrayCopy.size - 2] *= v
-                    maybeTrimIfOne(arrayCopy)
-                }
-                else -> null
-            }
-        }
+        return binaryOp(this, v, OperationKey.Div, OP_DIV) { a, b -> a / b }
     }
-
-    private fun maybeTrimIfZero(array: LongArray) =
-        if (array.size >= 2 && array[array.size - 2] == 0L) {
-            array.copyOfRange(0, array.size - 2)
-        } else {
-            array
-        }
-
-    private fun maybeTrimIfOne(array: LongArray) =
-        if (array.size >= 2 && array[array.size - 2] == 1L) {
-            array.copyOfRange(0, array.size - 2)
-        } else {
-            array
-        }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun rem(v: Int): RemoteInt =
@@ -618,6 +549,7 @@ internal constructor(
             other,
             OperationKey.CompareEQ,
             { a, b -> longArrayOf(1, 0, *b, *a, OP_SUB, OP_ABS, OP_IFELSE) },
+            IntComparisonOp.EQ,
         ) { a, b ->
             if (a == b) 1 else 0
         }
@@ -632,6 +564,7 @@ internal constructor(
             other,
             OperationKey.CompareNE,
             { a, b -> longArrayOf(0, 1, *b, *a, OP_SUB, OP_ABS, OP_IFELSE) },
+            IntComparisonOp.NE,
         ) { a, b ->
             if (a != b) 1 else 0
         }
@@ -646,6 +579,7 @@ internal constructor(
             other,
             OperationKey.CompareLT,
             { a, b -> longArrayOf(0, 1, *b, *a, OP_SUB, OP_IFELSE) },
+            IntComparisonOp.LT,
         ) { a, b ->
             if (a < b) 1 else 0
         }
@@ -660,6 +594,7 @@ internal constructor(
             other,
             OperationKey.CompareLE,
             { a, b -> longArrayOf(1, 0, *a, *b, OP_SUB, OP_IFELSE) },
+            IntComparisonOp.LE,
         ) { a, b ->
             if (a <= b) 1 else 0
         }
@@ -674,6 +609,7 @@ internal constructor(
             other,
             OperationKey.CompareGT,
             { a, b -> longArrayOf(0, 1, *a, *b, OP_SUB, OP_IFELSE) },
+            IntComparisonOp.GT,
         ) { a, b ->
             if (a > b) 1 else 0
         }
@@ -688,6 +624,7 @@ internal constructor(
             other,
             OperationKey.CompareGE,
             { a, b -> longArrayOf(1, 0, *b, *a, OP_SUB, OP_IFELSE) },
+            IntComparisonOp.GE,
         ) { a, b ->
             if (a >= b) 1 else 0
         }
@@ -800,40 +737,51 @@ internal fun combineToLongArray(
 public fun LongArray.isLiteral(): Boolean = size == 1 && RemoteInt.isLiteral(get(0))
 
 /**
- * Boilerplate for implementing a binary operation.
+ * Boilerplate for implementing a binary operation with automatic peephole optimizations (e.g.
+ * ternary branch folding, associativity with trailing constants).
  *
  * @param a The left hand side value of the binary operation
  * @param b The right hand side value of the binary operation
- * @param opCode The opcode to insert in the generated [LongArray] if both sources aren\'t a const
+ * @param opCode The opcode to insert in the generated [LongArray] if both sources aren't a const
  *   int.
  * @param directEval When the source is a const int, this lambda will be called to evaluate the
  *   result directly.
- * @param peepHoleEval This allows the caller the option to apply a peephole optimization to a
- *   previous operation. E.g. (x * 3) * 4 could be written as x * 12. If no optimization is possible
- *   peepHoleEval should return null.
  */
-private fun binaryOp(
+internal fun binaryOp(
     a: RemoteInt,
     b: Int,
     op: OperationKey,
     opCode: Long,
     directEval: (Int, Int) -> Int,
-    peepHoleEval: (LongArray, Long) -> LongArray?,
 ): RemoteInt {
     val aConst = a.constantValueOrNull
     if (aConst != null) {
         return RemoteInt(directEval(aConst, b))
     }
+
+    // 1. Principled Ternary Peephole: operate directly on the RemoteInt AST
+    if (a is RemoteIntSelect && a.hasConstantBranches) {
+        if ((op != OperationKey.Div && op != OperationKey.Mod) || b != 0) {
+            val newTrue = directEval(a.ifTrue.constantValueOrNull!!, b)
+            val newFalse = directEval(a.ifFalse.constantValueOrNull!!, b)
+            return RemoteIntSelect(
+                condition = a.condition,
+                ifTrue = RemoteInt(newTrue),
+                ifFalse = RemoteInt(newFalse),
+                cacheKey = RemoteOperationCacheKey.create(op, a, b),
+            )
+        }
+    }
+
     return RemoteIntExpression(
         constantValueOrNull = null,
         cacheKey = RemoteOperationCacheKey.create(op, a, b),
     ) { creationState ->
+        // 2. Trailing Constant Peephole (associativity): only evaluate aArray when needed
         val aArray = a.arrayForCreationState(creationState)
         val last = aArray.last()
-        if (aArray.size > 2 && last >= 0x100000000L && aArray[aArray.size - 2] < 0x100000000L) {
-            // If the last two elements of the array are a regular number and an operation, run
-            // peepHoleEval with combineToLongArray if that returned null.
-            peepHoleEval(aArray, last)
+        if (aArray.size > 2 && last >= 0x100000000L) {
+            foldTrailingConstantForOp(aArray, last, op, b)
                 ?: combineToLongArray(creationState, arrayOf(a), b.toLong(), opCode)
         } else {
             combineToLongArray(creationState, arrayOf(a), b.toLong(), opCode)
@@ -841,34 +789,73 @@ private fun binaryOp(
     }
 }
 
-/**
- * Boilerplate for implementing a binary operation.
- *
- * @param a The left hand side value of the binary operation
- * @param b The right hand side value of the binary operation
- * @param opCode The opcode to insert in the generated [LongArray] if both sources aren\'t a const
- *   int.
- * @param directEval When the source is a const int, this lambda will be called to evaluate the
- *   result directly.
- */
-private fun binaryOp(
-    a: RemoteInt,
-    b: Int,
+private fun foldTrailingConstantForOp(
+    array: LongArray,
+    lastOp: Long,
     op: OperationKey,
-    opCode: Long,
-    directEval: (Int, Int) -> Int,
-): RemoteInt {
-    val aConst = a.constantValueOrNull
-    if (aConst != null) {
-        return RemoteInt(directEval(aConst, b))
+    v: Int,
+): LongArray? =
+    when (op) {
+        OperationKey.Add ->
+            when (lastOp) {
+                OP_ADD -> array.foldTrailingConstant({ it + v }, ::maybeTrimIfZero)
+                OP_SUB -> array.foldTrailingConstant({ it - v }, ::maybeTrimIfZero)
+                else -> null
+            }
+        OperationKey.Sub ->
+            when (lastOp) {
+                OP_ADD -> array.foldTrailingConstant({ it - v }, ::maybeTrimIfZero)
+                OP_SUB -> array.foldTrailingConstant({ it + v }, ::maybeTrimIfZero)
+                else -> null
+            }
+        OperationKey.Mul ->
+            when (lastOp) {
+                OP_MUL -> array.foldTrailingConstant({ it * v }, ::maybeTrimIfOne)
+                else -> null
+            }
+        OperationKey.Div ->
+            when (lastOp) {
+                OP_MUL ->
+                    if (
+                        v != 0 &&
+                            array.size >= 2 &&
+                            array[array.size - 2] < 0x100000000L &&
+                            array[array.size - 2] % v == 0L
+                    ) {
+                        array.foldTrailingConstant({ it / v }, ::maybeTrimIfOne)
+                    } else {
+                        null
+                    }
+                OP_DIV -> array.foldTrailingConstant({ it * v }, ::maybeTrimIfOne)
+                else -> null
+            }
+        else -> null
     }
-    return RemoteIntExpression(
-        constantValueOrNull = null,
-        cacheKey = RemoteOperationCacheKey.create(op, a, b),
-    ) { creationState ->
-        combineToLongArray(creationState, arrayOf(a), b.toLong(), opCode)
-    }
+
+private inline fun LongArray.foldTrailingConstant(
+    update: (Long) -> Long,
+    trim: (LongArray) -> LongArray = { it },
+): LongArray? {
+    val idx = size - 2
+    if (idx < 0 || get(idx) >= 0x100000000L) return null
+    val copy = clone()
+    copy[idx] = update(copy[idx]).toInt().toLong()
+    return trim(copy)
 }
+
+private fun maybeTrimIfZero(array: LongArray) =
+    if (array.size >= 2 && array[array.size - 2] == 0L) {
+        array.copyOfRange(0, array.size - 2)
+    } else {
+        array
+    }
+
+private fun maybeTrimIfOne(array: LongArray) =
+    if (array.size >= 2 && array[array.size - 2] == 1L) {
+        array.copyOfRange(0, array.size - 2)
+    } else {
+        array
+    }
 
 /**
  * Boilerplate for implementing a binary operation.
@@ -916,6 +903,7 @@ internal fun comparisonOp(
     b: RemoteInt,
     op: OperationKey,
     expressionGenerator: (LongArray, LongArray) -> LongArray,
+    intComparisonOp: IntComparisonOp? = null,
     directEval: (Int, Int) -> Int,
 ): RemoteBoolean {
     val aConst = a.constantValueOrNull
@@ -941,7 +929,8 @@ internal fun comparisonOp(
             } else {
                 expressionGenerator(aArray, bArray)
             }
-        }
+        },
+        intComparison = intComparisonOp?.let { SelectIntCondition.IntComparison(a, b, it) },
     )
 }
 
@@ -1118,12 +1107,12 @@ public fun selectIfLt(
         return ifTrue
     }
 
-    return RemoteIntExpression(
-        constantValueOrNull = null,
+    return RemoteIntSelect(
+        condition = SelectIntCondition.IntComparison(a, b, IntComparisonOp.LT),
+        ifTrue = ifTrue,
+        ifFalse = ifFalse,
         cacheKey = RemoteOperationCacheKey.create(OperationKey.SelectIfLT, a, b, ifTrue, ifFalse),
-    ) { creationState ->
-        combineToLongArray(creationState, arrayOf(ifFalse, ifTrue, b, a), OP_SUB, OP_IFELSE)
-    }
+    )
 }
 
 /**
@@ -1156,12 +1145,12 @@ public fun selectIfLe(
         return ifTrue
     }
 
-    return RemoteIntExpression(
-        constantValueOrNull = null,
+    return RemoteIntSelect(
+        condition = SelectIntCondition.IntComparison(a, b, IntComparisonOp.LE),
+        ifTrue = ifTrue,
+        ifFalse = ifFalse,
         cacheKey = RemoteOperationCacheKey.create(OperationKey.SelectIfLE, a, b, ifTrue, ifFalse),
-    ) { creationState ->
-        combineToLongArray(creationState, arrayOf(ifTrue, ifFalse, a, b), OP_SUB, OP_IFELSE)
-    }
+    )
 }
 
 /**
@@ -1194,12 +1183,12 @@ public fun selectIfGt(
         return ifTrue
     }
 
-    return RemoteIntExpression(
-        constantValueOrNull = null,
+    return RemoteIntSelect(
+        condition = SelectIntCondition.IntComparison(a, b, IntComparisonOp.GT),
+        ifTrue = ifTrue,
+        ifFalse = ifFalse,
         cacheKey = RemoteOperationCacheKey.create(OperationKey.SelectIfGT, a, b, ifTrue, ifFalse),
-    ) { creationState ->
-        combineToLongArray(creationState, arrayOf(ifFalse, ifTrue, a, b), OP_SUB, OP_IFELSE)
-    }
+    )
 }
 
 /**
@@ -1232,12 +1221,12 @@ public fun selectIfGe(
         return ifTrue
     }
 
-    return RemoteIntExpression(
-        constantValueOrNull = null,
+    return RemoteIntSelect(
+        condition = SelectIntCondition.IntComparison(a, b, IntComparisonOp.GE),
+        ifTrue = ifTrue,
+        ifFalse = ifFalse,
         cacheKey = RemoteOperationCacheKey.create(OperationKey.SelectIfGE, a, b, ifTrue, ifFalse),
-    ) { creationState ->
-        combineToLongArray(creationState, arrayOf(ifTrue, ifFalse, b, a), OP_SUB, OP_IFELSE)
-    }
+    )
 }
 
 /**
@@ -1247,7 +1236,7 @@ public fun selectIfGe(
  * @property hasConstantValue Indicates if this expression will always yield the same value.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteIntExpression
+public open class RemoteIntExpression
 internal constructor(
     public override val constantValueOrNull: Int?,
     cacheKey: RemoteStateCacheKey,
@@ -1281,6 +1270,135 @@ internal constructor(
             return Utils.idFromLong(creationState.document.integerExpression(*array)).toInt()
         }
     }
+}
+
+/** Comparison operators for evaluating [RemoteInt] select conditions. */
+internal enum class IntComparisonOp {
+    LT,
+    LE,
+    GT,
+    GE,
+    EQ,
+    NE,
+}
+
+/** Condition determining branch selection in a [RemoteIntSelect]. */
+internal sealed class SelectIntCondition {
+    /**
+     * Builds the [LongArray] bytecode for selecting between [ifFalse] and [ifTrue].
+     *
+     * @param creationState creation state used to resolve variable IDs
+     * @param ifFalse value selected when the condition evaluates to false
+     * @param ifTrue value selected when the condition evaluates to true
+     * @return long array encoding the selection expression in RPN
+     */
+    abstract fun buildLongArray(
+        creationState: RemoteComposeCreationState,
+        ifFalse: RemoteInt,
+        ifTrue: RemoteInt,
+    ): LongArray
+
+    /**
+     * Direct comparison between two [RemoteInt] instances.
+     *
+     * @property a left-hand operand
+     * @property b right-hand operand
+     * @property op comparison operator
+     */
+    data class IntComparison(val a: RemoteInt, val b: RemoteInt, val op: IntComparisonOp) :
+        SelectIntCondition() {
+        override fun buildLongArray(
+            creationState: RemoteComposeCreationState,
+            ifFalse: RemoteInt,
+            ifTrue: RemoteInt,
+        ): LongArray =
+            when (op) {
+                IntComparisonOp.LT ->
+                    combineToLongArray(
+                        creationState,
+                        arrayOf(ifFalse, ifTrue, b, a),
+                        OP_SUB,
+                        OP_IFELSE,
+                    )
+                IntComparisonOp.GT ->
+                    combineToLongArray(
+                        creationState,
+                        arrayOf(ifFalse, ifTrue, a, b),
+                        OP_SUB,
+                        OP_IFELSE,
+                    )
+                IntComparisonOp.LE ->
+                    combineToLongArray(
+                        creationState,
+                        arrayOf(ifTrue, ifFalse, a, b),
+                        OP_SUB,
+                        OP_IFELSE,
+                    )
+                IntComparisonOp.GE ->
+                    combineToLongArray(
+                        creationState,
+                        arrayOf(ifTrue, ifFalse, b, a),
+                        OP_SUB,
+                        OP_IFELSE,
+                    )
+                IntComparisonOp.EQ ->
+                    combineToLongArray(
+                        creationState,
+                        arrayOf(ifTrue, ifFalse, b, a),
+                        OP_SUB,
+                        OP_ABS,
+                        OP_IFELSE,
+                    )
+                IntComparisonOp.NE ->
+                    combineToLongArray(
+                        creationState,
+                        arrayOf(ifFalse, ifTrue, b, a),
+                        OP_SUB,
+                        OP_ABS,
+                        OP_IFELSE,
+                    )
+            }
+    }
+
+    /**
+     * Boolean condition wrapping a [RemoteBoolean].
+     *
+     * @property bool boolean expression driving the branch selection
+     */
+    data class BooleanCondition(val bool: RemoteBoolean) : SelectIntCondition() {
+        override fun buildLongArray(
+            creationState: RemoteComposeCreationState,
+            ifFalse: RemoteInt,
+            ifTrue: RemoteInt,
+        ): LongArray =
+            combineToLongArray(creationState, arrayOf(ifFalse, ifTrue, bool.intValue), OP_IFELSE)
+    }
+}
+
+internal typealias SealedIntCondition = SelectIntCondition
+
+/**
+ * Select expression choosing between [ifTrue] and [ifFalse] based on [condition].
+ *
+ * @property condition selection condition, either direct integer comparison or a boolean
+ * @property ifTrue value returned when [condition] evaluates to true
+ * @property ifFalse value returned when [condition] evaluates to false
+ */
+internal class RemoteIntSelect(
+    val condition: SelectIntCondition,
+    val ifTrue: RemoteInt,
+    val ifFalse: RemoteInt,
+    cacheKey: RemoteStateCacheKey,
+) :
+    RemoteIntExpression(
+        constantValueOrNull = null,
+        cacheKey = cacheKey,
+        arrayProvider = { creationState ->
+            condition.buildLongArray(creationState, ifFalse, ifTrue)
+        },
+    ) {
+    val hasConstantBranches: Boolean
+        get() = ifTrue.constantValueOrNull != null && ifFalse.constantValueOrNull != null
 }
 
 /**

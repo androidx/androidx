@@ -1527,6 +1527,274 @@ class RemoteFloatTest {
     }
 
     @Test
+    fun peepholeOptimization_select_div() {
+        val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
+        val expr = myBool.select(10f.rf, 20f.rf) / 2f
+
+        val ops = getOperationsStrings(expr)
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:myBool\" type=4",
+                "IntegerConstant[43] = 1",
+                "FloatExpression[44] = (10.0 5.0 [43] ifElse )",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_select_rem() {
+        val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
+        val expr = myBool.select(10f.rf, 20f.rf) % 3f
+
+        val ops = getOperationsStrings(expr)
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:myBool\" type=4",
+                "IntegerConstant[43] = 1",
+                "FloatExpression[44] = (2.0 1.0 [43] ifElse )",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_select_remByZero_doesNotCrashDuringPeepHole() {
+        val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
+        val expr = myBool.select(10f.rf, 20f.rf) % 0f
+
+        val ops = getOperationsStrings(expr)
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:myBool\" type=4",
+                "IntegerConstant[43] = 1",
+                "FloatExpression[44] = (20.0 10.0 [43] ifElse 0.0 % )",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_select_times() {
+        val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
+        val expr = myBool.select(10f.rf, 20f.rf) * 3f
+
+        val ops = getOperationsStrings(expr)
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:myBool\" type=4",
+                "IntegerConstant[43] = 1",
+                "FloatExpression[44] = (60.0 30.0 [43] ifElse )",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_select_plus() {
+        val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
+        val expr = myBool.select(10f.rf, 20f.rf) + 5f
+
+        val ops = getOperationsStrings(expr)
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:myBool\" type=4",
+                "IntegerConstant[43] = 1",
+                "FloatExpression[44] = (25.0 15.0 [43] ifElse )",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_select_minus() {
+        val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
+        val expr = myBool.select(10f.rf, 20f.rf) - 5f
+
+        val ops = getOperationsStrings(expr)
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:myBool\" type=4",
+                "IntegerConstant[43] = 1",
+                "FloatExpression[44] = (15.0 5.0 [43] ifElse )",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_select_unaryMinus() {
+        val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
+        val expr = -myBool.select(10f.rf, 20f.rf)
+
+        val ops = getOperationsStrings(expr)
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:myBool\" type=4",
+                "IntegerConstant[43] = 1",
+                "FloatExpression[44] = (-20.0 -10.0 [43] ifElse )",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_select_chained() {
+        val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
+        val expr = (myBool.select(10f.rf, 20f.rf) + 10f) * 2f / 4f
+
+        val ops = getOperationsStrings(expr)
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:myBool\" type=4",
+                "IntegerConstant[43] = 1",
+                "FloatExpression[44] = (15.0 10.0 [43] ifElse )",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_selectIfLt_div() {
+        val x = RemoteFloat.createNamedRemoteFloat("x", 5f)
+        val y = RemoteFloat.createNamedRemoteFloat("y", 10f)
+        val expr = selectIfLt(x, y, 100f.rf, 200f.rf) / 10f
+
+        val ops = getOperationsStrings(expr)
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:y\" type=1",
+                "FloatConstant[43] = 10.0",
+                "VariableName[44] = \"USER:x\" type=1",
+                "FloatConstant[44] = 5.0",
+                "FloatExpression[45] = (20.0 10.0 [43] [44] - ifElse )",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_selectIfGt_times() {
+        val x = RemoteFloat.createNamedRemoteFloat("x", 5f)
+        val expr = selectIfGt(x, 10f.rf, 10f.rf, 20f.rf) * 2f
+
+        val ops = getOperationsStrings(expr)
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:x\" type=1",
+                "FloatConstant[43] = 5.0",
+                "FloatExpression[44] = (40.0 20.0 [43] 10.0 - ifElse )",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_selectIfLe_plus() {
+        val x = RemoteFloat.createNamedRemoteFloat("x", 5f)
+        val expr = selectIfLe(x, 10f.rf, 10f.rf, 20f.rf) + 5f
+
+        val ops = getOperationsStrings(expr)
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:x\" type=1",
+                "FloatConstant[43] = 5.0",
+                "FloatExpression[44] = (15.0 25.0 [43] 10.0 - ifElse )",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_selectIfGe_minus() {
+        val x = RemoteFloat.createNamedRemoteFloat("x", 5f)
+        val expr = selectIfGe(x, 10f.rf, 10f.rf, 20f.rf) - 5f
+
+        val ops = getOperationsStrings(expr)
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:x\" type=1",
+                "FloatConstant[43] = 5.0",
+                "FloatExpression[44] = (5.0 15.0 10.0 [43] - ifElse )",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_booleanComparisonSelect_times() {
+        val x = RemoteFloat.createNamedRemoteFloat("x", 5f)
+        val y = RemoteFloat.createNamedRemoteFloat("y", 10f)
+        val expr = (x.isLessThan(y)).select(10f.rf, 20f.rf) * 3f
+
+        val ops = getOperationsStrings(expr)
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:y\" type=1",
+                "FloatConstant[43] = 10.0",
+                "VariableName[44] = \"USER:x\" type=1",
+                "FloatConstant[44] = 5.0",
+                "FloatExpression[45] = (60.0 30.0 [43] [44] - ifElse )",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_selectWithConsumingCondition_doesNotFoldBranches() {
+        val x = RemoteFloat.createNamedRemoteFloat("x", 5f)
+        val y = RemoteFloat.createNamedRemoteFloat("y", 10f)
+
+        // Represents: [10.0, 20.0, x, SUB, y, IFELSE]
+        // Here, 20.0 is consumed by (20.0 - x). It is NOT the true branch for IFELSE.
+        val rawSelect =
+            RemoteFloatExpression(
+                constantValueOrNull = null,
+                cacheKey = RemoteStateInstanceKey(),
+            ) { creationState ->
+                floatArrayOf(
+                    10f,
+                    20f,
+                    x.getFloatIdForCreationState(creationState),
+                    AnimatedFloatExpression.SUB,
+                    y.getFloatIdForCreationState(creationState),
+                    AnimatedFloatExpression.IFELSE,
+                )
+            }
+
+        val expr = rawSelect * 2f
+        val ops = getOperationsStrings(expr)
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:x\" type=1",
+                "FloatConstant[43] = 5.0",
+                "VariableName[44] = \"USER:y\" type=1",
+                "FloatConstant[44] = 10.0",
+                "FloatExpression[45] = (10.0 20.0 [43] - [44] ifElse 2.0 * )",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_foldTrailingConstant_nanResult_doesNotCorruptArray() {
+        val x = RemoteFloat.createNamedRemoteFloat("x", 5f)
+        val inf = Float.POSITIVE_INFINITY
+        val expr = (x + inf) - inf
+
+        val ops = getOperationsStrings(expr)
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:x\" type=1",
+                "FloatConstant[43] = 5.0",
+                "FloatExpression[44] = ([43] Infinity + Infinity - )",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_foldSelectBranches_nanResult_doesNotCorruptArray() {
+        val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
+        val inf = Float.POSITIVE_INFINITY
+        val expr = myBool.select(inf.rf, 10f.rf) - inf
+
+        val ops = getOperationsStrings(expr)
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:myBool\" type=4",
+                "IntegerConstant[43] = 1",
+                "FloatExpression[44] = (10.0 Infinity [43] ifElse Infinity - )",
+            )
+            .inOrder()
+    }
+
+    @Test
     fun peepholeOptimization_zeroDiv() {
         val expr = RemoteFloat(0f) / time
 
