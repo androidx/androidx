@@ -30,13 +30,12 @@ import okio.BufferedSink
 import okio.BufferedSource
 
 /**
- * Marks an [StateStoreKey] to be persisted to [DataStore].
+ * Marks a [StateStoreKey] to be persisted to [DataStore].
  *
- * Keys annotated with this will have their state automatically saved and restored.
+ * Keys implementing this interface will have their state automatically saved and restored if the
+ * [StateStore] calls the [syncToDataStore] function.
  */
-@Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-public annotation class PersistToDataStore
+public interface PersistToDataStore
 
 /**
  * Preferences map for [StateStore] backed by [DataStore].

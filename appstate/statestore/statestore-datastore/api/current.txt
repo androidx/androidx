@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.appstate.datastore {
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface PersistToDataStore {
+  public interface PersistToDataStore {
   }
 
   public final class StateStoreKt {
