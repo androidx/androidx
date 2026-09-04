@@ -8,6 +8,7 @@ import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.`internal`.AppFunctionExecutionDispatcher
 import androidx.appfunctions.`internal`.AppFunctionInventory
 import androidx.appfunctions.`internal`.Dispatchers
+import androidx.appfunctions.metadata.AppFunctionMetadata
 import java.util.function.Consumer
 import javax.`annotation`.processing.Generated
 import kotlin.String
@@ -32,12 +33,13 @@ public class ValidUriService : ValidUriConstraintService() {
 
   override fun onExecuteFunction(
     request: ExecuteAppFunctionRequest,
+    metadata: AppFunctionMetadata,
     cancellationSignal: CancellationSignal,
     callback: Consumer<ExecuteAppFunctionResponse>,
   ): Unit = AppFunctionExecutionDispatcher.dispatchExecuteAppFunction(
     scope,
     request,
-    resolveInventory(),
+    metadata,
     cancellationSignal,
     callback,
   ) { parameters ->
