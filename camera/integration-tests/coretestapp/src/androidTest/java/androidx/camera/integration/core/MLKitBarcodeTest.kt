@@ -28,6 +28,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.mlkit.vision.MlKitAnalyzer
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.LabTestRule
+import androidx.camera.testing.impl.LabTestUtil
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -38,6 +39,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_QR_CODE
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -155,7 +157,23 @@ class MLKitBarcodeTest(private val resolution: Size) {
                     Log.d(TAG, "barcode display value: {${it.displayValue}} ")
                 }
             }
-        imageAnalysis.setAnalyzer(ioExecutor(), mlKitAnalyzer)
+        val frameSaved = AtomicBoolean(false)
+        imageAnalysis.setAnalyzer(ioExecutor()) { imageProxy ->
+            if (frameSaved.compareAndSet(false, true)) {
+                val bitmap = imageProxy.toBitmap()
+                ioExecutor().execute {
+                    try {
+                        LabTestUtil.saveTestBitmap(
+                            bitmap,
+                            "MLKitBarcodeTest_${resolution.width}x${resolution.height}_targetRot${targetRotation}_${System.currentTimeMillis()}",
+                        )
+                    } finally {
+                        bitmap.recycle()
+                    }
+                }
+            }
+            mlKitAnalyzer.analyze(imageProxy)
+        }
 
         // Verify it is the CameraX lab test environment and can detect qr-code.
         assertWithMessage(
