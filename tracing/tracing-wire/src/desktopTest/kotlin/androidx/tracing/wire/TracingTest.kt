@@ -146,8 +146,12 @@ class TracingTest {
         // 2 packets for begin and end section.
         // 2 packets for flush().
         assertEquals(6, sink.packets.size)
-        assertNotNull(sink.packets.find { it.track_descriptor?.process?.process_name != null })
-        assertNotNull(sink.packets.find { it.track_descriptor?.thread?.thread_name != null })
+        val process =
+            assertNotNull(sink.packets.find { it.track_descriptor?.process?.process_name != null })
+        val thread =
+            assertNotNull(sink.packets.find { it.track_descriptor?.thread?.thread_name != null })
+        assertTrue { process.track_descriptor?.disallow_merging_with_system_tracks == true }
+        assertTrue { thread.track_descriptor?.disallow_merging_with_system_tracks == true }
         sink.firstStartStopWithName("section") { start, _ ->
             // There should be only one category
             assertEquals(1, start.track_event!!.categories.size)
