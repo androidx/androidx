@@ -18,6 +18,7 @@ package androidx.camera.testing.impl
 
 import android.content.ContentResolver
 import android.content.ContentValues
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Environment.DIRECTORY_DOCUMENTS
 import android.os.Environment.DIRECTORY_MOVIES
@@ -36,6 +37,8 @@ import java.io.OutputStreamWriter
 private const val TAG = "FileUtil"
 private const val EXTENSION_MP4 = "mp4"
 private const val EXTENSION_TEXT = "txt"
+private val SANITIZE_FILENAME_REGEX = Regex("[^a-zA-Z0-9_-]")
+private val STRIP_IMAGE_EXTENSION_REGEX = Regex("\\.(png|jpe?g|webp)$", RegexOption.IGNORE_CASE)
 
 public object FileUtil {
 
@@ -71,6 +74,65 @@ public object FileUtil {
             }
         }
         Logger.d(TAG, "Wrote [$text] to: ${file.path}")
+    }
+
+    /**
+     * Saves a [Bitmap] to the specified directory with the given file name.
+     *
+     * The file name will be sanitized to remove invalid characters and stripped of extensions
+     * before appending the appropriate extension based on the [format].
+     *
+     * @param bitmap the [Bitmap] to save.
+     * @param directory the directory [File] where the bitmap should be saved.
+     * @param name the file name to save the bitmap as (e.g., "testName_methodName").
+     * @param format the [Bitmap.CompressFormat] to use (default: [Bitmap.CompressFormat.PNG]).
+     * @param quality the compression quality from 0 to 100 (default: 100).
+     * @return the saved [File] if successful, or `null` if failed.
+     */
+    @JvmStatic
+    @JvmOverloads
+    public fun saveBitmap(
+        bitmap: Bitmap,
+        directory: File,
+        name: String,
+        format: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
+        quality: Int = 100,
+    ): File? {
+        var testFile: File? = null
+        try {
+            if (!directory.exists() && !directory.mkdirs()) {
+                Logger.e(TAG, "Failed to create directory: $directory")
+                return null
+            }
+            val ext =
+                when {
+                    format == Bitmap.CompressFormat.JPEG -> "jpg"
+                    format == Bitmap.CompressFormat.PNG -> "png"
+                    format.name.startsWith("WEBP") -> "webp"
+                    else -> format.name.lowercase()
+                }
+            val sanitizedName =
+                File(name)
+                    .name
+                    .replace(STRIP_IMAGE_EXTENSION_REGEX, "")
+                    .replace(SANITIZE_FILENAME_REGEX, "_")
+            val fileName = "$sanitizedName.$ext"
+            testFile = File(directory, fileName)
+
+            FileOutputStream(testFile).use { out -> bitmap.compress(format, quality, out) }
+            Logger.d(TAG, "Saved bitmap to: $testFile")
+            return testFile
+        } catch (t: Throwable) {
+            Logger.e(TAG, "Failed to save bitmap for: $name", t)
+            testFile?.let {
+                // Clean up any empty or corrupt file left behind if an error occurred before data
+                // was written.
+                if (it.exists() && it.length() == 0L) {
+                    it.delete()
+                }
+            }
+            return null
+        }
     }
 
     /**
