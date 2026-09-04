@@ -623,6 +623,140 @@ class StatusBarTest {
     }
 
     @Test
+    fun dialog_whenOpen_suppressesStatusBar() {
+        var scaffoldState: ScaffoldState? = null
+        var showDialog by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                        Dialog(visible = showDialog, onDismissRequest = { showDialog = false }) {
+                            Box(modifier = Modifier.fillMaxSize())
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        // When dialog is closed, background screen is active with Enabled ->
+        // currentScreenShowStatusBar
+        // is true
+        Assert.assertEquals(true, scaffoldState?.screenContent?.currentScreenShowStatusBar?.value)
+
+        composeTestRule.runOnUiThread { showDialog = true }
+        composeTestRule.waitForIdle()
+
+        // When dialog is open and top-most, it suppresses status bar -> currentScreenShowStatusBar
+        // is false
+        Assert.assertEquals(
+            "Dialog must suppress status bar when it is the top-most item",
+            false,
+            scaffoldState?.screenContent?.currentScreenShowStatusBar?.value,
+        )
+
+        composeTestRule.runOnUiThread { showDialog = false }
+        composeTestRule.waitForIdle()
+
+        // When dialog is dismissed, it restores the background screen state ->
+        // currentScreenShowStatusBar
+        // is true
+        Assert.assertEquals(
+            "Dismissing dialog must restore background screen status bar state",
+            true,
+            scaffoldState?.screenContent?.currentScreenShowStatusBar?.value,
+        )
+    }
+
+    @Test
+    fun dialog_withInnerScreenScaffoldInherit_inheritsDisabledFromDialog() {
+        var scaffoldState: ScaffoldState? = null
+        var showDialog by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                        Dialog(visible = showDialog, onDismissRequest = { showDialog = false }) {
+                            ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {
+                                Box(modifier = Modifier.fillMaxSize())
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        // Inner screen with Inherit must inherit Disabled from enclosing Dialog
+        Assert.assertEquals(
+            "Inner ScreenScaffold with Inherit must inherit Disabled from Dialog",
+            false,
+            scaffoldState?.screenContent?.currentScreenShowStatusBar?.value,
+        )
+    }
+
+    @Test
+    fun dialog_withInnerScreenScaffoldEnabled_overridesDialog() {
+        var scaffoldState: ScaffoldState? = null
+        var showDialog by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {
+                        Dialog(visible = showDialog, onDismissRequest = { showDialog = false }) {
+                            ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                                Box(modifier = Modifier.fillMaxSize())
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        // Inner screen with explicit Enabled must override Dialog -> currentScreenShowStatusBar
+        // is true
+        Assert.assertEquals(
+            "Inner ScreenScaffold with explicit Enabled must override Dialog",
+            true,
+            scaffoldState?.screenContent?.currentScreenShowStatusBar?.value,
+        )
+    }
+
+    @Test
+    fun dialog_whenOpen_doesNotTriggerAppScaffoldBackgroundTimeText() {
+        var showDialog by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true, timeText = { Text("App Time") }) {
+                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                        Dialog(visible = showDialog, onDismissRequest = { showDialog = false }) {
+                            Box(modifier = Modifier.fillMaxSize())
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("App Time").assertDoesNotExist()
+
+        composeTestRule.runOnUiThread { showDialog = true }
+        composeTestRule.waitForIdle()
+
+        // When dialog opens, AppScaffold in the background must NOT suddenly start drawing local
+        // TimeText
+        composeTestRule.onNodeWithText("App Time").assertDoesNotExist()
+    }
+
+    @Test
     fun screenScaffold_padding_whenSupportedAndShowStatusBarTrue_appliesInsetPaddings() {
         var resolvedTopPadding = 0.dp
         var expectedStatusBarTopPercent = 0.dp
