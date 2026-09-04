@@ -15,6 +15,7 @@
  */
 package androidx.camera.integration.core
 
+import android.Manifest
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageFormat
@@ -68,6 +69,7 @@ import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
@@ -103,6 +105,10 @@ internal class ImageAnalysisTest(
     @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
+
+    @get:Rule
+    val storageRule: GrantPermissionRule =
+        GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
     @get:Rule val labTest: LabTestRule = LabTestRule()
 
