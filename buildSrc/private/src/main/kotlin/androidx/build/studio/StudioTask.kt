@@ -58,8 +58,8 @@ private fun Project.configureCommonStudioTask(task: ManagedIdeTask) {
     val ktfmtPlugin =
         IdePlugin(
             downloadUrl =
-                "https://downloads.marketplace.jetbrains.com/files/14912/923152/ktfmt_idea_plugin-$studioKtfmtPluginVersion.zip",
-            checksum = "a824bc7739e226e1b40ea0f8c4e4f4c6f796fc3b4abfa6e9abe3bd119a30d938",
+                "https://downloads.marketplace.jetbrains.com/files/14912/1084943/ktfmt_idea_plugin-$studioKtfmtPluginVersion.zip",
+            checksum = "bc6d1d3efe40ef117bac8ba920d55dc2a1b7e879b86f464d85aeb34fb548eaef",
             zipName = "ktfmt-$studioKtfmtPluginVersion.zip",
             targetDirectoryName = "ktfmt_idea_plugin",
         )
