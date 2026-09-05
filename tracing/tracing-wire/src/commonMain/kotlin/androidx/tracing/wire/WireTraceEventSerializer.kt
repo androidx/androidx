@@ -230,6 +230,10 @@ internal class WireTraceEventSerializer(sequenceId: Int) {
                 // need to allocate a new object. Theoretically, this could be extended to the
                 // counter/process/thread descriptors eventually if desired.
                 event.trackDescriptor?.apply {
+                    // Always disallow merges with system traces. This is hypothetically easier to
+                    // undo than  the opposite. Ideally we give developers explicit control on
+                    // track descriptors in the future.
+                    scratchTrackDescriptor.disallow_merging_with_system_tracks = true
                     scratchTrackDescriptor.thread = null
                     scratchTrackDescriptor.counter = null
                     scratchTrackDescriptor.process = null
