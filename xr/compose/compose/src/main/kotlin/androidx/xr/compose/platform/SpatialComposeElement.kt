@@ -149,8 +149,11 @@ internal abstract class AbstractComposeElement(
      * This method has no effect if the composition has already been disposed.
      */
     fun disposeComposition() {
+        // TODO(b/559322911): Add unit tests for disposeComposition and SpatialElement concurrent
+        // detachment.
         composition?.dispose()
         composition = null
+        spatialComposeScene = null
     }
 }
 

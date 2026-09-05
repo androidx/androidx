@@ -17,6 +17,7 @@
 package androidx.xr.compose.platform
 
 import androidx.annotation.CallSuper
+import androidx.compose.ui.util.fastForEach
 
 /**
  * Represents the basic building block for a [SpatialElement] that can contain other
@@ -71,10 +72,14 @@ internal open class SpatialElement {
             if (value == null) {
                 val oldScene = checkNotNull(field) { "Scene must be non-null before clearing." }
                 onDetachedFromSubspace(oldScene)
-                onAttachStateChangeListeners?.forEach { it.onElementDetachedFromSubspace(oldScene) }
+                onAttachStateChangeListeners?.toList()?.fastForEach {
+                    it.onElementDetachedFromSubspace(oldScene)
+                }
             } else {
                 onAttachedToSubspace(value)
-                onAttachStateChangeListeners?.forEach { it.onElementAttachedToSubspace(value) }
+                onAttachStateChangeListeners?.toList()?.fastForEach {
+                    it.onElementAttachedToSubspace(value)
+                }
             }
             field = value
         }
@@ -193,7 +198,7 @@ internal open class SpatialElement {
     @CallSuper
     public open fun onAttachedToSubspace(spatialComposeScene: SpatialComposeScene) {
         // Make sure all children have the same `spatialComposeScene` reference too.
-        _children.forEach { it.spatialComposeScene = spatialComposeScene }
+        _children.fastForEach { it.spatialComposeScene = spatialComposeScene }
     }
 
     /**
@@ -203,7 +208,8 @@ internal open class SpatialElement {
      */
     @CallSuper
     public open fun onDetachedFromSubspace(spatialComposeScene: SpatialComposeScene) {
+        // TODO(b/559321565): Optimize to avoid .toList().
         // make sure `spatialComposeScene` references of all children are cleaned up too.
-        _children.forEach { it.spatialComposeScene = null }
+        _children.toList().fastForEach { it.spatialComposeScene = null }
     }
 }
