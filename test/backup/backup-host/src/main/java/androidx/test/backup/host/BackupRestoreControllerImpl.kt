@@ -31,7 +31,9 @@ import java.nio.file.Paths
 import java.time.Duration
 import java.util.UUID
 import java.util.logging.Logger
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.guava.future
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
@@ -51,6 +53,10 @@ internal class BackupRestoreControllerImpl(
     private val backupService: Service by lazy {
         val platformLogger = PlatformLogger.getInstance(BackupRestoreControllerImpl::class.java)
         Service.getInstance(adbSession, platformLogger, MIN_GMS_VERSION)
+    }
+
+    private val componentRegex by lazy {
+        """\b${Regex.escape(applicationId)}/[a-zA-Z0-9._${'$'}]+\b""".toRegex()
     }
 
     private fun getPutStorageArgs(storage: StorageDomain): Map<String, String> {
@@ -359,6 +365,7 @@ internal class BackupRestoreControllerImpl(
     private suspend fun runLocalBackupSimulation(outputDir: File): File {
         val selector = DeviceSelector.fromSerialNumber(serialNumber)
         logger.info("Executing robust local transport backup simulation...")
+        unstopPackage()
         @Suppress("AdbDeviceServicesCommand")
         adbSession.deviceServices.shellAsText(selector, "bmgr enable true")
 
@@ -425,9 +432,70 @@ internal class BackupRestoreControllerImpl(
         @Suppress("AdbDeviceServicesCommand")
         adbSession.deviceServices.shellAsText(selector, "bmgr restore 1 $applicationId")
 
+        @Suppress("AdbDeviceServicesCommand")
+        adbSession.deviceServices.shellAsText(selector, "bmgr run")
+
+        // Poll BackupManagerService until the asynchronous restore pass completes cleanly
+        waitForRestorePassCompletion(selector)
+
         if (originalTransport != "com.android.localtransport/.LocalTransport") {
             @Suppress("AdbDeviceServicesCommand")
             adbSession.deviceServices.shellAsText(selector, "bmgr transport $originalTransport")
+        }
+    }
+
+    private suspend fun isRestoreInProgress(selector: DeviceSelector): Boolean {
+        @Suppress("AdbDeviceServicesCommand")
+        val dumpsys = adbSession.deviceServices.shellAsText(selector, "dumpsys backup").stdout
+        return RESTORE_SESSION_REGEX.containsMatchIn(dumpsys) ||
+            RESTORE_IN_PROGRESS_REGEX.containsMatchIn(dumpsys)
+    }
+
+    /**
+     * Waits for BackupManagerService to dispatch and complete the restore pass, or until [timeout]
+     * expires.
+     */
+    private suspend fun waitForRestorePassCompletion(
+        selector: DeviceSelector,
+        timeout: Duration = Duration.ofSeconds(15),
+    ) {
+        val totalTimeoutMs = timeout.toMillis()
+        val dispatchTimeoutMs =
+            (totalTimeoutMs / 2)
+                .coerceAtLeast(minOf(totalTimeoutMs, 5000L))
+                .coerceAtMost(totalTimeoutMs)
+        val startNanos = System.nanoTime()
+
+        // Wait for system_server to dispatch and register the restore pass
+        val started =
+            withTimeoutOrNull(dispatchTimeoutMs) {
+                while (!isRestoreInProgress(selector)) {
+                    delay(RESTORE_DISPATCH_POLL_INTERVAL_MS)
+                }
+                true
+            }
+
+        if (started == true) {
+            val elapsedMs = (System.nanoTime() - startNanos) / 1_000_000
+            val remainingMs = (totalTimeoutMs - elapsedMs).coerceAtLeast(1000L)
+            // Wait until the active restore pass completes
+            val completed =
+                withTimeoutOrNull(remainingMs) {
+                    while (isRestoreInProgress(selector)) {
+                        delay(RESTORE_COMPLETION_POLL_INTERVAL_MS)
+                    }
+                    true
+                }
+
+            if (completed == null) {
+                logger.warning(
+                    "Restore pass active polling reached timeout (${timeout.toSeconds()}s); proceeding."
+                )
+            }
+        } else {
+            logger.warning(
+                "Restore pass registration was not detected within ${dispatchTimeoutMs}ms; proceeding."
+            )
         }
     }
 
@@ -552,20 +620,69 @@ internal class BackupRestoreControllerImpl(
     }
 
     /**
-     * Sends a broadcast query with `--receiver-include-stopped-packages` to transition the target
-     * application package out of Android's stopped state (`FLAG_STOPPED`).
+     * Parses the output of `cmd package resolve-activity` to extract the launcher component name.
+     *
+     * Matches 'package_name/activity_class_name', avoiding other verbose resolve fields like
+     * 'priority='. Includes the '$' character to support inner/anonymous classes often used in
+     * activity names.
+     */
+    private fun extractComponent(resolveOutput: String): String? {
+        return componentRegex.find(resolveOutput)?.value
+    }
+
+    /**
+     * Transitions the target application package out of Android's stopped state (`FLAG_STOPPED`).
      *
      * In Android, freshly installed or `pm clear`-ed packages are marked as stopped, causing
      * `BackupManagerService` to skip backup/restore operations until the package is explicitly
      * woken up.
+     *
+     * 1. Broadcast wake-up: Sends a broadcast with `--include-stopped-packages` to wake packages
+     *    containing manifest receivers or background services without UI disruption.
+     * 2. Activity launch: For packages with a launcher activity, executes an explicit activity
+     *    start with `-W` to ensure the package transitions out of the stopped state on modern
+     *    Android versions where background broadcasts alone may not unstop activity-based apps. A
+     *    small settling delay is introduced before sending `KEYCODE_HOME` so the app's internal
+     *    initialization settles without interruption while leaving the device in a clean state.
+     * 3. Fallback: If no launcher activity is present, logs a warning and relies on the broadcast
+     *    wake-up rather than attempting invalid UI interactions.
      */
     private suspend fun unstopPackage() {
         val selector = DeviceSelector.fromSerialNumber(serialNumber)
+
+        // 1. Silent broadcast wake-up for packages with receivers or service-only architectures.
         @Suppress("AdbDeviceServicesCommand")
         adbSession.deviceServices.shellAsText(
             selector,
-            "am broadcast -a android.intent.action.MAIN -p $applicationId --receiver-include-stopped-packages",
+            "am broadcast -a android.intent.action.MAIN -p $applicationId --include-stopped-packages",
         )
+
+        // 2. Resolve launcher activity for activity-based applications.
+        @Suppress("AdbDeviceServicesCommand")
+        val resolveOutput =
+            adbSession.deviceServices
+                .shellAsText(
+                    selector,
+                    "cmd package resolve-activity --brief -c android.intent.category.LAUNCHER $applicationId",
+                )
+                .stdout
+
+        val component = extractComponent(resolveOutput)
+
+        if (component != null) {
+            @Suppress("AdbDeviceServicesCommand")
+            adbSession.deviceServices.shellAsText(
+                selector,
+                "am start -W -n ${escapeShellArg(component)}",
+            )
+            delay(ACTIVITY_SETTLE_DELAY_MS)
+            @Suppress("AdbDeviceServicesCommand")
+            adbSession.deviceServices.shellAsText(selector, "input keyevent KEYCODE_HOME")
+        } else {
+            logger.warning(
+                "No launcher activity found for package $applicationId; relied on broadcast wake-up."
+            )
+        }
     }
 
     override suspend fun pullFile(
@@ -629,47 +746,48 @@ internal class BackupRestoreControllerImpl(
         @Suppress("AdbDeviceServicesCommand")
         adbSession.deviceServices.shellAsText(selector, "wm dismiss-keyguard")
 
-        if (activityClass == null && intentExtras.isEmpty() && action == null) {
-            logger.info("Launching $applicationId on-screen via launcher intent...")
-            @Suppress("AdbDeviceServicesCommand")
-            adbSession.deviceServices.shellAsText(
-                selector,
-                "monkey -p $applicationId -c android.intent.category.LAUNCHER 1",
-            )
-            return this
-        }
+        val targetComponent: String? =
+            if (activityClass != null) {
+                when {
+                    activityClass.contains("/") -> activityClass
+                    activityClass.startsWith(".") -> "$applicationId/$activityClass"
+                    !activityClass.contains(".") -> "$applicationId/.$activityClass"
+                    else -> "$applicationId/$activityClass"
+                }
+            } else if (action == null) {
+                @Suppress("AdbDeviceServicesCommand")
+                val resolveResult =
+                    adbSession.deviceServices.shellAsText(
+                        selector,
+                        "cmd package resolve-activity --brief -c android.intent.category.LAUNCHER $applicationId",
+                    )
+                extractComponent(resolveResult.stdout)
+            } else {
+                null
+            }
 
         val command = StringBuilder("am start -W")
         if (action != null) {
             command.append(" -a ").append(action)
         } else {
             command.append(" -a android.intent.action.MAIN")
-        }
-
-        if (action == null) {
             command.append(" -c android.intent.category.LAUNCHER")
         }
 
-        if (activityClass != null) {
-            val component =
-                when {
-                    activityClass.contains("/") -> activityClass
-                    activityClass.startsWith(".") -> "$applicationId/$activityClass"
-                    activityClass.startsWith(applicationId) -> "$applicationId/$activityClass"
-                    activityClass.contains(".") -> "$applicationId/$activityClass"
-                    else -> "$applicationId/.$activityClass"
-                }
-            command.append(" -n ").append(component)
+        if (targetComponent != null) {
+            command.append(" -n ").append(escapeShellArg(targetComponent))
         } else {
             command.append(" -p ").append(applicationId)
         }
 
         for ((key, value) in intentExtras) {
-            // Wrap values in single quotes to safely handle strings with spaces
-            command.append(" --es ").append(key).append(" '").append(value).append("'")
+            val safeKey =
+                if (key.all { it.isLetterOrDigit() || it == '.' || it == '_' }) key
+                else escapeShellArg(key)
+            command.append(" --es ").append(safeKey).append(" ").append(escapeShellArg(value))
         }
 
-        logger.info("Launching app via custom am start command: $command")
+        logger.info("Launching app via am start: $command")
         @Suppress("AdbDeviceServicesCommand")
         adbSession.deviceServices.shellAsText(selector, command.toString())
         return this
@@ -832,6 +950,21 @@ internal class BackupRestoreControllerImpl(
         private const val TYPE_PREFS = "PREFS"
         private const val TYPE_DATABASE = "DATABASE"
         private const val TYPE_FILES = "FILES"
+
+        private val RESTORE_SESSION_REGEX =
+            Regex("""(?i)(?:Restore session|Active restore):\s*(?!null\b|none\b)\S+""")
+        private val RESTORE_IN_PROGRESS_REGEX =
+            Regex("""(?i)Restore (?:pass )?in progress:\s*true\b""")
+
+        private const val RESTORE_DISPATCH_POLL_INTERVAL_MS = 250L
+        private const val RESTORE_COMPLETION_POLL_INTERVAL_MS = 500L
+        private const val ACTIVITY_SETTLE_DELAY_MS = 500L
+
+        /**
+         * Safely escapes an argument string for POSIX shell execution using single quotes,
+         * preventing syntax errors on internal single quotes and command injection.
+         */
+        private fun escapeShellArg(arg: String): String = "'" + arg.replace("'", "'\\''") + "'"
 
         private fun parseStringMap(jsonString: String): Map<String, String> {
             if (jsonString.isEmpty()) return emptyMap()
