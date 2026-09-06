@@ -57,6 +57,8 @@ import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
  *   [MaterialA2uiBasicCatalogV1Defaults.list]
  * @param tabs [A2uiBasicCatalogV1.Tabs] component implementation, defaults to
  *   [MaterialA2uiBasicCatalogV1Defaults.tabs]
+ * @param modal [A2uiBasicCatalogV1.Modal] component implementation, defaults to
+ *   [MaterialA2uiBasicCatalogV1Defaults.modal]
  * @param divider [A2uiBasicCatalogV1.Divider] component implementation, defaults to
  *   [MaterialA2uiBasicCatalogV1Defaults.divider]
  * @param button [A2uiBasicCatalogV1.Button] component implementation, defaults to
@@ -85,6 +87,7 @@ public fun materialA2uiBasicCatalogV1(
     column: A2uiBasicCatalogV1.Column = MaterialA2uiBasicCatalogV1Defaults.column,
     list: A2uiBasicCatalogV1.List = MaterialA2uiBasicCatalogV1Defaults.list,
     tabs: A2uiBasicCatalogV1.Tabs = MaterialA2uiBasicCatalogV1Defaults.tabs,
+    modal: A2uiBasicCatalogV1.Modal = MaterialA2uiBasicCatalogV1Defaults.modal,
     divider: A2uiBasicCatalogV1.Divider = MaterialA2uiBasicCatalogV1Defaults.divider,
     button: A2uiBasicCatalogV1.Button = MaterialA2uiBasicCatalogV1Defaults.button,
     textField: A2uiBasicCatalogV1.TextField = MaterialA2uiBasicCatalogV1Defaults.textField,
@@ -106,6 +109,7 @@ public fun materialA2uiBasicCatalogV1(
             column = column,
             list = list,
             tabs = tabs,
+            modal = modal,
             divider = divider,
             button = button,
             textField = textField,
@@ -168,6 +172,9 @@ public object MaterialA2uiBasicCatalogV1Defaults {
 
     /** Default Material 3 implementation of the [A2uiBasicCatalogV1.Tabs] component. */
     public val tabs: A2uiBasicCatalogV1.Tabs = MaterialA2uiBasicCatalogV1Tabs
+
+    /** Default Material 3 implementation of the [A2uiBasicCatalogV1.Modal] component. */
+    public val modal: A2uiBasicCatalogV1.Modal = MaterialA2uiBasicCatalogV1Modal
 
     /** Default Material 3 implementation of the [A2uiBasicCatalogV1.Divider] component. */
     public val divider: A2uiBasicCatalogV1.Divider = MaterialA2uiBasicCatalogV1Divider

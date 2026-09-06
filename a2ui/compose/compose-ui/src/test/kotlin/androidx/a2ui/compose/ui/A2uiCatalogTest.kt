@@ -143,6 +143,7 @@ class A2uiCatalogTest {
         assertThat(catalog.components["Column"]).isSameInstanceAs(basicCatalog.column)
         assertThat(catalog.components["List"]).isSameInstanceAs(basicCatalog.list)
         assertThat(catalog.components["Tabs"]).isSameInstanceAs(basicCatalog.tabs)
+        assertThat(catalog.components["Modal"]).isSameInstanceAs(basicCatalog.modal)
         assertThat(catalog.components["Divider"]).isSameInstanceAs(basicCatalog.divider)
         assertThat(catalog.components["Button"]).isSameInstanceAs(basicCatalog.button)
         assertThat(catalog.components["TextField"]).isSameInstanceAs(basicCatalog.textField)
@@ -344,6 +345,7 @@ class A2uiCatalogTest {
             column: A2uiBasicCatalogV1.Column = createStubColumn(),
             list: A2uiBasicCatalogV1.List = createStubList(),
             tabs: A2uiBasicCatalogV1.Tabs = createStubTabs(),
+            modal: A2uiBasicCatalogV1.Modal = createStubModal(),
             divider: A2uiBasicCatalogV1.Divider = createStubDivider(),
             button: A2uiBasicCatalogV1.Button = createStubButton(),
             textField: A2uiBasicCatalogV1.TextField = createStubTextField(),
@@ -363,6 +365,7 @@ class A2uiCatalogTest {
                 column = column,
                 list = list,
                 tabs = tabs,
+                modal = modal,
                 divider = divider,
                 button = button,
                 textField = textField,
@@ -478,6 +481,17 @@ class A2uiCatalogTest {
                 @Composable
                 override fun A2uiComponentScope.TypedContent(
                     tabs: List<A2uiBasicCatalogV1.Tabs.Tab>,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        fun createStubModal() =
+            object : A2uiBasicCatalogV1.Modal {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    triggerId: String,
+                    contentId: String,
                     accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
