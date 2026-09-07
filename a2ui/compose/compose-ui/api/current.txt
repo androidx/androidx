@@ -705,8 +705,8 @@ package androidx.a2ui.compose.ui.catalog {
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> getTextProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text.Variant> getVariantProperty();
     property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes> AccessibilityProperty;
-    property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> textProperty;
-    property public androidx.a2ui.compose.runtime.StaticA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text.Variant> variantProperty;
+    property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> TextProperty;
+    property public androidx.a2ui.compose.runtime.StaticA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text.Variant> VariantProperty;
   }
 
   public enum A2uiBasicCatalogV1.Text.Variant {
