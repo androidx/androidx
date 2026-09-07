@@ -173,4 +173,21 @@ class PaintTest {
         // Verify Unspecified maps to Transparent (Alpha 0)
         assertEquals(0f, android.graphics.Color.alpha(colorLong), 0.001f)
     }
+
+    @SdkSuppress(minSdkVersion = 29)
+    @Test
+    fun testColorUnspecifiedCompositeOverFallback() {
+        val paint = Paint()
+        val real = Color(red = 3 / 255f, green = 252 / 255f, blue = 21 / 255f, alpha = 0.38f)
+        val blended = real.compositeOver(Color.Unspecified)
+        paint.color = blended
+        val colorLong = paint.nativePaint.colorLong
+        val delta = 0.01f
+        val srgb = blended.convert(ColorSpaces.Srgb)
+        assertEquals(0, android.graphics.Color.colorSpace(colorLong).id)
+        assertEquals(srgb.alpha, android.graphics.Color.alpha(colorLong), delta)
+        assertEquals(srgb.red, android.graphics.Color.red(colorLong), delta)
+        assertEquals(srgb.green, android.graphics.Color.green(colorLong), delta)
+        assertEquals(srgb.blue, android.graphics.Color.blue(colorLong), delta)
+    }
 }
