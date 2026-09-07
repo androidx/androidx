@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.DeviceConfigurationOverride
-import androidx.compose.ui.test.Locales
 import androidx.compose.ui.test.RoundScreen
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -35,12 +34,11 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.sp
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.foundation.curvedComposable
 import java.util.Calendar
+import java.util.Locale
 import java.util.TimeZone
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -483,22 +481,17 @@ class TimeSourceTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     @Test
-    fun formats_current_time_french_locale() {
+    fun formats_current_time_12H_french_locale() {
         val currentTimeInMillis = 1631544258000L // 2021-09-13 14:44:18
-        val expectedTime = "14 h 44"
+        val expectedTime = "2 h 44"
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
 
         var actualTime: String? = null
+        Locale.setDefault(Locale.CANADA_FRENCH)
 
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.Locales(
-                    LocaleList(Locale(java.util.Locale.CANADA_FRENCH))
-                )
-            ) {
-                val format = TimeTextDefaults.timeFormat()
-                actualTime = currentTime({ currentTimeInMillis }, format).value
-            }
+            val format = TimeTextDefaults.timeFormat()
+            actualTime = currentTime({ currentTimeInMillis }, format).value
         }
         assertEquals(expectedTime, actualTime)
     }

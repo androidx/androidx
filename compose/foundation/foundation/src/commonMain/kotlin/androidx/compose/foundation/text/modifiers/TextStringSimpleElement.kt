@@ -22,7 +22,6 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextOverflow
 
 /**
@@ -34,7 +33,6 @@ internal class TextStringSimpleElement(
     private val text: String,
     private val style: TextStyle,
     private val fontFamilyResolver: FontFamily.Resolver,
-    private val defaultLocaleList: LocaleList,
     private val overflow: TextOverflow = TextOverflow.Clip,
     private val softWrap: Boolean = true,
     private val maxLines: Int = Int.MAX_VALUE,
@@ -47,7 +45,6 @@ internal class TextStringSimpleElement(
             text,
             style,
             fontFamilyResolver,
-            defaultLocaleList,
             overflow,
             softWrap,
             maxLines,
@@ -66,7 +63,6 @@ internal class TextStringSimpleElement(
                     maxLines = maxLines,
                     softWrap = softWrap,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocaleList = defaultLocaleList,
                     overflow = overflow,
                 ),
         )
@@ -84,7 +80,6 @@ internal class TextStringSimpleElement(
 
         // these are equally unlikely to change
         if (fontFamilyResolver != other.fontFamilyResolver) return false
-        if (defaultLocaleList != other.defaultLocaleList) return false
         if (overflow != other.overflow) return false
         if (softWrap != other.softWrap) return false
         if (maxLines != other.maxLines) return false
@@ -97,7 +92,6 @@ internal class TextStringSimpleElement(
         var result = text.hashCode()
         result = 31 * result + style.hashCode()
         result = 31 * result + fontFamilyResolver.hashCode()
-        result = 31 * result + defaultLocaleList.hashCode()
         result = 31 * result + overflow.hashCode()
         result = 31 * result + softWrap.hashCode()
         result = 31 * result + maxLines

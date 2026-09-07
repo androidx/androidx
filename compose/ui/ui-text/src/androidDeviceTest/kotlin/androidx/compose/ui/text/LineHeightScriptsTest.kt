@@ -102,7 +102,6 @@ class LineHeightScriptsTest {
                 density = defaultDensity,
                 fontFamilyResolver = UncachedFontFamilyResolver(context),
                 softWrap = true,
-                defaultLocaleList = TEST_LOCALE_LIST,
             )
         return AndroidParagraph(
             paragraphIntrinsics = intrinsics,
@@ -282,7 +281,6 @@ class LineHeightScriptsTest {
                 density = defaultDensity,
                 fontFamilyResolver = UncachedFontFamilyResolver(context),
                 softWrap = true,
-                defaultLocaleList = TEST_LOCALE_LIST,
             )
         val paragraph =
             AndroidParagraph(
@@ -328,7 +326,6 @@ class LineHeightScriptsTest {
                 density = defaultDensity,
                 fontFamilyResolver = UncachedFontFamilyResolver(context),
                 softWrap = true,
-                defaultLocaleList = TEST_LOCALE_LIST,
             )
         val paragraph =
             AndroidParagraph(
@@ -380,7 +377,6 @@ class LineHeightScriptsTest {
                 density = defaultDensity,
                 fontFamilyResolver = UncachedFontFamilyResolver(context),
                 softWrap = true,
-                defaultLocaleList = TEST_LOCALE_LIST,
             )
         val paragraph =
             AndroidParagraph(
@@ -625,7 +621,6 @@ class LineHeightScriptsTest {
                 density = defaultDensity,
                 fontFamilyResolver = UncachedFontFamilyResolver(context),
                 softWrap = true,
-                defaultLocaleList = TEST_LOCALE_LIST,
             )
         return AndroidParagraph(
             paragraphIntrinsics = intrinsics,
