@@ -24,9 +24,12 @@ import androidx.compose.ui.tooling.animation.AnimatedContentComposeAnimation
 import androidx.compose.ui.tooling.animation.PreviewAnimationClock
 import androidx.compose.ui.tooling.animation.TransitionComposeAnimation
 import androidx.compose.ui.tooling.animation.UnsupportedComposeAnimation
+import androidx.compose.ui.tooling.data.CallGroup
+import androidx.compose.ui.tooling.data.Group
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.preview.PreviewWrapperProvider
 import androidx.compose.ui.tooling.test.R
+import androidx.compose.ui.unit.IntRect
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import java.util.concurrent.CountDownLatch
@@ -784,6 +787,36 @@ class ComposeViewAdapterTest {
 
         checkDesignInfoList("DesignInfoProviderB", "A", "Invalid, x=0, y=0")
         checkDesignInfoList("DesignInfoProviderB", "B", "ObjectB, x=0, y=0")
+    }
+
+    @Test
+    fun designInfoProviderCoordinatesTest() {
+        val group =
+            CallGroup(
+                key = null,
+                name = null,
+                location = null,
+                identity = null,
+                box = IntRect(10, 20, 100, 200),
+                parameters = emptyList(),
+                data =
+                    listOf(
+                        object {
+                            @Suppress("UNUSED")
+                            fun getDesignInfo(x: Int, y: Int, args: String): String = "x=$x, y=$y"
+                        }
+                    ),
+                children = emptyList(),
+                isInline = false,
+            )
+        val method =
+            ComposeViewAdapter::class
+                .java
+                .getDeclaredMethod("getDesignInfoOrNull", Group::class.java, IntRect::class.java)
+                .apply { isAccessible = true }
+
+        val result = method.invoke(composeViewAdapter, group, group.box) as? String
+        assertEquals("x=10, y=20", result)
     }
 
     @Test
