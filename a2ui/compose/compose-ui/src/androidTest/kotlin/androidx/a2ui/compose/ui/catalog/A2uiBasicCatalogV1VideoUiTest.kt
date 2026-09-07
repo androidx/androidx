@@ -48,10 +48,18 @@ class A2uiBasicCatalogV1VideoUiTest {
     private val testVideo =
         object : A2uiBasicCatalogV1.Video {
             var capturedUrl: String? = null
+            var capturedAccessibility: A2uiBasicCatalogV1.AccessibilityAttributes? = null
 
             @Composable
-            override fun A2uiComponentScope.TypedContent(url: String, modifier: Modifier) {
-                SideEffect { capturedUrl = url }
+            override fun A2uiComponentScope.TypedContent(
+                url: String,
+                accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                modifier: Modifier,
+            ) {
+                SideEffect {
+                    capturedUrl = url
+                    capturedAccessibility = accessibility
+                }
                 BasicText(text = "Video: $url", modifier = modifier)
             }
         }
@@ -154,6 +162,38 @@ class A2uiBasicCatalogV1VideoUiTest {
 
         onNodeWithText("Video: https://static.video").assertIsDisplayed()
         assertThat(testVideo.capturedUrl).isEqualTo("https://static.video")
+    }
+
+    @Test
+    fun content_staticAccessibility_resolvesPropertiesAndPassesToTypedContent() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Video",
+                properties =
+                    mapOf(
+                        "url" to "https://static.video",
+                        "accessibility" to
+                            mapOf(
+                                "label" to "Video Player",
+                                "description" to "Tutorial video",
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(payload))
+        val surface = controller.start()
+
+        setContent { A2uiTestSurface(surface) }
+
+        onNodeWithText("Video: https://static.video").assertIsDisplayed()
+        assertThat(testVideo.capturedAccessibility)
+            .isEqualTo(
+                A2uiBasicCatalogV1.AccessibilityAttributes(
+                    label = "Video Player",
+                    description = "Tutorial video",
+                )
+            )
     }
 
     @Test

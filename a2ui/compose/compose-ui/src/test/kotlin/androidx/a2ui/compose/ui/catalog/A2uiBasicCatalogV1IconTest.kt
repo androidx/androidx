@@ -51,15 +51,20 @@ class A2uiBasicCatalogV1IconTest {
             .isEqualTo("Displays an icon from a predefined set of icons or an SVG path.")
         assertThat(iconComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.Icon.AccessibilityProperty,
                 A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.Icon.NameProperty,
-                A2uiBasicCatalogV1.Icon.AccessibilityProperty,
             )
             .inOrder()
     }
 
     @Test
     fun companionProperties_haveExpectedSchema() {
+        assertThat(A2uiBasicCatalogV1.Icon.AccessibilityProperty.key).isEqualTo("accessibility")
+        assertThat(A2uiBasicCatalogV1.Icon.AccessibilityProperty.isRequired).isFalse()
+        assertThat(A2uiBasicCatalogV1.Icon.AccessibilityProperty.schema)
+            .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
+
         assertThat(A2uiBasicCatalogV1.Icon.NameProperty.key).isEqualTo("name")
         assertThat(A2uiBasicCatalogV1.Icon.NameProperty.isRequired).isTrue()
         val schema = assertIs<A2uiAnySchema>(A2uiBasicCatalogV1.Icon.NameProperty.schema)
@@ -85,11 +90,6 @@ class A2uiBasicCatalogV1IconTest {
                     )
                 )
             )
-
-        assertThat(A2uiBasicCatalogV1.Icon.AccessibilityProperty.key).isEqualTo("accessibility")
-        assertThat(A2uiBasicCatalogV1.Icon.AccessibilityProperty.isRequired).isFalse()
-        assertThat(A2uiBasicCatalogV1.Icon.AccessibilityProperty.schema)
-            .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
     }
 
     @Test

@@ -19,6 +19,7 @@ package androidx.a2ui.compose.ui.catalog
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.model.schema.A2uiNumberSchema
 import androidx.a2ui.model.schema.A2uiSchemaKeyword
+import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicNumberSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.compose.runtime.Composable
@@ -44,6 +45,7 @@ class A2uiBasicCatalogV1SliderTest {
                     value: Float,
                     onValueChange: (Float) -> Unit,
                     enabled: Boolean,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -53,6 +55,7 @@ class A2uiBasicCatalogV1SliderTest {
             .isEqualTo("A slider for selecting a numeric value within a range.")
         assertThat(sliderComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.Slider.AccessibilityProperty,
                 A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.Slider.LabelProperty,
                 A2uiBasicCatalogV1.Slider.MinProperty,
@@ -64,6 +67,11 @@ class A2uiBasicCatalogV1SliderTest {
 
     @Test
     fun companionProperties_haveExpectedSchema() {
+        assertThat(A2uiBasicCatalogV1.Slider.AccessibilityProperty.key).isEqualTo("accessibility")
+        assertThat(A2uiBasicCatalogV1.Slider.AccessibilityProperty.isRequired).isFalse()
+        assertThat(A2uiBasicCatalogV1.Slider.AccessibilityProperty.schema)
+            .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
+
         assertThat(A2uiBasicCatalogV1.Slider.LabelProperty.key).isEqualTo("label")
         assertThat(A2uiBasicCatalogV1.Slider.LabelProperty.isRequired).isFalse()
         val labelSchema =

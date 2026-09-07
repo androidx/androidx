@@ -51,6 +51,7 @@ class A2uiBasicCatalogV1ImageUiTest {
             var capturedDescription: String? = null
             var capturedFit: A2uiBasicCatalogV1.Image.Fit? = null
             var capturedVariant: A2uiBasicCatalogV1.Image.Variant? = null
+            var capturedAccessibility: A2uiBasicCatalogV1.AccessibilityAttributes? = null
 
             @Composable
             override fun A2uiComponentScope.TypedContent(
@@ -58,6 +59,7 @@ class A2uiBasicCatalogV1ImageUiTest {
                 description: String?,
                 fit: A2uiBasicCatalogV1.Image.Fit,
                 variant: A2uiBasicCatalogV1.Image.Variant,
+                accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                 modifier: Modifier,
             ) {
                 SideEffect {
@@ -65,6 +67,7 @@ class A2uiBasicCatalogV1ImageUiTest {
                     capturedDescription = description
                     capturedFit = fit
                     capturedVariant = variant
+                    capturedAccessibility = accessibility
                 }
                 val descText = description ?: "no-desc"
                 BasicText(text = "Image: $url - $descText", modifier = modifier)
@@ -210,6 +213,38 @@ class A2uiBasicCatalogV1ImageUiTest {
         assertThat(testImage.capturedDescription).isEqualTo("Dynamic Alt")
         assertThat(testImage.capturedFit).isEqualTo(A2uiBasicCatalogV1.Image.Fit.Contain)
         assertThat(testImage.capturedVariant).isEqualTo(A2uiBasicCatalogV1.Image.Variant.Header)
+    }
+
+    @Test
+    fun content_staticAccessibility_resolvesPropertiesAndPassesToTypedContent() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Image",
+                properties =
+                    mapOf(
+                        "url" to "https://static.img",
+                        "accessibility" to
+                            mapOf(
+                                "label" to "Scenic View",
+                                "description" to "Photo of mountains",
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(payload))
+        val surface = controller.start()
+
+        setContent { A2uiTestSurface(surface) }
+
+        onNodeWithText("Image: https://static.img - no-desc").assertIsDisplayed()
+        assertThat(testImage.capturedAccessibility)
+            .isEqualTo(
+                A2uiBasicCatalogV1.AccessibilityAttributes(
+                    label = "Scenic View",
+                    description = "Photo of mountains",
+                )
+            )
     }
 
     @Test

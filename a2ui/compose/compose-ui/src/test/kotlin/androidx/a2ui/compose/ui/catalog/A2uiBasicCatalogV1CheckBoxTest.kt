@@ -17,6 +17,7 @@
 package androidx.a2ui.compose.ui.catalog
 
 import androidx.a2ui.compose.runtime.A2uiComponentScope
+import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicBooleanSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.compose.runtime.Composable
@@ -40,6 +41,7 @@ class A2uiBasicCatalogV1CheckBoxTest {
                     value: Boolean,
                     onValueChange: (Boolean) -> Unit,
                     enabled: Boolean,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -49,6 +51,7 @@ class A2uiBasicCatalogV1CheckBoxTest {
             .isEqualTo("A checkbox with a label and a boolean value.")
         assertThat(checkBoxComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.CheckBox.AccessibilityProperty,
                 A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.CheckBox.LabelProperty,
                 A2uiBasicCatalogV1.CheckBox.ValueProperty,
@@ -58,6 +61,11 @@ class A2uiBasicCatalogV1CheckBoxTest {
 
     @Test
     fun companionProperties_haveExpectedSchema() {
+        assertThat(A2uiBasicCatalogV1.CheckBox.AccessibilityProperty.key).isEqualTo("accessibility")
+        assertThat(A2uiBasicCatalogV1.CheckBox.AccessibilityProperty.isRequired).isFalse()
+        assertThat(A2uiBasicCatalogV1.CheckBox.AccessibilityProperty.schema)
+            .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
+
         assertThat(A2uiBasicCatalogV1.CheckBox.LabelProperty.key).isEqualTo("label")
         assertThat(A2uiBasicCatalogV1.CheckBox.LabelProperty.isRequired).isTrue()
         val labelSchema =

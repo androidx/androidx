@@ -48,14 +48,19 @@ class A2uiBasicCatalogV1TextUiTest {
     private val testText =
         object : A2uiBasicCatalogV1.Text {
             var capturedVariant: A2uiBasicCatalogV1.Text.Variant? = null
+            var capturedAccessibility: A2uiBasicCatalogV1.AccessibilityAttributes? = null
 
             @Composable
             override fun A2uiComponentScope.TypedContent(
                 text: String,
                 variant: A2uiBasicCatalogV1.Text.Variant,
+                accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                 modifier: Modifier,
             ) {
-                SideEffect { capturedVariant = variant }
+                SideEffect {
+                    capturedVariant = variant
+                    capturedAccessibility = accessibility
+                }
                 BasicText(text = text, modifier = modifier)
             }
         }
@@ -175,6 +180,42 @@ class A2uiBasicCatalogV1TextUiTest {
 
         onNodeWithText("Hello World").assertIsDisplayed()
         assertThat(testText.capturedVariant).isEqualTo(A2uiBasicCatalogV1.Text.Variant.H1)
+    }
+
+    @Test
+    fun content_staticAccessibility_resolvesPropertiesAndPassesToTypedContent() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Text",
+                            properties =
+                                mapOf(
+                                    "text" to "Hello World",
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Greeting label",
+                                            "description" to "Greeting description",
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { A2uiTestSurface(surface) }
+
+        onNodeWithText("Hello World").assertIsDisplayed()
+        assertThat(testText.capturedAccessibility)
+            .isEqualTo(
+                A2uiBasicCatalogV1.AccessibilityAttributes(
+                    label = "Greeting label",
+                    description = "Greeting description",
+                )
+            )
     }
 
     @Test

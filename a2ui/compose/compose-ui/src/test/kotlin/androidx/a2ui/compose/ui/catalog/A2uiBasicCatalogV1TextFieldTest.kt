@@ -19,6 +19,7 @@ package androidx.a2ui.compose.ui.catalog
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
+import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -43,6 +44,7 @@ class A2uiBasicCatalogV1TextFieldTest {
                     validationRegexp: String?,
                     onValueChange: (String) -> Unit,
                     enabled: Boolean,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -51,6 +53,7 @@ class A2uiBasicCatalogV1TextFieldTest {
         assertThat(textFieldComponent.description).isEqualTo("A field for user text input.")
         assertThat(textFieldComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.TextField.AccessibilityProperty,
                 A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.TextField.LabelProperty,
                 A2uiBasicCatalogV1.TextField.ValueProperty,
@@ -62,6 +65,12 @@ class A2uiBasicCatalogV1TextFieldTest {
 
     @Test
     fun companionProperties_haveExpectedSchema() {
+        assertThat(A2uiBasicCatalogV1.TextField.AccessibilityProperty.key)
+            .isEqualTo("accessibility")
+        assertThat(A2uiBasicCatalogV1.TextField.AccessibilityProperty.isRequired).isFalse()
+        assertThat(A2uiBasicCatalogV1.TextField.AccessibilityProperty.schema)
+            .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
+
         assertThat(A2uiBasicCatalogV1.TextField.LabelProperty.key).isEqualTo("label")
         assertThat(A2uiBasicCatalogV1.TextField.LabelProperty.isRequired).isTrue()
         val labelSchema =

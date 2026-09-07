@@ -19,6 +19,7 @@ package androidx.a2ui.compose.ui.catalog
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
+import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.google.common.truth.Truth.assertThat
@@ -37,6 +38,7 @@ class A2uiBasicCatalogV1DividerTest {
                 @Composable
                 override fun A2uiComponentScope.TypedContent(
                     axis: A2uiBasicCatalogV1.Divider.Axis,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -46,6 +48,7 @@ class A2uiBasicCatalogV1DividerTest {
             .isEqualTo("A horizontal or vertical dividing line.")
         assertThat(dividerComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.Divider.AccessibilityProperty,
                 A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.Divider.AxisProperty,
             )
@@ -54,6 +57,11 @@ class A2uiBasicCatalogV1DividerTest {
 
     @Test
     fun companionProperties_haveExpectedSchema() {
+        assertThat(A2uiBasicCatalogV1.Divider.AccessibilityProperty.key).isEqualTo("accessibility")
+        assertThat(A2uiBasicCatalogV1.Divider.AccessibilityProperty.isRequired).isFalse()
+        assertThat(A2uiBasicCatalogV1.Divider.AccessibilityProperty.schema)
+            .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
+
         assertThat(A2uiBasicCatalogV1.Divider.AxisProperty.key).isEqualTo("axis")
         assertThat(A2uiBasicCatalogV1.Divider.AxisProperty.isRequired).isFalse()
         val axisSchema = assertIs<A2uiStringSchema>(A2uiBasicCatalogV1.Divider.AxisProperty.schema)

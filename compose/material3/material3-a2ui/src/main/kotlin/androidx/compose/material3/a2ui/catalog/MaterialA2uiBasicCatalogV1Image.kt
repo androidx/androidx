@@ -81,6 +81,7 @@ internal class MaterialA2uiBasicCatalogV1Image(private val imageRenderer: A2uiIm
         description: String?,
         fit: A2uiBasicCatalogV1.Image.Fit,
         variant: A2uiBasicCatalogV1.Image.Variant,
+        accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
         modifier: Modifier,
     ) {
         imageRenderer.Image(

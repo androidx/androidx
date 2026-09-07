@@ -29,6 +29,7 @@ internal object MaterialA2uiBasicCatalogV1Divider : A2uiBasicCatalogV1.Divider {
     @Composable
     override fun A2uiComponentScope.TypedContent(
         axis: A2uiBasicCatalogV1.Divider.Axis,
+        accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
         modifier: Modifier,
     ) {
         when (axis) {

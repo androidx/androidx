@@ -22,6 +22,7 @@ import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.functions.A2uiFormatStringFunction
 import androidx.a2ui.model.schema.A2uiNumberSchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
+import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.google.common.truth.Truth.assertThat
@@ -51,6 +52,61 @@ class A2uiBasicCatalogV1Test {
         assertThat(themeObjSchema.properties.keys)
             .containsExactly("primaryColor", "iconUrl", "agentDisplayName")
         assertThat(themeObjSchema.isAdditionalPropertiesAllowed).isTrue()
+    }
+
+    @Test
+    fun accessibilityProperty_hasExpectedSchema() {
+        assertThat(A2uiBasicCatalogV1.AccessibilityProperty.key).isEqualTo("accessibility")
+        assertThat(A2uiBasicCatalogV1.AccessibilityProperty.isRequired).isFalse()
+        assertThat(A2uiBasicCatalogV1.AccessibilityProperty.schema)
+            .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
+    }
+
+    @Test
+    fun components_allIncludeAccessibilityProperty() {
+        val catalog = createTestBasicCatalog()
+        val componentsWithAccessibility =
+            catalog.components.filter {
+                it.properties.contains(A2uiBasicCatalogV1.AccessibilityProperty)
+            }
+
+        assertThat(componentsWithAccessibility).containsExactlyElementsIn(catalog.components)
+    }
+
+    @Test
+    fun componentCompanionAccessibilityProperties_referenceSharedInstance() {
+        assertThat(A2uiBasicCatalogV1.Text.AccessibilityProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
+        assertThat(A2uiBasicCatalogV1.Image.AccessibilityProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
+        assertThat(A2uiBasicCatalogV1.Icon.AccessibilityProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
+        assertThat(A2uiBasicCatalogV1.Video.AccessibilityProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
+        assertThat(A2uiBasicCatalogV1.AudioPlayer.AccessibilityProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
+        assertThat(A2uiBasicCatalogV1.Card.AccessibilityProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
+        assertThat(A2uiBasicCatalogV1.Row.AccessibilityProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
+        assertThat(A2uiBasicCatalogV1.Column.AccessibilityProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
+        assertThat(A2uiBasicCatalogV1.List.AccessibilityProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
+        assertThat(A2uiBasicCatalogV1.Tabs.AccessibilityProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
+        assertThat(A2uiBasicCatalogV1.Divider.AccessibilityProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
+        assertThat(A2uiBasicCatalogV1.Button.AccessibilityProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
+        assertThat(A2uiBasicCatalogV1.TextField.AccessibilityProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
+        assertThat(A2uiBasicCatalogV1.Slider.AccessibilityProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
+        assertThat(A2uiBasicCatalogV1.DateTimeInput.AccessibilityProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
+        assertThat(A2uiBasicCatalogV1.CheckBox.AccessibilityProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
     }
 
     @Test
@@ -319,6 +375,7 @@ class A2uiBasicCatalogV1Test {
         override fun A2uiComponentScope.TypedContent(
             text: String,
             variant: A2uiBasicCatalogV1.Text.Variant,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
         ) {}
     }
@@ -330,6 +387,7 @@ class A2uiBasicCatalogV1Test {
             description: String?,
             fit: A2uiBasicCatalogV1.Image.Fit,
             variant: A2uiBasicCatalogV1.Image.Variant,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
         ) {}
     }
@@ -344,7 +402,12 @@ class A2uiBasicCatalogV1Test {
     }
 
     private class TestVideoComponent : A2uiBasicCatalogV1.Video {
-        @Composable override fun A2uiComponentScope.TypedContent(url: String, modifier: Modifier) {}
+        @Composable
+        override fun A2uiComponentScope.TypedContent(
+            url: String,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+            modifier: Modifier,
+        ) {}
     }
 
     private class TestAudioPlayerComponent : A2uiBasicCatalogV1.AudioPlayer {
@@ -352,13 +415,18 @@ class A2uiBasicCatalogV1Test {
         override fun A2uiComponentScope.TypedContent(
             url: String,
             description: String?,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
         ) {}
     }
 
     private class TestCardComponent : A2uiBasicCatalogV1.Card {
         @Composable
-        override fun A2uiComponentScope.TypedContent(childId: String, modifier: Modifier) {}
+        override fun A2uiComponentScope.TypedContent(
+            childId: String,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+            modifier: Modifier,
+        ) {}
     }
 
     private class TestRowComponent : A2uiBasicCatalogV1.Row {
@@ -367,6 +435,7 @@ class A2uiBasicCatalogV1Test {
             children: List<A2uiComponentReference>,
             justify: A2uiBasicCatalogV1.Row.Justify,
             align: A2uiBasicCatalogV1.Row.Align,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
         ) {}
     }
@@ -377,6 +446,7 @@ class A2uiBasicCatalogV1Test {
             children: List<A2uiComponentReference>,
             justify: A2uiBasicCatalogV1.Column.Justify,
             align: A2uiBasicCatalogV1.Column.Align,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
         ) {}
     }
@@ -387,6 +457,7 @@ class A2uiBasicCatalogV1Test {
             children: List<A2uiComponentReference>,
             direction: A2uiBasicCatalogV1.List.Direction,
             align: A2uiBasicCatalogV1.List.Align,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
         ) {}
     }
@@ -395,6 +466,7 @@ class A2uiBasicCatalogV1Test {
         @Composable
         override fun A2uiComponentScope.TypedContent(
             tabs: List<A2uiBasicCatalogV1.Tabs.Tab>,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
         ) {}
     }
@@ -403,6 +475,7 @@ class A2uiBasicCatalogV1Test {
         @Composable
         override fun A2uiComponentScope.TypedContent(
             axis: A2uiBasicCatalogV1.Divider.Axis,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
         ) {}
     }
@@ -413,6 +486,7 @@ class A2uiBasicCatalogV1Test {
             childId: String,
             variant: A2uiBasicCatalogV1.Button.Variant,
             action: Map<String, Any?>,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
         ) {}
     }
@@ -426,6 +500,7 @@ class A2uiBasicCatalogV1Test {
             validationRegexp: String?,
             onValueChange: (String) -> Unit,
             enabled: Boolean,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
         ) {}
     }
@@ -437,6 +512,7 @@ class A2uiBasicCatalogV1Test {
             value: Boolean,
             onValueChange: (Boolean) -> Unit,
             enabled: Boolean,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
         ) {}
     }
@@ -450,6 +526,7 @@ class A2uiBasicCatalogV1Test {
             value: Float,
             onValueChange: (Float) -> Unit,
             enabled: Boolean,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
         ) {}
     }
@@ -464,6 +541,7 @@ class A2uiBasicCatalogV1Test {
             min: Long?,
             max: Long?,
             label: String?,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
         ) {}
     }

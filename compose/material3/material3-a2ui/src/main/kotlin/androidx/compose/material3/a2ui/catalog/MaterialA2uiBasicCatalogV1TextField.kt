@@ -46,6 +46,7 @@ internal object MaterialA2uiBasicCatalogV1TextField : A2uiBasicCatalogV1.TextFie
         validationRegexp: String?,
         onValueChange: (String) -> Unit,
         enabled: Boolean,
+        accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
         modifier: Modifier,
     ) {
         val (regex, regexError) =

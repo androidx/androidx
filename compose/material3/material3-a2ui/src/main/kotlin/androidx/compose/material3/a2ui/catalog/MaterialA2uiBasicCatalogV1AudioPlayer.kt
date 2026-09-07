@@ -58,6 +58,7 @@ internal class MaterialA2uiBasicCatalogV1AudioPlayer(
     override fun A2uiComponentScope.TypedContent(
         url: String,
         description: String?,
+        accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
         modifier: Modifier,
     ) {
         audioPlayerRenderer.AudioPlayer(

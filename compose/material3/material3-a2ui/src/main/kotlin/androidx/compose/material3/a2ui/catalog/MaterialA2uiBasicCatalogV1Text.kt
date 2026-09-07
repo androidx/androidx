@@ -37,6 +37,7 @@ internal object MaterialA2uiBasicCatalogV1Text : A2uiBasicCatalogV1.Text {
     override fun A2uiComponentScope.TypedContent(
         text: String,
         variant: A2uiBasicCatalogV1.Text.Variant,
+        accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
         modifier: Modifier,
     ) {
         val spec =

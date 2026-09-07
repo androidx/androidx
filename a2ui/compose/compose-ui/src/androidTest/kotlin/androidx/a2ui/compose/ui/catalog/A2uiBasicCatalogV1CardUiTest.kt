@@ -47,10 +47,18 @@ class A2uiBasicCatalogV1CardUiTest {
     private val testCard =
         object : A2uiBasicCatalogV1.Card {
             var capturedChildId: String? = null
+            var capturedAccessibility: A2uiBasicCatalogV1.AccessibilityAttributes? = null
 
             @Composable
-            override fun A2uiComponentScope.TypedContent(childId: String, modifier: Modifier) {
-                SideEffect { capturedChildId = childId }
+            override fun A2uiComponentScope.TypedContent(
+                childId: String,
+                accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                modifier: Modifier,
+            ) {
+                SideEffect {
+                    capturedChildId = childId
+                    capturedAccessibility = accessibility
+                }
                 BasicText(text = "Card Child: $childId", modifier = modifier)
             }
         }
@@ -82,6 +90,42 @@ class A2uiBasicCatalogV1CardUiTest {
 
         onNodeWithText("Card Child: child_123").assertIsDisplayed()
         assertThat(testCard.capturedChildId).isEqualTo("child_123")
+    }
+
+    @Test
+    fun content_staticAccessibility_resolvesPropertiesAndPassesToTypedContent() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Card",
+                            properties =
+                                mapOf(
+                                    "child" to "child_123",
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Card Label",
+                                            "description" to "Card Description",
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { A2uiTestSurface(surface) }
+
+        onNodeWithText("Card Child: child_123").assertIsDisplayed()
+        assertThat(testCard.capturedAccessibility)
+            .isEqualTo(
+                A2uiBasicCatalogV1.AccessibilityAttributes(
+                    label = "Card Label",
+                    description = "Card Description",
+                )
+            )
     }
 
     @Test

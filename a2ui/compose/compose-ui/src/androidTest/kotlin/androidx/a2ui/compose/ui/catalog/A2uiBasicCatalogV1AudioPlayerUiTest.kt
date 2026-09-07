@@ -49,16 +49,19 @@ class A2uiBasicCatalogV1AudioPlayerUiTest {
         object : A2uiBasicCatalogV1.AudioPlayer {
             var capturedUrl: String? = null
             var capturedDescription: String? = null
+            var capturedAccessibility: A2uiBasicCatalogV1.AccessibilityAttributes? = null
 
             @Composable
             override fun A2uiComponentScope.TypedContent(
                 url: String,
                 description: String?,
+                accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                 modifier: Modifier,
             ) {
                 SideEffect {
                     capturedUrl = url
                     capturedDescription = description
+                    capturedAccessibility = accessibility
                 }
                 val descText = description ?: "no-desc"
                 BasicText(text = "Audio: $url - $descText", modifier = modifier)
@@ -230,6 +233,38 @@ class A2uiBasicCatalogV1AudioPlayerUiTest {
         onNodeWithText("Audio: https://dyn.audio - Dynamic Title").assertIsDisplayed()
         assertThat(testAudioPlayer.capturedUrl).isEqualTo("https://dyn.audio")
         assertThat(testAudioPlayer.capturedDescription).isEqualTo("Dynamic Title")
+    }
+
+    @Test
+    fun content_staticAccessibility_resolvesPropertiesAndPassesToTypedContent() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "AudioPlayer",
+                properties =
+                    mapOf(
+                        "url" to "https://static.audio",
+                        "accessibility" to
+                            mapOf(
+                                "label" to "Audio Track",
+                                "description" to "Track description",
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(payload))
+        val surface = controller.start()
+
+        setContent { A2uiTestSurface(surface) }
+
+        onNodeWithText("Audio: https://static.audio - no-desc").assertIsDisplayed()
+        assertThat(testAudioPlayer.capturedAccessibility)
+            .isEqualTo(
+                A2uiBasicCatalogV1.AccessibilityAttributes(
+                    label = "Audio Track",
+                    description = "Track description",
+                )
+            )
     }
 
     @Test

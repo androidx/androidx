@@ -52,6 +52,7 @@ class A2uiBasicCatalogV1DateTimeInputUiTest {
         var capturedMax: Long? = null
         var capturedLabel: String? = null
         var capturedOnValueChange: ((Long?) -> Unit)? = null
+        var capturedAccessibility: A2uiBasicCatalogV1.AccessibilityAttributes? = null
 
         @Composable
         override fun A2uiComponentScope.TypedContent(
@@ -62,6 +63,7 @@ class A2uiBasicCatalogV1DateTimeInputUiTest {
             min: Long?,
             max: Long?,
             label: String?,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
         ) {
             SideEffect {
@@ -72,6 +74,7 @@ class A2uiBasicCatalogV1DateTimeInputUiTest {
                 capturedMax = max
                 capturedLabel = label
                 capturedOnValueChange = onValueChange
+                capturedAccessibility = accessibility
             }
             BasicText(
                 text = "DateTimeInput: $value (date=$enableDate, time=$enableTime, label=$label)",
@@ -132,6 +135,44 @@ class A2uiBasicCatalogV1DateTimeInputUiTest {
         assertThat(testDateTimeInput.capturedMin).isEqualTo(expectedMinMillis)
         assertThat(testDateTimeInput.capturedMax).isEqualTo(expectedMaxMillis)
         assertThat(testDateTimeInput.capturedLabel).isEqualTo("Appointment Time")
+    }
+
+    @Test
+    fun content_staticAccessibility_resolvesPropertiesAndPassesToTypedContent() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "DateTimeInput",
+                            properties =
+                                mapOf(
+                                    "value" to "",
+                                    "enableDate" to true,
+                                    "enableTime" to true,
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Date Picker",
+                                            "description" to "Select appointment date",
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { A2uiTestSurface(surface) }
+
+        onNodeWithText("DateTimeInput: null (date=true, time=true, label=null)").assertIsDisplayed()
+        assertThat(testDateTimeInput.capturedAccessibility)
+            .isEqualTo(
+                A2uiBasicCatalogV1.AccessibilityAttributes(
+                    label = "Date Picker",
+                    description = "Select appointment date",
+                )
+            )
     }
 
     @Test
