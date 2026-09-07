@@ -1234,11 +1234,17 @@ internal fun CoreText.readDataReflection(): CoreTextData {
         lineBreakStrategy = coreTextLineBreakStrategyField.getInt(this),
         hyphenationFrequency = coreTextHyphenationFrequencyField.getInt(this),
         justificationMode = coreTextJustificationModeField.getInt(this),
+        isDynamicColorEnabled = coreTextIsDynamicColorEnabledField.getBoolean(this),
+        colorId = coreTextColorIdField.getInt(this),
     )
 }
 
 private val coreTextColorField =
     CoreText::class.java.getDeclaredField("mColorValue").apply { isAccessible = true }
+private val coreTextColorIdField =
+    CoreText::class.java.getDeclaredField("mColorId").apply { isAccessible = true }
+private val coreTextIsDynamicColorEnabledField =
+    CoreText::class.java.getDeclaredField("mIsDynamicColorEnabled").apply { isAccessible = true }
 private val coreTextFontSizeField =
     CoreText::class.java.getDeclaredField("mFontSizeValue").apply { isAccessible = true }
 private val coreTextTypeField =
@@ -1291,11 +1297,17 @@ internal fun TextLayout.readDataReflection(): TextLayoutData {
         textAlignValue = textLayoutTextAlignField.getInt(this),
         overflow = textLayoutOverflowField.getInt(this),
         maxLines = textLayoutMaxLinesField.getInt(this),
+        isDynamicColorEnabled = textLayoutIsDynamicColorEnabledField.getBoolean(this),
+        colorId = textLayoutColorIdField.getInt(this),
     )
 }
 
 private val textLayoutColorField =
     TextLayout::class.java.getDeclaredField("mColorValue").apply { isAccessible = true }
+private val textLayoutColorIdField =
+    TextLayout::class.java.getDeclaredField("mColor").apply { isAccessible = true }
+private val textLayoutIsDynamicColorEnabledField =
+    TextLayout::class.java.getDeclaredField("mIsDynamicColorEnabled").apply { isAccessible = true }
 private val textLayoutFontSizeField =
     TextLayout::class.java.getDeclaredField("mFontSizeValue").apply { isAccessible = true }
 private val textLayoutTypeField =

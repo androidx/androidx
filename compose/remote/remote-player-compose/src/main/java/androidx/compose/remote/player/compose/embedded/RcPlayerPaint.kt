@@ -295,7 +295,7 @@ public fun updatePaintFromBundle(
         val cmd = array[i++]
         when (cmd and 0xFFFF) {
             PaintBundle.TEXT_SIZE -> {
-                paintState.textSize = Float.fromBits(array[i++])
+                paintState.textSize = resolvePaintFloat(array[i++], read)
                 paintState.isTextSizeSet = true
             }
             PaintBundle.TYPEFACE -> {
@@ -318,7 +318,7 @@ public fun updatePaintFromBundle(
                 paintState.isColorSet = true
             }
             PaintBundle.STROKE_WIDTH -> {
-                paintState.strokeWidth = Float.fromBits(array[i++])
+                paintState.strokeWidth = resolvePaintFloat(array[i++], read)
                 paintState.isStrokeWidthSet = true
             }
             PaintBundle.STYLE -> {
@@ -387,7 +387,7 @@ public fun updatePaintFromBundle(
             PaintBundle.ALPHA -> {
                 // 1 float word (see PaintBundle.resolveIds). Folded into the draw color via
                 // ComposeLocalPaint.effectiveColor().
-                paintState.alpha = Float.fromBits(array[i++]).coerceIn(0f, 1f)
+                paintState.alpha = resolvePaintFloat(array[i++], read).coerceIn(0f, 1f)
             }
             PaintBundle.ANTI_ALIAS,
             PaintBundle.IMAGE_FILTER_QUALITY,

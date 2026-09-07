@@ -17,6 +17,7 @@
 package androidx.compose.remote.player.compose.embedded
 
 import androidx.compose.remote.core.RemoteClock
+import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.graphics.Color
@@ -58,5 +59,46 @@ class RcPlayerPaintTest {
 
         assertThat(paint.color).isEqualTo(0xFFFF0000.toInt())
         assertThat(paint.isColorSet).isTrue()
+    }
+
+    @Test
+    fun updatePaintResolvesNanBoxedStrokeWidth() {
+        val paint = ComposeLocalPaint()
+        val context = AndroidRemoteContext(RemoteClock.SYSTEM)
+        val strokeWidthId = 42
+        context.loadFloat(strokeWidthId, 5.5f)
+        val bundle = PaintBundle().apply { setStrokeWidth(Utils.asNan(strokeWidthId)) }
+
+        updatePaintFromBundle(bundle, paint, context)
+
+        assertThat(paint.strokeWidth).isEqualTo(5.5f)
+        assertThat(paint.isStrokeWidthSet).isTrue()
+    }
+
+    @Test
+    fun updatePaintResolvesNanBoxedTextSize() {
+        val paint = ComposeLocalPaint()
+        val context = AndroidRemoteContext(RemoteClock.SYSTEM)
+        val textSizeId = 43
+        context.loadFloat(textSizeId, 24f)
+        val bundle = PaintBundle().apply { setTextSize(Utils.asNan(textSizeId)) }
+
+        updatePaintFromBundle(bundle, paint, context)
+
+        assertThat(paint.textSize).isEqualTo(24f)
+        assertThat(paint.isTextSizeSet).isTrue()
+    }
+
+    @Test
+    fun updatePaintResolvesNanBoxedAlpha() {
+        val paint = ComposeLocalPaint()
+        val context = AndroidRemoteContext(RemoteClock.SYSTEM)
+        val alphaId = 44
+        context.loadFloat(alphaId, 0.75f)
+        val bundle = PaintBundle().apply { setAlpha(Utils.asNan(alphaId)) }
+
+        updatePaintFromBundle(bundle, paint, context)
+
+        assertThat(paint.alpha).isWithin(0.001f).of(0.75f)
     }
 }

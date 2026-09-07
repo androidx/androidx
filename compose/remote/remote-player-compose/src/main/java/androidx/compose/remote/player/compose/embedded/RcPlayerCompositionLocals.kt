@@ -30,6 +30,7 @@ import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.layout.Container
+import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
@@ -68,6 +69,12 @@ internal fun buildComputedOpIndex(operations: Collection<Operation>): IntObjectM
                 if (!animated && id > 0 && !map.containsKey(id)) map[id] = op as Operation
             }
             if (op is Container) walk(op.getList())
+            if (op is LayoutComponent) {
+                val canvasOps = op.getCanvasOperations()
+                if (canvasOps != null) {
+                    walk(listOf(canvasOps))
+                }
+            }
         }
     }
     walk(operations)
