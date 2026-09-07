@@ -20,24 +20,23 @@ import android.content.Context
 import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
-import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.wear.compose.remote.material3.previews.RemoteTextButtonDisabled
 import androidx.wear.compose.remote.material3.previews.RemoteTextButtonEnabled
 import androidx.wear.compose.remote.material3.previews.RemoteTextButtonOutline
+import androidx.wear.compose.remote.material3.previews.RemoteTextButtonOutlineDisabled
 import androidx.wear.compose.remote.material3.previews.RemoteTextButtonTonal
+import androidx.wear.compose.remote.material3.previews.RemoteTextButtonTonalDisabled
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import org.junit.Rule
@@ -79,9 +78,7 @@ class RemoteTextButtonTest {
     @Test
     fun remote_text_button_disabled() {
         remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
-            ComponentContainer {
-                RemoteTextButton(testAction, enabled = false.rb) { RemoteText("ABC".rs) }
-            }
+            ComponentContainer { RemoteTextButtonDisabled() }
         }
     }
 
@@ -95,11 +92,7 @@ class RemoteTextButtonTest {
     @Test
     fun remote_text_button_tonal_disabled() {
         remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
-            ComponentContainer {
-                RemoteTextButton(testAction, enabled = false.rb, colors = FILLED_TONAL_COLOR) {
-                    RemoteText("ABC".rs)
-                }
-            }
+            ComponentContainer { RemoteTextButtonTonalDisabled() }
         }
     }
 
@@ -113,17 +106,7 @@ class RemoteTextButtonTest {
     @Test
     fun remote_text_button_outline_disabled() {
         remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
-            ComponentContainer {
-                RemoteTextButton(
-                    testAction,
-                    border = 1.rdp,
-                    borderColor = RemoteMaterialTheme.colorScheme.outline,
-                    enabled = false.rb,
-                    colors = OUTLINE_COLOR,
-                ) {
-                    RemoteText("ABC".rs)
-                }
-            }
+            ComponentContainer { RemoteTextButtonOutlineDisabled() }
         }
     }
 
@@ -150,30 +133,5 @@ class RemoteTextButtonTest {
 
     private companion object {
         private val testAction = hostAction("testAction".rs, 1.rf)
-
-        val FILLED_TONAL_COLOR
-            @Composable
-            get() =
-                RemoteTextButtonDefaults.textButtonColors()
-                    .copy(
-                        containerColor = RemoteMaterialTheme.colorScheme.primary,
-                        contentColor = RemoteMaterialTheme.colorScheme.onPrimary,
-                        disabledContainerColor =
-                            RemoteMaterialTheme.colorScheme.primary.copy(alpha = 0.12f.rf),
-                        disabledContentColor =
-                            RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),
-                    )
-
-        val OUTLINE_COLOR
-            @Composable
-            get() =
-                RemoteTextButtonDefaults.textButtonColors()
-                    .copy(
-                        containerColor = RemoteColor(Color.Transparent),
-                        contentColor = RemoteMaterialTheme.colorScheme.onPrimary,
-                        disabledContainerColor = RemoteColor(Color.Transparent),
-                        disabledContentColor =
-                            RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),
-                    )
     }
 }
