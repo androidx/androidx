@@ -73,6 +73,61 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".RemotePlayerLoadTimeActivity"
+            android:exported="true"
+            android:label="Remote Player Load Time"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.DeviceDefault">
+            <intent-filter>
+                <action android:name="androidx.compose.remote.integration.macrobenchmark.target.LOAD_TIME_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".RemotePlayerAnimationActivity"
+            android:exported="true"
+            android:label="Remote Player Animation"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.DeviceDefault">
+            <intent-filter>
+                <action android:name="androidx.compose.remote.integration.macrobenchmark.target.ANIMATION_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".RemotePlayerStateUpdateActivity"
+            android:exported="true"
+            android:label="Remote Player State Update"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.DeviceDefault">
+            <intent-filter>
+                <action android:name="androidx.compose.remote.integration.macrobenchmark.target.STATE_UPDATE_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".RemotePlayerStateLayoutActivity"
+            android:exported="true"
+            android:label="Remote Player State Layout"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.DeviceDefault">
+            <intent-filter>
+                <action android:name="androidx.compose.remote.integration.macrobenchmark.target.STATE_LAYOUT_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".RemotePlayerImageLoadingActivity"
+            android:exported="true"
+            android:label="Remote Player Image Loading"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.DeviceDefault">
+            <intent-filter>
+                <action android:name="androidx.compose.remote.integration.macrobenchmark.target.IMAGE_LOADING_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <profileable android:shell="true" />
 
