@@ -327,7 +327,7 @@ same CL that removes the `@RestrictTo` annotations.
 This CL should additionally
 
 * Add an entry to `PUBLIC_FEATURE_UNHIDE_CLS` in
-  [src/test/java/androidx/webkit/test/PublicFeatureAvailability.java](src/test/java/androidx/webkit/test/PublicFeatureAvailability.java)
+  [src/test/kotlin/androidx/webkit/test/PublicFeatureAvailability.kt](../integration-tests/instrumentation/src/test/kotlin/androidx/webkit/test/PublicFeatureAvailability.kt)
   as a reminder to ensure the corresponding feature has been unhidden in Chromium.
 * Have a `Fixes: <bug_id>` footer line, which will automatically mark the
   feature request as fixed in the bug tracker once the change lands.
