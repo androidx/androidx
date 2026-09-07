@@ -23,6 +23,7 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.layout.managers.CoreText
+import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.state.rs
@@ -103,6 +104,80 @@ class RcPlayerTextPropertiesTest {
         assertThat(data.lineHeightMultiplier).isEqualTo(1.2f)
         assertThat(data.underline).isTrue()
         assertThat(data.strikethrough).isFalse()
+        assertThat(data.isDynamicColorEnabled).isFalse()
+        assertThat(data.colorId).isEqualTo(-1)
+    }
+
+    @Test
+    fun testCoreTextDataDynamicColorReflectiveReading() {
+        val coreText =
+            CoreText(
+                null,
+                1,
+                -1,
+                0f,
+                0f,
+                100f,
+                50f,
+                10,
+                0xFF0000FF.toInt(),
+                42, // colorId
+                18f,
+                -1f,
+                -1f,
+                0,
+                400f,
+                -1,
+                CoreText.TEXT_ALIGN_START,
+                CoreText.OVERFLOW_CLIP,
+                1,
+                0f,
+                0f,
+                1f,
+                0,
+                0,
+                0,
+                false,
+                false,
+                null,
+                null,
+                false,
+                0,
+                -1,
+            )
+
+        val data = coreText.readDataReflection()
+        assertThat(data.isDynamicColorEnabled).isTrue()
+        assertThat(data.colorId).isEqualTo(42)
+    }
+
+    @Test
+    fun testTextLayoutDataDynamicColorReflectiveReading() {
+        val textAlignWithDynamicFlag =
+            (TextLayout.FLAG_IS_DYNAMIC_COLOR shl 16) or TextLayout.TEXT_ALIGN_START
+        val textLayout =
+            TextLayout(
+                null,
+                1,
+                -1,
+                0f,
+                0f,
+                100f,
+                50f,
+                10,
+                42, // color is treated as colorId when dynamic color is enabled
+                18f,
+                0,
+                400f,
+                -1,
+                textAlignWithDynamicFlag,
+                TextLayout.OVERFLOW_CLIP,
+                1,
+            )
+
+        val data = textLayout.readDataReflection()
+        assertThat(data.isDynamicColorEnabled).isTrue()
+        assertThat(data.colorId).isEqualTo(42)
     }
 
     @Test

@@ -850,11 +850,11 @@ public object RemoteButtonDefaults {
         @Composable
         get() {
             return RemoteButtonColors(
-                containerColor = primary,
+                containerColor = Color.Transparent.rc,
                 contentColor = onBackground,
                 secondaryContentColor = onBackground.copy(alpha = 0.8f.rf),
                 iconColor = onBackground,
-                disabledContainerColor = onSurface.toDisabledColor(disabledAlpha = 0.12f.rf),
+                disabledContainerColor = Color.Transparent.rc,
                 disabledContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
                 disabledSecondaryContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
                 disabledIconColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),

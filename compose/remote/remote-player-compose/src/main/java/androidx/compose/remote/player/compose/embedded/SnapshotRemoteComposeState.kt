@@ -129,6 +129,17 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
         }
     }
 
+    override fun updateColor(id: Int, color: Int) {
+        val old = colors[id]
+        super.updateColor(id, color)
+        val new = super.getColor(id)
+        if (new != old) {
+            colors[id] = new
+            floats[id] = super.getFloat(id)
+            integers[id] = super.getInteger(id)
+        }
+    }
+
     // --- Data Object ---
     override fun getFromId(id: Int): Any? {
         if (id !in data) {

@@ -102,7 +102,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
 
 /** Dereference a PaintOperation image/path id (mirrors PaintOperation.getId's PTR_DEREFERENCE). */
-private fun derefId(rawId: Int, context: RemoteContext): Int =
+internal fun derefId(rawId: Int, context: RemoteContext): Int =
     if ((rawId and PaintOperation.PTR_DEREFERENCE) != 0) {
         context.mRemoteComposeState.getInteger(rawId and PaintOperation.VALUE_MASK)
     } else {
@@ -320,24 +320,22 @@ internal fun DrawScope.executeOperations(
                             join = mapStrokeJoin(paintState.strokeJoin),
                         )
                     else Fill
+                val data = op.readDataReflection()
+                val v1 = resolveFloat(data.value1, data.v1, read)
+                val v2 = resolveFloat(data.value2, data.v2, read)
+                val v3 = resolveFloat(data.value3, data.v3, read)
                 val brush = paintState.brush
                 if (brush != null) {
-                    val data = op.readDataReflection()
                     drawCircle(
                         brush = brush,
-                        center = Offset(data.v1, data.v2),
-                        radius = data.v3,
+                        center = Offset(v1, v2),
+                        radius = v3,
                         alpha = paintState.alpha,
                         style = style,
                         colorFilter = paintState.colorFilter,
                         blendMode = paintState.blendMode,
                     )
                 } else {
-                    val data = op.readDataReflection()
-                    val v1 = resolveFloat(data.value1, data.v1, read)
-                    val v2 = resolveFloat(data.value2, data.v2, read)
-                    val v3 = resolveFloat(data.value3, data.v3, read)
-
                     drawCircle(
                         color = paintState.effectiveColor(),
                         center = Offset(v1, v2),
@@ -409,12 +407,16 @@ internal fun DrawScope.executeOperations(
                         )
                     else Fill
                 val data = op.readDataReflection()
+                val x1 = resolveFloat(data.x1Value, data.x1, read)
+                val y1 = resolveFloat(data.y1Value, data.y1, read)
+                val x2 = resolveFloat(data.x2Value, data.x2, read)
+                val y2 = resolveFloat(data.y2Value, data.y2, read)
                 val brush = paintState.brush
                 if (brush != null) {
                     drawOval(
                         brush = brush,
-                        topLeft = Offset(data.x1, data.y1),
-                        size = Size(data.x2 - data.x1, data.y2 - data.y1),
+                        topLeft = Offset(x1, y1),
+                        size = Size(x2 - x1, y2 - y1),
                         alpha = paintState.alpha,
                         style = style,
                         colorFilter = paintState.colorFilter,
@@ -423,8 +425,8 @@ internal fun DrawScope.executeOperations(
                 } else {
                     drawOval(
                         color = paintState.effectiveColor(),
-                        topLeft = Offset(data.x1, data.y1),
-                        size = Size(data.x2 - data.x1, data.y2 - data.y1),
+                        topLeft = Offset(x1, y1),
+                        size = Size(x2 - x1, y2 - y1),
                         style = style,
                         blendMode = paintState.blendMode,
                     )
@@ -598,7 +600,8 @@ internal fun DrawScope.executeOperations(
             }
             is DrawPath -> {
                 val data = op.readDataReflection()
-                val path = remoteContext.mRemoteComposeState.getPath(data.id, data.start, data.end)
+                val pathId = derefId(data.id, read)
+                val path = remoteContext.mRemoteComposeState.getPath(pathId, data.start, data.end)
                 val style =
                     if (paintState.isStroke)
                         Stroke(
@@ -679,7 +682,7 @@ internal fun DrawScope.executeOperations(
                 // mId/mRegionOp are package-private in remote-core (left unchanged), so read
                 // reflectively. Map the region op to Compose's ClipOp (only Intersect/Difference).
                 val data = op.readData()
-                val pathId = data.id
+                val pathId = derefId(data.id, read)
                 val regionOp = data.regionOp
                 val path = remoteContext.mRemoteComposeState.getPath(pathId, 0f, 1f)
                 val clipOp =
