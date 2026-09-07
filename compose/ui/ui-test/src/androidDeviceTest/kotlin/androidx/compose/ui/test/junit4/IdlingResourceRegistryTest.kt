@@ -24,6 +24,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -47,7 +48,9 @@ class IdlingResourceRegistryTest {
     private val scope = TestScope(UnconfinedTestDispatcher())
     @OptIn(InternalTestApi::class)
     private val registry =
-        IdlingResourceRegistry(scope).apply { setOnIdleCallback { onIdleCalled = true } }
+        IdlingResourceRegistry(pollScopeOverride = scope).apply {
+            setOnIdleCallback { onIdleCalled = true }
+        }
 
     @After
     fun verifyRegistryStoppedPolling() {
@@ -149,6 +152,29 @@ class IdlingResourceRegistryTest {
         registry.registerIdlingResource(resource)
 
         assertThatPollingStartsAndEnds { resource.isIdleNow = true }
+    }
+
+    @OptIn(InternalTestApi::class)
+    @Test
+    @UiThreadTest
+    fun isIdleOrStartPolling_customPollDispatcher() {
+        val pollDispatcher = StandardTestDispatcher()
+        var customOnIdleCalled = false
+        val customRegistry =
+            IdlingResourceRegistry(pollDispatcher = pollDispatcher).apply {
+                setOnIdleCallback { customOnIdleCalled = true }
+            }
+
+        val resource = TestIdlingResource(false)
+        customRegistry.registerIdlingResource(resource)
+
+        assertThat(customRegistry.isIdleOrEnsurePolling()).isFalse()
+
+        resource.isIdleNow = true
+        pollDispatcher.scheduler.advanceUntilIdle()
+
+        assertThat(customRegistry.isIdleOrEnsurePolling()).isTrue()
+        assertThat(customOnIdleCalled).isTrue()
     }
 
     private fun assertThatPollingStartsAndEnds(makeIdle: () -> Unit) {
