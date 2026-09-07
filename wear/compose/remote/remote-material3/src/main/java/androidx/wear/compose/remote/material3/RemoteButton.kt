@@ -613,13 +613,14 @@ public object RemoteButtonDefaults {
      *
      * @param containerColor The background color of this [RemoteButton] when enabled
      * @param contentColor The content color of this [RemoteButton] when enabled
-     * @param secondaryContentColor The content color of this [RemoteButton] when enabled
-     * @param iconColor The content color of this [RemoteButton] when enabled
+     * @param secondaryContentColor The secondary content color of this [RemoteButton] when enabled,
+     *   used for secondaryLabel content
+     * @param iconColor The icon color of this [RemoteButton] when enabled, used for icon content
      * @param disabledContainerColor The background color of this [RemoteButton] when not enabled
      * @param disabledContentColor The content color of this [RemoteButton] when not enabled
-     * @param disabledSecondaryContentColor The content color of this [RemoteButton] when not
-     *   enabled
-     * @param disabledIconColor The content color of this [RemoteButton] when not enabled
+     * @param disabledSecondaryContentColor The secondary content color of this [RemoteButton] when
+     *   not enabled
+     * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
      */
     @Composable
     public fun buttonColors(
@@ -663,6 +664,17 @@ public object RemoteButtonDefaults {
     /**
      * Creates a [RemoteButtonColors] with a muted background and contrasting content color, the
      * defaults for medium emphasis buttons.
+     *
+     * @param containerColor The background color of this [RemoteButton] when enabled
+     * @param contentColor The content color of this [RemoteButton] when enabled
+     * @param secondaryContentColor The secondary content color of this [RemoteButton] when enabled,
+     *   used for secondaryLabel content
+     * @param iconColor The icon color of this [RemoteButton] when enabled, used for icon content
+     * @param disabledContainerColor The background color of this [RemoteButton] when not enabled
+     * @param disabledContentColor The content color of this [RemoteButton] when not enabled
+     * @param disabledSecondaryContentColor The secondary content color of this [RemoteButton] when
+     *   not enabled
+     * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
      */
     @Composable
     public fun filledTonalButtonColors(
@@ -694,7 +706,20 @@ public object RemoteButtonDefaults {
     public fun filledVariantButtonColors(): RemoteButtonColors =
         RemoteMaterialTheme.colorScheme.defaultFilledVariantButtonColors
 
-    /** Creates a [RemoteButtonColors] with higher chroma container colors. */
+    /**
+     * Creates a [RemoteButtonColors] with higher chroma container colors.
+     *
+     * @param containerColor The background color of this [RemoteButton] when enabled
+     * @param contentColor The content color of this [RemoteButton] when enabled
+     * @param secondaryContentColor The secondary content color of this [RemoteButton] when enabled,
+     *   used for secondaryLabel content
+     * @param iconColor The icon color of this [RemoteButton] when enabled, used for icon content
+     * @param disabledContainerColor The background color of this [RemoteButton] when not enabled
+     * @param disabledContentColor The content color of this [RemoteButton] when not enabled
+     * @param disabledSecondaryContentColor The secondary content color of this [RemoteButton] when
+     *   not enabled
+     * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
+     */
     @Composable
     public fun filledVariantButtonColors(
         containerColor: RemoteColor? = null,
@@ -725,7 +750,18 @@ public object RemoteButtonDefaults {
     public fun outlinedButtonColors(): RemoteButtonColors =
         RemoteMaterialTheme.colorScheme.defaultOutlinedButtonColors
 
-    /** Creates a [RemoteButtonColors] with a transparent background for outlined buttons. */
+    /**
+     * Creates a [RemoteButtonColors] with a transparent background for outlined buttons.
+     *
+     * @param contentColor The content color of this [RemoteButton] when enabled
+     * @param secondaryContentColor The secondary content color of this [RemoteButton] when enabled,
+     *   used for secondaryLabel content
+     * @param iconColor The icon color of this [RemoteButton] when enabled, used for icon content
+     * @param disabledContentColor The content color of this [RemoteButton] when not enabled
+     * @param disabledSecondaryContentColor The secondary content color of this [RemoteButton] when
+     *   not enabled
+     * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
+     */
     @Composable
     public fun outlinedButtonColors(
         contentColor: RemoteColor? = null,
@@ -797,6 +833,40 @@ public object RemoteButtonDefaults {
     @Composable
     public fun buttonWithContainerPainterColors(): RemoteButtonColors =
         RemoteMaterialTheme.colorScheme.defaultButtonWithContainerPainterColors
+
+    /**
+     * Creates a [RemoteButtonColors] for the content in a [RemoteButton] with an image container
+     * painter.
+     *
+     * @param contentColor The content color of this [RemoteButton] when enabled
+     * @param secondaryContentColor The secondary content color of this [RemoteButton] when enabled,
+     *   used for secondaryLabel content
+     * @param iconColor The icon color of this [RemoteButton] when enabled, used for icon content
+     * @param disabledContentColor The content color of this [RemoteButton] when not enabled
+     * @param disabledSecondaryContentColor The secondary content color of this [RemoteButton] when
+     *   not enabled
+     * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
+     */
+    @Composable
+    public fun buttonWithContainerPainterColors(
+        contentColor: RemoteColor? = null,
+        secondaryContentColor: RemoteColor? = null,
+        iconColor: RemoteColor? = null,
+        disabledContentColor: RemoteColor? = null,
+        disabledSecondaryContentColor: RemoteColor? = null,
+        disabledIconColor: RemoteColor? = null,
+    ): RemoteButtonColors {
+        val default = RemoteMaterialTheme.colorScheme.defaultButtonWithContainerPainterColors
+        return default.copy(
+            contentColor = contentColor ?: default.contentColor,
+            secondaryContentColor = secondaryContentColor ?: default.secondaryContentColor,
+            iconColor = iconColor ?: default.iconColor,
+            disabledContentColor = disabledContentColor ?: default.disabledContentColor,
+            disabledSecondaryContentColor =
+                disabledSecondaryContentColor ?: default.disabledSecondaryContentColor,
+            disabledIconColor = disabledIconColor ?: default.disabledIconColor,
+        )
+    }
 
     /**
      * Creates a [RemoteButtonColors] for the content in a [RemoteButton], returns default
@@ -1039,6 +1109,8 @@ public object RemoteButtonDefaults {
     /**
      * Creates a [RemoteBrush] for the recommended scrim drawn on top of image container
      * backgrounds.
+     *
+     * @param size The size of the scrim brush gradient.
      */
     @Composable
     public fun scrimBrush(size: RemoteSize): RemoteBrush {
@@ -1058,13 +1130,14 @@ public object RemoteButtonDefaults {
  * @param containerColor The background color of this [RemoteButton] when enabled (overridden by the
  *   containerPainter parameter on Buttons with image backgrounds).
  * @param contentColor The content color of this [RemoteButton] when enabled.
- * @param secondaryContentColor The content color of this [RemoteButton] when enabled.
- * @param iconColor The content color of this [RemoteButton] when enabled.
+ * @param secondaryContentColor The secondary content color of this [RemoteButton] when enabled.
+ * @param iconColor The icon color of this [RemoteButton] when enabled.
  * @param disabledContainerColor The background color of this [RemoteButton] when not enabled
  *   (overridden by the disabledContainerPainter parameter on Buttons with image backgrounds)
  * @param disabledContentColor The content color of this [RemoteButton] when not enabled.
- * @param disabledSecondaryContentColor The content color of this [RemoteButton] when not enabled.
- * @param disabledIconColor The content color of this [RemoteButton] when not enabled.
+ * @param disabledSecondaryContentColor The secondary content color of this [RemoteButton] when not
+ *   enabled.
+ * @param disabledIconColor The icon color of this [RemoteButton] when not enabled.
  */
 @Immutable
 public class RemoteButtonColors(
@@ -1095,7 +1168,19 @@ public class RemoteButtonColors(
         )
     }
 
-    /** Returns a copy of this RemoteButtonColors optionally overriding some of the values. */
+    /**
+     * Returns a copy of this [RemoteButtonColors], optionally overriding some of the values.
+     *
+     * @param containerColor The background color of this [RemoteButton] when enabled
+     * @param contentColor The content color of this [RemoteButton] when enabled
+     * @param secondaryContentColor The secondary content color of this [RemoteButton] when enabled
+     * @param iconColor The icon color of this [RemoteButton] when enabled
+     * @param disabledContainerColor The background color of this [RemoteButton] when not enabled
+     * @param disabledContentColor The content color of this [RemoteButton] when not enabled
+     * @param disabledSecondaryContentColor The secondary content color of this [RemoteButton] when
+     *   not enabled
+     * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
+     */
     public fun copy(
         containerColor: RemoteColor? = this.containerColor,
         contentColor: RemoteColor? = this.contentColor,
