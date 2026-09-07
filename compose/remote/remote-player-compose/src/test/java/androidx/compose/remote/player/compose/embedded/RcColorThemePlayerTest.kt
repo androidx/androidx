@@ -142,4 +142,15 @@ class RcColorThemePlayerTest {
         colorTheme.apply(remoteContext)
         assertThat(remoteContext.getColor(100)).isEqualTo(0xFF000000.toInt())
     }
+
+    @Test
+    fun testSnapshotRemoteComposeStateUpdateColor() {
+        val state = SnapshotRemoteComposeState()
+        val colorId = 100
+        state.updateColor(colorId, 0xFFFF0000.toInt())
+        assertThat(state.getColor(colorId)).isEqualTo(0xFFFF0000.toInt())
+
+        state.updateColor(colorId, 0xFF00FF00.toInt())
+        assertThat(state.getColor(colorId)).isEqualTo(0xFF00FF00.toInt())
+    }
 }

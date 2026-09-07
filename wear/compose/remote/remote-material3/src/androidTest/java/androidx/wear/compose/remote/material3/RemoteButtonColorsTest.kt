@@ -16,6 +16,7 @@
 package androidx.wear.compose.remote.material3
 
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.ui.graphics.Color
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
@@ -80,5 +81,51 @@ class RemoteButtonColorsTest {
             copy.disabledContainerColor.constantValue,
         )
         assertEquals(original.contentColor.constantValue, copy.contentColor.constantValue)
+    }
+
+    @Test
+    fun buttonWithContainerPainterColors_defaultsToTransparentContainer() {
+        val colors =
+            RemoteButtonColors(
+                containerColor = Color.Transparent.rc,
+                contentColor = RemoteColor(Color.White),
+                secondaryContentColor = RemoteColor(Color.LightGray),
+                iconColor = RemoteColor(Color.White),
+                disabledContainerColor = Color.Transparent.rc,
+                disabledContentColor = RemoteColor(Color.DarkGray),
+                disabledSecondaryContentColor = RemoteColor(Color.DarkGray),
+                disabledIconColor = RemoteColor(Color.DarkGray),
+            )
+
+        assertEquals(Color.Transparent, colors.containerColor.constantValue)
+        assertEquals(Color.Transparent, colors.disabledContainerColor.constantValue)
+    }
+
+    @Test
+    fun buttonWithContainerPainterColors_overridesColors() {
+        val base =
+            RemoteButtonColors(
+                containerColor = Color.Transparent.rc,
+                contentColor = RemoteColor(Color.White),
+                secondaryContentColor = RemoteColor(Color.LightGray),
+                iconColor = RemoteColor(Color.White),
+                disabledContainerColor = Color.Transparent.rc,
+                disabledContentColor = RemoteColor(Color.DarkGray),
+                disabledSecondaryContentColor = RemoteColor(Color.DarkGray),
+                disabledIconColor = RemoteColor(Color.DarkGray),
+            )
+        val customized =
+            base.copy(
+                contentColor = RemoteColor(Color.Yellow),
+                secondaryContentColor = RemoteColor(Color.Cyan),
+            )
+
+        assertEquals(Color.Transparent, customized.containerColor.constantValue)
+        assertEquals(Color.Transparent, customized.disabledContainerColor.constantValue)
+        assertEquals(RemoteColor(Color.Yellow).constantValue, customized.contentColor.constantValue)
+        assertEquals(
+            RemoteColor(Color.Cyan).constantValue,
+            customized.secondaryContentColor.constantValue,
+        )
     }
 }
