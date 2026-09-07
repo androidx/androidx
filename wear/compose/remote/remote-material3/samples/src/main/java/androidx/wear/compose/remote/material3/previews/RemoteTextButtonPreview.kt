@@ -55,6 +55,18 @@ private fun RemoteTextButtonEnabledPreview(
 
 @Composable
 @RemoteComposable
+fun RemoteTextButtonDisabled() {
+    RemoteTextButton(testAction, enabled = false.rb) { RemoteText("ABC".rs) }
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteTextButtonDisabledPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteTextButtonDisabled() } }
+
+@Composable
+@RemoteComposable
 fun RemoteTextButtonTonal() {
     RemoteTextButton(testAction, enabled = true.rb, colors = filledTonalColor()) {
         RemoteText("ABC".rs)
@@ -66,6 +78,20 @@ fun RemoteTextButtonTonal() {
 private fun RemoteTextButtonTonalPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
 ) = RemoteContentPreview(profile = profile) { Container { RemoteTextButtonTonal() } }
+
+@Composable
+@RemoteComposable
+fun RemoteTextButtonTonalDisabled() {
+    RemoteTextButton(testAction, enabled = false.rb, colors = filledTonalColor()) {
+        RemoteText("ABC".rs)
+    }
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteTextButtonTonalDisabledPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteTextButtonTonalDisabled() } }
 
 @Composable
 @RemoteComposable
@@ -86,6 +112,26 @@ fun RemoteTextButtonOutline() {
 private fun RemoteTextButtonOutlinePreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
 ) = RemoteContentPreview(profile = profile) { Container { RemoteTextButtonOutline() } }
+
+@Composable
+@RemoteComposable
+fun RemoteTextButtonOutlineDisabled() {
+    RemoteTextButton(
+        testAction,
+        border = 1.rdp,
+        borderColor = RemoteMaterialTheme.colorScheme.outline,
+        enabled = false.rb,
+        colors = outlineColor(),
+    ) {
+        RemoteText("ABC".rs)
+    }
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteTextButtonOutlineDisabledPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteTextButtonOutlineDisabled() } }
 
 @Composable
 private fun filledTonalColor() =

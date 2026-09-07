@@ -55,6 +55,7 @@ import androidx.wear.compose.remote.material3.previews.RemoteButtonWithBorder
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithIcon
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithIconAndLongLabel
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithIconAndSecondaryLabel
+import androidx.wear.compose.remote.material3.previews.RemoteButtonWithIconAndSecondaryLabelDisabled
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithLabel
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithLongLabel
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithMultilineLabel
@@ -124,6 +125,16 @@ class RemoteButtonTest {
             creationComposableWrapper = ComposableWrappers.rtl,
         ) {
             ComponentContainer { RemoteButtonWithIconAndSecondaryLabel() }
+        }
+    }
+
+    @Test
+    fun button_with_icon_and_secondary_label_disabled() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteButtonWithIconAndSecondaryLabelDisabled() }
         }
     }
 

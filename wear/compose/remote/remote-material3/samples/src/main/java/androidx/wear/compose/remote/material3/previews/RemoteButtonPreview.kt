@@ -306,6 +306,52 @@ private fun RemoteButtonCustomConfigPreview(
 
 @Composable
 @RemoteComposable
+fun RemoteButtonDisabled() {
+    RemoteButton(
+        onClick = testAction,
+        modifier = RemoteModifier.buttonSizeModifier(),
+        enabled = false.rb,
+    ) {
+        RemoteText("button_disabled".rs)
+    }
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteButtonDisabledPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteButtonDisabled() } }
+
+@Composable
+@RemoteComposable
+fun RemoteButtonWithIconAndSecondaryLabelDisabled() {
+    RemoteButton(
+        onClick = testAction,
+        modifier = RemoteModifier.buttonSizeModifier(),
+        enabled = false.rb,
+        icon = {
+            RemoteIcon(
+                imageVector = TestImageVectors.VolumeUp,
+                contentDescription = null,
+                tint = RemoteButtonDefaults.buttonColors().disabledIconColor,
+            )
+        },
+        secondaryLabel = { RemoteText("secondaryLabel".rs) },
+        label = { RemoteText("label".rs) },
+    )
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteButtonWithIconAndSecondaryLabelDisabledPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) =
+    RemoteContentPreview(profile = profile) {
+        Container { RemoteButtonWithIconAndSecondaryLabelDisabled() }
+    }
+
+@Composable
+@RemoteComposable
 private fun Container(
     modifier: RemoteModifier = RemoteModifier.fillMaxSize(),
     content: @Composable @RemoteComposable () -> Unit,
