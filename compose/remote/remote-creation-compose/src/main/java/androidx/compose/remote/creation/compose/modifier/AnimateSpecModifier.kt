@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.modifier
 
@@ -27,7 +26,6 @@ import androidx.compose.remote.creation.modifiers.AnimateSpecModifier as Creatio
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 
 /** Transition effect applied when a component enters a state layout. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteEnterTransition internal constructor(internal val animation: ANIMATION) {
     public companion object {
         /** Fades the component in from transparent to opaque. */
@@ -63,7 +61,6 @@ public class RemoteEnterTransition internal constructor(internal val animation: 
 }
 
 /** Transition effect applied when a component exits a state layout. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteExitTransition internal constructor(internal val animation: ANIMATION) {
     public companion object {
         /** Fades the component out from opaque to transparent. */
@@ -98,11 +95,9 @@ public class RemoteExitTransition internal constructor(internal val animation: A
 }
 
 /** Creates a fade-in enter transition for Remote Compose state layouts. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun remoteFadeIn(): RemoteEnterTransition = RemoteEnterTransition.FadeIn
 
 /** Creates a fade-out exit transition for Remote Compose state layouts. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun remoteFadeOut(): RemoteExitTransition = RemoteExitTransition.FadeOut
 
 internal class AnimateSpecModifier(
@@ -140,7 +135,6 @@ private fun extractDurationAndEasing(spec: RemoteTweenSpec): Pair<Float, Int> =
  * @param enter transition effect when component enters the layout
  * @param exit transition effect when component exits the layout
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.sharedElement(
     key: Int,
     spec: RemoteTweenSpec = remoteTween(),
@@ -170,7 +164,6 @@ public fun RemoteModifier.sharedElement(
  * @param enter transition effect when component enters the layout
  * @param exit transition effect when component exits the layout
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.sharedBounds(
     key: Int,
     spec: RemoteTweenSpec = remoteTween(),
@@ -185,7 +178,6 @@ public fun RemoteModifier.sharedBounds(
  * @param exit transition effect when component exits the layout
  * @param spec animation specification for visibility transitions (e.g. [remoteTween])
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.animateEnterExit(
     enter: RemoteEnterTransition = RemoteEnterTransition.FadeIn,
     exit: RemoteExitTransition = RemoteExitTransition.FadeOut,
@@ -214,7 +206,6 @@ public fun RemoteModifier.animateEnterExit(
  * @param enter transition effect when component enters the layout
  * @param exit transition effect when component exits the layout
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.animationSpec(
     animationId: Int = -1,
     motionSpec: RemoteTweenSpec = remoteTween(),
@@ -240,17 +231,30 @@ public fun RemoteModifier.animationSpec(
 /**
  * Applies an animation specification to match elements for shared transitions across states.
  *
- * @param animationId identifier used to match elements for shared transitions (-1 for auto)
+ * @param animationId identifier used to match elements for shared transitions
  * @param enabled whether animation transitions are enabled for this component
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.animationSpec(
-    animationId: Int = -1,
+    animationId: Int,
     enabled: Boolean,
 ): RemoteModifier = animationSpec(animationId = if (enabled) animationId else 0)
 
+/**
+ * Enables or disables animation transitions for this component.
+ *
+ * @param enabled whether animation transitions are enabled for this component
+ */
+public fun RemoteModifier.animationSpec(enabled: Boolean): RemoteModifier =
+    animationSpec(animationId = -1, enabled = enabled)
+
 /** Applies an animation specification to a component using explicit durations and easing types. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Deprecated(
+    "Use sharedElement, animateEnterExit, or animationSpec taking RemoteAnimationSpec instead",
+    ReplaceWith(
+        "sharedElement(key = animationId, spec = remoteTween(motionDuration.toInt()))",
+        "androidx.compose.remote.creation.compose.state.remoteTween",
+    ),
+)
 public fun RemoteModifier.animationSpec(
     animationId: Int = -1,
     motionDuration: Float = 300f,
