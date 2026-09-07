@@ -56,6 +56,13 @@ public object Devices {
     public const val PIXEL_9_PRO: String = "id:pixel_9_pro"
     public const val PIXEL_9_PRO_FOLD: String = "id:pixel_9_pro_fold"
     public const val PIXEL_9_PRO_XL: String = "id:pixel_9_pro_xl"
+    public const val PIXEL_9A: String = "id:pixel_9a"
+    public const val PIXEL_10: String = "id:pixel_10"
+    public const val PIXEL_10_PRO: String = "id:pixel_10_pro"
+    public const val PIXEL_10_PRO_FOLD: String = "id:pixel_10_pro_fold"
+    public const val PIXEL_10_PRO_XL: String = "id:pixel_10_pro_xl"
+    public const val PIXEL_10A: String = "id:pixel_10a"
+    public const val PIXEL_11_PRO_FOLD: String = "id:pixel_11_pro_fold"
     public const val PIXEL_FOLD: String = "id:pixel_fold"
     public const val PIXEL_TABLET: String = "id:pixel_tablet"
 
@@ -135,6 +142,13 @@ public object Devices {
             Devices.PIXEL_9_PRO,
             Devices.PIXEL_9_PRO_XL,
             Devices.PIXEL_9_PRO_FOLD,
+            Devices.PIXEL_9A,
+            Devices.PIXEL_10,
+            Devices.PIXEL_10_PRO,
+            Devices.PIXEL_10_PRO_XL,
+            Devices.PIXEL_10_PRO_FOLD,
+            Devices.PIXEL_10A,
+            Devices.PIXEL_11_PRO_FOLD,
             Devices.PIXEL_FOLD,
             Devices.PIXEL_TABLET,
             Devices.AUTOMOTIVE_1024p,
