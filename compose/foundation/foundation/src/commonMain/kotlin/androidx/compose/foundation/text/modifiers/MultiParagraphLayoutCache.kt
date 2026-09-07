@@ -28,7 +28,7 @@ import androidx.compose.ui.text.TextLayoutInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.resolveDefaults
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -53,7 +53,7 @@ internal class MultiParagraphLayoutCache(
     private var text: AnnotatedString,
     style: TextStyle,
     private var fontFamilyResolver: FontFamily.Resolver,
-    private var defaultLocaleList: LocaleList,
+    private var defaultLocale: Locale,
     private var overflow: TextOverflow = TextOverflow.Clip,
     private var softWrap: Boolean = true,
     private var maxLines: Int = Int.MAX_VALUE,
@@ -248,7 +248,7 @@ internal class MultiParagraphLayoutCache(
                     style,
                     density!!,
                     fontFamilyResolver,
-                    defaultLocaleList,
+                    defaultLocale,
                 )
                 .also { mMinLinesConstrainer = it }
         return localMin.coerceMinLines(inConstraints = constraints, minLines = minLines)
@@ -271,7 +271,7 @@ internal class MultiParagraphLayoutCache(
                 density!!,
                 layoutDirection,
                 fontFamilyResolver,
-                defaultLocaleList,
+                defaultLocale,
                 finalConstraints,
             ),
             multiParagraph,
@@ -316,7 +316,7 @@ internal class MultiParagraphLayoutCache(
         text: AnnotatedString,
         style: TextStyle,
         fontFamilyResolver: FontFamily.Resolver,
-        defaultLocaleList: LocaleList,
+        defaultLocale: Locale,
         overflow: TextOverflow,
         softWrap: Boolean,
         maxLines: Int,
@@ -327,7 +327,7 @@ internal class MultiParagraphLayoutCache(
         this.text = text
         this.style = style
         this.fontFamilyResolver = fontFamilyResolver
-        this.defaultLocaleList = defaultLocaleList
+        this.defaultLocale = defaultLocale
         this.overflow = overflow
         this.softWrap = softWrap
         this.maxLines = maxLines
@@ -366,7 +366,7 @@ internal class MultiParagraphLayoutCache(
                     style = resolveDefaults(style, layoutDirection),
                     density = density!!,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocaleList = defaultLocaleList,
+                    defaultLocale = defaultLocale,
                     placeholders = placeholders.orEmpty(),
                     softWrap = softWrap,
                 )

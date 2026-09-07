@@ -193,7 +193,7 @@ class ParagraphIntrinsicIntegrationTest {
             annotations = spanStyles,
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            defaultLocaleList = TEST_LOCALE_LIST,
+            defaultLocale = TEST_LOCALE,
             placeholders = listOf(),
             softWrap = true,
         )

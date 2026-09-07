@@ -43,7 +43,7 @@ class TextDelegateWidthWithLetterSpacingTest {
     private val fontSize = 12.sp
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val fontFamilyResolver = createFontFamilyResolver(context)
-    private val defaultLocaleList = TEST_LOCALE_LIST
+    private val defaultLocale = TEST_LOCALE
 
     @Test
     fun letterSpacing_and_lineHeight() {
@@ -74,7 +74,7 @@ class TextDelegateWidthWithLetterSpacingTest {
                 overflow = TextOverflow.Clip,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
-                defaultLocaleList = defaultLocaleList,
+                defaultLocale = defaultLocale,
             )
         val layoutResult = textDelegate.layout(Constraints(), LayoutDirection.Ltr)
         assertThat(layoutResult.lineCount).isEqualTo(1)

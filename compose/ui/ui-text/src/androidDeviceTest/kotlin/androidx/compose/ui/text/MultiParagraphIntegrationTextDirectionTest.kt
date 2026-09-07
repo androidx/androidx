@@ -51,7 +51,7 @@ class MultiParagraphIntegrationTextDirectionTest {
             multiParagraph(
                 text = AnnotatedString(""),
                 textDirection = TextDirection.Unspecified,
-                defaultLocaleList = ltrLocaleList,
+                defaultLocale = ltrLocale,
             )
 
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
@@ -63,7 +63,7 @@ class MultiParagraphIntegrationTextDirectionTest {
             multiParagraph(
                 text = AnnotatedString(""),
                 textDirection = TextDirection.Unspecified,
-                defaultLocaleList = rtlLocaleList,
+                defaultLocale = rtlLocale,
             )
 
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Rtl)
@@ -258,14 +258,14 @@ class MultiParagraphIntegrationTextDirectionTest {
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
             softWrap = true,
-            defaultLocaleList = TEST_LOCALE_LIST,
+            defaultLocale = TEST_LOCALE,
         )
     }
 
     private fun multiParagraph(
         text: AnnotatedString,
         localeList: LocaleList? = null,
-        defaultLocaleList: LocaleList = LocaleList("en"),
+        defaultLocale: Locale = Locale("en"),
         textDirection: TextDirection = TextDirection.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
         width: Float = Float.MAX_VALUE,
@@ -282,7 +282,7 @@ class MultiParagraphIntegrationTextDirectionTest {
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            defaultLocaleList = defaultLocaleList,
+            defaultLocale = defaultLocale,
             overflow = TextOverflow.Clip,
         )
     }

@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TEST_LOCALE_LIST
+import androidx.compose.ui.text.TEST_LOCALE
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
@@ -53,7 +53,7 @@ class TextPaintExtensionsTest {
         { _, _, _, _ ->
             Typeface.DEFAULT
         }
-    private val defaultLocaleList = TEST_LOCALE_LIST
+    private val defaultLocale = TEST_LOCALE
 
     @Test
     fun fontSizeSp_shouldBeAppliedTo_textSize() {
@@ -61,7 +61,7 @@ class TextPaintExtensionsTest {
         val spanStyle = SpanStyle(fontSize = fontSize)
         val tp = AndroidTextPaint(0, density.density)
 
-        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocaleList)
+        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocale)
 
         assertThat(tp.textSize).isEqualTo(with(density) { fontSize.toPx() })
         assertThat(notApplied).isNull()
@@ -74,7 +74,7 @@ class TextPaintExtensionsTest {
         val tp = AndroidTextPaint(0, density.density)
         tp.textSize = 30f
 
-        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocaleList)
+        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocale)
 
         assertThat(tp.textSize).isEqualTo(60f)
         assertThat(notApplied).isNull()
@@ -88,7 +88,7 @@ class TextPaintExtensionsTest {
         val originalSkew = tp.textSkewX
         val originalScale = tp.textScaleX
 
-        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocaleList)
+        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocale)
 
         assertThat(tp.textSkewX).isEqualTo(originalSkew + textGeometricTransform.skewX)
         assertThat(tp.textScaleX).isEqualTo(originalScale * textGeometricTransform.scaleX)
@@ -102,8 +102,7 @@ class TextPaintExtensionsTest {
         val tp = AndroidTextPaint(0, density.density)
         tp.letterSpacing = 4f
 
-        val notApplied =
-            tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocaleList, true)
+        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocale, true)
 
         assertThat(tp.letterSpacing).isWithin(0.01f).of(0.8333333f)
         assertThat(notApplied?.letterSpacing).isEqualTo(letterSpacing)
@@ -116,7 +115,7 @@ class TextPaintExtensionsTest {
         val tp = AndroidTextPaint(0, density.density)
         tp.letterSpacing = 4f
 
-        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocaleList)
+        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocale)
 
         assertThat(tp.letterSpacing).isWithin(0.01f).of(0.8333333f)
         assertThat(notApplied).isNull()
@@ -129,7 +128,7 @@ class TextPaintExtensionsTest {
         val tp = AndroidTextPaint(0, density.density)
         tp.letterSpacing = 4f
 
-        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocaleList)
+        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocale)
 
         assertThat(tp.letterSpacing).isEqualTo(1.5f)
         assertThat(notApplied).isNull()
@@ -142,8 +141,7 @@ class TextPaintExtensionsTest {
         val tp = AndroidTextPaint(0, density.density)
         tp.letterSpacing = 4f
 
-        val notApplied =
-            tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocaleList, true)
+        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocale, true)
 
         assertThat(tp.letterSpacing).isEqualTo(1.5f)
         assertThat(notApplied?.letterSpacing).isEqualTo(null)
@@ -156,7 +154,7 @@ class TextPaintExtensionsTest {
         val tp = AndroidTextPaint(0, density.density)
         tp.letterSpacing = 4f
 
-        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocaleList)
+        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocale)
 
         assertThat(tp.letterSpacing).isEqualTo(4f)
         assertThat(notApplied?.letterSpacing).isEqualTo(TextUnit.Unspecified)
@@ -169,7 +167,7 @@ class TextPaintExtensionsTest {
         val tp = AndroidTextPaint(0, density.density)
         tp.fontFeatureSettings = ""
 
-        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocaleList)
+        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocale)
 
         assertThat(tp.fontFeatureSettings).isEqualTo(fontFeatureSettings)
         assertThat(notApplied?.fontFeatureSettings).isNull()
@@ -182,7 +180,7 @@ class TextPaintExtensionsTest {
         val tp = AndroidTextPaint(0, density.density)
         tp.fontFeatureSettings = "\"kern\" 0"
 
-        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocaleList)
+        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocale)
 
         assertThat(tp.fontFeatureSettings).isEqualTo("\"kern\" 0")
         assertThat(notApplied?.fontFeatureSettings).isNull()
@@ -222,7 +220,7 @@ class TextPaintExtensionsTest {
                     Typeface.MONOSPACE
                 },
                 density,
-                defaultLocaleList,
+                defaultLocale,
             )
 
         assertThat(tp.typeface).isEqualTo(Typeface.MONOSPACE)
@@ -244,7 +242,7 @@ class TextPaintExtensionsTest {
         val tp = AndroidTextPaint(0, density.density)
         tp.baselineShift = 0
 
-        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocaleList)
+        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocale)
 
         assertThat(tp.baselineShift).isEqualTo(0)
         assertThat(notApplied?.baselineShift).isEqualTo(baselineShift)
@@ -257,7 +255,7 @@ class TextPaintExtensionsTest {
         val tp = AndroidTextPaint(0, density.density)
         tp.baselineShift = 0
 
-        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocaleList)
+        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocale)
 
         assertThat(tp.baselineShift).isEqualTo(0)
         assertThat(notApplied?.baselineShift).isNull()
@@ -270,7 +268,7 @@ class TextPaintExtensionsTest {
         val tp = AndroidTextPaint(0, density.density)
         tp.color = Color.Black.toArgb()
 
-        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocaleList)
+        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocale)
 
         assertThat(tp.color).isEqualTo(Color.Black.toArgb())
         assertThat(notApplied?.background).isEqualTo(background)
@@ -283,7 +281,7 @@ class TextPaintExtensionsTest {
         val tp = AndroidTextPaint(0, density.density)
         tp.color = Color.Black.toArgb()
 
-        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocaleList)
+        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocale)
 
         assertThat(tp.color).isEqualTo(Color.Black.toArgb())
         assertThat(notApplied?.background).isEqualTo(Color.Unspecified)
@@ -296,7 +294,7 @@ class TextPaintExtensionsTest {
         val tp = AndroidTextPaint(0, density.density)
         tp.isUnderlineText = false
 
-        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocaleList)
+        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocale)
 
         assertThat(tp.isUnderlineText).isEqualTo(true)
         assertThat(notApplied?.textDecoration).isEqualTo(null)
@@ -309,7 +307,7 @@ class TextPaintExtensionsTest {
         val tp = AndroidTextPaint(0, density.density)
         tp.isStrikeThruText = false
 
-        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocaleList)
+        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocale)
 
         assertThat(tp.isStrikeThruText).isEqualTo(true)
         assertThat(notApplied?.textDecoration).isEqualTo(null)
@@ -324,7 +322,7 @@ class TextPaintExtensionsTest {
         tp.isUnderlineText = false
         tp.isStrikeThruText = false
 
-        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocaleList)
+        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocale)
 
         assertThat(tp.isUnderlineText).isEqualTo(true)
         assertThat(tp.isStrikeThruText).isEqualTo(true)
@@ -338,7 +336,7 @@ class TextPaintExtensionsTest {
         val tp = AndroidTextPaint(0, density.density)
         tp.clearShadowLayer()
 
-        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocaleList)
+        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocale)
 
         assertThat(tp.shadow).isEqualTo(shadow)
         assertThat(notApplied?.shadow).isNull()
@@ -351,7 +349,7 @@ class TextPaintExtensionsTest {
         val tp = AndroidTextPaint(0, density.density)
         tp.color = Color.Black.toArgb()
 
-        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocaleList)
+        val notApplied = tp.applySpanStyle(spanStyle, resolveTypeface, density, defaultLocale)
 
         assertThat(tp.color).isEqualTo(Color.Red.toArgb())
         assertThat(notApplied?.background).isEqualTo(Color.Green)

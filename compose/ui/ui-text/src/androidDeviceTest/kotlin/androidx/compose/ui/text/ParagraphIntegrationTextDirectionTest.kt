@@ -51,7 +51,7 @@ class ParagraphIntegrationTextDirectionTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = resourceLoader,
-                defaultLocaleList = ltrLocaleList,
+                defaultLocale = ltrLocale,
                 overflow = TextOverflow.Clip,
             )
 
@@ -67,7 +67,7 @@ class ParagraphIntegrationTextDirectionTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = resourceLoader,
-                defaultLocaleList = rtlLocaleList,
+                defaultLocale = rtlLocale,
                 overflow = TextOverflow.Clip,
             )
 
@@ -87,7 +87,7 @@ class ParagraphIntegrationTextDirectionTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = resourceLoader,
-                defaultLocaleList = rtlLocaleList, // not used
+                defaultLocale = rtlLocale, // not used
                 overflow = TextOverflow.Clip,
             )
 
@@ -107,7 +107,7 @@ class ParagraphIntegrationTextDirectionTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = resourceLoader,
-                defaultLocaleList = ltrLocaleList, // not used
+                defaultLocale = ltrLocale, // not used
                 overflow = TextOverflow.Clip,
             )
 

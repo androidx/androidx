@@ -43,13 +43,13 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalLocaleList
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.resolveDefaults
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -113,7 +113,7 @@ private class TextFieldSizeNode(private val style: TextStyle) :
                     requireLayoutDirection(),
                     requireDensity(),
                     fontFamilyResolver,
-                    currentValueOf(LocalLocaleList),
+                    currentValueOf(LocalLocale),
                     resolvedStyle,
                     requireFontResolutionState().value,
                 )
@@ -170,7 +170,7 @@ private class TextFieldSizeNode(private val style: TextStyle) :
     }
 
     override fun onObservedReadsChanged() {
-        observeReads { minSizeState?.update(defaultLocaleList = currentValueOf(LocalLocaleList)) }
+        observeReads { minSizeState?.update(defaultLocale = currentValueOf(LocalLocale)) }
         invalidateMeasurement()
     }
 }
@@ -178,7 +178,7 @@ private class TextFieldSizeNode(private val style: TextStyle) :
 internal fun Modifier.legacyTextFieldMinSize(style: TextStyle) = composed {
     val density = LocalDensity.current
     val fontFamilyResolver = LocalFontFamilyResolver.current
-    val defaultLocaleList = LocalLocaleList.current
+    val defaultLocale = LocalLocale.current
     val layoutDirection = LocalLayoutDirection.current
 
     val resolvedStyle = remember(style, layoutDirection) { resolveDefaults(style, layoutDirection) }
@@ -197,7 +197,7 @@ internal fun Modifier.legacyTextFieldMinSize(style: TextStyle) = composed {
             layoutDirection,
             density,
             fontFamilyResolver,
-            defaultLocaleList,
+            defaultLocale,
             style,
             typeface,
         )
@@ -207,7 +207,7 @@ internal fun Modifier.legacyTextFieldMinSize(style: TextStyle) = composed {
         layoutDirection,
         density,
         fontFamilyResolver,
-        defaultLocaleList,
+        defaultLocale,
         resolvedStyle,
         typeface,
     )
@@ -230,7 +230,7 @@ private class TextFieldSize(
     var layoutDirection: LayoutDirection,
     var density: Density,
     var fontFamilyResolver: FontFamily.Resolver,
-    var defaultLocaleList: LocaleList,
+    var defaultLocale: Locale,
     var resolvedStyle: TextStyle,
     var typeface: Any,
 ) {
@@ -250,7 +250,7 @@ private class TextFieldSize(
         layoutDirection: LayoutDirection = this.layoutDirection,
         density: Density = this.density,
         fontFamilyResolver: FontFamily.Resolver = this.fontFamilyResolver,
-        defaultLocaleList: LocaleList = this.defaultLocaleList,
+        defaultLocale: Locale = this.defaultLocale,
         resolvedStyle: TextStyle = this.resolvedStyle,
         typeface: Any = this.typeface,
     ) {
@@ -258,13 +258,13 @@ private class TextFieldSize(
             layoutDirection != this.layoutDirection ||
                 density != this.density ||
                 fontFamilyResolver != this.fontFamilyResolver ||
-                defaultLocaleList != this.defaultLocaleList ||
+                defaultLocale != this.defaultLocale ||
                 resolvedStyle != this.resolvedStyle
         ) {
             this.layoutDirection = layoutDirection
             this.density = density
             this.fontFamilyResolver = fontFamilyResolver
-            this.defaultLocaleList = defaultLocaleList
+            this.defaultLocale = defaultLocale
             this.resolvedStyle = resolvedStyle
             dirty = true
             return
@@ -284,7 +284,7 @@ private class TextFieldSize(
             style = resolvedStyle,
             density = density,
             fontFamilyResolver = fontFamilyResolver,
-            defaultLocaleList = defaultLocaleList,
+            defaultLocale = defaultLocale,
         )
 }
 
@@ -292,7 +292,7 @@ private class LegacyTextFieldSize(
     var layoutDirection: LayoutDirection,
     var density: Density,
     var fontFamilyResolver: FontFamily.Resolver,
-    var defaultLocaleList: LocaleList,
+    var defaultLocale: Locale,
     var resolvedStyle: TextStyle,
     var typeface: Any,
 ) {
@@ -303,7 +303,7 @@ private class LegacyTextFieldSize(
         layoutDirection: LayoutDirection,
         density: Density,
         fontFamilyResolver: FontFamily.Resolver,
-        defaultLocaleList: LocaleList,
+        defaultLocale: Locale,
         resolvedStyle: TextStyle,
         typeface: Any,
     ) {
@@ -311,14 +311,14 @@ private class LegacyTextFieldSize(
             layoutDirection != this.layoutDirection ||
                 density != this.density ||
                 fontFamilyResolver != this.fontFamilyResolver ||
-                defaultLocaleList != this.defaultLocaleList ||
+                defaultLocale != this.defaultLocale ||
                 resolvedStyle != this.resolvedStyle ||
                 typeface != this.typeface
         ) {
             this.layoutDirection = layoutDirection
             this.density = density
             this.fontFamilyResolver = fontFamilyResolver
-            this.defaultLocaleList = defaultLocaleList
+            this.defaultLocale = defaultLocale
             this.resolvedStyle = resolvedStyle
             this.typeface = typeface
             minSize = computeMinSize()
@@ -330,7 +330,7 @@ private class LegacyTextFieldSize(
             style = resolvedStyle,
             density = density,
             fontFamilyResolver = fontFamilyResolver,
-            defaultLocaleList = defaultLocaleList,
+            defaultLocale = defaultLocale,
         )
     }
 }

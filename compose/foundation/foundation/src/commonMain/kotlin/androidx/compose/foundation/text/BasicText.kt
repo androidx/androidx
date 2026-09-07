@@ -45,13 +45,13 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalFontFamilyResolver
-import androidx.compose.ui.platform.LocalLocaleList
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Constraints.Companion.fitPrioritizingWidth
@@ -120,13 +120,13 @@ public fun BasicText(
         }
 
     val fontFamilyResolver = LocalFontFamilyResolver.current
-    val localeList = LocalLocaleList.current
+    val locale = LocalLocale.current
 
     BackgroundTextMeasurement(
         text = text,
         style = style,
         fontFamilyResolver = fontFamilyResolver,
-        defaultLocaleList = localeList,
+        defaultLocale = locale,
         softWrap = softWrap,
     )
 
@@ -141,7 +141,7 @@ public fun BasicText(
                 maxLines = maxLines,
                 minLines = minLines,
                 fontFamilyResolver = fontFamilyResolver,
-                defaultLocaleList = localeList,
+                defaultLocale = locale,
                 placeholders = null,
                 onPlaceholderLayout = null,
                 selectionController = selectionController,
@@ -155,7 +155,7 @@ public fun BasicText(
                     text = text,
                     style = style,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocaleList = localeList,
+                    defaultLocale = locale,
                     overflow = overflow,
                     softWrap = softWrap,
                     maxLines = maxLines,
@@ -229,14 +229,14 @@ public fun BasicText(
     val hasLinks = text.hasLinks()
 
     val fontFamilyResolver = LocalFontFamilyResolver.current
-    val localeList = LocalLocaleList.current
+    val locale = LocalLocale.current
 
     if (!hasInlineContent && !hasLinks) {
         BackgroundTextMeasurement(
             text = text,
             style = style,
             fontFamilyResolver = fontFamilyResolver,
-            defaultLocaleList = localeList,
+            defaultLocale = locale,
             placeholders = null,
             softWrap = softWrap,
         )
@@ -253,7 +253,7 @@ public fun BasicText(
                     maxLines = maxLines,
                     minLines = minLines,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocaleList = localeList,
+                    defaultLocale = locale,
                     placeholders = null,
                     onPlaceholderLayout = null,
                     selectionController = selectionController,
@@ -280,7 +280,7 @@ public fun BasicText(
             maxLines = maxLines,
             minLines = minLines,
             fontFamilyResolver = fontFamilyResolver,
-            defaultLocaleList = localeList,
+            defaultLocale = locale,
             selectionController = selectionController,
             color = color,
             onShowTranslation = { substitutionValue ->
@@ -597,7 +597,7 @@ private fun Modifier.textModifier(
     maxLines: Int,
     minLines: Int,
     fontFamilyResolver: FontFamily.Resolver,
-    defaultLocaleList: LocaleList,
+    defaultLocale: Locale,
     placeholders: List<AnnotatedString.Range<Placeholder>>?,
     onPlaceholderLayout: ((List<Rect?>) -> Unit)?,
     selectionController: SelectionController?,
@@ -611,7 +611,7 @@ private fun Modifier.textModifier(
                 text,
                 style,
                 fontFamilyResolver,
-                defaultLocaleList,
+                defaultLocale,
                 onTextLayout,
                 overflow,
                 softWrap,
@@ -631,7 +631,7 @@ private fun Modifier.textModifier(
                 text,
                 style,
                 fontFamilyResolver,
-                defaultLocaleList,
+                defaultLocale,
                 onTextLayout,
                 overflow,
                 softWrap,
@@ -660,7 +660,7 @@ private fun LayoutWithLinksAndInlineContent(
     maxLines: Int,
     minLines: Int,
     fontFamilyResolver: FontFamily.Resolver,
-    defaultLocaleList: LocaleList,
+    defaultLocale: Locale,
     selectionController: SelectionController?,
     color: ColorProducer?,
     onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)?,
@@ -701,7 +701,7 @@ private fun LayoutWithLinksAndInlineContent(
         text = text,
         style = style,
         fontFamilyResolver = fontFamilyResolver,
-        defaultLocaleList = defaultLocaleList,
+        defaultLocale = defaultLocale,
         placeholders = placeholders,
         softWrap = softWrap,
     )
@@ -724,7 +724,7 @@ private fun LayoutWithLinksAndInlineContent(
                 maxLines = maxLines,
                 minLines = minLines,
                 fontFamilyResolver = fontFamilyResolver,
-                defaultLocaleList = defaultLocaleList,
+                defaultLocale = defaultLocale,
                 placeholders = placeholders,
                 onPlaceholderLayout = onPlaceholderLayout,
                 selectionController = selectionController,
@@ -756,7 +756,7 @@ internal expect fun BackgroundTextMeasurement(
     text: String,
     style: TextStyle,
     fontFamilyResolver: FontFamily.Resolver,
-    defaultLocaleList: LocaleList,
+    defaultLocale: Locale,
     softWrap: Boolean,
 )
 
@@ -770,7 +770,7 @@ internal expect fun BackgroundTextMeasurement(
     text: AnnotatedString,
     style: TextStyle,
     fontFamilyResolver: FontFamily.Resolver,
-    defaultLocaleList: LocaleList,
+    defaultLocale: Locale,
     placeholders: List<AnnotatedString.Range<Placeholder>>?,
     softWrap: Boolean,
 )

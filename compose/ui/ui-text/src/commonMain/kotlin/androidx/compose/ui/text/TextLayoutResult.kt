@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.toFontFamily
-import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.platform.SynchronizedObject
 import androidx.compose.ui.text.platform.makeSynchronizedObject
 import androidx.compose.ui.text.platform.synchronized
@@ -83,11 +83,10 @@ private constructor(
     public val fontFamilyResolver: FontFamily.Resolver,
 
     /**
-     * The default locale list used for computing this text layout. This locale is used for
-     * operations like line breaking and capitalization when no locale list is specified in the text
-     * styles.
+     * The default used for computing this text layout. This locale is used for operations like line
+     * breaking and capitalization when no locale is specified in the text styles.
      */
-    public val defaultLocaleList: LocaleList,
+    public val defaultLocale: Locale,
 
     /** The minimum width provided while calculating this text layout. */
     public val constraints: Constraints,
@@ -111,7 +110,7 @@ private constructor(
             ReplaceWith(
                 "TextLayoutInput(text, style, placeholders, " +
                     "maxLines, softWrap, overflow, density, layoutDirection, fontFamilyResolver, " +
-                    "constraints)"
+                    "constraints"
             ),
     )
     @Suppress("DEPRECATION")
@@ -137,11 +136,11 @@ private constructor(
         layoutDirection,
         resourceLoader,
         createFontFamilyResolver(resourceLoader),
-        LocaleList.current,
+        Locale.current,
         constraints,
     )
 
-    @Deprecated("Pass a default locale list")
+    @Deprecated("Pass a default locale")
     @Suppress("DEPRECATION")
     public constructor(
         text: AnnotatedString,
@@ -165,7 +164,7 @@ private constructor(
         layoutDirection,
         @Suppress("DEPRECATION") null,
         fontFamilyResolver,
-        LocaleList.current,
+        Locale.current,
         constraints,
     )
 
@@ -179,7 +178,7 @@ private constructor(
         density: Density,
         layoutDirection: LayoutDirection,
         fontFamilyResolver: FontFamily.Resolver,
-        defaultLocaleList: LocaleList,
+        defaultLocale: Locale,
         constraints: Constraints,
     ) : this(
         text,
@@ -192,7 +191,7 @@ private constructor(
         layoutDirection,
         @Suppress("DEPRECATION") null,
         fontFamilyResolver,
-        defaultLocaleList,
+        defaultLocale,
         constraints,
     )
 
@@ -233,7 +232,7 @@ private constructor(
             layoutDirection = layoutDirection,
             resourceLoader = resourceLoader,
             fontFamilyResolver = fontFamilyResolver,
-            defaultLocaleList = defaultLocaleList,
+            defaultLocale = defaultLocale,
             constraints = constraints,
         )
     }
@@ -251,7 +250,7 @@ private constructor(
         if (density != other.density) return false
         if (layoutDirection != other.layoutDirection) return false
         if (fontFamilyResolver != other.fontFamilyResolver) return false
-        if (defaultLocaleList != other.defaultLocaleList) return false
+        if (defaultLocale != other.defaultLocale) return false
         if (constraints != other.constraints) return false
 
         return true
@@ -267,7 +266,7 @@ private constructor(
         result = 31 * result + density.hashCode()
         result = 31 * result + layoutDirection.hashCode()
         result = 31 * result + fontFamilyResolver.hashCode()
-        result = 31 * result + defaultLocaleList.hashCode()
+        result = 31 * result + defaultLocale.hashCode()
         result = 31 * result + constraints.hashCode()
         return result
     }
@@ -283,7 +282,7 @@ private constructor(
             "density=$density, " +
             "layoutDirection=$layoutDirection, " +
             "fontFamilyResolver=$fontFamilyResolver, " +
-            "defaultLocaleList=$defaultLocaleList, " +
+            "defaultLocale=$defaultLocale, " +
             "constraints=$constraints" +
             ")"
     }

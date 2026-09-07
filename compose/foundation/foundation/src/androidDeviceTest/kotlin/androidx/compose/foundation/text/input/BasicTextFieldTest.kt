@@ -72,7 +72,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalLocale
-import androidx.compose.ui.platform.LocalLocaleList
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
@@ -1218,7 +1217,7 @@ internal class BasicTextFieldTest {
                         style = textStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        defaultLocaleList = LocalLocaleList.current,
+                        defaultLocale = LocalLocale.current,
                     )
                     .width
 
@@ -1255,7 +1254,7 @@ internal class BasicTextFieldTest {
                         style = textStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        defaultLocaleList = LocalLocaleList.current,
+                        defaultLocale = LocalLocale.current,
                     )
                     .width
 

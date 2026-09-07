@@ -30,7 +30,7 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextPainter
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.resolveDefaults
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -83,7 +83,7 @@ internal class TextDelegate(
     val overflow: TextOverflow = TextOverflow.Clip,
     val density: Density,
     val fontFamilyResolver: FontFamily.Resolver,
-    val defaultLocaleList: LocaleList,
+    val defaultLocale: Locale,
     val placeholders: List<AnnotatedString.Range<Placeholder>> = emptyList(),
 ) {
     /*@VisibleForTesting*/
@@ -134,7 +134,7 @@ internal class TextDelegate(
                     style = resolveDefaults(style, layoutDirection),
                     density = density,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocaleList = defaultLocaleList,
+                    defaultLocale = defaultLocale,
                     placeholders = placeholders,
                     softWrap = softWrap,
                 )
@@ -249,7 +249,7 @@ internal class TextDelegate(
                             layoutInput.density,
                             layoutInput.layoutDirection,
                             layoutInput.fontFamilyResolver,
-                            layoutInput.defaultLocaleList,
+                            layoutInput.defaultLocale,
                             constraints,
                         ),
                     size =
@@ -285,7 +285,7 @@ internal class TextDelegate(
                 density,
                 layoutDirection,
                 fontFamilyResolver,
-                defaultLocaleList,
+                defaultLocale,
                 constraints,
             ),
             multiParagraph,
@@ -325,7 +325,7 @@ internal fun updateTextDelegate(
     style: TextStyle,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
-    defaultLocaleList: LocaleList,
+    defaultLocale: Locale,
     softWrap: Boolean = true,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
@@ -344,7 +344,7 @@ internal fun updateTextDelegate(
             current.density != density ||
             current.placeholders != placeholders ||
             current.fontFamilyResolver !== fontFamilyResolver ||
-            current.defaultLocaleList != defaultLocaleList
+            current.defaultLocale != defaultLocale
     ) {
         TextDelegate(
             text = text,
@@ -355,7 +355,7 @@ internal fun updateTextDelegate(
             minLines = minLines,
             density = density,
             fontFamilyResolver = fontFamilyResolver,
-            defaultLocaleList = defaultLocaleList,
+            defaultLocale = defaultLocale,
             placeholders = placeholders,
         )
     } else {
