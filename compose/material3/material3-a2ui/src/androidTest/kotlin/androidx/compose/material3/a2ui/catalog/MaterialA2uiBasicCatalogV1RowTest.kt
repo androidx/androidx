@@ -18,6 +18,7 @@ package androidx.compose.material3.a2ui.catalog
 
 import androidx.a2ui.compose.runtime.A2uiProperty
 import androidx.a2ui.compose.ui.A2uiCatalog
+import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
 import androidx.a2ui.compose.ui.testing.A2uiComponentPayload
 import androidx.a2ui.compose.ui.testing.A2uiComponentStub
 import androidx.a2ui.compose.ui.testing.A2uiTestController
@@ -40,6 +41,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.v2.runComposeUiTest
@@ -1572,5 +1574,89 @@ class MaterialA2uiBasicCatalogV1RowTest {
         assertThat(child2UpdatedBounds.width.value)
             .isWithin(0.5f)
             .of(expectedChild2UpdatedWidth.value)
+    }
+
+    @Test
+    fun accessibility_withLabelAndDescription_setsContentDescription() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Row",
+                            properties =
+                                mapOf(
+                                    "children" to listOf("c1"),
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Row Label",
+                                            "description" to "Horizontal items",
+                                        ),
+                                ),
+                        ),
+                        A2uiComponentPayload(id = "c1"),
+                    ),
+                componentStubs =
+                    listOf(
+                        A2uiComponentStub.withId("c1") { _, modifier ->
+                            Text("Child 1", modifier = modifier)
+                        }
+                    ),
+            )
+
+        val surface = controller.start()
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithContentDescription("Row Label - Horizontal items").assertIsDisplayed()
+    }
+
+    @Test
+    fun accessibility_childrenMaintainIndependentAccessibilityProperties() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Row",
+                            properties =
+                                mapOf(
+                                    "children" to listOf("c1"),
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Row Label",
+                                            "description" to "Horizontal items",
+                                        ),
+                                ),
+                        ),
+                        A2uiComponentPayload(id = "c1"),
+                    ),
+                componentStubs =
+                    listOf(
+                        A2uiComponentStub.withId("c1") { _, modifier ->
+                            Text(
+                                "Child 1",
+                                modifier =
+                                    modifier.a2uiAccessibility(
+                                        attributes =
+                                            A2uiBasicCatalogV1.AccessibilityAttributes(
+                                                label = "Child Label",
+                                                description = "Child Description",
+                                            ),
+                                        isClickable = false,
+                                    ),
+                            )
+                        }
+                    ),
+            )
+
+        val surface = controller.start()
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithContentDescription("Row Label - Horizontal items").assertIsDisplayed()
+        onNodeWithContentDescription("Child Label - Child Description").assertIsDisplayed()
     }
 }

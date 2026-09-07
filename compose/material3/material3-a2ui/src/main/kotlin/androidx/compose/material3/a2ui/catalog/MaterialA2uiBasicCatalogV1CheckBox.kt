@@ -48,14 +48,19 @@ internal object MaterialA2uiBasicCatalogV1CheckBox : A2uiBasicCatalogV1.CheckBox
 
         Row(
             modifier =
-                modifier.toggleable(
-                    value = value,
-                    interactionSource = interactionSource,
-                    indication = null,
-                    role = Role.Checkbox,
-                    enabled = enabled,
-                    onValueChange = onValueChange,
-                ),
+                modifier
+                    .toggleable(
+                        value = value,
+                        interactionSource = interactionSource,
+                        indication = null,
+                        role = Role.Checkbox,
+                        enabled = enabled,
+                        onValueChange = onValueChange,
+                    )
+                    .a2uiAccessibility(
+                        attributes = accessibility,
+                        isClickable = true,
+                    ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Checkbox(

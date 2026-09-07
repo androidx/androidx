@@ -29,6 +29,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.hintText
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.coerceIn
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -107,6 +109,14 @@ internal object MaterialA2uiBasicCatalogV1TextField : A2uiBasicCatalogV1.TextFie
                 A2uiBasicCatalogV1.TextField.Variant.LongText -> TextKeyboardOptions
             }
 
+        val hint = accessibility?.toContentDescription()
+        val textFieldModifier =
+            if (hint != null) {
+                modifier.semantics { hintText = hint }
+            } else {
+                modifier
+            }
+
         @Suppress("DEPRECATION") // b/553995833
         OutlinedTextField(
             value = textFieldValue,
@@ -124,7 +134,7 @@ internal object MaterialA2uiBasicCatalogV1TextField : A2uiBasicCatalogV1.TextFie
             singleLine = singleLine,
             visualTransformation = visualTransformation,
             keyboardOptions = keyboardOptions,
-            modifier = modifier,
+            modifier = textFieldModifier,
         )
     }
 }

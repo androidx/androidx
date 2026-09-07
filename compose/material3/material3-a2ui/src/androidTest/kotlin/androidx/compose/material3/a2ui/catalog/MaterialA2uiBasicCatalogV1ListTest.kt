@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.v2.runComposeUiTest
@@ -835,5 +836,78 @@ class MaterialA2uiBasicCatalogV1ListTest {
         controller.waitForIdle()
 
         onNodeWithText("Item").assertIsDisplayed()
+    }
+
+    @Test
+    fun accessibility_withLabelAndDescription_setsContentDescription() = runComposeUiTest {
+        val listPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "List",
+                properties =
+                    mapOf(
+                        "children" to listOf("item_1"),
+                        "accessibility" to
+                            mapOf(
+                                "label" to "List Label",
+                                "description" to "Scrollable list of items",
+                            ),
+                    ),
+            )
+        val itemPayload =
+            A2uiComponentPayload(id = "item_1", type = "Text", properties = mapOf("text" to "Item"))
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents = listOf(listPayload, itemPayload),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithContentDescription("List Label - Scrollable list of items").assertIsDisplayed()
+    }
+
+    @Test
+    fun accessibility_childrenMaintainIndependentAccessibilityProperties() = runComposeUiTest {
+        val listPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "List",
+                properties =
+                    mapOf(
+                        "children" to listOf("item_1"),
+                        "accessibility" to
+                            mapOf(
+                                "label" to "List Label",
+                                "description" to "Scrollable list of items",
+                            ),
+                    ),
+            )
+        val itemPayload =
+            A2uiComponentPayload(
+                id = "item_1",
+                type = "Text",
+                properties =
+                    mapOf(
+                        "text" to "Item",
+                        "accessibility" to
+                            mapOf(
+                                "label" to "Item Label",
+                                "description" to "Item Description",
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents = listOf(listPayload, itemPayload),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithContentDescription("List Label - Scrollable list of items").assertIsDisplayed()
+        onNodeWithContentDescription("Item Label - Item - Item Description").assertIsDisplayed()
     }
 }

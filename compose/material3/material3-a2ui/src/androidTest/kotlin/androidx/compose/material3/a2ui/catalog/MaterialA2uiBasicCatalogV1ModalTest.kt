@@ -18,6 +18,7 @@ package androidx.compose.material3.a2ui.catalog
 
 import android.view.KeyEvent
 import androidx.a2ui.compose.ui.A2uiCatalog
+import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
 import androidx.a2ui.compose.ui.testing.A2uiComponentPayload
 import androidx.a2ui.compose.ui.testing.A2uiComponentStub
 import androidx.a2ui.compose.ui.testing.A2uiTestController
@@ -36,6 +37,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -1062,5 +1064,138 @@ class MaterialA2uiBasicCatalogV1ModalTest {
 
         onNodeWithText("Working Content").assertDoesNotExist()
         onNodeWithText("Error").assertIsDisplayed()
+    }
+
+    // =======================================================
+    // Category 5: Accessibility
+    // =======================================================
+
+    @Test
+    fun accessibility_withLabelAndDescription_setsContentDescription() = runComposeUiTest {
+        val modalPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Modal",
+                properties =
+                    mapOf(
+                        "trigger" to "trigger_text",
+                        "content" to "modal_content",
+                        "accessibility" to
+                            mapOf(
+                                "label" to "Modal Label",
+                                "description" to "Modal Description",
+                            ),
+                    ),
+            )
+        val triggerPayload =
+            A2uiComponentPayload(
+                id = "trigger_text",
+                type = "Text",
+                properties = mapOf("text" to "Open Modal"),
+            )
+        val contentPayload =
+            A2uiComponentPayload(
+                id = "modal_content",
+                type = "Text",
+                properties = mapOf("text" to "Modal Content"),
+            )
+
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents = listOf(modalPayload, triggerPayload, contentPayload),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        // Content description is not present before the dialog is opened
+        onNodeWithContentDescription("Modal Label - Modal Description").assertDoesNotExist()
+
+        // Open modal
+        onNodeWithText("Open Modal").performClick()
+
+        // Content description is present on the dialog surface
+        onNodeWithContentDescription("Modal Label - Modal Description").assertIsDisplayed()
+
+        // Dismiss modal via Back key
+        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+        waitForIdle()
+
+        // Content description is removed when the dialog is dismissed
+        onNodeWithContentDescription("Modal Label - Modal Description").assertDoesNotExist()
+        onNodeWithText("Open Modal").assertIsDisplayed()
+    }
+
+    @Test
+    fun accessibility_childrenMaintainIndependentAccessibilityProperties() = runComposeUiTest {
+        val triggerStub =
+            A2uiComponentStub.withId("stub_trigger") { _, modifier ->
+                Text(
+                    "Open Trigger",
+                    modifier =
+                        modifier.a2uiAccessibility(
+                            attributes =
+                                A2uiBasicCatalogV1.AccessibilityAttributes(
+                                    label = "Trigger Label",
+                                    description = "Trigger Description",
+                                ),
+                            isClickable = false,
+                        ),
+                )
+            }
+        val contentStub =
+            A2uiComponentStub.withId("stub_content") { _, modifier ->
+                Text(
+                    "Modal Content",
+                    modifier =
+                        modifier.a2uiAccessibility(
+                            attributes =
+                                A2uiBasicCatalogV1.AccessibilityAttributes(
+                                    label = "Content Label",
+                                    description = "Content Description",
+                                ),
+                            isClickable = false,
+                        ),
+                )
+            }
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Modal",
+                            properties =
+                                mapOf(
+                                    "trigger" to "stub_trigger",
+                                    "content" to "stub_content",
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Modal Label",
+                                            "description" to "Modal Description",
+                                        ),
+                                ),
+                        ),
+                        A2uiComponentPayload(id = "stub_trigger"),
+                        A2uiComponentPayload(id = "stub_content"),
+                    ),
+                componentStubs = listOf(triggerStub, contentStub),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        // Trigger maintains its own accessibility properties before opening
+        onNodeWithContentDescription("Trigger Label - Trigger Description").assertIsDisplayed()
+        onNodeWithContentDescription("Modal Label - Modal Description").assertDoesNotExist()
+
+        // Open modal
+        onNodeWithContentDescription("Trigger Label - Trigger Description").performClick()
+
+        // Both modal dialog and content maintain independent accessibility properties
+        onNodeWithContentDescription("Modal Label - Modal Description").assertIsDisplayed()
+        onNodeWithContentDescription("Content Label - Content Description").assertIsDisplayed()
     }
 }

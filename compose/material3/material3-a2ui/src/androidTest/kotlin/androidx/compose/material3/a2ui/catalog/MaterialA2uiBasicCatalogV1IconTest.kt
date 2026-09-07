@@ -782,6 +782,35 @@ class MaterialA2uiBasicCatalogV1IconTest {
         onNodeWithContentDescription("Updated Label").assertIsDisplayed()
     }
 
+    @Test
+    fun accessibility_withLabelAndDescription_setsContentDescription() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Icon",
+                            properties =
+                                mapOf(
+                                    "name" to "favorite",
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Favorite Icon",
+                                            "description" to "Adds to favorites",
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithContentDescription("Favorite Icon - Adds to favorites").assertIsDisplayed()
+    }
+
     private companion object {
         const val TEST_CIRCLE_SVG_PATH = "M 12 4 A 8 8 0 1 0 12 20 A 8 8 0 1 0 12 4 Z"
     }

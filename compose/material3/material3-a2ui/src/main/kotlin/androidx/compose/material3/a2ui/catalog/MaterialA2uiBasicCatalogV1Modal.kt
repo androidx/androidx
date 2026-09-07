@@ -58,7 +58,11 @@ internal object MaterialA2uiBasicCatalogV1Modal : A2uiBasicCatalogV1.Modal {
         )
 
         if (isDialogOpen) {
-            ModalDialog(contentId = contentId, onDismissRequest = { isDialogOpen = false })
+            ModalDialog(
+                contentId = contentId,
+                accessibility = accessibility,
+                onDismissRequest = { isDialogOpen = false },
+            )
         }
     }
 
@@ -114,9 +118,14 @@ internal object MaterialA2uiBasicCatalogV1Modal : A2uiBasicCatalogV1.Modal {
     }
 
     @Composable
-    private fun A2uiComponentScope.ModalDialog(contentId: String, onDismissRequest: () -> Unit) {
+    private fun A2uiComponentScope.ModalDialog(
+        contentId: String,
+        accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+        onDismissRequest: () -> Unit,
+    ) {
         BasicAlertDialog(onDismissRequest = onDismissRequest) {
             Surface(
+                modifier = Modifier.a2uiAccessibility(accessibility),
                 shape = MaterialTheme.shapes.extraLarge,
                 tonalElevation = 6.dp,
                 color = MaterialTheme.colorScheme.surfaceContainerHigh,
