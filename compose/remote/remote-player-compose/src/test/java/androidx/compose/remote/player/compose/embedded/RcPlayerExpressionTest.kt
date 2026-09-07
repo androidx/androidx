@@ -378,4 +378,29 @@ class RcPlayerExpressionTest {
         assertThat(index.containsKey(100)).isTrue()
         assertThat(index[100]).isSameInstanceAs(expr)
     }
+
+    @Test
+    fun testIsExpressionTimeDependentDetectsTimeVariables() {
+        val continuousSecExpr =
+            FloatExpression(1, floatArrayOf(Utils.asNan(RemoteContext.ID_CONTINUOUS_SEC)), null)
+        val epochSecondExpr =
+            FloatExpression(2, floatArrayOf(Utils.asNan(RemoteContext.ID_EPOCH_SECOND)), null)
+        val timeInSecExpr =
+            FloatExpression(3, floatArrayOf(Utils.asNan(RemoteContext.ID_TIME_IN_SEC)), null)
+        val timeInMinExpr =
+            FloatExpression(4, floatArrayOf(Utils.asNan(RemoteContext.ID_TIME_IN_MIN)), null)
+        val timeInHrExpr =
+            FloatExpression(5, floatArrayOf(Utils.asNan(RemoteContext.ID_TIME_IN_HR)), null)
+        val dayOfMonthExpr =
+            FloatExpression(6, floatArrayOf(Utils.asNan(RemoteContext.ID_DAY_OF_MONTH)), null)
+        val plainExpr = FloatExpression(7, floatArrayOf(1f, 2f, AnimatedFloatExpression.ADD), null)
+
+        assertThat(isExpressionTimeDependent(continuousSecExpr)).isTrue()
+        assertThat(isExpressionTimeDependent(epochSecondExpr)).isTrue()
+        assertThat(isExpressionTimeDependent(timeInSecExpr)).isTrue()
+        assertThat(isExpressionTimeDependent(timeInMinExpr)).isTrue()
+        assertThat(isExpressionTimeDependent(timeInHrExpr)).isTrue()
+        assertThat(isExpressionTimeDependent(dayOfMonthExpr)).isFalse()
+        assertThat(isExpressionTimeDependent(plainExpr)).isFalse()
+    }
 }
