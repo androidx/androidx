@@ -361,6 +361,14 @@ private constructor(private val lifecycleCameraProvider: LifecycleCameraProvider
         return lifecycleCameraProvider.hasCamera(cameraSelector)
     }
 
+    // TODO: b/530043225 - Make this public in next alpha
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun getSupportedLensCategories(
+        @CameraSelector.LensFacing lensFacing: Int
+    ): List<@CameraSelector.LensCategory Int> {
+        return lifecycleCameraProvider.getSupportedLensCategories(lensFacing)
+    }
+
     override fun getCameraInfo(cameraSelector: CameraSelector): CameraInfo {
         return lifecycleCameraProvider.getCameraInfo(cameraSelector)
     }
