@@ -52,6 +52,7 @@ class A2uiBasicCatalogV1CheckBoxUiTest {
         var capturedValue: Boolean? = null
         var capturedOnValueChange: ((Boolean) -> Unit)? = null
         var capturedEnabled: Boolean? = null
+        var capturedAccessibility: A2uiBasicCatalogV1.AccessibilityAttributes? = null
 
         @Composable
         override fun A2uiComponentScope.TypedContent(
@@ -59,6 +60,7 @@ class A2uiBasicCatalogV1CheckBoxUiTest {
             value: Boolean,
             onValueChange: (Boolean) -> Unit,
             enabled: Boolean,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
         ) {
             SideEffect {
@@ -66,6 +68,7 @@ class A2uiBasicCatalogV1CheckBoxUiTest {
                 capturedValue = value
                 capturedOnValueChange = onValueChange
                 capturedEnabled = enabled
+                capturedAccessibility = accessibility
             }
             val readOnlyStr = if (!enabled) " [RO]" else ""
             BasicText(
@@ -292,6 +295,43 @@ class A2uiBasicCatalogV1CheckBoxUiTest {
         assertThat(testCheckBox.capturedValue).isTrue()
         assertThat(testCheckBox.capturedEnabled).isFalse()
         assertThat(testCheckBox.capturedOnValueChange).isNotNull()
+    }
+
+    @Test
+    fun content_staticAccessibility_resolvesPropertiesAndPassesToTypedContent() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "CheckBox",
+                            properties =
+                                mapOf(
+                                    "label" to "Accept Terms",
+                                    "value" to true,
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Terms checkbox",
+                                            "description" to "Accept license terms",
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { A2uiTestSurface(surface) }
+
+        onNodeWithText("CheckBox: Accept Terms = true [RO]").assertIsDisplayed()
+        assertThat(testCheckBox.capturedAccessibility)
+            .isEqualTo(
+                A2uiBasicCatalogV1.AccessibilityAttributes(
+                    label = "Terms checkbox",
+                    description = "Accept license terms",
+                )
+            )
     }
 
     @Test

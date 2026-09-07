@@ -20,6 +20,7 @@ import androidx.a2ui.compose.runtime.A2uiComponentReference
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
+import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
 import androidx.a2ui.model.schema.commontypes.A2uiChildListSchema
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -41,6 +42,7 @@ class A2uiBasicCatalogV1ListTest {
                     children: kotlin.collections.List<A2uiComponentReference>,
                     direction: A2uiBasicCatalogV1.List.Direction,
                     align: A2uiBasicCatalogV1.List.Align,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -50,6 +52,7 @@ class A2uiBasicCatalogV1ListTest {
             .isEqualTo("A scrollable list of components laid out vertically or horizontally.")
         assertThat(listComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.List.AccessibilityProperty,
                 A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.List.ChildrenProperty,
                 A2uiBasicCatalogV1.List.DirectionProperty,
@@ -60,6 +63,11 @@ class A2uiBasicCatalogV1ListTest {
 
     @Test
     fun companionProperties_haveExpectedSchema() {
+        assertThat(A2uiBasicCatalogV1.List.AccessibilityProperty.key).isEqualTo("accessibility")
+        assertThat(A2uiBasicCatalogV1.List.AccessibilityProperty.isRequired).isFalse()
+        assertThat(A2uiBasicCatalogV1.List.AccessibilityProperty.schema)
+            .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
+
         assertThat(A2uiBasicCatalogV1.List.ChildrenProperty.key).isEqualTo("children")
         assertThat(A2uiBasicCatalogV1.List.ChildrenProperty.isRequired).isTrue()
         val childrenSchema =

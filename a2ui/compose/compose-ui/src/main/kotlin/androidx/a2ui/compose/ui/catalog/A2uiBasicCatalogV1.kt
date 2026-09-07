@@ -179,9 +179,47 @@ public class A2uiBasicCatalogV1(
                         "Note: this may ONLY be set when the component is a direct descendant of a " +
                         "Row or Column.",
             )
+
+        /**
+         * Holds accessibility attributes for a component in the A2UI Basic Catalog V1.
+         *
+         * This property is part of the basic catalog infrastructure and is shared across all
+         * components rather than belonging to a single component type. It must be included in the
+         * [A2uiComponent.properties] list of all basic catalog components.
+         */
+        internal val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+            A2uiProperty.dynamicCustom(
+                key = "accessibility",
+                schema = A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE,
+                safeCast = { value ->
+                    when (value) {
+                        is AccessibilityAttributes -> value
+                        is Map<*, *> ->
+                            AccessibilityAttributes(
+                                label = value["label"]?.toString(),
+                                description = value["description"]?.toString(),
+                            )
+                        else -> null
+                    }
+                },
+            )
     }
 
-    /** Accessibility attributes for an element in the A2UI Basic Catalog V1. */
+    /**
+     * Attributes to enhance accessibility of the A2UI Basic Catalog components when using assistive
+     * technologies like screen readers.
+     *
+     * @property label A short string, typically 1 to 3 words, used by assistive technologies to
+     *   convey the purpose or intent of an element. For example, an input field might have an
+     *   accessible label of 'User ID' or a button might be labeled 'Submit'. When `null`, no custom
+     *   accessibility label is set, and assistive technologies fall back to the component's default
+     *   text or intrinsic content.
+     * @property description Additional information provided by assistive technologies about an
+     *   element such as instructions, format requirements, or result of an action. For example, a
+     *   mute button might have a label of 'Mute' and a description of 'Silences notifications about
+     *   this conversation'. When `null`, no supplemental description is provided beyond the
+     *   element's primary label.
+     */
     @Immutable
     public class AccessibilityAttributes(
         public val label: String? = null,
@@ -211,6 +249,7 @@ public class A2uiBasicCatalogV1(
      * The A2UI `"Text"` component for displaying text.
      *
      * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the text.
      * * `text` (Dynamic String, required): The text content to display. Accepts either a static
      *   string literal or a dynamic data binding.
      * * `variant` (String Enum, optional): A hint for the base text style. This is a static
@@ -241,6 +280,10 @@ public class A2uiBasicCatalogV1(
         }
 
         public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of a [Text]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
             public val textProperty: DynamicA2uiProperty<String> =
                 A2uiProperty.dynamicString(
                     key = "text",
@@ -260,7 +303,7 @@ public class A2uiBasicCatalogV1(
                     description = "A hint for the base text style.",
                 )
             internal val componentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(WeightProperty, textProperty, variantProperty)
+                listOf(AccessibilityProperty, WeightProperty, textProperty, variantProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -280,13 +323,29 @@ public class A2uiBasicCatalogV1(
                     "Required property '${textProperty.key}' is missing."
                 }
             val variant = properties[variantProperty] ?: Variant.Body
-            TypedContent(text = textValue, variant = variant, modifier = modifier)
+            val accessibility = properties.bind(AccessibilityProperty)
+            TypedContent(
+                text = textValue,
+                variant = variant,
+                accessibility = accessibility,
+                modifier = modifier,
+            )
         }
 
+        /**
+         * Renders the [Text] with its resolved [text] string, [variant] style hint, and optional
+         * [accessibility] attributes.
+         *
+         * @param text The text string to display.
+         * @param variant The text style variant to use.
+         * @param accessibility Accessibility attributes for the text.
+         * @param modifier [Modifier] to apply to the layout.
+         */
         @Composable
         public fun A2uiComponentScope.TypedContent(
             text: String,
             variant: Variant,
+            accessibility: AccessibilityAttributes?,
             modifier: Modifier,
         )
     }
@@ -295,6 +354,7 @@ public class A2uiBasicCatalogV1(
      * The A2UI `"Image"` component for displaying an image from a URL.
      *
      * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the image.
      * * `url` (Dynamic String, required): The URL of the image to display.
      * * `description` (Dynamic String, optional): Accessibility text for the image.
      * * `fit` (String Enum, optional): Specifies how the image should be resized to fit its
@@ -343,6 +403,10 @@ public class A2uiBasicCatalogV1(
         }
 
         public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of an [Image]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
             /** The [A2uiProperty] for the `"url"` property of an [Image]. */
             public val UrlProperty: DynamicA2uiProperty<String> =
                 A2uiProperty.dynamicString(
@@ -385,6 +449,7 @@ public class A2uiBasicCatalogV1(
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
                 listOf(
+                    AccessibilityProperty,
                     WeightProperty,
                     UrlProperty,
                     DescriptionProperty,
@@ -412,24 +477,27 @@ public class A2uiBasicCatalogV1(
             val description = properties.bind(DescriptionProperty)
             val fit = properties[FitProperty] ?: Fit.Fill
             val variant = properties[VariantProperty] ?: Variant.MediumFeature
+            val accessibility = properties.bind(AccessibilityProperty)
 
             TypedContent(
                 url = url,
                 description = description,
                 fit = fit,
                 variant = variant,
+                accessibility = accessibility,
                 modifier = modifier,
             )
         }
 
         /**
-         * Renders the [Image] with its resolved [url], [description], [fit], and [variant]
-         * properties.
+         * Renders the [Image] with its resolved [url], [description], [fit], [variant], and
+         * optional [accessibility] attributes.
          *
          * @param url The URL of the image to display.
          * @param description Accessibility text for the image.
          * @param fit Specifies how the image should be resized to fit its container.
          * @param variant A hint for the image size and style.
+         * @param accessibility Accessibility attributes for the image.
          * @param modifier [Modifier] to apply to the layout.
          */
         @Composable
@@ -438,6 +506,7 @@ public class A2uiBasicCatalogV1(
             description: String?,
             fit: Fit,
             variant: Variant,
+            accessibility: AccessibilityAttributes?,
             modifier: Modifier,
         )
     }
@@ -565,17 +634,7 @@ public class A2uiBasicCatalogV1(
         public companion object {
             /** The [A2uiProperty] for the `"accessibility"` property of an [Icon]. */
             public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
-                A2uiProperty.dynamicCustom(
-                    key = "accessibility",
-                    schema = A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE,
-                    safeCast = { value ->
-                        val map = value as? Map<*, *> ?: return@dynamicCustom null
-                        AccessibilityAttributes(
-                            label = map["label"]?.toString(),
-                            description = map["description"]?.toString(),
-                        )
-                    },
-                )
+                A2uiBasicCatalogV1.AccessibilityProperty
 
             private val nameSchema: A2uiSchema =
                 A2uiAnySchema(
@@ -619,7 +678,7 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(WeightProperty, NameProperty, AccessibilityProperty)
+                listOf(AccessibilityProperty, WeightProperty, NameProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -662,6 +721,7 @@ public class A2uiBasicCatalogV1(
      * The A2UI `"Video"` component for displaying a video from a URL.
      *
      * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the video.
      * * `url` (Dynamic String, required): The URL of the video to display.
      */
     public interface Video : A2uiComponent {
@@ -672,6 +732,10 @@ public class A2uiBasicCatalogV1(
             get() = "Displays a video from a URL."
 
         public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of a [Video]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
             /** The [A2uiProperty] for the `"url"` property of a [Video]. */
             public val UrlProperty: DynamicA2uiProperty<String> =
                 A2uiProperty.dynamicString(
@@ -681,7 +745,7 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(WeightProperty, UrlProperty)
+                listOf(AccessibilityProperty, WeightProperty, UrlProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -700,23 +764,32 @@ public class A2uiBasicCatalogV1(
                 checkNotNull(properties.bind(UrlProperty)) {
                     "Required property '${UrlProperty.key}' is missing."
                 }
+            val accessibility = properties.bind(AccessibilityProperty)
 
-            TypedContent(url = url, modifier = modifier)
+            TypedContent(url = url, accessibility = accessibility, modifier = modifier)
         }
 
         /**
-         * Renders the [Video] with its resolved [url] property.
+         * Renders the [Video] with its resolved [url] property and optional [accessibility]
+         * attributes.
          *
          * @param url The URL of the video to display.
+         * @param accessibility Accessibility attributes for the video.
          * @param modifier [Modifier] to apply to the layout.
          */
-        @Composable public fun A2uiComponentScope.TypedContent(url: String, modifier: Modifier)
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            url: String,
+            accessibility: AccessibilityAttributes?,
+            modifier: Modifier,
+        )
     }
 
     /**
      * The A2UI `"AudioPlayer"` component for playing audio content from a URL.
      *
      * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the audio player.
      * * `url` (Dynamic String, required): The URL of the audio to be played.
      * * `description` (Dynamic String, optional): A description of the audio, such as a title or
      *   summary.
@@ -729,6 +802,10 @@ public class A2uiBasicCatalogV1(
             get() = "A player for audio content from a URL."
 
         public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of an [AudioPlayer]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
             /** The [A2uiProperty] for the `"url"` property of an [AudioPlayer]. */
             public val UrlProperty: DynamicA2uiProperty<String> =
                 A2uiProperty.dynamicString(
@@ -746,7 +823,7 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(WeightProperty, UrlProperty, DescriptionProperty)
+                listOf(AccessibilityProperty, WeightProperty, UrlProperty, DescriptionProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -766,21 +843,30 @@ public class A2uiBasicCatalogV1(
                     "Required property '${UrlProperty.key}' is missing."
                 }
             val description = properties.bind(DescriptionProperty)
+            val accessibility = properties.bind(AccessibilityProperty)
 
-            TypedContent(url = url, description = description, modifier = modifier)
+            TypedContent(
+                url = url,
+                description = description,
+                accessibility = accessibility,
+                modifier = modifier,
+            )
         }
 
         /**
-         * Renders the [AudioPlayer] with its resolved [url] and [description] properties.
+         * Renders the [AudioPlayer] with its resolved [url], [description], and optional
+         * [accessibility] attributes.
          *
          * @param url The URL of the audio to be played.
          * @param description A description of the audio, such as a title or summary.
+         * @param accessibility Accessibility attributes for the audio player.
          * @param modifier [Modifier] to apply to the layout.
          */
         @Composable
         public fun A2uiComponentScope.TypedContent(
             url: String,
             description: String?,
+            accessibility: AccessibilityAttributes?,
             modifier: Modifier,
         )
     }
@@ -789,6 +875,7 @@ public class A2uiBasicCatalogV1(
      * The A2UI `"Card"` component for displaying content in a styled container.
      *
      * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the card.
      * * `child` (Component ID String, required): The ID of the child component to be rendered
      *   inside the card. Multiple elements must be wrapped in a layout container (e.g. Row or
      *   Column).
@@ -801,6 +888,10 @@ public class A2uiBasicCatalogV1(
             get() = "A layout component that wraps its child content in a styled card container."
 
         public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of a [Card]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
             public val ChildProperty: StaticA2uiProperty<String> =
                 A2uiProperty.componentId(
                     key = "child",
@@ -812,7 +903,7 @@ public class A2uiBasicCatalogV1(
                             "multiple IDs or a non-existent ID.",
                 )
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(WeightProperty, ChildProperty)
+                listOf(AccessibilityProperty, WeightProperty, ChildProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -827,16 +918,30 @@ public class A2uiBasicCatalogV1(
                 checkNotNull(properties[ChildProperty]) {
                     "Required property '${ChildProperty.key}' is missing."
                 }
-            TypedContent(childId = childId, modifier = modifier)
+            val accessibility = properties.bind(AccessibilityProperty)
+            TypedContent(childId = childId, accessibility = accessibility, modifier = modifier)
         }
 
-        @Composable public fun A2uiComponentScope.TypedContent(childId: String, modifier: Modifier)
+        /**
+         * Renders the [Card] with its resolved [childId] and optional [accessibility] attributes.
+         *
+         * @param childId The ID of the child component inside the card.
+         * @param accessibility Accessibility attributes for the card.
+         * @param modifier [Modifier] to apply to the layout.
+         */
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            childId: String,
+            accessibility: AccessibilityAttributes?,
+            modifier: Modifier,
+        )
     }
 
     /**
      * The A2UI `"Row"` component for displaying content in a horizontal layout.
      *
      * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the row.
      * * `children` (ChildList, required): Defines the children, accepting either an array of
      *   strings for a fixed set of children, or a template object to generate children from a data
      *   list.
@@ -888,6 +993,10 @@ public class A2uiBasicCatalogV1(
         }
 
         public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of a [Row]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
             /** The [A2uiProperty] for the `"children"` property of a [Row]. */
             public val ChildrenProperty: ChildListA2uiProperty =
                 A2uiProperty.childList(
@@ -929,7 +1038,13 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(WeightProperty, ChildrenProperty, JustifyProperty, AlignProperty)
+                listOf(
+                    AccessibilityProperty,
+                    WeightProperty,
+                    ChildrenProperty,
+                    JustifyProperty,
+                    AlignProperty,
+                )
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -951,16 +1066,25 @@ public class A2uiBasicCatalogV1(
                 }
             val justify = properties[JustifyProperty] ?: Justify.Start
             val align = properties[AlignProperty] ?: Align.Stretch
+            val accessibility = properties.bind(AccessibilityProperty)
 
-            TypedContent(children = children, justify = justify, align = align, modifier = modifier)
+            TypedContent(
+                children = children,
+                justify = justify,
+                align = align,
+                accessibility = accessibility,
+                modifier = modifier,
+            )
         }
 
         /**
-         * Renders the [Row] with its resolved [children], [justify], and [align] properties.
+         * Renders the [Row] with its resolved [children], [justify], [align], and optional
+         * [accessibility] attributes.
          *
          * @param children list of child [A2uiComponentReference]s to render in this row
          * @param justify [Justify] arrangement of children along the horizontal main axis
          * @param align [Align] alignment of children along the vertical cross axis
+         * @param accessibility Accessibility attributes for the row
          * @param modifier [Modifier] to apply to the layout
          */
         @Composable
@@ -968,6 +1092,7 @@ public class A2uiBasicCatalogV1(
             children: kotlin.collections.List<A2uiComponentReference>,
             justify: Justify,
             align: Align,
+            accessibility: AccessibilityAttributes?,
             modifier: Modifier,
         )
     }
@@ -976,6 +1101,7 @@ public class A2uiBasicCatalogV1(
      * The A2UI `"Column"` component for arranging children vertically.
      *
      * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the column.
      * * `children` (ChildList, required): Defines the children, accepting either an array of
      *   strings for a fixed set of children, or a template object to generate children from a data
      *   list.
@@ -1027,6 +1153,10 @@ public class A2uiBasicCatalogV1(
         }
 
         public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of a [Column]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
             /** The [A2uiProperty] for the `"children"` property of a [Column]. */
             public val ChildrenProperty: ChildListA2uiProperty =
                 A2uiProperty.childList(
@@ -1067,7 +1197,13 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(WeightProperty, ChildrenProperty, JustifyProperty, AlignProperty)
+                listOf(
+                    AccessibilityProperty,
+                    WeightProperty,
+                    ChildrenProperty,
+                    JustifyProperty,
+                    AlignProperty,
+                )
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -1089,16 +1225,25 @@ public class A2uiBasicCatalogV1(
                 }
             val justify = properties[JustifyProperty] ?: Justify.Start
             val align = properties[AlignProperty] ?: Align.Stretch
+            val accessibility = properties.bind(AccessibilityProperty)
 
-            TypedContent(children = children, justify = justify, align = align, modifier = modifier)
+            TypedContent(
+                children = children,
+                justify = justify,
+                align = align,
+                accessibility = accessibility,
+                modifier = modifier,
+            )
         }
 
         /**
-         * Renders the [Column] with its resolved [children], [justify], and [align] properties.
+         * Renders the [Column] with its resolved [children], [justify], [align], and optional
+         * [accessibility] attributes.
          *
          * @param children list of child [A2uiComponentReference]s to render in this column
          * @param justify [Justify] arrangement of children along the vertical main axis
          * @param align [Align] alignment of children along the horizontal cross axis
+         * @param accessibility Accessibility attributes for the column
          * @param modifier [Modifier] to apply to the layout
          */
         @Composable
@@ -1106,6 +1251,7 @@ public class A2uiBasicCatalogV1(
             children: kotlin.collections.List<A2uiComponentReference>,
             justify: Justify,
             align: Align,
+            accessibility: AccessibilityAttributes?,
             modifier: Modifier,
         )
     }
@@ -1114,6 +1260,7 @@ public class A2uiBasicCatalogV1(
      * The A2UI `"List"` component for displaying a scrollable list of components.
      *
      * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the list.
      * * `children` (ChildList, required): Defines the children. Use an array of strings for a fixed
      *   set of children, or a template object to generate children from a data list.
      * * `direction` (String Enum, optional): The direction in which the list items are laid out.
@@ -1161,6 +1308,10 @@ public class A2uiBasicCatalogV1(
         }
 
         public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of a [List]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
             /** The [A2uiProperty] for the `"children"` property of a [List]. */
             public val ChildrenProperty: ChildListA2uiProperty =
                 A2uiProperty.childList(
@@ -1194,7 +1345,13 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(WeightProperty, ChildrenProperty, DirectionProperty, AlignProperty)
+                listOf(
+                    AccessibilityProperty,
+                    WeightProperty,
+                    ChildrenProperty,
+                    DirectionProperty,
+                    AlignProperty,
+                )
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -1216,21 +1373,25 @@ public class A2uiBasicCatalogV1(
                 }
             val direction = properties[DirectionProperty] ?: Direction.Default
             val align = properties[AlignProperty] ?: Align.Default
+            val accessibility = properties.bind(AccessibilityProperty)
 
             TypedContent(
                 children = children,
                 direction = direction,
                 align = align,
+                accessibility = accessibility,
                 modifier = modifier,
             )
         }
 
         /**
-         * Renders the [List] with its resolved [children], [direction], and [align] properties.
+         * Renders the [List] with its resolved [children], [direction], [align], and optional
+         * [accessibility] attributes.
          *
          * @param children list of child [A2uiComponentReference]s to render in this list
          * @param direction [Direction] layout direction of the list items
          * @param align [Align] alignment of children along the cross axis
+         * @param accessibility Accessibility attributes for the list
          * @param modifier [Modifier] to apply to the layout
          */
         @Composable
@@ -1238,6 +1399,7 @@ public class A2uiBasicCatalogV1(
             children: kotlin.collections.List<A2uiComponentReference>,
             direction: Direction,
             align: Align,
+            accessibility: AccessibilityAttributes?,
             modifier: Modifier,
         )
     }
@@ -1246,6 +1408,8 @@ public class A2uiBasicCatalogV1(
      * The A2UI `"Tabs"` component for displaying a set of tabs.
      *
      * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the tabs
+     *   container.
      * * `tabs` (NestedList, required): An array of objects, where each object defines a tab with a
      *   `title` (Dynamic String) and a `child` (ComponentId) component ID.
      */
@@ -1279,6 +1443,10 @@ public class A2uiBasicCatalogV1(
         }
 
         public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of a [Tabs]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
             /** The [A2uiProperty] for the `"title"` property of a Tab in [Tabs]. */
             public val TitleProperty: DynamicA2uiProperty<String> =
                 A2uiProperty.dynamicString(
@@ -1310,7 +1478,7 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(WeightProperty, TabsProperty)
+                listOf(AccessibilityProperty, WeightProperty, TabsProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -1348,19 +1516,22 @@ public class A2uiBasicCatalogV1(
                     }
                 resolvedTabs.add(Tab(title, childId))
             }
+            val accessibility = properties.bind(AccessibilityProperty)
 
-            TypedContent(tabs = resolvedTabs, modifier = modifier)
+            TypedContent(tabs = resolvedTabs, accessibility = accessibility, modifier = modifier)
         }
 
         /**
-         * Renders the [Tabs] with its resolved [tabs].
+         * Renders the [Tabs] with its resolved [tabs] and optional [accessibility] attributes.
          *
          * @param tabs list of [Tab] objects to render
+         * @param accessibility Accessibility attributes for the tabs container
          * @param modifier [Modifier] to apply to the layout
          */
         @Composable
         public fun A2uiComponentScope.TypedContent(
             tabs: kotlin.collections.List<Tab>,
+            accessibility: AccessibilityAttributes?,
             modifier: Modifier,
         )
     }
@@ -1369,6 +1540,7 @@ public class A2uiBasicCatalogV1(
      * The A2UI `"Divider"` component for displaying a horizontal or vertical dividing line.
      *
      * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the divider.
      * * `axis` (String Enum, optional): The orientation of the divider. Valid options:
      *   `"horizontal"`, `"vertical"`. Defaults to `"horizontal"`.
      */
@@ -1395,6 +1567,10 @@ public class A2uiBasicCatalogV1(
         }
 
         public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of a [Divider]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
             /** The [A2uiProperty] for the `"axis"` property of a [Divider]. */
             public val AxisProperty: StaticA2uiProperty<Axis> =
                 A2uiProperty.enum(
@@ -1407,7 +1583,7 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(WeightProperty, AxisProperty)
+                listOf(AccessibilityProperty, WeightProperty, AxisProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -1422,22 +1598,31 @@ public class A2uiBasicCatalogV1(
             modifier: Modifier,
         ) {
             val axis = properties[AxisProperty] ?: Axis.Default
-            TypedContent(axis = axis, modifier = modifier)
+            val accessibility = properties.bind(AccessibilityProperty)
+            TypedContent(axis = axis, accessibility = accessibility, modifier = modifier)
         }
 
         /**
-         * Renders the [Divider] with its resolved [axis] property.
+         * Renders the [Divider] with its resolved [axis] property and optional [accessibility]
+         * attributes.
          *
          * @param axis [Axis] orientation of the divider
+         * @param accessibility Accessibility attributes for the divider
          * @param modifier [Modifier] to apply to the layout
          */
-        @Composable public fun A2uiComponentScope.TypedContent(axis: Axis, modifier: Modifier)
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            axis: Axis,
+            accessibility: AccessibilityAttributes?,
+            modifier: Modifier,
+        )
     }
 
     /**
      * The A2UI `"Button"` component for clickable buttons that dispatch actions.
      *
      * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the button.
      * * `child` (Component ID String, required): The ID of the child component inside the button
      *   (e.g., a `"Text"` or `"Icon"` component).
      * * `variant` (String Enum, optional): A hint for the button style. This is a static
@@ -1467,6 +1652,10 @@ public class A2uiBasicCatalogV1(
         }
 
         public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of a [Button]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
             /** The [A2uiProperty] for the `"child"` property of a [Button]. */
             public val ChildProperty: StaticA2uiProperty<String> =
                 A2uiProperty.componentId(
@@ -1498,7 +1687,13 @@ public class A2uiBasicCatalogV1(
                 A2uiProperty.action(key = "action", required = true)
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(WeightProperty, ChildProperty, VariantProperty, ActionProperty)
+                listOf(
+                    AccessibilityProperty,
+                    WeightProperty,
+                    ChildProperty,
+                    VariantProperty,
+                    ActionProperty,
+                )
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -1521,16 +1716,25 @@ public class A2uiBasicCatalogV1(
                 checkNotNull(properties[ActionProperty]) {
                     "Required property '${ActionProperty.key}' is missing."
                 }
+            val accessibility = properties.bind(AccessibilityProperty)
 
-            TypedContent(childId = childId, variant = variant, action = action, modifier = modifier)
+            TypedContent(
+                childId = childId,
+                variant = variant,
+                action = action,
+                accessibility = accessibility,
+                modifier = modifier,
+            )
         }
 
         /**
-         * Renders the [Button] with its resolved [childId], [variant], and [action] properties.
+         * Renders the [Button] with its resolved [childId], [variant], [action], and optional
+         * [accessibility] attributes.
          *
          * @param childId ID of the child component to render inside this button
          * @param variant [Variant] visual style variant of the button
          * @param action action payload [Map] dispatched when clicked
+         * @param accessibility Accessibility attributes for the button
          * @param modifier [Modifier] to apply to the layout
          */
         @Composable
@@ -1538,6 +1742,7 @@ public class A2uiBasicCatalogV1(
             childId: String,
             variant: Variant,
             action: Map<String, Any?>,
+            accessibility: AccessibilityAttributes?,
             modifier: Modifier,
         )
     }
@@ -1546,6 +1751,7 @@ public class A2uiBasicCatalogV1(
      * The A2UI `"TextField"` component for user text input.
      *
      * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the text field.
      * * `label` (Dynamic String, required): The text label for the input field.
      * * `value` (Dynamic String, optional): The value of the text field.
      * * `variant` (String Enum, optional): The type of input field to display. Valid options:
@@ -1578,6 +1784,10 @@ public class A2uiBasicCatalogV1(
         }
 
         public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of a [TextField]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
             /** The [A2uiProperty] for the `"label"` property of a [TextField]. */
             public val LabelProperty: DynamicA2uiProperty<String> =
                 A2uiProperty.dynamicString(
@@ -1616,6 +1826,7 @@ public class A2uiBasicCatalogV1(
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
                 listOf(
+                    AccessibilityProperty,
                     WeightProperty,
                     LabelProperty,
                     ValueProperty,
@@ -1645,6 +1856,7 @@ public class A2uiBasicCatalogV1(
             val validationRegexp = properties[ValidationRegexpProperty]
             val onValueChange = properties.bindUpdater(ValueProperty)
             val isEnabled = onValueChange != null
+            val accessibility = properties.bind(AccessibilityProperty)
 
             TypedContent(
                 label = label,
@@ -1653,6 +1865,7 @@ public class A2uiBasicCatalogV1(
                 validationRegexp = validationRegexp,
                 onValueChange = onValueChange ?: {},
                 enabled = isEnabled,
+                accessibility = accessibility,
                 modifier = modifier,
             )
         }
@@ -1668,6 +1881,7 @@ public class A2uiBasicCatalogV1(
          * @param onValueChange Callback invoked when the user updates the text in the field.
          * @param enabled Controls whether the text field is interactive. When `false`, it does not
          *   respond to user input.
+         * @param accessibility Accessibility attributes for the text field.
          * @param modifier [Modifier] to apply to the layout.
          */
         @Composable
@@ -1678,6 +1892,7 @@ public class A2uiBasicCatalogV1(
             validationRegexp: String?,
             onValueChange: (String) -> Unit,
             enabled: Boolean,
+            accessibility: AccessibilityAttributes?,
             modifier: Modifier,
         )
     }
@@ -1686,6 +1901,7 @@ public class A2uiBasicCatalogV1(
      * The A2UI `"Slider"` component for selecting a numeric value within a range.
      *
      * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the slider.
      * * `label` (Dynamic String, optional): The label for the slider.
      * * `min` (Number, optional): The minimum value of the slider. Defaults to `0`.
      * * `max` (Number, required): The maximum value of the slider.
@@ -1699,6 +1915,10 @@ public class A2uiBasicCatalogV1(
             get() = "A slider for selecting a numeric value within a range."
 
         public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of a [Slider]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
             /** The [A2uiProperty] for the `"label"` property of a [Slider]. */
             public val LabelProperty: DynamicA2uiProperty<String> =
                 A2uiProperty.dynamicString(
@@ -1732,7 +1952,14 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(WeightProperty, LabelProperty, MinProperty, MaxProperty, ValueProperty)
+                listOf(
+                    AccessibilityProperty,
+                    WeightProperty,
+                    LabelProperty,
+                    MinProperty,
+                    MaxProperty,
+                    ValueProperty,
+                )
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -1759,6 +1986,7 @@ public class A2uiBasicCatalogV1(
                 }
             val onValueChange = properties.bindUpdater(ValueProperty)
             val isEnabled = onValueChange != null
+            val accessibility = properties.bind(AccessibilityProperty)
 
             TypedContent(
                 label = label,
@@ -1767,6 +1995,7 @@ public class A2uiBasicCatalogV1(
                 value = value,
                 onValueChange = { newValue -> onValueChange?.invoke(newValue) },
                 enabled = isEnabled,
+                accessibility = accessibility,
                 modifier = modifier,
             )
         }
@@ -1781,6 +2010,7 @@ public class A2uiBasicCatalogV1(
          * @param onValueChange callback invoked when the user interacts with the slider.
          * @param enabled controls the enabled state of the slider. When `false`, this component
          *   will not respond to user input.
+         * @param accessibility Accessibility attributes for the slider.
          * @param modifier [Modifier] to apply to the layout.
          */
         @Composable
@@ -1791,6 +2021,7 @@ public class A2uiBasicCatalogV1(
             value: Float,
             onValueChange: (Float) -> Unit,
             enabled: Boolean,
+            accessibility: AccessibilityAttributes?,
             modifier: Modifier,
         )
     }
@@ -1799,6 +2030,8 @@ public class A2uiBasicCatalogV1(
      * The A2UI `"DateTimeInput"` component for selecting date and/or time.
      *
      * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the date/time
+     *   input.
      * * `value` (Dynamic String, required): The selected date and/or time value in ISO 8601 format.
      *   If not yet set, initialize with an empty string.
      * * `enableDate` (Boolean, optional): If true, allows the user to select a date. Defaults to
@@ -1817,6 +2050,10 @@ public class A2uiBasicCatalogV1(
             get() = "Allows the user to select a date and/or time."
 
         public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of a [DateTimeInput]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
             private val DateTimeFormatConstraintSchema =
                 A2uiAnySchema(
                     keywords =
@@ -1935,6 +2172,7 @@ public class A2uiBasicCatalogV1(
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
                 listOf(
+                    AccessibilityProperty,
                     WeightProperty,
                     ValueProperty,
                     EnableDateProperty,
@@ -1999,6 +2237,7 @@ public class A2uiBasicCatalogV1(
                         onValueChange(formatted)
                     }
                 } else null
+            val accessibility = properties.bind(AccessibilityProperty)
 
             TypedContent(
                 value = valueMillis,
@@ -2008,6 +2247,7 @@ public class A2uiBasicCatalogV1(
                 min = minMillis,
                 max = maxMillis,
                 label = label,
+                accessibility = accessibility,
                 modifier = modifier,
             )
         }
@@ -2024,6 +2264,7 @@ public class A2uiBasicCatalogV1(
          * @param min minimum allowed date/time in UTC epoch milliseconds, or `null` if unbounded
          * @param max maximum allowed date/time in UTC epoch milliseconds, or `null` if unbounded
          * @param label text label describing the input, or `null` if none
+         * @param accessibility Accessibility attributes for the date/time input
          * @param modifier [Modifier] applied to the component layout
          */
         @Composable
@@ -2035,6 +2276,7 @@ public class A2uiBasicCatalogV1(
             @Suppress("AutoBoxing") min: Long?,
             @Suppress("AutoBoxing") max: Long?,
             label: String?,
+            accessibility: AccessibilityAttributes?,
             modifier: Modifier,
         )
     }
@@ -2043,6 +2285,7 @@ public class A2uiBasicCatalogV1(
      * The A2UI `"CheckBox"` component for displaying a checkable control with an associated label.
      *
      * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the checkbox.
      * * `label` (Dynamic String, required): The text to display next to the checkbox.
      * * `value` (Dynamic Boolean, required): The current state of the checkbox (true for checked,
      *   false for unchecked).
@@ -2055,6 +2298,10 @@ public class A2uiBasicCatalogV1(
             get() = "A checkbox with a label and a boolean value."
 
         public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of a [CheckBox]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
             /** The [A2uiProperty] for the `"label"` property of a [CheckBox]. */
             public val LabelProperty: DynamicA2uiProperty<String> =
                 A2uiProperty.dynamicString(
@@ -2073,7 +2320,7 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(WeightProperty, LabelProperty, ValueProperty)
+                listOf(AccessibilityProperty, WeightProperty, LabelProperty, ValueProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -2098,12 +2345,14 @@ public class A2uiBasicCatalogV1(
                 }
             val onValueChange = properties.bindUpdater(ValueProperty)
             val isEnabled = onValueChange != null
+            val accessibility = properties.bind(AccessibilityProperty)
 
             TypedContent(
                 label = label,
                 value = value,
                 onValueChange = { newValue -> onValueChange?.invoke(newValue) },
                 enabled = isEnabled,
+                accessibility = accessibility,
                 modifier = modifier,
             )
         }
@@ -2116,6 +2365,7 @@ public class A2uiBasicCatalogV1(
          * @param onValueChange callback invoked when the user toggles the checkbox.
          * @param enabled controls the enabled state of the checkbox. When `false`, this component
          *   will not respond to user input.
+         * @param accessibility Accessibility attributes for the checkbox.
          * @param modifier [Modifier] to apply to the layout.
          */
         @Composable
@@ -2124,6 +2374,7 @@ public class A2uiBasicCatalogV1(
             value: Boolean,
             onValueChange: (Boolean) -> Unit,
             enabled: Boolean,
+            accessibility: AccessibilityAttributes?,
             modifier: Modifier,
         )
     }

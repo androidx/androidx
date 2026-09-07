@@ -46,7 +46,11 @@ internal class MaterialA2uiBasicCatalogV1Video(private val videoRenderer: A2uiVi
     A2uiBasicCatalogV1.Video {
 
     @Composable
-    override fun A2uiComponentScope.TypedContent(url: String, modifier: Modifier) {
+    override fun A2uiComponentScope.TypedContent(
+        url: String,
+        accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+        modifier: Modifier,
+    ) {
         videoRenderer.Video(
             url = url,
             modifier = modifier,

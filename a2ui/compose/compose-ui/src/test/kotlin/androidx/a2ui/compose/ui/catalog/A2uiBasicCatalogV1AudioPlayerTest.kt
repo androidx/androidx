@@ -17,6 +17,7 @@
 package androidx.a2ui.compose.ui.catalog
 
 import androidx.a2ui.compose.runtime.A2uiComponentScope
+import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -37,6 +38,7 @@ class A2uiBasicCatalogV1AudioPlayerTest {
                 override fun A2uiComponentScope.TypedContent(
                     url: String,
                     description: String?,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -46,6 +48,7 @@ class A2uiBasicCatalogV1AudioPlayerTest {
             .isEqualTo("A player for audio content from a URL.")
         assertThat(audioPlayerComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.AudioPlayer.AccessibilityProperty,
                 A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.AudioPlayer.UrlProperty,
                 A2uiBasicCatalogV1.AudioPlayer.DescriptionProperty,
@@ -55,6 +58,12 @@ class A2uiBasicCatalogV1AudioPlayerTest {
 
     @Test
     fun companionProperties_haveExpectedSchema() {
+        assertThat(A2uiBasicCatalogV1.AudioPlayer.AccessibilityProperty.key)
+            .isEqualTo("accessibility")
+        assertThat(A2uiBasicCatalogV1.AudioPlayer.AccessibilityProperty.isRequired).isFalse()
+        assertThat(A2uiBasicCatalogV1.AudioPlayer.AccessibilityProperty.schema)
+            .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
+
         assertThat(A2uiBasicCatalogV1.AudioPlayer.UrlProperty.key).isEqualTo("url")
         assertThat(A2uiBasicCatalogV1.AudioPlayer.UrlProperty.isRequired).isTrue()
         val urlSchema =

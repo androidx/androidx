@@ -49,6 +49,7 @@ internal object MaterialA2uiBasicCatalogV1Tabs : A2uiBasicCatalogV1.Tabs {
     @Composable
     override fun A2uiComponentScope.TypedContent(
         tabs: List<A2uiBasicCatalogV1.Tabs.Tab>,
+        accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
         modifier: Modifier,
     ) {
         if (tabs.isEmpty()) return

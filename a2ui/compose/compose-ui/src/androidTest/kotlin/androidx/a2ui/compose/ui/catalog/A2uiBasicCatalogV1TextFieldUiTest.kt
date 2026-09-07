@@ -55,6 +55,7 @@ class A2uiBasicCatalogV1TextFieldUiTest {
         var capturedValidationRegexp: String? = null
         var capturedOnValueChange: ((String) -> Unit)? = null
         var capturedEnabled: Boolean? = null
+        var capturedAccessibility: A2uiBasicCatalogV1.AccessibilityAttributes? = null
 
         @Composable
         override fun A2uiComponentScope.TypedContent(
@@ -64,6 +65,7 @@ class A2uiBasicCatalogV1TextFieldUiTest {
             validationRegexp: String?,
             onValueChange: (String) -> Unit,
             enabled: Boolean,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
         ) {
             SideEffect {
@@ -73,6 +75,7 @@ class A2uiBasicCatalogV1TextFieldUiTest {
                 capturedValidationRegexp = validationRegexp
                 capturedOnValueChange = onValueChange
                 capturedEnabled = enabled
+                capturedAccessibility = accessibility
             }
             val valStr = value ?: "<null>"
             val regexpStr = if (validationRegexp != null) " [$validationRegexp]" else ""
@@ -276,6 +279,42 @@ class A2uiBasicCatalogV1TextFieldUiTest {
         assertThat(testTextField.capturedValidationRegexp).isEqualTo("^[a-z]+@[a-z]+\\.[a-z]+$")
         assertThat(testTextField.capturedEnabled).isFalse()
         assertThat(testTextField.capturedOnValueChange).isNotNull()
+    }
+
+    @Test
+    fun content_staticAccessibility_resolvesPropertiesAndPassesToTypedContent() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "TextField",
+                            properties =
+                                mapOf(
+                                    "label" to "Username",
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Username input",
+                                            "description" to "Enter your username",
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { A2uiTestSurface(surface) }
+
+        onNodeWithText("TextField: Username = <null> (shortText) [RO]").assertIsDisplayed()
+        assertThat(testTextField.capturedAccessibility)
+            .isEqualTo(
+                A2uiBasicCatalogV1.AccessibilityAttributes(
+                    label = "Username input",
+                    description = "Enter your username",
+                )
+            )
     }
 
     @Test

@@ -44,6 +44,7 @@ internal object MaterialA2uiBasicCatalogV1Column : A2uiBasicCatalogV1.Column {
         children: List<A2uiComponentReference>,
         justify: A2uiBasicCatalogV1.Column.Justify,
         align: A2uiBasicCatalogV1.Column.Align,
+        accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
         modifier: Modifier,
     ) {
         val verticalArrangement =

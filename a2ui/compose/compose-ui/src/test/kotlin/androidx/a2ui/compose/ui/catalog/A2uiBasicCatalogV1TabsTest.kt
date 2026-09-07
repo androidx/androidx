@@ -19,6 +19,7 @@ package androidx.a2ui.compose.ui.catalog
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.model.schema.A2uiArraySchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
+import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
 import androidx.a2ui.model.schema.commontypes.A2uiComponentIdSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.compose.runtime.Composable
@@ -39,6 +40,7 @@ class A2uiBasicCatalogV1TabsTest {
                 @Composable
                 override fun A2uiComponentScope.TypedContent(
                     tabs: List<A2uiBasicCatalogV1.Tabs.Tab>,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -48,6 +50,7 @@ class A2uiBasicCatalogV1TabsTest {
             .isEqualTo("A set of tabs, each with a title and a corresponding child component.")
         assertThat(tabsComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.Tabs.AccessibilityProperty,
                 A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.Tabs.TabsProperty,
             )
@@ -56,6 +59,11 @@ class A2uiBasicCatalogV1TabsTest {
 
     @Test
     fun companionProperties_haveExpectedSchema() {
+        assertThat(A2uiBasicCatalogV1.Tabs.AccessibilityProperty.key).isEqualTo("accessibility")
+        assertThat(A2uiBasicCatalogV1.Tabs.AccessibilityProperty.isRequired).isFalse()
+        assertThat(A2uiBasicCatalogV1.Tabs.AccessibilityProperty.schema)
+            .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
+
         assertThat(A2uiBasicCatalogV1.Tabs.TitleProperty.key).isEqualTo("title")
         assertThat(A2uiBasicCatalogV1.Tabs.TitleProperty.isRequired).isTrue()
         val titleSchema =

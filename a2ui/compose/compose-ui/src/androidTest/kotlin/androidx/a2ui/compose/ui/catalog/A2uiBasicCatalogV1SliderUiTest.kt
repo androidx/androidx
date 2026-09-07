@@ -54,6 +54,7 @@ class A2uiBasicCatalogV1SliderUiTest {
         var capturedValue: Float? = null
         var capturedOnValueChange: ((Float) -> Unit)? = null
         var capturedEnabled: Boolean? = null
+        var capturedAccessibility: A2uiBasicCatalogV1.AccessibilityAttributes? = null
 
         @Composable
         override fun A2uiComponentScope.TypedContent(
@@ -63,6 +64,7 @@ class A2uiBasicCatalogV1SliderUiTest {
             value: Float,
             onValueChange: (Float) -> Unit,
             enabled: Boolean,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
         ) {
             SideEffect {
@@ -72,6 +74,7 @@ class A2uiBasicCatalogV1SliderUiTest {
                 capturedValue = value
                 capturedOnValueChange = onValueChange
                 capturedEnabled = enabled
+                capturedAccessibility = accessibility
             }
             val readOnlyStr = if (!enabled) " [RO]" else ""
             val labelStr = if (label != null) "$label " else ""
@@ -285,6 +288,43 @@ class A2uiBasicCatalogV1SliderUiTest {
         assertThat(testSlider.capturedValue).isEqualTo(5f)
         assertThat(testSlider.capturedEnabled).isTrue()
         assertThat(testSlider.capturedOnValueChange).isNotNull()
+    }
+
+    @Test
+    fun content_staticAccessibility_resolvesPropertiesAndPassesToTypedContent() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Slider",
+                            properties =
+                                mapOf(
+                                    "max" to 100,
+                                    "value" to 50,
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Volume slider",
+                                            "description" to "Adjust volume level",
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { A2uiTestSurface(surface) }
+
+        onNodeWithText("Slider: 50.0 (0.0..100.0) [RO]").assertIsDisplayed()
+        assertThat(testSlider.capturedAccessibility)
+            .isEqualTo(
+                A2uiBasicCatalogV1.AccessibilityAttributes(
+                    label = "Volume slider",
+                    description = "Adjust volume level",
+                )
+            )
     }
 
     @Test
