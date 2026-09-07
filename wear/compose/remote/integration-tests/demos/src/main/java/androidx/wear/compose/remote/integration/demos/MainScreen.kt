@@ -186,6 +186,12 @@ fun MainScreen(
                 }
                 item {
                     MenuButton(
+                        "RemoteStepper",
+                        onClick = { navigateToRoute(Screen.RemoteStepperDemosScreen.route) },
+                    )
+                }
+                item {
+                    MenuButton(
                         "RemoteIcon",
                         onClick = { navigateToRoute(Screen.RemoteIconDemosScreen.route) },
                     )
