@@ -284,7 +284,8 @@ public class A2uiBasicCatalogV1(
             public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
                 A2uiBasicCatalogV1.AccessibilityProperty
 
-            public val textProperty: DynamicA2uiProperty<String> =
+            /** The [A2uiProperty] for the `"text"` property of a [Text]. */
+            public val TextProperty: DynamicA2uiProperty<String> =
                 A2uiProperty.dynamicString(
                     key = "text",
                     required = true,
@@ -294,7 +295,9 @@ public class A2uiBasicCatalogV1(
                             "UI components is generally preferred for a richer and more structured " +
                             "presentation.",
                 )
-            public val variantProperty: StaticA2uiProperty<Variant> =
+
+            /** The [A2uiProperty] for the `"variant"` property of a [Text]. */
+            public val VariantProperty: StaticA2uiProperty<Variant> =
                 A2uiProperty.enum(
                     key = "variant",
                     enumValues = Variant.entries,
@@ -302,16 +305,17 @@ public class A2uiBasicCatalogV1(
                     convertFromString = Variant::fromValue,
                     description = "A hint for the base text style.",
                 )
-            internal val componentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(AccessibilityProperty, WeightProperty, textProperty, variantProperty)
+
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
+                listOf(AccessibilityProperty, WeightProperty, TextProperty, VariantProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
-            get() = componentProperties
+            get() = ComponentProperties
 
         @Composable
         override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean =
-            properties.bind(textProperty) != null
+            properties.bind(TextProperty) != null
 
         @Composable
         override fun A2uiComponentScope.Content(
@@ -319,10 +323,10 @@ public class A2uiBasicCatalogV1(
             modifier: Modifier,
         ) {
             val textValue =
-                checkNotNull(properties.bind(textProperty)) {
-                    "Required property '${textProperty.key}' is missing."
+                checkNotNull(properties.bind(TextProperty)) {
+                    "Required property '${TextProperty.key}' is missing."
                 }
-            val variant = properties[variantProperty] ?: Variant.Body
+            val variant = properties[VariantProperty] ?: Variant.Body
             val accessibility = properties.bind(AccessibilityProperty)
             TypedContent(
                 text = textValue,
@@ -892,6 +896,7 @@ public class A2uiBasicCatalogV1(
             public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
                 A2uiBasicCatalogV1.AccessibilityProperty
 
+            /** The [A2uiProperty] for the `"child"` property of a [Card]. */
             public val ChildProperty: StaticA2uiProperty<String> =
                 A2uiProperty.componentId(
                     key = "child",

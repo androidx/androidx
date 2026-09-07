@@ -47,8 +47,8 @@ class A2uiBasicCatalogV1TextTest {
             .containsExactly(
                 A2uiBasicCatalogV1.Text.AccessibilityProperty,
                 A2uiBasicCatalogV1.WeightProperty,
-                A2uiBasicCatalogV1.Text.textProperty,
-                A2uiBasicCatalogV1.Text.variantProperty,
+                A2uiBasicCatalogV1.Text.TextProperty,
+                A2uiBasicCatalogV1.Text.VariantProperty,
             )
             .inOrder()
     }
@@ -60,8 +60,8 @@ class A2uiBasicCatalogV1TextTest {
         assertThat(A2uiBasicCatalogV1.Text.AccessibilityProperty.schema)
             .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
 
-        assertThat(A2uiBasicCatalogV1.Text.textProperty.key).isEqualTo("text")
-        assertThat(A2uiBasicCatalogV1.Text.variantProperty.key).isEqualTo("variant")
+        assertThat(A2uiBasicCatalogV1.Text.TextProperty.key).isEqualTo("text")
+        assertThat(A2uiBasicCatalogV1.Text.VariantProperty.key).isEqualTo("variant")
     }
 
     @Test
