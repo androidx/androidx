@@ -18,8 +18,11 @@ package androidx.compose.remote.player.compose.embedded
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.remote.creation.compose.capture.RemoteImageVector
+import androidx.compose.remote.creation.compose.capture.path
 import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteFlowRow
 import androidx.compose.remote.creation.compose.layout.RemoteRow
@@ -34,10 +37,15 @@ import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.compose.vector.draw
+import androidx.compose.remote.creation.compose.vector.painterRemoteVector
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathFillType
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
@@ -143,5 +151,137 @@ class RcPlayerScreenshotTest {
             .onRoot()
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "RcPlayerScreenshotTest_complexLayout")
+    }
+
+    @Test
+    fun vectorPainter_brushAndAlpha() {
+        val vector =
+            RemoteImageVector.Builder(
+                    viewportWidth = 100f.rf,
+                    viewportHeight = 100f.rf,
+                    tintColor = Color.Unspecified.rc,
+                )
+                .path(
+                    fill = SolidColor(Color.Red),
+                    fillAlpha = 0.75f.rf,
+                    stroke = SolidColor(Color.Green),
+                    strokeAlpha = 0.5f.rf,
+                    strokeLineWidth = 6f.rf,
+                ) {
+                    moveTo(10f.rf, 10f.rf)
+                    lineTo(90f.rf, 10f.rf)
+                    lineTo(90f.rf, 90f.rf)
+                    lineTo(10f.rf, 90f.rf)
+                    close()
+                }
+                .build()
+
+        rule.setContent {
+            val document =
+                rememberRemoteDocument(profile = TEST_PROFILE) {
+                    val painter = painterRemoteVector(vector)
+                    RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                        with(painter) { onDraw() }
+                    }
+                }
+
+            Box(modifier = Modifier.size(100.dp)) {
+                document.value?.let { RcPlayer(document = it) }
+            }
+        }
+
+        rule
+            .onRoot()
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "RcPlayerScreenshotTest_vectorPainter_brushAndAlpha",
+            )
+    }
+
+    @Test
+    fun vectorPainter_pathFillTypeEvenOdd() {
+        val vector =
+            RemoteImageVector.Builder(
+                    viewportWidth = 100f.rf,
+                    viewportHeight = 100f.rf,
+                    tintColor = Color.Unspecified.rc,
+                )
+                .path(
+                    fill = SolidColor(Color.Red),
+                    pathFillType = PathFillType.EvenOdd,
+                ) {
+                    moveTo(10f.rf, 10f.rf)
+                    lineTo(90f.rf, 10f.rf)
+                    lineTo(90f.rf, 90f.rf)
+                    lineTo(10f.rf, 90f.rf)
+                    close()
+                    moveTo(30f.rf, 30f.rf)
+                    lineTo(70f.rf, 30f.rf)
+                    lineTo(70f.rf, 70f.rf)
+                    lineTo(30f.rf, 70f.rf)
+                    close()
+                }
+                .build()
+
+        rule.setContent {
+            val document =
+                rememberRemoteDocument(profile = TEST_PROFILE) {
+                    val painter = painterRemoteVector(vector)
+                    RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                        with(painter) { onDraw() }
+                    }
+                }
+
+            Box(modifier = Modifier.size(100.dp)) {
+                document.value?.let { RcPlayer(document = it) }
+            }
+        }
+
+        rule
+            .onRoot()
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "RcPlayerScreenshotTest_vectorPainter_pathFillTypeEvenOdd",
+            )
+    }
+
+    @Test
+    fun vectorPainter_proceduralDraw() {
+        val vector =
+            RemoteImageVector.Builder(
+                    viewportWidth = 100f.rf,
+                    viewportHeight = 100f.rf,
+                    tintColor = Color.Unspecified.rc,
+                )
+                .path(fill = SolidColor(Color.Blue)) {
+                    moveTo(50f.rf, 10f.rf)
+                    lineTo(90f.rf, 90f.rf)
+                    lineTo(10f.rf, 90f.rf)
+                    close()
+                }
+                .build()
+
+        rule.setContent {
+            val document =
+                rememberRemoteDocument(profile = TEST_PROFILE) {
+                    RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                        vector.draw(remoteCanvas)
+                    }
+                }
+
+            Box(modifier = Modifier.size(100.dp)) {
+                document.value?.let { RcPlayer(document = it) }
+            }
+        }
+
+        rule
+            .onRoot()
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "RcPlayerScreenshotTest_vectorPainter_proceduralDraw",
+            )
     }
 }

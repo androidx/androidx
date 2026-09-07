@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.ClipOp
+import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.ContentScale
 import androidx.graphics.shapes.RoundedPolygon
@@ -195,8 +196,18 @@ internal constructor(
 
     /** Draws a path. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun drawPath(
+        path: RemotePath,
+        pathFillType: PathFillType = PathFillType.NonZero,
+        paint: RemotePaint?,
+    ) {
+        remoteCanvas.drawPath(path, pathFillType, paint)
+    }
+
+    /** Draws a path. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun drawPath(path: RemotePath, paint: RemotePaint?) {
-        remoteCanvas.drawPath(path, paint)
+        remoteCanvas.drawPath(path, paint = paint)
     }
 
     /** Draws a rounded polygon. */
