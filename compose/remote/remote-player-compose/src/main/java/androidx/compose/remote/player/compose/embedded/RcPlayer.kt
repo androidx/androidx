@@ -32,6 +32,7 @@ import androidx.collection.IntObjectMap
 import androidx.collection.ObjectIntMap
 import androidx.collection.emptyIntObjectMap
 import androidx.collection.emptyObjectIntMap
+import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.animation.core.Easing as ComposeEasing
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -50,11 +51,13 @@ import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.SystemClock
-import androidx.compose.remote.core.operations.BitmapData
+import androidx.compose.remote.core.VariableProvider
+import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.ColorConstant
 import androidx.compose.remote.core.operations.ColorTheme
 import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.FloatConstant
+import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.ParticlesCompare
@@ -176,9 +179,11 @@ public fun RcPlayer(
     val resolvedTheme = remember(theme, isDark) { resolveThemeMode(theme, isDark) }
     val androidContext = LocalContext.current
 
+    val preprocessed = remember(document) { preprocessDocument(document) }
+
     val density = LocalDensity.current
     val remoteContext =
-        remember(typefaceResolver) {
+        remember(typefaceResolver, preprocessed) {
             // Consider a Compose Clock
             AndroidRemoteContext(clock).also {
                 val resolvedResolver = typefaceResolver ?: EmbeddedPlayerTypefaceResolver
@@ -234,48 +239,8 @@ public fun RcPlayer(
                 // applied in data order via getData below (and re-evaluated reactively at draw).
                 // Eagerly
                 // recursing the whole tree here evaluated layout-internal animation/array
-                // expressions
-                // before the data collections they read (`[A_n]`) were populated, underflowing
-                // AnimatedFloatExpression and crashing setup for time/array-driven documents.
-                val rootComponent = document.rootLayoutComponent
-                val globalOps = ArrayList<Operation>()
-                if (rootComponent != null) {
-                    val ops = document.getOperationsReflection()
-                    for (i in 0 until ops.size) {
-                        val op = ops[i]
-                        if (op === rootComponent) break
-                        globalOps.add(op)
-                    }
-                } else {
-                    globalOps.addAll(document.getOperationsReflection())
-                }
-                document.applyOperationsReflection(it, globalOps)
-
-                val constantOps = ArrayList<Operation>()
-                fun walk(ops: Collection<Operation>) {
-                    for (op in ops) {
-                        val match =
-                            op is ColorConstant ||
-                                op is FloatConstant ||
-                                op is ColorTheme ||
-                                op is NamedVariable ||
-                                op.javaClass.simpleName.endsWith("Constant")
-                        if (match) {
-                            constantOps.add(op)
-                        }
-                        if (op is Container) {
-                            walk(op.getList())
-                        }
-                        if (op is LayoutComponent) {
-                            val canvasOps = op.getCanvasOperations()
-                            if (canvasOps != null) {
-                                walk(listOf(canvasOps))
-                            }
-                        }
-                    }
-                }
-                walk(document.getOperationsReflection())
-                document.applyOperationsReflection(it, constantOps)
+                document.applyOperationsReflection(it, preprocessed.globalOps)
+                document.applyOperationsReflection(it, preprocessed.constantOps)
 
                 // applyOperations above ran each ColorConstant -> loadColor, so every named color
                 // now
@@ -300,40 +265,10 @@ public fun RcPlayer(
     // always-on rememberInfiniteTransition + unconditional per-frame full-document re-evaluation,
     // which never let the runtime go idle even for a wholly static document.
     val currentTimeMillisState = remember { mutableFloatStateOf(0f) }
-    val hasAnimations =
-        remember(document) {
-            document.getFloatExpressionsReflection().values.any { it.mFloatAnimation != null }
-        }
-    // Pure-Compose time-dependence detection (no remote-core changes): scan each float
-    // expression's NaN-encoded source operands for references to the continuously-changing time
-    // variables. This mirrors how rememberRemoteExpression discovers an expression's variables.
-    val isTimeDependent =
-        remember(document) {
-            val timeIds =
-                intArrayOf(
-                    RemoteContext.ID_CONTINUOUS_SEC,
-                    RemoteContext.ID_TIME_IN_SEC,
-                    RemoteContext.ID_TIME_IN_MIN,
-                    RemoteContext.ID_TIME_IN_HR,
-                )
-            document.getFloatExpressionsReflection().values.any { expr ->
-                expr.mSrcValue.any { v ->
-                    v.isNaN() &&
-                        !AnimatedFloatExpression.isMathOperator(v) &&
-                        !NanMap.isDataVariable(v) &&
-                        Utils.idFromNan(v) in timeIds
-                }
-            }
-        }
-
-    // Particle systems advance their simulation once per draw, so the frame loop must keep
-    // ticking (and re-invalidating the particle draw) even if no expression is otherwise
-    // time-dependent.
-    val hasParticles = remember(document) { containsParticles(document.getOperationsReflection()) }
-
-    // A WakeIn requests a future repaint; with no one-shot scheduler we keep the loop alive
-    // instead.
-    val hasWakeIn = remember(document) { containsWakeIn(document.getOperationsReflection()) }
+    val hasAnimations = preprocessed.hasAnimations
+    val isTimeDependent = preprocessed.isTimeDependent
+    val hasParticles = preprocessed.hasParticles
+    val hasWakeIn = preprocessed.hasWakeIn
 
     val limiter = remember(document) { Limiter() }
     LaunchedEffect(document, hasAnimations, isTimeDependent, hasParticles, hasWakeIn) {
@@ -391,7 +326,7 @@ public fun RcPlayer(
                 ->
                 GraphContext(
                         snapshotState,
-                        buildComputedOpIndex(document.getOperationsReflection()),
+                        preprocessed.computedOpIndex,
                         currentTimeMillisState,
                         clock,
                     )
@@ -442,21 +377,7 @@ public fun RcPlayer(
         // source of truth for variables now, so there is no separate draw-path map to populate.
 
         // Identify ComponentValue operations
-        val componentValueMap = remember { mutableMapOf<Int, MutableList<ComponentValue>>() }
-        remember(document) {
-            val componentValues = mutableListOf<ComponentValue>()
-            findComponentValues(document.getOperationsReflection(), componentValues)
-            componentValues.fastForEach { op ->
-                var targetId = op.componentId
-                val targetComponent = findComponent(document.getOperationsReflection(), targetId)
-                if (targetComponent is LayoutComponentContent) {
-                    val parent = targetComponent.parent
-                    parent?.let { targetId = it.id }
-                }
-                val list = componentValueMap.getOrPut(targetId) { mutableListOf() }
-                list.add(op)
-            }
-        }
+        val componentValueMap = preprocessed.componentValueMap
 
         val componentValueStateMap = remember { mutableMapOf<Int, MutableState<Float>>() }
         remember(componentValueMap) {
@@ -706,79 +627,152 @@ internal fun RcPlayerChildren(
     }
 }
 
-/** True if the op tree contains a particle loop (drives the frame-loop keepalive). */
-private fun containsParticles(operations: Collection<Operation>): Boolean = operations.any { op ->
-    op is ParticlesLoop ||
-        op is ParticlesCompare ||
-        (op is Container && containsParticles(op.getList()))
-}
+internal class DocumentPreprocessResult(
+    val globalOps: ArrayList<Operation>,
+    val constantOps: ArrayList<Operation>,
+    val computedOpIndex: IntObjectMap<Operation>,
+    val componentValueMap: Map<Int, List<ComponentValue>>,
+    val hasParticles: Boolean,
+    val hasWakeIn: Boolean,
+    val hasAnimations: Boolean,
+    val isTimeDependent: Boolean,
+)
 
-/**
- * True if the op tree contains a [WakeIn], which asks the runtime to repaint after a delay. The
- * embedded player has no one-shot scheduler, so we approximate by keeping the frame loop alive —
- * the content re-evaluates and redraws continuously, a superset of the requested single wake.
- */
-private fun containsWakeIn(operations: Collection<Operation>): Boolean = operations.any { op ->
-    op is WakeIn || (op is Container && containsWakeIn(op.getList()))
-}
-
-private fun findBitmaps(operations: Collection<Operation>, list: MutableList<BitmapData>) {
-    for (op in operations) {
-        if (op is BitmapData) {
-            list.add(op)
+internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResult {
+    val rootComponent = document.rootLayoutComponent
+    val ops = document.getOperationsReflection()
+    val globalOps = ArrayList<Operation>()
+    if (rootComponent != null) {
+        for (i in 0 until ops.size) {
+            val op = ops[i]
+            if (op === rootComponent) break
+            globalOps.add(op)
         }
-        if (op is Container) {
-            findBitmaps(op.getList(), list)
-        }
+    } else {
+        globalOps.addAll(ops)
     }
-}
 
-private fun findComponentValues(
-    operations: Collection<Operation>,
-    list: MutableList<ComponentValue>,
-) {
-    for (op in operations) {
-        if (op is ComponentValue) {
-            list.add(op)
+    val constantOps = ArrayList<Operation>()
+    val computedOpIndex = mutableIntObjectMapOf<Operation>()
+    val rawComponentValues = ArrayList<ComponentValue>()
+    val componentsById = mutableIntObjectMapOf<Component>()
+    var hasParticles = false
+    var hasWakeIn = false
+
+    fun visitOp(op: Operation) {
+        if (
+            op is ColorConstant ||
+                op is FloatConstant ||
+                op is ColorTheme ||
+                op is NamedVariable ||
+                op.javaClass.simpleName.endsWith("Constant")
+        ) {
+            constantOps.add(op)
         }
-        if (op is Container) {
-            findComponentValues(op.getList(), list)
+
+        if (op is ParticlesLoop || op is ParticlesCompare) {
+            hasParticles = true
         }
-        if (op is LayoutComponent) {
-            val canvasOps = op.getCanvasOperations()
-            if (canvasOps != null) {
-                findComponentValues(listOf(canvasOps), list)
+
+        if (op is WakeIn) {
+            hasWakeIn = true
+        }
+
+        if (op is VariableSupport && op is VariableProvider) {
+            val animated = op is FloatExpression && op.mFloatAnimation != null
+            val id = op.id
+            if (!animated && id > 0 && !computedOpIndex.containsKey(id)) {
+                computedOpIndex[id] = op
             }
         }
-    }
-}
 
-private fun findComponent(operations: Collection<Operation>, id: Int): Component? {
-    for (op in operations) {
-        if (op is Component && op.componentId == id) {
-            return op
+        if (op is ComponentValue) {
+            rawComponentValues.add(op)
         }
+
+        if (op is Component) {
+            if (op.componentId !in componentsById) {
+                componentsById[op.componentId] = op
+            }
+        }
+
         if (op is LayoutComponent) {
             val content = op.getContentReflection()
-            if (content != null && content.componentId == id) {
-                return content
+            if (content != null && content.componentId !in componentsById) {
+                componentsById[content.componentId] = content
             }
             val canvasOps = op.getCanvasOperations()
             if (canvasOps != null) {
-                val found = findComponent(listOf(canvasOps), id)
-                if (found != null) {
-                    return found
-                }
+                visitOp(canvasOps)
             }
         }
+
         if (op is Container) {
-            val found = findComponent(op.getList(), id)
-            if (found != null) {
-                return found
+            val list = op.getList()
+            for (i in 0 until list.size) {
+                visitOp(list[i])
             }
         }
     }
-    return null
+
+    for (i in 0 until ops.size) {
+        visitOp(ops[i])
+    }
+
+    val componentValueMap = HashMap<Int, MutableList<ComponentValue>>()
+    for (i in 0 until rawComponentValues.size) {
+        val op = rawComponentValues[i]
+        var targetId = op.componentId
+        val targetComponent = componentsById[targetId]
+        if (targetComponent is LayoutComponentContent) {
+            val parent = targetComponent.parent
+            parent?.let { targetId = it.id }
+        }
+        componentValueMap.getOrPut(targetId) { ArrayList() }.add(op)
+    }
+
+    val floatExpressions = document.getFloatExpressionsReflection().values
+    var hasAnimations = false
+    var isTimeDependent = false
+    for (expr in floatExpressions) {
+        if (expr.mFloatAnimation != null) {
+            hasAnimations = true
+        }
+        if (!isTimeDependent && isExpressionTimeDependent(expr)) {
+            isTimeDependent = true
+        }
+    }
+
+    return DocumentPreprocessResult(
+        globalOps = globalOps,
+        constantOps = constantOps,
+        computedOpIndex = computedOpIndex,
+        componentValueMap = componentValueMap,
+        hasParticles = hasParticles,
+        hasWakeIn = hasWakeIn,
+        hasAnimations = hasAnimations,
+        isTimeDependent = isTimeDependent,
+    )
+}
+
+internal fun isExpressionTimeDependent(expr: FloatExpression): Boolean {
+    val srcValues = expr.mSrcValue
+    for (j in 0 until srcValues.size) {
+        val v = srcValues[j]
+        if (v.isNaN() && !AnimatedFloatExpression.isMathOperator(v) && !NanMap.isDataVariable(v)) {
+            val id = Utils.idFromNan(v)
+            if (
+                id == RemoteContext.ID_CONTINUOUS_SEC ||
+                    id == RemoteContext.ID_TIME_IN_SEC ||
+                    id == RemoteContext.ID_TIME_IN_MIN ||
+                    id == RemoteContext.ID_TIME_IN_HR ||
+                    id == RemoteContext.ID_EPOCH_SECOND
+            ) {
+                return true
+            }
+        }
+    }
+    return false
 }
 
 internal fun mapEasing(type: Int): ComposeEasing {
