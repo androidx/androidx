@@ -21,6 +21,7 @@ import android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT
 import androidx.annotation.GuardedBy
 import androidx.annotation.MainThread
 import androidx.annotation.OptIn as JavaOptIn
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraFilter
@@ -65,6 +66,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.tracing.trace
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.Collections
 import java.util.Objects
 import java.util.Objects.requireNonNull
 import java.util.concurrent.Executor
@@ -267,13 +269,124 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider, CameraPres
     override fun hasCamera(cameraSelector: CameraSelector): Boolean =
         trace("CX:hasCamera") {
             try {
-                cameraSelector.select(cameraX!!.cameraRepository.cameras)
+                val resolvedSelector = resolveLensCategory(cameraSelector)
+                resolvedSelector.select(cameraX!!.cameraRepository.cameras)
             } catch (_: IllegalArgumentException) {
                 return@trace false
             }
 
             return@trace true
         }
+
+    // TODO: b/530043225 - Make this public in next alpha
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun getSupportedLensCategories(
+        @CameraSelector.LensFacing lensFacing: Int
+    ): List<@CameraSelector.LensCategory Int> =
+        trace("CX:getSupportedLensCategories") {
+            val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+            val candidates = getCameraSelectionCandidates(cameraSelector)
+            if (candidates.isEmpty()) {
+                return@trace emptyList()
+            }
+            val supportedCategories = mutableListOf<Int>()
+            if (candidates.any { it.cameraInfo.intrinsicZoomRatio == 1.0f }) {
+                supportedCategories.add(CameraSelector.LENS_CATEGORY_DEFAULT)
+            }
+            if (candidates.any { it.cameraInfo.intrinsicZoomRatio < 1.0f }) {
+                supportedCategories.add(CameraSelector.LENS_CATEGORY_ULTRA_WIDE)
+            }
+            if (candidates.any { it.cameraInfo.intrinsicZoomRatio > 1.0f }) {
+                supportedCategories.add(CameraSelector.LENS_CATEGORY_TELEPHOTO)
+            }
+            supportedCategories.add(CameraSelector.LENS_CATEGORY_WIDEST_FOV)
+            supportedCategories.add(CameraSelector.LENS_CATEGORY_NARROWEST_FOV)
+            return@trace Collections.unmodifiableList(supportedCategories)
+        }
+
+    private data class CameraSelectionNode(
+        val cameraInfo: CameraInfo,
+        val isPhysical: Boolean,
+        val logicalParent: CameraInfo?,
+        val physicalCameraId: String? = null,
+    )
+
+    private fun getCameraSelectionCandidates(
+        cameraSelector: CameraSelector
+    ): List<CameraSelectionNode> {
+        val topLevelCameras = cameraSelector.filter(availableCameraInfos)
+        val allCandidates = mutableListOf<CameraSelectionNode>()
+
+        // 1. Top-level camera devices (standalone and logical multi-cameras)
+        for (topLevel in topLevelCameras) {
+            allCandidates.add(
+                CameraSelectionNode(
+                    cameraInfo = topLevel,
+                    isPhysical = false,
+                    logicalParent = null,
+                    physicalCameraId = null,
+                )
+            )
+        }
+
+        // 2. Physical sub-cameras of logical multi-cameras
+        for (topLevel in topLevelCameras) {
+            for (physical in topLevel.physicalCameraInfos) {
+                val physicalCameraId =
+                    physical.cameraSelector.physicalCameraId
+                        ?: (physical as? CameraInfoInternal)?.cameraId
+                allCandidates.add(
+                    CameraSelectionNode(
+                        cameraInfo = physical,
+                        isPhysical = true,
+                        logicalParent = topLevel,
+                        physicalCameraId = physicalCameraId,
+                    )
+                )
+            }
+        }
+
+        return allCandidates.sortedBy { it.cameraInfo.intrinsicZoomRatio }
+    }
+
+    private fun resolveLensCategory(cameraSelector: CameraSelector): CameraSelector {
+        val category = cameraSelector.lensCategory ?: return cameraSelector
+        val candidates = getCameraSelectionCandidates(cameraSelector)
+        val resolvedNode =
+            when (category) {
+                CameraSelector.LENS_CATEGORY_DEFAULT ->
+                    candidates.firstOrNull { it.cameraInfo.intrinsicZoomRatio == 1.0f }
+                CameraSelector.LENS_CATEGORY_ULTRA_WIDE ->
+                    candidates.firstOrNull { it.cameraInfo.intrinsicZoomRatio < 1.0f }
+                CameraSelector.LENS_CATEGORY_TELEPHOTO ->
+                    candidates.firstOrNull { it.cameraInfo.intrinsicZoomRatio > 1.0f }
+                CameraSelector.LENS_CATEGORY_WIDEST_FOV -> candidates.firstOrNull()
+                CameraSelector.LENS_CATEGORY_NARROWEST_FOV ->
+                    candidates.maxByOrNull { it.cameraInfo.intrinsicZoomRatio }
+                else -> null
+            }
+                ?: throw IllegalArgumentException(
+                    "No available camera found for requested LensCategory $category with selector $cameraSelector"
+                )
+
+        val specificSelector =
+            resolvedNode.logicalParent?.cameraSelector ?: resolvedNode.cameraInfo.cameraSelector
+
+        val builder = CameraSelector.Builder()
+        // Preserve user-added filters, extension filters, and session filters
+        cameraSelector.cameraFilterSet.forEach { builder.addCameraFilter(it) }
+        // Add the intrinsic camera ID filter for the specific camera
+        specificSelector.cameraFilterSet.forEach { builder.addCameraFilter(it) }
+
+        if (resolvedNode.isPhysical) {
+            val physicalCameraId =
+                resolvedNode.physicalCameraId
+                    ?: throw IllegalArgumentException("Physical camera ID cannot be determined")
+            builder.setPhysicalCameraId(physicalCameraId)
+        }
+
+        return builder.build()
+    }
 
     @MainThread
     override fun bindToLifecycle(
@@ -357,12 +470,14 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider, CameraPres
             val firstCameraConfig = singleCameraConfigs[0]!!
             val secondCameraConfig = singleCameraConfigs[1]!!
 
+            val resolvedFirstSelector = resolveLensCategory(firstCameraConfig.cameraSelector)
+            val resolvedSecondSelector = resolveLensCategory(secondCameraConfig.cameraSelector)
+
             val cameras: MutableList<Camera> = ArrayList()
             if (
-                firstCameraConfig.cameraSelector.lensFacing ==
-                    secondCameraConfig.cameraSelector.lensFacing &&
-                    firstCameraConfig.cameraSelector.physicalCameraId != null &&
-                    secondCameraConfig.cameraSelector.physicalCameraId != null
+                resolvedFirstSelector.lensFacing == resolvedSecondSelector.lensFacing &&
+                    resolvedFirstSelector.physicalCameraId != null &&
+                    resolvedSecondSelector.physicalCameraId != null
             ) { // Dual Selfie Mode
                 if (cameraOperatingMode == CAMERA_OPERATING_MODE_CONCURRENT) {
                     throw UnsupportedOperationException(
@@ -390,9 +505,12 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider, CameraPres
                 val effects = firstCameraConfig.useCaseGroup.effects
                 val useCases: MutableList<UseCase> = ArrayList()
                 for (config: SingleCameraConfig? in singleCameraConfigs) {
+                    val resolvedSelector =
+                        if (config === firstCameraConfig) resolvedFirstSelector
+                        else resolvedSecondSelector
                     // Connect physical camera id with use case.
                     for (useCase: UseCase in config!!.useCaseGroup.useCases) {
-                        config.cameraSelector.physicalCameraId?.let {
+                        resolvedSelector.physicalCameraId?.let {
                             if (useCase.physicalCameraId == null) {
                                 useCase.setPhysicalCameraId(it)
                             }
@@ -629,12 +747,15 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider, CameraPres
         trace("CX:bindToLifecycle-internal") {
             Threads.checkMainThread()
 
-            val (finalPrimaryCameraSelector, finalSecondaryCameraSelector) =
+            val (filteredPrimary, filteredSecondary) =
                 getSelectorsWithSessionFilter(
                     sessionConfig,
                     primaryCameraSelector,
                     secondaryCameraSelector,
                 )
+
+            val finalPrimaryCameraSelector = resolveLensCategory(filteredPrimary)
+            val finalSecondaryCameraSelector = filteredSecondary?.let { resolveLensCategory(it) }
 
             // Connect physical camera id with use cases if specified and unset for single camera
             if (finalSecondaryCameraSelector == null) {
@@ -759,10 +880,11 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider, CameraPres
 
     override fun getCameraInfo(cameraSelector: CameraSelector): CameraInfo =
         trace("CX:getCameraInfo") {
+            val resolvedSelector = resolveLensCategory(cameraSelector)
             val cameraInfoInternal =
-                cameraSelector.select(cameraX!!.cameraRepository.cameras).cameraInfoInternal
-            val cameraConfig = getCameraConfig(cameraSelector, cameraInfoInternal)
-            val physicalCameraId = cameraSelector.physicalCameraId
+                resolvedSelector.select(cameraX!!.cameraRepository.cameras).cameraInfoInternal
+            val cameraConfig = getCameraConfig(resolvedSelector, cameraInfoInternal)
+            val physicalCameraId = resolvedSelector.physicalCameraId
             val key =
                 CameraIdentifier.Factory.create(
                     listOf(
