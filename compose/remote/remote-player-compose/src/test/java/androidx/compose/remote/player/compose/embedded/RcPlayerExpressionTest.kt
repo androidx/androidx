@@ -23,6 +23,8 @@ import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.Utils
+import androidx.compose.remote.core.operations.layout.CanvasOperations
+import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
 import androidx.compose.remote.core.operations.utilities.CollectionsAccess
@@ -356,5 +358,24 @@ class RcPlayerExpressionTest {
             )
         val cycleMap = mapOf(10 to exprA, 11 to exprB)
         assertThat(expressionDependsOnAnimation(cycleMap, 10)).isFalse()
+    }
+
+    @Test
+    fun testBuildComputedOpIndexIncludesLayoutComponentCanvasOperations() {
+        val expr =
+            FloatExpression(
+                100,
+                floatArrayOf(10f, 20f, AnimatedFloatExpression.ADD),
+                null,
+            )
+        val canvasOps = CanvasOperations().apply { mList.add(expr) }
+        val layout =
+            LayoutComponent(null, 1, 0, 0f, 0f, 100f, 100f).apply {
+                setCanvasOperations(canvasOps)
+            }
+
+        val index = buildComputedOpIndex(listOf(layout))
+        assertThat(index.containsKey(100)).isTrue()
+        assertThat(index[100]).isSameInstanceAs(expr)
     }
 }

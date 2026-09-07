@@ -25,6 +25,7 @@ import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
+import androidx.compose.remote.player.compose.embedded.state.rememberRemoteColorAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteStringAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -61,13 +62,18 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
 
     val data = layout.readDataReflection()
 
-    val color = if (paintState.isColorSet) Color(paintState.color) else Color(data.colorValue)
+    val color =
+        if (paintState.isColorSet) {
+            Color(paintState.color)
+        } else if (data.isDynamicColorEnabled) {
+            rememberRemoteColorAsState(data.colorId).value
+        } else {
+            Color(data.colorValue)
+        }
     val fontSize = if (paintState.isTextSizeSet) paintState.textSize else data.fontSizeValue
     val fontSizeSp = with(LocalDensity.current) { fontSize.toSp() }
 
     val remoteContext = LocalRemoteContext.current
-    val fontVariationSettings =
-        buildFontVariationSettings(data.fontAxis, data.fontAxisValues, remoteContext)
 
     val fontWeight =
         if (paintState.isTypefaceSet) FontWeight(paintState.fontWeight)
@@ -181,7 +187,14 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
 
     val data = layout.readDataReflection()
 
-    val color = if (paintState.isColorSet) Color(paintState.color) else Color(data.colorValue)
+    val color =
+        if (paintState.isColorSet) {
+            Color(paintState.color)
+        } else if (data.isDynamicColorEnabled) {
+            rememberRemoteColorAsState(data.colorId).value
+        } else {
+            Color(data.colorValue)
+        }
     val fontSize = if (paintState.isTextSizeSet) paintState.textSize else data.fontSizeValue
     val fontSizeSp = with(LocalDensity.current) { fontSize.toSp() }
 

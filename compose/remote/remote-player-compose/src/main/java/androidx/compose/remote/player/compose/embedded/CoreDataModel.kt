@@ -263,6 +263,8 @@ internal data class CoreTextData(
     val lineBreakStrategy: Int = 0,
     val hyphenationFrequency: Int = 0,
     val justificationMode: Int = 0,
+    val isDynamicColorEnabled: Boolean = false,
+    val colorId: Int = -1,
 )
 
 internal data class TextLayoutData(
@@ -273,4 +275,6 @@ internal data class TextLayoutData(
     val textAlignValue: Int,
     val overflow: Int,
     val maxLines: Int,
+    val isDynamicColorEnabled: Boolean = false,
+    val colorId: Int = -1,
 )
