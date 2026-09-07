@@ -89,5 +89,5 @@ internal enum class SelectedTextType {
 @Composable
 internal expect fun rememberPlatformSelectionBehaviors(
     selectedTextType: SelectedTextType,
-    localeList: LocaleList,
+    localeList: LocaleList?,
 ): PlatformSelectionBehaviors?

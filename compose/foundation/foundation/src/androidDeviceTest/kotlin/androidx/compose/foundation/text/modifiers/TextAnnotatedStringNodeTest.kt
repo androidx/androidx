@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.TEST_LOCALE
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.getValue
@@ -58,7 +57,6 @@ class TextAnnotatedStringNodeTest {
                 AnnotatedString("text"),
                 TextStyle.Default,
                 createFontFamilyResolver(context),
-                TEST_LOCALE,
             )
         rule.setContent {
             Canvas(Modifier.fillMaxSize()) {
@@ -125,7 +123,6 @@ class TextAnnotatedStringNodeTest {
                 AnnotatedString("til"),
                 TextStyle.Default,
                 createFontFamilyResolver(context),
-                TEST_LOCALE,
             )
 
         val modifier =
@@ -154,7 +151,6 @@ class TextAnnotatedStringNodeTest {
                 AnnotatedString("til"),
                 TextStyle.Default,
                 createFontFamilyResolver(context),
-                TEST_LOCALE,
             )
 
         rule.setContent { Box(Modifier.fillMaxSize() then subject) }

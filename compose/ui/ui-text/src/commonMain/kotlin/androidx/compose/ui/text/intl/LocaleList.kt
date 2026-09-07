@@ -38,17 +38,6 @@ public class LocaleList(public val localeList: List<Locale>) : Collection<Locale
         public val Empty: LocaleList = LocaleList(listOf())
 
         /** Returns Locale object which represents current locale */
-        @Deprecated(
-            "LocaleList.current is not backed by snapshot state and does not notify readers on updates. " +
-                "In @Composable functions, use LocalLocaleList.current instead. Outside composables, " +
-                "pass the current locale list explicitly from an observable state source.",
-            replaceWith =
-                ReplaceWith(
-                    "LocalLocaleList.current",
-                    "androidx.compose.ui.platform.LocalLocaleList",
-                ),
-        )
-        @Suppress("DEPRECATION")
         public val current: LocaleList
             get() = platformLocaleDelegate.current
     }

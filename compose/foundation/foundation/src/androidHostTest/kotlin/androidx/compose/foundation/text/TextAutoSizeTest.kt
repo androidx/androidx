@@ -24,7 +24,6 @@ import androidx.compose.ui.text.TextLayoutInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -284,7 +283,6 @@ class TextAutoSizeTest {
         private val fontSize: TextUnit,
         private val layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         private val fontFamilyResolver: FontFamily.Resolver = mock(),
-        private val defaultLocale: Locale = TEST_LOCALE,
         private val softWrap: Boolean = true,
         private val textOverflow: TextOverflow = TextOverflow.Clip,
         private val maxLines: Int = Int.MAX_VALUE,
@@ -317,7 +315,6 @@ class TextAutoSizeTest {
                         style = style,
                         density = this,
                         fontFamilyResolver = fontFamilyResolver,
-                        defaultLocale = defaultLocale,
                         softWrap = softWrap,
                         overflow = textOverflow,
                         maxLines = maxLines,

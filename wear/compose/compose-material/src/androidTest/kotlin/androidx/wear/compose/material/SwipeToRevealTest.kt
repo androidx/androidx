@@ -724,7 +724,8 @@ class SwipeToRevealTest {
             swipeToRevealWithDefaults(state = revealStateOne)
             swipeToRevealWithDefaults(state = revealStateTwo)
 
-            LaunchedEffect(Unit) {
+            val coroutineScope = rememberCoroutineScope()
+            coroutineScope.launch {
                 // First change
                 revealStateOne.snapTo(RevealValue.RightRevealing)
                 // Second change, in a different state
@@ -784,7 +785,8 @@ class SwipeToRevealTest {
             swipeToRevealWithDefaults(state = revealStateOne)
             swipeToRevealWithDefaults(state = revealStateTwo)
 
-            LaunchedEffect(Unit) {
+            val coroutineScope = rememberCoroutineScope()
+            coroutineScope.launch {
                 revealStateOne.snapTo(RevealValue.RightRevealing) // First change
                 revealStateOne.snapTo(lastValue) // Second change, same state
             }
@@ -812,7 +814,8 @@ class SwipeToRevealTest {
             swipeToRevealWithDefaults(state = revealStateOne)
             swipeToRevealWithDefaults(state = revealStateTwo)
 
-            LaunchedEffect(Unit) {
+            val coroutineScope = rememberCoroutineScope()
+            coroutineScope.launch {
                 revealStateOne.snapTo(RevealValue.LeftRevealing) // First change
                 revealStateOne.snapTo(lastValue) // Second change, same state
             }

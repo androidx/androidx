@@ -18,7 +18,6 @@ package androidx.compose.foundation.text.selection
 
 import android.os.Build
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
-import androidx.compose.foundation.text.TEST_LOCALE
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -54,7 +53,6 @@ class MultiWidgetSelectionDelegateTest {
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val defaultDensity = Density(density = 1f)
     private val fontFamilyResolver = createFontFamilyResolver(context)
-    private val defaultLocale = TEST_LOCALE
 
     @Test
     fun getHandlePosition_StartHandle_invalid() {
@@ -2071,7 +2069,6 @@ class MultiWidgetSelectionDelegateTest {
                 density = density,
                 maxLines = maxLines,
                 fontFamilyResolver = fontFamilyResolver,
-                defaultLocale = defaultLocale,
             )
             .layout(constraints, LayoutDirection.Ltr)
     }
@@ -2105,7 +2102,6 @@ class MultiWidgetSelectionDelegateTest {
                 style = TextStyle(),
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
-                defaultLocale = defaultLocale,
                 maxLines = maxLines,
                 overflow = overflow,
                 softWrap = softWrap,

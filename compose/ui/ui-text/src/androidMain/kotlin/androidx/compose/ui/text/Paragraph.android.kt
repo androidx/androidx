@@ -32,7 +32,6 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.internal.JvmDefaultWithCompatibility
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -164,7 +163,6 @@ public actual fun Paragraph(
             fontFamilyResolver = createFontFamilyResolver(resourceLoader),
             density = density,
             softWrap = true,
-            defaultLocale = @Suppress("DEPRECATION") Locale.current,
         ),
         maxLines,
         if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip,
@@ -202,7 +200,6 @@ public actual fun Paragraph(
             fontFamilyResolver = fontFamilyResolver,
             density = density,
             softWrap = true,
-            defaultLocale = @Suppress("DEPRECATION") Locale.current,
         ),
         maxLines,
         if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip,
@@ -233,14 +230,12 @@ public actual fun Paragraph(
             fontFamilyResolver = fontFamilyResolver,
             density = density,
             softWrap = true,
-            defaultLocale = @Suppress("DEPRECATION") Locale.current,
         ),
         maxLines,
         if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip,
         constraints,
     )
 
-@Deprecated("Paragraph that doesn't take a default locale is deprecated, pass a Locale instead")
 public actual fun Paragraph(
     text: String,
     style: TextStyle,
@@ -261,35 +256,6 @@ public actual fun Paragraph(
             fontFamilyResolver = fontFamilyResolver,
             density = density,
             softWrap = true,
-            defaultLocale = @Suppress("DEPRECATION") Locale.current,
-        ),
-        maxLines,
-        overflow,
-        constraints,
-    )
-
-public actual fun Paragraph(
-    text: String,
-    style: TextStyle,
-    constraints: Constraints,
-    density: Density,
-    fontFamilyResolver: FontFamily.Resolver,
-    defaultLocale: Locale,
-    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
-    placeholders: List<AnnotatedString.Range<Placeholder>>,
-    maxLines: Int,
-    overflow: TextOverflow,
-): Paragraph =
-    AndroidParagraph(
-        AndroidParagraphIntrinsics(
-            text = text,
-            style = style,
-            placeholders = placeholders,
-            fontFamilyResolver = fontFamilyResolver,
-            annotations = spanStyles,
-            density = density,
-            softWrap = true,
-            defaultLocale = defaultLocale,
         ),
         maxLines,
         overflow,

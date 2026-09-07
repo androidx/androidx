@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.internal.JvmDefaultWithCompatibility
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -192,26 +191,12 @@ public actual fun Paragraph(
     ellipsis: Boolean,
 ): Paragraph = implementedInJetBrainsFork()
 
-@Deprecated("Paragraph that doesn't take a default locale is deprecated, pass a Locale instead")
 public actual fun Paragraph(
     text: String,
     style: TextStyle,
     constraints: Constraints,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
-    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
-    placeholders: List<AnnotatedString.Range<Placeholder>>,
-    maxLines: Int,
-    overflow: TextOverflow,
-): Paragraph = implementedInJetBrainsFork()
-
-public actual fun Paragraph(
-    text: String,
-    style: TextStyle,
-    constraints: Constraints,
-    density: Density,
-    fontFamilyResolver: FontFamily.Resolver,
-    defaultLocale: Locale,
     spanStyles: List<AnnotatedString.Range<SpanStyle>>,
     placeholders: List<AnnotatedString.Range<Placeholder>>,
     maxLines: Int,

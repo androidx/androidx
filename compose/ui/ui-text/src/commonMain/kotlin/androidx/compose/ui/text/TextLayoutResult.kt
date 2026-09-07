@@ -24,7 +24,6 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.toFontFamily
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.platform.SynchronizedObject
 import androidx.compose.ui.text.platform.makeSynchronizedObject
 import androidx.compose.ui.text.platform.synchronized
@@ -82,12 +81,6 @@ private constructor(
     /** The font resolver used for computing this text layout. */
     public val fontFamilyResolver: FontFamily.Resolver,
 
-    /**
-     * The default used for computing this text layout. This locale is used for operations like line
-     * breaking and capitalization when no locale is specified in the text styles.
-     */
-    public val defaultLocale: Locale,
-
     /** The minimum width provided while calculating this text layout. */
     public val constraints: Constraints,
 ) {
@@ -136,12 +129,9 @@ private constructor(
         layoutDirection,
         resourceLoader,
         createFontFamilyResolver(resourceLoader),
-        Locale.current,
         constraints,
     )
 
-    @Deprecated("Pass a default locale")
-    @Suppress("DEPRECATION")
     public constructor(
         text: AnnotatedString,
         style: TextStyle,
@@ -164,34 +154,6 @@ private constructor(
         layoutDirection,
         @Suppress("DEPRECATION") null,
         fontFamilyResolver,
-        Locale.current,
-        constraints,
-    )
-
-    public constructor(
-        text: AnnotatedString,
-        style: TextStyle,
-        placeholders: List<AnnotatedString.Range<Placeholder>>,
-        maxLines: Int,
-        softWrap: Boolean,
-        overflow: TextOverflow,
-        density: Density,
-        layoutDirection: LayoutDirection,
-        fontFamilyResolver: FontFamily.Resolver,
-        defaultLocale: Locale,
-        constraints: Constraints,
-    ) : this(
-        text,
-        style,
-        placeholders,
-        maxLines,
-        softWrap,
-        overflow,
-        density,
-        layoutDirection,
-        @Suppress("DEPRECATION") null,
-        fontFamilyResolver,
-        defaultLocale,
         constraints,
     )
 
@@ -232,7 +194,6 @@ private constructor(
             layoutDirection = layoutDirection,
             resourceLoader = resourceLoader,
             fontFamilyResolver = fontFamilyResolver,
-            defaultLocale = defaultLocale,
             constraints = constraints,
         )
     }
@@ -250,7 +211,6 @@ private constructor(
         if (density != other.density) return false
         if (layoutDirection != other.layoutDirection) return false
         if (fontFamilyResolver != other.fontFamilyResolver) return false
-        if (defaultLocale != other.defaultLocale) return false
         if (constraints != other.constraints) return false
 
         return true
@@ -266,7 +226,6 @@ private constructor(
         result = 31 * result + density.hashCode()
         result = 31 * result + layoutDirection.hashCode()
         result = 31 * result + fontFamilyResolver.hashCode()
-        result = 31 * result + defaultLocale.hashCode()
         result = 31 * result + constraints.hashCode()
         return result
     }
@@ -282,7 +241,6 @@ private constructor(
             "density=$density, " +
             "layoutDirection=$layoutDirection, " +
             "fontFamilyResolver=$fontFamilyResolver, " +
-            "defaultLocale=$defaultLocale, " +
             "constraints=$constraints" +
             ")"
     }

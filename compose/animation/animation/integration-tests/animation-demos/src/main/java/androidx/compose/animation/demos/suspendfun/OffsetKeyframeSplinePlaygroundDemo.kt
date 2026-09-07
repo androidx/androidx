@@ -67,7 +67,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.tooling.preview.Preview
@@ -182,10 +181,7 @@ private class SplineKeyframesPlaygroundModel(private val scope: CoroutineScope) 
         val density = LocalDensity.current
         val layoutDirection = LocalLayoutDirection.current
         val fontFamilyResolver = LocalFontFamilyResolver.current
-        val locale = LocalLocale.current
-        val textMeasurer = remember {
-            TextMeasurer(fontFamilyResolver, locale, density, layoutDirection)
-        }
+        val textMeasurer = remember { TextMeasurer(fontFamilyResolver, density, layoutDirection) }
         val textColor = MaterialTheme.colors.onSurface
 
         remember(density.density) {

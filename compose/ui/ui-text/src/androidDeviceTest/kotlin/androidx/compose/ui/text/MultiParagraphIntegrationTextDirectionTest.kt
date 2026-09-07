@@ -17,7 +17,6 @@
 package androidx.compose.ui.text
 
 import androidx.compose.ui.text.font.toFontFamily
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDirection
@@ -30,6 +29,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import java.util.Locale
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -37,34 +39,41 @@ import org.junit.runner.RunWith
 @SmallTest
 class MultiParagraphIntegrationTextDirectionTest {
 
+    private lateinit var defaultLocale: Locale
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val defaultDensity = Density(density = 1f)
     private val fontFamilyMeasureFont = FontTestData.BASIC_MEASURE_FONT.toFontFamily()
     private val ltrLocaleList = LocaleList("en")
     private val rtlLocaleList = LocaleList("ar")
-    private val ltrLocale = Locale("en")
-    private val rtlLocale = Locale("ar")
+    private val ltrLocale = Locale.ENGLISH
+    private val rtlLocale = Locale.forLanguageTag("ar")
+
+    @Before
+    fun before() {
+        defaultLocale = Locale.getDefault()
+    }
+
+    @After
+    fun after() {
+        Locale.setDefault(defaultLocale)
+    }
 
     @Test
     fun unspecifiedTextDirection_withLtrLocale_resolvesToLtr() {
+        Locale.setDefault(ltrLocale)
+
         val paragraph =
-            multiParagraph(
-                text = AnnotatedString(""),
-                textDirection = TextDirection.Unspecified,
-                defaultLocale = ltrLocale,
-            )
+            multiParagraph(text = AnnotatedString(""), textDirection = TextDirection.Unspecified)
 
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
     }
 
     @Test
     fun unspecifiedTextDirection_withRtlLocale_resolvesToRtl() {
+        Locale.setDefault(rtlLocale)
+
         val paragraph =
-            multiParagraph(
-                text = AnnotatedString(""),
-                textDirection = TextDirection.Unspecified,
-                defaultLocale = rtlLocale,
-            )
+            multiParagraph(text = AnnotatedString(""), textDirection = TextDirection.Unspecified)
 
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Rtl)
     }
@@ -258,14 +267,12 @@ class MultiParagraphIntegrationTextDirectionTest {
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
             softWrap = true,
-            defaultLocale = TEST_LOCALE,
         )
     }
 
     private fun multiParagraph(
         text: AnnotatedString,
         localeList: LocaleList? = null,
-        defaultLocale: Locale = Locale("en"),
         textDirection: TextDirection = TextDirection.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
         width: Float = Float.MAX_VALUE,
@@ -282,7 +289,6 @@ class MultiParagraphIntegrationTextDirectionTest {
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            defaultLocale = defaultLocale,
             overflow = TextOverflow.Clip,
         )
     }

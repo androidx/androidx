@@ -2005,7 +2005,6 @@ class ParagraphIntegrationTest {
                         style = TextStyle(fontSize = fontSize, localeList = localeList),
                         density = defaultDensity,
                         fontFamilyResolver = resourceLoader,
-                        defaultLocale = TEST_LOCALE,
                         // just have 10x font size to have a bitmap
                         constraints = Constraints(maxWidth = (fontSizeInPx * 10).ceilToInt()),
                         overflow = TextOverflow.Clip,
@@ -4600,7 +4599,6 @@ class ParagraphIntegrationTest {
                     annotations = listOf(),
                     density = defaultDensity,
                     fontFamilyResolver = UncachedFontFamilyResolver(context),
-                    defaultLocale = TEST_LOCALE,
                     placeholders = listOf(),
                     softWrap = true,
                 )
@@ -4877,7 +4875,6 @@ class ParagraphIntegrationTest {
             constraints = Constraints(maxWidth = width.ceilToInt(), maxHeight = height.ceilToInt()),
             density = density ?: defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            defaultLocale = TEST_LOCALE,
         )
     }
 }

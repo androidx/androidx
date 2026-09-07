@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.toFontFamily
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -43,7 +42,6 @@ class TextLayoutCacheTest {
     private val fontFamilyMeasureFont = FontTestData.BASIC_MEASURE_FONT.toFontFamily()
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val fontFamilyResolver = createFontFamilyResolver(context)
-    private val defaultLocale = TEST_LOCALE
     private val defaultDensity = Density(density = 1f)
 
     @Test(expected = IllegalArgumentException::class)
@@ -315,7 +313,6 @@ class TextLayoutCacheTest {
         density: Density = this.defaultDensity,
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         fontFamilyResolver: FontFamily.Resolver = this.fontFamilyResolver,
-        defaultLocale: Locale = this.defaultLocale,
         constraints: Constraints = Constraints(),
     ): TextLayoutInput {
         return TextLayoutInput(
@@ -328,15 +325,13 @@ class TextLayoutCacheTest {
             density = density,
             layoutDirection = layoutDirection,
             fontFamilyResolver = fontFamilyResolver,
-            defaultLocale = defaultLocale,
             constraints = constraints,
         )
     }
 
     private fun layoutText(textLayoutInput: TextLayoutInput) =
         with(textLayoutInput) {
-            val measurer =
-                TextMeasurer(fontFamilyResolver, defaultLocale, density, layoutDirection, 0)
+            val measurer = TextMeasurer(fontFamilyResolver, density, layoutDirection, 0)
             measurer.measure(
                 text = text,
                 style = style,
