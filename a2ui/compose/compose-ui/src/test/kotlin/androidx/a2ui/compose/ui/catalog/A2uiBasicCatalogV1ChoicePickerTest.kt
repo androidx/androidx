@@ -23,6 +23,7 @@ import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
 import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
+import androidx.a2ui.model.schema.commontypes.A2uiCheckRuleSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringListSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.compose.runtime.Composable
@@ -51,6 +52,7 @@ class A2uiBasicCatalogV1ChoicePickerTest {
                     onValueChange: (List<String>) -> Unit,
                     enabled: Boolean,
                     accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                    checks: List<A2uiBasicCatalogV1.CheckRule>,
                     modifier: Modifier,
                 ) {}
             }
@@ -62,6 +64,7 @@ class A2uiBasicCatalogV1ChoicePickerTest {
             .containsExactly(
                 A2uiBasicCatalogV1.ChoicePicker.AccessibilityProperty,
                 A2uiBasicCatalogV1.WeightProperty,
+                A2uiBasicCatalogV1.ChoicePicker.ChecksProperty,
                 A2uiBasicCatalogV1.ChoicePicker.LabelProperty,
                 A2uiBasicCatalogV1.ChoicePicker.VariantProperty,
                 A2uiBasicCatalogV1.ChoicePicker.OptionsProperty,
@@ -79,6 +82,12 @@ class A2uiBasicCatalogV1ChoicePickerTest {
         assertThat(A2uiBasicCatalogV1.ChoicePicker.AccessibilityProperty.isRequired).isFalse()
         assertThat(A2uiBasicCatalogV1.ChoicePicker.AccessibilityProperty.schema)
             .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
+
+        assertThat(A2uiBasicCatalogV1.ChoicePicker.ChecksProperty.key).isEqualTo("checks")
+        assertThat(A2uiBasicCatalogV1.ChoicePicker.ChecksProperty.isRequired).isFalse()
+        val checksSchema =
+            assertIs<A2uiArraySchema>(A2uiBasicCatalogV1.ChoicePicker.ChecksProperty.schema)
+        assertThat(checksSchema.items).isEqualTo(A2uiCheckRuleSchema.DEFAULT_INSTANCE)
 
         assertThat(A2uiBasicCatalogV1.ChoicePicker.LabelProperty.key).isEqualTo("label")
         assertThat(A2uiBasicCatalogV1.ChoicePicker.LabelProperty.isRequired).isFalse()

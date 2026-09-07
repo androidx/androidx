@@ -34,6 +34,7 @@ import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
 import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
+import androidx.a2ui.model.schema.commontypes.A2uiCheckRuleSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDataBindingSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.collection.mutableScatterSetOf
@@ -213,6 +214,66 @@ public class A2uiBasicCatalogV1(
                     }
                 },
             )
+
+        /**
+         * Holds client-side check validation rules for a component in the A2UI Basic Catalog V1.
+         *
+         * This property is part of the basic catalog infrastructure and is shared across checkable
+         * components rather than belonging to a single component type. It must be included in the
+         * [A2uiComponent.properties] list of all basic catalog components that support checks. See
+         * [CheckRule].
+         */
+        internal val ChecksProperty: DynamicA2uiProperty<kotlin.collections.List<CheckRule>> =
+            A2uiProperty.dynamicCustom(
+                key = "checks",
+                schema =
+                    A2uiArraySchema(
+                        items = A2uiCheckRuleSchema.DEFAULT_INSTANCE,
+                        description =
+                            "A list of checks to perform. These are function calls that must " +
+                                "return a boolean indicating validity.",
+                    ),
+                safeCast = { value ->
+                    when (value) {
+                        is kotlin.collections.List<*> ->
+                            buildList(value.size) {
+                                for (i in value.indices) {
+                                    when (val item = value[i]) {
+                                        is CheckRule -> add(item)
+                                        is Map<*, *> -> {
+                                            val condition =
+                                                item["condition"] as? Boolean
+                                                    ?: return@dynamicCustom null
+                                            val message =
+                                                item["message"]?.toString()
+                                                    ?: return@dynamicCustom null
+                                            add(CheckRule(condition = condition, message = message))
+                                        }
+                                        else -> return@dynamicCustom null
+                                    }
+                                }
+                            }
+                        else -> null
+                    }
+                },
+            )
+
+        /**
+         * Binds the [ChecksProperty] from component [properties].
+         *
+         * @param properties component properties to extract checks from
+         * @return list of evaluated [CheckRule]s, an empty list if [ChecksProperty] is not declared
+         *   in [properties], or `null` if dynamic conditions are still being evaluated
+         */
+        @Composable
+        internal fun A2uiComponentScope.bindChecks(
+            properties: A2uiComponentProperties
+        ): kotlin.collections.List<CheckRule>? =
+            if (ChecksProperty !in properties) {
+                emptyList()
+            } else {
+                properties.bind(ChecksProperty)
+            }
     }
 
     /**
@@ -253,6 +314,56 @@ public class A2uiBasicCatalogV1(
 
         override fun toString(): String =
             "AccessibilityAttributes(label=$label, description=$description)"
+    }
+
+    /**
+     * Holds the evaluated result of a client-side validation rule.
+     *
+     * Check rules define client-side constraints evaluated against dynamic data or user input.
+     * Components receive evaluated rules in `TypedContent` to show validation feedback or guard
+     * actions.
+     *
+     * **Common Use Cases:**
+     * * **Input validation feedback**: Input components (e.g., [TextField], [DateTimeInput],
+     *   [Slider], [CheckBox], [ChoicePicker]) inspect [condition]. When `false`, the component
+     *   enters an error state (such as an error outline or icon) and displays [message] in
+     *   supporting or helper text.
+     * * **Action gating and submit prevention**: Action components (e.g., [Button]) inspect
+     *   [condition] across form fields. When any rule fails, the button disables action dispatch or
+     *   shows [message] explaining why the action cannot run.
+     * * **Cross-component dependency validation**: Check conditions observe shared data model paths
+     *   to enforce relational constraints (e.g., verifying an end date succeeds a start date, or
+     *   requiring a checkbox to be checked before submitting).
+     *
+     * When all checks have [condition] equal to `true` (or the list is empty), the component is
+     * valid and renders normally. If dynamic check expressions are still resolving, the component
+     * waits in a loading state until all bound paths resolve.
+     *
+     * @property condition true if the check passed; false if the validation rule failed
+     * @property message error message to display when [condition] is false
+     */
+    @Immutable
+    public class CheckRule(
+        @get:Suppress("GetterSetterNames") public val condition: Boolean,
+        public val message: String,
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is CheckRule) return false
+
+            if (condition != other.condition) return false
+            if (message != other.message) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = condition.hashCode()
+            result = 31 * result + message.hashCode()
+            return result
+        }
+
+        override fun toString(): String = "CheckRule(condition=$condition, message='$message')"
     }
 
     /**
@@ -1729,6 +1840,8 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the button.
+     * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the button. See
+     *   [CheckRule].
      * * `child` (Component ID String, required): The ID of the child component inside the button
      *   (e.g., a `"Text"` or `"Icon"` component).
      * * `variant` (String Enum, optional): A hint for the button style. This is a static
@@ -1761,6 +1874,10 @@ public class A2uiBasicCatalogV1(
             /** The [A2uiProperty] for the `"accessibility"` property of a [Button]. */
             public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
                 A2uiBasicCatalogV1.AccessibilityProperty
+
+            /** The [A2uiProperty] for the `"checks"` property of a [Button]. See [CheckRule]. */
+            public val ChecksProperty: DynamicA2uiProperty<kotlin.collections.List<CheckRule>> =
+                A2uiBasicCatalogV1.ChecksProperty
 
             /** The [A2uiProperty] for the `"child"` property of a [Button]. */
             public val ChildProperty: StaticA2uiProperty<String> =
@@ -1796,6 +1913,7 @@ public class A2uiBasicCatalogV1(
                 listOf(
                     AccessibilityProperty,
                     WeightProperty,
+                    ChecksProperty,
                     ChildProperty,
                     VariantProperty,
                     ActionProperty,
@@ -1806,7 +1924,8 @@ public class A2uiBasicCatalogV1(
             get() = ComponentProperties
 
         @Composable
-        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean = true
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean =
+            bindChecks(properties) != null
 
         @Composable
         override fun A2uiComponentScope.Content(
@@ -1823,24 +1942,32 @@ public class A2uiBasicCatalogV1(
                     "Required property '${ActionProperty.key}' is missing."
                 }
             val accessibility = properties.bind(AccessibilityProperty)
+            val checks =
+                checkNotNull(bindChecks(properties)) {
+                    "Property '${ChecksProperty.key}' could not be resolved."
+                }
 
             TypedContent(
                 childId = childId,
                 variant = variant,
                 action = action,
                 accessibility = accessibility,
+                checks = checks,
                 modifier = modifier,
             )
         }
 
         /**
-         * Renders the [Button] with its resolved [childId], [variant], [action], and optional
-         * [accessibility] attributes.
+         * Renders the [Button] with its resolved [childId], [variant], [action], optional
+         * [accessibility] attributes, and validation [checks].
          *
          * @param childId ID of the child component to render inside this button
          * @param variant [Variant] visual style variant of the button
          * @param action action payload [Map] dispatched when clicked
          * @param accessibility Accessibility attributes for the button
+         * @param checks validation rules for this button. When any [CheckRule.condition] is false,
+         *   the button implementation should indicate an error state or disable action dispatch.
+         *   See [CheckRule].
          * @param modifier [Modifier] to apply to the layout
          */
         @Composable
@@ -1849,6 +1976,7 @@ public class A2uiBasicCatalogV1(
             variant: Variant,
             action: Map<String, Any?>,
             accessibility: AccessibilityAttributes?,
+            checks: kotlin.collections.List<CheckRule>,
             modifier: Modifier,
         )
     }
@@ -1858,6 +1986,8 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the text field.
+     * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the text field.
+     *   See [CheckRule].
      * * `label` (Dynamic String, required): The text label for the input field.
      * * `value` (Dynamic String, optional): The value of the text field.
      * * `variant` (String Enum, optional): The type of input field to display. Valid options:
@@ -1893,6 +2023,10 @@ public class A2uiBasicCatalogV1(
             /** The [A2uiProperty] for the `"accessibility"` property of a [TextField]. */
             public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
                 A2uiBasicCatalogV1.AccessibilityProperty
+
+            /** The [A2uiProperty] for the `"checks"` property of a [TextField]. See [CheckRule]. */
+            public val ChecksProperty: DynamicA2uiProperty<kotlin.collections.List<CheckRule>> =
+                A2uiBasicCatalogV1.ChecksProperty
 
             /** The [A2uiProperty] for the `"label"` property of a [TextField]. */
             public val LabelProperty: DynamicA2uiProperty<String> =
@@ -1934,6 +2068,7 @@ public class A2uiBasicCatalogV1(
                 listOf(
                     AccessibilityProperty,
                     WeightProperty,
+                    ChecksProperty,
                     LabelProperty,
                     ValueProperty,
                     VariantProperty,
@@ -1946,7 +2081,7 @@ public class A2uiBasicCatalogV1(
 
         @Composable
         override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean =
-            properties.bind(LabelProperty) != null
+            properties.bind(LabelProperty) != null && bindChecks(properties) != null
 
         @Composable
         override fun A2uiComponentScope.Content(
@@ -1963,6 +2098,10 @@ public class A2uiBasicCatalogV1(
             val onValueChange = properties.bindUpdater(ValueProperty)
             val isEnabled = onValueChange != null
             val accessibility = properties.bind(AccessibilityProperty)
+            val checks =
+                checkNotNull(bindChecks(properties)) {
+                    "Property '${ChecksProperty.key}' could not be resolved."
+                }
 
             TypedContent(
                 label = label,
@@ -1972,6 +2111,7 @@ public class A2uiBasicCatalogV1(
                 onValueChange = onValueChange ?: {},
                 enabled = isEnabled,
                 accessibility = accessibility,
+                checks = checks,
                 modifier = modifier,
             )
         }
@@ -1988,6 +2128,9 @@ public class A2uiBasicCatalogV1(
          * @param enabled Controls whether the text field is interactive. When `false`, it does not
          *   respond to user input.
          * @param accessibility Accessibility attributes for the text field.
+         * @param checks validation rules for this text field. When any [CheckRule.condition] is
+         *   false, the text field should display an error state and show the failing
+         *   [CheckRule.message]. See [CheckRule].
          * @param modifier [Modifier] to apply to the layout.
          */
         @Composable
@@ -1999,6 +2142,7 @@ public class A2uiBasicCatalogV1(
             onValueChange: (String) -> Unit,
             enabled: Boolean,
             accessibility: AccessibilityAttributes?,
+            checks: kotlin.collections.List<CheckRule>,
             modifier: Modifier,
         )
     }
@@ -2008,6 +2152,8 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the slider.
+     * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the slider. See
+     *   [CheckRule].
      * * `label` (Dynamic String, optional): The label for the slider.
      * * `min` (Number, optional): The minimum value of the slider. Defaults to `0`.
      * * `max` (Number, required): The maximum value of the slider.
@@ -2024,6 +2170,10 @@ public class A2uiBasicCatalogV1(
             /** The [A2uiProperty] for the `"accessibility"` property of a [Slider]. */
             public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
                 A2uiBasicCatalogV1.AccessibilityProperty
+
+            /** The [A2uiProperty] for the `"checks"` property of a [Slider]. See [CheckRule]. */
+            public val ChecksProperty: DynamicA2uiProperty<kotlin.collections.List<CheckRule>> =
+                A2uiBasicCatalogV1.ChecksProperty
 
             /** The [A2uiProperty] for the `"label"` property of a [Slider]. */
             public val LabelProperty: DynamicA2uiProperty<String> =
@@ -2061,6 +2211,7 @@ public class A2uiBasicCatalogV1(
                 listOf(
                     AccessibilityProperty,
                     WeightProperty,
+                    ChecksProperty,
                     LabelProperty,
                     MinProperty,
                     MaxProperty,
@@ -2073,7 +2224,7 @@ public class A2uiBasicCatalogV1(
 
         @Composable
         override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean =
-            properties.bind(ValueProperty) != null
+            properties.bind(ValueProperty) != null && bindChecks(properties) != null
 
         @Composable
         override fun A2uiComponentScope.Content(
@@ -2093,6 +2244,10 @@ public class A2uiBasicCatalogV1(
             val onValueChange = properties.bindUpdater(ValueProperty)
             val isEnabled = onValueChange != null
             val accessibility = properties.bind(AccessibilityProperty)
+            val checks =
+                checkNotNull(bindChecks(properties)) {
+                    "Property '${ChecksProperty.key}' could not be resolved."
+                }
 
             TypedContent(
                 label = label,
@@ -2102,6 +2257,7 @@ public class A2uiBasicCatalogV1(
                 onValueChange = { newValue -> onValueChange?.invoke(newValue) },
                 enabled = isEnabled,
                 accessibility = accessibility,
+                checks = checks,
                 modifier = modifier,
             )
         }
@@ -2117,6 +2273,8 @@ public class A2uiBasicCatalogV1(
          * @param enabled controls the enabled state of the slider. When `false`, this component
          *   will not respond to user input.
          * @param accessibility Accessibility attributes for the slider.
+         * @param checks validation rules for this slider. When any [CheckRule.condition] is false,
+         *   the slider should indicate an error state. See [CheckRule].
          * @param modifier [Modifier] to apply to the layout.
          */
         @Composable
@@ -2128,6 +2286,7 @@ public class A2uiBasicCatalogV1(
             onValueChange: (Float) -> Unit,
             enabled: Boolean,
             accessibility: AccessibilityAttributes?,
+            checks: kotlin.collections.List<CheckRule>,
             modifier: Modifier,
         )
     }
@@ -2138,6 +2297,8 @@ public class A2uiBasicCatalogV1(
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the date/time
      *   input.
+     * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the date/time
+     *   input. See [CheckRule].
      * * `value` (Dynamic String, required): The selected date and/or time value in ISO 8601 format.
      *   If not yet set, initialize with an empty string.
      * * `enableDate` (Boolean, optional): If true, allows the user to select a date. Defaults to
@@ -2159,6 +2320,12 @@ public class A2uiBasicCatalogV1(
             /** The [A2uiProperty] for the `"accessibility"` property of a [DateTimeInput]. */
             public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
                 A2uiBasicCatalogV1.AccessibilityProperty
+
+            /**
+             * The [A2uiProperty] for the `"checks"` property of a [DateTimeInput]. See [CheckRule].
+             */
+            public val ChecksProperty: DynamicA2uiProperty<kotlin.collections.List<CheckRule>> =
+                A2uiBasicCatalogV1.ChecksProperty
 
             private val DateTimeFormatConstraintSchema =
                 A2uiAnySchema(
@@ -2280,6 +2447,7 @@ public class A2uiBasicCatalogV1(
                 listOf(
                     AccessibilityProperty,
                     WeightProperty,
+                    ChecksProperty,
                     ValueProperty,
                     EnableDateProperty,
                     EnableTimeProperty,
@@ -2294,6 +2462,7 @@ public class A2uiBasicCatalogV1(
 
         @Composable
         override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean {
+            if (bindChecks(properties) == null) return false
             val value = properties.bind(ValueProperty) ?: return false
             if (value.isEmpty()) return true
             val valueMillis = parseIsoDateTimeToUtcMillis(value)
@@ -2344,6 +2513,10 @@ public class A2uiBasicCatalogV1(
                     }
                 } else null
             val accessibility = properties.bind(AccessibilityProperty)
+            val checks =
+                checkNotNull(bindChecks(properties)) {
+                    "Property '${ChecksProperty.key}' could not be resolved."
+                }
 
             TypedContent(
                 value = valueMillis,
@@ -2354,6 +2527,7 @@ public class A2uiBasicCatalogV1(
                 max = maxMillis,
                 label = label,
                 accessibility = accessibility,
+                checks = checks,
                 modifier = modifier,
             )
         }
@@ -2371,6 +2545,9 @@ public class A2uiBasicCatalogV1(
          * @param max maximum allowed date/time in UTC epoch milliseconds, or `null` if unbounded
          * @param label text label describing the input, or `null` if none
          * @param accessibility Accessibility attributes for the date/time input
+         * @param checks validation rules for this date/time input. When any [CheckRule.condition]
+         *   is false, the input should display an error state and show the failing
+         *   [CheckRule.message]. See [CheckRule].
          * @param modifier [Modifier] applied to the component layout
          */
         @Composable
@@ -2383,6 +2560,7 @@ public class A2uiBasicCatalogV1(
             @Suppress("AutoBoxing") max: Long?,
             label: String?,
             accessibility: AccessibilityAttributes?,
+            checks: kotlin.collections.List<CheckRule>,
             modifier: Modifier,
         )
     }
@@ -2392,6 +2570,8 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the checkbox.
+     * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the checkbox.
+     *   See [CheckRule].
      * * `label` (Dynamic String, required): The text to display next to the checkbox.
      * * `value` (Dynamic Boolean, required): The current state of the checkbox (true for checked,
      *   false for unchecked).
@@ -2407,6 +2587,10 @@ public class A2uiBasicCatalogV1(
             /** The [A2uiProperty] for the `"accessibility"` property of a [CheckBox]. */
             public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
                 A2uiBasicCatalogV1.AccessibilityProperty
+
+            /** The [A2uiProperty] for the `"checks"` property of a [CheckBox]. See [CheckRule]. */
+            public val ChecksProperty: DynamicA2uiProperty<kotlin.collections.List<CheckRule>> =
+                A2uiBasicCatalogV1.ChecksProperty
 
             /** The [A2uiProperty] for the `"label"` property of a [CheckBox]. */
             public val LabelProperty: DynamicA2uiProperty<String> =
@@ -2426,7 +2610,13 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(AccessibilityProperty, WeightProperty, LabelProperty, ValueProperty)
+                listOf(
+                    AccessibilityProperty,
+                    WeightProperty,
+                    ChecksProperty,
+                    LabelProperty,
+                    ValueProperty,
+                )
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -2434,7 +2624,9 @@ public class A2uiBasicCatalogV1(
 
         @Composable
         override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean =
-            properties.bind(LabelProperty) != null && properties.bind(ValueProperty) != null
+            properties.bind(LabelProperty) != null &&
+                properties.bind(ValueProperty) != null &&
+                bindChecks(properties) != null
 
         @Composable
         override fun A2uiComponentScope.Content(
@@ -2452,6 +2644,10 @@ public class A2uiBasicCatalogV1(
             val onValueChange = properties.bindUpdater(ValueProperty)
             val isEnabled = onValueChange != null
             val accessibility = properties.bind(AccessibilityProperty)
+            val checks =
+                checkNotNull(bindChecks(properties)) {
+                    "Property '${ChecksProperty.key}' could not be resolved."
+                }
 
             TypedContent(
                 label = label,
@@ -2459,6 +2655,7 @@ public class A2uiBasicCatalogV1(
                 onValueChange = { newValue -> onValueChange?.invoke(newValue) },
                 enabled = isEnabled,
                 accessibility = accessibility,
+                checks = checks,
                 modifier = modifier,
             )
         }
@@ -2472,6 +2669,8 @@ public class A2uiBasicCatalogV1(
          * @param enabled controls the enabled state of the checkbox. When `false`, this component
          *   will not respond to user input.
          * @param accessibility Accessibility attributes for the checkbox.
+         * @param checks validation rules for this checkbox. When any [CheckRule.condition] is
+         *   false, the checkbox should indicate an error state. See [CheckRule].
          * @param modifier [Modifier] to apply to the layout.
          */
         @Composable
@@ -2481,6 +2680,7 @@ public class A2uiBasicCatalogV1(
             onValueChange: (Boolean) -> Unit,
             enabled: Boolean,
             accessibility: AccessibilityAttributes?,
+            checks: kotlin.collections.List<CheckRule>,
             modifier: Modifier,
         )
     }
@@ -2490,6 +2690,8 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the choice picker.
+     * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the choice
+     *   picker. See [CheckRule].
      * * `label` (Dynamic String, optional): The label for the group of options.
      * * `variant` (String Enum, optional): A hint for how the choice picker should be displayed and
      *   behave. Valid options: `"mutuallyExclusive"`, `"multipleSelection"`. Defaults to
@@ -2566,6 +2768,12 @@ public class A2uiBasicCatalogV1(
             /** The [A2uiProperty] for the `"accessibility"` property of a [ChoicePicker]. */
             public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
                 A2uiBasicCatalogV1.AccessibilityProperty
+
+            /**
+             * The [A2uiProperty] for the `"checks"` property of a [ChoicePicker]. See [CheckRule].
+             */
+            public val ChecksProperty: DynamicA2uiProperty<kotlin.collections.List<CheckRule>> =
+                A2uiBasicCatalogV1.ChecksProperty
 
             /** The [A2uiProperty] for the `"label"` property of a [ChoicePicker]. */
             public val LabelProperty: DynamicA2uiProperty<String> =
@@ -2668,6 +2876,7 @@ public class A2uiBasicCatalogV1(
                 listOf(
                     AccessibilityProperty,
                     WeightProperty,
+                    ChecksProperty,
                     LabelProperty,
                     VariantProperty,
                     OptionsProperty,
@@ -2681,10 +2890,10 @@ public class A2uiBasicCatalogV1(
             get() = ComponentProperties
 
         @Composable
-        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean {
-            return properties.bind(OptionsProperty) != null &&
-                properties.bind(ValueProperty) != null
-        }
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean =
+            properties.bind(OptionsProperty) != null &&
+                properties.bind(ValueProperty) != null &&
+                bindChecks(properties) != null
 
         @Composable
         override fun A2uiComponentScope.Content(
@@ -2707,6 +2916,10 @@ public class A2uiBasicCatalogV1(
             val displayStyle = properties[DisplayStyleProperty] ?: DisplayStyle.Default
             val filterable = properties[FilterableProperty] ?: false
             val accessibility = properties.bind(AccessibilityProperty)
+            val checks =
+                checkNotNull(bindChecks(properties)) {
+                    "Property '${ChecksProperty.key}' could not be resolved."
+                }
 
             ReportDuplicateOptions(options)
 
@@ -2720,6 +2933,7 @@ public class A2uiBasicCatalogV1(
                 onValueChange = { newValue -> onValueChange?.invoke(newValue) },
                 enabled = isEnabled,
                 accessibility = accessibility,
+                checks = checks,
                 modifier = modifier,
             )
         }
@@ -2736,6 +2950,8 @@ public class A2uiBasicCatalogV1(
          * @param onValueChange Callback invoked when user selects or deselects options.
          * @param enabled Controls the enabled state of the choice picker.
          * @param accessibility Accessibility attributes for the choice picker.
+         * @param checks validation rules for this choice picker. When any [CheckRule.condition] is
+         *   false, the choice picker should indicate an error state. See [CheckRule].
          * @param modifier [Modifier] to apply to the layout.
          */
         @Composable
@@ -2749,6 +2965,7 @@ public class A2uiBasicCatalogV1(
             onValueChange: (kotlin.collections.List<String>) -> Unit,
             enabled: Boolean,
             accessibility: AccessibilityAttributes?,
+            checks: kotlin.collections.List<CheckRule>,
             modifier: Modifier,
         )
 

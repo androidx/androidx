@@ -88,6 +88,7 @@ internal object MaterialA2uiBasicCatalogV1ChoicePicker : A2uiBasicCatalogV1.Choi
         onValueChange: (List<String>) -> Unit,
         enabled: Boolean,
         accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+        checks: List<A2uiBasicCatalogV1.CheckRule>,
         modifier: Modifier,
     ) {
         val selectedSet = remember(value) { value.toScatterSet() }

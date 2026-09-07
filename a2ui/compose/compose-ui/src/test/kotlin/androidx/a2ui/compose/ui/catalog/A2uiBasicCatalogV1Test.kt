@@ -20,12 +20,15 @@ import androidx.a2ui.compose.runtime.A2uiComponentReference
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.functions.A2uiFormatStringFunction
+import androidx.a2ui.model.schema.A2uiArraySchema
 import androidx.a2ui.model.schema.A2uiNumberSchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
+import androidx.a2ui.model.schema.commontypes.A2uiCheckRuleSchema
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertIs
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -117,6 +120,49 @@ class A2uiBasicCatalogV1Test {
         assertThat(A2uiBasicCatalogV1.WeightProperty.isRequired).isFalse()
         assertThat(A2uiBasicCatalogV1.WeightProperty.schema)
             .isInstanceOf(A2uiNumberSchema::class.java)
+    }
+
+    @Test
+    fun checksProperty_hasExpectedSchema() {
+        assertThat(A2uiBasicCatalogV1.ChecksProperty.key).isEqualTo("checks")
+        assertThat(A2uiBasicCatalogV1.ChecksProperty.isRequired).isFalse()
+        val checksSchema = assertIs<A2uiArraySchema>(A2uiBasicCatalogV1.ChecksProperty.schema)
+        assertThat(checksSchema.items).isEqualTo(A2uiCheckRuleSchema.DEFAULT_INSTANCE)
+    }
+
+    @Test
+    fun components_relevantIncludeChecksProperty() {
+        val catalog = createTestBasicCatalog()
+        val componentsWithChecks =
+            catalog.components.filter {
+                it.properties.contains(A2uiBasicCatalogV1.ChecksProperty)
+            }
+
+        assertThat(componentsWithChecks)
+            .containsExactly(
+                catalog.button,
+                catalog.textField,
+                catalog.slider,
+                catalog.dateTimeInput,
+                catalog.checkBox,
+                catalog.choicePicker,
+            )
+    }
+
+    @Test
+    fun componentCompanionChecksProperties_referenceSharedInstance() {
+        assertThat(A2uiBasicCatalogV1.Button.ChecksProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.ChecksProperty)
+        assertThat(A2uiBasicCatalogV1.TextField.ChecksProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.ChecksProperty)
+        assertThat(A2uiBasicCatalogV1.Slider.ChecksProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.ChecksProperty)
+        assertThat(A2uiBasicCatalogV1.DateTimeInput.ChecksProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.ChecksProperty)
+        assertThat(A2uiBasicCatalogV1.CheckBox.ChecksProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.ChecksProperty)
+        assertThat(A2uiBasicCatalogV1.ChoicePicker.ChecksProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.ChecksProperty)
     }
 
     @Test
@@ -524,6 +570,7 @@ class A2uiBasicCatalogV1Test {
             variant: A2uiBasicCatalogV1.Button.Variant,
             action: Map<String, Any?>,
             accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+            checks: List<A2uiBasicCatalogV1.CheckRule>,
             modifier: Modifier,
         ) {}
     }
@@ -538,6 +585,7 @@ class A2uiBasicCatalogV1Test {
             onValueChange: (String) -> Unit,
             enabled: Boolean,
             accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+            checks: List<A2uiBasicCatalogV1.CheckRule>,
             modifier: Modifier,
         ) {}
     }
@@ -550,6 +598,7 @@ class A2uiBasicCatalogV1Test {
             onValueChange: (Boolean) -> Unit,
             enabled: Boolean,
             accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+            checks: List<A2uiBasicCatalogV1.CheckRule>,
             modifier: Modifier,
         ) {}
     }
@@ -566,6 +615,7 @@ class A2uiBasicCatalogV1Test {
             onValueChange: (List<String>) -> Unit,
             enabled: Boolean,
             accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+            checks: List<A2uiBasicCatalogV1.CheckRule>,
             modifier: Modifier,
         ) {}
     }
@@ -580,6 +630,7 @@ class A2uiBasicCatalogV1Test {
             onValueChange: (Float) -> Unit,
             enabled: Boolean,
             accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+            checks: List<A2uiBasicCatalogV1.CheckRule>,
             modifier: Modifier,
         ) {}
     }
@@ -595,6 +646,7 @@ class A2uiBasicCatalogV1Test {
             max: Long?,
             label: String?,
             accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+            checks: List<A2uiBasicCatalogV1.CheckRule>,
             modifier: Modifier,
         ) {}
     }

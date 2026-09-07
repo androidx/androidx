@@ -152,4 +152,14 @@ class A2uiComponentPropertiesTest {
         assertThat(propsA1).isNotEqualTo(null)
         assertThat(propsA1).isNotEqualTo(Any())
     }
+
+    @Test
+    fun contains_property_returnsCorrectPresence() {
+        val properties = A2uiComponentProperties(mapOf("presentKey" to "value"))
+        val presentProp = A2uiProperty.string("presentKey")
+        val absentProp = A2uiProperty.string("absentKey")
+
+        assertThat(presentProp in properties).isTrue()
+        assertThat(absentProp in properties).isFalse()
+    }
 }
