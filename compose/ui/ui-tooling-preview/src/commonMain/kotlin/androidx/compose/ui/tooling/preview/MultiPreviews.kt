@@ -51,7 +51,7 @@ import androidx.compose.ui.tooling.preview.Wallpapers.YELLOW_DOMINATED_EXAMPLE
 public annotation class PreviewScreenSizes
 
 /**
- * A MultiPreview annotation for desplaying a @[Composable] method using seven standard font sizes.
+ * A MultiPreview annotation for displaying a @[Composable] method using seven standard font sizes.
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION)
@@ -65,7 +65,7 @@ public annotation class PreviewScreenSizes
 public annotation class PreviewFontScale
 
 /**
- * A MultiPreview annotation for desplaying a @[Composable] method using light and dark themes.
+ * A MultiPreview annotation for displaying a @[Composable] method using light and dark themes.
  *
  * Note that the app theme should support dark and light modes for these previews to be different.
  */
@@ -76,7 +76,7 @@ public annotation class PreviewFontScale
 public annotation class PreviewLightDark
 
 /**
- * A MultiPreview annotation for desplaying a @[Composable] method using four different wallpaper
+ * A MultiPreview annotation for displaying a @[Composable] method using four different wallpaper
  * colors.
  *
  * Note that the app should use a dynamic theme for these previews to be different.
