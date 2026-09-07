@@ -168,9 +168,8 @@ private fun DynamicLazyLayoutCacheWindow(
         override val isNonScrollCachingEnabled: Boolean = false
 
         override fun Density.calculateAheadWindow(viewport: Int): Int {
-            val visibleItemsAverageSize =
-                Snapshot.withoutReadObservation { itemSizeCalculator() }.takeIf { it != 0 }
-                    ?: return 0
+            val visibleItemsAverageSize = Snapshot.withoutReadObservation { itemSizeCalculator() }
+            if (visibleItemsAverageSize == 0) return 0
             val minWindow = (viewport * 10) / 100
             val maxWindow = viewport / 2
 
