@@ -23,24 +23,43 @@ import androidx.annotation.RestrictTo
 
 /** Standard surfaces on which Glance Adaptive widgets can be placed. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class GlanceSurface {
+public enum class GlanceSurface(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val tag: String = ""
+) {
     /** Mobile Phone home screen launcher surface. */
-    MOBILE_HOME_SCREEN,
+    MOBILE_HOME_SCREEN("home_screen"),
 
     /** Mobile Phone lockscreen surface or Keyguard glanceable space. */
-    MOBILE_LOCK_SCREEN,
+    MOBILE_LOCK_SCREEN("keyguard"),
 
     /** Large screen tablet home launcher. */
-    TABLET_HOME_SCREEN,
+    TABLET_HOME_SCREEN("tablet_home_screen"),
+
+    /** Android TV home launcher / glanceable surface. */
+    TV_HOME_SCREEN("tv"),
 
     /** Wear OS active Tile carousel. */
-    WEAR_TILE,
+    WEAR_TILE("wear_tile"),
 
     /** Wear OS watch face complication slot. */
-    WEAR_COMPLICATION,
+    WEAR_COMPLICATION("wear_complication"),
 
     /** Spatial XR / Augmented Reality glasses display surface. */
-    XR_GLASSES,
+    XR_GLASSES("xr");
+
+    public companion object {
+        /** Mobile Phone home screen launcher surface alias. */
+        @JvmField public val HOME_SCREEN: GlanceSurface = MOBILE_HOME_SCREEN
+
+        /** Mobile Phone lockscreen surface or Keyguard glanceable space alias. */
+        @JvmField public val LOCK_SCREEN: GlanceSurface = MOBILE_LOCK_SCREEN
+
+        /** Wear OS active Tile carousel / widgets alias. */
+        @JvmField public val WEAR_WIDGETS: GlanceSurface = WEAR_TILE
+
+        /** Android TV home surface alias. */
+        @JvmField public val TV: GlanceSurface = TV_HOME_SCREEN
+    }
 }
 
 /** Utility for detecting the target [GlanceSurface] from host metadata and options. */
