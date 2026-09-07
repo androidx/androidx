@@ -24,6 +24,8 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope.ResizeMode
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation
 import androidx.compose.remote.core.operations.layout.Component
@@ -261,10 +263,21 @@ internal fun Modifier.sharedElementTransition(component: Component): Modifier {
             }
         }
 
+    val fadeSpec =
+        remember(motionDuration, motionEasing) {
+            if (motionDuration <= 0) {
+                snap()
+            } else {
+                tween<Float>(durationMillis = motionDuration, easing = motionEasing)
+            }
+        }
+
     with(sharedTransitionScope) {
         return this@sharedElementTransition.sharedBounds(
             sharedContentState = rememberSharedContentState(key = animationId),
             animatedVisibilityScope = animatedVisibilityScope,
+            enter = fadeIn(animationSpec = fadeSpec),
+            exit = fadeOut(animationSpec = fadeSpec),
             boundsTransform = boundsTransform,
             resizeMode = ResizeMode.RemeasureToBounds,
         )
