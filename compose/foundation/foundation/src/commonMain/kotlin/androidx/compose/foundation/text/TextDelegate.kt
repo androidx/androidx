@@ -30,7 +30,6 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextPainter
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.resolveDefaults
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -83,7 +82,6 @@ internal class TextDelegate(
     val overflow: TextOverflow = TextOverflow.Clip,
     val density: Density,
     val fontFamilyResolver: FontFamily.Resolver,
-    val defaultLocaleList: LocaleList,
     val placeholders: List<AnnotatedString.Range<Placeholder>> = emptyList(),
 ) {
     /*@VisibleForTesting*/
@@ -134,7 +132,6 @@ internal class TextDelegate(
                     style = resolveDefaults(style, layoutDirection),
                     density = density,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocaleList = defaultLocaleList,
                     placeholders = placeholders,
                     softWrap = softWrap,
                 )
@@ -249,7 +246,6 @@ internal class TextDelegate(
                             layoutInput.density,
                             layoutInput.layoutDirection,
                             layoutInput.fontFamilyResolver,
-                            layoutInput.defaultLocaleList,
                             constraints,
                         ),
                     size =
@@ -285,7 +281,6 @@ internal class TextDelegate(
                 density,
                 layoutDirection,
                 fontFamilyResolver,
-                defaultLocaleList,
                 constraints,
             ),
             multiParagraph,
@@ -325,7 +320,6 @@ internal fun updateTextDelegate(
     style: TextStyle,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
-    defaultLocaleList: LocaleList,
     softWrap: Boolean = true,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
@@ -343,8 +337,7 @@ internal fun updateTextDelegate(
             current.minLines != minLines ||
             current.density != density ||
             current.placeholders != placeholders ||
-            current.fontFamilyResolver !== fontFamilyResolver ||
-            current.defaultLocaleList != defaultLocaleList
+            current.fontFamilyResolver !== fontFamilyResolver
     ) {
         TextDelegate(
             text = text,
@@ -355,7 +348,6 @@ internal fun updateTextDelegate(
             minLines = minLines,
             density = density,
             fontFamilyResolver = fontFamilyResolver,
-            defaultLocaleList = defaultLocaleList,
             placeholders = placeholders,
         )
     } else {

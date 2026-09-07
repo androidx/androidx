@@ -47,7 +47,6 @@ class ParagraphFillBoundingBoxesTest {
     private val fontFamilyMeasureFont = FontTestData.BASIC_MEASURE_FONT.toFontFamily()
     private val fontFamilyResolver =
         createFontFamilyResolver(InstrumentationRegistry.getInstrumentation().context)
-    private val defaultLocaleList = TEST_LOCALE_LIST
     private val defaultDensity = Density(density = 1f)
     private val fontSize = 10.sp
     private val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
@@ -700,7 +699,6 @@ class ParagraphFillBoundingBoxesTest {
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
             fontFamilyResolver = fontFamilyResolver,
-            defaultLocaleList = defaultLocaleList,
         )
             as AndroidParagraph
     }

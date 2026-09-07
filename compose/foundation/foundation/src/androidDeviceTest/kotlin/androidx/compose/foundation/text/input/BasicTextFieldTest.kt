@@ -71,8 +71,6 @@ import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalFontFamilyResolver
-import androidx.compose.ui.platform.LocalLocale
-import androidx.compose.ui.platform.LocalLocaleList
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
@@ -1218,7 +1216,6 @@ internal class BasicTextFieldTest {
                         style = textStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        defaultLocaleList = LocalLocaleList.current,
                     )
                     .width
 
@@ -1255,7 +1252,6 @@ internal class BasicTextFieldTest {
                         style = textStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        defaultLocaleList = LocalLocaleList.current,
                     )
                     .width
 
@@ -1329,11 +1325,7 @@ internal class BasicTextFieldTest {
     @Test
     fun changingInputTransformation_restartsInput_ifKeyboardOptionsChange() {
         var inputTransformation by mutableStateOf<InputTransformation?>(null)
-
-        lateinit var locale: Locale
-
         inputMethodInterceptor.setTextFieldTestContent {
-            locale = LocalLocale.current
             val state = remember { TextFieldState() }
             BasicTextField(
                 state = state,
@@ -1346,7 +1338,7 @@ internal class BasicTextFieldTest {
         inputMethodInterceptor.assertSessionActive()
         inputMethodInterceptor.assertThatSessionCount().isEqualTo(1)
 
-        inputTransformation = InputTransformation.allCaps(locale)
+        inputTransformation = InputTransformation.allCaps(Locale.current)
 
         inputMethodInterceptor.assertSessionActive()
         inputMethodInterceptor.assertThatSessionCount().isEqualTo(2)

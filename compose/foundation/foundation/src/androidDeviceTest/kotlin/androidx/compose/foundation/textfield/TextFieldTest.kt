@@ -92,7 +92,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalLocaleList
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.TextToolbar
@@ -366,7 +365,7 @@ class TextFieldTest : FocusedWindowTest {
                     baselineShift = BaselineShift.Superscript,
                     textGeometricTransform = TextGeometricTransform(2f, 3f),
                     localeList =
-                        LocaleList(Locale("sr-Latn-SR"), Locale("sr-Cyrl-SR"), Locale("en")),
+                        LocaleList(Locale("sr-Latn-SR"), Locale("sr-Cyrl-SR"), Locale.current),
                     background = Color.Blue,
                     textDecoration = TextDecoration.LineThrough,
                     shadow = Shadow(color = Color.Red, offset = Offset(2f, 2f), blurRadius = 4f),
@@ -1121,7 +1120,6 @@ class TextFieldTest : FocusedWindowTest {
                         style = textStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        defaultLocaleList = LocalLocaleList.current,
                     )
                     .width
 
@@ -1159,7 +1157,6 @@ class TextFieldTest : FocusedWindowTest {
                         style = textStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        defaultLocaleList = LocalLocaleList.current,
                     )
                     .width
 

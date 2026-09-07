@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.toFontFamily
-import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.matchers.assertThat
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
@@ -44,7 +43,6 @@ class TextMeasurerTest {
     private val fontFamilyMeasureFont = FontTestData.BASIC_MEASURE_FONT.toFontFamily()
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val fontFamilyResolver = createFontFamilyResolver(context)
-    private val defaultLocaleList = TEST_LOCALE_LIST
     private val defaultDensity = Density(density = 1f)
     private val layoutDirection = LayoutDirection.Ltr
 
@@ -496,7 +494,6 @@ class TextMeasurerTest {
         density: Density = this.defaultDensity,
         layoutDirection: LayoutDirection = this.layoutDirection,
         fontFamilyResolver: FontFamily.Resolver = this.fontFamilyResolver,
-        defaultLocaleList: LocaleList = this.defaultLocaleList,
         constraints: Constraints = Constraints(),
     ): TextLayoutInput {
         return TextLayoutInput(
@@ -509,7 +506,6 @@ class TextMeasurerTest {
             density = density,
             layoutDirection = layoutDirection,
             fontFamilyResolver = fontFamilyResolver,
-            defaultLocaleList = defaultLocaleList,
             constraints = constraints,
         )
     }
@@ -521,7 +517,6 @@ class TextMeasurerTest {
         density: Density = this.defaultDensity,
         layoutDirection: LayoutDirection = this.layoutDirection,
         fontFamilyResolver: FontFamily.Resolver = this.fontFamilyResolver,
-        defaultLocaleList: LocaleList = this.defaultLocaleList,
     ): MultiParagraphIntrinsics {
         return MultiParagraphIntrinsics(
             annotatedString = text,
@@ -534,24 +529,15 @@ class TextMeasurerTest {
             density = density,
             fontFamilyResolver = fontFamilyResolver,
             softWrap = true,
-            defaultLocaleList = defaultLocaleList,
         )
     }
 
     private fun textMeasurer(
         fontFamilyResolver: FontFamily.Resolver = this.fontFamilyResolver,
-        defaultLocaleList: LocaleList = this.defaultLocaleList,
         density: Density = this.defaultDensity,
         layoutDirection: LayoutDirection = this.layoutDirection,
         cacheSize: Int = 0,
-    ): TextMeasurer =
-        TextMeasurer(
-            defaultFontFamilyResolver = fontFamilyResolver,
-            defaultLocaleList = defaultLocaleList,
-            defaultDensity = density,
-            defaultLayoutDirection = layoutDirection,
-            cacheSize = cacheSize,
-        )
+    ): TextMeasurer = TextMeasurer(fontFamilyResolver, density, layoutDirection, cacheSize)
 
     private fun layoutText(
         textLayoutInput: TextLayoutInput,

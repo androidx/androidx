@@ -990,7 +990,6 @@ class MultiParagraphIntegrationTest {
                 constraints = Constraints(maxWidth = Float.MAX_VALUE.ceilToInt()),
                 density = defaultDensity,
                 fontFamilyResolver = UncachedFontFamilyResolver(context),
-                defaultLocaleList = TEST_LOCALE_LIST,
                 overflow = TextOverflow.Ellipsis,
             )
 
@@ -1677,7 +1676,6 @@ class MultiParagraphIntegrationTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = UncachedFontFamilyResolver(context),
-                defaultLocaleList = TEST_LOCALE_LIST,
                 overflow = TextOverflow.Clip,
             )
 
@@ -1704,7 +1702,6 @@ class MultiParagraphIntegrationTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = UncachedFontFamilyResolver(context),
-                defaultLocaleList = TEST_LOCALE_LIST,
                 overflow = TextOverflow.Clip,
             )
 
@@ -1730,7 +1727,6 @@ class MultiParagraphIntegrationTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = UncachedFontFamilyResolver(context),
-                defaultLocaleList = TEST_LOCALE_LIST,
                 overflow = TextOverflow.Clip,
             )
 
@@ -1757,7 +1753,6 @@ class MultiParagraphIntegrationTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = UncachedFontFamilyResolver(context),
-                defaultLocaleList = TEST_LOCALE_LIST,
                 overflow = TextOverflow.Clip,
             )
 
@@ -1793,7 +1788,6 @@ class MultiParagraphIntegrationTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = UncachedFontFamilyResolver(context),
-                defaultLocaleList = TEST_LOCALE_LIST,
                 overflow = TextOverflow.Clip,
             )
 
@@ -1834,7 +1828,6 @@ class MultiParagraphIntegrationTest {
             constraints = Constraints(),
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            defaultLocaleList = TEST_LOCALE_LIST,
             overflow = TextOverflow.Clip,
         )
     }
@@ -1848,7 +1841,6 @@ class MultiParagraphIntegrationTest {
             constraints = minWidthConstraints,
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            defaultLocaleList = TEST_LOCALE_LIST,
             overflow = TextOverflow.Clip,
         )
     }
@@ -1862,7 +1854,6 @@ class MultiParagraphIntegrationTest {
             constraints = minHeightConstraints,
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            defaultLocaleList = TEST_LOCALE_LIST,
             overflow = TextOverflow.Clip,
         )
     }
@@ -1887,7 +1878,6 @@ class MultiParagraphIntegrationTest {
                 constraints = constraints,
                 density = this,
                 fontFamilyResolver = UncachedFontFamilyResolver(context),
-                defaultLocaleList = TEST_LOCALE_LIST,
                 overflow = TextOverflow.Clip,
             )
         }
@@ -2109,7 +2099,6 @@ class MultiParagraphIntegrationTest {
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
             softWrap = true,
-            defaultLocaleList = TEST_LOCALE_LIST,
         )
     }
 
@@ -2127,7 +2116,6 @@ class MultiParagraphIntegrationTest {
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            defaultLocaleList = TEST_LOCALE_LIST,
             overflow = TextOverflow.Clip,
         )
     }
@@ -2146,7 +2134,6 @@ class MultiParagraphIntegrationTest {
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            defaultLocaleList = TEST_LOCALE_LIST,
             overflow = TextOverflow.Clip,
         )
     }
@@ -2172,7 +2159,6 @@ class MultiParagraphIntegrationTest {
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            defaultLocaleList = TEST_LOCALE_LIST,
             overflow = TextOverflow.Clip,
         )
     }

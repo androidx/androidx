@@ -28,7 +28,6 @@ import androidx.compose.ui.text.TextLayoutInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.resolveDefaults
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -51,7 +50,6 @@ internal class ParagraphLayoutCache(
     private var text: String,
     private var style: TextStyle,
     private var fontFamilyResolver: FontFamily.Resolver,
-    private var defaultLocaleList: LocaleList,
     private var overflow: TextOverflow = TextOverflow.Clip,
     private var softWrap: Boolean = true,
     private var maxLines: Int = Int.MAX_VALUE,
@@ -212,7 +210,6 @@ internal class ParagraphLayoutCache(
                     style,
                     density!!,
                     fontFamilyResolver,
-                    defaultLocaleList,
                 )
                 .also { mMinLinesConstrainer = it }
         return localMin.coerceMinLines(inConstraints = constraints, minLines = minLines)
@@ -253,7 +250,6 @@ internal class ParagraphLayoutCache(
         text: String,
         style: TextStyle,
         fontFamilyResolver: FontFamily.Resolver,
-        defaultLocaleList: LocaleList,
         overflow: TextOverflow,
         softWrap: Boolean,
         maxLines: Int,
@@ -262,7 +258,6 @@ internal class ParagraphLayoutCache(
         this.text = text
         this.style = style
         this.fontFamilyResolver = fontFamilyResolver
-        this.defaultLocaleList = defaultLocaleList
         this.overflow = overflow
         this.softWrap = softWrap
         this.maxLines = maxLines
@@ -300,7 +295,6 @@ internal class ParagraphLayoutCache(
                     annotations = listOf(),
                     density = density!!,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocaleList = defaultLocaleList,
                     placeholders = listOf(),
                     softWrap = softWrap,
                 )
@@ -411,7 +405,6 @@ internal class ParagraphLayoutCache(
                 localDensity,
                 localLayoutDirection,
                 fontFamilyResolver,
-                defaultLocaleList,
                 finalConstraints,
             ),
             MultiParagraph(
@@ -422,7 +415,6 @@ internal class ParagraphLayoutCache(
                     density = localDensity,
                     fontFamilyResolver = fontFamilyResolver,
                     softWrap = softWrap,
-                    defaultLocaleList = defaultLocaleList,
                 ),
                 finalConstraints,
                 maxLines,

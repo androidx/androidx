@@ -222,7 +222,6 @@ class MultiParagraphGetRangeForRectTest {
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            defaultLocaleList = TEST_LOCALE_LIST,
             overflow = TextOverflow.Clip,
         )
     }
