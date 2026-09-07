@@ -44,6 +44,9 @@ import java.util.Objects;
  *       original colors without allowing host-side tinting (e.g., user avatars, media album art,
  *       photos, or un-tinted brand graphics).
  * </ul>
+ *
+ * <p> If not set, an icon using {@link CarIconStyle#ORIGINAL}
+ * (with no tint and default shape) will be rendered.
  */
 @CarProtocol
 @KeepFields
