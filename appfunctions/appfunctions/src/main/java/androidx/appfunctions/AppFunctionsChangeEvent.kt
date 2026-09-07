@@ -23,7 +23,7 @@ import java.util.Objects
  * Represents a change event in the registered app functions observed by
  * [AppFunctionManager.observeAppFunctions].
  */
-public abstract class ObserveAppFunctionsEvent private constructor() {
+public abstract class AppFunctionsChangeEvent private constructor() {
     /**
      * Triggered when changes occur to a package exposing app functions that may impact the state or
      * metadata of its contained functions.
@@ -49,7 +49,7 @@ public abstract class ObserveAppFunctionsEvent private constructor() {
     public class MetadataChanged(
         /** The set of package names that have changed. */
         public val changedPackageNames: Set<String>
-    ) : ObserveAppFunctionsEvent() {
+    ) : AppFunctionsChangeEvent() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -75,7 +75,7 @@ public abstract class ObserveAppFunctionsEvent private constructor() {
     public class StatesChanged(
         /** The set of [AppFunctionName]s representing functions whose state has changed. */
         public val changedFunctionNames: Set<AppFunctionName>
-    ) : ObserveAppFunctionsEvent() {
+    ) : AppFunctionsChangeEvent() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false

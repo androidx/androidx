@@ -20,9 +20,9 @@ import android.os.Build
 import androidx.appfunctions.AppFunctionData
 import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionSearchSpec
+import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
-import androidx.appfunctions.ObserveAppFunctionsEvent
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionLongTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_ACTIVITY
@@ -224,7 +224,7 @@ class AppFunctionTestRuleTest {
                 }
 
                 val event = changeEventFlow.take(1).first()
-                assertIs<ObserveAppFunctionsEvent.StatesChanged>(event)
+                assertIs<AppFunctionsChangeEvent.StatesChanged>(event)
                 assertThat(event.changedFunctionNames)
                     .containsExactly(AppFunctionName(context.packageName, functionIdToTest))
             } finally {

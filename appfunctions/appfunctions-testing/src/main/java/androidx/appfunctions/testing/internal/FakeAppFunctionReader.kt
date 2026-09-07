@@ -23,7 +23,7 @@ import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.AppFunctionState
-import androidx.appfunctions.ObserveAppFunctionsEvent
+import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.internal.AggregatedAppFunctionInventory
 import androidx.appfunctions.internal.AppFunctionReader
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
@@ -189,7 +189,7 @@ internal class FakeAppFunctionReader(context: Context) : AppFunctionReader {
         }
     }
 
-    override fun observeAppFunctions(): Flow<ObserveAppFunctionsEvent> {
+    override fun observeAppFunctions(): Flow<AppFunctionsChangeEvent> {
         return flow {
             var prevFunctionMap: Map<String, Map<String, AppFunctionStaticAndRuntimeMetadata>>? =
                 null
@@ -251,10 +251,10 @@ internal class FakeAppFunctionReader(context: Context) : AppFunctionReader {
                 }
 
                 if (changedPackages.isNotEmpty()) {
-                    emit(ObserveAppFunctionsEvent.MetadataChanged(changedPackages))
+                    emit(AppFunctionsChangeEvent.MetadataChanged(changedPackages))
                 }
                 if (changedFunctions.isNotEmpty()) {
-                    emit(ObserveAppFunctionsEvent.StatesChanged(changedFunctions))
+                    emit(AppFunctionsChangeEvent.StatesChanged(changedFunctions))
                 }
             }
         }

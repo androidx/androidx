@@ -21,9 +21,9 @@ import android.os.Build
 import androidx.appfunctions.AppFunctionData
 import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionSearchSpec
+import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
-import androidx.appfunctions.ObserveAppFunctionsEvent
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ADDITIONAL_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ADD_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.COMPONENT_CHANGED_FUNCTION_ID
@@ -124,7 +124,7 @@ class ObserveAppFunctionsIntegrationTest {
                 functionIdentifier = ENABLED_BY_DEFAULT_FUNCTION_ID,
             )
 
-        val receivedEvents = mutableListOf<ObserveAppFunctionsEvent>()
+        val receivedEvents = mutableListOf<AppFunctionsChangeEvent>()
         observeAppFunctionsWithRegisteredFlow { eventChannel ->
             dispatchSentinelNotification(eventChannel)
             try {
@@ -143,7 +143,7 @@ class ObserveAppFunctionsIntegrationTest {
                     // Drain all pending events in the channel at the time of assertion
                     drainEvents(eventChannel, receivedEvents)
                     val hasTargetAppFunction = receivedEvents.any { event ->
-                        event is ObserveAppFunctionsEvent.StatesChanged &&
+                        event is AppFunctionsChangeEvent.StatesChanged &&
                             event.changedFunctionNames.contains(enabledByDefaultFunction)
                     }
                     assertThat(hasTargetAppFunction).isTrue()
@@ -165,7 +165,7 @@ class ObserveAppFunctionsIntegrationTest {
                 functionIdentifier = CREATE_NOTE_FUNCTION_ID,
             )
 
-        val receivedEvents = mutableListOf<ObserveAppFunctionsEvent>()
+        val receivedEvents = mutableListOf<AppFunctionsChangeEvent>()
         observeAppFunctionsWithRegisteredFlow { eventChannel ->
             dispatchSentinelNotification(eventChannel)
             try {
@@ -184,7 +184,7 @@ class ObserveAppFunctionsIntegrationTest {
                     // Drain all pending events in the channel at the time of assertion
                     drainEvents(eventChannel, receivedEvents)
                     val hasTargetAppFunction = receivedEvents.any { event ->
-                        event is ObserveAppFunctionsEvent.StatesChanged &&
+                        event is AppFunctionsChangeEvent.StatesChanged &&
                             event.changedFunctionNames.contains(enabledByDefaultFunction)
                     }
                     assertThat(hasTargetAppFunction).isTrue()
@@ -206,7 +206,7 @@ class ObserveAppFunctionsIntegrationTest {
                 functionIdentifier = DISABLED_BY_DEFAULT_FUNCTION_ID,
             )
 
-        val receivedEvents = mutableListOf<ObserveAppFunctionsEvent>()
+        val receivedEvents = mutableListOf<AppFunctionsChangeEvent>()
         observeAppFunctionsWithRegisteredFlow { eventChannel ->
             dispatchSentinelNotification(eventChannel)
             try {
@@ -226,7 +226,7 @@ class ObserveAppFunctionsIntegrationTest {
                     // Drain all pending events in the channel at the time of assertion
                     drainEvents(eventChannel, receivedEvents)
                     val hasTargetAppFunction = receivedEvents.any { event ->
-                        event is ObserveAppFunctionsEvent.StatesChanged &&
+                        event is AppFunctionsChangeEvent.StatesChanged &&
                             event.changedFunctionNames.contains(disabledByDefaultFunction)
                     }
                     assertThat(hasTargetAppFunction).isTrue()
@@ -271,7 +271,7 @@ class ObserveAppFunctionsIntegrationTest {
                 functionIdentifier = CREATE_NOTE_DISABLED_BY_DEFAULT_FUNCTION_ID,
             )
 
-        val receivedEvents = mutableListOf<ObserveAppFunctionsEvent>()
+        val receivedEvents = mutableListOf<AppFunctionsChangeEvent>()
         observeAppFunctionsWithRegisteredFlow { eventChannel ->
             dispatchSentinelNotification(eventChannel)
             try {
@@ -291,7 +291,7 @@ class ObserveAppFunctionsIntegrationTest {
                     // Drain all pending events in the channel at the time of assertion
                     drainEvents(eventChannel, receivedEvents)
                     val hasTargetAppFunction = receivedEvents.any { event ->
-                        event is ObserveAppFunctionsEvent.StatesChanged &&
+                        event is AppFunctionsChangeEvent.StatesChanged &&
                             event.changedFunctionNames.contains(disabledByDefaultFunction)
                     }
                     assertThat(hasTargetAppFunction).isTrue()
@@ -330,7 +330,7 @@ class ObserveAppFunctionsIntegrationTest {
 
     @Test
     fun observeAppFunctions_onPackageUninstalled_emitsPackageChange() = doBlocking {
-        val receivedEvents = mutableListOf<ObserveAppFunctionsEvent>()
+        val receivedEvents = mutableListOf<AppFunctionsChangeEvent>()
         observeAppFunctionsWithRegisteredFlow { eventChannel ->
             dispatchSentinelNotification(eventChannel)
 
@@ -340,7 +340,7 @@ class ObserveAppFunctionsIntegrationTest {
                 drainEvents(eventChannel, receivedEvents)
                 val targetPackageChangeEvents =
                     receivedEvents
-                        .filterIsInstance<ObserveAppFunctionsEvent.MetadataChanged>()
+                        .filterIsInstance<AppFunctionsChangeEvent.MetadataChanged>()
                         .filter { event -> event.changedPackageNames.contains(TARGET_APP_PACKAGE) }
                 assertThat(targetPackageChangeEvents).isNotEmpty()
             }
@@ -355,7 +355,7 @@ class ObserveAppFunctionsIntegrationTest {
 
     @Test
     fun observeAppFunctions_onPackageInstalled_emitsPackageChange() = doBlocking {
-        val receivedEvents = mutableListOf<ObserveAppFunctionsEvent>()
+        val receivedEvents = mutableListOf<AppFunctionsChangeEvent>()
 
         observeAppFunctionsWithRegisteredFlow { eventChannel ->
             dispatchSentinelNotification(eventChannel)
@@ -368,7 +368,7 @@ class ObserveAppFunctionsIntegrationTest {
 
                 val targetPackageChangeEvents =
                     receivedEvents
-                        .filterIsInstance<ObserveAppFunctionsEvent.MetadataChanged>()
+                        .filterIsInstance<AppFunctionsChangeEvent.MetadataChanged>()
                         .filter { event -> event.changedPackageNames.contains(TARGET_APP_PACKAGE) }
                 assertThat(targetPackageChangeEvents).isNotEmpty()
             }
@@ -384,7 +384,7 @@ class ObserveAppFunctionsIntegrationTest {
 
                 val targetPackageChangeEvents =
                     receivedEvents
-                        .filterIsInstance<ObserveAppFunctionsEvent.MetadataChanged>()
+                        .filterIsInstance<AppFunctionsChangeEvent.MetadataChanged>()
                         .filter { event -> event.changedPackageNames.contains(TARGET_APP_PACKAGE) }
                 assertThat(targetPackageChangeEvents).isNotEmpty()
             }
@@ -400,7 +400,7 @@ class ObserveAppFunctionsIntegrationTest {
 
     @Test
     fun observeAppFunctions_onPackageUpdated_functionAdded_emitsPackageChange() = doBlocking {
-        val receivedEvents = mutableListOf<ObserveAppFunctionsEvent>()
+        val receivedEvents = mutableListOf<AppFunctionsChangeEvent>()
         observeAppFunctionsWithRegisteredFlow { eventChannel ->
             dispatchSentinelNotification(eventChannel)
 
@@ -416,7 +416,7 @@ class ObserveAppFunctionsIntegrationTest {
                 drainEvents(eventChannel, receivedEvents)
                 val targetPackageChangeEvents =
                     receivedEvents
-                        .filterIsInstance<ObserveAppFunctionsEvent.MetadataChanged>()
+                        .filterIsInstance<AppFunctionsChangeEvent.MetadataChanged>()
                         .filter { event -> event.changedPackageNames.contains(TARGET_APP_PACKAGE) }
                 assertThat(targetPackageChangeEvents).isNotEmpty()
             }
@@ -442,7 +442,7 @@ class ObserveAppFunctionsIntegrationTest {
             expectedFunctionIds = setOf(ADDITIONAL_FUNCTION_ID),
         )
 
-        val receivedEvents = mutableListOf<ObserveAppFunctionsEvent>()
+        val receivedEvents = mutableListOf<AppFunctionsChangeEvent>()
         observeAppFunctionsWithRegisteredFlow { eventChannel ->
             dispatchSentinelNotification(eventChannel)
 
@@ -458,7 +458,7 @@ class ObserveAppFunctionsIntegrationTest {
                 drainEvents(eventChannel, receivedEvents)
                 val targetPackageChangeEvents =
                     receivedEvents
-                        .filterIsInstance<ObserveAppFunctionsEvent.MetadataChanged>()
+                        .filterIsInstance<AppFunctionsChangeEvent.MetadataChanged>()
                         .filter { event -> event.changedPackageNames.contains(TARGET_APP_PACKAGE) }
                 assertThat(targetPackageChangeEvents).isNotEmpty()
             }
@@ -488,7 +488,7 @@ class ObserveAppFunctionsIntegrationTest {
             expectedFunctionIds = setOf(COMPONENT_CHANGED_FUNCTION_ID),
         )
 
-        val receivedEvents = mutableListOf<ObserveAppFunctionsEvent>()
+        val receivedEvents = mutableListOf<AppFunctionsChangeEvent>()
         observeAppFunctionsWithRegisteredFlow { eventChannel ->
             dispatchSentinelNotification(eventChannel)
 
@@ -535,7 +535,7 @@ class ObserveAppFunctionsIntegrationTest {
                 drainEvents(eventChannel, receivedEvents)
                 val targetPackageChangeEvents =
                     receivedEvents
-                        .filterIsInstance<ObserveAppFunctionsEvent.MetadataChanged>()
+                        .filterIsInstance<AppFunctionsChangeEvent.MetadataChanged>()
                         .filter { event -> event.changedPackageNames.contains(TARGET_APP_PACKAGE) }
                 assertThat(targetPackageChangeEvents).isNotEmpty()
             }
@@ -543,11 +543,11 @@ class ObserveAppFunctionsIntegrationTest {
     }
 
     private suspend fun observeAppFunctionsWithRegisteredFlow(
-        onObserverRegistered: suspend CoroutineScope.(Channel<ObserveAppFunctionsEvent>) -> Unit
+        onObserverRegistered: suspend CoroutineScope.(Channel<AppFunctionsChangeEvent>) -> Unit
     ) {
         coroutineScope {
             val flow = appFunctionManager.observeAppFunctions()
-            val eventChannel = Channel<ObserveAppFunctionsEvent>(Channel.UNLIMITED)
+            val eventChannel = Channel<AppFunctionsChangeEvent>(Channel.UNLIMITED)
             val collectJob = launch { flow.collect { event -> eventChannel.send(event) } }
 
             try {
@@ -565,7 +565,7 @@ class ObserveAppFunctionsIntegrationTest {
     }
 
     private suspend fun dispatchSentinelNotification(
-        vararg channels: Channel<ObserveAppFunctionsEvent>
+        vararg channels: Channel<AppFunctionsChangeEvent>
     ) {
         val sentinelFunctionName =
             AppFunctionName(
@@ -594,11 +594,11 @@ class ObserveAppFunctionsIntegrationTest {
         setAppFunctionStateRemoteAsync(sentinelFunctionName, targetState)
 
         for (channel in channels) {
-            val received = mutableListOf<ObserveAppFunctionsEvent>()
+            val received = mutableListOf<AppFunctionsChangeEvent>()
             retryAssert {
                 drainEvents(channel, received)
                 val hasSentinel = received.any { event ->
-                    event is ObserveAppFunctionsEvent.StatesChanged &&
+                    event is AppFunctionsChangeEvent.StatesChanged &&
                         event.changedFunctionNames.contains(sentinelFunctionName)
                 }
                 assertThat(hasSentinel).isTrue()
@@ -607,8 +607,8 @@ class ObserveAppFunctionsIntegrationTest {
     }
 
     private fun drainEvents(
-        eventChannel: Channel<ObserveAppFunctionsEvent>,
-        receivedEvents: MutableList<ObserveAppFunctionsEvent>,
+        eventChannel: Channel<AppFunctionsChangeEvent>,
+        receivedEvents: MutableList<AppFunctionsChangeEvent>,
     ) {
         while (true) {
             val result = eventChannel.tryReceive()

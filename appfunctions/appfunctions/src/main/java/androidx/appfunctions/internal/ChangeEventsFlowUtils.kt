@@ -16,7 +16,7 @@
 
 package androidx.appfunctions.internal
 
-import androidx.appfunctions.ObserveAppFunctionsEvent
+import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.metadata.AppFunctionName
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -24,20 +24,20 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 
-/** Utility methods for working with [ObserveAppFunctionsEvent] [Flow]s. */
+/** Utility methods for working with [AppFunctionsChangeEvent] [Flow]s. */
 internal object ChangeEventsFlowUtils {
 
     /**
-     * Debounces and merges [ObserveAppFunctionsEvent]s.
+     * Debounces and merges [AppFunctionsChangeEvent]s.
      *
      * It aggregates events that occur within the [debounceMillis] window and emits them as
-     * consolidated [ObserveAppFunctionsEvent.MetadataChanged] and
-     * [ObserveAppFunctionsEvent.StatesChanged] events.
+     * consolidated [AppFunctionsChangeEvent.MetadataChanged] and
+     * [AppFunctionsChangeEvent.StatesChanged] events.
      */
     @OptIn(FlowPreview::class)
-    public fun Flow<ObserveAppFunctionsEvent>.debounceAndMerge(
+    public fun Flow<AppFunctionsChangeEvent>.debounceAndMerge(
         debounceMillis: kotlin.time.Duration
-    ): Flow<ObserveAppFunctionsEvent> = flow {
+    ): Flow<AppFunctionsChangeEvent> = flow {
         var pendingPackages = mutableSetOf<String>()
         var pendingFunctions = mutableSetOf<AppFunctionName>()
         val pendingEventsLock = Any()
@@ -45,11 +45,11 @@ internal object ChangeEventsFlowUtils {
         this@debounceAndMerge.onEach { event ->
                 synchronized(pendingEventsLock) {
                     when (event) {
-                        is ObserveAppFunctionsEvent.MetadataChanged -> {
+                        is AppFunctionsChangeEvent.MetadataChanged -> {
                             pendingPackages.addAll(event.changedPackageNames)
                         }
 
-                        is ObserveAppFunctionsEvent.StatesChanged -> {
+                        is AppFunctionsChangeEvent.StatesChanged -> {
                             pendingFunctions.addAll(event.changedFunctionNames)
                         }
                     }
@@ -69,10 +69,10 @@ internal object ChangeEventsFlowUtils {
                 }
 
                 if (packagesToEmit.isNotEmpty()) {
-                    emit(ObserveAppFunctionsEvent.MetadataChanged(packagesToEmit))
+                    emit(AppFunctionsChangeEvent.MetadataChanged(packagesToEmit))
                 }
                 if (functionsToEmit.isNotEmpty()) {
-                    emit(ObserveAppFunctionsEvent.StatesChanged(functionsToEmit))
+                    emit(AppFunctionsChangeEvent.StatesChanged(functionsToEmit))
                 }
             }
     }
