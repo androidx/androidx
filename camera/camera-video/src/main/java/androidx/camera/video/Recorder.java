@@ -597,6 +597,7 @@ public final class Recorder implements VideoOutput {
     private @Nullable OutputStorage mOutputStorage = null;
     private long mAvailableBytesAboveRequired = Long.MAX_VALUE;
     private boolean mHasGlProcessing = false;
+    final List<AudioProcessor> mAudioProcessors;
     //--------------------------------------------------------------------------------------------//
 
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec,
@@ -605,7 +606,8 @@ public final class Recorder implements VideoOutput {
             @NonNull EncoderFactory audioEncoderFactory,
             @NonNull MuxerFactory muxerFactory,
             OutputStorage.@NonNull Factory outputStorageFactory,
-            long requiredFreeStorageBytes) {
+            long requiredFreeStorageBytes,
+            @NonNull List<AudioProcessor> audioProcessors) {
         mUserProvidedExecutor = executor;
         mExecutor = executor != null ? executor : CameraXExecutors.ioExecutor();
         mSequentialExecutor = CameraXExecutors.newSequentialExecutor(mExecutor);
@@ -624,6 +626,7 @@ public final class Recorder implements VideoOutput {
         mRequiredFreeStorageBytes =
                 requiredFreeStorageBytes != REQUIRED_FREE_STORAGE_UNSET
                         ? requiredFreeStorageBytes : REQUIRED_FREE_STORAGE_DEFAULT_BYTES;
+        mAudioProcessors = audioProcessors;
 
         Logger.d(TAG, "mediaSpec = " + mediaSpec);
         Logger.d(TAG, "mRequiredFreeStorageBytes = " + formatSize(mRequiredFreeStorageBytes));
@@ -933,6 +936,21 @@ public final class Recorder implements VideoOutput {
     public int getTargetAudioChannelCount() {
         int channelCount = getObservableData(mMediaSpec).getAudioSpec().getChannelCount();
         return channelCount == AudioSpec.CHANNEL_COUNT_UNSPECIFIED ? 0 : channelCount;
+    }
+
+    /**
+     * Returns an unmodifiable list of {@link AudioProcessor}s configured on this {@link Recorder}.
+     *
+     * <p>If no processors were configured via {@link Builder#setAudioProcessors(List)}, returns
+     * an empty list.
+     *
+     * @return unmodifiable list of audio processors in processing order
+     * @see Builder#setAudioProcessors(List)
+     */
+    // TODO: b/305067133 - Make this public in next alpha
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull List<@NonNull AudioProcessor> getAudioProcessors() {
+        return mAudioProcessors;
     }
 
     /** Gets an {@link Observable} of the video encoder's supported bitrate range. */
@@ -1739,11 +1757,12 @@ public final class Recorder implements VideoOutput {
         // TODO: set audioSourceTimebase to AudioSource. Currently AudioSource hard code
         //  AudioTimestamp.TIMEBASE_MONOTONIC.
         mAudioSource = setupAudioSource(recordingToStart, audioSettings);
+        AudioSettings audioSourceOutputSettings = mAudioSource.getOutputAudioSettings();
         Logger.d(TAG, String.format("Set up new audio source: 0x%x", mAudioSource.hashCode()));
 
         // Select and create the audio encoder
         AudioEncoderConfig audioEncoderConfig = resolveAudioEncoderConfig(audioMimeInfo,
-                audioSourceTimebase, audioSettings, mediaSpec.getAudioSpec());
+                audioSourceTimebase, audioSourceOutputSettings, mediaSpec.getAudioSpec());
         mAudioEncoder = mAudioEncoderFactory.createEncoder(mExecutor, audioEncoderConfig,
                 checkNotNull(mLatestSurfaceRequest).getSessionType());
 
@@ -1759,7 +1778,7 @@ public final class Recorder implements VideoOutput {
     private @NonNull AudioSource setupAudioSource(@NonNull RecordingRecord recordingToStart,
             @NonNull AudioSettings audioSettings)
             throws AudioSourceAccessException {
-        return recordingToStart.performOneTimeAudioSourceCreation(audioSettings);
+        return recordingToStart.performOneTimeAudioSourceCreation(audioSettings, mAudioProcessors);
     }
 
     private void releaseCurrentAudioSource() {
@@ -3697,9 +3716,10 @@ public final class Recorder implements VideoOutput {
                 @Override
                 @RequiresPermission(Manifest.permission.RECORD_AUDIO)
                 public @NonNull AudioSource get(@NonNull AudioSettings settings,
-                        @NonNull Executor executor)
+                        @NonNull Executor executor,
+                        @NonNull List<AudioProcessor> audioProcessors)
                         throws AudioSourceAccessException {
-                    return new AudioSource(settings, executor, attributionContext);
+                    return new AudioSource(settings, executor, attributionContext, audioProcessors);
                 }
             };
 
@@ -3772,7 +3792,8 @@ public final class Recorder implements VideoOutput {
          * {@link AssertionError}.
          */
         @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-        @NonNull AudioSource performOneTimeAudioSourceCreation(@NonNull AudioSettings settings)
+        @NonNull AudioSource performOneTimeAudioSourceCreation(@NonNull AudioSettings settings,
+                @NonNull List<AudioProcessor> audioProcessors)
                 throws AudioSourceAccessException {
             if (!hasAudioEnabled()) {
                 throw new AssertionError("Recording does not have audio enabled. Unable to create"
@@ -3785,7 +3806,7 @@ public final class Recorder implements VideoOutput {
                         + " recording " + this);
             }
 
-            return audioSourceSupplier.get(settings, AUDIO_EXECUTOR);
+            return audioSourceSupplier.get(settings, AUDIO_EXECUTOR, audioProcessors);
         }
 
         /**
@@ -3897,7 +3918,9 @@ public final class Recorder implements VideoOutput {
         private interface AudioSourceSupplier {
             @RequiresPermission(Manifest.permission.RECORD_AUDIO)
             @NonNull AudioSource get(@NonNull AudioSettings settings,
-                    @NonNull Executor audioSourceExecutor) throws AudioSourceAccessException;
+                    @NonNull Executor audioSourceExecutor,
+                    @NonNull List<AudioProcessor> audioProcessors)
+                    throws AudioSourceAccessException;
         }
     }
 
@@ -3915,6 +3938,7 @@ public final class Recorder implements VideoOutput {
         private MuxerFactory mMuxerFactory = DEFAULT_MUXER_FACTORY;
         private OutputStorage.Factory mOutputStorageFactory = OUTPUT_STORAGE_FACTORY_DEFAULT;
         private long mRequiredFreeStorageBytes = REQUIRED_FREE_STORAGE_UNSET;
+        private List<AudioProcessor> mAudioProcessors = Collections.emptyList();
 
         /**
          * Constructor for {@code Recorder.Builder}.
@@ -4240,6 +4264,54 @@ public final class Recorder implements VideoOutput {
             return this;
         }
 
+        /**
+         * Sets the ordered list of {@link AudioProcessor}s to run sequentially on the audio stream.
+         *
+         * <p>Audio processors intercept, analyze, or transform audio samples in real time before
+         * they are encoded and muxed into the video container.
+         *
+         * <p>Processors run strictly in the order provided: the output of processor {@code i}
+         * is supplied as the input to processor {@code i + 1}. The first processor receives raw
+         * audio from the audio source. Mutative processors (custom {@link AudioProcessor}
+         * implementations) and non-destructive inspection processors (subclasses of
+         * {@link PassthroughAudioProcessor}) may be freely combined in the chain.
+         *
+         * <h3>Contract Requirements</h3>
+         * <ul>
+         *   <li><b>Terminal Format:</b> The final processor in the chain (or the only
+         *       processor if only one is provided) must output audio in
+         *       {@link android.media.AudioFormat#ENCODING_PCM_16BIT}. If the terminal
+         *       processor outputs any other encoding, fails configuration, or throws an
+         *       unhandled exception during streaming, audio recording will fail with
+         *       {@link AudioStats#AUDIO_STATE_SOURCE_ERROR} and recording will proceed
+         *       without audio. The underlying exception can be inspected via
+         *       {@link AudioStats#getErrorCause()}.</li>
+         *   <li><b>Threading:</b> {@link AudioProcessor#configure} is called on a
+         *       background setup thread during recording initialization. Streaming methods
+         *       run synchronously on an internal audio worker thread. Implementations must
+         *       be non-blocking.</li>
+         * </ul>
+         *
+         * @param audioProcessors ordered list of non-null audio processors
+         * @return this builder
+         * @throws NullPointerException if {@code audioProcessors} or any element within it is null
+         * @see AudioProcessor
+         * @see PassthroughAudioProcessor
+         * @see Recorder#getAudioProcessors()
+         */
+        // TODO: b/305067133 - Make this public in next alpha
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public @NonNull Builder setAudioProcessors(
+                @NonNull List<@NonNull AudioProcessor> audioProcessors) {
+            Preconditions.checkNotNull(audioProcessors, "The audioProcessors cannot be null.");
+            for (AudioProcessor processor : audioProcessors) {
+                Preconditions.checkNotNull(processor,
+                        "The audioProcessors cannot contain null elements.");
+            }
+            mAudioProcessors = Collections.unmodifiableList(new ArrayList<>(audioProcessors));
+            return this;
+        }
+
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull Builder setVideoEncoderFactory(@NonNull EncoderFactory videoEncoderFactory) {
             mVideoEncoderFactory = videoEncoderFactory;
@@ -4268,7 +4340,7 @@ public final class Recorder implements VideoOutput {
         public @NonNull Recorder build() {
             return new Recorder(mExecutor, mMediaSpecBuilder.build(), mVideoCapabilitiesSource,
                     mVideoEncoderFactory, mAudioEncoderFactory, mMuxerFactory,
-                    mOutputStorageFactory, mRequiredFreeStorageBytes);
+                    mOutputStorageFactory, mRequiredFreeStorageBytes, mAudioProcessors);
         }
     }
 }
