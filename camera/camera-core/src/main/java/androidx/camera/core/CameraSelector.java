@@ -53,7 +53,7 @@ import java.util.Set;
  */
 public final class CameraSelector {
 
-    /** A camera on the devices that its lens facing is resolved. */
+    /** A camera on the device whose lens facing is not resolved. */
     public static final int LENS_FACING_UNKNOWN = -1;
     /** A camera on the device facing the same direction as the device's screen. */
     public static final int LENS_FACING_FRONT = 0;
@@ -69,6 +69,53 @@ public final class CameraSelector {
     @ExperimentalLensFacing
     public static final int LENS_FACING_EXTERNAL = 2;
 
+    // Group 1: Optical Categories (Focal Length Domains)
+    /**
+     * Ultra wide-angle lens (intrinsic zoom ratio &lt; 1.0f).
+     *
+     * @see CameraInfo#getIntrinsicZoomRatio()
+     */
+    // TODO: b/530043225 - Make this public in next alpha
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int LENS_CATEGORY_ULTRA_WIDE = 0;
+
+    /**
+     * Standard main lens (intrinsic zoom ratio == 1.0f).
+     *
+     * @see CameraInfo#getIntrinsicZoomRatio()
+     */
+    // TODO: b/530043225 - Make this public in next alpha
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int LENS_CATEGORY_DEFAULT = 1;
+
+    /**
+     * Telephoto lens (intrinsic zoom ratio &gt; 1.0f).
+     *
+     * @see CameraInfo#getIntrinsicZoomRatio()
+     */
+    // TODO: b/530043225 - Make this public in next alpha
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int LENS_CATEGORY_TELEPHOTO = 2;
+
+    // Group 2: Relative Extremes (Positional Ordering)
+    /**
+     * The lens with the widest field of view (minimum intrinsic zoom ratio).
+     *
+     * @see CameraInfo#getIntrinsicZoomRatio()
+     */
+    // TODO: b/530043225 - Make this public in next alpha
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int LENS_CATEGORY_WIDEST_FOV = 3;
+
+    /**
+     * The lens with the narrowest field of view (maximum intrinsic zoom ratio).
+     *
+     * @see CameraInfo#getIntrinsicZoomRatio()
+     */
+    // TODO: b/530043225 - Make this public in next alpha
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int LENS_CATEGORY_NARROWEST_FOV = 4;
+
     /** A static {@link CameraSelector} that selects the default front facing camera. */
     public static final @NonNull CameraSelector DEFAULT_FRONT_CAMERA =
             new CameraSelector.Builder().requireLensFacing(LENS_FACING_FRONT).build();
@@ -80,10 +127,19 @@ public final class CameraSelector {
 
     private final @Nullable String mPhysicalCameraId;
 
+    private final @Nullable @LensCategory Integer mLensCategory;
+
     CameraSelector(@NonNull LinkedHashSet<CameraFilter> cameraFilterSet,
             @Nullable String physicalCameraId) {
+        this(cameraFilterSet, physicalCameraId, null);
+    }
+
+    CameraSelector(@NonNull LinkedHashSet<CameraFilter> cameraFilterSet,
+            @Nullable String physicalCameraId,
+            @Nullable @LensCategory Integer lensCategory) {
         mCameraFilterSet = cameraFilterSet;
         mPhysicalCameraId = physicalCameraId;
+        mLensCategory = lensCategory;
     }
 
     /**
@@ -123,7 +179,8 @@ public final class CameraSelector {
     private String logSelector() {
         StringBuilder sb = new StringBuilder();
         sb.append(
-                String.format("PhyId:%s  Filters:%s", mPhysicalCameraId, mCameraFilterSet.size()));
+                String.format("PhyId:%s  LensCategory:%s  Filters:%s",
+                        mPhysicalCameraId, mLensCategory, mCameraFilterSet.size()));
         for (CameraFilter filter : mCameraFilterSet) {
             sb.append(" Id:").append(filter.getIdentifier());
             if (filter instanceof LensFacingCameraFilter) {
@@ -252,6 +309,21 @@ public final class CameraSelector {
     }
 
     /**
+     * Returns the requested lens category.
+     *
+     * <p>If lens category is not set via {@link Builder#setLensCategory(int)},
+     * it will return {@code null}.
+     *
+     * @return Lens category, or {@code null} if unset.
+     * @see Builder#setLensCategory(int)
+     */
+    // TODO: b/530043225 - Make this public in next alpha
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public @Nullable @LensCategory Integer getLensCategory() {
+        return mLensCategory;
+    }
+
+    /**
      * Creates a {@link CameraSelector} that specifically targets the camera(s)
      * represented by the given {@link CameraIdentifier}s.
      *
@@ -303,6 +375,8 @@ public final class CameraSelector {
         private final @NonNull LinkedHashSet<CameraFilter> mCameraFilterSet;
 
         private @Nullable String mPhysicalCameraId;
+
+        private @Nullable @LensCategory Integer mLensCategory;
 
         public Builder() {
             mCameraFilterSet = new LinkedHashSet<>();
@@ -364,6 +438,10 @@ public final class CameraSelector {
             if (physicalCameraId != null) {
                 builder.setPhysicalCameraId(physicalCameraId);
             }
+            Integer lensCategory = cameraSelector.getLensCategory();
+            if (lensCategory != null) {
+                builder.setLensCategory(lensCategory);
+            }
             return builder;
         }
 
@@ -392,6 +470,10 @@ public final class CameraSelector {
          * if the device does not support the multiple physical camera configuration,
          * {@link IllegalArgumentException} will be thrown when binding to lifecycle.
          *
+         * <p>Setting both a physical camera ID via {@link #setPhysicalCameraId(String)} and a lens
+         * category via {@link #setLensCategory(int)} on the same builder will cause
+         * {@link #build()} to throw an {@link IllegalArgumentException}.
+         *
          * @param physicalCameraId Physical camera id.
          * @return this builder.
          */
@@ -400,9 +482,32 @@ public final class CameraSelector {
             return this;
         }
 
+        /**
+         * Requests a specific optical lens category for camera selection.
+         *
+         * <p>If this method is not called, no lens category requirement is applied during
+         * camera selection.
+         *
+         * <p>Setting both a physical camera ID via {@link #setPhysicalCameraId(String)} and a lens
+         * category via {@link #setLensCategory(int)} on the same builder will cause
+         * {@link #build()} to throw an {@link IllegalArgumentException}.
+         *
+         * @param category The desired {@link LensCategory}.
+         * @return This builder.
+         */
+        // TODO: b/530043225 - Make this public in next alpha
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public @NonNull Builder setLensCategory(@LensCategory int category) {
+            mLensCategory = category;
+            return this;
+        }
+
         /** Builds the {@link CameraSelector}. */
         public @NonNull CameraSelector build() {
-            return new CameraSelector(mCameraFilterSet, mPhysicalCameraId);
+            Preconditions.checkArgument(
+                    !(mPhysicalCameraId != null && mLensCategory != null),
+                    "Cannot set both physical camera ID and lens category.");
+            return new CameraSelector(mCameraFilterSet, mPhysicalCameraId, mLensCategory);
         }
     }
 
@@ -415,5 +520,21 @@ public final class CameraSelector {
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface LensFacing {
+    }
+
+    /**
+     * The category of the lens based on optical capabilities and focal length domains.
+     */
+    @Target({TYPE, TYPE_USE, FIELD, PARAMETER, LOCAL_VARIABLE})
+    @IntDef({
+            LENS_CATEGORY_ULTRA_WIDE,
+            LENS_CATEGORY_DEFAULT,
+            LENS_CATEGORY_TELEPHOTO,
+            LENS_CATEGORY_WIDEST_FOV,
+            LENS_CATEGORY_NARROWEST_FOV
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public @interface LensCategory {
     }
 }

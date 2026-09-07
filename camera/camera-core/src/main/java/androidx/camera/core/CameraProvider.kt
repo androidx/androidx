@@ -81,6 +81,26 @@ public interface CameraProvider {
     public fun hasCamera(cameraSelector: CameraSelector): Boolean
 
     /**
+     * Returns the list of supported lens categories available on the device for the specified lens
+     * facing.
+     *
+     * @param lensFacing The lens facing direction ([CameraSelector.LENS_FACING_BACK],
+     *   [CameraSelector.LENS_FACING_FRONT], or [CameraSelector.LENS_FACING_EXTERNAL]).
+     * @return An unmodifiable list of supported [CameraSelector.LensCategory] values
+     *   ([CameraSelector.LENS_CATEGORY_DEFAULT], [CameraSelector.LENS_CATEGORY_ULTRA_WIDE],
+     *   [CameraSelector.LENS_CATEGORY_TELEPHOTO], [CameraSelector.LENS_CATEGORY_WIDEST_FOV], or
+     *   [CameraSelector.LENS_CATEGORY_NARROWEST_FOV]), or an empty list if no camera matches the
+     *   criteria.
+     */
+    // TODO: b/530043225 - Make this public in next alpha
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public fun getSupportedLensCategories(
+        @CameraSelector.LensFacing lensFacing: Int
+    ): List<@CameraSelector.LensCategory Int> {
+        throw UnsupportedOperationException("The camera provider is not implemented properly.")
+    }
+
+    /**
      * Returns the [CameraInfo] instance of the camera resulted from the specified [CameraSelector].
      *
      * The returned [CameraInfo] corresponds to the camera that will be bound when calling
