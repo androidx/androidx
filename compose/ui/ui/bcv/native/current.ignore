@@ -4,3 +4,4 @@
 [linuxX64]: Removed declaration androidx.compose.ui.graphics/MeshGradientPainter from androidx.compose.ui:ui
 [linuxX64]: Removed declaration androidx.compose.ui.graphics/androidx_compose_ui_graphics_MeshGradientPainter$stableprop from androidx.compose.ui:ui
 [linuxX64]: Removed declaration androidx.compose.ui.graphics/androidx_compose_ui_graphics_MeshGradientPainter$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration radius from androidx.compose.ui.draw/BlurScope

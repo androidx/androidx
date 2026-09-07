@@ -209,7 +209,7 @@ class BlurRadiusSpecTest {
         ) = BlurRadiusSpec.radialGradient(startRadius, endRadius, center, fallOffRadius)
 
         assertEqualWithConsistentHashCode(build(), build())
-        // The default center and infinite falloff values must compare structurally.
+        // The default center and unspecified falloff values must compare structurally.
         assertEqualWithConsistentHashCode(
             BlurRadiusSpec.radialGradient(startRadius = 0.dp, endRadius = 20.dp),
             BlurRadiusSpec.radialGradient(startRadius = 0.dp, endRadius = 20.dp),
@@ -421,15 +421,15 @@ class BlurRadiusSpecTest {
     }
 
     @Test
-    fun radialGradient_nonPositiveFiniteFallOffRadius_throws() {
-        assertThrowsWithMessage("fallOffRadius must be positive when finite but was 0.0.dp") {
+    fun radialGradient_nonPositiveSpecifiedFallOffRadius_throws() {
+        assertThrowsWithMessage("fallOffRadius must be positive when specified but was 0.0.dp") {
             BlurRadiusSpec.radialGradient(
                 startRadius = 0.dp,
                 endRadius = 20.dp,
                 fallOffRadius = 0.dp,
             )
         }
-        assertThrowsWithMessage("fallOffRadius must be positive when finite but was -80.0.dp") {
+        assertThrowsWithMessage("fallOffRadius must be positive when specified but was -80.0.dp") {
             BlurRadiusSpec.radialGradient(
                 startRadius = 0.dp,
                 endRadius = 20.dp,
@@ -437,17 +437,28 @@ class BlurRadiusSpecTest {
             )
         }
         // Same rule on the multi-stop overload.
-        assertThrowsWithMessage("fallOffRadius must be positive when finite but was 0.0.dp") {
+        assertThrowsWithMessage("fallOffRadius must be positive when specified but was 0.0.dp") {
             BlurRadiusSpec.radialGradient(stops(3), fallOffRadius = 0.dp)
         }
-        assertThrowsWithMessage("fallOffRadius must be positive when finite but was -80.0.dp") {
+        assertThrowsWithMessage("fallOffRadius must be positive when specified but was -80.0.dp") {
             BlurRadiusSpec.radialGradient(stops(3), fallOffRadius = (-80).dp)
         }
     }
 
     @Test
+    fun radialGradient_unspecifiedFallOffRadius_accepted() {
+        // The unspecified falloff radius serves as the auto-fit default and must be accepted.
+        BlurRadiusSpec.radialGradient(
+            startRadius = 0.dp,
+            endRadius = 20.dp,
+            fallOffRadius = Dp.Unspecified,
+        )
+        BlurRadiusSpec.radialGradient(stops(3), fallOffRadius = Dp.Unspecified)
+    }
+
+    @Test
     fun radialGradient_infiniteFallOffRadius_accepted() {
-        // The infinite falloff radius serves as the auto-fit default and must be accepted.
+        // Infinite falloff radius must also be accepted.
         BlurRadiusSpec.radialGradient(
             startRadius = 0.dp,
             endRadius = 20.dp,
@@ -499,20 +510,25 @@ class BlurRadiusSpecTest {
     }
 
     @Test
-    fun resolveGradientRadius_infiniteResolvesToHalfMinDimension() {
-        val radial = BlurRadialGradient(0.dp, 20.dp, DpOffset.Unspecified, Dp.Infinity)
+    fun resolveGradientRadius_unspecifiedResolvesToHalfMinDimension() {
+        val radialUnspecified =
+            BlurRadialGradient(0.dp, 20.dp, DpOffset.Unspecified, Dp.Unspecified)
         // Square surface: min(100, 100) / 2 = 50.
-        assertEquals(50f, radial.resolveFallOffRadius(Size(100f, 100f), density))
+        assertEquals(50f, radialUnspecified.resolveFallOffRadius(Size(100f, 100f), density))
         // Wide surface: min(200, 100) / 2 = 50, driven by the height.
-        assertEquals(50f, radial.resolveFallOffRadius(Size(200f, 100f), density))
+        assertEquals(50f, radialUnspecified.resolveFallOffRadius(Size(200f, 100f), density))
         // Tall surface: min(80, 200) / 2 = 40, driven by the width.
-        assertEquals(40f, radial.resolveFallOffRadius(Size(80f, 200f), density))
+        assertEquals(40f, radialUnspecified.resolveFallOffRadius(Size(80f, 200f), density))
+
+        // Infinite falloff also resolves to half min dimension for backward compatibility.
+        val radialInfinite = BlurRadialGradient(0.dp, 20.dp, DpOffset.Unspecified, Dp.Infinity)
+        assertEquals(50f, radialInfinite.resolveFallOffRadius(Size(100f, 100f), density))
     }
 
     @Test
     fun radialStops_resolveDelegatorsMatchRadial() {
         // RadialStops shares the same resolution helpers as Radial.
-        val defaulted = BlurRadialStops(stops(3), DpOffset.Unspecified, Dp.Infinity)
+        val defaulted = BlurRadialStops(stops(3), DpOffset.Unspecified, Dp.Unspecified)
         assertEquals(Offset(100f, 50f), defaulted.resolveBlurCenter(Size(200f, 100f), density))
         assertEquals(50f, defaulted.resolveFallOffRadius(Size(200f, 100f), density))
 

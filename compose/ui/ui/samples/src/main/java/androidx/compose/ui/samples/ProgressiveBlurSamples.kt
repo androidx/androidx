@@ -64,7 +64,8 @@ fun AnimatedProgressiveBlurSample() {
             // blurRadius is read inside the draw-time block, so the animation invalidates only the
             // draw phase.
             .blur {
-                radius = BlurRadiusSpec.verticalGradient(startRadius = 0.dp, endRadius = blurRadius)
+                blurRadiusSpec =
+                    BlurRadiusSpec.verticalGradient(startRadius = 0.dp, endRadius = blurRadius)
             }
             .clickable { blurred = !blurred }
     )
@@ -77,7 +78,7 @@ fun MultiStopProgressiveBlurSample() {
         Modifier.size(200.dp)
             .background(Brush.verticalGradient(listOf(Color.Red, Color.Blue)))
             .blur {
-                radius =
+                blurRadiusSpec =
                     BlurRadiusSpec.verticalGradient(
                         listOf(
                             BlurStop(fraction = 0f, radius = 0.dp),
@@ -110,7 +111,7 @@ fun AngledProgressiveBlurSample() {
                 val halfLength = (abs(width * dirX) + abs(height * dirY)) / 2f
                 val center = DpOffset((width / 2f).dp, (height / 2f).dp)
                 val halfLine = DpOffset((dirX * halfLength).dp, (dirY * halfLength).dp)
-                radius =
+                blurRadiusSpec =
                     BlurRadiusSpec.linearGradient(
                         start = center - halfLine,
                         end = center + halfLine,
@@ -129,7 +130,10 @@ fun RadialProgressiveBlurSample() {
             .background(Brush.verticalGradient(listOf(Color.Red, Color.Blue)))
             // Sharp at the center, blurred toward the edges (center and extent default to the
             // layer).
-            .blur { radius = BlurRadiusSpec.radialGradient(startRadius = 0.dp, endRadius = 24.dp) }
+            .blur {
+                blurRadiusSpec =
+                    BlurRadiusSpec.radialGradient(startRadius = 0.dp, endRadius = 24.dp)
+            }
     )
 }
 
@@ -162,6 +166,6 @@ fun ShaderProgressiveBlurSample() {
     Box(
         Modifier.size(200.dp)
             .background(Brush.verticalGradient(listOf(Color.Red, Color.Blue)))
-            .blur { radius = maskRadius }
+            .blur { blurRadiusSpec = maskRadius }
     )
 }

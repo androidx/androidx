@@ -74,7 +74,7 @@ class ProgressiveBlurActivity : ComponentActivity() {
                         Modifier.size(300.dp)
                             .background(Brush.verticalGradient(listOf(Color.Red, Color.Blue)))
                             .blur {
-                                radius =
+                                blurRadiusSpec =
                                     BlurRadiusSpec.verticalGradient(
                                         startRadius = 0.dp,
                                         endRadius = blurRadiusAnimate.dp,
