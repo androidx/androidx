@@ -52,6 +52,7 @@ internal object MaterialA2uiBasicCatalogV1Button : A2uiBasicCatalogV1.Button {
         childId: String,
         variant: A2uiBasicCatalogV1.Button.Variant,
         action: Map<String, Any?>,
+        accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
         modifier: Modifier,
     ) {
         val currentAction by rememberUpdatedState(action)

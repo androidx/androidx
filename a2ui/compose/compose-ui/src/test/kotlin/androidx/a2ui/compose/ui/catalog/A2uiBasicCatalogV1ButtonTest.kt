@@ -19,6 +19,7 @@ package androidx.a2ui.compose.ui.catalog
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
+import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
 import androidx.a2ui.model.schema.commontypes.A2uiActionSchema
 import androidx.a2ui.model.schema.commontypes.A2uiComponentIdSchema
 import androidx.compose.runtime.Composable
@@ -41,6 +42,7 @@ class A2uiBasicCatalogV1ButtonTest {
                     childId: String,
                     variant: A2uiBasicCatalogV1.Button.Variant,
                     action: Map<String, Any?>,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -50,6 +52,7 @@ class A2uiBasicCatalogV1ButtonTest {
             .isEqualTo("A clickable button that dispatches an action.")
         assertThat(buttonComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.Button.AccessibilityProperty,
                 A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.Button.ChildProperty,
                 A2uiBasicCatalogV1.Button.VariantProperty,
@@ -60,6 +63,11 @@ class A2uiBasicCatalogV1ButtonTest {
 
     @Test
     fun companionProperties_haveExpectedSchema() {
+        assertThat(A2uiBasicCatalogV1.Button.AccessibilityProperty.key).isEqualTo("accessibility")
+        assertThat(A2uiBasicCatalogV1.Button.AccessibilityProperty.isRequired).isFalse()
+        assertThat(A2uiBasicCatalogV1.Button.AccessibilityProperty.schema)
+            .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
+
         assertThat(A2uiBasicCatalogV1.Button.ChildProperty.key).isEqualTo("child")
         assertThat(A2uiBasicCatalogV1.Button.ChildProperty.isRequired).isTrue()
         assertIs<A2uiComponentIdSchema>(A2uiBasicCatalogV1.Button.ChildProperty.schema)

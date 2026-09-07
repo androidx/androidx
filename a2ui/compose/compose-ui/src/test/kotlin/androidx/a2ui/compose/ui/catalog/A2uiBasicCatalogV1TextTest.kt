@@ -17,6 +17,7 @@
 package androidx.a2ui.compose.ui.catalog
 
 import androidx.a2ui.compose.runtime.A2uiComponentScope
+import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.google.common.truth.Truth.assertThat
@@ -35,6 +36,7 @@ class A2uiBasicCatalogV1TextTest {
                 override fun A2uiComponentScope.TypedContent(
                     text: String,
                     variant: A2uiBasicCatalogV1.Text.Variant,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -43,6 +45,7 @@ class A2uiBasicCatalogV1TextTest {
         assertThat(textComponent.description).isEqualTo("Displays dynamic text.")
         assertThat(textComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.Text.AccessibilityProperty,
                 A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.Text.textProperty,
                 A2uiBasicCatalogV1.Text.variantProperty,
@@ -51,7 +54,12 @@ class A2uiBasicCatalogV1TextTest {
     }
 
     @Test
-    fun companionProperties_haveExpectedKeys() {
+    fun companionProperties_haveExpectedSchema() {
+        assertThat(A2uiBasicCatalogV1.Text.AccessibilityProperty.key).isEqualTo("accessibility")
+        assertThat(A2uiBasicCatalogV1.Text.AccessibilityProperty.isRequired).isFalse()
+        assertThat(A2uiBasicCatalogV1.Text.AccessibilityProperty.schema)
+            .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
+
         assertThat(A2uiBasicCatalogV1.Text.textProperty.key).isEqualTo("text")
         assertThat(A2uiBasicCatalogV1.Text.variantProperty.key).isEqualTo("variant")
     }

@@ -48,13 +48,18 @@ class A2uiBasicCatalogV1TabsUiTest {
     private val testTabs =
         object : A2uiBasicCatalogV1.Tabs {
             var capturedTabs: List<A2uiBasicCatalogV1.Tabs.Tab>? = null
+            var capturedAccessibility: A2uiBasicCatalogV1.AccessibilityAttributes? = null
 
             @Composable
             override fun A2uiComponentScope.TypedContent(
                 tabs: List<A2uiBasicCatalogV1.Tabs.Tab>,
+                accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                 modifier: Modifier,
             ) {
-                SideEffect { capturedTabs = tabs }
+                SideEffect {
+                    capturedTabs = tabs
+                    capturedAccessibility = accessibility
+                }
                 val titles = tabs.joinToString(",") { it.title }
                 val children = tabs.joinToString(",") { it.childId }
                 BasicText(text = "Tabs: $titles - $children", modifier = modifier)
@@ -232,6 +237,43 @@ class A2uiBasicCatalogV1TabsUiTest {
                 A2uiBasicCatalogV1.Tabs.Tab("Tab 2", "child_2"),
             )
             .inOrder()
+    }
+
+    @Test
+    fun content_staticAccessibility_resolvesPropertiesAndPassesToTypedContent() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Tabs",
+                            properties =
+                                mapOf(
+                                    "tabs" to
+                                        listOf(mapOf("title" to "Tab 1", "child" to "child_1")),
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Navigation tabs",
+                                            "description" to "Switch between sections",
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { A2uiTestSurface(surface) }
+
+        onNodeWithText("Tabs: Tab 1 - child_1").assertIsDisplayed()
+        assertThat(testTabs.capturedAccessibility)
+            .isEqualTo(
+                A2uiBasicCatalogV1.AccessibilityAttributes(
+                    label = "Navigation tabs",
+                    description = "Switch between sections",
+                )
+            )
     }
 
     @Test

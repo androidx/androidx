@@ -47,13 +47,18 @@ class A2uiBasicCatalogV1DividerUiTest {
     private val testDivider =
         object : A2uiBasicCatalogV1.Divider {
             var capturedAxis: A2uiBasicCatalogV1.Divider.Axis? = null
+            var capturedAccessibility: A2uiBasicCatalogV1.AccessibilityAttributes? = null
 
             @Composable
             override fun A2uiComponentScope.TypedContent(
                 axis: A2uiBasicCatalogV1.Divider.Axis,
+                accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                 modifier: Modifier,
             ) {
-                SideEffect { capturedAxis = axis }
+                SideEffect {
+                    capturedAxis = axis
+                    capturedAccessibility = accessibility
+                }
                 BasicText(text = "Divider: ${axis.value}", modifier = modifier)
             }
         }
@@ -108,6 +113,41 @@ class A2uiBasicCatalogV1DividerUiTest {
 
         onNodeWithText("Divider: vertical").assertIsDisplayed()
         assertThat(testDivider.capturedAxis).isEqualTo(A2uiBasicCatalogV1.Divider.Axis.Vertical)
+    }
+
+    @Test
+    fun content_staticAccessibility_resolvesPropertiesAndPassesToTypedContent() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Divider",
+                            properties =
+                                mapOf(
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Separator",
+                                            "description" to "Section divider",
+                                        )
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { A2uiTestSurface(surface) }
+
+        onNodeWithText("Divider: horizontal").assertIsDisplayed()
+        assertThat(testDivider.capturedAccessibility)
+            .isEqualTo(
+                A2uiBasicCatalogV1.AccessibilityAttributes(
+                    label = "Separator",
+                    description = "Section divider",
+                )
+            )
     }
 
     @Test
