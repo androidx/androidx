@@ -570,6 +570,9 @@ public final class CarIcon {
          *       un-tinted logos).
          * </ul>
          *
+         * <p> If no style is set, an icon using {@link CarIconStyle#ORIGINAL}
+         * (with no tint and default shape) will be rendered.
+         *
          * @param style The explicit style contract dictating tinting behavior and optional
          *     geometric shaping.
          */

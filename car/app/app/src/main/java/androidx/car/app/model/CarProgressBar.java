@@ -98,6 +98,9 @@ public final class CarProgressBar {
         /**
          * Sets the style of the progress bar.
          *
+         * <p> If no style is set, a progress bar using {@link CarProgressBarStyle} with
+         * default values is rendered (see {@link CarProgressBarStyle.Builder}).
+         *
          * @throws NullPointerException if {@code style} is {@code null}
          */
         public @NonNull Builder setStyle(@NonNull CarProgressBarStyle style) {
