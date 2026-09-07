@@ -56,4 +56,5 @@ dependencies {
 }
 androidx {
     type = SoftwareType.BENCHMARK
+    additionalDeviceTestTags.add("wear-microbenchmarks")
 }
