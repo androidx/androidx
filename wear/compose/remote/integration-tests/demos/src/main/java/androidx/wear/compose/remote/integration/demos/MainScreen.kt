@@ -180,6 +180,12 @@ fun MainScreen(
                 }
                 item {
                     MenuButton(
+                        "RemoteSlider",
+                        onClick = { navigateToRoute(Screen.RemoteSliderDemosScreen.route) },
+                    )
+                }
+                item {
+                    MenuButton(
                         "RemoteIcon",
                         onClick = { navigateToRoute(Screen.RemoteIconDemosScreen.route) },
                     )
