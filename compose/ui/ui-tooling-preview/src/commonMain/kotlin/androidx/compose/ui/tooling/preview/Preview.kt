@@ -46,7 +46,7 @@ import androidx.compose.runtime.Composable
  * @param fontScale User preference for the scaling factor for fonts, relative to the base density
  *   scaling.
  * @param showSystemUi If true, the status bar and action bar of the device will be displayed.
- *   The @[Composable] will be render in the context of a full activity.
+ *   The @[Composable] will be rendered in the context of a full activity.
  * @param showBackground If true, the @[Composable] will use a default background color.
  * @param backgroundColor The 32-bit ARGB color int for the background or 0 if not set
  * @param uiMode Bit mask of the ui mode as per `android.content.res.Configuration.uiMode`
