@@ -104,6 +104,13 @@ public enum class WidthTier {
                         widthDp < 140f -> W1
                         else -> W2
                     }
+                GlanceSurface.TV_HOME_SCREEN ->
+                    when {
+                        widthDp < 320f -> W1
+                        widthDp < 500f -> W2
+                        widthDp < 720f -> W3
+                        else -> W4
+                    }
                 GlanceSurface.XR_GLASSES ->
                     when {
                         widthDp < 200f -> W1
@@ -167,6 +174,14 @@ public enum class HeightTier {
                         heightDp < 120f -> H1
                         heightDp < 200f -> H2
                         heightDp < 290f -> H3
+                        else -> H4
+                    }
+                GlanceSurface.TV_HOME_SCREEN ->
+                    when {
+                        heightDp < 100f -> H0
+                        heightDp < 180f -> H1
+                        heightDp < 280f -> H2
+                        heightDp < 400f -> H3
                         else -> H4
                     }
                 GlanceSurface.XR_GLASSES ->
