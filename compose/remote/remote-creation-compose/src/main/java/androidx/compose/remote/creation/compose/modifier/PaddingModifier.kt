@@ -33,7 +33,28 @@ internal class PaddingModifier(
     public val top: RemoteFloat,
     public val end: RemoteFloat,
     public val bottom: RemoteFloat,
+    private val startDp: RemoteDp? = null,
+    private val topDp: RemoteDp? = null,
+    private val endDp: RemoteDp? = null,
+    private val bottomDp: RemoteDp? = null,
 ) : RemoteModifier.Element {
+
+    public constructor(
+        start: RemoteDp,
+        top: RemoteDp,
+        end: RemoteDp,
+        bottom: RemoteDp,
+    ) : this(
+        start = start.toPx(),
+        top = top.toPx(),
+        end = end.toPx(),
+        bottom = bottom.toPx(),
+        startDp = start,
+        topDp = top,
+        endDp = end,
+        bottomDp = bottom,
+    )
+
     init {
         require(
             (!start.hasConstantValue || start.constantValue >= 0f) and
@@ -48,15 +69,29 @@ internal class PaddingModifier(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         val resolvedStart =
-            if (densityBehavior == RemoteDensityBehavior.Dp) start / remoteDensity.density
-            else start
+            if (densityBehavior == RemoteDensityBehavior.Dp) {
+                startDp?.value ?: (start / remoteDensity.density)
+            } else {
+                start
+            }
         val resolvedTop =
-            if (densityBehavior == RemoteDensityBehavior.Dp) top / remoteDensity.density else top
+            if (densityBehavior == RemoteDensityBehavior.Dp) {
+                topDp?.value ?: (top / remoteDensity.density)
+            } else {
+                top
+            }
         val resolvedEnd =
-            if (densityBehavior == RemoteDensityBehavior.Dp) end / remoteDensity.density else end
+            if (densityBehavior == RemoteDensityBehavior.Dp) {
+                endDp?.value ?: (end / remoteDensity.density)
+            } else {
+                end
+            }
         val resolvedBottom =
-            if (densityBehavior == RemoteDensityBehavior.Dp) bottom / remoteDensity.density
-            else bottom
+            if (densityBehavior == RemoteDensityBehavior.Dp) {
+                bottomDp?.value ?: (bottom / remoteDensity.density)
+            } else {
+                bottom
+            }
 
         val isLtr = layoutDirection == LayoutDirection.Ltr
         return CreationPaddingModifier(
@@ -122,7 +157,7 @@ public fun RemoteModifier.padding(
     end: RemoteDp = 0.rdp,
     bottom: RemoteDp = 0.rdp,
 ): RemoteModifier {
-    return padding(start = start.toPx(), top = top.toPx(), end = end.toPx(), bottom = bottom.toPx())
+    return then(PaddingModifier(start = start, top = top, end = end, bottom = bottom))
 }
 
 /**
