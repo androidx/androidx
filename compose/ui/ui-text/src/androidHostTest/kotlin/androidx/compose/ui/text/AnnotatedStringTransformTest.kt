@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.text
 
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import java.util.Locale
@@ -62,7 +63,7 @@ class AnnotatedStringTransformTest {
     fun `English uppercase plaintext`() {
         val input = AnnotatedString("aaa bbb ccc")
 
-        val uppercase = input.toUpperCase(androidx.compose.ui.text.intl.Locale(Locale.ROOT))
+        val uppercase = input.toUpperCase()
 
         assertThat(uppercase.text).isEqualTo(input.text.uppercase())
     }
@@ -71,7 +72,7 @@ class AnnotatedStringTransformTest {
     fun `English uppercase sparse`() {
         val input = AnnotatedString("aaa bbb ccc", listOf(makeRange(spanStyle1, "aaa (bbb) ccc")))
 
-        val uppercase = input.toUpperCase(androidx.compose.ui.text.intl.Locale(Locale.ROOT))
+        val uppercase = input.toUpperCase()
 
         assertThat(uppercase.text).isEqualTo(input.text.uppercase())
     }
@@ -92,7 +93,7 @@ class AnnotatedStringTransformTest {
                 ),
             )
 
-        val uppercase = input.toUpperCase(androidx.compose.ui.text.intl.Locale(Locale.ROOT))
+        val uppercase = input.toUpperCase()
 
         assertThat(uppercase.text).isEqualTo(input.text.uppercase())
         assertThat(uppercase.spanStyles).isEqualTo(input.spanStyles)
@@ -115,7 +116,7 @@ class AnnotatedStringTransformTest {
                 ),
             )
 
-        val lowercase = input.toLowerCase(androidx.compose.ui.text.intl.Locale(Locale.ROOT))
+        val lowercase = input.toLowerCase()
 
         assertThat(lowercase.text).isEqualTo(input.text.lowercase())
         assertThat(lowercase.spanStyles).isEqualTo(input.spanStyles)
@@ -138,7 +139,7 @@ class AnnotatedStringTransformTest {
                 ),
             )
 
-        val capitalized = input.capitalize(androidx.compose.ui.text.intl.Locale(Locale.ROOT))
+        val capitalized = input.capitalize()
 
         assertThat(capitalized.text)
             .isEqualTo(
@@ -166,7 +167,7 @@ class AnnotatedStringTransformTest {
                 ),
             )
 
-        val decapitalized = input.decapitalize(androidx.compose.ui.text.intl.Locale(Locale.ROOT))
+        val decapitalized = input.decapitalize()
 
         assertThat(decapitalized.text)
             .isEqualTo(input.text.replaceFirstChar { it.lowercase(Locale.getDefault()) })
@@ -189,7 +190,7 @@ class AnnotatedStringTransformTest {
                     makeRange(paraStyle2, "iii hhh (jjj)"),
                 ),
             )
-        val capitalized = input.capitalize(androidx.compose.ui.text.intl.Locale("tr"))
+        val capitalized = input.capitalize(LocaleList("tr"))
 
         assertThat(capitalized.text)
             .isEqualTo(
@@ -218,7 +219,7 @@ class AnnotatedStringTransformTest {
                 ),
             )
 
-        val decapitalized = input.decapitalize(androidx.compose.ui.text.intl.Locale("tr"))
+        val decapitalized = input.decapitalize(LocaleList("tr"))
 
         assertThat(decapitalized.text)
             .isEqualTo(input.text.replaceFirstChar { it.lowercase(Locale.forLanguageTag("tr")) })
@@ -242,7 +243,7 @@ class AnnotatedStringTransformTest {
                 ),
             )
 
-        val uppercase = input.toUpperCase(androidx.compose.ui.text.intl.Locale("tr"))
+        val uppercase = input.toUpperCase(LocaleList("tr"))
 
         assertThat(uppercase.text).isEqualTo(input.text.uppercase(Locale.forLanguageTag("tr")))
 
@@ -281,7 +282,7 @@ class AnnotatedStringTransformTest {
                 ),
             )
 
-        val lowercase = input.toLowerCase(androidx.compose.ui.text.intl.Locale("lt"))
+        val lowercase = input.toLowerCase(LocaleList("lt"))
 
         assertThat(lowercase.text).isEqualTo(input.text.lowercase(Locale.forLanguageTag("lt")))
 
@@ -320,7 +321,7 @@ class AnnotatedStringTransformTest {
                 ),
             )
 
-        val uppercase = input.toUpperCase(androidx.compose.ui.text.intl.Locale(Locale.ROOT))
+        val uppercase = input.toUpperCase()
 
         // No upper case concept in Japanese, so should be the same
         assertThat(uppercase.text).isEqualTo(input.text)

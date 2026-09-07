@@ -25,7 +25,6 @@ import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
-import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -127,7 +126,6 @@ class NonLinearFontScalingBenchmark(
             annotations = listOf(),
             density = density,
             fontFamilyResolver = createFontFamilyResolver(instrumentationContext),
-            defaultLocaleList = LocaleList("en"),
             placeholders = listOf(),
             softWrap = true,
         )

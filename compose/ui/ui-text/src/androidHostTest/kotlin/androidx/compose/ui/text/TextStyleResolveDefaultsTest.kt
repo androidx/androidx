@@ -64,7 +64,7 @@ class TextStyleResolveDefaultsTest {
             assertThat(it.letterSpacing).isEqualTo(DefaultLetterSpacing)
             assertThat(it.baselineShift).isEqualTo(BaselineShift.None)
             assertThat(it.textGeometricTransform).isEqualTo(TextGeometricTransform.None)
-            assertThat(it.localeList).isEqualTo(null)
+            assertThat(it.localeList).isEqualTo(LocaleList.current)
             assertThat(it.background).isEqualTo(DefaultBackgroundColor)
             assertThat(it.textDecoration).isEqualTo(TextDecoration.None)
             assertThat(it.shadow).isEqualTo(Shadow.None)
