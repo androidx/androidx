@@ -225,6 +225,7 @@ internal fun RemoteGroupComponent.createGroupComponent(
                     translationY = vectorNode.translationY.rf
                     pivotX = vectorNode.pivotX.rf
                     pivotY = vectorNode.pivotY.rf
+                    clipPathData = vectorNode.clipPathData.toRemotePathNodes()
                     createGroupComponent(vectorNode)
                 }
             insertAt(index, remoteGroupComponent)
@@ -267,6 +268,7 @@ internal fun RemoteGroupComponent.createGroupComponent(
                     translationY = vectorNode.translationY
                     pivotX = vectorNode.pivotX
                     pivotY = vectorNode.pivotY
+                    clipPathData = vectorNode.clipPathData
                     createGroupComponent(vectorNode)
                 }
             insertAt(index, remoteGroupComponent)
