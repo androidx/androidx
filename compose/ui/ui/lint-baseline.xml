@@ -191,15 +191,6 @@
     </issue>
 
     <issue
-        id="InvalidLanguageTagDelimiter"
-        message="A hyphen (-), not an underscore (_) delimiter should be used in a language tag"
-        errorLine1="        val locale = Locale(&quot;en_US&quot;)"
-        errorLine2="                            ~~~~~~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/AndroidAccessibilityTest.kt"/>
-    </issue>
-
-    <issue
         id="ModifierFactoryExtensionFunction"
         message="Modifier factory functions should be extensions on Modifier"
         errorLine1="    private inline fun &lt;reified T : Modifier.Node> elementOf("
