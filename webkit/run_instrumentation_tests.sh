@@ -16,6 +16,7 @@
 ./gradlew \
   -Pandroid.testInstrumentationRunnerArguments.webview-version=factory \
   webkit:integration-tests:instrumentation:connectedAndroidTest \
+  webkit:integration-tests:instrumentation:test \
   webkit:integration-tests:testapp:connectedAndroidTest \
   webkit:integration-tests:orchestratortests:connectedAndroidTest \
   webkit:webkit-lint:test
