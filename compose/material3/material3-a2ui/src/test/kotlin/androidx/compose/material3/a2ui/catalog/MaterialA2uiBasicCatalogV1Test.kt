@@ -76,6 +76,8 @@ class MaterialA2uiBasicCatalogV1Test {
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.list)
         assertThat(catalog.components["Tabs"])
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.tabs)
+        assertThat(catalog.components["Modal"])
+            .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.modal)
         assertThat(catalog.components["Divider"])
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.divider)
         assertThat(catalog.components["Button"])
@@ -394,6 +396,36 @@ class MaterialA2uiBasicCatalogV1Test {
     }
 
     @Test
+    fun factory_withCustomModalComponent_overridesDefaultMaterialModal() {
+        val customModal =
+            object : A2uiBasicCatalogV1.Modal {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    triggerId: String,
+                    contentId: String,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        val catalog =
+            materialA2uiBasicCatalogV1(
+                image = MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer),
+                video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
+                audioPlayer =
+                    MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
+                urlOpener = fakeUrlOpener,
+                messageFormatter = fakeMessageFormatter,
+                localeProvider = fakeLocaleProvider,
+                modal = customModal,
+            )
+
+        assertThat(catalog.components["Modal"]).isSameInstanceAs(customModal)
+        assertThat(catalog.components["Modal"])
+            .isNotSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.modal)
+    }
+
+    @Test
     fun factory_withCustomDividerComponent_overridesDefaultMaterialDivider() {
         val customDivider =
             object : A2uiBasicCatalogV1.Divider {
@@ -610,6 +642,8 @@ class MaterialA2uiBasicCatalogV1Test {
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1List)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.tabs)
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Tabs)
+        assertThat(MaterialA2uiBasicCatalogV1Defaults.modal)
+            .isSameInstanceAs(MaterialA2uiBasicCatalogV1Modal)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.divider)
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Divider)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.button)

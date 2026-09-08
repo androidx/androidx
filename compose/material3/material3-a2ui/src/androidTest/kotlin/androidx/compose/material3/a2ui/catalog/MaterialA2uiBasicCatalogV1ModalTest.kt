@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.a2ui
+package androidx.compose.material3.a2ui.catalog
 
 import android.view.KeyEvent
 import androidx.a2ui.compose.ui.A2uiCatalog
@@ -26,7 +26,7 @@ import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiException.A2uiRuntimeException
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.a2ui.catalog.MaterialA2uiBasicCatalogV1Defaults
+import androidx.compose.material3.a2ui.MaterialA2uiDefaults
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -49,16 +49,15 @@ import org.junit.runner.RunWith
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(AndroidJUnit4::class)
-class MaterialModalComponentTest {
+class MaterialA2uiBasicCatalogV1ModalTest {
 
     private val testCatalog =
         A2uiCatalog(
             catalogId = "test_catalog",
             components =
                 listOf(
-                    MaterialModalComponent,
+                    MaterialA2uiBasicCatalogV1Defaults.modal,
                     MaterialA2uiBasicCatalogV1Defaults.button,
-                    MaterialA2uiBasicCatalogV1Defaults.card,
                     MaterialA2uiBasicCatalogV1Defaults.text,
                 ),
         )
