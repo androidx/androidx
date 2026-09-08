@@ -30,6 +30,7 @@ import androidx.compose.testutils.doFramesUntilNoChangesPending
 import androidx.compose.testutils.recomposeAssertHadChanges
 import androidx.compose.ui.Modifier
 import kotlin.test.Test
+import org.junit.Ignore
 import org.junit.Rule
 
 class PredictiveBackBenchmark {
@@ -39,6 +40,7 @@ class PredictiveBackBenchmark {
     fun benchmarkEnableSwitch() =
         rule.toggleStateBenchmarkRecompose({ PredictiveBackTestCase(initial = true) })
 
+    @Ignore("b/558194923")
     @Test
     fun benchmarkDisableSwitch() =
         rule.toggleStateBenchmarkRecompose({ PredictiveBackTestCase(initial = false) })
