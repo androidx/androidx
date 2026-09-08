@@ -18,10 +18,12 @@ package androidx.a2ui.model.catalog {
   }
 
   public interface A2uiFunctionDefinition {
+    method @InaccessibleFromKotlin public default boolean getAcceptsUnresolvedArguments();
     method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema getArgumentSchema();
     method @InaccessibleFromKotlin public String getDescription();
     method @InaccessibleFromKotlin public String getName();
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionReturnType getReturnType();
+    property public default boolean acceptsUnresolvedArguments;
     property public abstract androidx.a2ui.model.schema.A2uiSchema argumentSchema;
     property public abstract String description;
     property public abstract String name;
@@ -487,6 +489,7 @@ package androidx.a2ui.model.protocol {
     method public Object? evaluatePayload(Object? payload);
     method public Object? executeFunction(String name, java.util.Map<java.lang.String,?> args);
     method @InaccessibleFromKotlin public androidx.a2ui.model.protocol.A2uiDataPath getDataPath();
+    method public default androidx.a2ui.model.catalog.A2uiFunctionDefinition? getFunctionDefinition(String name);
     method public <T> T getOrCreateFunctionScopedCache(androidx.a2ui.model.catalog.A2uiFunctionDefinition functionDefinition, kotlin.jvm.functions.Function0<? extends T> factory);
     method public Object? resolveValue(androidx.a2ui.model.protocol.A2uiDataPath path);
     property public abstract androidx.a2ui.model.protocol.A2uiDataPath dataPath;

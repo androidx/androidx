@@ -22,6 +22,8 @@ import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
+import androidx.a2ui.model.catalog.functions.A2uiNotFunction
+import androidx.a2ui.model.catalog.functions.A2uiRequiredFunction
 import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.schema.A2uiObjectSchema
@@ -65,6 +67,9 @@ class A2uiCoreDynamicEvaluatorTest {
                     }
                     return null
                 }
+
+                override fun getFunctionDefinition(name: String): A2uiFunctionDefinition? =
+                    mockCatalog.functions[name]?.definition
 
                 override fun <T : Any> getOrCreateFunctionScopedCache(
                     functionDefinition: A2uiFunctionDefinition,
@@ -120,7 +125,14 @@ class A2uiCoreDynamicEvaluatorTest {
                 override val componentDefinitions: A2uiCoreComponentDefinitionCollection =
                     A2uiCoreComponentDefinitionCollection()
                 override val functions: A2uiFunctionCollection =
-                    A2uiFunctionCollection(listOf(mockAddFunction, mockConcatFunction))
+                    A2uiFunctionCollection(
+                        listOf(
+                            mockAddFunction,
+                            mockConcatFunction,
+                            A2uiRequiredFunction.INSTANCE,
+                            A2uiNotFunction.INSTANCE,
+                        )
+                    )
                 override val themeSchema: A2uiSchema? = null
             }
 
@@ -259,6 +271,223 @@ class A2uiCoreDynamicEvaluatorTest {
     }
 
     @Test
+    fun evaluate_callPayloadForRequiredWithMissingPathArgument_evaluatesToFalse() {
+        val context = createContextWithDataModel(emptyMap())
+        val payload =
+            mapOf(
+                KEY_CALL to "required",
+                KEY_ARGS to mapOf("value" to mapOf(KEY_PATH to "/missing/value")),
+            )
+
+        val result = evaluator.evaluate(basePath, payload, context)
+
+        assertThat(result).isEqualTo(false)
+    }
+
+    @Test
+    fun evaluate_callPayloadForRequiredWithPresentPathArgument_evaluatesToTrue() {
+        val context = createContextWithDataModel(mapOf("/present/value" to "hello"))
+        val payload =
+            mapOf(
+                KEY_CALL to "required",
+                KEY_ARGS to mapOf("value" to mapOf(KEY_PATH to "/present/value")),
+            )
+
+        val result = evaluator.evaluate(basePath, payload, context)
+
+        assertThat(result).isEqualTo(true)
+    }
+
+    @Test
+    fun evaluate_callPayloadForRequiredWithEmptyPathArgument_evaluatesToFalse() {
+        val context = createContextWithDataModel(mapOf("/empty/value" to ""))
+        val payload =
+            mapOf(
+                KEY_CALL to "required",
+                KEY_ARGS to mapOf("value" to mapOf(KEY_PATH to "/empty/value")),
+            )
+
+        val result = evaluator.evaluate(basePath, payload, context)
+
+        assertThat(result).isEqualTo(false)
+    }
+
+    @Test
+    fun evaluate_callPayloadForRequiredWithBlankPathArgument_evaluatesToTrue() {
+        val context = createContextWithDataModel(mapOf("/blank/value" to "   "))
+        val payload =
+            mapOf(
+                KEY_CALL to "required",
+                KEY_ARGS to mapOf("value" to mapOf(KEY_PATH to "/blank/value")),
+            )
+
+        val result = evaluator.evaluate(basePath, payload, context)
+
+        assertThat(result).isEqualTo(true)
+    }
+
+    @Test
+    fun evaluate_callPayloadForNotRequiredWithMissingPathArgument_evaluatesToTrue() {
+        val context = createContextWithDataModel(emptyMap())
+        val payload =
+            mapOf(
+                KEY_CALL to "not",
+                KEY_ARGS to
+                    mapOf(
+                        "value" to
+                            mapOf(
+                                KEY_CALL to "required",
+                                KEY_ARGS to mapOf("value" to mapOf(KEY_PATH to "/missing/value")),
+                            )
+                    ),
+            )
+
+        val result = evaluator.evaluate(basePath, payload, context)
+
+        assertThat(result).isEqualTo(true)
+    }
+
+    @Test
+    fun evaluate_callPayloadWithChecksStructureContainingRequiredWithMissingArgument_evaluatesCorrectly() {
+        val context = createContextWithDataModel(emptyMap())
+        val payload =
+            listOf(
+                mapOf(
+                    "condition" to
+                        mapOf(
+                            KEY_CALL to "required",
+                            KEY_ARGS to mapOf("value" to mapOf(KEY_PATH to "/missing/value")),
+                        ),
+                    "message" to "Field is required",
+                )
+            )
+
+        val result = evaluator.evaluate(basePath, payload, context)
+
+        assertThat(result)
+            .isEqualTo(listOf(mapOf("condition" to false, "message" to "Field is required")))
+    }
+
+    @Test
+    fun evaluate_callPayloadForNonRequiredFunctionWithMissingPathArgument_returnsUnresolved() {
+        val context = createContextWithDataModel(emptyMap())
+        val payload =
+            mapOf(
+                KEY_CALL to FUNC_ADD,
+                KEY_ARGS to mapOf(ARG_A to mapOf(KEY_PATH to "/missing/value"), ARG_B to 10),
+            )
+
+        val result = evaluator.evaluate(basePath, payload, context)
+
+        assertThat(result).isNull()
+    }
+
+    @Test
+    fun evaluate_callPayloadForFunctionNotAcceptingUnresolvedArguments_doesNotExecuteFunction() {
+        var functionExecuted = false
+        val customStrictContext =
+            object : A2uiExecutionContext {
+                override val dataPath: A2uiDataPath = basePath
+
+                override fun evaluatePayload(payload: Any?): Any? = null
+
+                override fun resolveValue(path: A2uiDataPath): Any? = null
+
+                override fun executeFunction(name: String, args: Map<String, Any>): Any? {
+                    functionExecuted = true
+                    throw AssertionError(
+                        "Function must not be executed when arguments are unresolved"
+                    )
+                }
+
+                override fun getFunctionDefinition(name: String): A2uiFunctionDefinition? =
+                    mockCatalog.functions[name]?.definition
+
+                override fun <T : Any> getOrCreateFunctionScopedCache(
+                    functionDefinition: A2uiFunctionDefinition,
+                    factory: () -> T,
+                ): T = factory()
+            }
+
+        val payload =
+            mapOf(
+                KEY_CALL to FUNC_ADD,
+                KEY_ARGS to mapOf(ARG_A to mapOf(KEY_PATH to "/missing/value"), ARG_B to 10),
+            )
+
+        val result = evaluator.evaluate(basePath, payload, customStrictContext)
+
+        assertThat(result).isNull()
+        assertThat(functionExecuted).isFalse()
+    }
+
+    @Test
+    fun evaluate_callPayloadForFunctionAcceptingUnresolvedArguments_omitsUnresolvedArgs() {
+        var capturedArgs: Map<String, Any>? = null
+        val testFunc =
+            object : A2uiFunction {
+                override val definition =
+                    object : A2uiFunctionDefinition {
+                        override val name = "testUnresolved"
+                        override val description = ""
+                        override val argumentSchema = A2uiObjectSchema.INSTANCE
+                        override val returnType = A2uiFunctionReturnType.BOOLEAN
+                        override val acceptsUnresolvedArguments = true
+                    }
+
+                override fun execute(
+                    args: Map<String, Any>,
+                    executionContext: A2uiExecutionContext,
+                ): Any? {
+                    capturedArgs = args
+                    return true
+                }
+            }
+
+        val testCatalog =
+            object : A2uiCoreCatalog {
+                override val id = "test_catalog"
+                override val componentDefinitions = A2uiCoreComponentDefinitionCollection()
+                override val functions = A2uiFunctionCollection(listOf(testFunc))
+                override val themeSchema = null
+            }
+
+        val context =
+            object : A2uiExecutionContext {
+                override val dataPath: A2uiDataPath = basePath
+
+                override fun evaluatePayload(payload: Any?): Any? = null
+
+                override fun resolveValue(path: A2uiDataPath): Any? = null
+
+                override fun executeFunction(name: String, args: Map<String, Any>): Any? =
+                    testCatalog.functions[name]?.execute(args, this)
+
+                override fun getFunctionDefinition(name: String): A2uiFunctionDefinition? =
+                    testCatalog.functions[name]?.definition
+
+                override fun <T : Any> getOrCreateFunctionScopedCache(
+                    functionDefinition: A2uiFunctionDefinition,
+                    factory: () -> T,
+                ): T = factory()
+            }
+
+        val payload =
+            mapOf(
+                KEY_CALL to "testUnresolved",
+                KEY_ARGS to
+                    mapOf("arg1" to mapOf(KEY_PATH to "/missing/path"), "arg2" to "resolved"),
+            )
+
+        val result = evaluator.evaluate(basePath, payload, context)
+
+        assertThat(result).isEqualTo(true)
+        assertThat(capturedArgs).isNotNull()
+        assertThat(capturedArgs).doesNotContainKey("arg1")
+        assertThat(capturedArgs).containsExactly("arg2", "resolved")
+    }
+
+    @Test
     fun evaluate_nestedMapPayload_resolvesCorrectly() {
         val payload = mapOf("user" to mapOf("name" to mapOf(KEY_PATH to "/username")))
         val result = evaluator.evaluate(basePath, payload, mockContext)
@@ -328,6 +557,27 @@ class A2uiCoreDynamicEvaluatorTest {
         assertThat(resultUser["roles"]).isSameInstanceAs(roles)
         assertThat(result["settings"]).isSameInstanceAs(settings)
     }
+
+    private fun createContextWithDataModel(dataModel: Map<String, Any>): A2uiExecutionContext =
+        object : A2uiExecutionContext {
+            override val dataPath: A2uiDataPath = basePath
+
+            override fun evaluatePayload(payload: Any?): Any? = null
+
+            override fun resolveValue(path: A2uiDataPath): Any? = dataModel[path.path]
+
+            override fun executeFunction(name: String, args: Map<String, Any>): Any? {
+                return mockCatalog.functions[name]?.execute(args, this)
+            }
+
+            override fun getFunctionDefinition(name: String): A2uiFunctionDefinition? =
+                mockCatalog.functions[name]?.definition
+
+            override fun <T : Any> getOrCreateFunctionScopedCache(
+                functionDefinition: A2uiFunctionDefinition,
+                factory: () -> T,
+            ): T = factory()
+        }
 
     private companion object {
         private const val RESOLVED_PATH_PREFIX = "resolved"
