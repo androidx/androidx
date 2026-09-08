@@ -1,5 +1,6 @@
 import androidx.room3.RoomDatabase
 import androidx.room3.util.appendPlaceholders
+import androidx.room3.util.bufferStatement
 import androidx.room3.util.getColumnIndex
 import androidx.room3.util.getColumnIndexOrThrow
 import androidx.room3.util.performBlocking
@@ -37,38 +38,39 @@ internal class MyDao_Impl(
       try {
         val _columnIndexOfSongId: Int = getColumnIndexOrThrow(_stmt, "songId")
         val _columnIndexOfArtistKey: Int = getColumnIndexOrThrow(_stmt, "artistKey")
+        val _bufferedStmt: SQLiteStatement = bufferStatement(_stmt)
         val _collectionArtist: MutableMap<Long, Artist?> = mutableMapOf()
-        while (_stmt.step()) {
+        while (_bufferedStmt.step()) {
           val _tmpKey: Long?
-          if (_stmt.isNull(_columnIndexOfArtistKey)) {
+          if (_bufferedStmt.isNull(_columnIndexOfArtistKey)) {
             _tmpKey = null
           } else {
-            _tmpKey = _stmt.getLong(_columnIndexOfArtistKey)
+            _tmpKey = _bufferedStmt.getLong(_columnIndexOfArtistKey)
           }
           if (_tmpKey != null) {
             _collectionArtist.put(_tmpKey, null)
           }
         }
-        _stmt.reset()
+        _bufferedStmt.reset()
         __fetchRelationshipArtistAsArtist(_connection, _collectionArtist)
         val _result: SongWithArtist
-        if (_stmt.step()) {
+        if (_bufferedStmt.step()) {
           val _tmpSong: Song
           val _tmpSongId: Long
-          _tmpSongId = _stmt.getLong(_columnIndexOfSongId)
+          _tmpSongId = _bufferedStmt.getLong(_columnIndexOfSongId)
           val _tmpArtistKey: Long?
-          if (_stmt.isNull(_columnIndexOfArtistKey)) {
+          if (_bufferedStmt.isNull(_columnIndexOfArtistKey)) {
             _tmpArtistKey = null
           } else {
-            _tmpArtistKey = _stmt.getLong(_columnIndexOfArtistKey)
+            _tmpArtistKey = _bufferedStmt.getLong(_columnIndexOfArtistKey)
           }
           _tmpSong = Song(_tmpSongId,_tmpArtistKey)
           val _tmpArtist: Artist?
           val _tmpKey_1: Long?
-          if (_stmt.isNull(_columnIndexOfArtistKey)) {
+          if (_bufferedStmt.isNull(_columnIndexOfArtistKey)) {
             _tmpKey_1 = null
           } else {
-            _tmpKey_1 = _stmt.getLong(_columnIndexOfArtistKey)
+            _tmpKey_1 = _bufferedStmt.getLong(_columnIndexOfArtistKey)
           }
           if (_tmpKey_1 != null) {
             _tmpArtist = _collectionArtist.get(_tmpKey_1)
@@ -92,25 +94,26 @@ internal class MyDao_Impl(
       val _stmt: SQLiteStatement = _connection.prepare(_sql)
       try {
         val _columnIndexOfArtistId: Int = getColumnIndexOrThrow(_stmt, "artistId")
+        val _bufferedStmt: SQLiteStatement = bufferStatement(_stmt)
         val _collectionSongs: MutableMap<Long, MutableList<Song>> = mutableMapOf()
-        while (_stmt.step()) {
+        while (_bufferedStmt.step()) {
           val _tmpKey: Long
-          _tmpKey = _stmt.getLong(_columnIndexOfArtistId)
+          _tmpKey = _bufferedStmt.getLong(_columnIndexOfArtistId)
           if (!_collectionSongs.containsKey(_tmpKey)) {
             _collectionSongs.put(_tmpKey, mutableListOf())
           }
         }
-        _stmt.reset()
+        _bufferedStmt.reset()
         __fetchRelationshipSongAsSong(_connection, _collectionSongs)
         val _result: ArtistAndSongs
-        if (_stmt.step()) {
+        if (_bufferedStmt.step()) {
           val _tmpArtist: Artist
           val _tmpArtistId: Long
-          _tmpArtistId = _stmt.getLong(_columnIndexOfArtistId)
+          _tmpArtistId = _bufferedStmt.getLong(_columnIndexOfArtistId)
           _tmpArtist = Artist(_tmpArtistId)
           val _tmpSongsCollection: MutableList<Song>
           val _tmpKey_1: Long
-          _tmpKey_1 = _stmt.getLong(_columnIndexOfArtistId)
+          _tmpKey_1 = _bufferedStmt.getLong(_columnIndexOfArtistId)
           _tmpSongsCollection = _collectionSongs.getValue(_tmpKey_1)
           _result = ArtistAndSongs(_tmpArtist,_tmpSongsCollection)
         } else {
@@ -129,25 +132,26 @@ internal class MyDao_Impl(
       val _stmt: SQLiteStatement = _connection.prepare(_sql)
       try {
         val _columnIndexOfPlaylistId: Int = getColumnIndexOrThrow(_stmt, "playlistId")
+        val _bufferedStmt: SQLiteStatement = bufferStatement(_stmt)
         val _collectionSongs: MutableMap<Long, MutableList<Song>> = mutableMapOf()
-        while (_stmt.step()) {
+        while (_bufferedStmt.step()) {
           val _tmpKey: Long
-          _tmpKey = _stmt.getLong(_columnIndexOfPlaylistId)
+          _tmpKey = _bufferedStmt.getLong(_columnIndexOfPlaylistId)
           if (!_collectionSongs.containsKey(_tmpKey)) {
             _collectionSongs.put(_tmpKey, mutableListOf())
           }
         }
-        _stmt.reset()
+        _bufferedStmt.reset()
         __fetchRelationshipSongAsSongWithPlaylistSongXRef(_connection, _collectionSongs)
         val _result: PlaylistAndSongs
-        if (_stmt.step()) {
+        if (_bufferedStmt.step()) {
           val _tmpPlaylist: Playlist
           val _tmpPlaylistId: Long
-          _tmpPlaylistId = _stmt.getLong(_columnIndexOfPlaylistId)
+          _tmpPlaylistId = _bufferedStmt.getLong(_columnIndexOfPlaylistId)
           _tmpPlaylist = Playlist(_tmpPlaylistId)
           val _tmpSongsCollection: MutableList<Song>
           val _tmpKey_1: Long
-          _tmpKey_1 = _stmt.getLong(_columnIndexOfPlaylistId)
+          _tmpKey_1 = _bufferedStmt.getLong(_columnIndexOfPlaylistId)
           _tmpSongsCollection = _collectionSongs.getValue(_tmpKey_1)
           _result = PlaylistAndSongs(_tmpPlaylist,_tmpSongsCollection)
         } else {

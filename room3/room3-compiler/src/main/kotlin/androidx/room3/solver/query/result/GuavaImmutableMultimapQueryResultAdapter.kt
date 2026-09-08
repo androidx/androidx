@@ -41,6 +41,7 @@ class GuavaImmutableMultimapQueryResultAdapter(
 
         scope.builder.apply {
             val dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?
+            var effectiveStmtVarName = stmtVarName
             if (duplicateColumns.isNotEmpty()) {
                 // There are duplicate columns in the result objects, generate code that provides
                 // us with the indices resolved and pass it to the adapters so it can retrieve
@@ -50,16 +51,18 @@ class GuavaImmutableMultimapQueryResultAdapter(
                 rowAdapters.forEach {
                     check(it is QueryMappedRowAdapter)
                     val indexVarNames = dupeColumnsIndexAdapter.getIndexVarsForMapping(it.mapping)
-                    it.onStatementReady(
-                        indices = indexVarNames,
-                        stmtVarName = stmtVarName,
-                        scope = scope,
-                    )
+                    effectiveStmtVarName =
+                        it.onStatementReady(
+                            indices = indexVarNames,
+                            stmtVarName = effectiveStmtVarName,
+                            scope = scope,
+                        )
                 }
             } else {
                 dupeColumnsIndexAdapter = null
                 rowAdapters.forEach {
-                    it.onStatementReady(stmtVarName = stmtVarName, scope = scope)
+                    effectiveStmtVarName =
+                        it.onStatementReady(stmtVarName = effectiveStmtVarName, scope = scope)
                 }
             }
 
@@ -88,9 +91,9 @@ class GuavaImmutableMultimapQueryResultAdapter(
 
             val tmpKeyVarName = scope.getTmpVar("_key")
             val tmpValueVarName = scope.getTmpVar("_value")
-            beginControlFlow("while (%L.step())", stmtVarName).apply {
+            beginControlFlow("while (%L.step())", effectiveStmtVarName).apply {
                 addLocalVariable(name = tmpKeyVarName, typeName = keyTypeArg.asTypeName())
-                keyRowAdapter.convert(tmpKeyVarName, stmtVarName, scope)
+                keyRowAdapter.convert(tmpKeyVarName, effectiveStmtVarName, scope)
 
                 // Iterate over all matched fields to check if all are null. If so, we continue
                 // in
@@ -100,14 +103,17 @@ class GuavaImmutableMultimapQueryResultAdapter(
                     dupeColumnsIndexAdapter?.getIndexVarsForMapping(valueRowAdapter.mapping)
                         ?: valueRowAdapter.getDefaultIndexAdapter().getIndexVars()
                 val columnNullCheckCodeBlock =
-                    getColumnNullCheckCode(stmtVarName = stmtVarName, indexVars = valueIndexVars)
+                    getColumnNullCheckCode(
+                        stmtVarName = effectiveStmtVarName,
+                        indexVars = valueIndexVars,
+                    )
                 // Perform column null check
                 beginControlFlow("if (%L)", columnNullCheckCodeBlock)
                     .apply { addStatement("continue") }
                     .endControlFlow()
 
                 addLocalVariable(name = tmpValueVarName, typeName = valueTypeArg.asTypeName())
-                valueRowAdapter.convert(tmpValueVarName, stmtVarName, scope)
+                valueRowAdapter.convert(tmpValueVarName, effectiveStmtVarName, scope)
                 addStatement("%L.put(%L, %L)", mapVarName, tmpKeyVarName, tmpValueVarName)
             }
             endControlFlow()

@@ -1,6 +1,7 @@
 import androidx.room3.RoomDatabase
 import androidx.room3.util.ByteArrayWrapper
 import androidx.room3.util.appendPlaceholders
+import androidx.room3.util.bufferStatement
 import androidx.room3.util.getColumnIndex
 import androidx.room3.util.getColumnIndexOrThrow
 import androidx.room3.util.performBlocking
@@ -37,25 +38,26 @@ internal class MyDao_Impl(
       try {
         val _columnIndexOfSongId: Int = getColumnIndexOrThrow(_stmt, "songId")
         val _columnIndexOfArtistKey: Int = getColumnIndexOrThrow(_stmt, "artistKey")
+        val _bufferedStmt: SQLiteStatement = bufferStatement(_stmt)
         val _collectionArtist: MutableMap<ByteArrayWrapper, Artist?> = mutableMapOf()
-        while (_stmt.step()) {
+        while (_bufferedStmt.step()) {
           val _tmpKey: ByteArrayWrapper
-          _tmpKey = ByteArrayWrapper(_stmt.getBlob(_columnIndexOfArtistKey))
+          _tmpKey = ByteArrayWrapper(_bufferedStmt.getBlob(_columnIndexOfArtistKey))
           _collectionArtist.put(_tmpKey, null)
         }
-        _stmt.reset()
+        _bufferedStmt.reset()
         __fetchRelationshipArtistAsArtist(_connection, _collectionArtist)
         val _result: SongWithArtist
-        if (_stmt.step()) {
+        if (_bufferedStmt.step()) {
           val _tmpSong: Song
           val _tmpSongId: Long
-          _tmpSongId = _stmt.getLong(_columnIndexOfSongId)
+          _tmpSongId = _bufferedStmt.getLong(_columnIndexOfSongId)
           val _tmpArtistKey: ByteArray
-          _tmpArtistKey = _stmt.getBlob(_columnIndexOfArtistKey)
+          _tmpArtistKey = _bufferedStmt.getBlob(_columnIndexOfArtistKey)
           _tmpSong = Song(_tmpSongId,_tmpArtistKey)
           val _tmpArtist: Artist?
           val _tmpKey_1: ByteArrayWrapper
-          _tmpKey_1 = ByteArrayWrapper(_stmt.getBlob(_columnIndexOfArtistKey))
+          _tmpKey_1 = ByteArrayWrapper(_bufferedStmt.getBlob(_columnIndexOfArtistKey))
           _tmpArtist = _collectionArtist.get(_tmpKey_1)
           if (_tmpArtist == null) {
             error("Relationship item 'artist' was expected to be NON-NULL but is NULL in @Relation involving parent columns named 'artistKey' and entityColumns named 'artistId''.")

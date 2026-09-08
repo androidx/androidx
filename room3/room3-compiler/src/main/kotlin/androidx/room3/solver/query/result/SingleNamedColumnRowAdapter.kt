@@ -64,10 +64,11 @@ class SingleNamedColumnRowAdapter(val reader: StatementValueReader, val columnNa
         stmtVarName: String,
         scope: CodeGenScope,
         indices: List<ColumnIndexVar>,
-    ) {
+    ): String {
         columnIndexVar =
             indices.singleOrNull()
                 ?: error("Expected a single resolved index var but got ${indices.size}")
+        return stmtVarName
     }
 
     override fun convert(outVarName: String, stmtVarName: String, scope: CodeGenScope) {
