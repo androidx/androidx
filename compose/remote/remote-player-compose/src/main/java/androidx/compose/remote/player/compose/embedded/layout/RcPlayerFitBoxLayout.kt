@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout
 import androidx.compose.remote.player.compose.embedded.LocalAnimatedVisibilityScope
+import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.LocalSharedTransitionScope
 import androidx.compose.remote.player.compose.embedded.RcPlayerComponent
 import androidx.compose.remote.player.compose.embedded.animationSpecReflection
@@ -57,8 +58,9 @@ import androidx.compose.ui.util.fastMaxOfOrNull
  * elements with matching animation IDs to morph across states.
  *
  * Uses a two-phase [SubcomposeLayout]:
- * 1. A probe subcomposition measures all child alternatives with unbounded constraints to determine
- *    their real Compose sizes, clearing semantics so unselected nodes do not pollute accessibility.
+ * 1. A probe subcomposition measures all child alternatives with the parent's maximum constraints
+ *    to determine their real Compose sizes, clearing semantics so unselected nodes do not pollute
+ *    accessibility.
  * 2. A content subcomposition renders the selected alternative with [AnimatedContent] and
  *    [SharedTransitionLayout], driving shared element animations when constraints change.
  */
@@ -66,6 +68,7 @@ import androidx.compose.ui.util.fastMaxOfOrNull
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 internal fun RcPlayerFitBoxLayout(layout: FitBoxLayout, modifier: Modifier) {
+    val remoteContext = LocalRemoteContext.current
     val children = remember(layout) { ArrayList<Component>().apply { layout.getComponents(this) } }
     if (children.isEmpty()) {
         Box(modifier = modifier)
@@ -84,8 +87,8 @@ internal fun RcPlayerFitBoxLayout(layout: FitBoxLayout, modifier: Modifier) {
         val maxWidth = if (constraints.hasBoundedWidth) constraints.maxWidth else Int.MAX_VALUE
         val maxHeight = if (constraints.hasBoundedHeight) constraints.maxHeight else Int.MAX_VALUE
 
-        // Phase 1 (Intrinsics Probe): Query intrinsic sizes on child measurables without
-        // measuring full placeables. Semantics are cleared on probe nodes.
+        // Phase 1 (Probe): Measure child alternatives using the parent's maximum constraints.
+        // Semantics are cleared on probe nodes so unselected nodes do not pollute accessibility.
         val probeMeasurables =
             subcompose(FitBoxSlot.Probe) {
                 children.fastForEach { component ->
@@ -95,20 +98,26 @@ internal fun RcPlayerFitBoxLayout(layout: FitBoxLayout, modifier: Modifier) {
                 }
             }
 
+        val childConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+        val placeables = probeMeasurables.fastMap { it.measure(childConstraints) }
+
         var chosen = -1
-        for (i in 0 until probeMeasurables.size) {
-            val m = probeMeasurables[i]
-            val w = m.maxIntrinsicWidth(maxHeight)
-            val h = m.maxIntrinsicHeight(maxWidth)
-            if (w <= maxWidth && h <= maxHeight) {
-                chosen = i
-                break
+        for (i in 0 until placeables.size) {
+            val c = children[i]
+            val childMinWidth = c.minIntrinsicWidth(remoteContext)
+            val childMinHeight = c.minIntrinsicHeight(remoteContext)
+            if (childMinWidth <= maxWidth && childMinHeight <= maxHeight) {
+                val p = placeables[i]
+                if (p.width <= maxWidth && p.height <= maxHeight) {
+                    chosen = i
+                    break
+                }
             }
         }
         if (chosen < 0) {
             chosen =
-                probeMeasurables.indices.minByOrNull {
-                    probeMeasurables[it].maxIntrinsicWidth(maxHeight)
+                placeables.indices.minByOrNull {
+                    placeables[it].width
                 } ?: 0
         }
 
