@@ -36,6 +36,7 @@ androidComponents {
 
 dependencies {
     api(libs.jspecify)
+
     androidTestImplementation(project(":webkit:webkit"))
     androidTestImplementation(project(":webkit:integration-tests:common"))
 
@@ -52,6 +53,11 @@ dependencies {
 
     // Hamcrest matchers:
     androidTestImplementation(libs.bundles.espressoContrib)
+
+    // Unit test dependencies
+    testImplementation(project(":webkit:webkit"))
+    testImplementation(libs.byteBuddy)
+    testImplementation(libs.truth)
 }
 
 androidx {
