@@ -45,7 +45,8 @@ import kotlin.math.min
  *   size of the kerning table is 65535 entries.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteBitmapFont(
+public class RemoteBitmapFont
+constructor(
     glyphs: List<Glyph>,
     @Suppress("PrimitiveInCollection") public val kerningTable: Map<String, Short> = emptyMap(),
 ) : BaseRemoteState<Any>(RemoteStateInstanceKey()) {

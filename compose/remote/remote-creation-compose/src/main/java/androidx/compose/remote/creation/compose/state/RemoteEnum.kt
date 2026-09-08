@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.util.fastFold
@@ -30,12 +31,15 @@ import kotlin.enums.enumEntries
 /**
  * A class representing a remote enum value.
  *
- * [RemoteInt] internally stores its state as a [RemoteInt], using the Enum ordinal.
+ * [RemoteEnum] internally stores its state as a [RemoteInt], using the Enum ordinal.
+ *
+ * @param T The enum type.
+ * @param intValue The [RemoteInt] representing the enum ordinal.
+ * @param enumEntries The [EnumEntries] containing all values of the enum.
  */
-public open class RemoteEnum<T : Enum<T>>(
-    internal val intValue: RemoteInt,
-    internal val enumEntries: EnumEntries<T>,
-) : BaseRemoteState<T>(RemoteStateInstanceKey()) {
+public open class RemoteEnum<T : Enum<T>>
+public constructor(internal val intValue: RemoteInt, internal val enumEntries: EnumEntries<T>) :
+    BaseRemoteState<T>(RemoteStateInstanceKey()) {
     override val cacheKey: RemoteStateCacheKey
         get() = constantValueOrNull?.let { RemoteConstantCacheKey(it) } ?: intValue.cacheKey
 
@@ -199,7 +203,7 @@ public open class RemoteEnum<T : Enum<T>>(
             domain: RemoteState.Domain = RemoteState.Domain.User,
         ): RemoteEnum<T> {
             return RemoteEnum(
-                RemoteInt.createNamedRemoteInt(
+                createNamedRemoteInt(
                     name = name,
                     defaultValue = defaultValue.ordinal,
                     domain = domain,
@@ -210,7 +214,11 @@ public open class RemoteEnum<T : Enum<T>>(
     }
 }
 
-/** A mutable implementation of [RemoteEnum]. */
+/**
+ * A mutable implementation of [RemoteEnum].
+ *
+ * @param T The enum type.
+ */
 public class MutableRemoteEnum<T : Enum<T>>
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public constructor(public val remoteInt: MutableRemoteInt, enumEntries: EnumEntries<T>) :
@@ -245,7 +253,7 @@ public constructor(public val remoteInt: MutableRemoteInt, enumEntries: EnumEntr
         public inline operator fun <reified T : Enum<T>> invoke(
             initialValue: T
         ): MutableRemoteEnum<T> =
-            MutableRemoteEnum(MutableRemoteInt(initialValue.ordinal), enumEntries())
+            MutableRemoteEnum(MutableRemoteInt.invoke(initialValue.ordinal), enumEntries())
     }
 }
 
@@ -260,7 +268,7 @@ public constructor(public val remoteInt: MutableRemoteInt, enumEntries: EnumEntr
 public inline fun <reified T : Enum<T>> rememberMutableRemoteEnum(
     initialValue: T
 ): MutableRemoteEnum<T> {
-    return remember { MutableRemoteEnum(MutableRemoteInt(initialValue.ordinal), enumEntries()) }
+    return remember { MutableRemoteEnum(initialValue) }
 }
 
 /**
@@ -278,12 +286,7 @@ public inline fun <reified T : Enum<T>> rememberNamedRemoteEnum(
     initialValue: T,
     domain: RemoteState.Domain = RemoteState.Domain.User,
 ): RemoteEnum<T> {
-    return rememberNamedRemoteEnum(
-        name = name,
-        initialValue = initialValue,
-        enumEntries = enumEntries(),
-        domain = domain,
-    )
+    return rememberNamedRemoteEnum(name, initialValue, enumEntries(), domain)
 }
 
 @Composable
@@ -295,6 +298,6 @@ public fun <T : Enum<T>> rememberNamedRemoteEnum(
     domain: RemoteState.Domain = RemoteState.Domain.User,
 ): RemoteEnum<T> {
     return rememberNamedState(name, domain) {
-        RemoteEnum(RemoteInt.createNamedRemoteInt(name, initialValue.ordinal, domain), enumEntries)
+        RemoteEnum(createNamedRemoteInt(name, initialValue.ordinal, domain), enumEntries)
     }
 }

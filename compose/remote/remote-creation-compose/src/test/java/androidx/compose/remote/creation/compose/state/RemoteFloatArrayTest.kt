@@ -20,6 +20,8 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
@@ -85,11 +87,11 @@ class RemoteFloatArrayTest {
     @Test
     fun toDebugString_indexing() {
         val remoteFloatArray = RemoteFloatArray(listOf(1.rf, 2.rf, 3.rf))
-        val idx = RemoteFloat.createNamedRemoteFloat("idx", 1f)
+        val idx = createNamedRemoteFloat("idx", 1f)
         val result = remoteFloatArray[idx]
         assertThat(result.toDebugString()).isEqualTo("arrayOf(1.0, 2.0, 3.0)[user:idx]")
 
-        val intIdx = RemoteInt.createNamedRemoteInt("i", 1)
+        val intIdx = createNamedRemoteInt("i", 1)
         assertThat(remoteFloatArray[intIdx].toDebugString())
             .isEqualTo("arrayOf(1.0, 2.0, 3.0)[user:i]")
     }

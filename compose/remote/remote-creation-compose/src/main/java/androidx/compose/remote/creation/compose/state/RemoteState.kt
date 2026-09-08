@@ -124,7 +124,7 @@ public interface RemoteState<T> {
     }
 }
 
-/** Common base interface for all Remote types. */
+/** Common base class for all Remote types. */
 public abstract class BaseRemoteState<T : Any>
 internal constructor(initialCacheKey: RemoteStateCacheKey) : RemoteState<T> {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -248,23 +248,19 @@ public interface MutableRemoteState<T> : RemoteState<T> {
  *
  * @param T The type of the state object, which must extend [BaseRemoteState].
  * @param name A unique name to identify this state object within its domain.
- * @param domain The domain to which this named state belongs. See [RemoteState.Domain].
+ * @param domain The domain to which this named state belongs. Defaults to
+ *   [RemoteState.Domain.User].
  * @param function A lambda that creates the state object if it doesn't already exist.
  * @return The existing or newly created state object of type [T].
  */
 @RemoteComposable
 @Composable
-internal inline fun <reified T : RemoteState<*>> rememberNamedState(
+internal fun <T : RemoteState<*>> rememberNamedState(
     name: String,
-    domain: RemoteState.Domain,
-    noinline function: (RemoteComposeCreationState) -> T,
+    domain: RemoteState.Domain = RemoteState.Domain.User,
+    function: () -> T,
 ): T {
-    return LocalRemoteComposeCreationState.current.getOrCreateNamedState(
-        T::class.java,
-        name,
-        domain,
-        function,
-    )
+    return LocalRemoteComposeCreationState.current.getOrCreateNamedState(name, domain, function)
 }
 
 internal class RemoteHoistNode : RemoteComposeNode() {

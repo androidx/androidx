@@ -25,7 +25,7 @@ import androidx.compose.remote.creation.compose.previews.utils.RemoteComponentPr
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.RemoteShaderBrush
 import androidx.compose.remote.creation.compose.shaders.linearGradient
-import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
+import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createRotate
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -86,7 +86,7 @@ fun RemoteCanvasShaderMatrixSample() {
                 start = RemoteOffset.Zero,
                 end = RemoteOffset(width, height),
             )
-        val matrix = RemoteMatrix3x3.createRotate(45f.rf)
+        val matrix = createRotate(45f.rf)
         val paint = RemotePaint()
         with(brush) { applyTo(paint, size, matrix) }
         drawRect(paint = paint)
