@@ -16,12 +16,8 @@
 
 package androidx.car.app.model;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.IntDef;
-import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
@@ -31,8 +27,6 @@ import androidx.car.app.model.constraints.CarColorConstraints;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
 
 /**
@@ -50,12 +44,18 @@ import java.util.Objects;
 @ExperimentalCarApi
 public final class CarProgressBarStyle {
     private final @Nullable CarColor mColor;
+    private final @Nullable CarColor mTrackColor;
     @StrokeCap.StrokeCapType
     private final int mStrokeCap;
 
     /** Returns the color of the progress bar, or {@code null} if not set. */
     public @Nullable CarColor getColor() {
         return mColor;
+    }
+
+    /** Returns the color of the track behind the indicator, or {@code null} if not set. */
+    public @Nullable CarColor getTrackColor() {
+        return mTrackColor;
     }
 
     /** Returns the stroke cap of the progress bar, or {@link StrokeCap#DEFAULT} if not set. */
@@ -70,6 +70,8 @@ public final class CarProgressBarStyle {
         return "CarProgressBarStyle{"
                 + "color="
                 + mColor
+                + ", trackColor="
+                + mTrackColor
                 + ", strokeCap="
                 + mStrokeCap
                 + "}";
@@ -77,7 +79,7 @@ public final class CarProgressBarStyle {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mColor, mStrokeCap);
+        return Objects.hash(mColor, mTrackColor, mStrokeCap);
     }
 
     @Override
@@ -90,28 +92,33 @@ public final class CarProgressBarStyle {
         }
         CarProgressBarStyle otherStyle = (CarProgressBarStyle) other;
         return Objects.equals(mColor, otherStyle.mColor)
+                && Objects.equals(mTrackColor, otherStyle.mTrackColor)
                 && mStrokeCap == otherStyle.mStrokeCap;
     }
 
     private CarProgressBarStyle(Builder builder) {
         mColor = builder.mColor;
+        mTrackColor = builder.mTrackColor;
         mStrokeCap = builder.mStrokeCap;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private CarProgressBarStyle() {
         mColor = null;
+        mTrackColor = null;
         mStrokeCap = StrokeCap.DEFAULT;
     }
 
     /** A builder of {@link CarProgressBarStyle}. */
     public static final class Builder {
         private @Nullable CarColor mColor;
+        private @Nullable CarColor mTrackColor;
         @StrokeCap.StrokeCapType
         private int mStrokeCap = StrokeCap.DEFAULT;
 
         /**
-         * Sets the color of the progress bar.
+         * Sets the color of the actual progress bar. That is, the part of the component that
+         * reflects progress and which fully encompasses the component when progress is complete.
          *
          * <p>If a color is not set, or if the provided color does not pass a contrast check, the
          * host will use a default color.
@@ -121,6 +128,20 @@ public final class CarProgressBarStyle {
                 CarColorConstraints.UNCONSTRAINED.validateOrThrow(color);
             }
             mColor = color;
+            return this;
+        }
+
+        /**
+         * Sets the color of the track over which the progress bar is drawn.
+         *
+         * <p>If a color is not set, or if the provided color does not pass a contrast check, the
+         * host will use a default color.
+         */
+        public @NonNull Builder setTrackColor(@Nullable CarColor color) {
+            if (color != null) {
+                CarColorConstraints.UNCONSTRAINED.validateOrThrow(color);
+            }
+            mTrackColor = color;
             return this;
         }
 
@@ -142,6 +163,7 @@ public final class CarProgressBarStyle {
         public Builder(@NonNull CarProgressBarStyle style) {
             requireNonNull(style);
             mColor = style.mColor;
+            mTrackColor = style.mTrackColor;
             mStrokeCap = style.mStrokeCap;
         }
 

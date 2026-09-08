@@ -1477,6 +1477,7 @@ package androidx.car.app.model {
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class CarProgressBarStyle {
     method public androidx.car.app.model.CarColor? getColor();
     method public int getStrokeCap();
+    method public androidx.car.app.model.CarColor? getTrackColor();
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class CarProgressBarStyle.Builder {
@@ -1485,6 +1486,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarProgressBarStyle build();
     method public androidx.car.app.model.CarProgressBarStyle.Builder setColor(androidx.car.app.model.CarColor?);
     method public androidx.car.app.model.CarProgressBarStyle.Builder setStrokeCap(int);
+    method public androidx.car.app.model.CarProgressBarStyle.Builder setTrackColor(androidx.car.app.model.CarColor?);
   }
 
   @androidx.car.app.annotations.CarProtocol public class CarSpan extends android.text.style.CharacterStyle {
