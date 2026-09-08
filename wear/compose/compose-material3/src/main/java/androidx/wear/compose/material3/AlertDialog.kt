@@ -15,6 +15,8 @@
  */
 package androidx.wear.compose.material3
 
+import androidx.compose.animation.graphics.res.animatedVectorResource
+import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -79,7 +81,7 @@ import androidx.wear.compose.material3.lazy.TransformationSpec
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureAction
-import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicatorImpl
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults
@@ -1382,9 +1384,13 @@ public object AlertDialogDefaults {
             colors = colors,
             shapes = IconButtonDefaults.shapes(confirmShape),
         ) {
-            OneHandedGestureClickIndicator(
+            OneHandedGestureClickIndicatorImpl(
                 gestureConfiguration = gestureConfig,
                 state = clickIndicatorState,
+                avd =
+                    AnimatedImageVector.animatedVectorResource(
+                        R.drawable.wear_one_handed_gesture_primary_indicator_animation
+                    ),
                 modifier =
                     Modifier.semantics(mergeDescendants = true) {
                             semanticOnClick(
