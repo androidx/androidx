@@ -149,11 +149,13 @@ package androidx.benchmark.macro {
   }
 
   @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public enum MemoryUsageMetric.SubMetric {
+    enum_constant @RequiresApi(36) public static final androidx.benchmark.macro.MemoryUsageMetric.SubMetric BitmapMemory;
     enum_constant public static final androidx.benchmark.macro.MemoryUsageMetric.SubMetric Gpu;
     enum_constant public static final androidx.benchmark.macro.MemoryUsageMetric.SubMetric HeapSize;
     enum_constant public static final androidx.benchmark.macro.MemoryUsageMetric.SubMetric RssAnon;
     enum_constant public static final androidx.benchmark.macro.MemoryUsageMetric.SubMetric RssFile;
     enum_constant public static final androidx.benchmark.macro.MemoryUsageMetric.SubMetric RssShmem;
+    enum_constant @RequiresApi(33) public static final androidx.benchmark.macro.MemoryUsageMetric.SubMetric Swap;
   }
 
   public abstract sealed exhaustive class Metric {

@@ -22,9 +22,6 @@ import androidx.annotation.RestrictTo
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.BatteryCharge.hasMinimumCharge
-import androidx.benchmark.macro.PowerMetric.Companion.Energy
-import androidx.benchmark.macro.PowerMetric.Companion.Power
-import androidx.benchmark.macro.PowerMetric.Companion.deviceSupportsHighPrecisionTracking
 import androidx.benchmark.macro.PowerRail.hasMetrics
 import androidx.benchmark.macro.perfetto.BatteryDischargeQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery
@@ -1057,16 +1054,16 @@ class PowerMetric(private val type: Type) : Metric() {
  *   value during an iteration, and `Max`, which represents the largest sample observed per
  *   measurement.
  * @param subMetrics By default, reports:
- * * `memoryRssAnonKb` - Measures anonymous resident set size memory. This represents memory
- *   allocated directly by the process—such as via malloc or `mmap`—that is not backed by any file
- *   on disk. It is often the primary indicator of the app's dynamic memory consumption.
- * * `memoryRssAnonFileKb` - Measures memory used to map files from disk into the process's address
+ * * `memoryRssAnonKb` - Tracks anonymous resident set size memory. This represents memory allocated
+ *   directly by the process—such as via malloc or `mmap`—that is not backed by any file on disk. It
+ *   is often the primary indicator of the app's dynamic memory consumption.
+ * * `memoryRssAnonFileKb` - Tracks memory used to map files from disk into the process's address
  *   space. This includes shared libraries, dex files, and other resource assets loaded by the
  *   application.
  * * `memoryHeapSizeKb` - Tracks the total size of the Android Runtime (ART) heap. These samples are
  *   typically captured immediately after a Garbage Collection (GC) event, providing a look at the
  *   "live" set of objects in the application's managed memory.
- * * `memoryGpuKb` - Measures the amount of GPU-specific memory allocated for the process. This is
+ * * `memoryGpuKb` - Tracks the amount of GPU-specific memory allocated for the process. This is
  *   particularly useful for identifying high memory usage related to textures, shaders, or other
  *   graphics-heavy components.
  *
@@ -1084,7 +1081,12 @@ class MemoryUsageMetric
 constructor(
     private val mode: Mode,
     private val subMetrics: List<SubMetric> =
-        listOf(SubMetric.HeapSize, SubMetric.RssAnon, SubMetric.RssFile, SubMetric.Gpu),
+        listOf(
+            SubMetric.HeapSize,
+            SubMetric.RssAnon,
+            SubMetric.RssFile,
+            SubMetric.Gpu,
+        ),
     private val processNameSuffix: String = "",
     private val metricNameSuffix: String =
         processNameSuffix.replace(oldValue = ":", newValue = "_"),
@@ -1122,16 +1124,15 @@ constructor(
         HeapSize("Heap size (KB)", alreadyInKb = true),
 
         /**
-         * Measures anonymous resident set size memory. This represents memory allocated directly by
+         * Tracks anonymous resident set size memory. This represents memory allocated directly by
          * the process—such as via malloc or mmap—that is not backed by any file on disk. It is
          * often the primary indicator of the app's dynamic memory consumption.
          */
         RssAnon("mem.rss.anon", alreadyInKb = false),
 
         /**
-         * Measures memory used to map files from disk into the process's address space. This
-         * includes shared libraries, dex files, and other resource assets loaded by the
-         * application.
+         * Tracks memory used to map files from disk into the process's address space. This includes
+         * shared libraries, dex files, and other resource assets loaded by the application.
          */
         RssFile("mem.rss.file", alreadyInKb = false),
 
@@ -1142,11 +1143,26 @@ constructor(
         RssShmem("mem.rss.shmem", alreadyInKb = false),
 
         /**
+         * Tracks memory that has been swapped out to disk or compressed in zRAM. This represents
+         * memory that is currently not in physical RAM but is still allocated by the process.
+         *
+         * Requires API 33+.
+         */
+        @RequiresApi(33) Swap("mem.swap", alreadyInKb = false),
+
+        /**
          * Measures the amount of GPU-specific memory allocated for the process. This is
          * particularly useful for identifying high memory usage related to textures, shaders, or
          * other graphics-heavy components.
          */
         Gpu("GPU Memory", alreadyInKb = false),
+
+        /**
+         * Tracks the amount of Bitmap memory allocated for the process.
+         *
+         * Requires API 36+.
+         */
+        @RequiresApi(36) BitmapMemory("Bitmap Memory", alreadyInKb = false),
     }
 
     override fun getMeasurements(
