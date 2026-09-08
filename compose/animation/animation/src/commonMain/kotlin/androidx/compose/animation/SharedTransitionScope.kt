@@ -286,6 +286,11 @@ public interface SharedTransitionScope : LookaheadScope {
              * active shared transition. Therefore the layout parent will most likely resize itself
              * and re-layout its children to adjust to the new animated size.
              *
+             * **Performance caveat**: Because [AnimatedSize] changes on every frame of the bounds
+             * animation, the parent layout and any sibling layouts will be remeasured and relaid
+             * out on each animation frame. If parent or sibling remeasurement during the transition
+             * is undesirable for performance or layout stability, use [ContentSize] instead.
+             *
              * @see [ContentSize]
              * @see [SharedTransitionScope.PlaceholderSize]
              */
@@ -350,6 +355,10 @@ public interface SharedTransitionScope : LookaheadScope {
              * Therefore, the child layout of [sharedBounds] will likely change its layout to fit in
              * the animated constraints.
              *
+             * **Performance caveat**: [RemeasureToBounds] incurs frame-by-frame remeasurement,
+             * which can be expensive especially for complex layout trees. Consider using
+             * [scaleToBounds] instead (which is the default for [sharedBounds]).
+             *
              * [RemeasureToBounds] mode works well for layouts that respond well to constraints
              * change, such as background and Images. It does not work well for layouts with
              * specific size requirements. Such layouts include Text, and bespoke layouts that could
@@ -367,6 +376,12 @@ public interface SharedTransitionScope : LookaheadScope {
              * child layout does not re-layout during the bounds transform, contrary to
              * [RemeasureToBounds] mode. Instead, it will scale the stable layout based on the
              * animated size of the [sharedBounds].
+             *
+             * Under the hood, [scaleToBounds] effectively uses [skipToLookaheadSize] for the child
+             * layout, measuring the child layout only once at its target lookahead constraints and
+             * then scaling it to fit in the parent's constraints. This avoids frame-by-frame
+             * remeasurement, making [scaleToBounds] the default and recommended [ResizeMode] for
+             * maintaining performance during transitions.
              *
              * [scaleToBounds] works best for [sharedBounds] when used to animate shared Text.
              *
@@ -683,7 +698,7 @@ public interface SharedTransitionScope : LookaheadScope {
      *   the shared element's initial and target bounds for the transition.
      * @param resizeMode A [ResizeMode] that defines how the child layout of [sharedBounds] should
      *   be resized during [boundsTransform]. By default, [scaleToBounds] is used to scale the child
-     *   content to fit the transforming bounds.
+     *   content to fit the transforming bounds. This avoids frame-by-frame remeasurement.
      * @param placeholderSize A [PlaceholderSize] that defines the size the transforming layout
      *   reports to the layout system during the transition. By default, this is the shared bounds'
      *   content size (without any scaling or transformation).
@@ -698,10 +713,10 @@ public interface SharedTransitionScope : LookaheadScope {
     public fun Modifier.sharedBounds(
         sharedContentState: SharedContentState,
         animatedVisibilityScope: AnimatedVisibilityScope,
-        enter: EnterTransition = fadeIn(),
-        exit: ExitTransition = fadeOut(),
+        enter: EnterTransition = SharedTransitionDefaults.EnterTransition,
+        exit: ExitTransition = SharedTransitionDefaults.ExitTransition,
         boundsTransform: BoundsTransform = SharedTransitionDefaults.BoundsTransform,
-        resizeMode: ResizeMode = scaleToBounds(ContentScale.FillWidth, Center),
+        resizeMode: ResizeMode = SharedTransitionDefaults.ResizeMode,
         placeholderSize: PlaceholderSize = ContentSize,
         renderInOverlayDuringTransition: Boolean = true,
         zIndexInOverlay: Float = 0f,
@@ -1625,11 +1640,20 @@ private object RemeasureImpl : ResizeMode
  */
 public object SharedTransitionDefaults {
 
+    /** Default enter transition used in [SharedTransitionScope.sharedBounds]. */
+    internal val EnterTransition: EnterTransition = fadeIn()
+
+    /** Default exit transition used in [SharedTransitionScope.sharedBounds]. */
+    internal val ExitTransition: ExitTransition = fadeOut()
+
     /**
      * Default bounds transform used in [SharedTransitionScope.sharedBounds]. This default lambda
      * employs a [spring] for the animation.
      */
     public val BoundsTransform: BoundsTransform = BoundsTransform { _, _ -> DefaultSpring }
+
+    /** Default resize mode used in [SharedTransitionScope.sharedBounds]. */
+    internal val ResizeMode: ResizeMode = ScaleToBoundsImpl(ContentScale.FillWidth, Center)
 
     /**
      * Default SharedContentConfig used in [SharedTransitionScope.rememberSharedContentState]. This
