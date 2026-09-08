@@ -1276,15 +1276,35 @@ class ScaffoldTest {
     }
 
     @Test
-    fun screenStack_scrollInfo_topScreenNonScrollable_returnsNull() {
+    fun screenStack_scrollInfo_topScreenNull_inheritsUnderlyingScreenOverride() {
         var scaffoldState: ScaffoldState? = null
+        var state1Provider: ScrollInfoProvider? = null
 
         rule.setContentWithTheme {
             AppScaffold {
                 scaffoldState = LocalScaffoldState.current
                 val state1 = rememberScalingLazyListState()
+                state1Provider = remember(state1) { ScrollInfoProvider(state1) }
 
-                ScreenScaffold(scrollState = state1) { ScreenScaffold {} }
+                ScreenScaffold(scrollInfoProvider = state1Provider) { ScreenScaffold {} }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(scaffoldState?.screenContent?.currentScrollInfoProvider?.value)
+                .isEqualTo(state1Provider)
+        }
+    }
+
+    @Test
+    fun screenStack_scrollInfo_allScreensNull_returnsNull() {
+        var scaffoldState: ScaffoldState? = null
+
+        rule.setContentWithTheme {
+            AppScaffold {
+                scaffoldState = LocalScaffoldState.current
+
+                ScreenScaffold { ScreenScaffold {} }
             }
         }
 
