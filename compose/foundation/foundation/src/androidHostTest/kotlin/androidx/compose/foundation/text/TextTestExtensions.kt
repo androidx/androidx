@@ -16,5 +16,7 @@
 package androidx.compose.foundation.text
 
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 
 internal val TEST_LOCALE = Locale("en")
+internal val TEST_LOCALE_LIST = LocaleList("en")

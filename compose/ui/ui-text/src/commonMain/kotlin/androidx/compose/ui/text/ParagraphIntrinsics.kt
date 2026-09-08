@@ -18,7 +18,7 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Density
 
 /** Calculates and presents the intrinsic width and height of text. */
@@ -103,7 +103,7 @@ public expect fun ParagraphIntrinsics(
 @Deprecated(
     "Use an override with `softWrap`",
     ReplaceWith(
-        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, placeholders, true, Locale.current)"
+        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, placeholders, true, LocaleList.current)"
     ),
 )
 public expect fun ParagraphIntrinsics(
@@ -129,9 +129,9 @@ public expect fun ParagraphIntrinsics(
  *   expensive calculations.
  */
 @Deprecated(
-    "Use an override with `defaultLocale`",
+    "Use an override with `defaultLocaleList`",
     ReplaceWith(
-        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, placeholders, softWrap, Locale.current)"
+        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, placeholders, softWrap, LocaleList.current)"
     ),
 )
 public expect fun ParagraphIntrinsics(
@@ -156,7 +156,7 @@ public expect fun ParagraphIntrinsics(
  * @param softWrap Whether the text should break at soft line breaks. When the intention is to lay
  *   out text as a single line, setting [softWrap] to false enables optimizations that avoid certain
  *   expensive calculations.
- * @param defaultLocale The default [Locale] to use to measure the text.
+ * @param defaultLocaleList The default [LocaleList] to use to measure the text.
  */
 public expect fun ParagraphIntrinsics(
     text: String,
@@ -166,5 +166,5 @@ public expect fun ParagraphIntrinsics(
     fontFamilyResolver: FontFamily.Resolver,
     placeholders: List<AnnotatedString.Range<Placeholder>>,
     softWrap: Boolean,
-    defaultLocale: Locale,
+    defaultLocaleList: LocaleList,
 ): ParagraphIntrinsics

@@ -31,7 +31,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.internal.requirePrecondition
-import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.platform.drawMultiParagraph
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
@@ -167,7 +167,7 @@ public class MultiParagraph(
                 density = density,
                 fontFamilyResolver = createFontFamilyResolver(resourceLoader),
                 softWrap = true,
-                defaultLocale = Locale.current,
+                defaultLocaleList = LocaleList.current,
             ),
         maxLines = maxLines,
         overflow = if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip,
@@ -221,7 +221,7 @@ public class MultiParagraph(
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
                 softWrap = true,
-                defaultLocale = Locale.current,
+                defaultLocaleList = LocaleList.current,
             ),
         maxLines = maxLines,
         overflow = if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip,
@@ -273,7 +273,7 @@ public class MultiParagraph(
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
                 softWrap = true,
-                defaultLocale = Locale.current,
+                defaultLocaleList = LocaleList.current,
             ),
         maxLines = maxLines,
         overflow = if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip,
@@ -323,7 +323,7 @@ public class MultiParagraph(
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
                 softWrap = true,
-                defaultLocale = Locale.current,
+                defaultLocaleList = LocaleList.current,
             ),
         maxLines = maxLines,
         overflow = overflow,
@@ -342,7 +342,7 @@ public class MultiParagraph(
      *   no-op.
      * @param density density of the device
      * @param fontFamilyResolver to be used to load the font given in [SpanStyle]s
-     * @param defaultLocale the default [Locale] to be used if [style] doesn't specify one
+     * @param defaultLocaleList the default [LocaleList] to be used if [style] doesn't specify one
      * @param placeholders a list of [Placeholder]s that specify ranges of text which will be
      *   skipped during layout and replaced with [Placeholder]. It's required that the range of each
      *   [Placeholder] doesn't cross paragraph boundary, otherwise [IllegalArgumentException] is
@@ -360,7 +360,7 @@ public class MultiParagraph(
         constraints: Constraints,
         density: Density,
         fontFamilyResolver: FontFamily.Resolver,
-        defaultLocale: Locale,
+        defaultLocaleList: LocaleList,
         placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
         maxLines: Int = Int.MAX_VALUE,
         overflow: TextOverflow = TextOverflow.Clip,
@@ -373,7 +373,7 @@ public class MultiParagraph(
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
                 softWrap = true,
-                defaultLocale = defaultLocale,
+                defaultLocaleList = defaultLocaleList,
             ),
         maxLines = maxLines,
         overflow = overflow,

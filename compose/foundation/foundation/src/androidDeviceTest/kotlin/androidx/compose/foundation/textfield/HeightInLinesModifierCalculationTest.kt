@@ -18,7 +18,7 @@ package androidx.compose.foundation.textfield
 
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.EmptyTextReplacement
-import androidx.compose.foundation.text.TEST_LOCALE
+import androidx.compose.foundation.text.TEST_LOCALE_LIST
 import androidx.compose.foundation.text.ceilToIntPx
 import androidx.compose.foundation.text.computeSizeForDefaultText
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -109,7 +109,7 @@ class HeightInLinesModifierCalculationTest(private val config: TestConfig) {
                             style = textStyle,
                             density = density,
                             fontFamilyResolver = fontFamilyResolver,
-                            defaultLocale = TEST_LOCALE,
+                            defaultLocaleList = TEST_LOCALE_LIST,
                         )
                         .height
 
@@ -118,7 +118,7 @@ class HeightInLinesModifierCalculationTest(private val config: TestConfig) {
                             style = textStyle,
                             density = density,
                             fontFamilyResolver = fontFamilyResolver,
-                            defaultLocale = TEST_LOCALE,
+                            defaultLocaleList = TEST_LOCALE_LIST,
                             lines = 2,
                         )
                         .height
@@ -152,7 +152,7 @@ class HeightInLinesModifierCalculationTest(private val config: TestConfig) {
                             density = density,
                             fontFamilyResolver = fontFamilyResolver,
                             constraints = Constraints(),
-                            defaultLocale = TEST_LOCALE,
+                            defaultLocaleList = TEST_LOCALE_LIST,
                         )
                         .height
                         .ceilToIntPx()

@@ -19,7 +19,7 @@ package androidx.compose.foundation.text.modifiers
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.foundation.text.TEST_LOCALE
+import androidx.compose.foundation.text.TEST_LOCALE_LIST
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
@@ -55,7 +55,7 @@ class TextStringContentCaptureTest {
             text,
             TextStyle.Default,
             createFontFamilyResolver(context),
-            TEST_LOCALE,
+            TEST_LOCALE_LIST,
         )
     }
 

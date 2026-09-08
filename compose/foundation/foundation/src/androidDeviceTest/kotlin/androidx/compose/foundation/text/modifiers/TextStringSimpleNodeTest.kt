@@ -25,7 +25,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.TEST_LOCALE
+import androidx.compose.foundation.text.TEST_LOCALE_LIST
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.getValue
@@ -82,7 +82,7 @@ import org.junit.runner.RunWith
 class TextStringSimpleNodeTest {
     @get:Rule val rule = createComposeRule()
     val context: Context = InstrumentationRegistry.getInstrumentation().context
-    private val defaultLocale = TEST_LOCALE
+    private val defaultLocaleList = TEST_LOCALE_LIST
 
     @Test
     fun draw_whenNotAttached_doesNotCrash() {
@@ -91,7 +91,7 @@ class TextStringSimpleNodeTest {
                 "text",
                 TextStyle.Default,
                 createFontFamilyResolver(context),
-                defaultLocale,
+                defaultLocaleList,
             )
         rule.setContent {
             Canvas(Modifier.fillMaxSize()) {
@@ -159,7 +159,7 @@ class TextStringSimpleNodeTest {
                 "til",
                 TextStyle.Default.copy(fontFamily = asyncFont.toFontFamily()),
                 createFontFamilyResolver(context),
-                defaultLocale,
+                defaultLocaleList,
             )
 
         val modifier =
@@ -205,7 +205,7 @@ class TextStringSimpleNodeTest {
                 "til",
                 TextStyle.Default,
                 createFontFamilyResolver(context),
-                defaultLocale,
+                defaultLocaleList,
             )
 
         val modifier =
@@ -235,7 +235,7 @@ class TextStringSimpleNodeTest {
                 "til",
                 TextStyle.Default,
                 createFontFamilyResolver(context),
-                defaultLocale,
+                defaultLocaleList,
             )
 
         rule.setContent { Box(Modifier.fillMaxSize() then subject) }

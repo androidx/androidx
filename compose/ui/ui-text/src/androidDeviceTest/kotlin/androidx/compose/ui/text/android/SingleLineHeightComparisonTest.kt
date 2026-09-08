@@ -42,7 +42,7 @@ import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
-import androidx.compose.ui.text.TEST_LOCALE
+import androidx.compose.ui.text.TEST_LOCALE_LIST
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -307,7 +307,7 @@ class SingleLineHeightComparisonTest(
                 fontFamilyResolver = createFontFamilyResolver(context),
                 softWrap = false,
                 placeholders = placeholders,
-                defaultLocale = TEST_LOCALE,
+                defaultLocaleList = TEST_LOCALE_LIST,
             )
         val newParagraph =
             Paragraph(
@@ -330,7 +330,7 @@ class SingleLineHeightComparisonTest(
                 fontFamilyResolver = createFontFamilyResolver(context),
                 softWrap = false,
                 placeholders = placeholders,
-                defaultLocale = TEST_LOCALE,
+                defaultLocaleList = TEST_LOCALE_LIST,
             )
         val oldParagraph =
             Paragraph(
@@ -360,6 +360,7 @@ class SingleLineHeightComparisonTest(
                 fontFamilyResolver = createFontFamilyResolver(context),
                 softWrap = false,
                 placeholders = placeholders,
+                defaultLocaleList = TEST_LOCALE_LIST,
             )
         val noLineHeightParagraph =
             Paragraph(

@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.testutils.fonts.R
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -37,6 +38,7 @@ val TEST_FONT =
 val TEST_FONT_FAMILY = TEST_FONT.toFontFamily()
 
 internal val TEST_LOCALE = Locale("en")
+internal val TEST_LOCALE_LIST = LocaleList("en")
 
 /** Insert the given [string] at the given [index]. */
 internal fun String.insert(index: Int, string: String): String {

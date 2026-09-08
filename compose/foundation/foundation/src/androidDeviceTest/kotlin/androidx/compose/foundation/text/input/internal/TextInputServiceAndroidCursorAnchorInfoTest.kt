@@ -23,7 +23,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.TEST_LOCALE
+import androidx.compose.foundation.text.TEST_LOCALE_LIST
 import androidx.compose.foundation.text.input.ComposeInputMethodManagerTestRule
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.snapshots.ObserverHandle
@@ -351,7 +351,7 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         layoutState.layoutWithNewMeasureInputs(
             density = defaultDensity,
             fontFamilyResolver = createFontFamilyResolver(context, coroutineContext),
-            defaultLocale = TEST_LOCALE,
+            defaultLocaleList = TEST_LOCALE_LIST,
             layoutDirection = LayoutDirection.Ltr,
             constraints = Constraints(),
         )

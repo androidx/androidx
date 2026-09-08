@@ -24,7 +24,7 @@ import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
-import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -74,7 +74,7 @@ class ParagraphMethodBenchmark(private val textType: TextType, private val textL
             annotations = spanStyles,
             density = Density(density = 1f),
             fontFamilyResolver = fontFamilyResolver,
-            defaultLocale = Locale("en"),
+            defaultLocaleList = LocaleList("en"),
             placeholders = listOf(),
             softWrap = true,
         )
