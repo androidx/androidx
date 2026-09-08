@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -125,6 +126,7 @@ internal class TextLayoutState : HeightForSingleLineFieldProvider {
         density: Density,
         layoutDirection: LayoutDirection,
         fontFamilyResolver: FontFamily.Resolver,
+        defaultLocale: Locale,
         constraints: Constraints,
     ): TextLayoutResult {
         val layoutResult =
@@ -132,6 +134,7 @@ internal class TextLayoutState : HeightForSingleLineFieldProvider {
                 density = density,
                 layoutDirection = layoutDirection,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
                 constraints = constraints,
             )
 

@@ -43,6 +43,7 @@ class TextDelegateIntegrationTest {
     private val density = Density(density = 1f)
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val fontFamilyResolver = createFontFamilyResolver(context)
+    private val defaultLocale = TEST_LOCALE
 
     @Test
     fun minIntrinsicWidth_getter() {
@@ -57,6 +58,7 @@ class TextDelegateIntegrationTest {
                     style = TextStyle.Default,
                     density = this,
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocale = defaultLocale,
                 )
 
             textDelegate.layoutIntrinsics(LayoutDirection.Ltr)
@@ -79,6 +81,7 @@ class TextDelegateIntegrationTest {
                     style = TextStyle.Default,
                     density = this,
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocale = defaultLocale,
                 )
 
             textDelegate.layoutIntrinsics(LayoutDirection.Ltr)
@@ -96,6 +99,7 @@ class TextDelegateIntegrationTest {
                 style = TextStyle.Default,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
         val width = 200
         val heightFirstLayout = 100
@@ -119,6 +123,7 @@ class TextDelegateIntegrationTest {
                 style = TextStyle.Default,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
         val width = 200
         val heightFirstLayout = 100
@@ -146,6 +151,7 @@ class TextDelegateIntegrationTest {
                 overflow = TextOverflow.Ellipsis,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
         textDelegate.layoutIntrinsics(LayoutDirection.Ltr)
         // Makes width smaller than needed.
@@ -168,6 +174,7 @@ class TextDelegateIntegrationTest {
                 overflow = TextOverflow.Ellipsis,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
         textDelegate.layoutIntrinsics(LayoutDirection.Ltr)
 
@@ -193,6 +200,7 @@ class TextDelegateIntegrationTest {
                 overflow = TextOverflow.Ellipsis,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
         val layoutResultLtr = textDelegate.layout(Constraints(), LayoutDirection.Ltr)
         val layoutResultRtl = textDelegate.layout(Constraints(), LayoutDirection.Rtl)
@@ -208,6 +216,7 @@ class TextDelegateIntegrationTest {
                 style = TextStyle.Default,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
         val subject =
             textDelegate.layout(

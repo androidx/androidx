@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TEST_LOCALE
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.getValue
@@ -81,11 +82,17 @@ import org.junit.runner.RunWith
 class TextStringSimpleNodeTest {
     @get:Rule val rule = createComposeRule()
     val context: Context = InstrumentationRegistry.getInstrumentation().context
+    private val defaultLocale = TEST_LOCALE
 
     @Test
     fun draw_whenNotAttached_doesNotCrash() {
         val subject =
-            TextStringSimpleNode("text", TextStyle.Default, createFontFamilyResolver(context))
+            TextStringSimpleNode(
+                "text",
+                TextStyle.Default,
+                createFontFamilyResolver(context),
+                defaultLocale,
+            )
         rule.setContent {
             Canvas(Modifier.fillMaxSize()) {
                 val contentDrawScope =
@@ -152,6 +159,7 @@ class TextStringSimpleNodeTest {
                 "til",
                 TextStyle.Default.copy(fontFamily = asyncFont.toFontFamily()),
                 createFontFamilyResolver(context),
+                defaultLocale,
             )
 
         val modifier =
@@ -193,7 +201,12 @@ class TextStringSimpleNodeTest {
         val drawCount = AtomicInteger(0)
 
         val subject =
-            TextStringSimpleElement("til", TextStyle.Default, createFontFamilyResolver(context))
+            TextStringSimpleElement(
+                "til",
+                TextStyle.Default,
+                createFontFamilyResolver(context),
+                defaultLocale,
+            )
 
         val modifier =
             Modifier.fillMaxSize().drawBehind {
@@ -218,7 +231,12 @@ class TextStringSimpleNodeTest {
     @Test
     fun setTextSubstitution_setsSemantics() {
         val subject =
-            TextStringSimpleElement("til", TextStyle.Default, createFontFamilyResolver(context))
+            TextStringSimpleElement(
+                "til",
+                TextStyle.Default,
+                createFontFamilyResolver(context),
+                defaultLocale,
+            )
 
         rule.setContent { Box(Modifier.fillMaxSize() then subject) }
 

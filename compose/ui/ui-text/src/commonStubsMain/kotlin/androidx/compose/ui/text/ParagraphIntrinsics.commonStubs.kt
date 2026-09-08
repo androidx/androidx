@@ -18,6 +18,7 @@ package androidx.compose.ui.text
 import androidx.compose.ui.text.AnnotatedString.Range
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Density
 
 @Suppress("DEPRECATION")
@@ -25,7 +26,7 @@ import androidx.compose.ui.unit.Density
     "Font.ResourceLoader is deprecated, instead use FontFamily.Resolver",
     ReplaceWith(
         "ParagraphIntrinsics(text, style, spanStyles, density, " +
-            "createFontFamilyResolver(resourceLoader), placeholders, true)",
+            "createFontFamilyResolver(resourceLoader), placeholders, true, Locale.current)",
         "androidx.compose.ui.text.font.createFontFamilyResolver",
     ),
 )
@@ -41,7 +42,7 @@ public actual fun ParagraphIntrinsics(
 @Deprecated(
     "Use an overload that takes `annotations` instead",
     ReplaceWith(
-        "ParagraphIntrinsics(text, style, spanStyles, density, fontFamilyResolver, placeholders, true)"
+        "ParagraphIntrinsics(text, style, spanStyles, density, fontFamilyResolver, placeholders, true, Locale.current)"
     ),
 )
 public actual fun ParagraphIntrinsics(
@@ -56,7 +57,7 @@ public actual fun ParagraphIntrinsics(
 @Deprecated(
     "Use an override with `softWrap`",
     ReplaceWith(
-        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, listOf(), true)"
+        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, placeholders, true, Locale.current)"
     ),
 )
 public actual fun ParagraphIntrinsics(
@@ -68,6 +69,12 @@ public actual fun ParagraphIntrinsics(
     placeholders: List<Range<Placeholder>>,
 ): ParagraphIntrinsics = implementedInJetBrainsFork()
 
+@Deprecated(
+    "Use an override with `defaultLocale`",
+    ReplaceWith(
+        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, placeholders, softWrap, Locale.current)"
+    ),
+)
 public actual fun ParagraphIntrinsics(
     text: String,
     style: TextStyle,
@@ -76,4 +83,15 @@ public actual fun ParagraphIntrinsics(
     fontFamilyResolver: FontFamily.Resolver,
     placeholders: List<Range<Placeholder>>,
     softWrap: Boolean,
+): ParagraphIntrinsics = implementedInJetBrainsFork()
+
+public actual fun ParagraphIntrinsics(
+    text: String,
+    style: TextStyle,
+    annotations: List<Range<out AnnotatedString.Annotation>>,
+    density: Density,
+    fontFamilyResolver: FontFamily.Resolver,
+    placeholders: List<Range<Placeholder>>,
+    softWrap: Boolean,
+    defaultLocale: Locale,
 ): ParagraphIntrinsics = implementedInJetBrainsFork()

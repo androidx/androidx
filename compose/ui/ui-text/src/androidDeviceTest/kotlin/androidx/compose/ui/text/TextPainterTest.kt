@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.toFontFamily
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.matchers.assertThat
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -50,6 +51,7 @@ class TextPainterTest {
     private val fontFamilyMeasureFont = FontTestData.BASIC_MEASURE_FONT.toFontFamily()
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val fontFamilyResolver = createFontFamilyResolver(context)
+    private val defaultLocale = TEST_LOCALE
     private var defaultDensity = Density(density = 1f)
     private var layoutDirection = LayoutDirection.Ltr
 
@@ -610,10 +612,12 @@ class TextPainterTest {
 
     private fun textMeasurer(
         fontFamilyResolver: FontFamily.Resolver = this.fontFamilyResolver,
+        defaultLocale: Locale = this.defaultLocale,
         density: Density = this.defaultDensity,
         layoutDirection: LayoutDirection = this.layoutDirection,
         cacheSize: Int = 0,
-    ): TextMeasurer = TextMeasurer(fontFamilyResolver, density, layoutDirection, cacheSize)
+    ): TextMeasurer =
+        TextMeasurer(fontFamilyResolver, defaultLocale, density, layoutDirection, cacheSize)
 
     fun draw(
         bitmapWidth: Float = 1000f,

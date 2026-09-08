@@ -77,6 +77,7 @@ import androidx.compose.ui.text.android.style.IndentationFixSpan
 import androidx.compose.ui.text.android.style.PlaceholderSpan
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.internal.requirePrecondition
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.platform.AndroidTextPaint
 import androidx.compose.ui.text.platform.extensions.resolveLineHeightInPx
 import androidx.compose.ui.text.platform.extensions.setSpan
@@ -122,6 +123,7 @@ internal class AndroidParagraph(
         overflow: TextOverflow,
         constraints: Constraints,
         fontFamilyResolver: FontFamily.Resolver,
+        defaultLocale: Locale,
         density: Density,
     ) : this(
         paragraphIntrinsics =
@@ -131,6 +133,7 @@ internal class AndroidParagraph(
                 annotations = annotations,
                 placeholders = placeholders,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
                 density = density,
                 softWrap = true,
             ),

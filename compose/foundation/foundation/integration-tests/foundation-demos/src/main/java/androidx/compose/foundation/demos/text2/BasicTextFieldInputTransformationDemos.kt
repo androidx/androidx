@@ -49,15 +49,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.intl.Locale
 import androidx.core.text.isDigitsOnly
 
 @Composable
 fun BasicTextFieldInputTransformationDemos() {
     Column(Modifier.imePadding().verticalScroll(rememberScrollState())) {
         TagLine(tag = "allCaps")
-        FilterDemo(filter = InputTransformation.allCaps(Locale.current))
+        FilterDemo(filter = InputTransformation.allCaps(LocalLocale.current))
 
         TagLine(tag = "maxLengthTrim(5)")
         FilterDemo(filter = InputTransformation.maxLengthTrim(5))
@@ -145,11 +145,11 @@ private fun ChangeFilterDemo() {
     Column {
         Row(horizontalArrangement = Arrangement.SpaceBetween) {
             Text("Filter enabled?")
+            val locale = LocalLocale.current
             Switch(
                 checked = filter != null,
                 onCheckedChange = {
-                    filter =
-                        if (filter == null) InputTransformation.allCaps(Locale.current) else null
+                    filter = if (filter == null) InputTransformation.allCaps(locale) else null
                 },
             )
         }

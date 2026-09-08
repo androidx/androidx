@@ -32,6 +32,7 @@ import org.mockito.kotlin.mock
 class TextDelegateTest {
     private val density = Density(density = 1f)
     private val fontFamilyResolver = mock<FontFamily.Resolver>()
+    private val defaultLocale = TEST_LOCALE
 
     @Test
     fun `constructor with default values`() {
@@ -41,6 +42,7 @@ class TextDelegateTest {
                 style = TextStyle.Default,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
 
         assertThat(textDelegate.maxLines).isEqualTo(Int.MAX_VALUE)
@@ -57,6 +59,7 @@ class TextDelegateTest {
                 style = TextStyle.Default,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
 
         assertThat(textDelegate.text).isEqualTo(text)
@@ -73,6 +76,7 @@ class TextDelegateTest {
                 maxLines = maxLines,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
 
         assertThat(textDelegate.maxLines).isEqualTo(maxLines)
@@ -89,6 +93,7 @@ class TextDelegateTest {
                 minLines = minLines,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
 
         assertThat(textDelegate.minLines).isEqualTo(minLines)
@@ -105,6 +110,7 @@ class TextDelegateTest {
                 overflow = overflow,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
 
         assertThat(textDelegate.overflow).isEqualTo(overflow)
@@ -118,6 +124,7 @@ class TextDelegateTest {
                 style = TextStyle.Default,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
 
         textDelegate.minIntrinsicWidth
@@ -131,6 +138,7 @@ class TextDelegateTest {
                 style = TextStyle.Default,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
 
         textDelegate.maxIntrinsicWidth
