@@ -409,7 +409,8 @@ fun ManagedIdeTask.installIntellijPlugins(configBaseDir: File, plugins: List<Ide
     val pluginsDirFile = configBaseDir.resolve("plugins").also { it.mkdirs() }
     plugins.forEach { plugin ->
         val pluginInstallDir = File(pluginsDirFile, plugin.targetDirectoryName)
-        if (pluginInstallDir.exists()) return@forEach
+        val marker = File(pluginInstallDir, plugin.checksum)
+        if (pluginInstallDir.exists() && marker.exists()) return@forEach
 
         val pluginZip = File(pluginsDirFile, plugin.zipName)
         println("Downloading plugin from ${plugin.downloadUrl}")
@@ -426,6 +427,7 @@ fun ManagedIdeTask.installIntellijPlugins(configBaseDir: File, plugins: List<Ide
             copySpec.into(pluginsDirFile)
         }
         pluginZip.delete()
+        marker.createNewFile()
         println("Plugin installed successfully.")
     }
 }
