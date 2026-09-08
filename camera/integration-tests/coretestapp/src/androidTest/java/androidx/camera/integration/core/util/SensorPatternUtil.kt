@@ -49,6 +49,7 @@ import android.hardware.camera2.params.TonemapCurve
 import android.os.Build
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
+import androidx.camera.core.CameraSelector
 import androidx.camera.testing.impl.AndroidUtil
 import androidx.camera.testing.impl.util.Camera2InteropUtil
 import androidx.camera.testing.impl.util.Camera2InteropUtil.builder
@@ -107,12 +108,24 @@ object SensorPatternUtil {
             "Emulator API 33-37 can not correctly apply solid color pattern",
             (Build.VERSION.SDK_INT in 33..37) && AndroidUtil.isEmulator(),
         )
+        // Skip for b/558616203: Redmi 8 / 8A front camera does not output test patterns correctly.
+        assumeFalse(
+            "Redmi 8 front camera does not support reliable solid color test patterns",
+            isRedmi8FrontCamera(cameraInfo),
+        )
 
         with(Camera2InteropUtil.Camera2CameraInfoWrapper.from(implName, cameraInfo)) {
             val availableTestPatterns = getCameraCharacteristic(SENSOR_AVAILABLE_TEST_PATTERN_MODES)
             if (availableTestPatterns?.contains(SENSOR_TEST_PATTERN_MODE_SOLID_COLOR) == false) {
                 throw AssumptionViolatedException(
                     "Camera does not support solid color test pattern."
+                )
+            }
+            val hardwareLevel =
+                getCameraCharacteristic(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
+            if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
+                throw AssumptionViolatedException(
+                    "Legacy camera devices do not support reliable solid color test patterns."
                 )
             }
         }
@@ -332,6 +345,15 @@ object SensorPatternUtil {
                 }
             }
             .build()
+    }
+
+    private fun isRedmi8FrontCamera(cameraInfo: CameraInfo): Boolean {
+        val isRedmi8 =
+            Build.DEVICE.equals("olive", ignoreCase = true) ||
+                Build.DEVICE.equals("olivelite", ignoreCase = true) ||
+                Build.MODEL.equals("Redmi 8", ignoreCase = true) ||
+                Build.MODEL.equals("Redmi 8A", ignoreCase = true)
+        return isRedmi8 && cameraInfo.lensFacing == CameraSelector.LENS_FACING_FRONT
     }
 }
 
