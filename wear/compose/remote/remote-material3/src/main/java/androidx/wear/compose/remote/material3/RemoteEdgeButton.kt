@@ -36,18 +36,22 @@ import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.role
 import androidx.compose.remote.creation.compose.modifier.semantics
+import androidx.compose.remote.creation.compose.modifier.widthIn
 import androidx.compose.remote.creation.compose.shapes.RemoteOutline
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rememberRemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.sqrt
+import androidx.compose.remote.creation.compose.state.toRemoteDp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.semantics.Role
@@ -59,8 +63,29 @@ import androidx.wear.compose.material3.TextConfiguration
 /**
  * Wear Material 3 [RemoteEdgeButton] that offers a single slot to take any content.
  *
- * The [RemoteEdgeButton] has a special shape designed to anchor to the bottom edge of a round
- * screen.
+ * The [RemoteEdgeButton] has a special shape designed for the bottom of the screen, as it almost
+ * follows the screen's curvature, so it should be allowed to take the full width and touch the
+ * bottom of the screen.
+ *
+ * This button represents the most important action on the screen, and must take the whole width of
+ * the screen as well as being anchored to the screen bottom. This assumes that the Remote Compose
+ * Player is taking the full width of the screen.
+ *
+ * [RemoteEdgeButton] has 4 standard sizes, taking 1 line of text for extra small, 2 for small and
+ * medium, and 3 for large. Specify it using the [buttonSize] parameter. Optionally, a single icon
+ * can be used instead of text.
+ *
+ * [RemoteEdgeButton] takes the [RemoteEdgeButtonDefaults.buttonColors] color scheme by default,
+ * with colored background, contrasting content color and no border. This is a high-emphasis button
+ * for the primary, most important or most common action on a screen. Other possible colors for
+ * different levels of emphasis are: filled tonal button which defaults to
+ * [RemoteEdgeButtonDefaults.filledTonalButtonColors] and outlined button which defaults to
+ * [RemoteEdgeButtonDefaults.outlinedButtonColors].
+ *
+ * [RemoteEdgeButton] can be enabled or disabled. A disabled button will not respond to click
+ * events.
+ *
+ * Example of a [RemoteEdgeButton]:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteEdgeButtonSample
  *
@@ -76,7 +101,11 @@ import androidx.wear.compose.material3.TextConfiguration
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteEdgeButtonMultiLineSample
  * @param onClick Will be called when the user clicks the button.
- * @param modifier Modifier to be applied to the button.
+ * @param modifier Modifier to be applied to the button. Size-related modifiers should not be used
+ *   directly on [RemoteEdgeButton] to alter content sizing; the button is designed to take the full
+ *   width of the screen and its height is determined by [buttonSize]. When animating the button to
+ *   appear/disappear, a height modifier can change the height of the component, but won't change
+ *   the space available for the content.
  * @param buttonSize The size of the button, defaults to [RemoteEdgeButtonSize.Small].
  * @param enabled Controls the enabled state of the button. When false, this component will not
  *   respond to user input.
@@ -91,6 +120,7 @@ import androidx.wear.compose.material3.TextConfiguration
  */
 @Composable
 @RemoteComposable
+@Suppress("RestrictedApiAndroidX")
 public fun RemoteEdgeButton(
     onClick: Action,
     modifier: RemoteModifier = RemoteModifier,
@@ -125,10 +155,17 @@ public fun RemoteEdgeButton(
                 },
         contentAlignment = RemoteAlignment.Center,
     ) {
+        val buttonWidthDp = rememberRemoteFloatExpression { componentWidth() }.toRemoteDp()
+        val contentWidth =
+            calculateEdgeButtonContentWidth(
+                actualButtonWidth = buttonWidthDp,
+                buttonHeight = buttonSize.maximumHeight,
+            )
+
         RemoteRow(
             verticalAlignment = RemoteAlignment.CenterVertically,
             horizontalArrangement = RemoteArrangement.Center,
-            modifier = RemoteModifier.fillMaxWidth().padding(contentPadding),
+            modifier = RemoteModifier.widthIn(max = contentWidth).padding(contentPadding),
             content =
                 provideScopeContent(
                     contentColor = colors.contentColor(enabled = enabled),
@@ -346,7 +383,7 @@ public object RemoteEdgeButtonDefaults {
     public val BottomContentPadding: RemoteDp = 8.rdp
 
     /** The recommended horizontal content padding for [RemoteEdgeButton]. */
-    public val HorizontalContentPadding: RemoteDp = 14.rdp
+    public val HorizontalContentPadding: RemoteDp = 0.rdp
 
     /** The default content padding used by [RemoteEdgeButton]. */
     public val ContentPadding: RemotePaddingValues =
@@ -357,6 +394,15 @@ public object RemoteEdgeButtonDefaults {
             bottomPadding = BottomContentPadding,
         )
 }
+
+// How tall the ellipsis is for the extra small button.
+private val ExtraSmallEllipsisHeight: RemoteDp = 58.rdp
+
+// How much the ellipsis grows as the button height grows.
+private val ButtonToEllipsisRatio: RemoteFloat = 1.42f.rf
+
+// Distance from the leftmost/rightmost point in the button to the edge of the screen.
+private val TargetSidePadding: RemoteDp = 20.rdp
 
 /**
  * Shape for [RemoteEdgeButton] that fits the bottom edge of a round screen.
@@ -398,14 +444,13 @@ public class RemoteEdgeButtonShape(
         layoutDirection: LayoutDirection,
         strokeWidth: RemoteFloat,
     ): RemoteOutline {
-        val densityFactor = density.density
         val w = size.width
         val h = size.height
 
-        val bottomPaddingPx = 3f.rf * densityFactor
-        val extraSmallHeightPx = 46f.rf * densityFactor
-        val extraSmallEllipsisHeightPx = 58f.rf * densityFactor
-        val buttonToEllipsisRatio = 1.42f.rf
+        val bottomPaddingPx = RemoteEdgeButtonDefaults.VerticalPadding.toPx(density)
+        val extraSmallHeightPx = RemoteEdgeButtonSize.ExtraSmall.maximumHeight.toPx(density)
+        val extraSmallEllipsisHeightPx = ExtraSmallEllipsisHeight.toPx(density)
+        val buttonToEllipsisRatio = ButtonToEllipsisRatio
 
         val ellipsisHeight =
             extraSmallEllipsisHeightPx + (h - extraSmallHeightPx) * buttonToEllipsisRatio
@@ -474,4 +519,35 @@ public class RemoteEdgeButtonShape(
     }
 
     override fun hashCode(): Int = buttonSize.hashCode()
+}
+
+/**
+ * Calculates the available content width for [RemoteEdgeButton] matching EdgeButton's ShapeHelper.
+ */
+internal fun calculateEdgeButtonContentWidth(
+    actualButtonWidth: RemoteDp,
+    buttonHeight: RemoteDp,
+): RemoteDp {
+    // Calculation operates in DP space using RemoteFloats.
+    val extraSmallHeight = RemoteEdgeButtonSize.ExtraSmall.maximumHeight.value
+    val bottomPadding = RemoteEdgeButtonDefaults.VerticalPadding.value
+    val extraSmallEllipsisHeight = ExtraSmallEllipsisHeight.value
+    val buttonToEllipsisRatio = ButtonToEllipsisRatio
+    val targetSidePadding = TargetSidePadding.value
+
+    val h = buttonHeight.value
+    val w = actualButtonWidth.value
+
+    val finalFadeProgress = max(1f.rf - h / extraSmallHeight, 0f.rf)
+    val ellipsisHeight =
+        (extraSmallEllipsisHeight + (h - extraSmallHeight) * buttonToEllipsisRatio) *
+            (1f.rf - finalFadeProgress) + h * finalFadeProgress
+
+    val screenRadius = w / 2f.rf
+    val diff = max(screenRadius - bottomPadding - ellipsisHeight / 2f.rf, 0f.rf)
+    val localHalfWidth = sqrt(max(screenRadius * screenRadius - diff * diff, 0f.rf))
+    val r = h - ellipsisHeight / 2f.rf
+
+    val contentWidth = max(localHalfWidth - targetSidePadding - r, 0f.rf) * 2f.rf
+    return contentWidth.asRemoteDp()
 }
