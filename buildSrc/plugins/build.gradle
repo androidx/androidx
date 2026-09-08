@@ -2,6 +2,7 @@ apply from: "../shared.gradle"
 
 dependencies {
     implementation(project(":public"))
+    api(project(":imports:annotation-keep-gradle-plugin"))
     api(project(":imports:baseline-profile-gradle-plugin"))
     api(project(":imports:benchmark-darwin-plugin"))
     api(project(":imports:benchmark-gradle-plugin"))
