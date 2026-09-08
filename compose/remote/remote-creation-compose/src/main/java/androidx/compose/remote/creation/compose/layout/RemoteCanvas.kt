@@ -32,6 +32,7 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.PathFillType
 import androidx.graphics.shapes.RoundedPolygon
 
 /**
@@ -381,10 +382,19 @@ public class RemoteCanvas(
     }
 
     /** Draws a path using the specified [paint]. */
-    public fun drawPath(path: RemotePath, paint: RemotePaint? = null) {
+    public fun drawPath(
+        path: RemotePath,
+        pathFillType: PathFillType = PathFillType.NonZero,
+        paint: RemotePaint? = null,
+    ) {
         val op =
             recordRenderingOp(paint) {
-                val pathId = document.addPathData(path)
+                val pathId =
+                    if (pathFillType == PathFillType.EvenOdd) {
+                        document.addPathData(path, 1)
+                    } else {
+                        document.addPathData(path)
+                    }
                 document.drawPath(pathId)
             }
         internalCanvas.buffer.addRoots(op, path)

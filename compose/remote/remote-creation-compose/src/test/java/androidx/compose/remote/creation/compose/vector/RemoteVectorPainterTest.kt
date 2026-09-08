@@ -16,11 +16,18 @@
 
 package androidx.compose.remote.creation.compose.vector
 
+import android.graphics.Bitmap
+import androidx.compose.remote.creation.compose.capture.RecordingCanvas
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.path
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.PathData
@@ -82,5 +89,71 @@ class RemoteVectorPainterTest {
 
         assertThat(intrinsicSize.width.constantValueOrNull).isEqualTo(20f)
         assertThat(intrinsicSize.height.constantValueOrNull).isEqualTo(20f)
+    }
+
+    @Test
+    fun createGroupComponent_propagatesPathFillTypeAndBrush() {
+        val imageVector =
+            ImageVector.Builder(
+                    name = "EvenOddIcon",
+                    defaultWidth = 24.dp,
+                    defaultHeight = 24.dp,
+                    viewportWidth = 24f,
+                    viewportHeight = 24f,
+                )
+                .addPath(
+                    PathData {
+                        moveTo(0f, 0f)
+                        lineTo(24f, 24f)
+                        close()
+                    },
+                    pathFillType = PathFillType.EvenOdd,
+                    fill = SolidColor(Color.Blue),
+                    fillAlpha = 0.5f,
+                    stroke = SolidColor(Color.Green),
+                    strokeAlpha = 0.8f,
+                )
+                .build()
+
+        val painter = painterRemoteVector(imageVector) as RemoteVectorPainter
+        val rootGroup = painter.vector.root
+        assertThat(rootGroup.numChildren).isEqualTo(1)
+
+        val group = RemoteGroupComponent().createGroupComponent(imageVector.root)
+        assertThat(group.numChildren).isEqualTo(1)
+    }
+
+    @Test
+    fun remoteImageVector_draw_proceduralExtension() {
+        val remoteImageVector =
+            RemoteImageVector.Builder(
+                    viewportWidth = 24f.rf,
+                    viewportHeight = 24f.rf,
+                    tintColor = RemoteColor(Color.Black),
+                    name = "TestVector",
+                )
+                .path(
+                    pathFillType = PathFillType.EvenOdd,
+                    fill = SolidColor(Color.Red),
+                    fillAlpha = 0.5f.rf,
+                ) {
+                    moveTo(0f.rf, 0f.rf)
+                    lineTo(24f.rf, 24f.rf)
+                }
+                .build()
+
+        val size = Size(24f, 24f)
+        val creationState =
+            RemoteComposeCreationState(
+                AndroidxRcPlatformServices(),
+                size,
+            )
+        val bitmap = Bitmap.createBitmap(24, 24, Bitmap.Config.ARGB_8888)
+        val recordingCanvas = RecordingCanvas(bitmap)
+        recordingCanvas.creationState = creationState
+        val remoteCanvas = RemoteCanvas(recordingCanvas)
+
+        // Draw procedurally using the new RemoteImageVector.draw extension
+        remoteImageVector.draw(remoteCanvas)
     }
 }
