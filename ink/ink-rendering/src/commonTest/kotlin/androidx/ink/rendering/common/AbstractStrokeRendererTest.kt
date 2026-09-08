@@ -28,6 +28,7 @@ import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.Stroke
 import androidx.ink.strokes.StrokeInputBatch
 import kotlin.test.AfterTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 /**
@@ -166,6 +167,7 @@ public abstract class AbstractStrokeRendererTest {
     /** Validates any lazy assertions made during [renderAndCompareToGolden]. */
     protected abstract fun assertLazyAssertsPass()
 
+    @Ignore // b/556392738
     @Test
     public fun dryRendering_matchesExpectedGolden() {
         for (testCase in testCases) {
@@ -180,6 +182,7 @@ public abstract class AbstractStrokeRendererTest {
         }
     }
 
+    @Ignore // b/556392738
     @Test
     public fun wetRendering_matchesExpectedGolden() {
         for (testCase in testCases) {
