@@ -60,6 +60,8 @@ constructor(
      */
     @get:RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
     public val attribution: AppInteractionAttribution? = null,
+    /** Indicates whether to enable AppFunction execution's safety evaluation or not. */
+    internal val enableSafetyEvaluation: Boolean = false,
 ) {
     /**
      * Creates a new [ExecuteAppFunctionRequest].
@@ -147,6 +149,12 @@ constructor(
             .setExtras(
                 Bundle().apply {
                     putBundle(EXTRA_PARAMETERS, functionParameters.extras)
+                    if (enableSafetyEvaluation) {
+                        putBoolean(
+                            EXTRA_ENABLE_APP_FUNCTION_EVALUATION,
+                            true,
+                        )
+                    }
                 }
             )
             .apply {
@@ -171,6 +179,7 @@ constructor(
         functionIdentifier: String = this.functionIdentifier,
         functionParameters: AppFunctionData = this.functionParameters,
         activityId: AppFunctionActivityId? = this.activityId,
+        enableSafetyEvaluation: Boolean = this.enableSafetyEvaluation,
     ): ExecuteAppFunctionRequest =
         ExecuteAppFunctionRequest(
             targetPackageName = targetPackageName,
@@ -178,10 +187,13 @@ constructor(
             functionParameters = functionParameters,
             activityId = activityId,
             attribution = attribution,
+            enableSafetyEvaluation = enableSafetyEvaluation,
         )
 
     public companion object {
         internal const val EXTRA_PARAMETERS = "androidXAppfunctionsExtraParameters"
+        private const val EXTRA_ENABLE_APP_FUNCTION_EVALUATION =
+            "com.android.extensions.safetyevaluator.events.extra.ENABLE_APP_FUNCTION_EVALUATION"
 
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         internal fun fromPlatformExtensionClass(
