@@ -21,6 +21,7 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteInt.OperationKey
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -1034,6 +1035,19 @@ internal constructor(
         idProvider = { _ -> id },
     )
 
+    /**
+     * Creates a [MutableRemoteInt] initialized with [initialValue].
+     *
+     * @param initialValue The initial [Int] value.
+     */
+    internal constructor(
+        initialValue: Int
+    ) : this(
+        constantValueOrNull = null,
+        cacheKey = RemoteStateInstanceKey(),
+        idProvider = { creationState -> creationState.document.addInteger(initialValue) },
+    )
+
     public companion object {
         /**
          * Creates a new mutable state (allocates an ID).
@@ -1042,12 +1056,7 @@ internal constructor(
          * @return A new [MutableRemoteInt] instance.
          */
         public operator fun invoke(initialValue: Int): MutableRemoteInt {
-            return MutableRemoteInt(
-                constantValueOrNull = null,
-                cacheKey = RemoteStateInstanceKey(),
-            ) { creationState ->
-                creationState.document.addInteger(initialValue)
-            }
+            return MutableRemoteInt(initialValue)
         }
 
         /**
@@ -1414,13 +1423,6 @@ public fun rememberMutableRemoteInt(initialValue: Int): MutableRemoteInt {
 }
 
 /**
- * A Composable function to remember and provide a [RemoteInt] expression.
- *
- * @param value A lambda that provides the [RemoteInt] expression.
- * @return A [RemoteIntExpression] representing the remembered remote integer.
- */
-
-/**
  * Remembers a named remote integer expression.
  *
  * @param name A unique name to identify this state within its [domain].
@@ -1435,9 +1437,7 @@ public fun rememberNamedRemoteInt(
     defaultValue: Int,
     domain: RemoteState.Domain = RemoteState.Domain.User,
 ): RemoteInt {
-    return rememberNamedState(name, domain) {
-        RemoteInt.createNamedRemoteInt(name, defaultValue, domain)
-    }
+    return rememberNamedState(name, domain) { createNamedRemoteInt(name, defaultValue, domain) }
 }
 
 /** Extension property to convert an [Int] to a [RemoteInt]. */

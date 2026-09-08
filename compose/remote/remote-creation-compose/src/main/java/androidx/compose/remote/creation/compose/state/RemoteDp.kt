@@ -20,6 +20,8 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createNamedRemoteDp
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Dp
@@ -192,11 +194,31 @@ internal constructor(
             domain: RemoteState.Domain = RemoteState.Domain.User,
         ): RemoteDp {
             return RemoteDp(
-                RemoteFloat.createNamedRemoteFloat(
+                createNamedRemoteFloat(
                     name = name,
                     defaultValue = defaultValue.value,
                     domain = domain,
                 )
+            )
+        }
+
+        internal fun createNamedRemoteDp(
+            name: String,
+            domain: RemoteState.Domain = RemoteState.Domain.User,
+            value: () -> RemoteDp,
+        ): RemoteDp {
+            val remoteDp = value()
+            return RemoteDp(
+                RemoteFloatExpression(
+                    constantValueOrNull = null,
+                    cacheKey = RemoteNamedCacheKey(domain, name),
+                ) { creationState ->
+                    val px = remoteDp.toPx()
+                    val initialValueId = px.getFloatIdForCreationState(creationState)
+                    val floatId =
+                        creationState.document.addNamedFloat(domain.prefixed(name), initialValueId)
+                    floatArrayOf(floatId)
+                }
             )
         }
     }
@@ -254,21 +276,7 @@ public fun rememberNamedRemoteDp(
     domain: RemoteState.Domain = RemoteState.Domain.User,
     value: () -> RemoteDp,
 ): RemoteDp {
-    return rememberNamedState(name, domain) {
-        val remoteDp = value()
-        RemoteDp(
-            RemoteFloatExpression(
-                constantValueOrNull = null,
-                cacheKey = RemoteNamedCacheKey(domain, name),
-            ) { creationState ->
-                val px = remoteDp.toPx()
-                val initialValueId = px.getFloatIdForCreationState(creationState)
-                val floatId =
-                    creationState.document.addNamedFloat(domain.prefixed(name), initialValueId)
-                floatArrayOf(floatId)
-            }
-        )
-    }
+    return rememberNamedState(name, domain) { createNamedRemoteDp(name, domain, value) }
 }
 
 /** Returns the smaller of two [RemoteDp] values. */

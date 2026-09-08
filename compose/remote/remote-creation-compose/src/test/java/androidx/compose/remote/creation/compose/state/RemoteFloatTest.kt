@@ -32,8 +32,11 @@ import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocum
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
@@ -59,7 +62,7 @@ class RemoteFloatTest {
             useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
         }
     val applicationContext = ApplicationProvider.getApplicationContext<Context>()
-    val time = RemoteFloat.createNamedRemoteFloat("time", 100f).createReference()
+    val time = createNamedRemoteFloat("time", 100f).createReference()
     val JUN_06_2025_UTC =
         RemoteLong(
             LocalDateTime.parse("2025-06-06T01:02:03")
@@ -394,8 +397,7 @@ class RemoteFloatTest {
 
     @Test
     fun toRemoteIntRoundTripRounding_dynamic() {
-        val result =
-            RemoteFloat.createNamedRemoteFloat("testValue", -3.9f).toRemoteInt().toRemoteFloat()
+        val result = createNamedRemoteFloat("testValue", -3.9f).toRemoteInt().toRemoteFloat()
         val resultId = result.getIdForCreationState(creationState)
 
         makeAndPaintCoreDocument()
@@ -432,7 +434,7 @@ class RemoteFloatTest {
                     .hasConstantValue
             )
             .isFalse()
-        assertThat(RemoteFloat.createNamedRemoteFloat("value", 1f).hasConstantValue).isFalse()
+        assertThat(createNamedRemoteFloat("value", 1f).hasConstantValue).isFalse()
         assertThat(
                 RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
                     .toRemoteString(DecimalFormat("#0.00"))
@@ -756,7 +758,7 @@ class RemoteFloatTest {
 
     @Test
     fun namedRemoteFloat_initialValue() {
-        val namedRemoteFloat = RemoteFloat.createNamedRemoteFloat("testFloat", 100.0f)
+        val namedRemoteFloat = createNamedRemoteFloat("testFloat", 100.0f)
         val result = namedRemoteFloat * RemoteFloat(10f)
         val resultId = result.getIdForCreationState(creationState)
 
@@ -767,7 +769,7 @@ class RemoteFloatTest {
 
     @Test
     fun namedRemoteFloat_overriddenValue() {
-        val namedRemoteFloat = RemoteFloat.createNamedRemoteFloat("testFloat", 100.0f)
+        val namedRemoteFloat = createNamedRemoteFloat("testFloat", 100.0f)
         val result = namedRemoteFloat * RemoteFloat(10f)
         val resultId = result.getIdForCreationState(creationState)
 
@@ -778,7 +780,7 @@ class RemoteFloatTest {
 
     @Test
     fun namedRemoteFloat_overriddenValue2() {
-        val namedRemoteFloat = RemoteFloat.createNamedRemoteFloat("testFloat", 100f)
+        val namedRemoteFloat = createNamedRemoteFloat("testFloat", 100f)
         val plusOne = namedRemoteFloat + RemoteFloat(1f)
         val result = plusOne * plusOne
         val resultId = result.getIdForCreationState(creationState)
@@ -791,9 +793,7 @@ class RemoteFloatTest {
     @Test
     fun namedRemoteFloatExpression_smokeTest() {
         val namedExpr =
-            RemoteFloat.createNamedRemoteFloatExpression("testExpr") {
-                RemoteFloat(10f) + RemoteFloat(5f)
-            }
+            createNamedRemoteFloatExpression("testExpr") { RemoteFloat(10f) + RemoteFloat(5f) }
         val result = namedExpr * RemoteFloat(2f)
         val resultId = result.getIdForCreationState(creationState)
 
@@ -842,7 +842,7 @@ class RemoteFloatTest {
         // This test checks that when we create a very long expression, we don't just
         // inline everything. The MAX_SAFE_FLOAT_ARRAY is 30, so we create an expression
         // that would be much larger than that if inlined.
-        var longExpression = RemoteFloat.createNamedRemoteFloat("test", 1f)
+        var longExpression = createNamedRemoteFloat("test", 1f)
         for (i in 0..50) {
             longExpression += RemoteFloat(i.toFloat())
         }
@@ -912,14 +912,11 @@ class RemoteFloatTest {
         val c5_1234 = RemoteFloat(5.1234f).toRemoteString(formatOptional)
 
         // Named (dynamic)
-        val n5_0 = RemoteFloat.createNamedRemoteFloat("n5_0", 5.0f).toRemoteString(formatOptional)
-        val n5_1 = RemoteFloat.createNamedRemoteFloat("n5_1", 5.1f).toRemoteString(formatOptional)
-        val n5_12 =
-            RemoteFloat.createNamedRemoteFloat("n5_12", 5.12f).toRemoteString(formatOptional)
-        val n5_123 =
-            RemoteFloat.createNamedRemoteFloat("n5_123", 5.123f).toRemoteString(formatOptional)
-        val n5_1234 =
-            RemoteFloat.createNamedRemoteFloat("n5_1234", 5.1234f).toRemoteString(formatOptional)
+        val n5_0 = createNamedRemoteFloat("n5_0", 5.0f).toRemoteString(formatOptional)
+        val n5_1 = createNamedRemoteFloat("n5_1", 5.1f).toRemoteString(formatOptional)
+        val n5_12 = createNamedRemoteFloat("n5_12", 5.12f).toRemoteString(formatOptional)
+        val n5_123 = createNamedRemoteFloat("n5_123", 5.123f).toRemoteString(formatOptional)
+        val n5_1234 = createNamedRemoteFloat("n5_1234", 5.1234f).toRemoteString(formatOptional)
 
         // Constants
         val c5_0_fixed = RemoteFloat(5.0f).toRemoteString(formatFixed)
@@ -927,12 +924,10 @@ class RemoteFloatTest {
         val c5_123_fixed = RemoteFloat(5.123f).toRemoteString(formatFixed)
 
         // Named (dynamic)
-        val n5_0_fixed =
-            RemoteFloat.createNamedRemoteFloat("n5_0_fixed", 5.0f).toRemoteString(formatFixed)
-        val n5_1_fixed =
-            RemoteFloat.createNamedRemoteFloat("n5_1_fixed", 5.1f).toRemoteString(formatFixed)
+        val n5_0_fixed = createNamedRemoteFloat("n5_0_fixed", 5.0f).toRemoteString(formatFixed)
+        val n5_1_fixed = createNamedRemoteFloat("n5_1_fixed", 5.1f).toRemoteString(formatFixed)
         val n5_123_fixed =
-            RemoteFloat.createNamedRemoteFloat("n5_123_fixed", 5.123f).toRemoteString(formatFixed)
+            createNamedRemoteFloat("n5_123_fixed", 5.123f).toRemoteString(formatFixed)
 
         // Get IDs
         val c5_0_id = c5_0.getIdForCreationState(creationState)
@@ -985,8 +980,7 @@ class RemoteFloatTest {
         val formatOptional = DecimalFormat("0.######") // min 0, max 6
 
         // Simulate a value that should be 9.0 but has a tiny precision error (9.000001)
-        val n9_error =
-            RemoteFloat.createNamedRemoteFloat("n9_error", 9.000001f).toRemoteString(formatOptional)
+        val n9_error = createNamedRemoteFloat("n9_error", 9.000001f).toRemoteString(formatOptional)
         val n9_error_id = n9_error.getIdForCreationState(creationState)
 
         makeAndPaintCoreDocument()
@@ -1000,8 +994,7 @@ class RemoteFloatTest {
         val formatOptional = DecimalFormat("0.######")
         // Value close to 10.0
         val n9_999999 =
-            RemoteFloat.createNamedRemoteFloat("n9_999999", 9.999999f)
-                .toRemoteString(formatOptional)
+            createNamedRemoteFloat("n9_999999", 9.999999f).toRemoteString(formatOptional)
         val n9_999999_id = n9_999999.getIdForCreationState(creationState)
 
         makeAndPaintCoreDocument()
@@ -1403,7 +1396,7 @@ class RemoteFloatTest {
         val constant = RemoteFloat(10f)
         assertThat(constant.cacheKey).isEqualTo(RemoteConstantCacheKey(10f))
 
-        val named = RemoteFloat.createNamedRemoteFloat("test", 1f)
+        val named = createNamedRemoteFloat("test", 1f)
         assertThat(named.cacheKey).isEqualTo(RemoteNamedCacheKey(RemoteState.Domain.User, "test"))
 
         val op = constant + named
@@ -1963,7 +1956,7 @@ class RemoteFloatTest {
                 creationDisplayInfo = displayInfo,
                 context = applicationContext,
             ) {
-                val myFloatFromConstant = MutableRemoteFloat(5f)
+                val myFloatFromConstant = remember { MutableRemoteFloat(5f) }
                 RemoteBox(modifier = RemoteModifier.size(myFloatFromConstant.asRemoteDp()))
             }
 
@@ -2091,7 +2084,7 @@ class RemoteFloatTest {
 
     @Test
     fun toDebugString_variables() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
+        val x = createNamedRemoteFloat("x", 10f)
         assertThat(x.toDebugString()).isEqualTo("user:x")
 
         val contSec = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
@@ -2120,13 +2113,13 @@ class RemoteFloatTest {
 
     @Test
     fun toDebugString_function_abs() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
+        val x = createNamedRemoteFloat("x", 10f)
         assertThat(abs(-x).toDebugString()).isEqualTo("abs(-user:x)")
     }
 
     @Test
     fun toDebugString_arithmetic_compound() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
+        val x = createNamedRemoteFloat("x", 10f)
         val c = RemoteFloat(45.5f)
         val expr = (x + c) * abs(-x)
         assertThat(expr.toDebugString()).isEqualTo("(user:x + 45.5) * abs(-user:x)")
@@ -2134,7 +2127,7 @@ class RemoteFloatTest {
 
     @Test
     fun toDebugString_arithmetic_associativityWrapping() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
+        val x = createNamedRemoteFloat("x", 10f)
         val c = RemoteFloat(45.5f)
         val assocExpr = x - (c + x)
         assertThat(assocExpr.toDebugString()).isEqualTo("user:x - (user:x + 45.5)")
@@ -2148,21 +2141,21 @@ class RemoteFloatTest {
 
     @Test
     fun toDebugString_typeConversions() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
+        val x = createNamedRemoteFloat("x", 10f)
         assertThat(x.toRemoteString().toDebugString()).isEqualTo("user:x.toRemoteString()")
         assertThat(x.toRemoteInt().toDebugString()).isEqualTo("user:x.toRemoteInt()")
     }
 
     @Test
     fun toDebugString_customFormatting_options() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
+        val x = createNamedRemoteFloat("x", 10f)
         val customFormatted = x.toRemoteStringOptions(before = 10, after = 2, flags = 5)
         assertThat(customFormatted.toDebugString()).isEqualTo("user:x.toRemoteString(10, 2, 5)")
     }
 
     @Test
     fun toDebugString_customFormatting_singleArgFallback() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
+        val x = createNamedRemoteFloat("x", 10f)
         val singleArgKey =
             RemoteOperationCacheKey.create(RemoteFloat.OperationKey.ToRemoteString, x)
         assertThat(singleArgKey.toDebugString()).isEqualTo("user:x.toRemoteString()")

@@ -27,6 +27,7 @@ import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
@@ -87,7 +88,7 @@ class RemoteMutableFloatArrayTest {
     @Test
     fun arraySet_once_dynamicIndex() {
         val remoteFloatArray = RemoteMutableFloatArray(4)
-        val index = RemoteInt.createNamedRemoteInt("testInt", 2)
+        val index = createNamedRemoteInt("testInt", 2)
 
         remoteFloatArray[index] = 1234.rf
         val result = remoteFloatArray[2]
@@ -101,7 +102,7 @@ class RemoteMutableFloatArrayTest {
     @Test
     fun arraySet_twice_dynamicIndex() {
         val remoteFloatArray = RemoteMutableFloatArray(4)
-        val index = RemoteInt.createNamedRemoteInt("testInt", 2)
+        val index = createNamedRemoteInt("testInt", 2)
 
         remoteFloatArray[index] = 1234.rf
         val result1 = remoteFloatArray[2]
@@ -136,7 +137,7 @@ class RemoteMutableFloatArrayTest {
         val creationState = RemoteComposeCreationState(Size(100f, 100f), profile)
         creationState.document.conditionalOperations(ConditionalOperations.TYPE_EQ, 0f, 0f)
         val remoteFloatArray = RemoteMutableFloatArray(4)
-        val index = RemoteInt.createNamedRemoteInt("testInt", 2)
+        val index = createNamedRemoteInt("testInt", 2)
 
         remoteFloatArray[index] = 1234.rf
         val result1 = remoteFloatArray[2]
@@ -203,7 +204,7 @@ class RemoteMutableFloatArrayTest {
     @Test
     fun arraySet_dynamicIndex_clearsCache() {
         val remoteFloatArray = RemoteMutableFloatArray(4)
-        val dynamicIndex = RemoteInt.createNamedRemoteInt("testInt", 2)
+        val dynamicIndex = createNamedRemoteInt("testInt", 2)
 
         remoteFloatArray[1] = 123.rf
         assertThat(remoteFloatArray[1].constantValue).isEqualTo(123f)
@@ -225,7 +226,7 @@ class RemoteMutableFloatArrayTest {
     @Test
     fun toDebugString_indexing() {
         val remoteFloatArray = RemoteMutableFloatArray(4)
-        val dynIdx = RemoteInt.createNamedRemoteInt("i", 1)
+        val dynIdx = createNamedRemoteInt("i", 1)
         val result = remoteFloatArray[dynIdx]
         assertThat(result.toDebugString()).isEqualTo("mutableFloatArray(size=4)[user:i]")
     }

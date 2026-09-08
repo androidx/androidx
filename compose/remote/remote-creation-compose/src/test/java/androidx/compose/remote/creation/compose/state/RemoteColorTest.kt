@@ -33,6 +33,8 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
+import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.remote.player.core.state.RemoteDomains
@@ -480,27 +482,15 @@ class RemoteColorTest {
     @Test
     fun remoteColorIsCached() {
         val red =
-            creationState.getOrCreateNamedState(
-                RemoteColor::class.java,
-                "red",
-                RemoteState.Domain.User,
-            ) {
+            creationState.getOrCreateNamedState("red", RemoteState.Domain.User) {
                 RemoteColor(Color(AndroidColor.RED))
             }
         val red2 =
-            creationState.getOrCreateNamedState(
-                RemoteColor::class.java,
-                "red",
-                RemoteState.Domain.User,
-            ) {
+            creationState.getOrCreateNamedState("red", RemoteState.Domain.User) {
                 RemoteColor(Color(AndroidColor.RED))
             }
         val green =
-            creationState.getOrCreateNamedState(
-                RemoteColor::class.java,
-                "green",
-                RemoteState.Domain.User,
-            ) {
+            creationState.getOrCreateNamedState("green", RemoteState.Domain.User) {
                 RemoteColor(Color(AndroidColor.GREEN))
             }
 
@@ -529,7 +519,7 @@ class RemoteColorTest {
                 creationDisplayInfo = displayInfo,
                 context = applicationContext,
             ) {
-                val color = RemoteColor.createNamedRemoteColor("A", Color.Red).copy(alpha = 0.4f.rf)
+                val color = createNamedRemoteColor("A", Color.Red).copy(alpha = 0.4f.rf)
                 RemoteBox(modifier = RemoteModifier.background(color))
             }
 
@@ -566,15 +556,15 @@ class RemoteColorTest {
 
     @Test
     fun toDebugString_variable() {
-        val c = RemoteColor.createNamedRemoteColor("col", Color.Red)
+        val c = createNamedRemoteColor("col", Color.Red)
         assertThat(c.toDebugString()).isEqualTo("user:col")
     }
 
     @Test
     fun toDebugString_fromHSV() {
-        val x = RemoteFloat.createNamedRemoteFloat("h", 0.5f)
-        val y = RemoteFloat.createNamedRemoteFloat("s", 0.2f)
-        val z = RemoteFloat.createNamedRemoteFloat("v", 0.1f)
+        val x = createNamedRemoteFloat("h", 0.5f)
+        val y = createNamedRemoteFloat("s", 0.2f)
+        val z = createNamedRemoteFloat("v", 0.1f)
         val hsv = RemoteColor.hsv(hue = x, saturation = y, value = z)
         assertThat(hsv.toDebugString()).isEqualTo("fromHSV(user:h, user:s, user:v)")
     }
@@ -594,7 +584,7 @@ class RemoteColorTest {
 
     @Test
     fun times_white_elided() {
-        val color = RemoteColor.createNamedRemoteColor("color", Color.Red)
+        val color = createNamedRemoteColor("color", Color.Red)
         val white = RemoteColor(Color.White)
 
         assertThat(color * white).isSameInstanceAs(color)
@@ -603,7 +593,7 @@ class RemoteColorTest {
 
     @Test
     fun times_transparent_elided() {
-        val color = RemoteColor.createNamedRemoteColor("color", Color.Red)
+        val color = createNamedRemoteColor("color", Color.Red)
         val transparent = RemoteColor(Color.Transparent)
 
         assertThat(color * transparent).isSameInstanceAs(transparent)
@@ -622,7 +612,7 @@ class RemoteColorTest {
 
     @Test
     fun times_black_transparent_not_elided() {
-        val dynamicAlpha = RemoteFloat.createNamedRemoteFloat("alpha", 0.5f)
+        val dynamicAlpha = createNamedRemoteFloat("alpha", 0.5f)
         val transparentColor =
             RemoteColor.rgb(red = 0.5f.rf, green = 0.5f.rf, blue = 0.5f.rf, alpha = dynamicAlpha)
         val black = RemoteColor(Color.Black)
@@ -637,7 +627,7 @@ class RemoteColorTest {
 
     @Test
     fun tween_same_from_to_elided() {
-        val color = RemoteColor.createNamedRemoteColor("color", Color.Red)
+        val color = createNamedRemoteColor("color", Color.Red)
         val tweenFactor = 0.5f.rf
 
         val tweened = tween(color, color, tweenFactor)

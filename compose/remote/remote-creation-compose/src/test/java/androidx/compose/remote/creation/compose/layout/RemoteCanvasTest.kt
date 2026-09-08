@@ -30,8 +30,8 @@ import androidx.compose.remote.creation.compose.capture.PaintTrackerTest.TestPai
 import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
-import androidx.compose.remote.creation.compose.state.RemoteBoolean
-import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
@@ -158,13 +158,13 @@ class RemoteCanvasTest {
         recordingCanvas.creationState = creationState
         remoteCanvas = RemoteCanvas(recordingCanvas)
 
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
-        val y = RemoteFloat.createNamedRemoteFloat("y", 20f)
+        val x = createNamedRemoteFloat("x", 10f)
+        val y = createNamedRemoteFloat("y", 20f)
         val sub = x + y // Common subexpression
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
-        val condition3 = RemoteBoolean.createNamedRemoteBoolean("cond3", true)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", true)
+        val condition3 = createNamedRemoteBoolean("cond3", true)
 
         remoteCanvas.drawConditionally(condition1) {
             remoteCanvas.drawConditionally(condition2) {
@@ -247,14 +247,14 @@ class RemoteCanvasTest {
         recordingCanvas.creationState = creationState
         remoteCanvas = RemoteCanvas(recordingCanvas)
 
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
-        val y = RemoteFloat.createNamedRemoteFloat("y", 20f)
+        val x = createNamedRemoteFloat("x", 10f)
+        val y = createNamedRemoteFloat("y", 20f)
         val a = x + y
         val b = a * 2f
         val c = b + 5f
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", true)
 
         // Use c in two places to make it common
         remoteCanvas.drawConditionally(condition1) {
@@ -314,8 +314,8 @@ class RemoteCanvasTest {
         recordingCanvas.creationState = creationState
         remoteCanvas = RemoteCanvas(recordingCanvas)
 
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
-        val y = RemoteFloat.createNamedRemoteFloat("y", 20f)
+        val x = createNamedRemoteFloat("x", 10f)
+        val y = createNamedRemoteFloat("y", 20f)
         val a = x + y // Should be common!
         val b = a * 2f // Common
         val c = a + 5f // Not common
@@ -368,7 +368,7 @@ class RemoteCanvasTest {
         recordingCanvas.creationState = creationState
         remoteCanvas = RemoteCanvas(recordingCanvas)
 
-        val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+        val condition = createNamedRemoteBoolean("cond", true)
 
         remoteCanvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, null) // Op 1
 
@@ -416,9 +416,9 @@ class RemoteCanvasTest {
         recordingCanvas.creationState = creationState
         remoteCanvas = RemoteCanvas(recordingCanvas)
 
-        val from = RemoteFloat.createNamedRemoteFloat("from", 0f)
-        val until = RemoteFloat.createNamedRemoteFloat("until", 10f)
-        val step = RemoteFloat.createNamedRemoteFloat("step", 1f)
+        val from = createNamedRemoteFloat("from", 0f)
+        val until = createNamedRemoteFloat("until", 10f)
+        val step = createNamedRemoteFloat("step", 1f)
 
         remoteCanvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, null) // Op 1
 
@@ -466,14 +466,14 @@ class RemoteCanvasTest {
         recordingCanvas.creationState = creationState
         remoteCanvas = RemoteCanvas(recordingCanvas)
 
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
-        val y = RemoteFloat.createNamedRemoteFloat("y", 20f)
+        val x = createNamedRemoteFloat("x", 10f)
+        val y = createNamedRemoteFloat("y", 20f)
 
         val child = x + y
         val parent = child * 2f
         val grandParent = parent + 5f
 
-        val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+        val condition = createNamedRemoteBoolean("cond", true)
 
         remoteCanvas.drawConditionally(condition) {
             remoteCanvas.drawRect(grandParent, 0f.rf, 0f.rf, 0f.rf, null)

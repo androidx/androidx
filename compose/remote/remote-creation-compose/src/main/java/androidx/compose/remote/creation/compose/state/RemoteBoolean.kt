@@ -21,6 +21,8 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
+import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
@@ -458,7 +460,7 @@ internal constructor(
             domain: RemoteState.Domain = RemoteState.Domain.User,
         ): RemoteBoolean {
             return RemoteBoolean(
-                RemoteInt.createNamedRemoteInt(
+                createNamedRemoteInt(
                     name = name,
                     defaultValue = if (defaultValue) 1 else 0,
                     domain = domain,
@@ -471,6 +473,8 @@ internal constructor(
 /** A mutable implementation of [RemoteBoolean]. */
 public class MutableRemoteBoolean internal constructor(remoteInt: MutableRemoteInt) :
     RemoteBoolean(remoteInt), MutableRemoteState<Boolean> {
+
+    internal constructor(initialValue: Boolean) : this(MutableRemoteInt(if (initialValue) 1 else 0))
 
     @get:Suppress("AutoBoxing")
     public override val constantValueOrNull: Boolean?
@@ -527,8 +531,7 @@ public val Boolean.rb: RemoteBoolean
 @Composable
 @RemoteComposable
 public fun rememberMutableRemoteBoolean(initialValue: Boolean): MutableRemoteBoolean {
-    val initInt: Int = if (initialValue) 1 else 0
-    return remember { MutableRemoteBoolean(MutableRemoteInt(initInt)) }
+    return remember { MutableRemoteBoolean(initialValue) }
 }
 
 /**
@@ -546,7 +549,5 @@ public fun rememberNamedRemoteBoolean(
     initialValue: Boolean,
     domain: RemoteState.Domain = RemoteState.Domain.User,
 ): RemoteBoolean {
-    return rememberNamedState(name, domain) {
-        RemoteBoolean(RemoteInt.createNamedRemoteInt(name, if (initialValue) 1 else 0, domain))
-    }
+    return rememberNamedState(name, domain) { createNamedRemoteBoolean(name, initialValue, domain) }
 }

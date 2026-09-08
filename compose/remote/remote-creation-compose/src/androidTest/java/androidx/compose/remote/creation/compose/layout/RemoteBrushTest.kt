@@ -40,7 +40,7 @@ import androidx.compose.remote.creation.compose.shaders.sweepGradient
 import androidx.compose.remote.creation.compose.shaders.verticalGradient
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
+import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createTranslateXy
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.rc
@@ -221,8 +221,7 @@ class RemoteBrushTest {
             val imageSize = RemoteSize(image.width, image.height)
             val topLeftX = 50f
             val topLeftY = 50f
-            val matrix33 =
-                RemoteMatrix3x3.createTranslateXy(RemoteFloat(topLeftX), RemoteFloat(topLeftY))
+            val matrix33 = createTranslateXy(RemoteFloat(topLeftX), RemoteFloat(topLeftY))
             RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Yellow.rc)) {
                 RemoteBox(
                     modifier =

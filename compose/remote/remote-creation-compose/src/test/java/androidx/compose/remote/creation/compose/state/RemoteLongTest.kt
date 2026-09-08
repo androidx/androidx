@@ -21,6 +21,8 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
@@ -40,7 +42,7 @@ class RemoteLongTest {
 
     @Test
     fun namedRemoteLong_initialValue() {
-        val namedRemoteLong = RemoteLong.createNamedRemoteLong("testLong", 100L)
+        val namedRemoteLong = createNamedRemoteLong("testLong", 100L)
         val longId = namedRemoteLong.getIdForCreationState(creationState)
 
         makeAndPaintCoreDocument()
@@ -50,7 +52,7 @@ class RemoteLongTest {
 
     @Test
     fun namedRemoteLong_setValue() {
-        val namedRemoteLong = RemoteLong.createNamedRemoteLong("testLong", 100L)
+        val namedRemoteLong = createNamedRemoteLong("testLong", 100L)
         val longId = namedRemoteLong.getIdForCreationState(creationState)
 
         makeAndUpdateCoreDocument { context.setNamedLong("USER:testLong", 20) }
@@ -60,12 +62,12 @@ class RemoteLongTest {
 
     @Test
     fun namedRemoteLong_arithmetic() {
-        val l1Low = RemoteInt.createNamedRemoteInt("long1.low", 1000)
-        val l1High = RemoteInt.createNamedRemoteInt("long1.high", 0)
+        val l1Low = createNamedRemoteInt("long1.low", 1000)
+        val l1High = createNamedRemoteInt("long1.high", 0)
         val long1 = RemoteLong.fromLowHigh(l1Low, l1High)
 
-        val l2Low = RemoteInt.createNamedRemoteInt("long2.low", 2000)
-        val l2High = RemoteInt.createNamedRemoteInt("long2.high", 0)
+        val l2Low = createNamedRemoteInt("long2.low", 2000)
+        val l2High = createNamedRemoteInt("long2.high", 0)
         val long2 = RemoteLong.fromLowHigh(l2Low, l2High)
 
         val sum = long1 + long2
@@ -297,14 +299,14 @@ class RemoteLongTest {
 
     @Test
     fun toDebugString_variable() {
-        val rl = RemoteLong.createNamedRemoteLong("testLong", 100L)
+        val rl = createNamedRemoteLong("testLong", 100L)
         assertThat(rl.toDebugString()).isEqualTo("user:testLong")
     }
 
     @Test
     fun toDebugString_arithmetic() {
-        val l1 = RemoteLong.createNamedRemoteLong("l1", 1000L)
-        val l2 = RemoteLong.createNamedRemoteLong("l2", 2000L)
+        val l1 = createNamedRemoteLong("l1", 1000L)
+        val l2 = createNamedRemoteLong("l2", 2000L)
         assertThat((l1 + l2).toDebugString()).isEqualTo("user:l1 + user:l2")
         assertThat((l1 * l2).toDebugString()).isEqualTo("user:l1 * user:l2")
     }
