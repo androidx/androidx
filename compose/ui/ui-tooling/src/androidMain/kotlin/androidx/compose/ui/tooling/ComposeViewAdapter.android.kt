@@ -357,7 +357,7 @@ internal class ComposeViewAdapter : FrameLayout {
     }
 
     private fun Group.getDesignInfoOrNull(box: IntRect): String? = data.firstNotNullOfOrNull {
-        it?.invokeGetDesignInfo(box.left, box.right)
+        it?.invokeGetDesignInfo(box.left, box.top)
     }
 
     /**
