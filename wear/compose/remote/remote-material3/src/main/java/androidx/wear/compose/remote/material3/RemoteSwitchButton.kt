@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.wear.compose.remote.material3
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
@@ -127,7 +124,6 @@ public fun RemoteSwitchButton(
 }
 
 /** Contains the default values used by [RemoteSwitchButton]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RemoteSwitchButtonDefaults {
     /** The default height of [RemoteSwitchButton]. */
     public val Height: RemoteDp = 52.rdp
@@ -369,7 +365,6 @@ public object RemoteSwitchButtonDefaults {
  * @param disabledUncheckedTrackBorderColor Track border color when unchecked and disabled.
  */
 @Immutable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteSwitchButtonColors(
     public val checkedContainerColor: RemoteColor,
     public val checkedContentColor: RemoteColor,

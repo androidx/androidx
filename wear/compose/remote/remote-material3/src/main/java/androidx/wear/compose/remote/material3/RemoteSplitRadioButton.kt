@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.wear.compose.remote.material3
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -220,7 +217,6 @@ public fun RemoteSplitRadioButton(
 }
 
 /** Contains the default values used by [RemoteSplitRadioButton]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RemoteSplitRadioButtonDefaults {
     /**
      * Recommended [RemoteRoundedCornerShape] for the outer container of [RemoteSplitRadioButton].
@@ -250,6 +246,43 @@ public object RemoteSplitRadioButtonDefaults {
     /**
      * Creates a [RemoteSplitRadioButtonColors] that represents the default container and content
      * colors used in a [RemoteSplitRadioButton].
+     *
+     * @param selectedContainerColor The container color of the [RemoteSplitRadioButton] when
+     *   enabled and selected.
+     * @param selectedContentColor The content color of the [RemoteSplitRadioButton] when enabled
+     *   and selected.
+     * @param selectedSecondaryContentColor The secondary content color of the
+     *   [RemoteSplitRadioButton] when enabled and selected, used for secondaryLabel content.
+     * @param selectedSplitContainerColor The split container color of the [RemoteSplitRadioButton]
+     *   when enabled and selected.
+     * @param selectedControlColor The color of the radio control when selected.
+     * @param unselectedContainerColor The container color of the [RemoteSplitRadioButton] when
+     *   enabled and not selected.
+     * @param unselectedContentColor The content color of the [RemoteSplitRadioButton] when enabled
+     *   and not selected.
+     * @param unselectedSecondaryContentColor The secondary content color of the
+     *   [RemoteSplitRadioButton] when enabled and not selected, used for secondaryLabel content.
+     * @param unselectedSplitContainerColor The split container color of the
+     *   [RemoteSplitRadioButton] when enabled and not selected.
+     * @param unselectedControlColor The color of the radio control when unselected.
+     * @param disabledSelectedContainerColor The container color of the [RemoteSplitRadioButton]
+     *   when disabled and selected.
+     * @param disabledSelectedContentColor The content color of the [RemoteSplitRadioButton] when
+     *   disabled and selected.
+     * @param disabledSelectedSecondaryContentColor The secondary content color of the
+     *   [RemoteSplitRadioButton] when disabled and selected, used for secondaryLabel content.
+     * @param disabledSelectedSplitContainerColor The split container color of the
+     *   [RemoteSplitRadioButton] when disabled and selected.
+     * @param disabledSelectedControlColor The radio control color when disabled and selected.
+     * @param disabledUnselectedContainerColor The container color of the [RemoteSplitRadioButton]
+     *   when disabled and not selected.
+     * @param disabledUnselectedContentColor The content color of the [RemoteSplitRadioButton] when
+     *   disabled and not selected.
+     * @param disabledUnselectedSecondaryContentColor The secondary content color of the
+     *   [RemoteSplitRadioButton] when disabled and not selected, used for secondaryLabel content.
+     * @param disabledUnselectedSplitContainerColor The split container color of the
+     *   [RemoteSplitRadioButton] when disabled and not selected.
+     * @param disabledUnselectedControlColor The radio control color when disabled and unselected.
      */
     @Composable
     public fun splitRadioButtonColors(
@@ -352,9 +385,45 @@ public object RemoteSplitRadioButtonDefaults {
 /**
  * Represents the container, content, and selection control colors used in [RemoteSplitRadioButton]
  * in different states.
+ *
+ * @param selectedContainerColor The container color of the [RemoteSplitRadioButton] when enabled
+ *   and selected.
+ * @param selectedContentColor The content color of the [RemoteSplitRadioButton] when enabled and
+ *   selected.
+ * @param selectedSecondaryContentColor The secondary content color of the [RemoteSplitRadioButton]
+ *   when enabled and selected, used for secondaryLabel content.
+ * @param selectedSplitContainerColor The split container color of the [RemoteSplitRadioButton] when
+ *   enabled and selected.
+ * @param selectedControlColor The color of the radio control when selected.
+ * @param unselectedContainerColor The container color of the [RemoteSplitRadioButton] when enabled
+ *   and not selected.
+ * @param unselectedContentColor The content color of the [RemoteSplitRadioButton] when enabled and
+ *   not selected.
+ * @param unselectedSecondaryContentColor The secondary content color of the
+ *   [RemoteSplitRadioButton] when enabled and not selected, used for secondaryLabel content.
+ * @param unselectedSplitContainerColor The split container color of the [RemoteSplitRadioButton]
+ *   when enabled and not selected.
+ * @param unselectedControlColor The color of the radio control when unselected.
+ * @param disabledSelectedContainerColor The container color of the [RemoteSplitRadioButton] when
+ *   disabled and selected.
+ * @param disabledSelectedContentColor The content color of the [RemoteSplitRadioButton] when
+ *   disabled and selected.
+ * @param disabledSelectedSecondaryContentColor The secondary content color of the
+ *   [RemoteSplitRadioButton] when disabled and selected, used for secondaryLabel content.
+ * @param disabledSelectedSplitContainerColor The split container color of the
+ *   [RemoteSplitRadioButton] when disabled and selected.
+ * @param disabledSelectedControlColor The radio control color when disabled and selected.
+ * @param disabledUnselectedContainerColor The container color of the [RemoteSplitRadioButton] when
+ *   disabled and not selected.
+ * @param disabledUnselectedContentColor The content color of the [RemoteSplitRadioButton] when
+ *   disabled and not selected.
+ * @param disabledUnselectedSecondaryContentColor The secondary content color of the
+ *   [RemoteSplitRadioButton] when disabled and not selected, used for secondaryLabel content.
+ * @param disabledUnselectedSplitContainerColor The split container color of the
+ *   [RemoteSplitRadioButton] when disabled and not selected.
+ * @param disabledUnselectedControlColor The radio control color when disabled and unselected.
  */
 @Immutable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteSplitRadioButtonColors(
     public val selectedContainerColor: RemoteColor,
     public val selectedContentColor: RemoteColor,
@@ -377,6 +446,7 @@ public class RemoteSplitRadioButtonColors(
     public val disabledUnselectedSplitContainerColor: RemoteColor,
     public val disabledUnselectedControlColor: RemoteColor,
 ) {
+    /** Returns a copy of this [RemoteSplitRadioButtonColors] optionally overriding some values. */
     public fun copy(
         selectedContainerColor: RemoteColor? = null,
         selectedContentColor: RemoteColor? = null,
