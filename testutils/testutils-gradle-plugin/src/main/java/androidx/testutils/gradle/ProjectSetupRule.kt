@@ -149,9 +149,7 @@ class ProjectSetupRule(parentFolder: File? = null) : ExternalResource() {
     fun getLibraryLatestVersionInLocalRepo(path: String): String {
         val metadataFile =
             File(props.tipOfTreeMavenRepoPath).resolve(path).resolve("maven-metadata.xml")
-        check(metadataFile.exists()) {
-            "Cannot find room metadata file in ${metadataFile.absolutePath}"
-        }
+        check(metadataFile.exists()) { "Cannot find metadata file in ${metadataFile.absolutePath}" }
         check(metadataFile.isFile) { "Metadata file should be a file but it is not." }
         val xmlDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(metadataFile)
         val latestVersionNode =

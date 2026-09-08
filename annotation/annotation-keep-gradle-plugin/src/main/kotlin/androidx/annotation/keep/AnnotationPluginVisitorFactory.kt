@@ -22,21 +22,12 @@ import com.android.build.api.instrumentation.ClassData
 import org.objectweb.asm.ClassVisitor
 
 abstract class AnnotationPluginVisitorFactory : AsmClassVisitorFactory<AnnotationPluginParameters> {
-    private val annotationPluginParameters: AnnotationPluginParameters
-        get() = this.parameters.get()
-
     override fun createClassVisitor(
         classContext: ClassContext,
         nextClassVisitor: ClassVisitor,
     ): ClassVisitor {
-        // At this point we should have already created a file that can hold the keep rules.
-        @Suppress("UNUSED_VARIABLE") val keepRulesPath = annotationPluginParameters.keepRules
-        // R8 will provide a ClassVisitor that we can eventually use.
-        /*
-        return KeepAnno.createClassVisitorForKeepRulesExtraction { rule ->
-            keepRulesPath.appendText(rule)
-        }
-        */
+        // Replace it with the real implementation for bytecode rewriting.
+        // b/432805749
         return nextClassVisitor
     }
 
