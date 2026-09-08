@@ -137,6 +137,7 @@ public class AppCompatTextViewTest
                 .check(matches(isBackground(oceanDefault, true)));
     }
 
+    @SdkSuppress(maxSdkVersion = 36) // b/555244093
     @Test
     public void testAllCaps() {
         assumeFalse("Test fails on cuttlefish b/460509936", Build.MODEL.contains("Cuttlefish"));
