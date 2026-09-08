@@ -59,6 +59,11 @@ public interface CameraControl {
      * set by either {@link ImageCapture#setFlashMode(int)} or
      * {@link ImageCapture.Builder#setFlashMode(int)}.
      *
+     * <p>Torch and low-light boost (see {@link #enableLowLightBoostAsync(boolean)}) are mutually
+     * exclusive and follow a "last setting wins" policy. Enabling the torch will automatically
+     * turn off low-light boost if it is active. Disabling the torch will not restore low-light
+     * boost.
+     *
      * @param torch true to turn on the torch, false to turn it off.
      * @return A {@link ListenableFuture} which is successful when the torch was changed to the
      * value specified. It fails when it is unable to change the torch state. Cancellation of
@@ -93,20 +98,25 @@ public interface CameraControl {
      * <p>Note that this mode may interact with other configurations:
      *
      * <ul>
-     * <li>When low-light boost is on, the flash or torch functionality may be unavailable.
+     * <li>Low-light boost and torch (see {@link #enableTorch(boolean)}) are mutually exclusive
+     * and follow a "last setting wins" policy. Enabling low-light boost will automatically turn
+     * off the torch if it is active, and enabling the torch will automatically turn off low-light
+     * boost.
+     * <li>When capturing a picture with {@link ImageCapture} while low-light boost is active,
+     * flash (if enabled by {@link ImageCapture#setFlashMode(int)}) is allowed to fire for the
+     * capture, and low-light boost will remain active for preview.
      * <li>When frame rate configuration results in an FPS exceeding 30, low-light boost will be
-     * disabled and the state will always be ({@link LowLightBoostState#OFF}).
+     * disabled and the state will always be {@link LowLightBoostState#OFF}.
      * </ul>
      *
-     * <p>Therefore, to use flash or torch functionality, low-light boost mode must be disabled.
-     * To ensure low-light boost mode functions correctly, the frame rate must not exceed 30 FPS.
+     * <p>To ensure low-light boost mode functions correctly, the frame rate must not exceed 30 FPS.
      *
      * @param lowLightBoost true to turn on the low-light boost mode, false to turn it off.
      * @return A {@link ListenableFuture} which is successful when the low-light boost mode was
      * changed to the value specified. It fails with {@link IllegalStateException} when low-light
-     * boost is not available due to the device does not support it or there is a settings
+     * boost is not available because the device does not support it or there is a settings
      * conflict. It fails with {@link OperationCanceledException} if a newer value is set or
-     * camera is closed. The failure reason will be provided in the exception' message.
+     * camera is closed. The failure reason will be provided in the exception's message.
      * Cancellation of this future is a no-op.
      * @see CameraInfo#isLowLightBoostSupported()
      */

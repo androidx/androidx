@@ -103,19 +103,22 @@ class LowLightBoostControlTest {
 
     private val comboRequestListener = ComboRequestListener()
 
+    private lateinit var state3AControl: State3AControl
     private lateinit var lowLightBoostControl: LowLightBoostControl
 
     @Before
     fun setUp() {
+        state3AControl =
+            State3AControl(
+                    fakeCameraProperties,
+                    NoOpAutoFlashAEModeDisabler,
+                    fakeUseCaseThreads,
+                )
+                .apply { requestControl = fakeUseCaseCameraRequestControl }
         lowLightBoostControl =
             LowLightBoostControl(
                 fakeCameraProperties.metadata,
-                State3AControl(
-                        fakeCameraProperties,
-                        NoOpAutoFlashAEModeDisabler,
-                        fakeUseCaseThreads,
-                    )
-                    .apply { requestControl = fakeUseCaseCameraRequestControl },
+                state3AControl,
                 fakeUseCaseThreads,
                 comboRequestListener,
             )
@@ -349,6 +352,71 @@ class LowLightBoostControlTest {
                 .setLowLightBoostAsync(true)
 
         assertThrows<IllegalStateException> { deferred.await() }
+    }
+
+    @Test
+    fun disableForFlashCaptureAsync_clearsPreferredAeMode_andFreezesState(): Unit = runBlocking {
+        activateLowLightBoost()
+        lowLightBoostControl.setLowLightBoostAsync(true).await()
+        simulateLowLightBoostStateUpdate(CONTROL_LOW_LIGHT_BOOST_STATE_ACTIVE)
+        Truth.assertThat(lowLightBoostControl.lowLightBoostStateLiveData.value).isEqualTo(ACTIVE)
+        Truth.assertThat(state3AControl.preferredAeMode)
+            .isEqualTo(CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY)
+
+        lowLightBoostControl.disableForFlashCaptureAsync().await()
+
+        Truth.assertThat(state3AControl.preferredAeMode).isNull()
+        // State remains ACTIVE (frozen, not OFF)
+        Truth.assertThat(lowLightBoostControl.lowLightBoostStateLiveData.value).isEqualTo(ACTIVE)
+
+        // Simulating a hardware result reporting OFF while disabled should be ignored
+        simulateLowLightBoostStateUpdate(0)
+        Truth.assertThat(lowLightBoostControl.lowLightBoostStateLiveData.value).isEqualTo(ACTIVE)
+    }
+
+    @Test
+    fun restoreAfterFlashCaptureAsync_restoresPreferredAeMode(): Unit = runBlocking {
+        activateLowLightBoost()
+        lowLightBoostControl.setLowLightBoostAsync(true).await()
+        lowLightBoostControl.disableForFlashCaptureAsync().await()
+        Truth.assertThat(state3AControl.preferredAeMode).isNull()
+
+        lowLightBoostControl.restoreAfterFlashCaptureAsync().await()
+
+        Truth.assertThat(state3AControl.preferredAeMode)
+            .isEqualTo(CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY)
+        Truth.assertThat(lowLightBoostControl.isLowLightBoostOn).isTrue()
+    }
+
+    @Test
+    fun multipleDisableAndRestoreForFlashCaptureAsync_handlesRefCounting(): Unit = runBlocking {
+        activateLowLightBoost()
+        lowLightBoostControl.setLowLightBoostAsync(true).await()
+
+        lowLightBoostControl.disableForFlashCaptureAsync().await()
+        lowLightBoostControl.disableForFlashCaptureAsync().await()
+        Truth.assertThat(state3AControl.preferredAeMode).isNull()
+
+        // First restore does not yet restore preferredAeMode because count is still 1
+        lowLightBoostControl.restoreAfterFlashCaptureAsync().await()
+        Truth.assertThat(state3AControl.preferredAeMode).isNull()
+
+        // Second restore restores preferredAeMode
+        lowLightBoostControl.restoreAfterFlashCaptureAsync().await()
+        Truth.assertThat(state3AControl.preferredAeMode)
+            .isEqualTo(CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY)
+    }
+
+    @Test
+    fun setLowLightBoostOff_resetsFlashOverrideState(): Unit = runBlocking {
+        activateLowLightBoost()
+        lowLightBoostControl.setLowLightBoostAsync(true).await()
+        lowLightBoostControl.disableForFlashCaptureAsync().await()
+        Truth.assertThat(lowLightBoostControl.isTemporarilyDisabledForFlash).isTrue()
+
+        lowLightBoostControl.setLowLightBoostAsync(false).await()
+        Truth.assertThat(lowLightBoostControl.isTemporarilyDisabledForFlash).isFalse()
+        Truth.assertThat(lowLightBoostControl.isLowLightBoostOn).isFalse()
     }
 
     private suspend fun <T> Deferred<T>.awaitWithTimeout(
