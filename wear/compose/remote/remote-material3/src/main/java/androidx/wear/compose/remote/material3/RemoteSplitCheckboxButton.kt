@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.wear.compose.remote.material3
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -223,7 +220,6 @@ public fun RemoteSplitCheckboxButton(
 }
 
 /** Contains the default values used by [RemoteSplitCheckboxButton]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RemoteSplitCheckboxButtonDefaults {
     /**
      * Recommended [RemoteRoundedCornerShape] for the outer container of
@@ -254,6 +250,51 @@ public object RemoteSplitCheckboxButtonDefaults {
     /**
      * Creates a [RemoteSplitCheckboxButtonColors] that represents the default container and content
      * colors used in a [RemoteSplitCheckboxButton].
+     *
+     * @param checkedContainerColor The container color of the [RemoteSplitCheckboxButton] when
+     *   enabled and checked.
+     * @param checkedContentColor The content color of the [RemoteSplitCheckboxButton] when enabled
+     *   and checked.
+     * @param checkedSecondaryContentColor The secondary content color of the
+     *   [RemoteSplitCheckboxButton] when enabled and checked, used for secondaryLabel content.
+     * @param checkedSplitContainerColor The split container color of the
+     *   [RemoteSplitCheckboxButton] when enabled and checked.
+     * @param checkedBoxColor The box color of the [RemoteSplitCheckboxButton] when enabled and
+     *   checked.
+     * @param checkedCheckmarkColor The checkmark color of the [RemoteSplitCheckboxButton] when
+     *   enabled and checked.
+     * @param uncheckedContainerColor The container color of the [RemoteSplitCheckboxButton] when
+     *   enabled and unchecked.
+     * @param uncheckedContentColor The content color of the [RemoteSplitCheckboxButton] when
+     *   enabled and unchecked.
+     * @param uncheckedSecondaryContentColor The secondary content color of the
+     *   [RemoteSplitCheckboxButton] when enabled and unchecked, used for secondaryLabel content.
+     * @param uncheckedSplitContainerColor The split container color of the
+     *   [RemoteSplitCheckboxButton] when enabled and unchecked.
+     * @param uncheckedBoxColor The box color of the [RemoteSplitCheckboxButton] when enabled and
+     *   unchecked.
+     * @param disabledCheckedContainerColor The container color of the [RemoteSplitCheckboxButton]
+     *   when disabled and checked.
+     * @param disabledCheckedContentColor The content color of the [RemoteSplitCheckboxButton] when
+     *   disabled and checked.
+     * @param disabledCheckedSecondaryContentColor The secondary content color of the
+     *   [RemoteSplitCheckboxButton] when disabled and checked, used for secondaryLabel content.
+     * @param disabledCheckedSplitContainerColor The split container color of the
+     *   [RemoteSplitCheckboxButton] when disabled and checked.
+     * @param disabledCheckedBoxColor The box color of the [RemoteSplitCheckboxButton] when disabled
+     *   and checked.
+     * @param disabledCheckedCheckmarkColor The checkmark color of the [RemoteSplitCheckboxButton]
+     *   when disabled and checked.
+     * @param disabledUncheckedContainerColor The container color of the [RemoteSplitCheckboxButton]
+     *   when disabled and unchecked.
+     * @param disabledUncheckedContentColor The content color of the [RemoteSplitCheckboxButton]
+     *   when disabled and unchecked.
+     * @param disabledUncheckedSecondaryContentColor The secondary content color of the
+     *   [RemoteSplitCheckboxButton] when disabled and unchecked, used for secondaryLabel content.
+     * @param disabledUncheckedSplitContainerColor The split container color of the
+     *   [RemoteSplitCheckboxButton] when disabled and unchecked.
+     * @param disabledUncheckedBoxColor The box color of the [RemoteSplitCheckboxButton] when
+     *   disabled and unchecked.
      */
     @Composable
     public fun splitCheckboxButtonColors(
@@ -362,9 +403,52 @@ public object RemoteSplitCheckboxButtonDefaults {
 /**
  * Represents the container, content, and toggle control colors used in [RemoteSplitCheckboxButton]
  * in different states.
+ *
+ * @param checkedContainerColor The container color of the [RemoteSplitCheckboxButton] when enabled
+ *   and checked.
+ * @param checkedContentColor The content color of the [RemoteSplitCheckboxButton] when enabled and
+ *   checked.
+ * @param checkedSecondaryContentColor The secondary content color of the
+ *   [RemoteSplitCheckboxButton] when enabled and checked, used for secondaryLabel content.
+ * @param checkedSplitContainerColor The split container color of the [RemoteSplitCheckboxButton]
+ *   when enabled and checked.
+ * @param checkedBoxColor The box color of the [RemoteSplitCheckboxButton] when enabled and checked.
+ * @param checkedCheckmarkColor The checkmark color of the [RemoteSplitCheckboxButton] when enabled
+ *   and checked.
+ * @param uncheckedContainerColor The container color of the [RemoteSplitCheckboxButton] when
+ *   enabled and unchecked.
+ * @param uncheckedContentColor The content color of the [RemoteSplitCheckboxButton] when enabled
+ *   and unchecked.
+ * @param uncheckedSecondaryContentColor The secondary content color of the
+ *   [RemoteSplitCheckboxButton] when enabled and unchecked, used for secondaryLabel content.
+ * @param uncheckedSplitContainerColor The split container color of the [RemoteSplitCheckboxButton]
+ *   when enabled and unchecked.
+ * @param uncheckedBoxColor The box color of the [RemoteSplitCheckboxButton] when enabled and
+ *   unchecked.
+ * @param disabledCheckedContainerColor The container color of the [RemoteSplitCheckboxButton] when
+ *   disabled and checked.
+ * @param disabledCheckedContentColor The content color of the [RemoteSplitCheckboxButton] when
+ *   disabled and checked.
+ * @param disabledCheckedSecondaryContentColor The secondary content color of the
+ *   [RemoteSplitCheckboxButton] when disabled and checked, used for secondaryLabel content.
+ * @param disabledCheckedSplitContainerColor The split container color of the
+ *   [RemoteSplitCheckboxButton] when disabled and checked.
+ * @param disabledCheckedBoxColor The box color of the [RemoteSplitCheckboxButton] when disabled and
+ *   checked.
+ * @param disabledCheckedCheckmarkColor The checkmark color of the [RemoteSplitCheckboxButton] when
+ *   disabled and checked.
+ * @param disabledUncheckedContainerColor The container color of the [RemoteSplitCheckboxButton]
+ *   when disabled and unchecked.
+ * @param disabledUncheckedContentColor The content color of the [RemoteSplitCheckboxButton] when
+ *   disabled and unchecked.
+ * @param disabledUncheckedSecondaryContentColor The secondary content color of the
+ *   [RemoteSplitCheckboxButton] when disabled and unchecked, used for secondaryLabel content.
+ * @param disabledUncheckedSplitContainerColor The split container color of the
+ *   [RemoteSplitCheckboxButton] when disabled and unchecked.
+ * @param disabledUncheckedBoxColor The box color of the [RemoteSplitCheckboxButton] when disabled
+ *   and unchecked.
  */
 @Immutable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteSplitCheckboxButtonColors(
     public val checkedContainerColor: RemoteColor,
     public val checkedContentColor: RemoteColor,
@@ -389,6 +473,9 @@ public class RemoteSplitCheckboxButtonColors(
     public val disabledUncheckedSplitContainerColor: RemoteColor,
     public val disabledUncheckedBoxColor: RemoteColor,
 ) {
+    /**
+     * Returns a copy of this [RemoteSplitCheckboxButtonColors] optionally overriding some values.
+     */
     public fun copy(
         checkedContainerColor: RemoteColor? = null,
         checkedContentColor: RemoteColor? = null,

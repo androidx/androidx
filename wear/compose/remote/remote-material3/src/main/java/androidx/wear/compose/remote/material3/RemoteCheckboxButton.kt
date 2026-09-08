@@ -13,12 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.wear.compose.remote.material3
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
@@ -112,7 +108,6 @@ public fun RemoteCheckboxButton(
 }
 
 /** Contains the default values used by [RemoteCheckboxButton]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RemoteCheckboxButtonDefaults {
     /** The default height of [RemoteCheckboxButton]. */
     public val Height: RemoteDp = 52.rdp
@@ -306,7 +301,6 @@ public object RemoteCheckboxButtonDefaults {
  * @param disabledUncheckedBoxColor Box color when unchecked and disabled.
  */
 @Immutable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteCheckboxButtonColors(
     public val checkedContainerColor: RemoteColor,
     public val checkedContentColor: RemoteColor,
