@@ -73,6 +73,12 @@ class ExecuteAppFunctionRequestTest {
         assertThat(platformRequest.functionIdentifier).isEqualTo("method")
         assertThat(platformRequest.parameters).isEqualTo(TEST_APP_FUNCTION_DATA.genericDocument)
         assertThat(platformRequest.extras.getBundle(EXTRA_PARAMETERS)?.isEmpty()).isTrue()
+        assertThat(
+                platformRequest.extras.getBoolean(
+                    "com.android.extensions.safetyevaluator.events.extra.ENABLE_APP_FUNCTION_EVALUATION"
+                )
+            )
+            .isFalse()
 
         // Test with extras set
         val bundle = Bundle()
@@ -88,6 +94,12 @@ class ExecuteAppFunctionRequestTest {
         assertThat(platformRequestWithExtras.parameters)
             .isEqualTo(TEST_APP_FUNCTION_DATA.genericDocument)
         assertThat(platformRequestWithExtras.extras.getBundle(EXTRA_PARAMETERS)).isEqualTo(bundle)
+        assertThat(
+                platformRequest.extras.getBoolean(
+                    "com.android.extensions.safetyevaluator.events.extra.ENABLE_APP_FUNCTION_EVALUATION"
+                )
+            )
+            .isFalse()
     }
 
     @Test
@@ -193,6 +205,27 @@ class ExecuteAppFunctionRequestTest {
         assertThat(request.functionParameters.extras.isEmpty).isTrue()
         assertThat(request.attribution).isEqualTo(attribution)
         assertThat(request.activityId).isEqualTo(activityId)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+    fun enableSafetyEvaluation_shouldSetExtraInPlatformBundle() {
+        val request =
+            ExecuteAppFunctionRequest(
+                "pkg",
+                "method",
+                TEST_APP_FUNCTION_DATA,
+                enableSafetyEvaluation = true,
+            )
+
+        val platformRequest = request.toPlatformExecuteAppFunctionRequest()
+
+        assertThat(
+                platformRequest.extras.getBoolean(
+                    "com.android.extensions.safetyevaluator.events.extra.ENABLE_APP_FUNCTION_EVALUATION"
+                )
+            )
+            .isTrue()
     }
 
     private fun assumeAppFunctionExtensionLibraryAvailable() {
