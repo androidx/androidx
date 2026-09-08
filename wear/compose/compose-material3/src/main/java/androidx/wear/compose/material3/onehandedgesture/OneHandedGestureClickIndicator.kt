@@ -18,6 +18,7 @@ package androidx.wear.compose.material3.onehandedgesture
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
+import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -80,8 +81,29 @@ public fun OneHandedGestureClickIndicator(
     gestureIndicatorTint: Color = OneHandedGestureDefaults.indicatorTint,
     content: @Composable () -> Unit,
 ) {
-    val gestureManager = LocalOneHandedGestureManager.current
     val avd = gestureConfiguration.action.animatedImageVector()
+    OneHandedGestureClickIndicatorImpl(
+        gestureConfiguration = gestureConfiguration,
+        state = state,
+        avd = avd,
+        modifier = modifier,
+        gestureIndicatorSize = gestureIndicatorSize,
+        gestureIndicatorTint = gestureIndicatorTint,
+        content = content,
+    )
+}
+
+@Composable
+internal fun OneHandedGestureClickIndicatorImpl(
+    gestureConfiguration: OneHandedGestureConfiguration,
+    state: OneHandedGestureClickIndicatorState,
+    avd: AnimatedImageVector,
+    modifier: Modifier = Modifier,
+    gestureIndicatorSize: OneHandedGestureIndicatorSize = OneHandedGestureDefaults.indicatorSize,
+    gestureIndicatorTint: Color = OneHandedGestureDefaults.indicatorTint,
+    content: @Composable () -> Unit,
+) {
+    val gestureManager = LocalOneHandedGestureManager.current
     val duration = avd.totalDuration.milliseconds
 
     // Gesture manager needs to know whether this indicator draws outside the boundary of its UI
