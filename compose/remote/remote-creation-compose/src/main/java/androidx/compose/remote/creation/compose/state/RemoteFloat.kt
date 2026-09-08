@@ -92,6 +92,8 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
         Ceil(AnimatedFloatExpression.CEIL),
         Log(AnimatedFloatExpression.LOG),
         Ln(AnimatedFloatExpression.LN),
+        Rand(AnimatedFloatExpression.RAND),
+        RandInRange(AnimatedFloatExpression.RAND_IN_RANGE),
         Round(AnimatedFloatExpression.ROUND),
         Sin(AnimatedFloatExpression.SIN),
         Cos(AnimatedFloatExpression.COS),
@@ -206,6 +208,8 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
                 Ceil -> ceil(args[0] as RemoteFloat)
                 Log -> log(args[0] as RemoteFloat)
                 Ln -> ln(args[0] as RemoteFloat)
+                Rand -> rand()
+                RandInRange -> randRange(args[0] as RemoteFloat, args[1] as RemoteFloat)
                 Round -> round(args[0] as RemoteFloat)
                 Sin -> sin(args[0] as RemoteFloat)
                 Cos -> cos(args[0] as RemoteFloat)
@@ -1744,9 +1748,12 @@ internal constructor(
 
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         val array = arrayForCreationState(creationState)
-        // In case we have a single element array, check if the element is an id or not;
-        // if it is an existing id, just return this one, no need to create a new one...
-        if (array.size == 1 && array[0].isNaN()) {
+        // In case we have a single element array, check if the element is a variable id
+        // (and not a 0-argument math operator like RAND); if it is an existing id, just
+        // return this one, no need to create a new floatExpression.
+        if (
+            array.size == 1 && array[0].isNaN() && !AnimatedFloatExpression.isMathOperator(array[0])
+        ) {
             return Utils.idFromNan(array[0])
         }
 
