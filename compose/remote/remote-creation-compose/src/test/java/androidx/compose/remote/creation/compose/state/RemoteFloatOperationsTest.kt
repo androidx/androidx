@@ -15,7 +15,17 @@
  */
 package androidx.compose.remote.creation.compose.state
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.ui.geometry.Size
 import com.google.common.truth.Truth.assertThat
+import java.lang.Float.floatToRawIntBits
+import java.util.Random
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -248,5 +258,72 @@ class RemoteFloatOperationsTest {
         val splineLoop = evalSpline(pts, loop = true, p)
         assertThat(splineLoop.toDebugString())
             .isEqualTo("evalSpline(arrayOf(0.0, 0.5, 1.0), user:p, loop=true)")
+    }
+
+    @Test
+    fun toDebugString_rand() {
+        assertThat(rand().toDebugString()).isEqualTo("rand()")
+    }
+
+    @Test
+    fun toDebugString_randRange() {
+        val a = RemoteFloat.createNamedRemoteFloat("a", 10f)
+        val b = RemoteFloat.createNamedRemoteFloat("b", 20f)
+        assertThat(randRange(a, b).toDebugString()).isEqualTo("randInRange(user:a, user:b)")
+    }
+
+    @Test
+    fun rand_evalWithSeed() {
+        val context =
+            AndroidRemoteContext().apply {
+                useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
+            }
+        val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
+        val seed = 12345f
+
+        // Seed PRNG via lower-level floatExpression API with RAND_SEED
+        creationState.document.floatExpression(seed, AnimatedFloatExpression.RAND_SEED, 0f)
+
+        val r = rand()
+        val resultId = r.getIdForCreationState(creationState)
+
+        CoreDocument().apply {
+            val buffer = creationState.document.buffer
+            buffer.buffer.index = 0
+            initFromBuffer(buffer)
+            paint(context, 0)
+        }
+
+        val expected = Random(floatToRawIntBits(seed).toLong()).nextFloat()
+        assertThat(context.getFloat(resultId)).isWithin(0.0001f).of(expected)
+    }
+
+    @Test
+    fun randRange_evalWithSeed() {
+        val context =
+            AndroidRemoteContext().apply {
+                useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
+            }
+        val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
+        val seed = 67890f
+        val from = 10f
+        val to = 50f
+
+        // Seed PRNG via lower-level floatExpression API with RAND_SEED
+        creationState.document.floatExpression(seed, AnimatedFloatExpression.RAND_SEED, 0f)
+
+        val r = randRange(from.rf, to.rf)
+        val resultId = r.getIdForCreationState(creationState)
+
+        CoreDocument().apply {
+            val buffer = creationState.document.buffer
+            buffer.buffer.index = 0
+            initFromBuffer(buffer)
+            paint(context, 0)
+        }
+
+        val expectedRand = Random(floatToRawIntBits(seed).toLong()).nextFloat()
+        val expected = expectedRand * (to - from) + from
+        assertThat(context.getFloat(resultId)).isWithin(0.0001f).of(expected)
     }
 }
