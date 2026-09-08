@@ -43,7 +43,15 @@ private constructor(
         private set
 
     /** The target state of the trigger. */
-    var targetState: T = availableStates.first { it != initialState }
+    var targetState: T =
+        // availableStates can contain null as a valid state. We check any() first rather than
+        // using firstOrNull() ?: initialState to avoid an Elvis operator clobbering a null target
+        // state with initialState.
+        if (availableStates.any { it != initialState }) {
+            availableStates.first { it != initialState }
+        } else {
+            initialState
+        }
         private set
 
     /**
