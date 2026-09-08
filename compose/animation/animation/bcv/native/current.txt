@@ -317,9 +317,24 @@ sealed class androidx.compose.animation/ExitTransition { // androidx.compose.ani
     }
 }
 
+final object androidx.compose.animation/AnimatedContentDefaults { // androidx.compose.animation/AnimatedContentDefaults|null[0]
+    final val ContentTransform // androidx.compose.animation/AnimatedContentDefaults.ContentTransform|{}ContentTransform[0]
+        final fun <get-ContentTransform>(): androidx.compose.animation/ContentTransform // androidx.compose.animation/AnimatedContentDefaults.ContentTransform.<get-ContentTransform>|<get-ContentTransform>(){}[0]
+    final val SizeAnimationSpec // androidx.compose.animation/AnimatedContentDefaults.SizeAnimationSpec|{}SizeAnimationSpec[0]
+        final fun <get-SizeAnimationSpec>(): androidx.compose.animation.core/FiniteAnimationSpec<androidx.compose.ui.unit/IntSize> // androidx.compose.animation/AnimatedContentDefaults.SizeAnimationSpec.<get-SizeAnimationSpec>|<get-SizeAnimationSpec>(){}[0]
+    final val SizeTransform // androidx.compose.animation/AnimatedContentDefaults.SizeTransform|{}SizeTransform[0]
+        final fun <get-SizeTransform>(): androidx.compose.animation/SizeTransform // androidx.compose.animation/AnimatedContentDefaults.SizeTransform.<get-SizeTransform>|<get-SizeTransform>(){}[0]
+}
+
 final object androidx.compose.animation/SharedTransitionDefaults { // androidx.compose.animation/SharedTransitionDefaults|null[0]
     final val BoundsTransform // androidx.compose.animation/SharedTransitionDefaults.BoundsTransform|{}BoundsTransform[0]
         final fun <get-BoundsTransform>(): androidx.compose.animation/BoundsTransform // androidx.compose.animation/SharedTransitionDefaults.BoundsTransform.<get-BoundsTransform>|<get-BoundsTransform>(){}[0]
+    final val EnterTransition // androidx.compose.animation/SharedTransitionDefaults.EnterTransition|{}EnterTransition[0]
+        final fun <get-EnterTransition>(): androidx.compose.animation/EnterTransition // androidx.compose.animation/SharedTransitionDefaults.EnterTransition.<get-EnterTransition>|<get-EnterTransition>(){}[0]
+    final val ExitTransition // androidx.compose.animation/SharedTransitionDefaults.ExitTransition|{}ExitTransition[0]
+        final fun <get-ExitTransition>(): androidx.compose.animation/ExitTransition // androidx.compose.animation/SharedTransitionDefaults.ExitTransition.<get-ExitTransition>|<get-ExitTransition>(){}[0]
+    final val ResizeMode // androidx.compose.animation/SharedTransitionDefaults.ResizeMode|{}ResizeMode[0]
+        final fun <get-ResizeMode>(): androidx.compose.animation/SharedTransitionScope.ResizeMode // androidx.compose.animation/SharedTransitionDefaults.ResizeMode.<get-ResizeMode>|<get-ResizeMode>(){}[0]
 
     final object SharedContentConfig : androidx.compose.animation/SharedTransitionScope.SharedContentConfig // androidx.compose.animation/SharedTransitionDefaults.SharedContentConfig|null[0]
 }
@@ -327,6 +342,7 @@ final object androidx.compose.animation/SharedTransitionDefaults { // androidx.c
 final val androidx.compose.animation/VectorConverter // androidx.compose.animation/VectorConverter|@androidx.compose.ui.graphics.Color.Companion{}VectorConverter[0]
     final fun (androidx.compose.ui.graphics/Color.Companion).<get-VectorConverter>(): kotlin/Function1<androidx.compose.ui.graphics.colorspace/ColorSpace, androidx.compose.animation.core/TwoWayConverter<androidx.compose.ui.graphics/Color, androidx.compose.animation.core/AnimationVector4D>> // androidx.compose.animation/VectorConverter.<get-VectorConverter>|<get-VectorConverter>@androidx.compose.ui.graphics.Color.Companion(){}[0]
 final val androidx.compose.animation/androidx_compose_animation_AndroidFlingSpline_FlingResult$stableprop // androidx.compose.animation/androidx_compose_animation_AndroidFlingSpline_FlingResult$stableprop|#static{}androidx_compose_animation_AndroidFlingSpline_FlingResult$stableprop[0]
+final val androidx.compose.animation/androidx_compose_animation_AnimatedContentDefaults$stableprop // androidx.compose.animation/androidx_compose_animation_AnimatedContentDefaults$stableprop|#static{}androidx_compose_animation_AnimatedContentDefaults$stableprop[0]
 final val androidx.compose.animation/androidx_compose_animation_ChangeSizeConfig$stableprop // androidx.compose.animation/androidx_compose_animation_ChangeSizeConfig$stableprop|#static{}androidx_compose_animation_ChangeSizeConfig$stableprop[0]
 final val androidx.compose.animation/androidx_compose_animation_ContentTransform$stableprop // androidx.compose.animation/androidx_compose_animation_ContentTransform$stableprop|#static{}androidx_compose_animation_ContentTransform$stableprop[0]
 final val androidx.compose.animation/androidx_compose_animation_EnterExitTransitionConfig$stableprop // androidx.compose.animation/androidx_compose_animation_EnterExitTransitionConfig$stableprop|#static{}androidx_compose_animation_EnterExitTransitionConfig$stableprop[0]
@@ -375,6 +391,7 @@ final fun androidx.compose.animation/SharedTransitionLayout(androidx.compose.ui/
 final fun androidx.compose.animation/SharedTransitionScope(kotlin/Function4<androidx.compose.animation/SharedTransitionScope, androidx.compose.ui/Modifier, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.animation/SharedTransitionScope|SharedTransitionScope(kotlin.Function4<androidx.compose.animation.SharedTransitionScope,androidx.compose.ui.Modifier,androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
 final fun androidx.compose.animation/SizeTransform(kotlin/Boolean = ..., kotlin/Function2<androidx.compose.ui.unit/IntSize, androidx.compose.ui.unit/IntSize, androidx.compose.animation.core/FiniteAnimationSpec<androidx.compose.ui.unit/IntSize>> = ...): androidx.compose.animation/SizeTransform // androidx.compose.animation/SizeTransform|SizeTransform(kotlin.Boolean;kotlin.Function2<androidx.compose.ui.unit.IntSize,androidx.compose.ui.unit.IntSize,androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize>>){}[0]
 final fun androidx.compose.animation/androidx_compose_animation_AndroidFlingSpline_FlingResult$stableprop_getter(): kotlin/Int // androidx.compose.animation/androidx_compose_animation_AndroidFlingSpline_FlingResult$stableprop_getter|androidx_compose_animation_AndroidFlingSpline_FlingResult$stableprop_getter(){}[0]
+final fun androidx.compose.animation/androidx_compose_animation_AnimatedContentDefaults$stableprop_getter(): kotlin/Int // androidx.compose.animation/androidx_compose_animation_AnimatedContentDefaults$stableprop_getter|androidx_compose_animation_AnimatedContentDefaults$stableprop_getter(){}[0]
 final fun androidx.compose.animation/androidx_compose_animation_ChangeSizeConfig$stableprop_getter(): kotlin/Int // androidx.compose.animation/androidx_compose_animation_ChangeSizeConfig$stableprop_getter|androidx_compose_animation_ChangeSizeConfig$stableprop_getter(){}[0]
 final fun androidx.compose.animation/androidx_compose_animation_ContentTransform$stableprop_getter(): kotlin/Int // androidx.compose.animation/androidx_compose_animation_ContentTransform$stableprop_getter|androidx_compose_animation_ContentTransform$stableprop_getter(){}[0]
 final fun androidx.compose.animation/androidx_compose_animation_EnterExitTransitionConfig$stableprop_getter(): kotlin/Int // androidx.compose.animation/androidx_compose_animation_EnterExitTransitionConfig$stableprop_getter|androidx_compose_animation_EnterExitTransitionConfig$stableprop_getter(){}[0]
