@@ -60,6 +60,12 @@ fun RemoteTitleCardWithTitleTimePreview(
 
 @WearPreviewDevices
 @Composable
+fun RemoteTitleCardWithBorderPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteTitleCardWithBorder() } }
+
+@WearPreviewDevices
+@Composable
 fun RemoteTitleCardWithImagePreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
 ) = RemoteContentPreview(profile = profile) { Container { RemoteTitleCardWithImage() } }
@@ -126,6 +132,20 @@ fun RemoteTitleCardWithImage() {
         subtitle = { RemoteText("Card Subtitle".rs) },
     ) {
         RemoteText("This is a sample Title Card with image.".rs)
+    }
+}
+
+@Composable
+@RemoteComposable
+fun RemoteTitleCardWithBorder() {
+    RemoteTitleCard(
+        onClick = Action.Empty,
+        title = { RemoteText("Card Title".rs) },
+        time = { RemoteText("now".rs) },
+        subtitle = { RemoteText("Card Subtitle".rs) },
+        border = RemoteCardDefaults.outlinedCardBorder(),
+    ) {
+        RemoteText("This is a sample Title Card with border.".rs)
     }
 }
 

@@ -26,8 +26,6 @@ import androidx.compose.remote.creation.compose.shapes.drawOutline
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemotePaint
-import androidx.compose.remote.creation.compose.state.rc
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 
 internal fun remoteContainerPainter(
@@ -59,7 +57,10 @@ private class DefaultRemoteContainerPainter(
         scrim?.let {
             val paint = RemotePaint {
                 with(it) { applyTo(this@RemotePaint, size) }
-                color = Color.Black.rc.copy(alpha = this@DefaultRemoteContainerPainter.alpha)
+                val painterAlpha = this@DefaultRemoteContainerPainter.alpha
+                if (painterAlpha.constantValueOrNull != 1.0f) {
+                    color = color.copy(alpha = color.alpha * painterAlpha)
+                }
             }
             val outline = shape.createOutline(size, remoteDensity, layoutDirection)
             drawOutline(outline, paint)
