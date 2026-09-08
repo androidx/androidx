@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.widgets
 
-import android.annotation.SuppressLint
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.actions.Action as CreationAction
 import androidx.compose.remote.creation.actions.HostAction
@@ -44,7 +43,7 @@ internal class WidgetLambdaAction(public val widgetId: Int, public val content: 
             map.clear()
         }
 
-        @SuppressLint("PrimitiveInCollection")
+        @Suppress("PrimitiveInCollection")
         public val map: HashMap<Int, WidgetLambdaAction> = HashMap<Int, WidgetLambdaAction>()
 
         public fun run(id: Int) {

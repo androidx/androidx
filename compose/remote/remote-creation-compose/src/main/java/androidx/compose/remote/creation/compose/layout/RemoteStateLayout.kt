@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.layout
 
-import android.annotation.SuppressLint
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
@@ -53,7 +52,7 @@ internal class RemoteStateLayoutNode : RemoteComposeNode() {
     }
 }
 
-@SuppressLint("PrimitiveInCollection")
+@Suppress("PrimitiveInCollection")
 @Composable
 @RemoteComposable
 internal fun <T> StateLayout(
