@@ -329,6 +329,7 @@ package androidx.room3.util {
   }
 
   public final class SQLiteStatementUtil {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.sqlite.SQLiteStatement bufferStatement(androidx.sqlite.SQLiteStatement statement);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static int getColumnIndex(androidx.sqlite.SQLiteStatement stmt, String name);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static int getColumnIndexOrThrow(androidx.sqlite.SQLiteStatement stmt, String name);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.sqlite.SQLiteStatement wrapMappedColumns(androidx.sqlite.SQLiteStatement statement, String[] columnNames, int[] mapping);

@@ -27,19 +27,19 @@ class MapQueryResultAdapter(
 ) : MultimapQueryResultAdapter(context, parsedQuery, mapValueResultAdapter.rowAdapters) {
 
     override fun convert(outVarName: String, stmtVarName: String, scope: CodeGenScope) {
+        val effectiveStmtVarName = generateStatementIndexes(stmtVarName, scope)
         scope.builder.apply {
-            generateStatementIndexes(stmtVarName, scope)
             addLocalVariable(
                 name = outVarName,
                 typeName = mapValueResultAdapter.getDeclarationTypeName(),
                 assignExpr = mapValueResultAdapter.getInstantiationCodeBlock(),
             )
-            beginControlFlow("while (%L.step())", stmtVarName)
+            beginControlFlow("while (%L.step())", effectiveStmtVarName)
                 .apply {
                     mapValueResultAdapter.convert(
                         scope,
                         outVarName,
-                        stmtVarName,
+                        effectiveStmtVarName,
                         dupeColumnsIndexAdapter,
                     )
                 }
@@ -47,7 +47,8 @@ class MapQueryResultAdapter(
         }
     }
 
-    private fun generateStatementIndexes(stmtVarName: String, scope: CodeGenScope) {
+    private fun generateStatementIndexes(stmtVarName: String, scope: CodeGenScope): String {
+        var effectiveStmtVarName = stmtVarName
         if (dupeColumnsIndexAdapter != null) {
             // There are duplicate columns in the result objects, generate code that provides
             // us with the indices resolved and pass it to the adapters so it can retrieve
@@ -56,14 +57,19 @@ class MapQueryResultAdapter(
             rowAdapters.forEach {
                 check(it is QueryMappedRowAdapter)
                 val indexVarNames = dupeColumnsIndexAdapter.getIndexVarsForMapping(it.mapping)
-                it.onStatementReady(
-                    indices = indexVarNames,
-                    stmtVarName = stmtVarName,
-                    scope = scope,
-                )
+                effectiveStmtVarName =
+                    it.onStatementReady(
+                        indices = indexVarNames,
+                        stmtVarName = effectiveStmtVarName,
+                        scope = scope,
+                    )
             }
         } else {
-            rowAdapters.forEach { it.onStatementReady(stmtVarName = stmtVarName, scope = scope) }
+            rowAdapters.forEach {
+                effectiveStmtVarName =
+                    it.onStatementReady(stmtVarName = effectiveStmtVarName, scope = scope)
+            }
         }
+        return effectiveStmtVarName
     }
 }

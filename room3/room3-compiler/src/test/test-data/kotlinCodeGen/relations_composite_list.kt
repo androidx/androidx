@@ -1,5 +1,6 @@
 import androidx.room3.RoomDatabase
 import androidx.room3.util.appendRowValuePlaceholders
+import androidx.room3.util.bufferStatement
 import androidx.room3.util.getColumnIndex
 import androidx.room3.util.getColumnIndexOrThrow
 import androidx.room3.util.performBlocking
@@ -40,42 +41,43 @@ internal class MyDao_Impl(
         val _columnIndexOfP2: Int = getColumnIndexOrThrow(_stmt, "p2")
         val _columnIndexOfP3: Int = getColumnIndexOrThrow(_stmt, "p3")
         val _columnIndexOfP4: Int = getColumnIndexOrThrow(_stmt, "p4")
+        val _bufferedStmt: SQLiteStatement = bufferStatement(_stmt)
         val _collectionChild: MutableMap<List<*>, Child?> = mutableMapOf()
-        while (_stmt.step()) {
+        while (_bufferedStmt.step()) {
           val _tmpPartialKey_0: Long
-          _tmpPartialKey_0 = _stmt.getLong(_columnIndexOfP1)
+          _tmpPartialKey_0 = _bufferedStmt.getLong(_columnIndexOfP1)
           val _tmpPartialKey_1: Long
-          _tmpPartialKey_1 = _stmt.getLong(_columnIndexOfP2)
+          _tmpPartialKey_1 = _bufferedStmt.getLong(_columnIndexOfP2)
           val _tmpPartialKey_2: Long
-          _tmpPartialKey_2 = _stmt.getLong(_columnIndexOfP3)
+          _tmpPartialKey_2 = _bufferedStmt.getLong(_columnIndexOfP3)
           val _tmpPartialKey_3: String
-          _tmpPartialKey_3 = _stmt.getText(_columnIndexOfP4)
+          _tmpPartialKey_3 = _bufferedStmt.getText(_columnIndexOfP4)
           val _compositeKey: List<*> = listOf(_tmpPartialKey_0, _tmpPartialKey_1, _tmpPartialKey_2, _tmpPartialKey_3)
           _collectionChild.put(_compositeKey, null)
         }
-        _stmt.reset()
+        _bufferedStmt.reset()
         __fetchRelationshipChildAsChild(_connection, _collectionChild)
         val _result: ParentWithChild
-        if (_stmt.step()) {
+        if (_bufferedStmt.step()) {
           val _tmpParent: Parent
           val _tmpP1: Long
-          _tmpP1 = _stmt.getLong(_columnIndexOfP1)
+          _tmpP1 = _bufferedStmt.getLong(_columnIndexOfP1)
           val _tmpP2: Int
-          _tmpP2 = _stmt.getLong(_columnIndexOfP2).toInt()
+          _tmpP2 = _bufferedStmt.getLong(_columnIndexOfP2).toInt()
           val _tmpP3: Long
-          _tmpP3 = _stmt.getLong(_columnIndexOfP3)
+          _tmpP3 = _bufferedStmt.getLong(_columnIndexOfP3)
           val _tmpP4: String
-          _tmpP4 = _stmt.getText(_columnIndexOfP4)
+          _tmpP4 = _bufferedStmt.getText(_columnIndexOfP4)
           _tmpParent = Parent(_tmpP1,_tmpP2,_tmpP3,_tmpP4)
           val _tmpChild: Child?
           val _tmpPartialKey_0_1: Long
-          _tmpPartialKey_0_1 = _stmt.getLong(_columnIndexOfP1)
+          _tmpPartialKey_0_1 = _bufferedStmt.getLong(_columnIndexOfP1)
           val _tmpPartialKey_1_1: Long
-          _tmpPartialKey_1_1 = _stmt.getLong(_columnIndexOfP2)
+          _tmpPartialKey_1_1 = _bufferedStmt.getLong(_columnIndexOfP2)
           val _tmpPartialKey_2_1: Long
-          _tmpPartialKey_2_1 = _stmt.getLong(_columnIndexOfP3)
+          _tmpPartialKey_2_1 = _bufferedStmt.getLong(_columnIndexOfP3)
           val _tmpPartialKey_3_1: String
-          _tmpPartialKey_3_1 = _stmt.getText(_columnIndexOfP4)
+          _tmpPartialKey_3_1 = _bufferedStmt.getText(_columnIndexOfP4)
           val _compositeKey_1: List<*> = listOf(_tmpPartialKey_0_1, _tmpPartialKey_1_1, _tmpPartialKey_2_1, _tmpPartialKey_3_1)
           _tmpChild = _collectionChild.get(_compositeKey_1)
           if (_tmpChild == null) {
@@ -101,44 +103,45 @@ internal class MyDao_Impl(
         val _columnIndexOfP2: Int = getColumnIndexOrThrow(_stmt, "p2")
         val _columnIndexOfP3: Int = getColumnIndexOrThrow(_stmt, "p3")
         val _columnIndexOfP4: Int = getColumnIndexOrThrow(_stmt, "p4")
+        val _bufferedStmt: SQLiteStatement = bufferStatement(_stmt)
         val _collectionChildren: MutableMap<List<*>, MutableList<Child>> = mutableMapOf()
-        while (_stmt.step()) {
+        while (_bufferedStmt.step()) {
           val _tmpPartialKey_0: Long
-          _tmpPartialKey_0 = _stmt.getLong(_columnIndexOfP1)
+          _tmpPartialKey_0 = _bufferedStmt.getLong(_columnIndexOfP1)
           val _tmpPartialKey_1: Long
-          _tmpPartialKey_1 = _stmt.getLong(_columnIndexOfP2)
+          _tmpPartialKey_1 = _bufferedStmt.getLong(_columnIndexOfP2)
           val _tmpPartialKey_2: Long
-          _tmpPartialKey_2 = _stmt.getLong(_columnIndexOfP3)
+          _tmpPartialKey_2 = _bufferedStmt.getLong(_columnIndexOfP3)
           val _tmpPartialKey_3: String
-          _tmpPartialKey_3 = _stmt.getText(_columnIndexOfP4)
+          _tmpPartialKey_3 = _bufferedStmt.getText(_columnIndexOfP4)
           val _compositeKey: List<*> = listOf(_tmpPartialKey_0, _tmpPartialKey_1, _tmpPartialKey_2, _tmpPartialKey_3)
           if (!_collectionChildren.containsKey(_compositeKey)) {
             _collectionChildren.put(_compositeKey, mutableListOf())
           }
         }
-        _stmt.reset()
+        _bufferedStmt.reset()
         __fetchRelationshipChildAsChild_1(_connection, _collectionChildren)
         val _result: ParentWithChildren
-        if (_stmt.step()) {
+        if (_bufferedStmt.step()) {
           val _tmpParent: Parent
           val _tmpP1: Long
-          _tmpP1 = _stmt.getLong(_columnIndexOfP1)
+          _tmpP1 = _bufferedStmt.getLong(_columnIndexOfP1)
           val _tmpP2: Int
-          _tmpP2 = _stmt.getLong(_columnIndexOfP2).toInt()
+          _tmpP2 = _bufferedStmt.getLong(_columnIndexOfP2).toInt()
           val _tmpP3: Long
-          _tmpP3 = _stmt.getLong(_columnIndexOfP3)
+          _tmpP3 = _bufferedStmt.getLong(_columnIndexOfP3)
           val _tmpP4: String
-          _tmpP4 = _stmt.getText(_columnIndexOfP4)
+          _tmpP4 = _bufferedStmt.getText(_columnIndexOfP4)
           _tmpParent = Parent(_tmpP1,_tmpP2,_tmpP3,_tmpP4)
           val _tmpChildrenCollection: MutableList<Child>
           val _tmpPartialKey_0_1: Long
-          _tmpPartialKey_0_1 = _stmt.getLong(_columnIndexOfP1)
+          _tmpPartialKey_0_1 = _bufferedStmt.getLong(_columnIndexOfP1)
           val _tmpPartialKey_1_1: Long
-          _tmpPartialKey_1_1 = _stmt.getLong(_columnIndexOfP2)
+          _tmpPartialKey_1_1 = _bufferedStmt.getLong(_columnIndexOfP2)
           val _tmpPartialKey_2_1: Long
-          _tmpPartialKey_2_1 = _stmt.getLong(_columnIndexOfP3)
+          _tmpPartialKey_2_1 = _bufferedStmt.getLong(_columnIndexOfP3)
           val _tmpPartialKey_3_1: String
-          _tmpPartialKey_3_1 = _stmt.getText(_columnIndexOfP4)
+          _tmpPartialKey_3_1 = _bufferedStmt.getText(_columnIndexOfP4)
           val _compositeKey_1: List<*> = listOf(_tmpPartialKey_0_1, _tmpPartialKey_1_1, _tmpPartialKey_2_1, _tmpPartialKey_3_1)
           _tmpChildrenCollection = _collectionChildren.getValue(_compositeKey_1)
           _result = ParentWithChildren(_tmpParent,_tmpChildrenCollection)
@@ -161,44 +164,45 @@ internal class MyDao_Impl(
         val _columnIndexOfP2: Int = getColumnIndexOrThrow(_stmt, "p2")
         val _columnIndexOfP3: Int = getColumnIndexOrThrow(_stmt, "p3")
         val _columnIndexOfP4: Int = getColumnIndexOrThrow(_stmt, "p4")
+        val _bufferedStmt: SQLiteStatement = bufferStatement(_stmt)
         val _collectionChildren: MutableMap<List<*>, MutableList<Child>> = mutableMapOf()
-        while (_stmt.step()) {
+        while (_bufferedStmt.step()) {
           val _tmpPartialKey_0: Long
-          _tmpPartialKey_0 = _stmt.getLong(_columnIndexOfP1)
+          _tmpPartialKey_0 = _bufferedStmt.getLong(_columnIndexOfP1)
           val _tmpPartialKey_1: Long
-          _tmpPartialKey_1 = _stmt.getLong(_columnIndexOfP2)
+          _tmpPartialKey_1 = _bufferedStmt.getLong(_columnIndexOfP2)
           val _tmpPartialKey_2: Long
-          _tmpPartialKey_2 = _stmt.getLong(_columnIndexOfP3)
+          _tmpPartialKey_2 = _bufferedStmt.getLong(_columnIndexOfP3)
           val _tmpPartialKey_3: String
-          _tmpPartialKey_3 = _stmt.getText(_columnIndexOfP4)
+          _tmpPartialKey_3 = _bufferedStmt.getText(_columnIndexOfP4)
           val _compositeKey: List<*> = listOf(_tmpPartialKey_0, _tmpPartialKey_1, _tmpPartialKey_2, _tmpPartialKey_3)
           if (!_collectionChildren.containsKey(_compositeKey)) {
             _collectionChildren.put(_compositeKey, mutableListOf())
           }
         }
-        _stmt.reset()
+        _bufferedStmt.reset()
         __fetchRelationshipChildAsChildWithParentChildXRef(_connection, _collectionChildren)
         val _result: ParentWithChildrenJunction
-        if (_stmt.step()) {
+        if (_bufferedStmt.step()) {
           val _tmpParent: Parent
           val _tmpP1: Long
-          _tmpP1 = _stmt.getLong(_columnIndexOfP1)
+          _tmpP1 = _bufferedStmt.getLong(_columnIndexOfP1)
           val _tmpP2: Int
-          _tmpP2 = _stmt.getLong(_columnIndexOfP2).toInt()
+          _tmpP2 = _bufferedStmt.getLong(_columnIndexOfP2).toInt()
           val _tmpP3: Long
-          _tmpP3 = _stmt.getLong(_columnIndexOfP3)
+          _tmpP3 = _bufferedStmt.getLong(_columnIndexOfP3)
           val _tmpP4: String
-          _tmpP4 = _stmt.getText(_columnIndexOfP4)
+          _tmpP4 = _bufferedStmt.getText(_columnIndexOfP4)
           _tmpParent = Parent(_tmpP1,_tmpP2,_tmpP3,_tmpP4)
           val _tmpChildrenCollection: MutableList<Child>
           val _tmpPartialKey_0_1: Long
-          _tmpPartialKey_0_1 = _stmt.getLong(_columnIndexOfP1)
+          _tmpPartialKey_0_1 = _bufferedStmt.getLong(_columnIndexOfP1)
           val _tmpPartialKey_1_1: Long
-          _tmpPartialKey_1_1 = _stmt.getLong(_columnIndexOfP2)
+          _tmpPartialKey_1_1 = _bufferedStmt.getLong(_columnIndexOfP2)
           val _tmpPartialKey_2_1: Long
-          _tmpPartialKey_2_1 = _stmt.getLong(_columnIndexOfP3)
+          _tmpPartialKey_2_1 = _bufferedStmt.getLong(_columnIndexOfP3)
           val _tmpPartialKey_3_1: String
-          _tmpPartialKey_3_1 = _stmt.getText(_columnIndexOfP4)
+          _tmpPartialKey_3_1 = _bufferedStmt.getText(_columnIndexOfP4)
           val _compositeKey_1: List<*> = listOf(_tmpPartialKey_0_1, _tmpPartialKey_1_1, _tmpPartialKey_2_1, _tmpPartialKey_3_1)
           _tmpChildrenCollection = _collectionChildren.getValue(_compositeKey_1)
           _result = ParentWithChildrenJunction(_tmpParent,_tmpChildrenCollection)

@@ -434,6 +434,23 @@ abstract class BaseQueryTest {
     }
 
     @Test
+    fun relationWithRandomAndLimit() = runTest {
+        for (i in 1..10) {
+            val s1 = SampleEntity(i.toLong(), i.toLong())
+            val s2 = SampleEntity2(i.toLong(), i.toLong() * 10)
+            db.dao().insert(s1)
+            db.dao().insert(s2)
+        }
+        val result = db.dao().getRandomSample1To2(limit = 3)
+        assertThat(result).hasSize(3)
+        for (item in result) {
+            assertThat(item.sample2).isNotNull()
+            assertThat(item.sample2.pk2).isEqualTo(item.sample1.pk)
+            assertThat(item.sample2.data2).isEqualTo(item.sample1.pk * 10)
+        }
+    }
+
+    @Test
     fun invalidRawQueryOnBindStatement() = runTest {
         val query =
             RoomRawQuery(

@@ -24,7 +24,7 @@ import androidx.room3.solver.CodeGenScope
 class ListQueryResultAdapter(private val typeArg: XType, private val rowAdapter: RowAdapter) :
     QueryResultAdapter(listOf(rowAdapter)) {
     override fun convert(outVarName: String, stmtVarName: String, scope: CodeGenScope) {
-        rowAdapter.onStatementReady(stmtVarName = stmtVarName, scope = scope)
+        val stmtVarName = rowAdapter.onStatementReady(stmtVarName = stmtVarName, scope = scope)
         scope.builder.apply {
             val listTypeName = CommonTypeNames.MUTABLE_LIST.parametrizedBy(typeArg.asTypeName())
             addLocalVal(

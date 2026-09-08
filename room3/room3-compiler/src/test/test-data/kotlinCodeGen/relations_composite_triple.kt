@@ -1,5 +1,6 @@
 import androidx.room3.RoomDatabase
 import androidx.room3.util.appendRowValuePlaceholders
+import androidx.room3.util.bufferStatement
 import androidx.room3.util.getColumnIndex
 import androidx.room3.util.getColumnIndexOrThrow
 import androidx.room3.util.performBlocking
@@ -38,36 +39,37 @@ internal class MyDao_Impl(
         val _columnIndexOfP1: Int = getColumnIndexOrThrow(_stmt, "p1")
         val _columnIndexOfP2: Int = getColumnIndexOrThrow(_stmt, "p2")
         val _columnIndexOfP3: Int = getColumnIndexOrThrow(_stmt, "p3")
+        val _bufferedStmt: SQLiteStatement = bufferStatement(_stmt)
         val _collectionChild: MutableMap<Triple<String, String, String>, Child?> = mutableMapOf()
-        while (_stmt.step()) {
+        while (_bufferedStmt.step()) {
           val _tmpPartialKey_0: String
-          _tmpPartialKey_0 = _stmt.getText(_columnIndexOfP1)
+          _tmpPartialKey_0 = _bufferedStmt.getText(_columnIndexOfP1)
           val _tmpPartialKey_1: String
-          _tmpPartialKey_1 = _stmt.getText(_columnIndexOfP2)
+          _tmpPartialKey_1 = _bufferedStmt.getText(_columnIndexOfP2)
           val _tmpPartialKey_2: String
-          _tmpPartialKey_2 = _stmt.getText(_columnIndexOfP3)
+          _tmpPartialKey_2 = _bufferedStmt.getText(_columnIndexOfP3)
           val _compositeKey: Triple<String, String, String> = Triple(_tmpPartialKey_0, _tmpPartialKey_1, _tmpPartialKey_2)
           _collectionChild.put(_compositeKey, null)
         }
-        _stmt.reset()
+        _bufferedStmt.reset()
         __fetchRelationshipChildAsChild(_connection, _collectionChild)
         val _result: ParentWithChild
-        if (_stmt.step()) {
+        if (_bufferedStmt.step()) {
           val _tmpParent: Parent
           val _tmpP1: String
-          _tmpP1 = _stmt.getText(_columnIndexOfP1)
+          _tmpP1 = _bufferedStmt.getText(_columnIndexOfP1)
           val _tmpP2: String
-          _tmpP2 = _stmt.getText(_columnIndexOfP2)
+          _tmpP2 = _bufferedStmt.getText(_columnIndexOfP2)
           val _tmpP3: String
-          _tmpP3 = _stmt.getText(_columnIndexOfP3)
+          _tmpP3 = _bufferedStmt.getText(_columnIndexOfP3)
           _tmpParent = Parent(_tmpP1,_tmpP2,_tmpP3)
           val _tmpChild: Child?
           val _tmpPartialKey_0_1: String
-          _tmpPartialKey_0_1 = _stmt.getText(_columnIndexOfP1)
+          _tmpPartialKey_0_1 = _bufferedStmt.getText(_columnIndexOfP1)
           val _tmpPartialKey_1_1: String
-          _tmpPartialKey_1_1 = _stmt.getText(_columnIndexOfP2)
+          _tmpPartialKey_1_1 = _bufferedStmt.getText(_columnIndexOfP2)
           val _tmpPartialKey_2_1: String
-          _tmpPartialKey_2_1 = _stmt.getText(_columnIndexOfP3)
+          _tmpPartialKey_2_1 = _bufferedStmt.getText(_columnIndexOfP3)
           val _compositeKey_1: Triple<String, String, String> = Triple(_tmpPartialKey_0_1, _tmpPartialKey_1_1, _tmpPartialKey_2_1)
           _tmpChild = _collectionChild.get(_compositeKey_1)
           if (_tmpChild == null) {
@@ -92,38 +94,39 @@ internal class MyDao_Impl(
         val _columnIndexOfP1: Int = getColumnIndexOrThrow(_stmt, "p1")
         val _columnIndexOfP2: Int = getColumnIndexOrThrow(_stmt, "p2")
         val _columnIndexOfP3: Int = getColumnIndexOrThrow(_stmt, "p3")
+        val _bufferedStmt: SQLiteStatement = bufferStatement(_stmt)
         val _collectionChildren: MutableMap<Triple<String, String, String>, MutableList<Child>> = mutableMapOf()
-        while (_stmt.step()) {
+        while (_bufferedStmt.step()) {
           val _tmpPartialKey_0: String
-          _tmpPartialKey_0 = _stmt.getText(_columnIndexOfP1)
+          _tmpPartialKey_0 = _bufferedStmt.getText(_columnIndexOfP1)
           val _tmpPartialKey_1: String
-          _tmpPartialKey_1 = _stmt.getText(_columnIndexOfP2)
+          _tmpPartialKey_1 = _bufferedStmt.getText(_columnIndexOfP2)
           val _tmpPartialKey_2: String
-          _tmpPartialKey_2 = _stmt.getText(_columnIndexOfP3)
+          _tmpPartialKey_2 = _bufferedStmt.getText(_columnIndexOfP3)
           val _compositeKey: Triple<String, String, String> = Triple(_tmpPartialKey_0, _tmpPartialKey_1, _tmpPartialKey_2)
           if (!_collectionChildren.containsKey(_compositeKey)) {
             _collectionChildren.put(_compositeKey, mutableListOf())
           }
         }
-        _stmt.reset()
+        _bufferedStmt.reset()
         __fetchRelationshipChildAsChild_1(_connection, _collectionChildren)
         val _result: ParentWithChildren
-        if (_stmt.step()) {
+        if (_bufferedStmt.step()) {
           val _tmpParent: Parent
           val _tmpP1: String
-          _tmpP1 = _stmt.getText(_columnIndexOfP1)
+          _tmpP1 = _bufferedStmt.getText(_columnIndexOfP1)
           val _tmpP2: String
-          _tmpP2 = _stmt.getText(_columnIndexOfP2)
+          _tmpP2 = _bufferedStmt.getText(_columnIndexOfP2)
           val _tmpP3: String
-          _tmpP3 = _stmt.getText(_columnIndexOfP3)
+          _tmpP3 = _bufferedStmt.getText(_columnIndexOfP3)
           _tmpParent = Parent(_tmpP1,_tmpP2,_tmpP3)
           val _tmpChildrenCollection: MutableList<Child>
           val _tmpPartialKey_0_1: String
-          _tmpPartialKey_0_1 = _stmt.getText(_columnIndexOfP1)
+          _tmpPartialKey_0_1 = _bufferedStmt.getText(_columnIndexOfP1)
           val _tmpPartialKey_1_1: String
-          _tmpPartialKey_1_1 = _stmt.getText(_columnIndexOfP2)
+          _tmpPartialKey_1_1 = _bufferedStmt.getText(_columnIndexOfP2)
           val _tmpPartialKey_2_1: String
-          _tmpPartialKey_2_1 = _stmt.getText(_columnIndexOfP3)
+          _tmpPartialKey_2_1 = _bufferedStmt.getText(_columnIndexOfP3)
           val _compositeKey_1: Triple<String, String, String> = Triple(_tmpPartialKey_0_1, _tmpPartialKey_1_1, _tmpPartialKey_2_1)
           _tmpChildrenCollection = _collectionChildren.getValue(_compositeKey_1)
           _result = ParentWithChildren(_tmpParent,_tmpChildrenCollection)
@@ -145,38 +148,39 @@ internal class MyDao_Impl(
         val _columnIndexOfP1: Int = getColumnIndexOrThrow(_stmt, "p1")
         val _columnIndexOfP2: Int = getColumnIndexOrThrow(_stmt, "p2")
         val _columnIndexOfP3: Int = getColumnIndexOrThrow(_stmt, "p3")
+        val _bufferedStmt: SQLiteStatement = bufferStatement(_stmt)
         val _collectionChildren: MutableMap<Triple<String, String, String>, MutableList<Child>> = mutableMapOf()
-        while (_stmt.step()) {
+        while (_bufferedStmt.step()) {
           val _tmpPartialKey_0: String
-          _tmpPartialKey_0 = _stmt.getText(_columnIndexOfP1)
+          _tmpPartialKey_0 = _bufferedStmt.getText(_columnIndexOfP1)
           val _tmpPartialKey_1: String
-          _tmpPartialKey_1 = _stmt.getText(_columnIndexOfP2)
+          _tmpPartialKey_1 = _bufferedStmt.getText(_columnIndexOfP2)
           val _tmpPartialKey_2: String
-          _tmpPartialKey_2 = _stmt.getText(_columnIndexOfP3)
+          _tmpPartialKey_2 = _bufferedStmt.getText(_columnIndexOfP3)
           val _compositeKey: Triple<String, String, String> = Triple(_tmpPartialKey_0, _tmpPartialKey_1, _tmpPartialKey_2)
           if (!_collectionChildren.containsKey(_compositeKey)) {
             _collectionChildren.put(_compositeKey, mutableListOf())
           }
         }
-        _stmt.reset()
+        _bufferedStmt.reset()
         __fetchRelationshipChildAsChildWithParentChildXRef(_connection, _collectionChildren)
         val _result: ParentWithChildrenJunction
-        if (_stmt.step()) {
+        if (_bufferedStmt.step()) {
           val _tmpParent: Parent
           val _tmpP1: String
-          _tmpP1 = _stmt.getText(_columnIndexOfP1)
+          _tmpP1 = _bufferedStmt.getText(_columnIndexOfP1)
           val _tmpP2: String
-          _tmpP2 = _stmt.getText(_columnIndexOfP2)
+          _tmpP2 = _bufferedStmt.getText(_columnIndexOfP2)
           val _tmpP3: String
-          _tmpP3 = _stmt.getText(_columnIndexOfP3)
+          _tmpP3 = _bufferedStmt.getText(_columnIndexOfP3)
           _tmpParent = Parent(_tmpP1,_tmpP2,_tmpP3)
           val _tmpChildrenCollection: MutableList<Child>
           val _tmpPartialKey_0_1: String
-          _tmpPartialKey_0_1 = _stmt.getText(_columnIndexOfP1)
+          _tmpPartialKey_0_1 = _bufferedStmt.getText(_columnIndexOfP1)
           val _tmpPartialKey_1_1: String
-          _tmpPartialKey_1_1 = _stmt.getText(_columnIndexOfP2)
+          _tmpPartialKey_1_1 = _bufferedStmt.getText(_columnIndexOfP2)
           val _tmpPartialKey_2_1: String
-          _tmpPartialKey_2_1 = _stmt.getText(_columnIndexOfP3)
+          _tmpPartialKey_2_1 = _bufferedStmt.getText(_columnIndexOfP3)
           val _compositeKey_1: Triple<String, String, String> = Triple(_tmpPartialKey_0_1, _tmpPartialKey_1_1, _tmpPartialKey_2_1)
           _tmpChildrenCollection = _collectionChildren.getValue(_compositeKey_1)
           _result = ParentWithChildrenJunction(_tmpParent,_tmpChildrenCollection)
