@@ -46,7 +46,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
 import java.util.concurrent.atomic.AtomicBoolean
 
-@RequiresApi(Build.VERSION_CODES.M)
 internal class GraphicsLayerV23(
     ownerView: View,
     override val ownerId: Long,
@@ -443,15 +442,7 @@ internal class GraphicsLayerV23(
     }
 
     internal fun discardDisplayListInternal() {
-        // See b/216660268. RenderNode#discardDisplayList was originally called
-        // destroyDisplayListData on Android M and below. Make sure we gate on the corresponding
-        // API level and call the original method name on these API levels, otherwise invoke
-        // the current method name of discardDisplayList
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            RenderNodeVerificationHelper24.discardDisplayList(renderNode)
-        } else {
-            RenderNodeVerificationHelper23.destroyDisplayListData(renderNode)
-        }
+        renderNode.discardDisplayList()
     }
 
     companion object {
@@ -483,21 +474,5 @@ private object RenderNodeVerificationHelper28 {
 
     fun setSpotShadowColor(renderNode: RenderNode, target: Int) {
         renderNode.spotShadowColor = target
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.N)
-private object RenderNodeVerificationHelper24 {
-
-    fun discardDisplayList(renderNode: RenderNode) {
-        renderNode.discardDisplayList()
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.M)
-private object RenderNodeVerificationHelper23 {
-
-    fun destroyDisplayListData(renderNode: RenderNode) {
-        renderNode.destroyDisplayListData()
     }
 }
