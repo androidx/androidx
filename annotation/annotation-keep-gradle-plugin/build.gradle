@@ -37,12 +37,10 @@ configurations {
 dependencies {
     api(gradleApi())
     compileOnly(libs.androidGradlePluginApi)
+    compileOnly(libs.kotlinGradlePlugin)
     implementation(libs.asm)
     implementation(libs.asmCommons)
     implementation(libs.asmUtil)
-    // Experimentally including a library that can write keep rules
-    // Eventually we need to figure out a way to version the annotations and this library together.
-    // implementation(files("libs/keepanno-toolslib.jar"))
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(libs.androidGradlePluginApi)
     testImplementation(gradleTestKit())
@@ -52,6 +50,14 @@ dependencies {
     // Bootstrap Plugin test classpath
     testPlugin(libs.androidGradlePluginApi)
     testPlugin(libs.kotlinGradlePlugin)
+}
+
+tasks.withType(Test).configureEach { test ->
+    // Configure publishing tasks to be dependencies of 'test' so those artifacts are available for
+    // the test project executed with Gradle Test Kit.
+    test.dependsOn(
+            ":annotation:annotation-keep:publish",
+    )
 }
 
 gradlePlugin {
@@ -73,7 +79,7 @@ tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").c
 
 
 androidx {
-    name = "Benchmarks - Keep Plugin"
+    name = "Annotations - Keep Plugin"
     type = SoftwareType.GRADLE_PLUGIN
     mavenVersion = LibraryVersions.ANNOTATION_KEEP_QUARANTINE
     inceptionYear = "2025"

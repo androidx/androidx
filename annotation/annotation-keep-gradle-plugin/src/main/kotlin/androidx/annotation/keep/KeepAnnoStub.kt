@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,19 @@
 
 package androidx.annotation.keep
 
-import com.android.build.api.instrumentation.InstrumentationParameters
-import java.io.Serializable
+import org.objectweb.asm.ClassVisitor
+import org.objectweb.asm.Opcodes
 
-/** The parameters necessary for the keep annotation plugin. */
-abstract class AnnotationPluginParameters : InstrumentationParameters, Serializable
+/** A stub which will be replaced by the actual implementation of `KeepAnno`. */
+internal class KeepAnnoStub {
+    companion object {
+        private val stubClassVisitor = StubClassVisitor()
+
+        fun createClassVisitorForKeepRulesExtraction(block: (String) -> Unit): ClassVisitor {
+            return stubClassVisitor
+        }
+    }
+}
+
+/** A [ClassVisitor] stub that does nothing. */
+private class StubClassVisitor : ClassVisitor(Opcodes.ASM9)
