@@ -148,15 +148,11 @@ constructor(
 ) : AndroidPreloadedFont(weight, style, variationSettings) {
 
     override fun doLoad(context: Context?): Typeface? {
-        return if (Build.VERSION.SDK_INT >= 26) {
-            TypefaceBuilderCompat.createFromFileDescriptor(
-                fileDescriptor,
-                context,
-                variationSettings,
-            )
-        } else {
-            throw IllegalArgumentException("Cannot create font from file descriptor for SDK < 26")
-        }
+        return TypefaceBuilderCompat.createFromFileDescriptor(
+            fileDescriptor,
+            context,
+            variationSettings,
+        )
     }
 
     init {
