@@ -119,17 +119,19 @@ public object RemoteTextButtonDefaults {
      */
     @Composable
     public fun textButtonColors(
-        containerColor: RemoteColor = RemoteColor(Color.Transparent),
+        containerColor: RemoteColor? = null,
         contentColor: RemoteColor? = null,
-        disabledContainerColor: RemoteColor = RemoteColor(Color.Transparent),
+        disabledContainerColor: RemoteColor? = null,
         disabledContentColor: RemoteColor? = null,
-    ): RemoteTextButtonColors =
-        RemoteMaterialTheme.colorScheme.defaultTextButtonColors.copy(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            disabledContainerColor = disabledContainerColor,
-            disabledContentColor = disabledContentColor,
+    ): RemoteTextButtonColors {
+        val default = RemoteMaterialTheme.colorScheme.defaultTextButtonColors
+        return default.copy(
+            containerColor = containerColor ?: default.containerColor,
+            contentColor = contentColor ?: default.contentColor,
+            disabledContainerColor = disabledContainerColor ?: default.disabledContainerColor,
+            disabledContentColor = disabledContentColor ?: default.disabledContentColor,
         )
+    }
 
     /** The recommended size for a small button. */
     public val SmallButtonSize: RemoteDp = 48.rdp
