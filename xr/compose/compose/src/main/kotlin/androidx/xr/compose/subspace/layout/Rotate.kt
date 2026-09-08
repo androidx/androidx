@@ -25,17 +25,17 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 
 /**
- * Rotate a subspace element (i.e. Panel) in space in regard to the center of the element. Parameter
- * rotation angles are specified in degrees. The rotations are applied with the order pitch, then
- * yaw, then roll. If no values are provided, no rotation is applied. Rotation does not alter a
+ * Rotate a subspace element (i.e., Panel) in space with regard to the center of the element.
+ * Parameter rotation angles are specified in degrees. The rotations are applied in the order pitch,
+ * then yaw, then roll. If no values are provided, no rotation is applied. Rotation does not alter a
  * Composable's measured size in its parent.
  *
- * @param pitch Rotation around the x-axis. Defaults to `0.0f`. The x-axis is the axis width is
- *   measured on.
- * @param yaw Rotation around the y-axis. Defaults to `0.0f`. The y-axis is the axis height is
- *   measured on.
- * @param roll Rotation around the z-axis. Defaults to `0.0f`. The z-axis is the axis depth is
- *   measured on.
+ * @param pitch Rotation around the x-axis. Defaults to `0.0f`. The x-axis is the axis along which
+ *   width is measured.
+ * @param yaw Rotation around the y-axis. Defaults to `0.0f`. The y-axis is the axis along which
+ *   height is measured.
+ * @param roll Rotation around the z-axis. Defaults to `0.0f`. The z-axis is the axis along which
+ *   depth is measured.
  */
 public fun SubspaceModifier.rotate(
     pitch: Float = 0.0f,
@@ -52,7 +52,7 @@ public fun SubspaceModifier.rotate(
 public fun SubspaceModifier.rotate(): SubspaceModifier = this
 
 /**
- * Rotate a subspace element (i.e. Panel) in space in regard to the center of the element. The
+ * Rotate a subspace element (i.e., Panel) in space with regard to the center of the element. The
  * rotation is defined by a [Vector3] and a rotation angle in degrees. The axis angle will be
  * normalized during construction. The [rotation] will be applied to the unit vector representing
  * the [axisAngle]. Rotation does not alter a Composable's measured size in its parent.
@@ -64,10 +64,10 @@ public fun SubspaceModifier.rotate(axisAngle: Vector3, rotation: Float): Subspac
     this.then(RotationElement(axisAngle, rotation))
 
 /**
- * Rotate a subspace element (i.e. Panel) in space in regard to the center of the element. The
+ * Rotate a subspace element (i.e., Panel) in space with regard to the center of the element. The
  * rotation is directly specified by the provided [Quaternion]. The [Quaternion] values are
- * specified as x,y,z,w. Where w is the rotation of the unit vector, in radians. Rotation does not
- * alter a Composable's measured size in its parent.
+ * specified as x, y, z, w, where w is the rotation of the unit vector, in radians. Rotation does
+ * not alter a Composable's measured size in its parent.
  *
  * @param quaternion Quaternion describing the rotation.
  */

@@ -29,8 +29,8 @@ import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
  * whenever the composable's transform (position, rotation, scale) is updated relative to the
  * subspace's origin.
  *
- * The callback information will be relative to its subspace. For instance, When a nested subspace
- * is moved by the global subspace its Pose will reflect its position in the nested subspace. Its
+ * The callback information will be relative to its subspace. For instance, when a nested subspace
+ * is moved by the global subspace, its Pose will reflect its position in the nested subspace. Its
  * position value will not be updated despite moving locations in the Global Subspace.
  *
  * @param onGloballyPositioned callback to be invoked with the updated [SubspaceLayoutCoordinates].
