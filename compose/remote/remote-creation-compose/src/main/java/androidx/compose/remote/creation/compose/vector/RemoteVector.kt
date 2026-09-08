@@ -44,15 +44,17 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.PaintingStyle
+import androidx.compose.ui.graphics.PathFillType
+import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.isUnspecified
+import androidx.compose.ui.graphics.vector.DefaultFillType
 import androidx.compose.ui.graphics.vector.PathNode
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
@@ -104,6 +106,7 @@ internal class RemotePathComponent : RemoteVNode() {
     var name = DefaultPathName
     var fill: Brush? = null
     var fillAlpha = 1.0f.rf
+    var pathFillType: PathFillType = DefaultFillType
     var pathData: List<RemotePathNode> = EmptyPath
     var targetPathData: List<RemotePathNode>? = null
     var pathTween: RemoteFloat = 0f.rf
@@ -121,6 +124,31 @@ internal class RemotePathComponent : RemoteVNode() {
 
     private val path = RemotePath()
     private val targetPath = RemotePath()
+
+    private fun RemoteDrawScope.applyBrushToPaint(
+        brush: Brush?,
+        alpha: RemoteFloat,
+        paint: RemotePaint,
+    ) {
+        if (brush == null) return
+        when (brush) {
+            is SolidColor -> {
+                val c = brush.value
+                paint.color =
+                    RemoteColor.rgb(
+                        red = c.red.rf,
+                        green = c.green.rf,
+                        blue = c.blue.rf,
+                        alpha = c.alpha.rf * alpha,
+                    )
+            }
+            is ShaderBrush -> {
+                // Compose ShaderBrush cannot be serialized directly without reflection,
+                // degrade to transparent paint
+                paint.color = RemoteColor.rgb(0f.rf, 0f.rf, 0f.rf, 0f.rf)
+            }
+        }
+    }
 
     override fun RemoteDrawScope.draw(colorFilter: RemoteColorFilter?) {
         // The call below resets the path
@@ -150,53 +178,62 @@ internal class RemotePathComponent : RemoteVNode() {
                 1f.rf
             }
 
-        // TODO: Support non-solid brushes (such as gradients / RemoteBrush) for vector paths
-        val effectiveFillColor =
-            remoteFillColor ?: fill?.let { (it as? SolidColor)?.value?.rc ?: Color.Black.rc }
-        effectiveFillColor?.let { brushColor ->
-            val paintColor =
-                if (fillAlpha.hasConstantValue && fillAlpha.constantValue == 1f) {
-                    brushColor
-                } else {
-                    brushColor.copy(alpha = brushColor.alpha * fillAlpha)
-                }
-            val paint = RemotePaint {
-                this.color = paintColor
+        val effectiveFillBrush = fill
+        val effectiveFillColor = remoteFillColor
+
+        if (effectiveFillBrush != null || effectiveFillColor != null) {
+            val fillPaint = RemotePaint {
                 this.colorFilter = colorFilter
                 this.style = PaintingStyle.Fill
             }
+            if (effectiveFillColor != null) {
+                val paintColor =
+                    if (fillAlpha.hasConstantValue && fillAlpha.constantValue == 1f) {
+                        effectiveFillColor
+                    } else {
+                        effectiveFillColor.copy(alpha = effectiveFillColor.alpha * fillAlpha)
+                    }
+                fillPaint.color = paintColor
+            } else if (effectiveFillBrush != null) {
+                applyBrushToPaint(effectiveFillBrush, fillAlpha, fillPaint)
+            }
             if (hasTween) {
-                drawTweenPath(path, targetPath, pathTween, start, stop, paint)
+                drawTweenPath(path, targetPath, pathTween, start, stop, fillPaint)
             } else if (isTrimmed) {
-                drawTweenPath(path, path, 0f.rf, start, stop, paint)
+                drawTweenPath(path, path, 0f.rf, start, stop, fillPaint)
             } else {
-                drawPath(path, paint)
+                drawPath(path, pathFillType, fillPaint)
             }
         }
-        // TODO: Support non-solid brushes (such as gradients / RemoteBrush) for vector paths
-        val effectiveStrokeColor =
-            remoteStrokeColor ?: stroke?.let { (it as? SolidColor)?.value?.rc ?: Color.Black.rc }
-        effectiveStrokeColor?.let { brushColor ->
-            val paintColor =
-                if (strokeAlpha.hasConstantValue && strokeAlpha.constantValue == 1f) {
-                    brushColor
-                } else {
-                    brushColor.copy(alpha = brushColor.alpha * strokeAlpha)
-                }
-            val paint = RemotePaint {
-                this.color = paintColor
+
+        val effectiveStrokeBrush = stroke
+        val effectiveStrokeColor = remoteStrokeColor
+
+        if (effectiveStrokeBrush != null || effectiveStrokeColor != null) {
+            val strokePaint = RemotePaint {
                 this.colorFilter = colorFilter
                 this.style = PaintingStyle.Stroke
                 this.strokeWidth = strokeLineWidth
                 this.strokeCap = strokeLineCap
                 this.strokeJoin = strokeLineJoin
             }
+            if (effectiveStrokeColor != null) {
+                val paintColor =
+                    if (strokeAlpha.hasConstantValue && strokeAlpha.constantValue == 1f) {
+                        effectiveStrokeColor
+                    } else {
+                        effectiveStrokeColor.copy(alpha = effectiveStrokeColor.alpha * strokeAlpha)
+                    }
+                strokePaint.color = paintColor
+            } else if (effectiveStrokeBrush != null) {
+                applyBrushToPaint(effectiveStrokeBrush, strokeAlpha, strokePaint)
+            }
             if (hasTween) {
-                drawTweenPath(path, targetPath, pathTween, start, stop, paint)
+                drawTweenPath(path, targetPath, pathTween, start, stop, strokePaint)
             } else if (isTrimmed) {
-                drawTweenPath(path, path, 0f.rf, start, stop, paint)
+                drawTweenPath(path, path, 0f.rf, start, stop, strokePaint)
             } else {
-                drawPath(path, paint)
+                drawPath(path, pathFillType, strokePaint)
             }
         }
     }

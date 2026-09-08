@@ -57,7 +57,7 @@ internal constructor(
     internal val name: String,
     internal val viewportWidth: RemoteFloat,
     internal val viewportHeight: RemoteFloat,
-    internal val tintColor: RemoteColor = RemoteColor(Color.Black),
+    internal val tintColor: RemoteColor = RemoteColor(Color.Unspecified),
     internal val tintBlendMode: BlendMode = BlendMode.SrcIn,
     internal val autoMirror: Boolean = false,
 ) {
