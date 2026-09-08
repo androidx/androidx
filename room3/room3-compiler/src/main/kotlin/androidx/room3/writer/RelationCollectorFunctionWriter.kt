@@ -153,12 +153,13 @@ class RelationCollectorFunctionWriter(private val collector: RelationCollector) 
             endControlFlow()
 
             // Prepare item column indices
-            collector.rowAdapter.onStatementReady(stmtVarName = stmtVar, scope = scope)
+            val effectiveStmtVar =
+                collector.rowAdapter.onStatementReady(stmtVarName = stmtVar, scope = scope)
             val tmpVarName = scope.getTmpVar("_item")
-            beginControlFlow("while (%L.step())", stmtVar).apply {
+            beginControlFlow("while (%L.step())", effectiveStmtVar).apply {
                 // Read key from the statement, convert row to item and place it on map
                 collector.readKey(
-                    stmtVarName = stmtVar,
+                    stmtVarName = effectiveStmtVar,
                     indexVars = itemKeyIndexVars,
                     keyReaders =
                         if (relation.junction != null) {
@@ -179,13 +180,13 @@ class RelationCollectorFunctionWriter(private val collector: RelationCollector) 
                         )
                         beginControlFlow("if (%L != null)", relationVar)
                         addLocalVariable(tmpVarName, relation.dataClassTypeName)
-                        collector.rowAdapter.convert(tmpVarName, stmtVar, scope)
+                        collector.rowAdapter.convert(tmpVarName, effectiveStmtVar, scope)
                         addStatement("%L.add(%L)", relationVar, tmpVarName)
                         endControlFlow()
                     } else {
                         beginControlFlow("if (%N.containsKey(%L))", PARAM_MAP_VARIABLE, keyVar)
                         addLocalVariable(tmpVarName, relation.dataClassTypeName)
-                        collector.rowAdapter.convert(tmpVarName, stmtVar, scope)
+                        collector.rowAdapter.convert(tmpVarName, effectiveStmtVar, scope)
                         addStatement("%N.put(%L, %L)", PARAM_MAP_VARIABLE, keyVar, tmpVarName)
                         endControlFlow()
                     }
