@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.core.ui
+package androidx.glance.adaptive.appwidget.ui
 
 import androidx.compose.runtime.AbstractApplier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Recomposer
+import androidx.glance.adaptive.appwidget.ui.selection.LocalContainerDimensions
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
-import androidx.glance.adaptive.core.ui.selection.LocalContainerDimensions
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +35,7 @@ import org.robolectric.annotation.Config
 
 @Config(sdk = [Config.TARGET_SDK])
 @RunWith(RobolectricTestRunner::class)
-class TemplateRegistryTest {
+class AppWidgetTemplateRegistryTest {
 
     private data class DummyTemplate(val title: String) : AdaptiveGlanceTemplate
 
@@ -47,7 +47,7 @@ class TemplateRegistryTest {
 
     @Before
     fun setUp() {
-        TemplateRegistry.resetForTesting()
+        AppWidgetTemplateRegistry.resetForTesting()
     }
 
     @Test
@@ -55,7 +55,7 @@ class TemplateRegistryTest {
         var observedData: DummyTemplate? = null
         var observedArchetype: DummyArchetype? = null
 
-        TemplateRegistry.register(
+        AppWidgetTemplateRegistry.register(
             DummyTemplate::class.java,
             selectArchetype = { _, surface, dimensions ->
                 assertThat(surface).isEqualTo(testSurface)
@@ -72,7 +72,7 @@ class TemplateRegistryTest {
 
         runComposition {
             CompositionLocalProvider(LocalContainerDimensions provides Dimensions(200, 100)) {
-                TemplateRegistry.render(dummy, testSurface)
+                AppWidgetTemplateRegistry.render(dummy, testSurface)
             }
         }
 
@@ -83,7 +83,7 @@ class TemplateRegistryTest {
     @Test(expected = IllegalArgumentException::class)
     fun render_unregistered_throwsException() {
         val dummy = DummyTemplate("Unregistered")
-        runComposition { TemplateRegistry.render(dummy, testSurface) }
+        runComposition { AppWidgetTemplateRegistry.render(dummy, testSurface) }
     }
 
     private fun runComposition(content: @Composable () -> Unit) {

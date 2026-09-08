@@ -23,10 +23,10 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.compose.ui.unit.DpSize
+import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurfaceDetector
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetDelegate
-import androidx.glance.adaptive.core.ui.TemplateRegistry
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 import androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi
 import androidx.glance.appwidget.GlanceRemoteViews
@@ -49,8 +49,8 @@ internal class BaseWidgetDelegate(
 
     /**
      * Resolves active target widget instances for the given [widgetName] and optional [widgetIds],
-     * renders [currentData] via [TemplateRegistry.render], and updates matching platform AppWidgets
-     * directly.
+     * renders [currentData] via [AppWidgetTemplateRegistry.render], and updates matching platform
+     * AppWidgets directly.
      *
      * @param widgetName Developer widget definition String identifier matching
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
@@ -96,7 +96,7 @@ internal class BaseWidgetDelegate(
                                     context = context,
                                     size = DpSize.Unspecified,
                                 ) {
-                                    TemplateRegistry.render(currentData, surface)
+                                    AppWidgetTemplateRegistry.render(currentData, surface)
                                 }
                             val remoteViews = compositionResult.remoteViews
                             appWidgetManager.updateAppWidget(appWidgetIds.toIntArray(), remoteViews)
@@ -194,7 +194,7 @@ internal class BaseWidgetDelegate(
                                 context = context,
                                 size = DpSize.Unspecified,
                             ) {
-                                TemplateRegistry.render(previewData, surface)
+                                AppWidgetTemplateRegistry.render(previewData, surface)
                             }
                         } catch (e: CancellationException) {
                             throw e

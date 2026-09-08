@@ -4,7 +4,12 @@
 
 Provides AppWidget compilation and receiver implementations for Glance Adaptive widgets.
 
+# Package androidx.glance.adaptive.appwidget.ui
+
+Provides AppWidget template registry and Compose UI orchestration.
+
 # Package androidx.glance.adaptive.appwidget.ui.selection
 
 Provides AppWidget-specific surfaces, detectors, and size tiers.
+
 
