@@ -630,3 +630,41 @@ public fun animateRemoteFloat(
     }
     return AnimatedRemoteFloat(rf, anim)
 }
+
+/**
+ * Returns a [RemoteFloat] that represents a random number >= 0 and <= 1.
+ *
+ * @return A [RemoteFloat] evaluating to a random number >= 0 and <= 1
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun rand(): RemoteFloat {
+    return RemoteFloatExpression(
+        constantValueOrNull = null,
+        cacheKey = RemoteOperationCacheKey.create(RemoteFloat.OperationKey.Rand),
+        arrayProvider = { _ ->
+            floatArrayOf(AnimatedFloatExpression.RAND)
+        },
+    )
+}
+
+/**
+ * Returns a [RemoteFloat] that represent a random number >= [from] and <= [to].
+ *
+ * @param from The lower bound
+ * @param to The upper bound
+ * @return A [RemoteFloat] evaluating to a random number >= [from] and <= [to]
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun randRange(from: RemoteFloat, to: RemoteFloat): RemoteFloat {
+    return RemoteFloatExpression(
+        constantValueOrNull = null,
+        cacheKey = RemoteOperationCacheKey.create(RemoteFloat.OperationKey.RandInRange, from, to),
+        arrayProvider = { creationState ->
+            floatArrayOf(
+                *(toArray(from, creationState)),
+                *(toArray(to, creationState)),
+                AnimatedFloatExpression.RAND_IN_RANGE,
+            )
+        },
+    )
+}
