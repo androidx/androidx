@@ -16,6 +16,9 @@
 
 package androidx.compose.material3.benchmark
 
+import android.os.Build
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
@@ -70,6 +73,40 @@ class SearchBarBenchmark(private val type: SearchBarType) {
     }
 }
 
+private val FakeOnBackPressedDispatcherOwner =
+    object : OnBackPressedDispatcherOwner {
+        override val onBackPressedDispatcher =
+            OnBackPressedDispatcher().apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    setOnBackInvokedDispatcher(
+                        object : OnBackInvokedDispatcher {
+                            override fun registerOnBackInvokedCallback(
+                                priority: Int,
+                                callback: OnBackInvokedCallback,
+                            ) {
+                                // No-Op: Prevent IPC Binder calls to system_server
+                            }
+
+                            override fun unregisterOnBackInvokedCallback(
+                                callback: OnBackInvokedCallback
+                            ) {
+                                // No-Op: Prevent IPC Binder calls to system_server
+                            }
+                        }
+                    )
+                }
+            }
+
+        override val lifecycle =
+            object : Lifecycle() {
+                override fun addObserver(observer: LifecycleObserver) {}
+
+                override fun removeObserver(observer: LifecycleObserver) {}
+
+                override val currentState = Lifecycle.State.RESUMED
+            }
+    }
+
 @Suppress("DEPRECATION")
 @OptIn(ExperimentalMaterial3Api::class)
 internal class SearchBarTestCase(private val type: SearchBarType) :
@@ -108,20 +145,9 @@ internal class SearchBarTestCase(private val type: SearchBarType) :
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        val dispatcherOwner = remember {
-            object : OnBackPressedDispatcherOwner {
-                override val onBackPressedDispatcher = OnBackPressedDispatcher()
-                override val lifecycle =
-                    object : Lifecycle() {
-                        override fun addObserver(observer: LifecycleObserver) {}
-
-                        override fun removeObserver(observer: LifecycleObserver) {}
-
-                        override val currentState = Lifecycle.State.RESUMED
-                    }
-            }
-        }
-        CompositionLocalProvider(LocalOnBackPressedDispatcherOwner provides dispatcherOwner) {
+        CompositionLocalProvider(
+            LocalOnBackPressedDispatcherOwner provides FakeOnBackPressedDispatcherOwner
+        ) {
             MaterialTheme { content() }
         }
     }
