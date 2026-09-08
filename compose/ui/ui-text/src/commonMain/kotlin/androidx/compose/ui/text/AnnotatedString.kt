@@ -169,7 +169,7 @@ internal constructor(
                 while (previousEnds.isNotEmpty()) {
                     val previousEnd = previousEnds.last()
                     if (current.start >= previousEnd) {
-                        previousEnds.removeAt(previousEnds.lastIndex)
+                        previousEnds.removeAt(previousEnds.size - 1)
                     } else {
                         requirePrecondition(current.end <= previousEnd) {
                             "Paragraph overlap not allowed, end ${current.end} should be less than or equal to $previousEnd"
