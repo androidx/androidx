@@ -16,6 +16,7 @@
 
 package androidx.annotation.keep
 
+import com.android.tools.r8.keepanno.KeepAnno
 import java.util.zip.ZipInputStream
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.Directory
@@ -49,10 +50,9 @@ abstract class ExtractKeepRulesTask : DefaultTask() {
                     .filter { it.isFile && it.name.endsWith(".class") }
                     .forEach { classFile ->
                         val reader = ClassReader(classFile.readBytes())
-                        val visitor =
-                            KeepAnnoStub.createClassVisitorForKeepRulesExtraction { rule ->
-                                rulesAccumulator.append(rule)
-                            }
+                        val visitor = KeepAnno.createClassVisitorForKeepRulesExtraction { rule ->
+                            rulesAccumulator.append(rule)
+                        }
                         reader.accept(
                             visitor,
                             ClassReader.SKIP_CODE or
@@ -72,7 +72,7 @@ abstract class ExtractKeepRulesTask : DefaultTask() {
                         if (entry.name.endsWith(".class")) {
                             val reader = ClassReader(zipInputStream.readBytes())
                             val visitor =
-                                KeepAnnoStub.createClassVisitorForKeepRulesExtraction { rule ->
+                                KeepAnno.createClassVisitorForKeepRulesExtraction { rule ->
                                     rulesAccumulator.append(rule)
                                 }
                             reader.accept(
