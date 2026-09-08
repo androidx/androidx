@@ -49,4 +49,47 @@ class TriggerComposeAnimationTest {
         assertEquals(25, animation.initialState)
         assertEquals(10, animation.targetState)
     }
+
+    @Test
+    fun parseAnimationDebugMutableStateWithSingleState() {
+        val state: AnimationDebugMutableState<Int> =
+            AnimationDebugMutableState(mutableStateOf(25), { setOf(25) }, "singleState")
+
+        val animation = state.parse()!!
+        assertNotNull(animation)
+        assertEquals("singleState", animation.label)
+        assertEquals(setOf(25), animation.states)
+        assertEquals(25, animation.initialState)
+        assertEquals(25, animation.targetState)
+    }
+
+    @Test
+    fun parseAnimationDebugMutableStateWithEmptyStates() {
+        val state: AnimationDebugMutableState<Int> =
+            AnimationDebugMutableState(mutableStateOf(25), { emptySet() }, "emptyStates")
+
+        val animation = state.parse()!!
+        assertNotNull(animation)
+        assertEquals("emptyStates", animation.label)
+        assertEquals(setOf(25), animation.states)
+        assertEquals(25, animation.initialState)
+        assertEquals(25, animation.targetState)
+    }
+
+    @Test
+    fun parseAnimationDebugMutableStateWithNullableTargetState() {
+        val state: AnimationDebugMutableState<Int?> =
+            AnimationDebugMutableState(
+                mutableStateOf(25),
+                { setOf(25, null, 10) },
+                "nullableTarget",
+            )
+
+        val animation = state.parse()!!
+        assertNotNull(animation)
+        assertEquals("nullableTarget", animation.label)
+        assertEquals(setOf(25, 10), animation.states)
+        assertEquals(25, animation.initialState)
+        assertEquals(null, animation.targetState)
+    }
 }
