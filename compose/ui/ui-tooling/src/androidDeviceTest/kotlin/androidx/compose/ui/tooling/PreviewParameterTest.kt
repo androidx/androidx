@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.tooling.test.R
 import androidx.test.filters.MediumTest
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -131,5 +132,32 @@ class PreviewParameterTest {
                 debugViewInfos = true,
             )
         }
+    }
+
+    @JvmInline private value class StringValueClass(val value: String)
+
+    @JvmInline
+    private value class ValueClassWithCompanion(val value: String) {
+        companion object {
+            val Default = ValueClassWithCompanion("default")
+        }
+    }
+
+    private class StringValueClassProvider :
+        CollectionPreviewParameterProvider<StringValueClass>(
+            listOf(StringValueClass("hello"), StringValueClass("world"))
+        )
+
+    @Test
+    fun checkReferenceTypeValueClassUnwrapping() {
+        assertEquals("hello", unwrapIfInline(StringValueClass("hello")))
+        assertEquals("companionTest", unwrapIfInline(ValueClassWithCompanion("companionTest")))
+        assertEquals(CornerRadius(5f, 10f).packedValue, unwrapIfInline(CornerRadius(5f, 10f)))
+
+        val singleParams = getPreviewProviderParameters(StringValueClassProvider::class.java, 0)
+        assertEquals("hello", singleParams.single())
+
+        val allParams = getPreviewProviderParameters(StringValueClassProvider::class.java, -1)
+        assertEquals(listOf("hello", "world"), allParams.toList())
     }
 }

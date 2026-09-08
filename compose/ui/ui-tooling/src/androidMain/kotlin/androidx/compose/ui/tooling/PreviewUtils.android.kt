@@ -16,11 +16,13 @@
 
 package androidx.compose.ui.tooling
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.data.Group
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.tooling.preview.PreviewWrapperProvider
+import java.lang.reflect.Modifier
 import kotlin.collections.removeLast as removeLastKt
 
 /** Tries to find the [Class] of the [PreviewParameterProvider] corresponding to the given FQN. */
@@ -67,7 +69,7 @@ internal fun getPreviewProviderParameters(
                     )
             val params = constructor.newInstance() as PreviewParameterProvider<*>
             if (parameterProviderIndex < 0) {
-                return params.values.toArray(params.count)
+                return params.values.toArray(params.count).map { unwrapIfInline(it) }.toTypedArray()
             }
             return listOf(params.values.elementAt(parameterProviderIndex))
                 .map { unwrapIfInline(it) }
@@ -124,20 +126,23 @@ internal fun instantiatePreviewWrapperProvider(
  * Checks if the object is of inlined value type. If yes, unwraps and returns the packed value If
  * not, returns the object as it is
  */
-private fun unwrapIfInline(classToCheck: Any?): Any? {
+@VisibleForTesting
+internal fun unwrapIfInline(classToCheck: Any?): Any? {
     // At the moment is not possible to use classToCheck::class.isValue, even if it works when
     // running tests, is not working once trying to run the Preview instead.
     // it would be possible in the future.
     // see also https://kotlinlang.org/docs/inline-classes.html
     if (classToCheck != null && classToCheck::class.java.annotations.any { it is JvmInline }) {
-        // The first primitive declared field in the class is the value wrapped
-        val fieldName: String =
-            classToCheck::class.java.declaredFields.first { it.type.isPrimitive }.name
-        return classToCheck::class
-            .java
-            .getDeclaredField(fieldName)
-            .also { it.isAccessible = true }
-            .get(classToCheck)
+        // Filter out static fields (such as Companion or constants) to find the instance backing
+        // field containing the packed value.
+        val field =
+            classToCheck::class.java.declaredFields.firstOrNull {
+                !Modifier.isStatic(it.modifiers) && !it.isSynthetic
+            }
+        if (field != null) {
+            field.isAccessible = true
+            return field.get(classToCheck)
+        }
     }
     return classToCheck
 }
