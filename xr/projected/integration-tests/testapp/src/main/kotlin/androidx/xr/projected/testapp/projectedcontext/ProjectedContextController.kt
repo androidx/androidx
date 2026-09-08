@@ -53,6 +53,7 @@ class ProjectedContextController(
                             launchProjectedActivity()
                         } else {
                             viewModel.setStatusMessage("Projected device is not connected.")
+                            viewModel.setDeviceName(null)
                         }
                     }
             } catch (e: Exception) {
@@ -65,10 +66,18 @@ class ProjectedContextController(
     private fun initializeDeviceContext() {
         try {
             val projectedContext = ProjectedContext.createProjectedDeviceContext(context)
-            viewModel.setDeviceName(projectedContext.display?.name ?: "Connected Device")
+            val deviceName =
+                try {
+                    ProjectedContext.getProjectedDeviceName(projectedContext) ?: NAME_FETCH_FAILED
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error fetching projected device name", e)
+                    NAME_FETCH_FAILED
+                }
+            viewModel.setDeviceName(deviceName)
             viewModel.setPackageName(projectedContext.packageName)
         } catch (e: Exception) {
             Log.e(TAG, "Error creating projected device context", e)
+            viewModel.setDeviceName(NAME_FETCH_FAILED)
         }
     }
 
@@ -116,7 +125,8 @@ class ProjectedContextController(
 
     override fun close() {}
 
-    private companion object {
-        const val TAG = "ProjectedContextController"
+    companion object {
+        const val NAME_FETCH_FAILED = "Failed to fetch name"
+        private const val TAG = "ProjectedContextController"
     }
 }
