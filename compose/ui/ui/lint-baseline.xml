@@ -569,15 +569,6 @@
     </issue>
 
     <issue
-        id="AutoboxingStateValueProperty"
-        message="Reading `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
-        errorLine1="            state.value"
-        errorLine2="                  ~~~~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/graphics/vector/VectorTest.kt"/>
-    </issue>
-
-    <issue
         id="PrimitiveInCollection"
         message="field children with type Map&lt;Integer, AutofillNode>: replace with IntObjectMap"
         errorLine1="    public val children: MutableMap&lt;Int, @Suppress(&quot;Deprecation&quot;) AutofillNode> = mutableMapOf()"
