@@ -35,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 
 class DemoActivity : ComponentActivity() {
@@ -48,6 +49,7 @@ class DemoActivity : ComponentActivity() {
 @Composable
 fun A2uiDemoApp() {
     var selectedComponent by rememberSaveable { mutableStateOf<UiComponent?>(null) }
+    val saveableStateHolder = rememberSaveableStateHolder()
 
     BackHandler(enabled = selectedComponent != null) { selectedComponent = null }
 
@@ -74,12 +76,14 @@ fun A2uiDemoApp() {
         },
         label = "ScreenTransition",
     ) { component ->
-        if (component != null) {
-            ComponentDetailScreen(component = component, onBack = { selectedComponent = null })
-        } else {
-            ComponentListScreen(
-                onComponentSelected = { newComponent -> selectedComponent = newComponent }
-            )
+        saveableStateHolder.SaveableStateProvider(component?.name ?: "list") {
+            if (component != null) {
+                ComponentDetailScreen(component = component, onBack = { selectedComponent = null })
+            } else {
+                ComponentListScreen(
+                    onComponentSelected = { newComponent -> selectedComponent = newComponent }
+                )
+            }
         }
     }
 }

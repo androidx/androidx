@@ -42,7 +42,12 @@ enum class UiComponent(val displayName: String, val category: ComponentCategory)
     DATE_TIME_INPUT("DateTimeInput", ComponentCategory.INPUT),
     CHOICE_PICKER("ChoicePicker", ComponentCategory.INPUT);
 
+    val isSupported: Boolean
+        get() = this !in UnsupportedComponents
+
     companion object {
+        val UnsupportedComponents: Set<UiComponent> = setOf(CHOICE_PICKER)
+
         val byCategory: Map<ComponentCategory, List<UiComponent>> = entries.groupBy { it.category }
     }
 }
