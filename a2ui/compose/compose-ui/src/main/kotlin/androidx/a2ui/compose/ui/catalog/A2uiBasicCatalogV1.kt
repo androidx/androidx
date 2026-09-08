@@ -65,6 +65,7 @@ import java.util.TimeZone
  * @property column The [Column] component implementation.
  * @property list The [List] component implementation.
  * @property tabs The [Tabs] component implementation.
+ * @property modal The [Modal] component implementation.
  * @property divider The [Divider] component implementation.
  * @property button The [Button] component implementation.
  * @property textField The [TextField] component implementation.
@@ -86,6 +87,7 @@ public class A2uiBasicCatalogV1(
     public val column: Column,
     public val list: List,
     public val tabs: Tabs,
+    public val modal: Modal,
     public val divider: Divider,
     public val button: Button,
     public val textField: TextField,
@@ -115,6 +117,7 @@ public class A2uiBasicCatalogV1(
             column,
             list,
             tabs,
+            modal,
             divider,
             button,
             textField,
@@ -1536,6 +1539,97 @@ public class A2uiBasicCatalogV1(
         @Composable
         public fun A2uiComponentScope.TypedContent(
             tabs: kotlin.collections.List<Tab>,
+            accessibility: AccessibilityAttributes?,
+            modifier: Modifier,
+        )
+    }
+
+    /**
+     * The A2UI `"Modal"` component for displaying a dialog window.
+     *
+     * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the modal.
+     * * `trigger` (Component ID String, required): The ID of the component that opens the modal
+     *   when interacted with.
+     * * `content` (Component ID String, required): The ID of the component to be displayed inside
+     *   the modal.
+     */
+    public interface Modal : A2uiComponent {
+        override val name: String
+            get() = "Modal"
+
+        override val description: String
+            get() = "A dialog window."
+
+        public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of a [Modal]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
+            /** The [A2uiProperty] for the `"trigger"` property of a [Modal]. */
+            public val TriggerProperty: StaticA2uiProperty<String> =
+                A2uiProperty.componentId(
+                    key = "trigger",
+                    required = true,
+                    description =
+                        "The ID of the component that opens the modal when interacted " +
+                            "with (e.g., a button).",
+                )
+
+            /** The [A2uiProperty] for the `"content"` property of a [Modal]. */
+            public val ContentProperty: StaticA2uiProperty<String> =
+                A2uiProperty.componentId(
+                    key = "content",
+                    required = true,
+                    description = "The ID of the component to be displayed inside the modal.",
+                )
+
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
+                listOf(AccessibilityProperty, WeightProperty, TriggerProperty, ContentProperty)
+        }
+
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean = true
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val triggerId =
+                checkNotNull(properties[TriggerProperty]) {
+                    "Required property '${TriggerProperty.key}' is missing."
+                }
+            val contentId =
+                checkNotNull(properties[ContentProperty]) {
+                    "Required property '${ContentProperty.key}' is missing."
+                }
+            val accessibility = properties.bind(AccessibilityProperty)
+
+            TypedContent(
+                triggerId = triggerId,
+                contentId = contentId,
+                accessibility = accessibility,
+                modifier = modifier,
+            )
+        }
+
+        /**
+         * Renders the [Modal] with its resolved [triggerId], [contentId], and optional
+         * [accessibility] attributes.
+         *
+         * @param triggerId The ID of the component that opens the modal when interacted with.
+         * @param contentId The ID of the component to be displayed inside the modal.
+         * @param accessibility Accessibility attributes for the modal
+         * @param modifier [Modifier] to apply to the layout.
+         */
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            triggerId: String,
+            contentId: String,
             accessibility: AccessibilityAttributes?,
             modifier: Modifier,
         )

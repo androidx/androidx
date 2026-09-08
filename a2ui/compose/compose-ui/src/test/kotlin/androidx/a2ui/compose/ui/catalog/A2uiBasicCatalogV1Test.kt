@@ -129,6 +129,7 @@ class A2uiBasicCatalogV1Test {
         val column = TestColumnComponent()
         val list = TestListComponent()
         val tabs = TestTabsComponent()
+        val modal = TestModalComponent()
         val divider = TestDividerComponent()
         val button = TestButtonComponent()
         val textField = TestTextFieldComponent()
@@ -147,6 +148,7 @@ class A2uiBasicCatalogV1Test {
                 column = column,
                 list = list,
                 tabs = tabs,
+                modal = modal,
                 divider = divider,
                 button = button,
                 textField = textField,
@@ -166,6 +168,7 @@ class A2uiBasicCatalogV1Test {
         assertThat(catalog.column).isSameInstanceAs(column)
         assertThat(catalog.list).isSameInstanceAs(list)
         assertThat(catalog.tabs).isSameInstanceAs(tabs)
+        assertThat(catalog.modal).isSameInstanceAs(modal)
         assertThat(catalog.divider).isSameInstanceAs(divider)
         assertThat(catalog.button).isSameInstanceAs(button)
         assertThat(catalog.textField).isSameInstanceAs(textField)
@@ -184,6 +187,7 @@ class A2uiBasicCatalogV1Test {
                 column,
                 list,
                 tabs,
+                modal,
                 divider,
                 button,
                 textField,
@@ -206,6 +210,7 @@ class A2uiBasicCatalogV1Test {
         val column = TestColumnComponent()
         val list = TestListComponent()
         val tabs = TestTabsComponent()
+        val modal = TestModalComponent()
         val divider = TestDividerComponent()
         val button = TestButtonComponent()
         val textField = TestTextFieldComponent()
@@ -224,6 +229,7 @@ class A2uiBasicCatalogV1Test {
                 column = column,
                 list = list,
                 tabs = tabs,
+                modal = modal,
                 divider = divider,
                 button = button,
                 textField = textField,
@@ -243,6 +249,7 @@ class A2uiBasicCatalogV1Test {
                 column = column,
                 list = list,
                 tabs = tabs,
+                modal = modal,
                 divider = divider,
                 button = button,
                 textField = textField,
@@ -268,6 +275,7 @@ class A2uiBasicCatalogV1Test {
         val sharedColumn = TestColumnComponent()
         val sharedList = TestListComponent()
         val sharedTabs = TestTabsComponent()
+        val sharedModal = TestModalComponent()
         val sharedDivider = TestDividerComponent()
         val sharedButton = TestButtonComponent()
         val sharedTextField = TestTextFieldComponent()
@@ -286,6 +294,7 @@ class A2uiBasicCatalogV1Test {
                 column = sharedColumn,
                 list = sharedList,
                 tabs = sharedTabs,
+                modal = sharedModal,
                 divider = sharedDivider,
                 button = sharedButton,
                 textField = sharedTextField,
@@ -305,6 +314,7 @@ class A2uiBasicCatalogV1Test {
                 column = sharedColumn,
                 list = sharedList,
                 tabs = sharedTabs,
+                modal = sharedModal,
                 divider = sharedDivider,
                 button = sharedButton,
                 textField = sharedTextField,
@@ -326,7 +336,7 @@ class A2uiBasicCatalogV1Test {
         assertThat(catalog.toString())
             .containsMatch(
                 "components=.*Text.*Image.*Icon.*Video.*AudioPlayer.*Card.*Row.*Column.*List." +
-                    "*Tabs.*Divider.*Button.*TextField.*CheckBox.*Slider.*DateTimeInput"
+                    "*Tabs.*Modal.*Divider.*Button.*TextField.*CheckBox.*Slider.*DateTimeInput"
             )
         assertThat(catalog.toString()).contains("functions=[]")
     }
@@ -342,6 +352,7 @@ class A2uiBasicCatalogV1Test {
         column: A2uiBasicCatalogV1.Column = TestColumnComponent(),
         list: A2uiBasicCatalogV1.List = TestListComponent(),
         tabs: A2uiBasicCatalogV1.Tabs = TestTabsComponent(),
+        modal: A2uiBasicCatalogV1.Modal = TestModalComponent(),
         divider: A2uiBasicCatalogV1.Divider = TestDividerComponent(),
         button: A2uiBasicCatalogV1.Button = TestButtonComponent(),
         textField: A2uiBasicCatalogV1.TextField = TestTextFieldComponent(),
@@ -361,6 +372,7 @@ class A2uiBasicCatalogV1Test {
             column = column,
             list = list,
             tabs = tabs,
+            modal = modal,
             divider = divider,
             button = button,
             textField = textField,
@@ -466,6 +478,16 @@ class A2uiBasicCatalogV1Test {
         @Composable
         override fun A2uiComponentScope.TypedContent(
             tabs: List<A2uiBasicCatalogV1.Tabs.Tab>,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+            modifier: Modifier,
+        ) {}
+    }
+
+    private class TestModalComponent : A2uiBasicCatalogV1.Modal {
+        @Composable
+        override fun A2uiComponentScope.TypedContent(
+            triggerId: String,
+            contentId: String,
             accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
         ) {}

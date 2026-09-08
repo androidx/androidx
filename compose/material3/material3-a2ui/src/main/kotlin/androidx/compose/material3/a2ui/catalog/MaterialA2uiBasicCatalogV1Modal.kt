@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.a2ui
+package androidx.compose.material3.a2ui.catalog
 
-import androidx.a2ui.compose.runtime.A2uiComponentProperties
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.compose.runtime.A2uiComponentState
-import androidx.a2ui.compose.runtime.A2uiProperty
 import androidx.a2ui.compose.runtime.ProvideActionInterceptor
-import androidx.a2ui.compose.runtime.StaticA2uiProperty
 import androidx.a2ui.compose.ui.A2uiComponent
+import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,6 +29,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.a2ui.MaterialA2uiDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,54 +39,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 
-/**
- * A Jetpack Compose Material 3 implementation of the A2UI `"Modal"` component schema.
- *
- * This component acts as a modal entry point. It displays the `trigger` child component in the
- * normal UI flow. Interacting with the trigger intercepts the click and opens a centered dialog
- * displaying the `content` child component.
- *
- * **Schema Properties:**
- * * `trigger` (ComponentId, required): The ID of the component that opens the modal when interacted
- *   with (e.g., a button).
- * * `content` (ComponentId, required): The ID of the component to be displayed inside the modal.
- */
-public object MaterialModalComponent : A2uiComponent {
-
-    private val triggerProp =
-        A2uiProperty.componentId(
-            key = "trigger",
-            required = true,
-            description =
-                "The ID of the component that opens the modal when interacted with" +
-                    " (e.g., a button).",
-        )
-
-    private val contentProp =
-        A2uiProperty.componentId(
-            key = "content",
-            required = true,
-            description = "The ID of the component to be displayed inside the modal.",
-        )
-
-    override val name: String = "Modal"
-    override val description: String = "A dialog window."
-    override val properties: List<StaticA2uiProperty<*>> = listOf(triggerProp, contentProp)
+/** A Jetpack Compose Material 3 implementation of the A2UI Basic Catalog `"Modal"` component. */
+internal object MaterialA2uiBasicCatalogV1Modal : A2uiBasicCatalogV1.Modal {
 
     @Composable
-    override fun A2uiComponentScope.Content(
-        properties: A2uiComponentProperties,
+    override fun A2uiComponentScope.TypedContent(
+        triggerId: String,
+        contentId: String,
+        accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
         modifier: Modifier,
     ) {
-        val triggerId =
-            checkNotNull(properties[triggerProp]) {
-                "Required property '${triggerProp.key}' is missing."
-            }
-        val contentId =
-            checkNotNull(properties[contentProp]) {
-                "Required property '${contentProp.key}' is missing."
-            }
-
         var isDialogOpen by rememberSaveable { mutableStateOf(false) }
 
         ModalTrigger(
@@ -159,13 +120,6 @@ public object MaterialModalComponent : A2uiComponent {
                 shape = MaterialTheme.shapes.extraLarge,
                 tonalElevation = 6.dp,
                 color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                modifier =
-                    Modifier.padding(
-                        start = 16.dp,
-                        top = 24.dp,
-                        end = 16.dp,
-                        bottom = 16.dp,
-                    ),
             ) {
                 ProvideActionInterceptor(
                     onIntercept = {
@@ -189,6 +143,7 @@ public object MaterialModalComponent : A2uiComponent {
                             }
                         },
                         label = "ModalContentTransition",
+                        modifier = Modifier.padding(24.dp),
                     ) { state ->
                         when (state) {
                             A2uiComponentState.Loading -> {
