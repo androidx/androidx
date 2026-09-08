@@ -22,6 +22,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createNamedRemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Dp
@@ -208,18 +209,7 @@ internal constructor(
             value: () -> RemoteDp,
         ): RemoteDp {
             val remoteDp = value()
-            return RemoteDp(
-                RemoteFloatExpression(
-                    constantValueOrNull = null,
-                    cacheKey = RemoteNamedCacheKey(domain, name),
-                ) { creationState ->
-                    val px = remoteDp.toPx()
-                    val initialValueId = px.getFloatIdForCreationState(creationState)
-                    val floatId =
-                        creationState.document.addNamedFloat(domain.prefixed(name), initialValueId)
-                    floatArrayOf(floatId)
-                }
-            )
+            return RemoteDp(createNamedRemoteFloatExpression(name, domain) { remoteDp.value })
         }
     }
 }
