@@ -444,6 +444,29 @@ class UseCaseCameraRequestControlTest {
         assertThat(resultFpsRange).isEqualTo(fpsRange)
     }
 
+    @Test
+    fun issueSingleCaptureAsync_whenClosed_failsWithCameraClosedError(): Unit = runBlocking {
+        requestControl.close()
+
+        val results =
+            requestControl.issueSingleCaptureAsync(
+                captureSequence = listOf(androidx.camera.core.impl.CaptureConfig.Builder().build()),
+                captureMode = androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                flashType = androidx.camera.core.ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+                flashMode = androidx.camera.core.ImageCapture.FLASH_MODE_OFF,
+            )
+
+        assertThat(results.size).isEqualTo(1)
+        var caughtException: androidx.camera.core.ImageCaptureException? = null
+        try {
+            results[0].await()
+        } catch (e: androidx.camera.core.ImageCaptureException) {
+            caughtException = e
+        }
+        assertThat(caughtException?.imageCaptureError)
+            .isEqualTo(androidx.camera.core.ImageCapture.ERROR_CAMERA_CLOSED)
+    }
+
     private fun UseCaseCameraRequestControl.setSessionConfigAsync(
         sessionConfig: SessionConfig
     ): Deferred<Unit> {
