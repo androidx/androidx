@@ -22,6 +22,8 @@ import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.sweepGradient
+import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
+import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.test.filters.SdkSuppress
@@ -128,7 +130,7 @@ class CompatAndroidRemotePaintTest {
     @Test
     fun remoteColorExpressionPreservedInRemotePaintTest() {
         val paint = CompatAndroidRemotePaint()
-        val namedColor = RemoteColor.createNamedRemoteColor("myColor", Color.Red)
+        val namedColor = createNamedRemoteColor("myColor", Color.Red)
         paint.remoteColor = namedColor
 
         val remotePaint = paint.asRemotePaint()
@@ -138,7 +140,7 @@ class CompatAndroidRemotePaintTest {
     @Test
     fun remoteColorFilterExpressionPreservedInRemotePaintTest() {
         val paint = CompatAndroidRemotePaint()
-        val namedColor = RemoteColor.createNamedRemoteColor("myColor", Color.Green)
+        val namedColor = createNamedRemoteColor("myColor", Color.Green)
         val namedFilter =
             RemoteBlendModeColorFilter(namedColor, androidx.compose.ui.graphics.BlendMode.SrcIn)
         paint.remoteColorFilter = namedFilter
@@ -162,7 +164,7 @@ class CompatAndroidRemotePaintTest {
     @Test
     fun asRemotePaint_createsSnapshot() {
         val paint = CompatAndroidRemotePaint()
-        val isInteractive = RemoteBoolean.createNamedRemoteBoolean("isInteractive", true)
+        val isInteractive = createNamedRemoteBoolean("isInteractive", true)
         val dynamicColor = isInteractive.select(Color.White.rc, Color.Black.rc)
         paint.remoteColor = dynamicColor
 

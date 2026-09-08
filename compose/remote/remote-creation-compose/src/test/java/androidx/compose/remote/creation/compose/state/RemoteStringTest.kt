@@ -23,6 +23,9 @@ import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.TextTransform
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
@@ -49,8 +52,8 @@ class RemoteStringTest {
             CoreDocument.DOCUMENT_API_LEVEL,
             PROFILE_ANDROIDX,
         )
-    val namedRemoteFloat = RemoteFloat.createNamedRemoteFloat("testFloat", 12.0f)
-    val namedRemoteInt = RemoteInt.createNamedRemoteInt("testInt", 12)
+    val namedRemoteFloat = createNamedRemoteFloat("testFloat", 12.0f)
+    val namedRemoteInt = createNamedRemoteInt("testInt", 12)
 
     @Test
     fun toRemoteStringWithPostfix() {
@@ -537,7 +540,7 @@ class RemoteStringTest {
 
     @Test
     fun namedRemoteString_initialValue() {
-        val namedRemoteString = RemoteString.createNamedRemoteString("testString", "initial")
+        val namedRemoteString = createNamedRemoteString("testString", "initial")
         val result = namedRemoteString + RemoteString("!")
         val resultId = result.getIdForCreationState(creationState)
 
@@ -548,7 +551,7 @@ class RemoteStringTest {
 
     @Test
     fun namedRemoteString_overriddenValue() {
-        val namedRemoteString = RemoteString.createNamedRemoteString("testString", "initial")
+        val namedRemoteString = createNamedRemoteString("testString", "initial")
         val result = namedRemoteString + RemoteString("!")
         val resultId = result.getIdForCreationState(creationState)
 
@@ -870,14 +873,14 @@ class RemoteStringTest {
 
     @Test
     fun computeRequiredCodePointSet_namedRemoteString() {
-        val namedRemoteString = RemoteString.createNamedRemoteString("testString", "initial")
+        val namedRemoteString = createNamedRemoteString("testString", "initial")
 
         assertThat(namedRemoteString.computeRequiredCodePointSet(creationState)).isNull()
     }
 
     @Test
     fun computeRequiredCodePointSet_namedRemoteString_plus_constant() {
-        val namedRemoteString = RemoteString.createNamedRemoteString("testString", "initial")
+        val namedRemoteString = createNamedRemoteString("testString", "initial")
         val s = namedRemoteString + RemoteString("!")
 
         assertThat(s.computeRequiredCodePointSet(creationState)).isNull()
@@ -925,7 +928,7 @@ class RemoteStringTest {
         val constant = RemoteString("test")
         assertThat(constant.cacheKey).isEqualTo(RemoteConstantCacheKey("test"))
 
-        val named = RemoteString.createNamedRemoteString("test", "")
+        val named = createNamedRemoteString("test", "")
         assertThat(named.cacheKey).isEqualTo(RemoteNamedCacheKey(RemoteState.Domain.User, "test"))
 
         val op = named.substring(0.ri, 2.ri)
@@ -942,7 +945,7 @@ class RemoteStringTest {
 
     @Test
     fun remoteFloat_toRemoteString_caching() {
-        val rf = RemoteFloat.createNamedRemoteFloat("testFloat", 1.0f)
+        val rf = createNamedRemoteFloat("testFloat", 1.0f)
 
         val rs1 = rf.toRemoteString(DecimalFormat("#0.##"))
         val rs2 = rf.toRemoteString(DecimalFormat("#0.##"))
@@ -965,7 +968,7 @@ class RemoteStringTest {
 
     @Test
     fun remoteInt_toRemoteString_caching() {
-        val ri = RemoteInt.createNamedRemoteInt("testInt", 1)
+        val ri = createNamedRemoteInt("testInt", 1)
 
         val rs1 = ri.toRemoteString(DecimalFormat("#"))
         val rs2 = ri.toRemoteString(DecimalFormat("#"))
@@ -984,8 +987,8 @@ class RemoteStringTest {
 
     @Test
     fun differentRemoteFloats_differentIds() {
-        val rf1 = RemoteFloat.createNamedRemoteFloat("testFloat1", 1.0f)
-        val rf2 = RemoteFloat.createNamedRemoteFloat("testFloat2", 2.0f)
+        val rf1 = createNamedRemoteFloat("testFloat1", 1.0f)
+        val rf2 = createNamedRemoteFloat("testFloat2", 2.0f)
 
         val rs1 = rf1.toRemoteString(DecimalFormat("###0"))
         val rs2 = rf2.toRemoteString(DecimalFormat("###0"))
@@ -998,8 +1001,8 @@ class RemoteStringTest {
 
     @Test
     fun differentRemoteInts_differentIds() {
-        val ri1 = RemoteInt.createNamedRemoteInt("testInt1", 1)
-        val ri2 = RemoteInt.createNamedRemoteInt("testInt2", 2)
+        val ri1 = createNamedRemoteInt("testInt1", 1)
+        val ri2 = createNamedRemoteInt("testInt2", 2)
 
         val rs1 = ri1.toRemoteString(DecimalFormat("#"))
         val rs2 = ri2.toRemoteString(DecimalFormat("#"))
@@ -1133,15 +1136,15 @@ class RemoteStringTest {
 
     @Test
     fun toDebugString_concatenation() {
-        val s = RemoteString.createNamedRemoteString("s", "hi")
+        val s = createNamedRemoteString("s", "hi")
         val expr = s + RemoteString(" there")
         assertThat(expr.toDebugString()).isEqualTo("""user:s + " there"""")
     }
 
     @Test
     fun toDebugString_select() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 1f)
-        val y = RemoteFloat.createNamedRemoteFloat("y", 2f)
+        val x = createNamedRemoteFloat("x", 1f)
+        val y = createNamedRemoteFloat("y", 2f)
         val sel = selectIfLt(x, y, RemoteString("A"), RemoteString("B"))
         assertThat(sel.toDebugString()).isEqualTo("""user:x < user:y ? "A" : "B"""")
     }

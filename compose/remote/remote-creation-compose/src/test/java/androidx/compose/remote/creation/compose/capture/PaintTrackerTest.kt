@@ -28,11 +28,14 @@ import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.state.AndroidRemotePaint
 import androidx.compose.remote.creation.compose.state.CompatAndroidRemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
+import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createIdentity
+import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createRotate
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.asRemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
+import androidx.compose.remote.creation.compose.text.RemoteTypeface.Companion.create
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -244,10 +247,10 @@ class PaintTrackerTest {
 
     @Test
     fun testNamedTypefaceMapsToFontType() {
-        val paintDefault = RemotePaint { typeface = RemoteTypeface.create("default") }
-        val paintMono = RemotePaint { typeface = RemoteTypeface.create("monospace") }
-        val paintSerif = RemotePaint { typeface = RemoteTypeface.create("serif") }
-        val paintSansSerif = RemotePaint { typeface = RemoteTypeface.create("sans-serif") }
+        val paintDefault = RemotePaint { typeface = create("default") }
+        val paintMono = RemotePaint { typeface = create("monospace") }
+        val paintSerif = RemotePaint { typeface = create("serif") }
+        val paintSansSerif = RemotePaint { typeface = create("sans-serif") }
 
         val bundleDefault = PaintBundle()
         val bundleMono = PaintBundle()
@@ -278,16 +281,14 @@ class PaintTrackerTest {
     @Test
     fun testTypefaceStyleSync() {
         val paintNormal = RemotePaint {
-            typeface = RemoteTypeface.create("sans-serif", RemoteTypeface.Style.Normal)
+            typeface = create("sans-serif", RemoteTypeface.Style.Normal)
         }
-        val paintBold = RemotePaint {
-            typeface = RemoteTypeface.create("sans-serif", RemoteTypeface.Style.Bold)
-        }
+        val paintBold = RemotePaint { typeface = create("sans-serif", RemoteTypeface.Style.Bold) }
         val paintItalic = RemotePaint {
-            typeface = RemoteTypeface.create("sans-serif", RemoteTypeface.Style.Italic)
+            typeface = create("sans-serif", RemoteTypeface.Style.Italic)
         }
         val paintBoldItalic = RemotePaint {
-            typeface = RemoteTypeface.create("sans-serif", RemoteTypeface.Style.BoldItalic)
+            typeface = create("sans-serif", RemoteTypeface.Style.BoldItalic)
         }
 
         val bundleNormal = PaintBundle()
@@ -462,7 +463,7 @@ class PaintTrackerTest {
 
     @Test
     fun testShaderMatrix_identityMatrix_noShaderMatrixSet() {
-        val paint = RemotePaint { shader = DummyShader(RemoteMatrix3x3.createIdentity()) }
+        val paint = RemotePaint { shader = DummyShader(createIdentity()) }
         val bundle = PaintBundle()
         tracker.updateWithPaint(paint, bundle, recordingCanvas)
 
@@ -474,7 +475,7 @@ class PaintTrackerTest {
 
     @Test
     fun testShaderMatrix_nonIdentityMatrix_setsShaderMatrix() {
-        val paint = RemotePaint { shader = DummyShader(RemoteMatrix3x3.createRotate(45f.rf)) }
+        val paint = RemotePaint { shader = DummyShader(createRotate(45f.rf)) }
         val bundle = PaintBundle()
         tracker.updateWithPaint(paint, bundle, recordingCanvas)
 
@@ -487,11 +488,11 @@ class PaintTrackerTest {
 
     @Test
     fun testShaderMatrix_transitionFromNonIdentityToIdentity_resetsShaderMatrix() {
-        val paint1 = RemotePaint { shader = DummyShader(RemoteMatrix3x3.createRotate(45f.rf)) }
+        val paint1 = RemotePaint { shader = DummyShader(createRotate(45f.rf)) }
         val bundle1 = PaintBundle()
         tracker.updateWithPaint(paint1, bundle1, recordingCanvas)
 
-        val paint2 = RemotePaint { shader = DummyShader(RemoteMatrix3x3.createIdentity()) }
+        val paint2 = RemotePaint { shader = DummyShader(createIdentity()) }
         val bundle2 = PaintBundle()
         tracker.updateWithPaint(paint2, bundle2, recordingCanvas)
 
@@ -503,11 +504,11 @@ class PaintTrackerTest {
 
     @Test
     fun testShaderMatrix_transitionFromIdentityToIdentity_doesNotSetShaderMatrix() {
-        val paint1 = RemotePaint { shader = DummyShader(RemoteMatrix3x3.createIdentity()) }
+        val paint1 = RemotePaint { shader = DummyShader(createIdentity()) }
         val bundle1 = PaintBundle()
         tracker.updateWithPaint(paint1, bundle1, recordingCanvas)
 
-        val paint2 = RemotePaint { shader = DummyShader(RemoteMatrix3x3.createIdentity()) }
+        val paint2 = RemotePaint { shader = DummyShader(createIdentity()) }
         val bundle2 = PaintBundle()
         tracker.updateWithPaint(paint2, bundle2, recordingCanvas)
 

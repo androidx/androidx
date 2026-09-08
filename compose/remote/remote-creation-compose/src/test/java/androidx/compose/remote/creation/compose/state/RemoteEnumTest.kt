@@ -20,6 +20,7 @@ import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.state.RemoteEnum.Companion.createNamedRemoteEnum
 import androidx.compose.remote.creation.compose.state.RemoteState.Domain
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
@@ -101,7 +102,7 @@ class RemoteEnumTest {
         val constant = RemoteEnum(Checked.Off)
         assertThat(constant.cacheKey).isEqualTo(RemoteConstantCacheKey(Checked.Off))
 
-        val named = RemoteEnum.createNamedRemoteEnum<Checked>("test", Checked.Off)
+        val named = createNamedRemoteEnum<Checked>("test", Checked.Off)
         assertThat(named.cacheKey).isEqualTo(RemoteNamedCacheKey(Domain.User, "test"))
     }
 
@@ -113,7 +114,7 @@ class RemoteEnumTest {
 
     @Test
     fun toDebugString_namedVariable() {
-        val namedEnum = RemoteEnum.createNamedRemoteEnum<Checked>("chk", Checked.Off)
+        val namedEnum = createNamedRemoteEnum<Checked>("chk", Checked.Off)
         assertThat(namedEnum.toDebugString()).isEqualTo("user:chk")
         assertThat(namedEnum.toRemoteString().toDebugString())
             .isEqualTo("user:chk.toRemoteString()")
@@ -122,7 +123,7 @@ class RemoteEnumTest {
     @Test
     fun toDebugString_equality() {
         val constEnum = RemoteEnum(Checked.Off)
-        val namedEnum = RemoteEnum.createNamedRemoteEnum<Checked>("chk", Checked.Off)
+        val namedEnum = createNamedRemoteEnum<Checked>("chk", Checked.Off)
         val eq = namedEnum.ordinal.isEqualTo(constEnum.ordinal)
         assertThat(eq.toDebugString()).isEqualTo("user:chk == 0")
         assertThat(namedEnum.ordinal.isEqualTo(Checked.Off.ordinal.ri).toDebugString())
@@ -131,7 +132,7 @@ class RemoteEnumTest {
 
     @Test
     fun toDebugString_mapping() {
-        val namedEnum = RemoteEnum.createNamedRemoteEnum<Checked>("chk", Checked.Off)
+        val namedEnum = createNamedRemoteEnum<Checked>("chk", Checked.Off)
         val mappedInt = namedEnum.toRemoteInt { if (it == Checked.Off) 10.ri else 20.ri }
         assertThat(mappedInt.toDebugString())
             .isEqualTo("user:chk == 1 ? 20 : (user:chk == 0 ? 10 : -1)")

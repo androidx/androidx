@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.state
 
 import android.graphics.Bitmap
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createOffscreenRemoteBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -29,7 +30,7 @@ class RemoteImageBitmapTest {
 
     @Test
     fun remoteBitmap_cacheKey() {
-        val bitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(100, 100)
+        val bitmap = createOffscreenRemoteBitmap(100, 100)
 
         val cacheKey = bitmap.cacheKey
 

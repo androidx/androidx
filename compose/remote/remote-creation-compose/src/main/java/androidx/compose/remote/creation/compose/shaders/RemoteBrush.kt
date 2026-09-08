@@ -21,6 +21,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
+import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createIdentity
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rc
@@ -122,5 +123,5 @@ public abstract class RemoteShader : android.graphics.Shader() {
      * The [RemoteMatrix3x3] to apply to the shader. Note not all profiles will support shader
      * rotation.
      */
-    public open var remoteMatrix3x3: RemoteMatrix3x3 = RemoteMatrix3x3.createIdentity()
+    public open var remoteMatrix3x3: RemoteMatrix3x3 = createIdentity()
 }

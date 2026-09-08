@@ -41,10 +41,10 @@ import androidx.compose.remote.core.operations.Utils.asNan
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.StringUtils
 import androidx.compose.remote.core.operations.utilities.easing.FloatAnimation
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteFloatContext
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.RemoteFloat.OperationKey
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -1675,11 +1675,32 @@ internal constructor(
         id: Int
     ) : this(cacheKey = RemoteStateIdKey(id), idProvider = { asNan(id) })
 
-    private constructor(
+    /**
+     * Creates a [MutableRemoteFloat] initialized with [initialValue].
+     *
+     * @param initialValue The initial [Float] value.
+     */
+    internal constructor(
         initialValue: Float
     ) : this(
         cacheKey = RemoteStateInstanceKey(),
-        idProvider = { creationState -> creationState.document.addFloatConstant(initialValue) },
+        idProvider = { creationState -> creationState.document.floatExpression(initialValue) },
+    )
+
+    /**
+     * Creates a [MutableRemoteFloat] initialized with the expression evaluated in [value].
+     *
+     * @param value A lambda evaluated within [RemoteFloatContext] that provides the initial value.
+     */
+    internal constructor(
+        value: RemoteFloatContext.() -> RemoteFloat
+    ) : this(
+        cacheKey = RemoteStateInstanceKey(),
+        idProvider = { creationState ->
+            val context = RemoteFloatContext(creationState)
+            val result = value(context)
+            creationState.document.floatExpression(*result.arrayForCreationState(creationState))
+        },
     )
 
     @get:Suppress("AutoBoxing")
@@ -1739,6 +1760,39 @@ internal constructor(
     cacheKey: RemoteStateCacheKey,
     internal override val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray,
 ) : RemoteFloat(cacheKey) {
+
+    /**
+     * Creates a [RemoteFloatExpression] from a lambda evaluated within [RemoteFloatContext].
+     *
+     * @param value A lambda evaluated within [RemoteFloatContext] that provides the [RemoteFloat].
+     */
+    internal constructor(
+        value: RemoteFloatContext.() -> RemoteFloat
+    ) : this(
+        constantValueOrNull = null,
+        cacheKey = RemoteStateInstanceKey(),
+        arrayProvider = { creationState ->
+            val context = RemoteFloatContext(creationState)
+            val remoteFloat = value(context)
+            remoteFloat.arrayForCreationState(creationState)
+        },
+    )
+
+    /**
+     * Creates a [RemoteFloatExpression] from a lambda returning a [FloatArray].
+     *
+     * @param value A lambda returning the raw [FloatArray] representing the expression.
+     */
+    internal constructor(
+        value: () -> FloatArray
+    ) : this(
+        constantValueOrNull = null,
+        cacheKey = RemoteStateInstanceKey(),
+        arrayProvider = { creationState ->
+            val floatArrayId = creationState.document.addFloatArray(value())
+            floatArrayOf(floatArrayId)
+        },
+    )
 
     init {
         if (constantValueOrNull?.isNaN() == true) {
@@ -1916,7 +1970,8 @@ internal class RemoteFloatSelect(
  * @property hasConstantValue Indicates if this expression will always yield the same value.
  * @property arrayProvider A lambda that provides the [FloatArray] representing the expression.
  */
-internal class UncachedRemoteFloatExpression(
+internal class UncachedRemoteFloatExpression
+internal constructor(
     public override val constantValueOrNull: Float?,
     cacheKey: RemoteStateCacheKey,
     internal override val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray,
@@ -2090,11 +2145,7 @@ public fun toArray(a: RemoteFloat, creationState: RemoteComposeCreationState): F
 @Composable
 @RemoteComposable
 public fun rememberRemoteFloatArray(value: () -> FloatArray): RemoteFloat {
-    val state = LocalRemoteComposeCreationState.current
-    return rememberRemoteFloatExpression {
-        val floatArrayId = state.document.addFloatArray(value())
-        floatArrayId.rf
-    }
+    return remember { RemoteFloatExpression(value) }
 }
 
 /**
@@ -2120,15 +2171,7 @@ public fun rememberMutableRemoteFloat(initialValue: Float): MutableRemoteFloat {
 public fun rememberMutableRemoteFloat(
     value: RemoteFloatContext.() -> RemoteFloat
 ): MutableRemoteFloat {
-    val state = LocalRemoteComposeCreationState.current
-    return remember {
-        val context = RemoteFloatContext(state)
-        // Currently evaluated eagerly to grab the right component
-        val result = value(context)
-        MutableRemoteFloat(cacheKey = RemoteStateInstanceKey()) { state ->
-            state.document.floatExpression(*result.arrayForCreationState(state))
-        }
-    }
+    return remember { MutableRemoteFloat(value) }
 }
 
 /**
@@ -2141,13 +2184,7 @@ public fun rememberMutableRemoteFloat(
 @Composable
 @RemoteComposable
 public fun rememberRemoteFloatExpression(value: RemoteFloatContext.() -> RemoteFloat): RemoteFloat {
-    val state = LocalRemoteComposeCreationState.current
-    return remember {
-        val context = RemoteFloatContext(state)
-        // Currently evaluated eagerly to grab the right component
-        val remoteFloat = value(context)
-        remoteFloat
-    }
+    return remember { RemoteFloatExpression(value) }
 }
 
 /**
@@ -2166,7 +2203,7 @@ public fun rememberNamedRemoteFloat(
     value: RemoteFloatContext.() -> RemoteFloat,
 ): RemoteFloat {
     return rememberNamedState(name, domain) {
-        RemoteFloat.createNamedRemoteFloatExpression(name, domain, expression = value)
+        createNamedRemoteFloatExpression(name, domain, expression = value)
     }
 }
 

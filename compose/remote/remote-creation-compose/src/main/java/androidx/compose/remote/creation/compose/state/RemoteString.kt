@@ -22,6 +22,7 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.RemoteString.OperationKey
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -1055,8 +1056,12 @@ internal constructor(
             },
     )
 
-    /** Create a MutableRemoteString for a default value. */
-    private constructor(
+    /**
+     * Create a MutableRemoteString for a default value.
+     *
+     * @param value The initial [String] value.
+     */
+    internal constructor(
         value: String
     ) : this(
         constantValueOrNull = null,
@@ -1126,27 +1131,7 @@ public fun rememberNamedRemoteString(
     defaultValue: String,
     domain: RemoteState.Domain = RemoteState.Domain.User,
 ): RemoteString {
-    return rememberNamedState(name, domain) {
-        MutableRemoteString(
-            constantValueOrNull = null,
-            cacheKey = RemoteNamedCacheKey(domain, name),
-            lazyRemoteString =
-                object : LazyRemoteString {
-                    override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
-                        return creationState.document.addNamedString(
-                            domain.prefixed(name),
-                            defaultValue,
-                        )
-                    }
-
-                    override fun computeRequiredCodePointSet(
-                        creationState: RemoteComposeCreationState
-                    ): Set<String>? {
-                        return null
-                    }
-                },
-        )
-    }
+    return rememberNamedState(name, domain) { createNamedRemoteString(name, defaultValue, domain) }
 }
 
 /** Extension property to convert a [String] to a [RemoteString]. */

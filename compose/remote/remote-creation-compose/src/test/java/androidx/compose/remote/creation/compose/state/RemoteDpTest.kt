@@ -18,6 +18,8 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
+import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createNamedRemoteDp
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.util.RemoteDocumentTestRule
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -208,7 +210,7 @@ class RemoteDpTest {
 
     @Test
     fun toDebugString_toDp() {
-        val dpExpr = RemoteFloat.createNamedRemoteFloat("pxVal", 0f).toRemoteDp()
+        val dpExpr = createNamedRemoteFloat("pxVal", 0f).toRemoteDp()
         assertThat(dpExpr.toDebugString()).isEqualTo("user:pxVal.toDp()")
     }
 
@@ -233,8 +235,8 @@ class RemoteDpTest {
     @Test
     fun plus_variable() {
         val resultId = remoteComposeTestRule.initialise {
-            val dp1 = RemoteDp.createNamedRemoteDp("dp1", 10.dp)
-            val dp2 = RemoteDp.createNamedRemoteDp("dp2", 5.dp)
+            val dp1 = createNamedRemoteDp("dp1", 10.dp)
+            val dp2 = createNamedRemoteDp("dp2", 5.dp)
             val result = dp1 + dp2
             result.value.getIdForCreationState(it)
         }
@@ -244,8 +246,8 @@ class RemoteDpTest {
     @Test
     fun minus_variable() {
         val resultId = remoteComposeTestRule.initialise {
-            val dp1 = RemoteDp.createNamedRemoteDp("dp1", 10.dp)
-            val dp2 = RemoteDp.createNamedRemoteDp("dp2", 5.dp)
+            val dp1 = createNamedRemoteDp("dp1", 10.dp)
+            val dp2 = createNamedRemoteDp("dp2", 5.dp)
             val result = dp1 - dp2
             result.value.getIdForCreationState(it)
         }
@@ -255,7 +257,7 @@ class RemoteDpTest {
     @Test
     fun unaryMinus_variable() {
         val resultId = remoteComposeTestRule.initialise {
-            val dp1 = RemoteDp.createNamedRemoteDp("dp1", 10.dp)
+            val dp1 = createNamedRemoteDp("dp1", 10.dp)
             val result = -dp1
             result.value.getIdForCreationState(it)
         }
@@ -265,7 +267,7 @@ class RemoteDpTest {
     @Test
     fun div_float_variable() {
         val resultId = remoteComposeTestRule.initialise {
-            val dp1 = RemoteDp.createNamedRemoteDp("dp1", 10.dp)
+            val dp1 = createNamedRemoteDp("dp1", 10.dp)
             val result = dp1 / 2f
             result.value.getIdForCreationState(it)
         }
@@ -275,8 +277,8 @@ class RemoteDpTest {
     @Test
     fun div_remoteDp_variable() {
         val resultId = remoteComposeTestRule.initialise {
-            val dp1 = RemoteDp.createNamedRemoteDp("dp1", 10.dp)
-            val dp2 = RemoteDp.createNamedRemoteDp("dp2", 2.dp)
+            val dp1 = createNamedRemoteDp("dp1", 10.dp)
+            val dp2 = createNamedRemoteDp("dp2", 2.dp)
             val result = dp1 / dp2
             result.getIdForCreationState(it)
         }
@@ -286,7 +288,7 @@ class RemoteDpTest {
     @Test
     fun times_float_variable() {
         val resultId = remoteComposeTestRule.initialise {
-            val dp1 = RemoteDp.createNamedRemoteDp("dp1", 10.dp)
+            val dp1 = createNamedRemoteDp("dp1", 10.dp)
             val result = dp1 * 2f
             result.value.getIdForCreationState(it)
         }
@@ -296,8 +298,8 @@ class RemoteDpTest {
     @Test
     fun min_remoteDp_variable() {
         val resultId = remoteComposeTestRule.initialise {
-            val dp1 = RemoteDp.createNamedRemoteDp("dp1", 10.dp)
-            val dp2 = RemoteDp.createNamedRemoteDp("dp2", 5.dp)
+            val dp1 = createNamedRemoteDp("dp1", 10.dp)
+            val dp2 = createNamedRemoteDp("dp2", 5.dp)
             val result = min(dp1, dp2)
             result.value.getIdForCreationState(it)
         }
@@ -307,8 +309,8 @@ class RemoteDpTest {
     @Test
     fun max_remoteDp_variable() {
         val resultId = remoteComposeTestRule.initialise {
-            val dp1 = RemoteDp.createNamedRemoteDp("dp1", 10.dp)
-            val dp2 = RemoteDp.createNamedRemoteDp("dp2", 5.dp)
+            val dp1 = createNamedRemoteDp("dp1", 10.dp)
+            val dp2 = createNamedRemoteDp("dp2", 5.dp)
             val result = max(dp1, dp2)
             result.value.getIdForCreationState(it)
         }
@@ -318,8 +320,8 @@ class RemoteDpTest {
     @Test
     fun compare_isLessThan() {
         val resultId = remoteComposeTestRule.initialise {
-            val dp1 = RemoteDp.createNamedRemoteDp("dp1", 5.dp)
-            val dp2 = RemoteDp.createNamedRemoteDp("dp2", 10.dp)
+            val dp1 = createNamedRemoteDp("dp1", 5.dp)
+            val dp2 = createNamedRemoteDp("dp2", 10.dp)
             val result = dp1.isLessThan(dp2)
             result.getIdForCreationState(it)
         }
@@ -329,8 +331,8 @@ class RemoteDpTest {
     @Test
     fun compare_isLessThan_false() {
         val resultId = remoteComposeTestRule.initialise {
-            val dp1 = RemoteDp.createNamedRemoteDp("dp1", 10.dp)
-            val dp2 = RemoteDp.createNamedRemoteDp("dp2", 5.dp)
+            val dp1 = createNamedRemoteDp("dp1", 10.dp)
+            val dp2 = createNamedRemoteDp("dp2", 5.dp)
             val result = dp1.isLessThan(dp2)
             result.getIdForCreationState(it)
         }
@@ -340,8 +342,8 @@ class RemoteDpTest {
     @Test
     fun compare_isLessThanOrEqualTo() {
         val resultId = remoteComposeTestRule.initialise {
-            val dp1 = RemoteDp.createNamedRemoteDp("dp1", 5.dp)
-            val dp2 = RemoteDp.createNamedRemoteDp("dp2", 5.dp)
+            val dp1 = createNamedRemoteDp("dp1", 5.dp)
+            val dp2 = createNamedRemoteDp("dp2", 5.dp)
             val result = dp1.isLessThanOrEqualTo(dp2)
             result.getIdForCreationState(it)
         }
@@ -351,8 +353,8 @@ class RemoteDpTest {
     @Test
     fun compare_isGreaterThan() {
         val resultId = remoteComposeTestRule.initialise {
-            val dp1 = RemoteDp.createNamedRemoteDp("dp1", 10.dp)
-            val dp2 = RemoteDp.createNamedRemoteDp("dp2", 5.dp)
+            val dp1 = createNamedRemoteDp("dp1", 10.dp)
+            val dp2 = createNamedRemoteDp("dp2", 5.dp)
             val result = dp1.isGreaterThan(dp2)
             result.getIdForCreationState(it)
         }
@@ -362,8 +364,8 @@ class RemoteDpTest {
     @Test
     fun compare_isGreaterThanOrEqualTo() {
         val resultId = remoteComposeTestRule.initialise {
-            val dp1 = RemoteDp.createNamedRemoteDp("dp1", 10.dp)
-            val dp2 = RemoteDp.createNamedRemoteDp("dp2", 10.dp)
+            val dp1 = createNamedRemoteDp("dp1", 10.dp)
+            val dp2 = createNamedRemoteDp("dp2", 10.dp)
             val result = dp1.isGreaterThanOrEqualTo(dp2)
             result.getIdForCreationState(it)
         }
@@ -373,8 +375,8 @@ class RemoteDpTest {
     @Test
     fun compare_isEqualTo() {
         val resultId = remoteComposeTestRule.initialise {
-            val dp1 = RemoteDp.createNamedRemoteDp("dp1", 10.dp)
-            val dp2 = RemoteDp.createNamedRemoteDp("dp2", 10.dp)
+            val dp1 = createNamedRemoteDp("dp1", 10.dp)
+            val dp2 = createNamedRemoteDp("dp2", 10.dp)
             val result = dp1.isEqualTo(dp2)
             result.getIdForCreationState(it)
         }
@@ -384,8 +386,8 @@ class RemoteDpTest {
     @Test
     fun compare_isNotEqualTo() {
         val resultId = remoteComposeTestRule.initialise {
-            val dp1 = RemoteDp.createNamedRemoteDp("dp1", 10.dp)
-            val dp2 = RemoteDp.createNamedRemoteDp("dp2", 5.dp)
+            val dp1 = createNamedRemoteDp("dp1", 10.dp)
+            val dp2 = createNamedRemoteDp("dp2", 5.dp)
             val result = dp1.isNotEqualTo(dp2)
             result.getIdForCreationState(it)
         }

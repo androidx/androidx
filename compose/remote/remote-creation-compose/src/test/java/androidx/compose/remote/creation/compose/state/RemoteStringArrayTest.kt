@@ -20,6 +20,8 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
@@ -54,9 +56,7 @@ class RemoteStringArrayTest {
     @Test
     fun arrayDeref_fetchesVariableFromArray() {
         val remoteStringArray =
-            RemoteStringArray(
-                listOf("A".rs, RemoteString.createNamedRemoteString("test", "B"), "C".rs)
-            )
+            RemoteStringArray(listOf("A".rs, createNamedRemoteString("test", "B"), "C".rs))
 
         val result = remoteStringArray[1]
         val resultId = result.getIdForCreationState(creationState)
@@ -101,7 +101,7 @@ class RemoteStringArrayTest {
     @Test
     fun toDebugString_get() {
         val arr = RemoteStringArray(listOf("A".rs, "B".rs))
-        val idx = RemoteInt.createNamedRemoteInt("idx", 1)
+        val idx = createNamedRemoteInt("idx", 1)
         assertThat(arr[idx].toDebugString()).isEqualTo("""arrayOf("A", "B")[user:idx]""")
     }
 
