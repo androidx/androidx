@@ -1,5 +1,5 @@
 // Signature format: 4.0
-package androidx.appsearch.app {
+package @SuppressCompatibility androidx.appsearch.app {
 
   @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public class ShortcutAdapter {
     method public static androidx.core.content.pm.ShortcutInfoCompat.Builder createShortcutBuilderFromDocument(android.content.Context, Object) throws androidx.appsearch.exceptions.AppSearchException;
