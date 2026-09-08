@@ -18,15 +18,18 @@ package androidx.wear.compose.remote.material3
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.ui.graphics.Color
-import androidx.test.filters.SmallTest
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.test.filters.MediumTest
 import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@SmallTest
+@MediumTest
 @RunWith(JUnit4::class)
 class RemoteButtonColorsTest {
+    @get:Rule val composeTestRule = createComposeRule()
 
     @Test
     fun remoteButtonColors_copies() {
@@ -85,17 +88,10 @@ class RemoteButtonColorsTest {
 
     @Test
     fun buttonWithContainerPainterColors_defaultsToTransparentContainer() {
-        val colors =
-            RemoteButtonColors(
-                containerColor = Color.Transparent.rc,
-                contentColor = RemoteColor(Color.White),
-                secondaryContentColor = RemoteColor(Color.LightGray),
-                iconColor = RemoteColor(Color.White),
-                disabledContainerColor = Color.Transparent.rc,
-                disabledContentColor = RemoteColor(Color.DarkGray),
-                disabledSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledIconColor = RemoteColor(Color.DarkGray),
-            )
+        lateinit var colors: RemoteButtonColors
+        composeTestRule.setContent {
+            colors = RemoteButtonDefaults.buttonWithContainerPainterColors()
+        }
 
         assertEquals(Color.Transparent, colors.containerColor.constantValue)
         assertEquals(Color.Transparent, colors.disabledContainerColor.constantValue)
@@ -103,17 +99,10 @@ class RemoteButtonColorsTest {
 
     @Test
     fun buttonWithContainerPainterColors_overridesColors() {
-        val base =
-            RemoteButtonColors(
-                containerColor = Color.Transparent.rc,
-                contentColor = RemoteColor(Color.White),
-                secondaryContentColor = RemoteColor(Color.LightGray),
-                iconColor = RemoteColor(Color.White),
-                disabledContainerColor = Color.Transparent.rc,
-                disabledContentColor = RemoteColor(Color.DarkGray),
-                disabledSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledIconColor = RemoteColor(Color.DarkGray),
-            )
+        lateinit var base: RemoteButtonColors
+        composeTestRule.setContent {
+            base = RemoteButtonDefaults.buttonWithContainerPainterColors()
+        }
         val customized =
             base.copy(
                 contentColor = RemoteColor(Color.Yellow),
@@ -127,5 +116,49 @@ class RemoteButtonColorsTest {
             RemoteColor(Color.Cyan).constantValue,
             customized.secondaryContentColor.constantValue,
         )
+    }
+
+    @Test
+    fun childButtonColors_defaultsToTransparentContainerAndDisabledContainer() {
+        lateinit var colors: RemoteButtonColors
+        composeTestRule.setContent {
+            colors = RemoteButtonDefaults.childButtonColors()
+        }
+
+        assertEquals(Color.Transparent, colors.containerColor.constantValue)
+        assertEquals(Color.Transparent, colors.disabledContainerColor.constantValue)
+    }
+
+    @Test
+    fun childButtonColors_overridesColors() {
+        lateinit var customized: RemoteButtonColors
+        composeTestRule.setContent {
+            customized =
+                RemoteButtonDefaults.childButtonColors(
+                    contentColor = RemoteColor(Color.Yellow),
+                    secondaryContentColor = RemoteColor(Color.Cyan),
+                    iconColor = RemoteColor(Color.Magenta),
+                )
+        }
+
+        assertEquals(Color.Transparent, customized.containerColor.constantValue)
+        assertEquals(Color.Transparent, customized.disabledContainerColor.constantValue)
+        assertEquals(RemoteColor(Color.Yellow).constantValue, customized.contentColor.constantValue)
+        assertEquals(
+            RemoteColor(Color.Cyan).constantValue,
+            customized.secondaryContentColor.constantValue,
+        )
+        assertEquals(RemoteColor(Color.Magenta).constantValue, customized.iconColor.constantValue)
+    }
+
+    @Test
+    fun buttonColors_transparentContainer_defaultsDisabledContainerToTransparent() {
+        lateinit var colors: RemoteButtonColors
+        composeTestRule.setContent {
+            colors = RemoteButtonDefaults.buttonColors(containerColor = Color.Transparent.rc)
+        }
+
+        assertEquals(Color.Transparent, colors.containerColor.constantValue)
+        assertEquals(Color.Transparent, colors.disabledContainerColor.constantValue)
     }
 }
