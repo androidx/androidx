@@ -26,7 +26,9 @@ import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.UiContext;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
@@ -34,10 +36,23 @@ import androidx.core.util.ObjectsCompat;
 
 import org.jspecify.annotations.NonNull;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Helper for resolving screen orientations.
  */
 public final class ScreenOrientation {
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+            Surface.ROTATION_0,
+            Surface.ROTATION_90,
+            Surface.ROTATION_180,
+            Surface.ROTATION_270
+    })
+    public @interface Rotation {}
 
     private static volatile Boolean sCachedIsReverseDefaultRotation;
 
@@ -70,8 +85,16 @@ public final class ScreenOrientation {
      */
     @SuppressWarnings("deprecation")
     public static int getScreenOrientationFromRotation(@NonNull @UiContext Context context,
-            int targetRotation) {
+            @Rotation int targetRotation) {
         ObjectsCompat.requireNonNull(context, "context cannot be null");
+        if (targetRotation != Surface.ROTATION_0
+                && targetRotation != Surface.ROTATION_90
+                && targetRotation != Surface.ROTATION_180
+                && targetRotation != Surface.ROTATION_270) {
+            throw new IllegalArgumentException("Invalid targetRotation: " + targetRotation
+                    + ". Must be one of Surface.ROTATION_0, Surface.ROTATION_90, "
+                    + "Surface.ROTATION_180, or Surface.ROTATION_270");
+        }
 
         final Display display = ContextCompat.getDisplayOrDefault(context);
         final int currentRotation = display.getRotation();
@@ -99,7 +122,8 @@ public final class ScreenOrientation {
      * @return {@code true} if the target rotation maps to a portrait screen orientation;
      *         {@code false} otherwise
      */
-    public static boolean isPortrait(@NonNull @UiContext Context context, int targetRotation) {
+    public static boolean isPortrait(@NonNull @UiContext Context context,
+            @Rotation int targetRotation) {
         return isPortrait(getScreenOrientationFromRotation(context, targetRotation));
     }
 
@@ -114,7 +138,8 @@ public final class ScreenOrientation {
      * @return {@code true} if the target rotation maps to a landscape screen orientation;
      *         {@code false} otherwise
      */
-    public static boolean isLandscape(@NonNull @UiContext Context context, int targetRotation) {
+    public static boolean isLandscape(@NonNull @UiContext Context context,
+            @Rotation int targetRotation) {
         return isLandscape(getScreenOrientationFromRotation(context, targetRotation));
     }
 
@@ -131,8 +156,8 @@ public final class ScreenOrientation {
     }
 
     @VisibleForTesting
-    static int resolveOrientation(int currentWidth, int currentHeight, int currentRotation,
-            boolean isReverseDefault, int targetRotation) {
+    static int resolveOrientation(int currentWidth, int currentHeight,
+            @Rotation int currentRotation, boolean isReverseDefault, @Rotation int targetRotation) {
         // Determine unrotated baseline dimensions.
         final boolean isSideways = currentRotation == Surface.ROTATION_90
                 || currentRotation == Surface.ROTATION_270;

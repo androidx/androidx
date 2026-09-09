@@ -16,6 +16,7 @@
 
 package androidx.core.view
 
+import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
 import android.view.Surface.ROTATION_0
 import android.view.Surface.ROTATION_180
@@ -23,6 +24,7 @@ import android.view.Surface.ROTATION_270
 import android.view.Surface.ROTATION_90
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -164,5 +166,22 @@ class ScreenOrientationTest {
         assertFalse(ScreenOrientation.isLandscape(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT))
         assertFalse(ScreenOrientation.isLandscape(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT))
         assertFalse(ScreenOrientation.isLandscape(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
+    }
+
+    @Test
+    fun testInvalidTargetRotation_throwsException() {
+        val context = ContextWrapper(null)
+        assertThrows(IllegalArgumentException::class.java) {
+            ScreenOrientation.getScreenOrientationFromRotation(context, -1)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            ScreenOrientation.getScreenOrientationFromRotation(context, 42)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            ScreenOrientation.isPortrait(context, 90)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            ScreenOrientation.isLandscape(context, 180)
+        }
     }
 }
