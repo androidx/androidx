@@ -154,6 +154,47 @@ class A2uiFormatDateFunctionTest {
         }
     }
 
+    // ISO-8601 String Tests: `value` may also arrive as an ISO-8601 date/date-time string (as
+    // agents commonly send for date data), not just an epoch timestamp.
+    @Test
+    fun execute_isoDateOnlyStringValue_evaluatesCorrectly() {
+        assertThat(
+                A2uiFormatDateFunction.INSTANCE.execute(
+                    mapOf(ARG_VALUE to "2025-12-15", ARG_FORMAT to "yyyy-MM-dd")
+                )
+            )
+            .isEqualTo("2025-12-15")
+    }
+
+    @Test
+    fun execute_isoInstantStringValue_evaluatesCorrectly() {
+        assertThat(
+                A2uiFormatDateFunction.INSTANCE.execute(
+                    mapOf(ARG_VALUE to "2025-12-15T10:15:00Z", ARG_FORMAT to "yyyy-MM-dd HH:mm")
+                )
+            )
+            .isEqualTo("2025-12-15 10:15")
+    }
+
+    @Test
+    fun execute_isoStringWithMillis_evaluatesCorrectly() {
+        assertThat(
+                A2uiFormatDateFunction.INSTANCE.execute(
+                    mapOf(ARG_VALUE to "2025-12-15T10:15:00.500Z", ARG_FORMAT to "yyyy-MM-dd HH:mm:ss")
+                )
+            )
+            .isEqualTo("2025-12-15 10:15:00")
+    }
+
+    @Test
+    fun execute_nonDateNonNumericStringValue_throwsValidationException() {
+        assertThrows(A2uiException.A2uiValidationException::class.java) {
+            A2uiFormatDateFunction.INSTANCE.execute(
+                mapOf(ARG_VALUE to "not-a-timestamp-or-date", ARG_FORMAT to "yyyy-MM-dd")
+            )
+        }
+    }
+
     private companion object {
         private const val ARG_VALUE = "value"
         private const val ARG_FORMAT = "format"
