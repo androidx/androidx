@@ -26,6 +26,9 @@ dependencies {
     implementation("androidx.tracing:tracing:1.1.0")
     implementation(libs.material)
 
+    // Older versions of lifecycle-runtime lint checks use a deleted lint API
+    implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
+
     // Align default and test configuration dependencies by forcing both to use
     // tip-of-tree core, thus avoiding a TaskDependencyResolveException.
     implementation("androidx.core:core:1.15.0")

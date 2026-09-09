@@ -33,7 +33,7 @@ dependencies {
 
     implementation(project(":xr:projected:projected-binding"))
     implementation("androidx.collection:collection:1.5.0")
-    implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
 
     testImplementation(project(":xr:projected:projected-testing"))
     testImplementation(libs.junit)

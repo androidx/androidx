@@ -36,8 +36,8 @@ dependencies {
     api(libs.kotlinStdlib)
 
     implementation(project(":xr:runtime:runtime-interfaces"))
-    implementation("androidx.lifecycle:lifecycle-common:2.8.7")
-    implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-common:2.10.0")
+    implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
 
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.junit)

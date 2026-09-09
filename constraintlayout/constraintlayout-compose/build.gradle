@@ -31,6 +31,7 @@ androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.constraintlayout.compose"
         androidResources.enable = true
+        compileSdk { version = release(35) }
     }
 
     sourceSets {
@@ -47,6 +48,8 @@ androidXMultiplatform {
         androidMain.dependencies {
             api("androidx.annotation:annotation:1.8.1")
             implementation("androidx.core:core-ktx:1.5.0")
+            // Older versions of lifecycle-runtime lint checks use a deleted lint API
+            implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
         }
 
         androidDeviceTest.dependencies {

@@ -32,13 +32,13 @@ plugins {
 dependencies {
 
     api(project(":compose:runtime:runtime"))
-    api("androidx.lifecycle:lifecycle-livedata:2.6.1")
-    api("androidx.lifecycle:lifecycle-runtime:2.6.1")
-    api("androidx.lifecycle:lifecycle-runtime-compose:2.8.3")
+    api("androidx.lifecycle:lifecycle-livedata:2.10.0")
+    api("androidx.lifecycle:lifecycle-runtime:2.10.0")
+    api("androidx.lifecycle:lifecycle-runtime-compose:2.10.0")
 
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
-    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.1")
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.10.0")
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)

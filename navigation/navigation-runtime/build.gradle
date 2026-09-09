@@ -51,9 +51,9 @@ androidXMultiplatform {
         commonMain.dependencies {
             api(libs.kotlinCoroutinesCore)
             api(project(":navigation:navigation-common"))
-            api("androidx.lifecycle:lifecycle-common:2.9.4")
-            api("androidx.lifecycle:lifecycle-runtime:2.9.4")
-            api("androidx.lifecycle:lifecycle-viewmodel:2.9.4")
+            api("androidx.lifecycle:lifecycle-common:2.10.0")
+            api("androidx.lifecycle:lifecycle-runtime:2.10.0")
+            api("androidx.lifecycle:lifecycle-viewmodel:2.10.0")
 
             implementation(libs.kotlinSerializationCore)
             implementation("androidx.collection:collection:1.5.0")
@@ -65,8 +65,8 @@ androidXMultiplatform {
         androidMain {
             kotlin.srcDirs += "src/androidMain/java"
             dependencies {
-                api("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
-                api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.4")
+                api("androidx.lifecycle:lifecycle-runtime-ktx:2.10.0")
+                api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0")
                 api("androidx.activity:activity-ktx:1.7.1")
                 api("androidx.core:core-ktx:1.8.0")
                 api("androidx.annotation:annotation-experimental:1.4.1")
@@ -74,10 +74,10 @@ androidXMultiplatform {
         }
         androidDeviceTest.dependencies {
             implementation("androidx.annotation:annotation:1.9.1")
-            implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.4")
-            implementation("androidx.lifecycle:lifecycle-common:2.9.4")
-            implementation("androidx.lifecycle:lifecycle-runtime:2.9.4")
-            implementation("androidx.lifecycle:lifecycle-runtime-testing:2.9.4")
+            implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.10.0")
+            implementation("androidx.lifecycle:lifecycle-common:2.10.0")
+            implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
+            implementation("androidx.lifecycle:lifecycle-runtime-testing:2.10.0")
             implementation(project(":internal-testutils-navigation"))
             implementation(project(":internal-testutils-runtime"))
             implementation(libs.hamcrestCore)

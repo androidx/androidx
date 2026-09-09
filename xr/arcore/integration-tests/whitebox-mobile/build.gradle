@@ -45,6 +45,7 @@ android {
             }
         }
     }
+    compileSdk { version = release(35) }
 }
 
 androidx {
@@ -72,7 +73,7 @@ dependencies {
     implementation("androidx.compose.runtime:runtime:1.7.5")
     implementation("androidx.compose.ui:ui:1.7.5")
     implementation("androidx.graphics:graphics-core:1.0.3")
-    implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
     implementation("androidx.window:window:1.1.0")
     implementation("com.google.ar:core:1.53.0")
     implementation("de.javagl:obj:0.4.0")

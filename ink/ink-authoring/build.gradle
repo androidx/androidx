@@ -46,6 +46,8 @@ androidXMultiplatform {
             implementation(project(":ink:ink-brush"))
             implementation(project(":ink:ink-strokes"))
             implementation(project(":ink:ink-rendering"))
+            // Older versions of lifecycle-runtime lint checks use a deleted lint API
+            implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
         }
 
         androidDeviceTest.dependencies {

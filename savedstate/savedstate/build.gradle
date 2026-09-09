@@ -36,14 +36,14 @@ androidXMultiplatform {
     sourceSets {
         commonMain.dependencies {
             api("androidx.annotation:annotation:1.9.1")
-            implementation("androidx.lifecycle:lifecycle-common:2.9.2")
+            implementation("androidx.lifecycle:lifecycle-common:2.10.0")
             implementation("androidx.collection:collection:1.5.0")
             api(libs.kotlinCoroutinesCore)
             api(libs.kotlinSerializationCore)
         }
 
         commonTest.dependencies {
-            implementation("androidx.lifecycle:lifecycle-runtime:2.9.2")
+            implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
             implementation(project(":kruth:kruth"))
             implementation(libs.kotlinTest)
             implementation(libs.kotlinCoroutinesTest)
@@ -57,7 +57,7 @@ androidXMultiplatform {
         }
 
         androidDeviceTest.dependencies {
-            implementation("androidx.lifecycle:lifecycle-runtime:2.9.2")
+            implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
             implementation(libs.testExtJunit)
             implementation(libs.testCore)
             implementation(libs.testRunner)

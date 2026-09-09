@@ -63,6 +63,8 @@ androidXMultiplatform {
             api("androidx.annotation:annotation-experimental:1.4.1")
             implementation("androidx.activity:activity-compose:1.8.2")
             implementation("androidx.lifecycle:lifecycle-common-java8:2.6.1")
+            // Older versions of lifecycle-runtime lint checks use a deleted lint API
+            implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
         }
 
         androidHostTest.dependencies {
