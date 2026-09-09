@@ -190,6 +190,9 @@ internal constructor(
     /** Difference between the last up and last down events of a scroll event. */
     internal var upDownDifference: Offset by mutableStateOf(Offset.Zero)
 
+    /** Whether a physical touch gesture is currently in progress on this pager or its children. */
+    internal var isGestureInProgress: Boolean = false
+
     private val scrollPosition = PagerScrollPosition(currentPage, currentPageOffsetFraction, this)
 
     internal var firstVisiblePage = currentPage

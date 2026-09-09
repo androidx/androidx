@@ -280,17 +280,23 @@ private fun Modifier.dragDirectionDetector(state: PagerState) =
                 awaitEachGesture {
                     val downEvent =
                         awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                    state.isGestureInProgress = true
                     var upEventOrCancellation: PointerInputChange? = null
                     state.upDownDifference = Offset.Zero // Reset
-                    while (upEventOrCancellation == null) {
-                        val event = awaitPointerEvent(pass = PointerEventPass.Initial)
-                        if (event.changes.fastAll { it.changedToUp() }) {
-                            // All pointers are up
-                            upEventOrCancellation = event.changes[0]
+                    try {
+                        while (upEventOrCancellation == null) {
+                            val event = awaitPointerEvent(pass = PointerEventPass.Initial)
+                            if (event.changes.fastAll { it.changedToUp() }) {
+                                // All pointers are up
+                                upEventOrCancellation = event.changes[0]
+                            }
                         }
+                    } finally {
+                        state.isGestureInProgress = false
                     }
 
-                    state.upDownDifference = upEventOrCancellation.position - downEvent.position
+                    state.upDownDifference =
+                        (upEventOrCancellation?.position ?: downEvent.position) - downEvent.position
                 }
             }
         }
