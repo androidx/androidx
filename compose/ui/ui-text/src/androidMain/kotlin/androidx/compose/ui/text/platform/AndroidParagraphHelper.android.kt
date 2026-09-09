@@ -36,6 +36,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.platform.extensions.setBulletSpans
 import androidx.compose.ui.text.platform.extensions.setLineHeight
 import androidx.compose.ui.text.platform.extensions.setPlaceholders
@@ -68,6 +69,7 @@ internal fun createCharSequence(
     useEmojiCompat: Boolean,
     softWrap: Boolean,
     mayHaveNewLine: Boolean, // passed to avoid recomputing the check
+    defaultLocaleList: LocaleList,
 ): CharSequence {
 
     val currentText =
@@ -156,7 +158,7 @@ internal fun createCharSequence(
                     val textDirInt =
                         resolveTextDirectionHeuristics(
                             contextTextStyle.textDirection,
-                            contextTextStyle.localeList,
+                            contextTextStyle.localeList?.firstOrNull() ?: defaultLocaleList.first(),
                         )
                     getTextDirectionHeuristic(textDirInt)
                 } ||

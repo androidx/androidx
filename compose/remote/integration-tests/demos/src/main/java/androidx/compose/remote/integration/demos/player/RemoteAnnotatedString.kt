@@ -28,7 +28,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.decapitalize
-import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.text.toUpperCase
@@ -635,26 +635,20 @@ public fun RemoteAnnotatedString(
     )
 
 /** Creates an uppercase transformed [RemoteAnnotatedString]. */
-public fun RemoteAnnotatedString.toUpperCase(
-    localeList: LocaleList = LocaleList.current
-): RemoteAnnotatedString {
-    return transform { str, start, end -> str.substring(start, end).toUpperCase(localeList) }
+public fun RemoteAnnotatedString.toUpperCase(locale: Locale): RemoteAnnotatedString {
+    return transform { str, start, end -> str.substring(start, end).toUpperCase(locale) }
 }
 
 /** Creates a lowercase transformed [RemoteAnnotatedString]. */
-public fun RemoteAnnotatedString.toLowerCase(
-    localeList: LocaleList = LocaleList.current
-): RemoteAnnotatedString {
-    return transform { str, start, end -> str.substring(start, end).toLowerCase(localeList) }
+public fun RemoteAnnotatedString.toLowerCase(locale: Locale): RemoteAnnotatedString {
+    return transform { str, start, end -> str.substring(start, end).toLowerCase(locale) }
 }
 
 /** Creates a capitalized [RemoteAnnotatedString]. */
-public fun RemoteAnnotatedString.capitalize(
-    localeList: LocaleList = LocaleList.current
-): RemoteAnnotatedString {
+public fun RemoteAnnotatedString.capitalize(locale: Locale): RemoteAnnotatedString {
     return transform { str, start, end ->
         if (start == 0) {
-            str.substring(start, end).capitalize(localeList)
+            str.substring(start, end).capitalize(locale)
         } else {
             str.substring(start, end)
         }
@@ -662,12 +656,10 @@ public fun RemoteAnnotatedString.capitalize(
 }
 
 /** Creates a decapitalized [RemoteAnnotatedString]. */
-public fun RemoteAnnotatedString.decapitalize(
-    localeList: LocaleList = LocaleList.current
-): RemoteAnnotatedString {
+public fun RemoteAnnotatedString.decapitalize(locale: Locale): RemoteAnnotatedString {
     return transform { str, start, end ->
         if (start == 0) {
-            str.substring(start, end).decapitalize(localeList)
+            str.substring(start, end).decapitalize(locale)
         } else {
             str.substring(start, end)
         }

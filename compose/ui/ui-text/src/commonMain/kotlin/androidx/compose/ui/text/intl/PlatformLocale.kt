@@ -23,6 +23,10 @@ internal interface PlatformLocaleDelegate {
      *
      * The implementation must return at least one locale.
      */
+    @Deprecated(
+        "This method of accessing locale isn't backed by snapshot state, meaning " +
+            "that updates to the locale won't notify reading this API."
+    )
     val current: LocaleList
 }
 

@@ -26,6 +26,7 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -100,6 +101,7 @@ class ParagraphPerLineBenchmark {
                 annotations = annotations,
                 density = Density(density = context.resources.displayMetrics.density),
                 fontFamilyResolver = createFontFamilyResolver(context),
+                defaultLocaleList = LocaleList("en"),
                 placeholders = emptyList(),
                 softWrap = true,
             )

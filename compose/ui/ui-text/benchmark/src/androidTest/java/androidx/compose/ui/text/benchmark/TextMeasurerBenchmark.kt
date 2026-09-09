@@ -25,6 +25,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -95,6 +96,7 @@ class TextMeasurerBenchmark(
             val textMeasurer =
                 TextMeasurer(
                     defaultFontFamilyResolver = createFontFamilyResolver(instrumentationContext),
+                    defaultLocaleList = LocaleList("en"),
                     defaultDensity = Density(instrumentationContext),
                     defaultLayoutDirection = LayoutDirection.Ltr,
                     cacheSize = 0,

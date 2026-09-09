@@ -35,6 +35,7 @@ class ParagraphIntegrationBoundingBoxTest {
     private val fontFamilyMeasureFont = FontTestData.BASIC_MEASURE_FONT.toFontFamily()
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val fontFamilyResolver = UncachedFontFamilyResolver(context)
+    private val defaultLocaleList = TEST_LOCALE_LIST
     private val defaultDensity = Density(density = 1f)
     private val fontSize = 10.sp
     private val fontSizeInPx = with(defaultDensity) { fontSize.roundToPx() }
@@ -365,6 +366,7 @@ class ParagraphIntegrationBoundingBoxTest {
                 ),
             density = defaultDensity,
             fontFamilyResolver = fontFamilyResolver,
+            defaultLocaleList = defaultLocaleList,
         )
 
     private fun Paragraph.assertBoxLRTB(offset: Int, left: Int, right: Int, top: Int, bottom: Int) {
