@@ -51,6 +51,17 @@ androidXMultiplatform {
     }
 }
 
+dependencies {
+    constraints {
+        androidMainImplementation(libs.protobufLite) {
+            because("b/556683882 - upgrade to fix CVEs")
+        }
+        androidMainImplementation(libs.guavaAndroid) {
+            because("b/556683882 - upgrade to fix CVEs")
+        }
+    }
+}
+
 androidx {
     name = "Compose Accessibility Testing for JUnit4"
     type = SoftwareType.PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY
