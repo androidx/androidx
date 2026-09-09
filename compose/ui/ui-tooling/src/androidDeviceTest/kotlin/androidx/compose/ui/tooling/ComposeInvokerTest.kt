@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import java.lang.reflect.InvocationTargetException
+import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
@@ -66,6 +67,18 @@ class ComposeInvokerTest {
                 currentComposer,
             )
         }
+    }
+
+    @Test
+    fun composableWithMoreThan21DefaultParameters() {
+        rule.setContent {
+            ComposableInvoker.invokeComposable(
+                "androidx.compose.ui.tooling.MyTestComposableWithManyDefaults",
+                "ManyDefaults",
+                currentComposer,
+            )
+        }
+        assertEquals(25, MyTestComposableWithManyDefaults.lastInvokedParam25)
     }
 
     @Test
@@ -173,5 +186,43 @@ class MyTestComposableWithClassTypePreviewParams {
     class CornerRadiusParamProvider : PreviewParameterProvider<CornerRadius> {
         override val values: Sequence<CornerRadius>
             get() = sequenceOf(CornerRadius(42f), CornerRadius.Zero, CornerRadius(0f, 34f))
+    }
+}
+
+class MyTestComposableWithManyDefaults {
+    companion object {
+        var lastInvokedParam25: Int = 0
+    }
+
+    @Composable
+    fun ManyDefaults(
+        @Suppress("UNUSED_PARAMETER") p0: Int = 0,
+        @Suppress("UNUSED_PARAMETER") p1: Int = 1,
+        @Suppress("UNUSED_PARAMETER") p2: Int = 2,
+        @Suppress("UNUSED_PARAMETER") p3: Int = 3,
+        @Suppress("UNUSED_PARAMETER") p4: Int = 4,
+        @Suppress("UNUSED_PARAMETER") p5: Int = 5,
+        @Suppress("UNUSED_PARAMETER") p6: Int = 6,
+        @Suppress("UNUSED_PARAMETER") p7: Int = 7,
+        @Suppress("UNUSED_PARAMETER") p8: Int = 8,
+        @Suppress("UNUSED_PARAMETER") p9: Int = 9,
+        @Suppress("UNUSED_PARAMETER") p10: Int = 10,
+        @Suppress("UNUSED_PARAMETER") p11: Int = 11,
+        @Suppress("UNUSED_PARAMETER") p12: Int = 12,
+        @Suppress("UNUSED_PARAMETER") p13: Int = 13,
+        @Suppress("UNUSED_PARAMETER") p14: Int = 14,
+        @Suppress("UNUSED_PARAMETER") p15: Int = 15,
+        @Suppress("UNUSED_PARAMETER") p16: Int = 16,
+        @Suppress("UNUSED_PARAMETER") p17: Int = 17,
+        @Suppress("UNUSED_PARAMETER") p18: Int = 18,
+        @Suppress("UNUSED_PARAMETER") p19: Int = 19,
+        @Suppress("UNUSED_PARAMETER") p20: Int = 20,
+        @Suppress("UNUSED_PARAMETER") p21: Int = 21,
+        @Suppress("UNUSED_PARAMETER") p22: Int = 22,
+        @Suppress("UNUSED_PARAMETER") p23: Int = 23,
+        @Suppress("UNUSED_PARAMETER") p24: Int = 24,
+        p25: Int = 25,
+    ) {
+        lastInvokedParam25 = p25
     }
 }
