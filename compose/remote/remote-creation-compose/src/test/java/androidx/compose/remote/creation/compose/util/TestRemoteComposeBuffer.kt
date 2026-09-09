@@ -1515,7 +1515,9 @@ internal class TestRemoteComposeBuffer : RemoteComposeBuffer() {
         enterAnimation: Int,
         exitAnimation: Int,
     ) {
-        calls.add("addAnimationSpecModifier($animationId)")
+        calls.add(
+            "addAnimationSpecModifier($animationId, ${format(motionDuration)}, $motionEasingType, ${format(visibilityDuration)}, $visibilityEasingType, $enterAnimation, $exitAnimation)"
+        )
         super.addAnimationSpecModifier(
             animationId,
             motionDuration,

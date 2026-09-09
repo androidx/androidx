@@ -86,9 +86,10 @@ internal constructor(internal val type: Int, internal val spec: FloatArray? = nu
  * @property durationMillis The duration of the animation in milliseconds.
  * @property easing The easing curve to apply.
  */
-internal class RemoteTweenSpec(
-    val durationMillis: Int = 300,
-    val easing: RemoteEasing = RemoteEasing.Standard,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteTweenSpec(
+    public val durationMillis: Int = 300,
+    public val easing: RemoteEasing = RemoteEasing.Standard,
 ) : RemoteAnimationSpec {
     init {
         require(durationMillis >= 0) { "durationMillis must be non-negative: $durationMillis" }
@@ -201,7 +202,7 @@ internal class RemoteSpringSpec(
 public fun remoteTween(
     durationMillis: Int = 300,
     easing: RemoteEasing = RemoteEasing.Standard,
-): RemoteAnimationSpec = RemoteTweenSpec(durationMillis = durationMillis, easing = easing)
+): RemoteTweenSpec = RemoteTweenSpec(durationMillis = durationMillis, easing = easing)
 
 /**
  * Creates a [RemoteAnimationSpec] for physics-based spring animations.
