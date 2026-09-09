@@ -158,6 +158,7 @@ package androidx.compose.foundation {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class ComposeFoundationFlags {
+    property public boolean isAbsorbNonGestureNestedScrollInPagerFixEnabled;
     property public boolean isAnchoredDraggableTargetValueCalculationFixEnabled;
     property public boolean isBasicTextFieldHeightInLinesOptimizationEnabled;
     property public boolean isBasicTextFieldMinSizeOptimizationEnabled;
@@ -186,6 +187,7 @@ package androidx.compose.foundation {
     property public boolean isUsingDynamicDefaultCacheWindowInLists;
     property public boolean isUsingDynamicDefaultCacheWindowInStaggeredGrids;
     field public static final androidx.compose.foundation.ComposeFoundationFlags INSTANCE;
+    field public static boolean isAbsorbNonGestureNestedScrollInPagerFixEnabled;
     field public static boolean isAnchoredDraggableTargetValueCalculationFixEnabled;
     field public static boolean isBasicTextFieldHeightInLinesOptimizationEnabled;
     field public static boolean isBasicTextFieldMinSizeOptimizationEnabled;
