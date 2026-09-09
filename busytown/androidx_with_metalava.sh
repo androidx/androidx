@@ -4,7 +4,7 @@ SCRIPT_PATH="$(cd $(dirname $0) && pwd)"
 
 # Use this flag to temporarily disable `checkApi`
 # while landing Metalava w/ breaking API changes
-METALAVA_INTEGRATION_ENFORCED=true
+METALAVA_INTEGRATION_ENFORCED=false
 
 # The default targets to build if no arguments
 # are provided on the command line.
