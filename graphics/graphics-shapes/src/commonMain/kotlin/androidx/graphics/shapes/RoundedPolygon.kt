@@ -31,15 +31,16 @@ import kotlin.math.sqrt
  * the vertices. Polygons can be constructed with either the number of vertices desired or an
  * ordered list of vertices.
  */
-class RoundedPolygon internal constructor(val features: List<Feature>, internal val center: Point) {
-    val centerX
+public class RoundedPolygon
+internal constructor(public val features: List<Feature>, internal val center: Point) {
+    public val centerX: Float
         get() = center.x
 
-    val centerY
+    public val centerY: Float
         get() = center.y
 
     /** A flattened version of the [Feature]s, as a List<Cubic>. */
-    val cubics = buildList {
+    public val cubics: List<Cubic> = buildList {
         // The first/last mechanism here ensures that the final anchor point in the shape
         // exactly matches the first anchor point. There can be rendering artifacts introduced
         // by those points being slightly off, even by much less than a pixel
@@ -129,7 +130,7 @@ class RoundedPolygon internal constructor(val features: List<Feature>, internal 
      *
      * @param f The [PointTransformer] used to transform this [RoundedPolygon]
      */
-    fun transformed(f: PointTransformer): RoundedPolygon {
+    public fun transformed(f: PointTransformer): RoundedPolygon {
         val center = center.transformed(f)
         return RoundedPolygon(
             buildList {
@@ -145,7 +146,7 @@ class RoundedPolygon internal constructor(val features: List<Feature>, internal 
      * Creates a new RoundedPolygon, moving and resizing this one, so it's completely inside the
      * (0, 0) -> (1, 1) square, centered if there extra space in one direction
      */
-    fun normalized(): RoundedPolygon {
+    public fun normalized(): RoundedPolygon {
         val bounds = calculateBounds()
         val width = bounds[2] - bounds[0]
         val height = bounds[3] - bounds[1]
@@ -177,7 +178,7 @@ class RoundedPolygon internal constructor(val features: List<Feature>, internal 
      *   right, and bottom values will be stored in entries 0, 1, 2, and 3, in that order.
      */
     @Suppress("MissingJvmstatic")
-    fun calculateMaxBounds(bounds: FloatArray = FloatArray(4)): FloatArray {
+    public fun calculateMaxBounds(bounds: FloatArray = FloatArray(4)): FloatArray {
         require(bounds.size >= 4) { "Required bounds size of 4" }
         var maxDistSquared = 0f
         for (i in cubics.indices) {
@@ -207,7 +208,7 @@ class RoundedPolygon internal constructor(val features: List<Feature>, internal 
      *   and bottom values will be stored in entries 0, 1, 2, and 3, in that order.
      */
     @JvmOverloads
-    fun calculateBounds(
+    public fun calculateBounds(
         bounds: FloatArray = FloatArray(4),
         approximate: Boolean = true,
     ): FloatArray {
@@ -231,7 +232,7 @@ class RoundedPolygon internal constructor(val features: List<Feature>, internal 
         return bounds
     }
 
-    companion object {}
+    public companion object {}
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -275,14 +276,14 @@ class RoundedPolygon internal constructor(val features: List<Feature>, internal 
  * @throws IllegalArgumentException [numVertices] must be at least 3.
  */
 @JvmOverloads
-fun RoundedPolygon(
+public fun RoundedPolygon(
     @IntRange(from = 3) numVertices: Int,
     radius: Float = 1f,
     centerX: Float = 0f,
     centerY: Float = 0f,
     rounding: CornerRounding = CornerRounding.Unrounded,
     perVertexRounding: List<CornerRounding>? = null,
-) =
+): RoundedPolygon =
     RoundedPolygon(
         verticesFromNumVerts(numVertices, radius, centerX, centerY),
         rounding = rounding,
@@ -292,7 +293,8 @@ fun RoundedPolygon(
     )
 
 /** Creates a copy of the given [RoundedPolygon] */
-fun RoundedPolygon(source: RoundedPolygon) = RoundedPolygon(source.features, source.center)
+public fun RoundedPolygon(source: RoundedPolygon): RoundedPolygon =
+    RoundedPolygon(source.features, source.center)
 
 /**
  * This function takes the vertices (either supplied or calculated, depending on the constructor
@@ -321,7 +323,7 @@ fun RoundedPolygon(source: RoundedPolygon) = RoundedPolygon(source.features, sou
 // TODO(performance): Update the map calls to more efficient code that doesn't allocate Iterators
 //  unnecessarily.
 @JvmOverloads
-fun RoundedPolygon(
+public fun RoundedPolygon(
     vertices: FloatArray,
     rounding: CornerRounding = CornerRounding.Unrounded,
     perVertexRounding: List<CornerRounding>? = null,
@@ -459,7 +461,7 @@ fun RoundedPolygon(
  *   closed shape.
  */
 @JvmOverloads
-fun RoundedPolygon(
+public fun RoundedPolygon(
     features: List<Feature>,
     centerX: Float = Float.NaN,
     centerY: Float = Float.NaN,

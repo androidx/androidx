@@ -80,7 +80,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * ```
  */
 @RequiresApi(Build.VERSION_CODES.O)
-class FrameBufferRenderer(
+public class FrameBufferRenderer(
     private val frameBufferRendererCallbacks: RenderCallback,
     @SuppressLint("ListenerLast") private val syncStrategy: SyncStrategy = SyncStrategy.ALWAYS,
 ) : GLRenderer.RenderCallback {
@@ -95,7 +95,7 @@ class FrameBufferRenderer(
         height: Int,
     ): EGLSurface? = null
 
-    fun clear() {
+    public fun clear() {
         mClear.set(true)
     }
 
@@ -159,7 +159,7 @@ class FrameBufferRenderer(
             isExtensionSupported(EGL_ANDROID_NATIVE_FENCE_SYNC)
 
     /** Callbacks invoked to render content leveraging a [FrameBufferRenderer] */
-    interface RenderCallback {
+    public interface RenderCallback {
 
         /**
          * Obtain a [FrameBuffer] to render content into. The [FrameBuffer] obtained here is
@@ -170,13 +170,13 @@ class FrameBufferRenderer(
          *
          * @param egl EGLSpec that is utilized within creation of the [FrameBuffer] object
          */
-        @SuppressLint("CallbackMethodName") fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer
+        @SuppressLint("CallbackMethodName") public fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer
 
         /**
          * Draw contents into the [HardwareBuffer]. Before this method is invoked the [FrameBuffer]
          * instance returned in [obtainFrameBuffer] is made current
          */
-        fun onDraw(eglManager: EGLManager)
+        public fun onDraw(eglManager: EGLManager)
 
         /**
          * Callback when [onDraw] is complete and the contents of the draw are reflected in the
@@ -188,7 +188,7 @@ class FrameBufferRenderer(
          * @param syncFenceCompat [SyncFenceCompat] is used to determine when rendering is done in
          *   [onDraw] and reflected within the given frameBuffer.
          */
-        fun onDrawComplete(frameBuffer: FrameBuffer, syncFenceCompat: SyncFenceCompat?)
+        public fun onDrawComplete(frameBuffer: FrameBuffer, syncFenceCompat: SyncFenceCompat?)
     }
 
     private companion object {
@@ -203,18 +203,18 @@ class FrameBufferRenderer(
  * [SyncStrategy.ALWAYS] will always create a [SyncFenceCompat] to pass into the render callbacks
  * for [FrameBufferRenderer]
  */
-interface SyncStrategy {
+public interface SyncStrategy {
     /**
      * Conditionally generates a [SyncFenceCompat] based upon implementation.
      *
      * @param eglSpec an [EGLSpec] object to dictate the version of EGL and make EGL calls.
      */
-    fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat?
+    public fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat?
 
-    companion object {
+    public companion object {
         /** [SyncStrategy] that will always create a [SyncFenceCompat] object */
         @JvmField
-        val ALWAYS =
+        public val ALWAYS: SyncStrategy =
             object : SyncStrategy {
                 override fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat? {
                     return SyncFenceCompat.createNativeSyncFence()

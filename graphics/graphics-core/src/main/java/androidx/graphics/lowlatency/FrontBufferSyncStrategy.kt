@@ -36,7 +36,7 @@ import androidx.hardware.SyncFenceCompat
  *   for rendering content within [FrameBufferRenderer]. The usage flags can be obtained via
  *   [HardwareBuffer.getUsage] or by passing in the same flags from [HardwareBuffer.create]
  */
-class FrontBufferSyncStrategy(usageFlags: Long) : SyncStrategy {
+public class FrontBufferSyncStrategy(usageFlags: Long) : SyncStrategy {
     private val supportsFrontBufferUsage = (usageFlags and HardwareBuffer.USAGE_FRONT_BUFFER) != 0L
     private var mFrontBufferVisible: Boolean = false
 
@@ -45,7 +45,7 @@ class FrontBufferSyncStrategy(usageFlags: Long) : SyncStrategy {
      * Utilize this to dictate when a [SyncFenceCompat] will be created when using
      * [createSyncFence].
      */
-    var isVisible
+    public var isVisible: Boolean
         get() = mFrontBufferVisible
         set(visibility) {
             mFrontBufferVisible = visibility

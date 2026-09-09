@@ -36,9 +36,9 @@ import kotlin.math.tan
  * or by commas. There is very little error handling, so use with valid paths and consult the debug
  * logs for unexpected [Cubic] objects.
  */
-class SvgPathParser private constructor(startPosition: Point) {
+public class SvgPathParser private constructor(startPosition: Point) {
 
-    companion object {
+    public companion object {
 
         /**
          * Converts an SVG path string into a list of [Feature] objects. The polygon described in
@@ -74,7 +74,7 @@ class SvgPathParser private constructor(startPosition: Point) {
          *   or self-intersecting polygon.
          */
         @JvmStatic
-        fun parseFeatures(svgPath: String): List<Feature> {
+        public fun parseFeatures(svgPath: String): List<Feature> {
             val parsedCubics = parseCubics(svgPath)
 
             val continuous = { first: Cubic, second: Cubic ->

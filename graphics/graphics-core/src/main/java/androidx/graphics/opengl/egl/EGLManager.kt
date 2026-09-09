@@ -28,7 +28,7 @@ import androidx.opengl.EGLExt.Companion.EGL_KHR_SURFACELESS_CONTEXT
  * Class responsible for configuration of EGL related resources. This includes initialization of the
  * corresponding EGL Display as well as EGL Context, among other EGL related facilities.
  */
-class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
+public class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
 
     private var mEglConfig: EGLConfig? = null
 
@@ -45,7 +45,7 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
      * Initialize the EGLManager. This initializes the default display as well as queries the
      * supported extensions
      */
-    fun initialize() {
+    public fun initialize() {
         mEglContext.let {
             if (it === EGL14.EGL_NO_CONTEXT) {
                 mEglVersion = eglSpec.eglInitialize()
@@ -59,7 +59,7 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
      * Attempt to load an [EGLConfig] instance from the given [EGLConfigAttributes]. If the
      * [EGLConfig] could not be loaded this returns null
      */
-    fun loadConfig(configAttributes: EGLConfigAttributes): EGLConfig? =
+    public fun loadConfig(configAttributes: EGLConfigAttributes): EGLConfig? =
         eglSpec.loadConfig(configAttributes)
 
     /**
@@ -68,7 +68,7 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
      *
      * @throws EGLException if the default surface could not be made current after context creation
      */
-    fun createContext(config: EGLConfig): EGLContext {
+    public fun createContext(config: EGLConfig): EGLContext {
         val eglContext = eglSpec.eglCreateContext(config)
         if (eglContext !== EGL14.EGL_NO_CONTEXT) {
             val pbBufferSurface: EGLSurface =
@@ -99,7 +99,7 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
      * Release the resources allocated by EGLManager. This will destroy the corresponding EGLContext
      * instance if it was previously initialized. The configured EGLVersion as well as EGLExtensions
      */
-    fun release() {
+    public fun release() {
         mEglContext.let {
             if (it != EGL14.EGL_NO_CONTEXT) {
                 eglSpec.eglDestroyContext(it)
@@ -122,27 +122,27 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
         }
     }
 
-    val eglSpec: EGLSpec
+    public val eglSpec: EGLSpec
         @JvmName("getEGLSpec") get() = mEglSpec
 
     /**
      * Returns the EGL version that is supported. This parameter is configured after [initialize] is
      * invoked.
      */
-    val eglVersion: EGLVersion
+    public val eglVersion: EGLVersion
         @JvmName("getEGLVersion") get() = mEglVersion
 
     /**
      * Returns the current EGLContext. This parameter is configured after [initialize] is invoked
      */
-    val eglContext: EGLContext?
+    public val eglContext: EGLContext?
         @JvmName("getEGLContext") get() = mEglContext
 
     /**
      * Returns the [EGLConfig] used to load the current [EGLContext]. This is configured after
      * [createContext] is invoked.
      */
-    val eglConfig: EGLConfig?
+    public val eglConfig: EGLConfig?
         @JvmName("getEGLConfig") get() = mEglConfig
 
     /**
@@ -155,7 +155,7 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
      * The set of supported extensions is configured after [initialize] is invoked. Attempts to
      * query support for any extension beforehand will return false.
      */
-    fun isExtensionSupported(extensionName: String): Boolean =
+    public fun isExtensionSupported(extensionName: String): Boolean =
         mEglExtensions?.contains(extensionName) ?: false
 
     /**
@@ -176,7 +176,10 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
      *   is the same as [drawSurface]
      */
     @JvmOverloads
-    fun makeCurrent(drawSurface: EGLSurface, readSurface: EGLSurface = drawSurface): Boolean {
+    public fun makeCurrent(
+        drawSurface: EGLSurface,
+        readSurface: EGLSurface = drawSurface,
+    ): Boolean {
         val result = eglSpec.eglMakeCurrent(mEglContext, drawSurface, readSurface)
         if (result) {
             querySurface(drawSurface)
@@ -188,7 +191,7 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
      * Post EGL surface color buffer to a native window. If the current drawing surface is single
      * buffered this will flush the buffer
      */
-    fun swapAndFlushBuffers() {
+    public fun swapAndFlushBuffers() {
         if (mIsSingleBuffered) {
             GLES20.glFlush()
         }
@@ -199,15 +202,15 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
      * Returns the default surface. This can be an offscreen pixel buffer surface or
      * [EGL14.EGL_NO_SURFACE] if the surfaceless context extension is supported.
      */
-    val defaultSurface: EGLSurface
+    public val defaultSurface: EGLSurface
         get() = mPBufferSurface
 
     /** Returns the current surface used for drawing pixel content */
-    val currentDrawSurface: EGLSurface
+    public val currentDrawSurface: EGLSurface
         get() = eglSpec.eglGetCurrentDrawSurface()
 
     /** Returns the current surface used for reading back or copying pixels */
-    val currentReadSurface: EGLSurface
+    public val currentReadSurface: EGLSurface
         get() = eglSpec.eglGetCurrentReadSurface()
 
     /** Helper method to query properties of the given surface */
@@ -222,7 +225,7 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
         }
     }
 
-    companion object {
-        private const val TAG = "EglManager"
+    public companion object {
+        private const val TAG: String = "EglManager"
     }
 }

@@ -66,12 +66,12 @@ import kotlin.math.max
  *   default is [HardwareBuffer.RGBA_8888].
  */
 @RequiresApi(Build.VERSION_CODES.Q)
-class CanvasFrontBufferedRenderer<T>
+public class CanvasFrontBufferedRenderer<T>
 @JvmOverloads
-constructor(
+public constructor(
     surfaceView: SurfaceView,
     callback: Callback<T>,
-    @HardwareBufferFormat val bufferFormat: Int = HardwareBuffer.RGBA_8888,
+    @HardwareBufferFormat public val bufferFormat: Int = HardwareBuffer.RGBA_8888,
 ) {
 
     /** Target SurfaceView for rendering */
@@ -342,7 +342,7 @@ constructor(
      * buffered layers. This parameter is only consumed on Android U and above. For older API levels
      * this is ignored.
      */
-    var colorSpace: ColorSpace
+    public var colorSpace: ColorSpace
         get() = mColorSpace
         set(value) {
             mColorSpace = value
@@ -361,7 +361,7 @@ constructor(
      *
      * @param param Optional parameter to be consumed when rendering content into the commit layer
      */
-    fun renderFrontBufferedLayer(param: T) {
+    public fun renderFrontBufferedLayer(param: T) {
         if (isValid()) {
             mParams.add(param)
             if (!isCommitting()) {
@@ -376,7 +376,7 @@ constructor(
         }
     }
 
-    private fun isCommitting() = mCommitCount.get() != 0
+    private fun isCommitting(): Boolean = mCommitCount.get() != 0
 
     private fun flushPendingFrontBufferRenders() {
         mParams.flush { p -> mPersistedCanvasRenderer?.render(p) }
@@ -400,7 +400,7 @@ constructor(
      *   These parameters will be provided in the corresponding call to
      *   [Callback.onDrawMultiBufferedLayer]
      */
-    fun renderMultiBufferedLayer(params: Collection<T>) {
+    public fun renderMultiBufferedLayer(params: Collection<T>) {
         renderMultiBufferedLayerInternal(params)
     }
 
@@ -431,7 +431,7 @@ constructor(
      *
      * @return `true` if this [CanvasFrontBufferedRenderer] has been released, `false` otherwise
      */
-    fun isValid() = !mIsReleased
+    public fun isValid(): Boolean = !mIsReleased
 
     @SuppressLint("WrongConstant")
     internal fun setParentSurfaceControlBuffer(
@@ -486,7 +486,7 @@ constructor(
      * [Callback.onMultiBufferedLayerRenderComplete] and hides the front buffered layer.
      */
     @SuppressWarnings("WrongConstant")
-    fun clear() {
+    public fun clear() {
         if (isValid()) {
             mParams.clear()
             val persistedCanvasRenderer = mPersistedCanvasRenderer?.apply {
@@ -552,7 +552,7 @@ constructor(
      * If this [CanvasFrontBufferedRenderer] has been released, that is [isValid] returns `false`,
      * this call is ignored.
      */
-    fun commit() {
+    public fun commit() {
         if (mCommitCount.getAndIncrement() == 0) {
             commitInternal()
         }
@@ -630,7 +630,7 @@ constructor(
      * If this [GLFrontBufferedRenderer] has been released, that is [isValid] returns `false`, this
      * call is ignored.
      */
-    fun cancel() {
+    public fun cancel() {
         if (isValid()) {
             mParams.clear()
             mPersistedCanvasRenderer?.cancelPending()
@@ -651,7 +651,7 @@ constructor(
      *
      * @param runnable to be executed
      */
-    fun execute(runnable: Runnable) {
+    public fun execute(runnable: Runnable) {
         if (isValid()) {
             mHandlerThread.execute(runnable)
         } else {
@@ -712,7 +712,7 @@ constructor(
      * method does nothing.
      */
     @JvmOverloads
-    fun release(cancelPending: Boolean, onReleaseComplete: (() -> Unit)? = null) {
+    public fun release(cancelPending: Boolean, onReleaseComplete: (() -> Unit)? = null) {
         if (!mIsReleased) {
             mSurfaceView?.holder?.removeCallback(mHolderCallback)
             mSurfaceView = null
@@ -731,7 +731,7 @@ constructor(
      * to the hardware compositor.
      */
     @JvmDefaultWithCompatibility
-    interface Callback<T> {
+    public interface Callback<T> {
 
         /**
          * Callback invoked to render content into the front buffered layer with the specified
@@ -745,7 +745,12 @@ constructor(
          *   request to render into the front buffered layer
          */
         @WorkerThread
-        fun onDrawFrontBufferedLayer(canvas: Canvas, bufferWidth: Int, bufferHeight: Int, param: T)
+        public fun onDrawFrontBufferedLayer(
+            canvas: Canvas,
+            bufferWidth: Int,
+            bufferHeight: Int,
+            param: T,
+        )
 
         /**
          * Callback invoked to render content into the front buffered layer with the specified
@@ -763,7 +768,7 @@ constructor(
          *   [CanvasFrontBufferedRenderer.renderFrontBufferedLayer]
          */
         @WorkerThread
-        fun onDrawMultiBufferedLayer(
+        public fun onDrawMultiBufferedLayer(
             canvas: Canvas,
             bufferWidth: Int,
             bufferHeight: Int,
@@ -784,7 +789,7 @@ constructor(
          *   content to the front buffered layer.
          */
         @WorkerThread
-        fun onFrontBufferedLayerRenderComplete(
+        public fun onFrontBufferedLayerRenderComplete(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
             transaction: SurfaceControlCompat.Transaction,
         ) {
@@ -809,7 +814,7 @@ constructor(
          *   content to the multi buffered layer.
          */
         @WorkerThread
-        fun onMultiBufferedLayerRenderComplete(
+        public fun onMultiBufferedLayerRenderComplete(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
             multiBufferedLayerSurfaceControl: SurfaceControlCompat,
             transaction: SurfaceControlCompat.Transaction,

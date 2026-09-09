@@ -39,7 +39,7 @@ import androidx.graphics.surface.SurfaceControlCompat
  * Implementation may apply the transfer function in RGB space for all pixel formats if desired.
  * Range aspect Defines the range of values corresponding to the unit range of 0-1.
  */
-class DataSpace private constructor() {
+public class DataSpace private constructor() {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(AnnotationRetention.SOURCE)
@@ -68,14 +68,14 @@ class DataSpace private constructor() {
                 DATASPACE_SRGB_LINEAR,
             ],
     )
-    annotation class NamedDataSpace
+    public annotation class NamedDataSpace
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(flag = true, value = [RANGE_UNSPECIFIED, RANGE_FULL, RANGE_LIMITED, RANGE_EXTENDED])
-    annotation class DataSpaceRange
+    public annotation class DataSpaceRange
 
-    companion object {
+    public companion object {
 
         /**
          * Default-assumption data space, when not explicitly specified.
@@ -85,7 +85,7 @@ class DataSpace private constructor() {
          * automatic gamma transform should be expected, except for a possible display gamma
          * transform when drawn to a screen.
          */
-        const val DATASPACE_UNKNOWN = 0
+        public const val DATASPACE_UNKNOWN: Int = 0
 
         /**
          * scRGB linear encoding:
@@ -98,7 +98,7 @@ class DataSpace private constructor() {
          * spaces and/or HDR content.
          */
         // STANDARD_BT709 | TRANSFER_LINEAR | RANGE_EXTENDED
-        const val DATASPACE_SCRGB_LINEAR = 406913024
+        public const val DATASPACE_SCRGB_LINEAR: Int = 406913024
 
         /**
          * sRGB gamma encoding:
@@ -112,7 +112,8 @@ class DataSpace private constructor() {
          *
          * Use full range and BT.709 standard.
          */
-        const val DATASPACE_SRGB = 142671872 // STANDARD_BT709 | TRANSFER_SRGB | RANGE_FULL
+        public const val DATASPACE_SRGB: Int =
+            142671872 // STANDARD_BT709 | TRANSFER_SRGB | RANGE_FULL
 
         /**
          * scRGB:
@@ -125,14 +126,16 @@ class DataSpace private constructor() {
          * (D65) at 80 nits. Values beyond the range [0.0 - 1.0] would correspond to other colors
          * spaces and/or HDR content.
          */
-        const val DATASPACE_SCRGB = 411107328 // STANDARD_BT709 | TRANSFER_SRGB | RANGE_EXTENDED
+        public const val DATASPACE_SCRGB: Int =
+            411107328 // STANDARD_BT709 | TRANSFER_SRGB | RANGE_EXTENDED
 
         /**
          * Display P3
          *
          * Use same primaries and white-point as DCI-P3 but sRGB transfer function.
          */
-        const val DATASPACE_DISPLAY_P3 = 143261696 // STANDARD_DCI_P3 | TRANSFER_SRGB | RANGE_FULL
+        public const val DATASPACE_DISPLAY_P3: Int =
+            143261696 // STANDARD_DCI_P3 | TRANSFER_SRGB | RANGE_FULL
 
         /**
          * ITU-R Recommendation 2020 (BT.2020)
@@ -141,7 +144,8 @@ class DataSpace private constructor() {
          *
          * Use full range, SMPTE 2084 (PQ) transfer and BT2020 standard
          */
-        const val DATASPACE_BT2020_PQ = 163971072 // STANDARD_BT2020 | TRANSFER_ST2084 | RANGE_FULL
+        public const val DATASPACE_BT2020_PQ: Int =
+            163971072 // STANDARD_BT2020 | TRANSFER_ST2084 | RANGE_FULL
 
         /**
          * Adobe RGB
@@ -150,7 +154,7 @@ class DataSpace private constructor() {
          * responsible for gamma encoding the data as a 2.2 gamma encoding is not supported in HW.
          */
         // STANDARD_ADOBE_RGB | TRANSFER_GAMMA2_2 | RANGE_FULL
-        const val DATASPACE_ADOBE_RGB = 151715840
+        public const val DATASPACE_ADOBE_RGB: Int = 151715840
 
         /**
          * ITU-R Recommendation 2020 (BT.2020)
@@ -160,7 +164,7 @@ class DataSpace private constructor() {
          * Use full range, BT.709 transfer and BT2020 standard
          */
         // STANDARD_BT2020 | TRANSFER_SMPTE_170M | RANGE_FULL
-        const val DATASPACE_BT2020 = 147193856
+        public const val DATASPACE_BT2020: Int = 147193856
 
         /**
          * ITU-R Recommendation 709 (BT.709)
@@ -170,7 +174,7 @@ class DataSpace private constructor() {
          * Use limited range, BT.709 transfer and BT.709 standard.
          */
         // STANDARD_BT709 | TRANSFER_SMPTE_170M | RANGE_LIMITED
-        const val DATASPACE_BT709 = 281083904
+        public const val DATASPACE_BT709: Int = 281083904
 
         /**
          * SMPTE EG 432-1 and SMPTE RP 431-2.
@@ -181,7 +185,7 @@ class DataSpace private constructor() {
          * responsible for gamma encoding the data as a 2.6 gamma encoding is not supported in HW.
          */
         // STANDARD_DCI_P3 | TRANSFER_GAMMA2_6 | RANGE_FULL
-        const val DATASPACE_DCI_P3 = 155844608
+        public const val DATASPACE_DCI_P3: Int = 155844608
 
         /**
          * sRGB linear encoding:
@@ -192,21 +196,21 @@ class DataSpace private constructor() {
          * The values are encoded using the full range ([0,255] for 8-bit) for all components.
          */
         // STANDARD_BT709 | TRANSFER_LINEAR | RANGE_FULL
-        const val DATASPACE_SRGB_LINEAR = 138477568
+        public const val DATASPACE_SRGB_LINEAR: Int = 138477568
 
         /**
          * Depth.
          *
          * This value is valid with formats HAL_PIXEL_FORMAT_Y16 and HAL_PIXEL_FORMAT_BLOB.
          */
-        const val DATASPACE_DEPTH = 4096
+        public const val DATASPACE_DEPTH: Int = 4096
 
         /**
          * ISO 16684-1:2011(E) Dynamic Depth.
          *
          * Embedded depth metadata following the dynamic depth specification.
          */
-        const val DATASPACE_DYNAMIC_DEPTH = 4098
+        public const val DATASPACE_DYNAMIC_DEPTH: Int = 4098
 
         /**
          * High Efficiency Image File Format (HEIF).
@@ -215,7 +219,7 @@ class DataSpace private constructor() {
          * format. The combination is an HEIC image encoded by HEIC or HEVC encoder according to
          * ISO/IEC 23008-12.
          */
-        const val DATASPACE_HEIF = 4100
+        public const val DATASPACE_HEIF: Int = 4100
 
         /**
          * Hybrid Log Gamma encoding.
@@ -226,7 +230,7 @@ class DataSpace private constructor() {
          * Transfer: TRANSFER_HLG
          * Range: RANGE_FULL</pre>
          */
-        const val DATASPACE_BT2020_HLG = 168165376
+        public const val DATASPACE_BT2020_HLG: Int = 168165376
 
         /**
          * JPEG File Interchange Format (JFIF).
@@ -239,7 +243,7 @@ class DataSpace private constructor() {
          *
          * Same model as BT.601-625, but all values (Y, Cb, Cr) range from `0` to `255`
          */
-        const val DATASPACE_JFIF = 146931712
+        public const val DATASPACE_JFIF: Int = 146931712
 
         /**
          * ISO/IEC TBD
@@ -251,7 +255,7 @@ class DataSpace private constructor() {
          * according to ISO/IEC TBD. The image contains a standard SDR JPEG and a recovery map.
          * Jpeg/R decoders can use the map to recover the input image.
          */
-        const val DATASPACE_JPEG_R = 4101
+        public const val DATASPACE_JPEG_R: Int = 4101
 
         /**
          * ITU-R Recommendation 601 (BT.601) - 525-line
@@ -264,7 +268,7 @@ class DataSpace private constructor() {
          * Transfer: TRANSFER_SMPTE_170M
          * Range: RANGE_LIMITED</pre>
          */
-        const val DATASPACE_BT601_625 = 281149440
+        public const val DATASPACE_BT601_625: Int = 281149440
 
         /**
          * ITU-R Recommendation 709 (BT.709)
@@ -277,16 +281,16 @@ class DataSpace private constructor() {
          * Transfer: TRANSFER_SMPTE_170M
          * Range: RANGE_LIMITED</pre>
          */
-        const val DATASPACE_BT601_525 = 281280512
+        public const val DATASPACE_BT601_525: Int = 281280512
 
         /** Range characteristics are unknown or are determined by the application. */
-        const val RANGE_UNSPECIFIED = 0 shl 27
+        public const val RANGE_UNSPECIFIED: Int = 0 shl 27
 
         /**
          * Full range uses all values for Y, Cb and Cr from `0` to `2^b-1`, where b is the bit depth
          * of the color format.
          */
-        const val RANGE_FULL = 1 shl 27
+        public const val RANGE_FULL: Int = 1 shl 27
 
         /**
          * Limited range uses values `16/256*2^b` to `235/256*2^b` for Y, and `1/16*2^b` to
@@ -298,7 +302,7 @@ class DataSpace private constructor() {
          * For 10-bit-depth formats: Luma (Y) samples should range from 64 to 940, inclusive Chroma
          * (Cb, Cr) samples should range from 64 to 960, inclusive.
          */
-        const val RANGE_LIMITED = 2 shl 27
+        public const val RANGE_LIMITED: Int = 2 shl 27
 
         /**
          * Extended range can be used in combination with FP16 to communicate scRGB or with
@@ -314,6 +318,6 @@ class DataSpace private constructor() {
          * [HardwareBuffer.RGBA_8888] or [HardwareBuffer.RGBA_1010102] to communicate a variable HDR
          * brightness range
          */
-        const val RANGE_EXTENDED = 3 shl 27
+        public const val RANGE_EXTENDED: Int = 3 shl 27
     }
 }
