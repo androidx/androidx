@@ -58,9 +58,7 @@ internal fun AbstractComposeView.setContent(
     GlobalSnapshotManager.ensureStarted()
     val composeView =
         if (childCount > 0) {
-            (getChildAt(0) as? AndroidComposeView)?.also {
-                it.composeViewContext = composeViewContext
-            }
+            (getChildAt(0) as? AndroidComposeView)
         } else {
             removeAllViews()
             null
@@ -68,6 +66,7 @@ internal fun AbstractComposeView.setContent(
             ?: AndroidComposeView(context, composeViewContext).also {
                 addView(it.view, DefaultLayoutParams)
             }
+
     composeView.composeViewContext = composeViewContext
     if (this.composeViewContext != null) {
         composeViewContext.incrementViewCount()
