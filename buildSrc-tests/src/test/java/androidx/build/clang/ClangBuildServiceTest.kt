@@ -73,6 +73,8 @@ class ClangBuildServiceTest : BaseClangTest() {
         assertThat(outputFile.name).isEqualTo("code.o")
         val strings = extractStrings(outputFile)
         assertThat(strings).contains("Hello, World!!")
+        // -fno-ident ensures compiler version strings are not embedded into .comment
+        assertThat(strings).doesNotContain("clang version")
         // shouldn't link yet
         assertThat(strings).doesNotContain("libc")
     }
@@ -99,6 +101,7 @@ class ClangBuildServiceTest : BaseClangTest() {
         val strings = extractStrings(outputFile)
         assertThat(strings).contains("__android_log_print")
         assertThat(strings).contains("Hello from NDK!")
+        assertThat(strings).doesNotContain("clang version")
     }
 
     @Test
