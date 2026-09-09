@@ -526,4 +526,12 @@ abstract class DeviceTests @Inject constructor(objects: ObjectFactory) {
     val useOrchestrator: Property<Boolean> = objects.property<Boolean>().convention(false)
 
     var minSdkForFtlOverride: Int? = null
+
+    /**
+     * Maximum number of shards Tradefed may use for this module's instrumentation tests. When set
+     * to 1, tests will run on a single shard ("not-shardable"). When set to > 1, Tradefed limits
+     * shards to this value ("ajur-max-shard"). When null, Tradefed defaults to the suite-level
+     * shard count (e.g. 16 on Cuttlefish).
+     */
+    var maxShardCount: Int? = null
 }

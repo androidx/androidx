@@ -54,6 +54,36 @@ class AndroidTestConfigBuilderTest {
     }
 
     @Test
+    fun testXmlWithMaxShardCountOneProducesNotShardable() {
+        builder.maxShardCount(1)
+        val xml = builder.buildXml()
+        MatcherAssert.assertThat(
+            xml,
+            CoreMatchers.containsString("<option name=\"not-shardable\" value=\"true\" />"),
+        )
+        MatcherAssert.assertThat(
+            xml,
+            CoreMatchers.not(CoreMatchers.containsString("ajur-max-shard")),
+        )
+    }
+
+    @Test
+    fun testXmlWithMaxShardCountGreaterThanOneProducesAjurMaxShard() {
+        builder.maxShardCount(2)
+        val xml = builder.buildXml()
+        MatcherAssert.assertThat(
+            xml,
+            CoreMatchers.containsString(
+                "<option name=\"ajur-max-shard\" value=\"2\" />"
+            ),
+        )
+        MatcherAssert.assertThat(
+            xml,
+            CoreMatchers.not(CoreMatchers.containsString("not-shardable")),
+        )
+    }
+
+    @Test
     fun testXmlAgainstGoldenMicrobenchmark() {
         builder.isMicrobenchmark(true)
 
