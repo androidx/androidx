@@ -111,8 +111,8 @@ import kotlin.math.roundToInt
  *   example, centering them vertically within a Row). Defaults to [FlexAlignItems.Start].
  * - [FlexConfigScope.alignSelf]: Allows an individual item to override the container's
  *   [FlexBoxConfigScope.alignItems]. Defaults to [FlexAlignSelf.Auto].
- * - [FlexBoxConfigScope.alignContent]:Distributes multiple wrapped lines along the cross axis. This
- *   only applies when wrapping is enabled. Defaults to [FlexAlignContent.Start].
+ * - [FlexBoxConfigScope.alignContent]: Distributes multiple wrapped lines along the cross axis.
+ *   This only applies when wrapping is enabled. Defaults to [FlexAlignContent.Start].
  *
  * By default, children are placed in a horizontal row without wrapping. If wrapping is disabled
  * ([FlexWrap.NoWrap]), children will shrink to fit the container if they have a shrink factor > 0.
@@ -735,8 +735,7 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
                 val shouldStretch =
                     item.alignSelf == FlexAlignSelf.Stretch ||
                         (item.alignSelf == FlexAlignSelf.Auto &&
-                            (flexBoxConfig.alignItems == FlexAlignItems.Stretch ||
-                                flexBoxConfig.alignContent == FlexAlignContent.Stretch))
+                            flexBoxConfig.alignItems == FlexAlignItems.Stretch)
 
                 val crossAxisSize =
                     measureItem(
@@ -1462,7 +1461,13 @@ public value class FlexAlignItems @PublishedApi internal constructor(private val
         public inline val Center: FlexAlignItems
             get() = FlexAlignItems(2)
 
-        /** Items are stretched to fill the cross axis size of their line. */
+        /**
+         * Stretches items to fill the cross axis size of their line.
+         *
+         * Items stretch to fill the line even if an explicit cross-axis size was set on the item,
+         * unless overridden by [FlexAlignSelf] or a modifier that enforces size like
+         * [androidx.compose.foundation.layout.requiredSize].
+         */
         public inline val Stretch: FlexAlignItems
             get() = FlexAlignItems(3)
 
@@ -1519,7 +1524,13 @@ public value class FlexAlignSelf @PublishedApi internal constructor(private val 
         public inline val Center: FlexAlignSelf
             get() = FlexAlignSelf(3)
 
-        /** The item is stretched to fill the cross axis size of its line. */
+        /**
+         * Stretches the item to fill the cross axis size of its line.
+         *
+         * The item stretches to fill the line even if an explicit cross-axis size was set on the
+         * item, unless a modifier that enforces size like
+         * [androidx.compose.foundation.layout.requiredSize] is used.
+         */
         public inline val Stretch: FlexAlignSelf
             get() = FlexAlignSelf(4)
 
@@ -1533,11 +1544,17 @@ public value class FlexAlignSelf @PublishedApi internal constructor(private val 
 }
 
 /**
- * Defines how multiple lines are distributed along the cross axis. This only applies when wrapping
- * is enabled ([FlexWrap.Wrap] or [FlexWrap.WrapReverse]), the container has extra cross-axis space,
- * and there is more than one line of items.
+ * Distributes flex lines along the cross axis.
  *
+ * Only applies when [FlexBoxConfigScope.wrap] is [FlexWrap.Wrap] or [FlexWrap.WrapReverse],
+ * multiple lines exist, and the container has extra cross-axis space. Distributes and expands flex
+ * lines along the cross axis. Items within each line follow [FlexAlignItems] or [FlexAlignSelf] and
+ * do not stretch unless configured with [FlexAlignItems.Stretch] or [FlexAlignSelf.Stretch].
+ *
+ * @sample androidx.compose.foundation.layout.samples.FlexBoxAlignContentSample
  * @see FlexBoxConfigScope.alignContent
+ * @see FlexAlignItems
+ * @see FlexAlignSelf
  */
 @JvmInline
 public value class FlexAlignContent @PublishedApi internal constructor(private val bits: Int) {
@@ -1575,8 +1592,15 @@ public value class FlexAlignContent @PublishedApi internal constructor(private v
             get() = FlexAlignContent(2)
 
         /**
-         * Distribute remaining free space evenly among all lines, increasing their cross-axis size
-         * to fill the available space.
+         * Stretches flex lines to fill available cross-axis space.
+         *
+         * Distributes remaining cross-axis space evenly among all lines, expanding each line's
+         * cross-axis size. Positions items within each line according to [FlexAlignItems] or
+         * [FlexAlignSelf]. Items do not stretch unless configured with [FlexAlignItems.Stretch] or
+         * [FlexAlignSelf.Stretch].
+         *
+         * @see FlexAlignItems.Stretch
+         * @see FlexAlignSelf.Stretch
          */
         public inline val Stretch: FlexAlignContent
             get() = FlexAlignContent(3)
@@ -1913,20 +1937,24 @@ public sealed interface FlexBoxConfigScope : Density {
     public fun alignItems(alignmentLineBlock: (Measured) -> Int)
 
     /**
-     * Sets how multiple lines are distributed along the cross axis.
+     * Distributes multiple flex lines along the cross axis.
      *
-     * This only applies when [wrap] is [FlexWrap.Wrap] or [FlexWrap.WrapReverse] and there are
-     * multiple lines of items.
-     * - [FlexAlignContent.Start]: Lines packed toward the `cross-start` edge.
-     * - [FlexAlignContent.End]: Lines packed toward the `cross-end` edge.
-     * - [FlexAlignContent.Center]: Lines centered along the cross axis.
-     * - [FlexAlignContent.Stretch]: Lines stretched to fill available cross-axis space.
-     * - [FlexAlignContent.SpaceBetween]: Lines evenly distributed; first at start, last at end.
-     * - [FlexAlignContent.SpaceAround]: Lines evenly distributed with half-size space at edges.
+     * * Only applies when [wrap] is [FlexWrap.Wrap] or [FlexWrap.WrapReverse], multiple lines
+     *   exist, and the container has extra cross-axis space. Distributes and expands flex lines
+     *   along the cross axis.
+     *
+     * - [FlexAlignContent.Start]: packs lines toward the cross-start edge
+     * - [FlexAlignContent.End]: packs lines toward the cross-end edge
+     * - [FlexAlignContent.Center]: centers lines along the cross axis
+     * - [FlexAlignContent.Stretch]: stretches lines to fill available cross-axis space
+     * - [FlexAlignContent.SpaceBetween]: distributes lines evenly with no space at outer edges
+     * - [FlexAlignContent.SpaceAround]: distributes lines with half-size space at outer edges
      *
      * @sample androidx.compose.foundation.layout.samples.FlexBoxAlignContentSample
-     * @param value The align content value. Default is [FlexAlignContent.Start].
+     * @param value cross-axis distribution for flex lines. Defaults to [FlexAlignContent.Start]
      * @see FlexAlignContent
+     * @see FlexAlignItems
+     * @see FlexAlignSelf
      * @see wrap
      */
     public fun alignContent(value: FlexAlignContent)
