@@ -3,41 +3,131 @@ trigger: always_on
 description: Instructions for Jetski to perform strict code reviews on CameraX changes.
 ---
 
+> [!NOTE]
+> **Documentation Scope & Optional Internal Companion**:
+> `camera/AGENTS.md` is the primary, self-contained public baseline for CameraX
+> architecture, Kotlin/Java standards, pre-upload quality gates, and code review
+> protocols. All contributors should follow these guidelines.
+>
+> When operating in an environment where internal extension tools are configured
+> (e.g., if `$CAMERAX_INTERNAL_TOOLS_DIR` is set and `AGENTS_INTERNAL.md` is
+> present), agents should also read `AGENTS_INTERNAL.md` (located at
+> `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md`) for supplementary internal
+> guidelines and automated lab device testing workflows. For contributors
+> without access to internal tooling, this public file contains all required
+> instructions.
+
 # Code Review Guidelines
 
-You are a highly experienced code reviewer specializing in the CameraX codebase. Your
-task is to analyze the local uncommitted code changes in this workspace (under `camera/`) and provide comprehensive
-feedback. Focus on identifying potential bugs, inconsistencies, security
-vulnerabilities, and areas for improvement in code style and readability.
+You are a highly experienced code reviewer specializing in the CameraX
+codebase and Android platform architectures. This guide serves two mandatory
+purposes:
+1. **Code Review Protocol:** When reviewing local changes, commits ahead of
+   `aosp/androidx-main`, or user-provided Git patches.
+2. **Author Self-Review Gate:** When writing new code or modifying existing
+   components, agents **MUST** execute this exact review protocol on their own
+   changes as a mandatory self-review before finalizing code edits or
+   uploading.
 
-In addition to analyzing the diff, you should leverage your local environment capabilities:
-- **Context:** Examine the full content of modified files and surrounding code to understand the impact.
-- **Standards Hierarchy:** Evaluate all changes against the precedence hierarchy (1st: AndroidX correctness & lint checks, 2nd: Android platform & Camera2 specifications, 3rd: Google-wide standards).
-- **Project Rules:** Adhere to the CameraX-specific rules defined in this file (e.g., Kotlin formatting, Camera2 API usage, testing fakes).
-- **Verification:** Attempt to compile the affected CameraX modules (e.g., `camera-core`, `camera-camera2`) to verify build stability.
-- **Testing:** Identify and run relevant tests (host or device tests) using the guidelines in the "Testing" section below.
+Focus on identifying potential bugs, race conditions, resource leaks,
+architectural inconsistencies, security vulnerabilities, and code
+style/readability issues.
 
-Your response should be detailed and constructive, offering specific suggestions
-for remediation where applicable. Prioritize clarity and conciseness in your
-feedback.
+In addition to analyzing the diff, leverage local environment capabilities:
+- **Context:** Examine the full content of modified files and surrounding code
+  to understand systemic impact and cross-component contracts.
+- **Standards Hierarchy:** Evaluate all changes against the precedence
+  hierarchy (1st: AndroidX correctness & lint checks, 2nd: Android platform &
+  Camera2 specifications, 3rd: Google-wide standards).
+- **Project Rules:** Adhere to the CameraX-specific rules defined in this file
+  (e.g., Kotlin formatting via `ktfmt`, line-length limits, Camera2 API usage,
+  testing fakes over mocks).
+- **Verification:** Compile affected CameraX modules (using `PROJECT_PREFIX`)
+  and run release compiler checks (`runErrorProneRelease`) to verify stability.
+- **Testing:** Identify and run relevant tests (host or device tests) using the
+  guidelines in the "Testing" section below.
+
+Your response or self-review must be detailed, structured, and constructive,
+offering specific, copy-pasteable code suggestions for remediation where
+applicable. Prioritize clarity and conciseness.
 
 # Step by Step Instructions
 
-1.  **Identify Changes:** Determine which files have been modified or added in the `camera/` directory.
-2.  **Gather Context:** For each modified file, read the relevant sections in this `AGENTS.md` to understand specific requirements.
-3.  **Analyze for Issues:**
-    *   **Standards Hierarchy Compliance:** Does the change follow the mandatory precedence order (1st: AndroidX standards/checks, 2nd: Android platform/Camera2 rules, 3rd: Google-wide guidelines)?
-    *   **Functionality:** Does the code work as intended? Are there any CameraX-specific bugs, edge cases, or resource leaks (e.g., DeferrableSurface leaks)?
-    *   **Security:** Are there any security vulnerabilities introduced?
-    *   **Style & Conventions:** Does the code adhere to CameraX style guidelines (e.g., Kotlin formatting via `ktfmt`, use of `Truth` for assertions)?
-    *   **API Design:** If public APIs are modified, do they follow the AndroidX API guidelines? Are they annotated correctly (e.g., `@RestrictTo`)?
-    *   **Consistency:** Are there any inconsistencies with existing CameraX design patterns?
-    *   **Testing:** Are there sufficient tests covering the changes? Are they using fakes instead of mocks?
-4.  **Verify (Optional but Recommended):** Run build commands for the modified CameraX modules (using `PROJECT_PREFIX`).
-5.  **Formulate Feedback:** Write concise and constructive feedback for each identified issue, providing specific suggestions for remediation.
-6.  **Summarize & Prioritize:** Summarize findings, prioritizing critical issues (bugs, build failures, API violations) over minor ones (style, suggestions).
-7.  **Review & Iterate:** Review your feedback. Is it comprehensive and detailed? If not, re-analyze.
-8.  **Output Review:** Present the final review report.
+1.  **Identify Changes:** Determine which files have been modified or added in
+    the `camera/` directory. Inspect `git status`, local commits ahead of
+    `aosp/androidx-main`, or the user-provided patch/diff.
+2.  **Gather Context:** For each modified file, read the full surrounding
+    source and relevant sections in this `AGENTS.md`. If operating in an
+    environment where internal tooling is configured, also consult
+    `AGENTS_INTERNAL.md` (located at
+    `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md`) for supplementary
+    guidelines, lab device testing workflows, and triage tools.
+3.  **Analyze for Issues (Deep Diagnostic Pass):**
+    *   **Standards Hierarchy Compliance:** Does the change adhere to the
+        precedence hierarchy (1st: AndroidX standards, 2nd: Android platform &
+        Camera2 specifications, 3rd: Google-wide style)?
+    *   **Functionality & Edge Cases:** Does the code work as intended across
+        all inputs and lifecycle transitions? Are there edge cases with boundary
+        values, nulls, empty collections, zero-dimension bitmaps, or hardware
+        configurations (e.g. `Bitmap.Config.HARDWARE`)?
+    *   **Concurrency & Thread Safety:**
+        - Are shared variables accessed across background executors and test
+          threads properly marked `@Volatile` or protected by atomic types?
+        - Do `CountDownLatch` or synchronization primitives guarantee release
+          in `finally` blocks so test runners never hang on timeouts?
+        - Are blocking calls (`get()`, `await()`, thread sleep) strictly
+          avoided on the Main thread / looper?
+    *   **Resource Lifecycle & Leaks:**
+        - Are `ImageProxy` instances deterministically closed (preferring
+          `imageProxy.use { ... }`)?
+        - Are bitmaps recycled (`bitmap.recycle()`)?
+        - Are use cases unbound (`cameraProvider.unbind(...)`) in `finally`
+          blocks, and are analyzer callbacks cleared (`clearAnalyzer()`)?
+    *   **API Design & Deprecations:**
+        - Are public and restricted (`@RestrictTo`) APIs designed properly?
+        - Avoid introducing deprecated APIs paired with
+          `@Suppress("DEPRECATION")` when modern replacements exist (e.g. prefer
+          `ResolutionSelector` over `setTargetResolution`).
+    *   **Security & Permissions:** Are required Android permissions requested
+        via `GrantPermissionRule`? Does storage access comply with Scoped
+        Storage (API 29+ MediaStore vs. pre-29 public directories)?
+    *   **Style, Readability & Line Lengths:**
+        - Strictly enforce line length limits: **80 characters** for markdown
+          documentation and `AGENTS.md`, **72 characters** for Git commit
+          messages, and **100 characters** for Kotlin source code.
+        - Ensure idiomatic Kotlin (clean string templates, multiline strings via
+          `trimIndent()`, avoidance of brittle `.format()` concatenations).
+        - Verify Kotlin formatting using `./gradlew :ktCheckFile --format`.
+    *   **Consistency:** Are naming conventions, error handling patterns, and
+        logging mechanisms consistent (preferring `androidx.camera.core.Logger`
+        over ad-hoc `android.util.Log` unless justified)?
+    *   **Testing Coverage:**
+        - Are there sufficient tests covering happy paths, negative paths,
+          boundary thresholds, and error states?
+        - Are tests using fluent Google `Truth` assertions (`assertThat`) and
+          fakes instead of mocks?
+4.  **Verify Locally:** Execute local compilation, unit tests, and repohooks
+    (`repo upload --dry-run .` / `runErrorProneRelease`) to validate build and
+    pre-submit stability.
+5.  **Formulate Structured Feedback:** Organize feedback into clear, prioritized
+    sections:
+    - **Summary of Changes**: High-level overview of the patch.
+    - **Critical & High-Priority Issues**: Potential bugs, race conditions,
+      resource leaks, and build/test breakers.
+    - **Medium-Priority Issues**: Robustness improvements, modern API
+      migrations, and design antipatterns.
+    - **Style & Formatting**: Line-length violations, Kotlin idioms, and
+      documentation wrapping.
+    - **Testing & Coverage**: Missing test cases or assertion improvements.
+    - Provide **concrete, copy-pasteable replacement code snippets** for each
+      issue to make remediation effortless.
+6.  **Self-Review & Iterate (Completeness Check):** Before outputting review
+    results or finalizing code edits, evaluate: *"Is this feedback or code
+    change comprehensive, rigorous, and verified against all edge cases? Did I
+    catch subtle concurrency, lifecycle, and edge case pitfalls?"* If not,
+    re-analyze and apply fixes.
+7.  **Finalize / Present Review:** Present the structured review report or
+    proceed to the pre-upload quality gate before committing or uploading.
 
 ***
 
@@ -120,11 +210,14 @@ When directed to an index page, directory list, or guide linking to sub-guides
    - **Idiomatic Coding Practices**: Prioritize clean, expressive, functional
      designs, avoiding excessive allocations or unnecessary synchronization.
 
+> [!NOTE]
 > **Document Relationship for Internal Contributors**: `camera/AGENTS.md` is
 > the primary public baseline for code architecture, style, and lint policies.
-> When developing in a Google-internal environment, refer to `AGENTS_INTERNAL.md`,
-> which serves as an internal extension providing internal AndroidX coding
-> guidelines, documentation shortlinks, and Mobile Harness lab test tooling.
+> When operating in an environment where internal tools are configured, refer
+> to `AGENTS_INTERNAL.md` (located at
+> `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md`), which serves as an
+> optional internal extension providing supplementary coding guidelines,
+> documentation links, and physical lab test runner commands.
 
 ## General Instructions:
 
@@ -243,25 +336,65 @@ When directed to an index page, directory list, or guide linking to sub-guides
   always revisit the official [Android Camera2 API reference](https://developer.android.com/reference/android/hardware/camera2/package-summary)
   to check the API usage guidelines and contracts before finalizing the code change,
   ensuring all usage aligns with the framework's design.
-- **Standard Verification Procedure**: Never skip the verification steps.
-  Always compile (build), run related tests, run lint, perform **self-review**
-  (using the *Code Review Guidelines* at the top of this file), and **verify
-  code elegance and regression prevention** before finalizing any code changes
-  or declaring a task complete.
-- **Pre-Upload Quality Gate & ErrorProne Release Check**:
-  Before committing or uploading a CL (via `repo upload`), you **MUST** run:
-  1. **Kotlin Formatting**:
-     `./gradlew :ktCheckFile --format --file <modified_file.kt>`.
-  2. **Checkstyle & Import Order**: Java imports must follow strict
-     alphabetical ordering without unused imports or unused static imports.
-  3. **ErrorProne Release Variant Compilation**: Presubmit build bots execute
-     ErrorProne on release variants. Run ErrorProne locally on modified
-     modules to catch release-only compiler errors (such as `[UnusedVariable]`
-     and `[BadInstanceof]`):
-     ```bash
-     ./gradlew :camera:camera-core:runErrorProneRelease \
-       :camera:camera-camera2:runErrorProneRelease
-     ```
+- **Mandatory Two-Stage Verification & Pre-Upload Quality Gate**:
+  Never skip verification or declare a task complete without executing both
+  stages:
+  - **Stage 1: Pre-Finalization Deep Self-Review & Completeness Check**:
+    Before declaring any new code or code modification complete, agents **MUST**
+    conduct a full diagnostic self-review against the **Code Review Guidelines**
+    at the top of this file:
+    1. *Concurrency & Latches:* Latches guaranteed release in `finally`, no Main
+       thread blocking.
+    2. *Resource Leaks:* `imageProxy.use { ... }`, bitmap recycling,
+       `clearAnalyzer()`, use cases unbound in `finally`.
+    3. *Modern APIs:* No deprecated API usage paired with
+       `@Suppress("DEPRECATION")` when modern replacements exist.
+    4. *Strict Line Lengths:* 80 chars for markdown, 72 chars for commit body,
+       100 chars for Kotlin.
+    5. *Completeness Check:* Explicitly reflect: *"Is this implementation
+       comprehensive, robust, and verified against all edge cases?"* If
+       deficiencies are found, apply remediation before moving to Stage 2.
+  - **Stage 2: Pre-Upload Full Verification & Tooling Gate**:
+    Before committing or uploading a CL (`repo upload`), you **MUST** execute:
+    1. **Kotlin Formatting**:
+       `./gradlew :ktCheckFile --format --file <modified_file.kt>`.
+    2. **Checkstyle & Import Order**: Java imports must follow strict
+       alphabetical ordering without unused imports or unused static imports.
+    3. **ErrorProne Release Variant Compilation**:
+       ```bash
+       ./gradlew :camera:camera-core:runErrorProneRelease \
+         :camera:camera-camera2:runErrorProneRelease
+       ```
+    4. **Compilation & Relevant Tests**: Run host/device tests to confirm zero
+       regressions.
+    5. **Pre-Upload Repohook Verification (`repo upload --dry-run .`)**:
+       Execute `repo upload --dry-run .` in the AndroidX workspace root to run
+       all pre-upload repohooks (Checkstyle, ktfmt formatting, release notes,
+       commit message format, API checks) confirming 100% readiness for upload.
+- **Defensive Programming & Code Reviewer Standards**:
+  - **ContentResolver & Cursor Null/Empty Safety**: Always check if
+    `cursor.moveToFirst()` returns `true` before attempting to access column
+    data (`cursor.getString(...)`, `cursor.getLong(...)`). Calling getter
+    methods on empty or unpositioned cursors results in
+    `CursorIndexOutOfBoundsException`.
+  - **Tightly Scoped Deprecation Suppression**: Avoid class-level
+    `@Suppress("DEPRECATION")`. When referencing deprecated constants or APIs
+    (e.g. `MediaStore.MediaColumns.DATA`), scope `@Suppress("DEPRECATION")`
+    inline directly at the specific function or statement level.
+  - **MediaStore Volume URI Precision**: When targeting API 29+ Scoped Storage
+    in MediaStore helpers, use explicit primary volume URIs
+    (`getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)`) rather than broad
+    default collection URIs.
+  - **NonNull Assertion Cleanliness (`requireNotNull` over `!!`)**: In tests,
+    avoid Kotlin force non-null operators (`!!`). Use `requireNotNull(...)` or
+    Truth assertions (`assertThat(...).isNotNull()`) to provide descriptive
+    failure diagnostics.
+  - **Thread Safety & Latches in Background Callbacks**: Analyzer callbacks run
+    concurrently on `ioExecutor` background threads. Shared state objects (such
+    as `CountDownLatch` or frame save flags) accessed across test threads and
+    analyzer callbacks MUST be marked `@Volatile` or use `AtomicBoolean`, and
+    must be assigned *before* registering the analyzer callback on
+    `ImageAnalysis`.
 - **Multi-Commit Stack Hygiene & Anti-Churn Rule**:
   When developing a multi-CL series (e.g. core fix → device quirk → cleanup):
   - **Zero Intermediate Test Churn**: Do not leave temporary test workarounds
@@ -316,15 +449,24 @@ CameraX involves complex hardware interactions, making robust testing essential.
   - **CameraX Software / HAL Issue**: Test chart is centered and sharp but 3A convergence
     or detector failed; or frame displays buffer corruption, chromatic shearing,
     incorrect rotation/aspect ratio, or vendor HAL stream configuration failures.
-- **Internal Guidelines & Testing (Googlers Only)**: If you are in a
-  Google-internal environment (e.g., you have access to Google-internal search
-  or repositories), you MUST load `AGENTS_INTERNAL.md`. If your environment is
-  set up, this file can be found in the directory specified by the
-  `CAMERAX_INTERNAL_TOOLS_DIR` environment variable. It serves as an internal
-  extension of this guide, providing internal AndroidX coding guidelines,
-  internal documentation links, and instructions to actively use the lab device
-  testing infrastructure to verify your changes on physical devices before
-  finalizing any code modifications.
+- **On-Demand Lab Diagnostic Testing (`@LabTestRule.LabTestOnly`)**:
+  When triaging suspected lab fixture failures (e.g. pitch-black 0-lux frames or
+  camera orientation mismatches), execute on-demand diagnostic test suites
+  annotated with `@LabTestRule.LabTestOnly` (such as
+  `LabEnvironmentDiagnosticTest`). Diagnostic tests capture multi-camera frames
+  (front/rear), compute relative luminance
+  (`LabTestUtil.calculateBitmapLuminance`), log structured `[LAB_DIAGNOSTIC]`
+  summaries, export photos via `LabTestUtil.saveTestBitmap`, and complete with
+  PASS status so test runners automatically pull and attach artifacts for
+  visual or AI inspection (see `AGENTS_INTERNAL.md` for internal lab runner
+  details).
+- **Internal Guidelines & Testing**: When operating in an environment where
+  internal tools are configured, refer to `AGENTS_INTERNAL.md` (located in the
+  directory specified by the `CAMERAX_INTERNAL_TOOLS_DIR` environment variable,
+  if available). It serves as an extension of this guide, providing
+  supplementary coding guidelines, extended documentation links, and
+  instructions to use physical lab device testing infrastructure to verify
+  changes when accessible.
 
 ## Skill: CameraX Troubleshooting & Code Verification
 
@@ -446,7 +588,11 @@ CameraX involves complex hardware interactions, making robust testing essential.
   ```bash
   ./gradlew <project>:lintRelease
   ```
-- **Self-Review & Fix Loop**: Before committing, analyze your changes against the **Code Review Guidelines** at the top of this file. If you identify any issues (bugs, style, formatting, nullability), apply the fixes and re-verify (compile/test) before finalizing.
+- **Self-Review & Fix Loop**: Before committing or finalizing edits, analyze
+  your changes against the **Code Review Guidelines** at the top of this file.
+  Conduct a full diagnostic check (concurrency, lifecycle, deprecations, line
+  lengths). If you identify any issues, apply the fixes and re-verify
+  (compile/test) before declaring the task complete.
 
 
 #### 4. Troubleshooting Unit Test Leaks (Robolectric)
@@ -477,14 +623,14 @@ CameraX involves complex hardware interactions, making robust testing essential.
          (e.g., Samsung Snapdragon, MediaTek, Exynos, Pixel).
        - `[FLEET_WIDE_ALL_DEVICES]`: Generic regression affecting the entire
          device fleet (>80% failure rate).
-     - In Google-internal environments, use `run_camerax_g3_tests.sh --query_daily_results`
-       (see `AGENTS_INTERNAL.md`) to extract blast radius, AI diagnostic
-       insights, and Android Build API culprit CLs.
+     - When internal test tooling is configured, use test runner query
+       options (see `AGENTS_INTERNAL.md`) to extract blast radius, AI
+       diagnostic insights, and culprit CLs.
   2. **Analyze Failure Point & AI Diagnostic Insights**:
      - Identify the exact failure line and preceding events in the logs.
-     - Inspect pre-triaged AI diagnostic verdicts stored in Sponge custom
-       properties (which are retained longer than raw logs) or inspect raw logcat
-       traces and bugreports.
+     - Inspect pre-triaged AI diagnostic verdicts stored in CI test artifacts
+       or build metadata (when operating in Google-internal environments, see
+       `AGENTS_INTERNAL.md`) or inspect raw logcat traces and bugreports.
   3. **Compare Logs Across Hardware**: Compare the failing log with a passing log
      from a healthy device to identify differences in HAL behavior or timing.
   4. **Determine Temporal Trend & Flakiness**:
@@ -624,8 +770,8 @@ Before finalizing changes to shared infrastructure (e.g. `UseCase`,
 
 ### Use when:
 - Capturing lessons, troubleshooting workflows, compiler checks, or decision
-  rubrics from a coding session into `camera/AGENTS.md` (AOSP) or
-  `AGENTS_INTERNAL.md` (Google3).
+  rubrics from a coding session into `camera/AGENTS.md` (public) or
+  `AGENTS_INTERNAL.md` (internal companion).
 - The user requests to update agent guidelines based on recent findings.
 
 ### Workflow & Long-Term Governance:
@@ -660,13 +806,12 @@ Do not infinitely append new bullet points. When updating guidelines:
 
 #### 4. Target Repository Routing & CL Staging
 Route documentation updates according to repository scope:
-* **Public AOSP Guidelines (`frameworks/support/camera/AGENTS.md`)**:
+* **Public Guidelines (`frameworks/support/camera/AGENTS.md`)**:
   Public architecture, Kotlin/Java style, Checkstyle, ErrorProne release
   checks, pre-upload quality gates, commit hygiene, and general troubleshooting.
-* **Google-Internal Guidelines (`AGENTS_INTERNAL.md` in Google3)**:
-  Internal tooling (`run_camerax_g3_tests.sh`), host memory concurrency
-  estimation, Sponge CLI, physical lab device health triage, and CitC
-  protocols.
+* **Internal Extension Guidelines (`AGENTS_INTERNAL.md`)**:
+  Internal test tooling (`run_camerax_g3_tests.sh`), host memory concurrency
+  estimation, physical lab device health triage, and environment protocols.
 
 ---
 

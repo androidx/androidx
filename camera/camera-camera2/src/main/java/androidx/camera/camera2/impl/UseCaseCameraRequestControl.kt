@@ -588,6 +588,7 @@ constructor(
             ?: failedResults(
                 captureSequence.size,
                 "Capture request is cancelled on closed CameraGraph",
+                ImageCapture.ERROR_CAMERA_CLOSED,
             )
 
     override fun update3aRegions(
@@ -616,12 +617,14 @@ constructor(
         useCaseCameraState.close()
     }
 
-    private fun failedResults(count: Int, message: String): List<Deferred<Void?>> =
+    private fun failedResults(
+        count: Int,
+        message: String,
+        @ImageCapture.ImageCaptureError imageCaptureError: Int = ImageCapture.ERROR_CAPTURE_FAILED,
+    ): List<Deferred<Void?>> =
         List(count) {
             CompletableDeferred<Void>().apply {
-                completeExceptionally(
-                    ImageCaptureException(ImageCapture.ERROR_CAPTURE_FAILED, message, null)
-                )
+                completeExceptionally(ImageCaptureException(imageCaptureError, message, null))
             }
         }
 
