@@ -58,8 +58,9 @@ dependencies {
     implementation(libs.guavaListenableFuture)
     implementation(libs.guava)
 
-    // Older versions of lifecycle-runtime lint checks use deleted lint APIs
+    // Older versions of lifecycle-runtime and animation-core lint checks use deleted lint APIs
     implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
+    implementation("androidx.compose.animation:animation-core:1.6.8")
 }
 
 androidx {
