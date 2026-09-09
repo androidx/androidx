@@ -18,6 +18,7 @@ package androidx.xr.scenecore.openxr.testing
 
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.openxr.AndroidViewPanelDisplayResult
 import androidx.xr.scenecore.openxr.INVALID_HANDLE
 import androidx.xr.scenecore.openxr.SceneCoreOpenXrNative
 import java.util.concurrent.atomic.AtomicBoolean
@@ -36,6 +37,11 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     val rootSpacePoseQueryCount = AtomicInteger(0)
     // When set, getRootSpacePoseInPlatformReferenceSpace() throws it, to simulate a failing sample.
     @Volatile var rootSpacePoseQueryError: Throwable? = null
+    var fakeDisplayId: Int = 42
+    var fakeInputToken: Any = Any()
+    var displayIdFutureToResult: MutableMap<Long, AndroidViewPanelDisplayResult> = mutableMapOf()
+    var attachedSurfacePackages: MutableMap<Long, Any> = mutableMapOf()
+    private var nextFutureHandle: Long = 9001L
 
     var simulateTransactionUnavailable: Boolean = false
     var simulateInitFailure: Boolean = false
@@ -206,6 +212,36 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
             return false
         }
         requestedSpatialContainerVisible = visible
+        return true
+    }
+
+    override fun requestAndroidViewPanelDisplayId(
+        entityHandle: Long,
+        width: Int,
+        height: Int,
+        dpi: Int,
+    ): Long {
+        check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
+        val future = nextFutureHandle++
+        displayIdFutureToResult[future] =
+            AndroidViewPanelDisplayResult(fakeDisplayId, fakeInputToken)
+        return future
+    }
+
+    override fun pollAndroidViewPanelDisplayId(
+        entityHandle: Long,
+        futureHandle: Long,
+    ): AndroidViewPanelDisplayResult? {
+        check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
+        return displayIdFutureToResult[futureHandle]
+    }
+
+    override fun setAndroidViewPanelSurfacePackage(
+        entityHandle: Long,
+        surfacePackage: Any,
+    ): Boolean {
+        check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
+        attachedSurfacePackages[entityHandle] = surfacePackage
         return true
     }
 
