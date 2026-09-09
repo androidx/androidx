@@ -19,13 +19,16 @@ package androidx.camera.view;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.os.Build;
 import android.util.Size;
+import android.view.Display;
 import android.view.Window;
 import android.widget.FrameLayout;
 
@@ -302,5 +305,44 @@ public class PreviewViewTest {
 
         // 6. Verify the stopListeningToDisplayChange method was NEVER called
         Mockito.verify(previewViewSpy, never()).stopListeningToDisplayChange();
+    }
+
+    @Test
+    @Config(sdk = {Config.ALL_SDKS}, instrumentedPackages = {"androidx.camera.view"})
+    public void controllerAutoAttached_whenLayoutCompletes() {
+        PreviewView previewViewSpy = Mockito.spy(mPreviewView);
+        Display display = Mockito.mock(Display.class);
+        when(previewViewSpy.getDisplay()).thenReturn(display);
+        when(previewViewSpy.isAttachedToWindow()).thenReturn(true);
+
+        CameraController cameraController = Mockito.mock(CameraController.class);
+
+        // Set controller when dimensions are 0 (unmeasured).
+        when(previewViewSpy.getWidth()).thenReturn(0);
+        when(previewViewSpy.getHeight()).thenReturn(0);
+        previewViewSpy.setController(cameraController);
+
+        // Verify controller is not attached before layout pass.
+        verify(cameraController, never()).attachPreviewSurface(any(), any());
+
+        // Simulate layout pass with positive dimensions.
+        when(previewViewSpy.getWidth()).thenReturn(640);
+        when(previewViewSpy.getHeight()).thenReturn(480);
+        previewViewSpy.onLayout(true, 0, 0, 640, 480);
+
+        // Verify attachPreviewSurface was automatically invoked once layout completed.
+        verify(cameraController, times(1)).attachPreviewSurface(any(), any());
+
+        // Subsequent layout with same size does not trigger duplicate attachment.
+        previewViewSpy.onLayout(false, 0, 0, 640, 480);
+        verify(cameraController, times(1)).attachPreviewSurface(any(), any());
+
+        // When view is detached from window, controller is cleared.
+        previewViewSpy.onDetachedFromWindow();
+        verify(cameraController, times(1)).clearPreviewSurface();
+
+        // When re-attached and laid out, controller is auto-attached again.
+        previewViewSpy.onLayout(false, 0, 0, 640, 480);
+        verify(cameraController, times(2)).attachPreviewSurface(any(), any());
     }
 }
