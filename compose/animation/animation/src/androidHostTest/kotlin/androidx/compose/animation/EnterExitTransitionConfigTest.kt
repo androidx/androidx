@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.IntSize
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -199,5 +200,23 @@ class EnterExitTransitionConfigTest {
         assertEquals(fadeSpec, config.fade!!.animationSpec)
         assertEquals(scaleSpec, config.scale!!.animationSpec)
         assertNull(config.slide)
+    }
+
+    @Test
+    fun testSizeTransformDefaultConfig() {
+        val sizeTransform = SizeTransform()
+        val spec1 = sizeTransform.createAnimationSpec(IntSize.Zero, IntSize(100, 100))
+        val spec2 = sizeTransform.createAnimationSpec(IntSize(10, 10), IntSize(50, 50))
+        assertSame(spec1, spec2)
+        assertSame(AnimatedContentDefaults.SizeAnimationSpec, spec1)
+    }
+
+    @Test
+    fun testContentTransformDefaultSizeTransform() {
+        val enter = fadeIn()
+        val exit = fadeOut()
+        val transform1 = ContentTransform(enter, exit)
+        val transform2 = ContentTransform(enter, exit)
+        assertSame(transform1.sizeTransform, transform2.sizeTransform)
     }
 }

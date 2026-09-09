@@ -143,9 +143,7 @@ public fun <S> AnimatedContent(
     targetState: S,
     modifier: Modifier = Modifier,
     transitionSpec: AnimatedContentTransitionScope<S>.() -> ContentTransform = {
-        (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
-                scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
-            .togetherWith(fadeOut(animationSpec = tween(90)))
+        AnimatedContentDefaults.ContentTransform
     },
     contentAlignment: Alignment = Alignment.TopStart,
     label: String = "AnimatedContent",
@@ -200,7 +198,7 @@ public class ContentTransform(
     public val targetContentEnter: EnterTransition,
     public val initialContentExit: ExitTransition,
     targetContentZIndex: Float = 0f,
-    sizeTransform: SizeTransform? = SizeTransform(),
+    sizeTransform: SizeTransform? = AnimatedContentDefaults.SizeTransform,
 ) {
     /**
      * This describes the zIndex of the new target content as it enters the container. It defaults
@@ -238,10 +236,7 @@ public fun SizeTransform(
     clip: Boolean = true,
     sizeAnimationSpec: (initialSize: IntSize, targetSize: IntSize) -> FiniteAnimationSpec<IntSize> =
         { _, _ ->
-            spring(
-                stiffness = Spring.StiffnessMediumLow,
-                visibilityThreshold = IntSize.VisibilityThreshold,
-            )
+            AnimatedContentDefaults.SizeAnimationSpec
         },
 ): SizeTransform = SizeTransformImpl(clip, sizeAnimationSpec)
 
@@ -291,6 +286,25 @@ private class SizeTransformImpl(
  */
 public infix fun EnterTransition.togetherWith(exit: ExitTransition): ContentTransform =
     ContentTransform(this, exit)
+
+/** Contains default values used throughout [AnimatedContent]. */
+internal object AnimatedContentDefaults {
+    /** Default animation spec used for size animation in [SizeTransform]. */
+    internal val SizeAnimationSpec: FiniteAnimationSpec<IntSize> =
+        spring(
+            stiffness = Spring.StiffnessMediumLow,
+            visibilityThreshold = IntSize.VisibilityThreshold,
+        )
+
+    /** Default [SizeTransform] used in [ContentTransform]. */
+    internal val SizeTransform: SizeTransform = SizeTransform()
+
+    /** Default [ContentTransform] used in [AnimatedContent] if none is specified. */
+    internal val ContentTransform: ContentTransform =
+        (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+                scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
+            .togetherWith(fadeOut(animationSpec = tween(90)))
+}
 
 @Deprecated(
     "Infix fun EnterTransition.with(ExitTransition) has been renamed to togetherWith",
@@ -756,7 +770,7 @@ internal constructor(
                                 }
                             val target = scope.targetSizeMap[targetState]?.value ?: IntSize.Zero
                             sizeTransform.value?.createAnimationSpec(initial, target)
-                                ?: spring(stiffness = Spring.StiffnessMediumLow)
+                                ?: AnimatedContentDefaults.SizeAnimationSpec
                         }
                     ) {
                         // Animate from the approach size to the lookahead size.
@@ -945,9 +959,7 @@ internal constructor(animatedVisibilityScope: AnimatedVisibilityScope) :
 public fun <S> Transition<S>.AnimatedContent(
     modifier: Modifier = Modifier,
     transitionSpec: AnimatedContentTransitionScope<S>.() -> ContentTransform = {
-        (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
-                scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
-            .togetherWith(fadeOut(animationSpec = tween(90)))
+        AnimatedContentDefaults.ContentTransform
     },
     contentAlignment: Alignment = Alignment.TopStart,
     contentKey: (targetState: S) -> Any? = { it },
@@ -1027,9 +1039,7 @@ public fun <S> Transition<S>.AnimatedContent(
 public fun <S> DeferredTransition<S>.DeferredAnimatedContent(
     modifier: Modifier = Modifier,
     transitionSpec: AnimatedContentTransitionScope<S>.() -> ContentTransform = {
-        (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
-                scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
-            .togetherWith(fadeOut(animationSpec = tween(90)))
+        AnimatedContentDefaults.ContentTransform
     },
     contentAlignment: Alignment = Alignment.TopStart,
     contentKey: (targetState: S) -> Any? = { it },
@@ -1052,9 +1062,7 @@ public fun <S> DeferredTransition<S>.DeferredAnimatedContent(
 internal fun <S> Transition<S>.AnimatedContentImpl(
     modifier: Modifier = Modifier,
     transitionSpec: AnimatedContentTransitionScope<S>.() -> ContentTransform = {
-        (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
-                scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
-            .togetherWith(fadeOut(animationSpec = tween(90)))
+        AnimatedContentDefaults.ContentTransform
     },
     contentAlignment: Alignment = Alignment.TopStart,
     contentKey: (targetState: S) -> Any? = { it },
