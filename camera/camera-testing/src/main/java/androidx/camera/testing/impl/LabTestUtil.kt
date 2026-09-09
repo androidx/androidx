@@ -123,4 +123,89 @@ public object LabTestUtil {
         }
         return FileUtil.saveBitmap(bitmap, DEFAULT_OUTPUT_DIR, name, format, quality)
     }
+
+    /**
+     * Calculates the average luminance (brightness) of a [Bitmap] on a 0.0 to 255.0 scale.
+     *
+     * Sampling is performed across a grid to optimize performance while providing an accurate
+     * assessment of box illumination and chart visibility.
+     *
+     * @param bitmap the [Bitmap] to analyze.
+     * @return average luminance score (0.0 = pitch black, 255.0 = pure white).
+     */
+    @JvmStatic
+    public fun calculateBitmapLuminance(bitmap: Bitmap): Double {
+        if (bitmap.isRecycled || bitmap.width == 0 || bitmap.height == 0) {
+            return 0.0
+        }
+        val safeBitmap =
+            if (
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                    bitmap.config == Bitmap.Config.HARDWARE
+            ) {
+                bitmap.copy(Bitmap.Config.ARGB_8888, false) ?: return 0.0
+            } else {
+                bitmap
+            }
+        try {
+            val stepX = (safeBitmap.width / 50).coerceAtLeast(1)
+            val stepY = (safeBitmap.height / 50).coerceAtLeast(1)
+            var totalLuminance = 0.0
+            var count = 0
+
+            for (y in 0 until safeBitmap.height step stepY) {
+                for (x in 0 until safeBitmap.width step stepX) {
+                    val pixel = safeBitmap.getPixel(x, y)
+                    val red = (pixel shr 16) and 0xFF
+                    val green = (pixel shr 8) and 0xFF
+                    val blue = pixel and 0xFF
+                    // Standard ITU-R BT.601 relative luminance formula
+                    val luminance = 0.299 * red + 0.587 * green + 0.114 * blue
+                    totalLuminance += luminance
+                    count++
+                }
+            }
+            return if (count > 0) totalLuminance / count else 0.0
+        } finally {
+            if (safeBitmap !== bitmap) {
+                safeBitmap.recycle()
+            }
+        }
+    }
+
+    /**
+     * Analyzes [Bitmap] luminance and logs diagnostic lighting information.
+     *
+     * @param bitmap the captured test [Bitmap].
+     * @param label descriptive label (e.g., "Rear Camera", "Front Camera").
+     * @param minLuminanceThreshold minimum acceptable luminance threshold (default: 10.0 out of
+     *   255.0).
+     * @return `true` if average luminance meets or exceeds [minLuminanceThreshold], `false` if
+     *   dark/pitch black.
+     */
+    @JvmStatic
+    @JvmOverloads
+    public fun checkLabEnvironmentLighting(
+        bitmap: Bitmap,
+        label: String,
+        minLuminanceThreshold: Double = 10.0,
+    ): Boolean {
+        val luminance = calculateBitmapLuminance(bitmap)
+        val isSufficientLighting = luminance >= minLuminanceThreshold
+        if (isSufficientLighting) {
+            Logger.i(
+                TAG,
+                "[LAB_DIAGNOSTIC] %s - Average Luminance: %.2f / 255.0 (PASS - Box light is ON)"
+                    .format(label, luminance),
+            )
+        } else {
+            Logger.w(
+                TAG,
+                ("[LAB_DIAGNOSTIC] %s - Average Luminance: %.2f / 255.0 (FAIL - Dark box!). " +
+                        "Check if fusion box light is OFF, defective, or turned off by a test.")
+                    .format(label, luminance),
+            )
+        }
+        return isSufficientLighting
+    }
 }
