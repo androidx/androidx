@@ -77,15 +77,6 @@ class EffectsFragmentStressTest(
         cameraProvider =
             ProcessCameraProvider.getInstance(ApplicationProvider.getApplicationContext())[
                     10000, TimeUnit.MILLISECONDS]
-        fragmentScenario =
-            FragmentScenario.launchInContainer(
-                EffectsFragment::class.java,
-                null,
-                R.style.AppTheme,
-                null,
-            )
-        fragment = fragmentScenario.getFragment()
-
         requireForegroundRule.deferCleanup {
             try {
                 if (::fragmentScenario.isInitialized) {
@@ -97,6 +88,14 @@ class EffectsFragmentStressTest(
                 }
             }
         }
+        fragmentScenario =
+            FragmentScenario.launchInContainer(
+                EffectsFragment::class.java,
+                null,
+                R.style.AppTheme,
+                null,
+            )
+        fragment = fragmentScenario.getFragment()
     }
 
     @LabTestRule.LabTestOnly
