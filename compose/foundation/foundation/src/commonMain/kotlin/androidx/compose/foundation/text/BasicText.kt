@@ -45,11 +45,13 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalFontFamilyResolver
+import androidx.compose.ui.platform.LocalLocaleList
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Constraints.Companion.fitPrioritizingWidth
@@ -118,11 +120,13 @@ public fun BasicText(
         }
 
     val fontFamilyResolver = LocalFontFamilyResolver.current
+    val localeList = LocalLocaleList.current
 
     BackgroundTextMeasurement(
         text = text,
         style = style,
         fontFamilyResolver = fontFamilyResolver,
+        defaultLocaleList = localeList,
         softWrap = softWrap,
     )
 
@@ -136,7 +140,8 @@ public fun BasicText(
                 softWrap = softWrap,
                 maxLines = maxLines,
                 minLines = minLines,
-                fontFamilyResolver = LocalFontFamilyResolver.current,
+                fontFamilyResolver = fontFamilyResolver,
+                defaultLocaleList = localeList,
                 placeholders = null,
                 onPlaceholderLayout = null,
                 selectionController = selectionController,
@@ -150,6 +155,7 @@ public fun BasicText(
                     text = text,
                     style = style,
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocaleList = localeList,
                     overflow = overflow,
                     softWrap = softWrap,
                     maxLines = maxLines,
@@ -223,12 +229,14 @@ public fun BasicText(
     val hasLinks = text.hasLinks()
 
     val fontFamilyResolver = LocalFontFamilyResolver.current
+    val localeList = LocalLocaleList.current
 
     if (!hasInlineContent && !hasLinks) {
         BackgroundTextMeasurement(
             text = text,
             style = style,
             fontFamilyResolver = fontFamilyResolver,
+            defaultLocaleList = localeList,
             placeholders = null,
             softWrap = softWrap,
         )
@@ -245,6 +253,7 @@ public fun BasicText(
                     maxLines = maxLines,
                     minLines = minLines,
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocaleList = localeList,
                     placeholders = null,
                     onPlaceholderLayout = null,
                     selectionController = selectionController,
@@ -271,6 +280,7 @@ public fun BasicText(
             maxLines = maxLines,
             minLines = minLines,
             fontFamilyResolver = fontFamilyResolver,
+            defaultLocaleList = localeList,
             selectionController = selectionController,
             color = color,
             onShowTranslation = { substitutionValue ->
@@ -587,6 +597,7 @@ private fun Modifier.textModifier(
     maxLines: Int,
     minLines: Int,
     fontFamilyResolver: FontFamily.Resolver,
+    defaultLocaleList: LocaleList,
     placeholders: List<AnnotatedString.Range<Placeholder>>?,
     onPlaceholderLayout: ((List<Rect?>) -> Unit)?,
     selectionController: SelectionController?,
@@ -600,6 +611,7 @@ private fun Modifier.textModifier(
                 text,
                 style,
                 fontFamilyResolver,
+                defaultLocaleList,
                 onTextLayout,
                 overflow,
                 softWrap,
@@ -619,6 +631,7 @@ private fun Modifier.textModifier(
                 text,
                 style,
                 fontFamilyResolver,
+                defaultLocaleList,
                 onTextLayout,
                 overflow,
                 softWrap,
@@ -647,6 +660,7 @@ private fun LayoutWithLinksAndInlineContent(
     maxLines: Int,
     minLines: Int,
     fontFamilyResolver: FontFamily.Resolver,
+    defaultLocaleList: LocaleList,
     selectionController: SelectionController?,
     color: ColorProducer?,
     onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)?,
@@ -687,6 +701,7 @@ private fun LayoutWithLinksAndInlineContent(
         text = text,
         style = style,
         fontFamilyResolver = fontFamilyResolver,
+        defaultLocaleList = defaultLocaleList,
         placeholders = placeholders,
         softWrap = softWrap,
     )
@@ -709,6 +724,7 @@ private fun LayoutWithLinksAndInlineContent(
                 maxLines = maxLines,
                 minLines = minLines,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocaleList = defaultLocaleList,
                 placeholders = placeholders,
                 onPlaceholderLayout = onPlaceholderLayout,
                 selectionController = selectionController,
@@ -740,6 +756,7 @@ internal expect fun BackgroundTextMeasurement(
     text: String,
     style: TextStyle,
     fontFamilyResolver: FontFamily.Resolver,
+    defaultLocaleList: LocaleList,
     softWrap: Boolean,
 )
 
@@ -753,6 +770,7 @@ internal expect fun BackgroundTextMeasurement(
     text: AnnotatedString,
     style: TextStyle,
     fontFamilyResolver: FontFamily.Resolver,
+    defaultLocaleList: LocaleList,
     placeholders: List<AnnotatedString.Range<Placeholder>>?,
     softWrap: Boolean,
 )
