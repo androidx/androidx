@@ -48,38 +48,22 @@ public fun WebContent(block: WebContent.Builder.() -> Unit = {}): WebContent {
  *
  * This may only be used when [WebFeature.WEB_CONTENT] feature checks pass.
  */
-public interface WebContent : AutoCloseable {
-    /** Builder for [WebContent]. */
-    @Suppress("EmptyBuilder")
-    public class Builder {
-        /** Creates a new [Builder] to create [WebContent]. */
-        @RequiresFeature(
-            name = WebFeature.WEB_CONTENT,
-            enforcement = "androidx.web.WebFeature#isFeatureSupported",
-        )
-        public constructor() {
-            if (!WebFeature.isFeatureSupported(WebFeature.WEB_CONTENT)) {
-                throw WebFeature.getUnsupportedOperationException()
-            }
-        }
+public class WebContent
+internal constructor(private val boundaryInterface: WebContentBoundaryInterface) : AutoCloseable {
 
-        private fun transfer(chromiumConfig: BiConsumer<@WebContentConfig Int, Any>) {
-            // Transfer config fields to Chromium.
-        }
+    private var isDetached: Boolean = true
+    private var isDestroyed: Boolean = false
+    private var currentView: WebContentView? = null
+    private var savedScrollX: Int = 0
+    private var savedScrollY: Int = 0
 
-        /** Builds a [WebContent] instance. */
-        @NonNull
-        public fun build(): WebContent {
-            val factory = WebGlueCommunicator.factory
-            val contentHandler = factory.buildWebContent(::transfer)
-            val contentBoundary =
-                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                    WebContentBoundaryInterface::class.java,
-                    contentHandler,
-                )!!
-
-            return WebContentImpl(contentBoundary)
+    private fun unwrapActivity(context: Context): Activity? {
+        var ctx: Context? = context
+        while (ctx is ContextWrapper) {
+            if (ctx is Activity) return ctx
+            ctx = ctx.baseContext
         }
+        return null
     }
 
     /**
@@ -107,7 +91,13 @@ public interface WebContent : AutoCloseable {
     public fun <T : WebContentView> attach(
         @NonNull context: Context,
         @NonNull factory: Function<Context, T>,
-    ): T
+    ): T {
+        check(!isDestroyed) { "Cannot attach to a destroyed WebContent." }
+        require(unwrapActivity(context) != null) {
+            "WebContent must be attached with an Activity context."
+        }
+        return internalAttach(context, factory::apply)
+    }
 
     /**
      * Detaches this [WebContent] from its current [WebContentView]. Any callbacks triggered will
@@ -118,47 +108,18 @@ public interface WebContent : AutoCloseable {
      *
      * @throws IllegalStateException if the current [WebContentView] is still in the view hierarchy.
      */
-    @UiThread public fun detach()
+    @UiThread
+    public fun detach() {
+        if (isDetached || isDestroyed) return
+        internalAttach(currentView!!.context.applicationContext, ::DetachedWebContentView)
+    }
 
     /**
      * Permanently closes and destroys the underlying [WebContentView] engine associated with this
      * [WebContent]. This method must be called from the main thread. Once closed, this [WebContent]
      * instance can no longer be used.
      */
-    @UiThread override fun close()
-}
-
-internal class WebContentImpl(private val boundaryInterface: WebContentBoundaryInterface) :
-    WebContent {
-
-    private var isDetached: Boolean = true
-    private var isDestroyed: Boolean = false
-    private var currentView: WebContentView? = null
-    private var savedScrollX: Int = 0
-    private var savedScrollY: Int = 0
-
-    private fun unwrapActivity(context: Context): Activity? {
-        var ctx: Context? = context
-        while (ctx is ContextWrapper) {
-            if (ctx is Activity) return ctx
-            ctx = ctx.baseContext
-        }
-        return null
-    }
-
-    override fun <T : WebContentView> attach(context: Context, factory: Function<Context, T>): T {
-        check(!isDestroyed) { "Cannot attach to a destroyed WebContent." }
-        require(unwrapActivity(context) != null) {
-            "WebContent must be attached with an Activity context."
-        }
-        return internalAttach(context, factory::apply)
-    }
-
-    override fun detach() {
-        if (isDetached || isDestroyed) return
-        internalAttach(currentView!!.context.applicationContext, ::DetachedWebContentView)
-    }
-
+    @UiThread
     override fun close() {
         if (isDestroyed) return
         boundaryInterface.destroy()
@@ -189,5 +150,38 @@ internal class WebContentImpl(private val boundaryInterface: WebContentBoundaryI
         }
 
         return view
+    }
+
+    /** Builder for [WebContent]. */
+    @Suppress("EmptyBuilder")
+    public class Builder {
+        /** Creates a new [Builder] to create [WebContent]. */
+        @RequiresFeature(
+            name = WebFeature.WEB_CONTENT,
+            enforcement = "androidx.web.WebFeature#isFeatureSupported",
+        )
+        public constructor() {
+            if (!WebFeature.isFeatureSupported(WebFeature.WEB_CONTENT)) {
+                throw WebFeature.getUnsupportedOperationException()
+            }
+        }
+
+        private fun transfer(chromiumConfig: BiConsumer<@WebContentConfig Int, Any>) {
+            // Transfer config fields to Chromium.
+        }
+
+        /** Builds a [WebContent] instance. */
+        @NonNull
+        public fun build(): WebContent {
+            val factory = WebGlueCommunicator.factory
+            val contentHandler = factory.buildWebContent(::transfer)
+            val contentBoundary =
+                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                    WebContentBoundaryInterface::class.java,
+                    contentHandler,
+                )!!
+
+            return WebContent(contentBoundary)
+        }
     }
 }
