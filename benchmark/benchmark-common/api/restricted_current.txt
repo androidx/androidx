@@ -132,7 +132,7 @@ package androidx.benchmark {
 
 }
 
-package androidx.benchmark.perfetto {
+package @SuppressCompatibility androidx.benchmark.perfetto {
 
   @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalPerfettoCaptureApi {
   }

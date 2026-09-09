@@ -1,5 +1,5 @@
 // Signature format: 4.0
-package androidx.compose.material3.xr.adaptive {
+package @SuppressCompatibility androidx.compose.material3.xr.adaptive {
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This material3 adaptive API is experimental and is likely to change or to be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3XrAdaptiveApi {
   }
