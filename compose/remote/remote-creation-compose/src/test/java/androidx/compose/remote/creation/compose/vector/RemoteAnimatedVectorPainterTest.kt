@@ -242,37 +242,22 @@ class RemoteAnimatedVectorPainterTest {
     }
 
     @Test
-    fun threeStagePathMorphing_withStaticProgress_evaluatesCorrectSegmentAndInterpolates() {
+    fun threeStagePathMorphing_withConstantProgress_stillGeneratesDynamicChainedSegments() {
         val avd = RemoteAnimatedVector.fromXml(context.resources, R.drawable.avd_three_segments)
-
-        // Segment 0: 0..100ms (progress 0..0.333333)
-        val p0 = RemoteAnimatedVectorPainter(avd, 0.0f.rf)
-        val root0 = p0.root[0] as RemoteGroupComponent
-        val shape0 = root0[0] as RemotePathComponent
-        assertThat(shape0.pathTween.constantValueOrNull).isEqualTo(0f)
-
-        // Midpoint of Segment 0 (50ms / 300ms = 0.166667f)
-        val pMid0 = RemoteAnimatedVectorPainter(avd, (50f / 300f).rf)
-        val rootMid0 = pMid0.root[0] as RemoteGroupComponent
-        val shapeMid0 = rootMid0[0] as RemotePathComponent
-        assertThat(shapeMid0.pathTween.constantValueOrNull).isWithin(0.01f).of(0.5f)
-
-        // Midpoint of Segment 1 (150ms / 300ms = 0.5f)
-        val pMid1 = RemoteAnimatedVectorPainter(avd, 0.5f.rf)
-        val rootMid1 = pMid1.root[0] as RemoteGroupComponent
-        val shapeMid1 = rootMid1[0] as RemotePathComponent
-        assertThat(shapeMid1.pathTween.constantValueOrNull).isWithin(0.01f).of(0.5f)
-
-        // Midpoint of Segment 2 (250ms / 300ms = 0.833333f)
-        val pMid2 = RemoteAnimatedVectorPainter(avd, (250f / 300f).rf)
-        val rootMid2 = pMid2.root[0] as RemoteGroupComponent
-        val shapeMid2 = rootMid2[0] as RemotePathComponent
-        assertThat(shapeMid2.pathTween.constantValueOrNull).isWithin(0.01f).of(0.5f)
-
-        // End of Segment 2 (1.0f)
-        val pEnd = RemoteAnimatedVectorPainter(avd, 1.0f.rf)
-        val rootEnd = pEnd.root[0] as RemoteGroupComponent
-        val shapeEnd = rootEnd[0] as RemotePathComponent
-        assertThat(shapeEnd.pathTween.constantValueOrNull).isEqualTo(1f)
+        val painter = RemoteAnimatedVectorPainter(avd, 0.5f.rf)
+        val root = painter.root[0] as RemoteGroupComponent
+        val pathGroup = root[0] as RemoteGroupComponent
+        assertThat(pathGroup.numChildren).isEqualTo(3)
+        for (i in 0 until 3) {
+            val seg = pathGroup[i] as RemotePathComponent
+            assertThat(seg.name).isEqualTo("shape_path_seg$i")
+            assertThat(seg.pathData).isNotEmpty()
+        }
+        val seg0 = pathGroup[0] as RemotePathComponent
+        assertThat(seg0.pathTween.constantValueOrNull).isEqualTo(1f)
+        val seg1 = pathGroup[1] as RemotePathComponent
+        assertThat(seg1.pathTween.constantValueOrNull).isWithin(0.01f).of(0.5f)
+        val seg2 = pathGroup[2] as RemotePathComponent
+        assertThat(seg2.pathTween.constantValueOrNull).isEqualTo(0f)
     }
 }
