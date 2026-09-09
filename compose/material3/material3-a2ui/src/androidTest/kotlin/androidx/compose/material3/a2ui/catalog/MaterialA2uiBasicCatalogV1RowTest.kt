@@ -1150,6 +1150,51 @@ class MaterialA2uiBasicCatalogV1RowTest {
     }
 
     @Test
+    fun align_default_alignsChildrenAtTop() = runComposeUiTest {
+        val childHeight = 40.dp
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Row",
+                            properties = mapOf("children" to listOf("child1")),
+                        ),
+                        A2uiComponentPayload(id = "child1"),
+                    ),
+                componentStubs =
+                    listOf(
+                        A2uiComponentStub.withId("child1") { _, modifier ->
+                            Box(
+                                modifier =
+                                    modifier
+                                        .testTag("child1")
+                                        .sizeIn(minWidth = 50.dp, minHeight = childHeight)
+                            )
+                        }
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent {
+            MaterialTheme {
+                A2uiTestSurface(
+                    surface = surface,
+                    modifier = Modifier.testTag("row_tag").width(200.dp).height(100.dp),
+                )
+            }
+        }
+
+        val rowBounds = onNodeWithTag("row_tag").getUnclippedBoundsInRoot()
+        val child1Bounds = onNodeWithTag("child1").getUnclippedBoundsInRoot()
+
+        assertThat(child1Bounds.top.value).isWithin(0.5f).of(rowBounds.top.value)
+        assertThat(child1Bounds.height.value).isWithin(0.5f).of(childHeight.value)
+    }
+
+    @Test
     fun align_start_alignsChildrenAtTop() = runComposeUiTest {
         val childHeight = 40.dp
         val controller =

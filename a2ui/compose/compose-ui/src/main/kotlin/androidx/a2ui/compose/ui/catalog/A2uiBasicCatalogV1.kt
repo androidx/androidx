@@ -958,7 +958,7 @@ public class A2uiBasicCatalogV1(
      *   `"spaceEvenly"`, `"start"`, `"stretch"`. Defaults to `"start"`.
      * * `align` (String Enum, optional): Defines the alignment of children along the cross axis
      *   (vertically). Valid options: `"start"`, `"center"`, `"end"`, `"stretch"`. Defaults to
-     *   `"stretch"`.
+     *   `"start"`.
      */
     public interface Row : A2uiComponent {
         override val name: String
@@ -994,9 +994,9 @@ public class A2uiBasicCatalogV1(
             Stretch("stretch");
 
             public companion object {
-                /** Returns the [Align] matching [value], or [Stretch] if unknown. */
+                /** Returns the [Align] matching [value], or [Start] if unknown. */
                 public fun fromValue(value: String): Align =
-                    entries.fastFirstOrNull { it.value == value } ?: Stretch
+                    entries.fastFirstOrNull { it.value == value } ?: Start
             }
         }
 
@@ -1038,7 +1038,7 @@ public class A2uiBasicCatalogV1(
                     enumValues = Align.entries,
                     mapToString = { it.value },
                     convertFromString = Align::fromValue,
-                    defaultValue = Align.Stretch,
+                    defaultValue = Align.Start,
                     description =
                         "Defines the alignment of children along the cross axis (vertically). " +
                             "This is similar to the CSS 'align-items' property, but uses " +
@@ -1073,7 +1073,7 @@ public class A2uiBasicCatalogV1(
                         "resolved."
                 }
             val justify = properties[JustifyProperty] ?: Justify.Start
-            val align = properties[AlignProperty] ?: Align.Stretch
+            val align = properties[AlignProperty] ?: Align.Start
             val accessibility = properties.bind(AccessibilityProperty)
 
             TypedContent(
