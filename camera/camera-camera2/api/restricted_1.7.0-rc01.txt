@@ -1,0 +1,226 @@
+// Signature format: 4.0
+package androidx.camera.camera2 {
+
+  public final class Camera2Config {
+    method public static androidx.camera.core.CameraXConfig defaultConfig();
+    field public static final androidx.camera.camera2.Camera2Config.Companion Companion;
+  }
+
+  public static final class Camera2Config.Companion {
+    method public androidx.camera.core.CameraXConfig defaultConfig();
+  }
+
+}
+
+package androidx.camera.camera2.interop {
+
+  @Deprecated @SuppressCompatibility @androidx.camera.camera2.interop.ExperimentalCamera2Interop public final class Camera2CameraControl {
+    method @Deprecated public com.google.common.util.concurrent.ListenableFuture<java.lang.Void?> addCaptureRequestOptions(androidx.camera.camera2.interop.CaptureRequestOptions bundle);
+    method @Deprecated public com.google.common.util.concurrent.ListenableFuture<java.lang.Void?> clearCaptureRequestOptions();
+    method @Deprecated public static androidx.camera.camera2.interop.Camera2CameraControl from(androidx.camera.core.CameraControl cameraControl);
+    method @Deprecated public androidx.camera.camera2.interop.CaptureRequestOptions getCaptureRequestOptions();
+    method @Deprecated public com.google.common.util.concurrent.ListenableFuture<java.lang.Void?> setCaptureRequestOptions(androidx.camera.camera2.interop.CaptureRequestOptions bundle);
+    field @Deprecated public static final androidx.camera.camera2.interop.Camera2CameraControl.Companion Companion;
+  }
+
+  @Deprecated @SuppressCompatibility @androidx.camera.camera2.interop.ExperimentalCamera2Interop public static final class Camera2CameraControl.Companion {
+    method @Deprecated public androidx.camera.camera2.interop.Camera2CameraControl from(androidx.camera.core.CameraControl cameraControl);
+  }
+
+  @Deprecated @SuppressCompatibility @androidx.camera.camera2.interop.ExperimentalCamera2Interop public final class Camera2CameraInfo {
+    method @Deprecated public static androidx.camera.camera2.interop.Camera2CameraInfo from(androidx.camera.core.CameraInfo cameraInfo);
+    method @Deprecated public <T> T? getCameraCharacteristic(android.hardware.camera2.CameraCharacteristics.Key<T> key);
+    method @Deprecated public String getCameraId();
+    property @Deprecated public String cameraId;
+    field @Deprecated public static final androidx.camera.camera2.interop.Camera2CameraInfo.Companion Companion;
+  }
+
+  @Deprecated @SuppressCompatibility @androidx.camera.camera2.interop.ExperimentalCamera2Interop public static final class Camera2CameraInfo.Companion {
+    method @Deprecated public androidx.camera.camera2.interop.Camera2CameraInfo from(androidx.camera.core.CameraInfo cameraInfo);
+  }
+
+  public final class Camera2Interop {
+    method public static androidx.camera.camera2.interop.CameraControlCamera2Configurator forCameraControl(androidx.core.util.Consumer<androidx.camera.camera2.interop.CameraControlCamera2Interop> configurator);
+    method public static androidx.camera.camera2.interop.ImageCaptureCamera2Configurator forImageCapture(androidx.core.util.Consumer<androidx.camera.camera2.interop.ImageCaptureCamera2Interop> configurator);
+    method public static androidx.camera.camera2.interop.SessionConfigCamera2Configurator forSessionConfig(androidx.core.util.Consumer<androidx.camera.camera2.interop.SessionConfigCamera2Interop> configurator);
+    method public static androidx.camera.camera2.interop.UseCaseCamera2Configurator forUseCase(androidx.core.util.Consumer<androidx.camera.camera2.interop.UseCaseCamera2Interop> configurator);
+    method public static android.hardware.camera2.CameraCharacteristics getCameraCharacteristics(androidx.camera.core.CameraInfo cameraInfo);
+    method public static androidx.camera.core.CameraFilter getCameraFilterFromCameraId(String cameraId);
+    method public static String getCameraId(androidx.camera.core.CameraInfo cameraInfo);
+    method public static androidx.camera.core.CameraSelector getCameraSelectorFromCameraId(String cameraId);
+    field public static final androidx.camera.camera2.interop.Camera2Interop.Companion Companion;
+  }
+
+  public static final class Camera2Interop.Companion {
+    method public androidx.camera.camera2.interop.CameraControlCamera2Configurator forCameraControl(androidx.core.util.Consumer<androidx.camera.camera2.interop.CameraControlCamera2Interop> configurator);
+    method public androidx.camera.camera2.interop.ImageCaptureCamera2Configurator forImageCapture(androidx.core.util.Consumer<androidx.camera.camera2.interop.ImageCaptureCamera2Interop> configurator);
+    method public androidx.camera.camera2.interop.SessionConfigCamera2Configurator forSessionConfig(androidx.core.util.Consumer<androidx.camera.camera2.interop.SessionConfigCamera2Interop> configurator);
+    method public androidx.camera.camera2.interop.UseCaseCamera2Configurator forUseCase(androidx.core.util.Consumer<androidx.camera.camera2.interop.UseCaseCamera2Interop> configurator);
+    method public android.hardware.camera2.CameraCharacteristics getCameraCharacteristics(androidx.camera.core.CameraInfo cameraInfo);
+    method public androidx.camera.core.CameraFilter getCameraFilterFromCameraId(String cameraId);
+    method public String getCameraId(androidx.camera.core.CameraInfo cameraInfo);
+    method public androidx.camera.core.CameraSelector getCameraSelectorFromCameraId(String cameraId);
+  }
+
+  @Deprecated @SuppressCompatibility @androidx.camera.camera2.interop.ExperimentalCamera2Interop public static final class Camera2Interop.Extender<T> {
+    ctor @Deprecated public Camera2Interop.Extender(androidx.camera.core.ExtendableBuilder<T> baseBuilder);
+    method @Deprecated public <ValueT> androidx.camera.camera2.interop.Camera2Interop.Extender<T> setCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT> key, ValueT value);
+    method @Deprecated public androidx.camera.camera2.interop.Camera2Interop.Extender<T> setDeviceStateCallback(android.hardware.camera2.CameraDevice.StateCallback stateCallback);
+    method @Deprecated @RequiresApi(28) public androidx.camera.camera2.interop.Camera2Interop.Extender<T> setPhysicalCameraId(String cameraId);
+    method @Deprecated public androidx.camera.camera2.interop.Camera2Interop.Extender<T> setSessionCaptureCallback(android.hardware.camera2.CameraCaptureSession.CaptureCallback captureCallback);
+    method @Deprecated public androidx.camera.camera2.interop.Camera2Interop.Extender<T> setSessionStateCallback(android.hardware.camera2.CameraCaptureSession.StateCallback stateCallback);
+    method @Deprecated @RequiresApi(33) public androidx.camera.camera2.interop.Camera2Interop.Extender<T> setStreamUseCase(long streamUseCase);
+  }
+
+  public final class Camera2InteropEx {
+    method public static suspend inline Object? applyCamera2Interop(androidx.camera.core.CameraControl, kotlin.jvm.functions.Function1<? super androidx.camera.camera2.interop.CameraControlCamera2Interop,kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public static inline com.google.common.util.concurrent.ListenableFuture<java.lang.Void> applyCamera2InteropAsync(androidx.camera.core.CameraControl, kotlin.jvm.functions.Function1<? super androidx.camera.camera2.interop.CameraControlCamera2Interop,kotlin.Unit> block);
+    method public static inline androidx.camera.core.ImageCapture.Builder camera2Interop(androidx.camera.core.ImageCapture.Builder, kotlin.jvm.functions.Function1<? super androidx.camera.camera2.interop.ImageCaptureCamera2Interop,kotlin.Unit> block);
+    method public static inline void camera2Interop(androidx.camera.core.ImageCaptureScope, kotlin.jvm.functions.Function1<? super androidx.camera.camera2.interop.ImageCaptureCamera2Interop,kotlin.Unit> block);
+    method public static inline <B extends androidx.camera.core.UseCase.InteropConfigurable<B>> void camera2Interop(androidx.camera.core.InteropConfigurableScope<? extends B>, kotlin.jvm.functions.Function1<? super androidx.camera.camera2.interop.UseCaseCamera2Interop,kotlin.Unit> block);
+    method public static inline androidx.camera.core.SessionConfig.Builder camera2Interop(androidx.camera.core.SessionConfig.Builder, kotlin.jvm.functions.Function1<? super androidx.camera.camera2.interop.SessionConfigCamera2Interop,kotlin.Unit> block);
+    method public static inline void camera2Interop(androidx.camera.core.SessionConfigScope, kotlin.jvm.functions.Function1<? super androidx.camera.camera2.interop.SessionConfigCamera2Interop,kotlin.Unit> block);
+    method public static inline <B extends androidx.camera.core.UseCase.InteropConfigurable<B>> B camera2Interop(B, kotlin.jvm.functions.Function1<? super androidx.camera.camera2.interop.UseCaseCamera2Interop,kotlin.Unit> block);
+    method @InaccessibleFromKotlin public static android.hardware.camera2.CameraCharacteristics getCameraCharacteristics(androidx.camera.core.CameraInfo);
+    method @InaccessibleFromKotlin public static String getCameraId(androidx.camera.core.CameraInfo);
+    method public static androidx.camera.core.CameraSelector toCameraSelector(String);
+    property public static android.hardware.camera2.CameraCharacteristics androidx.camera.core.CameraInfo.cameraCharacteristics;
+    property public static String androidx.camera.core.CameraInfo.cameraId;
+  }
+
+  public interface CameraCaptureSessionInterop {
+    method public void clearAllCaptureRequestOptions();
+    method public void clearCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?> key);
+    method @InaccessibleFromKotlin public default androidx.camera.camera2.interop.CaptureRequestOptionTarget getCaptureRequest();
+    method @InaccessibleFromKotlin public android.hardware.camera2.CameraCaptureSession.CaptureCallback? getRepeatingCaptureCallback();
+    method @InaccessibleFromKotlin public int getRepeatingCaptureRequestTemplate();
+    method public <V> void setCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<V> key, V value);
+    method @InaccessibleFromKotlin public void setRepeatingCaptureCallback(android.hardware.camera2.CameraCaptureSession.CaptureCallback?);
+    method public void setRepeatingCaptureCallback(java.util.concurrent.Executor executor, android.hardware.camera2.CameraCaptureSession.CaptureCallback callback);
+    method @InaccessibleFromKotlin public void setRepeatingCaptureRequestTemplate(int);
+    property public default androidx.camera.camera2.interop.CaptureRequestOptionTarget captureRequest;
+    property public abstract android.hardware.camera2.CameraCaptureSession.CaptureCallback? repeatingCaptureCallback;
+    property public abstract int repeatingCaptureRequestTemplate;
+  }
+
+  public final class CameraControlCamera2Configurator implements androidx.camera.core.InteropConfigurator<androidx.camera.core.CameraControl> {
+    method public void configure(androidx.camera.core.CameraControl cameraControl);
+  }
+
+  @androidx.camera.core.CameraXDsl public interface CameraControlCamera2Interop extends androidx.camera.camera2.interop.CameraCaptureSessionInterop {
+  }
+
+  public interface CameraDeviceInterop {
+    method @InaccessibleFromKotlin public android.hardware.camera2.CameraDevice.StateCallback? getDeviceStateCallback();
+    method @InaccessibleFromKotlin public void setDeviceStateCallback(android.hardware.camera2.CameraDevice.StateCallback?);
+    method public void setDeviceStateCallback(java.util.concurrent.Executor executor, android.hardware.camera2.CameraDevice.StateCallback callback);
+    property public abstract android.hardware.camera2.CameraDevice.StateCallback? deviceStateCallback;
+  }
+
+  public final class CaptureRequestOptionTarget {
+    method public operator <V> void set(android.hardware.camera2.CaptureRequest.Key<V> key, V value);
+  }
+
+  @Deprecated @SuppressCompatibility @androidx.camera.camera2.interop.ExperimentalCamera2Interop public class CaptureRequestOptions {
+    method @Deprecated public <ValueT> ValueT? getCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT> key);
+  }
+
+  @Deprecated @SuppressCompatibility @androidx.camera.camera2.interop.ExperimentalCamera2Interop public static final class CaptureRequestOptions.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.camera2.interop.CaptureRequestOptions?> {
+    ctor @Deprecated public CaptureRequestOptions.Builder();
+    method @Deprecated public androidx.camera.camera2.interop.CaptureRequestOptions build();
+    method @Deprecated public <ValueT> androidx.camera.camera2.interop.CaptureRequestOptions.Builder clearCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT> key);
+    method @Deprecated public <ValueT> androidx.camera.camera2.interop.CaptureRequestOptions.Builder setCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT> key, ValueT value);
+    field @Deprecated public static final androidx.camera.camera2.interop.CaptureRequestOptions.Builder.Companion Companion;
+  }
+
+  @Deprecated @SuppressCompatibility @androidx.camera.camera2.interop.ExperimentalCamera2Interop public static final class CaptureRequestOptions.Builder.Companion {
+  }
+
+  @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCamera2Interop {
+  }
+
+  public final class ImageCaptureCamera2Configurator implements androidx.camera.core.InteropConfigurator<androidx.camera.core.ImageCapture.Builder> {
+    method public void configure(androidx.camera.core.ImageCapture.Builder imageCaptureBuilder);
+  }
+
+  @androidx.camera.core.CameraXDsl public interface ImageCaptureCamera2Interop extends androidx.camera.camera2.interop.OutputConfigurationInterop androidx.camera.camera2.interop.StillCaptureInterop {
+  }
+
+  public interface OutputConfigurationInterop {
+    method @RequiresApi(31) public void addSensorPixelModeUsed(int sensorPixelMode);
+    method @InaccessibleFromKotlin @RequiresApi(33) public long getDynamicRangeProfile();
+    method @InaccessibleFromKotlin @RequiresApi(33) public int getMirrorMode();
+    method @InaccessibleFromKotlin @RequiresApi(28) public String? getPhysicalCameraId();
+    method @InaccessibleFromKotlin @RequiresApi(31) public java.util.Set<java.lang.Integer> getSensorPixelModesUsed();
+    method @InaccessibleFromKotlin @RequiresApi(33) public long getStreamUseCase();
+    method @InaccessibleFromKotlin public int getSurfaceGroupId();
+    method @InaccessibleFromKotlin @RequiresApi(33) public int getTimestampBase();
+    method @InaccessibleFromKotlin @RequiresApi(33) public void setDynamicRangeProfile(long);
+    method @InaccessibleFromKotlin @RequiresApi(33) public void setMirrorMode(int);
+    method @InaccessibleFromKotlin @RequiresApi(28) public void setPhysicalCameraId(String?);
+    method @InaccessibleFromKotlin @RequiresApi(31) public void setSensorPixelModesUsed(java.util.Set<java.lang.Integer>);
+    method @InaccessibleFromKotlin @RequiresApi(33) public void setStreamUseCase(long);
+    method @InaccessibleFromKotlin public void setSurfaceGroupId(int);
+    method @InaccessibleFromKotlin @RequiresApi(33) public void setTimestampBase(int);
+    property @RequiresApi(33) public abstract long dynamicRangeProfile;
+    property @RequiresApi(33) public abstract int mirrorMode;
+    property @RequiresApi(28) public abstract String? physicalCameraId;
+    property @RequiresApi(31) public abstract java.util.Set<java.lang.Integer> sensorPixelModesUsed;
+    property @RequiresApi(33) public abstract long streamUseCase;
+    property public abstract int surfaceGroupId;
+    property @RequiresApi(33) public abstract int timestampBase;
+  }
+
+  public final class SessionConfigCamera2Configurator implements androidx.camera.core.InteropConfigurator<androidx.camera.core.SessionConfig.Builder> {
+    method public void configure(androidx.camera.core.SessionConfig.Builder sessionConfigBuilder);
+  }
+
+  @androidx.camera.core.CameraXDsl public interface SessionConfigCamera2Interop extends androidx.camera.camera2.interop.CameraDeviceInterop androidx.camera.camera2.interop.CameraCaptureSessionInterop androidx.camera.camera2.interop.SessionConfigurationInterop {
+  }
+
+  public interface SessionConfigurationInterop {
+    method @InaccessibleFromKotlin @RequiresApi(34) public android.graphics.ColorSpace.Named? getColorSpace();
+    method @InaccessibleFromKotlin @RequiresApi(28) public default androidx.camera.camera2.interop.SessionParameterTarget getSessionParameter();
+    method @InaccessibleFromKotlin public android.hardware.camera2.CameraCaptureSession.StateCallback? getSessionStateCallback();
+    method @InaccessibleFromKotlin @RequiresApi(28) public int getSessionType();
+    method @InaccessibleFromKotlin @RequiresApi(34) public void setColorSpace(android.graphics.ColorSpace.Named?);
+    method @RequiresApi(28) public <V> void setSessionParameter(android.hardware.camera2.CaptureRequest.Key<V> key, V value);
+    method @InaccessibleFromKotlin public void setSessionStateCallback(android.hardware.camera2.CameraCaptureSession.StateCallback?);
+    method public void setSessionStateCallback(java.util.concurrent.Executor executor, android.hardware.camera2.CameraCaptureSession.StateCallback callback);
+    method @InaccessibleFromKotlin @RequiresApi(28) public void setSessionType(int);
+    property @RequiresApi(34) public abstract android.graphics.ColorSpace.Named? colorSpace;
+    property @RequiresApi(28) public default androidx.camera.camera2.interop.SessionParameterTarget sessionParameter;
+    property public abstract android.hardware.camera2.CameraCaptureSession.StateCallback? sessionStateCallback;
+    property @RequiresApi(28) public abstract int sessionType;
+  }
+
+  public final class SessionParameterTarget {
+    method @RequiresApi(28) public operator <V> void set(android.hardware.camera2.CaptureRequest.Key<V> key, V value);
+  }
+
+  public interface StillCaptureInterop {
+    method @InaccessibleFromKotlin public android.hardware.camera2.CameraCaptureSession.CaptureCallback? getStillCaptureCallback();
+    method @InaccessibleFromKotlin public default androidx.camera.camera2.interop.StillCaptureRequestOptionTarget getStillCaptureRequest();
+    method @InaccessibleFromKotlin public int getStillCaptureRequestTemplateType();
+    method @InaccessibleFromKotlin public void setStillCaptureCallback(android.hardware.camera2.CameraCaptureSession.CaptureCallback?);
+    method public void setStillCaptureCallback(java.util.concurrent.Executor executor, android.hardware.camera2.CameraCaptureSession.CaptureCallback callback);
+    method public <V> void setStillCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<V> key, V value);
+    method @InaccessibleFromKotlin public void setStillCaptureRequestTemplateType(int);
+    property public abstract android.hardware.camera2.CameraCaptureSession.CaptureCallback? stillCaptureCallback;
+    property public default androidx.camera.camera2.interop.StillCaptureRequestOptionTarget stillCaptureRequest;
+    property public abstract int stillCaptureRequestTemplateType;
+  }
+
+  public final class StillCaptureRequestOptionTarget {
+    method public operator <V> void set(android.hardware.camera2.CaptureRequest.Key<V> key, V value);
+  }
+
+  public final class UseCaseCamera2Configurator implements androidx.camera.core.InteropConfigurator<androidx.camera.core.UseCase.InteropConfigurable<? extends java.lang.Object?>> {
+    method public void configure(androidx.camera.core.UseCase.InteropConfigurable<? extends java.lang.Object?> useCaseConfigurable);
+  }
+
+  @androidx.camera.core.CameraXDsl public interface UseCaseCamera2Interop extends androidx.camera.camera2.interop.OutputConfigurationInterop {
+  }
+
+}
+
