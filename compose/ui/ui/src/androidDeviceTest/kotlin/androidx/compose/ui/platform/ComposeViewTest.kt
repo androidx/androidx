@@ -25,6 +25,7 @@ import android.widget.FrameLayout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -41,7 +42,8 @@ import androidx.fragment.app.FragmentContainerView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -532,8 +534,9 @@ class ComposeViewTest {
     }
 
     @Test
-    fun changedCoroutineContextThrows() {
+    fun disposedCompositionOnContextChange() {
         lateinit var composeView: AndroidComposeView
+        var initialCompositionCount = 0
         rule.setContent {
             AndroidView(
                 factory = {
@@ -541,40 +544,51 @@ class ComposeViewTest {
                         it.setContent {
                             composeView = LocalView.current as AndroidComposeView
                             Box(Modifier.fillMaxSize())
+                            remember<Int> { initialCompositionCount++ }
                         }
                     }
                 }
             )
         }
-        val coroutineContext = runBlocking { coroutineContext }
         rule.runOnIdle {
+            initialCompositionCount = 0
             val oldCVC = composeView.composeViewContext
-            try {
-                composeView.composeViewContext =
-                    ComposeViewContext(
-                        oldCVC.view,
-                        Recomposer(coroutineContext),
-                        oldCVC.lifecycleOwner,
-                        oldCVC.savedStateRegistryOwner,
-                        oldCVC.viewModelStoreOwner,
-                    )
-                fail("IllegalArgumentException is expected")
-            } catch (_: IllegalArgumentException) {
-                // expected result
-            }
+            val wrapper = (composeView.parent as ComposeView)
+            wrapper.composeViewContext =
+                ComposeViewContext(
+                    oldCVC.view,
+                    oldCVC.compositionContext,
+                    oldCVC.lifecycleOwner,
+                    oldCVC.savedStateRegistryOwner,
+                    oldCVC.viewModelStoreOwner,
+                )
         }
+
+        rule.runOnIdle { assertThat(initialCompositionCount).isEqualTo(1) }
     }
 
     @Test
-    fun changedCoroutineContextAfterDispose() {
+    fun reattachingComposeViewUpdatesCoroutineContext() {
         lateinit var androidComposeView: AndroidComposeView
         lateinit var composeView: ComposeView
         var isComposed by mutableStateOf(false)
+        val job1 = Job()
+        val coroutineContext1 = Dispatchers.Main + job1
+        val recomposer1 = Recomposer(coroutineContext1)
+        val attachedView = rule.activity.window.decorView
         rule.setContent {
             AndroidView(
                 factory = {
                     ComposeView(rule.activity).also {
                         composeView = it
+                        it.composeViewContext =
+                            ComposeViewContext(
+                                attachedView,
+                                recomposer1,
+                                rule.activity,
+                                rule.activity,
+                                rule.activity,
+                            )
                         it.setContent {
                             androidComposeView = LocalView.current as AndroidComposeView
                             Box(Modifier.fillMaxSize())
@@ -584,22 +598,86 @@ class ComposeViewTest {
                 }
             )
         }
-        val coroutineContext = runBlocking { coroutineContext }
+
+        rule.runOnIdle {
+            assertThat(isComposed).isTrue()
+            assertThat(androidComposeView.coroutineContext)
+                .isEqualTo(recomposer1.effectCoroutineContext)
+            assertThat(androidComposeView.coroutineContext[Job]!!.isActive).isTrue()
+            job1.cancel()
+            assertThat(androidComposeView.coroutineContext[Job]!!.isCancelled).isTrue()
+        }
+
+        val job2 = Job()
+        val coroutineContext2 = Dispatchers.Main + job2
+        val recomposer2 = Recomposer(coroutineContext2)
         rule.runOnIdle {
             val oldCVC = androidComposeView.composeViewContext
-            composeView.disposeComposition()
-            isComposed = false
-            androidComposeView.composeViewContext =
+            composeView.composeViewContext =
                 ComposeViewContext(
                     oldCVC.view,
-                    Recomposer(coroutineContext),
+                    recomposer2,
                     oldCVC.lifecycleOwner,
                     oldCVC.savedStateRegistryOwner,
                     oldCVC.viewModelStoreOwner,
                 )
         }
 
-        rule.runOnIdle { assertThat(isComposed).isTrue() }
+        rule.runOnIdle {
+            assertThat(androidComposeView.coroutineContext)
+                .isEqualTo(recomposer2.effectCoroutineContext)
+            assertThat(androidComposeView.coroutineContext[Job]!!.isCancelled).isFalse()
+        }
+    }
+
+    @Test
+    fun reattachingComposeViewAfterDisposeRecreatesComposition() {
+        var wrapper: ComposeView? = null
+        var isComposed = false
+        var launchedEffectRan = false
+        var addView by mutableStateOf(true)
+
+        rule.setContent {
+            if (addView) {
+                AndroidView(
+                    factory = {
+                        wrapper
+                            ?: ComposeView(it).also { cv ->
+                                wrapper = cv
+                                cv.setContent {
+                                    isComposed = true
+                                    LaunchedEffect(Unit) {
+                                        launchedEffectRan = true
+                                    }
+                                }
+                            }
+                    }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(isComposed).isTrue()
+            assertThat(launchedEffectRan).isTrue()
+            assertThat(wrapper!!.hasComposition).isTrue()
+        }
+
+        // Detach from hierarchy -> composition disposed by
+        // DisposeOnDetachedFromWindowOrReleasedFromPool
+        addView = false
+        rule.runOnIdle {
+            assertThat(wrapper!!.hasComposition).isFalse()
+            isComposed = false
+            launchedEffectRan = false
+        }
+
+        // Reattach to hierarchy
+        addView = true
+        rule.runOnIdle {
+            assertThat(wrapper!!.hasComposition).isTrue()
+            assertThat(isComposed).isTrue()
+            assertThat(launchedEffectRan).isTrue()
+        }
     }
 
     @Test
