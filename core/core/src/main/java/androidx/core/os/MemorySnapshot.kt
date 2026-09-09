@@ -24,15 +24,43 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
 
+/**
+ * A lightweight, point-in-time snapshot of memory metrics for the calling process.
+ *
+ * [MemorySnapshot] provides low-overhead memory statistics designed for routine telemetry,
+ * performance monitoring, and regression tracking. Unlike heavyweight diagnostic tools such as
+ * [android.os.Debug.getMemoryInfo] or [android.app.ActivityManager.getProcessMemoryInfo], capturing
+ * a [MemorySnapshot] is optimized for minimal overhead, making it practical for periodic sampling
+ * and in-app health diagnostics without incurring expensive system traversals or platform
+ * rate-limiting.
+ *
+ * An instance is created by calling [MemorySnapshot.capture]. All memory quantities are reported in
+ * bytes. If an individual metric is not available on the current device, its property returns
+ * `-1L`.
+ *
+ * ### Thread Safety
+ * [MemorySnapshot] instances are immutable and thread-safe. [MemorySnapshot.capture] is thread-safe
+ * and can be called concurrently from any thread.
+ *
+ * @sample androidx.core.os.captureMemorySnapshotSample
+ * @sample androidx.core.os.trackMemoryUsageDeltaSample
+ * @see MemorySnapshot.capture
+ */
 public class MemorySnapshot private constructor(private val procStatus: ProcStatus?) {
     public companion object {
         private const val INVALID_C_GROUP_FD: Int = -1
 
         /**
-         * Captures a memory snapshot for the current process.
+         * Captures a point-in-time [MemorySnapshot] for the current process.
          *
-         * @return a [MemorySnapshot] instance, or `null` if the API is not supported on this
-         *   device.
+         * This method parses `/proc/self/status` and reads process-specific and package-wide cgroup
+         * memory counters when accessible. The operation is designed to be low-latency,
+         * memory-efficient and threadsafe (can be called concurrently from any thread).
+         *
+         * @return an immutable [MemorySnapshot] instance reflecting current memory state, or `null`
+         *   if the kernel memory stats cannot be read or both `VmRSS` and `VmSize` are unavailable.
+         *   A `null` return value here indicates a persistent error and subsequent calling of this
+         *   method is not recommended.
          */
         @JvmStatic
         public fun capture(): MemorySnapshot? {
@@ -120,39 +148,111 @@ public class MemorySnapshot private constructor(private val procStatus: ProcStat
         }
     }
 
-    /** Returns the Resident Set Size (RSS) in bytes, or -1 if not available. */
+    /**
+     * Total Resident Set Size (RSS) in bytes, or `-1L` if unavailable.
+     *
+     * Represents the total amount of physical RAM currently occupied by the calling process,
+     * including anonymous allocations, memory-mapped files, and shared memory mappings. This is
+     * equal to the sum of [anonRssBytes], [fileRssBytes] and [shmemRssBytes].
+     *
+     * Corresponds to `VmRSS` in `/proc/self/status`.
+     */
     public val rssBytes: Long
         get() = procStatus?.rssBytes ?: -1L
 
-    /** Returns the Anonymous RSS in bytes, or -1 if not available. */
+    /**
+     * Anonymous Resident Set Size in bytes, or `-1L` if unavailable.
+     *
+     * Represents the portion of physical RAM allocated to memory not backed by a file, such as the
+     * Java heap, native heap (`malloc`/`mmap`), and thread stacks. This is typically the most
+     * critical metric for tracking heap allocation growth and diagnosing memory leaks.
+     *
+     * Corresponds to `RssAnon` in `/proc/self/status`.
+     *
+     * NOTE: on Android devices with swap/zRAM enabled, anonymous memory under pressure may be paged
+     * to swap, evaluating total anonymous memory footprint requires combining [anonRssBytes] with
+     * [swapBytes].
+     */
     public val anonRssBytes: Long
         get() = procStatus?.anonRssBytes ?: -1L
 
-    /** Returns the File-backed RSS in bytes, or -1 if not available. */
+    /**
+     * File-backed Resident Set Size in bytes, or `-1L` if unavailable.
+     *
+     * Represents the memory mapped to files on disk, such as DEX bytecode, native shared libraries
+     * (`.so`), assets, and resource caches. Clean file-backed pages can be reclaimed by the system
+     * under memory pressure without requiring swap space. Corresponds to `RssFile` in
+     * `/proc/self/status`.
+     */
     public val fileRssBytes: Long
         get() = procStatus?.fileRssBytes ?: -1L
 
-    /** Returns the Shared Memory RSS in bytes, or -1 if not available. */
+    /**
+     * Shared memory Resident Set Size in bytes, or `-1L` if unavailable.
+     *
+     * Represents the memory occupied by shared memory mappings. This includes memfd/ashmem,
+     * inter-process shared memory (rather than regular shared file mappings, which are accounted
+     * under file RSS). Corresponds to `RssShmem` in `/proc/self/status`.
+     */
     public val shmemRssBytes: Long
         get() = procStatus?.shmemRssBytes ?: -1L
 
-    /** Returns the Swap size in bytes, or -1 if not available. */
+    /**
+     * Total swap memory used by the process in bytes, or `-1L` if unavailable.
+     *
+     * Represents the amount of anonymous memory paged out into swap or compressed RAM (such as
+     * zRAM). Corresponds to `VmSwap` in `/proc/self/status`.
+     */
     public val swapBytes: Long
         get() = procStatus?.swapBytes ?: -1L
 
-    /** Returns the Virtual Set Size (VSS) in bytes, or -1 if not available. */
+    /**
+     * Virtual Set Size (VSS) in bytes, or `-1L` if unavailable.
+     *
+     * Represents the total virtual address space mapped by the process. This includes memory
+     * residing in physical RAM, memory swapped out, as well as memory that is reserved but with no
+     * physical pages allocated. Corresponds to `VmSize` in `/proc/self/status`.
+     *
+     * NOTE: This does *NOT* reflect the physical memory consumed, and is *NOT* indicative of memory
+     * leaks or OOM risks.
+     */
     public val vssBytes: Long
         get() = procStatus?.vssBytes ?: -1L
 
-    /** Returns the Resident Set Size High Water Mark (RSS HWM) in bytes, or -1 if not available. */
+    /**
+     * Resident Set Size High-Water Mark (RSS HWM) in bytes, or `-1L` if unavailable.
+     *
+     * Represents the peak physical RAM usage (maximum RSS) reached by the process during its
+     * lifetime up to the snapshot. Useful for tracking peak memory consumption across workflows.
+     * Corresponds to `VmHWM` in `/proc/self/status`.
+     *
+     * NOTE: This is cumulative over the lifetime of the process and does *NOT* reset between
+     * snapshots.
+     */
     public val rssHwmBytes: Long
         get() = procStatus?.rssHwmBytes ?: -1L
 
-    /** Returns the process-specific cgroup memory usage in bytes, or -1 if not available. */
+    /**
+     * Process-specific cgroup memory usage in bytes, or `-1L` if unavailable.
+     *
+     * Represents memory usage attributed directly to the calling process by the memory controller
+     * (`memory.current` in the process cgroup).
+     *
+     * NOTE: [processMemoryUsageBytes] and [packageMemoryUsageBytes] requires Android 17 or higher,
+     * and will return `-1L` otherwise (on devices where system memory accounting is unavailable).
+     */
     public val processMemoryUsageBytes: Long
         get() = procStatus?.processMemoryUsageBytes ?: -1L
 
-    /** Returns the package-wide (UID cgroup) memory usage in bytes, or -1 if not available. */
+    /**
+     * Package-wide (UID cgroup) memory usage in bytes, or `-1L` if unavailable.
+     *
+     * Represents the aggregate memory usage across all processes running under the application's
+     * UID, as accounted by memory controller (`memory.current` in the UID cgroup).
+     *
+     * NOTE: This gives multi-process apps their combined memory usage without inter-process
+     * queries.
+     */
     public val packageMemoryUsageBytes: Long
         get() = procStatus?.packageMemoryUsageBytes ?: -1L
 
