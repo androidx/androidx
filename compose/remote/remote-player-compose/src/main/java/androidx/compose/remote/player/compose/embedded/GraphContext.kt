@@ -146,6 +146,10 @@ internal class GraphContext(
         return when {
             // Time variables come from the Compose frame-clock state (matching the resolver's time
             // special-case), not the raw store — so a time-driven op reads seconds/minutes/hours.
+            // TODO(b/559048721): timeMillis.value is elapsed time since player start, which is
+            // correct for ID_ANIMATION_TIME, but ID_CONTINUOUS_SEC, ID_TIME_IN_SEC, ID_TIME_IN_MIN,
+            // and ID_TIME_IN_HR should reflect wall-clock time from midnight via RemoteClock.
+            id == RemoteContext.ID_ANIMATION_TIME -> timeMillis.value / 1000f
             id == RemoteContext.ID_CONTINUOUS_SEC || id == RemoteContext.ID_TIME_IN_SEC ->
                 timeMillis.value / 1000f
             id == RemoteContext.ID_TIME_IN_MIN -> timeMillis.value / 60000f

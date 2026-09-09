@@ -766,7 +766,8 @@ internal fun isExpressionTimeDependent(expr: FloatExpression): Boolean {
                     id == RemoteContext.ID_TIME_IN_SEC ||
                     id == RemoteContext.ID_TIME_IN_MIN ||
                     id == RemoteContext.ID_TIME_IN_HR ||
-                    id == RemoteContext.ID_EPOCH_SECOND
+                    id == RemoteContext.ID_EPOCH_SECOND ||
+                    id == RemoteContext.ID_ANIMATION_TIME
             ) {
                 return true
             }
