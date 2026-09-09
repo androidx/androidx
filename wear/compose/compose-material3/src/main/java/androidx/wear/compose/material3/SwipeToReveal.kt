@@ -219,6 +219,10 @@ import kotlinx.coroutines.launch
  *   is expected that the same callback is given to [SwipeToRevealScope.PrimaryActionButton]s
  *   onClick action. If [undoPrimaryAction] is provided, that will be displayed after the swipe
  *   gesture is completed.
+ * @param transformation The transformation for the SwipeToReveal when it's inside a dynamically
+ *   changing container such as [androidx.wear.compose.foundation.lazy.TransformingLazyColumn]. When
+ *   specified, container transformations (e.g. scaling and alpha modulation) are applied to the
+ *   entire component, ensuring revealed action buttons scale uniformly with the content.
  * @param modifier [Modifier] to be applied on the composable.
  * @param secondaryAction Optional secondary action of this component.
  *   [SwipeToRevealScope.SecondaryActionButton] should be used to create a button for this slot. If
@@ -260,6 +264,7 @@ import kotlinx.coroutines.launch
 public fun SwipeToReveal(
     primaryAction: @Composable SwipeToRevealScope.() -> Unit,
     onSwipePrimaryAction: () -> Unit,
+    transformation: SurfaceTransformation?,
     modifier: Modifier = Modifier,
     secondaryAction: (@Composable SwipeToRevealScope.() -> Unit)? = null,
     undoPrimaryAction: (@Composable SwipeToRevealScope.() -> Unit)? = null,
@@ -323,12 +328,22 @@ public fun SwipeToReveal(
 
     var componentWidthPx by remember { mutableFloatStateOf(0f) }
 
+    // Check for NoOpSurfaceTransformation because TransformingLazyColumn returns it
+    // when LocalReduceMotion is enabled, avoiding unnecessary graphicsLayer overhead.
+    val transformationModifier =
+        if (transformation != null && transformation != NoOpSurfaceTransformation) {
+            Modifier.graphicsLayer { with(transformation) { applyContainerTransformation() } }
+        } else {
+            Modifier
+        }
+
     CustomTouchSlopProvider(
         newTouchSlop = LocalViewConfiguration.current.touchSlop * CustomTouchSlopMultiplier
     ) {
         Box(
             modifier =
                 modifier
+                    .then(transformationModifier)
                     .fillMaxWidth()
                     .onGloballyPositioned { layoutCoordinates ->
                         globalPosition = layoutCoordinates
@@ -841,6 +856,130 @@ public fun SwipeToReveal(
         revealDirection = revealDirection,
         hasPartiallyRevealedState = hasPartiallyRevealedState,
         gestureInclusion = gestureInclusion,
+        content = content,
+    )
+}
+
+/**
+ * [SwipeToReveal] material composable component which allows to reveal hidden actions via swipe
+ * gesture.
+ *
+ * It is recommended to use [SwipeToRevealDefaults.ActionContentSpacing] as spacing between the
+ * actions and the content.
+ *
+ * For actions [SwipeToRevealScope.PrimaryActionButton], [SwipeToRevealScope.SecondaryActionButton]
+ * and [SwipeToRevealScope.UndoActionButton] can be used.
+ *
+ * Example of [SwipeToReveal] with a Card composable, it reveals a taller button:
+ *
+ * @sample androidx.wear.compose.material3.samples.SwipeToRevealSingleActionCardSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_SwipeToRevealSingleActionCardSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
+ * Example of [SwipeToReveal] with a [androidx.wear.compose.foundation.lazy.TransformingLazyColumn],
+ * including resetting the [RevealState] to [RevealValue.Covered] when scrolling:
+ *
+ * @sample androidx.wear.compose.material3.samples.SwipeToRevealWithTransformingLazyColumnSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_SwipeToRevealWithTransformingLazyColumnSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
+ * Example of [SwipeToReveal] with a [androidx.wear.compose.foundation.lazy.ScalingLazyColumn],
+ * including resetting the [RevealState] to [RevealValue.Covered] when scrolling:
+ *
+ * @sample androidx.wear.compose.material3.samples.SwipeToRevealWithScalingLazyColumnSample
+ *
+ * Example of [SwipeToReveal] with a [androidx.wear.compose.foundation.lazy.ScalingLazyColumn] that
+ * only executes the primary action when fully swiped (and does not settle after partially revealing
+ * the action) by setting [hasPartiallyRevealedState] = false (so [RevealState] does not need to be
+ * reset when scrolling):
+ *
+ * @sample androidx.wear.compose.material3.samples.SwipeToRevealNoPartialRevealWithScalingLazyColumnSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_SwipeToRevealNoPartialRevealWithScalingLazyColumnSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
+ * @param primaryAction The primary action of this component.
+ *   [SwipeToRevealScope.PrimaryActionButton] should be used to create a button for this slot. If
+ *   [undoPrimaryAction] is provided, the undo button will be displayed after [SwipeToReveal] has
+ *   animated to the revealed state and the primary action button has been hidden.
+ * @param onSwipePrimaryAction A callback which will be triggered when a full swipe is performed. It
+ *   is expected that the same callback is given to [SwipeToRevealScope.PrimaryActionButton]s
+ *   onClick action. If [undoPrimaryAction] is provided, that will be displayed after the swipe
+ *   gesture is completed.
+ * @param modifier [Modifier] to be applied on the composable.
+ * @param secondaryAction Optional secondary action of this component.
+ *   [SwipeToRevealScope.SecondaryActionButton] should be used to create a button for this slot. If
+ *   [undoSecondaryAction] is provided, the undo button will be displayed after [SwipeToReveal] has
+ *   animated to the revealed state and the secondary action button has been hidden.
+ * @param undoPrimaryAction Optional undo action for the primary action of this component.
+ *   [SwipeToRevealScope.UndoActionButton] should be used to create a button for this slot.
+ *   Displayed after [SwipeToReveal] has animated to the revealed state and the primary action
+ *   button has been hidden.
+ * @param undoSecondaryAction Optional undo action for the secondary action of this component,
+ *   displayed after [SwipeToReveal] has animated to the revealed state and the secondary action
+ *   button has been hidden. [undoSecondaryAction] is ignored if the secondary action has not been
+ *   specified. [SwipeToRevealScope.UndoActionButton] should be used to create a button for this
+ *   slot.
+ * @param revealState [RevealState] of the [SwipeToReveal].
+ * @param revealDirection The direction from which [SwipeToReveal] can reveal the actions. It is
+ *   strongly recommended to respect the default value of [RightToLeft] to avoid conflicting with
+ *   the system-side swipe-to-dismiss gesture.
+ * @param hasPartiallyRevealedState Determines whether the intermediate states [RightRevealing] and
+ *   [LeftRevealing] are used. These indicate a settled state, where the primary action is partially
+ *   revealed. By default, partially revealed state is allowed for single actions - set to false to
+ *   make actions complete when swiped instead. This flag has no effect if a secondary action is
+ *   provided (when there are two actions, the component always allows the partially revealed
+ *   states).
+ * @param gestureInclusion Provides fine-grained control so that touch gestures can be excluded when
+ *   they start in a certain region. An instance of [GestureInclusion] can be passed in here which
+ *   will determine via [GestureInclusion.ignoreGestureStart] whether the gesture should proceed or
+ *   not. By default, [gestureInclusion] allows gestures everywhere for when [revealState] contains
+ *   anchors for both directions (see [bidirectionalGestureInclusion]). If it doesn't, then it
+ *   allows gestures everywhere, except a zone on the left edge, which is used for swipe-to-dismiss
+ *   (see [gestureInclusion]).
+ * @param actionContentSpacing The space between the main content and the actions.
+ * @param content The content that will be initially displayed over the other actions provided.
+ *   Custom accessibility actions should always be added to the content using [Modifier.semantics] -
+ *   examples are shown in the code samples.
+ */
+@Composable
+public fun SwipeToReveal(
+    primaryAction: @Composable SwipeToRevealScope.() -> Unit,
+    onSwipePrimaryAction: () -> Unit,
+    modifier: Modifier = Modifier,
+    secondaryAction: (@Composable SwipeToRevealScope.() -> Unit)? = null,
+    undoPrimaryAction: (@Composable SwipeToRevealScope.() -> Unit)? = null,
+    undoSecondaryAction: (@Composable SwipeToRevealScope.() -> Unit)? = null,
+    revealState: RevealState = rememberRevealState(),
+    revealDirection: RevealDirection = RightToLeft,
+    hasPartiallyRevealedState: Boolean = true,
+    gestureInclusion: GestureInclusion =
+        if (revealDirection == Bidirectional) {
+            bidirectionalGestureInclusion
+        } else {
+            gestureInclusion(revealState)
+        },
+    actionContentSpacing: Dp = SwipeToRevealDefaults.ActionContentSpacing,
+    content: @Composable () -> Unit,
+) {
+    SwipeToReveal(
+        primaryAction = primaryAction,
+        onSwipePrimaryAction = onSwipePrimaryAction,
+        transformation = null,
+        modifier = modifier,
+        secondaryAction = secondaryAction,
+        undoPrimaryAction = undoPrimaryAction,
+        undoSecondaryAction = undoSecondaryAction,
+        revealState = revealState,
+        revealDirection = revealDirection,
+        hasPartiallyRevealedState = hasPartiallyRevealedState,
+        gestureInclusion = gestureInclusion,
+        actionContentSpacing = actionContentSpacing,
         content = content,
     )
 }
