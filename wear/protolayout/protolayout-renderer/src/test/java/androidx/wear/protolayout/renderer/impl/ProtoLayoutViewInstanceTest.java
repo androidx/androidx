@@ -604,6 +604,38 @@ public class ProtoLayoutViewInstanceTest {
     }
 
     @Test
+    public void layoutDepthExceedsMaximumDepth_withMatchingFingerprint_renderingFail()
+            throws Exception {
+        setupInstance(/* adaptiveUpdateRatesEnabled= */ false);
+
+        Layout layout1 = layout(text(TEXT1));
+        renderLayoutAndAttachLayout(layout1);
+
+        Layout layout2 =
+                layout(recursiveBox(MAX_LAYOUT_ELEMENT_DEPTH + 1)).toBuilder()
+                        .setFingerprint(layout1.getFingerprint())
+                        .build();
+
+        assertThrows(ExecutionException.class, () -> renderLayoutAndAttachLayout(layout2));
+    }
+
+    @Test
+    public void layoutDepthExceedsMaximumDepth_withEmptyFingerprints_renderingFail()
+            throws Exception {
+        setupInstance(/* adaptiveUpdateRatesEnabled= */ false);
+
+        Layout layout1 = layout(text(TEXT1)).toBuilder().clearFingerprint().build();
+        renderLayoutAndAttachLayout(layout1);
+
+        Layout layout2 =
+                layout(recursiveBox(MAX_LAYOUT_ELEMENT_DEPTH + 1)).toBuilder()
+                        .clearFingerprint()
+                        .build();
+
+        assertThrows(ExecutionException.class, () -> renderLayoutAndAttachLayout(layout2));
+    }
+
+    @Test
     public void layoutDepthIsEqualToMaximumDepth_renderingPass() throws Exception {
         setupInstance(/* adaptiveUpdateRatesEnabled= */ false);
 
