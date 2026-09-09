@@ -143,11 +143,15 @@ internal class ScreenContent(
     }
 
     /**
-     * Returns the [ScrollInfoProvider] for the active top-most screen on the stack, or `null` if
-     * the active top screen is non-scrollable.
+     * Returns the [ScrollInfoProvider] for the active top-most screen on the stack that provides
+     * one, or `null` if no screen on the stack is scrollable.
      */
     val currentScrollInfoProvider: State<ScrollInfoProvider?> = derivedStateOf {
-        contentItems.lastOrNull()?.scrollInfoProvider?.value
+        contentItems
+            .toList()
+            .fastLastOrNull { it.scrollInfoProvider.value != null }
+            ?.scrollInfoProvider
+            ?.value
     }
 
     /**
