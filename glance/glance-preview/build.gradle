@@ -14,7 +14,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
-    api("androidx.compose.runtime:runtime:1.1.1")
+    api("androidx.compose.runtime:runtime:1.6.8")
 }
 
 android {
