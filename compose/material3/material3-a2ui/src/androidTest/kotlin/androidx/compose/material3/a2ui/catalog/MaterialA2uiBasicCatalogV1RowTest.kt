@@ -1291,6 +1291,7 @@ class MaterialA2uiBasicCatalogV1RowTest {
     fun align_stretch_stretchesChildrenVertically() = runComposeUiTest {
         val child1Height = 80.dp
         val child2Height = 40.dp
+        val rowHeight = 120.dp
 
         val controller =
             A2uiTestController(
@@ -1333,16 +1334,19 @@ class MaterialA2uiBasicCatalogV1RowTest {
 
         setContent {
             MaterialTheme {
-                A2uiTestSurface(surface = surface, modifier = Modifier.testTag("row_tag"))
+                A2uiTestSurface(
+                    surface = surface,
+                    modifier = Modifier.testTag("row_tag").height(rowHeight),
+                )
             }
         }
 
+        val rowBounds = onNodeWithTag("row_tag").getUnclippedBoundsInRoot()
         val child1Bounds = onNodeWithTag("child1").getUnclippedBoundsInRoot()
         val child2Bounds = onNodeWithTag("child2").getUnclippedBoundsInRoot()
-        val expectedStretchedHeight = maxOf(child1Height, child2Height)
 
-        assertThat(child1Bounds.height.value).isWithin(0.5f).of(expectedStretchedHeight.value)
-        assertThat(child2Bounds.height.value).isWithin(0.5f).of(expectedStretchedHeight.value)
+        assertThat(child1Bounds.height).isEqualTo(rowBounds.height)
+        assertThat(child2Bounds.height).isEqualTo(rowBounds.height)
     }
 
     @Test
