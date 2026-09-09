@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // b/556234973
+
 package androidx.compose.ui.benchmark.autofill
 
 import androidx.compose.foundation.layout.Column
@@ -23,7 +25,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -46,7 +47,8 @@ internal fun RemovableAutofillText(state: MutableState<Boolean>) {
         Row {
             if (state.value) {
                 TextField(
-                    state = rememberTextFieldState(data.title),
+                    value = data.title,
+                    onValueChange = {},
                     label = { Text("Enter prefix here: ") },
                     modifier =
                         Modifier.semantics {
@@ -56,7 +58,8 @@ internal fun RemovableAutofillText(state: MutableState<Boolean>) {
                 )
             }
             TextField(
-                state = rememberTextFieldState(data.firstName),
+                value = data.firstName,
+                onValueChange = {},
                 label = { Text("Enter first name here: ") },
                 modifier =
                     Modifier.semantics {
@@ -65,7 +68,8 @@ internal fun RemovableAutofillText(state: MutableState<Boolean>) {
                     },
             )
             TextField(
-                state = rememberTextFieldState(data.lastName),
+                value = data.lastName,
+                onValueChange = {},
                 label = { Text("Enter last name here: ") },
                 modifier =
                     Modifier.semantics {
@@ -75,7 +79,8 @@ internal fun RemovableAutofillText(state: MutableState<Boolean>) {
             )
             if (state.value) {
                 TextField(
-                    state = rememberTextFieldState(data.middleName),
+                    value = data.middleName,
+                    onValueChange = {},
                     label = { Text("Enter middle name here: ") },
                     modifier =
                         Modifier.semantics {
@@ -93,7 +98,8 @@ internal fun ChangingAutofillText(state: MutableState<Boolean>) {
     Column {
         Row {
             TextField(
-                state = rememberTextFieldState(if (state.value) data.title else dataFlipped.title),
+                value = if (state.value) data.title else dataFlipped.title,
+                onValueChange = {},
                 label = { Text("Enter prefix here: ") },
                 modifier =
                     Modifier.semantics {
@@ -102,10 +108,8 @@ internal fun ChangingAutofillText(state: MutableState<Boolean>) {
                     },
             )
             TextField(
-                state =
-                    rememberTextFieldState(
-                        if (state.value) data.firstName else dataFlipped.firstName
-                    ),
+                value = if (state.value) data.firstName else dataFlipped.firstName,
+                onValueChange = {},
                 label = { Text("Enter first name here: ") },
                 modifier =
                     Modifier.semantics {
@@ -114,10 +118,8 @@ internal fun ChangingAutofillText(state: MutableState<Boolean>) {
                     },
             )
             TextField(
-                state =
-                    rememberTextFieldState(
-                        if (state.value) data.lastName else dataFlipped.lastName
-                    ),
+                value = if (state.value) data.lastName else dataFlipped.lastName,
+                onValueChange = {},
                 label = { Text("Enter last name here: ") },
                 modifier =
                     Modifier.semantics {
@@ -126,10 +128,8 @@ internal fun ChangingAutofillText(state: MutableState<Boolean>) {
                     },
             )
             TextField(
-                state =
-                    rememberTextFieldState(
-                        if (state.value) data.middleName else dataFlipped.middleName
-                    ),
+                value = if (state.value) data.middleName else dataFlipped.middleName,
+                onValueChange = {},
                 label = { Text("Enter middle name here: ") },
                 modifier =
                     Modifier.semantics {
@@ -146,7 +146,8 @@ internal fun ChangingAutofillFocus(state: MutableState<Boolean>) {
     Column {
         Row {
             TextField(
-                state = rememberTextFieldState(if (state.value) data.title else dataFlipped.title),
+                value = if (state.value) data.title else dataFlipped.title,
+                onValueChange = {},
                 label = { Text("Enter prefix here: ") },
                 modifier =
                     Modifier.semantics {
@@ -156,10 +157,8 @@ internal fun ChangingAutofillFocus(state: MutableState<Boolean>) {
                     },
             )
             TextField(
-                state =
-                    rememberTextFieldState(
-                        if (state.value) data.firstName else dataFlipped.firstName
-                    ),
+                value = if (state.value) data.firstName else dataFlipped.firstName,
+                onValueChange = {},
                 label = { Text("Enter first name here: ") },
                 modifier =
                     Modifier.semantics {
@@ -168,10 +167,8 @@ internal fun ChangingAutofillFocus(state: MutableState<Boolean>) {
                     },
             )
             TextField(
-                state =
-                    rememberTextFieldState(
-                        if (state.value) data.lastName else dataFlipped.lastName
-                    ),
+                value = if (state.value) data.lastName else dataFlipped.lastName,
+                onValueChange = {},
                 label = { Text("Enter last name here: ") },
                 modifier =
                     Modifier.semantics {
@@ -181,10 +178,8 @@ internal fun ChangingAutofillFocus(state: MutableState<Boolean>) {
                     },
             )
             TextField(
-                state =
-                    rememberTextFieldState(
-                        if (state.value) data.middleName else dataFlipped.middleName
-                    ),
+                value = if (state.value) data.middleName else dataFlipped.middleName,
+                onValueChange = {},
                 label = { Text("Enter middle name here: ") },
                 modifier =
                     Modifier.semantics {
@@ -200,7 +195,8 @@ internal fun ChangingAutofillFocus(state: MutableState<Boolean>) {
 internal fun AutofillTextScreen() {
     Column {
         TextField(
-            state = rememberTextFieldState(data.firstName),
+            value = data.firstName,
+            onValueChange = {},
             label = { Text("Enter first name here: ") },
             modifier =
                 Modifier.semantics {
@@ -209,7 +205,8 @@ internal fun AutofillTextScreen() {
                 },
         )
         TextField(
-            state = rememberTextFieldState(data.lastName),
+            value = data.lastName,
+            onValueChange = {},
             label = { Text("Enter last name here: ") },
             modifier =
                 Modifier.semantics {
@@ -218,7 +215,8 @@ internal fun AutofillTextScreen() {
                 },
         )
         TextField(
-            state = rememberTextFieldState(data.firstName),
+            value = data.firstName,
+            onValueChange = {},
             label = { Text("Enter first name here: ") },
             modifier =
                 Modifier.semantics {
@@ -227,7 +225,8 @@ internal fun AutofillTextScreen() {
                 },
         )
         TextField(
-            state = rememberTextFieldState(data.lastName),
+            value = data.lastName,
+            onValueChange = {},
             label = { Text("Enter last name here: ") },
             modifier =
                 Modifier.semantics {
