@@ -80,6 +80,9 @@ abstract class GenerateTestConfigurationTask : DefaultTask() {
 
     @get:Input abstract val useOrchestrator: Property<Boolean>
 
+    @get:[Input Optional]
+    abstract val maxShardCount: Property<Int>
+
     @get:OutputFile abstract val outputXml: RegularFileProperty
 
     /**
@@ -110,6 +113,9 @@ abstract class GenerateTestConfigurationTask : DefaultTask() {
         val isPresubmit = presubmit.get()
         configBuilder.isPostsubmit(!isPresubmit)
         configBuilder.useOrchestrator = useOrchestrator.get()
+        if (maxShardCount.isPresent) {
+            configBuilder.maxShardCount(maxShardCount.get())
+        }
         // This section adds metadata tags that will help filter runners to specific modules.
         if (hasBenchmarkPlugin.get()) {
             configBuilder.isMicrobenchmark(true)
