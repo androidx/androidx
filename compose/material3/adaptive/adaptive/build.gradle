@@ -51,6 +51,8 @@ androidXMultiplatform {
             api("androidx.annotation:annotation:1.9.1")
             api("androidx.annotation:annotation-experimental:1.5.1")
             api("androidx.window:window:1.5.0")
+            // Older versions of lifecycle-runtime lint checks use a deleted lint API
+            implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
         }
 
         androidDeviceTest.dependencies {

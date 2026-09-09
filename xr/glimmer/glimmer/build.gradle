@@ -33,6 +33,8 @@ dependencies {
     api("androidx.compose.ui:ui:1.13.0-alpha02")
     api("androidx.compose.runtime:runtime:1.13.0-alpha02")
     api("androidx.annotation:annotation:1.9.1")
+    // Older versions of lifecycle-runtime lint checks use a deleted lint API
+    implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
 
     // Force tests to occur against Foundation ToT, even we pin Glimmer's main Foundation dependency
     androidTestImplementation(project(":compose:foundation:foundation"))

@@ -40,6 +40,8 @@ dependencies {
     api("androidx.compose.ui:ui-text:$composeVersion")
 
     implementation("androidx.profileinstaller:profileinstaller:1.4.1")
+    // Older versions of lifecycle-runtime lint checks use a deleted lint API
+    implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
 
     androidTestImplementation(libs.truth)
     androidTestImplementation("androidx.compose.runtime:runtime:$composeVersion")

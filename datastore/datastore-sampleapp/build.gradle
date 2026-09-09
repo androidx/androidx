@@ -48,6 +48,9 @@ dependencies {
 
     // For kotlin serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
+
+    // Older versions of lifecycle-runtime lint checks use a deleted lint API
+    implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
 }
 
 android {
