@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
 
 internal class LazyLayoutItemAnimation(
     private val coroutineScope: CoroutineScope,
-    private val graphicsContext: GraphicsContext? = null,
+    private val graphicsContext: GraphicsContext,
     private val onLayerPropertyChanged: () -> Unit = {},
 ) {
     var enterTransition: EnterTransition? = null
@@ -106,7 +106,7 @@ internal class LazyLayoutItemAnimation(
     var lookaheadOffset: IntOffset = NotInitialized
 
     /** Current [GraphicsLayer]. It will be set to null in [release]. */
-    var layer: GraphicsLayer? = graphicsContext?.createGraphicsLayer()
+    var layer: GraphicsLayer? = graphicsContext.createGraphicsLayer()
         private set
 
     private val placementDeltaAnimation = Animatable(IntOffset.Zero, IntOffset.VectorConverter)
@@ -251,7 +251,7 @@ internal class LazyLayoutItemAnimation(
         isRunningMovingAwayAnimation = false
         placementDelta = IntOffset.Zero
         targetOffset = NotInitialized
-        layer?.let { graphicsContext?.releaseGraphicsLayer(it) }
+        layer?.let { graphicsContext.releaseGraphicsLayer(it) }
         layer = null
         enterTransition = null
         exitTransition = null
