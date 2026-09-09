@@ -105,8 +105,7 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                 severity = Severity.WARNING,
                 androidSpecific = true,
                 implementation = IMPLEMENTATION,
-                // Opt-in for now until API is validated
-                enabledByDefault = false,
+                enabledByDefault = true,
             )
 
         private const val PKG_PREFIX = "androidx.annotation.keep."
