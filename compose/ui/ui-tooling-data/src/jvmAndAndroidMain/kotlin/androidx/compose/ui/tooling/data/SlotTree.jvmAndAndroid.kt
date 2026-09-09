@@ -18,6 +18,8 @@
 
 package androidx.compose.ui.tooling.data
 
+import androidx.collection.IntList
+import androidx.collection.MutableIntList
 import androidx.compose.runtime.tooling.ComposeToolingApi
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.CompositionGroup
@@ -29,6 +31,7 @@ import androidx.compose.ui.layout.ModifierInfo
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.unit.IntRect
 import java.lang.reflect.Field
+import java.lang.reflect.Modifier
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -626,22 +629,62 @@ private fun extractFromIndyLambdaFields(
             }
             .let { if (hasParameterNames) it.take(metadata.size) else it }
 
-    // todo: parameter logic assumes one changed parameter and one default
-    val changedIndex =
-        (if (hasThis) 1 else 0) + (if (hasParameterNames) metadata.size else realFields.size)
-    val changed = (sortedFields.getOrNull(changedIndex)?.get(block) as? Int) ?: 0
-    val defaults = (sortedFields.getOrNull(changedIndex + 1)?.get(block) as? Int) ?: 0
+    val numParams = if (hasParameterNames) metadata.size else realFields.size
+    // Each $changed parameter is a 32-bit Int tracking up to 10 parameters (3 bits per parameter,
+    // with 1 bit used for Compose internal flags, e.g., self-dirty).
+    // We calculate the number of $changed fields using ceiling division (ceil(numParams / 10)).
+    val numChanged = (numParams + 9) / 10
+    // Indy lambda fields are generated in a strict order: [this] -> [parameters] -> [changed] ->
+    // [default].
+    // We calculate how many fields we expect before the default fields, and any remaining fields
+    // at the end are treated as $default fields (each tracking up to 32 parameters, 1 bit each).
+    val expectedFieldsWithoutDefaults = (if (hasThis) 1 else 0) + numParams + numChanged
+    val numDefaults = max(0, sortedFields.size - expectedFieldsWithoutDefaults)
+
+    val changedIndex = (if (hasThis) 1 else 0) + numParams
+    val changedList: IntList =
+        MutableIntList(numChanged).apply {
+            repeat(numChanged) { i ->
+                val field = sortedFields.getOrNull(changedIndex + i)?.apply { isAccessible = true }
+                add((field?.get(block) as? Int) ?: 0)
+            }
+        }
+
+    val defaultIndex = changedIndex + numChanged
+    val defaultsList: IntList =
+        MutableIntList(numDefaults).apply {
+            repeat(numDefaults) { i ->
+                val field = sortedFields.getOrNull(defaultIndex + i)?.apply { isAccessible = true }
+                add((field?.get(block) as? Int) ?: 0)
+            }
+        }
 
     return realFields.mapIndexed { index, field ->
         buildParameterInfo(
             field,
             block,
             index,
-            defaults,
-            changed,
+            defaultsList,
+            changedList,
             metadata.firstOrNull { it.sortedIndex == index },
         )
     }
+}
+
+private fun collectIndexedFields(block: Any, prefix: String): IntList {
+    val blockClass = block.javaClass
+    val declaredFields = blockClass.declaredFields
+    val result = MutableIntList()
+    var i = 0
+    while (true) {
+        val suffix = if (i > 0) "$i" else ""
+        val name = "$prefix$suffix"
+        val field = declaredFields.firstOrNull { it.name == name } ?: break
+        field.isAccessible = true
+        result.add((field.get(block) as? Int) ?: 0)
+        i++
+    }
+    return result
 }
 
 @OptIn(UiToolingDataApi::class, ComposeToolingApi::class)
@@ -650,9 +693,8 @@ private fun extractFromLegacyFields(
     block: Any,
     metadata: List<ParameterSourceInformation>,
 ): List<ParameterInformation> {
-    val blockClass = block.javaClass
-    val defaults = blockClass.accessibleField(defaultFieldName)?.get(block) as? Int ?: 0
-    val changed = blockClass.accessibleField(changedFieldName)?.get(block) as? Int ?: 0
+    val changedList = collectIndexedFields(block, changedFieldName)
+    val defaultsList = collectIndexedFields(block, defaultFieldName)
 
     fun Field.extractedName(): String? {
         val extractedGroups = legacyLambdaRegex.find(name)?.groups
@@ -661,15 +703,18 @@ private fun extractFromLegacyFields(
         return (extractedGroups?.get(1) ?: extractedGroups?.get(2))?.value
     }
 
-    val sortedFields = fields.sortedBy { it.extractedName() }
     return fields.mapIndexedNotNull { index, _ ->
         var paramMeta = metadata.getOrNull(index) ?: ParameterSourceInformation(index)
         val sortedIndex = paramMeta.sortedIndex
         if (sortedIndex >= fields.size) return@mapIndexedNotNull null
 
+        // Since sortedIndex is the original declaration index, we should index the
+        // declaration-ordered fields list directly, not the alphabetical sortedFields list.
+        // This fixes the fallback bug and makes alphabetical sorting of fields unnecessary.
         val field =
             (if (paramMeta.name != null) fields.firstOrNull { paramMeta.name == it.extractedName() }
-            else null) ?: sortedFields[sortedIndex]
+            else null) ?: fields[sortedIndex]
+
         if (paramMeta.name == null) {
             paramMeta =
                 ParameterSourceInformation(
@@ -679,7 +724,7 @@ private fun extractFromLegacyFields(
                 )
         }
 
-        buildParameterInfo(field, block, index, defaults, changed, paramMeta)
+        buildParameterInfo(field, block, index, defaultsList, changedList, paramMeta)
     }
 }
 
@@ -689,15 +734,21 @@ private fun buildParameterInfo(
     field: Field,
     block: Any,
     index: Int,
-    defaults: Int,
-    changed: Int,
+    defaultsList: IntList,
+    changedList: IntList,
     metadata: ParameterSourceInformation?,
 ): ParameterInformation {
     field.isAccessible = true
     val value = field.get(block)
 
-    val fromDefault = (1 shl index) and defaults != 0
-    val changedOffset = index * BITS_PER_SLOT + 1
+    val defaultBucket = index / 32
+    val defaultOffset = index % 32
+    val defaults = if (defaultBucket < defaultsList.size) defaultsList[defaultBucket] else 0
+    val fromDefault = (1 shl defaultOffset) and defaults != 0
+
+    val changedBucket = index / 10
+    val changedOffset = (index % 10) * BITS_PER_SLOT + 1
+    val changed = if (changedBucket < changedList.size) changedList[changedBucket] else 0
     val parameterChanged = ((SLOT_MASK shl changedOffset) and changed) shr changedOffset
 
     val static = parameterChanged and STATIC_BITS == STATIC_BITS
@@ -717,6 +768,9 @@ private fun buildParameterInfo(
 
 private fun filterParameterFields(fields: Array<Field>, isIndyLambda: Boolean): List<Field> {
     return fields.filter { field ->
+        if (Modifier.isStatic(field.modifiers)) {
+            return@filter false
+        }
         val name = field.name
         val validPrefix =
             if (isIndyLambda) {

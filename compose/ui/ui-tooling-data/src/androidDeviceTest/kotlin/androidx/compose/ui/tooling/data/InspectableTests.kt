@@ -110,180 +110,538 @@ class InspectableTests : ToolingTest() {
             }
         }
 
-        val tree = slotTableRecord.store.first().asTree()
-        val list = tree.asList()
-        val parameters = list.filter { group ->
-            group.parameters.isNotEmpty() &&
-                group.location.let { it != null && it.sourceFile == "InspectableTests.kt" }
-        }
+        slotTableRecord.validateParameters {
+            // OneParameter(1)
+            validate {
+                parameter(
+                    name = "a",
+                    value = 1,
+                    fromDefault = false,
+                    static = true,
+                    compared = false,
+                )
+            }
 
-        val callCursor = parameters.listIterator()
-        class ParameterValidationReceiver(val parameterCursor: Iterator<ParameterInformation>) {
-            fun parameter(
-                name: String,
-                value: Any,
-                fromDefault: Boolean,
-                static: Boolean,
-                compared: Boolean,
-            ) {
-                assertTrue(parameterCursor.hasNext())
-                val parameter = parameterCursor.next()
-                assertEquals(name, parameter.name)
-                assertEquals(value, parameter.value)
-                assertEquals(fromDefault, parameter.fromDefault)
-                assertEquals(static, parameter.static)
-                assertEquals(compared, parameter.compared)
+            // OneParameter(2)
+            validate {
+                parameter(
+                    name = "a",
+                    value = 2,
+                    fromDefault = false,
+                    static = true,
+                    compared = false,
+                )
+            }
+
+            // OneDefaultParameter()
+            validate {
+                parameter(
+                    name = "a",
+                    value = 1,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+            }
+
+            // OneDefaultParameter(2)
+            validate {
+                parameter(
+                    name = "a",
+                    value = 2,
+                    fromDefault = false,
+                    static = true,
+                    compared = false,
+                )
+            }
+
+            // ThreeParameters(1, 2, 3)
+            validate {
+                parameter(
+                    name = "a",
+                    value = 1,
+                    fromDefault = false,
+                    static = true,
+                    compared = false,
+                )
+                parameter(
+                    name = "b",
+                    value = 2,
+                    fromDefault = false,
+                    static = true,
+                    compared = false,
+                )
+                parameter(
+                    name = "c",
+                    value = 3,
+                    fromDefault = false,
+                    static = true,
+                    compared = false,
+                )
+            }
+
+            // ThreeDefaultParameters()
+            validate {
+                parameter(
+                    name = "a",
+                    value = 1,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+                parameter(
+                    name = "b",
+                    value = 2,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+                parameter(
+                    name = "c",
+                    value = 3,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+            }
+
+            // ThreeDefaultParameters(a = 1)
+            validate {
+                parameter(
+                    name = "a",
+                    value = 1,
+                    fromDefault = false,
+                    static = true,
+                    compared = false,
+                )
+                parameter(
+                    name = "b",
+                    value = 2,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+                parameter(
+                    name = "c",
+                    value = 3,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+            }
+
+            // ThreeDefaultParameters(b = 2)
+            validate {
+                parameter(
+                    name = "a",
+                    value = 1,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+                parameter(
+                    name = "b",
+                    value = 2,
+                    fromDefault = false,
+                    static = true,
+                    compared = false,
+                )
+                parameter(
+                    name = "c",
+                    value = 3,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+            }
+
+            // ThreeDefaultParameters(a = 1, b = 2)
+            validate {
+                parameter(
+                    name = "a",
+                    value = 1,
+                    fromDefault = false,
+                    static = true,
+                    compared = false,
+                )
+                parameter(
+                    name = "b",
+                    value = 2,
+                    fromDefault = false,
+                    static = true,
+                    compared = false,
+                )
+                parameter(
+                    name = "c",
+                    value = 3,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+            }
+
+            // ThreeDefaultParameters(c = 3)
+            validate {
+                parameter(
+                    name = "a",
+                    value = 1,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+                parameter(
+                    name = "b",
+                    value = 2,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+                parameter(
+                    name = "c",
+                    value = 3,
+                    fromDefault = false,
+                    static = true,
+                    compared = false,
+                )
+            }
+
+            // ThreeDefaultParameters(a = 1, c = 3)
+            validate {
+                parameter(
+                    name = "a",
+                    value = 1,
+                    fromDefault = false,
+                    static = true,
+                    compared = false,
+                )
+                parameter(
+                    name = "b",
+                    value = 2,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+                parameter(
+                    name = "c",
+                    value = 3,
+                    fromDefault = false,
+                    static = true,
+                    compared = false,
+                )
+            }
+
+            // ThreeDefaultParameters(b = 2, c = 3)
+            validate {
+                parameter(
+                    name = "a",
+                    value = 1,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+                parameter(
+                    name = "b",
+                    value = 2,
+                    fromDefault = false,
+                    static = true,
+                    compared = false,
+                )
+                parameter(
+                    name = "c",
+                    value = 3,
+                    fromDefault = false,
+                    static = true,
+                    compared = false,
+                )
+            }
+
+            // ThreeDefaultParameters(a = 1, b = 2, c = 3)
+            validate {
+                parameter(
+                    name = "a",
+                    value = 1,
+                    fromDefault = false,
+                    static = true,
+                    compared = false,
+                )
+                parameter(
+                    name = "b",
+                    value = 2,
+                    fromDefault = false,
+                    static = true,
+                    compared = false,
+                )
+                parameter(
+                    name = "c",
+                    value = 3,
+                    fromDefault = false,
+                    static = true,
+                    compared = false,
+                )
+            }
+
+            // ThreeDefaultParameters()
+            validate {
+                parameter(
+                    name = "a",
+                    value = 1,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+                parameter(
+                    name = "b",
+                    value = 2,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+                parameter(
+                    name = "c",
+                    value = 3,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+            }
+
+            // ThreeDefaultParameters(a = ua)
+            validate {
+                parameter(
+                    name = "a",
+                    value = 1,
+                    fromDefault = false,
+                    static = false,
+                    compared = true,
+                )
+                parameter(
+                    name = "b",
+                    value = 2,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+                parameter(
+                    name = "c",
+                    value = 3,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+            }
+
+            // ThreeDefaultParameters(b = ub)
+            validate {
+                parameter(
+                    name = "a",
+                    value = 1,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+                parameter(
+                    name = "b",
+                    value = 2,
+                    fromDefault = false,
+                    static = false,
+                    compared = true,
+                )
+                parameter(
+                    name = "c",
+                    value = 3,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+            }
+
+            // ThreeDefaultParameters(a = ua, b = ub)
+            validate {
+                parameter(
+                    name = "a",
+                    value = 1,
+                    fromDefault = false,
+                    static = false,
+                    compared = true,
+                )
+                parameter(
+                    name = "b",
+                    value = 2,
+                    fromDefault = false,
+                    static = false,
+                    compared = true,
+                )
+                parameter(
+                    name = "c",
+                    value = 3,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+            }
+
+            // ThreeDefaultParameters(c = uc)
+            validate {
+                parameter(
+                    name = "a",
+                    value = 1,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+                parameter(
+                    name = "b",
+                    value = 2,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+                parameter(
+                    name = "c",
+                    value = 3,
+                    fromDefault = false,
+                    static = false,
+                    compared = true,
+                )
+            }
+
+            // ThreeDefaultParameters(a = ua, c = uc)
+            validate {
+                parameter(
+                    name = "a",
+                    value = 1,
+                    fromDefault = false,
+                    static = false,
+                    compared = true,
+                )
+                parameter(
+                    name = "b",
+                    value = 2,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+                parameter(
+                    name = "c",
+                    value = 3,
+                    fromDefault = false,
+                    static = false,
+                    compared = true,
+                )
+            }
+
+            // ThreeDefaultParameters(b = ub, c = uc)
+            validate {
+                parameter(
+                    name = "a",
+                    value = 1,
+                    fromDefault = true,
+                    static = false,
+                    compared = false,
+                )
+                parameter(
+                    name = "b",
+                    value = 2,
+                    fromDefault = false,
+                    static = false,
+                    compared = true,
+                )
+                parameter(
+                    name = "c",
+                    value = 3,
+                    fromDefault = false,
+                    static = false,
+                    compared = true,
+                )
+            }
+
+            // ThreeDefaultParameters(a = ua, b = ub, c = uc)
+            validate {
+                parameter(
+                    name = "a",
+                    value = 1,
+                    fromDefault = false,
+                    static = false,
+                    compared = true,
+                )
+                parameter(
+                    name = "b",
+                    value = 2,
+                    fromDefault = false,
+                    static = false,
+                    compared = true,
+                )
+                parameter(
+                    name = "c",
+                    value = 3,
+                    fromDefault = false,
+                    static = false,
+                    compared = true,
+                )
+            }
+        }
+    }
+
+    @Test
+    fun manyParametersTest() {
+        val slotTableRecord = CompositionDataRecord.create()
+        fun unknown(i: Int) = i
+
+        show {
+            Inspectable(slotTableRecord) {
+                ElevenParameters(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+                ElevenDefaultParameters()
+                ElevenDefaultParameters(p10 = unknown(10))
             }
         }
 
-        fun validate(block: ParameterValidationReceiver.() -> Unit) {
-            assertTrue(callCursor.hasNext())
-            val call = callCursor.next()
-            val receiver = ParameterValidationReceiver(call.parameters.listIterator())
-            receiver.block()
-            assertFalse(receiver.parameterCursor.hasNext())
-        }
+        slotTableRecord.validateParameters {
+            // ElevenParameters(0..10)
+            validate {
+                for (i in 0..10) {
+                    parameter(
+                        name = "p$i",
+                        value = i,
+                        fromDefault = false,
+                        static = true,
+                        compared = false,
+                    )
+                }
+            }
 
-        // OneParameter(1)
-        validate {
-            parameter(name = "a", value = 1, fromDefault = false, static = true, compared = false)
-        }
+            // ElevenDefaultParameters()
+            validate {
+                for (i in 0..10) {
+                    parameter(
+                        name = "p$i",
+                        value = i,
+                        fromDefault = true,
+                        static = false,
+                        compared = false,
+                    )
+                }
+            }
 
-        // OneParameter(2)
-        validate {
-            parameter(name = "a", value = 2, fromDefault = false, static = true, compared = false)
+            // ElevenDefaultParameters(p10 = unknown(10))
+            validate {
+                for (i in 0..9) {
+                    parameter(
+                        name = "p$i",
+                        value = i,
+                        fromDefault = true,
+                        static = false,
+                        compared = false,
+                    )
+                }
+                parameter(
+                    name = "p10",
+                    value = 10,
+                    fromDefault = false,
+                    static = false,
+                    compared = true,
+                )
+            }
         }
-
-        // OneDefaultParameter()
-        validate {
-            parameter(name = "a", value = 1, fromDefault = true, static = false, compared = false)
-        }
-
-        // OneDefaultParameter(2)
-        validate {
-            parameter(name = "a", value = 2, fromDefault = false, static = true, compared = false)
-        }
-
-        // ThreeParameters(1, 2, 3)
-        validate {
-            parameter(name = "a", value = 1, fromDefault = false, static = true, compared = false)
-            parameter(name = "b", value = 2, fromDefault = false, static = true, compared = false)
-            parameter(name = "c", value = 3, fromDefault = false, static = true, compared = false)
-        }
-
-        // ThreeDefaultParameters()
-        validate {
-            parameter(name = "a", value = 1, fromDefault = true, static = false, compared = false)
-            parameter(name = "b", value = 2, fromDefault = true, static = false, compared = false)
-            parameter(name = "c", value = 3, fromDefault = true, static = false, compared = false)
-        }
-
-        // ThreeDefaultParameters(a = 1)
-        validate {
-            parameter(name = "a", value = 1, fromDefault = false, static = true, compared = false)
-            parameter(name = "b", value = 2, fromDefault = true, static = false, compared = false)
-            parameter(name = "c", value = 3, fromDefault = true, static = false, compared = false)
-        }
-
-        // ThreeDefaultParameters(b = 2)
-        validate {
-            parameter(name = "a", value = 1, fromDefault = true, static = false, compared = false)
-            parameter(name = "b", value = 2, fromDefault = false, static = true, compared = false)
-            parameter(name = "c", value = 3, fromDefault = true, static = false, compared = false)
-        }
-
-        // ThreeDefaultParameters(a = 1, b = 2)
-        validate {
-            parameter(name = "a", value = 1, fromDefault = false, static = true, compared = false)
-            parameter(name = "b", value = 2, fromDefault = false, static = true, compared = false)
-            parameter(name = "c", value = 3, fromDefault = true, static = false, compared = false)
-        }
-
-        // ThreeDefaultParameters(c = 3)
-        validate {
-            parameter(name = "a", value = 1, fromDefault = true, static = false, compared = false)
-            parameter(name = "b", value = 2, fromDefault = true, static = false, compared = false)
-            parameter(name = "c", value = 3, fromDefault = false, static = true, compared = false)
-        }
-
-        // ThreeDefaultParameters(a = 1, c = 3)
-        validate {
-            parameter(name = "a", value = 1, fromDefault = false, static = true, compared = false)
-            parameter(name = "b", value = 2, fromDefault = true, static = false, compared = false)
-            parameter(name = "c", value = 3, fromDefault = false, static = true, compared = false)
-        }
-
-        // ThreeDefaultParameters(b = 2, c = 3)
-        validate {
-            parameter(name = "a", value = 1, fromDefault = true, static = false, compared = false)
-            parameter(name = "b", value = 2, fromDefault = false, static = true, compared = false)
-            parameter(name = "c", value = 3, fromDefault = false, static = true, compared = false)
-        }
-
-        // ThreeDefaultParameters(a = 1, b = 2, c = 3)
-        validate {
-            parameter(name = "a", value = 1, fromDefault = false, static = true, compared = false)
-            parameter(name = "b", value = 2, fromDefault = false, static = true, compared = false)
-            parameter(name = "c", value = 3, fromDefault = false, static = true, compared = false)
-        }
-
-        // ThreeDefaultParameters()
-        validate {
-            parameter(name = "a", value = 1, fromDefault = true, static = false, compared = false)
-            parameter(name = "b", value = 2, fromDefault = true, static = false, compared = false)
-            parameter(name = "c", value = 3, fromDefault = true, static = false, compared = false)
-        }
-
-        // ThreeDefaultParameters(a = ua)
-        validate {
-            parameter(name = "a", value = 1, fromDefault = false, static = false, compared = true)
-            parameter(name = "b", value = 2, fromDefault = true, static = false, compared = false)
-            parameter(name = "c", value = 3, fromDefault = true, static = false, compared = false)
-        }
-
-        // ThreeDefaultParameters(b = ub)
-        validate {
-            parameter(name = "a", value = 1, fromDefault = true, static = false, compared = false)
-            parameter(name = "b", value = 2, fromDefault = false, static = false, compared = true)
-            parameter(name = "c", value = 3, fromDefault = true, static = false, compared = false)
-        }
-
-        // ThreeDefaultParameters(a = ua, b = ub)
-        validate {
-            parameter(name = "a", value = 1, fromDefault = false, static = false, compared = true)
-            parameter(name = "b", value = 2, fromDefault = false, static = false, compared = true)
-            parameter(name = "c", value = 3, fromDefault = true, static = false, compared = false)
-        }
-
-        // ThreeDefaultParameters(c = uc)
-        validate {
-            parameter(name = "a", value = 1, fromDefault = true, static = false, compared = false)
-            parameter(name = "b", value = 2, fromDefault = true, static = false, compared = false)
-            parameter(name = "c", value = 3, fromDefault = false, static = false, compared = true)
-        }
-
-        // ThreeDefaultParameters(a = ua, c = uc)
-        validate {
-            parameter(name = "a", value = 1, fromDefault = false, static = false, compared = true)
-            parameter(name = "b", value = 2, fromDefault = true, static = false, compared = false)
-            parameter(name = "c", value = 3, fromDefault = false, static = false, compared = true)
-        }
-
-        // ThreeDefaultParameters(b = ub, c = uc)
-        validate {
-            parameter(name = "a", value = 1, fromDefault = true, static = false, compared = false)
-            parameter(name = "b", value = 2, fromDefault = false, static = false, compared = true)
-            parameter(name = "c", value = 3, fromDefault = false, static = false, compared = true)
-        }
-
-        // ThreeDefaultParameters(a = ua, b = ub, c = uc)\
-        validate {
-            parameter(name = "a", value = 1, fromDefault = false, static = false, compared = true)
-            parameter(name = "b", value = 2, fromDefault = false, static = false, compared = true)
-            parameter(name = "c", value = 3, fromDefault = false, static = false, compared = true)
-        }
-
-        assertFalse(callCursor.hasNext())
     }
 
     @Test
@@ -400,6 +758,54 @@ class InspectableTests : ToolingTest() {
         val emptyTree = emptyCompositionData.asTree()
         assertTrue(emptyTree.children.isEmpty())
     }
+
+    private fun CompositionDataRecord.validateParameters(block: CallValidationScope.() -> Unit) {
+        val tree = store.first().asTree()
+        val list = tree.asList()
+        val parameters = list.filter { group ->
+            group.parameters.isNotEmpty() &&
+                group.location.let { it != null && it.sourceFile == "InspectableTests.kt" }
+        }
+
+        val callCursor = parameters.listIterator()
+        val scope = CallValidationScope(callCursor)
+        scope.block()
+        assertFalse(callCursor.hasNext())
+    }
+
+    private class CallValidationScope(private val callCursor: Iterator<Group>) {
+        fun validate(block: ParameterValidationReceiver.() -> Unit) {
+            assertTrue(callCursor.hasNext())
+            val call = callCursor.next()
+            val receiver = ParameterValidationReceiver(call.parameters.listIterator())
+            receiver.block()
+            receiver.assertComplete()
+        }
+    }
+
+    private class ParameterValidationReceiver(
+        private val parameterCursor: Iterator<ParameterInformation>
+    ) {
+        fun parameter(
+            name: String,
+            value: Any,
+            fromDefault: Boolean,
+            static: Boolean,
+            compared: Boolean,
+        ) {
+            assertTrue(parameterCursor.hasNext())
+            val parameter = parameterCursor.next()
+            assertEquals(name, parameter.name)
+            assertEquals(value, parameter.value)
+            assertEquals(fromDefault, parameter.fromDefault)
+            assertEquals(static, parameter.static)
+            assertEquals(compared, parameter.compared)
+        }
+
+        fun assertComplete() {
+            assertFalse(parameterCursor.hasNext())
+        }
+    }
 }
 
 private fun <T> TestActivity.uiThread(block: () -> T): T {
@@ -422,6 +828,38 @@ private fun <T> TestActivity.uiThread(block: () -> T): T {
 @Suppress("UNUSED_PARAMETER")
 @Composable
 fun ThreeDefaultParameters(a: Int = 1, b: Int = 2, c: Int = 3) {}
+
+@Suppress("UNUSED_PARAMETER")
+@Composable
+fun ElevenParameters(
+    p0: Int,
+    p1: Int,
+    p2: Int,
+    p3: Int,
+    p4: Int,
+    p5: Int,
+    p6: Int,
+    p7: Int,
+    p8: Int,
+    p9: Int,
+    p10: Int,
+) {}
+
+@Suppress("UNUSED_PARAMETER")
+@Composable
+fun ElevenDefaultParameters(
+    p0: Int = 0,
+    p1: Int = 1,
+    p2: Int = 2,
+    p3: Int = 3,
+    p4: Int = 4,
+    p5: Int = 5,
+    p6: Int = 6,
+    p7: Int = 7,
+    p8: Int = 8,
+    p9: Int = 9,
+    p10: Int = 10,
+) {}
 
 // BFS
 @UiToolingDataApi
