@@ -90,7 +90,10 @@ internal object MaterialA2uiBasicCatalogV1Icon : A2uiBasicCatalogV1.Icon {
 
                 MaterialA2uiDefaults.LoadingIndicator(modifier = Modifier.size(24.dp))
             } else {
-                Icon(imageVector = state, contentDescription = accessibility?.label)
+                Icon(
+                    imageVector = state,
+                    contentDescription = accessibility?.toContentDescription(),
+                )
             }
         }
     }

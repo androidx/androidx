@@ -33,9 +33,11 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
@@ -529,6 +531,168 @@ class MaterialA2uiBasicCatalogV1SliderTest {
         onNodeWithTag("initial_tag").assertDoesNotExist()
         onNodeWithTag("updated_tag").assertIsDisplayed()
     }
+
+    @Test
+    fun accessibility_withLabelAndDescription_setsContentDescriptionOnSlider() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Slider",
+                            properties =
+                                mapOf(
+                                    "value" to 50,
+                                    "max" to 100,
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Volume Slider",
+                                            "description" to "Adjusts volume level",
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNode(
+                hasProgressBarRangeInfo(ProgressBarRangeInfo(50f, 0f..100f, 99)) and
+                    hasContentDescription("Volume Slider - Adjusts volume level")
+            )
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun accessibility_withVisualLabelAndNoAccessibility_appliesLabelToSlider() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Slider",
+                            properties =
+                                mapOf(
+                                    "value" to 50,
+                                    "max" to 100,
+                                    "label" to "Volume",
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithText("Volume").assertIsDisplayed()
+        onNode(
+                hasProgressBarRangeInfo(ProgressBarRangeInfo(50f, 0f..100f, 99)) and
+                    hasContentDescription("Volume")
+            )
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun accessibility_customAccessibilityOverridesVisualLabel() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Slider",
+                            properties =
+                                mapOf(
+                                    "value" to 50,
+                                    "max" to 100,
+                                    "label" to "Visual Volume",
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Accessible Volume",
+                                            "description" to "Adjusts sound",
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithText("Visual Volume").assertIsDisplayed()
+        onNode(
+                hasProgressBarRangeInfo(ProgressBarRangeInfo(50f, 0f..100f, 99)) and
+                    hasContentDescription("Accessible Volume - Adjusts sound")
+            )
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun accessibility_withoutLabelAndWithoutAccessibility_sliderHasNoContentDescription() =
+        runComposeUiTest {
+            val controller =
+                A2uiTestController(
+                    catalog = testCatalog,
+                    initialComponents =
+                        listOf(
+                            A2uiComponentPayload(
+                                id = "root",
+                                type = "Slider",
+                                properties =
+                                    mapOf(
+                                        "value" to 50,
+                                        "max" to 100,
+                                    ),
+                            )
+                        ),
+                )
+            val surface = controller.start()
+
+            setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+            onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo(50f, 0f..100f, 99)))
+                .assertIsDisplayed()
+                .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
+        }
+
+    @Test
+    fun accessibility_withVisualLabelAndDescriptionOnly_combinesVisualLabelAndDescription() =
+        runComposeUiTest {
+            val controller =
+                A2uiTestController(
+                    catalog = testCatalog,
+                    initialComponents =
+                        listOf(
+                            A2uiComponentPayload(
+                                id = "root",
+                                type = "Slider",
+                                properties =
+                                    mapOf(
+                                        "value" to 50,
+                                        "max" to 100,
+                                        "label" to "Volume",
+                                        "accessibility" to mapOf("description" to "Adjusts sound"),
+                                    ),
+                            )
+                        ),
+                )
+            val surface = controller.start()
+
+            setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+            onNodeWithText("Volume").assertIsDisplayed()
+            onNode(
+                    hasProgressBarRangeInfo(ProgressBarRangeInfo(50f, 0f..100f, 99)) and
+                        hasContentDescription("Volume - Adjusts sound")
+                )
+                .assertIsDisplayed()
+        }
 
     private fun hasSetProgressAction(): SemanticsMatcher =
         SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress)

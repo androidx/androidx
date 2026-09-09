@@ -62,7 +62,7 @@ internal object MaterialA2uiBasicCatalogV1Tabs : A2uiBasicCatalogV1.Tabs {
             selectedTabIndex = tabs.size - 1
         }
 
-        Column(modifier = modifier) {
+        Column(modifier = modifier.a2uiAccessibility(accessibility)) {
             PrimaryTabRow(
                 containerColor = Color.Transparent,
                 selectedTabIndex = coercedSelectedTabIndex,

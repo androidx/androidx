@@ -36,6 +36,7 @@ import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertWidthIsEqualTo
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.dp
@@ -349,6 +350,58 @@ class MaterialA2uiBasicCatalogV1ImageTest {
             .isEqualTo(
                 "Image loading error from renderer for error_with_throwable: Network failure"
             )
+    }
+
+    @Test
+    fun accessibility_withLabelAndDescription_setsContentDescription() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Image",
+                properties =
+                    mapOf(
+                        "url" to "https://example.com/image.png",
+                        "accessibility" to
+                            mapOf(
+                                "label" to "Scenic View",
+                                "description" to "Mountain landscape",
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(payload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithContentDescription("Scenic View - Mountain landscape").assertIsDisplayed()
+    }
+
+    @Test
+    fun description_takesPrecedenceOverAccessibility() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Image",
+                properties =
+                    mapOf(
+                        "url" to "https://example.com/image.png",
+                        "description" to "Direct Alt Text",
+                        "accessibility" to
+                            mapOf(
+                                "label" to "Ignored Label",
+                                "description" to "Ignored Description",
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(payload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithContentDescription("Direct Alt Text").assertIsDisplayed()
+        onNodeWithContentDescription("Ignored Label - Ignored Description").assertDoesNotExist()
     }
 
     companion object {

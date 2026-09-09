@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.dp
@@ -441,6 +442,31 @@ class MaterialA2uiBasicCatalogV1VideoTest {
         val error = controller.outboundErrors.single()
         assertThat(error.message)
             .isEqualTo("Video loading error from renderer: error_with_blank_throwable")
+    }
+
+    @Test
+    fun accessibility_withLabelAndDescription_setsContentDescription() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Video",
+                properties =
+                    mapOf(
+                        "url" to "https://example.com/video.mp4",
+                        "accessibility" to
+                            mapOf(
+                                "label" to "Promo Video",
+                                "description" to "Product demo video",
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(payload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithContentDescription("Promo Video - Product demo video").assertIsDisplayed()
     }
 }
 

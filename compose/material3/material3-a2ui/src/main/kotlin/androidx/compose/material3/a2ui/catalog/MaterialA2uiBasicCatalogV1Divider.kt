@@ -32,9 +32,11 @@ internal object MaterialA2uiBasicCatalogV1Divider : A2uiBasicCatalogV1.Divider {
         accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
         modifier: Modifier,
     ) {
+        val dividerModifier = modifier.a2uiAccessibility(accessibility)
         when (axis) {
-            A2uiBasicCatalogV1.Divider.Axis.Horizontal -> HorizontalDivider(modifier = modifier)
-            A2uiBasicCatalogV1.Divider.Axis.Vertical -> VerticalDivider(modifier = modifier)
+            A2uiBasicCatalogV1.Divider.Axis.Horizontal ->
+                HorizontalDivider(modifier = dividerModifier)
+            A2uiBasicCatalogV1.Divider.Axis.Vertical -> VerticalDivider(modifier = dividerModifier)
         }
     }
 }

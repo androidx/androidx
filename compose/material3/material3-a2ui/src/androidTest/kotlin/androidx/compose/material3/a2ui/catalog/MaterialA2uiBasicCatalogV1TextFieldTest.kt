@@ -657,4 +657,126 @@ class MaterialA2uiBasicCatalogV1TextFieldTest {
         onNodeWithText("5678").assertIsDisplayed()
         onNodeWithText("5678").assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
     }
+
+    @Test
+    fun accessibility_withLabelAndDescription_setsSemantics() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "TextField",
+                properties =
+                    mapOf(
+                        "label" to "Username",
+                        "value" to "john_doe",
+                        "accessibility" to
+                            mapOf(
+                                "label" to "User Input Field",
+                                "description" to "Enter your unique username",
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(payload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithText("john_doe").assertIsDisplayed()
+        onNodeWithText("john_doe")
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
+        onNodeWithText("john_doe")
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.HintText,
+                    "User Input Field - Enter your unique username",
+                )
+            )
+    }
+
+    @Test
+    fun accessibility_withDescriptionOnly_setsHintText() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "TextField",
+                properties =
+                    mapOf(
+                        "label" to "Username",
+                        "value" to "john_doe",
+                        "accessibility" to mapOf("description" to "Enter your unique username"),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(payload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithText("john_doe").assertIsDisplayed()
+        onNodeWithText("john_doe")
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
+        onNodeWithText("john_doe")
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.HintText,
+                    "Enter your unique username",
+                )
+            )
+    }
+
+    @Test
+    fun accessibility_withLabelOnly_setsHintText() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "TextField",
+                properties =
+                    mapOf(
+                        "label" to "Username",
+                        "value" to "john_doe",
+                        "accessibility" to mapOf("label" to "User Input Field"),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(payload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithText("john_doe").assertIsDisplayed()
+        onNodeWithText("john_doe")
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
+        onNodeWithText("john_doe")
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.HintText,
+                    "User Input Field",
+                )
+            )
+    }
+
+    @Test
+    fun accessibility_null_hasNoContentDescriptionOrHintText() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "TextField",
+                properties =
+                    mapOf(
+                        "label" to "Username",
+                        "value" to "john_doe",
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(payload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithText("john_doe").assertIsDisplayed()
+        onNodeWithText("john_doe")
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
+        onNodeWithText("john_doe")
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.HintText))
+    }
 }
