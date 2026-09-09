@@ -32,6 +32,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
@@ -79,6 +81,7 @@ import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.onSiblings
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextReplacement
@@ -445,6 +448,28 @@ class TimePickerTest {
 
         rule.onNodeWithText("20").assertContentDescriptionContains("for hour")
 
+        rule.onAllNodesWithText("12").assertCountEquals(2)
+    }
+
+    @Test
+    fun timeInput_revertedInput_userOverride_stillUpdates() {
+        val state = TimePickerState(initialHour = 14, initialMinute = 0, is24Hour = true)
+
+        rule.setMaterialContent(lightColorScheme()) { TimeInput(state) }
+
+        // Attempt invalid input which gets reverted
+        rule.onNodeWithText("14").performKeyInput { pressKey(Key.A) }
+        rule.waitForIdle()
+
+        // Programmatic update should still update the text field
+        rule.runOnIdle {
+            state.hour = 20
+            state.minute = 12
+        }
+
+        rule.waitForIdle()
+
+        rule.onNodeWithText("20").assertContentDescriptionContains("for hour")
         rule.onAllNodesWithText("12").assertCountEquals(2)
     }
 
@@ -1230,6 +1255,86 @@ class TimePickerTest {
         rule.waitForIdle()
 
         rule.runOnIdle { assertThat(state.selection).isEqualTo(TimePickerSelectionMode.Hour) }
+    }
+
+    @Test
+    fun timeInput_12Hour_singleDigit2To9_autoAdvancesFocus() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 0, is24Hour = false)
+
+        rule.setMaterialContent(lightColorScheme()) { TimeInput(state = state) }
+
+        // Typing a single digit 2..9 into a 12-hour two-digit field auto-advances to the field
+        rule.onNodeWithText("10").performKeyInput { pressKey(Key.Four) }
+
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            assertThat(state.hour).isEqualTo(4)
+            assertThat(state.isHourInputValid).isTrue()
+            assertThat(state.selection).isEqualTo(TimePickerSelectionMode.Minute)
+        }
+    }
+
+    @Test
+    fun timeInput_12Hour_singleDigitOne_doesNotAutoAdvanceFocus() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 0, is24Hour = false)
+
+        rule.setMaterialContent(lightColorScheme()) { TimeInput(state = state) }
+
+        // Typing '1' could be the prefix of 10, 11, or 12, so it should not auto-advance
+        rule.onNodeWithText("10").performKeyInput { pressKey(Key.One) }
+
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            assertThat(state.hour).isEqualTo(1)
+            assertThat(state.isHourInputValid).isTrue()
+            assertThat(state.selection).isEqualTo(TimePickerSelectionMode.Hour)
+        }
+    }
+
+    @Test
+    fun timeInput_24Hour_singleDigit_doesNotAutoAdvanceFocus() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 0, is24Hour = true)
+
+        rule.setMaterialContent(lightColorScheme()) { TimeInput(state = state) }
+
+        // In 24-hour mode, single digits should not auto-advance
+        rule.onNodeWithText("10").performKeyInput { pressKey(Key.Four) }
+
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            assertThat(state.hour).isEqualTo(4)
+            assertThat(state.isHourInputValid).isTrue()
+            assertThat(state.selection).isEqualTo(TimePickerSelectionMode.Hour)
+        }
+    }
+
+    @Test
+    fun timeInput_minute_imeDone_invokesDefaultAction() {
+        var keyboardDismissed = false
+        val keyboardController =
+            object : SoftwareKeyboardController {
+                override fun show() {}
+
+                override fun hide() {
+                    keyboardDismissed = true
+                }
+            }
+
+        val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = false)
+        state.selection = TimePickerSelectionMode.Minute
+
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(LocalSoftwareKeyboardController provides keyboardController) {
+                TimeInput(state = state)
+            }
+        }
+
+        rule.onNodeWithText("23").performImeAction()
+
+        rule.runOnIdle { assertThat(keyboardDismissed).isTrue() }
     }
 
     @Test
