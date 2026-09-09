@@ -17,14 +17,9 @@
 package androidx.build
 
 import androidx.build.sources.SourceJarAttributeConfiguration
-import androidx.build.sources.SourceJarAttributeConfiguration.docsSourceJarUsage
+import androidx.build.sources.SourceJarAttributeConfiguration.setResolveSources
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.attributes.Category
-import org.gradle.api.attributes.DocsType
-import org.gradle.api.attributes.LibraryElements
-import org.gradle.api.attributes.Usage
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFiles
@@ -32,7 +27,6 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
-import org.gradle.kotlin.dsl.named
 import org.gradle.work.DisableCachingByDefault
 
 /**
@@ -44,33 +38,9 @@ internal fun Project.configureSamplesProject() {
     // Set up attribute resolution rules so that the correct KMP or non-KMP source jar is resolved.
     SourceJarAttributeConfiguration.register(project)
 
-    fun Configuration.setResolveSources() {
-        // While a sample library can have more dependencies than the library it has samples
-        // for, in Studio sample code is not executable or inspectable, so we don't need them.
-        isTransitive = false
-        isCanBeConsumed = false
-        attributes {
-            it.attribute(Usage.USAGE_ATTRIBUTE, docsSourceJarUsage)
-            it.attribute(
-                Category.CATEGORY_ATTRIBUTE,
-                project.objects.named<Category>(Category.DOCUMENTATION),
-            )
-            it.attribute(
-                DocsType.DOCS_TYPE_ATTRIBUTE,
-                project.objects.named<DocsType>(DocsType.SOURCES),
-            )
-            it.attribute(
-                LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
-                project.objects.named<LibraryElements>(LibraryElements.JAR),
-            )
-        }
-    }
-
     val samplesConfiguration =
         project.configurations.register("samples") {
-            it.isCanBeConsumed = false
-            it.isCanBeResolved = true
-            it.setResolveSources()
+            it.setResolveSources(project)
         }
 
     project.tasks.register("copySampleSourceJars", LazyInputsCopyTask::class.java) { task ->
