@@ -17,6 +17,7 @@
 package androidx.compose.material3
 
 internal class ComponentProperties(
+    val surfaceProperties: SurfaceProperties = SurfaceProperties.Default,
     val checkboxProperties: CheckboxProperties = CheckboxProperties.Default,
     val radioButtonProperties: RadioButtonProperties = RadioButtonProperties.Default,
     val searchBarProperties: SearchBarProperties = SearchBarProperties.Default,
@@ -26,6 +27,12 @@ internal class ComponentProperties(
 ) {
     companion object {
         val Default = ComponentProperties()
+    }
+}
+
+internal class SurfaceProperties(val style: SurfaceStyle = SurfaceStyle.Default) {
+    companion object {
+        val Default = SurfaceProperties()
     }
 }
 
