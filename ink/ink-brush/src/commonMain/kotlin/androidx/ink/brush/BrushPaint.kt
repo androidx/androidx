@@ -1202,7 +1202,9 @@ private constructor(
             @ExperimentalInkAnimationApi
             public fun setAnimationRows(
                 @IntRange(from = 1, to = 1 shl 12) animationRows: Int
-            ): Builder = apply { this.animationRows = animationRows }
+            ): Builder = apply {
+                this.animationRows = animationRows
+            }
 
             /** Sets the number of animation columns in this texture layer. */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
@@ -1326,8 +1328,8 @@ private constructor(
                 when (parametersType) {
                     0 -> OpacityMultiplier(nativeAlloc)
                     1 -> HueOffset(nativeAlloc)
-                    2 -> SaturationMultiplier(nativeAlloc)
-                    3 -> LuminosityOffset(nativeAlloc)
+                    2 -> ChromaMultiplier(nativeAlloc)
+                    3 -> LightnessOffset(nativeAlloc)
                     4 -> ReplaceColor(nativeAlloc)
                     else -> throw IllegalArgumentException("Invalid color function type")
                 }
@@ -1371,7 +1373,10 @@ private constructor(
             public companion object
         }
 
-        /** A [ColorFunction] that shifts the color hue by a specified offset. */
+        /**
+         * A [ColorFunction] that shifts the color hue by a specified offset, while maintaining the
+         * same level of perceived lightness.
+         */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @ExperimentalInkCustomBrushApi
         public class HueOffset internal constructor(nativeAlloc: () -> Long) :
@@ -1402,24 +1407,28 @@ private constructor(
             @ExperimentalInkCustomBrushApi public companion object
         }
 
-        /** A [ColorFunction] that scales the color saturation by a specified multiplier. */
+        /** A [ColorFunction] that scales the color chroma by a specified multiplier. */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @ExperimentalInkCustomBrushApi
-        public class SaturationMultiplier internal constructor(nativeAlloc: () -> Long) :
+        public class ChromaMultiplier internal constructor(nativeAlloc: () -> Long) :
             ColorFunction(nativeAlloc) {
 
-            /** Constructs a color function that applies the specified saturation multiplier. */
+            /**
+             * Constructs a color function that applies the specified chroma multiplier. A value
+             * greater than 1 makes the color more saturated, a value less than 1 makes the color
+             * less saturated, and a value of 0 makes the color grayscale.
+             */
             public constructor(
                 @FloatRange(from = 0.0) multiplier: Float
-            ) : this({ ColorFunctionNative.createSaturationMultiplier(multiplier) })
+            ) : this({ ColorFunctionNative.createChromaMultiplier(multiplier) })
 
-            /** The saturation multiplier to apply. */
+            /** The chroma multiplier to apply. */
             @get:FloatRange(from = 0.0)
             public val multiplier: Float
-                get() = ColorFunctionNative.getSaturationMultiplier(nativePointer)
+                get() = ColorFunctionNative.getChromaMultiplier(nativePointer)
 
             override fun equals(other: Any?): Boolean {
-                if (other == null || other !is SaturationMultiplier) {
+                if (other == null || other !is ChromaMultiplier) {
                     return false
                 }
                 return multiplier == other.multiplier
@@ -1427,29 +1436,29 @@ private constructor(
 
             override fun hashCode(): Int = multiplier.hashCode()
 
-            override fun toString(): String = "ColorFunction.SaturationMultiplier($multiplier)"
+            override fun toString(): String = "ColorFunction.ChromaMultiplier($multiplier)"
 
             // Declared to make extension functions available.
             @ExperimentalInkCustomBrushApi public companion object
         }
 
-        /** A [ColorFunction] that shifts the color luminosity by a specified offset. */
+        /** A [ColorFunction] that shifts the color perceived lightness by a specified offset. */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @ExperimentalInkCustomBrushApi
-        public class LuminosityOffset internal constructor(nativeAlloc: () -> Long) :
+        public class LightnessOffset internal constructor(nativeAlloc: () -> Long) :
             ColorFunction(nativeAlloc) {
 
-            /** Constructs a color function that applies the specified luminosity offset. */
+            /** Constructs a color function that applies the specified lightness offset. */
             public constructor(
                 offset: Float
-            ) : this({ ColorFunctionNative.createLuminosityOffset(offset) })
+            ) : this({ ColorFunctionNative.createLightnessOffset(offset) })
 
-            /** The luminosity offset to apply. */
+            /** The lightness offset to apply. */
             public val offset: Float
-                get() = ColorFunctionNative.getLuminosityOffset(nativePointer)
+                get() = ColorFunctionNative.getLightnessOffset(nativePointer)
 
             override fun equals(other: Any?): Boolean {
-                if (other == null || other !is LuminosityOffset) {
+                if (other == null || other !is LightnessOffset) {
                     return false
                 }
                 return offset == other.offset
@@ -1457,7 +1466,7 @@ private constructor(
 
             override fun hashCode(): Int = offset.hashCode()
 
-            override fun toString(): String = "ColorFunction.LuminosityOffset($offset)"
+            override fun toString(): String = "ColorFunction.LightnessOffset($offset)"
 
             // Declared to make extension functions available.
             @ExperimentalInkCustomBrushApi public companion object
@@ -1677,9 +1686,9 @@ expect internal object ColorFunctionNative {
 
     fun createHueOffset(offsetDegrees: Float): Long
 
-    fun createSaturationMultiplier(multiplier: Float): Long
+    fun createChromaMultiplier(multiplier: Float): Long
 
-    fun createLuminosityOffset(offset: Float): Long
+    fun createLightnessOffset(offset: Float): Long
 
     fun createReplaceColor(
         colorRed: Float,
@@ -1695,9 +1704,9 @@ expect internal object ColorFunctionNative {
 
     fun getHueOffsetDegrees(nativePointer: Long): Float
 
-    fun getSaturationMultiplier(nativePointer: Long): Float
+    fun getChromaMultiplier(nativePointer: Long): Float
 
-    fun getLuminosityOffset(nativePointer: Long): Float
+    fun getLightnessOffset(nativePointer: Long): Float
 
     fun computeReplaceColorLong(nativePointer: Long): Long
 

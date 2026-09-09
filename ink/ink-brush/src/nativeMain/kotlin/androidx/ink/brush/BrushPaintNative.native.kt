@@ -36,16 +36,16 @@ import androidx.ink.nativeloader.cinterop.BrushPaintNative_newCopyOfTextureLayer
 import androidx.ink.nativeloader.cinterop.ColorFunctionNative_calculateMinimumRequiredVersion
 import androidx.ink.nativeloader.cinterop.ColorFunctionNative_computeReplaceColorLong
 import androidx.ink.nativeloader.cinterop.ColorFunctionNative_computeTransformedColorLong
+import androidx.ink.nativeloader.cinterop.ColorFunctionNative_createChromaMultiplier
 import androidx.ink.nativeloader.cinterop.ColorFunctionNative_createHueOffset
-import androidx.ink.nativeloader.cinterop.ColorFunctionNative_createLuminosityOffset
+import androidx.ink.nativeloader.cinterop.ColorFunctionNative_createLightnessOffset
 import androidx.ink.nativeloader.cinterop.ColorFunctionNative_createOpacityMultiplier
 import androidx.ink.nativeloader.cinterop.ColorFunctionNative_createReplaceColor
-import androidx.ink.nativeloader.cinterop.ColorFunctionNative_createSaturationMultiplier
 import androidx.ink.nativeloader.cinterop.ColorFunctionNative_free
+import androidx.ink.nativeloader.cinterop.ColorFunctionNative_getChromaMultiplier
 import androidx.ink.nativeloader.cinterop.ColorFunctionNative_getHueOffsetDegrees
-import androidx.ink.nativeloader.cinterop.ColorFunctionNative_getLuminosityOffset
+import androidx.ink.nativeloader.cinterop.ColorFunctionNative_getLightnessOffset
 import androidx.ink.nativeloader.cinterop.ColorFunctionNative_getOpacityMultiplier
-import androidx.ink.nativeloader.cinterop.ColorFunctionNative_getSaturationMultiplier
 import androidx.ink.nativeloader.cinterop.StampingTextureNative_create
 import androidx.ink.nativeloader.cinterop.StampingTextureNative_getAnimationColumns
 import androidx.ink.nativeloader.cinterop.StampingTextureNative_getAnimationDurationMillis
@@ -275,15 +275,15 @@ actual internal object ColorFunctionNative {
             throwForNonOkStatusCallback,
         )
 
-    actual fun createSaturationMultiplier(multiplier: Float): Long =
-        ColorFunctionNative_createSaturationMultiplier(
+    actual fun createChromaMultiplier(multiplier: Float): Long =
+        ColorFunctionNative_createChromaMultiplier(
             jni_env_pass_through = null,
             multiplier,
             throwForNonOkStatusCallback,
         )
 
-    actual fun createLuminosityOffset(offset: Float): Long =
-        ColorFunctionNative_createLuminosityOffset(
+    actual fun createLightnessOffset(offset: Float): Long =
+        ColorFunctionNative_createLightnessOffset(
             jni_env_pass_through = null,
             offset,
             throwForNonOkStatusCallback,
@@ -314,11 +314,11 @@ actual internal object ColorFunctionNative {
     actual fun getHueOffsetDegrees(nativePointer: Long): Float =
         ColorFunctionNative_getHueOffsetDegrees(nativePointer)
 
-    actual fun getSaturationMultiplier(nativePointer: Long): Float =
-        ColorFunctionNative_getSaturationMultiplier(nativePointer)
+    actual fun getChromaMultiplier(nativePointer: Long): Float =
+        ColorFunctionNative_getChromaMultiplier(nativePointer)
 
-    actual fun getLuminosityOffset(nativePointer: Long): Float =
-        ColorFunctionNative_getLuminosityOffset(nativePointer)
+    actual fun getLightnessOffset(nativePointer: Long): Float =
+        ColorFunctionNative_getLightnessOffset(nativePointer)
 
     actual fun computeReplaceColorLong(nativePointer: Long): Long =
         ColorFunctionNative_computeReplaceColorLong(

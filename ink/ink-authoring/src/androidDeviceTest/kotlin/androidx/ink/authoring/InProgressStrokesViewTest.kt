@@ -1043,7 +1043,10 @@ class InProgressStrokesViewTest : InProgressStrokesViewTestBase() {
                 // As soon as flush starts, continue the handoff.
                 assertThat(
                         activity.inProgressStrokesView.countDownWhenFlushInProgressTestLatch!!
-                            .await(5, TimeUnit.SECONDS)
+                            .await(
+                                5,
+                                TimeUnit.SECONDS,
+                            )
                     )
                     .isTrue()
                 // When this gets here, flush has started, the handoff has just started, the render

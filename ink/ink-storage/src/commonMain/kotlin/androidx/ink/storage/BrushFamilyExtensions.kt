@@ -287,9 +287,7 @@ internal class MultipleBrushFamilies private constructor(nativeAlloc: () -> Long
                     onDecodeTexture,
                     maxVersion,
                 )
-                .also {
-                    check(it != 0L) { "Should have thrown exception if decoding failed." }
-                }
+                .also { check(it != 0L) { "Should have thrown exception if decoding failed." } }
         }
             .releaseBrushFamilies()
     }

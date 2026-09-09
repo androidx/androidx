@@ -52,10 +52,9 @@ class RateLimitedLatencyAggregatorTest {
         val sampleEnds = mutableListOf<Long>()
 
         val aggregator =
-            RateLimitedLatencyAggregator.create(
-                period = 1.seconds,
-                testScope.backgroundScope,
-            ) { startNanos: Long, endNanos: Long ->
+            RateLimitedLatencyAggregator.create(period = 1.seconds, testScope.backgroundScope) {
+                startNanos: Long,
+                endNanos: Long ->
                 sampleStarts.add(startNanos)
                 sampleEnds.add(endNanos)
             }
@@ -86,10 +85,9 @@ class RateLimitedLatencyAggregatorTest {
         val sampleEnds = mutableListOf<Long>()
 
         val aggregator =
-            RateLimitedLatencyAggregator.create(
-                period = 1.seconds,
-                testScope.backgroundScope,
-            ) { startNanos: Long, endNanos: Long ->
+            RateLimitedLatencyAggregator.create(period = 1.seconds, testScope.backgroundScope) {
+                startNanos: Long,
+                endNanos: Long ->
                 numReports += 1
                 sampleStarts.add(startNanos)
                 sampleEnds.add(endNanos)
@@ -121,10 +119,9 @@ class RateLimitedLatencyAggregatorTest {
 
         // Use a reporting period of 10 seconds.
         val aggregator =
-            RateLimitedLatencyAggregator.create(
-                period = 10.seconds,
-                testScope.backgroundScope,
-            ) { startNanos: Long, endNanos: Long ->
+            RateLimitedLatencyAggregator.create(period = 10.seconds, testScope.backgroundScope) {
+                startNanos: Long,
+                endNanos: Long ->
                 sampleStarts.add(startNanos)
                 sampleEnds.add(endNanos)
             }
@@ -163,8 +160,7 @@ class RateLimitedLatencyAggregatorTest {
         // Advance past the end of the second window.
         testScope.advanceTimeBy(10.seconds)
 
-        // Calls B and C get included in the second window. Call A was already accounted for so
-        // it
+        // Calls B and C get included in the second window. Call A was already accounted for so it
         // doesn't get double-counted.
         assertThat(sampleStarts).containsExactly(13L, 33L, 73L).inOrder()
         assertThat(sampleEnds).containsExactly(23L, 43L, 83L).inOrder()
@@ -178,18 +174,16 @@ class RateLimitedLatencyAggregatorTest {
         val sampleEnds2 = mutableListOf<Long>()
 
         val aggregator =
-            RateLimitedLatencyAggregator.create(
-                period = 1.seconds,
-                testScope.backgroundScope,
-            ) { startNanos: Long, endNanos: Long ->
+            RateLimitedLatencyAggregator.create(period = 1.seconds, testScope.backgroundScope) {
+                startNanos: Long,
+                endNanos: Long ->
                 sampleStarts1.add(startNanos)
                 sampleEnds1.add(endNanos)
             }
         val otherAggregator =
-            RateLimitedLatencyAggregator.create(
-                period = 1.seconds,
-                testScope.backgroundScope,
-            ) { startNanos: Long, endNanos: Long ->
+            RateLimitedLatencyAggregator.create(period = 1.seconds, testScope.backgroundScope) {
+                startNanos: Long,
+                endNanos: Long ->
                 sampleStarts2.add(startNanos)
                 sampleEnds2.add(endNanos)
             }
@@ -302,10 +296,9 @@ class RateLimitedLatencyAggregatorTest {
         val sampleEnds = mutableListOf<Long>()
 
         val aggregator =
-            RateLimitedLatencyAggregator.create(
-                period = 1.seconds,
-                testScope.backgroundScope,
-            ) { startNanos: Long, endNanos: Long ->
+            RateLimitedLatencyAggregator.create(period = 1.seconds, testScope.backgroundScope) {
+                startNanos: Long,
+                endNanos: Long ->
                 sampleStarts.add(startNanos)
                 sampleEnds.add(endNanos)
             }
@@ -330,8 +323,7 @@ class RateLimitedLatencyAggregatorTest {
         testScope.advanceTimeBy(8.seconds)
 
         // The last input in each second should have been reported, so long as the scope the
-        // aggregation was running in was still active. In this case, aggregator ignored the
-        // third
+        // aggregation was running in was still active. In this case, aggregator ignored the third
         // batch.
         assertThat(sampleStarts).containsExactly(13L, 20L).inOrder()
         assertThat(sampleEnds).containsExactly(23L, 35L).inOrder()

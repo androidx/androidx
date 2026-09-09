@@ -63,7 +63,7 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
          * start and end values passed to [aggregate]. This callback runs in the [CoroutineScope]
          * (or, for Java clients, the [Executor]) passed to [create].
          */
-        public suspend fun onLatencySample(startNanos: Long, endNanos: Long): Unit
+        public suspend fun onLatencySample(startNanos: Long, endNanos: Long)
     }
 
     @UiThread

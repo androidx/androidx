@@ -207,24 +207,26 @@ private constructor(
             // each
             // part of the stroke.
             /**
-             * Shifts the hue of the base brush color. A positive offset shifts around the hue wheel
-             * from red towards orange, while a negative offset shifts the other way, from red
-             * towards violet. The final hue offset is not clamped, but is effectively normalized
-             * (mod 2π). If multiple behaviors have this target, they stack additively.
+             * Shifts the hue of the base brush color, while maintaining the same level of perceived
+             * lightness. A positive offset shifts around the hue wheel from red towards orange,
+             * while a negative offset shifts the other way, from red towards violet. The final hue
+             * offset is not clamped, but is effectively normalized (mod 2π). If multiple behaviors
+             * have this target, they stack additively.
              */
             @JvmField public val HUE_OFFSET_IN_RADIANS: Target = Target(12, "HUE_OFFSET_IN_RADIANS")
             /**
-             * Scales the saturation of the base brush color. If multiple behaviors have one of
-             * these targets, they stack multiplicatively. The final saturation multiplier is
-             * clamped to [0, 2].
+             * Scales the chroma of the base brush color. A value greater than 1.0 makes the color
+             * more saturated, a value less than 1.0 makes the color less saturated, and a value of
+             * 0.0 makes the color grayscale. If multiple behaviors have one of these targets, they
+             * stack multiplicatively. The final chroma multiplier is clamped to [0, 2].
              */
-            @JvmField public val SATURATION_MULTIPLIER: Target = Target(13, "SATURATION_MULTIPLIER")
+            @JvmField public val CHROMA_MULTIPLIER: Target = Target(13, "CHROMA_MULTIPLIER")
             /**
-             * Shifts the luminosity of the base brush color. An offset of ±1.0 corresponds to
-             * changing the luminosity by up to ±100%. If multiple behaviors have this target, they
-             * stack additively. The final luminosity offset is clamped to [-1, 1].
+             * Shifts the perceived lightness of the base brush color. An offset of ±1.0 corresponds
+             * to changing the lightness by up to ±100%. If multiple behaviors have this target,
+             * they stack additively. The final lightness offset is clamped to [-1, 1].
              */
-            @JvmField public val LUMINOSITY_OFFSET: Target = Target(14, "LUMINOSITY_OFFSET")
+            @JvmField public val LIGHTNESS_OFFSET: Target = Target(14, "LIGHTNESS_OFFSET")
             /**
              * Scales the opacity of the base brush color. If multiple behaviors have one of these
              * targets, they stack multiplicatively. The final opacity multiplier is clamped to

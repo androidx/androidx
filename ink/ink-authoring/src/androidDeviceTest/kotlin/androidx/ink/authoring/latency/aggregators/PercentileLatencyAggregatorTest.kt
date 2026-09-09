@@ -48,8 +48,7 @@ class PercentileLatencyAggregatorTest {
     @Test
     fun percentileLatencyAggregator_reportsCorrectValuesAtExpectedInterval() = testScope.runTest {
         // Set up an aggregator to report 50th and 75th percentile values, in 1-second reporting
-        // windows, of the latencies fed to it. Save all of its reports in lists, the contents
-        // of
+        // windows, of the latencies fed to it. Save all of its reports in lists, the contents of
         // which we'll check at the end of the test.
 
         val medianLatencies = mutableListOf<Long>()
@@ -110,8 +109,7 @@ class PercentileLatencyAggregatorTest {
 
     @Test
     fun histogramLatencyAggregator_reportSynchronouslyReportsSynchronously() = testScope.runTest {
-        // Set up an aggregator to report medians, in 10-second reporting windows, of the
-        // latencies
+        // Set up an aggregator to report medians, in 10-second reporting windows, of the latencies
         // fed to it. In the middle of one window, trigger a synchronous report. Save all of the
         // reports in lists, the contents of which we'll check at the end of the test.
 
@@ -159,8 +157,7 @@ class PercentileLatencyAggregatorTest {
 
         aggregator.reportSynchronously()
 
-        // The manually-triggered report includes just the first two inputs in the second
-        // window.
+        // The manually-triggered report includes just the first two inputs in the second window.
         assertThat(sampleCounts).containsExactly(2, 2).inOrder()
         assertThat(medianLatencies).containsExactly(35L, 55L).inOrder()
 
@@ -177,8 +174,7 @@ class PercentileLatencyAggregatorTest {
     @Test
     fun percentileLatencyAggregator_reportWindowsWithNoInputsProduceNoReport() = testScope.runTest {
         // Set up an aggregator to report median values, in 1-second reporting windows, of the
-        // latencies fed to it. We'll put a big time gap in the inputs. There should only be
-        // reports
+        // latencies fed to it. We'll put a big time gap in the inputs. There should only be reports
         // for the non-empty windows; empty windows should not produce reports.
 
         var numReports = 0
@@ -423,8 +419,7 @@ class PercentileLatencyAggregatorTest {
 
     @Test
     fun percentileLatencyAggregator_canStartTwoAggregatorsInSameCoroutine() = testScope.runTest {
-        // Start two aggregators and collect their reports in separate lists. We'll feed
-        // different
+        // Start two aggregators and collect their reports in separate lists. We'll feed different
         // data to each of them. At the end we should see the expected reports on the different
         // inputs
         // they were given.

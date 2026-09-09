@@ -43,7 +43,7 @@ public interface LatencyAggregator {
      * be aggregated. These values are expected to be offsets from some consistent time base; e.g.,
      * device boot time or the Unix epoch.
      */
-    @UiThread public fun aggregate(startNanos: Long, endNanos: Long): Unit
+    @UiThread public fun aggregate(startNanos: Long, endNanos: Long)
 
     /**
      * For periodic aggregators, runs the reporting callback immediately and synchronously. For
@@ -57,7 +57,7 @@ public interface LatencyAggregator {
      * into at most one report, so the next report will not include any contribution from inputs
      * received prior to this call.
      */
-    @UiThread public fun reportSynchronously(): Unit
+    @UiThread public fun reportSynchronously()
 
     /** Returns the long-running [Job] for aggregation and reporting. */
     public fun job(): Job

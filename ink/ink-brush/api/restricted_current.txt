@@ -922,11 +922,12 @@ package androidx.ink.brush.behavior {
 
   public static final class TargetNode.Target {
     method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
+    field public static final androidx.ink.brush.behavior.TargetNode.Target CHROMA_MULTIPLIER;
     field public static final androidx.ink.brush.behavior.TargetNode.Target CORNER_ROUNDING_OFFSET;
     field public static final androidx.ink.brush.behavior.TargetNode.Target.Companion Companion;
     field public static final androidx.ink.brush.behavior.TargetNode.Target HEIGHT_MULTIPLIER;
     field public static final androidx.ink.brush.behavior.TargetNode.Target HUE_OFFSET_IN_RADIANS;
-    field public static final androidx.ink.brush.behavior.TargetNode.Target LUMINOSITY_OFFSET;
+    field public static final androidx.ink.brush.behavior.TargetNode.Target LIGHTNESS_OFFSET;
     field public static final androidx.ink.brush.behavior.TargetNode.Target OPACITY_MULTIPLIER;
     field @SuppressCompatibility public static final androidx.ink.brush.behavior.TargetNode.Target PAINT_ANIMATION_PROGRESS_OFFSET;
     field public static final androidx.ink.brush.behavior.TargetNode.Target PINCH_OFFSET;
@@ -935,17 +936,17 @@ package androidx.ink.brush.behavior {
     field public static final androidx.ink.brush.behavior.TargetNode.Target POSITION_OFFSET_X_IN_MULTIPLES_OF_BRUSH_SIZE;
     field public static final androidx.ink.brush.behavior.TargetNode.Target POSITION_OFFSET_Y_IN_MULTIPLES_OF_BRUSH_SIZE;
     field public static final androidx.ink.brush.behavior.TargetNode.Target ROTATION_OFFSET_IN_RADIANS;
-    field public static final androidx.ink.brush.behavior.TargetNode.Target SATURATION_MULTIPLIER;
     field public static final androidx.ink.brush.behavior.TargetNode.Target SIZE_MULTIPLIER;
     field public static final androidx.ink.brush.behavior.TargetNode.Target SLANT_OFFSET_IN_RADIANS;
     field public static final androidx.ink.brush.behavior.TargetNode.Target WIDTH_MULTIPLIER;
   }
 
   public static final class TargetNode.Target.Companion {
+    property public androidx.ink.brush.behavior.TargetNode.Target CHROMA_MULTIPLIER;
     property public androidx.ink.brush.behavior.TargetNode.Target CORNER_ROUNDING_OFFSET;
     property public androidx.ink.brush.behavior.TargetNode.Target HEIGHT_MULTIPLIER;
     property public androidx.ink.brush.behavior.TargetNode.Target HUE_OFFSET_IN_RADIANS;
-    property public androidx.ink.brush.behavior.TargetNode.Target LUMINOSITY_OFFSET;
+    property public androidx.ink.brush.behavior.TargetNode.Target LIGHTNESS_OFFSET;
     property public androidx.ink.brush.behavior.TargetNode.Target OPACITY_MULTIPLIER;
     property @SuppressCompatibility public androidx.ink.brush.behavior.TargetNode.Target PAINT_ANIMATION_PROGRESS_OFFSET;
     property public androidx.ink.brush.behavior.TargetNode.Target PINCH_OFFSET;
@@ -954,7 +955,6 @@ package androidx.ink.brush.behavior {
     property public androidx.ink.brush.behavior.TargetNode.Target POSITION_OFFSET_X_IN_MULTIPLES_OF_BRUSH_SIZE;
     property public androidx.ink.brush.behavior.TargetNode.Target POSITION_OFFSET_Y_IN_MULTIPLES_OF_BRUSH_SIZE;
     property public androidx.ink.brush.behavior.TargetNode.Target ROTATION_OFFSET_IN_RADIANS;
-    property public androidx.ink.brush.behavior.TargetNode.Target SATURATION_MULTIPLIER;
     property public androidx.ink.brush.behavior.TargetNode.Target SIZE_MULTIPLIER;
     property public androidx.ink.brush.behavior.TargetNode.Target SLANT_OFFSET_IN_RADIANS;
     property public androidx.ink.brush.behavior.TargetNode.Target WIDTH_MULTIPLIER;

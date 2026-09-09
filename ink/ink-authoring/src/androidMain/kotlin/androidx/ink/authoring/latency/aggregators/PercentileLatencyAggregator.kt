@@ -81,7 +81,7 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
         public suspend fun onLatencyPercentiles(
             latencyPercentileNanos: List<Long>,
             sampleCount: Int,
-        ): Unit
+        )
     }
 
     @UiThread

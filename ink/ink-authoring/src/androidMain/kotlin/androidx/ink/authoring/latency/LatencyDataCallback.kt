@@ -24,5 +24,5 @@ import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 @ExperimentalInkLatencyDataApi
 public fun interface LatencyDataCallback {
     /** A callback invoked once per input event to send [LatencyData] to a client. */
-    @UiThread public fun onLatencyData(latency: LatencyData): Unit
+    @UiThread public fun onLatencyData(latency: LatencyData)
 }
