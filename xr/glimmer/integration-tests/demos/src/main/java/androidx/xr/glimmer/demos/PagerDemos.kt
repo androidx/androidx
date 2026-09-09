@@ -36,6 +36,7 @@ import androidx.xr.glimmer.Button
 import androidx.xr.glimmer.Card
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Icon
+import androidx.xr.glimmer.ImageCard
 import androidx.xr.glimmer.LocalTextStyle
 import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.pager.GlimmerHorizontalPager
@@ -63,23 +64,23 @@ private fun GlimmerHorizontalPagerWithVariousContentDemo() {
                     )
                 }
             1 ->
-                Card(
-                    title = {
-                        Text(
-                            text = "Page: $page",
-                            style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated),
-                        )
-                    },
-                    header = {
+                ImageCard(
+                    image = {
                         Image(
                             painter = SampleImage,
                             contentDescription = "Localized description",
                             contentScale = ContentScale.FillWidth,
                         )
                     },
+                    title = {
+                        Text(
+                            text = "Page: $page",
+                            style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated),
+                        )
+                    },
                 ) {
                     Text(
-                        text = "This is a card with a title and header image",
+                        text = "This is an image card with a title",
                         style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated),
                     )
                 }
