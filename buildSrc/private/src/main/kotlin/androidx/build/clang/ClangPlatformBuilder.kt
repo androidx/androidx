@@ -158,6 +158,8 @@ internal class AndroidPlatformBuilder(
                 "-Werror=format-security",
                 // Reproducibility: prevent resolving compiler binary symlinks
                 "-no-canonical-prefixes",
+                // Reproducibility: omit toolchain identity metadata from .comment section
+                "-fno-ident",
                 // Dead code elimination: place functions and data in separate sections
                 "-ffunction-sections",
                 "-fdata-sections",
@@ -293,6 +295,8 @@ internal class KonanPlatformBuilder(
                 "-Werror=format-security",
                 // Reproducibility: prevent resolving compiler binary symlinks
                 "-no-canonical-prefixes",
+                // Reproducibility: omit toolchain identity metadata from .comment section
+                "-fno-ident",
             )
     }
 }
