@@ -34,6 +34,13 @@ import androidx.compose.ui.text.TextStyle
 public expect class Locale {
     public companion object {
         /** Returns a [Locale] object which represents current locale */
+        @Deprecated(
+            "Locale.current is not backed by snapshot state and does not notify readers on updates. " +
+                "In @Composable functions, use LocalLocale.current instead. Outside composables, " +
+                "pass the current locale explicitly from an observable state source.",
+            replaceWith =
+                ReplaceWith("LocalLocale.current", "androidx.compose.ui.platform.LocalLocale"),
+        )
         public val current: Locale
     }
 

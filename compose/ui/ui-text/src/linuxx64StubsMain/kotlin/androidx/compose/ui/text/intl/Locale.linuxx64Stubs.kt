@@ -22,6 +22,20 @@ import androidx.compose.ui.text.implementedInJetBrainsFork
 @Immutable
 public actual class Locale {
     public actual companion object {
+        @Deprecated(
+            """
+                This method of accessing locale isn't backed by snapshot state, meaning
+                that updates to the locale won't notify any readers of this API. To correctly
+                read and observe the current locale for situations where it may change, you
+                should read from the composition local LocalLocale.
+                If you are in a composable function, call LocalLocale.current instead.
+                If you are not in a composable function, pass through the locale down to this usage
+                from an observable source, and ensure that the usage is invalidated correctly if
+                the locale changes.
+            """,
+            replaceWith =
+                ReplaceWith("LocalLocale.current", "androidx.compose.ui.platform.LocalLocale"),
+        )
         public actual val current: Locale
             get() = implementedInJetBrainsFork()
     }

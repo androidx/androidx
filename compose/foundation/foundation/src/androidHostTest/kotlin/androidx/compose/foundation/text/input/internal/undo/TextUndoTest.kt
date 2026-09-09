@@ -275,7 +275,7 @@ class TextUndoTest {
 
     @Test
     fun undoHistoryIncludesInputTransformation() {
-        val allCapsTransformation = InputTransformation.allCaps(Locale.current)
+        val allCapsTransformation = InputTransformation.allCaps(Locale("en"))
         val state = TextFieldState("abc", TextRange(3))
 
         // this test also tests for AllCapsTransformation
