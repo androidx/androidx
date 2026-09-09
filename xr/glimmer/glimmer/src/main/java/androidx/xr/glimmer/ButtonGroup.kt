@@ -500,12 +500,16 @@ private fun contentOffset(
     val deadSpaceStart = bounds.getOrNull(0)?.center ?: 0f
     val deadSpaceEnd = bounds.lastOrNull()?.let { contentWidth - it.center } ?: 0f
 
-    val scroll =
+    val rawScroll =
         convertUserScrollToContentScroll(
             userScroll = totalScroll - deadSpaceStart,
             viewportWidth = viewportWidth - deadSpaceStart - deadSpaceEnd,
             contentWidth = contentWidth - deadSpaceStart - deadSpaceEnd,
         )
+
+    // When the content fits within the viewport, halve the scroll offset so that as the user
+    // scrolls to the end, the final element shifts to the center rather than scrolling past it.
+    val scroll = if (contentWidth <= viewportWidth) rawScroll / 2f else rawScroll
 
     return -scroll.fastRoundToInt()
 }
