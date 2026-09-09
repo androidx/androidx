@@ -622,19 +622,6 @@ Calculating task graph as configuration cache cannot be reused because the set o
 # b/414775532
 # > Task :compose-hero-benchmarks:pokedex-compose:app:kspReleaseKotlin
 w: \[ksp\] LibraryGlideModules \[\] are included more than once, keeping only one\!
-# b/477184340
-WARNING: The option setting 'android\.newDsl=false' is deprecated\.
-The current default is 'true'\.
-It will be removed in version 10\.0 of the Android Gradle plugin\.
-WARNING: API 'applicationVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'\.
-WARNING: API 'libraryVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'\.
-WARNING: API 'testVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'\.
-WARNING: API 'unitTestVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'\.
-The legacy variant API is disabled by default in AGP 9\.0, but can be re-enabled by adding
-android\.newDsl=false
-to this project's gradle\.properties file\.
-For more information, see http://developer\.android\.com/build/r/new-dsl\.
-To determine what is calling .*, use \-Pandroid\.debug\.obsoleteApi=true on the command line to display more information\.
 # b/454595352
 WARNING: The option setting 'android\.kmp\.use\.jvm\.platform\.type=true' is experimental\.
 # b/439073627
