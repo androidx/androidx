@@ -25,7 +25,9 @@ import androidx.compose.remote.core.operations.DrawPath
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ShaderBrush
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -223,5 +225,98 @@ class RcPlayerPaintTest {
         val actualId = derefId(data.id, context)
         assertThat(actualId).isEqualTo(targetPathId)
         assertThat(context.mRemoteComposeState.getPathData(actualId)).isNotNull()
+    }
+
+    @Test
+    fun updatePaintFromBundle_resolvesGradientBoundColorIdStop() {
+        val remoteContext = AndroidRemoteContext()
+        val colorId = 42
+        val initialCyan = 0xFF7DE2FF.toInt()
+        remoteContext.mRemoteComposeState.overrideColor(colorId, initialCyan)
+
+        // Linear gradient with 3 stops:
+        // stop 0: literal 0xFF101820 (register bit 0 = 0)
+        // stop 1: color-id 42 (register bit 1 = 1 -> register = 2)
+        // stop 2: literal 0xFFFFB86C (register bit 2 = 0)
+        val bundle = PaintBundle()
+        bundle.setLinearGradient(
+            intArrayOf(0xFF101820.toInt(), colorId, 0xFFFFB86C.toInt()),
+            1 shl 1, // bit 1 indicates stop 1 is a color-id reference
+            floatArrayOf(0f, 0.5f, 1f),
+            0f,
+            0f,
+            100f,
+            100f,
+            0, // Clamp
+        )
+
+        val paintState1 = ComposeLocalPaint()
+        updatePaintFromBundle(bundle, paintState1, remoteContext, read = remoteContext)
+
+        val brush1 = paintState1.brush
+        assertThat(brush1).isNotNull()
+        assertThat(brush1).isInstanceOf(ShaderBrush::class.java)
+
+        val shader1 = (brush1 as ShaderBrush).createShader(Size(100f, 100f))
+        assertThat(shader1).isNotNull()
+
+        // Live recolor: update colorId 42 from Cyan to Magenta
+        val updatedMagenta = 0xFFFF00FF.toInt()
+        remoteContext.mRemoteComposeState.overrideColor(colorId, updatedMagenta)
+
+        val paintState2 = ComposeLocalPaint()
+        updatePaintFromBundle(bundle, paintState2, remoteContext, read = remoteContext)
+
+        val brush2 = paintState2.brush
+        assertThat(brush2).isNotNull()
+        assertThat(brush2).isInstanceOf(ShaderBrush::class.java)
+        assertThat(brush1).isNotEqualTo(brush2)
+    }
+
+    @Test
+    fun updatePaintFromBundle_allLiteralGradientStops() {
+        val remoteContext = AndroidRemoteContext()
+        val bundle = PaintBundle()
+        // Gradient with all literal stops (register bitmask = 0)
+        bundle.setLinearGradient(
+            intArrayOf(0xFF101820.toInt(), 0xFF7DE2FF.toInt(), 0xFFFFB86C.toInt()),
+            0, // all literal stops
+            floatArrayOf(0f, 0.5f, 1f),
+            0f,
+            0f,
+            100f,
+            100f,
+            0,
+        )
+
+        val paintState = ComposeLocalPaint()
+        updatePaintFromBundle(bundle, paintState, remoteContext, read = remoteContext)
+
+        assertThat(paintState.brush).isNotNull()
+        assertThat(paintState.brush).isInstanceOf(ShaderBrush::class.java)
+    }
+
+    @Test
+    fun updatePaintFromBundle_radialGradientWithColorIdStop() {
+        val remoteContext = AndroidRemoteContext()
+        val colorId = 99
+        remoteContext.mRemoteComposeState.overrideColor(colorId, 0xFF00FF00.toInt()) // Green
+
+        val bundle = PaintBundle()
+        bundle.setRadialGradient(
+            intArrayOf(0xFF0000FF.toInt(), colorId),
+            1 shl 1, // bit 1 is colorId
+            floatArrayOf(0f, 1f),
+            50f,
+            50f,
+            50f,
+            0,
+        )
+
+        val paintState = ComposeLocalPaint()
+        updatePaintFromBundle(bundle, paintState, remoteContext, read = remoteContext)
+
+        assertThat(paintState.brush).isNotNull()
+        assertThat(paintState.brush).isInstanceOf(ShaderBrush::class.java)
     }
 }

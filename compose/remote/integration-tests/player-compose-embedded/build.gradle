@@ -42,14 +42,6 @@ android {
             includeAndroidResources = true
         }
     }
-    sourceSets {
-        test {
-            kotlin.srcDirs += [file("src/sharedTest/java")]
-        }
-        androidTest {
-            kotlin.srcDirs += [file("src/sharedTest/java")]
-        }
-    }
 }
 
 dependencies {
@@ -83,30 +75,4 @@ dependencies {
     implementation(project(":compose:remote:remote-creation-compose"))
     implementation("androidx.compose.ui:ui-tooling:1.12.0")
     implementation("androidx.compose.ui:ui-tooling-preview:1.12.0")
-
-    // Testing dependencies
-    androidTestImplementation(project(":compose:remote:remote-testing"))
-    androidTestImplementation(project(":compose:remote:remote-player-compose-testutils"))
-    androidTestImplementation(project(":compose:remote:remote-core-testutils"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.12.0")
-    androidTestImplementation("androidx.concurrent:concurrent-futures:1.3.0")
-    androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.3.0")
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.junit)
-
-
-    testImplementation(project(":compose:remote:remote-creation"))
-    testImplementation(project(":compose:remote:remote-creation-compose"))
-    testImplementation(project(":compose:remote:remote-testing"))
-    testImplementation("androidx.compose.ui:ui-test:1.12.0")
-    testImplementation("androidx.compose.ui:ui-test-junit4:1.12.0")
-    testImplementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
-    testImplementation(project(":wear:compose:remote:remote-material3"))
-    testImplementation(project(":wear:compose:remote:remote-material3-samples"))
-    testImplementation(libs.testCore)
-    testImplementation(libs.junit)
-    testImplementation(libs.truth)
-    debugImplementation("androidx.compose.ui:ui-test-manifest:1.12.0")
 }
