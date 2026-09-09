@@ -60,7 +60,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.10.0")
     implementation(libs.espressoIdlingResource)
 
     // Guava
@@ -88,8 +88,8 @@ dependencies {
     // Transitive dependencies
     implementation "androidx.core:core-ktx:1.1.0"
     implementation "androidx.fragment:fragment:1.1.0"
-    implementation "androidx.lifecycle:lifecycle-common:2.3.1"
-    implementation "androidx.lifecycle:lifecycle-livedata-core:2.3.1"
+    implementation "androidx.lifecycle:lifecycle-common:2.10.0"
+    implementation "androidx.lifecycle:lifecycle-livedata-core:2.10.0"
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation libs.androidx.annotation
     implementation libs.androidx.core

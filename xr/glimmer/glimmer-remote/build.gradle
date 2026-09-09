@@ -24,6 +24,8 @@ plugins {
 
 dependencies {
     api("androidx.compose.remote:remote-creation-compose:1.0.0-alpha16")
+    // Older versions of lifecycle-runtime lint checks use a deleted lint API
+    implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
 }
 
 android {

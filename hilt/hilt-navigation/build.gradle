@@ -34,6 +34,8 @@ dependencies {
     api(project(":hilt:hilt-lifecycle-viewmodel"))
     api("androidx.navigation:navigation-runtime:2.9.0")
     api(libs.hiltAndroid)
+    // Older versions of lifecycle-runtime lint checks use a deleted lint API
+    implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
 }
 
 androidx {

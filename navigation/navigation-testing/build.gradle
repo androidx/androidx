@@ -90,7 +90,7 @@ androidXMultiplatform {
 
         androidDeviceTest.dependencies {
             implementation(project(":internal-testutils-navigation"))
-            implementation("androidx.lifecycle:lifecycle-runtime:2.6.2")
+            implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
             implementation(libs.testExtJunit)
             implementation(libs.testExtTruth)
             implementation(libs.testRules)

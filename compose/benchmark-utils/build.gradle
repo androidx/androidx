@@ -37,6 +37,7 @@ dependencies {
     implementation("androidx.compose.ui:ui:1.12.0")
     implementation("androidx.tracing:tracing-ktx:2.0.0")
     implementation(libs.testRules)
+
 }
 
 tasks.withType(KotlinCompile).configureEach { task ->

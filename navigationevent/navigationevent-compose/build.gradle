@@ -65,6 +65,8 @@ androidXMultiplatform {
              implementation("androidx.compose.ui:ui:1.11.2") {
                 because("Ensure we are using the Compose-UI 1.11 or above")
             }
+            // Older versions of lifecycle-runtime lint checks use a deleted lint API
+            implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
         }
 
         androidDeviceTest.dependencies {

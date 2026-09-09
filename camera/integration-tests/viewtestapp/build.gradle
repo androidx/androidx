@@ -45,7 +45,7 @@ dependencies {
     implementation(project(":camera:camera-camera2"))
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-mlkit-vision"))
-    implementation("androidx.lifecycle:lifecycle-runtime:2.3.1")
+    implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
     implementation(project(":camera:camera-view"))
     implementation(project(":camera:camera-video"))
     implementation(project(":camera:camera-effects"))
@@ -57,10 +57,10 @@ dependencies {
     // DefaultLifecycleEventObserver.
     // Outside of androidx this is resolved via constraint added to lifecycle-common,
     // but it doesn't work in androidx.
-    implementation("androidx.lifecycle:lifecycle-common-java8:2.5.1")
+    implementation("androidx.lifecycle:lifecycle-common-java8:2.10.0")
 
     // Lifecycle and LiveData
-    implementation("androidx.lifecycle:lifecycle-livedata:2.2.0")
+    implementation("androidx.lifecycle:lifecycle-livedata:2.10.0")
 
     // Android Support Library
     implementation("androidx.appcompat:appcompat:1.3.0")
@@ -70,7 +70,7 @@ dependencies {
     implementation("androidx.compose.material:material:1.4.0")
     implementation("androidx.compose.ui:ui:1.4.0")
     implementation("androidx.compose.foundation:foundation:1.4.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.10.0")
     implementation(project(":camera:camera-compose"))
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation(libs.media3Common)
@@ -85,9 +85,9 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.espressoCore)
-    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
-    androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.3.1")
-    androidTestImplementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.10.0")
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
+    androidTestImplementation("androidx.lifecycle:lifecycle-livedata-ktx:2.10.0")
     androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     androidTestImplementation(libs.truth)
     debugImplementation(libs.testCore)
@@ -105,9 +105,9 @@ dependencies {
     implementation "androidx.compose.ui:ui-text:1.4.0"
     implementation "androidx.compose.ui:ui-unit:1.4.0"
     implementation "androidx.fragment:fragment:1.3.4"
-    implementation "androidx.lifecycle:lifecycle-common:2.6.1"
-    implementation "androidx.lifecycle:lifecycle-livedata-core:2.6.1"
-    implementation "androidx.lifecycle:lifecycle-viewmodel:2.6.1"
+    implementation "androidx.lifecycle:lifecycle-common:2.10.0"
+    implementation "androidx.lifecycle:lifecycle-livedata-core:2.10.0"
+    implementation "androidx.lifecycle:lifecycle-viewmodel:2.10.0"
     implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.0.0")
     implementation("com.google.mlkit:barcode-scanning-common:17.0.0")
     implementation "com.google.mlkit:vision-interfaces:16.0.0"

@@ -33,8 +33,8 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.9.1")
     implementation("androidx.compose.runtime:runtime:1.9.0")
     implementation("androidx.fragment:fragment:1.3.6")
-    implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.7")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.10.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
 
     api(project(":biometric:biometric"))
     api("androidx.compose.runtime:runtime:1.7.0")
