@@ -29,9 +29,9 @@ plugins {
 }
 
 dependencies {
-    api("androidx.compose.foundation:foundation:1.12.0-beta02")
-    api("androidx.compose.ui:ui:1.12.0-beta02")
-    api("androidx.compose.runtime:runtime:1.12.0-beta02")
+    api("androidx.compose.foundation:foundation:1.13.0-alpha02")
+    api("androidx.compose.ui:ui:1.13.0-alpha02")
+    api("androidx.compose.runtime:runtime:1.13.0-alpha02")
     api("androidx.annotation:annotation:1.9.1")
 
     // Force tests to occur against Foundation ToT, even we pin Glimmer's main Foundation dependency
