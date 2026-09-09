@@ -64,7 +64,6 @@ import androidx.wear.protolayout.renderer.ProtoLayoutTheme;
 import androidx.wear.protolayout.renderer.ProtoLayoutVisibilityState;
 import androidx.wear.protolayout.renderer.common.LoggingUtils;
 import androidx.wear.protolayout.renderer.common.NoOpProviderStatsLogger;
-import androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer;
 import androidx.wear.protolayout.renderer.common.ProviderStatsLogger;
 import androidx.wear.protolayout.renderer.common.ProviderStatsLogger.InflaterStatsLogger;
 import androidx.wear.protolayout.renderer.common.RenderingArtifact;
@@ -191,12 +190,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
      * For interactive layouts, the diffing should already handle this.
      */
     private @Nullable Layout mPrevLayout = null;
-
-    /**
-     * This field is used to avoid unnecessarily checking layout depth if the layout was previously
-     * failing the check.
-     */
-    private boolean mPrevLayoutAlreadyFailingDepthCheck = false;
 
     /**
      * This is used to make sure resource version changes invalidate the layout. Otherwise, this
@@ -840,20 +833,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             return new FailedRenderResult();
         }
 
-        boolean sameFingerprint =
-                prevRenderedMetadata != null
-                        && ProtoLayoutDiffer.areSameFingerprints(
-                                prevRenderedMetadata.getTreeFingerprint(), layout.getFingerprint());
-
-        if (sameFingerprint) {
-            if (mPrevLayoutAlreadyFailingDepthCheck) {
-                handleLayoutDepthCheckFailure(inflaterStatsLogger);
-            }
-        } else {
-            checkLayoutDepth(layout.getRoot(), MAX_LAYOUT_ELEMENT_DEPTH, inflaterStatsLogger);
-        }
-
-        mPrevLayoutAlreadyFailingDepthCheck = false;
+        checkLayoutDepth(layout.getRoot(), MAX_LAYOUT_ELEMENT_DEPTH, inflaterStatsLogger);
 
         ProtoLayoutInflater.Config.Builder inflaterConfigBuilder =
                 new ProtoLayoutInflater.Config.Builder(mUiContext, layout, resolvers)
@@ -1166,8 +1146,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     }
 
     /**
-     * Notifies that the current layout is invalid and needs to be reinflated.
-     * This will clear any cached layout information and trigger a cache invalidation for resources.
+     * Notifies that the current layout is invalid and needs to be reinflated. This will clear any
+     * cached layout information and trigger a cache invalidation for resources.
      */
     public void invalidateLayout() {
         mPrevLayout = null;
@@ -1290,8 +1270,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     /**
      * Detach this layout from a parent container. Note that it is safe to call this method while
      * the layout is inflating; see the notes on {@link
-     * ProtoLayoutViewInstance#renderAndAttach(Layout, ResourceProto.Resources, ViewGroup)} for
-     * more information.
+     * ProtoLayoutViewInstance#renderAndAttach(Layout, ResourceProto.Resources, ViewGroup)} for more
+     * information.
      */
     @UiThread
     public void detach(@NonNull ViewGroup parent) {
@@ -1427,7 +1407,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
     private void handleLayoutDepthCheckFailure(InflaterStatsLogger inflaterStatsLogger) {
         inflaterStatsLogger.logInflationFailed(INFLATION_FAILURE_REASON_LAYOUT_DEPTH_EXCEEDED);
-        mPrevLayoutAlreadyFailingDepthCheck = true;
         throw new IllegalStateException(
                 "Layout depth exceeds maximum allowed depth: " + MAX_LAYOUT_ELEMENT_DEPTH);
     }
