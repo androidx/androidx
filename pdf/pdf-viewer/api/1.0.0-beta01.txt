@@ -67,7 +67,7 @@ package androidx.pdf.annotation {
 
 }
 
-package androidx.pdf.ocr {
+package @SuppressCompatibility androidx.pdf.ocr {
 
   @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public interface OcrProvider extends java.io.Closeable {
     method public void close();

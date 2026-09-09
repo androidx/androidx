@@ -1,5 +1,5 @@
 // Signature format: 4.0
-package androidx.compose.material3.adaptive.navigation3 {
+package @SuppressCompatibility androidx.compose.material3.adaptive.navigation3 {
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public sealed nonexhaustive interface ListDetailSceneScope {
     method @InaccessibleFromKotlin public androidx.compose.material3.adaptive.layout.PaneScaffoldTransitionScope<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole,androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue> getScaffoldTransitionScope();
