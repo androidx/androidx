@@ -50,6 +50,8 @@ dependencies {
     implementation("androidx.input:input-motionprediction:1.0.0")
     implementation("com.google.android.material:material:1.13.0")
     implementation("androidx.recyclerview:recyclerview:1.4.0")
+    // Older versions of lifecycle-runtime lint checks use a deleted lint API
+    implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
 
     testImplementation(libs.junit)
     testImplementation(libs.testRunner)
