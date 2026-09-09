@@ -151,7 +151,7 @@ internal object MaterialA2uiBasicCatalogV1DateTimeInput : A2uiBasicCatalogV1.Dat
             }
         }
 
-        Column(modifier = modifier.fillMaxWidth()) {
+        Column(modifier = modifier.fillMaxWidth().a2uiAccessibility(accessibility)) {
             if (label != null) {
                 Text(
                     modifier = Modifier.padding(bottom = 4.dp),

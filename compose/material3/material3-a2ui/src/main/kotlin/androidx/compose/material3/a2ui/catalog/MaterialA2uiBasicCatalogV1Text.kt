@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -51,7 +52,7 @@ internal object MaterialA2uiBasicCatalogV1Text : A2uiBasicCatalogV1.Text {
                 A2uiBasicCatalogV1.Text.Variant.Body -> BodySpec
             }
 
-        var textModifier = modifier
+        var textModifier = modifier.textAccessibility(accessibility, text)
         if (spec.topPadding > 0.dp || spec.bottomPadding > 0.dp) {
             textModifier = textModifier.padding(top = spec.topPadding, bottom = spec.bottomPadding)
         }
@@ -80,4 +81,64 @@ internal object MaterialA2uiBasicCatalogV1Text : A2uiBasicCatalogV1.Text {
     private val H5Spec = TypographySpec(4.dp, 2.dp, isHeading = true) { it.titleMedium }
     private val CaptionSpec = TypographySpec(0.dp, 0.dp, isHeading = false) { it.labelMedium }
     private val BodySpec = TypographySpec(0.dp, 0.dp, isHeading = false) { it.bodyLarge }
+}
+
+/**
+ * Applies text-specific accessibility semantics using [attributes] and visual [text].
+ *
+ * Sets [contentDescription] to a combined string containing [text] when [attributes] has a
+ * non-empty label or description. When [attributes] is null or empty, no semantics are applied,
+ * preserving default Compose [Text] behavior.
+ *
+ * @param attributes The accessibility attributes to apply.
+ * @param text The visual text content of the component.
+ */
+private fun Modifier.textAccessibility(
+    attributes: A2uiBasicCatalogV1.AccessibilityAttributes?,
+    text: String,
+): Modifier {
+    if (attributes == null) return this
+    val contentDescription = attributes.toTextContentDescription(text) ?: return this
+    return semantics { this.contentDescription = contentDescription }
+}
+
+/**
+ * Converts [A2uiBasicCatalogV1.AccessibilityAttributes] and visual [text] into a content
+ * description.
+ *
+ * Combines present properties in `[label] - [text] - [description]` order while deduplicating
+ * matching values. Returns `null` if both [label] and [description] are null or blank, ensuring
+ * screen readers fall back to native text traversal.
+ *
+ * @param text The visual text content of the component.
+ * @return The combined content description string, or null if no attributes are set.
+ */
+private fun A2uiBasicCatalogV1.AccessibilityAttributes.toTextContentDescription(
+    text: String
+): String? {
+    if (label.isNullOrBlank() && description.isNullOrBlank()) {
+        return null
+    }
+    val parts = buildList {
+        if (!label.isNullOrBlank()) {
+            add(label)
+        }
+        if (text.isNotBlank() && !text.equals(label, ignoreCase = true)) {
+            add(text)
+        }
+        if (
+            !description.isNullOrBlank() &&
+                !description.equals(text, ignoreCase = true) &&
+                !description.equals(label, ignoreCase = true)
+        ) {
+            add(description)
+        }
+    }
+    if (parts.isEmpty()) return null
+    return buildString {
+        for (i in parts.indices) {
+            if (i > 0) append(" - ")
+            append(parts[i])
+        }
+    }
 }

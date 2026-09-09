@@ -67,7 +67,11 @@ internal object MaterialA2uiBasicCatalogV1Button : A2uiBasicCatalogV1.Button {
             enabled = !isLoading && !isError,
             error = isError,
             onClick = onClick,
-            modifier = modifier,
+            modifier =
+                modifier.a2uiAccessibility(
+                    attributes = accessibility,
+                    isClickable = true,
+                ),
         ) {
             AnimatedContent(
                 targetState = childState,

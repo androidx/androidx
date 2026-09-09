@@ -53,7 +53,7 @@ internal class MaterialA2uiBasicCatalogV1Video(private val videoRenderer: A2uiVi
     ) {
         videoRenderer.Video(
             url = url,
-            modifier = modifier,
+            modifier = modifier.a2uiAccessibility(accessibility),
             onError = { throwable ->
                 val errorMessage =
                     if (throwable != null && !throwable.message.isNullOrBlank()) {

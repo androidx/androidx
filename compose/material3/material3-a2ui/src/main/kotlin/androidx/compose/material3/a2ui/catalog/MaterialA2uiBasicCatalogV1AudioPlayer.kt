@@ -63,7 +63,7 @@ internal class MaterialA2uiBasicCatalogV1AudioPlayer(
     ) {
         audioPlayerRenderer.AudioPlayer(
             url = url,
-            contentDescription = description,
+            contentDescription = description ?: accessibility?.toContentDescription(),
             modifier = modifier,
             onError = { throwable ->
                 val errorMessage =

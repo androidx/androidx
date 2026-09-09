@@ -17,6 +17,7 @@
 package androidx.compose.material3.a2ui.catalog
 
 import androidx.a2ui.compose.ui.A2uiCatalog
+import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
 import androidx.a2ui.compose.ui.testing.A2uiComponentPayload
 import androidx.a2ui.compose.ui.testing.A2uiComponentStub
 import androidx.a2ui.compose.ui.testing.A2uiTestController
@@ -32,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.v2.runComposeUiTest
@@ -461,5 +463,89 @@ class MaterialA2uiBasicCatalogV1CardTest {
         controller.failComponent("stub_child", A2uiRuntimeException("Failure"))
         controller.waitForIdle()
         onNode(hasTestTag("card_tag")).assertIsDisplayed()
+    }
+
+    @Test
+    fun accessibility_withLabelAndDescription_setsContentDescription() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Card",
+                            properties =
+                                mapOf(
+                                    "child" to "stub_child",
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Card Label",
+                                            "description" to "Card Description",
+                                        ),
+                                ),
+                        ),
+                        A2uiComponentPayload(id = "stub_child"),
+                    ),
+                componentStubs =
+                    listOf(
+                        A2uiComponentStub.withId("stub_child") { _, modifier ->
+                            Text("Card Content", modifier = modifier)
+                        }
+                    ),
+            )
+
+        val surface = controller.start()
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithContentDescription("Card Label - Card Description").assertIsDisplayed()
+    }
+
+    @Test
+    fun accessibility_childMaintainsIndependentAccessibilityProperties() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Card",
+                            properties =
+                                mapOf(
+                                    "child" to "stub_child",
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Card Label",
+                                            "description" to "Card Description",
+                                        ),
+                                ),
+                        ),
+                        A2uiComponentPayload(id = "stub_child"),
+                    ),
+                componentStubs =
+                    listOf(
+                        A2uiComponentStub.withId("stub_child") { _, modifier ->
+                            Text(
+                                "Card Content",
+                                modifier =
+                                    modifier.a2uiAccessibility(
+                                        attributes =
+                                            A2uiBasicCatalogV1.AccessibilityAttributes(
+                                                label = "Child Label",
+                                                description = "Child Description",
+                                            ),
+                                        isClickable = false,
+                                    ),
+                            )
+                        }
+                    ),
+            )
+
+        val surface = controller.start()
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithContentDescription("Card Label - Card Description").assertIsDisplayed()
+        onNodeWithContentDescription("Child Label - Child Description").assertIsDisplayed()
     }
 }

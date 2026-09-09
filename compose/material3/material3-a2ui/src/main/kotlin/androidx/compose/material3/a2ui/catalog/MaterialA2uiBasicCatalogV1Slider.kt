@@ -37,6 +37,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
@@ -94,6 +96,8 @@ internal object MaterialA2uiBasicCatalogV1Slider : A2uiBasicCatalogV1.Slider {
 
                 Slider(
                     state = sliderState,
+                    modifier =
+                        Modifier.sliderAccessibility(accessibility = accessibility, label = label),
                     onValueChange = onValueChange,
                     enabled = enabled,
                     track = { state ->
@@ -114,4 +118,24 @@ private val SliderHeaderRowModifier = Modifier.fillMaxWidth()
 private val SliderBottomPaddingModifier = Modifier.padding(bottom = 8.dp)
 private val EmptySliderTrack: DrawScope.(Offset, Color) -> Unit = { _, _ ->
     /* no-op to hide step dots */
+}
+
+/**
+ * Applies slider-specific accessibility semantics using [accessibility] and visual [label].
+ *
+ * Sets [contentDescription] on the slider using the accessibility label if non-blank, falling back
+ * to the visual [label], and combines with [accessibility] description if present.
+ */
+private fun Modifier.sliderAccessibility(
+    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+    label: String?,
+): Modifier {
+    val effectiveLabel =
+        accessibility?.label?.takeUnless { it.isBlank() } ?: label?.takeUnless { it.isBlank() }
+    val contentDescription =
+        buildContentDescription(
+            label = effectiveLabel,
+            description = accessibility?.description,
+        ) ?: return this
+    return semantics { this.contentDescription = contentDescription }
 }

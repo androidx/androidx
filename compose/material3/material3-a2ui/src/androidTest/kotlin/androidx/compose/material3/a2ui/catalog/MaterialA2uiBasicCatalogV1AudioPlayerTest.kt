@@ -39,6 +39,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.dp
@@ -465,6 +466,59 @@ class MaterialA2uiBasicCatalogV1AudioPlayerTest {
 
         onNodeWithTag("initial_tag").assertDoesNotExist()
         onNodeWithTag("updated_tag").assertIsDisplayed()
+    }
+
+    @Test
+    fun accessibility_withLabelAndDescription_setsContentDescription() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "AudioPlayer",
+                properties =
+                    mapOf(
+                        "url" to "https://example.com/audio.mp3",
+                        "accessibility" to
+                            mapOf(
+                                "label" to "Audio Player",
+                                "description" to "Plays music track",
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(payload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithContentDescription("Audio Player - Plays music track").assertIsDisplayed()
+    }
+
+    @Test
+    fun description_takesPrecedenceOverAccessibility() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "AudioPlayer",
+                properties =
+                    mapOf(
+                        "url" to "https://example.com/audio.mp3",
+                        "description" to "Direct Description",
+                        "accessibility" to
+                            mapOf(
+                                "label" to "Ignored Label",
+                                "description" to "Ignored Description",
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(payload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithContentDescription("Direct Description").assertIsDisplayed()
+        onNodeWithContentDescription("Ignored Label - Ignored Description").assertDoesNotExist()
+        assertThat(capturedDescription).isEqualTo("Direct Description")
     }
 
     @Test

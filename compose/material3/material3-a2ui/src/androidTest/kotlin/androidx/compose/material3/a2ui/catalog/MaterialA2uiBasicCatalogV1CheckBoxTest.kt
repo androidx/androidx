@@ -29,7 +29,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
@@ -37,12 +39,16 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.v2.runComposeUiTest
+import androidx.compose.ui.text.AnnotatedString
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -455,6 +461,126 @@ class MaterialA2uiBasicCatalogV1CheckBoxTest {
             .assertIsDisplayed()
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
     }
+
+    @Test
+    fun accessibility_withLabelAndDescription_setsContentDescriptionAndOnClickLabel() =
+        runComposeUiTest {
+            val controller =
+                A2uiTestController(
+                    catalog = testCatalog,
+                    initialComponents =
+                        listOf(
+                            A2uiComponentPayload(
+                                id = "root",
+                                type = "CheckBox",
+                                properties =
+                                    mapOf(
+                                        "value" to mapOf("path" to "/settings/terms"),
+                                        "label" to "Terms",
+                                        "accessibility" to
+                                            mapOf(
+                                                "label" to "Custom Checkbox Label",
+                                                "description" to "Toggle Terms",
+                                            ),
+                                    ),
+                            )
+                        ),
+                    initialData = mapOf("settings" to mapOf("terms" to false)),
+                )
+            val surface = controller.start()
+
+            setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+            onNodeWithContentDescription("Custom Checkbox Label")
+                .assertIsDisplayed()
+                .assert(
+                    SemanticsMatcher("has onClick with label") { node ->
+                        node.config.getOrNull(SemanticsActions.OnClick)?.label == "Toggle Terms"
+                    }
+                )
+
+            onNodeWithContentDescription("Custom Checkbox Label")
+                .performSemanticsAction(SemanticsActions.OnClick)
+            controller.waitForIdle()
+
+            assertThat(controller.getData<Boolean>("/settings/terms")).isEqualTo(true)
+        }
+
+    @Test
+    fun accessibility_withoutAccessibilityAttributes_mergesTextByDefault() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "CheckBox",
+                            properties = mapOf("value" to true, "label" to "Accept Terms"),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        val checkbox = onNode(hasRole(Role.Checkbox) and hasText("Accept Terms"))
+        checkbox.assertIsDisplayed().assertIsOn()
+
+        val semanticsNode = checkbox.fetchSemanticsNode()
+        assertThat(semanticsNode.config.isMergingSemanticsOfDescendants).isTrue()
+        assertThat(semanticsNode.config[SemanticsProperties.Text])
+            .isEqualTo(listOf(AnnotatedString("Accept Terms")))
+        assertThat(semanticsNode.config.getOrNull(SemanticsProperties.ContentDescription)).isNull()
+
+        onNode(hasText("Accept Terms"), useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun accessibility_withLabelAndAccessibility_mergesTextAndContentDescription() =
+        runComposeUiTest {
+            val controller =
+                A2uiTestController(
+                    catalog = testCatalog,
+                    initialComponents =
+                        listOf(
+                            A2uiComponentPayload(
+                                id = "root",
+                                type = "CheckBox",
+                                properties =
+                                    mapOf(
+                                        "value" to true,
+                                        "label" to "Accept Terms",
+                                        "accessibility" to
+                                            mapOf(
+                                                "label" to "Custom Checkbox Label",
+                                                "description" to "Toggle Terms",
+                                            ),
+                                    ),
+                            )
+                        ),
+                )
+            val surface = controller.start()
+
+            setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+            val checkbox =
+                onNode(
+                    hasRole(Role.Checkbox) and
+                        hasText("Accept Terms") and
+                        hasContentDescription("Custom Checkbox Label")
+                )
+            checkbox.assertIsDisplayed().assertIsOn()
+
+            val semanticsNode = checkbox.fetchSemanticsNode()
+            assertThat(semanticsNode.config.isMergingSemanticsOfDescendants).isTrue()
+            assertThat(semanticsNode.config[SemanticsProperties.Text])
+                .isEqualTo(listOf(AnnotatedString("Accept Terms")))
+            assertThat(semanticsNode.config[SemanticsProperties.ContentDescription])
+                .isEqualTo(listOf("Custom Checkbox Label"))
+
+            onNode(hasText("Accept Terms"), useUnmergedTree = true).assertExists()
+        }
 
     private fun hasRole(role: Role): SemanticsMatcher =
         SemanticsMatcher.expectValue(SemanticsProperties.Role, role)
