@@ -16,6 +16,7 @@
 
 package androidx.annotation.keep
 
+import com.android.tools.r8.keepanno.KeepAnno
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.zip.ZipEntry
@@ -113,7 +114,7 @@ internal fun jarTransform(
         val content = inputStream.readBytes()
         if (entryName.endsWith(".class")) {
             val reader = ClassReader(content)
-            val visitor = KeepAnnoStub.createClassVisitorForKeepRulesExtraction { rule ->
+            val visitor = KeepAnno.createClassVisitorForKeepRulesExtraction { rule ->
                 rulesAccumulator.append(rule)
             }
             reader.accept(visitor, ClassReader.EXPAND_FRAMES)

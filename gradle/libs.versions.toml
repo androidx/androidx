@@ -50,6 +50,7 @@ hilt = "2.59"
 incap = "0.2"
 javaxInject = "1"
 jcodec = "0.2.5"
+keepAnno = "9.5.11-dev"
 kotlin18 = "1.8.22"
 kotlin19 = "1.9.24"
 # Use the most up-to-date patch
@@ -179,6 +180,7 @@ jspecify = { module = "org.jspecify:jspecify", version = "1.0.0" }
 jsqlparser = { module = "com.github.jsqlparser:jsqlparser", version = "3.1" }
 jsr250 = { module = "javax.annotation:javax.annotation-api", version = "1.2" }
 junit = { module = "junit:junit", version = "4.13.2" }
+keepAnno = { module = "com.android.tools:keepanno-tools", version.ref = "keepAnno"}
 gcmNetworkManager = { module = "com.google.android.gms:play-services-gcm", version = "17.0.0" }
 googleCompileTesting = { module = "com.google.testing.compile:compile-testing", version = "0.22.0" }
 gradlePluginCompatibility = { module = "org.gradle.plugin:compatibility-plugin", version = "1.0.0" }

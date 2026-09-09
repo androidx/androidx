@@ -41,6 +41,7 @@ dependencies {
     implementation(libs.asm)
     implementation(libs.asmCommons)
     implementation(libs.asmUtil)
+    implementation(libs.keepAnno)
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(libs.androidGradlePluginApi)
     testImplementation(gradleTestKit())
