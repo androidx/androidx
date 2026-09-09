@@ -29,8 +29,6 @@ import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.cos
 import androidx.compose.remote.creation.compose.state.cubicEasing
 import androidx.compose.remote.creation.compose.state.lerp
-import androidx.compose.remote.creation.compose.state.max
-import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.selectIfLt
 import androidx.compose.remote.creation.compose.state.tween
@@ -227,60 +225,9 @@ private fun buildDynamicGroup(
                     progress,
                 )
 
-            val clipAnimators = ArrayList<RemotePropertyAnimator>()
-            if (group.clipPathName.isNotEmpty()) {
-                val targets = targetMap[group.clipPathName]
-                if (targets != null) {
-                    for (i in targets.indices) {
-                        val tAnim = targets[i].animators
-                        for (j in tAnim.indices) {
-                            clipAnimators.add(tAnim[j])
-                        }
-                    }
-                }
-            }
-            var clipPathStr = group.clipPathData
-            val clipPathAnimators = ArrayList<RemotePropertyAnimator>()
-            for (i in clipAnimators.indices) {
-                if (clipAnimators[i].propertyName == "pathData") {
-                    clipPathAnimators.add(clipAnimators[i])
-                }
-            }
-            if (clipPathAnimators.isNotEmpty()) {
-                if (clipPathAnimators.size > 1) {
-                    clipPathAnimators.sortWith { a, b -> a.startDelay.compareTo(b.startDelay) }
-                }
-                val sorted = clipPathAnimators
-                val constProgress = progress.constantValueOrNull
-                if (constProgress != null && totalDuration > 0) {
-                    val timeMs = (constProgress * totalDuration).toInt()
-                    var activeAnim = sorted[0]
-                    for (i in sorted.indices) {
-                        val a = sorted[i]
-                        if (timeMs >= a.startDelay && a.startDelay >= activeAnim.startDelay) {
-                            activeAnim = a
-                        }
-                    }
-                    val anim = activeAnim
-                    val frac =
-                        if (anim.duration > 0) {
-                            val elapsed = timeMs - anim.startDelay
-                            val raw = (elapsed.toFloat() / anim.duration).coerceIn(0f, 1f)
-                            anim.interpolator.transform(raw)
-                        } else 1f
-                    val k0 =
-                        (if (anim.keyframes.isNotEmpty()) anim.keyframes[0].value as? String
-                        else null) ?: group.clipPathData
-                    val k1 =
-                        (if (anim.keyframes.isNotEmpty())
-                            anim.keyframes[anim.keyframes.lastIndex].value as? String
-                        else null) ?: k0
-                    clipPathStr = interpolatePathData(k0, k1, frac)
-                }
-            }
-            if (clipPathStr.isNotEmpty()) {
+            if (group.clipPathData.isNotEmpty()) {
                 clipPathData =
-                    PathParser().parsePathString(clipPathStr).toNodes().toRemotePathNodes()
+                    PathParser().parsePathString(group.clipPathData).toNodes().toRemotePathNodes()
             }
         }
 
@@ -393,13 +340,8 @@ private fun extractPathSegments(
 private fun computeSegmentTween(seg: PathSegment, progress: RemoteFloat): RemoteFloat {
     val duration = seg.endFraction - seg.startFraction
     if (duration <= 0f) return 1f.rf
-    val constVal = progress.constantValueOrNull
-    if (constVal != null) {
-        val rawLocal = ((constVal - seg.startFraction) / duration).coerceIn(0f, 1f)
-        return seg.interpolator.transform(rawLocal).rf
-    }
     val rawLocal = (progress - seg.startFraction.rf) / duration.rf
-    val clamped = max(0f.rf, min(1f.rf, rawLocal))
+    val clamped = clamp(rawLocal, 0f, 1f)
     return transformInterpolator(seg.interpolator, clamped)
 }
 
@@ -569,43 +511,6 @@ private fun buildDynamicPath(
         }
     }
 
-    val constProgress = progress.constantValueOrNull
-    if (constProgress != null && segments.size > 1) {
-        var activeSeg = segments[0]
-        for (i in segments.indices) {
-            val seg = segments[i]
-            if (i == 0 && constProgress < seg.cutoffFraction) {
-                activeSeg = seg
-                break
-            } else if (i == segments.lastIndex && constProgress >= segments[i - 1].cutoffFraction) {
-                activeSeg = seg
-                break
-            } else if (
-                i > 0 &&
-                    constProgress >= segments[i - 1].cutoffFraction &&
-                    constProgress < seg.cutoffFraction
-            ) {
-                activeSeg = seg
-                break
-            }
-        }
-        val segTween = computeSegmentTween(activeSeg, progress)
-        return RemotePathComponent().apply {
-            name = path.name
-            pathData =
-                PathParser().parsePathString(activeSeg.startPath).toNodes().toRemotePathNodes()
-            if (activeSeg.startPath != activeSeg.endPath) {
-                targetPathData =
-                    PathParser().parsePathString(activeSeg.endPath).toNodes().toRemotePathNodes()
-                pathTween = segTween
-            } else {
-                targetPathData = null
-                pathTween = 0f.rf
-            }
-            populateSharedAttrs(this)
-        }
-    }
-
     if (segments.size == 1) {
         val seg = segments[0]
         val segTween = computeSegmentTween(seg, progress)
@@ -677,14 +582,8 @@ private fun computeAnimatorLocalProgress(
     val endFraction = (anim.startDelay + anim.duration).toFloat() / totalDuration
     if (endFraction <= startFraction) return 1f.rf
 
-    val constVal = progress.constantValueOrNull
-    if (constVal != null) {
-        val rawLocal = ((constVal - startFraction) / (endFraction - startFraction)).coerceIn(0f, 1f)
-        return anim.interpolator.transform(rawLocal).rf
-    }
-
     val rawLocal = (progress - startFraction.rf) / (endFraction - startFraction).rf
-    val clamped = max(0f.rf, min(1f.rf, rawLocal))
+    val clamped = clamp(rawLocal, 0f, 1f)
     return transformInterpolator(anim.interpolator, clamped)
 }
 
@@ -745,7 +644,7 @@ private fun evaluateAnimatorFloat(
         val frac1 = kf[kf.size - 1].fraction
         val segmentProgress =
             if (frac1 > frac0) {
-                clamp(0f.rf, 1f.rf, (localProgress - frac0.rf) / (frac1 - frac0).rf)
+                clamp((localProgress - frac0.rf) / (frac1 - frac0).rf, 0f, 1f)
             } else 1f.rf
         lerp(last0.rf, last1.rf, segmentProgress)
     }
@@ -756,7 +655,7 @@ private fun evaluateAnimatorFloat(
         val frac1 = kf[j + 1].fraction
         val segmentProgress =
             if (frac1 > frac0) {
-                clamp(0f.rf, 1f.rf, (localProgress - frac0.rf) / (frac1 - frac0).rf)
+                clamp((localProgress - frac0.rf) / (frac1 - frac0).rf, 0f, 1f)
             } else 1f.rf
         val stageExpr = lerp(val0.rf, val1.rf, segmentProgress)
         kfResult = selectIfLt(localProgress, frac1.rf, stageExpr, kfResult)
@@ -780,35 +679,68 @@ private fun evaluateDynamicColor(
     if (propAnimators.isEmpty() || totalDuration <= 0) {
         return baseColor?.let { RemoteColor(it) }
     }
+    if (propAnimators.size == 1) {
+        return evaluateAnimatorColor(propAnimators[0], baseColor, totalDuration, progress)
+    }
     if (propAnimators.size > 1) {
         propAnimators.sortWith { a, b -> a.startDelay.compareTo(b.startDelay) }
     }
     val sorted = propAnimators
-    val constProgress = progress.constantValueOrNull
-    val anim =
-        if (constProgress != null && totalDuration > 0 && sorted.size > 1) {
-            val timeMs = (constProgress * totalDuration).toInt()
-            var activeAnim = sorted[0]
-            for (i in sorted.indices) {
-                val a = sorted[i]
-                if (timeMs >= a.startDelay && a.startDelay >= activeAnim.startDelay) {
-                    activeAnim = a
-                }
-            }
-            activeAnim
-        } else {
-            sorted[0]
-        }
-    val from =
-        (if (anim.keyframes.isNotEmpty()) anim.keyframes[0].value as? Int else null)
-            ?: baseColor
-            ?: return null
-    val to =
-        (if (anim.keyframes.isNotEmpty()) anim.keyframes[anim.keyframes.lastIndex].value as? Int
-        else null) ?: from
-    if (from == to) return RemoteColor(from)
+    var result: RemoteColor =
+        evaluateAnimatorColor(sorted[sorted.lastIndex], baseColor, totalDuration, progress)
+            ?: return baseColor?.let { RemoteColor(it) }
+    for (i in (sorted.size - 2) downTo 0) {
+        val anim = sorted[i]
+        val stageExpr = evaluateAnimatorColor(anim, baseColor, totalDuration, progress) ?: continue
+        val endFraction = (anim.startDelay + anim.duration).toFloat() / totalDuration
+        result = progress.isLessThan(endFraction.rf).select(stageExpr, result)
+    }
+    return result
+}
+
+private fun evaluateAnimatorColor(
+    anim: RemotePropertyAnimator,
+    baseColor: Int?,
+    totalDuration: Int,
+    progress: RemoteFloat,
+): RemoteColor? {
+    if (anim.keyframes.isEmpty()) return baseColor?.let { RemoteColor(it) }
+    if (anim.keyframes.size == 1) {
+        val color = (anim.keyframes[0].value as? Number)?.toInt() ?: baseColor ?: return null
+        return RemoteColor(color)
+    }
     val localProgress = computeAnimatorLocalProgress(anim, totalDuration, progress)
-    return tween(from, to, localProgress)
+    if (anim.keyframes.size == 2) {
+        val from = (anim.keyframes[0].value as? Number)?.toInt() ?: baseColor ?: return null
+        val to = (anim.keyframes[1].value as? Number)?.toInt() ?: from
+        if (from == to) return RemoteColor(from)
+        return tween(from, to, localProgress)
+    }
+    val kf = anim.keyframes
+    var kfResult: RemoteColor = run {
+        val last0 = (kf[kf.size - 2].value as? Number)?.toInt() ?: baseColor ?: return null
+        val last1 = (kf[kf.size - 1].value as? Number)?.toInt() ?: last0
+        val frac0 = kf[kf.size - 2].fraction
+        val frac1 = kf[kf.size - 1].fraction
+        val segmentProgress =
+            if (frac1 > frac0) {
+                clamp((localProgress - frac0.rf) / (frac1 - frac0).rf, 0f, 1f)
+            } else 1f.rf
+        tween(last0, last1, segmentProgress)
+    }
+    for (j in (kf.size - 3) downTo 0) {
+        val val0 = (kf[j].value as? Number)?.toInt() ?: baseColor ?: return null
+        val val1 = (kf[j + 1].value as? Number)?.toInt() ?: val0
+        val frac0 = kf[j].fraction
+        val frac1 = kf[j + 1].fraction
+        val segmentProgress =
+            if (frac1 > frac0) {
+                clamp((localProgress - frac0.rf) / (frac1 - frac0).rf, 0f, 1f)
+            } else 1f.rf
+        val stageExpr = tween(val0, val1, segmentProgress)
+        kfResult = localProgress.isLessThan(frac1.rf).select(stageExpr, kfResult)
+    }
+    return kfResult
 }
 
 /**

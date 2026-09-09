@@ -125,13 +125,19 @@ internal fun rememberRemoteFloatAsState(id: Int): State<Float> {
         id == RemoteContext.ID_CONTINUOUS_SEC ||
             id == RemoteContext.ID_TIME_IN_SEC ||
             id == RemoteContext.ID_TIME_IN_MIN ||
-            id == RemoteContext.ID_TIME_IN_HR
+            id == RemoteContext.ID_TIME_IN_HR ||
+            id == RemoteContext.ID_ANIMATION_TIME
     ) {
         val timeMillisState = LocalCurrentTimeMillis.current
         return remember(timeMillisState) {
             derivedStateOf {
+                // TODO(b/559048721): timeMillis is elapsed time since player start, which is
+                // correct for ID_ANIMATION_TIME, but ID_CONTINUOUS_SEC, ID_TIME_IN_SEC,
+                // ID_TIME_IN_MIN, and ID_TIME_IN_HR should reflect wall-clock time from midnight
+                // via RemoteClock.
                 val timeMillis = timeMillisState.value
                 when (id) {
+                    RemoteContext.ID_ANIMATION_TIME -> timeMillis / 1000f
                     RemoteContext.ID_CONTINUOUS_SEC,
                     RemoteContext.ID_TIME_IN_SEC -> timeMillis / 1000f
                     RemoteContext.ID_TIME_IN_MIN -> timeMillis / 60000f

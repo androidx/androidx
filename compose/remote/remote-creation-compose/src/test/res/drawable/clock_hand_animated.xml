@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2026 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:name="clock"
+            android:width="100dp"
+            android:height="100dp"
+            android:viewportWidth="100"
+            android:viewportHeight="100">
+            <group
+                android:name="hour_hand_group"
+                android:pivotX="50"
+                android:pivotY="50"
+                android:rotation="0">
+                <path
+                    android:name="hour_hand"
+                    android:pathData="M 50 50 L 50 15"
+                    android:strokeColor="#FF0000FF"
+                    android:strokeWidth="8"
+                    android:strokeLineCap="round"/>
+            </group>
+        </vector>
+    </aapt:attr>
+    <target android:name="hour_hand_group">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:propertyName="rotation"
+                android:startOffset="0"
+                android:duration="1000"
+                android:valueFrom="0"
+                android:valueTo="360"
+                android:valueType="floatType"
+                android:interpolator="@android:interpolator/linear"/>
+        </aapt:attr>
+    </target>
+    <target android:name="hour_hand">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+                <objectAnimator
+                    android:propertyName="strokeColor"
+                    android:startOffset="0"
+                    android:duration="500"
+                    android:valueFrom="#FF0000FF"
+                    android:valueTo="#FFFF0000"
+                    android:valueType="colorType"
+                    android:interpolator="@android:interpolator/linear"/>
+                <objectAnimator
+                    android:propertyName="strokeColor"
+                    android:startOffset="500"
+                    android:duration="500"
+                    android:valueFrom="#FFFF0000"
+                    android:valueTo="#FF0000FF"
+                    android:valueType="colorType"
+                    android:interpolator="@android:interpolator/linear"/>
+            </set>
+        </aapt:attr>
+    </target>
+</animated-vector>
