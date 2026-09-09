@@ -1592,6 +1592,13 @@ public class CoreDocument implements Serializable {
                 if (op instanceof ComponentData) {
                     op.apply(context);
                 }
+                if (op instanceof LayoutComponent) {
+                    LayoutComponent layoutComponent = (LayoutComponent) op;
+                    CanvasOperations canvasOperations = layoutComponent.getCanvasOperations();
+                    if (canvasOperations != null) {
+                        applyOperations(context, canvasOperations.getList());
+                    }
+                }
                 applyOperations(context, ((Container) op).getList());
             } else {
                 op.apply(context);

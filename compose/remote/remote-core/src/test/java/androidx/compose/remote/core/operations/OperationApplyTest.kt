@@ -304,7 +304,11 @@ class OperationApplyTest(private val operation: Operation) {
         doc.initializeContext(context)
 
         // Assert: DATA pass.
-        assertThat(context.appliedOperations[ContextMode.DATA]).isEmpty()
+        if (operation !is Container || operation is ComponentData) {
+            assertThat(context.appliedOperations[ContextMode.DATA]).containsExactly(operation)
+        } else {
+            assertThat(context.appliedOperations[ContextMode.DATA]).isEmpty()
+        }
         assertThat(context.appliedOperations[ContextMode.UNSET]).isEmpty()
         assertThat(context.appliedOperations[ContextMode.PAINT]).isEmpty()
 
@@ -343,7 +347,11 @@ class OperationApplyTest(private val operation: Operation) {
         doc.initializeContext(context)
 
         // Assert: DATA pass.
-        assertThat(context.appliedOperations[ContextMode.DATA]).isEmpty()
+        if (operation !is Container || operation is ComponentData) {
+            assertThat(context.appliedOperations[ContextMode.DATA]).containsExactly(operation)
+        } else {
+            assertThat(context.appliedOperations[ContextMode.DATA]).isEmpty()
+        }
         assertThat(context.appliedOperations[ContextMode.UNSET]).isEmpty()
         assertThat(context.appliedOperations[ContextMode.PAINT]).isEmpty()
 
