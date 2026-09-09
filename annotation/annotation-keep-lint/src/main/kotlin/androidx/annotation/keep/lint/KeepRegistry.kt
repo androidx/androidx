@@ -16,7 +16,6 @@
 
 package androidx.annotation.keep.lint
 
-import com.android.tools.lint.checks.KeepRuleDetector
 import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.detector.api.CURRENT_API
 import com.android.tools.lint.detector.api.Issue
