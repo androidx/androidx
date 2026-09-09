@@ -20,6 +20,7 @@ import com.android.tools.lint.client.api.LintClient
 import com.android.tools.lint.detector.api.CURRENT_API
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 class ApiLintVersionsTest {
 
@@ -29,5 +30,6 @@ class ApiLintVersionsTest {
         val registry = KeepRegistry()
         assertThat(registry.api).isEqualTo(CURRENT_API)
         assertThat(registry.minApi).isEqualTo(16)
+        assertTrue { registry.issues.all { it.isEnabledByDefault() } }
     }
 }
