@@ -193,6 +193,28 @@ class ButtonGroupTest {
     }
 
     @Test
+    fun smallButtonGroup_scrollToEnd_lastItemCenteredAndSelected() {
+        val state = ButtonGroupState()
+        rule.setGlimmerThemeContent {
+            ButtonGroup(modifier = Modifier.width(200.dp).testTag("parent"), state = state) {
+                // 3 children that fit within the viewport
+                Box(Modifier.width(50.dp))
+                Box(Modifier.width(50.dp))
+                Box(Modifier.width(50.dp).testTag("lastItem"))
+            }
+        }
+
+        runBlocking { state.scrollToItem(2) }
+
+        val lastChildCenterX = rule.onNodeWithTag("lastItem").getBoundsInRoot().centerX
+        val parentCenterX = rule.onNodeWithTag("parent").getBoundsInRoot().centerX
+
+        // When scrolled to the end, the last item should be roughly at the center of the container
+        lastChildCenterX.assertIsEqualTo(parentCenterX, "last child centerX")
+        assertThat(state.currentItemIndex).isEqualTo(2)
+    }
+
+    @Test
     fun contentPaddingsAreRespected() {
         rule.setGlimmerThemeContent {
             // 200x200 ButtonGroup contains a single 200x200 Button, but the contentPadding means
