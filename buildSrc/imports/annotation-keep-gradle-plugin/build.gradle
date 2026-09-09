@@ -26,6 +26,7 @@ dependencies {
     implementation(libs.asm)
     implementation(libs.asmCommons)
     implementation(libs.asmUtil)
+    implementation(libs.keepAnno)
 }
 
 gradlePlugin {
