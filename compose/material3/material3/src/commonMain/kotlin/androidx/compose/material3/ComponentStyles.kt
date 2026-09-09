@@ -26,6 +26,12 @@ import androidx.compose.material3.tokens.CheckboxTokens
 import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.material3.tokens.ColorToken
 import androidx.compose.material3.tokens.NavigationBarTokens
+import androidx.compose.material3.tokens.NavigationRailBaselineItemTokens
+import androidx.compose.material3.tokens.NavigationRailCollapsedTokens
+import androidx.compose.material3.tokens.NavigationRailColorTokens
+import androidx.compose.material3.tokens.NavigationRailExpandedTokens
+import androidx.compose.material3.tokens.NavigationRailHorizontalItemTokens
+import androidx.compose.material3.tokens.NavigationRailVerticalItemTokens
 import androidx.compose.material3.tokens.RadioButtonTokens
 import androidx.compose.material3.tokens.ScrimTokens
 import androidx.compose.material3.tokens.SearchBarTokens
@@ -820,5 +826,194 @@ internal class NavigationBarItemStyleScope(
 
     fun indicatorColor(color: Color) {
         indicatorColor = color
+    }
+}
+
+internal fun interface NavigationRailStyle : ComponentStyle<NavigationRailStyleScope> {
+    infix fun then(other: NavigationRailStyle): NavigationRailStyle = NavigationRailStyle {
+        this.applyStyle()
+        with(other) { applyStyle() }
+    }
+
+    companion object {
+        val Default = NavigationRailStyle {
+            containerColor(NavigationRailCollapsedTokens.ContainerColor.value)
+            contentColor(theme.colorScheme.onSurface)
+            shape(NavigationRailCollapsedTokens.ContainerShape.value)
+            contentPadding(0.dp, NavigationRailCollapsedTokens.TopSpace, 0.dp, 0.dp)
+        }
+        val Modal = NavigationRailStyle {
+            containerColor(NavigationRailCollapsedTokens.ContainerColor.value)
+            contentColor(theme.colorScheme.onSurface)
+            modalScrimColor(ScrimTokens.ContainerColor.value.copy(ScrimTokens.ContainerOpacity))
+            shape(NavigationRailCollapsedTokens.ContainerShape.value)
+            contentPadding(0.dp, NavigationRailCollapsedTokens.TopSpace, 0.dp, 0.dp)
+            expanded {
+                containerColor(NavigationRailExpandedTokens.ModalContainerColor.value)
+                shape(NavigationRailExpandedTokens.ModalContainerShape.value)
+            }
+        }
+    }
+}
+
+internal class NavigationRailStyleScope(
+    override val theme: MaterialTheme.Values,
+    override val state: ComponentState = ComponentState.Default,
+) :
+    ExpandedState<NavigationRailStyleScope>,
+    MaterialThemeAccessorScope,
+    StyleResolver by StyleResolverImpl() {
+    var containerColor: Color = Color.Unspecified
+        private set
+
+    var contentColor: Color = Color.Unspecified
+        private set
+
+    var modalScrimColor: Color = Color.Unspecified
+        private set
+
+    var shape: Shape = RectangleShape
+        private set
+
+    var contentPaddingStart: Dp = Dp.Unspecified
+        private set
+
+    var contentPaddingTop: Dp = Dp.Unspecified
+        private set
+
+    var contentPaddingEnd: Dp = Dp.Unspecified
+        private set
+
+    var contentPaddingBottom: Dp = Dp.Unspecified
+        private set
+
+    fun containerColor(color: Color) {
+        containerColor = color
+    }
+
+    fun contentColor(color: Color) {
+        contentColor = color
+    }
+
+    fun modalScrimColor(color: Color) {
+        modalScrimColor = color
+    }
+
+    fun shape(shape: Shape) {
+        this.shape = shape
+    }
+
+    fun contentPadding(start: Dp, top: Dp, end: Dp, bottom: Dp) {
+        contentPaddingStart = start
+        contentPaddingTop = top
+        contentPaddingEnd = end
+        contentPaddingBottom = bottom
+    }
+}
+
+internal fun interface NavigationRailItemStyle : ComponentStyle<NavigationRailItemStyleScope> {
+    infix fun then(other: NavigationRailItemStyle): NavigationRailItemStyle =
+        NavigationRailItemStyle {
+            this.applyStyle()
+            with(other) { applyStyle() }
+        }
+
+    companion object {
+        val Default = NavigationRailItemStyle {
+            iconColor(NavigationRailColorTokens.ItemInactiveIcon.value)
+            textColor(NavigationRailColorTokens.ItemInactiveLabelText.value)
+            indicatorColor(NavigationRailColorTokens.ItemActiveIndicator.value)
+            vertical {
+                indicatorPadding(
+                    start =
+                        (NavigationRailVerticalItemTokens.ActiveIndicatorWidth -
+                            NavigationRailBaselineItemTokens.IconSize) / 2,
+                    end =
+                        (NavigationRailVerticalItemTokens.ActiveIndicatorWidth -
+                            NavigationRailBaselineItemTokens.IconSize) / 2,
+                    top =
+                        (NavigationRailVerticalItemTokens.ActiveIndicatorHeight -
+                            NavigationRailBaselineItemTokens.IconSize) / 2,
+                    bottom =
+                        (NavigationRailVerticalItemTokens.ActiveIndicatorHeight -
+                            NavigationRailBaselineItemTokens.IconSize) / 2,
+                )
+            }
+            horizontal {
+                indicatorPadding(
+                    start = NavigationRailHorizontalItemTokens.FullWidthLeadingSpace,
+                    end = NavigationRailHorizontalItemTokens.FullWidthTrailingSpace,
+                    top =
+                        (NavigationRailHorizontalItemTokens.ActiveIndicatorHeight -
+                            NavigationRailBaselineItemTokens.IconSize) / 2,
+                    bottom =
+                        (NavigationRailHorizontalItemTokens.ActiveIndicatorHeight -
+                            NavigationRailBaselineItemTokens.IconSize) / 2,
+                )
+            }
+            selected {
+                iconColor(NavigationRailColorTokens.ItemActiveIcon.value)
+                vertical {
+                    textColor(NavigationRailColorTokens.ItemActiveLabelText.value)
+                }
+                horizontal {
+                    textColor(NavigationRailColorTokens.ItemActiveIcon.value)
+                }
+            }
+            disabled {
+                iconColor(NavigationRailColorTokens.ItemInactiveIcon.value.copy(DisabledAlpha))
+                textColor(NavigationRailColorTokens.ItemInactiveLabelText.value.copy(DisabledAlpha))
+            }
+        }
+    }
+}
+
+internal class NavigationRailItemStyleScope(
+    override val theme: MaterialTheme.Values,
+    override val state: ComponentState = ComponentState.Default,
+) :
+    MaterialThemeAccessorScope,
+    SelectedState<NavigationRailItemStyleScope>,
+    DisabledState<NavigationRailItemStyleScope>,
+    OrientationState<NavigationRailItemStyleScope>,
+    StyleResolver by StyleResolverImpl() {
+    var iconColor: Color = Color.Unspecified
+        private set
+
+    var textColor: Color = Color.Unspecified
+        private set
+
+    var indicatorColor: Color = Color.Unspecified
+        private set
+
+    var indicatorPaddingStart: Dp = Dp.Unspecified
+        private set
+
+    var indicatorPaddingTop: Dp = Dp.Unspecified
+        private set
+
+    var indicatorPaddingEnd: Dp = Dp.Unspecified
+        private set
+
+    var indicatorPaddingBottom: Dp = Dp.Unspecified
+        private set
+
+    fun iconColor(color: Color) {
+        iconColor = color
+    }
+
+    fun textColor(color: Color) {
+        textColor = color
+    }
+
+    fun indicatorColor(color: Color) {
+        indicatorColor = color
+    }
+
+    fun indicatorPadding(start: Dp, top: Dp, end: Dp, bottom: Dp) {
+        indicatorPaddingStart = start
+        indicatorPaddingTop = top
+        indicatorPaddingEnd = end
+        indicatorPaddingBottom = bottom
     }
 }
