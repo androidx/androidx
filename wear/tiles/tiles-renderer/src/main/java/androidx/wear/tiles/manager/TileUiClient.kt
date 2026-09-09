@@ -79,7 +79,9 @@ public class TileUiClient(
             context = context,
             componentName = component,
             coroutineScope = coroutineScope,
-            coroutineDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher(),
+            coroutineDispatcher =
+                Executors.newSingleThreadExecutor { r -> Thread(r, "TileUiClient") }
+                    .asCoroutineDispatcher(),
         )
 
     private var timelineManager: TilesTimelineManager? = null

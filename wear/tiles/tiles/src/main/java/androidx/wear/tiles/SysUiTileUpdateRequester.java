@@ -81,7 +81,8 @@ class SysUiTileUpdateRequester implements TileUpdateRequester {
         this.mUnbindExecutor =
                 TestDetector.isRunningInTest()
                         ? Runnable::run // Main thread executor
-                        : Executors.newSingleThreadExecutor();
+                        : Executors.newSingleThreadExecutor(
+                                r -> new Thread(r, "WrTilesUpdReq"));
     }
 
     @VisibleForTesting
