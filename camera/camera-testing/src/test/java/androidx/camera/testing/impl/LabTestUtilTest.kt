@@ -183,4 +183,52 @@ class LabTestUtilTest {
             )
             .isTrue()
     }
+
+    @Test
+    fun calculateBitmapLuminance_withBlackBitmap_returnsZero() {
+        val bitmap = createTestBitmap(Color.BLACK)
+        val luminance = LabTestUtil.calculateBitmapLuminance(bitmap)
+        assertThat(luminance).isEqualTo(0.0)
+    }
+
+    @Test
+    fun calculateBitmapLuminance_withWhiteBitmap_returns255() {
+        val bitmap = createTestBitmap(Color.WHITE)
+        val luminance = LabTestUtil.calculateBitmapLuminance(bitmap)
+        assertThat(luminance).isWithin(0.1).of(255.0)
+    }
+
+    @Test
+    fun calculateBitmapLuminance_withRecycledBitmap_returnsZero() {
+        val bitmap = createTestBitmap(Color.WHITE)
+        bitmap.recycle()
+        val luminance = LabTestUtil.calculateBitmapLuminance(bitmap)
+        assertThat(luminance).isEqualTo(0.0)
+    }
+
+    @Test
+    fun checkLabEnvironmentLighting_withDarkBitmap_returnsFalse() {
+        val bitmap = createTestBitmap(Color.BLACK)
+        val isIlluminated = LabTestUtil.checkLabEnvironmentLighting(bitmap, "DarkTest")
+        assertThat(isIlluminated).isFalse()
+    }
+
+    @Test
+    fun checkLabEnvironmentLighting_withBrightBitmap_returnsTrue() {
+        val bitmap = createTestBitmap(Color.WHITE)
+        val isIlluminated = LabTestUtil.checkLabEnvironmentLighting(bitmap, "BrightTest")
+        assertThat(isIlluminated).isTrue()
+    }
+
+    @Test
+    fun checkLabEnvironmentLighting_atThreshold_returnsTrue() {
+        val bitmap = createTestBitmap(Color.WHITE)
+        val isIlluminated =
+            LabTestUtil.checkLabEnvironmentLighting(
+                bitmap,
+                "ThresholdTest",
+                minLuminanceThreshold = 255.0,
+            )
+        assertThat(isIlluminated).isTrue()
+    }
 }
