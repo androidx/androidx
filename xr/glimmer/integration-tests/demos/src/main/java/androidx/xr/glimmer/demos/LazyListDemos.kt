@@ -35,9 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.glimmer.ActionCard
 import androidx.xr.glimmer.Button
-import androidx.xr.glimmer.Card
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Icon
+import androidx.xr.glimmer.ImageCard
 import androidx.xr.glimmer.ListItem
 import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.list.GlimmerLazyColumn
@@ -94,8 +94,8 @@ private fun GlimmerLazyColumnWithItemsOfDifferentSizes() {
                         label = "9:15-9:30 AM",
                     )
                 2 -> Button(onClick = {}) { Text("Button") }
-                3 -> CardWithHeaderImage(title = "Card with image $it")
-                4 -> CardWithActionButton(title = "Card with button $it")
+                3 -> ImageCard(title = "Card with image $it")
+                4 -> ActionCard(title = "Card with button $it")
                 else -> error("Index=$it")
             }
         }
@@ -119,23 +119,23 @@ private fun ListItemWithLeadingIcon(icon: ImageVector, text: String, label: Stri
 }
 
 @Composable
-private fun CardWithHeaderImage(title: String) {
-    Card(
-        title = { Text(title) },
-        header = {
+private fun ImageCard(title: String) {
+    ImageCard(
+        image = {
             Image(
                 painter = SampleImage,
                 contentDescription = "Localized description",
                 contentScale = ContentScale.FillWidth,
             )
         },
+        title = { Text(title) },
     ) {
-        Text("This is a card with a title and header image")
+        Text("This is an image card with a title")
     }
 }
 
 @Composable
-private fun CardWithActionButton(title: String) {
+private fun ActionCard(title: String) {
     ActionCard(
         title = { Text(title) },
         action = {
