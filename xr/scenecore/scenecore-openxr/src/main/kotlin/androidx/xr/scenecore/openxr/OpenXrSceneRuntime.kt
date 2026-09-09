@@ -165,6 +165,9 @@ internal constructor(
             if (!nativeWrapper.createSpatialContainer()) {
                 throw IllegalStateException("SceneCoreOpenXrNative.createSpatialContainer failed.")
             }
+            // The projected (Vitreous) runtime keeps a spatial container hidden until the app
+            // explicitly requests it to be visible.
+            nativeWrapper.requestSpatialContainerVisible(true)
             val rootHandle = nativeWrapper.getRootEntityHandle()
             if (rootHandle != INVALID_HANDLE) {
                 (activitySpace as? OpenXrEntity)?.bindEntityHandle(rootHandle)
@@ -309,7 +312,6 @@ internal constructor(
     override fun getScenePoseFromPerceptionPose(pose: Pose): ScenePose =
         PlatformReferenceScenePose(activitySpace, pose)
 
-    // TODO: b/538961468 - Implement OpenXrPanelEntity with SurfaceControlViewHost support.
     override fun createPanelEntity(
         context: Context,
         pose: Pose,
@@ -317,8 +319,16 @@ internal constructor(
         dimensions: Dimensions,
         name: String,
         parent: Entity?,
-    ): PanelEntity = TODO("OpenXrSceneRuntime.createPanelEntity is not yet implemented")
+    ): PanelEntity {
+        val pixelDimensions =
+            PixelDimensions(
+                (dimensions.width * virtualPixelDensity).toInt(),
+                (dimensions.height * virtualPixelDensity).toInt(),
+            )
+        return createPanelEntity(context, pose, view, pixelDimensions, name, parent)
+    }
 
+    @android.annotation.SuppressLint("NewApi")
     override fun createPanelEntity(
         context: Context,
         pose: Pose,
@@ -326,7 +336,31 @@ internal constructor(
         pixelDimensions: PixelDimensions,
         name: String,
         parent: Entity?,
-    ): PanelEntity = TODO("OpenXrSceneRuntime.createPanelEntity is not yet implemented")
+    ): PanelEntity {
+        check(!isDestroyed) {
+            "Cannot create panel entity after OpenXrSceneRuntime has been destroyed."
+        }
+        val entityHandle =
+            if (nativeWrapper.nativeScenecore != INVALID_HANDLE) {
+                nativeWrapper.createSceneEntity()
+            } else {
+                INVALID_HANDLE
+            }
+
+        val panelEntity =
+            OpenXrPanelEntity(
+                context,
+                entityHandle,
+                view,
+                pixelDimensions,
+                nativeWrapper,
+                sceneNodeRegistry,
+                scheduledExecutorService,
+            )
+        panelEntity.parent = parent
+        panelEntity.setPose(pose, Space.PARENT)
+        return panelEntity
+    }
 
     override fun createActivityPanelEntity(
         pose: Pose,
@@ -505,12 +539,23 @@ internal constructor(
         TODO("OpenXrSceneRuntime.createSoundEffectPoolComponent is not yet implemented")
 
     override val virtualPixelDensity: Float
-        get() = 1000.0f
+        get() = VIRTUAL_PIXEL_DENSITY
 
     companion object {
+        /**
+         * Pixels per meter used to convert between panel sizes in meters and in pixels; the OpenXR
+         * runtime does not expose a density for its ViewPanels.
+         */
+        internal const val VIRTUAL_PIXEL_DENSITY: Float = 1000f
+
+        /**
+         * Creates an initialized [OpenXrSceneRuntime]. [androidx.xr.runtime.Session] only calls
+         * [initialize] on the perception runtime, so the scene runtime initializes itself here.
+         */
         fun create(
             activity: Activity,
             unscaledGravityAlignedActivitySpace: Boolean = true,
-        ): OpenXrSceneRuntime = OpenXrSceneRuntime(activity, unscaledGravityAlignedActivitySpace)
+        ): OpenXrSceneRuntime =
+            OpenXrSceneRuntime(activity, unscaledGravityAlignedActivitySpace).apply { initialize() }
     }
 }
