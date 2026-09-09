@@ -73,7 +73,9 @@ internal object MaterialA2uiBasicCatalogV1Row : A2uiBasicCatalogV1.Row {
 
         val isStretchAlignment = align == A2uiBasicCatalogV1.Row.Align.Stretch
         val isStretchJustify = justify == A2uiBasicCatalogV1.Row.Justify.Stretch
-        val rowModifier = if (isStretchAlignment) modifier.height(IntrinsicSize.Min) else modifier
+        val rowModifier =
+            (if (isStretchAlignment) modifier.height(IntrinsicSize.Min) else modifier)
+                .a2uiAccessibility(accessibility)
         val baseChildModifier = if (isStretchAlignment) Modifier.fillMaxHeight() else Modifier
 
         Row(

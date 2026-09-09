@@ -32,6 +32,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
@@ -313,5 +314,121 @@ class MaterialA2uiBasicCatalogV1TextTest {
 
         onNodeWithText("Static Placeholder").assertDoesNotExist()
         onNodeWithText("Dynamic User Name").assertIsDisplayed()
+    }
+
+    @Test
+    fun accessibility_withLabelAndDescription_combinesLabelTextAndDescription() = runComposeUiTest {
+        val textPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Text",
+                properties =
+                    mapOf(
+                        "text" to "Hello World",
+                        "accessibility" to
+                            mapOf(
+                                "label" to "Greeting Text",
+                                "description" to "A warm greeting message",
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(textPayload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithContentDescription("Greeting Text - Hello World - A warm greeting message")
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun accessibility_withLabelOnly_combinesLabelAndText() = runComposeUiTest {
+        val textPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Text",
+                properties =
+                    mapOf(
+                        "text" to "Hello World",
+                        "accessibility" to mapOf("label" to "Greeting Text"),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(textPayload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithContentDescription("Greeting Text - Hello World").assertIsDisplayed()
+    }
+
+    @Test
+    fun accessibility_withDescriptionOnly_combinesTextAndDescription() = runComposeUiTest {
+        val textPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Text",
+                properties =
+                    mapOf(
+                        "text" to "Hello World",
+                        "accessibility" to mapOf("description" to "A warm greeting message"),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(textPayload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithContentDescription("Hello World - A warm greeting message").assertIsDisplayed()
+    }
+
+    @Test
+    fun accessibility_withLabelMatchingText_deduplicatesText() = runComposeUiTest {
+        val textPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Text",
+                properties =
+                    mapOf(
+                        "text" to "Hello World",
+                        "accessibility" to
+                            mapOf(
+                                "label" to "Hello World",
+                                "description" to "A warm greeting message",
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(textPayload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithContentDescription("Hello World - A warm greeting message").assertIsDisplayed()
+    }
+
+    @Test
+    fun accessibility_withEmptyAttributes_doesNotSetContentDescription() = runComposeUiTest {
+        val textPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Text",
+                properties =
+                    mapOf(
+                        "text" to "Hello World",
+                        "accessibility" to emptyMap<String, Any>(),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(textPayload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithText("Hello World")
+            .assertIsDisplayed()
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
     }
 }

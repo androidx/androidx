@@ -35,6 +35,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -1224,5 +1225,37 @@ class MaterialA2uiBasicCatalogV1DateTimeInputTest {
             }
         }
         error("Failed to parse: $value")
+    }
+
+    @Test
+    fun accessibility_withLabelAndDescription_setsContentDescription() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "DateTimeInput",
+                            properties =
+                                mapOf(
+                                    "value" to "2026-03-24T15:25:00",
+                                    "enableDate" to true,
+                                    "enableTime" to true,
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Date Input",
+                                            "description" to "Select appointment date and time",
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+
+        val surface = controller.start()
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithContentDescription("Date Input - Select appointment date and time")
+            .assertIsDisplayed()
     }
 }

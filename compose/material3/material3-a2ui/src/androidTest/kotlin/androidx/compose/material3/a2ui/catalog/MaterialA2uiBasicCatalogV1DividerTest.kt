@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertWidthIsEqualTo
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -226,5 +227,34 @@ class MaterialA2uiBasicCatalogV1DividerTest {
 
         onNodeWithTag("initial_tag").assertDoesNotExist()
         onNodeWithTag("updated_tag").assertIsDisplayed()
+    }
+
+    @Test
+    fun accessibility_withLabelAndDescription_setsContentDescription() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Divider",
+                            properties =
+                                mapOf(
+                                    "axis" to "horizontal",
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Divider Label",
+                                            "description" to "Separator Line",
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithContentDescription("Divider Label - Separator Line").assertIsDisplayed()
     }
 }

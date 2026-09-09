@@ -17,6 +17,7 @@
 package androidx.compose.material3.a2ui.catalog
 
 import androidx.a2ui.compose.ui.A2uiCatalog
+import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
 import androidx.a2ui.compose.ui.testing.A2uiComponentPayload
 import androidx.a2ui.compose.ui.testing.A2uiComponentStub
 import androidx.a2ui.compose.ui.testing.A2uiTestController
@@ -36,6 +37,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -755,5 +757,92 @@ class MaterialA2uiBasicCatalogV1TabsTest {
         controller.failComponent("stub_child", A2uiRuntimeException("Failure"))
         controller.waitForIdle()
         onNode(hasTestTag("tabs_tag")).assertIsDisplayed()
+    }
+
+    @Test
+    fun accessibility_withLabelAndDescription_setsContentDescription() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Tabs",
+                            properties =
+                                mapOf(
+                                    "tabs" to
+                                        listOf(mapOf("title" to "Tab 1", "child" to "stub_child")),
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Tabs Group",
+                                            "description" to "Navigation tabs",
+                                        ),
+                                ),
+                        ),
+                        A2uiComponentPayload(id = "stub_child"),
+                    ),
+                componentStubs =
+                    listOf(
+                        A2uiComponentStub.withId("stub_child") { _, modifier ->
+                            Text("Tab 1 Content", modifier = modifier)
+                        }
+                    ),
+            )
+
+        val surface = controller.start()
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithContentDescription("Tabs Group - Navigation tabs").assertIsDisplayed()
+    }
+
+    @Test
+    fun accessibility_childrenMaintainIndependentAccessibilityProperties() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Tabs",
+                            properties =
+                                mapOf(
+                                    "tabs" to
+                                        listOf(mapOf("title" to "Tab 1", "child" to "stub_child")),
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Tabs Group",
+                                            "description" to "Navigation tabs",
+                                        ),
+                                ),
+                        ),
+                        A2uiComponentPayload(id = "stub_child"),
+                    ),
+                componentStubs =
+                    listOf(
+                        A2uiComponentStub.withId("stub_child") { _, modifier ->
+                            Text(
+                                "Tab 1 Content",
+                                modifier =
+                                    modifier.a2uiAccessibility(
+                                        attributes =
+                                            A2uiBasicCatalogV1.AccessibilityAttributes(
+                                                label = "Child Label",
+                                                description = "Child Description",
+                                            ),
+                                        isClickable = false,
+                                    ),
+                            )
+                        }
+                    ),
+            )
+
+        val surface = controller.start()
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithContentDescription("Tabs Group - Navigation tabs").assertIsDisplayed()
+        onNodeWithText("Tab 1").assertIsDisplayed()
+        onNodeWithContentDescription("Child Label - Child Description").assertIsDisplayed()
     }
 }

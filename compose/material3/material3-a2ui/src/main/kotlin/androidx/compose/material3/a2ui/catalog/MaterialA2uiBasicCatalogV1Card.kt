@@ -41,7 +41,7 @@ internal object MaterialA2uiBasicCatalogV1Card : A2uiBasicCatalogV1.Card {
     ) {
         val childState = observeA2uiComponentState(childId)
 
-        Card(modifier = modifier) {
+        Card(modifier = modifier.a2uiAccessibility(accessibility)) {
             AnimatedContent(
                 targetState = childState,
                 transitionSpec = MaterialA2uiDefaults.transitionSpec(),

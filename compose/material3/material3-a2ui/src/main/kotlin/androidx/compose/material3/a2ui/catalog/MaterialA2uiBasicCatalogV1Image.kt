@@ -86,7 +86,7 @@ internal class MaterialA2uiBasicCatalogV1Image(private val imageRenderer: A2uiIm
     ) {
         imageRenderer.Image(
             url = url,
-            contentDescription = description,
+            contentDescription = description ?: accessibility?.toContentDescription(),
             contentScale = fit.toContentScale(),
             modifier = modifier.applyVariant(variant),
             onError = { throwable ->

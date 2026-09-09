@@ -31,18 +31,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.v2.runComposeUiTest
+import androidx.compose.ui.text.AnnotatedString
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -748,4 +754,121 @@ class MaterialA2uiBasicCatalogV1ButtonTest {
         onNode(hasText("Accessible Button") and hasClickAction())
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
     }
+
+    @Test
+    fun accessibility_withLabelAndDescription_setsContentDescriptionAndOnClickLabel() =
+        runComposeUiTest {
+            val controller =
+                A2uiTestController(
+                    catalog = testCatalog,
+                    initialComponents =
+                        listOf(
+                            A2uiComponentPayload(
+                                id = "root",
+                                type = "Button",
+                                properties =
+                                    mapOf(
+                                        "child" to "btn_text",
+                                        "action" to mapOf("event" to mapOf("name" to "click")),
+                                        "accessibility" to
+                                            mapOf(
+                                                "label" to "Custom Button Label",
+                                                "description" to "Custom Action Hint",
+                                            ),
+                                    ),
+                            ),
+                            A2uiComponentPayload(id = "btn_text"),
+                        ),
+                    componentStubs =
+                        listOf(
+                            A2uiComponentStub.withId("btn_text") { _, modifier ->
+                                Text("Child Text", modifier = modifier)
+                            }
+                        ),
+                )
+
+            val surface = controller.start()
+            setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+            onNodeWithContentDescription("Custom Button Label")
+                .assertIsDisplayed()
+                .assert(
+                    SemanticsMatcher("has onClick with label") { node ->
+                        node.config.getOrNull(SemanticsActions.OnClick)?.label ==
+                            "Custom Action Hint"
+                    }
+                )
+
+            onNodeWithContentDescription("Custom Button Label")
+                .performSemanticsAction(SemanticsActions.OnClick)
+            waitForIdle()
+            controller.waitForIdle()
+
+            assertThat(controller.outboundEvents.single().type).isEqualTo("click")
+        }
+
+    @Test
+    fun accessibility_withChildTextAndButtonAccessibility_mergesTextAndContentDescription() =
+        runComposeUiTest {
+            val catalog =
+                A2uiCatalog(
+                    catalogId = "test_catalog",
+                    components =
+                        listOf(
+                            MaterialA2uiBasicCatalogV1Defaults.button,
+                            MaterialA2uiBasicCatalogV1Defaults.text,
+                        ),
+                )
+            val controller =
+                A2uiTestController(
+                    catalog = catalog,
+                    initialComponents =
+                        listOf(
+                            A2uiComponentPayload(
+                                id = "root",
+                                type = "Button",
+                                properties =
+                                    mapOf(
+                                        "child" to "btn_text",
+                                        "action" to mapOf("event" to mapOf("name" to "click")),
+                                        "accessibility" to
+                                            mapOf(
+                                                "label" to "Custom Button Label",
+                                                "description" to "Custom Action Hint",
+                                            ),
+                                    ),
+                            ),
+                            A2uiComponentPayload(
+                                id = "btn_text",
+                                type = "Text",
+                                properties = mapOf("text" to "Button Text"),
+                            ),
+                        ),
+                )
+
+            val surface = controller.start()
+            setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+            val button =
+                onNode(
+                    hasClickAction() and
+                        hasText("Button Text") and
+                        hasContentDescription("Custom Button Label")
+                )
+            button.assertIsDisplayed()
+
+            val semanticsNode = button.fetchSemanticsNode()
+            assertThat(semanticsNode.config[SemanticsProperties.Text])
+                .isEqualTo(listOf(AnnotatedString("Button Text")))
+            assertThat(semanticsNode.config[SemanticsProperties.ContentDescription])
+                .isEqualTo(listOf("Custom Button Label"))
+
+            onNode(hasText("Button Text"), useUnmergedTree = true).assertExists()
+
+            button.performClick()
+            waitForIdle()
+            controller.waitForIdle()
+
+            assertThat(controller.outboundEvents.single().type).isEqualTo("click")
+        }
 }
