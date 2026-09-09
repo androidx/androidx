@@ -1038,7 +1038,7 @@ abstract class UnzipMultiplatformSourcesTask() : DefaultTask() {
         sources.forEach { (name, fileTree) ->
             fileSystemOperations.sync {
                 it.from(fileTree)
-                it.into(metadataOutput.file(name))
+                it.into(metadataOutput.get().file(name))
                 it.include("META-INF/*")
             }
         }
@@ -1049,8 +1049,8 @@ abstract class UnzipMultiplatformSourcesTask() : DefaultTask() {
             sources.partition { name ->
                 val metadataFile =
                     metadataOutput
-                        .file("$name/META-INF/$PROJECT_STRUCTURE_METADATA_FILENAME")
                         .get()
+                        .file("$name/META-INF/$PROJECT_STRUCTURE_METADATA_FILENAME")
                         .asFile
                 val metadata =
                     gson.fromJson(metadataFile.readText(), ProjectStructureMetadata::class.java)
