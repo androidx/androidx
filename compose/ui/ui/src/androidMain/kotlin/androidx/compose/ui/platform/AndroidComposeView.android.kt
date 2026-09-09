@@ -175,7 +175,6 @@ import androidx.compose.ui.input.pointer.ProcessResult
 import androidx.compose.ui.input.rotary.RotaryInputModifierNode
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.internal.checkPreconditionNotNull
-import androidx.compose.ui.internal.requirePrecondition
 import androidx.compose.ui.layout.InsetsListener
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Measurable
@@ -301,28 +300,28 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     FocusListener,
     ExecuteDelayed {
 
-    private var _composeViewContext by mutableStateOf(composeViewContext)
-    var composeViewContext: ComposeViewContext
-        get() = _composeViewContext
-        set(value) {
-            requirePrecondition(
-                coroutineContext === value.compositionContext.effectCoroutineContext ||
-                    root.children.isEmpty() // composition has likely been disposed
-            ) {
-                "Changing ComposeViewContext cannot change the coroutine context without disposing of the composition first."
-            }
-            val currentComposeViewContext = Snapshot.withoutReadObservation { _composeViewContext }
-            if (value == currentComposeViewContext) {
+    var composeViewContext: ComposeViewContext = composeViewContext
+        set(newContext) {
+            val current = field
+            if (newContext === current) {
                 return
             }
             if (isAttachedToWindow) {
-                currentComposeViewContext.decrementViewCount()
-                value.incrementViewCount()
+                current.decrementViewCount()
+                newContext.incrementViewCount()
+                if (newContext.lifecycleOwner !== current.lifecycleOwner) {
+                    removeLifecycleObservers(current.lifecycleOwner)
+                    addLifecycleObservers(newContext.lifecycleOwner)
+                }
             }
-            _composeViewContext = value
-            coroutineContext = value.compositionContext.effectCoroutineContext
+            field = newContext
+            coroutineContext = newContext.compositionContext.effectCoroutineContext
+            frameEndScheduler =
+                LifecycleRetainedValuesStoreOwner.FrameEndScheduler(
+                    newContext.compositionContext::scheduleFrameEndCallback
+                )
             @OptIn(ExperimentalMediaQueryApi::class)
-            _uiMediaScope?._windowInfo = value.windowInfo
+            _uiMediaScope?._windowInfo = newContext.windowInfo
         }
 
     /**
@@ -2627,9 +2626,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             onReadyForComposition = null
         }
 
-        val lifecycle = composeViewContext.lifecycleOwner.lifecycle
-        lifecycle.addObserver(this)
-        lifecycle.addObserver(contentCaptureManager)
+        addLifecycleObservers(composeViewContext.lifecycleOwner)
         inputModeManager.inputMode = if (isInTouchMode) Touch else Keyboard
         viewTreeObserver.addOnGlobalLayoutListener(this)
         viewTreeObserver.addOnScrollChangedListener(this)
@@ -2672,6 +2669,18 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         return retainedValuesStoreEntry.retainedValuesStore
     }
 
+    private fun addLifecycleObservers(owner: LifecycleOwner) {
+        val lifecycle = owner.lifecycle
+        lifecycle.addObserver(this)
+        lifecycle.addObserver(contentCaptureManager)
+    }
+
+    private fun removeLifecycleObservers(owner: LifecycleOwner) {
+        val lifecycle = owner.lifecycle
+        lifecycle.removeObserver(contentCaptureManager)
+        lifecycle.removeObserver(this)
+    }
+
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalMediaQueryApi::class)
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
@@ -2691,9 +2700,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         removeNotificationForSysPropsChange(this)
         composeViewContext.decrementViewCount()
         snapshotObserver.stopObserving()
-        val lifecycle = composeViewContext.lifecycleOwner.lifecycle
-        lifecycle.removeObserver(contentCaptureManager)
-        lifecycle.removeObserver(this)
+        removeLifecycleObservers(composeViewContext.lifecycleOwner)
         viewTreeObserver.removeOnGlobalLayoutListener(this)
         viewTreeObserver.removeOnScrollChangedListener(this)
         viewTreeObserver.removeOnTouchModeChangeListener(this)
