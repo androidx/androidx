@@ -25,8 +25,10 @@ import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicValueSchema
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 import java.util.TimeZone
 
 /**
@@ -93,17 +95,10 @@ public constructor(private val localeProvider: A2uiLocaleProvider = A2uiLocalePr
      * @return the formatted date string, or null if required values are missing
      */
     override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
-        val value = A2uiFunctionArgParser.getLongArg(args, ARG_VALUE_KEY)
         val format = A2uiFunctionArgParser.getStringArg(args, ARG_FORMAT_KEY)
-
         val locale = localeProvider.getLocale()
 
-        val timeInMillis =
-            if (value < MAX_EPOCH_SECONDS) {
-                value * 1000L
-            } else {
-                value
-            }
+        val timeInMillis = parseValueToEpochMillis(A2uiFunctionArgParser.getArg(args, ARG_VALUE_KEY))
         val date = Date(timeInMillis)
 
         return if (format == FORMAT_ISO) {
@@ -125,6 +120,52 @@ public constructor(private val localeProvider: A2uiLocaleProvider = A2uiLocalePr
         }
     }
 
+    /**
+     * Resolves the raw `value` argument to epoch milliseconds.
+     *
+     * Accepts a numeric epoch timestamp (in seconds or milliseconds, disambiguated via
+     * [MAX_EPOCH_SECONDS]), a numeric string, or an ISO-8601 date/time string (e.g.
+     * `"2025-12-15T10:15:00Z"` or `"2025-12-15"`), matching the value types agents commonly send
+     * for date data (see [ISO_DATE_TIME_PATTERNS]).
+     *
+     * @throws A2uiException.A2uiValidationException if [raw] cannot be interpreted as either.
+     */
+    private fun parseValueToEpochMillis(raw: Any): Long {
+        val epochValue =
+            when (raw) {
+                is Number -> raw.toLong()
+                is String -> raw.toLongOrNull() ?: return parseIsoStringToEpochMillis(raw)
+                else -> throw invalidValueException()
+            }
+        return if (epochValue < MAX_EPOCH_SECONDS) epochValue * 1000L else epochValue
+    }
+
+    /** Parses an ISO-8601-style date/time [value] to epoch milliseconds (interpreted as UTC). */
+    private fun parseIsoStringToEpochMillis(value: String): Long {
+        for (pattern in ISO_DATE_TIME_PATTERNS) {
+            val parser =
+                SimpleDateFormat(pattern, Locale.US).apply {
+                    timeZone = TimeZone.getTimeZone("UTC")
+                    isLenient = false
+                }
+            try {
+                parser.parse(value)?.let {
+                    return it.time
+                }
+            } catch (e: ParseException) {
+                // Not a match for this pattern; try the next one.
+            }
+        }
+        throw invalidValueException()
+    }
+
+    private fun invalidValueException(): A2uiException =
+        A2uiException.A2uiValidationException(
+            "Invalid '$ARG_VALUE_KEY' argument, expected an epoch timestamp (seconds or " +
+                "milliseconds) or an ISO-8601 date/time string",
+            "/$ARG_VALUE_KEY",
+        )
+
     public companion object {
         @JvmField public val INSTANCE: A2uiFormatDateFunction = A2uiFormatDateFunction()
 
@@ -133,5 +174,18 @@ public constructor(private val localeProvider: A2uiLocaleProvider = A2uiLocalePr
         private const val FORMAT_ISO: String = "ISO"
         private const val ISO_FORMAT_PATTERN: String = "yyyy-MM-dd'T'HH:mm:ss'Z'"
         private const val MAX_EPOCH_SECONDS: Long = 10_000_000_000L
+
+        // Mirrors the pattern list used by
+        // androidx.a2ui.compose.ui.catalog.parseIsoDateTimeToUtcMillis for consistent ISO-8601
+        // parsing behavior across the A2UI catalog.
+        private val ISO_DATE_TIME_PATTERNS =
+            arrayOf(
+                "yyyy-MM-dd'T'HH:mm:ss.SSSX",
+                "yyyy-MM-dd'T'HH:mm:ss.SSS",
+                "yyyy-MM-dd'T'HH:mm:ssX",
+                "yyyy-MM-dd'T'HH:mm:ss",
+                "yyyy-MM-dd'T'HH:mm",
+                "yyyy-MM-dd",
+            )
     }
 }
