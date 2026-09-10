@@ -14,12 +14,27 @@
   limitations under the License.
 -->
 <!-- Fixed radius ripple matching the button's outline -->
-<ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="?android:attr/colorControlHighlight">
-    <item android:id="@android:id/mask">
-        <shape android:shape="rectangle">
-            <corners android:radius="16dp"/>
-            <solid android:color="@android:color/white"/>
-        </shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <ripple android:color="@color/glance_state_layer_default_color">
+            <item android:id="@android:id/mask">
+                <shape android:shape="rectangle">
+                    <corners android:radius="16dp"/>
+                    <solid android:color="@android:color/white"/>
+                </shape>
+            </item>
+        </ripple>
     </item>
-</ripple>
+
+    <item>
+        <selector>
+            <item android:state_hovered="true">
+                <shape android:shape="rectangle">
+                    <corners android:radius="16dp"/>
+                    <solid android:color="@color/glance_hover_color"/>
+                </shape>
+            </item>
+            <item android:drawable="@android:color/transparent"/>
+        </selector>
+    </item>
+</layer-list>
