@@ -80,6 +80,7 @@ abstract class BasePluginTest {
                     "-Dorg.gradle.jvmargs=-XX:MaxMetaspaceSize=512m",
                     *args,
                 )
+        projectSetup.setUpGradleVersion(runner, "8.14")
         return runner
     }
 
