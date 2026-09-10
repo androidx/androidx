@@ -30,6 +30,9 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 class WidgetInstanceInfoTest {
 
+    private val surfaceHome = GlanceSurface.of("home_screen")
+    private val surfaceLock = GlanceSurface.of("lock_screen")
+
     @Test
     fun defaultValues_areExpected() {
         val info = WidgetInstanceInfo(widgetName = "test_widget", widgetId = "instance_123")
@@ -48,8 +51,7 @@ class WidgetInstanceInfoTest {
                 putString("city", "Bucharest")
                 putInt("temp", 25)
             }
-        val placements =
-            objectIntMapOf(GlanceSurface.MOBILE_HOME_SCREEN, 2, GlanceSurface.MOBILE_LOCK_SCREEN, 1)
+        val placements = objectIntMapOf(surfaceHome, 2, surfaceLock, 1)
         val info =
             WidgetInstanceInfo(
                 widgetName = "weather_widget",
@@ -81,8 +83,8 @@ class WidgetInstanceInfoTest {
                 putShortArray("shortArr", shortArrayOf(10, 20))
                 putCharArray("charArr", charArrayOf('a', 'b'))
             }
-        val placements1 = objectIntMapOf(GlanceSurface.MOBILE_HOME_SCREEN, 1)
-        val placements2 = objectIntMapOf(GlanceSurface.MOBILE_HOME_SCREEN, 1)
+        val placements1 = objectIntMapOf(surfaceHome, 1)
+        val placements2 = objectIntMapOf(surfaceHome, 1)
 
         val info1 = WidgetInstanceInfo("name", "id", bundle1, placements1)
         val info2 = WidgetInstanceInfo("name", "id", bundle2, placements2)
@@ -125,12 +127,7 @@ class WidgetInstanceInfoTest {
 
         // Different surfacePlacements
         val diffPlacements =
-            WidgetInstanceInfo(
-                "name",
-                "id",
-                bundle1,
-                objectIntMapOf(GlanceSurface.MOBILE_LOCK_SCREEN, 1),
-            )
+            WidgetInstanceInfo("name", "id", bundle1, objectIntMapOf(surfaceLock, 1))
         assertThat(info1).isNotEqualTo(diffPlacements)
     }
 
@@ -194,8 +191,7 @@ class WidgetInstanceInfoTest {
 
     @Test
     fun defensiveCopy_mutablePlacementsMapIsNotAffectedByExternalMutation() {
-        val mutablePlacements =
-            MutableObjectIntMap<GlanceSurface>().apply { put(GlanceSurface.MOBILE_HOME_SCREEN, 1) }
+        val mutablePlacements = MutableObjectIntMap<GlanceSurface>().apply { put(surfaceHome, 1) }
         val info =
             WidgetInstanceInfo(
                 widgetName = "widget",
@@ -203,9 +199,28 @@ class WidgetInstanceInfoTest {
                 surfacePlacements = mutablePlacements,
             )
 
-        mutablePlacements.put(GlanceSurface.MOBILE_HOME_SCREEN, 99)
-        assertThat(info.surfacePlacements.getOrDefault(GlanceSurface.MOBILE_HOME_SCREEN, 0))
-            .isEqualTo(1)
+        mutablePlacements.put(surfaceHome, 99)
+        assertThat(info.surfacePlacements.getOrDefault(surfaceHome, 0)).isEqualTo(1)
+    }
+
+    @Test
+    fun equalsAndHashCode_withDistinctPlacementsInstancesAndInsertionOrder_haveEqualHashCode() {
+        val map1 =
+            MutableObjectIntMap<GlanceSurface>().apply {
+                put(surfaceHome, 2)
+                put(surfaceLock, 1)
+            }
+        val map2 =
+            MutableObjectIntMap<GlanceSurface>().apply {
+                put(surfaceLock, 1)
+                put(surfaceHome, 2)
+            }
+
+        val info1 = WidgetInstanceInfo("name", "id", surfacePlacements = map1)
+        val info2 = WidgetInstanceInfo("name", "id", surfacePlacements = map2)
+
+        assertThat(info1).isEqualTo(info2)
+        assertThat(info1.hashCode()).isEqualTo(info2.hashCode())
     }
 
     @Test
@@ -214,12 +229,12 @@ class WidgetInstanceInfoTest {
             WidgetInstanceInfo(
                 widgetName = "sample_widget",
                 widgetId = "sample_id",
-                surfacePlacements = objectIntMapOf(GlanceSurface.MOBILE_HOME_SCREEN, 3),
+                surfacePlacements = objectIntMapOf(surfaceHome, 3),
             )
         val str = info.toString()
         assertThat(str).contains("WidgetInstanceInfo")
         assertThat(str).contains("widgetName='sample_widget'")
         assertThat(str).contains("widgetId='sample_id'")
-        assertThat(str).contains("MOBILE_HOME_SCREEN=3")
+        assertThat(str).contains("home_screen")
     }
 }
