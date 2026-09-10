@@ -1602,11 +1602,12 @@ private fun DatePickerContent(
         currentYearFocusRequester,
         dividerFocusRequester) =
         remember { FocusRequester.createRefs() }
+    val totalMonths = remember(yearRange) { numberOfMonthsInRange(yearRange) }
     Column {
         MonthsNavigation(
             modifier = Modifier.padding(horizontal = DatePickerHorizontalPadding),
-            nextAvailable = monthsListState.canScrollForward,
-            previousAvailable = monthsListState.canScrollBackward,
+            nextAvailable = monthIndex < totalMonths - 1,
+            previousAvailable = monthIndex > 0,
             yearPickerVisible = yearPickerVisible,
             yearPickerText =
                 dateFormatter.formatMonthYear(
