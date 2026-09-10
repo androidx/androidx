@@ -2148,6 +2148,7 @@ package androidx.car.app.model {
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class SectionHeader {
     method public androidx.car.app.model.CarIcon? getEndIcon();
+    method public androidx.car.app.model.CarText? getHeadline();
     method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
     method public androidx.car.app.model.CarIcon? getStartIcon();
     method public int getStartIconType();
@@ -2161,13 +2162,14 @@ package androidx.car.app.model {
     ctor public SectionHeader.Builder(androidx.car.app.model.CarText);
     ctor public SectionHeader.Builder(CharSequence);
     method public androidx.car.app.model.SectionHeader build();
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder clearSubtitle();
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setEndIcon(androidx.car.app.model.CarIcon);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setHeadline(androidx.car.app.model.CarText?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setHeadline(CharSequence);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setStartIcon(androidx.car.app.model.CarIcon);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setStartIcon(androidx.car.app.model.CarIcon, int);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setSubtitle(androidx.car.app.model.CarText);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setSubtitle(CharSequence);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setSubtitle(androidx.car.app.model.CarText?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setSubtitle(CharSequence?);
   }
 
   @androidx.car.app.annotations.CarProtocol public final class SectionedItemList {
