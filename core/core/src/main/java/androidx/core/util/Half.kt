@@ -28,8 +28,6 @@ import androidx.annotation.RequiresApi
  *
  * @see Half.valueOf
  */
-// TODO https://youtrack.jetbrains.com/issue/KT-21696
-@Suppress("WRONG_ANNOTATION_TARGET_WITH_USE_SITE_TARGET_ON_TYPE")
 @RequiresApi(26)
 public inline fun @receiver:Suppress("NoByteOrShort") @receiver:HalfFloat Short.toHalf(): Half =
     Half.valueOf(this)
