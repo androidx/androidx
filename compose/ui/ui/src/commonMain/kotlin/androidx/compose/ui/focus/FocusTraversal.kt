@@ -33,6 +33,7 @@ import androidx.compose.ui.focus.FocusStateImpl.Captured
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.findRootCoordinates
+import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.node.visitAncestors
@@ -157,7 +158,10 @@ internal fun FocusTargetNode.focusRect(): Rect {
 
 /** Whether this node should be considered when searching for the next item during a traversal. */
 internal val FocusTargetNode.isEligibleForFocusSearch: Boolean
-    get() = coordinator?.layoutNode?.isPlaced == true && coordinator?.layoutNode?.isAttached == true
+    get() =
+        coordinator?.layoutNode?.isPlaced == true &&
+            coordinator?.layoutNode?.isAttached == true &&
+            !isOccludedByInteractionBarrier()
 
 internal val FocusTargetNode.activeChild: FocusTargetNode?
     get() {
@@ -183,4 +187,102 @@ internal fun FocusTargetNode.findActiveFocusNode(): FocusTargetNode? {
 private fun FocusTargetNode.findNonDeactivatedParent(): FocusTargetNode? {
     visitAncestors(Nodes.FocusTarget) { if (it.fetchFocusProperties().canFocus) return it }
     return null
+}
+
+internal fun FocusTargetNode.isOccludedByInteractionBarrier(): Boolean {
+    val myLayoutNode = coordinator?.layoutNode ?: return false
+    val owner = myLayoutNode.owner ?: return false
+    val activeBarriers = owner.focusOwner.activeInteractionBarriers ?: return false
+    if (activeBarriers.isEmpty()) return false
+
+    val rootCoords = owner.root.coordinates
+    val myBoundsInRoot =
+        coordinator?.let {
+            if (it.isAttached) rootCoords.localBoundingBoxOf(it, false) else return false
+        } ?: return false
+
+    for (i in 0 until activeBarriers.size) {
+        val barrierNode = activeBarriers[i]
+        if (!barrierNode.isAttached) continue
+        val barrierLayoutNode = barrierNode.coordinator?.layoutNode ?: continue
+        if (!barrierLayoutNode.isPlaced) continue
+        if (barrierLayoutNode === myLayoutNode) continue
+
+        // Fast-exit: if barrier doesn't contain focus target bounds, it cannot occlude it
+        val barrierBoundsInRoot =
+            barrierLayoutNode.coordinates.let {
+                if (it.isAttached) rootCoords.localBoundingBoxOf(it, false) else return false
+            }
+        if (!barrierBoundsInRoot.contains(myBoundsInRoot)) {
+            continue
+        }
+
+        // Check if barrier is ancestor
+        val lca = findLca(myLayoutNode, barrierLayoutNode) ?: continue
+        if (lca === barrierLayoutNode) {
+            // Barrier is ancestor, does not occlude me
+            continue
+        }
+
+        // Compare z-order at LCA level
+        val childFocus = findChildOfLca(lca, myLayoutNode) ?: continue
+        val childBarrier = findChildOfLca(lca, barrierLayoutNode) ?: continue
+
+        val zSorted = lca.zSortedChildren
+        val indexFocus = zSorted.indexOf(childFocus)
+        val indexBarrier = zSorted.indexOf(childBarrier)
+
+        if (indexBarrier > indexFocus) {
+            return true
+        }
+    }
+
+    return false
+}
+
+private fun findLca(node1: LayoutNode, node2: LayoutNode): LayoutNode? {
+    var depth1 = 0
+    var curr1: LayoutNode? = node1
+    while (curr1 != null) {
+        depth1++
+        curr1 = curr1.parent
+    }
+
+    var depth2 = 0
+    var curr2: LayoutNode? = node2
+    while (curr2 != null) {
+        depth2++
+        curr2 = curr2.parent
+    }
+
+    curr1 = node1
+    curr2 = node2
+
+    while (depth1 > depth2) {
+        curr1 = curr1?.parent
+        depth1--
+    }
+    while (depth2 > depth1) {
+        curr2 = curr2?.parent
+        depth2--
+    }
+
+    while (curr1 != null && curr2 != null && curr1 !== curr2) {
+        curr1 = curr1.parent
+        curr2 = curr2.parent
+    }
+
+    return if (curr1 === curr2) curr1 else null
+}
+
+private fun findChildOfLca(lca: LayoutNode, descendant: LayoutNode): LayoutNode? {
+    var curr = descendant
+    while (curr.parent != null && curr.parent !== lca) {
+        curr = curr.parent!!
+    }
+    return if (curr.parent === lca) curr else null
+}
+
+private operator fun Rect.contains(other: Rect): Boolean {
+    return left <= other.left && right >= other.right && top <= other.top && bottom >= other.bottom
 }

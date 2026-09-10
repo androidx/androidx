@@ -47,6 +47,8 @@ import androidx.compose.ui.node.visitAncestors
  * [properties][FocusProperties] have been specified.
  */
 internal fun FocusTargetNode.performRequestFocus(): Boolean {
+    if (isOccludedByInteractionBarrier()) return false
+
     val focusOwner = requireOwner().focusOwner
     val previousActiveNode = focusOwner.activeFocusTargetNode
     val previousFocusState = focusState

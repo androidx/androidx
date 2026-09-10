@@ -358,7 +358,7 @@ internal class FocusTargetNode(
             Captured -> {
                 lateinit var focusProperties: FocusProperties
                 observeReads { focusProperties = fetchFocusProperties() }
-                if (!focusProperties.canFocus) {
+                if (!focusProperties.canFocus || isOccludedByInteractionBarrier()) {
                     requireOwner().focusOwner.clearFocus(force = true)
                 }
             }
