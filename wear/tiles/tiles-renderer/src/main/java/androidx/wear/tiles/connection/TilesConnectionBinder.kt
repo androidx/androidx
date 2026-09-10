@@ -125,7 +125,13 @@ internal class TilesConnectionBinder(
         return when {
             cachedTileProvider?.asBinder()?.isBinderAlive == true -> cachedTileProvider
             cachedConnectBinderJob != null -> cachedConnectBinderJob.await()
-            else -> connectToService()
+            else -> {
+                // Clean up the dead connection before reconnecting.
+                if (cachedTileProvider != null) {
+                    disconnectFromService()
+                }
+                connectToService()
+            }
         }
     }
 
