@@ -3808,12 +3808,10 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             if (SDK_INT < Q) {
                 val getAccessibilityViewIdMethod =
                     getAccessibilityViewIdMethod
-                        ?: Class.forName("android.view.View")
-                            .getDeclaredMethod("getAccessibilityViewId")
-                            .also {
-                                getAccessibilityViewIdMethod = it
-                                it.isAccessible = true
-                            }
+                        ?: View::class.java.getDeclaredMethod("getAccessibilityViewId").also {
+                            getAccessibilityViewIdMethod = it
+                            it.isAccessible = true
+                        }
                 if (getAccessibilityViewIdMethod.invoke(currentView) == accessibilityId) {
                     return currentView
                 }
@@ -3848,12 +3846,16 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                 return if (SDK_INT >= Q) {
                     val findViewByAccessibilityIdTraversalMethod =
                         findViewByAccessibilityIdTraversalMethod
-                            ?: Class.forName("android.view.View")
+                            ?: View::class
+                                .java
                                 .getDeclaredMethod(
                                     "findViewByAccessibilityIdTraversal",
                                     Int::class.java,
                                 )
-                    findViewByAccessibilityIdTraversalMethod.isAccessible = true
+                                .also {
+                                    findViewByAccessibilityIdTraversalMethod = it
+                                    it.isAccessible = true
+                                }
                     findViewByAccessibilityIdTraversalMethod.invoke(view, accessibilityId) as? View
                 } else {
                     findViewByAccessibilityIdRootedAtCurrentView(accessibilityId, view)
