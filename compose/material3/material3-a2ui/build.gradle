@@ -34,23 +34,23 @@ dependencies {
     api(project(":a2ui:a2ui-model"))
     api(project(":a2ui:compose:compose-runtime"))
     api(project(":a2ui:compose:compose-ui"))
-    api("androidx.compose.animation:animation:1.11.4")
+    api("androidx.compose.animation:animation:1.13.0-alpha03")
 
     implementation(project(":a2ui:a2ui-engine"))
-    implementation("androidx.compose.foundation:foundation:1.11.4")
-    implementation(project(":compose:material3:material3"))
-    implementation("androidx.compose.runtime:runtime:1.11.4")
-    implementation("androidx.compose.ui:ui:1.11.4")
+    implementation("androidx.compose.foundation:foundation:1.13.0-alpha03")
+    implementation("androidx.compose.material3:material3:1.5.0-alpha28")
+    implementation("androidx.compose.runtime:runtime:1.13.0-alpha03")
+    implementation("androidx.compose.ui:ui:1.13.0-alpha03")
 
-    debugImplementation(project(":compose:ui:ui-test-manifest"))
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.13.0-alpha03")
 
     testImplementation(libs.kotlinTest)
     testImplementation(libs.truth)
     testImplementation(libs.junit)
 
-    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
-    androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":a2ui:compose:compose-ui-testing"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.13.0-alpha03")
+    androidTestImplementation("androidx.compose.ui:ui-test:1.13.0-alpha03")
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testRunner)
@@ -61,7 +61,7 @@ dependencies {
 
 android {
     namespace = "androidx.compose.material3.a2ui"
-    compileSdk { version = release(37) }
+    compileSdk { version = release(37) { minorApiLevel = 1 } }
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
