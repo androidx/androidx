@@ -74,6 +74,7 @@ import java.lang.ref.PhantomReference
 import java.lang.ref.ReferenceQueue
 import java.lang.ref.WeakReference
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -498,23 +499,22 @@ class ProcessCameraProviderTest(
     }
 
     class PreviewSurfaceProvider : Preview.SurfaceProvider {
-        var surfaceRequestLatch = CountDownLatch(1)
-        var frameLatch: CountDownLatch? = null
+        private val surfaceRequestSemaphore = Semaphore(0)
+        private val frameSemaphore = Semaphore(0)
         val surfaceProviderImpl = SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider {
-            frameLatch?.countDown()
+            frameSemaphore.release()
         }
 
         override fun onSurfaceRequested(request: SurfaceRequest) {
-            frameLatch = CountDownLatch(1)
+            frameSemaphore.drainPermits()
             surfaceProviderImpl.onSurfaceRequested(request)
-            surfaceRequestLatch.countDown()
+            surfaceRequestSemaphore.release()
         }
 
         fun assertFramesReceivedAfterSurfaceRequested(timeoutSeconds: Long = 10) {
-            assertThat(surfaceRequestLatch?.await(timeoutSeconds, TimeUnit.SECONDS)).isTrue()
-            assertThat(frameLatch?.await(timeoutSeconds, TimeUnit.SECONDS)).isTrue()
-            frameLatch = null
-            surfaceRequestLatch = CountDownLatch(1)
+            assertThat(surfaceRequestSemaphore.tryAcquire(1, timeoutSeconds, TimeUnit.SECONDS))
+                .isTrue()
+            assertThat(frameSemaphore.tryAcquire(1, timeoutSeconds, TimeUnit.SECONDS)).isTrue()
         }
     }
 
