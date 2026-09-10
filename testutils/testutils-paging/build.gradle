@@ -47,6 +47,12 @@ androidXMultiplatform {
             implementation(project(":paging:paging-common"))
             implementation(libs.kotlinTest)
         }
+        jsMain.dependencies {
+            implementation("org.jetbrains.kotlin:kotlin-test-js:${libs.versions.kotlin.get()}")
+        }
+        wasmJsMain.dependencies {
+            implementation("org.jetbrains.kotlin:kotlin-test-wasm-js:${libs.versions.kotlin.get()}")
+        }
     }
 }
 

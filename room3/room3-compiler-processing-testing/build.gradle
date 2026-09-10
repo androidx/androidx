@@ -57,5 +57,5 @@ androidx {
     type = SoftwareType.ANNOTATION_PROCESSOR_UTILS
     inceptionYear = "2020"
     description = "Testing helpers for Room XProcessing APIs"
-    kotlinTarget = KotlinTarget.KOTLIN_2_3
+    kotlinTarget = KotlinTarget.KOTLIN_2_4
 }

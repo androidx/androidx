@@ -522,9 +522,9 @@ private fun DecoratedAbiValueParameter.isBinaryCompatibleWith(
     errors: CompatibilityErrors,
 ) {
     type.isBinaryCompatibleWith(otherParam.type, parentQualifiedName, errors)
-    if (effectiveIsVararg != otherParam.effectiveIsVararg) {
+    if (isVararg != otherParam.isVararg) {
         errors.add(
-            "isVararg changed from ${otherParam.effectiveIsVararg} to $effectiveIsVararg for parameter " +
+            "isVararg changed from ${otherParam.isVararg} to $isVararg for parameter " +
                 "${asString()} of $parentQualifiedName"
         )
     }

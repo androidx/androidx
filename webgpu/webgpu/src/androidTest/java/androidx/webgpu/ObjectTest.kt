@@ -26,7 +26,7 @@ import org.junit.runner.RunWith
 @SmallTest
 class ObjectTest {
     init {
-        Util // Hack to force library initialization.
+        @Suppress("UNUSED_EXPRESSION") Util // Hack to force library initialization.
     }
 
     @Test

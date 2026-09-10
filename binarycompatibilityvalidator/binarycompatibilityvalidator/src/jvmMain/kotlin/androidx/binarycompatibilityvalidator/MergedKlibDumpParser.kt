@@ -87,8 +87,7 @@ class MergedKlibDumpParser(private val dumpText: String, private val filePath: S
             }
         }
         return targetContent.mapValues { (_, list) ->
-            val cleaned = cleanInputFile(list.joinToString("\n"))
-            KlibDumpParser(cleaned, filePath).parse()
+            KlibDumpParser(list.joinToString("\n"), filePath).parse()
         }
     }
 
@@ -100,14 +99,3 @@ class MergedKlibDumpParser(private val dumpText: String, private val filePath: S
     // For example, take 'linuxX64' from 'linuxX64.linuxx64Stubs'
     private fun extractTargetName(target: String) = target.trim().split(".").first()
 }
-
-fun cleanInputFile(input: String): String =
-    input.split("\n").joinToString("\n") { line ->
-        // b/493871040
-        if (line.trim().startsWith("enum entry")) {
-            val indexOfExtraSpace = line.indexOf("//") - 1
-            line.removeRange(indexOfExtraSpace, indexOfExtraSpace + 1)
-        } else {
-            line
-        }
-    }
