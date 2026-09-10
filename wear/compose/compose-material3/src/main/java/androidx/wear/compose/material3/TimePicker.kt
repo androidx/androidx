@@ -156,6 +156,8 @@ public fun TimePicker(
     colors: TimePickerColors = TimePickerDefaults.timePickerColors(),
     initialSelection: TimePickerSelection = TimePickerDefaults.timePickerSelection(timePickerType),
 ) {
+    StatusBarSuppression()
+
     val inspectionMode = LocalInspectionMode.current
     val fullyDrawn = remember { Animatable(if (inspectionMode) 1f else 0f) }
 

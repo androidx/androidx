@@ -15,7 +15,8 @@
   limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application
         android:allowBackup="true"
@@ -23,6 +24,12 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault">
+
+        <!-- Global Status Bar Enablement Flag -->
+        <meta-data
+            android:name="com.google.wear.ENABLE_GLOBAL_STATUS_BAR"
+            android:value="true"
+            tools:ignore="MetadataTagInsideApplicationTag" />
         <activity
             android:name=".DemoActivity"
             android:theme="@android:style/Theme.DeviceDefault"
