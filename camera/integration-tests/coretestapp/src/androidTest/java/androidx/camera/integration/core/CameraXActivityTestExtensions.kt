@@ -47,16 +47,16 @@ private fun CountDownLatch.awaitOrThrow(
 }
 
 /**
- * Extension to wait for a specific view to be fully interactive at the OS level. This ensures the
- * Window has focus and the view is ready to receive touch events, preventing the system from
- * swallowing clicks during lifecycle transitions.
+ * Extension to wait for a specific view to be ready.
+ *
+ * For programmatic clicks via [clickView] / [View.performClick], window focus is not required, but
+ * the view must be attached, visible, and enabled.
  */
-/** Tiered check: Focus is required for Clicks, but not for Preview frames. */
 internal fun ActivityScenario<CameraXActivity>.waitUntilViewReady(
     viewId: Int,
-    requireFocus: Boolean = true,
+    requireFocus: Boolean = false,
     timeoutMs: Long = 10000L,
-) {
+) = runBlocking {
     val deadline = System.currentTimeMillis() + timeoutMs
     var isReady = false
 
@@ -68,17 +68,16 @@ internal fun ActivityScenario<CameraXActivity>.waitUntilViewReady(
             val baseReady =
                 view != null && view.isAttachedToWindow && view.visibility == View.VISIBLE
 
-            // Only require focus if we intend to perform an Input event (click)
             isReady =
                 if (requireFocus) {
                     baseReady && activity.hasWindowFocus() && view.isEnabled
                 } else {
-                    baseReady
+                    baseReady && view.isEnabled
                 }
         }
 
-        if (isReady) return
-        Thread.yield()
+        if (isReady) return@runBlocking
+        delay(50.milliseconds)
     }
 
     throw TimeoutException("View $viewId ready=$isReady focus required:$requireFocus")
@@ -173,7 +172,7 @@ internal fun ActivityScenario<CameraXActivity>.recordVideoAndWaitForVideoSavedId
 
 /** Clicks a view directly on the UI thread, bypassing Espresso's touch coordinate issues. */
 internal fun ActivityScenario<CameraXActivity>.clickView(viewId: Int) {
-    waitUntilViewReady(viewId, requireFocus = true)
+    waitUntilViewReady(viewId)
     onActivity { activity ->
         val view = activity.findViewById<View>(viewId)
         assertWithMessage("View $viewId not found").that(view).isNotNull()
