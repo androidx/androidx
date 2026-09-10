@@ -1014,7 +1014,18 @@ class FragmentTransitionSeekingTest {
 
             val fragment2 = TransitionFragment(R.layout.scene6)
             fragment2.setEnterTransition(Fade())
-            fragment2.setReturnTransition(Fade())
+            val fragment2ReturnCountDownLatch = CountDownLatch(1)
+            fragment2.setReturnTransition(
+                Fade().apply {
+                    addListener(
+                        object : TransitionListenerAdapter() {
+                            override fun onTransitionEnd(transition: Transition) {
+                                fragment2ReturnCountDownLatch.countDown()
+                            }
+                        }
+                    )
+                }
+            )
 
             val greenSquare = fragment1.requireView().findViewById<View>(R.id.greenSquare)
 
@@ -1039,6 +1050,8 @@ class FragmentTransitionSeekingTest {
 
             withActivity { dispatcher.dispatchOnBackCancelled() }
             executePendingTransactions()
+
+            assertThat(fragment2ReturnCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
 
             assertThat(fragment2.isAdded).isFalse()
             assertThat(fm1.findFragmentByTag("1")).isNotNull()
