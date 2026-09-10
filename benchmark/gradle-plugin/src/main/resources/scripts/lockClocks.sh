@@ -54,6 +54,20 @@ if [ "`command -v getprop`" == "" ]; then
     fi
 fi
 
+
+# note: can't simply check exit code, it isn't reliably non-0 when a failure occurs (seen on API 24)
+# also dropping stdout, since it's inconsistently printed in error cases
+cmd power set-fixed-performance-mode-enabled true > /dev/null 2> /data/local/tmp/fixedError
+exitCode=$?
+if [ $exitCode -ne 0 ] || [ -s /data/local/tmp/fixedError ]; then
+    echo "Device does not support fixed perf mode, trying manual lock with root..."
+    echo ""
+else
+    echo "Locked clocks with fixed performance mode."
+    echo "To reset, run 'cmd power set-fixed-performance-mode-enabled false'"
+    exit 0
+fi
+
 # require root
 if [[ `id` != "uid=0"* ]]; then
     echo "Not running as root, cannot lock clocks, aborting"
