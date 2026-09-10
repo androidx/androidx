@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -38,7 +39,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
@@ -447,6 +450,258 @@ public fun ImageCard(
     )
 }
 
+/**
+ * LeadingImageCard is a component used to group related information into a single digestible unit,
+ * featuring a leading [image]. A leading image card contains text [content], and may also have any
+ * combination of [title] and [subtitle]. If specified, [title] is placed on top of the [subtitle],
+ * which is placed on top of the [content]. A leading image card fills the maximum width available
+ * by default.
+ *
+ * This LeadingImageCard is focusable - see the other [LeadingImageCard] overload for a clickable
+ * LeadingImageCard.
+ *
+ * @param image the image to be placed before the text content. This image is allocated 30% of the
+ *   card width.
+ * @param modifier the [Modifier] to be applied to this card
+ * @param title optional title to be placed above [subtitle] and [content]
+ * @param subtitle optional subtitle to be placed above [content], below [title]
+ * @param shape the [Shape] used to clip this card, and also used to draw the background and border
+ * @param color background color of this card
+ * @param contentColor content color used by components inside [content], [title], and [subtitle]
+ * @param contentPadding the spacing values to apply internally between the container and the
+ *   content. Note that there is additional padding applied around the content / text / image inside
+ *   a card, this only affects the outermost content padding.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting Interactions for this card. You can use this to change the card's appearance or
+ *   preview the card in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
+ * @param content the main content / body text to display inside this card. This is recommended to
+ *   be limited to 10 lines of text.
+ */
+@Composable
+public fun LeadingImageCard(
+    image: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    title: @Composable (() -> Unit)? = null,
+    subtitle: @Composable (() -> Unit)? = null,
+    shape: Shape = LeadingImageCardDefaults.shape,
+    color: Color = LeadingImageCardDefaults.color,
+    contentColor: Color = LeadingImageCardDefaults.contentColor(color),
+    contentPadding: PaddingValues = LeadingImageCardDefaults.contentPadding,
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable () -> Unit,
+) {
+    val internalInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
+    val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
+    SmallImageCardImpl(
+        modifier =
+            modifier
+                .surface(
+                    shape = shape,
+                    color = color,
+                    contentColor = contentColor,
+                    interactionSource = internalInteractionSource,
+                )
+                .focusable(interactionSource = internalInteractionSource),
+        image = image,
+        title = title,
+        subtitle = subtitle,
+        contentPadding = contentPadding,
+        isLeading = isLtr,
+        content = content,
+    )
+}
+
+/**
+ * LeadingImageCard is a component used to group related information into a single digestible unit,
+ * featuring a leading [image]. A leading image card contains text [content], and may also have any
+ * combination of [title] and [subtitle]. If specified, [title] is placed on top of the [subtitle],
+ * which is placed on top of the [content]. A leading image card fills the maximum width available
+ * by default.
+ *
+ * This LeadingImageCard is focusable and clickable - see the other [LeadingImageCard] overload for
+ * a LeadingImageCard that is only focusable.
+ *
+ * @param onClick called when this card item is clicked
+ * @param image the image to be placed before the text content. This image is allocated 30% of the
+ *   card width.
+ * @param modifier the [Modifier] to be applied to this card
+ * @param title optional title to be placed above [subtitle] and [content]
+ * @param subtitle optional subtitle to be placed above [content], below [title]
+ * @param shape the [Shape] used to clip this card, and also used to draw the background and border
+ * @param color background color of this card
+ * @param contentColor content color used by components inside [content], [title], and [subtitle]
+ * @param contentPadding the spacing values to apply internally between the container and the
+ *   content. Note that there is additional padding applied around the content / text / image inside
+ *   a card, this only affects the outermost content padding.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting Interactions for this card. You can use this to change the card's appearance or
+ *   preview the card in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
+ * @param content the main content / body text to display inside this card. This is recommended to
+ *   be limited to 10 lines of text.
+ */
+@Composable
+public fun LeadingImageCard(
+    onClick: () -> Unit,
+    image: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    title: @Composable (() -> Unit)? = null,
+    subtitle: @Composable (() -> Unit)? = null,
+    shape: Shape = LeadingImageCardDefaults.shape,
+    color: Color = LeadingImageCardDefaults.color,
+    contentColor: Color = LeadingImageCardDefaults.contentColor(color),
+    contentPadding: PaddingValues = LeadingImageCardDefaults.contentPadding,
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable () -> Unit,
+) {
+    val internalInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
+    val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
+    SmallImageCardImpl(
+        modifier =
+            modifier
+                .surface(
+                    shape = shape,
+                    color = color,
+                    contentColor = contentColor,
+                    interactionSource = internalInteractionSource,
+                )
+                .clickable(interactionSource = internalInteractionSource, onClick = onClick),
+        image = image,
+        title = title,
+        subtitle = subtitle,
+        contentPadding = contentPadding,
+        isLeading = isLtr,
+        content = content,
+    )
+}
+
+/**
+ * TrailingImageCard is a component used to group related information into a single digestible unit,
+ * featuring a trailing [image]. A trailing image card contains text [content], and may also have
+ * any combination of [title] and [subtitle]. If specified, [title] is placed on top of the
+ * [subtitle], which is placed on top of the [content]. A trailing image card fills the maximum
+ * width available by default.
+ *
+ * This TrailingImageCard is focusable - see the other [TrailingImageCard] overload for a clickable
+ * TrailingImageCard.
+ *
+ * @param image the image to be placed after the text content. This image is allocated 30% of the
+ *   card width.
+ * @param modifier the [Modifier] to be applied to this card
+ * @param title optional title to be placed above [subtitle] and [content]
+ * @param subtitle optional subtitle to be placed above [content], below [title]
+ * @param shape the [Shape] used to clip this card, and also used to draw the background and border
+ * @param color background color of this card
+ * @param contentColor content color used by components inside [content], [title], and [subtitle]
+ * @param contentPadding the spacing values to apply internally between the container and the
+ *   content. Note that there is additional padding applied around the content / text / image inside
+ *   a card, this only affects the outermost content padding.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting Interactions for this card. You can use this to change the card's appearance or
+ *   preview the card in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
+ * @param content the main content / body text to display inside this card. This is recommended to
+ *   be limited to 10 lines of text.
+ */
+@Composable
+public fun TrailingImageCard(
+    image: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    title: @Composable (() -> Unit)? = null,
+    subtitle: @Composable (() -> Unit)? = null,
+    shape: Shape = TrailingImageCardDefaults.shape,
+    color: Color = TrailingImageCardDefaults.color,
+    contentColor: Color = TrailingImageCardDefaults.contentColor(color),
+    contentPadding: PaddingValues = TrailingImageCardDefaults.contentPadding,
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable () -> Unit,
+) {
+    val internalInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
+    val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
+    SmallImageCardImpl(
+        modifier =
+            modifier
+                .surface(
+                    shape = shape,
+                    color = color,
+                    contentColor = contentColor,
+                    interactionSource = internalInteractionSource,
+                )
+                .focusable(interactionSource = internalInteractionSource),
+        image = image,
+        title = title,
+        subtitle = subtitle,
+        contentPadding = contentPadding,
+        isLeading = !isLtr,
+        content = content,
+    )
+}
+
+/**
+ * TrailingImageCard is a component used to group related information into a single digestible unit,
+ * featuring a trailing [image]. A trailing image card contains text [content], and may also have
+ * any combination of [title] and [subtitle]. If specified, [title] is placed on top of the
+ * [subtitle], which is placed on top of the [content]. A trailing image card fills the maximum
+ * width available by default.
+ *
+ * This TrailingImageCard is focusable and clickable - see the other [TrailingImageCard] overload
+ * for a TrailingImageCard that is only focusable.
+ *
+ * @param onClick called when this card item is clicked
+ * @param image the image to be placed after the text content. This image is allocated 30% of the
+ *   card width.
+ * @param modifier the [Modifier] to be applied to this card
+ * @param title optional title to be placed above [subtitle] and [content]
+ * @param subtitle optional subtitle to be placed above [content], below [title]
+ * @param shape the [Shape] used to clip this card, and also used to draw the background and border
+ * @param color background color of this card
+ * @param contentColor content color used by components inside [content], [title], and [subtitle]
+ * @param contentPadding the spacing values to apply internally between the container and the
+ *   content. Note that there is additional padding applied around the content / text / image inside
+ *   a card, this only affects the outermost content padding.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting Interactions for this card. You can use this to change the card's appearance or
+ *   preview the card in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
+ * @param content the main content / body text to display inside this card. This is recommended to
+ *   be limited to 10 lines of text.
+ */
+@Composable
+public fun TrailingImageCard(
+    onClick: () -> Unit,
+    image: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    title: @Composable (() -> Unit)? = null,
+    subtitle: @Composable (() -> Unit)? = null,
+    shape: Shape = TrailingImageCardDefaults.shape,
+    color: Color = TrailingImageCardDefaults.color,
+    contentColor: Color = TrailingImageCardDefaults.contentColor(color),
+    contentPadding: PaddingValues = TrailingImageCardDefaults.contentPadding,
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable () -> Unit,
+) {
+    val internalInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
+    val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
+    SmallImageCardImpl(
+        modifier =
+            modifier
+                .surface(
+                    shape = shape,
+                    color = color,
+                    contentColor = contentColor,
+                    interactionSource = internalInteractionSource,
+                )
+                .clickable(interactionSource = internalInteractionSource, onClick = onClick),
+        image = image,
+        title = title,
+        subtitle = subtitle,
+        contentPadding = contentPadding,
+        isLeading = !isLtr,
+        content = content,
+    )
+}
+
 @Composable
 private fun CardImpl(
     modifier: Modifier,
@@ -537,6 +792,78 @@ private fun CardImpl(
         // b/436852852 - in a list the button won't be focused until it crosses the focus line.
         action?.let {
             Box(modifier = Modifier.fillMaxWidth(), propagateMinConstraints = true) { it() }
+        }
+    }
+}
+
+@Composable
+private fun SmallImageCardImpl(
+    modifier: Modifier,
+    image: @Composable () -> Unit,
+    title: @Composable (() -> Unit)?,
+    subtitle: @Composable (() -> Unit)?,
+    contentPadding: PaddingValues,
+    isLeading: Boolean,
+    content: @Composable () -> Unit,
+) {
+    val typography = GlimmerTheme.typography
+    val componentSpacingValues = GlimmerTheme.componentSpacingValues
+    val innerPadding = componentSpacingValues.small
+    val imageSpacing = componentSpacingValues.medium
+
+    Row(
+        modifier =
+            modifier
+                .defaultMinSize(minHeight = MinimumHeight)
+                .fillMaxWidth()
+                .padding(contentPadding),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (isLeading) {
+            Box(
+                modifier = Modifier.weight(ImageWidthFraction).clip(ImageShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                image()
+            }
+        }
+
+        Column(
+            modifier =
+                Modifier.weight(1f - ImageWidthFraction)
+                    .padding(
+                        start = if (isLeading) imageSpacing else innerPadding,
+                        end = if (isLeading) innerPadding else imageSpacing,
+                    ),
+            verticalArrangement = Arrangement.spacedBy(TextVerticalSpacing),
+        ) {
+            if (title != null) {
+                CompositionLocalProvider(
+                    LocalTextStyle provides typography.bodyMedium,
+                    content = title,
+                )
+            }
+
+            if (subtitle != null) {
+                CompositionLocalProvider(
+                    LocalTextStyle provides typography.caption,
+                    content = subtitle,
+                )
+            }
+
+            CompositionLocalProvider(
+                LocalTextStyle provides typography.bodySmall,
+                content = content,
+            )
+        }
+
+        if (!isLeading) {
+            Box(
+                modifier = Modifier.weight(ImageWidthFraction).clip(ImageShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                image()
+            }
         }
     }
 }
@@ -718,6 +1045,70 @@ public object ImageCardDefaults {
     }
 }
 
+/** Default values used for [LeadingImageCard] */
+public object LeadingImageCardDefaults {
+    /**
+     * Default content padding used for a [LeadingImageCard]
+     *
+     * This affects the outermost content padding applied around the image and the content
+     * container. Note that there is additional padding applied around the content / text / image
+     * inside a leading image card, this only represents the outer padding for the entire content.
+     */
+    public val contentPadding: PaddingValues
+        @Composable get() = CardDefaults.contentPadding
+
+    /** The default shape of [LeadingImageCard], which determines its corner radius. */
+    public val shape: Shape
+        @Composable get() = CardDefaults.shape
+
+    /** The default background color of [LeadingImageCard]. */
+    public val color: Color
+        @Composable get() = CardDefaults.color
+
+    /**
+     * Calculates the default content color for a [LeadingImageCard] based on the provided [color].
+     *
+     * @param color the background color of the leading image card
+     * @return the calculated content color
+     */
+    @Composable
+    public fun contentColor(color: Color = LeadingImageCardDefaults.color): Color {
+        return CardDefaults.contentColor(color)
+    }
+}
+
+/** Default values used for [TrailingImageCard] */
+public object TrailingImageCardDefaults {
+    /**
+     * Default content padding used for a [TrailingImageCard]
+     *
+     * This affects the outermost content padding applied around the image and the content
+     * container. Note that there is additional padding applied around the content / text / image
+     * inside a trailing image card, this only represents the outer padding for the entire content.
+     */
+    public val contentPadding: PaddingValues
+        @Composable get() = CardDefaults.contentPadding
+
+    /** The default shape of [TrailingImageCard], which determines its corner radius. */
+    public val shape: Shape
+        @Composable get() = CardDefaults.shape
+
+    /** The default background color of [TrailingImageCard]. */
+    public val color: Color
+        @Composable get() = CardDefaults.color
+
+    /**
+     * Calculates the default content color for a [TrailingImageCard] based on the provided [color].
+     *
+     * @param color the background color of the trailing image card
+     * @return the calculated content color
+     */
+    @Composable
+    public fun contentColor(color: Color = TrailingImageCardDefaults.color): Color {
+        return CardDefaults.contentColor(color)
+    }
+}
+
 /** Default minimum height for a [Card] */
 private val MinimumHeight = 80.dp
 
@@ -732,3 +1123,6 @@ private val ImageShape = RoundedCornerShape(24.dp)
  * much vertical space
  */
 private const val HeaderImageMaximumAspectRatio = 1.6f
+
+/** Maximum width fraction for leading and trailing images in a card */
+private const val ImageWidthFraction = 0.3f

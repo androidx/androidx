@@ -34,7 +34,9 @@ import androidx.xr.glimmer.Card
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Icon
 import androidx.xr.glimmer.ImageCard
+import androidx.xr.glimmer.LeadingImageCard
 import androidx.xr.glimmer.Text
+import androidx.xr.glimmer.TrailingImageCard
 import androidx.xr.glimmer.list.GlimmerLazyColumn
 
 @Composable
@@ -49,6 +51,8 @@ fun CardSampleUsage() {
         item { ActionCardWithTitleAndLeadingIcon() }
         item { ImageCardSample() }
         item { ImageCardWithTitleAndSubtitleAndLeadingIconSample() }
+        item { LeadingImageCardSample() }
+        item { TrailingImageCardSample() }
     }
 }
 
@@ -227,6 +231,32 @@ fun ClickableImageCardWithTitleAndSubtitleAndLeadingIconSample() {
 }
 
 // -------------------------------------------------------------------------------------------------
+// Leading/Trailing ImageCard samples
+// -------------------------------------------------------------------------------------------------
+
+@Composable
+fun LeadingImageCardSample() {
+    LeadingImageCard(
+        image = { Image(MyImage, "Localized description") },
+        title = { Text("Title") },
+        subtitle = { Text("Subtitle") },
+    ) {
+        Text("This is a card with a leading image.")
+    }
+}
+
+@Composable
+fun TrailingImageCardSample() {
+    TrailingImageCard(
+        image = { Image(MyImage, "Localized description") },
+        title = { Text("Title") },
+        subtitle = { Text("Subtitle") },
+    ) {
+        Text("This is a card with a trailing image.")
+    }
+}
+
+// -------------------------------------------------------------------------------------------------
 // Previews
 // -------------------------------------------------------------------------------------------------
 
@@ -288,6 +318,18 @@ private fun ImageCardPreview() {
 @Composable
 private fun ImageCardWithTitleAndSubtitleAndLeadingIconPreview() {
     GlimmerTheme { ImageCardWithTitleAndSubtitleAndLeadingIconSample() }
+}
+
+@Preview
+@Composable
+private fun LeadingImageCardPreview() {
+    GlimmerTheme { LeadingImageCardSample() }
+}
+
+@Preview
+@Composable
+private fun TrailingImageCardPreview() {
+    GlimmerTheme { TrailingImageCardSample() }
 }
 
 fun placeholderImagePainter(intrinsicSize: Size): Painter =
