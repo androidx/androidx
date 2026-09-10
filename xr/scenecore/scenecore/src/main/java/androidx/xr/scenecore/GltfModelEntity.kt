@@ -61,6 +61,8 @@ private constructor(rtGltfEntity: RtGltfEntity, entityRegistry: EntityRegistry) 
      * The returned list corresponds to the flattened array of nodes defined in the source glTF
      * file. The order of elements in this list is guaranteed to match the order of nodes in the
      * glTF file's `nodes` array.
+     *
+     * @throws IllegalStateException if the entity has been disposed.
      */
     public val nodes: List<GltfModelNode>
         @MainThread
@@ -99,6 +101,8 @@ private constructor(rtGltfEntity: RtGltfEntity, entityRegistry: EntityRegistry) 
      * The returned list corresponds to the array of animations defined in the source glTF file. The
      * order of elements in this list is guaranteed to match the order of animations in the glTF
      * file's `animations` array.
+     *
+     * @throws IllegalStateException if the entity has been disposed.
      */
     @MainThread
     public fun getAnimations(): List<GltfAnimation> {
@@ -112,6 +116,8 @@ private constructor(rtGltfEntity: RtGltfEntity, entityRegistry: EntityRegistry) 
      * Calling this method stops all animations that are currently in the
      * [GltfAnimation.AnimationState.PLAYING] or [GltfAnimation.AnimationState.PAUSED] state. If no
      * animations are playing or paused, this method has no effect.
+     *
+     * @throws IllegalStateException if the entity has been disposed.
      */
     @MainThread
     public fun stopAllAnimations() {
