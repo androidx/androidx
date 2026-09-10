@@ -810,6 +810,7 @@ internal abstract class DragGestureNode(
                 // pointer in the same event. If we used isChangedToDown (which requires all
                 // pointers to change to down), the touch gesture would be ignored because the
                 // hover pointer didn't change to down.
+                if (!pointerEvent.isAnyChangedToDown(requireUnconsumed = false)) return
                 pointerEvent.changes.fastFirstOrNull { it.changedToDownIgnoreConsumed() } ?: return
             } else {
                 if (!pointerEvent.isChangedToDown(requireUnconsumed = false)) return
@@ -1457,10 +1458,12 @@ private const val VerticalAngleUpperBounds = 90
  * a persistent non-pressed pointer (like a trackpad hover pointer) is present in the same event,
  * while still ignoring new down events if there is already an active touch gesture.
  */
-private fun PointerEvent.isAnyChangedToDown(requireUnconsumed: Boolean): Boolean {
+internal fun PointerEvent.isAnyChangedToDown(
+    requireUnconsumed: Boolean,
+    onlyPrimaryMouseButton: Boolean = firstDownRefersToPrimaryMouseButtonOnly(),
+): Boolean {
     val onlyPrimaryButtonCausesDown =
-        firstDownRefersToPrimaryMouseButtonOnly() &&
-            changes.fastAll { it.type == PointerType.Mouse }
+        onlyPrimaryMouseButton && changes.fastAll { it.type == PointerType.Mouse }
     if (onlyPrimaryButtonCausesDown && !buttons.isPrimaryPressed) return false
 
     // Check if there are any other pressed pointers that did not change to down.
