@@ -157,7 +157,13 @@ fun TimePickerSwitchableSample() {
     val state = rememberTimePickerState()
     val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
     val snackState = remember { SnackbarHostState() }
-    var displayMode by rememberSaveable { mutableStateOf(TimePickerDisplayMode.Picker) }
+    var isPickerMode by rememberSaveable { mutableStateOf(true) }
+    val displayMode =
+        if (isPickerMode) {
+            TimePickerDisplayMode.Picker
+        } else {
+            TimePickerDisplayMode.Input
+        }
     val snackScope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
 
@@ -193,14 +199,7 @@ fun TimePickerSwitchableSample() {
             modeToggleButton = {
                 if (configuration.screenHeightDp.dp > MinHeightForTimePicker) {
                     TimePickerDialogDefaults.DisplayModeToggle(
-                        onDisplayModeChange = {
-                            displayMode =
-                                if (displayMode == TimePickerDisplayMode.Picker) {
-                                    TimePickerDisplayMode.Input
-                                } else {
-                                    TimePickerDisplayMode.Picker
-                                }
-                        },
+                        onDisplayModeChange = { isPickerMode = !isPickerMode },
                         displayMode = displayMode,
                     )
                 }
@@ -310,7 +309,13 @@ fun VibrantTimePickerSwitchableSample() {
     val state = rememberTimePickerState()
     val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
     val snackState = remember { SnackbarHostState() }
-    var displayMode by rememberSaveable { mutableStateOf(TimePickerDisplayMode.Picker) }
+    var isPickerMode by rememberSaveable { mutableStateOf(true) }
+    val displayMode =
+        if (isPickerMode) {
+            TimePickerDisplayMode.Picker
+        } else {
+            TimePickerDisplayMode.Input
+        }
     val snackScope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
     Box(propagateMinConstraints = false) {
@@ -343,14 +348,7 @@ fun VibrantTimePickerSwitchableSample() {
             modeToggleButton = {
                 if (configuration.screenHeightDp.dp > MinHeightForTimePicker) {
                     TimePickerDialogDefaults.DisplayModeToggle(
-                        onDisplayModeChange = {
-                            displayMode =
-                                if (displayMode == TimePickerDisplayMode.Picker) {
-                                    TimePickerDisplayMode.Input
-                                } else {
-                                    TimePickerDisplayMode.Picker
-                                }
-                        },
+                        onDisplayModeChange = { isPickerMode = !isPickerMode },
                         displayMode = displayMode,
                     )
                 }
@@ -376,7 +374,13 @@ fun VibrantTimePickerScrollSample() {
     val state = rememberTimePickerState()
     val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
     val snackState = remember { SnackbarHostState() }
-    var displayMode by rememberSaveable { mutableStateOf(TimePickerDisplayMode.Scroll) }
+    var isScrollMode by rememberSaveable { mutableStateOf(true) }
+    val displayMode =
+        if (isScrollMode) {
+            TimePickerDisplayMode.Scroll
+        } else {
+            TimePickerDisplayMode.Input
+        }
     val snackScope = rememberCoroutineScope()
 
     Box(propagateMinConstraints = false) {
@@ -409,14 +413,7 @@ fun VibrantTimePickerScrollSample() {
             dismissButton = { TextButton(onClick = { showTimePicker = false }) { Text("Cancel") } },
             modeToggleButton = {
                 TimePickerDialogDefaults.ScrollDisplayModeToggle(
-                    onDisplayModeChange = {
-                        displayMode =
-                            if (displayMode == TimePickerDisplayMode.Scroll) {
-                                TimePickerDisplayMode.Input
-                            } else {
-                                TimePickerDisplayMode.Scroll
-                            }
-                    },
+                    onDisplayModeChange = { isScrollMode = !isScrollMode },
                     displayMode = displayMode,
                 )
             },
