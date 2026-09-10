@@ -1373,11 +1373,11 @@ package androidx.compose.ui.graphics.blur {
   }
 
   @androidx.compose.runtime.Immutable public final class BlurStop {
-    ctor @KotlinOnly public BlurStop(float fraction, androidx.compose.ui.unit.Dp radius);
-    ctor @BytecodeOnly public BlurStop(float, float, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method @InaccessibleFromKotlin public float getFraction();
+    ctor @KotlinOnly public BlurStop(@FloatRange(from=0.0, to=1.0) float fraction, androidx.compose.ui.unit.Dp radius);
+    ctor @BytecodeOnly public BlurStop(@FloatRange(from=0.0, to=1.0) float, float, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin @FloatRange(from=0.0, to=1.0) public float getFraction();
     method @BytecodeOnly public float getRadius-D9Ej5fM();
-    property public float fraction;
+    property @FloatRange(from=0.0, to=1.0) public float fraction;
     property public androidx.compose.ui.unit.Dp radius;
     field public static final int MaxStops = 16; // 0x10
   }
