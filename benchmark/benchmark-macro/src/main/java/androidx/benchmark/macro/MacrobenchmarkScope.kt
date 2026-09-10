@@ -659,7 +659,7 @@ public class MacrobenchmarkScope(
                     stagingFile.delete()
                     Shell.rm(tracePath)
                 }
-            val traceLabel = "MethodTrace iteration ${iteration ?: 0}"
+            val traceLabel = "Method Trace Iteration ${iteration ?: 0}"
             // Keep track of the label and the corresponding output paths.
             methodTraces += traceLabel to outputPath
         }

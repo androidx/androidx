@@ -35,10 +35,12 @@ package androidx.benchmark {
 
   @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkConfigApi public final class ExperimentalConfig {
     ctor public ExperimentalConfig();
-    ctor public ExperimentalConfig(optional androidx.benchmark.perfetto.PerfettoConfig? perfettoConfig, optional androidx.benchmark.StartupInsightsConfig? startupInsightsConfig);
-    ctor @BytecodeOnly public ExperimentalConfig(androidx.benchmark.perfetto.PerfettoConfig!, androidx.benchmark.StartupInsightsConfig!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public ExperimentalConfig(optional androidx.benchmark.perfetto.PerfettoConfig? perfettoConfig, optional androidx.benchmark.StartupInsightsConfig? startupInsightsConfig, optional androidx.benchmark.MemoryProfilingConfig? memoryProfilingConfig);
+    ctor @BytecodeOnly public ExperimentalConfig(androidx.benchmark.perfetto.PerfettoConfig!, androidx.benchmark.StartupInsightsConfig!, androidx.benchmark.MemoryProfilingConfig!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public androidx.benchmark.MemoryProfilingConfig? getMemoryProfilingConfig();
     method @InaccessibleFromKotlin public androidx.benchmark.perfetto.PerfettoConfig? getPerfettoConfig();
     method @InaccessibleFromKotlin public androidx.benchmark.StartupInsightsConfig? getStartupInsightsConfig();
+    property public androidx.benchmark.MemoryProfilingConfig? memoryProfilingConfig;
     property public androidx.benchmark.perfetto.PerfettoConfig? perfettoConfig;
     property public androidx.benchmark.StartupInsightsConfig? startupInsightsConfig;
   }
@@ -47,6 +49,14 @@ package androidx.benchmark {
     enum_constant public static final androidx.benchmark.InProcessTracingMode Disable;
     enum_constant public static final androidx.benchmark.InProcessTracingMode Require;
     enum_constant public static final androidx.benchmark.InProcessTracingMode UseIfAvailable;
+  }
+
+  @SuppressCompatibility @RequiresApi(29) @androidx.benchmark.ExperimentalBenchmarkConfigApi public final class MemoryProfilingConfig {
+    ctor public MemoryProfilingConfig(boolean isSampleArtHeapEnabled, boolean isSampleNativeHeapEnabled);
+    method @InaccessibleFromKotlin public boolean isSampleArtHeapEnabled();
+    method @InaccessibleFromKotlin public boolean isSampleNativeHeapEnabled();
+    property public boolean isSampleArtHeapEnabled;
+    property public boolean isSampleNativeHeapEnabled;
   }
 
   @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkConfigApi public abstract class MetricCapture {

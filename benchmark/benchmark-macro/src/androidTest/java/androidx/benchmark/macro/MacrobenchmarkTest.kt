@@ -23,16 +23,23 @@ import androidx.benchmark.DeviceInfo
 import androidx.benchmark.DeviceMirroring
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
 import androidx.benchmark.ExperimentalConfig
+import androidx.benchmark.MemoryProfilingConfig
+import androidx.benchmark.Outputs
 import androidx.benchmark.json.BenchmarkData
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper
+import androidx.benchmark.runServer
+import androidx.benchmark.runSingleSessionServer
+import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.tracing.trace
+import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
@@ -344,6 +351,156 @@ class MacrobenchmarkTest {
         } finally {
             DeviceInfo.canShellAccessAppFilesOverride = null
         }
+
+    @LargeTest
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun macrobenchmark_memoryProfiling_recordsMemoryTrace() {
+        try {
+            DeviceInfo.canShellAccessAppFilesOverride = true
+            val result =
+                macrobenchmarkWithStartupMode(
+                    uniqueName = "memoryProfilingTest",
+                    className = "className",
+                    testName = "testName",
+                    packageName = Packages.TARGET,
+                    metrics = listOf(TraceSectionMetric(TRACE_LABEL, targetPackageOnly = false)),
+                    compilationMode = CompilationMode.Ignore(),
+                    iterations = 1,
+                    startupMode = StartupMode.COLD,
+                    experimentalConfig =
+                        ExperimentalConfig(
+                            memoryProfilingConfig =
+                                MemoryProfilingConfig(
+                                    isSampleArtHeapEnabled = true,
+                                    isSampleNativeHeapEnabled = true,
+                                )
+                        ),
+                    setupBlock = {},
+                    measureBlock = {},
+                )
+            val memoryProfilerOutputs =
+                result.profilerOutputs?.filter { it.label.contains("Memory Profiling") }
+            assertNotNull(memoryProfilerOutputs)
+            assertEquals(
+                1,
+                memoryProfilerOutputs.size,
+                "Expected exactly one memory profiling trace output",
+            )
+            val memoryProfilerOutput = memoryProfilerOutputs.single()
+            val memoryTracePath = memoryProfilerOutput.filename
+            assertTrue(
+                Regex("""^memoryProfilingTest_iter\d{3}-memoryProfiling_.*\.perfetto-trace$""")
+                    .matches(memoryTracePath),
+                "Expected memory trace filename matching '<uniqueName>_iter<iter>-memoryProfiling_<date>.perfetto-trace', but got: $memoryTracePath",
+            )
+            val memoryTraceFile =
+                File(Outputs.outputDirectory, memoryTracePath).let {
+                    if (it.exists()) it else File(Outputs.dirUsableByAppAndShell, memoryTracePath)
+                }
+            assertTrue(
+                memoryTraceFile.exists(),
+                "Expected memory trace file to exist: ${memoryTraceFile.absolutePath}",
+            )
+            TraceProcessor.runSingleSessionServer(memoryTraceFile.absolutePath) {
+                val artCount =
+                    query(
+                            "SELECT count(*) as count FROM heap_profile_allocation WHERE heap_name = 'com.android.art'"
+                        )
+                        .first()
+                        .long("count")
+                val nativeCount =
+                    query(
+                            "SELECT count(*) as count FROM heap_profile_allocation WHERE heap_name = 'libc.malloc'"
+                        )
+                        .first()
+                        .long("count")
+                assertTrue(
+                    artCount >= 0,
+                    "Expected non-negative ART heap allocation count, got $artCount",
+                )
+                assertTrue(
+                    nativeCount >= 0,
+                    "Expected non-negative native heap allocation count, got $nativeCount",
+                )
+            }
+        } finally {
+            DeviceInfo.canShellAccessAppFilesOverride = null
+        }
+    }
+
+    @LargeTest
+    @Test
+    fun runPhase_setsIterationAndFileLabelPerIteration() {
+        assumeTrue(PerfettoHelper.isAbiSupported())
+        TraceProcessor.runServer {
+            val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = false)
+            val setupIterations = mutableListOf<Int?>()
+            val executionIterations = mutableListOf<Int>()
+            val fileLabels = mutableListOf<String>()
+
+            val results =
+                runPhase(
+                    uniqueName = "myTestPhase",
+                    packageName = Packages.TARGET,
+                    macrobenchmarkPackageName = Packages.TEST,
+                    iterations = 3,
+                    startupMode = null,
+                    scope = scope,
+                    profiler = null,
+                    metrics = emptyList(),
+                    experimentalConfig = null,
+                    tracingLibraryConfig = null,
+                    setupBlock = { setupIterations.add(iteration) },
+                    measureBlock = {
+                        executionIterations.add(scope.iteration ?: -1)
+                        fileLabels.add(scope.fileLabel)
+                    },
+                )
+
+            assertEquals(listOf<Int?>(0, 1, 2), setupIterations)
+            assertEquals(listOf(0, 1, 2), executionIterations)
+            assertEquals(
+                listOf("myTestPhase_iter000", "myTestPhase_iter001", "myTestPhase_iter002"),
+                fileLabels,
+            )
+            assertEquals(3, results.size)
+            results.forEach { iterResult ->
+                assertTrue(File(checkNotNull(iterResult.tracePath)).exists())
+            }
+        }
+    }
+
+    @LargeTest
+    @Test
+    fun runPhase_appliesTraceSuffixToFileLabel() {
+        assumeTrue(PerfettoHelper.isAbiSupported())
+        TraceProcessor.runServer {
+            val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = false)
+            val fileLabels = mutableListOf<String>()
+
+            val results =
+                runPhase(
+                    uniqueName = "myTestPhase",
+                    packageName = Packages.TARGET,
+                    macrobenchmarkPackageName = Packages.TEST,
+                    iterations = 1,
+                    startupMode = null,
+                    scope = scope,
+                    profiler = null,
+                    metrics = emptyList(),
+                    experimentalConfig = null,
+                    tracingLibraryConfig = null,
+                    traceSuffix = "-memoryProfiling",
+                    setupBlock = {},
+                    measureBlock = { fileLabels.add(scope.fileLabel) },
+                )
+
+            assertEquals(listOf("myTestPhase_iter000-memoryProfiling"), fileLabels)
+            assertEquals(1, results.size)
+            assertTrue(File(checkNotNull(results.single().tracePath)).exists())
+        }
+    }
 
     companion object {
         const val TRACE_LABEL = "MacrobencharkTestTraceLabel"
