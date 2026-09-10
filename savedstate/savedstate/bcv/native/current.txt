@@ -80,7 +80,9 @@ final class androidx.savedstate/SavedStateRegistry { // androidx.savedstate/Save
     final val isRestored // androidx.savedstate/SavedStateRegistry.isRestored|{}isRestored[0]
         final fun <get-isRestored>(): kotlin/Boolean // androidx.savedstate/SavedStateRegistry.isRestored.<get-isRestored>|<get-isRestored>(){}[0]
 
+    final fun asContainer(): androidx.savedstate/SavedStateContainer // androidx.savedstate/SavedStateRegistry.asContainer|asContainer(){}[0]
     final fun consumeRestoredStateForKey(kotlin/String): androidx.savedstate/SavedState? // androidx.savedstate/SavedStateRegistry.consumeRestoredStateForKey|consumeRestoredStateForKey(kotlin.String){}[0]
+    final fun createOrGetContainer(kotlin/String): androidx.savedstate/SavedStateContainer // androidx.savedstate/SavedStateRegistry.createOrGetContainer|createOrGetContainer(kotlin.String){}[0]
     final fun getSavedStateProvider(kotlin/String): androidx.savedstate/SavedStateRegistry.SavedStateProvider? // androidx.savedstate/SavedStateRegistry.getSavedStateProvider|getSavedStateProvider(kotlin.String){}[0]
     final fun registerSavedStateProvider(kotlin/String, androidx.savedstate/SavedStateRegistry.SavedStateProvider) // androidx.savedstate/SavedStateRegistry.registerSavedStateProvider|registerSavedStateProvider(kotlin.String;androidx.savedstate.SavedStateRegistry.SavedStateProvider){}[0]
     final fun unregisterSavedStateProvider(kotlin/String) // androidx.savedstate/SavedStateRegistry.unregisterSavedStateProvider|unregisterSavedStateProvider(kotlin.String){}[0]

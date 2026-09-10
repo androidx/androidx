@@ -190,7 +190,9 @@ package androidx.savedstate {
   public final class SavedStateRegistry {
     ctor public SavedStateRegistry();
     ctor public SavedStateRegistry(android.os.Bundle? initialState);
+    method @MainThread public androidx.savedstate.SavedStateContainer asContainer();
     method @MainThread public android.os.Bundle? consumeRestoredStateForKey(String key);
+    method @MainThread public androidx.savedstate.SavedStateContainer createOrGetContainer(String key);
     method public androidx.savedstate.SavedStateRegistry.SavedStateProvider? getSavedStateProvider(String key);
     method @InaccessibleFromKotlin @MainThread public boolean isRestored();
     method @MainThread public void registerSavedStateProvider(String key, androidx.savedstate.SavedStateRegistry.SavedStateProvider provider);

@@ -293,6 +293,16 @@ class SavedStateRegistryTest {
         owner.lifecycleRegistry.currentState = Lifecycle.State.STARTED
     }
 
+    @UiThreadTest
+    @Test
+    fun createOrGetContainer_createsOrGetsChildContainer() {
+        val registry = SavedStateRegistry()
+        val childContainer = registry.createOrGetContainer("child")
+        assertThat(childContainer).isNotNull()
+        assertThat(registry.createOrGetContainer("child")).isSameInstanceAs(childContainer)
+        assertThat("child" in registry.asContainer()).isTrue()
+    }
+
     private class TestFlow(val lastState: Bundle?) {
         fun recreate(block: (FakeSavedStateRegistryOwner) -> Unit): TestFlow {
             val fakeOwner = FakeSavedStateRegistryOwner()
