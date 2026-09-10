@@ -48,7 +48,12 @@ androidXMultiplatform {
             implementation(libs.kotlinCoroutinesTest)
             implementation(libs.kotlinReflect)
         }
-
+        jsMain.dependencies {
+            implementation("org.jetbrains.kotlin:kotlin-test-js:${libs.versions.kotlin.get()}")
+        }
+        wasmJsMain.dependencies {
+            implementation("org.jetbrains.kotlin:kotlin-test-wasm-js:${libs.versions.kotlin.get()}")
+        }
         create("unixMain").dependsOn(nativeMain)
         appleMain.dependsOn(unixMain)
         linuxMain.dependsOn(unixMain)

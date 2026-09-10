@@ -11,3 +11,9 @@ RemovedMethod: androidx.compose.ui.text.input.ImeOptions#ImeOptions():
     Binary breaking change: Removed constructor androidx.compose.ui.text.input.ImeOptions()
 RemovedMethod: androidx.compose.ui.text.style.TextIndent#TextIndent():
     Binary breaking change: Removed constructor androidx.compose.ui.text.style.TextIndent()
+AddedMethod: androidx.compose.ui.text.ParagraphStyle#ParagraphStyle():
+    Added constructor androidx.compose.ui.text.ParagraphStyle()
+AddedMethod: androidx.compose.ui.text.input.ImeOptions#ImeOptions():
+    Added constructor androidx.compose.ui.text.input.ImeOptions()
+AddedMethod: androidx.compose.ui.text.style.TextIndent#TextIndent():
+    Added constructor androidx.compose.ui.text.style.TextIndent()

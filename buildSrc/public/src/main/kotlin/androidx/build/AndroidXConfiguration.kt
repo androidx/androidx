@@ -38,11 +38,11 @@ interface AndroidXConfiguration {
 }
 
 enum class KotlinTarget(val apiVersion: KotlinVersion, val catalogVersion: String) {
-    KOTLIN_2_1(KotlinVersion.KOTLIN_2_1, "kotlin21"),
     KOTLIN_2_2(KotlinVersion.KOTLIN_2_2, "kotlin22"),
     KOTLIN_2_3(KotlinVersion.KOTLIN_2_3, "kotlin23"),
-    DEFAULT(KOTLIN_2_1),
-    LATEST(KOTLIN_2_3);
+    KOTLIN_2_4(KotlinVersion.KOTLIN_2_4, "kotlin24"),
+    DEFAULT(KOTLIN_2_2),
+    LATEST(KOTLIN_2_4);
 
     constructor(
         kotlinTarget: KotlinTarget

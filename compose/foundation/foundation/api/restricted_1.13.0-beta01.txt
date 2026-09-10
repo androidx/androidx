@@ -337,6 +337,7 @@ package androidx.compose.foundation {
   }
 
   @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public final class OverscrollConfiguration {
+    ctor @BytecodeOnly @Deprecated public OverscrollConfiguration();
     ctor @KotlinOnly @Deprecated public OverscrollConfiguration(optional androidx.compose.ui.graphics.Color glowColor, optional androidx.compose.foundation.layout.PaddingValues drawPadding);
     ctor @BytecodeOnly @Deprecated public OverscrollConfiguration(long, androidx.compose.foundation.layout.PaddingValues!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly @Deprecated public OverscrollConfiguration(long, androidx.compose.foundation.layout.PaddingValues!, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -3147,6 +3148,7 @@ package androidx.compose.foundation.text {
   }
 
   @androidx.compose.runtime.Immutable public final class KeyboardOptions {
+    ctor @BytecodeOnly public KeyboardOptions();
     ctor @KotlinOnly @Deprecated public KeyboardOptions(optional androidx.compose.ui.text.input.KeyboardCapitalization capitalization, boolean autoCorrect, optional androidx.compose.ui.text.input.KeyboardType keyboardType, optional androidx.compose.ui.text.input.ImeAction imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions, optional Boolean? showKeyboardOnFocus, optional androidx.compose.ui.text.intl.LocaleList? hintLocales);
     ctor @KotlinOnly public KeyboardOptions(optional androidx.compose.ui.text.input.KeyboardCapitalization capitalization, optional Boolean? autoCorrectEnabled, optional androidx.compose.ui.text.input.KeyboardType keyboardType, optional androidx.compose.ui.text.input.ImeAction imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions, optional Boolean? showKeyboardOnFocus, optional androidx.compose.ui.text.intl.LocaleList? hintLocales);
     ctor @BytecodeOnly public KeyboardOptions(int, boolean, int, int, androidx.compose.ui.text.input.PlatformImeOptions!, int, kotlin.jvm.internal.DefaultConstructorMarker!);

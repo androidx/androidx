@@ -207,7 +207,7 @@ class SaveableStateHolderTest {
                     restorableNumberOnScreen1 = rememberSaveable { increment++ }
                 } else {
                     // screen 2
-                    @Suppress("UNUSED_EXPRESSION") remember { 100 }
+
                 }
             }
         }
@@ -249,7 +249,7 @@ class SaveableStateHolderTest {
                     restorableNumberOnScreen1 = rememberSaveable { increment++ }
                 } else {
                     // screen 2
-                    @Suppress("UNUSED_EXPRESSION") remember { 100 }
+
                 }
             }
         }
@@ -283,7 +283,7 @@ class SaveableStateHolderTest {
                     restorableNumberOnScreen1 = rememberSaveable { increment++ }
                 } else {
                     // screen 2
-                    @Suppress("UNUSED_EXPRESSION") remember { 100 }
+
                 }
             }
         }

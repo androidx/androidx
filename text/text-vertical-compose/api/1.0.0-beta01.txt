@@ -25,6 +25,7 @@ package androidx.text.vertical.compose {
   }
 
   @androidx.compose.runtime.Immutable public final class VerticalTextStyle {
+    ctor @BytecodeOnly public VerticalTextStyle();
     ctor @KotlinOnly public VerticalTextStyle(optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.unit.TextUnit fontSize, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional String? fontFeatureSettings, optional androidx.compose.ui.graphics.Color background, optional androidx.compose.ui.text.intl.LocaleList? localeList);
     ctor @BytecodeOnly public VerticalTextStyle(long, long, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, androidx.compose.ui.text.font.FontFamily!, String!, long, androidx.compose.ui.text.intl.LocaleList!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public VerticalTextStyle(long, long, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, androidx.compose.ui.text.font.FontFamily!, String!, long, androidx.compose.ui.text.intl.LocaleList!, kotlin.jvm.internal.DefaultConstructorMarker!);

@@ -18,6 +18,7 @@ package androidx.build.docs
 
 import androidx.build.KonanPrebuiltsSetup
 import androidx.build.clang.ClangBuildService
+import androidx.build.configureNode
 import androidx.build.configureTaskTimeouts
 import androidx.build.dackka.DackkaTask
 import androidx.build.dackka.DokkaAnalysisPlatform
@@ -113,6 +114,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         // Configure this as a KMP project.
         KonanPrebuiltsSetup.configureKonanDirectory(project)
         configureTargets(project, docsType)
+        project.configureNode()
 
         disableUnneededTasks(project)
         val configurations = Configurations(project)

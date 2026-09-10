@@ -440,6 +440,7 @@ package androidx.compose.ui.text {
   }
 
   @androidx.compose.runtime.Immutable public final class ParagraphStyle implements androidx.compose.ui.text.AnnotatedString.Annotation {
+    ctor @BytecodeOnly public ParagraphStyle();
     ctor @KotlinOnly public ParagraphStyle(optional androidx.compose.ui.text.style.TextAlign textAlign, optional androidx.compose.ui.text.style.TextDirection textDirection, optional androidx.compose.ui.unit.TextUnit lineHeight, optional androidx.compose.ui.text.style.TextIndent? textIndent, optional androidx.compose.ui.text.PlatformParagraphStyle? platformStyle, optional androidx.compose.ui.text.style.LineHeightStyle? lineHeightStyle, optional androidx.compose.ui.text.style.LineBreak lineBreak, optional androidx.compose.ui.text.style.Hyphens hyphens, optional androidx.compose.ui.text.style.TextMotion? textMotion);
     ctor @BytecodeOnly public ParagraphStyle(androidx.compose.ui.text.style.TextAlign!, androidx.compose.ui.text.style.TextDirection!, long, androidx.compose.ui.text.style.TextIndent!, androidx.compose.ui.text.PlatformParagraphStyle!, androidx.compose.ui.text.style.LineHeightStyle!, androidx.compose.ui.text.style.LineBreak!, androidx.compose.ui.text.style.Hyphens!, androidx.compose.ui.text.style.TextMotion!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly @Deprecated public ParagraphStyle(androidx.compose.ui.text.style.TextAlign!, androidx.compose.ui.text.style.TextDirection!, long, androidx.compose.ui.text.style.TextIndent!, androidx.compose.ui.text.PlatformParagraphStyle!, androidx.compose.ui.text.style.LineHeightStyle!, androidx.compose.ui.text.style.LineBreak!, androidx.compose.ui.text.style.Hyphens!, androidx.compose.ui.text.style.TextMotion!, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -1467,6 +1468,7 @@ package androidx.compose.ui.text.input {
   }
 
   @androidx.compose.runtime.Immutable public final class ImeOptions {
+    ctor @BytecodeOnly public ImeOptions();
     ctor @KotlinOnly public ImeOptions(optional boolean singleLine, optional androidx.compose.ui.text.input.KeyboardCapitalization capitalization, optional boolean autoCorrect, optional androidx.compose.ui.text.input.KeyboardType keyboardType, optional androidx.compose.ui.text.input.ImeAction imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions, optional androidx.compose.ui.text.intl.LocaleList hintLocales);
     ctor @BytecodeOnly public ImeOptions(boolean, int, boolean, int, int, androidx.compose.ui.text.input.PlatformImeOptions!, androidx.compose.ui.text.intl.LocaleList!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public ImeOptions(boolean, int, boolean, int, int, androidx.compose.ui.text.input.PlatformImeOptions!, androidx.compose.ui.text.intl.LocaleList!, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -2156,6 +2158,7 @@ package androidx.compose.ui.text.style {
   }
 
   @androidx.compose.runtime.Immutable public final class TextIndent {
+    ctor @BytecodeOnly public TextIndent();
     ctor @KotlinOnly public TextIndent(optional androidx.compose.ui.unit.TextUnit firstLine, optional androidx.compose.ui.unit.TextUnit restLine);
     ctor @BytecodeOnly public TextIndent(long, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public TextIndent(long, long, kotlin.jvm.internal.DefaultConstructorMarker!);

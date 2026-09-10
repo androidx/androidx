@@ -680,10 +680,10 @@ class TrackDatabasesTest {
         val onReleasedHooks =
             this.filter { it.originMethod == ALL_REFERENCES_RELEASED_COMMAND_SIGNATURE }
         assertThat(onReleasedHooks).hasSize(2)
-        val onReleasedEntry = (onReleasedHooks.first { it is Hook.EntryHook }.asEntryHook)::onEntry
-        val onReleasedExit = (onReleasedHooks.first { it is Hook.ExitHook }.asExitHook)::onExit
-        onReleasedEntry(db, emptyList())
-        onReleasedExit(null)
+        val onReleasedEntryHook = onReleasedHooks.first { it is Hook.EntryHook }.asEntryHook
+        val onReleasedExitHook = onReleasedHooks.first { it is Hook.ExitHook }.asExitHook
+        onReleasedEntryHook.onEntry(db, emptyList())
+        onReleasedExitHook.onExit(null)
     }
 
     private fun assertOpen(db: SQLiteDatabase) {

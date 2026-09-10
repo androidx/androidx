@@ -181,6 +181,7 @@ package androidx.wear.compose.material {
   }
 
   @androidx.compose.runtime.Immutable @androidx.compose.runtime.Stable public final class Colors {
+    ctor @BytecodeOnly public Colors();
     ctor @KotlinOnly public Colors(optional androidx.compose.ui.graphics.Color primary, optional androidx.compose.ui.graphics.Color primaryVariant, optional androidx.compose.ui.graphics.Color secondary, optional androidx.compose.ui.graphics.Color secondaryVariant, optional androidx.compose.ui.graphics.Color background, optional androidx.compose.ui.graphics.Color surface, optional androidx.compose.ui.graphics.Color error, optional androidx.compose.ui.graphics.Color onPrimary, optional androidx.compose.ui.graphics.Color onSecondary, optional androidx.compose.ui.graphics.Color onBackground, optional androidx.compose.ui.graphics.Color onSurface, optional androidx.compose.ui.graphics.Color onSurfaceVariant, optional androidx.compose.ui.graphics.Color onError);
     ctor @BytecodeOnly public Colors(long, long, long, long, long, long, long, long, long, long, long, long, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public Colors(long, long, long, long, long, long, long, long, long, long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);

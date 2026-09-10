@@ -76,7 +76,7 @@ class AugmentedImageDatabaseTest {
         assertFailsWith<IllegalArgumentException> {
             imageDatabase.addAugmentedImageDatabaseEntry(
                 AugmentedImageDatabaseEntryMode.DYNAMIC,
-                Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_4444),
+                Bitmap.createBitmap(1, 1, @Suppress("DEPRECATION") Bitmap.Config.ARGB_4444),
             )
         }
     }
