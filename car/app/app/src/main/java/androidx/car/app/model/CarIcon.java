@@ -246,17 +246,36 @@ public final class CarIcon {
     /**
      * Creates a tinted {@link CarIcon}.
      *
-     * <p>By default, using this builder allows the host vehicle system to automatically tint the
+     * <p>By default, using this method allows the host vehicle system to automatically tint the
      * icon based on the active template theme. To apply a custom tint instead, use {@link
-     * Builder#Builder(IconCompat, CarIconStyle)} or {@link Builder#setStyle(CarIconStyle)} with
-     * {@link CarIconStyle.Builder#setTint(CarColor)}.
+     * #createTintedIcon(IconCompat, CarColor)}.
      *
      * @param icon The base icon graphic.
      * @return A styled {@link CarIcon} instance configured with {@link CarIconStyle#TINTED}.
+     * @throws NullPointerException if {@code icon} is {@code null}
+     * @see #createTintedIcon(IconCompat, CarColor)
      */
     @NonNull
     public static CarIcon createTintedIcon(@NonNull IconCompat icon) {
         return new Builder(icon, CarIconStyle.TINTED).build();
+    }
+
+    /**
+     * Creates a tinted {@link CarIcon} with the given {@link CarColor} tint.
+     *
+     * @param icon The base icon graphic.
+     * @param tint The custom tint color to apply to the icon.
+     * @return A styled {@link CarIcon} instance configured with {@link CarIconStyle#TINTED} and the
+     *     specified tint.
+     * @throws NullPointerException if {@code icon} or {@code tint} is {@code null}
+     * @see #createTintedIcon(IconCompat)
+     */
+    @NonNull
+    public static CarIcon createTintedIcon(@NonNull IconCompat icon, @NonNull CarColor tint) {
+        requireNonNull(icon);
+        requireNonNull(tint);
+        CarIconStyle style = new CarIconStyle.Builder(CarIconStyle.TINTED).setTint(tint).build();
+        return new Builder(icon, style).build();
     }
 
     /**
@@ -443,6 +462,7 @@ public final class CarIcon {
          * contents of the URI will result in the host showing a stale image.
          *
          * <p><b>Note:</b> It is recommended to use {@link CarIcon#createTintedIcon(IconCompat)},
+         * {@link CarIcon#createTintedIcon(IconCompat, CarColor)},
          * {@link CarIcon#createOriginalIcon(IconCompat)}, or {@link #Builder(IconCompat,
          * CarIconStyle)} to explicitly specify visual styling behavior. This constructor will be
          * deprecated in a future release.
@@ -540,7 +560,7 @@ public final class CarIcon {
          * @see android.graphics.drawable.Drawable#setTintMode(Mode)
          * @deprecated Use {@link CarIcon.Builder#setStyle(CarIconStyle)} and provide a tint via
          *     {@link CarIconStyle.Builder#setTint(CarColor)}, or use {@link
-         *     CarIcon#createTintedIcon(IconCompat)} instead.
+         *     CarIcon#createTintedIcon(IconCompat, CarColor)} instead.
          */
         @Deprecated
         public @NonNull Builder setTint(@NonNull CarColor tint) {

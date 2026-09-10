@@ -251,4 +251,26 @@ public class CarIconTest {
         assertThat(carIcon.getTint()).isEqualTo(GREEN);
         assertThat(carIcon.getStyle().getTint()).isEqualTo(GREEN);
     }
+
+    @Test
+    public void createTintedIcon_withCustomTint_factoryMethod() {
+        CarIcon carIcon = CarIcon.createTintedIcon(mIcon, BLUE);
+
+        assertThat(carIcon.getType()).isEqualTo(TYPE_CUSTOM);
+        assertThat(carIcon.getIcon()).isEqualTo(mIcon);
+        assertThat(carIcon.getTint()).isEqualTo(BLUE);
+        assertThat(carIcon.getStyle()).isNotNull();
+        assertThat(carIcon.getStyle().getTint()).isEqualTo(BLUE);
+    }
+
+    @Test
+    public void createTintedIcon_nullIcon_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> CarIcon.createTintedIcon(null));
+        assertThrows(NullPointerException.class, () -> CarIcon.createTintedIcon(null, BLUE));
+    }
+
+    @Test
+    public void createTintedIcon_nullTint_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> CarIcon.createTintedIcon(mIcon, null));
+    }
 }
