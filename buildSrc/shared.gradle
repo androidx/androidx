@@ -44,7 +44,7 @@ tasks.withType(KotlinCompile).configureEach { task ->
                 "-Xskip-metadata-version-check",
                 "-Xjdk-release=17",
         )
-        languageVersion.set(KotlinVersion.KOTLIN_2_1)
-        apiVersion.set(KotlinVersion.KOTLIN_2_1)
+        languageVersion.set(KotlinVersion.KOTLIN_2_3)
+        apiVersion.set(KotlinVersion.KOTLIN_2_3)
     }
 }

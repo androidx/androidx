@@ -641,6 +641,7 @@ package androidx.compose.ui.graphics {
   }
 
   @androidx.compose.runtime.Immutable public final class LayerOutsets {
+    ctor @BytecodeOnly public LayerOutsets();
     ctor @KotlinOnly public LayerOutsets(optional androidx.compose.ui.unit.Dp left, optional androidx.compose.ui.unit.Dp top, optional androidx.compose.ui.unit.Dp right, optional androidx.compose.ui.unit.Dp bottom);
     ctor @BytecodeOnly public LayerOutsets(float, float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public LayerOutsets(float, float, float, float, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -1190,6 +1191,7 @@ package androidx.compose.ui.graphics {
   }
 
   @androidx.compose.runtime.Immutable public final class Shadow {
+    ctor @BytecodeOnly public Shadow();
     ctor @KotlinOnly public Shadow(optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.geometry.Offset offset, optional float blurRadius);
     ctor @BytecodeOnly public Shadow(long, long, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public Shadow(long, long, float, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -1849,6 +1851,7 @@ package androidx.compose.ui.graphics.drawscope {
   }
 
   public final class Stroke extends androidx.compose.ui.graphics.drawscope.DrawStyle {
+    ctor @BytecodeOnly public Stroke();
     ctor @KotlinOnly public Stroke(optional float width, optional float miter, optional androidx.compose.ui.graphics.StrokeCap cap, optional androidx.compose.ui.graphics.StrokeJoin join, optional androidx.compose.ui.graphics.PathEffect? pathEffect);
     ctor @BytecodeOnly public Stroke(float, float, int, int, androidx.compose.ui.graphics.PathEffect!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public Stroke(float, float, int, int, androidx.compose.ui.graphics.PathEffect!, kotlin.jvm.internal.DefaultConstructorMarker!);

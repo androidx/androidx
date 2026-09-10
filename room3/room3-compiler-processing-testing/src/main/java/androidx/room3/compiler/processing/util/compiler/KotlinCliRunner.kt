@@ -127,12 +127,6 @@ internal object KotlinCliRunner {
         cliArguments.jvmTarget = getJvmTarget(kotlincArguments).description
         cliArguments.jvmDefaultStable = getJvmDefaultMode(kotlincArguments).description
 
-        // useJavac & compileJava are experimental so lets not use it for now.
-        cliArguments.useJavac = false
-        cliArguments.compileJava = false
-
-        cliArguments.javacArguments = javacArguments.toTypedArray()
-
         val inherited =
             if (inheritClasspaths) {
                 TestClasspath.inheritedClasspath

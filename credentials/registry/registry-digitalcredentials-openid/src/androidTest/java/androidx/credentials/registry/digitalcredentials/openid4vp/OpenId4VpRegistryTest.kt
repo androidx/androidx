@@ -45,8 +45,10 @@ class OpenId4VpRegistryTest {
 
     private companion object {
         private val TEST_ICON_1 = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
-        private val TEST_ICON_2 = Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_4444)
-        private val TEST_ICON_3 = Bitmap.createBitmap(20, 10, Bitmap.Config.ARGB_4444)
+        private val TEST_ICON_2 =
+            Bitmap.createBitmap(20, 20, @Suppress("DEPRECATION") Bitmap.Config.ARGB_4444)
+        private val TEST_ICON_3 =
+            Bitmap.createBitmap(20, 10, @Suppress("DEPRECATION") Bitmap.Config.ARGB_4444)
     }
 
     @Test

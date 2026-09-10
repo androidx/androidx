@@ -68,5 +68,5 @@ androidx {
     type = SoftwareType.SAMPLES
     inceptionYear = "2024"
     description = "Contains the sample code and demo for Tiles using ProtoLayout."
-    kotlinTarget = KotlinTarget.KOTLIN_2_3
+    kotlinTarget = KotlinTarget.KOTLIN_2_4
 }

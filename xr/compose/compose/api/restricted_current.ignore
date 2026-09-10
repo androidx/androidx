@@ -1,5 +1,61 @@
 // Baseline format: 1.0
-RemovedDeprecatedMethod: androidx.xr.compose.subspace.SpatialPanelKt#SpatialActivityPanel(android.content.Intent, androidx.xr.compose.subspace.layout.SubspaceModifier, androidx.xr.compose.subspace.layout.SpatialShape, androidx.xr.compose.subspace.layout.InteractionPolicy):
-    Source breaking change: Removed deprecated method androidx.xr.compose.subspace.SpatialPanelKt.SpatialActivityPanel(android.content.Intent,androidx.xr.compose.subspace.layout.SubspaceModifier,androidx.xr.compose.subspace.layout.SpatialShape,androidx.xr.compose.subspace.layout.InteractionPolicy)
-RemovedDeprecatedMethod: androidx.xr.compose.subspace.SpatialPanelKt#SpatialActivityPanel(android.content.Intent, androidx.xr.compose.subspace.layout.SubspaceModifier, androidx.xr.compose.subspace.layout.SpatialShape, androidx.xr.compose.subspace.layout.InteractionPolicy, androidx.compose.runtime.Composer, int, int):
-    Binary breaking change: Removed deprecated method androidx.xr.compose.subspace.SpatialPanelKt.SpatialActivityPanel(android.content.Intent,androidx.xr.compose.subspace.layout.SubspaceModifier,androidx.xr.compose.subspace.layout.SpatialShape,androidx.xr.compose.subspace.layout.InteractionPolicy,androidx.compose.runtime.Composer,int,int)
+AddedMethod: androidx.xr.compose.spatial.OrbiterAlignment.BottomCenter#BottomCenter():
+    Added constructor androidx.xr.compose.spatial.OrbiterAlignment.BottomCenter()
+AddedMethod: androidx.xr.compose.spatial.OrbiterAlignment.BottomEnd#BottomEnd():
+    Added constructor androidx.xr.compose.spatial.OrbiterAlignment.BottomEnd()
+AddedMethod: androidx.xr.compose.spatial.OrbiterAlignment.BottomLeft#BottomLeft():
+    Added constructor androidx.xr.compose.spatial.OrbiterAlignment.BottomLeft()
+AddedMethod: androidx.xr.compose.spatial.OrbiterAlignment.BottomRight#BottomRight():
+    Added constructor androidx.xr.compose.spatial.OrbiterAlignment.BottomRight()
+AddedMethod: androidx.xr.compose.spatial.OrbiterAlignment.BottomStart#BottomStart():
+    Added constructor androidx.xr.compose.spatial.OrbiterAlignment.BottomStart()
+AddedMethod: androidx.xr.compose.spatial.OrbiterAlignment.CenterEnd#CenterEnd():
+    Added constructor androidx.xr.compose.spatial.OrbiterAlignment.CenterEnd()
+AddedMethod: androidx.xr.compose.spatial.OrbiterAlignment.CenterLeft#CenterLeft():
+    Added constructor androidx.xr.compose.spatial.OrbiterAlignment.CenterLeft()
+AddedMethod: androidx.xr.compose.spatial.OrbiterAlignment.CenterRight#CenterRight():
+    Added constructor androidx.xr.compose.spatial.OrbiterAlignment.CenterRight()
+AddedMethod: androidx.xr.compose.spatial.OrbiterAlignment.CenterStart#CenterStart():
+    Added constructor androidx.xr.compose.spatial.OrbiterAlignment.CenterStart()
+AddedMethod: androidx.xr.compose.spatial.OrbiterAlignment.TopCenter#TopCenter():
+    Added constructor androidx.xr.compose.spatial.OrbiterAlignment.TopCenter()
+AddedMethod: androidx.xr.compose.spatial.OrbiterAlignment.TopEnd#TopEnd():
+    Added constructor androidx.xr.compose.spatial.OrbiterAlignment.TopEnd()
+AddedMethod: androidx.xr.compose.spatial.OrbiterAlignment.TopLeft#TopLeft():
+    Added constructor androidx.xr.compose.spatial.OrbiterAlignment.TopLeft()
+AddedMethod: androidx.xr.compose.spatial.OrbiterAlignment.TopRight#TopRight():
+    Added constructor androidx.xr.compose.spatial.OrbiterAlignment.TopRight()
+AddedMethod: androidx.xr.compose.spatial.OrbiterAlignment.TopStart#TopStart():
+    Added constructor androidx.xr.compose.spatial.OrbiterAlignment.TopStart()
+AddedMethod: androidx.xr.compose.spatial.OrbiterPosition.BottomCenter#BottomCenter():
+    Added constructor androidx.xr.compose.spatial.OrbiterPosition.BottomCenter()
+AddedMethod: androidx.xr.compose.spatial.OrbiterPosition.BottomEnd#BottomEnd():
+    Added constructor androidx.xr.compose.spatial.OrbiterPosition.BottomEnd()
+AddedMethod: androidx.xr.compose.spatial.OrbiterPosition.BottomLeft#BottomLeft():
+    Added constructor androidx.xr.compose.spatial.OrbiterPosition.BottomLeft()
+AddedMethod: androidx.xr.compose.spatial.OrbiterPosition.BottomRight#BottomRight():
+    Added constructor androidx.xr.compose.spatial.OrbiterPosition.BottomRight()
+AddedMethod: androidx.xr.compose.spatial.OrbiterPosition.BottomStart#BottomStart():
+    Added constructor androidx.xr.compose.spatial.OrbiterPosition.BottomStart()
+AddedMethod: androidx.xr.compose.spatial.OrbiterPosition.CenterEnd#CenterEnd():
+    Added constructor androidx.xr.compose.spatial.OrbiterPosition.CenterEnd()
+AddedMethod: androidx.xr.compose.spatial.OrbiterPosition.CenterLeft#CenterLeft():
+    Added constructor androidx.xr.compose.spatial.OrbiterPosition.CenterLeft()
+AddedMethod: androidx.xr.compose.spatial.OrbiterPosition.CenterRight#CenterRight():
+    Added constructor androidx.xr.compose.spatial.OrbiterPosition.CenterRight()
+AddedMethod: androidx.xr.compose.spatial.OrbiterPosition.CenterStart#CenterStart():
+    Added constructor androidx.xr.compose.spatial.OrbiterPosition.CenterStart()
+AddedMethod: androidx.xr.compose.spatial.OrbiterPosition.TopCenter#TopCenter():
+    Added constructor androidx.xr.compose.spatial.OrbiterPosition.TopCenter()
+AddedMethod: androidx.xr.compose.spatial.OrbiterPosition.TopEnd#TopEnd():
+    Added constructor androidx.xr.compose.spatial.OrbiterPosition.TopEnd()
+AddedMethod: androidx.xr.compose.spatial.OrbiterPosition.TopLeft#TopLeft():
+    Added constructor androidx.xr.compose.spatial.OrbiterPosition.TopLeft()
+AddedMethod: androidx.xr.compose.spatial.OrbiterPosition.TopRight#TopRight():
+    Added constructor androidx.xr.compose.spatial.OrbiterPosition.TopRight()
+AddedMethod: androidx.xr.compose.spatial.OrbiterPosition.TopStart#TopStart():
+    Added constructor androidx.xr.compose.spatial.OrbiterPosition.TopStart()
+AddedMethod: androidx.xr.compose.spatial.SpatialDialogProperties#SpatialDialogProperties():
+    Added constructor androidx.xr.compose.spatial.SpatialDialogProperties()
+AddedMethod: androidx.xr.compose.unit.DpVolumeOffset#DpVolumeOffset():
+    Added constructor androidx.xr.compose.unit.DpVolumeOffset()
