@@ -32,6 +32,8 @@ import androidx.xr.glimmer.samples.CardWithTitleAndSubtitleAndLeadingIconLongTex
 import androidx.xr.glimmer.samples.CardWithTitleAndSubtitleAndLeadingIconSample
 import androidx.xr.glimmer.samples.CardWithTrailingIconSample
 import androidx.xr.glimmer.samples.ImageCardWithTitleAndSubtitleAndLeadingIconSample
+import androidx.xr.glimmer.samples.LeadingImageCardSample
+import androidx.xr.glimmer.samples.TrailingImageCardSample
 import androidx.xr.glimmer.samples.placeholderImagePainter
 import org.junit.Rule
 import org.junit.Test
@@ -268,6 +270,100 @@ class CardScreenshotTest {
         // Advance past the animation
         rule.mainClock.advanceTimeBy(10000)
         rule.assertRootAgainstGolden("image_card_focused_and_pressed", screenshotRule)
+    }
+
+    @Test
+    fun leadingImageCard() {
+        rule.setGlimmerThemeContent { LeadingImageCardSample() }
+        rule.assertRootAgainstGolden("leading_image_card", screenshotRule)
+    }
+
+    @Test
+    fun leadingImageCard_focused() {
+        rule.mainClock.autoAdvance = false
+        rule.setGlimmerThemeContent {
+            LeadingImageCard(
+                image = {
+                    Image(placeholderImagePainter(Size(1000f, 1000f)), "Localized description")
+                },
+                title = { Text("Title") },
+                subtitle = { Text("Subtitle") },
+                interactionSource = AlwaysFocusedInteractionSource,
+            ) {
+                Text("This is a card with a leading image.")
+            }
+        }
+        // Advance past the animation
+        rule.mainClock.advanceTimeBy(10000)
+        rule.assertRootAgainstGolden("leading_image_card_focused", screenshotRule)
+    }
+
+    @Test
+    fun leadingImageCard_focused_and_pressed() {
+        rule.mainClock.autoAdvance = false
+        rule.setGlimmerThemeContent {
+            LeadingImageCard(
+                onClick = {},
+                image = {
+                    Image(placeholderImagePainter(Size(1000f, 1000f)), "Localized description")
+                },
+                title = { Text("Title") },
+                subtitle = { Text("Subtitle") },
+                interactionSource = AlwaysFocusedAndPressedInteractionSource,
+            ) {
+                Text("This is a card with a leading image.")
+            }
+        }
+        // Advance past the animation
+        rule.mainClock.advanceTimeBy(10000)
+        rule.assertRootAgainstGolden("leading_image_card_focused_and_pressed", screenshotRule)
+    }
+
+    @Test
+    fun trailingImageCard() {
+        rule.setGlimmerThemeContent { TrailingImageCardSample() }
+        rule.assertRootAgainstGolden("trailing_image_card", screenshotRule)
+    }
+
+    @Test
+    fun trailingImageCard_focused() {
+        rule.mainClock.autoAdvance = false
+        rule.setGlimmerThemeContent {
+            TrailingImageCard(
+                image = {
+                    Image(placeholderImagePainter(Size(1000f, 1000f)), "Localized description")
+                },
+                title = { Text("Title") },
+                subtitle = { Text("Subtitle") },
+                interactionSource = AlwaysFocusedInteractionSource,
+            ) {
+                Text("This is a card with a trailing image.")
+            }
+        }
+        // Advance past the animation
+        rule.mainClock.advanceTimeBy(10000)
+        rule.assertRootAgainstGolden("trailing_image_card_focused", screenshotRule)
+    }
+
+    @Test
+    fun trailingImageCard_focused_and_pressed() {
+        rule.mainClock.autoAdvance = false
+        rule.setGlimmerThemeContent {
+            TrailingImageCard(
+                onClick = {},
+                image = {
+                    Image(placeholderImagePainter(Size(1000f, 1000f)), "Localized description")
+                },
+                title = { Text("Title") },
+                subtitle = { Text("Subtitle") },
+                interactionSource = AlwaysFocusedAndPressedInteractionSource,
+            ) {
+                Text("This is a card with a trailing image.")
+            }
+        }
+        // Advance past the animation
+        rule.mainClock.advanceTimeBy(10000)
+        rule.assertRootAgainstGolden("trailing_image_card_focused_and_pressed", screenshotRule)
     }
 }
 
