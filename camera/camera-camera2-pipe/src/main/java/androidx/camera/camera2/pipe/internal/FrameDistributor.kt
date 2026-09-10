@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.internal
 
 import android.hardware.HardwareBuffer
 import android.os.Build
+import androidx.annotation.GuardedBy
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraTimestamp
@@ -33,6 +34,7 @@ import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.camera2.pipe.SensorTimestamp
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
@@ -101,6 +103,11 @@ internal class FrameDistributor(
     private val imageDistributors: Map<StreamId, Map<OutputId, OutputDistributor<OutputImage>>>
     private val imageStreams: Set<CameraStream>
     private val concurrentImageStreams: Set<StreamId>?
+    private val usesReadoutTimestamp: Boolean
+
+    private val lock = Any()
+
+    @GuardedBy("lock") private val startedFrameStates = mutableListOf<FrameState>()
 
     var frameStartedListener: FrameStartedListener = FrameStartedListener {}
 
@@ -177,6 +184,11 @@ internal class FrameDistributor(
 
         imageStreams = streams
         concurrentImageStreams = if (concurrentStreams.isEmpty()) null else concurrentStreams
+        usesReadoutTimestamp = streams.any { stream ->
+            stream.outputs.any {
+                (it as StreamGraphImpl.OutputStreamImpl).useReadoutTimestamp
+            }
+        }
     }
 
     /**
@@ -208,27 +220,10 @@ internal class FrameDistributor(
             outputListener = frameState.frameInfoOutput,
         )
 
-        // Tell each imageDistributor to expect an Image at the provided CameraTimestamp.
-        for (i in frameState.imageOutputs.indices) {
-            val imageOutput = frameState.imageOutputs[i]
-            val imageDistributorMap = checkNotNull(imageDistributors[imageOutput.streamId])
-            val imageDistributor = checkNotNull(imageDistributorMap[imageOutput.outputId])
+        startImageOutputs(frameState, frameState.exposureImageOutputs, timestamp, requestMetadata)
 
-            // Images are matched to the frame based on the cameraTimestamp.
-            imageDistributor.onOutputStarted(
-                cameraFrameNumber = frameNumber,
-                cameraTimestamp = timestamp,
-                cameraOutputNumber = timestamp.value, // Number to match output against
-                outputListener = imageOutput,
-            )
-
-            if (!requestMetadata.streams.keys.contains(imageOutput.streamId)) {
-                // Edge case: It's possible that a CaptureRequest submitted to the camera
-                // is different than the Request used to create it in a few scenarios (such
-                // as the surface being unavailable or invalid). If this happens, tell the
-                // imageDistributor that the output has failed for this specific frame.
-                imageDistributor.onOutputFailure(frameState.frameNumber)
-            }
+        if (usesReadoutTimestamp && frameState.expectsReadoutTimestamp) {
+            synchronized(lock) { startedFrameStates.add(frameState) }
         }
 
         // Create a Frame, and offer it
@@ -257,6 +252,48 @@ internal class FrameDistributor(
         // FrameBuffer(s) are supposed to acquire a Frame from the reference and for explicit
         // captures we use a forked reference.
         frame.close()
+    }
+
+    override fun onReadoutStarted(
+        requestMetadata: RequestMetadata,
+        frameNumber: FrameNumber,
+        timestamp: SensorTimestamp,
+    ) {
+        // In API 34+, Android Camera2 may invoke onReadoutStarted even when no streams are
+        // configured to use readout timestamps. In this case, we silently ignore the callback.
+        if (!usesReadoutTimestamp) {
+            return
+        }
+
+        val frameState =
+            synchronized(lock) {
+                var foundIndex = -1
+                for (i in 0 until startedFrameStates.size) {
+                    if (startedFrameStates[i].frameNumber == frameNumber) {
+                        foundIndex = i
+                        break
+                    }
+                }
+                if (foundIndex != -1) {
+                    startedFrameStates.removeAt(foundIndex)
+                } else {
+                    null
+                }
+            }
+
+        if (frameState == null) {
+            Log.warn {
+                "Received onReadoutStarted for frame $frameNumber, but no matching frameState was found."
+            }
+            return
+        }
+
+        startImageOutputs(
+            frameState,
+            frameState.readoutImageOutputs,
+            CameraTimestamp(timestamp.value),
+            requestMetadata,
+        )
     }
 
     override fun onComplete(
@@ -345,6 +382,37 @@ internal class FrameDistributor(
         for (imageDistributorMap in imageDistributors.values) {
             for (imageDistributor in imageDistributorMap.values) {
                 imageDistributor.close()
+            }
+        }
+    }
+
+    private fun startImageOutputs(
+        frameState: FrameState,
+        imageOutputs: List<FrameState.ImageOutput>,
+        timestamp: CameraTimestamp,
+        requestMetadata: RequestMetadata,
+    ) {
+        for (i in imageOutputs.indices) {
+            val imageOutput = imageOutputs[i]
+            if (imageOutput.status == OutputStatus.PENDING) {
+                val imageDistributorMap = checkNotNull(imageDistributors[imageOutput.streamId])
+                val imageDistributor = checkNotNull(imageDistributorMap[imageOutput.outputId])
+
+                // Images are matched to the frame based on the cameraTimestamp.
+                imageDistributor.onOutputStarted(
+                    cameraFrameNumber = frameState.frameNumber,
+                    cameraTimestamp = timestamp,
+                    cameraOutputNumber = timestamp.value, // Number to match output against
+                    outputListener = imageOutput,
+                )
+
+                if (!requestMetadata.streams.keys.contains(imageOutput.streamId)) {
+                    // Edge case: It's possible that a CaptureRequest submitted to the camera
+                    // is different from the Request used to create it in a few scenarios (such
+                    // as the surface being unavailable or invalid). If this happens, tell the
+                    // imageDistributor that the output has failed for this specific frame.
+                    imageDistributor.onOutputFailure(frameState.frameNumber)
+                }
             }
         }
     }

@@ -277,6 +277,7 @@ constructor(
         override val streamUseCase: OutputStream.StreamUseCase? = null,
         override val outputType: OutputStream.OutputType? = null,
         override val streamUseHint: OutputStream.StreamUseHint? = null,
+        internal val useReadoutTimestamp: Boolean = false,
     ) : OutputStream {
         override lateinit var stream: CameraStream
 
