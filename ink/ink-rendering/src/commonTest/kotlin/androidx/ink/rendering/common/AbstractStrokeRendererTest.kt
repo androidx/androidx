@@ -28,7 +28,6 @@ import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.Stroke
 import androidx.ink.strokes.StrokeInputBatch
 import kotlin.test.AfterTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 
 /**
@@ -39,13 +38,13 @@ import kotlin.test.Test
  * - Rendering to a platform-specific image format
  * - Image comparison/assertion
  */
-public abstract class AbstractStrokeRendererTest {
+abstract class AbstractStrokeRendererTest {
 
-    public class TestCase(
-        public val name: String,
-        public val dryStroke: Stroke,
-        public val wetStroke: InProgressStroke,
-        public val transform: AffineTransform = AffineTransform.IDENTITY,
+    class TestCase(
+        val name: String,
+        val dryStroke: Stroke,
+        val wetStroke: InProgressStroke,
+        val transform: AffineTransform = AffineTransform.IDENTITY,
     ) {
         override fun toString(): String = name
     }
@@ -167,9 +166,8 @@ public abstract class AbstractStrokeRendererTest {
     /** Validates any lazy assertions made during [renderAndCompareToGolden]. */
     protected abstract fun assertLazyAssertsPass()
 
-    @Ignore // b/556392738
     @Test
-    public fun dryRendering_matchesExpectedGolden() {
+    fun dryRendering_matchesExpectedGolden() {
         for (testCase in testCases) {
             val params = computeRenderParams(testCase)
             renderAndCompareToGolden(
@@ -182,9 +180,8 @@ public abstract class AbstractStrokeRendererTest {
         }
     }
 
-    @Ignore // b/556392738
     @Test
-    public fun wetRendering_matchesExpectedGolden() {
+    fun wetRendering_matchesExpectedGolden() {
         for (testCase in testCases) {
             val params = computeRenderParams(testCase)
             renderAndCompareToGolden(

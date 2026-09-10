@@ -78,8 +78,7 @@ internal class ConcurrencyHelpersTest {
         testScope.backgroundScope.runEvery(3.seconds) { runCount3 += 1 }
         testScope.backgroundScope.runEvery(5.seconds) { runCount5 += 1 }
 
-        // The lambdas do not run immediately; they first run after 5 and 3 seconds,
-        // respectively.
+        // The lambdas do not run immediately; they first run after 5 and 3 seconds, respectively.
 
         // t=2.9
         testScope.advanceTimeBy(2.9.seconds)

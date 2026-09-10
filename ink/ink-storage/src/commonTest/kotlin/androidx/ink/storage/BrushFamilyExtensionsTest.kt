@@ -74,101 +74,6 @@ class BrushFamilyExtensionsTest {
     private val gzippedInvalidProtoBytes =
         Base64.Default.decode("H4sIAAAAAAAA/1Ni52INZWBo2A8Agg/YJAkAAAA=")
 
-    private val textureId1: String = "texture_id_1"
-    private val textureId2: String = "texture_id_2"
-    private val unknownId: String = "unknown_id"
-
-    private val testBitmap1 = byteArrayOf(1, 1, 1, 1)
-    private val testBitmap2 = byteArrayOf(2, 2, 2, 2)
-
-    val textureIdToPngBytes = mapOf(textureId1 to testBitmap1, textureId2 to testBitmap2)
-
-    private val testBrushFamilyWithTextures =
-        BrushFamily(
-            coats =
-                listOf(
-                    BrushCoat(
-                        paint =
-                            BrushPaint(
-                                textureLayers =
-                                    listOf(
-                                        TilingTexture(
-                                            clientTextureId = textureId1,
-                                            sizeX = 1f,
-                                            sizeY = 4f,
-                                        ),
-                                        TilingTexture(
-                                            clientTextureId = textureId1,
-                                            sizeX = 2f,
-                                            sizeY = 2f,
-                                        ),
-                                    )
-                            ),
-                        tip =
-                            BrushTip(
-                                behaviors =
-                                    listOf(
-                                        BrushBehavior(
-                                            TargetNode(
-                                                target = Target.WIDTH_MULTIPLIER,
-                                                targetModifierRangeStart = 1f,
-                                                targetModifierRangeEnd = 2f,
-                                                input =
-                                                    IntegralNode(
-                                                        integrateOver =
-                                                            ProgressDomain.TIME_IN_SECONDS,
-                                                        integralValueRangeStart = 0f,
-                                                        integralValueRangeEnd = 1f,
-                                                        integralOutOfRangeBehavior =
-                                                            OutOfRange.CLAMP,
-                                                        input =
-                                                            SourceNode(
-                                                                Source.NORMALIZED_PRESSURE,
-                                                                0f,
-                                                                1f,
-                                                            ),
-                                                    ),
-                                            )
-                                        )
-                                    )
-                            ),
-                    ),
-                    BrushCoat(
-                        paint =
-                            BrushPaint(
-                                textureLayers =
-                                    listOf(
-                                        BrushPaint.TilingTexture(
-                                            clientTextureId = textureId2,
-                                            sizeX = 2f,
-                                            sizeY = 2f,
-                                        )
-                                    )
-                            )
-                    ),
-                )
-        )
-
-    private val anotherBrushFamilyWithTextures =
-        BrushFamily(
-            coats =
-                listOf(
-                    BrushCoat(
-                        paint =
-                            BrushPaint(
-                                textureLayers =
-                                    listOf(
-                                        TilingTexture(
-                                            clientTextureId = unknownId,
-                                            sizeX = 1f,
-                                            sizeY = 4f,
-                                        )
-                                    )
-                            )
-                    )
-                )
-        )
-
     @Test
     fun encode_decode_roundTrip() {
         // This wraps the native encode/decode, so the details are tested in the tests for the
@@ -400,23 +305,152 @@ class BrushFamilyExtensionsTest {
 
     @Test
     fun withTextures_roundTrip() {
+        val textureId1: String = "texture_id_1"
+        val textureId2: String = "texture_id_2"
+        val testBitmap1 = byteArrayOf(1, 1, 1, 1)
+        val testBitmap2 = byteArrayOf(2, 2, 2, 2)
+        val textureIdToPngBytes = mapOf(textureId1 to testBitmap1, textureId2 to testBitmap2)
+        val original =
+            BrushFamily(
+                coats =
+                    listOf(
+                        BrushCoat(
+                            paint =
+                                BrushPaint(
+                                    textureLayers =
+                                        listOf(
+                                            TilingTexture(
+                                                clientTextureId = textureId1,
+                                                sizeX = 1f,
+                                                sizeY = 4f,
+                                            ),
+                                            TilingTexture(
+                                                clientTextureId = textureId1,
+                                                sizeX = 2f,
+                                                sizeY = 2f,
+                                            ),
+                                        )
+                                )
+                        ),
+                        BrushCoat(
+                            paint =
+                                BrushPaint(
+                                    textureLayers =
+                                        listOf(
+                                            TilingTexture(
+                                                clientTextureId = textureId1,
+                                                sizeX = 2f,
+                                                sizeY = 2f,
+                                            ),
+                                            TilingTexture(
+                                                clientTextureId = textureId2,
+                                                sizeX = 2f,
+                                                sizeY = 2f,
+                                            ),
+                                        )
+                                )
+                        ),
+                    )
+            )
+
+        val encoded = original.encode(textureIdToPngBytes::get)
+
         val decodedTextureBitmapStore = mutableMapOf<String, ByteArray?>()
+        val decodedTextureIds = mutableListOf<String>()
         val decodeCallback = OnDecodeTexturePngBytes { id: String, pngBytes: ByteArray? ->
+            decodedTextureIds.add(id)
             decodedTextureBitmapStore[id] = pngBytes
             id
         }
-        val original = testBrushFamilyWithTextures
-        val encoded = original.encode(textureIdToPngBytes::get)
         assertThat(BrushFamily.decode(encoded, onDecodeTexture = decodeCallback))
             .isEqualTo(original)
 
-        assertThat(decodedTextureBitmapStore.size).isEqualTo(2)
+        // The texture is only recorded once per ID in the brush family.
+        assertThat(decodedTextureIds).hasSize(2)
         val actualBitmap1 = decodedTextureBitmapStore[textureId1]
         val expectedBitmap1 = textureIdToPngBytes[textureId1]
-        assertThat(actualBitmap1).isEqualTo(expectedBitmap1)
+        assertThat(actualBitmap1).apply {
+            isNotNull()
+            isEqualTo(expectedBitmap1)
+        }
 
         val actualBitmap2 = decodedTextureBitmapStore[textureId2]
         val expectedBitmap2 = textureIdToPngBytes[textureId2]
-        assertThat(actualBitmap2).isEqualTo(expectedBitmap2)
+        assertThat(actualBitmap2).apply {
+            isNotNull()
+            isEqualTo(expectedBitmap2)
+        }
+    }
+
+    @Test
+    fun withTextures_encodeMultiple_roundTrip() {
+        val textureId1: String = "texture_id_1"
+        val textureId2: String = "texture_id_2"
+        val testBitmap1 = byteArrayOf(1, 1, 1, 1)
+        val testBitmap2 = byteArrayOf(2, 2, 2, 2)
+        val textureIdToPngBytes = mapOf(textureId1 to testBitmap1, textureId2 to testBitmap2)
+        val texture1Family =
+            BrushFamily(
+                coats =
+                    listOf(
+                        BrushCoat(
+                            paint =
+                                BrushPaint(
+                                    textureLayers =
+                                        listOf(
+                                            TilingTexture(
+                                                clientTextureId = textureId1,
+                                                sizeX = 1f,
+                                                sizeY = 4f,
+                                            )
+                                        )
+                                )
+                        )
+                    )
+            )
+        val texture2Family =
+            BrushFamily(
+                coats =
+                    listOf(
+                        BrushCoat(
+                            paint =
+                                BrushPaint(
+                                    textureLayers =
+                                        listOf(
+                                            TilingTexture(
+                                                clientTextureId = textureId2,
+                                                sizeX = 1f,
+                                                sizeY = 4f,
+                                            )
+                                        )
+                                )
+                        )
+                    )
+            )
+        val families = listOf(texture1Family, texture2Family)
+
+        val encoded = families.encodeMultiple(textureIdToPngBytes::get)
+
+        val decodedTextureBitmapStore = mutableMapOf<String, ByteArray?>()
+        val decodedTextureIds = mutableListOf<String>()
+        val decodeCallback = OnDecodeTexturePngBytes { id: String, pngBytes: ByteArray? ->
+            decodedTextureIds.add(id)
+            decodedTextureBitmapStore[id] = pngBytes
+            id
+        }
+        val decoded = BrushFamily.decodeMultiple(encoded, onDecodeTexture = decodeCallback)
+
+        assertThat(decoded).hasSize(1)
+        assertThat(decoded[0]).isEqualTo(texture1Family)
+        assertThat(decoded[0].hasFallbacks).isFalse()
+
+        // Textures are recorded from the decoded brush families, but not any unused fallbacks.
+        assertThat(decodedTextureIds).hasSize(1)
+        val actualBitmap1 = decodedTextureBitmapStore[textureId1]
+        val expectedBitmap1 = textureIdToPngBytes[textureId1]
+        assertThat(actualBitmap1).apply {
+            isNotNull()
+            isEqualTo(expectedBitmap1)
+        }
     }
 }

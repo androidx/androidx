@@ -289,7 +289,13 @@ class AndroidBrushFamilyExtensionsTest {
                 it.toByteArray()
             }
         ByteArrayInputStream(encoded).use {
-            assertThat(AndroidBrushFamilySerialization.decode(it, Version.V1, decodeCallback))
+            assertThat(
+                    AndroidBrushFamilySerialization.decode(
+                        it,
+                        Version.V1,
+                        decodeCallback,
+                    )
+                )
                 .isEqualTo(original)
         }
         assertEquals(decodedTextureBitmapStore.size, 2)
@@ -538,7 +544,11 @@ class AndroidBrushFamilyExtensionsTest {
 
         ByteArrayInputStream(encoded).use {
             val decoded =
-                AndroidBrushFamilySerialization.decode(it, maxVersion = Version.V0, decodeCallback)
+                AndroidBrushFamilySerialization.decode(
+                    it,
+                    maxVersion = Version.V0,
+                    decodeCallback,
+                )
             assertThat(decoded).isEqualTo(family1)
         }
 
@@ -547,7 +557,11 @@ class AndroidBrushFamilyExtensionsTest {
 
         ByteArrayInputStream(encoded).use {
             val decoded =
-                AndroidBrushFamilySerialization.decode(it, maxVersion = Version.V1, decodeCallback)
+                AndroidBrushFamilySerialization.decode(
+                    it,
+                    maxVersion = Version.V1,
+                    decodeCallback,
+                )
             assertThat(decoded).isEqualTo(family2)
         }
         assertEquals(decodedTextureBitmapStore.size, 2)
