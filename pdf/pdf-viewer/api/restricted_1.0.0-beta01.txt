@@ -234,7 +234,7 @@ package androidx.pdf.view {
 
 }
 
-package androidx.pdf.view.annotation {
+package @SuppressCompatibility androidx.pdf.view.annotation {
 
   @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class AnnotationToolbarView extends android.view.ViewGroup {
     ctor public AnnotationToolbarView(android.content.Context context);
@@ -300,7 +300,7 @@ package @SuppressCompatibility androidx.pdf.view.annotation.draganddrop {
 
 }
 
-package androidx.pdf.view.annotation.tool {
+package @SuppressCompatibility androidx.pdf.view.annotation.tool {
 
   @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public sealed exhaustive interface AnnotationToolInfo {
   }

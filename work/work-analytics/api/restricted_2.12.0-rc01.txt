@@ -1,5 +1,5 @@
 // Signature format: 4.0
-package androidx.work.analytics {
+package @SuppressCompatibility androidx.work.analytics {
 
   @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWorkMetricsApi {
   }
