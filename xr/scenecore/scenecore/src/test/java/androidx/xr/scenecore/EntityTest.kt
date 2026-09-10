@@ -1240,6 +1240,9 @@ class EntityTest {
 
         assertFailsWith<Entity.DisposedException> { gltfModelEntity.getScale() }
         assertFailsWith<Entity.DisposedException> { gltfModelEntity.setPose(Pose.Identity) }
+        assertFailsWith<Entity.DisposedException> { gltfModelEntity.nodes }
+        assertFailsWith<Entity.DisposedException> { gltfModelEntity.getAnimations() }
+        assertFailsWith<Entity.DisposedException> { gltfModelEntity.stopAllAnimations() }
         assertFailsWith<Entity.DisposedException> { activitySpace.getAlpha() }
 
         val component = TestComponent(true)
