@@ -21,11 +21,11 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -78,7 +78,7 @@ class SpatialUserActivity : AppCompatActivity() {
             session = SessionManager(this@SpatialUserActivity).createSession()
             if (session == null) this@SpatialUserActivity.finish()
 
-            enableEdgeToEdge()
+            WindowCompat.enableEdgeToEdge(window)
             setContentView(R.layout.common_test_panel)
             ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
                 val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())

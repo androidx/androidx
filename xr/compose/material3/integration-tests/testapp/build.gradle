@@ -27,6 +27,7 @@ dependencies {
 
     implementation(project(":appcompat:appcompat"))
     implementation("androidx.activity:activity-compose:1.10.1")
+    implementation("androidx.core:core-ktx:1.17.0")
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:material3:material3"))

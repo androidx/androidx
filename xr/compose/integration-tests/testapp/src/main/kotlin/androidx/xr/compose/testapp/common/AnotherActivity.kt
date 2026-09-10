@@ -19,7 +19,7 @@ package androidx.xr.compose.testapp.common
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import androidx.core.view.WindowCompat
 import androidx.xr.compose.testapp.ui.components.ColumnWithCenterText
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
 import androidx.xr.compose.testapp.ui.theme.IntegrationTestsAppTheme
@@ -27,7 +27,7 @@ import androidx.xr.compose.testapp.ui.theme.IntegrationTestsAppTheme
 class AnotherActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        WindowCompat.enableEdgeToEdge(window)
         setContent {
             val showBottomBar = intent.getBooleanExtra("SHOW_BOTTOM_BAR", false)
             val title = intent.getStringExtra("TITLE") ?: "Another Activity"

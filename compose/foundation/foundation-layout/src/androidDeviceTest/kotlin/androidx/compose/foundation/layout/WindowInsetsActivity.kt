@@ -17,7 +17,7 @@ package androidx.compose.foundation.layout
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.enableEdgeToEdge
+import androidx.core.view.WindowCompat
 import java.util.concurrent.CountDownLatch
 
 open class WindowInsetsActivity : ComponentActivity() {
@@ -26,7 +26,7 @@ open class WindowInsetsActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        WindowCompat.enableEdgeToEdge(window)
         createdLatch.countDown()
         topActivity = this
     }

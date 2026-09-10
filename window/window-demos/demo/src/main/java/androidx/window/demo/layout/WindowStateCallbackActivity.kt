@@ -27,8 +27,8 @@ import android.os.Looper
 import android.view.Display.DEFAULT_DISPLAY
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -114,7 +114,7 @@ class WindowStateCallbackActivity : ComponentActivity() {
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
+        WindowCompat.enableEdgeToEdge(window)
         super.onCreate(savedInstanceState)
         setContent { DemoTheme { WindowStateScreen() } }
 

@@ -21,7 +21,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.safeContent
@@ -37,6 +36,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.semantics.contentDataType
 import androidx.compose.ui.semantics.semantics
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
 
@@ -49,7 +49,7 @@ class BasicTextFieldActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        WindowCompat.enableEdgeToEdge(window)
 
         contentView =
             requireNotNull(findViewById(R.id.content)) { "No view with R.id.content was found." }

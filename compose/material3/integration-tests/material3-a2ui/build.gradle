@@ -44,7 +44,7 @@ dependencies {
 
     implementation("androidx.activity:activity:1.12.1")
     implementation("androidx.activity:activity-compose:1.12.1")
-    implementation("androidx.core:core-ktx:1.15.0")
+    implementation("androidx.core:core-ktx:1.17.0")
 
     implementation("io.coil-kt.coil3:coil-compose-android:3.1.0") {
         jetbrainsComposeExcludeGroups.each { group ->
