@@ -32,6 +32,9 @@ plugins {
 dependencies {
     api(project(":a2ui:a2ui-model"))
     api(project(":a2ui:compose:compose-runtime"))
+    api("androidx.compose.runtime:runtime:1.13.0-alpha03")
+    api("androidx.compose.ui:ui:1.13.0-alpha03")
+
     implementation(project(":a2ui:a2ui-engine"))
     implementation("androidx.collection:collection:1.6.0")
 
@@ -39,13 +42,10 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.junit)
 
-    api("androidx.compose.runtime:runtime:1.10.0")
-    api("androidx.compose.ui:ui:1.10.0")
-
-    androidTestImplementation("androidx.compose.foundation:foundation:1.10.0")
     androidTestImplementation(project(":a2ui:compose:compose-ui-testing"))
-    androidTestImplementation(project(":compose:ui:ui-test"))
-    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation("androidx.compose.foundation:foundation:1.13.0-alpha03")
+    androidTestImplementation("androidx.compose.ui:ui-test:1.13.0-alpha03")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.13.0-alpha03")
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testRunner)
@@ -55,7 +55,7 @@ dependencies {
 
 android {
     namespace = "androidx.a2ui.compose.ui"
-    compileSdk { version = release(37) }
+    compileSdk { version = release(37) { minorApiLevel = 1 } }
 }
 
 androidx {
