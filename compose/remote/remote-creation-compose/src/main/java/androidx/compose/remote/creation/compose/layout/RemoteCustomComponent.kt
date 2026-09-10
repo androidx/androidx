@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.layout
 
-import android.annotation.SuppressLint
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.managers.Custom.CustomProperty
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
@@ -41,7 +40,7 @@ import androidx.compose.ui.graphics.toArgb
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
-@SuppressLint("RestrictedApi")
+@Suppress("RestrictedApi")
 public fun RemoteCustomComponent(
     name: String,
     modifier: RemoteModifier = RemoteModifier,
@@ -62,7 +61,7 @@ public fun RemoteCustomComponent(
 
 /** Scope for configuring properties and return bindings of a [RemoteCustomComponent]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@SuppressLint("RestrictedApi")
+@Suppress("RestrictedApi")
 public class RemoteCustomPropertiesScope
 internal constructor(private val creationState: RemoteComposeCreationState) {
     internal val properties = mutableListOf<CustomProperty>()
