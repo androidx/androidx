@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics.blur
 
+import androidx.annotation.FloatRange
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -36,7 +37,12 @@ import androidx.compose.ui.unit.isSpecified
  * @param radius blur radius applied at [fraction]
  */
 @Immutable
-public class BlurStop(public val fraction: Float, public val radius: Dp) {
+public class BlurStop(
+    @param:FloatRange(from = 0.0, to = 1.0)
+    @get:FloatRange(from = 0.0, to = 1.0)
+    public val fraction: Float,
+    public val radius: Dp,
+) {
     init {
         require(fraction in 0f..1f) { "fraction must be in 0..1 but was $fraction" }
         require(radius.value >= 0f) { "radius must be >= 0 but was $radius" }
@@ -234,16 +240,16 @@ public sealed interface BlurRadiusSpec {
          * @param endRadius blur radius at the falloff distance
          * @param center center of the gradient within the layer, or [DpOffset.Unspecified] for the
          *   surface center
-         * @param fallOffRadius distance from [center] at which [endRadius] is reached; defaults to
-         *   half the surface's minimum dimension
+         * @param fallOffRadius distance from [center] at which [endRadius] is reached; if
+         *   [Dp.Unspecified], defaults to half the surface's minimum dimension
          * @throws IllegalArgumentException if either radius is negative, or [fallOffRadius] is
-         *   finite and not positive
+         *   specified and not positive
          */
         public fun radialGradient(
             startRadius: Dp,
             endRadius: Dp,
             center: DpOffset = DpOffset.Unspecified,
-            fallOffRadius: Dp = Dp.Infinity,
+            fallOffRadius: Dp = Dp.Unspecified,
         ): BlurRadiusSpec {
             requireNonNegative(startRadius, "startRadius")
             requireNonNegative(endRadius, "endRadius")
@@ -262,15 +268,15 @@ public sealed interface BlurRadiusSpec {
          * @param stops list of blur stops defining the gradient
          * @param center center of the gradient within the layer, or [DpOffset.Unspecified] for the
          *   surface center
-         * @param fallOffRadius distance from [center] at which fraction 1 is reached; defaults to
-         *   half the surface's minimum dimension
+         * @param fallOffRadius distance from [center] at which fraction 1 is reached; if
+         *   [Dp.Unspecified], defaults to half the surface's minimum dimension
          * @throws IllegalArgumentException if the stop count is outside 2..16
-         * @throws IllegalArgumentException if [fallOffRadius] is finite and not positive
+         * @throws IllegalArgumentException if [fallOffRadius] is specified and not positive
          */
         public fun radialGradient(
             stops: List<BlurStop>,
             center: DpOffset = DpOffset.Unspecified,
-            fallOffRadius: Dp = Dp.Infinity,
+            fallOffRadius: Dp = Dp.Unspecified,
         ): BlurRadiusSpec {
             requirePositiveFallOff(fallOffRadius)
             return BlurRadialStops(validatedStops(stops), center, fallOffRadius)
@@ -307,8 +313,10 @@ public sealed interface BlurRadiusSpec {
         }
 
         private fun requirePositiveFallOff(fallOffRadius: Dp) {
-            requirePrecondition(!fallOffRadius.isFinite || fallOffRadius.value > 0f) {
-                "fallOffRadius must be positive when finite but was $fallOffRadius"
+            requirePrecondition(
+                !fallOffRadius.isSpecified || !fallOffRadius.isFinite || fallOffRadius.value > 0f
+            ) {
+                "fallOffRadius must be positive when specified but was $fallOffRadius"
             }
         }
 
@@ -514,9 +522,13 @@ private fun resolveGradientCenter(center: DpOffset, size: Size, density: Density
         Offset(size.width / 2f, size.height / 2f)
     }
 
-/** Resolves a non-finite [fallOffRadius] to half the minimum dimension of [size], in pixels. */
+/**
+ * Resolves an unspecified or non-finite [fallOffRadius] to half the minimum dimension of [size], in
+ * pixels.
+ */
 private fun resolveGradientRadius(fallOffRadius: Dp, size: Size, density: Density): Float =
-    if (fallOffRadius.isFinite) with(density) { fallOffRadius.toPx() } else size.minDimension / 2f
+    if (fallOffRadius.isSpecified && fallOffRadius.isFinite) with(density) { fallOffRadius.toPx() }
+    else size.minDimension / 2f
 
 @Immutable
 internal class BlurRadialGradient(

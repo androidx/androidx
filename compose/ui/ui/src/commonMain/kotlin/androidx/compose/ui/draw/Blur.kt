@@ -162,7 +162,7 @@ public fun Modifier.blur(
 ): Modifier = blur(radius, radius, edgeTreatment)
 
 /**
- * Draws content with a blur specified by [radius].
+ * Draws content with a blur specified by [blurRadiusSpec].
  *
  * A uniform radius renders on Android 12 (API 31) and above; spatially-varying radii (gradients and
  * custom shaders) require Android 13 (API 33) and above. Below these versions the modifier is
@@ -173,7 +173,7 @@ public fun Modifier.blur(
  * the content bounds. Introduce additional space around the drawn content by the specified blur
  * radius to remain within content bounds.
  *
- * @param radius varying blur radius configuration across the surface
+ * @param blurRadiusSpec varying blur radius configuration across the surface
  * @param edgeTreatment strategy used to render pixels outside content bounds
  * @param alpha opacity of the blurred content in the 0..1 range
  * @sample androidx.compose.ui.samples.ProgressiveBlurSample
@@ -181,11 +181,11 @@ public fun Modifier.blur(
  */
 @Stable
 public fun Modifier.blur(
-    radius: BlurRadiusSpec,
+    blurRadiusSpec: BlurRadiusSpec,
     edgeTreatment: BlurredEdgeTreatment = BlurredEdgeTreatment.Rectangle,
     alpha: Float = 1f,
 ): Modifier = blur {
-    this.radius = radius
+    this.blurRadiusSpec = blurRadiusSpec
     this.edgeTreatment = edgeTreatment
     this.alpha = alpha
 }
@@ -193,7 +193,7 @@ public fun Modifier.blur(
 /**
  * Draws content with a blur whose radius can vary across the surface.
  *
- * When [block] assigns [BlurScope.radius] multiple times, the last assignment wins.
+ * When [block] assigns [BlurScope.blurRadiusSpec] multiple times, the last assignment wins.
  *
  * A uniform radius renders on Android 12 (API 31) and above; spatially-varying radii (gradients and
  * custom shaders) require Android 13 (API 33) and above. Below these versions the modifier is
@@ -231,7 +231,7 @@ public sealed interface BlurScope : Density {
      *
      * Defaults to `BlurRadiusSpec.uniform(0.dp)` (no blur).
      */
-    public var radius: BlurRadiusSpec
+    public var blurRadiusSpec: BlurRadiusSpec
 
     /** Strategy used to sample pixels outside content bounds. */
     public var edgeTreatment: BlurredEdgeTreatment
@@ -244,7 +244,7 @@ private val UniformZero: BlurRadiusSpec = BlurRadiusSpec.uniform(0.dp)
 
 internal class BlurScopeImpl : BlurScope {
     override var size: DpSize = DpSize.Zero
-    override var radius: BlurRadiusSpec = UniformZero
+    override var blurRadiusSpec: BlurRadiusSpec = UniformZero
     override var edgeTreatment: BlurredEdgeTreatment = BlurredEdgeTreatment.Rectangle
     override var alpha: Float = 1f
 
@@ -256,7 +256,7 @@ internal class BlurScopeImpl : BlurScope {
         get() = currentDensity.fontScale
 
     fun reset() {
-        radius = UniformZero // shared instance, no per-frame alloc
+        blurRadiusSpec = UniformZero // shared instance, no per-frame alloc
         edgeTreatment = BlurredEdgeTreatment.Rectangle
         alpha = 1f
     }
@@ -286,13 +286,13 @@ internal class BlurNode(var block: BlurScope.() -> Unit) : Modifier.Node(), Layo
         val maskShape = scope.edgeTreatment.shape
         val tileMode = if (maskShape == null) TileMode.Decal else TileMode.Clamp
         renderEffect =
-            if (scope.radius == UniformZero) {
+            if (scope.blurRadiusSpec == UniformZero) {
                 // The block left the radius at (or equal to) the shared no-blur default: clear the
                 // layer's effect instead of constructing one. This is the common no-blur case and
                 // keeps a radius animated down to uniform zero from pinning a stale effect.
                 null
             } else {
-                val effect = scope.radius.createRenderEffect(size, this, tileMode)
+                val effect = scope.blurRadiusSpec.createRenderEffect(size, this, tileMode)
                 val previous = previousEffect
                 if (effect == previous) previous else effect.also { previousEffect = it }
             }

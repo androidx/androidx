@@ -190,7 +190,8 @@ class BlurTest {
         val tag = "progressiveBlur"
         setSplitContent(tag) {
             // Radii resolved through the BlurScope density so the end radius is exactly 20px.
-            radius = BlurRadiusSpec.verticalGradient(startRadius = 0.dp, endRadius = 20.toDp())
+            blurRadiusSpec =
+                BlurRadiusSpec.verticalGradient(startRadius = 0.dp, endRadius = 20.toDp())
         }
         val map = rule.onNodeWithTag(tag).captureToImage().toPixelMap()
         // Top rows: gradient intensity ~0 -> per-pixel radius < 1px -> exact source colors.
@@ -207,7 +208,7 @@ class BlurTest {
         // The first half stays pixel-exact; the blur ramps in over the second half.
         val tag = "progressiveBlurMultiStop"
         setSplitContent(tag) {
-            radius =
+            blurRadiusSpec =
                 BlurRadiusSpec.verticalGradient(
                     listOf(BlurStop(0f, 0.dp), BlurStop(0.5f, 0.dp), BlurStop(1f, 20.toDp()))
                 )
@@ -225,7 +226,8 @@ class BlurTest {
     fun testProgressiveBlurRadial() {
         val tag = "progressiveBlurRadial"
         setSplitContent(tag) {
-            radius = BlurRadiusSpec.radialGradient(startRadius = 0.dp, endRadius = 20.toDp())
+            blurRadiusSpec =
+                BlurRadiusSpec.radialGradient(startRadius = 0.dp, endRadius = 20.toDp())
         }
         val map = rule.onNodeWithTag(tag).captureToImage().toPixelMap()
         // At the gradient center (surface center, on the color boundary) the radius is ~0: sharp.
@@ -254,14 +256,18 @@ class BlurTest {
                     Modifier.testTag("narrow")
                         .size(sizeDp)
                         .blur {
-                            radius = BlurRadiusSpec.shader(narrowRadius) { fullIntensityShader }
+                            blurRadiusSpec =
+                                BlurRadiusSpec.shader(narrowRadius) { fullIntensityShader }
                         }
                         .drawBehind { drawSplitColors() }
                 )
                 Box(
                     Modifier.testTag("wide")
                         .size(sizeDp)
-                        .blur { radius = BlurRadiusSpec.shader(wideRadius) { fullIntensityShader } }
+                        .blur {
+                            blurRadiusSpec =
+                                BlurRadiusSpec.shader(wideRadius) { fullIntensityShader }
+                        }
                         .drawBehind { drawSplitColors() }
                 )
             }
@@ -356,7 +362,7 @@ class BlurTest {
                 Modifier.testTag(tag)
                     .size(sizeDp)
                     .blur {
-                        radius =
+                        blurRadiusSpec =
                             BlurRadiusSpec.verticalGradient(
                                 startRadius = 0.dp,
                                 endRadius = endRadiusPx.toDp(),
@@ -393,7 +399,7 @@ class BlurTest {
             Box(
                 Modifier.size(100.dp)
                     .blur {
-                        radius =
+                        blurRadiusSpec =
                             BlurRadiusSpec.verticalGradient(
                                 startRadius = 0.dp,
                                 endRadius = endRadius,
@@ -422,7 +428,7 @@ class BlurTest {
             Box(
                 Modifier.size(100.dp)
                     .blur {
-                        radius =
+                        blurRadiusSpec =
                             BlurRadiusSpec.verticalGradient(startRadius = 0.dp, endRadius = 12.dp)
                     }
                     .drawBehind {
@@ -451,7 +457,7 @@ class BlurTest {
             Column {
                 Box(
                     Modifier.testTag("blurred").size(100.dp).background(Color.Blue).blur {
-                        radius =
+                        blurRadiusSpec =
                             BlurRadiusSpec.verticalGradient(
                                 startRadius = 0.dp,
                                 endRadius = endRadius,
@@ -508,7 +514,7 @@ class BlurTest {
                     // State read inside the block: re-runs the block per change, mutating the
                     // hoisted shader before the effect for this draw is built.
                     Api33Impl.setFloatUniform(runtimeShader, "intensity", intensity)
-                    radius = hoistedRadius
+                    blurRadiusSpec = hoistedRadius
                 }
             ) {
                 Box(Modifier.size(50.dp).background(Color.Red))
@@ -554,7 +560,7 @@ class BlurTest {
             Column {
                 Box(
                     Modifier.testTag("three").size(100.dp).background(Color.Blue).blur {
-                        radius = BlurRadiusSpec.verticalGradient(threeStops)
+                        blurRadiusSpec = BlurRadiusSpec.verticalGradient(threeStops)
                     }
                 ) {
                     // Contrasting inner edge so the blurred result depends on the gradient.
@@ -562,7 +568,7 @@ class BlurTest {
                 }
                 Box(
                     Modifier.testTag("five").size(100.dp).background(Color.Blue).blur {
-                        radius = BlurRadiusSpec.verticalGradient(fiveStops)
+                        blurRadiusSpec = BlurRadiusSpec.verticalGradient(fiveStops)
                     }
                 ) {
                     Box(Modifier.size(50.dp).background(Color.Red))
@@ -599,7 +605,7 @@ class BlurTest {
                 Box(
                     Modifier.testTag("block")
                         .size(sizeDp)
-                        .blur { radius = spec }
+                        .blur { blurRadiusSpec = spec }
                         .drawBehind { drawSplitColors() }
                 )
             }
@@ -654,7 +660,7 @@ class BlurTest {
                     Box(
                         Modifier.size(BLEED_BOX_PX.toDp())
                             .blur {
-                                radius =
+                                blurRadiusSpec =
                                     BlurRadiusSpec.verticalGradient(
                                         startRadius = 0.dp,
                                         endRadius = 12.toDp(),

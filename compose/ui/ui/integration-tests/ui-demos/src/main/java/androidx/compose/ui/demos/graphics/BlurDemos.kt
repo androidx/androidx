@@ -179,7 +179,7 @@ private fun InteractiveLinearBlurDemo() {
                     Modifier.width(260.dp).height(260.dp).blur {
                         // isHorizontal and sliderState.value are read inside the block: changing
                         // them re-applies layer properties without recomposition or re-recording.
-                        radius =
+                        blurRadiusSpec =
                             if (isHorizontal) {
                                 BlurRadiusSpec.horizontalGradient(
                                     startRadius = 0.dp,
@@ -328,7 +328,7 @@ private fun TactileRadialBlurDemo() {
                                         y = size.height / 2 + orbitRadius * sin(angle),
                                     )
                                 }
-                            radius =
+                            blurRadiusSpec =
                                 BlurRadiusSpec.radialGradient(
                                     center = center,
                                     fallOffRadius = 300.dp,
@@ -455,7 +455,7 @@ private fun GlassmorphicCardDemo() {
                     modifier =
                         Modifier.size(width = 280.dp, height = 180.dp)
                             .blur {
-                                radius =
+                                blurRadiusSpec =
                                     BlurRadiusSpec.linearGradient(
                                         start = DpOffset(0.dp, 0.dp),
                                         end = DpOffset(0.dp, size.height),
@@ -569,7 +569,7 @@ private fun CustomShaderMaskDemo() {
                         val sizePx = size.toSize()
                         customShader.setFloatUniform("size", sizePx.width, sizePx.height)
                         customShader.setFloatUniform("time", animatedTime)
-                        radius = customBlurRadius
+                        blurRadiusSpec = customBlurRadius
                     },
                 contentAlignment = Alignment.BottomStart,
             ) {
