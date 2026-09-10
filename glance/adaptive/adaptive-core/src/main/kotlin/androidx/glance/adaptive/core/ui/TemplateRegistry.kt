@@ -77,10 +77,7 @@ public object TemplateRegistry {
      */
     @Composable
     @Suppress("UNCHECKED_CAST", "ComposableNaming")
-    public fun <T : AdaptiveGlanceTemplate> render(
-        data: T,
-        surface: GlanceSurface = GlanceSurface.MOBILE_HOME_SCREEN,
-    ) {
+    public fun <T : AdaptiveGlanceTemplate> render(data: T, surface: GlanceSurface) {
         val entry =
             synchronized(lock) {
                 requireNotNull(registryMap[data.javaClass] as? Entry<T, Any>) {

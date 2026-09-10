@@ -23,6 +23,8 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.compose.ui.unit.DpSize
+import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
+import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurfaceDetector
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetDelegate
 import androidx.glance.adaptive.core.ui.TemplateRegistry
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
@@ -33,8 +35,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Base implementation of [GlanceAdaptiveWidgetDelegate] responsible for resolving active widget
- * placements and dispatching template updates to platform AppWidget infrastructure.
+ * Platform AppWidget implementation of [GlanceAdaptiveWidgetDelegate].
+ *
+ * Translates cross-surface declarative [AdaptiveGlanceTemplate] updates into concrete platform
+ * [android.widget.RemoteViews] updates targeting active [AppWidgetManager] widget instances and
+ * widget previews.
  */
 internal class BaseWidgetDelegate(
     private val context: Context,
@@ -65,16 +70,45 @@ internal class BaseWidgetDelegate(
                     repository.findAppWidgetIdsForWidgetName(widgetName, widgetIds)
 
                 if (componentToAppWidgetIds.isNotEmpty()) {
-                    // Compose template into RemoteViews using DpSize.Unspecified for global
-                    // broadcast updates across matching widget instances.
-                    val compositionResult =
-                        GlanceRemoteViews().compose(context = context, size = DpSize.Unspecified) {
-                            TemplateRegistry.render(currentData)
-                        }
-                    val remoteViews = compositionResult.remoteViews
-
+                    // Group widget IDs by detected host surface to minimize RemoteViews
+                    // compositions
+                    val surfaceToAppWidgetIds =
+                        mutableMapOf<AppWidgetGlanceSurface, MutableList<Int>>()
                     for ((_, appWidgetIds) in componentToAppWidgetIds) {
-                        appWidgetManager.updateAppWidget(appWidgetIds, remoteViews)
+                        for (appWidgetId in appWidgetIds) {
+                            val options =
+                                try {
+                                    appWidgetManager.getAppWidgetOptions(appWidgetId)
+                                } catch (e: Exception) {
+                                    null
+                                }
+                            val surface = AppWidgetSurfaceDetector.fromAppWidgetOptions(options)
+                            surfaceToAppWidgetIds
+                                .getOrPut(surface) { mutableListOf() }
+                                .add(appWidgetId)
+                        }
+                    }
+
+                    for ((surface, appWidgetIds) in surfaceToAppWidgetIds) {
+                        try {
+                            val compositionResult =
+                                GlanceRemoteViews().compose(
+                                    context = context,
+                                    size = DpSize.Unspecified,
+                                ) {
+                                    TemplateRegistry.render(currentData, surface)
+                                }
+                            val remoteViews = compositionResult.remoteViews
+                            appWidgetManager.updateAppWidget(appWidgetIds.toIntArray(), remoteViews)
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            Log.e(
+                                TAG,
+                                "Error updating widgets for surface $surface and widgetName $widgetName",
+                                e,
+                            )
+                        }
                     }
                 }
             } catch (e: CancellationException) {
@@ -131,35 +165,73 @@ internal class BaseWidgetDelegate(
                 }
                 if (validProviders.isEmpty()) return@withContext
 
-                val compositionResult =
-                    GlanceRemoteViews().compose(context = context, size = DpSize.Unspecified) {
-                        TemplateRegistry.render(previewData)
+                // Group providers by detected surface based on their widgetCategory.
+                // A provider can declare multiple categories (e.g. HOME_SCREEN and KEYGUARD),
+                // so we expand each into its target surface and individual category flag.
+                val surfaceToTargets =
+                    mutableMapOf<
+                        AppWidgetGlanceSurface,
+                        MutableList<Pair<AppWidgetProviderInfo, Int>>,
+                    >()
+                for (i in validProviders.indices) {
+                    val providerInfo = validProviders[i]
+                    val previewTargets =
+                        AppWidgetSurfaceDetector.resolvePreviewCategories(
+                            providerInfo.widgetCategory
+                        )
+                    for (j in previewTargets.indices) {
+                        val (surface, category) = previewTargets[j]
+                        surfaceToTargets
+                            .getOrPut(surface) { mutableListOf() }
+                            .add(providerInfo to category)
                     }
-                val remoteViews = compositionResult.remoteViews
+                }
 
-                for (idx in validProviders.indices) {
-                    val providerInfo = validProviders[idx]
-                    val categories =
-                        providerInfo.widgetCategory.takeIf { it != 0 }
-                            ?: AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN
-
-                    try {
-                        val success =
-                            appWidgetManager.setWidgetPreview(
-                                providerInfo.provider,
-                                categories,
-                                remoteViews,
-                            )
-                        if (!success) {
-                            Log.w(
+                for ((surface, targets) in surfaceToTargets) {
+                    val compositionResult =
+                        try {
+                            GlanceRemoteViews().compose(
+                                context = context,
+                                size = DpSize.Unspecified,
+                            ) {
+                                TemplateRegistry.render(previewData, surface)
+                            }
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            Log.e(
                                 TAG,
-                                "AppWidgetManager.setWidgetPreview returned false for ${providerInfo.provider}",
+                                "Error composing preview for surface $surface and widgetName $widgetName",
+                                e,
+                            )
+                            continue
+                        }
+                    val remoteViews = compositionResult.remoteViews
+
+                    for (i in targets.indices) {
+                        val (providerInfo, category) = targets[i]
+                        try {
+                            val success =
+                                appWidgetManager.setWidgetPreview(
+                                    providerInfo.provider,
+                                    category,
+                                    remoteViews,
+                                )
+                            if (!success) {
+                                Log.w(
+                                    TAG,
+                                    "AppWidgetManager.setWidgetPreview returned false for ${providerInfo.provider} with category $category",
+                                )
+                            }
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            Log.e(
+                                TAG,
+                                "Error setting widget preview for ${providerInfo.provider} with category $category",
+                                e,
                             )
                         }
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error setting widget preview for ${providerInfo.provider}", e)
                     }
                 }
             } catch (e: CancellationException) {

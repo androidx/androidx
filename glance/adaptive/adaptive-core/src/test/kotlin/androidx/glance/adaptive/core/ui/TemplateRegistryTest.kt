@@ -43,6 +43,8 @@ class TemplateRegistryTest {
         CARD
     }
 
+    private val testSurface = GlanceSurface.of("test_surface")
+
     @Before
     fun setUp() {
         TemplateRegistry.resetForTesting()
@@ -56,7 +58,7 @@ class TemplateRegistryTest {
         TemplateRegistry.register(
             DummyTemplate::class.java,
             selectArchetype = { _, surface, dimensions ->
-                assertThat(surface).isEqualTo(GlanceSurface.MOBILE_HOME_SCREEN)
+                assertThat(surface).isEqualTo(testSurface)
                 assertThat(dimensions).isEqualTo(Dimensions(200, 100))
                 DummyArchetype.CARD
             },
@@ -70,7 +72,7 @@ class TemplateRegistryTest {
 
         runComposition {
             CompositionLocalProvider(LocalContainerDimensions provides Dimensions(200, 100)) {
-                TemplateRegistry.render(dummy, GlanceSurface.MOBILE_HOME_SCREEN)
+                TemplateRegistry.render(dummy, testSurface)
             }
         }
 
@@ -81,7 +83,7 @@ class TemplateRegistryTest {
     @Test(expected = IllegalArgumentException::class)
     fun render_unregistered_throwsException() {
         val dummy = DummyTemplate("Unregistered")
-        runComposition { TemplateRegistry.render(dummy, GlanceSurface.MOBILE_HOME_SCREEN) }
+        runComposition { TemplateRegistry.render(dummy, testSurface) }
     }
 
     private fun runComposition(content: @Composable () -> Unit) {
