@@ -25,30 +25,44 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.ComposeUiTest
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.IdlingResource
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.registerIdlingResource
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.espresso.Espresso
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.junit.Test
 
 @LargeTest
-@OptIn(ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
 class ComposeIdlingResourceTest {
     companion object {
         private const val nonIdleDuration = 1000L
@@ -134,6 +148,39 @@ class ComposeIdlingResourceTest {
 
         assertThat(idlingResource.isIdleNow).isTrue()
         assertThat(endReadCount - startReadCount).isAtLeast(10)
+    }
+
+    @Test
+    fun testWaitForIdleWithTestDispatcherSetAsMain() {
+        val testDispatcher = StandardTestDispatcher()
+        Dispatchers.setMain(testDispatcher)
+        try {
+            runComposeUiTest(ComposeUiTestConfig(effectContext = testDispatcher)) {
+                setContent {
+                    var text by remember { mutableStateOf("Initial") }
+                    LaunchedEffect(Unit) {
+                        delay(5.seconds)
+                        text = "Updated"
+                    }
+                    Text(text)
+                }
+
+                // At 5000ms, LaunchedEffect resumes and mutates `text`, scheduling a recomposition
+                // frame for the next tick (5016ms). Because advanceTimeBy(5000) stops at
+                // 5008ms, Compose still has pending work.
+                mainClock.advanceTimeBy(5000)
+
+                // Calling assertIsDisplayed() triggers waitForIdle().
+                // On the first check, ComposeIdlingResource executes the pending recomposition
+                // frame and returns isIdleNow = false. IdlingResourceRegistry then starts polling
+                // every 20ms until isIdleNow returns true.
+                // If IdlingResourceRegistry polled on Dispatchers.Main, delay(20) would hang
+                // forever and throw ComposeNotIdleException.
+                onNodeWithText("Updated").assertIsDisplayed()
+            }
+        } finally {
+            Dispatchers.resetMain()
+        }
     }
 
     @Composable
