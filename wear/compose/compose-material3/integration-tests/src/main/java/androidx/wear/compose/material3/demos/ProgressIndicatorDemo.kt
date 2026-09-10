@@ -70,6 +70,7 @@ import androidx.wear.compose.material3.samples.SegmentedProgressIndicatorSample
 import androidx.wear.compose.material3.samples.SmallSegmentedProgressIndicatorBinarySample
 import androidx.wear.compose.material3.samples.SmallSegmentedProgressIndicatorSample
 import androidx.wear.compose.material3.samples.SmallValuesProgressIndicatorSample
+import androidx.wear.compose.material3.samples.StatusBarSuppressionSample
 
 val ProgressIndicatorDemos =
     listOf(
@@ -78,6 +79,9 @@ val ProgressIndicatorDemos =
             listOf(
                 ComposableDemo("Full screen") {
                     Centralize { FullScreenProgressIndicatorSample() }
+                },
+                ComposableDemo("Full screen (status bar suppression)") {
+                    Centralize { StatusBarSuppressionSample() }
                 },
                 ComposableDemo("Media button wrapping") {
                     Centralize { MediaButtonProgressIndicatorSample() }

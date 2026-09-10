@@ -49,7 +49,11 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.wear.compose.foundation.LocalScreenIsActive
 import androidx.wear.compose.foundation.ScrollInfoProvider
+import androidx.wear.compose.material3.samples.StatusBarSuppressionSample
+import java.time.LocalDate
+import java.time.LocalTime
 import kotlin.OptIn
 import org.junit.Assert
 import org.junit.Rule
@@ -1839,6 +1843,406 @@ class StatusBarTest {
         // After removing screen, reverts to appShowStatusBar (true)
         screenContent.removeScreen(screenKey)
         Assert.assertTrue(screenContent.currentScreenShowStatusBar.value)
+    }
+
+    @Test
+    fun stepper_whenDisplayedInScaffold_suppressesStatusBar() {
+        var showStepper by mutableStateOf(false)
+        var scaffoldState: ScaffoldState? = null
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                        if (showStepper) {
+                            Stepper(
+                                value = 2f,
+                                onValueChange = {},
+                                steps = 3,
+                                increaseIcon = { Text("+") },
+                                decreaseIcon = { Text("-") },
+                            ) {
+                                Text("StepperContent")
+                            }
+                        } else {
+                            Box(modifier = Modifier.fillMaxSize())
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+
+        composeTestRule.runOnUiThread { showStepper = true }
+        composeTestRule.waitForIdle()
+        Assert.assertFalse(state.screenContent.currentScreenShowStatusBar.value)
+
+        composeTestRule.runOnUiThread { showStepper = false }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+    }
+
+    @Test
+    fun stepper_whenNavigatedTo_maintainsSuppressionAfterScreenBecomesActive() {
+        var screenIsActive by mutableStateOf(false)
+        var scaffoldState: ScaffoldState? = null
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    CompositionLocalProvider(LocalScreenIsActive provides screenIsActive) {
+                        ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                            Stepper(
+                                value = 2f,
+                                onValueChange = {},
+                                steps = 3,
+                                increaseIcon = { Text("+") },
+                                decreaseIcon = { Text("-") },
+                            ) {
+                                Text("StepperContent")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+
+        // Navigation transition completes: screenIsActive becomes true
+        composeTestRule.runOnUiThread { screenIsActive = true }
+        composeTestRule.waitForIdle()
+
+        // Stepper is inside ScreenScaffold; status bar should remain suppressed
+        Assert.assertFalse(
+            "Stepper inside ScreenScaffold should suppress status bar after screen activates",
+            state.screenContent.currentScreenShowStatusBar.value,
+        )
+    }
+
+    @Test
+    fun stepper_whenDisplayedOutOfScaffold_hardHidesStatusBar() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
+        var showStepper by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides testView,
+            ) {
+                if (showStepper) {
+                    Stepper(
+                        value = 2f,
+                        onValueChange = {},
+                        steps = 3,
+                        increaseIcon = { Text("+") },
+                        decreaseIcon = { Text("-") },
+                    ) {
+                        Text("StepperContent")
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(0, testView.testController.hideCount)
+
+        composeTestRule.runOnUiThread { showStepper = true }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(testView.testController.hideCount > 0)
+
+        composeTestRule.runOnUiThread { showStepper = false }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(testView.testController.showCount > 0)
+    }
+
+    @Test
+    fun dialog_whenDisplayedOutOfScaffold_doesNotCrashAndHardHidesStatusBar() {
+        var showDialog by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                Dialog(visible = showDialog, onDismissRequest = { showDialog = false }) {
+                    Text("DialogOutOfScaffold")
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        composeTestRule.runOnUiThread { showDialog = true }
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("DialogOutOfScaffold").assertIsDisplayed()
+
+        composeTestRule.runOnUiThread { showDialog = false }
+        composeTestRule.waitForIdle()
+    }
+
+    @Test
+    fun statusBarSuppression_whenInScaffold_registersSuppressionScreen() {
+        var suppress by mutableStateOf(false)
+        var scaffoldState: ScaffoldState? = null
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                        if (suppress) {
+                            StatusBarSuppression()
+                        }
+                        Box(modifier = Modifier.fillMaxSize())
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+
+        composeTestRule.runOnUiThread { suppress = true }
+        composeTestRule.waitForIdle()
+        Assert.assertFalse(state.screenContent.currentScreenShowStatusBar.value)
+
+        composeTestRule.runOnUiThread { suppress = false }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+    }
+
+    @Test
+    fun statusBarSuppression_whenOutOfScaffold_hidesAndRestoresStatusBar() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
+        var suppress by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides testView,
+            ) {
+                if (suppress) {
+                    StatusBarSuppression()
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(0, testView.testController.hideCount)
+
+        composeTestRule.runOnUiThread { suppress = true }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(testView.testController.hideCount > 0)
+
+        composeTestRule.runOnUiThread { suppress = false }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(testView.testController.showCount > 0)
+    }
+
+    @Test
+    fun statusBarSuppression_whenScreenNotActive_doesNotMutateOrRestoreStatusBar() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
+        var suppress by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides testView,
+                LocalScreenIsActive provides false,
+            ) {
+                if (suppress) {
+                    StatusBarSuppression()
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(0, testView.testController.hideCount)
+        Assert.assertEquals(0, testView.testController.showCount)
+
+        // Dispose without ever activating screen
+        composeTestRule.runOnUiThread { suppress = false }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(0, testView.testController.hideCount)
+        Assert.assertEquals(0, testView.testController.showCount)
+    }
+
+    @Test
+    fun statusBarOrchestrator_whenNoMutationsApplied_restoreDoesNotMutateWindow() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
+        val orchestrator = StatusBarOrchestrator(testView)
+        orchestrator.restoreInitialStatusBarState()
+
+        Assert.assertEquals(0, testView.testController.showCount)
+        Assert.assertEquals(0, testView.testController.hideCount)
+    }
+
+    @Test
+    fun statusBarSuppression_sample_builds() {
+        composeTestRule.setContent { StatusBarSuppressionSample() }
+    }
+
+    @Test
+    fun timePicker_whenDisplayedInScaffold_suppressesStatusBar() {
+        var showTimePicker by mutableStateOf(false)
+        var scaffoldState: ScaffoldState? = null
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                        if (showTimePicker) {
+                            TimePicker(
+                                initialTime = LocalTime.of(10, 30),
+                                onTimePicked = {},
+                            )
+                        } else {
+                            Box(modifier = Modifier.fillMaxSize())
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+
+        composeTestRule.runOnUiThread { showTimePicker = true }
+        composeTestRule.waitForIdle()
+        Assert.assertFalse(state.screenContent.currentScreenShowStatusBar.value)
+
+        composeTestRule.runOnUiThread { showTimePicker = false }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+    }
+
+    @Test
+    fun timePicker_whenDisplayedOutOfScaffold_hardHidesStatusBar() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
+        var showTimePicker by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides testView,
+            ) {
+                if (showTimePicker) {
+                    TimePicker(
+                        initialTime = LocalTime.of(10, 30),
+                        onTimePicked = {},
+                    )
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(0, testView.testController.hideCount)
+
+        composeTestRule.runOnUiThread { showTimePicker = true }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(testView.testController.hideCount > 0)
+
+        composeTestRule.runOnUiThread { showTimePicker = false }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(testView.testController.showCount > 0)
+    }
+
+    @Test
+    fun datePicker_whenDisplayedInScaffold_suppressesStatusBar() {
+        var showDatePicker by mutableStateOf(false)
+        var scaffoldState: ScaffoldState? = null
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                        if (showDatePicker) {
+                            DatePicker(
+                                initialDate = LocalDate.of(2026, 1, 1),
+                                onDatePicked = {},
+                            )
+                        } else {
+                            Box(modifier = Modifier.fillMaxSize())
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+
+        composeTestRule.runOnUiThread { showDatePicker = true }
+        composeTestRule.waitForIdle()
+        Assert.assertFalse(state.screenContent.currentScreenShowStatusBar.value)
+
+        composeTestRule.runOnUiThread { showDatePicker = false }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+    }
+
+    @Test
+    fun datePicker_whenDisplayedOutOfScaffold_hardHidesStatusBar() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
+        var showDatePicker by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides testView,
+            ) {
+                if (showDatePicker) {
+                    DatePicker(
+                        initialDate = LocalDate.of(2026, 1, 1),
+                        onDatePicked = {},
+                    )
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(0, testView.testController.hideCount)
+
+        composeTestRule.runOnUiThread { showDatePicker = true }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(testView.testController.hideCount > 0)
+
+        composeTestRule.runOnUiThread { showDatePicker = false }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(testView.testController.showCount > 0)
     }
 
     private class TestWindowInsetsController : WindowInsetsController {
