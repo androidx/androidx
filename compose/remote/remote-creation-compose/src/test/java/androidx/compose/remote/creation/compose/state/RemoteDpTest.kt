@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
+import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createNamedRemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.util.RemoteDocumentTestRule
@@ -392,5 +393,67 @@ class RemoteDpTest {
             result.getIdForCreationState(it)
         }
         assertThat(context.getInteger(resultId)).isEqualTo(1)
+    }
+
+    @Test
+    fun createNamedRemoteDp_withLambda_hasSameValueAsLiteral() {
+        val dpValue = 48.rdp
+        val density = 2f
+
+        val (literalDpId, namedDpId, namedDpFromDpId, namedPxId) =
+            remoteComposeTestRule.initialise {
+                val namedDp = createNamedRemoteDp("testDp") { dpValue }
+                val namedDpFromDp = createNamedRemoteDp("testDp2", 48.dp)
+                val namedPx = namedDp.toPx()
+
+                val literalDpId = dpValue.value.getIdForCreationState(it)
+                val namedDpId = namedDp.value.getIdForCreationState(it)
+                val namedDpFromDpId = namedDpFromDp.value.getIdForCreationState(it)
+                val namedPxId = namedPx.getIdForCreationState(it)
+                listOf(literalDpId, namedDpId, namedDpFromDpId, namedPxId)
+            }
+
+        // DP value should be 48f, NOT multiplied by density (96f)
+        assertThat(context.getFloat(literalDpId)).isEqualTo(48f)
+        assertThat(context.getFloat(namedDpId)).isEqualTo(48f)
+        assertThat(context.getFloat(namedDpFromDpId)).isEqualTo(48f)
+        // toPx() should convert DP (48f) to pixels (96f at density 2)
+        assertThat(context.getFloat(namedPxId)).isEqualTo(48f * density)
+    }
+
+    @Test
+    fun createNamedRemoteDp_withLambda_underHostDensity_retainsDpValue() {
+        val density = 2f
+
+        val (namedDpId, namedPxId) =
+            remoteComposeTestRule.initialise { creationState ->
+                val prevDensity = creationState.remoteDensity
+                try {
+                    creationState.remoteDensity = RemoteDensity.Host
+                    val namedDp = createNamedRemoteDp("hostDp") { 48.rdp }
+                    val namedPx = namedDp.toPx()
+                    val namedDpId = namedDp.value.getIdForCreationState(creationState)
+                    val namedPxId = namedPx.getIdForCreationState(creationState)
+                    Pair(namedDpId, namedPxId)
+                } finally {
+                    creationState.remoteDensity = prevDensity
+                }
+            }
+
+        // Under RemoteDensity.Host, the DP value should still be 48f
+        assertThat(context.getFloat(namedDpId)).isEqualTo(48f)
+        // Player context density is 2f, so evaluating toPx() yields 96f
+        assertThat(context.getFloat(namedPxId)).isEqualTo(48f * density)
+    }
+
+    @Test
+    fun createNamedRemoteDp_withLambda_dynamicExpression() {
+        val resultId = remoteComposeTestRule.initialise {
+            val base = createNamedRemoteDp("base", 20.dp)
+            val derived = createNamedRemoteDp("derived") { base + 10.rdp }
+            derived.value.getIdForCreationState(it)
+        }
+
+        assertThat(context.getFloat(resultId)).isEqualTo(30f)
     }
 }
