@@ -62,6 +62,9 @@ class AnnotationKeepPlugin : Plugin<Project> {
                     "${variant.name}ExtractKeepRules",
                     ExtractKeepRulesTask::class.java,
                 ) { task ->
+                    task.group = "Build"
+                    task.description =
+                        "Extracts keep rules from annotations for the ${variant.name} variant."
                     task.outputKeepRules.set(
                         project.layout.buildDirectory.file(
                             "generated/${variant.name}/$GENERATED_KEEP_RULES"
@@ -91,7 +94,10 @@ class AnnotationKeepPlugin : Plugin<Project> {
                 project.tasks.register(
                     "${variant.name}KeepRulesTransformAar",
                     AarModificationTask::class.java,
-                )
+                ) { task ->
+                    task.group = "Build"
+                    task.description = "Transforms the ${variant.name} AAR to inject keep rules."
+                }
 
             variant.artifacts
                 .use(taskProvider)
