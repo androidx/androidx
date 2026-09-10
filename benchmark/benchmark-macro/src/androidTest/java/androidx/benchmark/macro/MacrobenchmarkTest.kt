@@ -491,7 +491,7 @@ class MacrobenchmarkTest {
                     metrics = emptyList(),
                     experimentalConfig = null,
                     tracingLibraryConfig = null,
-                    traceSuffix = "-memoryProfiling",
+                    traceSuffix = "memoryProfiling",
                     setupBlock = {},
                     measureBlock = { fileLabels.add(scope.fileLabel) },
                 )

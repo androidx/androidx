@@ -336,11 +336,7 @@ private fun macrobenchmark(
                         metrics = emptyList(), // Nothing to measure
                         experimentalConfig = experimentalConfig,
                         tracingLibraryConfig = tracingLibraryConfig,
-                        // We don't specify a traceSuffix here for backwards compatibility, as
-                        // method tracing historically did not use a suffix for the regular
-                        // Perfetto trace files (the method trace .trace file itself gets
-                        // labeled with -methodTracing- in MacrobenchmarkScope.stopMethodTracing).
-                        traceSuffix = null,
+                        traceSuffix = "methodTracing",
                         setupBlock = setupBlock,
                         measureBlock = measureBlock,
                     )
@@ -360,7 +356,7 @@ private fun macrobenchmark(
                         metrics = emptyList(),
                         experimentalConfig = experimentalConfig,
                         tracingLibraryConfig = tracingLibraryConfig,
-                        traceSuffix = "-memoryProfiling",
+                        traceSuffix = "memoryProfiling",
                         setupBlock = setupBlock,
                         measureBlock = measureBlock,
                     )

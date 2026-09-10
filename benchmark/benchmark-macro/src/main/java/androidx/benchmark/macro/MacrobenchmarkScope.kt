@@ -642,7 +642,7 @@ public class MacrobenchmarkScope(
                 Shell.executeScriptSilent("am profile stop $packageName")
             }
             // unique label so source is clear, dateToFileName so each run of test is unique on host
-            val outputFileName = "$fileLabel-methodTracing-${Outputs.dateToFileName()}.trace"
+            val outputFileName = "$fileLabel-${Outputs.dateToFileName()}.trace"
             val stagingFile =
                 File.createTempFile("methodTrace", null, Outputs.dirUsableByAppAndShell)
             // Staging location before we write it again using Outputs.writeFile(...)

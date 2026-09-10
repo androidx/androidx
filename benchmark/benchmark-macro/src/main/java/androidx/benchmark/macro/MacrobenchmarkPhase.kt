@@ -159,7 +159,7 @@ internal fun TraceProcessor.runPhase(
 
             // Setup file labels.
             val iterString = iteration.toString().padStart(3, '0')
-            val fileSuffix = traceSuffix ?: ""
+            val fileSuffix = if (traceSuffix != null) "-$traceSuffix" else ""
             scope.fileLabel = "${uniqueName}_iter$iterString$fileSuffix"
 
             val tracePath =
