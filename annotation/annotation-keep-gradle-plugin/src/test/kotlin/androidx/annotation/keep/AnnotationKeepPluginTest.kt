@@ -55,7 +55,13 @@ class AnnotationKeepPluginTest {
 
     @Test
     fun tasks() {
-        createTask("tasks").build()
+        val result = createTask("tasks").build()
+        assertThat(result.output)
+            .contains(
+                "releaseKeepRulesTransformAar - Transforms the release AAR to inject keep rules."
+            )
+        assertThat(result.output)
+            .contains("debugKeepRulesTransformAar - Transforms the debug AAR to inject keep rules.")
     }
 
     @Test
@@ -99,11 +105,17 @@ class AnnotationKeepPluginTest {
                 .withProjectDir(projectRoot)
                 // Avoid withPluginClassPath() and test against well known AGP versions. b/557395311
                 .withPluginClasspath()
-                .withArguments("tasks", "--all")
+                .withArguments("tasks")
                 .build()
 
-        assertThat(result.output).contains("debugExtractKeepRules")
-        assertThat(result.output).contains("releaseExtractKeepRules")
+        assertThat(result.output)
+            .contains(
+                "debugExtractKeepRules - Extracts keep rules from annotations for the debug variant."
+            )
+        assertThat(result.output)
+            .contains(
+                "releaseExtractKeepRules - Extracts keep rules from annotations for the release variant."
+            )
     }
 
     @Test
@@ -190,6 +202,23 @@ class AnnotationKeepPluginTest {
                 .build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
+
+        @Suppress("WithPluginClasspathUsage")
+        val tasksResult =
+            GradleRunner.create()
+                .withProjectDir(projectRoot)
+                .withPluginClasspath()
+                .withArguments("tasks")
+                .build()
+
+        assertThat(tasksResult.output)
+            .contains(
+                "keepRulesTransformJar - Transforms the keepRulesTransformJar JAR to inject keep rules."
+            )
+        assertThat(tasksResult.output)
+            .contains(
+                "customKeepRulesTransformJar - Transforms the customKeepRulesTransformJar JAR to inject keep rules."
+            )
 
         // Also test that keepRulesTransformJar executes cleanly with configuration cache
         @Suppress("WithPluginClasspathUsage")

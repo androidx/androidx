@@ -39,6 +39,8 @@ abstract class AnnotationKeepExtension @Inject constructor(private val project: 
     ): TaskProvider<TransformOutputTask> {
         val taskProvider =
             project.tasks.register(taskName, JarModificationTask::class.java) { task ->
+                task.group = "Build"
+                task.description = "Transforms the $taskName JAR to inject keep rules."
                 task.inputJar.set(input)
                 task.outputJar.set(
                     project.layout.buildDirectory.file(
