@@ -21,6 +21,7 @@ import androidx.a2ui.compose.ui.testing.A2uiTestController
 import androidx.a2ui.compose.ui.testing.A2uiTestSurface
 import androidx.a2ui.compose.ui.testing.getData
 import androidx.a2ui.model.catalog.functions.A2uiFormatStringFunction
+import androidx.a2ui.model.catalog.functions.A2uiRequiredFunction
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -51,7 +52,11 @@ class MaterialA2uiBasicCatalogV1TextFieldTest {
         A2uiCatalog(
             catalogId = "test_catalog",
             components = listOf(MaterialA2uiBasicCatalogV1Defaults.textField),
-            functions = listOf(A2uiFormatStringFunction.INSTANCE),
+            functions =
+                listOf(
+                    A2uiFormatStringFunction.INSTANCE,
+                    A2uiRequiredFunction.INSTANCE,
+                ),
         )
 
     @Test
@@ -778,5 +783,212 @@ class MaterialA2uiBasicCatalogV1TextFieldTest {
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
         onNodeWithText("john_doe")
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.HintText))
+    }
+
+    @Test
+    fun checks_allChecksPass_noErrorOrSupportingText() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "TextField",
+                properties =
+                    mapOf(
+                        "label" to "Zip Code",
+                        "value" to "12345",
+                        "checks" to
+                            listOf(
+                                mapOf(
+                                    "condition" to
+                                        mapOf(
+                                            "call" to "required",
+                                            "args" to
+                                                mapOf("value" to mapOf("path" to "/formData/zip")),
+                                        ),
+                                    "message" to "Zip code is required",
+                                )
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents = listOf(payload),
+                initialData = mapOf("formData" to mapOf("zip" to "12345")),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithText("12345").assertIsDisplayed()
+        onNodeWithText("12345").assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
+        onNodeWithText("Zip code is required").assertDoesNotExist()
+    }
+
+    @Test
+    fun checks_failedCheck_setsErrorAndDisplaysSupportingText() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "TextField",
+                properties =
+                    mapOf(
+                        "label" to "Zip Code",
+                        "value" to "12345",
+                        "checks" to
+                            listOf(
+                                mapOf(
+                                    "condition" to
+                                        mapOf(
+                                            "call" to "required",
+                                            "args" to
+                                                mapOf("value" to mapOf("path" to "/formData/zip")),
+                                        ),
+                                    "message" to "Zip code is required",
+                                )
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(payload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithText("12345").assertIsDisplayed()
+        onNodeWithText("12345")
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.Error,
+                    "Zip code is required",
+                )
+            )
+        onNodeWithText("Zip code is required").assertIsDisplayed()
+    }
+
+    @Test
+    fun checks_dynamicCondition_updatesErrorAndSupportingText() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "TextField",
+                properties =
+                    mapOf(
+                        "label" to "Email",
+                        "value" to "test@example.com",
+                        "checks" to
+                            listOf(
+                                mapOf(
+                                    "condition" to
+                                        mapOf(
+                                            "call" to "required",
+                                            "args" to
+                                                mapOf(
+                                                    "value" to mapOf("path" to "/verification/code")
+                                                ),
+                                        ),
+                                    "message" to "Verification code is required",
+                                )
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents = listOf(payload),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithText("test@example.com")
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.Error,
+                    "Verification code is required",
+                )
+            )
+        onNodeWithText("Verification code is required").assertIsDisplayed()
+
+        controller.updateData("/verification/code", "123456")
+        controller.waitForIdle()
+        waitForIdle()
+
+        onNodeWithText("test@example.com")
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
+        onNodeWithText("Verification code is required").assertDoesNotExist()
+    }
+
+    @Test
+    fun checks_multipleChecks_displaysFirstFailedCheck() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "TextField",
+                properties =
+                    mapOf(
+                        "label" to "Username",
+                        "value" to "usr",
+                        "checks" to
+                            listOf(
+                                mapOf(
+                                    "condition" to
+                                        mapOf(
+                                            "call" to "required",
+                                            "args" to
+                                                mapOf(
+                                                    "value" to mapOf("path" to "/form/firstName")
+                                                ),
+                                        ),
+                                    "message" to "First name is required",
+                                ),
+                                mapOf(
+                                    "condition" to
+                                        mapOf(
+                                            "call" to "required",
+                                            "args" to
+                                                mapOf("value" to mapOf("path" to "/form/lastName")),
+                                        ),
+                                    "message" to "Last name is required",
+                                ),
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(payload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithText("First name is required").assertIsDisplayed()
+        onNodeWithText("Last name is required").assertDoesNotExist()
+        onNodeWithText("usr")
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.Error,
+                    "First name is required",
+                )
+            )
+
+        controller.updateData("/form/firstName", "Jane")
+        controller.waitForIdle()
+        waitForIdle()
+
+        onNodeWithText("First name is required").assertDoesNotExist()
+        onNodeWithText("Last name is required").assertIsDisplayed()
+        onNodeWithText("usr")
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.Error,
+                    "Last name is required",
+                )
+            )
+
+        controller.updateData("/form/lastName", "Doe")
+        controller.waitForIdle()
+        waitForIdle()
+
+        onNodeWithText("First name is required").assertDoesNotExist()
+        onNodeWithText("Last name is required").assertDoesNotExist()
+        onNodeWithText("usr").assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
     }
 }

@@ -19,18 +19,24 @@ package androidx.compose.material3.a2ui.catalog
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFirstOrNull
 
 /** A Jetpack Compose Material 3 implementation of the A2UI Basic Catalog `"CheckBox"` component. */
 internal object MaterialA2uiBasicCatalogV1CheckBox : A2uiBasicCatalogV1.CheckBox {
@@ -46,36 +52,54 @@ internal object MaterialA2uiBasicCatalogV1CheckBox : A2uiBasicCatalogV1.CheckBox
         modifier: Modifier,
     ) {
         val interactionSource = remember { MutableInteractionSource() }
+        val failedCheck = checks.fastFirstOrNull { !it.condition }
+        val errorMessage = failedCheck?.message
 
-        Row(
-            modifier =
-                modifier
-                    .toggleable(
-                        value = value,
-                        interactionSource = interactionSource,
-                        indication = null,
-                        role = Role.Checkbox,
-                        enabled = enabled,
-                        onValueChange = onValueChange,
-                    )
-                    .a2uiAccessibility(
-                        attributes = accessibility,
-                        isClickable = true,
-                    ),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Checkbox(
-                checked = value,
-                onCheckedChange = null,
-                interactionSource = interactionSource,
-                enabled = enabled,
-            )
+        Column(modifier = modifier) {
+            Row(
+                modifier =
+                    Modifier.toggleable(
+                            value = value,
+                            interactionSource = interactionSource,
+                            indication = null,
+                            role = Role.Checkbox,
+                            enabled = enabled,
+                            onValueChange = onValueChange,
+                        )
+                        .a2uiAccessibility(
+                            attributes = accessibility,
+                            isClickable = true,
+                        )
+                        .semantics {
+                            if (!errorMessage.isNullOrBlank()) {
+                                error(errorMessage)
+                            }
+                        },
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Checkbox(
+                    checked = value,
+                    onCheckedChange = null,
+                    interactionSource = interactionSource,
+                    enabled = enabled,
+                )
 
-            Spacer(CheckBoxSpacingModifier)
+                Spacer(CheckBoxSpacingModifier)
 
-            Text(text = label)
+                Text(text = label)
+            }
+
+            if (!errorMessage.isNullOrBlank()) {
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = CheckBoxErrorModifier,
+                )
+            }
         }
     }
 }
 
 private val CheckBoxSpacingModifier = Modifier.width(8.dp)
+private val CheckBoxErrorModifier = Modifier.padding(top = 4.dp)
