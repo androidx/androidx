@@ -20,6 +20,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import android.annotation.SuppressLint;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build.VERSION;
 import android.os.Bundle;
 
@@ -510,6 +511,24 @@ public final class LocationCompat {
             }
     }
 
+    /**
+     * Return true if this location is considered complete. A location is considered complete if it
+     * has a non-null provider, accuracy, and non-zero time and elapsed realtime. The exact
+     * definition of completeness may change over time.
+     *
+     * <p>All locations supplied by the {@link LocationManager} are guaranteed to be complete.
+     */
+    public static boolean isComplete(@NonNull Location location) {
+        if (VERSION.SDK_INT >= 33) {
+            return Api33Impl.isComplete(location);
+        } else {
+            return location.getProvider() != null
+                    && location.hasAccuracy()
+                    && location.getTime() != 0
+                    && location.getElapsedRealtimeNanos() != 0;
+        }
+    }
+
     @RequiresApi(34)
     private static class Api34Impl {
 
@@ -565,6 +584,10 @@ public final class LocationCompat {
 
         static void removeBearingAccuracy(Location location) {
             location.removeBearingAccuracy();
+        }
+
+        static boolean isComplete(Location location) {
+            return location.isComplete();
         }
     }
 

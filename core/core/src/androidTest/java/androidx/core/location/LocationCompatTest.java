@@ -24,6 +24,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.SystemClock;
 
 import androidx.test.filters.SmallTest;
@@ -125,5 +126,19 @@ public class LocationCompatTest {
         assertTrue(LocationCompat.isMock(location));
         LocationCompat.setMock(location, false);
         assertFalse(LocationCompat.isMock(location));
+    }
+
+    @Test
+    public void testIsComplete() {
+        Location location = new Location((String) null);
+        assertFalse(LocationCompat.isComplete(location)); // No provider
+        location.setProvider(LocationManager.GPS_PROVIDER);
+        assertFalse(LocationCompat.isComplete(location)); // No accuracy
+        location.setAccuracy(5f);
+        assertFalse(LocationCompat.isComplete(location)); // No time
+        location.setTime(System.currentTimeMillis());
+        assertFalse(LocationCompat.isComplete(location)); // No elapsed real time
+        location.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
+        assertTrue(LocationCompat.isComplete(location));
     }
 }
