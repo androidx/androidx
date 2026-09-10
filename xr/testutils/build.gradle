@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+import androidx.build.AndroidXConfig
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
     id("com.android.library")
 }
 
@@ -28,11 +30,37 @@ dependencies {
     api(libs.testCore)
     api(libs.kotlinTest)
     api(project(":lifecycle:lifecycle-common"))
+    api(project(":xr:runtime:runtime"))
     api(project(":xr:runtime:runtime-manifest"))
+    implementation(project(":compose:runtime:runtime"))
+
+    androidTestImplementation(project(":compose:foundation:foundation"))
+    androidTestImplementation(project(":compose:material3:material3"))
+    androidTestImplementation(project(":compose:ui:ui"))
+    androidTestImplementation(project(":compose:ui:ui-test"))
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":xr:compose:compose"))
+    androidTestImplementation(libs.androidx.activity.compose)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testUiautomator)
 }
 
 android {
     namespace = "androidx.xr.testutils"
+}
+
+androidComponents {
+    def cliAssetsPath = new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/cli")
+            .absolutePath
+
+    onVariants(selector().all()) { variant ->
+        if (new File(cliAssetsPath).exists()) {
+            variant.sources.assets.addStaticSourceDirectory(cliAssetsPath)
+        }
+    }
 }
 
 androidx {
@@ -40,4 +68,7 @@ androidx {
     type = SoftwareType.INTERNAL_TEST_LIBRARY
     inceptionYear = "2026"
     description = "Internal test utilities for XR libraries."
+    deviceTests {
+        enabled = false
+    }
 }
