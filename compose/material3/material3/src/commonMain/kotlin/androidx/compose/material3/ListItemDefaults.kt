@@ -39,13 +39,14 @@ import androidx.compose.ui.unit.dp
 /** Contains the default values used by list items. */
 public object ListItemDefaults {
     /** The default padding applied to all content within a list item. */
-    public val ContentPadding: PaddingValues =
-        PaddingValues(
-            start = InteractiveListStartPadding,
-            end = InteractiveListEndPadding,
-            top = InteractiveListTopPadding,
-            bottom = InteractiveListBottomPadding,
-        )
+    public val ContentPadding: PaddingValues
+        get() =
+            PaddingValues(
+                start = InteractiveListStartPadding,
+                end = InteractiveListEndPadding,
+                top = InteractiveListTopPadding,
+                bottom = InteractiveListBottomPadding,
+            )
 
     internal val InteractiveListTopPadding
         get() =
