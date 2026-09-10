@@ -776,24 +776,8 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     var configuration: Configuration by
         mutableStateOf(Configuration(context.resources.configuration))
 
-    override val localeList: LocaleList by derivedStateOf {
-        val configurationLocaleListCompat = ConfigurationCompat.getLocales(configuration)
-        val guaranteedNonEmptyLocaleListCompat =
-            if (configurationLocaleListCompat.isEmpty) {
-                // The Configuration doesn't have a locale. This is weird, since we should have a
-                // fully defined Configuration in a fully defined environment, but some
-                // environments like previews may not have one. Instead of crashing, pull a
-                // guaranteed non-empty list.
-                LocaleListCompat.getDefault()
-            } else {
-                configurationLocaleListCompat
-            }
-        LocaleList(
-            List(guaranteedNonEmptyLocaleListCompat.size()) {
-                Locale(guaranteedNonEmptyLocaleListCompat[it]!!)
-            }
-        )
-    }
+    override var localeList: LocaleList by mutableStateOf(getLocaleList(configuration))
+        private set
 
     // Used as a CompositionLocal for performing autofill.
     override val autofill: AndroidAutofill? =
@@ -3520,6 +3504,31 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         ) {
             density = Density(context.createConfigurationContext(newConfig))
         }
+        val newLocales = ConfigurationCompat.getLocales(newConfig)
+        if (ConfigurationCompat.getLocales(oldConfig) != newLocales) {
+            localeList = getLocaleList(newLocales)
+        }
+    }
+
+    private fun getLocaleList(configuration: Configuration): LocaleList =
+        getLocaleList(ConfigurationCompat.getLocales(configuration))
+
+    private fun getLocaleList(configurationLocaleListCompat: LocaleListCompat): LocaleList {
+        val guaranteedNonEmptyLocaleListCompat =
+            if (configurationLocaleListCompat.isEmpty) {
+                // The Configuration doesn't have a locale. This is weird, since we should have a
+                // fully defined Configuration in a fully defined environment, but some
+                // environments like previews may not have one. Instead of crashing, pull a
+                // guaranteed non-empty list.
+                LocaleListCompat.getDefault()
+            } else {
+                configurationLocaleListCompat
+            }
+        return LocaleList(
+            List(guaranteedNonEmptyLocaleListCompat.size()) {
+                Locale(guaranteedNonEmptyLocaleListCompat[it]!!)
+            }
+        )
     }
 
     override fun onRtlPropertiesChanged(layoutDirection: Int) {
