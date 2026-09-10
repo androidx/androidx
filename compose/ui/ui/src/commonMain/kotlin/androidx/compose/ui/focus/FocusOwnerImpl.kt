@@ -18,8 +18,10 @@ package androidx.compose.ui.focus
 
 import androidx.collection.MutableLongSet
 import androidx.collection.MutableObjectList
+import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InteractionBarrierNode
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.CustomDestinationResult.Cancelled
 import androidx.compose.ui.focus.CustomDestinationResult.None
@@ -70,6 +72,23 @@ internal class FocusOwnerImpl(
     private val platformFocusOwner: PlatformFocusOwner,
     private val owner: Owner,
 ) : FocusOwner {
+
+    override val activeInteractionBarriers = mutableVectorOf<InteractionBarrierNode>()
+
+    override fun registerInteractionBarrier(node: InteractionBarrierNode) {
+        activeInteractionBarriers.add(node)
+    }
+
+    override fun unregisterInteractionBarrier(node: InteractionBarrierNode) {
+        activeInteractionBarriers.remove(node)
+    }
+
+    override fun onBarrierPositionChanged() {
+        val activeTarget = activeFocusTargetNode
+        if (activeTarget != null && activeTarget.isOccludedByInteractionBarrier()) {
+            clearFocus(force = true)
+        }
+    }
 
     // The root focus target is not focusable, and acts like a focus group.
     internal var rootFocusNode = FocusTargetNode(focusability = Focusability.Never)
@@ -384,10 +403,9 @@ internal class FocusOwnerImpl(
             return false
         }
 
+        val activeFocusTarget = rootFocusNode.findActiveFocusNode()
         val focusedSoftKeyboardInterceptionNode =
-            rootFocusNode
-                .findActiveFocusNode()
-                ?.nearestAncestorIncludingSelf(Nodes.SoftKeyboardKeyInput)
+            activeFocusTarget?.nearestAncestorIncludingSelf(Nodes.SoftKeyboardKeyInput)
 
         focusedSoftKeyboardInterceptionNode?.traverseAncestorsIncludingSelf(
             type = Nodes.SoftKeyboardKeyInput,
@@ -411,8 +429,9 @@ internal class FocusOwnerImpl(
             return false
         }
 
+        val activeFocusTarget = findFocusTargetNode()
         val focusedRotaryInputNode =
-            findFocusTargetNode()?.nearestAncestorIncludingSelf(Nodes.RotaryInput)
+            activeFocusTarget?.nearestAncestorIncludingSelf(Nodes.RotaryInput)
 
         focusedRotaryInputNode?.traverseAncestorsIncludingSelf(
             type = Nodes.RotaryInput,
@@ -433,8 +452,9 @@ internal class FocusOwnerImpl(
             return false
         }
 
+        val activeFocusTarget = activeFocusTargetNode
         val focusedIndirectPointerInputNode =
-            activeFocusTargetNode?.nearestAncestorIncludingSelf(Nodes.IndirectPointerInput)
+            activeFocusTarget?.nearestAncestorIncludingSelf(Nodes.IndirectPointerInput)
 
         focusedIndirectPointerInputNode?.let { node ->
             val ancestors = node.ancestors(Nodes.IndirectPointerInput)
