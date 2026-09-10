@@ -455,10 +455,18 @@ package androidx.xr.arcore {
   }
 
   public static final class Geospatial.State {
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.GeospatialPose getGeospatialPose();
     method @InaccessibleFromKotlin public androidx.xr.arcore.Geospatial.GeospatialTrackingState getGeospatialTrackingState();
+    method @InaccessibleFromKotlin public double getHorizontalAccuracy();
+    method @InaccessibleFromKotlin public double getOrientationYawAccuracy();
     method @InaccessibleFromKotlin public androidx.xr.arcore.Geospatial getOwner();
+    method @InaccessibleFromKotlin public double getVerticalAccuracy();
+    property public androidx.xr.runtime.math.GeospatialPose geospatialPose;
     property public androidx.xr.arcore.Geospatial.GeospatialTrackingState geospatialTrackingState;
+    property public double horizontalAccuracy;
+    property public double orientationYawAccuracy;
     property public androidx.xr.arcore.Geospatial owner;
+    property public double verticalAccuracy;
   }
 
   public final class GeospatialSurface {

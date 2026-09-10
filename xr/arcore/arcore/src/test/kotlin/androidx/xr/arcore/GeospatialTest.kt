@@ -102,6 +102,96 @@ class GeospatialTest {
         }
 
     @Test
+    fun getInstance_initialStateHasDefaultGeospatialValues() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+
+            assertThat(underTest.state.value.geospatialPose).isEqualTo(GeospatialPose())
+            assertThat(underTest.state.value.horizontalAccuracy).isEqualTo(0.0)
+            assertThat(underTest.state.value.verticalAccuracy).isEqualTo(0.0)
+            assertThat(underTest.state.value.orientationYawAccuracy).isEqualTo(0.0)
+        }
+
+    @Test
+    fun state_equalsAndHashCode_differentiatesAllProperties() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            val pose1 = GeospatialPose(1.0, 2.0, 3.0, Quaternion(1f, 2f, 3f, 4f))
+            val pose2 = GeospatialPose(4.0, 5.0, 6.0, Quaternion(0f, 0f, 0f, 1f))
+            val baseState =
+                Geospatial.State(
+                    Geospatial.GeospatialTrackingState.RUNNING,
+                    pose1,
+                    horizontalAccuracy = 1.0,
+                    verticalAccuracy = 2.0,
+                    orientationYawAccuracy = 3.0,
+                    owner = underTest,
+                )
+            val identicalState =
+                Geospatial.State(
+                    Geospatial.GeospatialTrackingState.RUNNING,
+                    pose1,
+                    horizontalAccuracy = 1.0,
+                    verticalAccuracy = 2.0,
+                    orientationYawAccuracy = 3.0,
+                    owner = underTest,
+                )
+            val differentTrackingState =
+                Geospatial.State(
+                    Geospatial.GeospatialTrackingState.PAUSED,
+                    pose1,
+                    horizontalAccuracy = 1.0,
+                    verticalAccuracy = 2.0,
+                    orientationYawAccuracy = 3.0,
+                    owner = underTest,
+                )
+            val differentPose =
+                Geospatial.State(
+                    Geospatial.GeospatialTrackingState.RUNNING,
+                    pose2,
+                    horizontalAccuracy = 1.0,
+                    verticalAccuracy = 2.0,
+                    orientationYawAccuracy = 3.0,
+                    owner = underTest,
+                )
+            val differentHorizontalAccuracy =
+                Geospatial.State(
+                    Geospatial.GeospatialTrackingState.RUNNING,
+                    pose1,
+                    horizontalAccuracy = 9.9,
+                    verticalAccuracy = 2.0,
+                    orientationYawAccuracy = 3.0,
+                    owner = underTest,
+                )
+            val differentVerticalAccuracy =
+                Geospatial.State(
+                    Geospatial.GeospatialTrackingState.RUNNING,
+                    pose1,
+                    horizontalAccuracy = 1.0,
+                    verticalAccuracy = 9.9,
+                    orientationYawAccuracy = 3.0,
+                    owner = underTest,
+                )
+            val differentYawAccuracy =
+                Geospatial.State(
+                    Geospatial.GeospatialTrackingState.RUNNING,
+                    pose1,
+                    horizontalAccuracy = 1.0,
+                    verticalAccuracy = 2.0,
+                    orientationYawAccuracy = 9.9,
+                    owner = underTest,
+                )
+
+            assertThat(baseState).isEqualTo(identicalState)
+            assertThat(baseState.hashCode()).isEqualTo(identicalState.hashCode())
+            assertThat(baseState).isNotEqualTo(differentTrackingState)
+            assertThat(baseState).isNotEqualTo(differentPose)
+            assertThat(baseState).isNotEqualTo(differentHorizontalAccuracy)
+            assertThat(baseState).isNotEqualTo(differentVerticalAccuracy)
+            assertThat(baseState).isNotEqualTo(differentYawAccuracy)
+        }
+
+    @Test
     fun update_stateMatchesDeviceState_whenRunning() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
@@ -111,6 +201,7 @@ class GeospatialTest {
             arCoreTestRule.geospatialTester.expectedHorizontalAccuracy = 1.2
             arCoreTestRule.geospatialTester.expectedVerticalAccuracy = 3.4
             arCoreTestRule.geospatialTester.expectedOrientationYawAccuracy = 5.6
+
             advanceUntilIdle()
 
             assertThat(underTest.state.value.geospatialTrackingState)
@@ -119,6 +210,33 @@ class GeospatialTest {
             assertThat(underTest.state.value.horizontalAccuracy).isEqualTo(1.2)
             assertThat(underTest.state.value.verticalAccuracy).isEqualTo(3.4)
             assertThat(underTest.state.value.orientationYawAccuracy).isEqualTo(5.6)
+        }
+
+    @Test
+    fun state_toString_containsAllProperties() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+            val expectedPose = GeospatialPose(1.0, 2.0, 3.0, Quaternion(1f, 2f, 3f, 4f))
+            val state =
+                Geospatial.State(
+                    Geospatial.GeospatialTrackingState.RUNNING,
+                    expectedPose,
+                    horizontalAccuracy = 1.2,
+                    verticalAccuracy = 3.4,
+                    orientationYawAccuracy = 5.6,
+                    owner = underTest,
+                )
+
+            assertThat(state.toString())
+                .isEqualTo(
+                    "State(" +
+                        "geospatialTrackingState=RUNNING, " +
+                        "geospatialPose=$expectedPose, " +
+                        "horizontalAccuracy=1.2, " +
+                        "verticalAccuracy=3.4, " +
+                        "orientationYawAccuracy=5.6" +
+                        ")"
+                )
         }
 
     @Test
