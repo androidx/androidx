@@ -1869,6 +1869,15 @@ public class CoreDocument implements Serializable {
         return hasComponentsTouchListeners || !mTouchListeners.isEmpty();
     }
 
+    /**
+     * Returns true if there are active applied touch operations (e.g. scroll or drag).
+     *
+     * @return true if there are applied touch operations
+     */
+    public boolean hasAppliedTouchOperations() {
+        return !mAppliedTouchOperations.isEmpty() || !mTouchListeners.isEmpty();
+    }
+
     // TODO support velocity estimate support, support regions
 
     /**

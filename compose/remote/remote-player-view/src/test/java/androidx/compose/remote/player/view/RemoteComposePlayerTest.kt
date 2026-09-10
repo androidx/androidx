@@ -26,7 +26,9 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
+import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.Theme
+import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
 import androidx.compose.remote.creation.Rc
@@ -421,6 +423,50 @@ class RemoteComposePlayerTest {
             host.hostInterceptedDrag,
         )
         assertFalse("Host parent disallowIntercept should remain false", host.disallowIntercept)
+    }
+
+    @Test
+    fun clickableComponent_allowsParentIntercept_soDragIsPropagatedToHost() {
+        val docBytes = createLeftBoxInteractiveDocument(isClickable = true, isScrollable = false)
+        val (_, host) = setupHostWithPlayer(docBytes)
+
+        // Swipe inside the clickable left box (75, 250 -> 75, 50)
+        performSwipe(host, 75f, 250f, 75f, 50f)
+
+        assertTrue(
+            "Host parent should intercept drag gesture when RemoteComposePlayer has a clickable component",
+            host.hostInterceptedDrag,
+        )
+        assertFalse("Host parent disallowIntercept should remain false", host.disallowIntercept)
+    }
+
+    @Test
+    fun clickableWithScrollableComponent_disallowsParentIntercept_soDragIsNotPropagatedToHost() {
+        val docBytes = createLeftBoxInteractiveDocument(isClickable = true, isScrollable = true)
+        val (_, host) = setupHostWithPlayer(docBytes)
+
+        // Swipe inside the left box with clickable and scrollable (75, 250 -> 75, 50)
+        performSwipe(host, 75f, 250f, 75f, 50f)
+
+        assertFalse(
+            "Host parent should not intercept drag gesture when RemoteComposePlayer has a scrollable component with clickable",
+            host.hostInterceptedDrag,
+        )
+    }
+
+    @Test
+    fun clickableWithTouchExpression_disallowsParentIntercept_soDragIsNotPropagatedToHost() {
+        val docBytes =
+            createLeftBoxInteractiveDocument(isClickable = true, hasTouchExpression = true)
+        val (_, host) = setupHostWithPlayer(docBytes)
+
+        // Swipe inside the left box with clickable and TouchExpression (75, 250 -> 75, 50)
+        performSwipe(host, 75f, 250f, 75f, 50f)
+
+        assertFalse(
+            "Host parent should not intercept drag gesture when RemoteComposePlayer has a TouchExpression with clickable",
+            host.hostInterceptedDrag,
+        )
     }
 
     @Test
@@ -871,11 +917,13 @@ class RemoteComposePlayerTest {
             isClickable: Boolean = false,
             isScrollable: Boolean = false,
             isTouchUp: Boolean = false,
+            hasTouchExpression: Boolean = false,
         ): ByteArray {
             return createLeftBoxInteractiveDocumentWithActionId(
                     isClickable,
                     isScrollable,
                     isTouchUp,
+                    hasTouchExpression,
                 )
                 .first
         }
@@ -884,28 +932,43 @@ class RemoteComposePlayerTest {
             isClickable: Boolean = false,
             isScrollable: Boolean = false,
             isTouchUp: Boolean = false,
+            hasTouchExpression: Boolean = false,
         ): Pair<ByteArray, Int> {
             val rcDoc = RemoteComposeWriter.obtain(300, 300, RcPlatformProfiles.ANDROIDX)
             val actionTextId = rcDoc.addText("myActionName")
             val scrollPositionId = rcDoc.addNamedFloat("scrollPosition", 0f)
             rcDoc.root {
                 rcDoc.row(RecordingModifier().fillMaxSize(), RowLayout.START, RowLayout.CENTER) {
-                    val leftModifier = RecordingModifier().width(150f).fillMaxHeight()
-                    val finalLeftModifier =
-                        when {
-                            isTouchUp ->
-                                leftModifier
-                                    .onTouchDown(HostAction(0))
-                                    .onTouchUp(HostAction(actionTextId))
-                            isClickable && isScrollable ->
-                                leftModifier
-                                    .onClick(HostAction(actionTextId))
-                                    .verticalScroll(scrollPositionId)
-                            isClickable -> leftModifier.onClick(HostAction(actionTextId))
-                            isScrollable -> leftModifier.verticalScroll(scrollPositionId)
-                            else -> leftModifier
+                    var leftModifier = RecordingModifier().width(150f).fillMaxHeight()
+                    if (isTouchUp) {
+                        leftModifier =
+                            leftModifier
+                                .onTouchDown(HostAction(0))
+                                .onTouchUp(HostAction(actionTextId))
+                    }
+                    if (isClickable) {
+                        leftModifier = leftModifier.onClick(HostAction(actionTextId))
+                    }
+                    if (isScrollable) {
+                        leftModifier = leftModifier.verticalScroll(scrollPositionId)
+                    }
+                    rcDoc.box(leftModifier, BoxLayout.CENTER, BoxLayout.CENTER) {
+                        if (hasTouchExpression) {
+                            rcDoc.addTouch(
+                                0f,
+                                0f,
+                                100f,
+                                TouchExpression.STOP_GENTLY,
+                                0f,
+                                0,
+                                null,
+                                null,
+                                RemoteContext.FLOAT_TOUCH_POS_Y,
+                                1f,
+                                Rc.FloatExpression.MUL,
+                            )
                         }
-                    rcDoc.box(finalLeftModifier, BoxLayout.CENTER, BoxLayout.CENTER) {}
+                    }
                     rcDoc.box(
                         RecordingModifier().width(150f).fillMaxHeight(),
                         BoxLayout.CENTER,
