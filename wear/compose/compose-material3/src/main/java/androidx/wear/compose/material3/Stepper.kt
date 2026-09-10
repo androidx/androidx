@@ -352,6 +352,7 @@ private fun StepperImpl(
     content: @Composable BoxScope.() -> Unit,
 ) {
     require(steps >= 0) { "Number of steps should be non-negative." }
+    StatusBarSuppression()
     val currentStep =
         remember(value, valueRange, steps) {
             RangeDefaults.snapValueToStep(value, valueRange, steps)

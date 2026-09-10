@@ -1785,6 +1785,8 @@ package androidx.wear.compose.material3 {
   }
 
   public final class StatusBarKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void StatusBarSuppression();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void StatusBarSuppression(androidx.compose.runtime.Composer?, int);
     method @InaccessibleFromKotlin public static androidx.compose.runtime.CompositionLocal<java.lang.Boolean> getLocalStatusBarEnabled();
     property public static androidx.compose.runtime.CompositionLocal<java.lang.Boolean> LocalStatusBarEnabled;
   }
