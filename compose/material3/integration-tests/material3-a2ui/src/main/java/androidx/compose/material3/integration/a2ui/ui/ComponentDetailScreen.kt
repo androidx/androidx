@@ -167,6 +167,11 @@ fun ComponentDetailScreen(
                         .weight(1f)
                         .padding(horizontal = 16.dp)
                         .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                        .verticalFadingEdge(
+                            scrollState = controlsScrollState,
+                            fadeHeight = 32.dp,
+                            bottomOffset = innerPadding.calculateBottomPadding(),
+                        )
                         .verticalScroll(controlsScrollState)
                         .padding(vertical = 8.dp)
                         .padding(bottom = innerPadding.calculateBottomPadding() + 16.dp)

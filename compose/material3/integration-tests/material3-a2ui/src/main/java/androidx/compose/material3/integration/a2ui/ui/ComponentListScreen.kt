@@ -59,7 +59,14 @@ fun ComponentListScreen(
     ) { innerPadding ->
         LazyColumn(
             state = lazyListState,
-            modifier = Modifier.fillMaxSize(),
+            modifier =
+                Modifier.fillMaxSize()
+                    .padding(top = innerPadding.calculateTopPadding())
+                    .verticalFadingEdge(
+                        lazyListState = lazyListState,
+                        fadeHeight = 32.dp,
+                        bottomOffset = innerPadding.calculateBottomPadding(),
+                    ),
             contentPadding =
                 PaddingValues(
                     top = innerPadding.calculateTopPadding(),
