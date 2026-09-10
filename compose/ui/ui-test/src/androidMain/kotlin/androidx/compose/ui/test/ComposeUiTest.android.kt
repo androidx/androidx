@@ -19,6 +19,7 @@
 package androidx.compose.ui.test
 
 import android.os.Build
+import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
@@ -36,6 +37,7 @@ import androidx.compose.ui.platform.WindowRecomposerPolicy
 import androidx.compose.ui.test.ComposeRootRegistry.OnRegistrationChangedListener
 import androidx.compose.ui.test.failure.FailurePipelineRunner
 import androidx.compose.ui.unit.Density
+import androidx.core.os.HandlerCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
@@ -53,6 +55,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -562,7 +565,12 @@ internal constructor(
      */
     protected abstract val activity: A?
 
-    private val idlingResourceRegistry = IdlingResourceRegistry()
+    @OptIn(InternalTestApi::class)
+    private val idlingResourceRegistry =
+        IdlingResourceRegistry(
+            pollDispatcher =
+                HandlerCompat.createAsync(Looper.getMainLooper()).asCoroutineDispatcher().immediate
+        )
 
     internal val composeRootRegistry = ComposeRootRegistry()
 
