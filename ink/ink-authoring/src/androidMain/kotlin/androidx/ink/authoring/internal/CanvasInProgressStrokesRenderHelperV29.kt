@@ -92,7 +92,7 @@ internal class CanvasInProgressStrokesRenderHelperV29<
 
     private val surfaceView =
         SurfaceView(mainView.context).apply {
-            setZOrderOnTop(true)
+            @Suppress("DEPRECATION") setZOrderOnTop(true)
             holder.setFormat(PixelFormat.TRANSLUCENT)
         }
 

@@ -358,8 +358,7 @@ class HistogramLatencyAggregatorTest {
         // Advance past the end of the second window.
         testScope.advanceTimeBy(10.seconds)
 
-        // Calls B and C get included in the second window. Call A was already accounted for so
-        // it
+        // Calls B and C get included in the second window. Call A was already accounted for so it
         // doesn't get double-counted.
         assertThat(counts).containsExactly(2, 1, 2).inOrder()
     }

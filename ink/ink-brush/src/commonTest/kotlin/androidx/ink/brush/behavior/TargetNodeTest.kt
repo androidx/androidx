@@ -62,9 +62,8 @@ class TargetNodeTest {
             .isEqualTo("Target.PAINT_ANIMATION_PROGRESS_OFFSET")
         assertThat(Target.HUE_OFFSET_IN_RADIANS.toString())
             .isEqualTo("Target.HUE_OFFSET_IN_RADIANS")
-        assertThat(Target.SATURATION_MULTIPLIER.toString())
-            .isEqualTo("Target.SATURATION_MULTIPLIER")
-        assertThat(Target.LUMINOSITY_OFFSET.toString()).isEqualTo("Target.LUMINOSITY_OFFSET")
+        assertThat(Target.CHROMA_MULTIPLIER.toString()).isEqualTo("Target.CHROMA_MULTIPLIER")
+        assertThat(Target.LIGHTNESS_OFFSET.toString()).isEqualTo("Target.LIGHTNESS_OFFSET")
         assertThat(Target.OPACITY_MULTIPLIER.toString()).isEqualTo("Target.OPACITY_MULTIPLIER")
     }
 

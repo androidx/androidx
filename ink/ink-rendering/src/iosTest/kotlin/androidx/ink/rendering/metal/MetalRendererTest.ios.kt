@@ -30,7 +30,6 @@ import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
-import kotlinx.cinterop.useContents
 import kotlinx.cinterop.usePinned
 import platform.CoreGraphics.CGAffineTransformMakeScale
 import platform.CoreGraphics.CGImageRelease
@@ -74,27 +73,31 @@ class MetalRendererTest : AbstractStrokeRendererTest() {
         return StrokeInputBatch.decode(bytes)
     }
 
-    private fun findPathForResource(name: String, type: String?): String? =
-        // The resources live in the test bundle, which is the only bundle ending with ".xctest".
-        // The
-        // more traditional way to access the test bundle is via the test class, but this doesn't
-        // work
-        // with a KMP test.
-        @Suppress("UNCHECKED_CAST") // Kotlin doesn't understand the type of NSBundle.allBundles
-        (NSBundle.allBundles as List<NSBundle>)
-            .firstOrNull { it.bundlePath.endsWith(".xctest") }
-            ?.pathForResource(name, ofType = type)
+    private fun findPathForResource(name: String, extension: String): String =
+        checkNotNull(
+            // Resources are packed into bundles differently across different build systems, so look
+            // at
+            // all bundles and use the first one that has the file being looked up. This looks for
+            // the
+            // file in the root directory of each bundle.
+            @Suppress("UNCHECKED_CAST") // Kotlin doesn't understand the type of NSBundle.allBundles
+            (NSBundle.allBundles as List<NSBundle>).firstNotNullOfOrNull {
+                it.pathForResource(name, ofType = extension)
+            }
+        ) {
+            "Could not find resource $name.$extension in any bundles."
+        }
 
     private val device =
         checkNotNull(MTLCreateSystemDefaultDevice()) { "Could not create Metal device." }
     private val commandQueue =
         checkNotNull(device.newCommandQueue()) { "Could not create Metal command queue." }
-    private val checkerboardUIImage: UIImage? by lazy {
-        findPathForResource("checkerboard", "png")?.let { UIImage(contentsOfFile = it) }
+    private val checkerboardUIImage: UIImage by lazy {
+        UIImage(contentsOfFile = findPathForResource("checkerboard", "png"))
     }
     private val textureStore = TextureImageStore { id ->
         when (id) {
-            "checkerboard" -> checkerboardUIImage?.CGImage
+            "checkerboard" -> checkerboardUIImage.CGImage
             else -> null
         }
     }
@@ -115,7 +118,6 @@ class MetalRendererTest : AbstractStrokeRendererTest() {
                     options = null,
                 )
             )
-        val height = ciImage.extent.useContents { height }.toDouble()
         // Metal is Y-down while Core Image is Y-up, so we need to flip the image vertically.
         val flippedImage = ciImage.imageByApplyingTransform(CGAffineTransformMakeScale(1.0, -1.0))
         val cgImage =

@@ -177,9 +177,9 @@ actual internal object ColorFunctionNative {
 
     @UsedByNative actual external fun createHueOffset(offsetDegrees: Float): Long
 
-    @UsedByNative actual external fun createSaturationMultiplier(multiplier: Float): Long
+    @UsedByNative actual external fun createChromaMultiplier(multiplier: Float): Long
 
-    @UsedByNative actual external fun createLuminosityOffset(offset: Float): Long
+    @UsedByNative actual external fun createLightnessOffset(offset: Float): Long
 
     @UsedByNative
     actual external fun createReplaceColor(
@@ -196,9 +196,9 @@ actual internal object ColorFunctionNative {
 
     @UsedByNative actual external fun getHueOffsetDegrees(nativePointer: Long): Float
 
-    @UsedByNative actual external fun getSaturationMultiplier(nativePointer: Long): Float
+    @UsedByNative actual external fun getChromaMultiplier(nativePointer: Long): Float
 
-    @UsedByNative actual external fun getLuminosityOffset(nativePointer: Long): Float
+    @UsedByNative actual external fun getLightnessOffset(nativePointer: Long): Float
 
     @UsedByNative actual external fun computeReplaceColorLong(nativePointer: Long): Long
 

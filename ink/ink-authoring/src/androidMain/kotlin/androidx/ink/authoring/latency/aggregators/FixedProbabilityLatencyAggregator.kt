@@ -100,7 +100,7 @@ private constructor(
          * callback runs in the [CoroutineScope] (or, for Java clients, the
          * [ScheduledExecutorService]) passed to [create].
          */
-        public suspend fun onLatencySample(startNanos: Long, endNanos: Long): Unit
+        public suspend fun onLatencySample(startNanos: Long, endNanos: Long)
     }
 
     @UiThread

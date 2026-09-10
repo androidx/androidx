@@ -16,6 +16,9 @@
 
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
+import org.apache.commons.io.FileUtils
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink
+import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
     id("AndroidXPlugin")
@@ -89,6 +92,25 @@ tasks.named("iosSimulatorArm64Test") {
         injected.execOps.exec {
             commandLine "xcrun", "simctl", "shutdown", device.get()
             ignoreExitValue = true
+        }
+    }
+}
+
+// Put resources into the bundle, so that MetalRendererTest can read them with NSBundle.
+// Technique copied from room3/integration-tests/multiplatformtestapp/build.gradle
+// See https://youtrack.jetbrains.com/issue/KT-39194 for further context.
+tasks.withType(KotlinNativeLink).configureEach { task ->
+    def isAppleOsTarget = task.target in [
+            KonanTarget.IOS_ARM64,
+            KonanTarget.IOS_X64,
+            KonanTarget.IOS_SIMULATOR_ARM64,
+    ].collect { it.INSTANCE.name }
+    if (isAppleOsTarget) {
+        def inputSchemaDir = layout.projectDirectory.dir("src/commonTest/resources").getAsFile()
+        // MetalRendererTest expects to find resources in the root directory of a bundle.
+        def outputSchemaDir = new File(task.destinationDirectory.getAsFile().get(), "/")
+        task.doLast {
+            FileUtils.copyDirectory(inputSchemaDir, outputSchemaDir)
         }
     }
 }
