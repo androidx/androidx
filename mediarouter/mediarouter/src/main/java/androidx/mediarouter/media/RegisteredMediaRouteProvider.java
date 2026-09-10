@@ -816,9 +816,8 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
 
         public boolean onDynamicRouteDescriptorsChanged(
-                int controllerId, Bundle descriptorsBundle) {
-            if (mServiceVersion != 0) {
-                //descriptorsBundle.setClassLoader(ParcelImpl.class.getClassLoader());
+                int controllerId, @Nullable Bundle descriptorsBundle) {
+            if (mServiceVersion != 0 && descriptorsBundle != null) {
                 MediaRouteDescriptor groupRoute = null;
                 Bundle groupBundle = descriptorsBundle.getParcelable(
                         DATA_KEY_GROUP_ROUTE_DESCRIPTOR);
@@ -827,6 +826,9 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
                 }
                 ArrayList<Bundle> bundles = descriptorsBundle.getParcelableArrayList(
                         DATA_KEY_DYNAMIC_ROUTE_DESCRIPTORS);
+                if (bundles == null) {
+                    return false;
+                }
                 List<DynamicRouteDescriptor> descriptors = new ArrayList<>();
                 for (Bundle bundle: bundles) {
                     descriptors.add(DynamicRouteDescriptor.fromBundle(bundle));
@@ -857,10 +859,13 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
             return false;
         }
 
-        public void onDynamicGroupRouteControllerCreated(int requestId, Bundle data) {
+        public void onDynamicGroupRouteControllerCreated(int requestId, @Nullable Bundle data) {
             ControlRequestCallback callback = mPendingCallbacks.get(requestId);
+            if (callback == null) {
+                return;
+            }
+            mPendingCallbacks.remove(requestId);
             if (data != null && data.containsKey(CLIENT_DATA_ROUTE_ID)) {
-                mPendingCallbacks.remove(requestId);
                 callback.onResult(data);
             } else {
                 callback.onError("DynamicGroupRouteController is created without valid route id.",
