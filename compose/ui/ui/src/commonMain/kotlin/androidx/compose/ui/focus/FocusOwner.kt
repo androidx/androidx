@@ -17,6 +17,8 @@
 package androidx.compose.ui.focus
 
 import androidx.collection.MutableObjectList
+import androidx.compose.runtime.collection.MutableVector
+import androidx.compose.ui.InteractionBarrierNode
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.indirect.IndirectPointerEvent
@@ -198,4 +200,19 @@ internal interface FocusOwner : FocusManager {
 
     /** Whether the active focus target node has requested focus capture. */
     var isFocusCaptured: Boolean
+
+    /** Active interaction barriers currently in the hierarchy. */
+    val activeInteractionBarriers: MutableVector<InteractionBarrierNode>?
+        get() = null
+
+    /** Registers an [InteractionBarrierNode] to block focus traversal and key input. */
+    fun registerInteractionBarrier(node: InteractionBarrierNode) {}
+
+    /** Unregisters an [InteractionBarrierNode] when it is detached. */
+    fun unregisterInteractionBarrier(node: InteractionBarrierNode) {}
+
+    /**
+     * Notifies the FocusOwner that an [InteractionBarrierNode]'s layout rect or position changed.
+     */
+    fun onBarrierPositionChanged() {}
 }
