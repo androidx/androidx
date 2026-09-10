@@ -1402,6 +1402,7 @@ package androidx.car.app.model {
   @androidx.car.app.annotations.CarProtocol public final class CarIcon {
     method public static androidx.car.app.model.CarIcon createOriginalIcon(androidx.core.graphics.drawable.IconCompat);
     method public static androidx.car.app.model.CarIcon createTintedIcon(androidx.core.graphics.drawable.IconCompat);
+    method public static androidx.car.app.model.CarIcon createTintedIcon(androidx.core.graphics.drawable.IconCompat, androidx.car.app.model.CarColor);
     method public androidx.core.graphics.drawable.IconCompat? getIcon();
     method public androidx.car.app.model.CarIconStyle? getStyle();
     method @Deprecated public androidx.car.app.model.CarColor? getTint();
