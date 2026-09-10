@@ -1606,7 +1606,9 @@ private class SpatialOrbiter(
                 } else {
                     parentEntity?.mutableSize ?: IntVolumeSize.Zero
                 }
-            val constraints = Constraints(maxWidth = panelSize.width, maxHeight = panelSize.height)
+            val anchorSize = IntSize(panelSize.width, panelSize.height)
+            val constraints =
+                safeConstraints(maxWidth = panelSize.width, maxHeight = panelSize.height)
             Layout(content = content) { measurables, _ ->
                 val placeables = measurables.fastMap { it.measure(constraints) }
                 val contentSize =
@@ -1621,7 +1623,7 @@ private class SpatialOrbiter(
                     panelEntity?.size = IntVolumeSize(contentSize.width, contentSize.height, 0)
                     val pose =
                         poseProvider.calculatePose(
-                            anchorSize = IntSize(constraints.maxWidth, constraints.maxHeight),
+                            anchorSize = anchorSize,
                             layoutDirection =
                                 parentEntity?.layout?.layoutDirection ?: LayoutDirection.Ltr,
                             orbiterContentSize = contentSize,
@@ -1645,6 +1647,30 @@ private class SpatialOrbiter(
     override fun onAbandoned() {
         // No-op. If resources were created during 'init' (constructor),
         // they should be released here since onRemembered() was never called.
+    }
+}
+
+/**
+ * Maximum dimension safely representable along both axes in [Constraints].
+ *
+ * [Constraints] packs dimensions into 31 bits across both axes. Dimensions up to 32,766 use at most
+ * 15 bits each (30 bits total), ensuring they fit without overflowing the bit budget.
+ */
+private const val MAX_SUPPORTED_CONSTRAINT_DIMENSION = 32766
+
+/**
+ * Creates a [Constraints] with the specified [maxWidth] and [maxHeight], gracefully falling back to
+ * clamped dimensions if the values exceed what 2D Compose can pack into 31 bits.
+ */
+private fun safeConstraints(maxWidth: Int, maxHeight: Int): Constraints {
+    val nonNegativeWidth = maxWidth.coerceAtLeast(0)
+    val nonNegativeHeight = maxHeight.coerceAtLeast(0)
+    return try {
+        Constraints(maxWidth = nonNegativeWidth, maxHeight = nonNegativeHeight)
+    } catch (e: IllegalArgumentException) {
+        val clampedWidth = nonNegativeWidth.coerceAtMost(MAX_SUPPORTED_CONSTRAINT_DIMENSION)
+        val clampedHeight = nonNegativeHeight.coerceAtMost(MAX_SUPPORTED_CONSTRAINT_DIMENSION)
+        Constraints(maxWidth = clampedWidth, maxHeight = clampedHeight)
     }
 }
 
