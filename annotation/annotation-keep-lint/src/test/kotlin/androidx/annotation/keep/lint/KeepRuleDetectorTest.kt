@@ -440,6 +440,397 @@ class KeepRuleDetectorTest {
     }
 
     @Test
+    fun testClassNewInstance() {
+        lint()
+            .issues(KeepRuleDetector.ISSUE)
+            .files(
+                kotlin(
+                        """
+            @file:Suppress("unused", "NewApi")
+
+            package com.example.keeptest
+            import test.pkg.api.Foo
+            import test.pkg.api.Bar
+
+            fun tryCreateFoo(): Foo? {
+                val klass = Class.forName("com.example.FooImpl")
+                return try {
+                    klass.newInstance() as Foo
+                } catch (_: Throwable) {
+                    null
+                }
+            }
+
+            fun tryCreateFooChained(): Foo? {
+                return try {
+                    Class.forName("com.example.FooImpl").newInstance() as Foo
+                } catch (_: Throwable) {
+                    null
+                }
+            }
+
+            fun tryCreateFooLiteral(): Foo? {
+                return try {
+                    Foo::class.java.newInstance()
+                } catch (_: Throwable) {
+                    null
+                }
+            }
+
+            fun tryCreateBarSubclass(name: String): Bar? {
+                val klass = Class.forName(name).asSubclass(Bar::class.java)
+                return try {
+                    klass.newInstance() as Bar
+                } catch (_: Throwable) {
+                    null
+                }
+            }
+            """
+                    )
+                    .indented(),
+                kotlin(
+                        """
+            package test.pkg.api
+            interface Foo
+            open class Bar
+            """
+                    )
+                    .indented(),
+                *usesReflectionStubs,
+            )
+            .run()
+            .expect(
+                """
+        src/com/example/keeptest/test.kt:10: Error: This method calls com.example.FooImpl.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
+                klass.newInstance() as Foo
+                      ~~~~~~~~~~~
+        src/com/example/keeptest/test.kt:18: Error: This method calls com.example.FooImpl.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
+                Class.forName("com.example.FooImpl").newInstance() as Foo
+                                                     ~~~~~~~~~~~
+        src/com/example/keeptest/test.kt:26: Error: This method calls test.pkg.api.Foo.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
+                Foo::class.java.newInstance()
+                                ~~~~~~~~~~~
+        src/com/example/keeptest/test.kt:35: Error: This method calls test.pkg.api.Bar.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
+                klass.newInstance() as Bar
+                      ~~~~~~~~~~~
+        4 errors
+        """
+            )
+            .expectFixDiffs(
+                """
+        Autofix for src/com/example/keeptest/test.kt line 10: Annotate with @UsesReflectionToConstruct:
+        @@ -4,0 +5 @@
+        +import androidx.annotation.keep.UsesReflectionToConstruct
+        @@ -6,0 +8,4 @@
+        +@UsesReflectionToConstruct(
+        +    className = "com.example.FooImpl",
+        +    parameterTypes = []
+        +)
+        Autofix for src/com/example/keeptest/test.kt line 18: Annotate with @UsesReflectionToConstruct:
+        @@ -4,0 +5 @@
+        +import androidx.annotation.keep.UsesReflectionToConstruct
+        @@ -15,0 +17,4 @@
+        +@UsesReflectionToConstruct(
+        +    className = "com.example.FooImpl",
+        +    parameterTypes = []
+        +)
+        Autofix for src/com/example/keeptest/test.kt line 26: Annotate with @UsesReflectionToConstruct:
+        @@ -4,0 +5 @@
+        +import androidx.annotation.keep.UsesReflectionToConstruct
+        @@ -23,0 +25,4 @@
+        +@UsesReflectionToConstruct(
+        +    classConstant = Foo::class,
+        +    parameterTypes = []
+        +)
+        Autofix for src/com/example/keeptest/test.kt line 35: Annotate with @UsesReflectionToConstruct:
+        @@ -4,0 +5 @@
+        +import androidx.annotation.keep.UsesReflectionToConstruct
+        @@ -31,0 +33,4 @@
+        +@UsesReflectionToConstruct(
+        +    classConstant = Bar::class,
+        +    parameterTypes = []
+        +)
+        """
+            )
+    }
+
+    @Test
+    fun testClassNewInstanceJava() {
+        lint()
+            .issues(KeepRuleDetector.ISSUE)
+            .files(
+                java(
+                        """
+            package com.example.keeptest;
+
+            import test.pkg.api.Foo;
+            import test.pkg.api.Bar;
+
+            public class JavaTest {
+                public Foo tryCreateFoo() {
+                    try {
+                        Class<?> klass = Class.forName("com.example.FooImpl");
+                        return (Foo) klass.newInstance();
+                    } catch (Throwable t) {
+                        return null;
+                    }
+                }
+
+                public Foo tryCreateFooChained() {
+                    try {
+                        return (Foo) Class.forName("com.example.FooImpl").newInstance();
+                    } catch (Throwable t) {
+                        return null;
+                    }
+                }
+
+                public Foo tryCreateFooLiteral() {
+                    try {
+                        return Foo.class.newInstance();
+                    } catch (Throwable t) {
+                        return null;
+                    }
+                }
+
+                public Bar tryCreateBarSubclass(String name) {
+                    try {
+                        Class<?> klass = Class.forName(name).asSubclass(Bar.class);
+                        return (Bar) klass.newInstance();
+                    } catch (Throwable t) {
+                        return null;
+                    }
+                }
+            }
+            """
+                    )
+                    .indented(),
+                kotlin(
+                        """
+            package test.pkg.api
+            interface Foo
+            open class Bar
+            """
+                    )
+                    .indented(),
+                *usesReflectionStubs,
+            )
+            .run()
+            .expect(
+                """
+        src/com/example/keeptest/JavaTest.java:10: Error: This method calls com.example.FooImpl.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
+                    return (Foo) klass.newInstance();
+                                       ~~~~~~~~~~~
+        src/com/example/keeptest/JavaTest.java:18: Error: This method calls com.example.FooImpl.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
+                    return (Foo) Class.forName("com.example.FooImpl").newInstance();
+                                                                      ~~~~~~~~~~~
+        src/com/example/keeptest/JavaTest.java:26: Error: This method calls test.pkg.api.Foo.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
+                    return Foo.class.newInstance();
+                                     ~~~~~~~~~~~
+        src/com/example/keeptest/JavaTest.java:35: Error: This method calls test.pkg.api.Bar.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
+                    return (Bar) klass.newInstance();
+                                       ~~~~~~~~~~~
+        4 errors
+        """
+            )
+            .expectFixDiffs(
+                """
+        Autofix for src/com/example/keeptest/JavaTest.java line 10: Annotate with @UsesReflectionToConstruct:
+        @@ -3,0 +4 @@
+        +import androidx.annotation.keep.UsesReflectionToConstruct;
+        @@ -6,0 +8,4 @@
+        +    @UsesReflectionToConstruct(
+        +        className = "com.example.FooImpl",
+        +        parameterTypes = {}
+        +    )
+        Autofix for src/com/example/keeptest/JavaTest.java line 18: Annotate with @UsesReflectionToConstruct:
+        @@ -3,0 +4 @@
+        +import androidx.annotation.keep.UsesReflectionToConstruct;
+        @@ -15,0 +17,4 @@
+        +    @UsesReflectionToConstruct(
+        +        className = "com.example.FooImpl",
+        +        parameterTypes = {}
+        +    )
+        Autofix for src/com/example/keeptest/JavaTest.java line 26: Annotate with @UsesReflectionToConstruct:
+        @@ -3,0 +4 @@
+        +import androidx.annotation.keep.UsesReflectionToConstruct;
+        @@ -23,0 +25,4 @@
+        +    @UsesReflectionToConstruct(
+        +        classConstant = Foo.class,
+        +        parameterTypes = {}
+        +    )
+        Autofix for src/com/example/keeptest/JavaTest.java line 35: Annotate with @UsesReflectionToConstruct:
+        @@ -3,0 +4 @@
+        +import androidx.annotation.keep.UsesReflectionToConstruct;
+        @@ -31,0 +33,4 @@
+        +    @UsesReflectionToConstruct(
+        +        classConstant = Bar.class,
+        +        parameterTypes = {}
+        +    )
+        """
+            )
+    }
+
+    @Test
+    fun testClassNewInstanceAlreadyAnnotated() {
+        lint()
+            .issues(KeepRuleDetector.ISSUE)
+            .files(
+                kotlin(
+                        """
+            @file:Suppress("unused", "NewApi")
+
+            package com.example.keeptest
+            import test.pkg.api.Foo
+            import test.pkg.api.Bar
+            import androidx.annotation.keep.UsesReflectionToConstruct
+
+            @UsesReflectionToConstruct(
+                className = "com.example.FooImpl",
+                parameterTypes = []
+            )
+            fun tryCreateFoo(): Foo? {
+                val klass = Class.forName("com.example.FooImpl")
+                return try {
+                    klass.newInstance() as Foo
+                } catch (_: Throwable) {
+                    null
+                }
+            }
+
+            @UsesReflectionToConstruct(className = "com.example.FooImpl")
+            fun tryCreateFooChained(): Foo? {
+                return try {
+                    Class.forName("com.example.FooImpl").newInstance() as Foo
+                } catch (_: Throwable) {
+                    null
+                }
+            }
+
+            @UsesReflectionToConstruct(
+                classConstant = Foo::class,
+                parameterTypes = []
+            )
+            fun tryCreateFooLiteral(): Foo? {
+                return try {
+                    Foo::class.java.newInstance()
+                } catch (_: Throwable) {
+                    null
+                }
+            }
+
+            @UsesReflectionToConstruct(
+                classConstant = Bar::class,
+                parameterTypes = []
+            )
+            fun tryCreateBarSubclass(name: String): Bar? {
+                val klass = Class.forName(name).asSubclass(Bar::class.java)
+                return try {
+                    klass.newInstance() as Bar
+                } catch (_: Throwable) {
+                    null
+                }
+            }
+            """
+                    )
+                    .indented(),
+                java(
+                        """
+            package com.example.keeptest;
+
+            import test.pkg.api.Foo;
+            import test.pkg.api.Bar;
+            import androidx.annotation.keep.UsesReflectionToConstruct;
+
+            public class JavaTest {
+                @UsesReflectionToConstruct(
+                    className = "com.example.FooImpl",
+                    parameterTypes = {}
+                )
+                public Foo tryCreateFoo() {
+                    try {
+                        Class<?> klass = Class.forName("com.example.FooImpl");
+                        return (Foo) klass.newInstance();
+                    } catch (Throwable t) {
+                        return null;
+                    }
+                }
+
+                @UsesReflectionToConstruct(
+                    classConstant = Foo.class,
+                    parameterTypes = {}
+                )
+                public Foo tryCreateFooLiteral() {
+                    try {
+                        return Foo.class.newInstance();
+                    } catch (Throwable t) {
+                        return null;
+                    }
+                }
+            }
+            """
+                    )
+                    .indented(),
+                kotlin(
+                        """
+            package test.pkg.api
+            interface Foo
+            open class Bar
+            """
+                    )
+                    .indented(),
+                *usesReflectionStubs,
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun testNonReflectionNewInstanceWithClassForName() {
+        lint()
+            .issues(KeepRuleDetector.ISSUE)
+            .files(
+                kotlin(
+                        """
+            @file:Suppress("unused", "NewApi")
+
+            package com.example.keeptest
+            import test.pkg.api.Foo
+            import test.pkg.api.CustomFactory
+
+            fun testNonReflectionNewInstance() {
+                // Class.forName should be reported because CustomFactory.newInstance is not a reflection call
+                Class.forName("com.example.FooImpl")
+                CustomFactory.newInstance()
+            }
+            """
+                    )
+                    .indented(),
+                kotlin(
+                        """
+            package test.pkg.api
+            interface Foo
+            class CustomFactory {
+                companion object {
+                    fun newInstance(): CustomFactory = CustomFactory()
+                }
+            }
+            """
+                    )
+                    .indented(),
+                *usesReflectionStubs,
+            )
+            .run()
+            .expect(
+                """
+        src/com/example/keeptest/test.kt:9: Error: This method calls com.example.FooImpl reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
+            Class.forName("com.example.FooImpl")
+                  ~~~~~~~
+        1 error
+        """
+            )
+    }
+
+    @Test
     fun testConstructorSubclass() {
         lint()
             .issues(KeepRuleDetector.ISSUE)
