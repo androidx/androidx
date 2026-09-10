@@ -65,7 +65,8 @@ internal constructor(
      * An [AudioOutputProvider] that can be used to configure an
      * [androidx.media3.exoplayer.ExoPlayer.Builder] for
      * [ambisonics](https://developer.android.com/develop/xr/jetpack-xr-sdk/add-spatial-audio#ambionics_example)
-     * audio playback.
+     * audio playback. An [AudioOutputProvider] can only be bound with one Exoplayer instance and
+     * should not be re-used with other instances.
      */
     public val audioOutputProvider: AudioOutputProvider
         get() = rtSoundFieldAudioComponent.getAudioOutputProvider()
