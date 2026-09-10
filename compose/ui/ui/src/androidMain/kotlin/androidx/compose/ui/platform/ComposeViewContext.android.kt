@@ -568,7 +568,7 @@ private constructor(
                     {
                         owner.scrollCaptureInProgress
                     },
-                LocalHostDefaultProvider providesComputed { owner.hostDefaultProvider },
+                LocalHostDefaultProvider provides owner.hostDefaultProvider,
                 LocalView provides owner.view,
                 LocalViewConfiguration provides owner.viewConfiguration,
                 LocalImageVectorCache provides imageVectorCache,
