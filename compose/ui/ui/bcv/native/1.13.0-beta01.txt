@@ -1262,12 +1262,12 @@ sealed interface androidx.compose.ui.draw/BlurScope : androidx.compose.ui.unit/D
     abstract var alpha // androidx.compose.ui.draw/BlurScope.alpha|{}alpha[0]
         abstract fun <get-alpha>(): kotlin/Float // androidx.compose.ui.draw/BlurScope.alpha.<get-alpha>|<get-alpha>(){}[0]
         abstract fun <set-alpha>(kotlin/Float) // androidx.compose.ui.draw/BlurScope.alpha.<set-alpha>|<set-alpha>(kotlin.Float){}[0]
+    abstract var blurRadiusSpec // androidx.compose.ui.draw/BlurScope.blurRadiusSpec|{}blurRadiusSpec[0]
+        abstract fun <get-blurRadiusSpec>(): androidx.compose.ui.graphics.blur/BlurRadiusSpec // androidx.compose.ui.draw/BlurScope.blurRadiusSpec.<get-blurRadiusSpec>|<get-blurRadiusSpec>(){}[0]
+        abstract fun <set-blurRadiusSpec>(androidx.compose.ui.graphics.blur/BlurRadiusSpec) // androidx.compose.ui.draw/BlurScope.blurRadiusSpec.<set-blurRadiusSpec>|<set-blurRadiusSpec>(androidx.compose.ui.graphics.blur.BlurRadiusSpec){}[0]
     abstract var edgeTreatment // androidx.compose.ui.draw/BlurScope.edgeTreatment|{}edgeTreatment[0]
         abstract fun <get-edgeTreatment>(): androidx.compose.ui.draw/BlurredEdgeTreatment // androidx.compose.ui.draw/BlurScope.edgeTreatment.<get-edgeTreatment>|<get-edgeTreatment>(){}[0]
         abstract fun <set-edgeTreatment>(androidx.compose.ui.draw/BlurredEdgeTreatment) // androidx.compose.ui.draw/BlurScope.edgeTreatment.<set-edgeTreatment>|<set-edgeTreatment>(androidx.compose.ui.draw.BlurredEdgeTreatment){}[0]
-    abstract var radius // androidx.compose.ui.draw/BlurScope.radius|{}radius[0]
-        abstract fun <get-radius>(): androidx.compose.ui.graphics.blur/BlurRadiusSpec // androidx.compose.ui.draw/BlurScope.radius.<get-radius>|<get-radius>(){}[0]
-        abstract fun <set-radius>(androidx.compose.ui.graphics.blur/BlurRadiusSpec) // androidx.compose.ui.draw/BlurScope.radius.<set-radius>|<set-radius>(androidx.compose.ui.graphics.blur.BlurRadiusSpec){}[0]
 }
 
 sealed interface androidx.compose.ui.draw/CacheDrawModifierNode : androidx.compose.ui.node/DrawModifierNode { // androidx.compose.ui.draw/CacheDrawModifierNode|null[0]

@@ -1,7 +1,25 @@
 // Baseline format: 1.0
+AddedProperty: androidx.compose.ui.draw.BlurScope#blurRadiusSpec:
+    Added property androidx.compose.ui.draw.BlurScope#blurRadiusSpec
+
+
+ParameterNameChange: androidx.compose.ui.draw.BlurKt#blur(androidx.compose.ui.Modifier, androidx.compose.ui.graphics.blur.BlurRadiusSpec, androidx.compose.ui.draw.BlurredEdgeTreatment, float) parameter #1:
+    Source breaking change: Attempted to change parameter name from radius to blurRadiusSpec in method androidx.compose.ui.draw.BlurKt.blur
+
+
 RemovedClass: androidx.compose.ui.graphics.MeshGradientPainter:
     Binary breaking change: Removed class androidx.compose.ui.graphics.MeshGradientPainter
 
 
 RemovedInterface: androidx.compose.ui.graphics.MeshGradientScope:
     Binary breaking change: Removed class androidx.compose.ui.graphics.MeshGradientScope
+
+
+RemovedMethod: androidx.compose.ui.draw.BlurScope#getRadius():
+    Binary breaking change: Removed method androidx.compose.ui.draw.BlurScope.getRadius()
+RemovedMethod: androidx.compose.ui.draw.BlurScope#setRadius(androidx.compose.ui.graphics.blur.BlurRadiusSpec):
+    Binary breaking change: Removed method androidx.compose.ui.draw.BlurScope.setRadius(androidx.compose.ui.graphics.blur.BlurRadiusSpec)
+
+
+RemovedProperty: androidx.compose.ui.draw.BlurScope#radius:
+    Source breaking change: Removed property androidx.compose.ui.draw.BlurScope#radius

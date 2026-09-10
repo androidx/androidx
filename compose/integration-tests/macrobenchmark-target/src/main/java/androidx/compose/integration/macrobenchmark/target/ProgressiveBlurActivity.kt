@@ -17,6 +17,8 @@
 package androidx.compose.integration.macrobenchmark.target
 
 import android.os.Bundle
+import android.view.Choreographer
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.animateFloatAsState
@@ -28,6 +30,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +47,8 @@ import androidx.compose.ui.unit.dp
 
 class ProgressiveBlurActivity : ComponentActivity() {
 
+    @Volatile private var isAnimating = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -55,6 +60,7 @@ class ProgressiveBlurActivity : ComponentActivity() {
                     targetValue = if (animateProgressiveBlur) 30f else 0f,
                     animationSpec = tween(durationMillis = 500),
                     label = "blurRadius",
+                    finishedListener = { isAnimating = false },
                 )
 
             Column(modifier = Modifier.padding(top = 100.dp)) {
@@ -63,7 +69,12 @@ class ProgressiveBlurActivity : ComponentActivity() {
                         Modifier.size(100.dp, 50.dp)
                             .background(Color.Gray)
                             .semantics { contentDescription = "toggle-animation" }
-                            .clickable { animateProgressiveBlur = !animateProgressiveBlur },
+                            .clickable {
+                                isAnimating = true
+                                findViewById<View>(android.R.id.content).contentDescription =
+                                    "COMPOSE-BUSY"
+                                animateProgressiveBlur = !animateProgressiveBlur
+                            },
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(animateProgressiveBlur.toString(), color = Color.White)
@@ -74,7 +85,7 @@ class ProgressiveBlurActivity : ComponentActivity() {
                         Modifier.size(300.dp)
                             .background(Brush.verticalGradient(listOf(Color.Red, Color.Blue)))
                             .blur {
-                                radius =
+                                blurRadiusSpec =
                                     BlurRadiusSpec.verticalGradient(
                                         startRadius = 0.dp,
                                         endRadius = blurRadiusAnimate.dp,
@@ -82,7 +93,25 @@ class ProgressiveBlurActivity : ComponentActivity() {
                             }
                 )
             }
-            launchIdlenessTracking()
         }
+        launchIdlenessTracking()
+    }
+
+    private fun launchIdlenessTracking() {
+        val contentView: View = findViewById(android.R.id.content)
+        val callback: Choreographer.FrameCallback =
+            object : Choreographer.FrameCallback {
+                override fun doFrame(frameTimeNanos: Long) {
+                    if (
+                        isAnimating || Recomposer.runningRecomposers.value.any { it.hasPendingWork }
+                    ) {
+                        contentView.contentDescription = "COMPOSE-BUSY"
+                    } else {
+                        contentView.contentDescription = "COMPOSE-IDLE"
+                    }
+                    Choreographer.getInstance().postFrameCallback(this)
+                }
+            }
+        Choreographer.getInstance().postFrameCallback(callback)
     }
 }

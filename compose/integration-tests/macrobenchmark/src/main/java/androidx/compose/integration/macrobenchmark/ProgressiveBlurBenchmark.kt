@@ -46,16 +46,26 @@ class ProgressiveBlurBenchmark(private val compilationMode: CompilationMode) {
             setupBlock = {
                 val intent = Intent().apply { action = Action }
                 startActivityAndWait(intent)
+                device.wait(Until.hasObject(By.desc(ToggleAnimationDescription)), 5000)
             },
         ) {
             // Wait for the button to appear and click it to start the animation
-            val toggleBtn = device.wait(Until.findObject(By.desc(ToggleAnimationDescription)), 5000)
+            val toggleBtn =
+                checkNotNull(
+                    device.wait(Until.findObject(By.desc(ToggleAnimationDescription)), 5000)
+                ) {
+                    "Unable to find toggle animation button"
+                }
             toggleBtn.click()
             device.wait(Until.findObject(By.desc(ComposeIdle)), 3000)
 
             // Click again to animate progressive blur back to zero
             val toggleBtnBack =
-                device.wait(Until.findObject(By.desc(ToggleAnimationDescription)), 5000)
+                checkNotNull(
+                    device.wait(Until.findObject(By.desc(ToggleAnimationDescription)), 5000)
+                ) {
+                    "Unable to find toggle animation button"
+                }
             toggleBtnBack.click()
             device.wait(Until.findObject(By.desc(ComposeIdle)), 3000)
         }
