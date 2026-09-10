@@ -40,7 +40,30 @@ public final class SectionHeaderTest {
         SectionHeader header = new SectionHeader.Builder(title).build();
         assertThat(header.getTitle()).isNotNull();
         assertThat(header.getTitle().toString()).isEqualTo(title);
+        assertThat(header.getHeadline()).isNull();
         assertThat(header.getSubtitle()).isNull();
+    }
+
+    @Test
+    public void build_withHeadline() {
+        String title = "title";
+        String headline = "headline";
+        SectionHeader header = new SectionHeader.Builder(title)
+                .setHeadline(headline)
+                .build();
+        assertThat(header.getHeadline()).isNotNull();
+        assertThat(header.getHeadline().toString()).isEqualTo(headline);
+    }
+
+    @Test
+    public void build_withCarTextHeadline() {
+        String title = "title";
+        CarText headline = CarText.create("headline");
+        SectionHeader header = new SectionHeader.Builder(title)
+                .setHeadline(headline)
+                .build();
+        assertThat(header.getHeadline()).isNotNull();
+        assertThat(header.getHeadline()).isEqualTo(headline);
     }
 
     @Test
@@ -66,23 +89,13 @@ public final class SectionHeaderTest {
     }
 
     @Test
-    public void clearSubtitle() {
-        SectionHeader header = new SectionHeader.Builder("title")
-                .setSubtitle("subtitle")
-                .clearSubtitle()
-                .build();
-        assertThat(header.getSubtitle()).isNull();
+    public void build_bothHeadlineAndSubtitle_throwsIllegalStateException() {
+        assertThrows(IllegalStateException.class,
+                () -> new SectionHeader.Builder("title")
+                        .setHeadline("headline")
+                        .setSubtitle("subtitle")
+                        .build());
     }
-
-    @Test
-    public void setSubtitle_nullThrows() {
-        assertThrows(NullPointerException.class,
-                () -> new SectionHeader.Builder("title").setSubtitle((CharSequence) null));
-
-        assertThrows(NullPointerException.class,
-                () -> new SectionHeader.Builder("title").setSubtitle((CarText) null));
-    }
-
     @Test
     public void build_emptyTitle_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class,
@@ -143,13 +156,13 @@ public final class SectionHeaderTest {
     public void equals() {
         OnClickListener listener = () -> { };
         SectionHeader header1 = new SectionHeader.Builder("title")
-                .setSubtitle("subtitle")
+                .setHeadline("headline")
                 .setStartIcon(mIcon, SectionHeader.IMAGE_TYPE_SMALL)
                 .setEndIcon(mIcon)
                 .setOnClickListener(listener)
                 .build();
         SectionHeader header2 = new SectionHeader.Builder("title")
-                .setSubtitle("subtitle")
+                .setHeadline("headline")
                 .setStartIcon(mIcon, SectionHeader.IMAGE_TYPE_SMALL)
                 .setEndIcon(mIcon)
                 .setOnClickListener(listener)
@@ -162,6 +175,17 @@ public final class SectionHeaderTest {
     public void notEquals_differentTitle() {
         SectionHeader header1 = new SectionHeader.Builder("title1").build();
         SectionHeader header2 = new SectionHeader.Builder("title2").build();
+        assertThat(header1).isNotEqualTo(header2);
+    }
+
+    @Test
+    public void notEquals_differentHeadline() {
+        SectionHeader header1 = new SectionHeader.Builder("title")
+                .setHeadline("headline1")
+                .build();
+        SectionHeader header2 = new SectionHeader.Builder("title")
+                .setHeadline("headline2")
+                .build();
         assertThat(header1).isNotEqualTo(header2);
     }
 
