@@ -256,6 +256,31 @@ public class TilesConnectionBinderTest {
     }
 
     @Test
+    public fun deadBinderReconnectUnbindsStaleConnection(): Unit = fakeCoroutineScope.runTest {
+        val result1 = async {
+            connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
+        }
+
+        shadowOf(Looper.getMainLooper()).idle()
+        result1.await()
+
+        assertThat(shadowOf(appContext as Application).boundServiceConnections).hasSize(1)
+        assertThat(shadowOf(appContext as Application).unboundServiceConnections).isEmpty()
+
+        fakeTileService.binderAlive = false
+
+        val result2 = async {
+            connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
+        }
+
+        shadowOf(Looper.getMainLooper()).idle()
+        result2.await()
+
+        assertThat(shadowOf(appContext as Application).boundServiceConnections).hasSize(1)
+        assertThat(shadowOf(appContext as Application).unboundServiceConnections).hasSize(1)
+    }
+
+    @Test
     public fun exceptionInCallPropagates(): Unit = fakeCoroutineScope.runTest {
         val result1 =
             async(Job()) {
@@ -283,6 +308,10 @@ public class TilesConnectionBinderTest {
     }
 
     private class FakeTileService : TileProvider.Stub() {
+        var binderAlive: Boolean = true
+
+        override fun isBinderAlive(): Boolean = binderAlive
+
         override fun getApiVersion(): Int {
             return 5
         }
