@@ -381,6 +381,170 @@ class DatePickerTest {
             previousMonthButton.assertIsEnabled()
         }
         nextMonthButton.assertIsNotEnabled()
+
+        // Click 11 times previous and assert that we are back at the initial state.
+        repeat(11) {
+            previousMonthButton.performClick()
+            nextMonthButton.assertIsEnabled()
+        }
+        previousMonthButton.assertIsNotEnabled()
+    }
+
+    @Test
+    fun monthsTraversalInitialAtEndEdge() {
+        lateinit var state: DatePickerState
+        val dec2018 = dayInUtcMilliseconds(year = 2018, month = 12, dayOfMonth = 1)
+        val jan2018 = dayInUtcMilliseconds(year = 2018, month = 1, dayOfMonth = 1)
+        rule.setMaterialContent(lightColorScheme()) {
+            state =
+                rememberDatePickerState(
+                    initialDisplayedMonthMillis = dec2018,
+                    yearRange = IntRange(2018, 2018),
+                )
+            DatePicker(state = state)
+        }
+
+        val nextMonthButton =
+            rule.onNodeWithContentDescription(label = "next", substring = true, ignoreCase = true)
+        val previousMonthButton =
+            rule.onNodeWithContentDescription(
+                label = "previous",
+                substring = true,
+                ignoreCase = true,
+            )
+
+        // At Dec 2018 (end of range), next should be disabled, previous enabled
+        nextMonthButton.assertIsNotEnabled()
+        previousMonthButton.assertIsEnabled()
+
+        // Programmatically update to Jan 2018
+        rule.runOnIdle { state.displayedMonthMillis = jan2018 }
+        rule.waitForIdle()
+
+        // At Jan 2018 (start of range), next should be enabled, previous disabled
+        nextMonthButton.assertIsEnabled()
+        previousMonthButton.assertIsNotEnabled()
+    }
+
+    @Test
+    fun monthsTraversal_withSelectableDatesValidator() {
+        // Validator disabling all dates in 2018, but allowing dates in 2019
+        val selectableDates =
+            object : SelectableDates {
+                override fun isSelectableYear(year: Int): Boolean = year == 2019
+
+                override fun isSelectableDate(utcTimeMillis: Long): Boolean = false
+            }
+        val dec2018 = dayInUtcMilliseconds(year = 2018, month = 12, dayOfMonth = 1)
+        rule.setMaterialContent(lightColorScheme()) {
+            val state =
+                rememberDatePickerState(
+                    initialDisplayedMonthMillis = dec2018,
+                    yearRange = IntRange(2018, 2019),
+                    selectableDates = selectableDates,
+                )
+            DatePicker(state = state)
+        }
+
+        val nextMonthButton =
+            rule.onNodeWithContentDescription(label = "next", substring = true, ignoreCase = true)
+        val previousMonthButton =
+            rule.onNodeWithContentDescription(
+                label = "previous",
+                substring = true,
+                ignoreCase = true,
+            )
+
+        // Dec 2018 is index 11 out of 24 (totalMonths = 24). Both previous and next should be
+        // enabled.
+        previousMonthButton.assertIsEnabled()
+        nextMonthButton.assertIsEnabled()
+
+        // Click next to move to January 2019 (the selectable year)
+        nextMonthButton.performClick()
+        rule.onNodeWithText("January 2019").assertIsDisplayed()
+        previousMonthButton.assertIsEnabled()
+        nextMonthButton.assertIsEnabled()
+
+        // Click previous to return to December 2018
+        previousMonthButton.performClick()
+        rule.onNodeWithText("December 2018").assertIsDisplayed()
+        previousMonthButton.assertIsEnabled()
+        nextMonthButton.assertIsEnabled()
+    }
+
+    @Test
+    fun monthsTraversal_acrossYearBoundary() {
+        val dec2018 = dayInUtcMilliseconds(year = 2018, month = 12, dayOfMonth = 1)
+        rule.setMaterialContent(lightColorScheme()) {
+            val state =
+                rememberDatePickerState(
+                    initialDisplayedMonthMillis = dec2018,
+                    yearRange = IntRange(2018, 2019),
+                )
+            DatePicker(state = state)
+        }
+
+        val nextMonthButton =
+            rule.onNodeWithContentDescription(label = "next", substring = true, ignoreCase = true)
+        val previousMonthButton =
+            rule.onNodeWithContentDescription(
+                label = "previous",
+                substring = true,
+                ignoreCase = true,
+            )
+
+        rule.onNodeWithText("December 2018").assertIsDisplayed()
+        previousMonthButton.assertIsEnabled()
+        nextMonthButton.assertIsEnabled()
+
+        // Cross year boundary
+        nextMonthButton.performClick()
+        rule.onNodeWithText("January 2019").assertIsDisplayed()
+        previousMonthButton.assertIsEnabled()
+        nextMonthButton.assertIsEnabled()
+    }
+
+    @Test
+    fun monthsTraversal_switchingDisplayModesPreservesNavigationState() {
+        lateinit var switchToInputDescription: String
+        lateinit var switchToPickerDescription: String
+        val jan2018 = dayInUtcMilliseconds(year = 2018, month = 1, dayOfMonth = 1)
+        rule.setMaterialContent(lightColorScheme()) {
+            switchToInputDescription = getString(string = Strings.DatePickerSwitchToInputMode)
+            switchToPickerDescription = getString(string = Strings.DatePickerSwitchToCalendarMode)
+            val state =
+                rememberDatePickerState(
+                    initialDisplayedMonthMillis = jan2018,
+                    yearRange = IntRange(2018, 2018),
+                )
+            DatePicker(state = state)
+        }
+
+        val nextMonthButton =
+            rule.onNodeWithContentDescription(label = "next", substring = true, ignoreCase = true)
+        val previousMonthButton =
+            rule.onNodeWithContentDescription(
+                label = "previous",
+                substring = true,
+                ignoreCase = true,
+            )
+
+        // At Jan 2018, initial state: previous disabled, next enabled
+        previousMonthButton.assertIsNotEnabled()
+        nextMonthButton.assertIsEnabled()
+
+        // Switch to Input
+        rule.onNodeWithContentDescription(label = switchToInputDescription).performClick()
+        rule.waitForIdle()
+
+        // Switch back to Picker
+        rule.onNodeWithContentDescription(label = switchToPickerDescription).performClick()
+        rule.waitForIdle()
+
+        // Re-assert that navigation buttons are immediately back with correct states
+        previousMonthButton.assertIsNotEnabled()
+        nextMonthButton.assertIsEnabled()
     }
 
     @Test
