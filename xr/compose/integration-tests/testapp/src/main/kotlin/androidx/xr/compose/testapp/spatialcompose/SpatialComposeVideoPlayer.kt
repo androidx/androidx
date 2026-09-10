@@ -937,7 +937,10 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
             )
         oldFeatheringType = featheringType
 
-        val audioOutput = remember { PointSourceExoplayerAudioOutput(session, PointSourceParams()) }
+        val audioOutput =
+            remember(useDrmState.value) {
+                PointSourceExoplayerAudioOutput(session, PointSourceParams())
+            }
 
         // The resizable modifier overrides the automatic width/height resizing logic when switching
         // stereo modes.

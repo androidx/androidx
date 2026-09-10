@@ -76,7 +76,9 @@ internal constructor(context: Context, sceneRuntime: SceneRuntime, params: Point
 
     /**
      * An [AudioOutputProvider] that can be used to configure an
-     * [androidx.media3.exoplayer.ExoPlayer.Builder] for positional audio playback.
+     * [androidx.media3.exoplayer.ExoPlayer.Builder] for positional audio playback. An
+     * [AudioOutputProvider] can only be bound with one Exoplayer instance and should not be re-used
+     * with other instances.
      */
     public val audioOutputProvider: AudioOutputProvider
         get() = rtComponent.getAudioOutputProvider()

@@ -103,7 +103,11 @@ public sealed class SpatializedAudioOutput {
 public abstract class SpatializedExoplayerAudioOutput internal constructor() :
     SpatializedAudioOutput() {
 
-    /** An [AudioOutputProvider] that may be passed to an ExoPlayer.Builder instance. */
+    /**
+     * An [AudioOutputProvider] that may be passed to an ExoPlayer.Builder instance. An
+     * [AudioOutputProvider] can only be bound with one Exoplayer instance and should not be re-used
+     * with other instances.
+     */
     public abstract val audioOutputProvider: AudioOutputProvider
 }
 
