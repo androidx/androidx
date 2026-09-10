@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.AnchorNotAuthorizedException as RtAnchorNotAuthorizedException
 import androidx.xr.arcore.runtime.AnchorNotTrackingException
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
@@ -426,15 +425,20 @@ internal constructor(
      * State of Geospatial at a specific point in time.
      *
      * @property geospatialTrackingState the current [GeospatialTrackingState] of [Geospatial]
+     * @property geospatialPose the current [GeospatialPose] of [Geospatial]
+     * @property horizontalAccuracy the estimated horizontal accuracy in meters with respect to
+     *   latitude and longitude
+     * @property verticalAccuracy the estimated altitude accuracy in meters
+     * @property orientationYawAccuracy the estimated orientation yaw angle accuracy in degrees
      * @property owner self-reference to the object that owns this state
      */
     public class State
     internal constructor(
         public val geospatialTrackingState: GeospatialTrackingState,
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY) public val geospatialPose: GeospatialPose,
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY) public val horizontalAccuracy: Double,
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY) public val verticalAccuracy: Double,
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY) public val orientationYawAccuracy: Double,
+        public val geospatialPose: GeospatialPose,
+        public val horizontalAccuracy: Double,
+        public val verticalAccuracy: Double,
+        public val orientationYawAccuracy: Double,
         public val owner: Geospatial,
     ) {
         override fun equals(other: Any?): Boolean {
@@ -463,6 +467,13 @@ internal constructor(
          *
          * Note: Not intended for production use.
          */
-        override fun toString(): String = "State(geospatialTrackingState=$geospatialTrackingState)"
+        override fun toString(): String =
+            "State(" +
+                "geospatialTrackingState=$geospatialTrackingState, " +
+                "geospatialPose=$geospatialPose, " +
+                "horizontalAccuracy=$horizontalAccuracy, " +
+                "verticalAccuracy=$verticalAccuracy, " +
+                "orientationYawAccuracy=$orientationYawAccuracy" +
+                ")"
     }
 }
