@@ -118,7 +118,7 @@ class CanvasStrokeRendererTest {
                 ::inputsTwist,
             )
         ),
-        SIMPLE_STROKES_OPACITY_AND_HSL_SHIFT(
+        SIMPLE_STROKES_OPACITY_AND_HCL_SHIFT(
             finishedInProgressStroke(
                 brush(
                     BrushFamily(
@@ -578,7 +578,12 @@ class CanvasStrokeRendererTest {
      */
 
     private fun assertMatchesGolden(bitmap: Bitmap, name: String) =
-        ImageDiffer.diffBitmapWithGolden(screenshotRule, this::class.simpleName, bitmap, name)
+        ImageDiffer.diffBitmapWithGolden(
+            screenshotRule,
+            this::class.simpleName,
+            bitmap,
+            name,
+        )
 
     private fun assertWetAndDryMatchGoldensAndEachOther(
         brush: Brush,
@@ -636,8 +641,7 @@ class CanvasStrokeRendererTest {
     private val textureStore = TextureBitmapStore { id ->
         when (id) {
             TEXTURE_ID_AIRPLANE_EMOJI -> R.drawable.airplane_emoji
-            TEXTURE_ID_CHECKERBOARD ->
-                androidx.ink.rendering.test.R.drawable.checkerboard_black_and_transparent
+            TEXTURE_ID_CHECKERBOARD -> androidx.ink.rendering.test.R.drawable.checkerboard
             TEXTURE_ID_CIRCLE -> R.drawable.circle
             TEXTURE_ID_POOP_EMOJI -> R.drawable.poop_emoji
             else -> null

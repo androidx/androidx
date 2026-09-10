@@ -154,9 +154,10 @@ message BrushCoat {
 //
 // Depending on the combination of values, the tip can be shaped as a rounded
 // parallelogram, circle, or stadium. Through `BrushBehavior`s, the tip can
-// produce a per-vertex HSLA color shift that can be used to modify the `Brush`
-// color when drawing. The default values produce a static circular tip shape
-// with diameter equal to the `Brush` size and no color shift.
+// produce a per-vertex HCLA (hue, chroma, lightness, alpha) color shift that
+// can be used to modify the `Brush` color when drawing. The default values
+// produce a static circular tip shape with diameter equal to the `Brush` size
+// and no color shift.
 message BrushTip {
   option (ink.proto.message_min_version) = 0;
 
@@ -958,35 +959,38 @@ message BrushBehavior {
     // this target, they stack additively.
     TARGET_CORNER_ROUNDING_OFFSET = 7 [(ink.proto.enum_value_min_version) = 0];
 
-    // Shifts the hue of the base brush color.  A positive offset shifts around
-    // the hue wheel from red towards orange, while a negative offset shifts the
-    // other way, from red towards violet. The final hue offset is not clamped,
-    // but is effectively normalized (mod 2π). If multiple behaviors have this
-    // target, they stack additively.
+    // Shifts the hue of the base brush color, while maintaining the same level
+    // of perceived lightness. A positive offset shifts around the hue wheel
+    // from red towards orange, while a negative offset shifts the other way,
+    // from red towards violet. The final hue offset is not clamped, but is
+    // effectively normalized (mod 2π). If multiple behaviors have this target,
+    // they stack additively.
     //
     // This target is for tip color adjustments. Renderers can apply it to the
     // brush color when a stroke is drawn to contribute to the local color of
     // each part of the stroke.
     TARGET_HUE_OFFSET_IN_RADIANS = 8 [(ink.proto.enum_value_min_version) = 0];
 
-    // Scales the saturation of the base brush color.  If multiple behaviors
-    // have one of these targets, they stack multiplicatively.  The final
-    // saturation multiplier is clamped to [0, 2].
+    // Scales the chroma of the base brush color. A value greater than 1.0
+    // makes the color more saturated, a value less than 1.0 makes the color
+    // less saturated, and a value of 0.0 makes the color grayscale. If
+    // multiple behaviors have one of these targets, they stack
+    // multiplicatively. The final chroma multiplier is clamped to [0, 2].
     //
     // This target is for tip color adjustments. Renderers can apply it to the
     // brush color when a stroke is drawn to contribute to the local color of
     // each part of the stroke.
-    TARGET_SATURATION_MULTIPLIER = 9 [(ink.proto.enum_value_min_version) = 0];
+    TARGET_CHROMA_MULTIPLIER = 9 [(ink.proto.enum_value_min_version) = 0];
 
-    // Shifts the luminosity of the base brush color. An offset of ±1.0
-    // corresponds to changing the luminosity by up to ±100%. If multiple
-    // behaviors have this target, they stack additively.  The final luminosity
+    // Shifts the perceived lightness of the base brush color. An offset of ±1.0
+    // corresponds to changing the lightness by up to ±100%. If multiple
+    // behaviors have this target, they stack additively. The final lightness
     // offset is clamped to [-1, 1].
     //
     // This target is for tip color adjustments. Renderers can apply it to the
     // brush color when a stroke is drawn to contribute to the local color of
     // each part of the stroke.
-    TARGET_LUMINOSITY_OFFSET = 10 [(ink.proto.enum_value_min_version) = 0];
+    TARGET_LIGHTNESS_OFFSET = 10 [(ink.proto.enum_value_min_version) = 0];
 
     // Scales the opacity of the base brush color.  If multiple behaviors have
     // one of these targets, they stack multiplicatively.  The final opacity
@@ -1476,17 +1480,17 @@ message ColorFunction {
     float opacity_multiplier = 1 [(ink.proto.field_min_version) = 0];
     // Ignores the original color and replaces it with a fixed color.
     Color replace_color = 2 [(ink.proto.field_min_version) = 0];
-    // Applies an additive offset to the color's hue angle.  The offset angle
-    // must be finite, but can be positive or negative (or zero).
+    // Applies an additive offset to the color's hue angle, while maintaining
+    // the same level of perceived lightness.  The offset angle must be finite,
+    // but can be positive or negative (or zero).
     float hue_offset_radians = 3 [(ink.proto.field_min_version) = 2147483647];
-    // Applies a multiplier to the color's saturation.  The multiplier must be
+    // Applies a multiplier to the color's chroma.  The multiplier must be
     // finite and nonnegative.  Typical multiplier values range between 0 and 1.
-    float saturation_multiplier = 4
-        [(ink.proto.field_min_version) = 2147483647];
-    // Applies an additive offset to the color's luminosity.  The offset must be
-    // finite, but can be positive or negative (or zero).  Typical offset values
-    // range between -1 and 1.
-    float luminosity_offset = 5 [(ink.proto.field_min_version) = 2147483647];
+    float chroma_multiplier = 4 [(ink.proto.field_min_version) = 2147483647];
+    // Applies an additive offset to the color's perceived lightness.  The
+    // offset must be finite, but can be positive or negative (or zero).
+    // Typical offset values range between -1 and 1.
+    float lightness_offset = 5 [(ink.proto.field_min_version) = 2147483647];
   }
 }
 

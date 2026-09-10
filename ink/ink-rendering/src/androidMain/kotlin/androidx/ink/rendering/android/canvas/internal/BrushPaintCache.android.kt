@@ -155,8 +155,8 @@ internal class BrushPaintCache(
                                 }
                             }
 
-                            // To get to stroke space, we first need to scale from the
-                            // coordinate space where
+                            // To get to stroke space, we first need to scale from the coordinate
+                            // space where
                             // distance is measured in the chosen SizeUnit for this particular
                             // texture layer.
                             //
@@ -171,22 +171,22 @@ internal class BrushPaintCache(
                                 }
                             }
 
-                            // To get to SizeUnit space, we first need to scale from the texture
-                            // UV coordinate
+                            // To get to SizeUnit space, we first need to scale from the texture UV
+                            // coordinate
                             // space; that is, the coordinate space where the texture image is a
                             // unit square.
                             //
                             // Compute (UV -> stroke) = (SizeUnit -> stroke) * (UV -> SizeUnit)
                             it.preScale(textureLayer.sizeX, textureLayer.sizeY)
 
-                            // The texture rotation is specified as being around the center of
-                            // the first
-                            // repetition, so include a pivot point of 50% in both axes in
-                            // texture UV space.
+                            // The texture rotation is specified as being around the center of the
+                            // first
+                            // repetition, so include a pivot point of 50% in both axes in texture
+                            // UV space.
                             it.preRotate(textureLayer.rotationDegrees, 0.5f, 0.5f)
 
-                            // The texture offset is specified as fractions of the texture size;
-                            // in other words,
+                            // The texture offset is specified as fractions of the texture size; in
+                            // other words,
                             // it should be applied within texture UV space.
                             it.preTranslate(textureLayer.offsetX, textureLayer.offsetY)
                         }
@@ -198,10 +198,9 @@ internal class BrushPaintCache(
                         is StampingTexture -> {}
                     }
 
-                    // To get to texture UV space, we first need to scale from the coordinate
-                    // space where
-                    // distance is measured in texels; that is, where each texel is a unit
-                    // square.
+                    // To get to texture UV space, we first need to scale from the coordinate space
+                    // where
+                    // distance is measured in texels; that is, where each texel is a unit square.
                     //
                     // Compute (texel -> stroke) = (UV -> stroke) * (texel -> UV)
                     it.preScale(1f / bitmap.width, 1f / bitmap.height)

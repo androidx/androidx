@@ -43,19 +43,15 @@ class CanvasStrokeRendererGoldenTest : AbstractStrokeRendererTest() {
 
     override fun loadCursiveHelloInputs(): ImmutableStrokeInputBatch {
         val appContext = ApplicationProvider.getApplicationContext<Context>()
-        val resId =
-            appContext.resources.getIdentifier(
-                "cursive_stylus_inputbatch",
-                "raw",
-                appContext.packageName,
-            )
-        return appContext.resources.openRawResource(resId).use { StrokeInputBatch.decode(it) }
+        return appContext.resources.openRawResource(R.raw.cursive_stylus_inputbatch).use {
+            StrokeInputBatch.decode(it)
+        }
     }
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val textureStore = TextureBitmapStore { id ->
         when (id) {
-            "checkerboard" -> R.drawable.checkerboard_black_and_transparent
+            "checkerboard" -> R.drawable.checkerboard
             else -> null
         }?.let { BitmapFactory.decodeResource(context.resources, it) }
     }
@@ -73,7 +69,12 @@ class CanvasStrokeRendererGoldenTest : AbstractStrokeRendererTest() {
             ImageDiffer.createBitmap(imageWidth, imageHeight, DEFAULT_BACKGROUND_COLOR) { canvas ->
                 canvas.withMatrix(matrix) { renderer.draw(canvas, stroke, matrix) }
             }
-        ImageDiffer.diffBitmapWithGolden(screenshotRule, this::class.simpleName, bitmap, goldenName)
+        ImageDiffer.diffBitmapWithGolden(
+            screenshotRule,
+            this::class.simpleName,
+            bitmap,
+            goldenName,
+        )
     }
 
     override fun renderAndCompareToGolden(
@@ -88,7 +89,12 @@ class CanvasStrokeRendererGoldenTest : AbstractStrokeRendererTest() {
             ImageDiffer.createBitmap(imageWidth, imageHeight, DEFAULT_BACKGROUND_COLOR) { canvas ->
                 canvas.withMatrix(matrix) { renderer.draw(canvas, inProgressStroke, matrix) }
             }
-        ImageDiffer.diffBitmapWithGolden(screenshotRule, this::class.simpleName, bitmap, goldenName)
+        ImageDiffer.diffBitmapWithGolden(
+            screenshotRule,
+            this::class.simpleName,
+            bitmap,
+            goldenName,
+        )
     }
 
     override fun assertLazyAssertsPass() {

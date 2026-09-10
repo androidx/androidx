@@ -118,7 +118,7 @@ actual internal object BrushFamilySerializationNative {
                 BrushFamilySerializationNative_createFromProto(
                     jni_env_pass_through = null,
                     on_decode_texture_pass_through = it.scopedStableRef.asCPointer(),
-                    if (brushFamilyByteArray?.isEmpty() ?: true) null else pinnedBytes.addressOf(0),
+                    if (brushFamilyByteArray.isEmpty()) null else pinnedBytes.addressOf(0),
                     length,
                     maxVersion,
                     throwForNonOkStatusCallback,
