@@ -18,7 +18,6 @@ package androidx.a2ui.model.catalog.functions
 
 import androidx.a2ui.model.protocol.A2uiException
 import com.google.common.truth.Truth.assertThat
-import kotlin.text.get
 import org.junit.Assert.assertThrows
 import org.junit.Test
 
@@ -430,6 +429,161 @@ class A2uiFunctionArgParserTest {
                 A2uiFunctionArgParser.getBooleanListArg(args, ARG_LIST)
             }
         assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_LIST/1")
+    }
+
+    // --- getEpochMillisArg Tests ---
+
+    @Test
+    fun getEpochMillisArg_withEpochSecondsLong_parsesCorrectly() {
+        val args = mapOf(ARG_VAL to 1781481600L)
+        val result = A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VAL)
+        assertThat(result).isEqualTo(1781481600000L)
+    }
+
+    @Test
+    fun getEpochMillisArg_withEpochSecondsInt_parsesCorrectly() {
+        val args = mapOf(ARG_VAL to 1781481600)
+        val result = A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VAL)
+        assertThat(result).isEqualTo(1781481600000L)
+    }
+
+    @Test
+    fun getEpochMillisArg_withEpochSecondsDouble_parsesCorrectly() {
+        val args = mapOf(ARG_VAL to 1781481600.0)
+        val result = A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VAL)
+        assertThat(result).isEqualTo(1781481600000L)
+    }
+
+    @Test
+    fun getEpochMillisArg_withEpochMillisLong_parsesCorrectly() {
+        val args = mapOf(ARG_VAL to 1781481600000L)
+        val result = A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VAL)
+        assertThat(result).isEqualTo(1781481600000L)
+    }
+
+    @Test
+    fun getEpochMillisArg_withEpochMillisDouble_parsesCorrectly() {
+        val args = mapOf(ARG_VAL to 1781481600000.0)
+        val result = A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VAL)
+        assertThat(result).isEqualTo(1781481600000L)
+    }
+
+    @Test
+    fun getEpochMillisArg_withNumericStringSeconds_parsesCorrectly() {
+        val args = mapOf(ARG_VAL to "1781481600")
+        val result = A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VAL)
+        assertThat(result).isEqualTo(1781481600000L)
+    }
+
+    @Test
+    fun getEpochMillisArg_withNumericStringMillis_parsesCorrectly() {
+        val args = mapOf(ARG_VAL to "1781481600000")
+        val result = A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VAL)
+        assertThat(result).isEqualTo(1781481600000L)
+    }
+
+    @Test
+    fun getEpochMillisArg_withIsoUtcDateTime_parsesCorrectly() {
+        val args = mapOf(ARG_VAL to "2026-06-15T00:00:00Z")
+        val result = A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VAL)
+        assertThat(result).isEqualTo(1781481600000L)
+    }
+
+    @Test
+    fun getEpochMillisArg_withIsoDateTimeWithMillis_parsesCorrectly() {
+        val args = mapOf(ARG_VAL to "2026-06-15T00:00:00.500Z")
+        val result = A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VAL)
+        assertThat(result).isEqualTo(1781481600500L)
+    }
+
+    @Test
+    fun getEpochMillisArg_withIsoDateTimeOffsetPositive_parsesCorrectly() {
+        // 02:00 at +02:00 is 00:00 UTC
+        val args = mapOf(ARG_VAL to "2026-06-15T02:00:00+02:00")
+        val result = A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VAL)
+        assertThat(result).isEqualTo(1781481600000L)
+    }
+
+    @Test
+    fun getEpochMillisArg_withIsoDateTimeOffsetNegative_parsesCorrectly() {
+        // 19:00 on previous day at -05:00 is 00:00 UTC on 2026-06-15
+        val args = mapOf(ARG_VAL to "2026-06-14T19:00:00-05:00")
+        val result = A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VAL)
+        assertThat(result).isEqualTo(1781481600000L)
+    }
+
+    @Test
+    fun getEpochMillisArg_withIsoDateTimeHoursMinutes_parsesCorrectly() {
+        val args = mapOf(ARG_VAL to "2026-06-15T00:00")
+        val result = A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VAL)
+        assertThat(result).isEqualTo(1781481600000L)
+    }
+
+    @Test
+    fun getEpochMillisArg_withIsoUtcDateTimeHoursMinutes_parsesCorrectly() {
+        val args = mapOf(ARG_VAL to "2026-06-15T00:00Z")
+        val result = A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VAL)
+        assertThat(result).isEqualTo(1781481600000L)
+    }
+
+    @Test
+    fun getEpochMillisArg_withIsoDateTimeOffsetHoursMinutes_parsesCorrectly() {
+        // 02:00 at +02:00 is 00:00 UTC
+        val args = mapOf(ARG_VAL to "2026-06-15T02:00+02:00")
+        val result = A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VAL)
+        assertThat(result).isEqualTo(1781481600000L)
+    }
+
+    @Test
+    fun getEpochMillisArg_withIsoDateOnly_normalizesToUtcMidnight() {
+        val args = mapOf(ARG_VAL to "2026-06-15")
+        val result = A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VAL)
+        assertThat(result).isEqualTo(1781481600000L)
+    }
+
+    @Test
+    fun getEpochMillisArg_withWhitespaceTrimmed_parsesCorrectly() {
+        val args = mapOf(ARG_VAL to "  2026-06-15T00:00:00Z  ")
+        val result = A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VAL)
+        assertThat(result).isEqualTo(1781481600000L)
+    }
+
+    @Test
+    fun getEpochMillisArg_missingKey_throwsValidationException() {
+        val exception =
+            assertThrows(A2uiException.A2uiValidationException::class.java) {
+                A2uiFunctionArgParser.getEpochMillisArg(emptyMap(), ARG_VAL)
+            }
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_VAL")
+    }
+
+    @Test
+    fun getEpochMillisArg_missingKeyWithCustomParentPath_reportsConcatenatedPathInException() {
+        val exception =
+            assertThrows(A2uiException.A2uiValidationException::class.java) {
+                A2uiFunctionArgParser.getEpochMillisArg(emptyMap(), ARG_VAL, path = "/root/element")
+            }
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/root/element/$ARG_VAL")
+    }
+
+    @Test
+    fun getEpochMillisArg_invalidString_throwsValidationException() {
+        val args = mapOf(ARG_VAL to "invalid-date-format")
+        val exception =
+            assertThrows(A2uiException.A2uiValidationException::class.java) {
+                A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VAL)
+            }
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_VAL")
+    }
+
+    @Test
+    fun getEpochMillisArg_invalidType_throwsValidationException() {
+        val args = mapOf(ARG_VAL to listOf("2026-06-15"))
+        val exception =
+            assertThrows(A2uiException.A2uiValidationException::class.java) {
+                A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VAL)
+            }
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_VAL")
     }
 
     private companion object {
