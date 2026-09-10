@@ -45,152 +45,87 @@ public val LocalContainerDimensions: ProvidableCompositionLocal<Dimensions> = co
     Dimensions(0, 0)
 }
 
-/**
- * Standardized horizontal size tiers representing canonical width breakpoint columns (W1..W4).
- *
- * Breakpoints are resolved dynamically based on the target [GlanceSurface].
- */
+/** Standardized horizontal size tiers representing canonical width breakpoint columns (W1..W4). */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public enum class WidthTier {
-    /** Extra small / compact width column (e.g. <130 dp on Mobile Home Screen). */
+    /** Extra small / compact width column. */
     W1,
 
-    /** Small width column (e.g. 130..219 dp on Mobile Home Screen). */
+    /** Small width column. */
     W2,
 
-    /** Medium width column (e.g. 220..309 dp on Mobile Home Screen). */
+    /** Medium width column. */
     W3,
 
-    /** Large / expanded width column (e.g. >=310 dp on Mobile Home Screen). */
+    /** Large / expanded width column. */
     W4;
 
     public companion object {
         /**
-         * Resolves the [WidthTier] for a given [widthDp] dimension in density-independent pixels
-         * and the target [surface].
+         * Resolves the canonical baseline [WidthTier] for a given [widthDp] dimension.
+         *
+         * @param widthDp Container width in DP.
+         * @return Resolved [WidthTier].
          */
-        public fun fromDp(
-            widthDp: Int,
-            surface: GlanceSurface = GlanceSurface.MOBILE_HOME_SCREEN,
-        ): WidthTier = fromDp(widthDp.toFloat(), surface)
+        public fun fromDp(widthDp: Int): WidthTier = fromDp(widthDp.toFloat())
 
         /**
-         * Resolves the [WidthTier] for a given [widthDp] dimension in density-independent pixels
-         * and the target [surface].
+         * Resolves the canonical baseline [WidthTier] for a given [widthDp] dimension.
+         *
+         * @param widthDp Container width in DP.
+         * @return Resolved [WidthTier].
          */
-        public fun fromDp(
-            widthDp: Float,
-            surface: GlanceSurface = GlanceSurface.MOBILE_HOME_SCREEN,
-        ): WidthTier {
-            return when (surface) {
-                GlanceSurface.MOBILE_HOME_SCREEN,
-                GlanceSurface.TABLET_HOME_SCREEN ->
-                    when {
-                        widthDp < 130f -> W1
-                        widthDp < 220f -> W2
-                        widthDp < 310f -> W3
-                        else -> W4
-                    }
-                GlanceSurface.MOBILE_LOCK_SCREEN ->
-                    when {
-                        widthDp < 100f -> W1
-                        widthDp < 200f -> W2
-                        widthDp < 300f -> W3
-                        else -> W4
-                    }
-                GlanceSurface.WEAR_TILE,
-                GlanceSurface.WEAR_COMPLICATION ->
-                    when {
-                        widthDp < 140f -> W1
-                        else -> W2
-                    }
-                GlanceSurface.TV_HOME_SCREEN ->
-                    when {
-                        widthDp < 320f -> W1
-                        widthDp < 500f -> W2
-                        widthDp < 720f -> W3
-                        else -> W4
-                    }
-                GlanceSurface.XR_GLASSES ->
-                    when {
-                        widthDp < 200f -> W1
-                        widthDp < 350f -> W2
-                        widthDp < 500f -> W3
-                        else -> W4
-                    }
+        public fun fromDp(widthDp: Float): WidthTier {
+            return when {
+                widthDp < 130f -> W1
+                widthDp < 220f -> W2
+                widthDp < 310f -> W3
+                else -> W4
             }
         }
     }
 }
 
-/**
- * Standardized vertical size tiers representing canonical height breakpoint rows (H0..H4).
- *
- * Breakpoints are resolved dynamically based on the target [GlanceSurface].
- */
+/** Standardized vertical size tiers representing canonical height breakpoint rows (H0..H4). */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public enum class HeightTier {
-    /** Lockscreen / Glanceable compact single-line tier (<60 dp on Mobile Home Screen). */
+    /** Compact single-line tier. */
     H0,
 
-    /** 1-row widget layout tier (60..119 dp on Mobile Home Screen). */
+    /** 1-row widget layout tier. */
     H1,
 
-    /** 2-row widget layout tier (120..199 dp on Mobile Home Screen). */
+    /** 2-row widget layout tier. */
     H2,
 
-    /** 3-row widget layout tier (200..289 dp on Mobile Home Screen). */
+    /** 3-row widget layout tier. */
     H3,
 
-    /** 4-row / expanded widget layout tier (>=290 dp on Mobile Home Screen). */
+    /** 4-row / expanded widget layout tier. */
     H4;
 
     public companion object {
         /**
-         * Resolves the [HeightTier] for a given [heightDp] dimension in density-independent pixels
-         * and the target [surface].
+         * Resolves the canonical baseline [HeightTier] for a given [heightDp] dimension.
+         *
+         * @param heightDp Container height in DP.
+         * @return Resolved [HeightTier].
          */
-        public fun fromDp(
-            heightDp: Int,
-            surface: GlanceSurface = GlanceSurface.MOBILE_HOME_SCREEN,
-        ): HeightTier = fromDp(heightDp.toFloat(), surface)
+        public fun fromDp(heightDp: Int): HeightTier = fromDp(heightDp.toFloat())
 
         /**
-         * Resolves the [HeightTier] for a given [heightDp] dimension in density-independent pixels
-         * and the target [surface].
+         * Resolves the canonical baseline [HeightTier] for a given [heightDp] dimension.
+         *
+         * @param heightDp Container height in DP.
+         * @return Resolved [HeightTier].
          */
-        public fun fromDp(
-            heightDp: Float,
-            surface: GlanceSurface = GlanceSurface.MOBILE_HOME_SCREEN,
-        ): HeightTier {
-            return when (surface) {
-                GlanceSurface.MOBILE_LOCK_SCREEN,
-                GlanceSurface.WEAR_COMPLICATION -> H0
-                GlanceSurface.WEAR_TILE -> if (heightDp < 140f) H1 else H2
-                GlanceSurface.MOBILE_HOME_SCREEN,
-                GlanceSurface.TABLET_HOME_SCREEN ->
-                    when {
-                        heightDp < 60f -> H0
-                        heightDp < 120f -> H1
-                        heightDp < 200f -> H2
-                        heightDp < 290f -> H3
-                        else -> H4
-                    }
-                GlanceSurface.TV_HOME_SCREEN ->
-                    when {
-                        heightDp < 100f -> H0
-                        heightDp < 180f -> H1
-                        heightDp < 280f -> H2
-                        heightDp < 400f -> H3
-                        else -> H4
-                    }
-                GlanceSurface.XR_GLASSES ->
-                    when {
-                        heightDp < 150f -> H1
-                        heightDp < 300f -> H2
-                        heightDp < 450f -> H3
-                        else -> H4
-                    }
+        public fun fromDp(heightDp: Float): HeightTier {
+            return when {
+                heightDp < 60f -> H0
+                heightDp < 120f -> H1
+                heightDp < 200f -> H2
+                heightDp < 290f -> H3
+                else -> H4
             }
         }
     }
@@ -199,9 +134,6 @@ public enum class HeightTier {
 /**
  * Standardized size tiers capturing both [width] ([WidthTier]) and [height] ([HeightTier])
  * coordinates for Glance Adaptive layout selection.
- *
- * Provides factory methods on [companion object] to resolve physical container dimensions into
- * canonical size tiers based on target [GlanceSurface].
  *
  * @param width Resolved canonical horizontal size tier.
  * @param height Resolved canonical vertical size tier.
@@ -224,43 +156,35 @@ public class SizeTiers(public val width: WidthTier, public val height: HeightTie
 
     public companion object {
         /**
-         * Resolves the standardized [SizeTiers] given physical dimensions in DP and target
-         * [surface].
+         * Resolves the canonical baseline [SizeTiers] for given container [dimensions].
          *
-         * @param widthDp Container width in DP.
-         * @param heightDp Container height in DP.
-         * @param surface Target physical surface.
+         * Specific host modules provide overloaded [from] extension methods taking host surfaces
+         * (e.g. `AppWidgetGlanceSurface`, `WearGlanceSurface`) for surface-specific breakpoints.
+         *
+         * @param dimensions Active container dimensions in DP.
          * @return Resolved [SizeTiers].
          */
-        public fun from(
-            widthDp: Int,
-            heightDp: Int,
-            surface: GlanceSurface = GlanceSurface.MOBILE_HOME_SCREEN,
-        ): SizeTiers = from(widthDp.toFloat(), heightDp.toFloat(), surface)
+        public fun from(dimensions: Dimensions): SizeTiers =
+            from(dimensions.widthDp, dimensions.heightDp)
 
         /**
-         * Resolves the standardized [SizeTiers] given physical dimensions in DP and target
-         * [surface].
+         * Resolves the canonical baseline [SizeTiers] for given container [widthDp] and [heightDp].
          *
          * @param widthDp Container width in DP.
          * @param heightDp Container height in DP.
-         * @param surface Target physical surface.
          * @return Resolved [SizeTiers].
          */
-        public fun from(
-            widthDp: Float,
-            heightDp: Float,
-            surface: GlanceSurface = GlanceSurface.MOBILE_HOME_SCREEN,
-        ): SizeTiers {
-            val wTier = WidthTier.fromDp(widthDp, surface)
-            val hTier = HeightTier.fromDp(heightDp, surface)
-            return SizeTiers(wTier, hTier)
-        }
+        public fun from(widthDp: Int, heightDp: Int): SizeTiers =
+            from(widthDp.toFloat(), heightDp.toFloat())
 
-        /** Resolves the standardized [SizeTiers] for given [dimensions] and target [surface]. */
-        public fun from(
-            dimensions: Dimensions,
-            surface: GlanceSurface = GlanceSurface.MOBILE_HOME_SCREEN,
-        ): SizeTiers = from(dimensions.widthDp, dimensions.heightDp, surface)
+        /**
+         * Resolves the canonical baseline [SizeTiers] for given container [widthDp] and [heightDp].
+         *
+         * @param widthDp Container width in DP.
+         * @param heightDp Container height in DP.
+         * @return Resolved [SizeTiers].
+         */
+        public fun from(widthDp: Float, heightDp: Float): SizeTiers =
+            SizeTiers(WidthTier.fromDp(widthDp), HeightTier.fromDp(heightDp))
     }
 }

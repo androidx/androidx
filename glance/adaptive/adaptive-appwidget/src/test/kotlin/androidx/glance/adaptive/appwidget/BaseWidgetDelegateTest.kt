@@ -22,7 +22,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.IntentFilter
 import android.os.Bundle
+import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
 import androidx.glance.adaptive.core.ui.TemplateRegistry
+import androidx.glance.adaptive.core.ui.selection.GlanceSurface
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.test.runTest
@@ -31,6 +33,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.clearInvocations
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -44,7 +47,7 @@ class BaseWidgetDelegateTest {
 
     private class TestTemplate : AdaptiveGlanceTemplate
 
-    private lateinit var mockRenderer: (TestTemplate) -> Unit
+    private lateinit var mockRenderer: (TestTemplate, GlanceSurface) -> Unit
 
     @Before
     fun setUp() {
@@ -52,8 +55,10 @@ class BaseWidgetDelegateTest {
         TemplateRegistry.resetForTesting()
         TemplateRegistry.register(
             TestTemplate::class.java,
-            selectArchetype = { _, _, _ -> "ARCHETYPE" },
-            renderArchetype = { template, _ -> mockRenderer(template) },
+            selectArchetype = { _, surface, _ -> surface },
+            renderArchetype = { template, surface ->
+                mockRenderer(template, surface as GlanceSurface)
+            },
         )
     }
 
@@ -61,7 +66,7 @@ class BaseWidgetDelegateTest {
     fun pushUpdate_withoutReceivers_completesWithoutErrors() = runTest {
         val delegate = BaseWidgetDelegate(ApplicationProvider.getApplicationContext())
         delegate.pushUpdate(widgetName = "test_widget", currentData = TestTemplate())
-        verify(mockRenderer, never()).invoke(any())
+        verify(mockRenderer, never()).invoke(any(), any())
     }
 
     @Test
@@ -72,7 +77,7 @@ class BaseWidgetDelegateTest {
             currentData = TestTemplate(),
             widgetIds = emptySet(),
         )
-        verify(mockRenderer, never()).invoke(any())
+        verify(mockRenderer, never()).invoke(any(), any())
     }
 
     private class TestReceiver : GlanceAdaptiveWidgetReceiver() {
@@ -101,7 +106,7 @@ class BaseWidgetDelegateTest {
             currentData = testData,
             widgetIds = setOf("widget_123", "widget_456"),
         )
-        verify(mockRenderer).invoke(testData)
+        verify(mockRenderer).invoke(eq(testData), any())
         clearInvocations(mockRenderer)
 
         // Target widget_unknown: no matching widget
@@ -110,7 +115,7 @@ class BaseWidgetDelegateTest {
             currentData = testData,
             widgetIds = setOf("widget_unknown"),
         )
-        verify(mockRenderer, never()).invoke(any())
+        verify(mockRenderer, never()).invoke(any(), any())
     }
 
     @Test
@@ -124,7 +129,7 @@ class BaseWidgetDelegateTest {
         val testData = TestTemplate()
         delegate.pushUpdate(widgetName = "test_widget", currentData = testData)
 
-        verify(mockRenderer).invoke(testData)
+        verify(mockRenderer).invoke(eq(testData), any())
     }
 
     @Test
@@ -137,7 +142,7 @@ class BaseWidgetDelegateTest {
         val delegate = BaseWidgetDelegate(context)
         val testData = TestTemplate()
         delegate.pushUpdate(widgetName = "test_widget", currentData = testData)
-        verify(mockRenderer, never()).invoke(any())
+        verify(mockRenderer, never()).invoke(any(), any())
     }
 
     @Test
@@ -150,7 +155,8 @@ class BaseWidgetDelegateTest {
 
         delegate.setPreview(widgetName = "test_widget", previewData = testData)
 
-        verify(mockRenderer).invoke(testData)
+        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN)
     }
 
     @Test
@@ -163,7 +169,7 @@ class BaseWidgetDelegateTest {
 
         delegate.setPreview(widgetName = "test_widget", previewData = testData)
 
-        verify(mockRenderer, never()).invoke(any())
+        verify(mockRenderer, never()).invoke(any(), any())
     }
 
     @Test
@@ -174,7 +180,143 @@ class BaseWidgetDelegateTest {
 
         delegate.setPreview(widgetName = "unregistered_widget", previewData = TestTemplate())
 
-        verify(mockRenderer, never()).invoke(any())
+        verify(mockRenderer, never()).invoke(any(), any())
+    }
+
+    @Test
+    fun pushUpdate_routesSurfacePerWidgetInstance() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        setupBoundWidget(
+            context,
+            appWidgetId = 401,
+            receiverName = TestReceiver::class.java.name,
+            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
+        )
+        setupBoundWidget(
+            context,
+            appWidgetId = 402,
+            receiverName = TestReceiver::class.java.name,
+            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
+        )
+        setupBoundWidget(
+            context,
+            appWidgetId = 403,
+            receiverName = TestReceiver::class.java.name,
+            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_NOT_KEYGUARD,
+        )
+        registerReceiverInManifest(context, TestReceiver::class.java.name)
+
+        val delegate = BaseWidgetDelegate(context)
+        val testData = TestTemplate()
+        delegate.pushUpdate(widgetName = "test_widget", currentData = testData)
+
+        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN)
+    }
+
+    private class LockScreenReceiver : GlanceAdaptiveWidgetReceiver() {
+        override val widgetName: String = "test_widget"
+    }
+
+    @Test
+    @Config(sdk = [35])
+    fun setPreview_sdk35_routesSurfacePerProviderCategory() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        registerReceiverInManifest(
+            context,
+            TestReceiver::class.java.name,
+            widgetCategory =
+                AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN or
+                    AppWidgetProviderInfo.WIDGET_CATEGORY_NOT_KEYGUARD,
+        )
+        registerReceiverInManifest(
+            context,
+            LockScreenReceiver::class.java.name,
+            widgetCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
+        )
+        val delegate = BaseWidgetDelegate(context)
+        val testData = TestTemplate()
+
+        delegate.setPreview(widgetName = "test_widget", previewData = testData)
+
+        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN)
+    }
+
+    private class MultiCategoryReceiver : GlanceAdaptiveWidgetReceiver() {
+        override val widgetName: String = "multi_widget"
+    }
+
+    @Test
+    @Config(sdk = [35])
+    fun setPreview_sdk35_withMultiCategoryReceiver_rendersBothSurfaces() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        registerReceiverInManifest(
+            context,
+            MultiCategoryReceiver::class.java.name,
+            widgetCategory =
+                AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN or
+                    AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
+        )
+        val delegate = BaseWidgetDelegate(context)
+        val testData = TestTemplate()
+
+        delegate.setPreview(widgetName = "multi_widget", previewData = testData)
+
+        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN)
+    }
+
+    private class NotKeyguardReceiver : GlanceAdaptiveWidgetReceiver() {
+        override val widgetName: String = "not_keyguard_widget"
+    }
+
+    @Test
+    @Config(sdk = [35])
+    fun setPreview_sdk35_withNotKeyguardCategoryReceiver_routesToHomeScreen() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        registerReceiverInManifest(
+            context,
+            NotKeyguardReceiver::class.java.name,
+            widgetCategory =
+                AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN or
+                    AppWidgetProviderInfo.WIDGET_CATEGORY_NOT_KEYGUARD,
+        )
+        val delegate = BaseWidgetDelegate(context)
+        val testData = TestTemplate()
+
+        delegate.setPreview(widgetName = "not_keyguard_widget", previewData = testData)
+
+        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+        verify(mockRenderer, never()).invoke(any(), eq(AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN))
+    }
+
+    @Test
+    fun pushUpdate_gracefullyHandlesOptionsFailureAndUpdatesRemainingWidgets() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        setupBoundWidget(
+            context,
+            appWidgetId = 501,
+            receiverName = TestReceiver::class.java.name,
+            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
+        )
+        // Widget 502 with no options bundle set (null options)
+        setupBoundWidget(
+            context,
+            appWidgetId = 502,
+            receiverName = TestReceiver::class.java.name,
+            hostCategory = null,
+        )
+        registerReceiverInManifest(context, TestReceiver::class.java.name)
+
+        val delegate = BaseWidgetDelegate(context)
+        val testData = TestTemplate()
+        delegate.pushUpdate(widgetName = "test_widget", currentData = testData)
+
+        // Both default to or route to HOME_SCREEN
+        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
     }
 
     private fun setupBoundWidget(
@@ -182,6 +324,7 @@ class BaseWidgetDelegateTest {
         appWidgetId: Int,
         receiverName: String,
         widgetId: String? = null,
+        hostCategory: Int? = null,
     ) {
         val appWidgetManager = AppWidgetManager.getInstance(context)
         val shadowManager = shadowOf(appWidgetManager)
@@ -189,17 +332,23 @@ class BaseWidgetDelegateTest {
         val info = AppWidgetProviderInfo().apply { provider = componentName }
         shadowManager.addBoundWidget(appWidgetId, info)
 
+        val bundle = Bundle()
         if (widgetId != null) {
-            appWidgetManager.updateAppWidgetOptions(
-                appWidgetId,
-                Bundle().apply {
-                    putString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID, widgetId)
-                },
-            )
+            bundle.putString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID, widgetId)
+        }
+        if (hostCategory != null) {
+            bundle.putInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY, hostCategory)
+        }
+        if (!bundle.isEmpty) {
+            appWidgetManager.updateAppWidgetOptions(appWidgetId, bundle)
         }
     }
 
-    private fun registerReceiverInManifest(context: Context, receiverName: String) {
+    private fun registerReceiverInManifest(
+        context: Context,
+        receiverName: String,
+        widgetCategory: Int = AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
+    ) {
         val componentName = ComponentName(context.packageName, receiverName)
         val shadowPackageManager = shadowOf(context.packageManager)
         shadowPackageManager.addReceiverIfNotPresent(componentName)
@@ -209,7 +358,11 @@ class BaseWidgetDelegateTest {
         )
         val appWidgetManager = AppWidgetManager.getInstance(context)
         val shadowManager = shadowOf(appWidgetManager)
-        val info = AppWidgetProviderInfo().apply { provider = componentName }
+        val info =
+            AppWidgetProviderInfo().apply {
+                provider = componentName
+                this.widgetCategory = widgetCategory
+            }
         shadowManager.addInstalledProvider(info)
         shadowManager.addInstalledProvidersForProfile(null, info)
     }

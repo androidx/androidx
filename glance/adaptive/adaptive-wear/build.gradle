@@ -30,6 +30,10 @@ plugins {
 dependencies {
     api(project(":glance:adaptive:adaptive-core"))
     api(project(":glance:wear:wear-core"))
+
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.truth)
 }
 
 android {

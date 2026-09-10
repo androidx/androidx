@@ -16,99 +16,42 @@
 
 package androidx.glance.adaptive.core.ui.selection
 
-import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProviderInfo
-import android.os.Bundle
 import androidx.annotation.RestrictTo
 
-/** Standard surfaces on which Glance Adaptive widgets can be placed. */
+/**
+ * Common interface representing a host display surface on which Glance Adaptive widgets can be
+ * placed.
+ *
+ * Specific surfaces are defined by host modules (e.g. `adaptive-appwidget`, `adaptive-wear`).
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class GlanceSurface(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val tag: String = ""
-) {
-    /** Mobile Phone home screen launcher surface. */
-    MOBILE_HOME_SCREEN("home_screen"),
-
-    /** Mobile Phone lockscreen surface or Keyguard glanceable space. */
-    MOBILE_LOCK_SCREEN("keyguard"),
-
-    /** Large screen tablet home launcher. */
-    TABLET_HOME_SCREEN("tablet_home_screen"),
-
-    /** Android TV home launcher / glanceable surface. */
-    TV_HOME_SCREEN("tv"),
-
-    /** Wear OS active Tile carousel. */
-    WEAR_TILE("wear_tile"),
-
-    /** Wear OS watch face complication slot. */
-    WEAR_COMPLICATION("wear_complication"),
-
-    /** Spatial XR / Augmented Reality glasses display surface. */
-    XR_GLASSES("xr");
+public interface GlanceSurface {
+    /** Unique canonical identifier for this surface (e.g. "home_screen", "wear_tile"). */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val tag: String
 
     public companion object {
-        /** Mobile Phone home screen launcher surface alias. */
-        @JvmField public val HOME_SCREEN: GlanceSurface = MOBILE_HOME_SCREEN
-
-        /** Mobile Phone lockscreen surface or Keyguard glanceable space alias. */
-        @JvmField public val LOCK_SCREEN: GlanceSurface = MOBILE_LOCK_SCREEN
-
-        /** Wear OS active Tile carousel / widgets alias. */
-        @JvmField public val WEAR_WIDGETS: GlanceSurface = WEAR_TILE
-
-        /** Android TV home surface alias. */
-        @JvmField public val TV: GlanceSurface = TV_HOME_SCREEN
+        /**
+         * Creates a lightweight [GlanceSurface] instance for testing or dynamic host registration.
+         *
+         * @param tag The unique string identifier for the surface.
+         * @return A [GlanceSurface] instance identified by [tag].
+         */
+        public fun of(tag: String): GlanceSurface = NamedGlanceSurface(tag)
     }
 }
 
-/** Utility for detecting the target [GlanceSurface] from host metadata and options. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public object SurfaceDetector {
-
-    /**
-     * Resolves the [GlanceSurface] from platform [AppWidgetProviderInfo.widgetCategory] integer
-     * flags.
-     *
-     * @param category The widget category flag from [AppWidgetProviderInfo].
-     * @return Corresponding [GlanceSurface].
-     */
-    public fun fromHostCategory(category: Int): GlanceSurface {
-        return when {
-            (category and AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD) != 0 -> {
-                GlanceSurface.MOBILE_LOCK_SCREEN
-            }
-            else -> GlanceSurface.MOBILE_HOME_SCREEN
-        }
-    }
-
-    /**
-     * Resolves the [GlanceSurface] from runtime options bundle passed during widget updates.
-     *
-     * @param options The app widget options bundle passed by the host.
-     * @return Resolved [GlanceSurface].
-     */
-    public fun fromAppWidgetOptions(options: Bundle?): GlanceSurface {
-        if (options == null) return GlanceSurface.MOBILE_HOME_SCREEN
-        val category =
-            options.getInt(
-                AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY,
-                AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
-            )
-        return fromHostCategory(category)
-    }
-}
+private data class NamedGlanceSurface(override val tag: String) : GlanceSurface
 
 /**
  * Host placement constraints capturing the physical container size and target display surface.
  *
  * @param dimensions Bounding size in DP.
- * @param surface Host target surface.
+ * @param surface Host target surface, or `null` if unspecified.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HostConstraints(
     public val dimensions: Dimensions,
-    public val surface: GlanceSurface = GlanceSurface.MOBILE_HOME_SCREEN,
+    public val surface: GlanceSurface? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -116,7 +59,7 @@ public class HostConstraints(
         return dimensions == other.dimensions && surface == other.surface
     }
 
-    override fun hashCode(): Int = 31 * dimensions.hashCode() + surface.hashCode()
+    override fun hashCode(): Int = 31 * dimensions.hashCode() + (surface?.hashCode() ?: 0)
 
     override fun toString(): String = "HostConstraints(dimensions=$dimensions, surface=$surface)"
 }
