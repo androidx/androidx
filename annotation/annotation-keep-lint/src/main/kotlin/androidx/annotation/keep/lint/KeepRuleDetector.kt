@@ -125,6 +125,7 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
         const val GET_CONSTRUCTOR = "getConstructor"
         const val GET_METHOD = "getMethod"
         const val GET_FIELD = "getField"
+        const val NEW_INSTANCE = "newInstance"
         const val GET_DECLARED_CONSTRUCTOR = "getDeclaredConstructor"
         const val GET_DECLARED_METHOD = "getDeclaredMethod"
         const val GET_DECLARED_FIELD = "getDeclaredField"
@@ -143,6 +144,7 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                 GET_CONSTRUCTOR,
                 GET_METHOD,
                 GET_FIELD,
+                NEW_INSTANCE,
                 GET_DECLARED_CONSTRUCTOR,
                 GET_DECLARED_METHOD,
                 GET_DECLARED_FIELD,
@@ -486,7 +488,16 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                                 name != LOAD_CLASS &&
                                 name != FOR_NAME
                         ) {
-                            found = true
+                            if (name == NEW_INSTANCE) {
+                                val containingClass = node.resolve()?.containingClass?.qualifiedName
+                                if (
+                                    containingClass == null || containingClass == "java.lang.Class"
+                                ) {
+                                    found = true
+                                }
+                            } else {
+                                found = true
+                            }
                         }
                         return found || super.visitCallExpression(node)
                     }
@@ -1526,6 +1537,8 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                         }
                     }
                 }
+
+                NEW_INSTANCE,
                 GET_DECLARED_CONSTRUCTOR,
                 GET_CONSTRUCTOR -> {
                     reflections.add(
