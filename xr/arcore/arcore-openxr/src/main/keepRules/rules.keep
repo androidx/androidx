@@ -82,6 +82,12 @@
 -if class androidx.xr.arcore.RenderViewpoint
 -keep class androidx.xr.arcore.openxr.ViewCameraState { *; }
 
+-if class androidx.xr.arcore.SpatialAnnotation
+-keep class androidx.xr.arcore.openxr.OpenXrSpatialAnnotation { *; }
+
+-if class androidx.xr.arcore.SpatialAnnotation
+-keep class androidx.xr.arcore.openxr.SpatialAnnotationState { *; }
+
 -if class androidx.xr.arcore.openxr.OpenXrPerceptionManager {
     androidx.xr.arcore.openxr.ViewCameraState[] nativeGetViewCameras(boolean, long);
 }

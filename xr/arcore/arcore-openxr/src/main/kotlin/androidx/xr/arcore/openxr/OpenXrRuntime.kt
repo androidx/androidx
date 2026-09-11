@@ -31,6 +31,7 @@ import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.QrCodeTrackingMode
+import androidx.xr.runtime.SpatialAnnotationTrackingMode
 import androidx.xr.runtime.XrDevice
 import androidx.xr.runtime.getNativeInstanceData
 import androidx.xr.runtime.interfaces.XrNativeInstanceProvider.Companion.INVALID_HANDLE
@@ -46,6 +47,7 @@ import kotlinx.coroutines.delay
  *
  * @property perceptionManager that manages the perception capabilities of a runtime using OpenXR
  */
+@OptIn(androidx.xr.runtime.ExperimentalSpatialAnnotationsApi::class)
 internal class OpenXrRuntime(
     private val context: Context,
     override val perceptionManager: OpenXrPerceptionManager,
@@ -174,6 +176,10 @@ internal class OpenXrRuntime(
             perceptionManager.updateQrCode(xrTime)
         }
 
+        if (config.getSpatialAnnotationTracking() != SpatialAnnotationTrackingMode.DISABLED) {
+            perceptionManager.updateSpatialAnnotations(xrTime)
+        }
+
         perceptionManager.update(xrTime)
         // Block the call for a time that is appropriate for OpenXR devices.
         // TODO: b/359871229 - Implement dynamic delay. We start with a fixed 20ms delay as it is
@@ -276,6 +282,7 @@ internal class OpenXrRuntime(
                         },
                     qrCodeTracking = config.qrCodeTracking.mode,
                     qrCodeSizeMeters = config.qrCodeSizeMeters,
+                    spatialAnnotationTracking = config.getSpatialAnnotationTracking().mode,
                 )
             ) {
                 -2L ->
@@ -355,11 +362,18 @@ internal class OpenXrRuntime(
             }
         }
 
+        if (config.getSpatialAnnotationTracking() != this.config.getSpatialAnnotationTracking()) {
+            if (config.getSpatialAnnotationTracking() == SpatialAnnotationTrackingMode.DISABLED) {
+                perceptionManager.stopSpatialAnnotationTracking(emptyList())
+            }
+        }
+
         this.config = config
     }
 
     override fun destroy() {
         // TODO: b/422830134 - Remove this check once there are multiple OpenXrManagers.
+        // TODO(b/560287112): Invoke perceptionManager.clear() before nativeDeInit()
         contextList.remove(context)
         if (contextList.isEmpty()) {
             nativeDeInit()
@@ -440,6 +454,7 @@ internal class OpenXrRuntime(
         augmentedImageDatabase: OpenXrAugmentedImageDatabase? = null,
         qrCodeTracking: Int,
         qrCodeSizeMeters: Float = 0f,
+        spatialAnnotationTracking: Int,
     ): Long
 
     private external fun nativeGetFaceTrackerCalibration(): Boolean
