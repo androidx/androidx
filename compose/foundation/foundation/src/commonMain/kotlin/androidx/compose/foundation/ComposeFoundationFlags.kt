@@ -351,6 +351,17 @@ public object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isUsingDynamicDefaultCacheWindowInStaggeredGrids: Boolean = true
+
+    /**
+     * Controls whether [androidx.compose.foundation.text.BasicTextField] starts the input session
+     * only when the window is focused rather than immediately upon element focus. When enabled, if
+     * the element gains focus while the window is not yet focused, starting the input session is
+     * deferred until the window gains focus.
+     */
+    // TODO: Remove this flag once it has soaked (b/560119132)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isTextFieldWaitWindowFocusForInputSessionEnabled: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
