@@ -286,17 +286,22 @@ public object InstrumentationResults {
         }
 
         if (!useTreeDisplayFormat) { // use the regular output format
-            val v2traceLinks =
+            val v2traceLinks = buildList {
                 if (linkableIterTraces.isNotEmpty()) {
-                    listOf(
+                    add(
                         "    Traces: Iteration " +
                             linkableIterTraces
                                 .mapIndexed { index, path -> createFileLink("$index", path) }
                                 .joinToString(" ")
                     )
-                } else {
-                    emptyList()
-                } + profilerResults.map { "    ${createFileLink(it.label, it.outputRelativePath)}" }
+                }
+                if (profilerResults.isNotEmpty()) {
+                    add("    Profiling Traces:")
+                    for (result in profilerResults) {
+                        add("        ${createFileLink(result.label, result.outputRelativePath)}")
+                    }
+                }
+            }
             return IdeSummaryPair(
                 v2lines =
                     listOfNotNull(warningMessage, testName, message) +
@@ -328,19 +333,23 @@ public object InstrumentationResults {
                                 tree.append(observed, 2)
                             }
                         }
-                        if (linkableIterTraces.isNotEmpty() || profilerResults.isNotEmpty()) {
+                        if (linkableIterTraces.isNotEmpty()) {
                             tree.append("Traces", 0)
-                            if (linkableIterTraces.isNotEmpty())
-                                tree.append(
-                                    linkableIterTraces
-                                        .mapIndexed { ix, trace -> createFileLink("$ix", trace) }
-                                        .joinToString(prefix = "Iteration ", separator = " "),
-                                    1,
-                                )
-                            for (line in profilerResults) tree.append(
-                                createFileLink(line.label, line.outputRelativePath),
+                            tree.append(
+                                linkableIterTraces
+                                    .mapIndexed { ix, trace -> createFileLink("$ix", trace) }
+                                    .joinToString(prefix = "Iteration ", separator = " "),
                                 1,
                             )
+                        }
+                        if (profilerResults.isNotEmpty()) {
+                            tree.append("Profiling Traces", 0)
+                            for (line in profilerResults) {
+                                tree.append(
+                                    createFileLink(line.label, line.outputRelativePath),
+                                    1,
+                                )
+                            }
                         }
                         addAll(tree.build())
                         add("")
