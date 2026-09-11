@@ -27,6 +27,7 @@ import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicValueSchema
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 import java.util.TimeZone
 
 /**
@@ -85,36 +86,34 @@ public constructor(private val localeProvider: A2uiLocaleProvider = A2uiLocalePr
         }
 
     /**
-     * Formats the given timestamp using the pattern in [args].
+     * Formats the given timestamp or ISO date string using the pattern in [args].
      *
-     * @param args arguments containing "value" (date/timestamp) and "format" (pattern string)
+     * @param args arguments containing "value" (date string or numeric timestamp) and "format"
+     *   (pattern string)
      * @param executionContext context allowing to execute other functions, evaluate dynamic
      *   payloads and resolving data bindings
      * @return the formatted date string, or null if required values are missing
      */
     override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
-        val value = A2uiFunctionArgParser.getLongArg(args, ARG_VALUE_KEY)
+        val epochMillis = A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VALUE_KEY)
         val format = A2uiFunctionArgParser.getStringArg(args, ARG_FORMAT_KEY)
 
-        val locale = localeProvider.getLocale()
-
-        val timeInMillis =
-            if (value < MAX_EPOCH_SECONDS) {
-                value * 1000L
-            } else {
-                value
-            }
-        val date = Date(timeInMillis)
+        val date = Date(epochMillis)
+        val utcZone = TimeZone.getTimeZone("UTC")
 
         return if (format == FORMAT_ISO) {
             val sdf =
-                SimpleDateFormat(ISO_FORMAT_PATTERN, java.util.Locale.US).apply {
-                    timeZone = TimeZone.getTimeZone("UTC")
+                SimpleDateFormat(ISO_FORMAT_PATTERN, Locale.US).apply {
+                    timeZone = utcZone
                 }
             sdf.format(date)
         } else {
             try {
-                val sdf = SimpleDateFormat(format, locale)
+                val locale = localeProvider.getLocale()
+                val sdf =
+                    SimpleDateFormat(format, locale).apply {
+                        timeZone = utcZone
+                    }
                 sdf.format(date)
             } catch (e: Exception) {
                 throw A2uiException.A2uiRuntimeException(
@@ -132,6 +131,5 @@ public constructor(private val localeProvider: A2uiLocaleProvider = A2uiLocalePr
         private const val ARG_FORMAT_KEY: String = "format"
         private const val FORMAT_ISO: String = "ISO"
         private const val ISO_FORMAT_PATTERN: String = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-        private const val MAX_EPOCH_SECONDS: Long = 10_000_000_000L
     }
 }

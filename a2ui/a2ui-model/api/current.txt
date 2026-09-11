@@ -155,6 +155,9 @@ package androidx.a2ui.model.catalog.functions {
     method public java.util.List<java.lang.Double> getDoubleListArg(java.util.Map<java.lang.String,?> args, String key);
     method public java.util.List<java.lang.Double> getDoubleListArg(java.util.Map<java.lang.String,?> args, String key, optional String path);
     method @BytecodeOnly public static java.util.List! getDoubleListArg$default(androidx.a2ui.model.catalog.functions.A2uiFunctionArgParser!, java.util.Map!, String!, String!, int, Object!);
+    method public long getEpochMillisArg(java.util.Map<java.lang.String,?> args, String key);
+    method public long getEpochMillisArg(java.util.Map<java.lang.String,?> args, String key, optional String path);
+    method @BytecodeOnly public static long getEpochMillisArg$default(androidx.a2ui.model.catalog.functions.A2uiFunctionArgParser!, java.util.Map!, String!, String!, int, Object!);
     method public int getIntArg(java.util.Map<java.lang.String,?> args, String key);
     method public int getIntArg(java.util.Map<java.lang.String,?> args, String key, optional String path);
     method @BytecodeOnly public static int getIntArg$default(androidx.a2ui.model.catalog.functions.A2uiFunctionArgParser!, java.util.Map!, String!, String!, int, Object!);

@@ -92,6 +92,132 @@ class A2uiFormatDateFunctionTest {
         assertThat(result).isEqualTo("June")
     }
 
+    @Test
+    fun execute_valueTypeStringMillis_evaluatesCorrectly() {
+        val function = A2uiFormatDateFunction(localeProvider = { Locale.US })
+        val result =
+            function.execute(mapOf(ARG_VALUE to "1781481600000", ARG_FORMAT to "MMMM")) as String
+        assertThat(result).isEqualTo("June")
+    }
+
+    @Test
+    fun execute_valueTypeIsoUtcString_evaluatesCorrectly() {
+        val function = A2uiFormatDateFunction(localeProvider = { Locale.US })
+        val result =
+            function.execute(
+                mapOf(ARG_VALUE to "2026-06-15T00:00:00Z", ARG_FORMAT to "MMMM d, yyyy")
+            ) as String
+        assertThat(result).isEqualTo("June 15, 2026")
+    }
+
+    @Test
+    fun execute_valueTypeIsoUtcStringWithTime_evaluatesCorrectly() {
+        val originalTz = TimeZone.getDefault()
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+        try {
+            val function = A2uiFormatDateFunction(localeProvider = { Locale.US })
+            val result =
+                function.execute(mapOf(ARG_VALUE to "2026-06-15T14:30:00Z", ARG_FORMAT to "HH:mm"))
+                    as String
+            assertThat(result).isEqualTo("14:30")
+        } finally {
+            TimeZone.setDefault(originalTz)
+        }
+    }
+
+    @Test
+    fun execute_valueTypeIsoUtcStringHoursMinutes_evaluatesCorrectly() {
+        val originalTz = TimeZone.getDefault()
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+        try {
+            val function = A2uiFormatDateFunction(localeProvider = { Locale.US })
+            val result =
+                function.execute(mapOf(ARG_VALUE to "2026-06-15T14:30Z", ARG_FORMAT to "HH:mm"))
+                    as String
+            assertThat(result).isEqualTo("14:30")
+        } finally {
+            TimeZone.setDefault(originalTz)
+        }
+    }
+
+    @Test
+    fun execute_valueTypeIsoStringHoursMinutes_evaluatesCorrectly() {
+        val originalTz = TimeZone.getDefault()
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+        try {
+            val function = A2uiFormatDateFunction(localeProvider = { Locale.US })
+            val result =
+                function.execute(mapOf(ARG_VALUE to "2026-06-15T14:30", ARG_FORMAT to "HH:mm"))
+                    as String
+            assertThat(result).isEqualTo("14:30")
+        } finally {
+            TimeZone.setDefault(originalTz)
+        }
+    }
+
+    @Test
+    fun execute_valueTypeIsoStringWithMillis_evaluatesCorrectly() {
+        val originalTz = TimeZone.getDefault()
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+        try {
+            val function = A2uiFormatDateFunction(localeProvider = { Locale.US })
+            val result =
+                function.execute(
+                    mapOf(ARG_VALUE to "2026-06-15T14:30:00.500Z", ARG_FORMAT to "HH:mm:ss")
+                ) as String
+            assertThat(result).isEqualTo("14:30:00")
+        } finally {
+            TimeZone.setDefault(originalTz)
+        }
+    }
+
+    @Test
+    fun execute_valueTypeIsoStringWithOffset_evaluatesCorrectly() {
+        val originalTz = TimeZone.getDefault()
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+        try {
+            val function = A2uiFormatDateFunction(localeProvider = { Locale.US })
+            val result =
+                function.execute(
+                    mapOf(ARG_VALUE to "2026-06-15T16:30:00+02:00", ARG_FORMAT to "HH:mm")
+                ) as String
+            assertThat(result).isEqualTo("14:30")
+        } finally {
+            TimeZone.setDefault(originalTz)
+        }
+    }
+
+    @Test
+    fun execute_valueTypeIsoStringWithOffsetHoursMinutes_evaluatesCorrectly() {
+        val originalTz = TimeZone.getDefault()
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+        try {
+            val function = A2uiFormatDateFunction(localeProvider = { Locale.US })
+            val result =
+                function.execute(
+                    mapOf(ARG_VALUE to "2026-06-15T16:30+02:00", ARG_FORMAT to "HH:mm")
+                ) as String
+            assertThat(result).isEqualTo("14:30")
+        } finally {
+            TimeZone.setDefault(originalTz)
+        }
+    }
+
+    @Test
+    fun execute_valueTypeDateOnlyString_evaluatesCorrectly() {
+        val originalTz = TimeZone.getDefault()
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+        try {
+            val function = A2uiFormatDateFunction(localeProvider = { Locale.US })
+            val result =
+                function.execute(mapOf(ARG_VALUE to "2026-06-15", ARG_FORMAT to "MMMM d, yyyy"))
+                    as String
+            assertThat(result).isEqualTo("June 15, 2026")
+        } finally {
+            TimeZone.setDefault(originalTz)
+        }
+    }
+
     // Token Tests: Test all TR35 pattern tokens in a single test under en-US and programmatically
     // set timezone.
     @Test
