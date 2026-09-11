@@ -215,7 +215,7 @@ class SpatialAnnotationTest {
 
             val newCorner = Vector2(-2.5f, 2.5f)
             testAnnotation.quad =
-                Quad.createFromCorners(
+                Quad.fromCorners(
                     newCorner,
                     testAnnotation.quad!!.upperRight,
                     testAnnotation.quad!!.lowerRight,
@@ -244,7 +244,7 @@ class SpatialAnnotationTest {
 
             val newCorner = Vector2(2.5f, 2.5f)
             testAnnotation.quad =
-                Quad.createFromCorners(
+                Quad.fromCorners(
                     testAnnotation.quad!!.upperLeft,
                     newCorner,
                     testAnnotation.quad!!.lowerRight,
@@ -273,7 +273,7 @@ class SpatialAnnotationTest {
 
             val newCorner = Vector2(2.5f, -2.5f)
             testAnnotation.quad =
-                Quad.createFromCorners(
+                Quad.fromCorners(
                     testAnnotation.quad!!.upperLeft,
                     testAnnotation.quad!!.upperRight,
                     newCorner,
@@ -302,7 +302,7 @@ class SpatialAnnotationTest {
 
             val newCorner = Vector2(-2.5f, -2.5f)
             testAnnotation.quad =
-                Quad.createFromCorners(
+                Quad.fromCorners(
                     testAnnotation.quad!!.upperLeft,
                     testAnnotation.quad!!.upperRight,
                     testAnnotation.quad!!.lowerRight,
@@ -319,7 +319,7 @@ class SpatialAnnotationTest {
             val quadMap =
                 mapOf(
                     SpatialAnnotationId.fromString("teapot") to
-                        Quad.createFromCorners(
+                        Quad.fromCorners(
                             Vector2(0f, 0f),
                             Vector2(0f, 0f),
                             Vector2(0f, 0f),
