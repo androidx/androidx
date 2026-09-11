@@ -29,10 +29,12 @@ dependencies {
     api(libs.testRules)
     api(libs.testCore)
     api(libs.kotlinTest)
+    api("androidx.compose.animation:animation-core:1.7.5")
     api(project(":lifecycle:lifecycle-common"))
     api(project(":xr:runtime:runtime"))
     api(project(":xr:runtime:runtime-manifest"))
-    implementation(project(":compose:runtime:runtime"))
+
+    implementation("androidx.compose.runtime:runtime:1.7.5")
 
     androidTestImplementation(project(":compose:foundation:foundation"))
     androidTestImplementation(project(":compose:material3:material3"))
@@ -49,6 +51,7 @@ dependencies {
 }
 
 android {
+    compileSdk { version = release(36) }
     namespace = "androidx.xr.testutils"
 }
 
