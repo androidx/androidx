@@ -36,7 +36,7 @@ import kotlin.math.min
  * concavity), and splitting curves when the shapes do not have the same number of curves or when
  * the curve placement within the shapes is very different.
  */
-class Morph(private val start: RoundedPolygon, private val end: RoundedPolygon) {
+public class Morph(private val start: RoundedPolygon, private val end: RoundedPolygon) {
     /**
      * The structure which holds the actual shape being morphed. It contains all cubics necessary to
      * represent the start and end shapes (the original cubics in the shapes may be cut to align the
@@ -60,7 +60,7 @@ class Morph(private val start: RoundedPolygon, private val end: RoundedPolygon) 
      *   and bottom values will be stored in entries 0, 1, 2, and 3, in that order.
      */
     @JvmOverloads
-    fun calculateBounds(
+    public fun calculateBounds(
         bounds: FloatArray = FloatArray(4),
         approximate: Boolean = true,
     ): FloatArray {
@@ -90,7 +90,7 @@ class Morph(private val start: RoundedPolygon, private val end: RoundedPolygon) 
      *   right, and bottom values will be stored in entries 0, 1, 2, and 3, in that order.
      */
     @Suppress("MissingJvmstatic")
-    fun calculateMaxBounds(bounds: FloatArray = FloatArray(4)): FloatArray {
+    public fun calculateMaxBounds(bounds: FloatArray = FloatArray(4)): FloatArray {
         start.calculateMaxBounds(bounds)
         val minX = bounds[0]
         val minY = bounds[1]
@@ -116,7 +116,7 @@ class Morph(private val start: RoundedPolygon, private val end: RoundedPolygon) 
      *   values outside could result in undefined shapes, but values close to (but outside) the
      *   range can be used to get an exaggerated effect (e.g., for a bounce or overshoot animation).
      */
-    fun asCubics(progress: Float): List<Cubic> {
+    public fun asCubics(progress: Float): List<Cubic> {
         return buildList {
             // The first/last mechanism here ensures that the final anchor point in the shape
             // exactly matches the first anchor point. There can be rendering artifacts introduced
@@ -171,7 +171,7 @@ class Morph(private val start: RoundedPolygon, private val end: RoundedPolygon) 
      * @param callback The function to be called for each Cubic
      */
     @JvmOverloads
-    inline fun forEachCubic(
+    public inline fun forEachCubic(
         progress: Float,
         mutableCubic: MutableCubic = MutableCubic(),
         callback: (MutableCubic) -> Unit,

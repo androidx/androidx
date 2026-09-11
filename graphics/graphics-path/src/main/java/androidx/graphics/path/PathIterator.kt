@@ -31,11 +31,11 @@ import android.os.Build
  * [PathIterator], call one of the two [Path.iterator] extension functions.
  */
 @Suppress("NotCloseable")
-class PathIterator
+public class PathIterator
 constructor(
-    val path: Path,
-    val conicEvaluation: ConicEvaluation = ConicEvaluation.AsQuadratics,
-    val tolerance: Float = 0.25f,
+    public val path: Path,
+    public val conicEvaluation: ConicEvaluation = ConicEvaluation.AsQuadratics,
+    public val tolerance: Float = 0.25f,
 ) : Iterator<PathSegment> {
 
     private val implementation: PathIteratorImpl =
@@ -44,7 +44,7 @@ constructor(
             else -> PathIteratorPreApi34Impl(path, conicEvaluation, tolerance)
         }
 
-    enum class ConicEvaluation {
+    public enum class ConicEvaluation {
         /** Conic segments are returned as conic segments. */
         AsConic,
 
@@ -71,7 +71,7 @@ constructor(
      *   the cost of a less exact result.
      */
     @Suppress("MissingJvmstatic")
-    fun calculateSize(includeConvertedConics: Boolean = true) =
+    public fun calculateSize(includeConvertedConics: Boolean = true): Int =
         implementation.calculateSize(includeConvertedConics)
 
     /** Returns `true` if the iteration has more elements. */
@@ -81,7 +81,7 @@ constructor(
      * Returns the type of the current segment in the iteration, or [Done][PathSegment.Type.Done] if
      * the iteration is finished.
      */
-    fun peek() = implementation.peek()
+    public fun peek(): PathSegment.Type = implementation.peek()
 
     /**
      * Returns the [type][PathSegment.Type] of the next [path segment][PathSegment] in the iteration
@@ -102,7 +102,7 @@ constructor(
      * @param offset Offset in [points] where to store the result
      */
     @JvmOverloads
-    fun next(points: FloatArray, offset: Int = 0): PathSegment.Type =
+    public fun next(points: FloatArray, offset: Int = 0): PathSegment.Type =
         implementation.next(points, offset)
 
     /**
@@ -118,12 +118,14 @@ constructor(
  * quadratics. To preserve conics, use the [Path.iterator] function that takes a
  * [PathIterator.ConicEvaluation] parameter.
  */
-operator fun Path.iterator() = PathIterator(this)
+public operator fun Path.iterator(): PathIterator = PathIterator(this)
 
 /**
  * Creates a new [PathIterator] for this [path][android.graphics.Path]. To preserve conics as conics
  * (not convert them to quadratics), set [conicEvaluation] to
  * [PathIterator.ConicEvaluation.AsConic].
  */
-fun Path.iterator(conicEvaluation: PathIterator.ConicEvaluation, tolerance: Float = 0.25f) =
-    PathIterator(this, conicEvaluation, tolerance)
+public fun Path.iterator(
+    conicEvaluation: PathIterator.ConicEvaluation,
+    tolerance: Float = 0.25f,
+): PathIterator = PathIterator(this, conicEvaluation, tolerance)

@@ -31,41 +31,41 @@ import kotlin.math.sqrt
  * ([control0X], [control0Y]) and ([control1X], [control1Y]) determining the slope of the curve
  * between the anchor points.
  */
-open class Cubic internal constructor(internal val points: FloatArray = FloatArray(8)) {
+public open class Cubic internal constructor(internal val points: FloatArray = FloatArray(8)) {
     init {
         require(points.size == 8) { "Points array size should be 8" }
     }
 
     /** The first anchor point x coordinate */
-    val anchor0X
+    public val anchor0X: Float
         get() = points[0]
 
     /** The first anchor point y coordinate */
-    val anchor0Y
+    public val anchor0Y: Float
         get() = points[1]
 
     /** The first control point x coordinate */
-    val control0X
+    public val control0X: Float
         get() = points[2]
 
     /** The first control point y coordinate */
-    val control0Y
+    public val control0Y: Float
         get() = points[3]
 
     /** The second control point x coordinate */
-    val control1X
+    public val control1X: Float
         get() = points[4]
 
     /** The second control point y coordinate */
-    val control1Y
+    public val control1Y: Float
         get() = points[5]
 
     /** The second anchor point x coordinate */
-    val anchor1X
+    public val anchor1X: Float
         get() = points[6]
 
     /** The second anchor point y coordinate */
-    val anchor1Y
+    public val anchor1Y: Float
         get() = points[7]
 
     internal constructor(
@@ -233,7 +233,7 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
      * original starting and ending anchor points.
      */
     // TODO: cartesian optimization?
-    fun split(t: Float): Pair<Cubic, Cubic> {
+    public fun split(t: Float): Pair<Cubic, Cubic> {
         val u = 1 - t
         val pointOnCurve = pointOnCurve(t)
         return Cubic(
@@ -260,23 +260,23 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
     }
 
     /** Utility function to reverse the control/anchor points for this curve. */
-    fun reverse() =
+    public fun reverse(): Cubic =
         Cubic(anchor1X, anchor1Y, control1X, control1Y, control0X, control0Y, anchor0X, anchor0Y)
 
     /** Operator overload to enable adding Cubic objects together, like "c0 + c1" */
-    operator fun plus(o: Cubic) = Cubic(FloatArray(8) { points[it] + o.points[it] })
+    public operator fun plus(o: Cubic): Cubic = Cubic(FloatArray(8) { points[it] + o.points[it] })
 
     /** Operator overload to enable multiplying Cubics by a scalar value x, like "c0 * x" */
-    operator fun times(x: Float) = Cubic(FloatArray(8) { points[it] * x })
+    public operator fun times(x: Float): Cubic = Cubic(FloatArray(8) { points[it] * x })
 
     /** Operator overload to enable multiplying Cubics by an Int scalar value x, like "c0 * x" */
-    operator fun times(x: Int) = times(x.toFloat())
+    public operator fun times(x: Int): Cubic = times(x.toFloat())
 
     /** Operator overload to enable dividing Cubics by a scalar value x, like "c0 / x" */
-    operator fun div(x: Float) = times(1f / x)
+    public operator fun div(x: Float): Cubic = times(1f / x)
 
     /** Operator overload to enable dividing Cubics by a scalar value x, like "c0 / x" */
-    operator fun div(x: Int) = div(x.toFloat())
+    public operator fun div(x: Int): Cubic = div(x.toFloat())
 
     override fun toString(): String {
         return "anchor0: ($anchor0X, $anchor0Y) control0: ($control0X, $control0Y), " +
@@ -299,22 +299,22 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
      *
      * @param f The [PointTransformer] used to transform this [Cubic]
      */
-    fun transformed(f: PointTransformer): Cubic {
+    public fun transformed(f: PointTransformer): Cubic {
         val newCubic = MutableCubic()
         points.copyInto(newCubic.points)
         newCubic.transform(f)
         return newCubic
     }
 
-    override fun hashCode() = points.contentHashCode()
+    override fun hashCode(): Int = points.contentHashCode()
 
-    companion object {
+    public companion object {
         /**
          * Generates a bezier curve that is a straight line between the given anchor points. The
          * control points lie 1/3 of the distance from their respective anchor points.
          */
         @JvmStatic
-        fun straightLine(x0: Float, y0: Float, x1: Float, y1: Float): Cubic {
+        public fun straightLine(x0: Float, y0: Float, x1: Float, y1: Float): Cubic {
             return Cubic(
                 x0,
                 y0,
@@ -336,7 +336,7 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
          * than one arc together. Note that p0 and p1 should be equidistant from the center.
          */
         @JvmStatic
-        fun circularArc(
+        public fun circularArc(
             centerX: Float,
             centerY: Float,
             x0: Float,
@@ -390,7 +390,7 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
  * @param anchor1X the second anchor point x coordinate
  * @param anchor1Y the second anchor point y coordinate
  */
-fun Cubic(
+public fun Cubic(
     anchor0X: Float,
     anchor0Y: Float,
     control0X: Float,
@@ -399,7 +399,7 @@ fun Cubic(
     control1Y: Float,
     anchor1X: Float,
     anchor1Y: Float,
-) =
+): Cubic =
     Cubic(
         floatArrayOf(
             anchor0X,
@@ -414,24 +414,25 @@ fun Cubic(
     )
 
 /** This interface is used refer to Points that can be modified, as a scope to [PointTransformer] */
-interface MutablePoint {
+public interface MutablePoint {
     /** The x coordinate of the Point */
-    var x: Float
+    public var x: Float
 
     /** The y coordinate of the Point */
-    var y: Float
+    public var y: Float
 }
 
 @Suppress("TypealiasDefinition")
-typealias TransformResult = FloatFloatPair
+public typealias TransformResult = FloatFloatPair
 
 /** Interface for a function that can transform (rotate/scale/translate/etc.) points. */
-fun interface PointTransformer {
+public fun interface PointTransformer {
     /**
      * Transform the point given the x and y parameters, returning the transformed point as a
      * [TransformResult]
      */
-    @Suppress("ValueClassUsageWithoutJvmName") fun transform(x: Float, y: Float): TransformResult
+    @Suppress("ValueClassUsageWithoutJvmName")
+    public fun transform(x: Float, y: Float): TransformResult
 }
 
 /**
@@ -441,21 +442,21 @@ fun interface PointTransformer {
  * This is used in Morph.forEachCubic, reusing a [MutableCubic] instance to avoid creating new
  * [Cubic]s.
  */
-class MutableCubic : Cubic() {
+public class MutableCubic : Cubic() {
     private fun transformOnePoint(f: PointTransformer, ix: Int) {
         val result = f.transform(points[ix], points[ix + 1])
         points[ix] = result.first
         points[ix + 1] = result.second
     }
 
-    fun transform(f: PointTransformer) {
+    public fun transform(f: PointTransformer) {
         transformOnePoint(f, 0)
         transformOnePoint(f, 2)
         transformOnePoint(f, 4)
         transformOnePoint(f, 6)
     }
 
-    fun interpolate(c1: Cubic, c2: Cubic, progress: Float) {
+    public fun interpolate(c1: Cubic, c2: Cubic, progress: Float) {
         repeat(8) { points[it] = interpolate(c1.points[it], c2.points[it], progress) }
     }
 }

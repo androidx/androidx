@@ -54,7 +54,7 @@ import androidx.annotation.RestrictTo
     S_UI8,
     YCBCR_P010,
 )
-annotation class HardwareBufferFormat
+public annotation class HardwareBufferFormat
 
 // Leverage the same value as HardwareBuffer.USAGE_COMPOSER_OVERLAY.
 // While this constant was introduced in the SDK in the Android T release, it has

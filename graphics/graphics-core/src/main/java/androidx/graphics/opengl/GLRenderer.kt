@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger
  *   the EGL context. This is invoked on the GL Thread
  */
 // GL is the industry standard for referencing OpenGL vs Gl (lowercase l)
-class GLRenderer(
+public class GLRenderer(
     eglSpecFactory: () -> EGLSpec = { EGLSpec.V14 },
     eglConfigFactory: EGLManager.() -> EGLConfig = {
         // 8 bit channels should always be supported
@@ -93,7 +93,7 @@ class GLRenderer(
      * [RenderTarget] instances as part of its teardown process.
      */
     @JvmOverloads
-    fun detach(
+    public fun detach(
         target: RenderTarget,
         cancelPending: Boolean,
         @WorkerThread onDetachComplete: ((RenderTarget) -> Unit)? = null,
@@ -127,7 +127,7 @@ class GLRenderer(
      * Determines if the GLThread has been started. That is [start] has been invoked on this
      * GLRenderer instance without a corresponding call to [stop].
      */
-    fun isRunning(): Boolean = mGLThread != null
+    public fun isRunning(): Boolean = mGLThread != null
 
     /**
      * Starts the GLThread. After this method is called, consumers can attempt to attach
@@ -138,7 +138,7 @@ class GLRenderer(
      * @throws IllegalStateException if EGLConfig with desired attributes cannot be created
      */
     @JvmOverloads
-    fun start(name: String = "GLThread") {
+    public fun start(name: String = "GLThread") {
         if (mGLThread == null) {
             GLThread.log("starting thread...")
             mGLThread =
@@ -170,7 +170,10 @@ class GLRenderer(
      *   been rendered.
      */
     @JvmOverloads
-    fun requestRender(target: RenderTarget, onRenderComplete: ((RenderTarget) -> Unit)? = null) {
+    public fun requestRender(
+        target: RenderTarget,
+        onRenderComplete: ((RenderTarget) -> Unit)? = null,
+    ) {
         val token = target.token
         val callbackRunnable =
             if (onRenderComplete != null) {
@@ -197,7 +200,7 @@ class GLRenderer(
      *   operation is complete
      */
     @JvmOverloads
-    fun resize(
+    public fun resize(
         target: RenderTarget,
         width: Int,
         height: Int,
@@ -220,7 +223,7 @@ class GLRenderer(
      *
      * @param runnable Runnable to be executed
      */
-    fun execute(runnable: Runnable) {
+    public fun execute(runnable: Runnable) {
         mGLThread?.execute(runnable)
     }
 
@@ -237,7 +240,7 @@ class GLRenderer(
      * @param onStop Optional callback invoked on the backing thread after it is torn down.
      */
     @JvmOverloads
-    fun stop(cancelPending: Boolean, onStop: ((GLRenderer) -> Unit)? = null) {
+    public fun stop(cancelPending: Boolean, onStop: ((GLRenderer) -> Unit)? = null) {
         GLThread.log("stopping thread...")
         // Make a copy of the render targets to call cleanup operations on to avoid potential
         // concurrency issues.
@@ -265,7 +268,7 @@ class GLRenderer(
      *
      * These callbacks are invoked on the backing thread.
      */
-    fun registerEGLContextCallback(callback: EGLContextCallback) {
+    public fun registerEGLContextCallback(callback: EGLContextCallback) {
         mEglContextCallback.add(callback)
         mGLThread?.addEGLCallback(callback)
     }
@@ -276,7 +279,7 @@ class GLRenderer(
      *
      * These callbacks are invoked on the backing thread
      */
-    fun unregisterEGLContextCallback(callback: EGLContextCallback) {
+    public fun unregisterEGLContextCallback(callback: EGLContextCallback) {
         mEglContextCallback.remove(callback)
         mGLThread?.removeEGLCallback(callback)
     }
@@ -286,7 +289,7 @@ class GLRenderer(
      * places to setup and tear down any dependencies that are used for drawing content within a
      * frame (ex. compiling shaders)
      */
-    interface EGLContextCallback {
+    public interface EGLContextCallback {
 
         /**
          * Callback invoked on the backing thread after EGL dependencies are initialized. This is
@@ -296,7 +299,7 @@ class GLRenderer(
         // Suppressing CallbackMethodName due to b/238939160
         @Suppress("CallbackMethodName")
         @WorkerThread
-        fun onEGLContextCreated(eglManager: EGLManager)
+        public fun onEGLContextCreated(eglManager: EGLManager)
 
         /**
          * Callback invoked on the backing thread before EGL dependencies are about to be torn down.
@@ -305,7 +308,7 @@ class GLRenderer(
         // Suppressing CallbackMethodName due to b/238939160
         @Suppress("CallbackMethodName")
         @WorkerThread
-        fun onEGLContextDestroyed(eglManager: EGLManager)
+        public fun onEGLContextDestroyed(eglManager: EGLManager)
     }
 
     @JvmDefaultWithCompatibility
@@ -314,7 +317,7 @@ class GLRenderer(
      * provided surface as well as a callback used to render content into the surface for a given
      * frame
      */
-    interface RenderCallback {
+    public interface RenderCallback {
         /**
          * Used to create a corresponding [EGLSurface] from the provided [android.view.Surface]
          * instance. This enables consumers to configure the corresponding [EGLSurface] they wish to
@@ -339,7 +342,7 @@ class GLRenderer(
          * @param height Desired height of the surface to create
          */
         @WorkerThread
-        fun onSurfaceCreated(
+        public fun onSurfaceCreated(
             spec: EGLSpec,
             config: EGLConfig,
             surface: Surface,
@@ -369,7 +372,7 @@ class GLRenderer(
          *
          * @param eglManager Handle to EGL dependencies
          */
-        @WorkerThread fun onDrawFrame(eglManager: EGLManager)
+        @WorkerThread public fun onDrawFrame(eglManager: EGLManager)
     }
 
     /**
@@ -390,7 +393,12 @@ class GLRenderer(
      * @throws IllegalStateException If this method was called when the GLThread has not started
      *   (i.e. start has not been called)
      */
-    fun attach(surface: Surface, width: Int, height: Int, renderer: RenderCallback): RenderTarget {
+    public fun attach(
+        surface: Surface,
+        width: Int,
+        height: Int,
+        renderer: RenderCallback,
+    ): RenderTarget {
         val thread = mGLThread
         if (thread != null) {
             val token = sToken.getAndIncrement()
@@ -415,7 +423,7 @@ class GLRenderer(
      * @throws IllegalStateException If this method was called when the GLThread has not started
      *   (i.e. start has not been called)
      */
-    fun createRenderTarget(width: Int, height: Int, renderer: RenderCallback): RenderTarget {
+    public fun createRenderTarget(width: Int, height: Int, renderer: RenderCallback): RenderTarget {
         val thread = mGLThread
         if (thread != null) {
             val token = sToken.getAndIncrement()
@@ -450,7 +458,7 @@ class GLRenderer(
      * @throws IllegalStateException If this method was called when the GLThread has not started
      *   (i.e. start has not been called)
      */
-    fun attach(surfaceView: SurfaceView, renderer: RenderCallback): RenderTarget {
+    public fun attach(surfaceView: SurfaceView, renderer: RenderCallback): RenderTarget {
         val thread = mGLThread
         if (thread != null) {
             val token = sToken.getAndIncrement()
@@ -584,7 +592,7 @@ class GLRenderer(
      * @throws IllegalStateException If this method was called when the GLThread has not started
      *   (i.e. start has not been called)
      */
-    fun attach(textureView: TextureView, renderer: RenderCallback): RenderTarget {
+    public fun attach(textureView: TextureView, renderer: RenderCallback): RenderTarget {
         val thread = mGLThread
         if (thread != null) {
             val token = sToken.getAndIncrement()
@@ -653,7 +661,7 @@ class GLRenderer(
     }
 
     /** Handle to a [android.view.Surface] that is given to [GLRenderer] to handle rendering. */
-    class RenderTarget
+    public class RenderTarget
     internal constructor(
         internal val token: Int,
         glManager: GLRenderer,
@@ -678,7 +686,7 @@ class GLRenderer(
          *   finished
          */
         @JvmOverloads
-        fun requestRender(@WorkerThread onRenderComplete: ((RenderTarget) -> Unit)? = null) {
+        public fun requestRender(@WorkerThread onRenderComplete: ((RenderTarget) -> Unit)? = null) {
             mManager?.requestRender(this@RenderTarget, onRenderComplete)
         }
 
@@ -687,7 +695,7 @@ class GLRenderer(
          * [detach] has been called. If the RenderTarget is no longer in an attached state (i.e.
          * this returns false). Subsequent calls to [requestRender] will be ignored.
          */
-        fun isAttached(): Boolean = mManager != null
+        public fun isAttached(): Boolean = mManager != null
 
         /**
          * Resize the RenderTarget to the specified width and height. This will destroy the
@@ -704,7 +712,7 @@ class GLRenderer(
          * @param onResizeComplete Optional callback invoked after the resize is complete
          */
         @JvmOverloads
-        fun resize(
+        public fun resize(
             width: Int,
             height: Int,
             @WorkerThread onResizeComplete: ((RenderTarget) -> Unit)? = null,
@@ -731,7 +739,10 @@ class GLRenderer(
          * created this RenderTarget is stopped, this is a no-op.
          */
         @JvmOverloads
-        fun detach(cancelPending: Boolean, onDetachComplete: ((RenderTarget) -> Unit)? = null) {
+        public fun detach(
+            cancelPending: Boolean,
+            onDetachComplete: ((RenderTarget) -> Unit)? = null,
+        ) {
             mManager?.detach(this, cancelPending, onDetachComplete)
         }
 
@@ -743,7 +754,7 @@ class GLRenderer(
         }
     }
 
-    companion object {
+    public companion object {
         /** Counter used to issue unique identifiers for surfaces that are managed by GLRenderer */
         private val sToken = AtomicInteger()
     }

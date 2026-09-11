@@ -26,7 +26,7 @@ import android.graphics.Path
  *
  * @param matrix The matrix by which the polygon is to be transformed
  */
-fun RoundedPolygon.transformed(matrix: Matrix): RoundedPolygon {
+public fun RoundedPolygon.transformed(matrix: Matrix): RoundedPolygon {
     val tempArray = FloatArray(2)
     return transformed { x, y ->
         tempArray[0] = x
@@ -47,12 +47,12 @@ fun RoundedPolygon.transformed(matrix: Matrix): RoundedPolygon {
  *   create a new [Path] object
  */
 @JvmOverloads
-fun RoundedPolygon.toPath(path: Path = Path()): Path {
+public fun RoundedPolygon.toPath(path: Path = Path()): Path {
     pathFromCubics(path, cubics)
     return path
 }
 
-fun Morph.toPath(progress: Float, path: Path = Path()): Path {
+public fun Morph.toPath(progress: Float, path: Path = Path()): Path {
     // The first/last mechanism here ensures that the final anchor point in the shape
     // exactly matches the first anchor point. There can be rendering artifacts introduced
     // by those points being slightly off, even by much less than a pixel

@@ -36,7 +36,7 @@ import kotlin.math.min
  * @throws IllegalArgumentException [numVertices] must be at least 3
  */
 @JvmOverloads
-fun RoundedPolygon.Companion.circle(
+public fun RoundedPolygon.Companion.circle(
     @IntRange(from = 3) numVertices: Int = 8,
     radius: Float = 1f,
     centerX: Float = 0f,
@@ -81,7 +81,7 @@ fun RoundedPolygon.Companion.circle(
  * @param centerY The X coordinate of the center of the rectangle, around which all vertices will be
  *   placed equidistantly. The default center is at (0,0).
  */
-fun RoundedPolygon.Companion.rectangle(
+public fun RoundedPolygon.Companion.rectangle(
     width: Float = 2f,
     height: Float = 2f,
     rounding: CornerRounding = CornerRounding.Unrounded,
@@ -133,7 +133,7 @@ fun RoundedPolygon.Companion.rectangle(
  *   [innerRadius] > [radius].
  */
 @JvmOverloads
-fun RoundedPolygon.Companion.star(
+public fun RoundedPolygon.Companion.star(
     numVerticesPerRadius: Int,
     radius: Float = 1f,
     innerRadius: Float = .5f,
@@ -184,7 +184,7 @@ fun RoundedPolygon.Companion.star(
  * @throws IllegalArgumentException if either [width] or [height] are <= 0.
  */
 @JvmOverloads
-fun RoundedPolygon.Companion.pill(
+public fun RoundedPolygon.Companion.pill(
     width: Float = 2f,
     height: Float = 1f,
     smoothing: Float = 0f,
@@ -268,7 +268,7 @@ fun RoundedPolygon.Companion.pill(
  *   is outside the range of (0, 1].
  */
 @JvmOverloads
-fun RoundedPolygon.Companion.pillStar(
+public fun RoundedPolygon.Companion.pillStar(
     width: Float = 2f,
     height: Float = 1f,
     numVerticesPerRadius: Int = 8,

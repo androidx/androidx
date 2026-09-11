@@ -43,8 +43,9 @@ import android.opengl.EGL14
  * @see EGLConfigAttributes.RGBA_8888
  */
 @JvmSynthetic
-inline fun EGLConfigAttributes(block: EGLConfigAttributes.Builder.() -> Unit): EGLConfigAttributes =
-    EGLConfigAttributes.Builder().apply { block() }.build()
+public inline fun EGLConfigAttributes(
+    block: EGLConfigAttributes.Builder.() -> Unit
+): EGLConfigAttributes = EGLConfigAttributes.Builder().apply { block() }.build()
 
 /**
  * Class responsible for containing configuration parameters to be consumed by [EGLSpec.loadConfig]
@@ -87,14 +88,14 @@ inline fun EGLConfigAttributes(block: EGLConfigAttributes.Builder.() -> Unit): E
  * }
  * ```
  */
-class EGLConfigAttributes internal constructor(@PublishedApi internal val attrs: IntArray) {
+public class EGLConfigAttributes internal constructor(@PublishedApi internal val attrs: IntArray) {
 
     /**
      * Return a copy of the created integer array used for EGL methods. Most consumers would pass
      * the [EGLConfigAttributes] instance as a parameter instead, however, this method is provided
      * as a convenience for debugging and testing purposes.
      */
-    fun toArray(): IntArray = attrs.clone()
+    public fun toArray(): IntArray = attrs.clone()
 
     /**
      * Builder used to create an instance of [EGLConfigAttributes] Allows for a mapping of EGL
@@ -102,13 +103,13 @@ class EGLConfigAttributes internal constructor(@PublishedApi internal val attrs:
      * generated [EGLConfigAttributes] instance to be used as a template and conditionally update
      * individual mapped values
      */
-    class Builder {
+    public class Builder {
         private val attrs = HashMap<Int, Int>()
 
         /** Map a given EGL configuration attribute key to the given EGL configuration value */
         @SuppressWarnings("BuilderSetStyle")
         @JvmSynthetic
-        infix fun Int.to(that: Int) {
+        public infix fun Int.to(that: Int) {
             setAttribute(this, that)
         }
 
@@ -119,7 +120,7 @@ class EGLConfigAttributes internal constructor(@PublishedApi internal val attrs:
          * @param value Corresponding value for the [attribute]
          */
         @Suppress("MissingGetterMatchingBuilder")
-        fun setAttribute(attribute: Int, value: Int): Builder {
+        public fun setAttribute(attribute: Int, value: Int): Builder {
             attrs[attribute] = value
             return this
         }
@@ -148,7 +149,7 @@ class EGLConfigAttributes internal constructor(@PublishedApi internal val attrs:
          * configured previously.
          */
         @SuppressWarnings("BuilderSetStyle")
-        fun include(attributes: EGLConfigAttributes) {
+        public fun include(attributes: EGLConfigAttributes) {
             val attrsArray = attributes.attrs
             for (i in 0 until attrsArray.size - 1 step 2) {
                 attrs[attrsArray[i]] = attrsArray[i + 1]
@@ -160,7 +161,7 @@ class EGLConfigAttributes internal constructor(@PublishedApi internal val attrs:
          * respective values. This creates a flat integer array with alternating values for the key
          * value pairs and ends with EGL_NONE
          */
-        fun build(): EGLConfigAttributes {
+        public fun build(): EGLConfigAttributes {
             val entries = attrs.entries
             val attrArray = IntArray(entries.size * 2 + 1) // Array must end with EGL_NONE
             var index = 0
@@ -174,7 +175,7 @@ class EGLConfigAttributes internal constructor(@PublishedApi internal val attrs:
         }
     }
 
-    companion object {
+    public companion object {
         /**
          * EGL configuration attribute used to expose EGLConfigs that support formats with floating
          * point RGBA components. This attribute is exposed through the EGL_EXT_pixel_format_float
@@ -182,20 +183,20 @@ class EGLConfigAttributes internal constructor(@PublishedApi internal val attrs:
          *
          * See: https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_pixel_format_float.txt
          */
-        const val EGL_COLOR_COMPONENT_TYPE_EXT = 0x3339
+        public const val EGL_COLOR_COMPONENT_TYPE_EXT: Int = 0x3339
 
         /** EGL configuration attribute value that represents fixed point RGBA components */
-        const val EGL_COLOR_COMPONENT_TYPE_FIXED_EXT = 0x333A
+        public const val EGL_COLOR_COMPONENT_TYPE_FIXED_EXT: Int = 0x333A
 
         /** EGL configuration attribute value that represents floating point RGBA components */
-        const val EGL_COLOR_COMPONENT_TYPE_FLOAT_EXT = 0x333B
+        public const val EGL_COLOR_COMPONENT_TYPE_FLOAT_EXT: Int = 0x333B
 
         /**
          * EGL Attributes to create an 8 bit EGL config for red, green, blue, and alpha channels as
          * well as an 8 bit stencil size
          */
         @JvmField
-        val RGBA_8888 = EGLConfigAttributes {
+        public val RGBA_8888: EGLConfigAttributes = EGLConfigAttributes {
             EGL14.EGL_RENDERABLE_TYPE to EGL14.EGL_OPENGL_ES2_BIT
             EGL14.EGL_RED_SIZE to 8
             EGL14.EGL_GREEN_SIZE to 8
@@ -212,7 +213,7 @@ class EGLConfigAttributes internal constructor(@PublishedApi internal val attrs:
          * alpha channels. This does not include any bits for depth and stencil buffers.
          */
         @JvmField
-        val RGBA_1010102 = EGLConfigAttributes {
+        public val RGBA_1010102: EGLConfigAttributes = EGLConfigAttributes {
             EGL14.EGL_RENDERABLE_TYPE to EGL14.EGL_OPENGL_ES2_BIT
             EGL14.EGL_RED_SIZE to 10
             EGL14.EGL_GREEN_SIZE to 10
@@ -228,7 +229,7 @@ class EGLConfigAttributes internal constructor(@PublishedApi internal val attrs:
          * alpha channels without a depth or stencil channel.
          */
         @JvmField
-        val RGBA_F16 = EGLConfigAttributes {
+        public val RGBA_F16: EGLConfigAttributes = EGLConfigAttributes {
             EGL14.EGL_RENDERABLE_TYPE to EGL14.EGL_OPENGL_ES2_BIT
             EGL_COLOR_COMPONENT_TYPE_EXT to EGL_COLOR_COMPONENT_TYPE_FLOAT_EXT
             EGL14.EGL_RED_SIZE to 16

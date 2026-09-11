@@ -49,9 +49,9 @@ import java.util.concurrent.Executor
  * versions, this leverages the equivalent [SurfaceControl] API available in the SDK
  */
 @RequiresApi(Build.VERSION_CODES.Q)
-class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceControlImpl) {
+public class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceControlImpl) {
 
-    companion object {
+    public companion object {
 
         /**
          * Constants for [Transaction.setBufferTransform].
@@ -73,22 +73,22 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
         internal annotation class BufferTransform
 
         /** The identity transformation. Maps a coordinate (x, y) onto itself. */
-        const val BUFFER_TRANSFORM_IDENTITY = 0
+        public const val BUFFER_TRANSFORM_IDENTITY: Int = 0
 
         /** Mirrors the buffer horizontally. Maps a point (x, y) to (-x, y) */
-        const val BUFFER_TRANSFORM_MIRROR_HORIZONTAL = 1
+        public const val BUFFER_TRANSFORM_MIRROR_HORIZONTAL: Int = 1
 
         /** Mirrors the buffer vertically. Maps a point (x, y) to (x, -y) */
-        const val BUFFER_TRANSFORM_MIRROR_VERTICAL = 2
+        public const val BUFFER_TRANSFORM_MIRROR_VERTICAL: Int = 2
 
         /** Rotates the buffer 180 degrees clockwise. Maps a point (x, y) to (-x, -y) */
-        const val BUFFER_TRANSFORM_ROTATE_180 = 3
+        public const val BUFFER_TRANSFORM_ROTATE_180: Int = 3
 
         /** Rotates the buffer 90 degrees clockwise. Maps a point (x, y) to (-y, x) */
-        const val BUFFER_TRANSFORM_ROTATE_90 = 4
+        public const val BUFFER_TRANSFORM_ROTATE_90: Int = 4
 
         /** Rotates the buffer 270 degrees clockwise. Maps a point (x, y) to (y, -x) */
-        const val BUFFER_TRANSFORM_ROTATE_270 = 7
+        public const val BUFFER_TRANSFORM_ROTATE_270: Int = 7
 
         /** Constants for [Transaction.setFrameRate] */
         @IntDef(value = [CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS, CHANGE_FRAME_RATE_ALWAYS])
@@ -96,13 +96,13 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
         internal annotation class ChangeFrameRateStrategy
 
         /** Change the frame rate only if the transition is going to be seamless. */
-        const val CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS = 0
+        public const val CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS: Int = 0
 
         /**
          * Change the frame rate even if the transition is going to be non-seamless, i.e. with
          * visual interruptions for the user.
          */
-        const val CHANGE_FRAME_RATE_ALWAYS = 1
+        public const val CHANGE_FRAME_RATE_ALWAYS: Int = 1
 
         /** Constants for configuring compatibility for [Transaction.setFrameRate] */
         @IntDef(value = [FRAME_RATE_COMPATIBILITY_DEFAULT, FRAME_RATE_COMPATIBILITY_FIXED_SOURCE])
@@ -117,7 +117,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          * This value should be used when displaying game content, UIs, and anything that isn't
          * video.
          */
-        const val FRAME_RATE_COMPATIBILITY_DEFAULT = 0
+        public const val FRAME_RATE_COMPATIBILITY_DEFAULT: Int = 0
 
         /**
          * This compositing layer is being used to display content with an inherently fixed frame
@@ -129,14 +129,14 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          * frame stuttering) than it would be if the system had chosen the app's requested frame
          * rate. This value should be used for video content.
          */
-        const val FRAME_RATE_COMPATIBILITY_FIXED_SOURCE = 1
+        public const val FRAME_RATE_COMPATIBILITY_FIXED_SOURCE: Int = 1
     }
 
     /**
      * Check whether this instance points to a valid layer with the system-compositor. For example
      * this may be false if the layer was released ([release]).
      */
-    fun isValid(): Boolean = scImpl.isValid()
+    public fun isValid(): Boolean = scImpl.isValid()
 
     /**
      * Release the local reference to the server-side surface. The [Surface] may continue to exist
@@ -145,7 +145,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
      * false and other methods will throw an exception. Always call [release] when you are done with
      * a [SurfaceControlCompat] instance.
      */
-    fun release() {
+    public fun release() {
         scImpl.release()
     }
 
@@ -154,7 +154,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
      * and have "unset" bounds, meaning it can be as large as the bounds of its parent if a buffer
      * or child so requires. It is necessary to set at least a name via [Builder.setName]
      */
-    class Builder {
+    public class Builder {
 
         private val mBuilderImpl = createImpl()
 
@@ -168,7 +168,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          *   [SurfaceControlCompat] is associated with.
          */
         @Suppress("MissingGetterMatchingBuilder")
-        fun setParent(surfaceView: SurfaceView): Builder {
+        public fun setParent(surfaceView: SurfaceView): Builder {
             mBuilderImpl.setParent(surfaceView)
             return this
         }
@@ -182,7 +182,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          *   created [SurfaceControlCompat] instance
          */
         @Suppress("MissingGetterMatchingBuilder")
-        fun setParent(surfaceControl: SurfaceControlCompat): Builder {
+        public fun setParent(surfaceControl: SurfaceControlCompat): Builder {
             mBuilderImpl.setParent(surfaceControl)
             return this
         }
@@ -193,7 +193,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          * @param name Debugging name configured on the [SurfaceControlCompat] instance.
          */
         @Suppress("MissingGetterMatchingBuilder")
-        fun setName(name: String): Builder {
+        public fun setName(name: String): Builder {
             mBuilderImpl.setName(name)
             return this
         }
@@ -202,7 +202,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          * Construct a new [SurfaceControlCompat] with the set parameters. The builder remains valid
          * after the [SurfaceControlCompat] instance is created.
          */
-        fun build(): SurfaceControlCompat = SurfaceControlCompat(mBuilderImpl.build())
+        public fun build(): SurfaceControlCompat = SurfaceControlCompat(mBuilderImpl.build())
 
         internal companion object {
             @RequiresApi(Build.VERSION_CODES.Q)
@@ -231,7 +231,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          * Buffers which are replaced or removed from the scene in the transaction invoking this
          * callback may be reused after this point.
          */
-        @JniVisible fun onTransactionCompleted(transactionStats: Long)
+        @JniVisible public fun onTransactionCompleted(transactionStats: Long)
     }
 
     /**
@@ -239,14 +239,14 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
      * [SurfaceControlCompat.Transaction.addTransactionCommittedListener]
      */
     @JniVisible
-    interface TransactionCommittedListener {
+    public interface TransactionCommittedListener {
         /** Invoked when the transaction has been committed in SurfaceFlinger */
-        @JniVisible fun onTransactionCommitted()
+        @JniVisible public fun onTransactionCommitted()
     }
 
     /** An atomic set of changes to a set of [SurfaceControlCompat]. */
     @RequiresApi(Build.VERSION_CODES.Q)
-    class Transaction : AutoCloseable {
+    public class Transaction : AutoCloseable {
         /** internal mapping of buffer transforms used for testing purposes */
         internal val mBufferTransforms = HashMap<SurfaceControlCompat, Int>()
 
@@ -270,7 +270,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          * @param isOpaque Flag indicating if the [SurfaceControlCompat] should be fully opaque or
          *   transparent
          */
-        fun setOpaque(surfaceControl: SurfaceControlCompat, isOpaque: Boolean): Transaction {
+        public fun setOpaque(surfaceControl: SurfaceControlCompat, isOpaque: Boolean): Transaction {
             mImpl.setOpaque(surfaceControl.scImpl, isOpaque)
             return this
         }
@@ -282,7 +282,10 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          * @param visible `true` to indicate the [SurfaceControlCompat] should be visible, `false`
          *   otherwise
          */
-        fun setVisibility(surfaceControl: SurfaceControlCompat, visible: Boolean): Transaction {
+        public fun setVisibility(
+            surfaceControl: SurfaceControlCompat,
+            visible: Boolean,
+        ): Transaction {
             mImpl.setVisibility(surfaceControl.scImpl, visible)
             return this
         }
@@ -297,7 +300,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          *   instance is added to. This can be null indicating that the target
          *   [SurfaceControlCompat] should be removed from the scene.
          */
-        fun reparent(
+        public fun reparent(
             surfaceControl: SurfaceControlCompat,
             newParent: SurfaceControlCompat?,
         ): Transaction {
@@ -315,7 +318,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          *   parent of the provided [SurfaceControlCompat] instance.
          */
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-        fun reparent(
+        public fun reparent(
             surfaceControl: SurfaceControlCompat,
             attachedSurfaceControl: AttachedSurfaceControl,
         ): Transaction {
@@ -348,7 +351,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          *   that consumers must wait on before consuming the buffer
          */
         @JvmOverloads
-        fun setBuffer(
+        public fun setBuffer(
             surfaceControl: SurfaceControlCompat,
             buffer: HardwareBuffer?,
             fence: SyncFenceCompat? = null,
@@ -363,7 +366,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          * siblings share the same Z order the ordering is undefined. [Surface]s with a negative Z
          * will be placed below the parent [Surface].
          */
-        fun setLayer(surfaceControl: SurfaceControlCompat, z: Int): Transaction {
+        public fun setLayer(surfaceControl: SurfaceControlCompat, z: Int): Transaction {
             mImpl.setLayer(surfaceControl.scImpl, z)
             return this
         }
@@ -385,7 +388,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          */
         @Suppress("PairedRegistration")
         @RequiresApi(Build.VERSION_CODES.S)
-        fun addTransactionCommittedListener(
+        public fun addTransactionCommittedListener(
             executor: Executor,
             listener: TransactionCommittedListener,
         ): Transaction {
@@ -404,7 +407,10 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          * @param region The region to be set. If null, the entire buffer is assumed dirty. This is
          *   equivalent to not setting a damage region at all.
          */
-        fun setDamageRegion(surfaceControl: SurfaceControlCompat, region: Region?): Transaction {
+        public fun setDamageRegion(
+            surfaceControl: SurfaceControlCompat,
+            region: Region?,
+        ): Transaction {
             mImpl.setDamageRegion(surfaceControl.scImpl, region)
             return this
         }
@@ -416,7 +422,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          * @param surfaceControl Target [SurfaceControlCompat] to set the alpha of.
          * @param alpha The alpha to set. Value is between 0.0 and 1.0 inclusive.
          */
-        fun setAlpha(surfaceControl: SurfaceControlCompat, alpha: Float): Transaction {
+        public fun setAlpha(surfaceControl: SurfaceControlCompat, alpha: Float): Transaction {
             mImpl.setAlpha(surfaceControl.scImpl, alpha)
             return this
         }
@@ -432,7 +438,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          * @param crop Bounds of the crop to apply. This value can be null.
          * @throws IllegalArgumentException if crop is not a valid rectangle.
          */
-        fun setCrop(surfaceControl: SurfaceControlCompat, crop: Rect?): Transaction {
+        public fun setCrop(surfaceControl: SurfaceControlCompat, crop: Rect?): Transaction {
             mImpl.setCrop(surfaceControl.scImpl, crop)
             return this
         }
@@ -445,7 +451,11 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          * @param x the X position
          * @param y the Y position
          */
-        fun setPosition(surfaceControl: SurfaceControlCompat, x: Float, y: Float): Transaction {
+        public fun setPosition(
+            surfaceControl: SurfaceControlCompat,
+            x: Float,
+            y: Float,
+        ): Transaction {
             mImpl.setPosition(surfaceControl.scImpl, x, y)
             return this
         }
@@ -459,7 +469,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          * @param scaleX the X scale
          * @param scaleY the Y scale
          */
-        fun setScale(
+        public fun setScale(
             surfaceControl: SurfaceControlCompat,
             scaleX: Float,
             scaleY: Float,
@@ -484,7 +494,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          *   [SurfaceControlCompat.BUFFER_TRANSFORM_MIRROR_VERTICAL] |
          *   [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90]
          */
-        fun setBufferTransform(
+        public fun setBufferTransform(
             surfaceControl: SurfaceControlCompat,
             @BufferTransform transformation: Int,
         ): Transaction {
@@ -525,7 +535,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          *   when [frameRate] is not 0. This is ignored on older Android versions and when
          *   [frameRate] is 0.
          */
-        fun setFrameRate(
+        public fun setFrameRate(
             surfaceControl: SurfaceControlCompat,
             frameRate: Float,
             @FrameRateCompatibility compatibility: Int,
@@ -557,7 +567,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          *
          * @param surfaceControl [SurfaceControlCompat] to clear the frame rate
          */
-        fun clearFrameRate(surfaceControl: SurfaceControlCompat): Transaction {
+        public fun clearFrameRate(surfaceControl: SurfaceControlCompat): Transaction {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 mImpl.clearFrameRate(surfaceControl.scImpl)
             }
@@ -601,7 +611,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          * @return this
          */
         @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-        fun setExtendedRangeBrightness(
+        public fun setExtendedRangeBrightness(
             surfaceControl: SurfaceControlCompat,
             @FloatRange(from = 1.0, fromInclusive = true) currentBufferRatio: Float,
             @FloatRange(from = 1.0, fromInclusive = true) desiredRatio: Float,
@@ -629,7 +639,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          * @return this
          * @see [android.view.SurfaceControl.Transaction.setDataSpace]
          */
-        fun setDataSpace(
+        public fun setDataSpace(
             surfaceControl: SurfaceControlCompat,
             @DataSpace.NamedDataSpace dataSpace: Int,
         ): Transaction {
@@ -642,7 +652,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          * This will not release any resources and [SurfaceControlCompat.Transaction.close] must be
          * called to release the transaction.
          */
-        fun commit() {
+        public fun commit() {
             mBufferTransforms.clear()
             mImpl.commit()
         }
@@ -663,7 +673,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          *   will apply the provided transaction on the next draw pass
          */
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-        fun commitTransactionOnDraw(attachedSurfaceControl: AttachedSurfaceControl) {
+        public fun commitTransactionOnDraw(attachedSurfaceControl: AttachedSurfaceControl) {
             mImpl.commitTransactionOnDraw(attachedSurfaceControl)
         }
 

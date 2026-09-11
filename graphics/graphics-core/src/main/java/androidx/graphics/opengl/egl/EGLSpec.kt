@@ -45,7 +45,7 @@ import androidx.opengl.EGLSyncKHR
  *
  * EGLSpec is not thread safe and is up to the caller of these methods to guarantee thread safety.
  */
-interface EGLSpec {
+public interface EGLSpec {
 
     /**
      * Query for the capabilities associated with the given eglDisplay. The result contains a space
@@ -53,7 +53,7 @@ interface EGLSpec {
      *
      * @param nameId identifier for the EGL string to query
      */
-    fun eglQueryString(nameId: Int): String
+    public fun eglQueryString(nameId: Int): String
 
     /**
      * Create a Pixel Buffer surface with the corresponding [EGLConfigAttributes]. Accepted
@@ -66,7 +66,7 @@ interface EGLSpec {
      *   resource available to the surface
      * @param configAttributes Optional list of attributes for the pixel buffer surface
      */
-    fun eglCreatePBufferSurface(
+    public fun eglCreatePBufferSurface(
         config: EGLConfig,
         configAttributes: EGLConfigAttributes?,
     ): EGLSurface
@@ -81,7 +81,7 @@ interface EGLSpec {
      * @param surface Android surface to consume rendered content
      * @param configAttributes Optional list of attributes for the specified surface
      */
-    fun eglCreateWindowSurface(
+    public fun eglCreateWindowSurface(
         config: EGLConfig,
         surface: Surface,
         configAttributes: EGLConfigAttributes?,
@@ -98,7 +98,7 @@ interface EGLSpec {
      *
      * @return `true` if destruction of the EGLSurface was successful, false otherwise
      */
-    fun eglDestroySurface(surface: EGLSurface): Boolean
+    public fun eglDestroySurface(surface: EGLSurface): Boolean
 
     /**
      * Binds the current context to the given draw and read surfaces. The draw surface is used for
@@ -114,7 +114,7 @@ interface EGLSpec {
      * @param drawSurface EGLSurface to draw pixels into.
      * @param readSurface EGLSurface used for read/copy operations.
      */
-    fun eglMakeCurrent(
+    public fun eglMakeCurrent(
         context: EGLContext,
         drawSurface: EGLSurface,
         readSurface: EGLSurface,
@@ -124,20 +124,20 @@ interface EGLSpec {
      * Return the current surface used for reading or copying pixels. If no context is current,
      * [EGL14.EGL_NO_SURFACE] is returned
      */
-    fun eglGetCurrentReadSurface(): EGLSurface
+    public fun eglGetCurrentReadSurface(): EGLSurface
 
     /**
      * Return the current surface used for drawing pixels. If no context is current,
      * [EGL14.EGL_NO_SURFACE] is returned.
      */
-    fun eglGetCurrentDrawSurface(): EGLSurface
+    public fun eglGetCurrentDrawSurface(): EGLSurface
 
     /**
      * Initialize the EGL implementation and return the major and minor version of the EGL
      * implementation through [EGLVersion]. If initialization fails, this returns
      * [EGLVersion.Unknown]
      */
-    fun eglInitialize(): EGLVersion
+    public fun eglInitialize(): EGLVersion
 
     /**
      * Load a corresponding EGLConfig from the provided [EGLConfigAttributes] If the EGLConfig could
@@ -147,7 +147,7 @@ interface EGLSpec {
      * @return the [EGLConfig] with the provided [EGLConfigAttributes] or null if an [EGLConfig]
      *   could not be created with the specified attributes
      */
-    fun loadConfig(configAttributes: EGLConfigAttributes): EGLConfig?
+    public fun loadConfig(configAttributes: EGLConfigAttributes): EGLConfig?
 
     /**
      * Create an EGLContext with the default display. If createContext fails to create a rendering
@@ -155,7 +155,7 @@ interface EGLSpec {
      *
      * @param config [EGLConfig] used to create the [EGLContext]
      */
-    fun eglCreateContext(config: EGLConfig): EGLContext
+    public fun eglCreateContext(config: EGLConfig): EGLContext
 
     /**
      * Destroy the given EGLContext generated in [eglCreateContext]
@@ -164,7 +164,7 @@ interface EGLSpec {
      *
      * @param eglContext EGL rendering context to be destroyed
      */
-    fun eglDestroyContext(eglContext: EGLContext)
+    public fun eglDestroyContext(eglContext: EGLContext)
 
     /**
      * Post EGL surface color buffer to a native window
@@ -174,7 +174,7 @@ interface EGLSpec {
      * @param surface Specifies the EGL drawing surface whose buffers are to be swapped
      * @return `true` if swapping of buffers succeeds, false otherwise
      */
-    fun eglSwapBuffers(surface: EGLSurface): Boolean
+    public fun eglSwapBuffers(surface: EGLSurface): Boolean
 
     /**
      * Query the EGL attributes of the provided surface
@@ -186,7 +186,12 @@ interface EGLSpec {
      * @return `true` if the query was completed successfully, false otherwise. If the query fails,
      *   [result] is unmodified
      */
-    fun eglQuerySurface(surface: EGLSurface, attribute: Int, result: IntArray, offset: Int): Boolean
+    public fun eglQuerySurface(
+        surface: EGLSurface,
+        attribute: Int,
+        result: IntArray,
+        offset: Int,
+    ): Boolean
 
     /**
      * Returns the error of the last called EGL function in the current thread. Initially, the error
@@ -198,13 +203,13 @@ interface EGLSpec {
      * See https://khronos.org/registry/EGL/sdk/docs/man/html/eglGetError.xhtml for more information
      * and error codes that could potentially be returned
      */
-    fun eglGetError(): Int
+    public fun eglGetError(): Int
 
     /**
      * Convenience method to obtain the corresponding error string from the error code obtained from
      * [EGLSpec.eglGetError]
      */
-    fun getErrorMessage(): String = getStatusString(eglGetError())
+    public fun getErrorMessage(): String = getStatusString(eglGetError())
 
     /**
      * Creates an EGLImage from the provided [HardwareBuffer]. This handles internally creating an
@@ -224,7 +229,7 @@ interface EGLSpec {
      * See www.khronos.org/registry/EGL/extensions/ANDROID/EGL_ANDROID_get_native_client_buffer.txt
      */
     @RequiresApi(Build.VERSION_CODES.O)
-    fun eglCreateImageFromHardwareBuffer(hardwareBuffer: HardwareBuffer): EGLImageKHR?
+    public fun eglCreateImageFromHardwareBuffer(hardwareBuffer: HardwareBuffer): EGLImageKHR?
 
     /**
      * Destroy the given [EGLImageKHR] instance. Once destroyed, the image may not be used to create
@@ -238,7 +243,7 @@ interface EGLSpec {
      * @param image EGLImageKHR to be destroyed
      * @return `true` if the destruction of the EGLImageKHR object was successful, `false` otherwise
      */
-    fun eglDestroyImageKHR(image: EGLImageKHR): Boolean
+    public fun eglDestroyImageKHR(image: EGLImageKHR): Boolean
 
     /**
      * Creates a sync object of the specified type associated with the specified display, and
@@ -258,7 +263,7 @@ interface EGLSpec {
      * @return the [EGLSyncKHR] object to be used as a fence or null if this extension is not
      *   supported
      */
-    fun eglCreateSyncKHR(type: Int, attributes: EGLConfigAttributes?): EGLSyncKHR?
+    public fun eglCreateSyncKHR(type: Int, attributes: EGLConfigAttributes?): EGLSyncKHR?
 
     /**
      * Query attributes of the provided sync object. Accepted attributes to query depend on the type
@@ -277,7 +282,7 @@ interface EGLSpec {
      *   not matching the display that was used to create this sync object. Additionally if the
      *   queried attribute is not supported for the sync object, false is returned.
      */
-    fun eglGetSyncAttribKHR(
+    public fun eglGetSyncAttribKHR(
         sync: EGLSyncKHR,
         @EGLSyncAttribute attribute: Int,
         value: IntArray,
@@ -297,7 +302,7 @@ interface EGLSpec {
      *   or if the display provided in this method does not match the display used to create this
      *   sync in [eglCreateSyncKHR].
      */
-    fun eglDestroySyncKHR(sync: EGLSyncKHR): Boolean
+    public fun eglDestroySyncKHR(sync: EGLSyncKHR): Boolean
 
     /**
      * Blocks the calling thread until the specified sync object is signalled or until
@@ -338,16 +343,16 @@ interface EGLSpec {
      *   [EGL_TIMEOUT_EXPIRED_KHR] if the sync did not signal within the specified timeout, or
      *   [EGL_FALSE] if an error occurs.
      */
-    fun eglClientWaitSyncKHR(
+    public fun eglClientWaitSyncKHR(
         sync: EGLSyncKHR,
         flags: Int,
         timeoutNanos: Long,
     ): @EGLClientWaitResult Int
 
-    companion object {
+    public companion object {
 
         @JvmField
-        val V14 =
+        public val V14: EGLSpec =
             object : EGLSpec {
 
                 // Tuples of attribute identifiers along with their corresponding values.
@@ -517,7 +522,7 @@ interface EGLSpec {
          * error value is not an EGL status code, the hex representation is returned instead
          */
         @JvmStatic
-        fun getStatusString(error: Int): String =
+        public fun getStatusString(error: Int): String =
             when (error) {
                 EGL14.EGL_SUCCESS -> "EGL_SUCCESS"
                 EGL14.EGL_NOT_INITIALIZED -> "EGL_NOT_INITIALIZED"
@@ -545,7 +550,7 @@ interface EGLSpec {
  * @param error Error code reported via eglGetError
  * @param msg Optional message describing the exception being thrown
  */
-class EGLException(val error: Int, val msg: String = "") : RuntimeException() {
+public class EGLException(public val error: Int, public val msg: String = "") : RuntimeException() {
 
     override val message: String
         get() = "Error: ${EGLSpec.getStatusString(error)}, $msg"
@@ -558,20 +563,20 @@ class EGLException(val error: Int, val msg: String = "") : RuntimeException() {
  * @param minor Minor version of the EGL implementation
  */
 @Suppress("DataClassDefinition")
-data class EGLVersion(val major: Int, val minor: Int) {
+public data class EGLVersion(public val major: Int, public val minor: Int) {
 
     override fun toString(): String {
         return "EGL version $major.$minor"
     }
 
-    companion object {
+    public companion object {
         /** Constant that represents version 1.4 of the EGL spec */
-        @JvmField val V14 = EGLVersion(1, 4)
+        @JvmField public val V14: EGLVersion = EGLVersion(1, 4)
 
         /** Constant that represents version 1.5 of the EGL spec */
-        @JvmField val V15 = EGLVersion(1, 5)
+        @JvmField public val V15: EGLVersion = EGLVersion(1, 5)
 
         /** Sentinel EglVersion value returned in error situations */
-        @JvmField val Unknown = EGLVersion(-1, -1)
+        @JvmField public val Unknown: EGLVersion = EGLVersion(-1, -1)
     }
 }

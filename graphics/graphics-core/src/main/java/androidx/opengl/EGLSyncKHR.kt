@@ -21,7 +21,7 @@ package androidx.opengl
  * suffix indicates it is generated as part of the extension APIs namely through
  * [EGLExt.eglCreateSyncKHR].
  */
-class EGLSyncKHR(override val nativeHandle: Long) : EGLHandle {
+public class EGLSyncKHR(override val nativeHandle: Long) : EGLHandle {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is EGLSyncKHR) return false
