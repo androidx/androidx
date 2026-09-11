@@ -20,6 +20,8 @@ import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaCodecInfo.CodecProfileLevel.AACObjectLC
 import android.media.MediaFormat.MIMETYPE_AUDIO_AAC
+import android.media.MediaFormat.MIMETYPE_AUDIO_AMR_NB
+import android.media.MediaFormat.MIMETYPE_AUDIO_AMR_WB
 import android.media.MediaFormat.MIMETYPE_AUDIO_OPUS
 import android.media.MediaFormat.MIMETYPE_AUDIO_VORBIS
 import android.media.MediaRecorder
@@ -267,6 +269,56 @@ class AudioConfigUtilTest {
         val resolvedAudioSourceFormat = AudioConfigUtil.resolveAudioSettings(audioSpec).audioFormat
 
         assertThat(resolvedAudioSourceFormat).isNotEqualTo(AudioFormat.ENCODING_INVALID)
+    }
+
+    @Test
+    fun resolveAudioSettings_amrNbMimeWithoutProfile_resolvesTo8k() {
+        val audioSpec = AudioSpec.builder().setMimeType(MIMETYPE_AUDIO_AMR_NB).build()
+        val settings = AudioConfigUtil.resolveAudioSettings(audioSpec)
+        assertThat(settings.captureSampleRate).isEqualTo(8000)
+        assertThat(settings.encodeSampleRate).isEqualTo(8000)
+    }
+
+    @Test
+    fun resolveAudioSettings_amrWbMimeWithoutProfile_resolvesTo16k() {
+        val audioSpec = AudioSpec.builder().setMimeType(MIMETYPE_AUDIO_AMR_WB).build()
+        val settings = AudioConfigUtil.resolveAudioSettings(audioSpec)
+        assertThat(settings.captureSampleRate).isEqualTo(16000)
+        assertThat(settings.encodeSampleRate).isEqualTo(16000)
+    }
+
+    @Test
+    fun resolveAudioSettings_unsupportedSettingsWithCodec_fallsBackToCodecDefaultSampleRate() {
+        val audioSpec = AudioSpec.builder().build()
+        // Simulate device where AudioRecord fails all queries
+        ShadowAudioRecord.setSupportedSettings(emptyList())
+
+        val settings =
+            AudioConfigUtil.resolveAudioSettings(audioSpec, audioMime = MIMETYPE_AUDIO_AMR_NB)
+        assertThat(settings.captureSampleRate).isEqualTo(8000)
+        assertThat(settings.encodeSampleRate).isEqualTo(8000)
+    }
+
+    @Test
+    fun resolveAudioSettings_unsupportedSettingsWithProfile_fallsBackToDefaultSampleRate() {
+        val audioSpec = AudioSpec.builder().build()
+        // Audio profile with 48000 Hz sample rate
+        val audioProfile =
+            createFakeAudioProfileProxy(
+                bitrate = 156000,
+                sampleRate = 48000,
+                channelCount = 2,
+                profile = AACObjectLC,
+            )
+        // Simulate device where AudioRecord fails all queries
+        ShadowAudioRecord.setSupportedSettings(emptyList())
+
+        val settings =
+            AudioConfigUtil.resolveAudioSettings(audioSpec, compatibleAudioProfile = audioProfile)
+        // Should fall back to default sample rate (44100 for AAC), NOT the profile's 48000
+        assertThat(settings.captureSampleRate).isEqualTo(AudioConfigUtil.AUDIO_SAMPLE_RATE_DEFAULT)
+        assertThat(settings.encodeSampleRate).isEqualTo(AudioConfigUtil.AUDIO_SAMPLE_RATE_DEFAULT)
+        assertThat(settings.channelCount).isEqualTo(AudioConfigUtil.AUDIO_CHANNEL_COUNT_DEFAULT)
     }
 
     @Implements(AudioRecord::class)
