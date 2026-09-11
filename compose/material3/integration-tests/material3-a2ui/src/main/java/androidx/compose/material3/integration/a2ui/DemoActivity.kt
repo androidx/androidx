@@ -37,10 +37,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 
+@OptIn(ExperimentalComposeUiApi::class)
 class DemoActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ComposeUiFlags.isMediaQueryIntegrationEnabled = true
         enableEdgeToEdge()
         setContent { DemoTheme { A2uiDemoApp() } }
     }
