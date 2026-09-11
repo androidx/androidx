@@ -22,6 +22,7 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -216,7 +217,7 @@ class NavigationBarScreenshotTest {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             scope = rememberCoroutineScope()
             Box(Modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
-                NavigationBar {
+                NavigationBar(windowInsets = NoWindowInsets) {
                     NavigationBarItem(
                         selected = true,
                         onClick = {},
@@ -249,7 +250,7 @@ class NavigationBarScreenshotTest {
             ) {
                 localInputModeManager = LocalInputModeManager.current
                 Box(Modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
-                    NavigationBar {
+                    NavigationBar(windowInsets = NoWindowInsets) {
                         NavigationBarItem(
                             icon = { Icon(Icons.Filled.Favorite, null) },
                             selected = true,
@@ -336,7 +337,7 @@ private fun DefaultNavigationBar(
     setUnselectedItemsAsDisabled: Boolean = false,
 ) {
     Box(modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
-        NavigationBar {
+        NavigationBar(windowInsets = NoWindowInsets) {
             NavigationBarItem(
                 icon = { Icon(Icons.Filled.Favorite, null) },
                 selected = true,
@@ -360,3 +361,5 @@ private fun DefaultNavigationBar(
 }
 
 private const val Tag = "NavigationBar"
+
+private val NoWindowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp)

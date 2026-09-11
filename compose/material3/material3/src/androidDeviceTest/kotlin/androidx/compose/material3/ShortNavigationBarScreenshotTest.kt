@@ -22,6 +22,7 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
@@ -131,7 +132,7 @@ class ShortNavigationBarScreenshotTest {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             scope = rememberCoroutineScope()
             Box(Modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
-                ShortNavigationBar {
+                ShortNavigationBar(windowInsets = NoWindowInsets) {
                     ShortNavigationBarItem(
                         selected = true,
                         onClick = {},
@@ -303,7 +304,10 @@ class ShortNavigationBarScreenshotTest {
         composeTestRule.setContentWithSimulatedSize(600.dp, 100.dp, lightColorScheme()) {
             scope = rememberCoroutineScope()
             Box(Modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
-                ShortNavigationBar(arrangement = ShortNavigationBarArrangement.Centered) {
+                ShortNavigationBar(
+                    arrangement = ShortNavigationBarArrangement.Centered,
+                    windowInsets = NoWindowInsets,
+                ) {
                     ShortNavigationBarItem(
                         selected = true,
                         onClick = {},
@@ -466,7 +470,7 @@ private fun DefaultShortNavigationBar(
     iconPosition: NavigationItemIconPosition = NavigationItemIconPosition.Top,
 ) {
     Box(modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
-        ShortNavigationBar(arrangement = arrangement) {
+        ShortNavigationBar(arrangement = arrangement, windowInsets = NoWindowInsets) {
             ShortNavigationBarItem(
                 icon = { Icon(Icons.Filled.Favorite, null) },
                 iconPosition = iconPosition,
@@ -520,3 +524,5 @@ private fun ComposeContentTestRule.setContentWithSimulatedSize(
 }
 
 private const val Tag = "ShortNavigationBar"
+
+private val NoWindowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp)
