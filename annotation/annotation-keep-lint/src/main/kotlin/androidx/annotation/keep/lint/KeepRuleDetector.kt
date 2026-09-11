@@ -89,7 +89,7 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
         @JvmField
         val ISSUE =
             Issue.create(
-                id = "ReflectionAnnotation",
+                id = "ReflectionWithoutKeepAnnotations",
                 briefDescription = "Missing Reflection Annotation",
                 explanation =
                     """
@@ -102,7 +102,7 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
           """,
                 category = Category.CORRECTNESS,
                 priority = 2,
-                severity = Severity.WARNING,
+                severity = Severity.ERROR,
                 androidSpecific = true,
                 implementation = IMPLEMENTATION,
                 enabledByDefault = true,
