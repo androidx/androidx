@@ -18,7 +18,11 @@ package androidx.compose.remote.creation.compose.capture
 
 import androidx.collection.MutableObjectIntMap
 import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.core.operations.layout.managers.Custom.CustomProperty
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.compose.layout.CustomPropertyEntry
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.BaseRemoteState
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -487,17 +491,66 @@ internal sealed class CanvasOp {
         override fun toString(): String = "DrawConditionally(${condition.toDebugString()})"
     }
 
-    /** The strategy for rendering a [SaveRestore] node during flush. */
+    /**
+     * Represents a custom component layout operation.
+     *
+     * @property config The configuration string for the custom component.
+     * @property modifier The [RemoteModifier] applied to this component.
+     * @property states The remote state variables passed as properties or return bindings.
+     * @property childSpan The child span containing canvas commands to record within this
+     *   component.
+     */
+    class CustomComponent(
+        val config: String,
+        val modifier: RemoteModifier,
+        val properties: List<CustomPropertyEntry>,
+        val childSpan: CanvasOperationBuffer.Span?,
+    ) : CanvasOp() {
+        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState) {
+            val corePropList = ArrayList<CustomProperty>(properties.size)
+            for (i in properties.indices) {
+                corePropList.add(properties[i].toCustomProperty(creationState))
+            }
+            val recordingModifier = creationState.toRecordingModifier(modifier)
+            if (recordingModifier.componentId == -1) {
+                recordingModifier.componentId(writer.nextId())
+            }
+            writer.startCustom(recordingModifier, config, corePropList)
+            childSpan?.record(writer, creationState)
+            writer.endCustom()
+        }
+
+        override fun hasTransformsOrClips(): Boolean = childSpan?.hasTransformsOrClips() ?: false
+
+        override fun containsDrawingPrimitives(): Boolean = true
+
+        override fun switchesCanvasOrHasCondition(): Boolean = true
+
+        override fun emitsWireCommands(): Boolean = true
+
+        override fun optimizeChildScopes(buffer: CanvasOperationBuffer) {
+            childSpan?.let { buffer.optimizeSpan(it) }
+        }
+
+        override fun shouldPrune(buffer: CanvasOperationBuffer): Boolean = false
+
+        override fun toString(): String = "CustomComponent(config=$config, properties=$properties)"
+    }
+
+    /**
+     * Marker interface for operations that are subject to transform optimizations (e.g.
+     * translations).
+     */
+    interface OptimizableTransform
+
+    /** Strategy for optimizing a save/restore block. */
     enum class ElisionMode {
-        /**
-         * Keep the save/restore bounds and write [RemoteComposeWriter.save] and
-         * [RemoteComposeWriter.restore].
-         */
+        /** Keep the save/restore block and optimize within its scope. */
         PRESERVE,
 
         /**
-         * Discard the save/restore bounds but write all the children. This inlines the children
-         * into the parent scope.
+         * Inline all non-transform children and any net-transform operations directly into the
+         * parent scope.
          */
         INLINE,
 
