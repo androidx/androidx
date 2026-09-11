@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,15 @@ import androidx.credentials.internal.RequestValidationHelper
  * @property requestJson The
  *   [JSON](https://w3c-fedid.github.io/digital-credentials/#extensions-to-credentialcreationoptions-dictionary)
  *   string representing the request
+ * @property bindingTokenOptions optional options for generating a binding token that links the
+ *   request session between the caller and the user-selected credential provider. Note that a
+ *   credential provider will never receive this information when they receive the request.
  */
 @ExperimentalDigitalCredentialApi
 class CreateDigitalCredentialRequest
 private constructor(
     val requestJson: String,
+    val bindingTokenOptions: BindingTokenOptions?,
     origin: String?,
     credentialData: Bundle,
     candidateQueryData: Bundle,
@@ -55,14 +59,20 @@ private constructor(
      *   string representing the request
      * @param origin the origin of a different application if the request is being made on behalf of
      *   that application
+     * @param bindingTokenOptions optional options for generating a binding token that links the
+     *   request session between the caller and the user-selected credential provider. Note that a
+     *   credential provider will never receive this information when they receive the request.
      */
+    @JvmOverloads
     constructor(
         requestJson: String,
-        origin: String?,
+        origin: String? = null,
+        bindingTokenOptions: BindingTokenOptions? = null,
     ) : this(
         requestJson = requestJson,
+        bindingTokenOptions = bindingTokenOptions,
         origin = origin,
-        credentialData = toBundle(requestJson),
+        credentialData = toBundle(requestJson, bindingTokenOptions),
         candidateQueryData = Bundle(),
     )
 
@@ -74,6 +84,10 @@ private constructor(
 
     internal companion object {
         internal const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
+        internal const val BUNDLE_KEY_BINDING_TOKEN_PROOFING_TOKEN =
+            "androidx.credentials.BUNDLE_KEY_BINDING_TOKEN_PROOFING_TOKEN"
+        internal const val BUNDLE_KEY_BINDING_TOKEN_ALGORITHM =
+            "androidx.credentials.BUNDLE_KEY_BINDING_TOKEN_ALGORITHM"
 
         // DisplayInfo not used in this request, user name is required to create a DisplayInfo
         internal const val UNUSED_USER_ID = "unused"
@@ -81,9 +95,22 @@ private constructor(
         @JvmStatic internal fun populateUnusedDisplayInfo() = DisplayInfo(userId = UNUSED_USER_ID)
 
         @JvmStatic
-        internal fun toBundle(requestJson: String): Bundle {
+        internal fun toBundle(
+            requestJson: String,
+            bindingTokenOptions: BindingTokenOptions? = null,
+        ): Bundle {
             val bundle = Bundle()
             bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
+            if (bindingTokenOptions != null) {
+                bundle.putByteArray(
+                    BUNDLE_KEY_BINDING_TOKEN_PROOFING_TOKEN,
+                    bindingTokenOptions.proofingToken,
+                )
+                bundle.putString(
+                    BUNDLE_KEY_BINDING_TOKEN_ALGORITHM,
+                    bindingTokenOptions.bindingAlgorithm,
+                )
+            }
             return bundle
         }
 
@@ -97,8 +124,21 @@ private constructor(
             if (requestJson == null) {
                 throw FrameworkClassParsingException()
             }
+            val proofingToken = data.getByteArray(BUNDLE_KEY_BINDING_TOKEN_PROOFING_TOKEN)
+            val bindingAlgorithm = data.getString(BUNDLE_KEY_BINDING_TOKEN_ALGORITHM)
+            val bindingTokenOptions =
+                if (proofingToken != null) {
+                    if (bindingAlgorithm != null) {
+                        BindingTokenOptions(proofingToken, bindingAlgorithm)
+                    } else {
+                        BindingTokenOptions(proofingToken)
+                    }
+                } else {
+                    null
+                }
             return CreateDigitalCredentialRequest(
                 requestJson = requestJson,
+                bindingTokenOptions = bindingTokenOptions,
                 origin = origin,
                 credentialData = data,
                 candidateQueryData = candidateQueryData,
