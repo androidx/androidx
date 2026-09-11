@@ -16,7 +16,6 @@
 
 package androidx.web.testapp
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -45,21 +44,21 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.web.WebContent
 import androidx.web.WebContentView
 import androidx.web.WebFeature
-import java.util.function.Function
 
 /**
- * A fallback mock implementation of [WebContent] used when the true WebContent feature isn't
- * supported, or when manually forcing the fallback mode for testing layout and behavior.
+ * Creates and retains a [WebContent] instance across configuration changes, automatically releasing
+ * it via [RetainedEffect] when retired.
  */
-class FallbackWebContent(private val onDetach: () -> Unit = {}) : WebContent {
-    override fun <T : WebContentView> attach(context: Context, factory: Function<Context, T>): T =
-        factory.apply(context)
-
-    override fun detach() {
-        onDetach()
+@Composable
+@Suppress("RestrictedApiAndroidX")
+fun rememberWebContent(block: WebContent.Builder.() -> Unit = {}): WebContent {
+    val webContent = retain { WebContent(block) }
+    RetainedEffect(webContent) {
+        onRetire {
+            webContent.close()
+        }
     }
-
-    override fun close() {}
+    return webContent
 }
 
 /**
@@ -76,25 +75,13 @@ class MainActivity : ComponentActivity() {
 @Composable
 @Suppress("RestrictedApiAndroidX")
 fun AppContent() {
-    var forceFallback by rememberSaveable { mutableStateOf(false) }
-
-    var lastLoadedUrl by retain { mutableStateOf<String?>(null) }
-
-    val webContent =
-        retain(forceFallback) {
-            if (!forceFallback && WebFeature.isFeatureSupported(WebFeature.WEB_CONTENT)) {
-                WebContent()
-            } else {
-                FallbackWebContent(onDetach = { lastLoadedUrl = null })
-            }
-        }
-
-    RetainedEffect(webContent) {
-        onRetire {
-            webContent.close()
-            lastLoadedUrl = null
-        }
+    if (!WebFeature.isFeatureSupported(WebFeature.WEB_CONTENT)) {
+        Text("WebContent feature is not supported on this device.")
+        return
     }
+
+    val webContent = rememberWebContent()
+    var lastLoadedUrl by retain { mutableStateOf<String?>(null) }
 
     var currentUrl by rememberSaveable { mutableStateOf("https://www.example.com") }
     val urlInputState = rememberTextFieldState(currentUrl)
@@ -121,14 +108,6 @@ fun AppContent() {
                         Text(
                             if (showWebView) "Hide WebView (Leave Composition)"
                             else "Show WebView (Enter Composition)"
-                        )
-                    }
-                }
-                Row(Modifier.fillMaxWidth()) {
-                    Button(onClick = { forceFallback = !forceFallback }) {
-                        Text(
-                            if (forceFallback) "Using Fallback (Click to use WebContent)"
-                            else "Using WebContent (Click to force Fallback)"
                         )
                     }
                 }

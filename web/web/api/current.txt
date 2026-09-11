@@ -4,7 +4,7 @@ package androidx.web {
   public final class DetachedWebContentView extends androidx.web.WebContentView {
   }
 
-  public interface WebContent extends java.lang.AutoCloseable {
+  public final class WebContent implements java.lang.AutoCloseable {
     method @UiThread public <T extends androidx.web.WebContentView> T attach(android.content.Context context, java.util.function.Function<android.content.Context,T> factory);
     method @UiThread public void close();
     method @UiThread public void detach();
