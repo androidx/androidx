@@ -101,8 +101,8 @@ internal object MetalavaTasks {
                     task.baselines.set(baselinesApiLocation)
                     task.api.set(builtApiLocation)
                     task.version.set(version)
-                    task.dependencyClasspath = compilationInputs.dependencyClasspath
-                    task.bootClasspath = compilationInputs.bootClasspath
+                    task.dependencyClasspath.from(compilationInputs.dependencyClasspath)
+                    task.bootClasspath.from(compilationInputs.bootClasspath)
                     task.kotlinSourceLevel.set(kotlinSourceLevel)
                     task.targetsJavaConsumers.set(targetsJavaConsumers)
                     task.cacheEvenIfNoOutputs()
@@ -117,8 +117,8 @@ internal object MetalavaTasks {
                     task.baselines.set(checkApiRelease.flatMap { it.baselines })
                     task.api.set(builtApiLocation)
                     task.version.set(version)
-                    task.dependencyClasspath = compilationInputs.dependencyClasspath
-                    task.bootClasspath = compilationInputs.bootClasspath
+                    task.dependencyClasspath.from(compilationInputs.dependencyClasspath)
+                    task.bootClasspath.from(compilationInputs.bootClasspath)
                     task.kotlinSourceLevel.set(kotlinSourceLevel)
                     task.targetsJavaConsumers.set(targetsJavaConsumers)
                     task.dependsOn(generateApi)
@@ -222,15 +222,15 @@ internal object MetalavaTasks {
         generateApiDependencies: FileCollection?,
         androidManifest: Provider<RegularFile>?,
     ) {
-        task.sourcePaths = inputs.sourcePaths
+        task.sourcePaths.from(inputs.sourcePaths)
         task.compiledSources.from(generateApiDependencies)
-        task.bootClasspath = inputs.bootClasspath
+        task.bootClasspath.from(inputs.bootClasspath)
         androidManifest?.let { task.manifestPath.set(it) }
         if (inputs is MultiplatformCompilationInputs) {
-            task.dependencyClasspath = inputs.allSourceSetsDependencyClasspath
+            task.dependencyClasspath.from(inputs.allSourceSetsDependencyClasspath)
             task.sourceSets.set(inputs.sourceSets)
         } else {
-            task.dependencyClasspath = inputs.dependencyClasspath
+            task.dependencyClasspath.from(inputs.dependencyClasspath)
             // Represent a non-multiplatform project as one source set.
             task.sourceSets.set(
                 listOf(

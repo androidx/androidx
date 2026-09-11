@@ -25,11 +25,9 @@ import java.io.File
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
@@ -51,10 +49,10 @@ constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTas
     @get:Classpath abstract val metalavaClasspath: ConfigurableFileCollection
 
     /** Android's boot classpath */
-    @get:Classpath lateinit var bootClasspath: FileCollection
+    @get:Classpath abstract val bootClasspath: ConfigurableFileCollection
 
     /** Dependencies (compiled classes) of the project. */
-    @get:Classpath lateinit var dependencyClasspath: FileCollection
+    @get:Classpath abstract val dependencyClasspath: ConfigurableFileCollection
 
     @get:Input abstract val kotlinSourceLevel: Property<KotlinVersion>
 
@@ -101,7 +99,7 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
      */
     /** Source files against which API signatures will be validated. */
     @get:[InputFiles PathSensitive(PathSensitivity.NONE)]
-    var sourcePaths: FileCollection = project.files()
+    abstract val sourcePaths: ConfigurableFileCollection
 
     /** Class files compiled from sourcePaths */
     @get:Classpath abstract val compiledSources: ConfigurableFileCollection
@@ -128,23 +126,6 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
      * rerun metalava.
      */
     @get:Internal abstract val sourceSets: ListProperty<SourceSetInputs>
-
-    /**
-     * For jvm/android projects, the [compiledSources] is used to determine whether to rerun
-     * metalava, but it won't exist for a KMP project without a jvm/android target. In this case,
-     * the source files are what should be used to determine whether to rerun metalava.
-     */
-    @InputFiles
-    @PathSensitive(PathSensitivity.NONE)
-    fun getKmpSources(): Provider<List<FileCollection>> {
-        return hasJvmOrAndroidTarget.zip(sourceSets) { hasJvmOrAndroidTarget, sourceSets ->
-            if (!hasJvmOrAndroidTarget) {
-                sourceSets.map { it.sourcePaths }
-            } else {
-                emptyList()
-            }
-        }
-    }
 
     /** Whether metalava should process the project as multiplatform. */
     @get:Input abstract val multiplatform: Property<Boolean>
