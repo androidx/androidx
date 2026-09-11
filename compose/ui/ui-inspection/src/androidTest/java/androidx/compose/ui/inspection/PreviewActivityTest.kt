@@ -35,7 +35,6 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -74,27 +73,26 @@ class PreviewActivityTest {
         inspectorTester.dispose()
     }
 
-    @Ignore("b/295186037")
     @Test
-    fun testPreviewTopComposableHasAnAchor(): Unit =
-        runBlocking() {
-            inspectorTester.sendCommand(GetUpdateSettingsCommand()).updateSettingsResponse
+    fun testPreviewTopComposableHasAnAnchor(): Unit = runBlocking {
+        inspectorTester.sendCommand(GetUpdateSettingsCommand()).updateSettingsResponse
 
-            val mainContent: View =
-                activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
-            val root = mainContent.ancestors().lastOrNull()
-            val rootId = root!!.uniqueDrawingId
-            val composables =
-                inspectorTester
-                    .sendCommand(GetComposablesCommand(rootId, skipSystemComposables = false))
-                    .getComposablesResponse
+        val mainContent: View =
+            activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
+        val root = mainContent.ancestors().lastOrNull()
+        val rootId = root!!.uniqueDrawingId
+        val composables =
+            inspectorTester
+                .sendCommand(GetComposablesCommand(rootId, skipSystemComposables = false))
+                .getComposablesResponse
 
-            assertThat(composables.rootsList).hasSize(1)
-            val strings = composables.stringsList.toMap()
-            val node = composables.rootsList.single().nodesList.first()
-            assertThat(strings[node.name]).isEqualTo("MainBlock")
-            assertThat(node.id).isLessThan(RESERVED_FOR_GENERATED_IDS)
-        }
+        assertThat(composables.rootsList).hasSize(1)
+        val strings = composables.stringsList.toMap()
+        val node = composables.rootsList.single().nodesList.first()
+        assertThat(strings[node.name]).isEqualTo("MainBlock")
+        assertThat(node.id).isLessThan(RESERVED_FOR_GENERATED_IDS)
+        assertThat(node.anchorHash).isNotEqualTo(0)
+    }
 }
 
 @Suppress("unused")
