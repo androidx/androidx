@@ -6,6 +6,11 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.savedstate:savedstate>
+abstract interface <#A: kotlin/Any?> androidx.savedstate/SavedStateValue : androidx.savedstate/SavedStateRegistry.SavedStateProvider, androidx.savedstate/SavedStateRegistry.SavedStateRestorer { // androidx.savedstate/SavedStateValue|null[0]
+    abstract val value // androidx.savedstate/SavedStateValue.value|{}value[0]
+        abstract fun <get-value>(): #A // androidx.savedstate/SavedStateValue.value.<get-value>|<get-value>(){}[0]
+}
+
 abstract interface androidx.savedstate/SavedStateRegistryOwner : androidx.lifecycle/LifecycleOwner { // androidx.savedstate/SavedStateRegistryOwner|null[0]
     abstract val savedStateRegistry // androidx.savedstate/SavedStateRegistryOwner.savedStateRegistry|{}savedStateRegistry[0]
         abstract fun <get-savedStateRegistry>(): androidx.savedstate/SavedStateRegistry // androidx.savedstate/SavedStateRegistryOwner.savedStateRegistry.<get-savedStateRegistry>|<get-savedStateRegistry>(){}[0]
@@ -52,6 +57,20 @@ final class androidx.savedstate/SavedState { // androidx.savedstate/SavedState|n
 
     final val map // androidx.savedstate/SavedState.map|{}map[0]
         final fun <get-map>(): kotlin.collections/MutableMap<kotlin/String, kotlin/Any?> // androidx.savedstate/SavedState.map.<get-map>|<get-map>(){}[0]
+}
+
+final class androidx.savedstate/SavedStateContainer { // androidx.savedstate/SavedStateContainer|null[0]
+    constructor <init>() // androidx.savedstate/SavedStateContainer.<init>|<init>(){}[0]
+
+    final fun <#A1: kotlin/Any?, #B1: androidx.savedstate/SavedStateValue<#A1>> getOrPutSavedStateValue(kotlin/String, kotlin/Function0<#B1>): #B1 // androidx.savedstate/SavedStateContainer.getOrPutSavedStateValue|getOrPutSavedStateValue(kotlin.String;kotlin.Function0<0:1>){0§<kotlin.Any?>;1§<androidx.savedstate.SavedStateValue<0:0>>}[0]
+    final fun <#A1: kotlin/Any?, #B1: androidx.savedstate/SavedStateValue<#A1>> getSavedStateValue(kotlin/String): #B1? // androidx.savedstate/SavedStateContainer.getSavedStateValue|getSavedStateValue(kotlin.String){0§<kotlin.Any?>;1§<androidx.savedstate.SavedStateValue<0:0>>}[0]
+    final fun <#A1: kotlin/Any?, #B1: androidx.savedstate/SavedStateValue<#A1>> putSavedStateValue(kotlin/String, #B1) // androidx.savedstate/SavedStateContainer.putSavedStateValue|putSavedStateValue(kotlin.String;0:1){0§<kotlin.Any?>;1§<androidx.savedstate.SavedStateValue<0:0>>}[0]
+    final fun <#A1: kotlin/Any?, #B1: androidx.savedstate/SavedStateValue<#A1>> removeSavedStateValue(kotlin/String): #B1? // androidx.savedstate/SavedStateContainer.removeSavedStateValue|removeSavedStateValue(kotlin.String){0§<kotlin.Any?>;1§<androidx.savedstate.SavedStateValue<0:0>>}[0]
+    final fun contains(kotlin/String): kotlin/Boolean // androidx.savedstate/SavedStateContainer.contains|contains(kotlin.String){}[0]
+    final fun createOrGetContainer(kotlin/String): androidx.savedstate/SavedStateContainer // androidx.savedstate/SavedStateContainer.createOrGetContainer|createOrGetContainer(kotlin.String){}[0]
+    final fun keys(): kotlin.collections/Set<kotlin/String> // androidx.savedstate/SavedStateContainer.keys|keys(){}[0]
+    final fun restoreState(androidx.savedstate/SavedState?) // androidx.savedstate/SavedStateContainer.restoreState|restoreState(androidx.savedstate.SavedState?){}[0]
+    final fun saveState(): androidx.savedstate/SavedState // androidx.savedstate/SavedStateContainer.saveState|saveState(){}[0]
 }
 
 final class androidx.savedstate/SavedStateRegistry { // androidx.savedstate/SavedStateRegistry|null[0]
