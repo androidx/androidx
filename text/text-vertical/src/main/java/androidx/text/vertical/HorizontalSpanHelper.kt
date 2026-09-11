@@ -61,6 +61,8 @@ internal interface HorizontalSpanLayout {
  * It uses a WeakReference for the text to prevent memory leaks if the CharSequence holds a
  * reference to a Context.
  */
+// TODO(b/561269847): LayoutKey must include Paint characteristics and span-specific properties
+// like Position, otherwise layouts are erroneously reused across different text sizes/positions.
 internal class LayoutKey(private val start: Int, private val end: Int, text: CharSequence) {
     private val textRef = WeakReference(text)
 

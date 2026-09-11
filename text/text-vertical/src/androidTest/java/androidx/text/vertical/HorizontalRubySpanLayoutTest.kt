@@ -23,12 +23,17 @@ import android.text.SpannedString
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.text.style.RelativeSizeSpan
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.ceil
 import kotlin.math.max
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
 
+@RunWith(AndroidJUnit4::class)
+@SmallTest
 class HorizontalRubySpanLayoutTest {
     private lateinit var paint: TextPaint
     private val text = SpannedString("Hello")
@@ -41,7 +46,16 @@ class HorizontalRubySpanLayoutTest {
 
     @Test
     fun getSpanWidth_basic_calculation() {
-        val layout = HorizontalRubySpanLayout(text, 0, text.length, rubyText, paint, 1.0f)
+        val layout =
+            HorizontalRubySpanLayout(
+                text,
+                0,
+                text.length,
+                rubyText,
+                AnnotationPosition.Before,
+                paint,
+                1.0f,
+            )
         val bodyWidth = ceil(paint.measureText(text, 0, text.length)).toInt()
         val rubyWidth = ceil(paint.measureText(rubyText, 0, rubyText.length)).toInt()
         assertThat(layout.spanWidth).isEqualTo(max(bodyWidth, rubyWidth))
@@ -52,7 +66,16 @@ class HorizontalRubySpanLayoutTest {
         val spannable = SpannableString(text)
         spannable.setSpan(RelativeSizeSpan(2.0f), 0, text.length, 0)
 
-        val layout = HorizontalRubySpanLayout(spannable, 0, text.length, rubyText, paint, 1.0f)
+        val layout =
+            HorizontalRubySpanLayout(
+                spannable,
+                0,
+                text.length,
+                rubyText,
+                AnnotationPosition.Before,
+                paint,
+                1.0f,
+            )
         val expectedWidth =
             ceil(Layout.getDesiredWidth(spannable, 0, spannable.length, paint)).toInt()
 
@@ -61,7 +84,16 @@ class HorizontalRubySpanLayoutTest {
 
     @Test
     fun fillFontMetrics_metrics_expansion() {
-        val layout = HorizontalRubySpanLayout(text, 0, text.length, rubyText, paint, 1.0f)
+        val layout =
+            HorizontalRubySpanLayout(
+                text,
+                0,
+                text.length,
+                rubyText,
+                AnnotationPosition.Before,
+                paint,
+                1.0f,
+            )
         val bodyLayout =
             StaticLayout.Builder.obtain(text, 0, text.length, paint, Integer.MAX_VALUE).build()
         val rubyLayout =

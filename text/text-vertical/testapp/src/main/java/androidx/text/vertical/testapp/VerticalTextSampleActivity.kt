@@ -84,7 +84,7 @@ class VerticalTextSampleActivity : ComponentActivity() {
                     "Vertical Text" to { ZoomableVerticalText { LongText(it) } },
                     "Vertical Multi-style Text" to { ZoomableVerticalText { ComplexText(it) } },
                     "Horizontal Text" to { ZoomableVerticalText { LongHorizontalText(it) } },
-                    "Horizontal Emphasis Text" to
+                    "Horizontal Complex Text" to
                         {
                             ZoomableVerticalText { ComplexHorizontalText(it) }
                         },
@@ -211,6 +211,13 @@ fun ComplexHorizontalText(style: VerticalTextStyle, modifier: Modifier = Modifie
     val text =
         remember(density) {
             buildVerticalText(density) {
+                // Ruby annotation position. In horizontal writing mode, Before places the ruby
+                // above the base text and After places it below.
+                text("ルビ位置：")
+                withRuby("うえ", position = AnnotationPosition.Before) { text("上") }
+                text("と")
+                withRuby("した", position = AnnotationPosition.After) { text("下") }
+                text("。")
                 withEmphasis { text("傍点も") }
                 text("Support")
                 withEmphasis(EmphasisStyle.Sesame) { text("されてます。") }
