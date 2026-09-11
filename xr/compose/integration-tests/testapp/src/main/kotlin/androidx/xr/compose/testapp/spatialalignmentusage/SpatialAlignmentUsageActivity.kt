@@ -25,6 +25,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -56,6 +57,7 @@ import androidx.xr.compose.subspace.layout.SpatialAlignment
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
+import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.padding
 import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.subspace.layout.width
@@ -73,6 +75,7 @@ class SpatialAlignmentUsageActivity : ComponentActivity() {
     }
 
     private val layoutSize = 160.dp
+    private val cellPadding = 10.dp
     private val childWidth = 60.dp
     private val childHeight = 40.dp
 
@@ -126,6 +129,43 @@ class SpatialAlignmentUsageActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Renders a 2D grid of cell border boxes behind the aligned elements.
+     *
+     * Why this exists instead of separate border boxes inside [AlignedBox]: Previously, each
+     * [AlignedBox] allocated its own dedicated [SpatialPanel] just to draw a black border around
+     * each cell. This created over 60 separate [SpatialPanel] instances, which led to excessive
+     * panel allocation overhead.
+     *
+     * Consolidating all border boxes into this single background [SpatialPanel] per section
+     * (positioned slightly behind at z = -1.dp) drastically cuts down panel allocations. It uses
+     * the shared [layoutSize] and [cellPadding] so each foreground [AlignedBox] lines up precisely
+     * within its corresponding border grid cell.
+     */
+    @Composable
+    @SubspaceComposable
+    private fun AlignmentBorderGrid(rows: Int, columns: Int) {
+        SpatialPanel(
+            modifier = SubspaceModifier.offset(z = -1.dp),
+            shape = SpatialRoundedCornerShape(CornerSize(1.dp)),
+        ) {
+            Column {
+                repeat(rows) {
+                    Row {
+                        repeat(columns) {
+                            Box(
+                                modifier =
+                                    Modifier.size(layoutSize)
+                                        .padding(cellPadding)
+                                        .border(2.dp, Color.Black)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     @Composable
     @SubspaceComposable
     private fun SpatialBiasAlignmentApis(layoutDirection: LayoutDirection) {
@@ -144,29 +184,34 @@ class SpatialAlignmentUsageActivity : ComponentActivity() {
                 }
             }
             SpatialSpacer(modifier = SubspaceModifier.height(10.dp))
-            SpatialRow {
-                // TopStart
-                AlignedBox(SpatialAlignment.TopStart, "TopStart", layoutDirection)
-                // TopCenter
-                AlignedBox(SpatialAlignment.TopCenter, "TopCenter", layoutDirection)
-                // TopEnd
-                AlignedBox(SpatialAlignment.TopEnd, "TopEnd", layoutDirection)
-            }
-            SpatialRow {
-                // CenterStart
-                AlignedBox(SpatialAlignment.CenterStart, "CenterStart", layoutDirection)
-                // Center
-                AlignedBox(SpatialAlignment.Center, "Center", layoutDirection)
-                // CenterEnd
-                AlignedBox(SpatialAlignment.CenterEnd, "CenterEnd", layoutDirection)
-            }
-            SpatialRow {
-                // BottomStart
-                AlignedBox(SpatialAlignment.BottomStart, "BottomStart", layoutDirection)
-                // BottomCenter
-                AlignedBox(SpatialAlignment.BottomCenter, "BottomCenter", layoutDirection)
-                // BottomEnd
-                AlignedBox(SpatialAlignment.BottomEnd, "BottomEnd", layoutDirection)
+            SpatialBox {
+                AlignmentBorderGrid(rows = 3, columns = 3)
+                SpatialColumn {
+                    SpatialRow {
+                        // TopStart
+                        AlignedBox(SpatialAlignment.TopStart, "TopStart", layoutDirection)
+                        // TopCenter
+                        AlignedBox(SpatialAlignment.TopCenter, "TopCenter", layoutDirection)
+                        // TopEnd
+                        AlignedBox(SpatialAlignment.TopEnd, "TopEnd", layoutDirection)
+                    }
+                    SpatialRow {
+                        // CenterStart
+                        AlignedBox(SpatialAlignment.CenterStart, "CenterStart", layoutDirection)
+                        // Center
+                        AlignedBox(SpatialAlignment.Center, "Center", layoutDirection)
+                        // CenterEnd
+                        AlignedBox(SpatialAlignment.CenterEnd, "CenterEnd", layoutDirection)
+                    }
+                    SpatialRow {
+                        // BottomStart
+                        AlignedBox(SpatialAlignment.BottomStart, "BottomStart", layoutDirection)
+                        // BottomCenter
+                        AlignedBox(SpatialAlignment.BottomCenter, "BottomCenter", layoutDirection)
+                        // BottomEnd
+                        AlignedBox(SpatialAlignment.BottomEnd, "BottomEnd", layoutDirection)
+                    }
+                }
             }
         }
     }
@@ -192,23 +237,44 @@ class SpatialAlignmentUsageActivity : ComponentActivity() {
                 }
             }
             SpatialSpacer(modifier = SubspaceModifier.height(10.dp))
-            SpatialRow {
-                // TopLeft
-                AlignedBox(SpatialAbsoluteAlignment.TopLeft, "TopLeft", layoutDirection)
-                // TopRight
-                AlignedBox(SpatialAbsoluteAlignment.TopRight, "TopRight", layoutDirection)
-            }
-            SpatialRow {
-                // CenterLeft
-                AlignedBox(SpatialAbsoluteAlignment.CenterLeft, "CenterLeft", layoutDirection)
-                // CenterRight
-                AlignedBox(SpatialAbsoluteAlignment.CenterRight, "CenterRight", layoutDirection)
-            }
-            SpatialRow {
-                // BottomLeft
-                AlignedBox(SpatialAbsoluteAlignment.BottomLeft, "BottomLeft", layoutDirection)
-                // BottomRight
-                AlignedBox(SpatialAbsoluteAlignment.BottomRight, "BottomRight", layoutDirection)
+            SpatialBox {
+                AlignmentBorderGrid(rows = 3, columns = 2)
+                SpatialColumn {
+                    SpatialRow {
+                        // TopLeft
+                        AlignedBox(SpatialAbsoluteAlignment.TopLeft, "TopLeft", layoutDirection)
+                        // TopRight
+                        AlignedBox(SpatialAbsoluteAlignment.TopRight, "TopRight", layoutDirection)
+                    }
+                    SpatialRow {
+                        // CenterLeft
+                        AlignedBox(
+                            SpatialAbsoluteAlignment.CenterLeft,
+                            "CenterLeft",
+                            layoutDirection,
+                        )
+                        // CenterRight
+                        AlignedBox(
+                            SpatialAbsoluteAlignment.CenterRight,
+                            "CenterRight",
+                            layoutDirection,
+                        )
+                    }
+                    SpatialRow {
+                        // BottomLeft
+                        AlignedBox(
+                            SpatialAbsoluteAlignment.BottomLeft,
+                            "BottomLeft",
+                            layoutDirection,
+                        )
+                        // BottomRight
+                        AlignedBox(
+                            SpatialAbsoluteAlignment.BottomRight,
+                            "BottomRight",
+                            layoutDirection,
+                        )
+                    }
+                }
             }
         }
     }
@@ -222,7 +288,7 @@ class SpatialAlignmentUsageActivity : ComponentActivity() {
     ) {
         CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
             SpatialBox(
-                modifier = SubspaceModifier.size(layoutSize).padding(10.dp),
+                modifier = SubspaceModifier.size(layoutSize).padding(cellPadding),
                 alignment = alignment,
             ) {
                 SpatialPanel(modifier = SubspaceModifier.padding(3.dp)) {
@@ -233,9 +299,6 @@ class SpatialAlignmentUsageActivity : ComponentActivity() {
                     ) {
                         Text(text, color = Color.White, style = TextStyle(fontSize = 8.sp))
                     }
-                }
-                SpatialPanel(shape = SpatialRoundedCornerShape(CornerSize(1.dp))) {
-                    Box(modifier = Modifier.size(layoutSize).border(2.dp, Color.Black))
                 }
             }
         }
