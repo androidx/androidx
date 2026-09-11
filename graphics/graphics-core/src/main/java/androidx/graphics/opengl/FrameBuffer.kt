@@ -34,7 +34,8 @@ import androidx.opengl.EGLImageKHR
  *   [EGLImageKHR] object
  */
 @RequiresApi(Build.VERSION_CODES.O)
-class FrameBuffer(private val egl: EGLSpec, val hardwareBuffer: HardwareBuffer) : AutoCloseable {
+public class FrameBuffer(private val egl: EGLSpec, public val hardwareBuffer: HardwareBuffer) :
+    AutoCloseable {
 
     private var eglImage: EGLImageKHR?
     private var texture: Int = -1
@@ -44,7 +45,7 @@ class FrameBuffer(private val egl: EGLSpec, val hardwareBuffer: HardwareBuffer) 
         private set
 
     /** Boolean that tells if the frame buffer is currently closed */
-    var isClosed = false
+    public var isClosed: Boolean = false
         private set
 
     // Int array used for creation of fbos/textures
@@ -70,7 +71,7 @@ class FrameBuffer(private val egl: EGLSpec, val hardwareBuffer: HardwareBuffer) 
      * Binds this frame buffer to the read and draw framebuffer targets if it's not closed. If the
      * frame buffer is already closed this method will do nothing.
      */
-    fun makeCurrent() {
+    public fun makeCurrent() {
         if (!isClosed) {
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffer)
             GLES20.glFramebufferTexture2D(

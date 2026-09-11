@@ -38,8 +38,8 @@ import kotlin.jvm.JvmStatic
  * Morph(triangle, ...)
  * ```
  */
-class FeatureSerializer private constructor() {
-    companion object {
+public class FeatureSerializer private constructor() {
+    public companion object {
 
         /**
          * Serializes a list of [Feature] objects into a string representation, adhering to version
@@ -71,7 +71,7 @@ class FeatureSerializer private constructor() {
          * @return The serialized string representation of the [features]
          */
         @JvmStatic
-        fun serialize(features: List<Feature>): String {
+        public fun serialize(features: List<Feature>): String {
             return buildString {
                 append("V1")
                 for (feature in features) {
@@ -112,7 +112,7 @@ class FeatureSerializer private constructor() {
          *   of numbers.
          */
         @JvmStatic
-        fun parse(serializedFeatures: String): List<Feature> {
+        public fun parse(serializedFeatures: String): List<Feature> {
             val version = Regex("^\\s*V(\\d+)").find(serializedFeatures)
             var tagsSearchStart = 0
 
