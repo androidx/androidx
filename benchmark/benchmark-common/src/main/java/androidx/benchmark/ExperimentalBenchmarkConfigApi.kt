@@ -16,6 +16,7 @@
 
 package androidx.benchmark
 
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.perfetto.PerfettoConfig
 
@@ -31,8 +32,8 @@ public annotation class ExperimentalBenchmarkConfigApi
 /**
  * Experimental configuration options for a benchmark.
  *
- * Currently used to override the default [PerfettoConfig], or to enable Startup
- * [Insights][androidx.benchmark.traceprocessor.Insight]s.
+ * Currently used to override the default [PerfettoConfig], enable Startup
+ * [Insights][androidx.benchmark.traceprocessor.Insight]s, or configure memory heap profiling.
  */
 @ExperimentalBenchmarkConfigApi
 public class ExperimentalConfig(
@@ -41,7 +42,61 @@ public class ExperimentalConfig(
 
     /** The StartupInsightsConfig for the benchmark - `null` to not enable insights reporting. */
     public val startupInsightsConfig: StartupInsightsConfig? = null,
+
+    /** The MemoryProfilingConfig for the benchmark - `null` to disable memory profiling. */
+    public val memoryProfilingConfig: MemoryProfilingConfig? = null,
 )
+
+/**
+ * Configuration for memory heap profiling during macrobenchmark execution.
+ *
+ * Enables Perfetto `heapprofd` data source to sample memory allocations in target applications on
+ * Android Q (API 29)+.
+ *
+ * When [MemoryProfilingConfig] is provided in [ExperimentalConfig], memory profiling runs during an
+ * additional benchmark pass after all regular measurement iterations complete. Regular measurement
+ * iterations are not profiled to avoid measurement overhead and memory footprint distortion.
+ *
+ * The recorded trace from the memory profiling pass is saved with a `-memoryProfiling` suffix (e.g.
+ * `${uniqueName}_iter000-memoryProfiling.perfetto-trace`) and contains embedded `pprof` profile
+ * data. Traces can be viewed directly in [Perfetto UI](https://ui.perfetto.dev/) or converted to
+ * standard `pprof` format using the Perfetto
+ * [traceconv tool](https://perfetto.dev/docs/analysis/traceconv).
+ *
+ * For more details, see:
+ * - [Perfetto ART Allocation
+ *   Profiling](https://perfetto.dev/docs/data-sources/native-heap-profiler#art-allocation-profiling)
+ * - [Perfetto Native Heap Profiler](https://perfetto.dev/docs/data-sources/native-heap-profiler)
+ * - [Perfetto Traceconv Tool](https://perfetto.dev/docs/analysis/traceconv)
+ */
+@RequiresApi(29)
+@ExperimentalBenchmarkConfigApi
+public class MemoryProfilingConfig(
+    /**
+     * Set to true to sample ART Java/Kotlin heap allocations (`com.android.art`), tracking object
+     * allocations made by the Android Runtime.
+     *
+     * For details on ART heap profiling, see
+     * [Perfetto ART Allocation Profiling](https://perfetto.dev/docs/data-sources/native-heap-profiler#art-allocation-profiling).
+     */
+    public val isSampleArtHeapEnabled: Boolean,
+
+    /**
+     * Set to true to sample native heap allocations (`libc.malloc`), tracking C/C++ memory
+     * allocations (e.g. `malloc`, `calloc`, `new`) made by native libraries.
+     *
+     * For details on native heap profiling, see
+     * [Perfetto Native Heap Profiler](https://perfetto.dev/docs/data-sources/native-heap-profiler).
+     */
+    public val isSampleNativeHeapEnabled: Boolean,
+) {
+    init {
+        // At least one memory sampling source must be enabled for memory profiling to capture data.
+        require(isSampleArtHeapEnabled || isSampleNativeHeapEnabled) {
+            "At least one of isSampleArtHeapEnabled or isSampleNativeHeapEnabled must be enabled."
+        }
+    }
+}
 
 /**
  * Configuration for Startup Insights.

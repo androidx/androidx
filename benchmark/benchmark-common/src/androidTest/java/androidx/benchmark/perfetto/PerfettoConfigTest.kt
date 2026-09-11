@@ -24,6 +24,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,6 +60,166 @@ class PerfettoConfigTest {
         // default config shouldn't throw
         perfettoConfig(atraceApps = listOf(Packages.TEST), stackSamplingConfig = null)
             .validateAndEncode()
+    }
+
+    @OptIn(androidx.benchmark.ExperimentalBenchmarkConfigApi::class)
+    @Suppress("NewApi")
+    @Test
+    fun experimentalConfig_memoryProfilingConfig() {
+        val memoryConfig =
+            androidx.benchmark.MemoryProfilingConfig(
+                isSampleArtHeapEnabled = true,
+                isSampleNativeHeapEnabled = true,
+            )
+        val config = androidx.benchmark.ExperimentalConfig(memoryProfilingConfig = memoryConfig)
+        assertNotNull(config.memoryProfilingConfig)
+        assertTrue(config.memoryProfilingConfig!!.isSampleArtHeapEnabled)
+        assertTrue(config.memoryProfilingConfig!!.isSampleNativeHeapEnabled)
+        assertNotNull(androidx.benchmark.ExperimentalConfig())
+    }
+
+    @OptIn(androidx.benchmark.ExperimentalBenchmarkConfigApi::class)
+    @Suppress("NewApi")
+    @Test
+    fun perfettoConfig_memoryProfiling() {
+        val memoryConfig =
+            androidx.benchmark.MemoryProfilingConfig(
+                isSampleArtHeapEnabled = true,
+                isSampleNativeHeapEnabled = true,
+            )
+        val perfettoConfig =
+            perfettoConfig(
+                atraceApps = listOf(Packages.TEST),
+                stackSamplingConfig = null,
+                memoryProfilingConfig = memoryConfig,
+                memoryProfilingPackages = listOf(Packages.TEST),
+            )
+        assertNotNull(perfettoConfig)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            val heapprofdDataSource =
+                perfettoConfig.data_sources.firstOrNull { it.config?.name == "android.heapprofd" }
+            assertNotNull(heapprofdDataSource)
+            assertEquals(
+                listOf("com.android.art", "libc.malloc"),
+                heapprofdDataSource.config?.heapprofd_config?.heaps,
+            )
+            assertEquals(
+                listOf(Packages.TEST),
+                heapprofdDataSource.config?.heapprofd_config?.process_cmdline,
+            )
+        } else {
+            val heapprofdDataSource =
+                perfettoConfig.data_sources.firstOrNull { it.config?.name == "android.heapprofd" }
+            assertNull(heapprofdDataSource)
+        }
+        assertTrue(perfettoConfig.data_sources.any { it.config?.name == "linux.ftrace" })
+        assertTrue(perfettoConfig.data_sources.any { it.config?.name == "linux.process_stats" })
+        perfettoConfig.validateAndEncode()
+    }
+
+    @OptIn(androidx.benchmark.ExperimentalBenchmarkConfigApi::class)
+    @Suppress("NewApi")
+    @Test
+    fun perfettoConfig_memoryProfiling_artHeapOnly() {
+        val memoryConfig =
+            androidx.benchmark.MemoryProfilingConfig(
+                isSampleArtHeapEnabled = true,
+                isSampleNativeHeapEnabled = false,
+            )
+        val perfettoConfig =
+            perfettoConfig(
+                atraceApps = listOf(Packages.TEST),
+                stackSamplingConfig = null,
+                memoryProfilingConfig = memoryConfig,
+                memoryProfilingPackages = listOf(Packages.TEST),
+            )
+        assertNotNull(perfettoConfig)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            val heapprofdDataSource =
+                perfettoConfig.data_sources.firstOrNull { it.config?.name == "android.heapprofd" }
+            assertNotNull(heapprofdDataSource)
+            assertEquals(
+                listOf("com.android.art"),
+                heapprofdDataSource.config?.heapprofd_config?.heaps,
+            )
+        } else {
+            val heapprofdDataSource =
+                perfettoConfig.data_sources.firstOrNull { it.config?.name == "android.heapprofd" }
+            assertNull(heapprofdDataSource)
+        }
+        assertTrue(perfettoConfig.data_sources.any { it.config?.name == "linux.ftrace" })
+    }
+
+    @OptIn(androidx.benchmark.ExperimentalBenchmarkConfigApi::class)
+    @Suppress("NewApi")
+    @Test
+    fun perfettoConfig_memoryProfiling_nativeHeapOnly() {
+        val memoryConfig =
+            androidx.benchmark.MemoryProfilingConfig(
+                isSampleArtHeapEnabled = false,
+                isSampleNativeHeapEnabled = true,
+            )
+        val perfettoConfig =
+            perfettoConfig(
+                atraceApps = listOf(Packages.TEST),
+                stackSamplingConfig = null,
+                memoryProfilingConfig = memoryConfig,
+                memoryProfilingPackages = listOf(Packages.TEST),
+            )
+        assertNotNull(perfettoConfig)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            val heapprofdDataSource =
+                perfettoConfig.data_sources.firstOrNull { it.config?.name == "android.heapprofd" }
+            assertNotNull(heapprofdDataSource)
+            assertEquals(
+                listOf("libc.malloc"),
+                heapprofdDataSource.config?.heapprofd_config?.heaps,
+            )
+        } else {
+            val heapprofdDataSource =
+                perfettoConfig.data_sources.firstOrNull { it.config?.name == "android.heapprofd" }
+            assertNull(heapprofdDataSource)
+        }
+        assertTrue(perfettoConfig.data_sources.any { it.config?.name == "linux.ftrace" })
+    }
+
+    @OptIn(androidx.benchmark.ExperimentalBenchmarkConfigApi::class)
+    @Suppress("NewApi")
+    @Test
+    fun memoryProfilingConfig_requiresAtLeastOneHeap() {
+        val exception =
+            assertFailsWith<IllegalArgumentException> {
+                androidx.benchmark.MemoryProfilingConfig(
+                    isSampleArtHeapEnabled = false,
+                    isSampleNativeHeapEnabled = false,
+                )
+            }
+        assertTrue(
+            exception.message!!.contains(
+                "At least one of isSampleArtHeapEnabled or isSampleNativeHeapEnabled must be enabled"
+            )
+        )
+    }
+
+    @OptIn(androidx.benchmark.ExperimentalBenchmarkConfigApi::class)
+    @Suppress("NewApi")
+    @Test
+    fun perfettoConfig_memoryProfiling_requiresNonEmptyPackages() {
+        val memoryConfig =
+            androidx.benchmark.MemoryProfilingConfig(
+                isSampleArtHeapEnabled = true,
+                isSampleNativeHeapEnabled = false,
+            )
+        val exception =
+            assertFailsWith<IllegalArgumentException> {
+                perfettoConfig(
+                    atraceApps = listOf(Packages.TEST),
+                    stackSamplingConfig = null,
+                    memoryProfilingConfig = memoryConfig,
+                    memoryProfilingPackages = emptyList(),
+                )
+            }
+        assertTrue(exception.message!!.contains("memoryProfilingPackages must not be empty"))
     }
 
     @Test
