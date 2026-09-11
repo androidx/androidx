@@ -25,7 +25,7 @@ import android.os.OutcomeReceiver
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.AppFunctionState
-import androidx.appfunctions.ObserveAppFunctionsEvent
+import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
 import kotlin.coroutines.resume
@@ -119,18 +119,18 @@ internal class PlatformAppFunctionReader(
         )
     }
 
-    override fun observeAppFunctions(): Flow<ObserveAppFunctionsEvent> = callbackFlow {
+    override fun observeAppFunctions(): Flow<AppFunctionsChangeEvent> = callbackFlow {
         val appFunctionObserver =
             object : AppFunctionObserver {
                 override fun onAppFunctionMetadataChanged(changedPackageNames: Set<String>) {
-                    trySend(ObserveAppFunctionsEvent.MetadataChanged(changedPackageNames))
+                    trySend(AppFunctionsChangeEvent.MetadataChanged(changedPackageNames))
                 }
 
                 override fun onAppFunctionStatesChanged(
                     changedFunctionNames: Set<android.app.appfunctions.AppFunctionName>
                 ) {
                     trySend(
-                        ObserveAppFunctionsEvent.StatesChanged(
+                        AppFunctionsChangeEvent.StatesChanged(
                             changedFunctionNames
                                 .map { AppFunctionName.fromPlatformAppFunctionName(it) }
                                 .toSet()

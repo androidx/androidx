@@ -16,7 +16,7 @@
 
 package androidx.appfunctions.internal
 
-import androidx.appfunctions.ObserveAppFunctionsEvent
+import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.internal.ChangeEventsFlowUtils.debounceAndMerge
 import androidx.appfunctions.metadata.AppFunctionName
 import com.google.common.truth.Truth.assertThat
@@ -37,14 +37,14 @@ class ChangeEventsFlowUtilsTest {
 
     @Test
     fun testDebounceAndMerge_singleEventEmitted_emitsEventAfterDebounce() = runTest {
-        val sourceFlow = MutableSharedFlow<ObserveAppFunctionsEvent>(extraBufferCapacity = 64)
+        val sourceFlow = MutableSharedFlow<AppFunctionsChangeEvent>(extraBufferCapacity = 64)
         val debouncedFlow = sourceFlow.debounceAndMerge(TEST_DEBOUNCE_MILLIS)
 
-        val results = mutableListOf<List<ObserveAppFunctionsEvent>>()
+        val results = mutableListOf<List<AppFunctionsChangeEvent>>()
         val collectJob = collectEvents(debouncedFlow, results)
         runCurrent()
 
-        val event = ObserveAppFunctionsEvent.MetadataChanged(setOf(testPackage1))
+        val event = AppFunctionsChangeEvent.MetadataChanged(setOf(testPackage1))
         sourceFlow.emit(event)
 
         // Event should not be emitted yet (before debounce time)
@@ -60,17 +60,17 @@ class ChangeEventsFlowUtilsTest {
 
     @Test
     fun testDebounceAndMerge_burstOfMixedEvents_emitsConsolidatedEventsPerType() = runTest {
-        val sourceFlow = MutableSharedFlow<ObserveAppFunctionsEvent>(extraBufferCapacity = 64)
+        val sourceFlow = MutableSharedFlow<AppFunctionsChangeEvent>(extraBufferCapacity = 64)
         val debouncedFlow = sourceFlow.debounceAndMerge(TEST_DEBOUNCE_MILLIS)
 
-        val results = mutableListOf<List<ObserveAppFunctionsEvent>>()
+        val results = mutableListOf<List<AppFunctionsChangeEvent>>()
         val collectJob = collectEvents(debouncedFlow, results)
         runCurrent()
 
-        sourceFlow.emit(ObserveAppFunctionsEvent.MetadataChanged(setOf(testPackage1)))
-        sourceFlow.emit(ObserveAppFunctionsEvent.StatesChanged(setOf(testFunction1)))
-        sourceFlow.emit(ObserveAppFunctionsEvent.MetadataChanged(setOf(testPackage2)))
-        sourceFlow.emit(ObserveAppFunctionsEvent.StatesChanged(setOf(testFunction2)))
+        sourceFlow.emit(AppFunctionsChangeEvent.MetadataChanged(setOf(testPackage1)))
+        sourceFlow.emit(AppFunctionsChangeEvent.StatesChanged(setOf(testFunction1)))
+        sourceFlow.emit(AppFunctionsChangeEvent.MetadataChanged(setOf(testPackage2)))
+        sourceFlow.emit(AppFunctionsChangeEvent.StatesChanged(setOf(testFunction2)))
 
         // Event should not be emitted yet (before debounce time)
         advanceTimeBy(TEST_DEBOUNCE_MILLIS / 2)
@@ -80,8 +80,8 @@ class ChangeEventsFlowUtilsTest {
         advanceTimeBy(TEST_DEBOUNCE_MILLIS / 2 + 10.milliseconds)
         assertThat(results)
             .containsExactly(
-                listOf(ObserveAppFunctionsEvent.MetadataChanged(setOf(testPackage1, testPackage2))),
-                listOf(ObserveAppFunctionsEvent.StatesChanged(setOf(testFunction1, testFunction2))),
+                listOf(AppFunctionsChangeEvent.MetadataChanged(setOf(testPackage1, testPackage2))),
+                listOf(AppFunctionsChangeEvent.StatesChanged(setOf(testFunction1, testFunction2))),
             )
             .inOrder()
 
@@ -90,14 +90,14 @@ class ChangeEventsFlowUtilsTest {
 
     @Test
     fun testDebounceAndMerge_newEventBeforeDebounceExpires_restartsDebounceTimer() = runTest {
-        val sourceFlow = MutableSharedFlow<ObserveAppFunctionsEvent>(extraBufferCapacity = 64)
+        val sourceFlow = MutableSharedFlow<AppFunctionsChangeEvent>(extraBufferCapacity = 64)
         val debouncedFlow = sourceFlow.debounceAndMerge(TEST_DEBOUNCE_MILLIS)
 
-        val results = mutableListOf<List<ObserveAppFunctionsEvent>>()
+        val results = mutableListOf<List<AppFunctionsChangeEvent>>()
         val collectJob = collectEvents(debouncedFlow, results)
         runCurrent()
 
-        val event1 = ObserveAppFunctionsEvent.MetadataChanged(setOf(testPackage1))
+        val event1 = AppFunctionsChangeEvent.MetadataChanged(setOf(testPackage1))
         sourceFlow.emit(event1)
 
         // Advance half of debounce time
@@ -105,7 +105,7 @@ class ChangeEventsFlowUtilsTest {
         assertThat(results).isEmpty()
 
         // Emit another event before debounce expires
-        val event2 = ObserveAppFunctionsEvent.MetadataChanged(setOf(testPackage2))
+        val event2 = AppFunctionsChangeEvent.MetadataChanged(setOf(testPackage2))
         sourceFlow.emit(event2)
 
         // Advance another half of debounce; the timer should have reset and not emitted yet
@@ -116,7 +116,7 @@ class ChangeEventsFlowUtilsTest {
         advanceTimeBy(TEST_DEBOUNCE_MILLIS / 2 + 10.milliseconds)
         assertThat(results)
             .containsExactly(
-                listOf(ObserveAppFunctionsEvent.MetadataChanged(setOf(testPackage1, testPackage2)))
+                listOf(AppFunctionsChangeEvent.MetadataChanged(setOf(testPackage1, testPackage2)))
             )
 
         collectJob.cancel()
@@ -124,20 +124,20 @@ class ChangeEventsFlowUtilsTest {
 
     @Test
     fun testDebounceAndMerge_spacedEventsEmitted_emitsEventsSeparatelyWithoutMerging() = runTest {
-        val sourceFlow = MutableSharedFlow<ObserveAppFunctionsEvent>(extraBufferCapacity = 64)
+        val sourceFlow = MutableSharedFlow<AppFunctionsChangeEvent>(extraBufferCapacity = 64)
         val debouncedFlow = sourceFlow.debounceAndMerge(TEST_DEBOUNCE_MILLIS)
 
-        val results = mutableListOf<List<ObserveAppFunctionsEvent>>()
+        val results = mutableListOf<List<AppFunctionsChangeEvent>>()
         val collectJob = collectEvents(debouncedFlow, results)
         runCurrent()
 
-        val event1 = ObserveAppFunctionsEvent.MetadataChanged(setOf(testPackage1))
+        val event1 = AppFunctionsChangeEvent.MetadataChanged(setOf(testPackage1))
         sourceFlow.emit(event1)
         advanceTimeBy(TEST_DEBOUNCE_MILLIS + 50.milliseconds)
 
         assertThat(results).containsExactly(listOf(event1))
 
-        val event2 = ObserveAppFunctionsEvent.MetadataChanged(setOf(testPackage2))
+        val event2 = AppFunctionsChangeEvent.MetadataChanged(setOf(testPackage2))
         sourceFlow.emit(event2)
         advanceTimeBy(TEST_DEBOUNCE_MILLIS + 50.milliseconds)
 
@@ -148,14 +148,14 @@ class ChangeEventsFlowUtilsTest {
 
     @Test
     fun testDebounceAndMerge_flowCancelledBeforeDebounce_doesNotEmit() = runTest {
-        val sourceFlow = MutableSharedFlow<ObserveAppFunctionsEvent>(extraBufferCapacity = 64)
+        val sourceFlow = MutableSharedFlow<AppFunctionsChangeEvent>(extraBufferCapacity = 64)
         val debouncedFlow = sourceFlow.debounceAndMerge(TEST_DEBOUNCE_MILLIS)
 
-        val results = mutableListOf<List<ObserveAppFunctionsEvent>>()
+        val results = mutableListOf<List<AppFunctionsChangeEvent>>()
         val collectJob = collectEvents(debouncedFlow, results)
         runCurrent()
 
-        sourceFlow.emit(ObserveAppFunctionsEvent.MetadataChanged(setOf(testPackage1)))
+        sourceFlow.emit(AppFunctionsChangeEvent.MetadataChanged(setOf(testPackage1)))
         advanceTimeBy(TEST_DEBOUNCE_MILLIS / 2)
 
         // Cancel flow before debounce expires
@@ -167,24 +167,24 @@ class ChangeEventsFlowUtilsTest {
 
     @Test
     fun testDebounceAndMerge_multipleCollectors_bothReceiveFullConsolidatedEvents() = runTest {
-        val sourceFlow = MutableSharedFlow<ObserveAppFunctionsEvent>(extraBufferCapacity = 64)
+        val sourceFlow = MutableSharedFlow<AppFunctionsChangeEvent>(extraBufferCapacity = 64)
         val debouncedFlow = sourceFlow.debounceAndMerge(TEST_DEBOUNCE_MILLIS)
 
-        val results1 = mutableListOf<List<ObserveAppFunctionsEvent>>()
+        val results1 = mutableListOf<List<AppFunctionsChangeEvent>>()
         val collectJob1 = collectEvents(debouncedFlow, results1)
 
-        val results2 = mutableListOf<List<ObserveAppFunctionsEvent>>()
+        val results2 = mutableListOf<List<AppFunctionsChangeEvent>>()
         val collectJob2 = collectEvents(debouncedFlow, results2)
         runCurrent()
 
-        sourceFlow.emit(ObserveAppFunctionsEvent.MetadataChanged(setOf(testPackage1)))
+        sourceFlow.emit(AppFunctionsChangeEvent.MetadataChanged(setOf(testPackage1)))
         advanceTimeBy(30.milliseconds)
-        sourceFlow.emit(ObserveAppFunctionsEvent.MetadataChanged(setOf(testPackage2)))
+        sourceFlow.emit(AppFunctionsChangeEvent.MetadataChanged(setOf(testPackage2)))
 
         advanceTimeBy(TEST_DEBOUNCE_MILLIS + 50.milliseconds)
 
         val expectedEvent =
-            ObserveAppFunctionsEvent.MetadataChanged(setOf(testPackage1, testPackage2))
+            AppFunctionsChangeEvent.MetadataChanged(setOf(testPackage1, testPackage2))
 
         assertThat(results1).containsExactly(listOf(expectedEvent))
         assertThat(results2).containsExactly(listOf(expectedEvent))
@@ -195,23 +195,23 @@ class ChangeEventsFlowUtilsTest {
 
     @Test
     fun testDebounceAndMerge_lateJoinerCollects_doesNotReceivePriorEvents() = runTest {
-        val sourceFlow = MutableSharedFlow<ObserveAppFunctionsEvent>(extraBufferCapacity = 64)
+        val sourceFlow = MutableSharedFlow<AppFunctionsChangeEvent>(extraBufferCapacity = 64)
         val debouncedFlow = sourceFlow.debounceAndMerge(TEST_DEBOUNCE_MILLIS)
 
-        val results1 = mutableListOf<List<ObserveAppFunctionsEvent>>()
+        val results1 = mutableListOf<List<AppFunctionsChangeEvent>>()
         val collectJob1 = collectEvents(debouncedFlow, results1)
         runCurrent()
 
-        val eventA = ObserveAppFunctionsEvent.MetadataChanged(setOf(testPackage1))
+        val eventA = AppFunctionsChangeEvent.MetadataChanged(setOf(testPackage1))
         sourceFlow.emit(eventA)
         advanceTimeBy(TEST_DEBOUNCE_MILLIS + 50.milliseconds)
 
         // Second collector starts after debounce expired
-        val results2 = mutableListOf<List<ObserveAppFunctionsEvent>>()
+        val results2 = mutableListOf<List<AppFunctionsChangeEvent>>()
         val collectJob2 = collectEvents(debouncedFlow, results2)
         runCurrent()
 
-        val eventB = ObserveAppFunctionsEvent.MetadataChanged(setOf(testPackage2))
+        val eventB = AppFunctionsChangeEvent.MetadataChanged(setOf(testPackage2))
         sourceFlow.emit(eventB)
         advanceTimeBy(TEST_DEBOUNCE_MILLIS + 50.milliseconds)
 
@@ -223,8 +223,8 @@ class ChangeEventsFlowUtilsTest {
     }
 
     private fun TestScope.collectEvents(
-        flow: Flow<ObserveAppFunctionsEvent>,
-        results: MutableList<List<ObserveAppFunctionsEvent>>,
+        flow: Flow<AppFunctionsChangeEvent>,
+        results: MutableList<List<AppFunctionsChangeEvent>>,
     ): Job {
         return launch { flow.collect { event -> results.add(listOf(event)) } }
     }

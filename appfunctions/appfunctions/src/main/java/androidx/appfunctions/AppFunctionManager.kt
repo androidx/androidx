@@ -184,16 +184,16 @@ public constructor(
      * 1. Start collecting from the [Flow] to monitor app function changes.
      * 2. Call [searchAppFunctions] and [getAppFunctionStates] to get the initial list of app
      *    functions and their states.
-     * 3. When receiving [ObserveAppFunctionsEvent.MetadataChanged], call [searchAppFunctions] with
-     *    a [AppFunctionSearchSpec] that matches the changed packages to get the updated metadata.
-     * 4. When receiving [ObserveAppFunctionsEvent.StatesChanged], call [getAppFunctionStates] with
+     * 3. When receiving [AppFunctionsChangeEvent.MetadataChanged], call [searchAppFunctions] with a
+     *    [AppFunctionSearchSpec] that matches the changed packages to get the updated metadata.
+     * 4. When receiving [AppFunctionsChangeEvent.StatesChanged], call [getAppFunctionStates] with
      *    the list of [androidx.appfunctions.metadata.AppFunctionName]s matching the changed
      *    functions to get the updated states. Note that this is guaranteed to trigger after
-     *    [ObserveAppFunctionsEvent.MetadataChanged] for new functions or functions that also
-     *    changed states. There is no need to call [getAppFunctionStates] when receiving
-     *    [ObserveAppFunctionsEvent.MetadataChanged].
+     *    [AppFunctionsChangeEvent.MetadataChanged] for new functions or functions that also changed
+     *    states. There is no need to call [getAppFunctionStates] when receiving
+     *    [AppFunctionsChangeEvent.MetadataChanged].
      *
-     * @return a [Flow] emitting [ObserveAppFunctionsEvent]s representing metadata or state changes
+     * @return a [Flow] emitting [AppFunctionsChangeEvent]s representing metadata or state changes
      */
     @RequiresPermission(
         anyOf =
@@ -204,7 +204,7 @@ public constructor(
             ],
         conditional = true,
     )
-    public fun observeAppFunctions(): Flow<ObserveAppFunctionsEvent> {
+    public fun observeAppFunctions(): Flow<AppFunctionsChangeEvent> {
         return appFunctionReader.observeAppFunctions()
     }
 

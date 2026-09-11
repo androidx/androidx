@@ -109,9 +109,9 @@ class ObserveAppFunctionsTest {
 
                     val event = eventChannel.receive()
                     assertThat(event)
-                        .isInstanceOf(ObserveAppFunctionsEvent.StatesChanged::class.java)
+                        .isInstanceOf(AppFunctionsChangeEvent.StatesChanged::class.java)
 
-                    val stateChangeEvent = event as ObserveAppFunctionsEvent.StatesChanged
+                    val stateChangeEvent = event as AppFunctionsChangeEvent.StatesChanged
                     assertThat(stateChangeEvent.changedFunctionNames).contains(targetFunctionName)
 
                     assertAppFunctionEnabledState(targetFunctionName, expectedEnabled = false)
@@ -146,9 +146,9 @@ class ObserveAppFunctionsTest {
 
                     val event = eventChannel.receive()
                     assertThat(event)
-                        .isInstanceOf(ObserveAppFunctionsEvent.StatesChanged::class.java)
+                        .isInstanceOf(AppFunctionsChangeEvent.StatesChanged::class.java)
 
-                    val stateChangeEvent = event as ObserveAppFunctionsEvent.StatesChanged
+                    val stateChangeEvent = event as AppFunctionsChangeEvent.StatesChanged
                     assertThat(stateChangeEvent.changedFunctionNames).contains(targetFunctionName)
 
                     assertAppFunctionEnabledState(targetFunctionName, expectedEnabled = false)
@@ -186,9 +186,9 @@ class ObserveAppFunctionsTest {
 
                     val event = eventChannel.receive()
                     assertThat(event)
-                        .isInstanceOf(ObserveAppFunctionsEvent.StatesChanged::class.java)
+                        .isInstanceOf(AppFunctionsChangeEvent.StatesChanged::class.java)
 
-                    val stateChange = event as ObserveAppFunctionsEvent.StatesChanged
+                    val stateChange = event as AppFunctionsChangeEvent.StatesChanged
                     assertThat(stateChange.changedFunctionNames).containsExactly(targetFunctionName)
 
                     assertAppFunctionEnabledState(targetFunctionName, expectedEnabled = true)
@@ -232,9 +232,9 @@ class ObserveAppFunctionsTest {
 
                     val event = eventChannel.receive()
                     assertThat(event)
-                        .isInstanceOf(ObserveAppFunctionsEvent.StatesChanged::class.java)
+                        .isInstanceOf(AppFunctionsChangeEvent.StatesChanged::class.java)
 
-                    val stateChange = event as ObserveAppFunctionsEvent.StatesChanged
+                    val stateChange = event as AppFunctionsChangeEvent.StatesChanged
                     assertThat(stateChange.changedFunctionNames)
                         .containsExactly(firstFunctionName, secondFunctionName)
 
@@ -266,7 +266,7 @@ class ObserveAppFunctionsTest {
                         AppFunctionMetadataTestHelper.FunctionIds.MEDIA_SCHEMA_PRINT,
                 )
 
-            val eventChannel = Channel<ObserveAppFunctionsEvent>(Channel.UNLIMITED)
+            val eventChannel = Channel<AppFunctionsChangeEvent>(Channel.UNLIMITED)
 
             val collectJob = launch { flow.collect { event -> eventChannel.send(event) } }
 
@@ -278,12 +278,12 @@ class ObserveAppFunctionsTest {
                     AppFunctionManager.Companion.APP_FUNCTION_STATE_DISABLED,
                 )
 
-                val firstEvent = eventChannel.receive() as ObserveAppFunctionsEvent.StatesChanged
+                val firstEvent = eventChannel.receive() as AppFunctionsChangeEvent.StatesChanged
                 assertThat(firstEvent.changedFunctionNames).contains(targetFunctionName)
 
                 collectJob.cancel()
 
-                val eventChannel2 = Channel<ObserveAppFunctionsEvent>(Channel.UNLIMITED)
+                val eventChannel2 = Channel<AppFunctionsChangeEvent>(Channel.UNLIMITED)
                 val collectJob2 = launch { flow.collect { event -> eventChannel2.send(event) } }
 
                 dispatchSentinelNotification(eventChannel2)
@@ -329,8 +329,8 @@ class ObserveAppFunctionsTest {
                         AppFunctionMetadataTestHelper.FunctionIds.MEDIA_SCHEMA2_PRINT,
                 )
 
-            val channel1 = Channel<ObserveAppFunctionsEvent>(Channel.UNLIMITED)
-            val channel2 = Channel<ObserveAppFunctionsEvent>(Channel.UNLIMITED)
+            val channel1 = Channel<AppFunctionsChangeEvent>(Channel.UNLIMITED)
+            val channel2 = Channel<AppFunctionsChangeEvent>(Channel.UNLIMITED)
 
             val collectJob1 = launch { changeEventsFlow.collect { event -> channel1.send(event) } }
             val collectJob2 = launch { changeEventsFlow.collect { event -> channel2.send(event) } }
@@ -347,11 +347,11 @@ class ObserveAppFunctionsTest {
                     AppFunctionManager.Companion.APP_FUNCTION_STATE_ENABLED,
                 )
 
-                val event1 = channel1.receive() as ObserveAppFunctionsEvent.StatesChanged
+                val event1 = channel1.receive() as AppFunctionsChangeEvent.StatesChanged
                 assertThat(event1.changedFunctionNames)
                     .containsExactly(functionEnabledByDefault, functionDisabledByDefault)
 
-                val event2 = channel2.receive() as ObserveAppFunctionsEvent.StatesChanged
+                val event2 = channel2.receive() as AppFunctionsChangeEvent.StatesChanged
                 assertThat(event2.changedFunctionNames)
                     .containsExactly(functionEnabledByDefault, functionDisabledByDefault)
             } finally {
@@ -406,11 +406,11 @@ class ObserveAppFunctionsTest {
      * [onObserverRegistered] before canceling the collector and resetting the sentinel function.
      */
     private suspend fun collectEventsWithRegisteredFlow(
-        onObserverRegistered: suspend CoroutineScope.(Channel<ObserveAppFunctionsEvent>) -> Unit
+        onObserverRegistered: suspend CoroutineScope.(Channel<AppFunctionsChangeEvent>) -> Unit
     ) {
         coroutineScope {
             val flow = appFunctionManager.observeAppFunctions()
-            val eventChannel = Channel<ObserveAppFunctionsEvent>(Channel.UNLIMITED)
+            val eventChannel = Channel<AppFunctionsChangeEvent>(Channel.UNLIMITED)
             val collectJob = launch { flow.collect { event -> eventChannel.send(event) } }
 
             dispatchSentinelNotification(eventChannel)
@@ -430,7 +430,7 @@ class ObserveAppFunctionsTest {
     }
 
     private suspend fun dispatchSentinelNotification(
-        vararg channels: Channel<ObserveAppFunctionsEvent>
+        vararg channels: Channel<AppFunctionsChangeEvent>
     ) {
         val sentinelFunctionName =
             AppFunctionName(
@@ -465,7 +465,7 @@ class ObserveAppFunctionsTest {
             while (true) {
                 val event = channel.receive()
                 if (
-                    event is ObserveAppFunctionsEvent.StatesChanged &&
+                    event is AppFunctionsChangeEvent.StatesChanged &&
                         event.changedFunctionNames.contains(sentinelFunctionName)
                 ) {
                     break
