@@ -208,35 +208,31 @@ internal fun Project.configureCompilationInputsAndManifest(
 internal fun Project.createReleaseApiConfiguration(): Configuration {
     return configurations.findByName("ReleaseApiDependencies")
         ?: configurations
-            .create("ReleaseApiDependencies") {
-                it.isCanBeConsumed = false
-                it.isTransitive = false
-                it.attributes.attribute(
-                    BuildTypeAttr.ATTRIBUTE,
-                    project.objects.named(BuildTypeAttr::class.java, "release"),
-                )
-                it.attributes.attribute(
-                    Usage.USAGE_ATTRIBUTE,
-                    objects.named(Usage::class.java, Usage.JAVA_API),
-                )
-                it.attributes.attribute(
-                    ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE,
-                    ArtifactTypeDefinition.JAR_TYPE,
-                )
-                // If this is a KMP project targeting android, make sure to select the android
-                // compilation and not a different jvm target compilation
-                if (project.hasAndroidMultiplatformPlugin()) {
-                    it.attributes.attribute(
-                        Attribute.of(
-                            "org.gradle.jvm.environment",
-                            TargetJvmEnvironment::class.java,
-                        ),
-                        objects.named(
-                            TargetJvmEnvironment::class.java,
-                            TargetJvmEnvironment.ANDROID,
-                        ),
-                    )
-                }
-            }
+            .create("ReleaseApiDependencies") { it.setResolveReleaseApi(project) }
             .apply { project.dependencies.add(name, project.project(path)) }
+}
+
+internal fun Configuration.setResolveReleaseApi(project: Project) {
+    isCanBeConsumed = false
+    isTransitive = false
+    attributes.attribute(
+        BuildTypeAttr.ATTRIBUTE,
+        project.objects.named(BuildTypeAttr::class.java, "release"),
+    )
+    attributes.attribute(
+        Usage.USAGE_ATTRIBUTE,
+        project.objects.named(Usage::class.java, Usage.JAVA_API),
+    )
+    attributes.attribute(
+        ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE,
+        ArtifactTypeDefinition.JAR_TYPE,
+    )
+    // If this is a KMP project targeting android, make sure to select the android
+    // compilation and not a different jvm target compilation
+    if (project.hasAndroidMultiplatformPlugin()) {
+        attributes.attribute(
+            Attribute.of("org.gradle.jvm.environment", TargetJvmEnvironment::class.java),
+            project.objects.named(TargetJvmEnvironment::class.java, TargetJvmEnvironment.ANDROID),
+        )
+    }
 }
