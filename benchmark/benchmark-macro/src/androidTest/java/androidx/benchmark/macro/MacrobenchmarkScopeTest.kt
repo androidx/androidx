@@ -293,7 +293,7 @@ class MacrobenchmarkScopeTest {
                 Packages.TEST, // self-instrumenting macrobench, so don't kill the process!
                 launchWithClearTask = true,
             )
-        scope.fileLabel = "TEST-UNIQUE-NAME"
+        scope.fileLabel = "TEST-UNIQUE-NAME-methodTracing"
         scope.startMethodTracing()
         // Launch first activity, and validate it is displayed
         scope.startActivityAndWait(ConfigurableActivity.createIntent("InitialText"))
@@ -313,7 +313,7 @@ class MacrobenchmarkScopeTest {
         // Our API 23 and 24 emulators seem to be misconfigured b/438214932
         assumeTrue(!isEmulator || SDK_INT > 24)
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
-        scope.fileLabel = "TEST-UNIQUE-NAME"
+        scope.fileLabel = "TEST-UNIQUE-NAME-methodTracing"
         scope.startMethodTracing()
         scope.startActivityAndWait()
         scope.killProcess()

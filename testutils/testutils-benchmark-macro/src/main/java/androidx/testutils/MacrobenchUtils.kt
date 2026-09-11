@@ -92,6 +92,9 @@ fun getStartupMetrics() =
         TraceSectionMetric("StartupTracingInitializer", TraceSectionMetric.Mode.First),
     ) + defaultMemoryMetrics()
 
+// Note: This overload is kept separate from the one accepting [ExperimentalConfig] so that callers
+// who don't customize [ExperimentalConfig] are not forced to opt into
+// @ExperimentalBenchmarkConfigApi due to the experimental parameter type in the function signature.
 @OptIn(ExperimentalBenchmarkConfigApi::class, ExperimentalPerfettoCaptureApi::class)
 fun MacrobenchmarkRule.measureStartup(
     compilationMode: CompilationMode,
@@ -101,6 +104,30 @@ fun MacrobenchmarkRule.measureStartup(
     metrics: List<Metric> = getStartupMetrics(),
     waitForContent: MacrobenchmarkScope.() -> Unit = {},
     setupIntent: Intent.() -> Unit = {},
+) =
+    measureStartup(
+        compilationMode = compilationMode,
+        startupMode = startupMode,
+        packageName = packageName,
+        iterations = iterations,
+        metrics = metrics,
+        experimentalConfig =
+            ExperimentalConfig(startupInsightsConfig = StartupInsightsConfig(true)),
+        waitForContent = waitForContent,
+        setupIntent = setupIntent,
+    )
+
+@OptIn(ExperimentalPerfettoCaptureApi::class)
+@ExperimentalBenchmarkConfigApi
+fun MacrobenchmarkRule.measureStartup(
+    compilationMode: CompilationMode,
+    startupMode: StartupMode,
+    packageName: String,
+    iterations: Int = 10,
+    metrics: List<Metric> = getStartupMetrics(),
+    experimentalConfig: ExperimentalConfig,
+    waitForContent: MacrobenchmarkScope.() -> Unit = {},
+    setupIntent: Intent.() -> Unit = {},
 ) {
     measureRepeated(
         packageName = packageName,
@@ -108,8 +135,7 @@ fun MacrobenchmarkRule.measureStartup(
         compilationMode = compilationMode,
         iterations = iterations,
         startupMode = startupMode,
-        experimentalConfig =
-            ExperimentalConfig(startupInsightsConfig = StartupInsightsConfig(true)),
+        experimentalConfig = experimentalConfig,
         setupBlock = { pressHome() },
     ) {
         val intent = Intent()

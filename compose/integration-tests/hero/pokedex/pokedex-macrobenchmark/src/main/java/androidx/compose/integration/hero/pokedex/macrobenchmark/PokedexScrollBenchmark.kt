@@ -14,14 +14,24 @@
  * limitations under the License.
  */
 
+@file:OptIn(
+    ExperimentalMetricApi::class,
+    ExperimentalBenchmarkConfigApi::class,
+    ExperimentalPerfettoCaptureApi::class,
+)
+
 package androidx.compose.integration.hero.pokedex.macrobenchmark
 
 import android.content.Intent
 import android.util.DisplayMetrics
+import androidx.benchmark.ExperimentalBenchmarkConfigApi
+import androidx.benchmark.ExperimentalConfig
+import androidx.benchmark.MemoryProfilingConfig
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingGfxInfoMetric
 import androidx.benchmark.macro.MacrobenchmarkScope
+import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.compose.integration.hero.common.macrobenchmark.HeroMacrobenchmarkDefaults
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.POKEDEX_TARGET_PACKAGE_NAME
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.findObjectOrThrow
@@ -86,7 +96,7 @@ class PokedexScrollBenchmark(
             },
         )
 
-    @OptIn(ExperimentalMetricApi::class)
+    @OptIn(ExperimentalMetricApi::class, ExperimentalBenchmarkConfigApi::class)
     private fun benchmarkScroll(
         action: String,
         enableScrollbar: Boolean = true,
@@ -103,6 +113,14 @@ class PokedexScrollBenchmark(
                     defaultMemoryMetrics(),
             compilationMode = compilationMode,
             iterations = HeroMacrobenchmarkDefaults.ITERATIONS,
+            experimentalConfig =
+                ExperimentalConfig(
+                    memoryProfilingConfig =
+                        MemoryProfilingConfig(
+                            isSampleArtHeapEnabled = true,
+                            isSampleNativeHeapEnabled = true,
+                        )
+                ),
             setupBlock = {
                 // Start off by killing the existing process. After previous iterations, the
                 // activity might be running, and we wouldn't launch our setup activity as the
