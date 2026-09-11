@@ -1750,7 +1750,8 @@ public final class Recorder implements VideoOutput {
 
         // Select and create the audio source
         AudioSettings audioSettings = resolveAudioSettings(mediaSpec.getAudioSpec(),
-                audioMimeInfo.getCompatibleAudioProfile(), expectedSampleRateRatio);
+                audioMimeInfo.getCompatibleAudioProfile(), expectedSampleRateRatio,
+                audioMimeInfo.getMimeType());
         if (mAudioSource != null) {
             releaseCurrentAudioSource();
         }

@@ -20,6 +20,7 @@ import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaCodecInfo.CodecProfileLevel.AACObjectLC
 import android.media.MediaFormat.MIMETYPE_AUDIO_AAC
+import android.media.MediaFormat.MIMETYPE_AUDIO_OPUS
 import android.media.MediaFormat.MIMETYPE_AUDIO_VORBIS
 import android.util.Rational
 import androidx.camera.testing.impl.EncoderProfilesUtil.createFakeAudioProfileProxy
@@ -210,6 +211,23 @@ class AudioConfigUtilTest {
 
         // Assert: It should return the first available profile
         assertThat(result).isEqualTo(profiles.first())
+    }
+
+    @Test
+    fun resolveAudioSettings_opusMimeWithoutProfile_resolvesTo48k() {
+        val audioSpec = AudioSpec.builder().setMimeType(MIMETYPE_AUDIO_OPUS).build()
+        val settings = AudioConfigUtil.resolveAudioSettings(audioSpec)
+        assertThat(settings.captureSampleRate).isEqualTo(48000)
+        assertThat(settings.encodeSampleRate).isEqualTo(48000)
+    }
+
+    @Test
+    fun resolveAudioSettings_opusMimeParameterWithoutProfile_resolvesTo48k() {
+        val audioSpec = AudioSpec.builder().build()
+        val settings =
+            AudioConfigUtil.resolveAudioSettings(audioSpec, audioMime = MIMETYPE_AUDIO_OPUS)
+        assertThat(settings.captureSampleRate).isEqualTo(48000)
+        assertThat(settings.encodeSampleRate).isEqualTo(48000)
     }
 
     @Implements(AudioRecord::class)

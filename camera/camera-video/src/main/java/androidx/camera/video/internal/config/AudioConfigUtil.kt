@@ -17,6 +17,7 @@ package androidx.camera.video.internal.config
 
 import android.media.MediaCodecInfo
 import android.media.MediaFormat.MIMETYPE_AUDIO_AAC
+import android.media.MediaFormat.MIMETYPE_AUDIO_OPUS
 import android.media.MediaFormat.MIMETYPE_AUDIO_VORBIS
 import android.util.Rational
 import androidx.camera.core.Logger
@@ -37,8 +38,12 @@ import kotlin.math.sign
 public object AudioConfigUtil {
     private const val TAG = "AudioConfigUtil"
 
-    // Default to 44100 for now as it's guaranteed supported on devices.
+    // Default to 44100 Hz for AAC/general audio as mandated by Android CDD 5.4.
     public const val AUDIO_SAMPLE_RATE_DEFAULT: Int = 44100
+
+    // Opus strictly requires 8k, 12k, 16k, 24k, or 48k Hz (RFC 6716, RFC 7845, Android CDD 5.1.1).
+    // 48000 Hz is the standard fullband Opus sample rate.
+    public const val AUDIO_SAMPLE_RATE_OPUS_DEFAULT: Int = 48000
 
     // Default to mono since that should be supported on the most devices.
     public const val AUDIO_CHANNEL_COUNT_DEFAULT: Int = AudioSpec.CHANNEL_COUNT_MONO
@@ -108,14 +113,24 @@ public object AudioConfigUtil {
      * @param audioSpec the audio spec.
      * @param compatibleAudioProfile the compatible audio profile.
      * @param captureToEncodeRatio the capture to encode sample rate ratio.
+     * @param audioMime the audio MIME type.
      * @return an AudioSettings.
      */
     @JvmStatic
+    @JvmOverloads
     public fun resolveAudioSettings(
         audioSpec: AudioSpec,
         compatibleAudioProfile: AudioProfileProxy? = null,
         captureToEncodeRatio: Rational? = null,
+        audioMime: String? = null,
     ): AudioSettings {
+        val resolvedMime = audioMime ?: audioSpec.mimeType
+        val defaultSampleRate =
+            if (resolvedMime == MIMETYPE_AUDIO_OPUS) {
+                AUDIO_SAMPLE_RATE_OPUS_DEFAULT
+            } else {
+                AUDIO_SAMPLE_RATE_DEFAULT
+            }
         return if (compatibleAudioProfile != null) {
                 resolveAudioSettings(
                     audioSpec = audioSpec,
@@ -129,7 +144,7 @@ public object AudioConfigUtil {
                 resolveAudioSettings(
                     audioSpec = audioSpec,
                     baseChannelCount = AUDIO_CHANNEL_COUNT_DEFAULT,
-                    baseSampleRate = AUDIO_SAMPLE_RATE_DEFAULT,
+                    baseSampleRate = defaultSampleRate,
                     channelCountFallbacks = listOf(AUDIO_CHANNEL_COUNT_DEFAULT),
                     captureToEncodeRatio = captureToEncodeRatio,
                 )
@@ -139,7 +154,7 @@ public object AudioConfigUtil {
                     TAG,
                     "Resolved AUDIO settings: $it " +
                         "[audioSpec: $audioSpec, compatibleAudioProfile: $compatibleAudioProfile, " +
-                        "captureToEncodeRatio: $captureToEncodeRatio]",
+                        "captureToEncodeRatio: $captureToEncodeRatio, audioMime: $audioMime]",
                 )
             }
     }
