@@ -16,9 +16,11 @@
 
 package androidx.compose.material3.integration.a2ui.ui
 
+import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.A2uiMessageProcessor
 import androidx.a2ui.model.catalog.functions.A2uiLocaleProvider
 import androidx.a2ui.model.processor.A2uiActionInterceptor
+import androidx.a2ui.model.processor.A2uiMessageProcessor
 import androidx.a2ui.model.processor.A2uiSurfaceModel
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiCreateSurfaceMessage
@@ -28,6 +30,11 @@ import androidx.a2ui.model.protocol.A2uiUpdateComponentsMessage
 import androidx.a2ui.model.protocol.A2uiUpdateDataModelMessage
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Grid
+import androidx.compose.foundation.layout.GridTrackSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -86,29 +93,90 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalMediaQueryApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.derivedMediaQuery
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMediaQueryApi::class)
 @Composable
 fun ComponentDetailScreen(
     component: UiComponent,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
     var showJsonSheet by remember { mutableStateOf(false) }
 
     val surfaceId = remember(component) { "demo_${component.name.lowercase()}" }
     val catalog = rememberDemoCatalog()
+    val processor =
+        rememberDemoMessageProcessor(catalog = catalog, snackbarHostState = snackbarHostState)
 
+    val surfaces by processor.activeSurfaces.collectAsState()
+    val surfaceModel = surfaces.firstOrNull { it.id == surfaceId }
+
+    var currentComponents by remember { mutableStateOf<List<A2uiComponentPayload>>(emptyList()) }
+    var currentDataModel by remember { mutableStateOf<Map<String, Any?>>(emptyMap()) }
+
+    val showSideBySide by derivedMediaQuery {
+        windowWidth >= 600.dp || (windowWidth > windowHeight && windowWidth >= 480.dp)
+    }
+
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            ComponentDetailTopBar(
+                component = component,
+                onBack = onBack,
+                onShowJson = { showJsonSheet = true },
+            )
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+    ) { innerPadding ->
+        ComponentDetailContent(
+            component = component,
+            surfaceModel = surfaceModel,
+            showSideBySide = showSideBySide,
+            innerPadding = innerPadding,
+            onPayloadUpdated = { updatedComponentsPayload, updatedDataModel ->
+                currentComponents = updatedComponentsPayload
+                currentDataModel = updatedDataModel
+                processor.updateSurface(
+                    surfaceId = surfaceId,
+                    catalogId = catalog.id,
+                    components = updatedComponentsPayload,
+                    dataModel = updatedDataModel,
+                )
+            },
+        )
+    }
+
+    if (showJsonSheet) {
+        JsonBottomSheet(
+            sheetState = sheetState,
+            surfaceId = surfaceId,
+            components = currentComponents,
+            dataModel = currentDataModel,
+            onDismissRequest = { showJsonSheet = false },
+        )
+    }
+}
+
+@Composable
+private fun rememberDemoMessageProcessor(
+    catalog: A2uiCatalog,
+    snackbarHostState: SnackbarHostState,
+): A2uiMessageProcessor {
+    val coroutineScope = rememberCoroutineScope()
     val actionInterceptor =
         remember(coroutineScope, snackbarHostState) {
             A2uiActionInterceptor { action ->
@@ -134,82 +202,150 @@ fun ComponentDetailScreen(
 
     LaunchedEffect(processor) { launch(Dispatchers.Default) { processor.collectMessages() } }
 
-    val surfaces by processor.activeSurfaces.collectAsState()
-    val surfaceModel = surfaces.firstOrNull { it.id == surfaceId }
+    return processor
+}
 
-    var currentComponents by remember { mutableStateOf<List<A2uiComponentPayload>>(emptyList()) }
-    var currentDataModel by remember { mutableStateOf<Map<String, Any?>>(emptyMap()) }
-
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            ComponentDetailTopBar(
-                component = component,
-                onBack = onBack,
-                onShowJson = { showJsonSheet = true },
+private fun A2uiMessageProcessor.updateSurface(
+    surfaceId: String,
+    catalogId: String,
+    components: List<A2uiComponentPayload>,
+    dataModel: Map<String, Any?>,
+) {
+    if (components.isNotEmpty()) {
+        processMessage(
+            A2uiCreateSurfaceMessage(
+                surfaceId = surfaceId,
+                catalogId = catalogId,
             )
-        },
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier.fillMaxSize().padding(top = innerPadding.calculateTopPadding())
-        ) {
-            ComponentPreviewCard(
-                component = component,
-                surfaceModel = surfaceModel,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        )
+        processMessage(
+            A2uiUpdateDataModelMessage(
+                surfaceId = surfaceId,
+                path = "/",
+                value = dataModel,
             )
-
-            val controlsScrollState = rememberScrollState()
-            Column(
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .weight(1f)
-                        .padding(horizontal = 16.dp)
-                        .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                        .verticalScroll(controlsScrollState)
-                        .padding(vertical = 8.dp)
-                        .padding(bottom = innerPadding.calculateBottomPadding() + 16.dp)
-            ) {
-                ComponentControlsSection(
-                    component = component,
-                    onPayloadUpdated = { updatedComponentsPayload, updatedDataModel ->
-                        currentComponents = updatedComponentsPayload
-                        currentDataModel = updatedDataModel
-                        if (updatedComponentsPayload.isNotEmpty()) {
-                            processor.processMessage(
-                                A2uiCreateSurfaceMessage(
-                                    surfaceId = surfaceId,
-                                    catalogId = catalog.id,
-                                )
-                            )
-                            processor.processMessage(
-                                A2uiUpdateDataModelMessage(
-                                    surfaceId = surfaceId,
-                                    path = "/",
-                                    value = updatedDataModel,
-                                )
-                            )
-                            processor.processMessage(
-                                A2uiUpdateComponentsMessage(
-                                    surfaceId = surfaceId,
-                                    components = updatedComponentsPayload,
-                                )
-                            )
-                        }
-                    },
-                )
-            }
-        }
+        )
+        processMessage(
+            A2uiUpdateComponentsMessage(
+                surfaceId = surfaceId,
+                components = components,
+            )
+        )
     }
+}
 
-    if (showJsonSheet) {
-        JsonBottomSheet(
-            sheetState = sheetState,
-            surfaceId = surfaceId,
-            components = currentComponents,
-            dataModel = currentDataModel,
-            onDismissRequest = { showJsonSheet = false },
+@Composable
+private fun ComponentDetailContent(
+    component: UiComponent,
+    surfaceModel: A2uiSurfaceModel?,
+    showSideBySide: Boolean,
+    innerPadding: PaddingValues,
+    onPayloadUpdated: (List<A2uiComponentPayload>, Map<String, Any?>) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val layoutDirection = LocalLayoutDirection.current
+    Grid(
+        modifier =
+            modifier
+                .fillMaxSize()
+                .padding(
+                    top = innerPadding.calculateTopPadding(),
+                    start = innerPadding.calculateStartPadding(layoutDirection),
+                    end = innerPadding.calculateEndPadding(layoutDirection),
+                ),
+        config = {
+            if (showSideBySide) {
+                column(minmax(0.dp, 1.fr))
+                column(minmax(0.dp, 1.fr))
+                row(minmax(0.dp, 1.fr))
+                columnGap(16.dp)
+            } else {
+                column(minmax(0.dp, 1.fr))
+                row(GridTrackSize.Auto)
+                row(minmax(0.dp, 1.fr))
+            }
+        },
+    ) {
+        PreviewPane(
+            component = component,
+            surfaceModel = surfaceModel,
+            showSideBySide = showSideBySide,
+            bottomPadding = innerPadding.calculateBottomPadding(),
+        )
+
+        ControlsPane(
+            component = component,
+            showSideBySide = showSideBySide,
+            bottomPadding = innerPadding.calculateBottomPadding(),
+            onPayloadUpdated = onPayloadUpdated,
+        )
+    }
+}
+
+@Composable
+private fun PreviewPane(
+    component: UiComponent,
+    surfaceModel: A2uiSurfaceModel?,
+    showSideBySide: Boolean,
+    bottomPadding: Dp,
+    modifier: Modifier = Modifier,
+) {
+    ComponentPreviewCard(
+        component = component,
+        surfaceModel = surfaceModel,
+        modifier =
+            modifier.then(
+                if (showSideBySide) {
+                    Modifier.fillMaxSize()
+                        .padding(
+                            start = 16.dp,
+                            top = 16.dp,
+                            bottom = bottomPadding + 16.dp,
+                        )
+                } else {
+                    Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        .fillMaxWidth()
+                        .height(240.dp)
+                }
+            ),
+    )
+}
+
+@Composable
+private fun ControlsPane(
+    component: UiComponent,
+    showSideBySide: Boolean,
+    bottomPadding: Dp,
+    onPayloadUpdated: (List<A2uiComponentPayload>, Map<String, Any?>) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val controlsScrollState = rememberScrollState()
+    Column(
+        modifier =
+            modifier
+                .then(
+                    if (showSideBySide) {
+                        Modifier.fillMaxSize().padding(end = 16.dp)
+                    } else {
+                        Modifier.fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                    }
+                )
+                .verticalFadingEdge(
+                    scrollState = controlsScrollState,
+                    fadeHeight = 32.dp,
+                    bottomOffset = bottomPadding,
+                )
+                .verticalScroll(controlsScrollState)
+                .padding(
+                    top = if (showSideBySide) 16.dp else 8.dp,
+                    bottom = bottomPadding + 16.dp,
+                )
+    ) {
+        ComponentControlsSection(
+            component = component,
+            onPayloadUpdated = onPayloadUpdated,
         )
     }
 }
@@ -290,7 +426,7 @@ private fun ComponentPreviewCard(
     modifier: Modifier = Modifier,
 ) {
     Card(
-        modifier = modifier.fillMaxWidth().height(240.dp),
+        modifier = modifier,
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.elevatedCardColors(),
         elevation = CardDefaults.elevatedCardElevation(),
