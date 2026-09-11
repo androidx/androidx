@@ -29,6 +29,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -437,6 +438,57 @@ class ScaffoldTest {
         // After a 2500 delay, the scroll indicator is animated away. Allow a little longer for the
         // animation to complete.
         rule.mainClock.autoAdvance = false
+        rule.mainClock.advanceTimeBy(4000)
+
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
+            .assertDoesNotContainColor(scrollIndicatorColor)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun keeps_scroll_indicator_visible_when_keep_indicator_visible_is_true() {
+        val scrollIndicatorColor = Color.Red
+        lateinit var keepIndicatorVisible: MutableState<Boolean>
+
+        rule.setContentWithTheme {
+            val scrollState = rememberScalingLazyListState()
+            ScreenScaffold(
+                modifier = Modifier.testTag(TEST_TAG),
+                scrollState = scrollState,
+                scrollIndicator = {
+                    keepIndicatorVisible = LocalScaffoldState.current!!.keepIndicatorVisible
+                    Box(
+                        modifier =
+                            Modifier.size(20.dp)
+                                .align(Alignment.CenterEnd)
+                                .background(scrollIndicatorColor)
+                    )
+                },
+                timeText = { Box(Modifier.size(20.dp).background(Color.White)) },
+            ) {
+                ScalingLazyColumn(
+                    state = scrollState,
+                    modifier = Modifier.fillMaxSize().background(Color.Black).testTag(SCROLL_TAG),
+                ) {
+                    items(DEFAULT_ITEMS_COUNT) {
+                        Button(onClick = {}, label = { Text("Item ${it + 1}") })
+                    }
+                }
+            }
+        }
+
+        // Set keepIndicatorVisible to true and verify that the scroll indicator is still visible
+        // after the idle delay
+        rule.runOnIdle { keepIndicatorVisible.value = true }
+        rule.mainClock.autoAdvance = false
+        rule.mainClock.advanceTimeBy(4000)
+
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(scrollIndicatorColor)
+
+        // Set keepIndicatorVisible false, and verify that the scroll indicator fades away.
+        rule.runOnIdle { keepIndicatorVisible.value = false }
         rule.mainClock.advanceTimeBy(4000)
 
         rule

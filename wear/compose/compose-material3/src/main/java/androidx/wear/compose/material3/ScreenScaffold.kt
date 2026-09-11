@@ -1039,30 +1039,29 @@ public fun ScreenScaffold(
     statusBarMode: StatusBarMode = StatusBarMode.Inherit,
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit {
-    val scaffoldState = LocalScaffoldState.current
+    val viewState = rememberUpdatedState(LocalView.current)
+    val scaffoldState =
+        LocalScaffoldState.current ?: remember { ScaffoldState(appWindowView = viewState) }
     val key = remember { Any() }
 
     val showStatusBarState = rememberShowStatusBarState(statusBarMode)
     val timeTextState = rememberUpdatedState(timeText)
     val scrollInfoProviderState = rememberUpdatedState(scrollInfoProvider)
-    val viewState = rememberUpdatedState(LocalView.current)
 
-    scaffoldState?.screenContent?.UpdateIdlingDetectorIfNeeded()
+    scaffoldState.screenContent.UpdateIdlingDetectorIfNeeded()
 
     val screenIsActive = LocalScreenIsActive.current
     DisposableEffect(screenIsActive, scaffoldState) {
         if (screenIsActive) {
-            scaffoldState
-                ?.screenContent
-                ?.addScreen(
-                    key = key,
-                    view = viewState,
-                    timeText = timeTextState,
-                    scrollInfoProvider = scrollInfoProviderState,
-                    showStatusBar = showStatusBarState,
-                )
+            scaffoldState.screenContent.addScreen(
+                key = key,
+                view = viewState,
+                timeText = timeTextState,
+                scrollInfoProvider = scrollInfoProviderState,
+                showStatusBar = showStatusBarState,
+            )
         }
-        onDispose { scaffoldState?.screenContent?.removeScreen(key) }
+        onDispose { scaffoldState.screenContent.removeScreen(key) }
     }
 
     // Resolve the system status bar top inset boundaries.
@@ -1095,7 +1094,10 @@ public fun ScreenScaffold(
             }
         }
 
-    CompositionLocalProvider(LocalInheritedShowStatusBar provides showStatusBarState.value) {
+    CompositionLocalProvider(
+        LocalInheritedShowStatusBar provides showStatusBarState.value,
+        LocalScaffoldState provides scaffoldState,
+    ) {
         WrapWithOverscrollFactoryIfRequired(overscrollEffect) {
             Box(modifier.fillMaxSize()) {
                 Box(
@@ -1111,8 +1113,9 @@ public fun ScreenScaffold(
                 scrollInfoProvider?.let {
                     AnimatedIndicator(
                         isVisible = {
-                            (scaffoldState?.screenContent?.screenStage?.value ?: ScreenStage.New) !=
-                                ScreenStage.Idle && scrollInfoProvider.isScrollable
+                            ((scaffoldState.screenContent.screenStage.value != ScreenStage.Idle) ||
+                                scaffoldState.keepIndicatorVisible.value) &&
+                                scrollInfoProvider.isScrollable
                         },
                         modifier = Modifier.align(Alignment.CenterEnd),
                         content = scrollIndicator,
