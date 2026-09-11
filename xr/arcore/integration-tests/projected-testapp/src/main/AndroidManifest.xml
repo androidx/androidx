@@ -41,13 +41,6 @@
             android:requiredDisplayCategory="xr_projected">
         </activity>
         <activity
-            android:name=".ConfigProjectedGeospatialActivity"
-            android:configChanges="uiMode"
-            android:exported="true"
-            android:requiredDisplayCategory="xr_projected"
-            android:label="Projected Geospatial Dashboard">
-        </activity>
-        <activity
             android:name=".LowPowerGeospatialActivity"
             android:configChanges="uiMode"
             android:exported="true"
@@ -59,6 +52,20 @@
             android:configChanges="uiMode"
             android:exported="true"
             android:label="Modern UI Remote Sensor Geospatial">
+        </activity>
+        <activity
+            android:name=".tiltgesture.TiltGestureTrackingActivity"
+            android:configChanges="uiMode"
+            android:label="TiltGesture testcase"
+            android:exported="true"
+            android:requiredDisplayCategory="xr_projected">
+        </activity>
+        <activity
+            android:name=".ConfigProjectedGeospatialActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:requiredDisplayCategory="xr_projected"
+            android:label="Projected Geospatial Dashboard">
         </activity>
         <activity
             android:name=".ThreadingStressTestActivity"
@@ -74,13 +81,6 @@
             android:label="Threading Remote Stress Test">
         </activity>
         <activity
-            android:name=".tiltgesture.TiltGestureTrackingActivity"
-            android:configChanges="uiMode"
-            android:label="TiltGesture testcase"
-            android:exported="true"
-            android:requiredDisplayCategory="xr_projected">
-        </activity>
-        <activity
             android:name=".tiltgesture.TiltGestureHostActivity"
             android:configChanges="uiMode"
             android:exported="true"
@@ -93,6 +93,21 @@
             android:exported="true"
             android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
             android:label="TiltGesture Projected Activity"
+            android:requiredDisplayCategory="xr_projected">
+        </activity>
+        <activity
+            android:name=".tracking.TrackingHostActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
+            android:label="Tracking Test Host Activity">
+        </activity>
+        <activity
+            android:name=".tracking.TrackingProjectedActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
+            android:label="Tracking Projected Activity"
             android:requiredDisplayCategory="xr_projected">
         </activity>
         <activity
