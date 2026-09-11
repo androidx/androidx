@@ -38,6 +38,7 @@ dependencies {
     implementation("androidx.appsearch:appsearch-platform-storage:1.1.0")
     implementation(libs.guavaAndroid) // upgrading to newer version of guava due to CVE-2023-2976
     implementation(libs.kotlinCoroutinesGuava)
+    implementation("com.google.re2j:re2j:1.8")
     implementation("com.google.errorprone:error_prone_annotations:2.30.0")
     kapt("androidx.appsearch:appsearch-compiler:1.1.0")
 
