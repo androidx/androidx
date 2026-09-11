@@ -21,4 +21,10 @@
     <string name="error">Error</string>
     <string name="select_date">Select date</string>
     <string name="select_time">Select time</string>
+    <string name="choice_picker_placeholder_select_options">Select options</string>
+    <string name="choice_picker_placeholder_show_options">Show options</string>
+    <string name="choice_picker_placeholder_filter">Start typing to filter&#8230;</string>
+    <string name="choice_picker_no_matching_options">No matching options</string>
+    <string name="choice_picker_remove_option">Remove %1$s</string>
+    <string name="choice_picker_clear_search">Clear search filter</string>
 </resources>
