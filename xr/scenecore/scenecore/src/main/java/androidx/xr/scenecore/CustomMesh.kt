@@ -19,13 +19,15 @@ package androidx.xr.scenecore
 import android.annotation.SuppressLint
 import androidx.annotation.IntRange
 import androidx.annotation.MainThread
+import androidx.xr.runtime.RequiresSpatialApi
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.scenecore.runtime.CustomMeshResource as RtCustomMeshResource
 import java.nio.ByteBuffer
 
 /**
- * An immutable resource that defines the structure of a renderable mesh.
+ * A resource that defines the structure of a renderable mesh.
  *
  * A `CustomMesh` is composed of a [MeshBuffer] and a list of [MeshSubsets][MeshSubset]. Each
  * `MeshSubset` defines a part of the mesh that can be rendered with a single [Material].
@@ -46,10 +48,15 @@ private constructor(
 ) : AutoCloseable {
 
     /**
-     * The bounding box of the mesh, used for culling.
+     * Bounding box of the mesh, used for culling.
      *
      * It is an axis-aligned bounding box in the mesh's local coordinate space. It does not need to
      * be tightly fit to the mesh, but tighter bounds will result in more efficient culling.
+     *
+     * When the vertex positions are dynamically updated in the underlying [MeshBuffer], this
+     * culling volume is not automatically recalculated on the CPU to avoid expensive
+     * synchronization or active memory copies. Instead, the application can manually set this
+     * property to specify the updated bounds.
      *
      * The setter for this property must be called on the main thread.
      *
@@ -81,7 +88,7 @@ private constructor(
 
     public companion object {
         // Only 32-bit indices are currently supported.
-        private const val BYTES_PER_INDEX = 4
+        private const val BYTES_PER_INDEX = MeshBuffer.BYTES_PER_INDEX
 
         private fun getRtMeshSubsetTopology(topology: MeshSubsetTopology): Int =
             when (topology) {
@@ -201,14 +208,37 @@ private constructor(
     /**
      * Builder for [CustomMesh] providing raw data directly.
      *
-     * This will implicitly create a `MeshBuffer` for you. You provide the [VertexLayout] along with
-     * the raw vertex and index data:
+     * This builder implicitly creates an underlying [MeshBuffer] for you. It supports creating
+     * either a static (immutable) mesh or a dynamic mesh with fixed GPU capacities that can be
+     * updated at runtime.
+     *
+     * ### Static Mesh
+     * To create an immutable mesh, provide the [Session] and [VertexLayout], along with required
+     * initial vertex and index data:
      * <pre><code class="lang-kotlin">
      * val builder = CustomMesh.BuilderFromMeshData(session, myLayout)
      *     .addVertexData(myVertexData)
      *     .setIndexData(myIndexData)
      * </code></pre>
      *
+     * ### Dynamic Mesh
+     * To create a dynamic mesh supporting runtime updates, specify the maximum vertex and index
+     * capacities:
+     * <pre><code class="lang-kotlin">
+     * val builder = CustomMesh.BuilderFromMeshData(
+     *     session,
+     *     myLayout,
+     *     maxVertices = 100,
+     *     maxIndices = 300,
+     * )
+     * </code></pre>
+     *
+     * For dynamic meshes, initial vertex and index data are optional. Passing `null` or omitting
+     * initial data allocates zero-initialized GPU buffers up to the specified capacities. Vertex
+     * and index data can later be updated at runtime using [MeshBuffer.updateVertexData] and
+     * [MeshBuffer.updateIndexData] accessed via [CustomMesh.meshBuffer].
+     *
+     * ### Topology and Subsets
      * From here, you have two options for defining the mesh topology:
      * - You can explicitly add one or more subsets:
      *
@@ -217,28 +247,80 @@ private constructor(
      *   builder.addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, subset1Count, subset2Count))
      *   </code></pre>
      * - Or, if the entire mesh uses the same topology, you can define a single subset that spans
-     *   all the provided index data:
+     *   all the provided index data (or maximum capacity for dynamic meshes):
      *
      *   <pre><code class="lang-kotlin">
      *   builder.setTopology(MeshSubsetTopology.TRIANGLES)
      *   </code></pre>
+     *
+     * ### Bounds and Building
+     * For dynamic meshes, it is strongly recommended to set an explicit bounding box using
+     * [setBounds] that encompasses all possible deformed positions across the mesh's lifetime, as
+     * automatic bounds computation only considers initial vertex data.
      *
      * Finally, build the mesh:
      * <pre><code class="lang-kotlin">
      * val mesh = builder.build()
      * </code></pre>
      */
-    public class BuilderFromMeshData(
+    public class BuilderFromMeshData
+    private constructor(
         private val session: Session,
         private val vertexLayout: VertexLayout,
+        private val isDynamic: Boolean,
+        private val maxVertices: Int,
+        private val maxIndices: Int,
     ) {
-        private val vertexDataList = mutableListOf<ByteBufferRegion>()
+        private val vertexDataList = mutableListOf<ByteBufferRegion?>()
         private var indexData: ByteBufferRegion? = null
 
         private val subsets = mutableListOf<MeshSubset>()
+
         private var topology: MeshSubsetTopology? = null
 
         private var boundingBox: BoundingBox? = null
+
+        /**
+         * Creates a builder for an immutable, static [CustomMesh].
+         *
+         * @param session the [Session]
+         * @param vertexLayout vertex layout describing the format of vertex attributes
+         */
+        public constructor(
+            session: Session,
+            vertexLayout: VertexLayout,
+        ) : this(session, vertexLayout, isDynamic = false, maxVertices = 0, maxIndices = 0)
+
+        /**
+         * Creates a builder for a dynamic [CustomMesh] with fixed GPU buffer capacities.
+         *
+         * The [maxVertices] and [maxIndices] parameters define the fixed maximum capacity of the
+         * underlying GPU buffers. The allocated buffer cannot be resized after creation. Any
+         * runtime updates via [MeshBuffer.updateVertexData] or [MeshBuffer.updateIndexData] that
+         * exceed these capacities will throw an [IllegalArgumentException].
+         *
+         * @param session the [Session]
+         * @param vertexLayout vertex layout describing the format of vertex attributes
+         * @param maxVertices fixed maximum number of vertices this mesh buffer can hold
+         * @param maxIndices fixed maximum number of indices this mesh buffer can hold
+         * @throws IllegalArgumentException if [maxVertices] or [maxIndices] is not positive
+         */
+        @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
+        public constructor(
+            session: Session,
+            vertexLayout: VertexLayout,
+            @IntRange(from = 1) maxVertices: Int,
+            @IntRange(from = 1) maxIndices: Int,
+        ) : this(
+            session = session,
+            vertexLayout = vertexLayout,
+            isDynamic = true,
+            maxVertices = maxVertices,
+            maxIndices = maxIndices,
+        ) {
+            require(maxVertices > 0) { "maxVertices must be positive." }
+            require(maxIndices > 0) { "maxIndices must be positive." }
+        }
 
         /**
          * Adds vertex data for a single buffer.
@@ -247,9 +329,22 @@ private constructor(
          * provides data for buffer index 0, the second for buffer index 1, etc. The data is copied
          * during [build], so the original [ByteBuffer] can be modified or released after [build]
          * without affecting the underlying [MeshBuffer].
+         *
+         * When creating a dynamic mesh, initial vertex data is optional. Passing `null` allows
+         * skipping initial data for a specific buffer index in a multi-buffer layout while leaving
+         * that buffer zero-initialized. When creating a static mesh, passing `null` will throw an
+         * [IllegalArgumentException].
+         *
+         * @param vertexData initial vertex data for this buffer, or null if this buffer is dynamic
+         *   and should be allocated without initial data
+         * @return this builder instance
+         * @throws IllegalArgumentException if [vertexData] is null when creating a static mesh
          */
         @SuppressLint("MissingGetterMatchingBuilder")
-        public fun addVertexData(vertexData: ByteBufferRegion): BuilderFromMeshData = apply {
+        public fun addVertexData(vertexData: ByteBufferRegion?): BuilderFromMeshData = apply {
+            require(isDynamic || vertexData != null) {
+                "Null vertex data is only allowed when constructing a dynamic mesh."
+            }
             this.vertexDataList.add(vertexData)
         }
 
@@ -289,9 +384,21 @@ private constructor(
          *
          * The data is copied during [build], so the original [ByteBuffer] can be modified or
          * released after [build] without affecting the underlying [MeshBuffer].
+         *
+         * When creating a dynamic mesh, initial index data is optional. Passing `null` (or omitting
+         * this call entirely) allocates the index buffer with zero-initialized content. When
+         * creating a static mesh, passing `null` will throw an [IllegalArgumentException].
+         *
+         * @param indexData initial 32-bit index data, or null if the index buffer is dynamic and
+         *   should be allocated without initial data
+         * @return this builder instance
+         * @throws IllegalArgumentException if [indexData] is null when creating a static mesh
          */
         @SuppressLint("MissingGetterMatchingBuilder")
-        public fun setIndexData(indexData: ByteBufferRegion): BuilderFromMeshData = apply {
+        public fun setIndexData(indexData: ByteBufferRegion?): BuilderFromMeshData = apply {
+            require(isDynamic || indexData != null) {
+                "Null index data is only allowed when constructing a dynamic mesh."
+            }
             this.indexData = indexData
         }
 
@@ -384,17 +491,54 @@ private constructor(
         /**
          * Builds a new [CustomMesh].
          *
-         * @throws IllegalStateException if index data or vertex data are missing, or if both or
-         *   neither of subsets and topology are provided.
+         * @return a new [CustomMesh]
+         * @throws IllegalStateException if index data or vertex data are missing when constructing
+         *   a static mesh, or if initial dynamic data exceeds allocated capacities
          */
         @MainThread
         public fun build(): CustomMesh {
-            val indices = checkNotNull(indexData) { "Index data must be provided." }
-            check(vertexDataList.isNotEmpty()) {
-                "At least one vertex buffer data region must be provided."
+            val indices = indexData
+            if (!isDynamic) {
+                check(indices != null) { "Index data must be provided for static mesh." }
+                check(vertexDataList.isNotEmpty()) {
+                    "At least one vertex buffer data region must be provided."
+                }
+                check(vertexDataList.all { it != null }) {
+                    "Null vertex data is only allowed when constructing a dynamic mesh."
+                }
+            } else {
+                check(
+                    vertexDataList.indices.all { i ->
+                        val vertexData = vertexDataList[i]
+                        val bufferLayout = vertexLayout.buffers.getOrNull(i)
+                        vertexData == null ||
+                            bufferLayout == null ||
+                            vertexData.size <= maxVertices.toLong() * bufferLayout.byteStride
+                    }
+                ) {
+                    "Provided initial dynamic vertex data exceeds maxVertices."
+                }
+                if (indices != null) {
+                    check(indices.size <= maxIndices.toLong() * BYTES_PER_INDEX) {
+                        "Provided initial dynamic index data exceeds maxIndices."
+                    }
+                }
             }
 
-            val meshBuffer = MeshBuffer.create(session, vertexLayout, vertexDataList, indices)
+            val meshBuffer =
+                if (isDynamic) {
+                    MeshBuffer.createDynamic(
+                        session,
+                        vertexLayout,
+                        maxVertices,
+                        maxIndices,
+                        if (vertexDataList.isEmpty()) null else vertexDataList,
+                        indices,
+                    )
+                } else {
+                    val nonNullVertexData = vertexDataList.map { it!! }
+                    MeshBuffer.create(session, vertexLayout, nonNullVertexData, indices!!)
+                }
 
             val hasSubsets = subsets.isNotEmpty()
             val hasTopology = topology != null
@@ -407,7 +551,12 @@ private constructor(
                 if (hasSubsets) {
                     subsets.toList()
                 } else {
-                    val indexCount = indices.size / BYTES_PER_INDEX
+                    val indexCount =
+                        if (isDynamic) {
+                            maxIndices
+                        } else {
+                            indices!!.size / BYTES_PER_INDEX
+                        }
                     val singleTopology = checkNotNull(topology) { "Topology must be provided." }
                     listOf(MeshSubset(singleTopology, 0, indexCount))
                 }
