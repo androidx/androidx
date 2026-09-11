@@ -71,9 +71,11 @@ public fun SemanticsNodeInteraction.performClick(): SemanticsNodeInteraction {
  * This action should be performed on the [node][SemanticsNodeInteraction] that is part of the
  * scrollable content, not on the scrollable container.
  *
- * Throws an [AssertionError] if there is no scroll parent.
- *
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
+ * @throws AssertionError if there is no scroll parent, or if a scroll is needed but
+ *   [mainClock.autoAdvance][androidx.compose.ui.test.MainTestClock.autoAdvance] is set to `false`.
+ *   Compose scroll actions rely on clock frames to execute scroll animations, so scrolling cannot
+ *   make progress when clock auto-advancement is disabled.
  */
 public fun SemanticsNodeInteraction.performScrollTo(): SemanticsNodeInteraction {
     tryPerformAccessibilityChecks()
@@ -81,6 +83,14 @@ public fun SemanticsNodeInteraction.performScrollTo(): SemanticsNodeInteraction 
         val shouldContinueScroll =
             fetchSemanticsNode("Action performScrollTo() failed.")
                 .scrollToNode(testContext.testOwner)
+        if (shouldContinueScroll && !testContext.testOwner.mainClock.autoAdvance) {
+            throw AssertionError(
+                "Action performScrollTo() cannot scroll the node into view because " +
+                    "mainClock.autoAdvance is set to false. Compose scroll actions rely on " +
+                    "clock frames to execute animations. Enable autoAdvance to use " +
+                    "performScrollTo()."
+            )
+        }
     } while (shouldContinueScroll)
 
     return this
