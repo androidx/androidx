@@ -18,6 +18,7 @@ package androidx.compose.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalAccessorScope
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.State
@@ -34,6 +35,7 @@ import androidx.compose.ui.platform.LocalOwner
 import androidx.compose.ui.platform.computedDefaultOf
 import androidx.compose.ui.platform.noLocalProvidedFor
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.util.fastAny
 import kotlin.jvm.JvmInline
 
 /**
@@ -46,9 +48,9 @@ public interface UiMediaScope {
      * The current posture of the application window.
      *
      * This reflects how the window is laid out on the screen, which may be affected by the device's
-     * physical state. See [Posture] for possible values.
+     * physical state. See [WindowPosture] for possible values.
      */
-    public val windowPosture: Posture
+    public val windowPosture: WindowPosture
 
     /** The current width of the application window. */
     @get:FrequentlyChangingValue public val windowWidth: Dp
@@ -93,50 +95,134 @@ public interface UiMediaScope {
     public val viewingDistance: ViewingDistance
 
     /**
-     * Describes the posture of the window, typically on a foldable device.
+     * Represents a single physical fold or hinge intersecting the window.
      *
-     * This represents the arrangement of the window's display area in relation to physical features
-     * like hinges or folds.
+     * A [WindowFold] describes a geometric screen feature that actively crosses the bounds of the
+     * current window. It maps directly to the state of underlying hardware hinge sensors.
      *
-     * Note that this describes the window's state, which may differ from the physical device
-     * posture. For example, if the device is in a half-folded state but the app is in split-screen
-     * mode on a single panel, the window posture will be [Posture.Flat].
+     * @param state The geometric layout state of the fold (e.g. [FoldState.Flat] or
+     *   [FoldState.HalfOpened]).
+     * @param orientation The axis of the fold relative to the window bounds (e.g.
+     *   [FoldOrientation.Horizontal] or [FoldOrientation.Vertical]).
      */
+    @Immutable
+    @ExperimentalMediaQueryApi
+    public class WindowFold(public val state: FoldState, public val orientation: FoldOrientation) {
+        public override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is WindowFold) return false
+            return state == other.state && orientation == other.orientation
+        }
+
+        public override fun hashCode(): Int {
+            return state.value * 31 + orientation.value
+        }
+
+        public override fun toString(): String {
+            return "WindowFold(state=$state, orientation=$orientation)"
+        }
+    }
+
+    /**
+     * Represents the overall physical posture of the window, aggregating all underlying hardware
+     * folding features into a unified state.
+     *
+     * Note that this describes the *window's* state, which may differ from the physical device's
+     * posture. For example, if a foldable device is physically half-opened, but the current app is
+     * in split-screen mode entirely on one side of the hinge, the window is not intersected by the
+     * hinge and its posture will evaluate as [isFlat] == true.
+     *
+     * @param folds A list of all active [WindowFold] features intersecting the window.
+     */
+    @Immutable
+    @ExperimentalMediaQueryApi
+    public class WindowPosture(public val folds: List<WindowFold>) {
+        /**
+         * Whether the physical footprint of the window has no active bends disrupting its surface.
+         *
+         * This gracefully evaluates to `true` for traditional non-foldable slab devices, foldables
+         * that are completely opened to 180 degrees, and multi-window apps that do not span across
+         * a hinge.
+         */
+        public val isFlat: Boolean
+            get() = !folds.fastAny { it.state == FoldState.HalfOpened }
+
+        /**
+         * Whether the device is in a semi-open tabletop state, similar to a laptop.
+         *
+         * This evaluates to `true` if the window is intersected by at least one horizontal,
+         * half-opened hinge, logically splitting the horizontal display into top and bottom halves.
+         */
+        public val isTabletop: Boolean
+            get() = folds.fastAny {
+                it.state == FoldState.HalfOpened && it.orientation == FoldOrientation.Horizontal
+            }
+
+        public override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is WindowPosture) return false
+            return folds == other.folds
+        }
+
+        public override fun hashCode(): Int {
+            return folds.hashCode()
+        }
+
+        public override fun toString(): String {
+            return "WindowPosture(folds=$folds)"
+        }
+    }
+
+    /** Describes the layout fold state of the window, typically on a foldable device. */
     @JvmInline
     @ExperimentalMediaQueryApi
-    public value class Posture private constructor(private val value: Int) {
+    public value class FoldState internal constructor(internal val value: Int) {
         public override fun toString(): String =
             when (this) {
                 Flat -> "Flat"
-                Tabletop -> "Tabletop"
-                Book -> "Book"
+                HalfOpened -> "HalfOpened"
                 else -> "Unknown"
             }
 
         public companion object {
             /**
-             * Represents a flat posture, where the window's display area on a foldable device is
-             * flat (either fully open or closed). It's the default posture for non-foldable
-             * devices, or when the window does not span across a hinge or fold (such as in
-             * split-screen mode on a single panel).
+             * Represents a flat fold state, where the window's display area on a foldable device is
+             * flat (either fully open or closed). It's the default state for non-foldable devices,
+             * or when the window does not span across a hinge or fold (such as in split-screen mode
+             * on a single panel).
              */
-            public val Flat: Posture
-                get() = Posture(0)
+            public val Flat: FoldState = FoldState(0)
 
             /**
-             * Represents a device in a semi-open state, similar to a laptop. The window spans
-             * across a horizontal fold or hinge, splitting the display area into two logical parts.
+             * Represents a device in a semi-open state. The window spans across a hinge or fold,
+             * splitting the display area into two logical parts.
              */
-            public val Tabletop: Posture
-                get() = Posture(1)
+            public val HalfOpened: FoldState = FoldState(1)
+        }
+    }
 
-            /**
-             * Represents a device in a semi-open state, folded similarly to an open book. The
-             * window spans across a vertical fold or hinge, splitting the display area into two
-             * logical parts.
-             */
-            public val Book: Posture
-                get() = Posture(2)
+    /**
+     * Describes the hardware orientation of a physical folding hinge.
+     *
+     * This orientation is strictly relative to the bounds of the window, regardless of how the
+     * physical device is currently rotated in gravitational space.
+     */
+    @JvmInline
+    @ExperimentalMediaQueryApi
+    public value class FoldOrientation internal constructor(internal val value: Int) {
+        public override fun toString(): String =
+            when (this) {
+                Horizontal -> "Horizontal"
+                Vertical -> "Vertical"
+                else -> "Unknown"
+            }
+
+        public companion object {
+            /** Represents a horizontal hinge or fold. */
+            public val Horizontal: FoldOrientation = FoldOrientation(0)
+
+            /** Represents a vertical hinge or fold. */
+            public val Vertical: FoldOrientation = FoldOrientation(1)
         }
     }
 

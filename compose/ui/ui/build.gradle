@@ -176,6 +176,7 @@ androidXMultiplatform {
             implementation(project(":compose:ui:ui-test-junit4"))
             implementation(project(":internal-testutils-fonts"))
             implementation(project(":compose:test-utils"))
+            implementation(project(":window:window-testing"))
         }
     }
 }

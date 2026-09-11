@@ -30,10 +30,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalMediaQueryApi
 import androidx.compose.ui.UiMediaScope
+import androidx.compose.ui.UiMediaScope.FoldOrientation
+import androidx.compose.ui.UiMediaScope.FoldState
 import androidx.compose.ui.UiMediaScope.KeyboardKind
 import androidx.compose.ui.UiMediaScope.PointerPrecision
-import androidx.compose.ui.UiMediaScope.Posture
 import androidx.compose.ui.UiMediaScope.ViewingDistance
+import androidx.compose.ui.UiMediaScope.WindowFold
+import androidx.compose.ui.UiMediaScope.WindowPosture
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.core.view.WindowInsetsCompat
@@ -49,7 +52,7 @@ internal class UiMediaScopeImpl(
 ) : UiMediaScope {
     private val packageManager = context.packageManager
     var _windowInfo by mutableStateOf(windowInfo)
-    var _windowPosture by mutableStateOf(Posture.Flat)
+    var _windowPosture by mutableStateOf(WindowPosture(emptyList()))
     var _anyPointer by mutableStateOf(resolvePointerPrecision(inputManager))
     var isDocked by mutableStateOf(false)
     var isImeVisible by mutableStateOf(imeVisibility)
@@ -69,7 +72,7 @@ internal class UiMediaScopeImpl(
     override val windowHeight: Dp
         get() = _windowInfo.containerDpSize.height
 
-    override val windowPosture: Posture
+    override val windowPosture: WindowPosture
         get() = _windowPosture
 
     override val pointerPrecision: PointerPrecision
@@ -92,22 +95,33 @@ internal class UiMediaScopeImpl(
             }
 }
 
-/** Resolves the device [Posture] from the given [WindowLayoutInfo]. */
-internal fun resolvePosture(layoutInfo: WindowLayoutInfo): Posture {
-    @Suppress("ListIterator")
-    val fold =
-        layoutInfo.displayFeatures.filterIsInstance<FoldingFeature>().firstOrNull {
-            it.state == FoldingFeature.State.HALF_OPENED
-        } ?: return Posture.Flat
+/** Resolves the device [WindowPosture] from the given [WindowLayoutInfo]. */
+internal fun resolvePosture(layoutInfo: WindowLayoutInfo?): WindowPosture {
+    if (layoutInfo == null || layoutInfo.displayFeatures.isEmpty())
+        return WindowPosture(emptyList())
 
-    return if (fold.orientation == FoldingFeature.Orientation.HORIZONTAL) {
-        Posture.Tabletop
-    } else {
-        Posture.Book
+    val features = layoutInfo.displayFeatures
+    val folds = ArrayList<WindowFold>(features.size)
+    for (i in features.indices) {
+        val feature = features[i]
+        if (feature is FoldingFeature) {
+            val foldState =
+                when (feature.state) {
+                    FoldingFeature.State.HALF_OPENED -> FoldState.HalfOpened
+                    else -> FoldState.Flat
+                }
+            val orientation =
+                when (feature.orientation) {
+                    FoldingFeature.Orientation.HORIZONTAL -> FoldOrientation.Horizontal
+                    else -> FoldOrientation.Vertical
+                }
+            folds.add(WindowFold(foldState, orientation))
+        }
     }
+
+    return WindowPosture(folds)
 }
 
-/** Checks if a physical, alphabetic keyboard is currently connected to the device. */
 internal fun hasPhysicalKeyboard(inputManager: InputManager?): Boolean {
     if (inputManager == null) return false
 
