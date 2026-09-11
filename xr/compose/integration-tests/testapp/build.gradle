@@ -96,6 +96,7 @@ dependencies {
     androidTestImplementation(project(":xr:testutils"))
 
     // Recommended project dependencies for tests to fix AOSP presubmit
+    androidTestImplementation(project(":compose:animation:animation-core"))
     androidTestImplementation(project(":compose:runtime:runtime-annotation"))
     androidTestImplementation(project(":compose:runtime:runtime-saveable"))
     androidTestImplementation(project(":compose:runtime:runtime"))
