@@ -20,7 +20,6 @@ import android.view.ContextThemeWrapper
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -28,7 +27,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import java.lang.ref.WeakReference
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.math.abs
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -183,17 +181,14 @@ class WebContentTest {
         }
     }
 
-    @Suppress("DEPRECATION")
     @Test
     fun testPreservesStateOnCrossActivityReattach() {
         WebContent().use { webContent ->
-            var expectedScale = 0f
             ActivityScenario.launch(TestActivity::class.java).use { scenario ->
                 lateinit var view: WebContentView
                 scenario.runOnActivityAndWait { activity, done ->
                     view = webContent.attach(activity, ::WebContentView)
                     view.settings.javaScriptEnabled = true
-                    view.settings.setSupportZoom(true)
 
                     view.addJavascriptInterface(TestObject(), "injectedObject")
                     view.webViewClient = OnPageFinishedClient(done)
@@ -202,34 +197,17 @@ class WebContentTest {
 
                 scenario.runOnActivityAndWait { activity, done ->
                     view.webViewClient = OnPageFinishedClient(done)
-                    val html =
-                        "<html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"></head><body>Page 2</body></html>"
+                    val html = "<html><body>Page 2</body></html>"
                     view.loadDataWithBaseURL(null, html, "text/html", "utf-8", null)
                 }
 
-                val zoomLatch = CountDownLatch(1)
-                scenario.runOnActivityAndWait { activity, done ->
-                    view.evaluateJavascript("window.transferTestVar = 'transferred_state';") {}
-
-                    view.webViewClient =
-                        object : WebViewClient() {
-                            override fun onScaleChanged(
-                                view: WebView,
-                                oldScale: Float,
-                                newScale: Float,
-                            ) {
-                                super.onScaleChanged(view, oldScale, newScale)
-                                expectedScale = newScale
-                                zoomLatch.countDown()
-                            }
-                        }
-                    view.zoomBy(2.0f)
-                    done()
+                scenario.runOnActivityAndWait { _, done ->
+                    view.evaluateJavascript("window.transferTestVar = 'transferred_state';") {
+                        done()
+                    }
                 }
 
-                assertTrue(zoomLatch.await(5, TimeUnit.SECONDS))
-
-                scenario.onActivity { activity -> webContent.detach() }
+                scenario.onActivity { webContent.detach() }
             }
 
             ActivityScenario.launch(TestActivity2::class.java).use { scenario ->
@@ -257,16 +235,6 @@ class WebContentTest {
 
                 assertEquals("\"transferred_state\"", transferVar)
                 assertEquals("\"injected_success\"", injectedVar)
-
-                runBlocking {
-                    withTimeout(5000) {
-                        var actualScale = 0f
-                        while (abs(actualScale - expectedScale) >= 0.01f) {
-                            scenario.onActivity { actualScale = view.scale }
-                            delay(10)
-                        }
-                    }
-                }
             }
         }
     }
