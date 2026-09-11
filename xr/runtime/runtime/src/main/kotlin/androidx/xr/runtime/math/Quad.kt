@@ -70,7 +70,7 @@ private constructor(
          * @throws IllegalArgumentException if any of the provided coordinates contain a NaN float.
          */
         @JvmStatic
-        public fun createFromCorners(
+        public fun fromCorners(
             upperLeft: Vector2,
             upperRight: Vector2,
             lowerRight: Vector2,
@@ -101,7 +101,7 @@ private constructor(
          *   are greater than their respective max bounding coordinates.
          */
         @JvmStatic
-        public fun createAxisAligned(min: Vector2, max: Vector2): Quad {
+        public fun fromMinMax(min: Vector2, max: Vector2): Quad {
             require(!min.x.isNaN() && !min.y.isNaN()) {
                 "Quad min coordinates must not contain NaN"
             }
@@ -111,7 +111,7 @@ private constructor(
             require(min.x <= max.x && min.y <= max.y) {
                 "Quad min coordinates must be less than or equal to max coordinates"
             }
-            return createFromCorners(
+            return fromCorners(
                 upperLeft = Vector2(min.x, min.y),
                 upperRight = Vector2(max.x, min.y),
                 lowerRight = Vector2(max.x, max.y),

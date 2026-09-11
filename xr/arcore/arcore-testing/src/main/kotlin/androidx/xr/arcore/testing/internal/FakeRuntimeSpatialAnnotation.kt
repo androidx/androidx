@@ -36,7 +36,7 @@ internal class FakeRuntimeSpatialAnnotation(
     override var alignment: SpatialAnnotationQuadAlignment? = null,
     override var centerPose: Pose = Pose(),
     override var quad: Quad? =
-        Quad.createFromCorners(
+        Quad.fromCorners(
             upperLeft = Vector2.Zero,
             upperRight = Vector2.Right,
             lowerRight = Vector2.One,
