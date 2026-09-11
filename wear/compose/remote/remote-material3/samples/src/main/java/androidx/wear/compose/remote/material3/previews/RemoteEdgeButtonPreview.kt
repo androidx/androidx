@@ -60,6 +60,23 @@ private fun RemoteEdgeButtonExtraSmallPreview(
 
 @Composable
 @RemoteComposable
+fun RemoteEdgeButtonExtraSmallLongText() {
+    RemoteEdgeButton(onClick = testAction, buttonSize = RemoteEdgeButtonSize.ExtraSmall) {
+        RemoteText(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ".rs +
+                "sed do eiusmod tempor incididunt ut labore et dolore.".rs
+        )
+    }
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteEdgeButtonExtraSmallLongTextPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteEdgeButtonExtraSmallLongText() } }
+
+@Composable
+@RemoteComposable
 fun RemoteEdgeButtonSmall() {
     RemoteEdgeButton(onClick = testAction, buttonSize = RemoteEdgeButtonSize.Small) {
         RemoteText("Small".rs)
@@ -71,6 +88,23 @@ fun RemoteEdgeButtonSmall() {
 private fun RemoteEdgeButtonSmallPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
 ) = RemoteContentPreview(profile = profile) { Container { RemoteEdgeButtonSmall() } }
+
+@Composable
+@RemoteComposable
+fun RemoteEdgeButtonSmallLongText() {
+    RemoteEdgeButton(onClick = testAction, buttonSize = RemoteEdgeButtonSize.Small) {
+        RemoteText(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ".rs +
+                "sed do eiusmod tempor incididunt ut labore et dolore.".rs
+        )
+    }
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteEdgeButtonSmallLongTextPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteEdgeButtonSmallLongText() } }
 
 @Composable
 @RemoteComposable
@@ -88,6 +122,23 @@ private fun RemoteEdgeButtonMediumPreview(
 
 @Composable
 @RemoteComposable
+fun RemoteEdgeButtonMediumLongText() {
+    RemoteEdgeButton(onClick = testAction, buttonSize = RemoteEdgeButtonSize.Medium) {
+        RemoteText(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ".rs +
+                "sed do eiusmod tempor incididunt ut labore et dolore.".rs
+        )
+    }
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteEdgeButtonMediumLongTextPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteEdgeButtonMediumLongText() } }
+
+@Composable
+@RemoteComposable
 fun RemoteEdgeButtonLarge() {
     RemoteEdgeButton(onClick = testAction, buttonSize = RemoteEdgeButtonSize.Large) {
         RemoteText("Longer multi-line\nshort text".rs)
@@ -99,6 +150,23 @@ fun RemoteEdgeButtonLarge() {
 private fun RemoteEdgeButtonLargePreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
 ) = RemoteContentPreview(profile = profile) { Container { RemoteEdgeButtonLarge() } }
+
+@Composable
+@RemoteComposable
+fun RemoteEdgeButtonLargeLongText() {
+    RemoteEdgeButton(onClick = testAction, buttonSize = RemoteEdgeButtonSize.Large) {
+        RemoteText(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, ".rs +
+                "sed do eiusmod tempor incididunt ut labore et dolore.".rs
+        )
+    }
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteEdgeButtonLargeLongTextPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteEdgeButtonLargeLongText() } }
 
 @Composable
 @RemoteComposable

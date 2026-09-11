@@ -23,7 +23,6 @@ import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.ui.geometry.Size
@@ -34,16 +33,21 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonDisabled
 import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonExtraSmall
+import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonExtraSmallLongText
 import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonFilledTonal
 import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonFilledVariant
 import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonLarge
+import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonLargeLongText
 import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonMedium
+import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonMediumLongText
 import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonOutlined
 import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonSmall
+import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonSmallLongText
 import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonWithBorder
 import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonWithIcon
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.wear.compose.remote.material3.util.TestProfiles
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,7 +71,7 @@ class RemoteEdgeButtonTest {
     @Test
     fun edge_button_extra_small() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteEdgeButtonExtraSmall() }
@@ -75,9 +79,19 @@ class RemoteEdgeButtonTest {
     }
 
     @Test
+    fun edge_button_extra_small_long_text() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteEdgeButtonExtraSmallLongText() }
+        }
+    }
+
+    @Test
     fun edge_button_small() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteEdgeButtonSmall() }
@@ -85,9 +99,19 @@ class RemoteEdgeButtonTest {
     }
 
     @Test
+    fun edge_button_small_long_text() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteEdgeButtonSmallLongText() }
+        }
+    }
+
+    @Test
     fun edge_button_medium() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteEdgeButtonMedium() }
@@ -95,9 +119,19 @@ class RemoteEdgeButtonTest {
     }
 
     @Test
+    fun edge_button_medium_long_text() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteEdgeButtonMediumLongText() }
+        }
+    }
+
+    @Test
     fun edge_button_large() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteEdgeButtonLarge() }
@@ -105,9 +139,19 @@ class RemoteEdgeButtonTest {
     }
 
     @Test
+    fun edge_button_large_long_text() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteEdgeButtonLargeLongText() }
+        }
+    }
+
+    @Test
     fun edge_button_filled_tonal() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteEdgeButtonFilledTonal() }
@@ -117,7 +161,7 @@ class RemoteEdgeButtonTest {
     @Test
     fun edge_button_filled_variant() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteEdgeButtonFilledVariant() }
@@ -127,7 +171,7 @@ class RemoteEdgeButtonTest {
     @Test
     fun edge_button_outlined() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteEdgeButtonOutlined() }
@@ -137,7 +181,7 @@ class RemoteEdgeButtonTest {
     @Test
     fun edge_button_with_border() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteEdgeButtonWithBorder() }
@@ -147,7 +191,7 @@ class RemoteEdgeButtonTest {
     @Test
     fun edge_button_disabled() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteEdgeButtonDisabled() }
@@ -157,7 +201,7 @@ class RemoteEdgeButtonTest {
     @Test
     fun edge_button_with_icon() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteEdgeButtonWithIcon() }
@@ -167,7 +211,7 @@ class RemoteEdgeButtonTest {
     @Test
     fun edge_button_rtl() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
             creationComposableWrapper = ComposableWrappers.rtl,
         ) {
@@ -184,7 +228,7 @@ class RemoteEdgeButtonTest {
             put("WearM3.onSurface", Color(0xFFE2E3DC).toArgb())
         }
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
             update = { player ->
                 colorOverrides.forEach { name, colorInt ->
