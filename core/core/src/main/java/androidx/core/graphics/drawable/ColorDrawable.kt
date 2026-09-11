@@ -18,7 +18,6 @@
 @file:Suppress(
     "FacadeClassJvmName",
     "NOTHING_TO_INLINE",
-    "WRONG_ANNOTATION_TARGET_WITH_USE_SITE_TARGET_ON_TYPE",
 )
 
 package androidx.core.graphics.drawable
