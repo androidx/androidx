@@ -24,7 +24,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.a2ui.MaterialA2uiDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -41,7 +41,7 @@ internal object MaterialA2uiBasicCatalogV1Card : A2uiBasicCatalogV1.Card {
     ) {
         val childState = observeA2uiComponentState(childId)
 
-        Card(modifier = modifier.a2uiAccessibility(accessibility)) {
+        OutlinedCard(modifier = modifier.a2uiAccessibility(accessibility)) {
             AnimatedContent(
                 targetState = childState,
                 transitionSpec = MaterialA2uiDefaults.transitionSpec(),

@@ -22,7 +22,6 @@ import androidx.a2ui.compose.ui.A2uiComponent
 import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
@@ -182,5 +181,4 @@ internal object MaterialA2uiBasicCatalogV1Button : A2uiBasicCatalogV1.Button {
     }
 }
 
-private val DefaultButtonModifier: Modifier =
-    Modifier.padding(vertical = 8.dp).defaultMinSize(minHeight = 48.dp)
+private val DefaultButtonModifier: Modifier = Modifier.padding(vertical = 4.dp)
