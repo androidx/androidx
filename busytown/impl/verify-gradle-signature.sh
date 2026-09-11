@@ -67,9 +67,9 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# 2. Write the Hardcoded ASCII Key to a temp file
-# Key is taken from https://gradle.org/keys/
-cat << 'EOF' > "$WORK_DIR/gradle-key.asc"
+# 2. Write the Hardcoded ASCII Keys to a temp file
+# Keys taken from https://gradle.org/keys/
+cat << 'EOF' > "$WORK_DIR/gradle-keys.asc"
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 
 xsFNBGOtCzoBEAC7hGOPLFnfvQKzCZpJb3QYq8X9OiUL4tVa5mG0lDTeBBiuQCDy
@@ -122,15 +122,83 @@ SRv3NcygIVkxsMTzdOoTDp+GohoM6VJyW45xIbEHtyy9byCtvLIhOOSXXIN3TZz8
 f7TkwC6aybc=
 =AdlS
 -----END PGP PUBLIC KEY BLOCK-----
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+=V8Ww
+-----END PGP PUBLIC KEY BLOCK-----
 EOF
 
-# 3. Manual De-armor (Convert ASCII to Binary)
-# Logic: Skip headers, stop at checksum, decode body.
-awk '/^$/{body=1; next} /^=/{body=0; exit} body {print}' "$WORK_DIR/gradle-key.asc" | \
-base64 -d > "$WORK_DIR/keyring.gpg" 2>/dev/null
+# 3. Manual De-armor (Convert multiple ASCII key blocks to Binary)
+# Logic: Extract each Base64 payload block between headers and checksum lines, then decode into keyring.gpg
+awk '
+    /-----BEGIN PGP PUBLIC KEY BLOCK-----/ { in_block=1; past_headers=0; next }
+    /-----END PGP PUBLIC KEY BLOCK-----/   { in_block=0; next }
+    in_block && !past_headers && /^$/      { past_headers=1; next }
+    in_block && past_headers && /^=/       { past_headers=0; next }
+    in_block && past_headers               { print }
+' "$WORK_DIR/gradle-keys.asc" | base64 -d > "$WORK_DIR/keyring.gpg" 2>/dev/null
 
 if [ $? -ne 0 ] || [ ! -s "$WORK_DIR/keyring.gpg" ]; then
-    echo "Error: Failed to convert public key to binary format."
+    echo "Error: Failed to convert public keys to binary format."
     exit 1
 fi
 
