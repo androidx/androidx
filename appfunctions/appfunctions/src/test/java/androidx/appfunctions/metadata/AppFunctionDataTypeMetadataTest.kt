@@ -683,4 +683,30 @@ class AppFunctionDataTypeMetadataTest {
             .isEqualTo(AppFunctionBooleanTypeMetadata(true))
         assertThat(pseudoObject.required).containsExactly("booleanValue", "intValue")
     }
+
+    @Test
+    fun appFunctionStringTypeMetadata_compiledPattern_compilesValidPattern() {
+        val stringTypeMetadata =
+            AppFunctionStringTypeMetadata(
+                isNullable = false,
+                pattern = "^(content|file):.*",
+            )
+
+        val pattern = stringTypeMetadata.compiledPattern
+        assertThat(pattern).isNotNull()
+        assertThat(pattern!!.matcher("content://media/1").matches()).isTrue()
+        assertThat(pattern.matcher("file:///sdcard/doc.pdf").matches()).isTrue()
+        assertThat(pattern.matcher("https://example.com").matches()).isFalse()
+    }
+
+    @Test
+    fun appFunctionStringTypeMetadata_compiledPattern_invalidPatternReturnsNull() {
+        val stringTypeMetadata =
+            AppFunctionStringTypeMetadata(
+                isNullable = false,
+                pattern = "[invalid_pattern",
+            )
+
+        assertThat(stringTypeMetadata.compiledPattern).isNull()
+    }
 }

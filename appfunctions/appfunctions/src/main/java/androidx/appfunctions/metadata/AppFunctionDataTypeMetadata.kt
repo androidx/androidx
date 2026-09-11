@@ -23,8 +23,9 @@ import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appsearch.annotation.Document
+import com.google.re2j.Pattern
+import com.google.re2j.PatternSyntaxException
 import java.util.Objects
-import java.util.regex.PatternSyntaxException
 
 @IntDef(
     AppFunctionDataTypeMetadata.TYPE_UNIT,
@@ -1257,9 +1258,9 @@ constructor(
         }
     }
 
-    internal val compiledPattern: Regex? by lazy {
+    internal val compiledPattern: Pattern? by lazy {
         try {
-            pattern?.toRegex()
+            pattern?.let { Pattern.compile(it) }
         } catch (e: PatternSyntaxException) {
             Log.w(
                 APP_FUNCTIONS_TAG,
