@@ -24,6 +24,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,12 +33,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,6 +55,8 @@ import androidx.compose.ui.unit.sp
 import androidx.xr.arcore.projected.testapp.tiltgesture.TiltGestureHostActivity
 import androidx.xr.arcore.projected.testapp.tiltgesture.TiltGestureProjectedActivity
 import androidx.xr.arcore.projected.testapp.tiltgesture.TiltGestureTrackingActivity
+import androidx.xr.arcore.projected.testapp.tracking.TrackingHostActivity
+import androidx.xr.arcore.projected.testapp.tracking.TrackingProjectedActivity
 import androidx.xr.projected.ProjectedContext
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
 
@@ -67,7 +78,9 @@ class MainActivity : ComponentActivity() {
                 if (
                     activity != this@MainActivity &&
                         activity !is TiltGestureProjectedActivity &&
-                        activity !is TiltGestureHostActivity
+                        activity !is TiltGestureHostActivity &&
+                        activity !is TrackingProjectedActivity &&
+                        activity !is TrackingHostActivity
                 ) {
                     activeProjectedActivities.add(activity)
                 }
@@ -108,7 +121,19 @@ class MainActivity : ComponentActivity() {
                         ) {
                             HorizontalDivider(color = Color.Gray)
                             TestActivityRow(
-                                "Inertial Tracking test",
+                                "(New!) Tracking Test",
+                                TrackingHostActivity::class.java,
+                                isProjected = false,
+                                this@MainActivity,
+                            )
+                            TestActivityRow(
+                                "(New!) TiltGesture Test",
+                                TiltGestureHostActivity::class.java,
+                                isProjected = false,
+                                this@MainActivity,
+                            )
+                            TestActivityRow(
+                                "(Deprecated) Inertial Tracking test",
                                 InertialTrackingActivity::class.java,
                                 isProjected = true,
                                 this@MainActivity,
@@ -120,57 +145,30 @@ class MainActivity : ComponentActivity() {
                                 this@MainActivity,
                             )
                             TestActivityRow(
-                                "(New!) TiltGesture Test",
-                                TiltGestureHostActivity::class.java,
-                                isProjected = false,
-                                this@MainActivity,
-                            )
-                            TestActivityRow(
-                                "Geospatial/Tracking Test",
+                                "(Deprecated) Geospatial/Tracking Test",
                                 GeospatialProjectedActivity::class.java,
                                 isProjected = true,
                                 this@MainActivity,
                             )
                             TestActivityRow(
-                                "Geospatial/Tracking Remote",
+                                "(Deprecated) Geospatial/Tracking Remote",
                                 GeospatialRemoteSensorActivity::class.java,
                                 isProjected = false,
                                 this@MainActivity,
                             )
                             TestActivityRow(
-                                "Low Power Geospatial Test",
+                                "(Deprecated) Low Power Geospatial Test",
                                 LowPowerGeospatialActivity::class.java,
                                 isProjected = true,
                                 this@MainActivity,
                             )
                             TestActivityRow(
-                                "Low Power Geospatial Remote",
+                                "(Deprecated) Low Power Geospatial Remote",
                                 LowPowerRemoteSensorGeospatialActivity::class.java,
                                 isProjected = false,
                                 this@MainActivity,
                             )
-                            TestActivityRow(
-                                "Threading Stress Test",
-                                ThreadingStressTestActivity::class.java,
-                                isProjected = true,
-                                this@MainActivity,
-                            )
-                            TestActivityRow(
-                                "Threading Stress Remote",
-                                ThreadingRemoteSensorStressTestActivity::class.java,
-                                isProjected = false,
-                                this@MainActivity,
-                            )
-                            GeospatialActivityRow(
-                                "Config Projected: INERTIAL",
-                                "INERTIAL",
-                                this@MainActivity,
-                            )
-                            GeospatialActivityRow(
-                                "Config Projected: SPATIAL",
-                                "SPATIAL",
-                                this@MainActivity,
-                            )
+                            OtherTestsSection(this@MainActivity)
                         }
                     }
                 }
@@ -206,7 +204,11 @@ class MainActivity : ComponentActivity() {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(name, fontSize = 18.sp)
+            Text(
+                name,
+                modifier = Modifier.weight(1f).padding(end = 8.dp),
+                fontSize = 18.sp,
+            )
             Button(
                 onClick = {
                     activeProjectedActivities.toList().forEach { it.finish() }
@@ -253,7 +255,11 @@ class MainActivity : ComponentActivity() {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(name, fontSize = 18.sp)
+            Text(
+                name,
+                modifier = Modifier.weight(1f).padding(end = 8.dp),
+                fontSize = 18.sp,
+            )
             Button(
                 onClick = {
                     activeProjectedActivities.toList().forEach { it.finish() }
@@ -282,5 +288,57 @@ class MainActivity : ComponentActivity() {
             }
         }
         HorizontalDivider(color = Color.Gray)
+    }
+
+    @Composable
+    private fun OtherTestsSection(context: Context) {
+        var isExpanded by remember { mutableStateOf(false) }
+
+        Row(
+            modifier =
+                Modifier.fillMaxWidth()
+                    .clickable { isExpanded = !isExpanded }
+                    .padding(vertical = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                "Other Tests",
+                modifier = Modifier.weight(1f).padding(end = 8.dp),
+                fontSize = 18.sp,
+            )
+            Icon(
+                imageVector =
+                    if (isExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                contentDescription =
+                    if (isExpanded) "Collapse Other Tests" else "Expand Other Tests",
+            )
+        }
+        HorizontalDivider(color = Color.Gray)
+
+        if (isExpanded) {
+            TestActivityRow(
+                "Threading Stress Test",
+                ThreadingStressTestActivity::class.java,
+                isProjected = true,
+                context,
+            )
+            TestActivityRow(
+                "Threading Stress Remote",
+                ThreadingRemoteSensorStressTestActivity::class.java,
+                isProjected = false,
+                context,
+            )
+            GeospatialActivityRow(
+                "Config Projected: INERTIAL",
+                "INERTIAL",
+                context,
+            )
+            GeospatialActivityRow(
+                "Config Projected: SPATIAL",
+                "SPATIAL",
+                context,
+            )
+        }
     }
 }
