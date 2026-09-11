@@ -39,7 +39,9 @@ import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasurePool;
 import androidx.compose.remote.core.operations.layout.measure.Measurable;
 import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
+import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers;
 import androidx.compose.remote.core.operations.layout.modifiers.LayoutComputeOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.serialize.MapSerializer;
@@ -114,6 +116,54 @@ public class Component extends PaintOperation
     @NonNull
     public ArrayList<Operation> getList() {
         return mList;
+    }
+
+    /**
+     * Returns true if this component has horizontal scroll enabled.
+     *
+     * @return true if horizontal scroll is enabled
+     */
+    public boolean hasHorizontalScroll() {
+        for (Operation op : mList) {
+            if (op instanceof ScrollModifierOperation) {
+                if (((ScrollModifierOperation) op).isHorizontalScroll()) {
+                    return true;
+                }
+            } else if (op instanceof ComponentModifiers) {
+                if (((ComponentModifiers) op).hasHorizontalScroll()) {
+                    return true;
+                }
+            } else if (op instanceof Component) {
+                if (((Component) op).hasHorizontalScroll()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if this component has vertical scroll enabled.
+     *
+     * @return true if vertical scroll is enabled
+     */
+    public boolean hasVerticalScroll() {
+        for (Operation op : mList) {
+            if (op instanceof ScrollModifierOperation) {
+                if (((ScrollModifierOperation) op).isVerticalScroll()) {
+                    return true;
+                }
+            } else if (op instanceof ComponentModifiers) {
+                if (((ComponentModifiers) op).hasVerticalScroll()) {
+                    return true;
+                }
+            } else if (op instanceof Component) {
+                if (((Component) op).hasVerticalScroll()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public float getX() {

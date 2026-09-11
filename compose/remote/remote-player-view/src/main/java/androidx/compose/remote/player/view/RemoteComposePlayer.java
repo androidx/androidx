@@ -74,6 +74,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -533,6 +534,53 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
         RemoteComposeTouchHelper.REGISTRAR.onFocusChanged(
                 this, gainFocus, direction, previouslyFocusedRect);
+    }
+
+    @Override
+    public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        super.requestDisallowInterceptTouchEvent(disallowIntercept);
+        if (!disallowIntercept) {
+            ViewParent parent = getParent();
+            ViewParent scrollingAncestor = null;
+            while (parent != null) {
+                if (isScrollingAncestor(parent)) {
+                    scrollingAncestor = parent;
+                    break;
+                }
+                parent = parent.getParent();
+            }
+            if (scrollingAncestor != null && scrollingAncestor.getParent() != null) {
+                scrollingAncestor.getParent().requestDisallowInterceptTouchEvent(true);
+            }
+        }
+    }
+
+    private static boolean isScrollingAncestor(@NonNull ViewParent parent) {
+        if (parent instanceof View) {
+            View view = (View) parent;
+            return view.canScrollHorizontally(1)
+                    || view.canScrollHorizontally(-1)
+                    || view.canScrollVertically(1)
+                    || view.canScrollVertically(-1);
+        }
+        return false;
+    }
+
+    @Override
+    public void addFocusables(
+            @NonNull ArrayList<View> views, int direction, int focusableMode) {
+        final int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            final View child = getChildAt(i);
+            if (child.getVisibility() == VISIBLE) {
+                child.addFocusables(views, direction, focusableMode);
+            }
+        }
+    }
+
+    @Override
+    public boolean requestFocus(int direction, @Nullable Rect previouslyFocusedRect) {
+        return onRequestFocusInDescendants(direction, previouslyFocusedRect);
     }
 
     /**

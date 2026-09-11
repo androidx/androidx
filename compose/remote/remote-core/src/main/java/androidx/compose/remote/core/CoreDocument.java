@@ -1878,6 +1878,46 @@ public class CoreDocument implements Serializable {
         return !mAppliedTouchOperations.isEmpty() || !mTouchListeners.isEmpty();
     }
 
+    /**
+     * Returns true if any active applied touch operation can consume horizontal drag.
+     *
+     * @return true if horizontal scrolling or drag is supported
+     */
+    public boolean canScrollHorizontally() {
+        if (!mTouchListeners.isEmpty()) {
+            return true;
+        }
+        for (Component component : mAppliedTouchOperations) {
+            if (component.hasHorizontalScroll()) {
+                return true;
+            }
+            if (!component.hasVerticalScroll()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if any active applied touch operation can consume vertical drag.
+     *
+     * @return true if vertical scrolling or drag is supported
+     */
+    public boolean canScrollVertically() {
+        if (!mTouchListeners.isEmpty()) {
+            return true;
+        }
+        for (Component component : mAppliedTouchOperations) {
+            if (component.hasVerticalScroll()) {
+                return true;
+            }
+            if (!component.hasHorizontalScroll()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // TODO support velocity estimate support, support regions
 
     /**

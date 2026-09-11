@@ -913,14 +913,28 @@ public class RemoteComposeView extends FrameLayout
 
                 case MotionEvent.ACTION_MOVE:
                     mLimiter.touchBoost();
+                    float dx = x - mDownX;
+                    float dy = y - mDownY;
                     if (!mHasMoved) {
-                        float dx = x - mDownX;
-                        float dy = y - mDownY;
                         if (dx * dx + dy * dy > mTouchSlop * mTouchSlop) {
                             mHasMoved = true;
                         }
                     }
                     if (mInActionDown) {
+                        if (mHasMoved) {
+                            boolean isHorizontalDrag = Math.abs(dx) > Math.abs(dy);
+                            boolean isVerticalDrag = Math.abs(dy) > Math.abs(dx);
+
+                            if (isHorizontalDrag && doc.canScrollHorizontally()) {
+                                requestDisallowInterceptTouchEvent(true);
+                            } else if (isVerticalDrag && doc.canScrollVertically()) {
+                                requestDisallowInterceptTouchEvent(true);
+                            } else if (isHorizontalDrag || isVerticalDrag) {
+                                mInActionDown = false;
+                                requestDisallowInterceptTouchEvent(false);
+                                return false;
+                            }
+                        }
                         mActionCurrentPoint.x = (int) x;
                         mActionCurrentPoint.y = (int) y;
                         if (mVelocityTracker != null) {
