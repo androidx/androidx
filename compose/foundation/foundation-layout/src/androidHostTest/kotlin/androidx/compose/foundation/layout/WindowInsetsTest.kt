@@ -17,6 +17,8 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -341,5 +343,93 @@ class WindowInsetsTest {
         assertThat(insets.getTop(density)).isEqualTo(2)
         assertThat(insets.getRight(density, layoutDirection)).isEqualTo(3)
         assertThat(insets.getBottom(density)).isEqualTo(4)
+    }
+
+    @Test
+    fun updateConsumeWindowInsetsWhileUnattached() {
+        @Suppress("UNCHECKED_CAST")
+        val element1 =
+            Modifier.consumeWindowInsets(WindowInsets(1, 2, 3, 4))
+                as ModifierNodeElement<Modifier.Node>
+        val node = element1.create()
+        assertThat(node.isAttached).isFalse()
+
+        @Suppress("UNCHECKED_CAST")
+        val element2 =
+            Modifier.consumeWindowInsets(WindowInsets(5, 6, 7, 8))
+                as ModifierNodeElement<Modifier.Node>
+        element2.update(node)
+
+        val insets = (node as InsetsConsumingModifierNode).calculateInsets(WindowInsets())
+        assertThat(insets.getLeft(density, LayoutDirection.Ltr)).isEqualTo(5)
+        assertThat(insets.getTop(density)).isEqualTo(6)
+        assertThat(insets.getRight(density, LayoutDirection.Ltr)).isEqualTo(7)
+        assertThat(insets.getBottom(density)).isEqualTo(8)
+    }
+
+    @Test
+    fun updateConsumeWindowInsetsPaddingValuesWhileUnattached() {
+        @Suppress("UNCHECKED_CAST")
+        val element1 =
+            Modifier.consumeWindowInsets(PaddingValues(1.dp, 2.dp, 3.dp, 4.dp))
+                as ModifierNodeElement<Modifier.Node>
+        val node = element1.create()
+        assertThat(node.isAttached).isFalse()
+
+        @Suppress("UNCHECKED_CAST")
+        val element2 =
+            Modifier.consumeWindowInsets(PaddingValues(5.dp, 6.dp, 7.dp, 8.dp))
+                as ModifierNodeElement<Modifier.Node>
+        element2.update(node)
+
+        val insets = (node as InsetsConsumingModifierNode).calculateInsets(WindowInsets())
+        assertThat(insets.getLeft(density, LayoutDirection.Ltr)).isEqualTo(5)
+        assertThat(insets.getTop(density)).isEqualTo(6)
+        assertThat(insets.getRight(density, LayoutDirection.Ltr)).isEqualTo(7)
+        assertThat(insets.getBottom(density)).isEqualTo(8)
+    }
+
+    @Test
+    fun updateWindowInsetsPaddingWhileUnattached() {
+        @Suppress("UNCHECKED_CAST")
+        val element1 =
+            Modifier.windowInsetsPadding(WindowInsets(1, 2, 3, 4))
+                as ModifierNodeElement<Modifier.Node>
+        val node = element1.create()
+        assertThat(node.isAttached).isFalse()
+
+        @Suppress("UNCHECKED_CAST")
+        val element2 =
+            Modifier.windowInsetsPadding(WindowInsets(5, 6, 7, 8))
+                as ModifierNodeElement<Modifier.Node>
+        element2.update(node)
+
+        val insets = (node as InsetsConsumingModifierNode).calculateInsets(WindowInsets())
+        assertThat(insets.getLeft(density, LayoutDirection.Ltr)).isEqualTo(5)
+        assertThat(insets.getTop(density)).isEqualTo(6)
+        assertThat(insets.getRight(density, LayoutDirection.Ltr)).isEqualTo(7)
+        assertThat(insets.getBottom(density)).isEqualTo(8)
+    }
+
+    @Test
+    fun updateOnConsumedWindowInsetsChangedWhileUnattached() {
+        var called1 = false
+        var called2 = false
+        @Suppress("UNCHECKED_CAST")
+        val element1 =
+            Modifier.onConsumedWindowInsetsChanged { called1 = true }
+                as ModifierNodeElement<Modifier.Node>
+        val node = element1.create()
+        assertThat(node.isAttached).isFalse()
+
+        @Suppress("UNCHECKED_CAST")
+        val element2 =
+            Modifier.onConsumedWindowInsetsChanged { called2 = true }
+                as ModifierNodeElement<Modifier.Node>
+        element2.update(node)
+
+        (node as InsetsConsumingModifierNode).calculateInsets(WindowInsets())
+        assertThat(called1).isFalse()
+        assertThat(called2).isTrue()
     }
 }

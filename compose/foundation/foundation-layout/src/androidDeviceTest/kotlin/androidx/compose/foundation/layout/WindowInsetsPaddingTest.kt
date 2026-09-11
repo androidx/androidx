@@ -35,6 +35,7 @@ import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -45,6 +46,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -1357,6 +1359,47 @@ class WindowInsetsPaddingTest {
 
         useFirstInsets = false
         rule.runOnIdle { assertThat(insets2.getTop(rule.density)).isGreaterThan(0) }
+    }
+
+    @Test
+    fun consumeWindowInsets_movableContent_updateWhileUnattached() {
+        var insetsState by mutableStateOf(WindowInsets(0, 0, 0, 0))
+        var moveContent by mutableStateOf(false)
+        var consumed: WindowInsets? = null
+
+        val content = movableContentOf {
+            SubcomposeLayout { constraints ->
+                val placeables =
+                    subcompose("content") {
+                        Box(Modifier.consumeWindowInsets(insetsState)) {
+                            Box(Modifier.onConsumedWindowInsetsChanged { consumed = it })
+                        }
+                    }
+                val p = placeables.map { it.measure(constraints) }
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    p.forEach { it.place(0, 0) }
+                }
+            }
+        }
+
+        setContent {
+            Column {
+                if (moveContent) {
+                    Box { content() }
+                } else {
+                    Box { content() }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(consumed?.getLeft(rule.density, LayoutDirection.Ltr)).isEqualTo(0)
+            moveContent = true
+            insetsState = WindowInsets(10, 0, 0, 0)
+        }
+        rule.runOnIdle {
+            assertThat(consumed?.getLeft(rule.density, LayoutDirection.Ltr)).isEqualTo(10)
+        }
     }
 
     private fun sendInsets(
