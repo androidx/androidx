@@ -26,7 +26,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material3.MaterialTheme.LocalMaterialTheme
 import androidx.compose.material3.internal.childSemantics
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -43,14 +42,12 @@ import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.isContainer
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.isSpecified
 
 // TODO(b/197880751): Add url to spec on Material.io.
 /**
@@ -103,26 +100,40 @@ import androidx.compose.ui.unit.isSpecified
 public fun Surface(
     modifier: Modifier = Modifier,
     shape: Shape = RectangleShape,
-    color: Color = Color.Unspecified,
-    contentColor: Color = Color.Unspecified,
-    tonalElevation: Dp = Dp.Unspecified,
-    shadowElevation: Dp = Dp.Unspecified,
+    color: Color = MaterialTheme.colorScheme.surface,
+    contentColor: Color = contentColorFor(color),
+    tonalElevation: Dp = 0.dp,
+    shadowElevation: Dp = 0.dp,
     border: BorderStroke? = null,
     content: @Composable () -> Unit,
 ) {
-    SurfaceImpl(
-        modifier = modifier,
-        interactionModifier = Modifier,
-        enabled = true,
-        shape = shape,
-        color = color,
-        contentColor = contentColor,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
-        border = border,
-        interactionSource = remember { MutableInteractionSource() },
-        content = content,
-    )
+    val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor,
+        LocalAbsoluteTonalElevation provides absoluteElevation,
+    ) {
+        Box(
+            modifier =
+                modifier
+                    .surface(
+                        shape = shape,
+                        backgroundColor =
+                            surfaceColorAtElevation(color = color, elevation = absoluteElevation),
+                        border = border,
+                        shadowElevation = with(LocalDensity.current) { shadowElevation.toPx() },
+                    )
+                    .semantics(mergeDescendants = false) {
+                        // TODO(b/347038246): replace `isContainer` with `isTraversalGroup` with new
+                        // pruning API.
+                        @Suppress("DEPRECATION")
+                        isContainer = true
+                    }
+                    .pointerInput(Unit) {},
+            propagateMinConstraints = true,
+        ) {
+            content()
+        }
+    }
 }
 
 /**
@@ -193,36 +204,70 @@ public fun Surface(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     shape: Shape = RectangleShape,
-    color: Color = Color.Unspecified,
-    contentColor: Color = Color.Unspecified,
-    tonalElevation: Dp = Dp.Unspecified,
-    shadowElevation: Dp = Dp.Unspecified,
+    color: Color = MaterialTheme.colorScheme.surface,
+    contentColor: Color = contentColorFor(color),
+    tonalElevation: Dp = 0.dp,
+    shadowElevation: Dp = 0.dp,
     border: BorderStroke? = null,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
 ) {
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
-    val interactionModifier =
-        Modifier.clickable(
-            interactionSource = interactionSource,
-            indication = focusRipple(shape),
-            enabled = enabled,
-            onClick = onClick,
-        )
-    SurfaceImpl(
-        modifier = modifier,
-        interactionModifier = interactionModifier,
-        enabled = enabled,
-        shape = shape,
-        color = color,
-        contentColor = contentColor,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
-        border = border,
-        interactionSource = interactionSource,
-        content = content,
-    )
+    val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor,
+        LocalAbsoluteTonalElevation provides absoluteElevation,
+    ) {
+        Box(
+            modifier =
+                modifier
+                    .minimumInteractiveComponentSize()
+                    .then(
+                        if (
+                            LocalRippleThemeConfiguration.current.focus
+                                is RippleThemeConfiguration.Focus.InsetRing
+                        ) {
+                            Modifier.indication(
+                                interactionSource = interactionSource,
+                                indication =
+                                    ripple(
+                                        focusRingShape = shape,
+                                        enablePressIndication = false,
+                                        enableFocusIndication = true,
+                                        enableDragIndication = false,
+                                        enableHoverIndication = false,
+                                    ),
+                            )
+                        } else {
+                            Modifier
+                        }
+                    )
+                    .surface(
+                        shape = shape,
+                        backgroundColor =
+                            surfaceColorAtElevation(color = color, elevation = absoluteElevation),
+                        border = border,
+                        shadowElevation = with(LocalDensity.current) { shadowElevation.toPx() },
+                    )
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication =
+                            ripple(
+                                focusRingShape = shape,
+                                enableFocusIndication =
+                                    LocalRippleThemeConfiguration.current.focus
+                                        !is RippleThemeConfiguration.Focus.InsetRing,
+                            ),
+                        enabled = enabled,
+                        onClick = onClick,
+                    )
+                    .childSemantics(),
+            propagateMinConstraints = true,
+        ) {
+            content()
+        }
+    }
 }
 
 /**
@@ -293,37 +338,71 @@ public fun Surface(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     shape: Shape = RectangleShape,
-    color: Color = Color.Unspecified,
-    contentColor: Color = Color.Unspecified,
-    tonalElevation: Dp = Dp.Unspecified,
-    shadowElevation: Dp = Dp.Unspecified,
+    color: Color = MaterialTheme.colorScheme.surface,
+    contentColor: Color = contentColorFor(color),
+    tonalElevation: Dp = 0.dp,
+    shadowElevation: Dp = 0.dp,
     border: BorderStroke? = null,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
 ) {
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
-    val interactionModifier =
-        Modifier.selectable(
-            selected = selected,
-            interactionSource = interactionSource,
-            indication = focusRipple(shape),
-            enabled = enabled,
-            onClick = onClick,
-        )
-    SurfaceImpl(
-        modifier = modifier,
-        interactionModifier = interactionModifier,
-        enabled = enabled,
-        shape = shape,
-        color = color,
-        contentColor = contentColor,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
-        border = border,
-        interactionSource = interactionSource,
-        content = content,
-    )
+    val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor,
+        LocalAbsoluteTonalElevation provides absoluteElevation,
+    ) {
+        Box(
+            modifier =
+                modifier
+                    .minimumInteractiveComponentSize()
+                    .then(
+                        if (
+                            LocalRippleThemeConfiguration.current.focus
+                                is RippleThemeConfiguration.Focus.InsetRing
+                        ) {
+                            Modifier.indication(
+                                interactionSource = interactionSource,
+                                indication =
+                                    ripple(
+                                        focusRingShape = shape,
+                                        enablePressIndication = false,
+                                        enableFocusIndication = true,
+                                        enableDragIndication = false,
+                                        enableHoverIndication = false,
+                                    ),
+                            )
+                        } else {
+                            Modifier
+                        }
+                    )
+                    .surface(
+                        shape = shape,
+                        backgroundColor =
+                            surfaceColorAtElevation(color = color, elevation = absoluteElevation),
+                        border = border,
+                        shadowElevation = with(LocalDensity.current) { shadowElevation.toPx() },
+                    )
+                    .selectable(
+                        selected = selected,
+                        interactionSource = interactionSource,
+                        indication =
+                            ripple(
+                                focusRingShape = shape,
+                                enableFocusIndication =
+                                    LocalRippleThemeConfiguration.current.focus
+                                        !is RippleThemeConfiguration.Focus.InsetRing,
+                            ),
+                        enabled = enabled,
+                        onClick = onClick,
+                    )
+                    .childSemantics(),
+            propagateMinConstraints = true,
+        ) {
+            content()
+        }
+    }
 }
 
 /**
@@ -394,188 +473,46 @@ public fun Surface(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     shape: Shape = RectangleShape,
-    color: Color = Color.Unspecified,
-    contentColor: Color = Color.Unspecified,
-    tonalElevation: Dp = Dp.Unspecified,
-    shadowElevation: Dp = Dp.Unspecified,
+    color: Color = MaterialTheme.colorScheme.surface,
+    contentColor: Color = contentColorFor(color),
+    tonalElevation: Dp = 0.dp,
+    shadowElevation: Dp = 0.dp,
     border: BorderStroke? = null,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
 ) {
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
-    val interactionModifier =
-        Modifier.toggleable(
-            value = checked,
-            interactionSource = interactionSource,
-            indication = focusRipple(shape),
-            enabled = enabled,
-            onValueChange = onCheckedChange,
-        )
-    SurfaceImpl(
-        modifier = modifier,
-        interactionModifier = interactionModifier,
-        enabled = enabled,
-        shape = shape,
-        color = color,
-        contentColor = contentColor,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
-        border = border,
-        interactionSource = interactionSource,
-        content = content,
-    )
-}
-
-@Composable
-internal fun StyleableSurface(
-    modifier: Modifier = Modifier,
-    style: SurfaceStyle? = null,
-    content: @Composable () -> Unit,
-) {
-    val scope = createScopeAndApplyStyle(style)
-    Surface(
-        modifier = modifier,
-        shape = scope.shape ?: RectangleShape,
-        color = scope.backgroundColor,
-        contentColor = scope.contentColor,
-        tonalElevation = scope.tonalElevation,
-        shadowElevation = scope.shadowElevation,
-        border = scope.borderStroke,
-        content = content,
-    )
-}
-
-@Composable
-internal fun ClickableSurface(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    style: SurfaceStyle? = null,
-    interactionSource: MutableInteractionSource? = null,
-    content: @Composable () -> Unit,
-) {
-    val scope = createScopeAndApplyStyle(style, enabled = enabled)
-    Surface(
-        onClick = onClick,
-        modifier = modifier,
-        enabled = enabled,
-        shape = scope.shape ?: RectangleShape,
-        color = scope.backgroundColor,
-        contentColor = scope.contentColor,
-        tonalElevation = scope.tonalElevation,
-        shadowElevation = scope.shadowElevation,
-        border = scope.borderStroke,
-        interactionSource = interactionSource,
-        content = content,
-    )
-}
-
-@Composable
-internal fun SelectableSurface(
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    style: SurfaceStyle? = null,
-    interactionSource: MutableInteractionSource? = null,
-    content: @Composable () -> Unit,
-) {
-    val scope = createScopeAndApplyStyle(style, selected = selected)
-    Surface(
-        selected = selected,
-        onClick = onClick,
-        modifier = modifier,
-        enabled = enabled,
-        shape = scope.shape ?: RectangleShape,
-        color = scope.backgroundColor,
-        contentColor = scope.contentColor,
-        tonalElevation = scope.tonalElevation,
-        shadowElevation = scope.shadowElevation,
-        border = scope.borderStroke,
-        interactionSource = interactionSource,
-        content = content,
-    )
-}
-
-@Composable
-internal fun ToggleableSurface(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    style: SurfaceStyle? = null,
-    interactionSource: MutableInteractionSource? = null,
-    content: @Composable () -> Unit,
-) {
-    val scope = createScopeAndApplyStyle(style, checked = checked)
-    Surface(
-        checked = checked,
-        onCheckedChange = onCheckedChange,
-        modifier = modifier,
-        enabled = enabled,
-        shape = scope.shape ?: RectangleShape,
-        color = scope.backgroundColor,
-        contentColor = scope.contentColor,
-        tonalElevation = scope.tonalElevation,
-        shadowElevation = scope.shadowElevation,
-        border = scope.borderStroke,
-        interactionSource = interactionSource,
-        content = content,
-    )
-}
-
-@Suppress("NAME_SHADOWING")
-@Composable
-private fun SurfaceImpl(
-    modifier: Modifier,
-    interactionModifier: Modifier,
-    enabled: Boolean,
-    shape: Shape,
-    color: Color,
-    contentColor: Color,
-    tonalElevation: Dp,
-    shadowElevation: Dp,
-    border: BorderStroke?,
-    interactionSource: MutableInteractionSource,
-    content: @Composable () -> Unit,
-) {
-    val color = if (color.isSpecified) color else MaterialTheme.colorScheme.surface
-    val contentColor = if (contentColor.isSpecified) contentColor else contentColorFor(color)
-    val tonalElevation = if (tonalElevation.isSpecified) tonalElevation else 0.dp
-    val shadowElevation = if (shadowElevation.isSpecified) shadowElevation else 0.dp
-
     val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
     CompositionLocalProvider(
         LocalContentColor provides contentColor,
         LocalAbsoluteTonalElevation provides absoluteElevation,
     ) {
-        val interactionModifierPreSurface =
-            if (interactionModifier != Modifier) {
-                Modifier.minimumInteractiveComponentSize()
-                    // Draw the focus ring here if focus rings are enabled
-                    .focusRing(shape, interactionSource)
-            } else {
-                Modifier
-            }
-
-        val semanticsModifier =
-            if (interactionModifier != Modifier) {
-                Modifier.childSemantics()
-            } else {
-                Modifier.semantics(mergeDescendants = false) {
-                        // TODO(b/347038246): replace `isContainer` with `isTraversalGroup` with new
-                        // pruning API.
-                        @Suppress("DEPRECATION")
-                        isContainer = true
-                    }
-                    .pointerInput(Unit) {}
-            }
-
         Box(
             modifier =
                 modifier
-                    .then(interactionModifierPreSurface)
+                    .minimumInteractiveComponentSize()
+                    // Draw the focus ring here if focus rings are enabled
+                    .then(
+                        if (
+                            LocalRippleThemeConfiguration.current.focus
+                                is RippleThemeConfiguration.Focus.InsetRing
+                        ) {
+                            Modifier.indication(
+                                interactionSource = interactionSource,
+                                indication =
+                                    ripple(
+                                        focusRingShape = shape,
+                                        enablePressIndication = false,
+                                        enableFocusIndication = true,
+                                        enableDragIndication = false,
+                                        enableHoverIndication = false,
+                                    ),
+                            )
+                        } else {
+                            Modifier
+                        }
+                    )
                     .surface(
                         shape = shape,
                         backgroundColor =
@@ -583,60 +520,26 @@ private fun SurfaceImpl(
                         border = border,
                         shadowElevation = with(LocalDensity.current) { shadowElevation.toPx() },
                     )
-                    .then(interactionModifier)
-                    .then(semanticsModifier),
+                    .toggleable(
+                        value = checked,
+                        interactionSource = interactionSource,
+                        indication =
+                            ripple(
+                                focusRingShape = shape,
+                                enableFocusIndication =
+                                    LocalRippleThemeConfiguration.current.focus
+                                        !is RippleThemeConfiguration.Focus.InsetRing,
+                            ),
+                        enabled = enabled,
+                        onValueChange = onCheckedChange,
+                    )
+                    .childSemantics(),
             propagateMinConstraints = true,
         ) {
             content()
         }
     }
 }
-
-@Composable
-private fun createScopeAndApplyStyle(
-    style: SurfaceStyle?,
-    enabled: Boolean = true,
-    selected: Boolean = false,
-    checked: Boolean = false,
-): SurfaceStyleScope {
-    val localTheme = LocalMaterialTheme.current
-    val surfaceProperties = localTheme.componentProperties.surfaceProperties
-    return SurfaceStyleScope(
-            theme = localTheme,
-            state = ComponentState.enabled(enabled).selected(selected).checked(checked),
-        )
-        .resolve(style ?: surfaceProperties.style)
-}
-
-@Composable
-private fun focusRipple(shape: Shape) =
-    ripple(
-        focusRingShape = shape,
-        enableFocusIndication =
-            LocalRippleThemeConfiguration.current.focus
-                !is RippleThemeConfiguration.Focus.InsetRing,
-    )
-
-@Composable
-private fun Modifier.focusRing(
-    shape: Shape,
-    interactionSource: MutableInteractionSource,
-): Modifier =
-    if (LocalRippleThemeConfiguration.current.focus is RippleThemeConfiguration.Focus.InsetRing) {
-        this.indication(
-            interactionSource = interactionSource,
-            indication =
-                ripple(
-                    focusRingShape = shape,
-                    enablePressIndication = false,
-                    enableFocusIndication = true,
-                    enableDragIndication = false,
-                    enableHoverIndication = false,
-                ),
-        )
-    } else {
-        this
-    }
 
 @Stable
 private fun Modifier.surface(

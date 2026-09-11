@@ -16,7 +16,6 @@
 
 package androidx.compose.material3
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -241,68 +240,6 @@ internal fun <T : StyleResolver> T.resolve(style: ComponentStyle<T>): T {
 
 internal fun interface ComponentStyle<T : StyleResolver> {
     fun T.applyStyle()
-}
-
-internal fun interface SurfaceStyle : ComponentStyle<SurfaceStyleScope> {
-    infix fun then(other: SurfaceStyle): SurfaceStyle = SurfaceStyle {
-        applyStyle()
-        with(other) { applyStyle() }
-    }
-
-    companion object {
-        val Default = SurfaceStyle {
-            shape(RectangleShape)
-            backgroundColor(theme.colorScheme.surface)
-            tonalElevation(0.dp)
-            shadowElevation(0.dp)
-        }
-    }
-}
-
-internal open class SurfaceStyleScope(
-    override val theme: MaterialTheme.Values,
-    override val state: ComponentState = ComponentState.Default,
-) :
-    MaterialThemeAccessorScope,
-    DisabledState<SurfaceStyleScope>,
-    CheckedState<SurfaceStyleScope>,
-    StyleResolver by StyleResolverImpl() {
-
-    var shape: Shape? = null
-
-    var backgroundColor: Color = Color.Unspecified
-
-    var contentColor: Color = Color.Unspecified
-
-    var tonalElevation: Dp = Dp.Unspecified
-
-    var shadowElevation: Dp = Dp.Unspecified
-
-    var borderStroke: BorderStroke? = null
-
-    fun shape(shape: Shape) {
-        this.shape = shape
-    }
-
-    fun backgroundColor(color: Color) {
-        this.backgroundColor = color
-    }
-
-    fun contentColor(color: Color) {
-        this.contentColor = color
-    }
-
-    fun tonalElevation(elevation: Dp) {
-        this.tonalElevation = elevation
-    }
-
-    fun shadowElevation(elevation: Dp) {
-        this.shadowElevation = elevation
-    }
-
-    fun borderStroke(stroke: BorderStroke) {
-        this.borderStroke = stroke
-    }
 }
 
 internal fun interface CheckboxStyle : ComponentStyle<CheckboxStyleScope> {
