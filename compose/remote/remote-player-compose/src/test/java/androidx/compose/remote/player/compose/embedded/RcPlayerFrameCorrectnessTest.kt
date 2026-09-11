@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX") // Referring to background, drawCircle, remote-core
+@file:Suppress("RestrictedApiAndroidX") // Referring to remote-core
 
 package androidx.compose.remote.player.compose.embedded
 

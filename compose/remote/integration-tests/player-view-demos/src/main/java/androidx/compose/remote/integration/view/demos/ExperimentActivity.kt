@@ -207,8 +207,7 @@ var INSTANT_RESIZE = false
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
-// remote-creation-core, remote-player-core, remote-player-view
+) // Referring to rememberRemoteDocument, remote-core, remote-creation
 fun launcherDoc(): RemoteComposeBuffer {
     return ExperimentRecyclerActivity.sCurrentBuffer
 }
@@ -223,10 +222,7 @@ fun getRemoteComposables(context: Context, list: ArrayList<RCDoc>) {
 class RamDoc(val data: ByteArray, val name: String) : RemoteComposeFunc {
     private var buildTime: Float = 0f
 
-    @Suppress(
-        "RestrictedApiAndroidX"
-    ) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core,
-    // remote-creation, remote-creation-core, remote-player-core, remote-player-view
+    @Suppress("RestrictedApiAndroidX") // Referring to rememberRemoteDocument, remote-core
     @Composable
     override fun getDoc(): MutableState<CoreDocument?> {
         val time = System.nanoTime()
@@ -992,9 +988,7 @@ class ExperimentActivity : ComponentActivity() {
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
-// remote-creation-core, remote-player-core, remote-player-view
-// ===============================end activity===================================
+) // Referring to rememberRemoteDocument, remote-core, remote-creation
 @Composable
 fun DisplayControls(fileReady: Boolean, name: String, func: RemoteComposeFunc, context: Context) {
     val orientation = LocalConfiguration.current.orientation
@@ -1054,8 +1048,7 @@ val shaderControl: (String) -> Boolean = { true }
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
-// remote-creation-core, remote-player-core, remote-player-view
+) // Referring to rememberRemoteDocument, remote-core, remote-creation
 @Composable
 private fun DocumentView(
     documentWidth: MutableState<Int>,
@@ -1192,8 +1185,7 @@ private fun DocumentView(
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
-// remote-creation-core, remote-player-core, remote-player-view
+) // Referring to rememberRemoteDocument, remote-core, remote-creation
 @SuppressLint("AutoboxingStateValueProperty")
 @Composable
 fun DisplayStats(fileReady: Boolean, func: RemoteComposeFunc) {
@@ -1321,8 +1313,7 @@ fun DisplayStats(fileReady: Boolean, func: RemoteComposeFunc) {
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
-// remote-creation-core, remote-player-core, remote-player-view
+) // Referring to rememberRemoteDocument, remote-core, remote-creation
 @Composable
 fun DisplayDoc(fileReady: Boolean, func: RemoteComposeFunc) {
     if (fileReady) {
@@ -1452,8 +1443,7 @@ fun DisplayMain(
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
-// remote-creation-core, remote-player-core, remote-player-view
+) // Referring to rememberRemoteDocument, remote-core, remote-creation
 interface RemoteComposeFunc {
     @Composable fun Run()
 
@@ -1468,8 +1458,7 @@ interface RemoteComposeFunc {
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
-// remote-creation-core, remote-player-core, remote-player-view
+) // Referring to rememberRemoteDocument, remote-core, remote-creation
 @Composable
 fun RemoteComposableMenu(
     map: List<RemoteComposeFunc>,
@@ -1602,8 +1591,7 @@ fun toRcColor(str: String, sat: Float = .5f): Color {
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
-// remote-creation-core, remote-player-core, remote-player-view
+) // Referring to rememberRemoteDocument, remote-core, remote-creation
 fun docSize(doc: CoreDocument): Int {
     val wb = doc.buffer.buffer
     val len = wb.size
@@ -1612,16 +1600,14 @@ fun docSize(doc: CoreDocument): Int {
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
-// remote-creation-core, remote-player-core, remote-player-view
+) // Referring to rememberRemoteDocument, remote-core, remote-creation
 fun build(doc: RemoteComposeFunc): Float {
     return doc.getBuildTime()
 }
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
-// remote-creation-core, remote-player-core, remote-player-view
+) // Referring to rememberRemoteDocument, remote-core, remote-creation
 fun compressDocSize(doc: CoreDocument): Int {
     val wb = doc.buffer.buffer
     val len = wb.size

@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to RemoteText, background, drawCircle, remote-core
+@file:Suppress("RestrictedApiAndroidX") // Referring to remote-core
 
 package androidx.compose.remote.integration.view.demos.examples
 

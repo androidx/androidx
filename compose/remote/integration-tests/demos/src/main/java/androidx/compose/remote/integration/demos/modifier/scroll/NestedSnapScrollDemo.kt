@@ -43,18 +43,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-@Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to RemoteComponentPreview, RemoteText, horizontalScroll, rememberRemoteScrollState,
-// verticalScroll
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview
 @Composable
 fun NestedSnapScrollDemo() {
     RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) { NestedSnapScrollDemoContent() }
 }
 
-@Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to RemoteText, horizontalScroll, rememberRemoteScrollState, verticalScroll
 @RemoteComponentPreview
 @Composable
 @RemoteComposable

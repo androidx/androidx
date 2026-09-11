@@ -82,7 +82,7 @@ private const val REMOTE_COMPOSE_LONG_CLICK = "remote_compose_long_click"
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteText, combinedClickable, remote-core, remote-creation-core
+) // Referring to combinedClickable, remote-core, remote-creation-core
 @Composable
 @UiComposable
 fun GesturePropagationViewDemo() {
@@ -110,7 +110,7 @@ fun GesturePropagationViewDemo() {
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteText, combinedClickable, remote-core, remote-creation-core
+) // Referring to combinedClickable, remote-core, remote-creation-core
 @Composable
 @RemoteComposable
 private fun GesturePropagationViewDemoContent(applyVerticalScroll: Boolean) {

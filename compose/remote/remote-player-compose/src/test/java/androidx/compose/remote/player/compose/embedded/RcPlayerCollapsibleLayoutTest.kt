@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to RemoteCollapsibleColumn, RemoteCollapsibleRow, background
 @file:OptIn(ExperimentalRemoteCreationComposeApi::class)
 
 package androidx.compose.remote.player.compose.embedded
