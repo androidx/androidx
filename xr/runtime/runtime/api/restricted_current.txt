@@ -776,8 +776,8 @@ package androidx.xr.runtime.math {
   }
 
   public final class Quad {
-    method public static androidx.xr.runtime.math.Quad createAxisAligned(androidx.xr.runtime.math.Vector2 min, androidx.xr.runtime.math.Vector2 max);
-    method public static androidx.xr.runtime.math.Quad createFromCorners(androidx.xr.runtime.math.Vector2 upperLeft, androidx.xr.runtime.math.Vector2 upperRight, androidx.xr.runtime.math.Vector2 lowerRight, androidx.xr.runtime.math.Vector2 lowerLeft);
+    method public static androidx.xr.runtime.math.Quad fromCorners(androidx.xr.runtime.math.Vector2 upperLeft, androidx.xr.runtime.math.Vector2 upperRight, androidx.xr.runtime.math.Vector2 lowerRight, androidx.xr.runtime.math.Vector2 lowerLeft);
+    method public static androidx.xr.runtime.math.Quad fromMinMax(androidx.xr.runtime.math.Vector2 min, androidx.xr.runtime.math.Vector2 max);
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector2 getLowerLeft();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector2 getLowerRight();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector2 getUpperLeft();
@@ -790,8 +790,8 @@ package androidx.xr.runtime.math {
   }
 
   public static final class Quad.Companion {
-    method public androidx.xr.runtime.math.Quad createAxisAligned(androidx.xr.runtime.math.Vector2 min, androidx.xr.runtime.math.Vector2 max);
-    method public androidx.xr.runtime.math.Quad createFromCorners(androidx.xr.runtime.math.Vector2 upperLeft, androidx.xr.runtime.math.Vector2 upperRight, androidx.xr.runtime.math.Vector2 lowerRight, androidx.xr.runtime.math.Vector2 lowerLeft);
+    method public androidx.xr.runtime.math.Quad fromCorners(androidx.xr.runtime.math.Vector2 upperLeft, androidx.xr.runtime.math.Vector2 upperRight, androidx.xr.runtime.math.Vector2 lowerRight, androidx.xr.runtime.math.Vector2 lowerLeft);
+    method public androidx.xr.runtime.math.Quad fromMinMax(androidx.xr.runtime.math.Vector2 min, androidx.xr.runtime.math.Vector2 max);
   }
 
   public final class Quaternion {
