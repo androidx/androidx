@@ -33,6 +33,7 @@ public class CarProgressBarStyleTest {
     public void create_defaultValues() {
         CarProgressBarStyle style = new CarProgressBarStyle.Builder().build();
         assertThat(style.getColor()).isNull();
+        assertThat(style.getTrackColor()).isNull();
         assertThat(style.getStrokeCap()).isEqualTo(StrokeCap.DEFAULT);
     }
 
@@ -41,6 +42,16 @@ public class CarProgressBarStyleTest {
         CarColor color = CarColor.BLUE;
         CarProgressBarStyle style = new CarProgressBarStyle.Builder().setColor(color).build();
         assertThat(style.getColor()).isEqualTo(color);
+        assertThat(style.getTrackColor()).isNull();
+        assertThat(style.getStrokeCap()).isEqualTo(StrokeCap.DEFAULT);
+    }
+
+    @Test
+    public void setTrackColor() {
+        CarColor color = CarColor.BLUE;
+        CarProgressBarStyle style = new CarProgressBarStyle.Builder().setTrackColor(color).build();
+        assertThat(style.getColor()).isNull();
+        assertThat(style.getTrackColor()).isEqualTo(color);
         assertThat(style.getStrokeCap()).isEqualTo(StrokeCap.DEFAULT);
     }
 
@@ -50,6 +61,18 @@ public class CarProgressBarStyleTest {
         CarProgressBarStyle style = new CarProgressBarStyle.Builder().setColor(color).setColor(
                 null).build();
         assertThat(style.getColor()).isNull();
+        assertThat(style.getTrackColor()).isNull();
+        assertThat(style.getStrokeCap()).isEqualTo(StrokeCap.DEFAULT);
+    }
+
+    @Test
+    public void setNullTrackColor() {
+        CarColor color = CarColor.BLUE;
+        CarProgressBarStyle style = new CarProgressBarStyle.Builder().setTrackColor(
+                color).setTrackColor(
+                null).build();
+        assertThat(style.getColor()).isNull();
+        assertThat(style.getTrackColor()).isNull();
         assertThat(style.getStrokeCap()).isEqualTo(StrokeCap.DEFAULT);
     }
 
@@ -65,9 +88,9 @@ public class CarProgressBarStyleTest {
     @Test
     public void equals() {
         CarProgressBarStyle style1 = new CarProgressBarStyle.Builder().setColor(
-                CarColor.BLUE).setStrokeCap(StrokeCap.ROUND).build();
+                CarColor.BLUE).setTrackColor(CarColor.RED).setStrokeCap(StrokeCap.ROUND).build();
         CarProgressBarStyle style2 = new CarProgressBarStyle.Builder().setColor(
-                CarColor.BLUE).setStrokeCap(StrokeCap.ROUND).build();
+                CarColor.BLUE).setTrackColor(CarColor.RED).setStrokeCap(StrokeCap.ROUND).build();
         assertThat(style1).isEqualTo(style2);
     }
 
@@ -76,6 +99,15 @@ public class CarProgressBarStyleTest {
         CarProgressBarStyle style1 = new CarProgressBarStyle.Builder().setColor(
                 CarColor.BLUE).build();
         CarProgressBarStyle style2 = new CarProgressBarStyle.Builder().setColor(
+                CarColor.RED).build();
+        assertThat(style1).isNotEqualTo(style2);
+    }
+
+    @Test
+    public void notEquals_differentTrackColors() {
+        CarProgressBarStyle style1 = new CarProgressBarStyle.Builder().setTrackColor(
+                CarColor.BLUE).build();
+        CarProgressBarStyle style2 = new CarProgressBarStyle.Builder().setTrackColor(
                 CarColor.RED).build();
         assertThat(style1).isNotEqualTo(style2);
     }
@@ -92,7 +124,7 @@ public class CarProgressBarStyleTest {
     @Test
     public void copy_equals() {
         CarProgressBarStyle style = new CarProgressBarStyle.Builder().setColor(
-                CarColor.BLUE).setStrokeCap(StrokeCap.ROUND).build();
+                CarColor.BLUE).setTrackColor(CarColor.GREEN).setStrokeCap(StrokeCap.ROUND).build();
         CarProgressBarStyle copiedStyle = new CarProgressBarStyle.Builder(style).build();
         assertThat(copiedStyle).isEqualTo(style);
     }
