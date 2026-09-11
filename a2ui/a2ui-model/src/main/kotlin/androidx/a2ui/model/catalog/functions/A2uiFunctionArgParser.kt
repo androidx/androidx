@@ -17,6 +17,10 @@
 package androidx.a2ui.model.catalog.functions
 
 import androidx.a2ui.model.protocol.A2uiException
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
 
 /** Reusable utility methods to parse and validate dynamic arguments passed to catalog functions. */
 public object A2uiFunctionArgParser {
@@ -223,6 +227,70 @@ public object A2uiFunctionArgParser {
         }
     }
 
+    /**
+     * Retrieves a UTC epoch millisecond timestamp argument under [key], supporting numeric
+     * timestamps (in seconds or milliseconds) and ISO 8601 date / date-time strings.
+     *
+     * Date-only strings (e.g., `"2026-06-15"`) are normalized to UTC start-of-day. Numeric values
+     * less than 10,000,000,000 are treated as epoch seconds, otherwise as epoch milliseconds.
+     *
+     * @param args The map of arguments.
+     * @param key The argument key.
+     * @param path The parent context path. The final error path will be constructed as
+     *   `"${path}/${key}"`.
+     * @return The resolved timestamp in UTC epoch milliseconds.
+     * @throws A2uiException.A2uiValidationException if the argument is missing or cannot be parsed
+     *   as a date or timestamp.
+     */
+    @JvmOverloads
+    public fun getEpochMillisArg(
+        args: Map<String, Any>,
+        key: String,
+        path: String = "/",
+    ): Long {
+        val raw = getArg(args, key, path)
+        val argPath = concatPath(path, key)
+
+        val num =
+            when (raw) {
+                is Number -> raw.toDouble()
+                is String -> raw.toDoubleOrNull()
+                else -> null
+            }
+        if (num != null) {
+            return if (num < MAX_EPOCH_SECONDS) {
+                (num * 1000L).toLong()
+            } else {
+                num.toLong()
+            }
+        }
+
+        if (raw is String) {
+            val trimmed = raw.trim()
+            val utcZone = TimeZone.getTimeZone("UTC")
+            for (pattern in ISO_PATTERNS) {
+                try {
+                    val parser =
+                        SimpleDateFormat(pattern, Locale.US).apply {
+                            timeZone = utcZone
+                            isLenient = false
+                        }
+                    val date = parser.parse(trimmed)
+                    if (date != null) {
+                        return date.time
+                    }
+                } catch (_: ParseException) {
+                    // Ignore and try next pattern
+                }
+            }
+        }
+
+        throw A2uiException.A2uiValidationException(
+            "Invalid '$key' argument, expected date or timestamp",
+            argPath,
+        )
+    }
+
     private fun parseString(raw: Any): String {
         return raw.toString()
     }
@@ -308,4 +376,17 @@ public object A2uiFunctionArgParser {
 
     private fun concatPath(path: String, segment: String): String =
         if (path.endsWith("/")) "$path$segment" else "$path/$segment"
+
+    private const val MAX_EPOCH_SECONDS: Long = 10_000_000_000L
+
+    private val ISO_PATTERNS =
+        arrayOf(
+            "yyyy-MM-dd'T'HH:mm:ss.SSSX",
+            "yyyy-MM-dd'T'HH:mm:ss.SSS",
+            "yyyy-MM-dd'T'HH:mm:ssX",
+            "yyyy-MM-dd'T'HH:mm:ss",
+            "yyyy-MM-dd'T'HH:mmX",
+            "yyyy-MM-dd'T'HH:mm",
+            "yyyy-MM-dd",
+        )
 }
