@@ -75,11 +75,22 @@ internal class RubyLayoutRun(
     override val height: Float
         get() = max(bodyLayoutRuns.height, rubyLayoutRuns.height)
 
+    /**
+     * True when the ruby is placed on the right side of the base text, which is the vertical
+     * rendering of [AnnotationPosition.Before]. Any unrecognized position falls back to this, which
+     * matches [RubySpan.DEFAULT_POSITION].
+     */
+    private val isRubyOnRight = rubySpan.position != AnnotationPosition.After
+
     override val leftSideOffset: Float
-        get() = bodyLayoutRuns.leftSide
+        get() =
+            if (isRubyOnRight) bodyLayoutRuns.leftSide
+            else bodyLayoutRuns.leftSide - rubyLayoutRuns.width
 
     override val rightSideOffset: Float
-        get() = bodyLayoutRuns.rightSide + rubyLayoutRuns.width
+        get() =
+            if (isRubyOnRight) bodyLayoutRuns.rightSide + rubyLayoutRuns.width
+            else bodyLayoutRuns.rightSide
 
     private val rubyScale = rubySpan.textScale
     private val rubyLayoutRuns: LineLayout =
@@ -107,7 +118,11 @@ internal class RubyLayoutRun(
 
         bodyLayoutRuns.draw(canvas, originX, bodyY, paint)
 
-        val rubyX = originX + bodyLayoutRuns.rightSide - rubyLayoutRuns.leftSide
+        // `originX` is the baseline of the body text. Butt the ruby box against the body box on
+        // whichever side `AnnotationPosition` selects, then convert back to a baseline.
+        val rubyX =
+            if (isRubyOnRight) originX + bodyLayoutRuns.rightSide - rubyLayoutRuns.leftSide
+            else originX + bodyLayoutRuns.leftSide - rubyLayoutRuns.rightSide
         paint.withTextScale(rubyScale) { rubyLayoutRuns.draw(canvas, rubyX, rubyY, this) }
     }
 

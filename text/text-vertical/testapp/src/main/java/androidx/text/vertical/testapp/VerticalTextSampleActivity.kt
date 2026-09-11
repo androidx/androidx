@@ -66,6 +66,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.sp
+import androidx.text.vertical.AnnotationPosition
 import androidx.text.vertical.EmphasisStyle
 import androidx.text.vertical.FontShearSpan
 import androidx.text.vertical.compose.VerticalText
@@ -250,6 +251,14 @@ fun ComplexText(style: VerticalTextStyle, modifier: Modifier = Modifier) {
 
 private fun buildComplexText(density: Density) =
     buildVerticalText(density) {
+        // Ruby annotation position. In vertical writing, Before puts the ruby on the right of the
+        // base text and After puts it on the left.
+        text("ルビ位置：")
+        withRuby("みぎ", position = AnnotationPosition.Before) { text("右") }
+        text("と")
+        withRuby("ひだり", position = AnnotationPosition.After) { text("左") }
+        text("。\n")
+
         upright("2024")
         text("年の")
         withRuby("クリスマス") {
