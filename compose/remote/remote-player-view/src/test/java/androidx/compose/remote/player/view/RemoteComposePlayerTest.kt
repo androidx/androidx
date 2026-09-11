@@ -25,11 +25,15 @@ import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
+import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.HorizontalScrollView
+import android.widget.LinearLayout
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
+import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeWriter
@@ -470,6 +474,112 @@ class RemoteComposePlayerTest {
     }
 
     @Test
+    fun verticallyScrollableComponent_allowsParentIntercept_whenDragIsHorizontal() {
+        val docBytes = createLeftBoxInteractiveDocument(isClickable = false, isScrollable = true)
+        val (_, host) = setupHostWithPlayer(docBytes)
+
+        // Swipe horizontally inside the vertically scrollable left box (75, 150 -> 225, 150)
+        performSwipe(host, 75f, 150f, 225f, 150f)
+
+        assertTrue(
+            "Host parent should intercept horizontal drag gesture when RemoteComposePlayer only scrolls vertically",
+            host.hostInterceptedDrag,
+        )
+        assertFalse(
+            "Host parent disallowIntercept should be false after horizontal drag",
+            host.disallowIntercept,
+        )
+    }
+
+    @Test
+    fun verticallyScrollableComponent_insideHorizontalScrollView_allowsScroll_whenDragIsHorizontal() {
+        val docBytes = createVerticalScrollDemoDocument()
+        val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
+
+        val scrollView =
+            HorizontalScrollView(activity).apply { layoutParams = ViewGroup.LayoutParams(300, 300) }
+        val linearLayout =
+            LinearLayout(activity).apply {
+                orientation = LinearLayout.HORIZONTAL
+                layoutParams =
+                    ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                    )
+            }
+
+        val leftCard =
+            LinearLayout(activity).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(300, ViewGroup.LayoutParams.MATCH_PARENT)
+            }
+        linearLayout.addView(leftCard)
+
+        val playerContainer =
+            LinearLayout(activity).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(300, ViewGroup.LayoutParams.MATCH_PARENT)
+            }
+        val playerFrame =
+            FrameLayout(activity).apply {
+                layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
+            }
+        val player =
+            RemoteComposePlayer(activity).apply {
+                layoutParams =
+                    FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                    )
+                setDocument(docBytes)
+            }
+        playerFrame.addView(player)
+        playerContainer.addView(playerFrame)
+        linearLayout.addView(playerContainer)
+
+        val rightCard =
+            LinearLayout(activity).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(300, ViewGroup.LayoutParams.MATCH_PARENT)
+            }
+        linearLayout.addView(rightCard)
+        scrollView.addView(
+            linearLayout,
+            ViewGroup.LayoutParams(900, ViewGroup.LayoutParams.MATCH_PARENT),
+        )
+
+        val host = ComposeInteropHost(activity)
+        host.addView(scrollView, FrameLayout.LayoutParams(300, 300))
+        activity.setContentView(host)
+
+        host.measure(
+            View.MeasureSpec.makeMeasureSpec(300, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(300, View.MeasureSpec.EXACTLY),
+        )
+        host.layout(0, 0, 300, 300)
+        scrollView.measure(
+            View.MeasureSpec.makeMeasureSpec(300, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(300, View.MeasureSpec.EXACTLY),
+        )
+        scrollView.layout(0, 0, 300, 300)
+        val bitmap = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888)
+        host.draw(Canvas(bitmap))
+
+        // Scroll to player so player is visible at x=300..600
+        scrollView.scrollTo(300, 0)
+        assertEquals(300, scrollView.scrollX)
+
+        // Swipe right on player (screen x=50 -> 250) to scroll towards leftCard (scrollX should
+        // decrease)
+        performSwipe(host, 50f, 150f, 250f, 150f, steps = 20)
+
+        assertTrue(
+            "HorizontalScrollView should have scrolled horizontally, but scrollX was ${scrollView.scrollX}",
+            scrollView.scrollX < 300,
+        )
+    }
+
+    @Test
     fun scrollableComponent_resetsDisallowIntercept_duringLongPressHoldBeforeTouchUp() {
         val docBytes = createLeftBoxInteractiveDocument(isClickable = false, isScrollable = true)
         val (_, host) = setupHostWithPlayer(docBytes)
@@ -719,6 +829,43 @@ class RemoteComposePlayerTest {
         }
     }
 
+    private class ComposeInteropHost(context: Context) : FrameLayout(context) {
+        var disallowIntercept = false
+        var isDispatching = true
+
+        override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
+            this.disallowIntercept = disallowIntercept
+            super.requestDisallowInterceptTouchEvent(disallowIntercept)
+        }
+
+        override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+            if (ev.action == MotionEvent.ACTION_DOWN) {
+                disallowIntercept = false
+                isDispatching = true
+            }
+            if (!isDispatching) {
+                return false
+            }
+            val initialDisallow = disallowIntercept
+            val result = super.dispatchTouchEvent(ev)
+            if (ev.action == MotionEvent.ACTION_MOVE && initialDisallow && !disallowIntercept) {
+                val cancelEvent =
+                    MotionEvent.obtain(
+                        ev.downTime,
+                        ev.eventTime,
+                        MotionEvent.ACTION_CANCEL,
+                        ev.x,
+                        ev.y,
+                        0,
+                    )
+                super.dispatchTouchEvent(cancelEvent)
+                cancelEvent.recycle()
+                isDispatching = false
+            }
+            return result
+        }
+    }
+
     private fun performClick(view: View, x: Float, y: Float) {
         lastEventTime += 500
         val downEvent =
@@ -926,6 +1073,27 @@ class RemoteComposePlayerTest {
                     hasTouchExpression,
                 )
                 .first
+        }
+
+        private fun createVerticalScrollDemoDocument(): ByteArray {
+            val rcDoc = RemoteComposeWriter.obtain(300, 300, RcPlatformProfiles.ANDROIDX)
+            val scrollPositionId = rcDoc.addNamedFloat("scrollPosition", 0f)
+            rcDoc.root {
+                rcDoc.column(
+                    RecordingModifier().fillMaxSize().verticalScroll(scrollPositionId),
+                    ColumnLayout.START,
+                    ColumnLayout.TOP,
+                ) {
+                    for (i in 1..25) {
+                        rcDoc.box(
+                            RecordingModifier().fillMaxWidth().height(44f),
+                            BoxLayout.CENTER,
+                            BoxLayout.CENTER,
+                        ) {}
+                    }
+                }
+            }
+            return rcDoc.encodeToByteArray()
         }
 
         private fun createLeftBoxInteractiveDocumentWithActionId(
