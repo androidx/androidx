@@ -49,13 +49,13 @@ import kotlin.jvm.JvmField
  *   that there is no circular arc in the center; the flanking curves on either side meet at the
  *   middle.
  */
-class CornerRounding(
-    @FloatRange(from = 0.0) val radius: Float = 0f,
-    @FloatRange(from = 0.0, to = 1.0) val smoothing: Float = 0f,
+public class CornerRounding(
+    @FloatRange(from = 0.0) public val radius: Float = 0f,
+    @FloatRange(from = 0.0, to = 1.0) public val smoothing: Float = 0f,
 ) {
 
-    companion object {
+    public companion object {
         /** [Unrounded] has a rounding radius of zero, producing a sharp corner at a vertex. */
-        @JvmField val Unrounded = CornerRounding()
+        @JvmField public val Unrounded: CornerRounding = CornerRounding()
     }
 }

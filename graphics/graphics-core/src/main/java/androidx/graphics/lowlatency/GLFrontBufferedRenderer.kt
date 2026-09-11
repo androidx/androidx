@@ -74,13 +74,13 @@ import kotlin.math.max
  * https://developer.android.com/reference/android/hardware/HardwareBuffer
  */
 @RequiresApi(Build.VERSION_CODES.Q)
-class GLFrontBufferedRenderer<T>
+public class GLFrontBufferedRenderer<T>
 @JvmOverloads
-constructor(
+public constructor(
     surfaceView: SurfaceView,
     callback: Callback<T>,
     @Suppress("ListenerLast") glRenderer: GLRenderer? = null,
-    @HardwareBufferFormat val bufferFormat: Int = HardwareBuffer.RGBA_8888,
+    @HardwareBufferFormat public val bufferFormat: Int = HardwareBuffer.RGBA_8888,
 ) {
 
     private val mFrontBufferedCallbacks =
@@ -525,7 +525,7 @@ constructor(
      *
      * @return `true` if this [GLFrontBufferedRenderer] has been released, `false` otherwise
      */
-    fun isValid(): Boolean = !mIsReleased
+    public fun isValid(): Boolean = !mIsReleased
 
     /**
      * Render content to the front buffered layer providing optional parameters to be consumed in
@@ -539,7 +539,7 @@ constructor(
      *
      * @param param Optional parameter to be consumed when rendering content into the commit layer
      */
-    fun renderFrontBufferedLayer(param: T) {
+    public fun renderFrontBufferedLayer(param: T) {
         if (isValid()) {
             mActiveSegment.add(param)
             if (mCommitCount.get() == 0) {
@@ -574,7 +574,7 @@ constructor(
      *   These parameters will be provided in the corresponding call to
      *   [Callback.onDrawMultiBufferedLayer]
      */
-    fun renderMultiBufferedLayer(params: Collection<T>) {
+    public fun renderMultiBufferedLayer(params: Collection<T>) {
         if (isValid()) {
             mSegments.add(params)
             mMultiBufferedRenderer?.render()
@@ -591,7 +591,7 @@ constructor(
      * Clears the contents of both the front and multi buffered layers. This triggers a call to
      * [Callback.onMultiBufferedLayerRenderComplete] and hides the front buffered layer.
      */
-    fun clear() {
+    public fun clear() {
         clearParamQueues()
         mPendingClear.set(true)
         mMultiBufferedRenderer?.render()
@@ -606,7 +606,7 @@ constructor(
      * If this [GLFrontBufferedRenderer] has been released, that is [isValid] returns `false`, this
      * call is ignored.
      */
-    fun commit() {
+    public fun commit() {
         if (mCommitCount.getAndIncrement() == 0) {
             commitInternal()
         }
@@ -633,7 +633,7 @@ constructor(
      * If this [GLFrontBufferedRenderer] has been released, that is [isValid] returns `false`, this
      * call is ignored.
      */
-    fun cancel() {
+    public fun cancel() {
         if (isValid()) {
             mActiveSegment.clear()
             mPendingRenderCount.set(0)
@@ -653,7 +653,7 @@ constructor(
      *
      * @param runnable to be executed
      */
-    fun execute(runnable: Runnable) {
+    public fun execute(runnable: Runnable) {
         if (isValid()) {
             mGLRenderer.execute(runnable)
         } else {
@@ -729,7 +729,7 @@ constructor(
      *   been released. This callback is invoked on the backing GLThread
      */
     @JvmOverloads
-    fun release(cancelPending: Boolean, onReleaseComplete: (() -> Unit)? = null) {
+    public fun release(cancelPending: Boolean, onReleaseComplete: (() -> Unit)? = null) {
         if (!isValid()) {
             Log.w(TAG, "Attempt to release GLFrontBufferedRenderer that is already released")
             return
@@ -771,7 +771,7 @@ constructor(
      * provide opportunities to synchronize [SurfaceControlCompat.Transaction]s to submit the layers
      * to the hardware compositor.
      */
-    interface Callback<T> {
+    public interface Callback<T> {
 
         /**
          * Callback invoked to render content into the front buffered layer with the specified
@@ -819,7 +819,7 @@ constructor(
          *   to render into the front buffered layer
          */
         @WorkerThread
-        fun onDrawFrontBufferedLayer(
+        public fun onDrawFrontBufferedLayer(
             eglManager: EGLManager,
             width: Int,
             height: Int,
@@ -896,7 +896,7 @@ constructor(
          * is being rendered into taking into account pre-rotation transformations
          */
         @WorkerThread
-        fun onDrawMultiBufferedLayer(
+        public fun onDrawMultiBufferedLayer(
             eglManager: EGLManager,
             width: Int,
             height: Int,
@@ -919,7 +919,7 @@ constructor(
          *   content to the front buffered layer.
          */
         @WorkerThread
-        fun onFrontBufferedLayerRenderComplete(
+        public fun onFrontBufferedLayerRenderComplete(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
             transaction: SurfaceControlCompat.Transaction,
         ) {
@@ -944,7 +944,7 @@ constructor(
          *   content to the multi buffered layer.
          */
         @WorkerThread
-        fun onMultiBufferedLayerRenderComplete(
+        public fun onMultiBufferedLayerRenderComplete(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
             multiBufferedLayerSurfaceControl: SurfaceControlCompat,
             transaction: SurfaceControlCompat.Transaction,

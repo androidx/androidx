@@ -83,9 +83,9 @@ import java.util.concurrent.atomic.AtomicReference
  * @sample androidx.graphics.core.samples.lowLatencyCanvasViewSample
  */
 @RequiresApi(Build.VERSION_CODES.Q)
-class LowLatencyCanvasView
+public class LowLatencyCanvasView
 @JvmOverloads
-constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
+public constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     ViewGroup(context, attrs, defStyle) {
 
     /**
@@ -397,7 +397,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      * updating data structures used to issue drawing instructions on the same thread that
      * [Callback.onDrawFrontBufferedLayer] is invoked on.
      */
-    fun execute(runnable: Runnable) {
+    public fun execute(runnable: Runnable) {
         mHandlerThread.execute(runnable)
     }
 
@@ -421,7 +421,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      * corresponding [SurfaceControlCompat.Transaction] that updates the contents on screen by
      * implementing the optional [Callback.onFrontBufferedLayerRenderComplete] callback
      */
-    fun renderFrontBufferedLayer() {
+    public fun renderFrontBufferedLayer() {
         mFrontBufferTarget.set(true)
         mPendingRenderCount.incrementAndGet()
         mFrontBufferedRenderer?.render(Unit)
@@ -437,7 +437,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      * the pending render requests, this also clears the contents of the buffer. Similar to [commit]
      * this will also hide the front buffered overlay.
      */
-    fun clear() {
+    public fun clear() {
         mClearPending.set(true)
         mFrontBufferedRenderer?.let { renderer ->
             renderer.cancelPending()
@@ -452,7 +452,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      * overlay. Cancellation is a "best-effort" approach and any in progress rendering will still be
      * applied.
      */
-    fun cancel() {
+    public fun cancel() {
         if (mFrontBufferTarget.compareAndSet(true, false)) {
             mPendingRenderCount.set(0)
             mFrontBufferedRenderer?.cancelPending()
@@ -467,7 +467,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      * example in response to a [MotionEvent.ACTION_UP] event in an implementation of
      * [View.onTouchEvent].
      */
-    fun commit() {
+    public fun commit() {
         mFrontBufferTarget.set(false)
         if (!isRenderingToFrontBuffer()) {
             if (mSceneBitmap == null) {
@@ -571,27 +571,27 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      * optionally configuring the [SurfaceControlCompat.Transaction] used to update contents on
      * screen.
      */
-    fun setRenderCallback(callback: Callback?) {
+    public fun setRenderCallback(callback: Callback?) {
         mHandlerThread.execute { mCallback = callback }
     }
 
-    override fun addView(child: View?) {
+    override fun addView(child: View?): Unit {
         addViewInternal(child) { super.addView(child) }
     }
 
-    override fun addView(child: View?, index: Int) {
+    override fun addView(child: View?, index: Int): Unit {
         addViewInternal(child) { super.addView(child, index) }
     }
 
-    override fun addView(child: View?, width: Int, height: Int) {
+    override fun addView(child: View?, width: Int, height: Int): Unit {
         addViewInternal(child) { super.addView(child, width, height) }
     }
 
-    override fun addView(child: View?, params: LayoutParams?) {
+    override fun addView(child: View?, params: LayoutParams?): Unit {
         addViewInternal(child) { super.addView(child, params) }
     }
 
-    override fun addView(child: View?, index: Int, params: LayoutParams?) {
+    override fun addView(child: View?, index: Int, params: LayoutParams?): Unit {
         addViewInternal(child) { super.addView(child, index, params) }
     }
 
@@ -616,7 +616,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      * hardware compositor
      */
     @JvmDefaultWithCompatibility
-    interface Callback {
+    public interface Callback {
 
         /**
          * Callback invoked when the entire scene should be re-rendered. This is invoked during
@@ -626,7 +626,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
          * @param width Logical width of the content that is being rendered.
          * @param height Logical height of the content that is being rendered.
          */
-        @WorkerThread fun onRedrawRequested(canvas: Canvas, width: Int, height: Int)
+        @WorkerThread public fun onRedrawRequested(canvas: Canvas, width: Int, height: Int)
 
         /**
          * Callback invoked to render content into the front buffered layer with the specified
@@ -636,7 +636,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
          * @param width Logical width of the content that is being rendered.
          * @param height Logical height of the content that is being rendered.
          */
-        @WorkerThread fun onDrawFrontBufferedLayer(canvas: Canvas, width: Int, height: Int)
+        @WorkerThread public fun onDrawFrontBufferedLayer(canvas: Canvas, width: Int, height: Int)
 
         /**
          * Optional callback invoked when rendering to the front buffered layer is complete but
@@ -652,7 +652,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
          *   content to the front buffered layer.
          */
         @WorkerThread
-        fun onFrontBufferedLayerRenderComplete(
+        public fun onFrontBufferedLayerRenderComplete(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
             transaction: SurfaceControlCompat.Transaction,
         ) {

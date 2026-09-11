@@ -95,6 +95,5 @@ androidx {
     mavenVersion = LibraryVersions.GRAPHICS_PATH
     inceptionYear = "2022"
     description = "Query segment data for android.graphics.Path objects"
-    legacyDisableKotlinStrictApiMode = true
     enableRobolectric()
 }

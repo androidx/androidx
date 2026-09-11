@@ -34,9 +34,9 @@ import kotlin.math.abs
  *
  * By using features, you can manipulate polygon shapes with more context and control.
  */
-abstract class Feature(val cubics: List<Cubic>) {
+public abstract class Feature(public val cubics: List<Cubic>) {
 
-    companion object Factory {
+    public companion object Factory {
         /**
          * Group a list of [Cubic] objects to a feature that should be ignored in the default
          * [Morph] mapping. The feature can have any indentation.
@@ -57,7 +57,7 @@ abstract class Feature(val cubics: List<Cubic>) {
          * @param cubics The list of raw cubics describing the feature's shape
          * @throws IllegalArgumentException for lists of empty cubics or non-continuous cubics
          */
-        fun buildIgnorableFeature(cubics: List<Cubic>): Feature = validated(Edge(cubics))
+        public fun buildIgnorableFeature(cubics: List<Cubic>): Feature = validated(Edge(cubics))
 
         /**
          * Group a [Cubic] object to an edge (neither inward or outward identification in a shape).
@@ -65,7 +65,7 @@ abstract class Feature(val cubics: List<Cubic>) {
          * @param cubic The raw cubic describing the edge's shape
          * @throws IllegalArgumentException for lists of empty cubics or non-continuous cubics
          */
-        fun buildEdge(cubic: Cubic): Feature = Edge(listOf(cubic))
+        public fun buildEdge(cubic: Cubic): Feature = Edge(listOf(cubic))
 
         /**
          * Group a list of [Cubic] objects to a convex corner (outward indentation in a shape).
@@ -73,7 +73,7 @@ abstract class Feature(val cubics: List<Cubic>) {
          * @param cubics The list of raw cubics describing the corner's shape
          * @throws IllegalArgumentException for lists of empty cubics or non-continuous cubics
          */
-        fun buildConvexCorner(cubics: List<Cubic>): Feature = validated(Corner(cubics, true))
+        public fun buildConvexCorner(cubics: List<Cubic>): Feature = validated(Corner(cubics, true))
 
         /**
          * Group a list of [Cubic] objects to a concave corner (inward indentation in a shape).
@@ -81,7 +81,8 @@ abstract class Feature(val cubics: List<Cubic>) {
          * @param cubics The list of raw cubics describing the corner's shape
          * @throws IllegalArgumentException for lists of empty cubics or non-continuous cubics
          */
-        fun buildConcaveCorner(cubics: List<Cubic>): Feature = validated(Corner(cubics, false))
+        public fun buildConcaveCorner(cubics: List<Cubic>): Feature =
+            validated(Corner(cubics, false))
 
         private fun validated(feature: Feature): Feature {
             require(feature.cubics.isNotEmpty()) { "Features need at least one cubic." }
@@ -116,28 +117,28 @@ abstract class Feature(val cubics: List<Cubic>) {
      *
      * @param f The [PointTransformer] used to transform this [Feature]
      */
-    abstract fun transformed(f: PointTransformer): Feature
+    public abstract fun transformed(f: PointTransformer): Feature
 
     /**
      * Returns a new [Feature] with the points that define the shape of this [Feature] in reversed
      * order.
      */
-    abstract fun reversed(): Feature
+    public abstract fun reversed(): Feature
 
     /**
      * Whether this Feature gets ignored in the Morph mapping. See [buildIgnorableFeature] for more
      * details.
      */
-    abstract val isIgnorableFeature: Boolean
+    public abstract val isIgnorableFeature: Boolean
 
     /** Whether this Feature is an Edge with no inward or outward indentation. */
-    abstract val isEdge: Boolean
+    public abstract val isEdge: Boolean
 
     /** Whether this Feature is a convex corner (outward indentation in a shape). */
-    abstract val isConvexCorner: Boolean
+    public abstract val isConvexCorner: Boolean
 
     /** Whether this Feature is a concave corner (inward indentation in a shape). */
-    abstract val isConcaveCorner: Boolean
+    public abstract val isConcaveCorner: Boolean
 
     /**
      * Edges have only a list of the cubic curves which make up the edge. Edges lie between corners

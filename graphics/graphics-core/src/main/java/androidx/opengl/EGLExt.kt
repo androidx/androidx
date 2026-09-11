@@ -28,9 +28,9 @@ import androidx.hardware.SyncFenceV19
 import androidx.opengl.EGLExt.Companion.eglCreateSyncKHR
 
 /** Utility class that provides some helper methods for interacting EGL Extension APIs */
-class EGLExt private constructor() {
+public class EGLExt private constructor() {
 
-    companion object {
+    public companion object {
 
         /**
          * Determines if applications can query the age of the back buffer contents for an EGL
@@ -38,7 +38,7 @@ class EGLExt private constructor() {
          *
          * See: https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_buffer_age.txt
          */
-        const val EGL_EXT_BUFFER_AGE = "EGL_EXT_buffer_age"
+        public const val EGL_EXT_BUFFER_AGE: String = "EGL_EXT_buffer_age"
 
         /**
          * Allows for efficient partial updates to an area of a **buffer** that has changed since
@@ -46,7 +46,7 @@ class EGLExt private constructor() {
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_partial_update.txt
          */
-        const val EGL_KHR_PARTIAL_UPDATE = "EGL_KHR_partial_update"
+        public const val EGL_KHR_PARTIAL_UPDATE: String = "EGL_KHR_partial_update"
 
         /**
          * Allows for efficient partial updates to an area of a **surface** that changes between
@@ -56,7 +56,8 @@ class EGLExt private constructor() {
          * See:
          * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_swap_buffers_with_damage.txt
          */
-        const val EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE = "EGL_KHR_swap_buffers_with_damage"
+        public const val EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE: String =
+            "EGL_KHR_swap_buffers_with_damage"
 
         /**
          * Determines whether to use sRGB format default framebuffers to render sRGB content to
@@ -65,28 +66,28 @@ class EGLExt private constructor() {
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_gl_colorspace.txt
          */
-        const val EGL_KHR_GL_COLORSPACE = "EGL_KHR_gl_colorspace"
+        public const val EGL_KHR_GL_COLORSPACE: String = "EGL_KHR_gl_colorspace"
 
         /**
          * Determines whether creation of GL and ES contexts without an EGLConfig is allowed
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_no_config_context.txt
          */
-        const val EGL_KHR_NO_CONFIG_CONTEXT = "EGL_KHR_no_config_context"
+        public const val EGL_KHR_NO_CONFIG_CONTEXT: String = "EGL_KHR_no_config_context"
 
         /**
          * Determines whether floating point RGBA components are supported
          *
          * See: https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_pixel_format_float.txt
          */
-        const val EGL_EXT_PIXEL_FORMAT_FLOAT = "EGL_EXT_pixel_format_float"
+        public const val EGL_EXT_PIXEL_FORMAT_FLOAT: String = "EGL_EXT_pixel_format_float"
 
         /**
          * Determines whether extended sRGB color spaces are supported options for EGL Surfaces
          *
          * See: https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_gl_colorspace_scrgb.txt
          */
-        const val EGL_EXT_GL_COLORSPACE_SCRGB = "EGL_EXT_gl_colorspace_scrgb"
+        public const val EGL_EXT_GL_COLORSPACE_SCRGB: String = "EGL_EXT_gl_colorspace_scrgb"
 
         /**
          * Determines whether the underlying platform can support rendering framebuffers in the
@@ -95,7 +96,7 @@ class EGLExt private constructor() {
          * See:
          * https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_gl_colorspace_display_p3_passthrough.txt
          */
-        const val EGL_EXT_GL_COLORSPACE_DISPLAY_P3_PASSTHROUGH =
+        public const val EGL_EXT_GL_COLORSPACE_DISPLAY_P3_PASSTHROUGH: String =
             "EGL_EXT_gl_colorspace_display_p3_passthrough"
 
         /**
@@ -105,7 +106,7 @@ class EGLExt private constructor() {
          * See:
          * https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_gl_colorspace_bt2020_linear.txt
          */
-        const val EGL_EXT_GL_COLORSPACE_BT2020_PQ = "EGL_EXT_gl_colorspace_bt2020_pq"
+        public const val EGL_EXT_GL_COLORSPACE_BT2020_PQ: String = "EGL_EXT_gl_colorspace_bt2020_pq"
 
         /**
          * Determines whether an EGLContext can be created with a priority hint. Not all
@@ -113,7 +114,7 @@ class EGLExt private constructor() {
          *
          * See: https://www.khronos.org/registry/EGL/extensions/IMG/EGL_IMG_context_priority.txt
          */
-        const val EGL_IMG_CONTEXT_PRIORITY = "EGL_IMG_context_priority"
+        public const val EGL_IMG_CONTEXT_PRIORITY: String = "EGL_IMG_context_priority"
 
         /**
          * Determines whether creation of an EGL Context without a surface is supported. This is
@@ -123,7 +124,7 @@ class EGLExt private constructor() {
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_surfaceless_context.txt
          */
-        const val EGL_KHR_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context"
+        public const val EGL_KHR_SURFACELESS_CONTEXT: String = "EGL_KHR_surfaceless_context"
 
         /**
          * Determines whether sync objects are supported. Sync objects are synchronization
@@ -131,7 +132,7 @@ class EGLExt private constructor() {
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
          */
-        const val EGL_KHR_FENCE_SYNC = "EGL_KHR_fence_sync"
+        public const val EGL_KHR_FENCE_SYNC: String = "EGL_KHR_fence_sync"
 
         /**
          * Determines whether waiting for signaling of sync objects is supported. This form of wait
@@ -141,7 +142,7 @@ class EGLExt private constructor() {
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_wait_sync.txt
          */
-        const val EGL_KHR_WAIT_SYNC = "EGL_KHR_wait_sync"
+        public const val EGL_KHR_WAIT_SYNC: String = "EGL_KHR_wait_sync"
 
         /**
          * Determines whether creation of platform specific sync objects are supported. These
@@ -151,7 +152,7 @@ class EGLExt private constructor() {
          * See:
          * https://www.khronos.org/registry/EGL/extensions/ANDROID/EGL_ANDROID_native_fence_sync.txt
          */
-        const val EGL_ANDROID_NATIVE_FENCE_SYNC = "EGL_ANDROID_native_fence_sync"
+        public const val EGL_ANDROID_NATIVE_FENCE_SYNC: String = "EGL_ANDROID_native_fence_sync"
 
         /**
          * Enables using an Android window buffer (struct ANativeWindowBuffer) as an EGLImage source
@@ -159,7 +160,7 @@ class EGLExt private constructor() {
          * See:
          * https://www.khronos.org/registry/EGL/extensions/ANDROID/EGL_ANDROID_image_native_buffer.txt
          */
-        const val EGL_ANDROID_IMAGE_NATIVE_BUFFER = "EGL_ANDROID_image_native_buffer"
+        public const val EGL_ANDROID_IMAGE_NATIVE_BUFFER: String = "EGL_ANDROID_image_native_buffer"
 
         /**
          * Extension for supporting a new EGL resource type that is suitable for sharing 2D arrays
@@ -170,14 +171,14 @@ class EGLExt private constructor() {
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_image_base.txt
          */
-        const val EGL_KHR_IMAGE_BASE = "EGL_KHR_image_base"
+        public const val EGL_KHR_IMAGE_BASE: String = "EGL_KHR_image_base"
 
         /**
          * Extension that allows creating an EGLClientBuffer from an Android [HardwareBuffer] object
          * which can later be used to create an [EGLImageKHR] instance. See:
          * https://registry.khronos.org/EGL/extensions/ANDROID/EGL_ANDROID_get_native_client_buffer.txt
          */
-        const val EGL_ANDROID_CLIENT_BUFFER = "EGL_ANDROID_get_native_client_buffer"
+        public const val EGL_ANDROID_CLIENT_BUFFER: String = "EGL_ANDROID_get_native_client_buffer"
 
         /**
          * Extension that defines a new EGL resource type that is suitable for sharing 2D arrays of
@@ -186,13 +187,13 @@ class EGLExt private constructor() {
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_image.txt
          */
-        const val EGL_KHR_IMAGE = "EGL_KHR_image"
+        public const val EGL_KHR_IMAGE: String = "EGL_KHR_image"
 
         /** Specifies the types of attributes that can be queried in [eglGetSyncAttribKHR] */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(value = [EGL_SYNC_TYPE_KHR, EGL_SYNC_STATUS_KHR, EGL_SYNC_CONDITION_KHR])
-        annotation class EGLSyncAttribute
+        public annotation class EGLSyncAttribute
 
         /**
          * Attribute that can be queried in [eglGetSyncAttribKHR]. The results can be either
@@ -200,7 +201,7 @@ class EGLExt private constructor() {
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
          */
-        const val EGL_SYNC_TYPE_KHR = 0x30F7
+        public const val EGL_SYNC_TYPE_KHR: Int = 0x30F7
 
         /**
          * Attribute that can be queried in [eglGetSyncAttribKHR]. The results can be either
@@ -209,7 +210,7 @@ class EGLExt private constructor() {
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
          */
-        const val EGL_SYNC_STATUS_KHR = 0x30F1
+        public const val EGL_SYNC_STATUS_KHR: Int = 0x30F1
 
         /**
          * Attribute that can be queried in [eglGetSyncAttribKHR]. This attribute can only be
@@ -217,7 +218,7 @@ class EGLExt private constructor() {
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
          */
-        const val EGL_SYNC_CONDITION_KHR = 0x30F8
+        public const val EGL_SYNC_CONDITION_KHR: Int = 0x30F8
 
         /**
          * Return value when [eglGetSyncAttribKHR] is called with [EGL_SYNC_STATUS_KHR] indicating
@@ -225,7 +226,7 @@ class EGLExt private constructor() {
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
          */
-        const val EGL_SIGNALED_KHR = 0x30F2
+        public const val EGL_SIGNALED_KHR: Int = 0x30F2
 
         /**
          * Return value when [eglGetSyncAttribKHR] is called with [EGL_SYNC_STATUS_KHR] indicating
@@ -233,7 +234,7 @@ class EGLExt private constructor() {
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
          */
-        const val EGL_UNSIGNALED_KHR = 0x30F3
+        public const val EGL_UNSIGNALED_KHR: Int = 0x30F3
 
         /**
          * Return value when [eglGetSyncAttribKHR] is called with [EGL_SYNC_CONDITION_KHR]. This
@@ -241,13 +242,13 @@ class EGLExt private constructor() {
          * fence command on the corresponding sync object and all preceding commands in th EGL
          * client API's command stream.
          */
-        const val EGL_SYNC_PRIOR_COMMANDS_COMPLETE_KHR = 0x30F0
+        public const val EGL_SYNC_PRIOR_COMMANDS_COMPLETE_KHR: Int = 0x30F0
 
         /** Specifies the type of fence to create in [eglCreateSyncKHR] */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef(value = [EGL_SYNC_FENCE_KHR, EGL_SYNC_NATIVE_FENCE_ANDROID])
         @Retention(AnnotationRetention.SOURCE)
-        annotation class EGLFenceType
+        public annotation class EGLFenceType
 
         /**
          * Create an EGL fence sync object for signalling one time events. The fence object created
@@ -257,7 +258,7 @@ class EGLExt private constructor() {
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
          */
-        const val EGL_SYNC_FENCE_KHR = 0x30F9
+        public const val EGL_SYNC_FENCE_KHR: Int = 0x30F9
 
         /**
          * This extension enables the creation of EGL fence sync objects that are associated with a
@@ -275,7 +276,7 @@ class EGLExt private constructor() {
          * See:
          * https://www.khronos.org/registry/EGL/extensions/ANDROID/EGL_ANDROID_native_fence_sync.txt
          */
-        const val EGL_SYNC_NATIVE_FENCE_ANDROID = 0x3144
+        public const val EGL_SYNC_NATIVE_FENCE_ANDROID: Int = 0x3144
 
         /**
          * Value that can be sent as the timeoutNanos parameter of [eglClientWaitSyncKHR] indicating
@@ -284,40 +285,40 @@ class EGLExt private constructor() {
         // Note EGL has EGL_FOREVER_KHR defined as 0xFFFFFFFFFFFFFFFFuL. However, Java does not
         // support unsigned long types. So use -1 as the constant value here as it will be casted
         // as an EGLTimeKHR type which is uint64 in the corresponding JNI method
-        const val EGL_FOREVER_KHR = -1L
+        public const val EGL_FOREVER_KHR: Long = -1L
 
         /** Specifies various return values for the [eglClientWaitSyncKHR] method */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Target(AnnotationTarget.TYPE)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(value = [EGL_CONDITION_SATISFIED_KHR, EGL_TIMEOUT_EXPIRED_KHR, EGL_FALSE])
-        annotation class EGLClientWaitResult
+        public annotation class EGLClientWaitResult
 
         /**
          * Return value used in [eglClientWaitSyncKHR] to indicate that the specified timeout period
          * had expired before a sync object was signalled.
          */
-        const val EGL_TIMEOUT_EXPIRED_KHR = 0x30F5
+        public const val EGL_TIMEOUT_EXPIRED_KHR: Int = 0x30F5
 
         /**
          * Return value used in [eglClientWaitSyncKHR] to indicate that the sync object had
          * signalled before the timeout expired. This includes the case where the sync object had
          * already signalled before [eglClientWaitSyncKHR] was called.
          */
-        const val EGL_CONDITION_SATISFIED_KHR = 0x30F6
+        public const val EGL_CONDITION_SATISFIED_KHR: Int = 0x30F6
 
         /**
          * Accepted in the flags parameter of [eglClientWaitSyncKHR]. This will implicitly ensure
          * pending commands are flushed to prevent [eglClientWaitSyncKHR] from potentially blocking
          * forever. See [eglClientWaitSyncKHR] for details.
          */
-        const val EGL_SYNC_FLUSH_COMMANDS_BIT_KHR = 0x0001
+        public const val EGL_SYNC_FLUSH_COMMANDS_BIT_KHR: Int = 0x0001
 
         /** Constant indicating true within EGL. This is often returned in success cases. */
-        const val EGL_TRUE = 1
+        public const val EGL_TRUE: Int = 1
 
         /** Constant indicating false within EGL. This is often returned in failure cases. */
-        const val EGL_FALSE = 0
+        public const val EGL_FALSE: Int = 0
 
         /**
          * Creates an EGLImage from the provided [HardwareBuffer]. This handles internally creating
@@ -340,7 +341,7 @@ class EGLExt private constructor() {
          */
         @JvmStatic
         @RequiresApi(Build.VERSION_CODES.O)
-        fun eglCreateImageFromHardwareBuffer(
+        public fun eglCreateImageFromHardwareBuffer(
             eglDisplay: EGLDisplay,
             hardwareBuffer: HardwareBuffer,
         ): EGLImageKHR? {
@@ -367,7 +368,7 @@ class EGLExt private constructor() {
          * @return True if the destruction of the EGLImageKHR object was successful, false otherwise
          */
         @JvmStatic
-        fun eglDestroyImageKHR(eglDisplay: EGLDisplay, image: EGLImageKHR): Boolean =
+        public fun eglDestroyImageKHR(eglDisplay: EGLDisplay, image: EGLImageKHR): Boolean =
             EGLBindings.nDestroyImageKHR(eglDisplay.nativeHandle, image.nativeHandle)
 
         /**
@@ -380,7 +381,7 @@ class EGLExt private constructor() {
          */
         @JvmStatic
         @Suppress("AcronymName")
-        fun glEGLImageTargetTexture2DOES(target: Int, image: EGLImageKHR) {
+        public fun glEGLImageTargetTexture2DOES(target: Int, image: EGLImageKHR) {
             EGLBindings.nImageTargetTexture2DOES(target, image.nativeHandle)
         }
 
@@ -404,7 +405,7 @@ class EGLExt private constructor() {
          *   supported
          */
         @JvmStatic
-        fun eglCreateSyncKHR(
+        public fun eglCreateSyncKHR(
             eglDisplay: EGLDisplay,
             @EGLFenceType type: Int,
             attributes: EGLConfigAttributes?,
@@ -438,7 +439,7 @@ class EGLExt private constructor() {
          *   returned.
          */
         @JvmStatic
-        fun eglGetSyncAttribKHR(
+        public fun eglGetSyncAttribKHR(
             eglDisplay: EGLDisplay,
             sync: EGLSyncKHR,
             @EGLSyncAttribute attribute: Int,
@@ -494,7 +495,7 @@ class EGLExt private constructor() {
          *   [EGL_FALSE] if an error occurs.
          */
         @JvmStatic
-        fun eglClientWaitSyncKHR(
+        public fun eglClientWaitSyncKHR(
             eglDisplay: EGLDisplay,
             sync: EGLSyncKHR,
             flags: Int,
@@ -552,7 +553,7 @@ class EGLExt private constructor() {
          *   this sync in eglCreateSyncKHR.
          */
         @JvmStatic
-        fun eglDestroySyncKHR(eglDisplay: EGLDisplay, eglSync: EGLSyncKHR): Boolean =
+        public fun eglDestroySyncKHR(eglDisplay: EGLDisplay, eglSync: EGLSyncKHR): Boolean =
             EGLBindings.nDestroySyncKHR(eglDisplay.nativeHandle, eglSync.nativeHandle)
 
         /**
@@ -560,7 +561,7 @@ class EGLExt private constructor() {
          * represents the set of OpenGL extensions supported
          */
         @JvmStatic
-        fun parseExtensions(queryString: String): Set<String> =
+        public fun parseExtensions(queryString: String): Set<String> =
             HashSet<String>().apply { addAll(queryString.split(' ')) }
     }
 }

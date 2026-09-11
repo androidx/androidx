@@ -26,7 +26,8 @@ import android.opengl.GLES20
  * @param frameBufferId Frame buffer object identifier. This is useful for retargeting rendering
  *   operations to the original destination after rendering to intermediate scratch buffers.
  */
-class BufferInfo internal constructor(width: Int = 0, height: Int = 0, frameBufferId: Int = -1) {
+public class BufferInfo
+internal constructor(width: Int = 0, height: Int = 0, frameBufferId: Int = -1) {
 
     /**
      * Width of the buffer that is being rendered into. This can be different than the corresponding
@@ -34,7 +35,7 @@ class BufferInfo internal constructor(width: Int = 0, height: Int = 0, frameBuff
      * order to avoid GPU composition to rotate content. This should be used as input to
      * [GLES20.glViewport].
      */
-    var width: Int = width
+    public var width: Int = width
         internal set
 
     /**
@@ -43,13 +44,13 @@ class BufferInfo internal constructor(width: Int = 0, height: Int = 0, frameBuff
      * parameters in order to avoid GPU composition to rotate content. This should be used as input
      * to [GLES20.glViewport].
      */
-    var height: Int = height
+    public var height: Int = height
         internal set
 
     /**
      * Identifier of the destination frame buffer object that is being rendered into. This is useful
      * for re-binding to the original target after rendering to intermediate frame buffer objects.
      */
-    var frameBufferId: Int = frameBufferId
+    public var frameBufferId: Int = frameBufferId
         internal set
 }

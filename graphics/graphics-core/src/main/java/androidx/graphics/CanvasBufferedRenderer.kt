@@ -58,7 +58,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * `false` by default.
  */
 @RequiresApi(Build.VERSION_CODES.Q)
-class CanvasBufferedRenderer
+public class CanvasBufferedRenderer
 internal constructor(
     width: Int,
     height: Int,
@@ -83,7 +83,7 @@ internal constructor(
      * Returns the number of buffers within the swap chain used for rendering with this
      * [CanvasBufferedRenderer]
      */
-    val maxBuffers: Int
+    public val maxBuffers: Int
         get() = mMaxBuffers
 
     /**
@@ -91,7 +91,7 @@ internal constructor(
      * [CanvasBufferedRenderer]
      */
     @HardwareBufferFormat
-    val bufferFormat: Int
+    public val bufferFormat: Int
         get() = mFormat
 
     /**
@@ -99,7 +99,7 @@ internal constructor(
      * [CanvasBufferedRenderer]
      */
     @HardwareBufferUsage
-    val usageFlags: Long
+    public val usageFlags: Long
         get() = mUsage
 
     /**
@@ -114,14 +114,14 @@ internal constructor(
      * Returns if the [CanvasBufferedRenderer] has already been closed. That is
      * [CanvasBufferedRenderer.close] has been invoked.
      */
-    val isClosed: Boolean
+    public val isClosed: Boolean
         get() = mImpl.isClosed()
 
     /**
      * Returns a [RenderRequest] that can be used to render into the provided HardwareBuffer. This
      * is used to synchronize the RenderNode content provided by [setContentRoot].
      */
-    fun obtainRenderRequest(): RenderRequest {
+    public fun obtainRenderRequest(): RenderRequest {
         mRenderRequest.reset()
         return mRenderRequest
     }
@@ -132,7 +132,7 @@ internal constructor(
      * contained within the content node, will be applied whenever a new [RenderRequest] is issued
      * via [obtainRenderRequest] and [RenderRequest.drawAsync].
      */
-    fun setContentRoot(renderNode: RenderNode) {
+    public fun setContentRoot(renderNode: RenderNode) {
         mImpl.setContentRoot(renderNode)
     }
 
@@ -145,7 +145,7 @@ internal constructor(
      *
      * This must be set at least once along with [setLightSourceGeometry] before shadows will work.
      */
-    fun setLightSourceAlpha(ambientShadowAlpha: Float, spotShadowAlpha: Float) {
+    public fun setLightSourceAlpha(ambientShadowAlpha: Float, spotShadowAlpha: Float) {
         mImpl.setLightSourceAlpha(ambientShadowAlpha, spotShadowAlpha)
     }
 
@@ -159,7 +159,12 @@ internal constructor(
      *
      * This must be set at least once along with [setLightSourceAlpha] before shadows will work.
      */
-    fun setLightSourceGeometry(lightX: Float, lightY: Float, lightZ: Float, lightRadius: Float) {
+    public fun setLightSourceGeometry(
+        lightX: Float,
+        lightY: Float,
+        lightZ: Float,
+        lightRadius: Float,
+    ) {
         mImpl.setLightSourceGeometry(lightX, lightY, lightZ, lightRadius)
     }
 
@@ -169,7 +174,7 @@ internal constructor(
      * @param width Width of the buffers created by the [CanvasBufferedRenderer] instance
      * @param height Height of the buffers created by the [CanvasBufferedRenderer] instance
      */
-    class Builder(private val width: Int, private val height: Int) {
+    public class Builder(private val width: Int, private val height: Int) {
 
         private var mBufferFormat = HardwareBuffer.RGBA_8888
         private var mMaxBuffers = DefaultNumBuffers
@@ -198,7 +203,7 @@ internal constructor(
          * @param format Pixel format of the buffers to be rendered into. The default is RGBA_8888.
          * @return The builder instance
          */
-        fun setBufferFormat(@HardwareBufferFormat format: Int): Builder {
+        public fun setBufferFormat(@HardwareBufferFormat format: Int): Builder {
             mBufferFormat = format
             return this
         }
@@ -216,7 +221,7 @@ internal constructor(
          * @return The builder instance
          * @see CanvasBufferedRenderer.RenderRequest.drawAsync
          */
-        fun setMaxBuffers(@IntRange(from = 1, to = 64) numBuffers: Int): Builder {
+        public fun setMaxBuffers(@IntRange(from = 1, to = 64) numBuffers: Int): Builder {
             require(numBuffers > 0) { "Must have at least 1 buffer" }
             mMaxBuffers = numBuffers
             return this
@@ -233,7 +238,7 @@ internal constructor(
          *   [HardwareBuffer.USAGE_GPU_COLOR_OUTPUT] and [HardwareBuffer.USAGE_COMPOSER_OVERLAY]
          * @return The builder instance
          */
-        fun setUsageFlags(@HardwareBufferUsage usageFlags: Long): Builder {
+        public fun setUsageFlags(@HardwareBufferUsage usageFlags: Long): Builder {
             mUsageFlags = usageFlags or DefaultFlags
             return this
         }
@@ -254,7 +259,7 @@ internal constructor(
          *
          * @return The newly created [CanvasBufferedRenderer] instance.
          */
-        fun build(): CanvasBufferedRenderer {
+        public fun build(): CanvasBufferedRenderer {
             return CanvasBufferedRenderer(
                 width,
                 height,
@@ -271,7 +276,7 @@ internal constructor(
      * [CanvasBufferedRenderer]. This is not thread-safe and must not be held on to for longer than
      * a single request.
      */
-    inner class RenderRequest internal constructor() {
+    public inner class RenderRequest internal constructor() {
 
         private var mColorSpace = DefaultColorSpace
         private var mTransform = SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY
@@ -300,7 +305,7 @@ internal constructor(
          * @throws IllegalStateException if this method is invoked after the
          *   [CanvasBufferedRenderer] has been closed.
          */
-        fun drawAsync(executor: Executor, callback: Consumer<RenderResult>) {
+        public fun drawAsync(executor: Executor, callback: Consumer<RenderResult>) {
             if (isClosed) {
                 throw IllegalStateException("Attempt to draw after renderer has been closed")
             }
@@ -319,7 +324,7 @@ internal constructor(
          *   Passing `false` here on Android T and below is a no-op as the graphics rendering
          *   pipeline internally blocks on the fence before returning.
          */
-        suspend fun draw(waitForFence: Boolean = true): RenderResult {
+        public suspend fun draw(waitForFence: Boolean = true): RenderResult {
             check(!isClosed) { "Attempt to draw after renderer has been closed" }
 
             return suspendCancellableCoroutine { continuation ->
@@ -348,7 +353,7 @@ internal constructor(
          *   [SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270]
          * @see SurfaceControl.Transaction#setBufferTransform(SurfaceControl, int)
          */
-        fun setBufferTransform(@BufferTransform bufferTransform: Int): RenderRequest {
+        public fun setBufferTransform(@BufferTransform bufferTransform: Int): RenderRequest {
             val validTransform =
                 bufferTransform == SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY ||
                     bufferTransform == SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90 ||
@@ -376,7 +381,7 @@ internal constructor(
          * **NOTE** this method is only supported on Android U and above and is ignored on older
          * Android versions
          */
-        fun setColorSpace(colorSpace: ColorSpace?): RenderRequest {
+        public fun setColorSpace(colorSpace: ColorSpace?): RenderRequest {
             mColorSpace = colorSpace ?: DefaultColorSpace
             return this
         }
@@ -398,7 +403,7 @@ internal constructor(
          *
          * The default setting is false.
          */
-        fun preserveContents(preserve: Boolean): RenderRequest {
+        public fun preserveContents(preserve: Boolean): RenderRequest {
             mPreserveContents = preserve
             return this
         }
@@ -418,7 +423,7 @@ internal constructor(
      *   reused.
      */
     @JvmOverloads
-    fun releaseBuffer(hardwareBuffer: HardwareBuffer, fence: SyncFenceCompat? = null) {
+    public fun releaseBuffer(hardwareBuffer: HardwareBuffer, fence: SyncFenceCompat? = null) {
         mImpl.releaseBuffer(hardwareBuffer, fence)
     }
 
@@ -440,7 +445,7 @@ internal constructor(
      *  }
      * ```
      */
-    class RenderResult(
+    public class RenderResult(
         private val buffer: HardwareBuffer,
         private val mFence: SyncFenceCompat?,
         private val mStatus: Int,
@@ -452,7 +457,7 @@ internal constructor(
          * consuming the contents of this buffer. If [fence] returns null then this [HardwareBuffer]
          * can be consumed immediately.
          */
-        val hardwareBuffer: HardwareBuffer
+        public val hardwareBuffer: HardwareBuffer
             get() = buffer
 
         /**
@@ -467,22 +472,22 @@ internal constructor(
          * rendering pipeline will automatically block on this fence and this value will return
          * null.
          */
-        val fence: SyncFenceCompat?
+        public val fence: SyncFenceCompat?
             get() = mFence
 
         /**
          * Status code for the [RenderResult] either [SUCCESS] if rendering completed or
          * [ERROR_UNKNOWN] if the rendering could not be completed.
          */
-        val status: Int
+        public val status: Int
             get() = mStatus
 
-        companion object {
+        public companion object {
             /** Render request was completed successfully */
-            const val SUCCESS = 0
+            public const val SUCCESS: Int = 0
 
             /** Render request failed with an unknown error */
-            const val ERROR_UNKNOWN = 1
+            public const val ERROR_UNKNOWN: Int = 1
         }
     }
 
@@ -505,7 +510,7 @@ internal constructor(
 
     internal companion object {
 
-        val DefaultColorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
+        public val DefaultColorSpace: ColorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
 
         /**
          * Test flag to use the optimal implementation for the corresponding Android platform
