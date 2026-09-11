@@ -26,7 +26,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
+import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.layout.Component
+import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout
 import androidx.compose.remote.player.compose.embedded.LocalAnimatedVisibilityScope
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
@@ -104,8 +106,8 @@ internal fun RcPlayerFitBoxLayout(layout: FitBoxLayout, modifier: Modifier) {
         var chosen = -1
         for (i in 0 until placeables.size) {
             val c = children[i]
-            val childMinWidth = c.minIntrinsicWidth(remoteContext)
-            val childMinHeight = c.minIntrinsicHeight(remoteContext)
+            val childMinWidth = candidateMinIntrinsicWidth(c, remoteContext)
+            val childMinHeight = candidateMinIntrinsicHeight(c, remoteContext)
             if (childMinWidth <= maxWidth && childMinHeight <= maxHeight) {
                 val p = placeables[i]
                 if (p.width <= maxWidth && p.height <= maxHeight) {
@@ -179,4 +181,39 @@ private fun mapFitBoxAlignment(horizontal: Int, vertical: Int): Alignment {
         vertical == FitBoxLayout.BOTTOM -> Alignment.BottomCenter
         else -> Alignment.Center
     }
+}
+
+/**
+ * Returns the minimum intrinsic width for a FitBoxLayout candidate component.
+ *
+ * If the candidate has an exact width modifier (e.g. `width(380.rdp)`), its minimum required width
+ * is determined by that exact modifier (+ padding) without incorrectly adding child intrinsic
+ * widths (which occurs in CollapsibleColumnLayout / CollapsibleRowLayout minIntrinsicWidth).
+ */
+private fun candidateMinIntrinsicWidth(component: Component, remoteContext: RemoteContext): Float {
+    if (component is LayoutComponent) {
+        val widthMod = component.widthModifier
+        if (widthMod != null && widthMod.isExact) {
+            return component.computeModifierDefinedWidth(remoteContext, true)
+        }
+    }
+    return component.minIntrinsicWidth(remoteContext)
+}
+
+/**
+ * Returns the minimum intrinsic height for a FitBoxLayout candidate component.
+ *
+ * If the candidate has an exact height modifier (e.g. `height(200.rdp)`), its minimum required
+ * height is determined by that exact modifier (+ padding) without incorrectly adding child
+ * intrinsic heights (which occurs in CollapsibleColumnLayout / CollapsibleRowLayout
+ * minIntrinsicHeight).
+ */
+private fun candidateMinIntrinsicHeight(component: Component, remoteContext: RemoteContext): Float {
+    if (component is LayoutComponent) {
+        val heightMod = component.heightModifier
+        if (heightMod != null && heightMod.isExact) {
+            return component.computeModifierDefinedHeight(remoteContext, true)
+        }
+    }
+    return component.minIntrinsicHeight(remoteContext)
 }
