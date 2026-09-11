@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalBenchmarkConfigApi::class, ExperimentalPerfettoCaptureApi::class)
+
 package androidx.compose.integration.hero.pokedex.macrobenchmark
 
+import androidx.benchmark.ExperimentalBenchmarkConfigApi
+import androidx.benchmark.ExperimentalConfig
+import androidx.benchmark.MemoryProfilingConfig
+import androidx.benchmark.StartupInsightsConfig
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.StartupMode
+import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.compose.integration.hero.common.macrobenchmark.HeroMacrobenchmarkDefaults
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.POKEDEX_TARGET_PACKAGE_NAME
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.waitOrThrow
@@ -57,6 +64,15 @@ class PokedexDetailsStartupBenchmark(
             packageName = POKEDEX_TARGET_PACKAGE_NAME,
             iterations = HeroMacrobenchmarkDefaults.ITERATIONS,
             metrics = getStartupMetrics() + CpuFrequencyChangeMetric(),
+            experimentalConfig =
+                ExperimentalConfig(
+                    startupInsightsConfig = StartupInsightsConfig(true),
+                    memoryProfilingConfig =
+                        MemoryProfilingConfig(
+                            isSampleArtHeapEnabled = true,
+                            isSampleNativeHeapEnabled = true,
+                        ),
+                ),
             setupIntent = {
                 configure(
                     action = action,

@@ -19,6 +19,7 @@ package androidx.benchmark.perfetto
 import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Arguments
+import androidx.benchmark.MemoryProfilingConfig
 import androidx.benchmark.Shell
 import androidx.benchmark.VirtualFile
 import perfetto.protos.AndroidPowerConfig
@@ -86,12 +87,7 @@ public sealed class PerfettoConfig(internal val isTextProto: Boolean) {
                 }
             virtualFile.writeBytes(
                 perfettoConfig(
-                        atraceApps =
-                            if (Build.VERSION.SDK_INT <= 28 || appTagPackages.isEmpty()) {
-                                appTagPackages
-                            } else {
-                                listOf("*")
-                            },
+                        atraceApps = atraceAppsFor(appTagPackages),
                         stackSamplingConfig = stackSamplingConfig,
                     )
                     .validateAndEncode()
@@ -114,7 +110,41 @@ public sealed class PerfettoConfig(internal val isTextProto: Boolean) {
             )
         }
     }
+
+    /** Perfetto config for memory profiling phase. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public class MemoryProfiling(
+        private val targetPackageName: String,
+        private val memoryProfilingConfig: MemoryProfilingConfig,
+    ) : PerfettoConfig(isTextProto = false) {
+        public override fun writeTo(virtualFile: VirtualFile) {
+            val packages = listOf(targetPackageName)
+            virtualFile.writeBytes(
+                perfettoConfig(
+                        atraceApps = atraceAppsFor(packages),
+                        stackSamplingConfig = null,
+                        memoryProfilingConfig = memoryProfilingConfig,
+                        memoryProfilingPackages = packages,
+                    )
+                    .validateAndEncode()
+            )
+        }
+    }
 }
+
+/**
+ * Resolves the `atrace_apps` package list for ftrace data source configuration.
+ *
+ * Wildcard (`*`) application matching was added in Android Pie (API 28). On older platforms (API 28
+ * and below) or when no packages are specified, explicit package names must be supplied. On newer
+ * platforms, wildcard matching is used to capture userspace tracing across all processes.
+ */
+private fun atraceAppsFor(packages: List<String>): List<String> =
+    if (Build.VERSION.SDK_INT <= 28 || packages.isEmpty()) {
+        packages
+    } else {
+        listOf("*")
+    }
 
 private fun minimalAtraceDataSource(atraceApps: List<String>) =
     TraceConfig.DataSource(
@@ -333,32 +363,68 @@ private fun stackSamplingSource(config: StackSamplingConfig): List<TraceConfig.D
                 )
         )
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        // https://perfetto.dev/docs/reference/trace-config-proto#HeapprofdConfig
-        sources +=
-            TraceConfig.DataSource(
-                config =
-                    DataSourceConfig(
-                        name = "android.heapprofd",
-                        heapprofd_config =
-                            HeapprofdConfig(
-                                shmem_size_bytes = 8388608,
-                                sampling_interval_bytes = 2048,
-                                block_client = true,
-                                process_cmdline = config.packageNames,
-                                heaps =
-                                    listOf(
-                                        "com.android.art" // Java Heaps
-                                    ),
-                                continuous_dump_config =
-                                    HeapprofdConfig.ContinuousDumpConfig(
-                                        dump_phase_ms = 0,
-                                        dump_interval_ms = 500, // ms
-                                    ),
-                            ),
-                    )
+        heapprofdSource(
+                packageNames = config.packageNames,
+                memoryProfilingConfig =
+                    MemoryProfilingConfig(
+                        isSampleArtHeapEnabled = true,
+                        isSampleNativeHeapEnabled = false,
+                    ),
             )
+            ?.let { sources += it }
     }
     return sources
+}
+
+/**
+ * Data source configuration for Perfetto heap profiling (`android.heapprofd`).
+ *
+ * Enables ART Java heap (`com.android.art`) and native heap (`libc.malloc`) allocation profiling on
+ * Android Q (API 29)+ devices.
+ *
+ * @return The [TraceConfig.DataSource] for `android.heapprofd`, or `null` if neither
+ *   [MemoryProfilingConfig.isSampleArtHeapEnabled] nor
+ *   [MemoryProfilingConfig.isSampleNativeHeapEnabled] is enabled.
+ */
+internal fun heapprofdSource(
+    packageNames: List<String>,
+    memoryProfilingConfig: MemoryProfilingConfig,
+): TraceConfig.DataSource? {
+    require(packageNames.isNotEmpty()) { "packageNames must not be empty" }
+    val heaps = mutableListOf<String>()
+    if (memoryProfilingConfig.isSampleArtHeapEnabled) {
+        heaps += "com.android.art"
+    }
+    if (memoryProfilingConfig.isSampleNativeHeapEnabled) {
+        heaps += "libc.malloc"
+    }
+    if (heaps.isEmpty()) return null
+
+    return TraceConfig.DataSource(
+        config =
+            DataSourceConfig(
+                name = "android.heapprofd",
+                heapprofd_config =
+                    HeapprofdConfig(
+                        // 8 MB shared memory buffer, arbitrarily chosen to give enough room for
+                        // allocation bursts.
+                        shmem_size_bytes = 8388608,
+                        // We use 2 KB to capture smaller object allocations.
+                        sampling_interval_bytes = 2048,
+                        // Prioritize allocation completeness and determinism over frame timing.
+                        block_client = true,
+                        process_cmdline = packageNames,
+                        heaps = heaps,
+                        continuous_dump_config =
+                            HeapprofdConfig.ContinuousDumpConfig(
+                                dump_phase_ms = 0,
+                                // We use 500 ms. Smaller intervals are less likely to result in
+                                // heapprofd blocking other work.
+                                dump_interval_ms = 500,
+                            ),
+                    ),
+            )
+    )
 }
 
 // reduce timeout to reduce trace capture overhead when devices have data source issues
@@ -391,7 +457,25 @@ private fun configOf(dataSources: List<TraceConfig.DataSource>) =
 internal fun perfettoConfig(
     atraceApps: List<String>,
     stackSamplingConfig: StackSamplingConfig?,
+): TraceConfig =
+    perfettoConfig(
+        atraceApps = atraceApps,
+        stackSamplingConfig = stackSamplingConfig,
+        memoryProfilingConfig = null,
+        memoryProfilingPackages = emptyList(),
+    )
+
+internal fun perfettoConfig(
+    atraceApps: List<String>,
+    stackSamplingConfig: StackSamplingConfig?,
+    memoryProfilingConfig: MemoryProfilingConfig?,
+    memoryProfilingPackages: List<String>,
 ): TraceConfig {
+    if (memoryProfilingConfig != null) {
+        require(memoryProfilingPackages.isNotEmpty()) {
+            "memoryProfilingPackages must not be empty when memoryProfilingConfig is provided"
+        }
+    }
     val dataSources =
         mutableListOf(
             ftraceDataSource(atraceApps),
@@ -420,26 +504,35 @@ internal fun perfettoConfig(
     if (stackSamplingConfig != null) {
         dataSources += stackSamplingSource(config = stackSamplingConfig)
     }
+    if (memoryProfilingConfig != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        heapprofdSource(
+                packageNames = memoryProfilingPackages,
+                memoryProfilingConfig = memoryProfilingConfig,
+            )
+            ?.let { dataSources += it }
+    }
     return configOf(dataSources)
 }
 
 internal fun TraceConfig.validateAndEncode(): ByteArray {
-    val ftraceConfig = data_sources.firstNotNullOf { it.config?.ftrace_config }
+    val ftraceConfig = data_sources.firstNotNullOfOrNull { it.config?.ftrace_config }
 
-    // check tags against known-supported tags based on SDK_INT / root status
-    val supportedTags =
-        AtraceTag.supported(api = Build.VERSION.SDK_INT, rooted = Shell.isSessionRooted())
-            .map { it.tag }
-            .toSet()
+    if (ftraceConfig != null) {
+        // check tags against known-supported tags based on SDK_INT / root status
+        val supportedTags =
+            AtraceTag.supported(api = Build.VERSION.SDK_INT, rooted = Shell.isSessionRooted())
+                .map { it.tag }
+                .toSet()
 
-    val unsupportedTags = (ftraceConfig.atrace_categories - supportedTags)
-    check(unsupportedTags.isEmpty()) {
-        "Error - attempted to use unsupported atrace tags: $unsupportedTags"
-    }
+        val unsupportedTags = (ftraceConfig.atrace_categories - supportedTags)
+        check(unsupportedTags.isEmpty()) {
+            "Error - attempted to use unsupported atrace tags: $unsupportedTags"
+        }
 
-    if (Build.VERSION.SDK_INT < 28) {
-        check(!ftraceConfig.atrace_apps.contains("*")) {
-            "Support for wildcard (*) app matching in atrace added in API 28"
+        if (Build.VERSION.SDK_INT < 28) {
+            check(!ftraceConfig.atrace_apps.contains("*")) {
+                "Support for wildcard (*) app matching in atrace added in API 28"
+            }
         }
     }
 

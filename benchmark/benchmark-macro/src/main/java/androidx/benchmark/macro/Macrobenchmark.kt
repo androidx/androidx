@@ -291,8 +291,13 @@ private fun macrobenchmark(
 
     // package name for macrobench process, so it's captured as well
     val macrobenchPackageName = InstrumentationRegistry.getInstrumentation().context.packageName
-    val iterationResults = mutableListOf<IterationResult>()
 
+    // We keep measurementIterationResults and profilingIterationResults separate because we
+    // only expect measurementIterationResults to output metrics. Profiling phases (e.g. method
+    // tracing or memory profiling) run separately without collecting metrics because profiling
+    // introduces overhead that would skew measurement results.
+    val measurementIterationResults = mutableListOf<IterationResult>()
+    val profilingIterationResults = mutableListOf<IterationResult>()
     TraceProcessor.runServer {
         scope.withKillMode(
             current = KillMode.None,
@@ -300,7 +305,7 @@ private fun macrobenchmark(
                 KillMode(clearArtRuntimeImage = compilationMode.requiresClearArtRuntimeImage()),
         ) {
             // Measurement Phase
-            iterationResults +=
+            measurementIterationResults +=
                 runPhase(
                     uniqueName = uniqueName,
                     packageName = packageName,
@@ -315,9 +320,9 @@ private fun macrobenchmark(
                     setupBlock = setupBlock,
                     measureBlock = measureBlock,
                 )
-            // Profiling Phase
+            // Method Tracing Phase
             if (requestMethodTracing) {
-                iterationResults +=
+                profilingIterationResults +=
                     runPhase(
                         uniqueName = uniqueName,
                         packageName = packageName,
@@ -331,6 +336,27 @@ private fun macrobenchmark(
                         metrics = emptyList(), // Nothing to measure
                         experimentalConfig = experimentalConfig,
                         tracingLibraryConfig = tracingLibraryConfig,
+                        traceSuffix = "methodTracing",
+                        setupBlock = setupBlock,
+                        measureBlock = measureBlock,
+                    )
+            }
+            // Memory Profiling Phase
+            val memoryProfilingConfig = experimentalConfig?.memoryProfilingConfig
+            if (memoryProfilingConfig != null) {
+                profilingIterationResults +=
+                    runPhase(
+                        uniqueName = uniqueName,
+                        packageName = packageName,
+                        macrobenchmarkPackageName = macrobenchPackageName,
+                        iterations = 1,
+                        startupMode = startupModeMetricHint,
+                        scope = scope,
+                        profiler = MemoryProfilingProfiler(scope, memoryProfilingConfig),
+                        metrics = emptyList(),
+                        experimentalConfig = experimentalConfig,
+                        tracingLibraryConfig = tracingLibraryConfig,
+                        traceSuffix = "memoryProfiling",
                         setupBlock = setupBlock,
                         measureBlock = measureBlock,
                     )
@@ -339,7 +365,7 @@ private fun macrobenchmark(
     }
 
     // Merge measurements
-    val measurements = iterationResults.map { it.measurements }.mergeMultiIterResults()
+    val measurements = measurementIterationResults.map { it.measurements }.mergeMultiIterResults()
     require(measurements.isNotEmpty()) {
         """
             Unable to read any metrics during benchmark (metric list: $metrics).
@@ -350,14 +376,17 @@ private fun macrobenchmark(
             .trimIndent()
     }
 
-    val iterationTracePaths = iterationResults.map { it.tracePath }
-    val profilerResults = iterationResults.flatMap { it.profilerResultFiles }
+    val iterationTracePaths = measurementIterationResults.mapNotNull { it.tracePath }
+    val profilerResults =
+        measurementIterationResults.flatMap { it.profilerResultFiles } +
+            profilingIterationResults.flatMap { it.profilerResultFiles }
     InstrumentationResults.instrumentationReport {
         reportSummaryToIde(
             warningMessage = warningMessage,
             testName = uniqueName,
             measurements = measurements,
-            insightSummaries = iterationResults.flatMap { it.insights }.createInsightSummaries(),
+            insightSummaries =
+                measurementIterationResults.flatMap { it.insights }.createInsightSummaries(),
             iterationTracePaths = iterationTracePaths,
             profilerResults = profilerResults,
             useTreeDisplayFormat = experimentalConfig?.startupInsightsConfig?.isEnabled == true,
