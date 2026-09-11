@@ -22,10 +22,29 @@ import android.os.Parcelable
 import android.util.Size
 import android.util.SizeF
 import android.util.SparseArray
+import androidx.lifecycle.SavedStateHandle
+import androidx.savedstate.SavedState
+import androidx.savedstate.read
 import java.io.Serializable
 
 internal actual fun isAcceptableType(value: Any?): Boolean =
     value == null || ACCEPTABLE_CLASSES.any { classRef -> classRef.isInstance(value) }
+
+internal actual fun <T> unwrapSavedStateValue(value: T): T {
+    if (value is SavedState) {
+        val classLoader = SavedStateHandle::class.java.classLoader
+        value.classLoader = classLoader
+        if (value.read { contains(SAVED_STATE_VALUE_KEY) }) {
+            val innerValue = value.read { toMap()[SAVED_STATE_VALUE_KEY] }
+            if (innerValue is SavedState) {
+                innerValue.classLoader = classLoader
+            }
+            @Suppress("UNCHECKED_CAST")
+            return innerValue as T
+        }
+    }
+    return value
+}
 
 // doesn't have Integer, Long etc box types because they are "Serializable"
 private val ACCEPTABLE_CLASSES =

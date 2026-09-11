@@ -19,19 +19,26 @@ import android.os.Parcelable
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.lifecycle.internal.LiveDataSavedStateValue
 import androidx.lifecycle.internal.SavedStateHandleImpl
+import androidx.lifecycle.internal.SimpleSavedStateValue
+import androidx.lifecycle.internal.StateFlowSavedStateValue
 import androidx.lifecycle.internal.isAcceptableType
 import androidx.savedstate.SavedState
+import androidx.savedstate.SavedStateContainer
 import androidx.savedstate.SavedStateRegistry.SavedStateProvider
+import androidx.savedstate.SavedStateValue
 import androidx.savedstate.read
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 public actual class SavedStateHandle {
 
-    private val liveDatas = mutableMapOf<String, SavingStateLiveData<*>>()
     private var impl: SavedStateHandleImpl
+
+    internal actual constructor(container: SavedStateContainer) {
+        impl = SavedStateHandleImpl(container)
+    }
 
     @VisibleForTesting
     public actual constructor(initialState: Map<String, Any?>) {
@@ -43,10 +50,15 @@ public actual class SavedStateHandle {
         impl = SavedStateHandleImpl()
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public actual fun savedStateProvider(): SavedStateProvider = impl.savedStateProvider
-
-    @MainThread public actual operator fun contains(key: String): Boolean = key in impl
+    @MainThread
+    public actual operator fun contains(key: String): Boolean {
+        if (key !in impl) return false
+        // We need to check if the value is initialized to be consistent with previous behavior
+        // where contains returned false. Since we are tracking all values as part of the
+        // container, we would incorrectly return true otherwise.
+        val savedStateValue = impl.container.getSavedStateValue<Any?, SavedStateValue<Any?>>(key)
+        return savedStateValue !is LiveDataSavedStateValue<*> || savedStateValue.value.isInitialized
+    }
 
     /**
      * Returns a [LiveData] that accesses data associated with the given [key].
@@ -110,57 +122,88 @@ public actual class SavedStateHandle {
         hasInitialValue: Boolean,
         initialValue: T,
     ): MutableLiveData<T> {
-        require(key !in impl.mutableFlows) { createMutuallyExclusiveErrorMessage(key) }
+        val existing = impl.container.getSavedStateValue<T, SavedStateValue<T>>(key)
+        require(existing !is StateFlowSavedStateValue<*>) {
+            createMutuallyExclusiveErrorMessage(key)
+        }
 
-        val liveData =
-            liveDatas.getOrPut(key) {
-                when {
-                    key in impl.regular ->
-                        SavingStateLiveData(handle = this, key, impl.regular[key])
-                    hasInitialValue -> {
-                        impl.regular[key] = initialValue
-                        SavingStateLiveData(handle = this, key, initialValue)
+        val liveDataSavedStateValue =
+            when (existing) {
+                is LiveDataSavedStateValue<*> -> existing
+                is SimpleSavedStateValue<T> -> {
+                    @Suppress("UNCHECKED_CAST") val existingValue = existing.value as T
+                    val liveData = MutableLiveData(existingValue)
+                    LiveDataSavedStateValue(liveData).also {
+                        impl.container.putSavedStateValue(key, it)
                     }
-                    else -> SavingStateLiveData(handle = this, key)
                 }
+                null -> {
+                    val liveData =
+                        if (hasInitialValue) {
+                            MutableLiveData(initialValue)
+                        } else {
+                            MutableLiveData()
+                        }
+                    LiveDataSavedStateValue(liveData).also {
+                        impl.container.putSavedStateValue(key, it)
+                    }
+                }
+                else -> throw IllegalArgumentException(createMutuallyExclusiveErrorMessage(key))
             }
         @Suppress("UNCHECKED_CAST")
-        return liveData as MutableLiveData<T>
+        return (liveDataSavedStateValue as LiveDataSavedStateValue<T>).value
     }
 
     @MainThread
     public actual fun <T> getStateFlow(key: String, initialValue: T): StateFlow<T> {
-        return if (key in impl.mutableFlows) {
-            // Return existing 'MutableStateFlow' as 'StateFlow' to keep values synchronized.
-            impl.getMutableStateFlow(key, initialValue).asStateFlow()
-        } else {
-            impl.getStateFlow(key, initialValue)
+        val existing = impl.container.getSavedStateValue<T, SavedStateValue<T>>(key)
+        require(existing !is LiveDataSavedStateValue<*>) {
+            createMutuallyExclusiveErrorMessage(key)
         }
+        return impl.getStateFlow(key, initialValue)
     }
 
     @MainThread
     public actual fun <T> getMutableStateFlow(key: String, initialValue: T): MutableStateFlow<T> {
-        require(key !in liveDatas) { createMutuallyExclusiveErrorMessage(key) }
+        val existing = impl.container.getSavedStateValue<T, SavedStateValue<T>>(key)
+        require(existing !is LiveDataSavedStateValue<*>) {
+            createMutuallyExclusiveErrorMessage(key)
+        }
         return impl.getMutableStateFlow(key, initialValue)
     }
 
-    @MainThread public actual fun keys(): Set<String> = impl.keys() + liveDatas.keys
+    @MainThread public actual fun keys(): Set<String> = impl.keys()
 
-    @MainThread public actual operator fun <T> get(key: String): T? = impl[key]
+    @MainThread
+    public actual operator fun <T> get(key: String): T? {
+        val existing = impl.container.getSavedStateValue<T, SavedStateValue<T>>(key)
+        if (existing is LiveDataSavedStateValue<*>) {
+            @Suppress("UNCHECKED_CAST")
+            return existing.value.value as T?
+        }
+        return impl[key]
+    }
 
     @MainThread
     public actual operator fun <T> set(key: String, value: T?) {
         require(validateValue(value)) {
             "Can't put value with type ${value!!::class.java} into saved state"
         }
-        @Suppress("UNCHECKED_CAST") val mutableLiveData = liveDatas[key] as? MutableLiveData<T?>?
-        mutableLiveData?.value = value
-        impl[key] = value
+        val existing = impl.container.getSavedStateValue<T, SavedStateValue<T>>(key)
+        if (existing is LiveDataSavedStateValue<*>) {
+            @Suppress("UNCHECKED_CAST")
+            (existing.value as MutableLiveData<T?>).value = value
+        } else {
+            impl[key] = value
+        }
     }
 
     @MainThread
-    public actual fun <T> remove(key: String): T? =
-        impl.remove<T?>(key).also { liveDatas.remove(key)?.detach() }
+    public actual fun <T> remove(key: String): T? {
+        val latestValue = get<T>(key)
+        impl.remove<T>(key)
+        return latestValue
+    }
 
     @MainThread
     public actual fun setSavedStateProvider(key: String, provider: SavedStateProvider) {
@@ -172,29 +215,15 @@ public actual class SavedStateHandle {
         impl.clearSavedStateProvider(key)
     }
 
-    internal class SavingStateLiveData<T> : MutableLiveData<T> {
-        private var key: String
-        private var handle: SavedStateHandle?
+    @MainThread public actual fun asContainer(): SavedStateContainer = impl.asContainer()
 
-        constructor(handle: SavedStateHandle?, key: String, value: T) : super(value) {
-            this.key = key
-            this.handle = handle
-        }
+    @MainThread
+    public actual fun createOrGetContainer(key: String): SavedStateContainer =
+        impl.createOrGetContainer(key)
 
-        constructor(handle: SavedStateHandle?, key: String) : super() {
-            this.key = key
-            this.handle = handle
-        }
-
-        override fun setValue(value: T) {
-            handle?.impl?.set(key, value)
-            super.setValue(value)
-        }
-
-        fun detach() {
-            handle = null
-        }
-    }
+    @MainThread
+    public actual fun createOrGetSavedStateHandle(key: String): SavedStateHandle =
+        SavedStateHandle(impl.createOrGetContainer(key))
 
     public actual companion object {
 

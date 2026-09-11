@@ -40,7 +40,7 @@ class SavedStateHandleParcelingTest {
         handle.getLiveData<String>("livedata").value = "para"
         handle["notlive"] = 261
         handle["array"] = intArrayOf(2, 3, 9)
-        val savedState = handle.savedStateProvider().saveState()
+        val savedState = handle.asContainer().saveState()
         val parcel = obtain()
         savedState.writeToParcel(parcel, 0)
         parcel.setDataPosition(0)
@@ -57,7 +57,7 @@ class SavedStateHandleParcelingTest {
         val handle = SavedStateHandle()
         handle["custom"] = CustomTestParcelable("test")
         handle["customArray"] = arrayOf(CustomTestParcelable("test"), CustomTestParcelable("test2"))
-        val savedState = handle.savedStateProvider().saveState()
+        val savedState = handle.asContainer().saveState()
         val parcel = obtain()
         savedState.writeToParcel(parcel, 0)
         parcel.setDataPosition(0)
@@ -83,7 +83,7 @@ class SavedStateHandleParcelingTest {
         assertThat(handle.contains("string"), `is`(true))
         handle.remove<Any>("string")
         assertThat(handle.contains("string"), `is`(false))
-        val savedState = handle.savedStateProvider().saveState()
+        val savedState = handle.asContainer().saveState()
         val newHandle = createHandle(savedState, defaultState)
         assertThat(newHandle.contains("string"), `is`(false))
     }

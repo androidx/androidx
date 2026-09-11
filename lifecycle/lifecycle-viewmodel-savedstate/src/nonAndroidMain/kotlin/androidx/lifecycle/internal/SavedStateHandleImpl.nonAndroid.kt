@@ -17,6 +17,15 @@
 package androidx.lifecycle.internal
 
 import androidx.savedstate.SavedState
+import androidx.savedstate.read
+
+internal actual fun <T> unwrapSavedStateValue(value: T): T {
+    if (value is SavedState && value.read { contains(SAVED_STATE_VALUE_KEY) }) {
+        @Suppress("UNCHECKED_CAST")
+        return value.read { toMap()[SAVED_STATE_VALUE_KEY] } as T
+    }
+    return value
+}
 
 internal actual fun isAcceptableType(value: Any?): Boolean =
     when (value) {

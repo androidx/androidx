@@ -40,7 +40,7 @@ class SavedStateHandleProviderTest {
         }
 
         // Now save the state
-        val savedState = handle.savedStateProvider().saveState()
+        val savedState = handle.asContainer().saveState()
         assertWithMessage("SavedStateProvider should be called").that(called).isTrue()
         val newHandle = SavedStateHandle.createHandle(savedState, null)
         val savedBundle = newHandle.get<Bundle?>("provider")
@@ -61,7 +61,7 @@ class SavedStateHandleProviderTest {
         handle.clearSavedStateProvider("provider")
 
         // Now save the state
-        handle.savedStateProvider().saveState()
+        handle.asContainer().saveState()
         assertWithMessage("SavedStateProvider should not be called").that(called).isFalse()
     }
 }
