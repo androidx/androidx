@@ -26,6 +26,7 @@ import androidx.pdf.service.PdfDocumentServiceImpl
 import java.util.Queue
 import java.util.UUID
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -33,6 +34,8 @@ import kotlinx.coroutines.flow.update
 
 internal class PdfServiceConnectionImpl(override val context: Context) : PdfServiceConnection {
     private val _eventStateFlow: MutableStateFlow<ConnectionState> = MutableStateFlow(Disconnected)
+
+    private val isBound = AtomicBoolean(false)
 
     override val pendingJobs: Queue<Job> = ConcurrentLinkedQueue()
 
@@ -81,7 +84,9 @@ internal class PdfServiceConnectionImpl(override val context: Context) : PdfServ
 
     override suspend fun connect(uri: Uri) {
         val intent = createIntentForService(uri)
-        context.bindService(intent, /* conn= */ this, /* flags= */ Context.BIND_AUTO_CREATE)
+        isBound.set(
+            context.bindService(intent, /* conn= */ this, /* flags= */ Context.BIND_AUTO_CREATE)
+        )
         _eventStateFlow.first { it is Connected }
     }
 
@@ -94,8 +99,19 @@ internal class PdfServiceConnectionImpl(override val context: Context) : PdfServ
             val binder = documentBinder
             _eventStateFlow.update { Disconnected }
 
-            binder?.closePdfDocument()
-            context.unbindService(this)
+            try {
+                binder?.closePdfDocument()
+            } catch (e: android.os.RemoteException) {
+                // Service is already dead, OS will clean up server resources.
+            }
+        }
+
+        if (isBound.getAndSet(false)) {
+            try {
+                context.unbindService(this)
+            } catch (e: IllegalArgumentException) {
+                // Ignored: Service was not registered or already unbound
+            }
         }
     }
 

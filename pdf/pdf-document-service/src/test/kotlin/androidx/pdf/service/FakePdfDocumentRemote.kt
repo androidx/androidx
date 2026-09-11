@@ -39,7 +39,7 @@ import androidx.pdf.annotation.models.PdfObject
 import androidx.pdf.models.Dimensions
 import androidx.pdf.models.PaginatedObjects
 
-internal class FakePdfDocumentRemote : PdfDocumentRemote.Stub() {
+internal open class FakePdfDocumentRemote : PdfDocumentRemote.Stub() {
     private val behaviors = ArrayDeque<DraftEditResult>()
 
     fun setBehavior(result: DraftEditResult) {
