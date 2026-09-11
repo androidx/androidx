@@ -454,8 +454,10 @@ internal abstract class InsetsConsumingModifierNode : Modifier.Node(), Traversab
      * recalculated.
      */
     open fun insetsInvalidated() {
-        consumedInsets = calculateInsets(ancestorConsumedInsets)
-        invalidateChildConsumedInsets()
+        if (isAttached) {
+            consumedInsets = calculateInsets(ancestorConsumedInsets)
+            invalidateChildConsumedInsets()
+        }
     }
 
     /** Walks child [InsetsConsumingModifierNode]s and calls [setAncestorConsumedInsets] on each. */
@@ -478,8 +480,10 @@ internal open class InsetsPaddingModifierNode(private var insets: WindowInsets) 
         ancestorConsumedInsets.union(insets)
 
     override fun insetsInvalidated() {
-        super.insetsInvalidated()
-        invalidateMeasurement()
+        if (isAttached) {
+            super.insetsInvalidated()
+            invalidateMeasurement()
+        }
     }
 
     fun update(insets: WindowInsets) {
