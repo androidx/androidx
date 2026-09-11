@@ -317,7 +317,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                         },
                 ) {
                     onSurfaceCreated {
-                        val player = ExoPlayer.Builder(this@SpatialComposeVideoPlayer).build()
+                        val player = ExoPlayer.Builder(applicationContext).build()
                         exoPlayer = player
                         player.setVideoSurface(it)
                         player.setMediaItem(getMediaItem())
@@ -361,7 +361,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                         },
                 ) {
                     onSurfaceCreated {
-                        val player = ExoPlayer.Builder(this@SpatialComposeVideoPlayer).build()
+                        val player = ExoPlayer.Builder(applicationContext).build()
                         exoPlayer = player
                         player.setVideoSurface(it)
                         player.setMediaItem(getMediaItem())
@@ -795,7 +795,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
             AndroidExternalSurface {
                 onSurface { surface, _, _ ->
                     val player =
-                        ExoPlayer.Builder(this@SpatialComposeVideoPlayer)
+                        ExoPlayer.Builder(applicationContext)
                             .setAudioOutputProvider(audioOutput.audioOutputProvider)
                             .build()
                     exoPlayer = player
@@ -967,7 +967,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
         ) {
             onSurfaceCreated {
                 val player =
-                    ExoPlayer.Builder(this@SpatialComposeVideoPlayer)
+                    ExoPlayer.Builder(applicationContext)
                         .setAudioOutputProvider(audioOutput.audioOutputProvider)
                         .build()
                 exoPlayer = player
