@@ -25,17 +25,17 @@ package androidx.glance {
 
   public final class ButtonDefaults {
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.glance.ButtonColors buttonColors(optional androidx.glance.unit.ColorProvider backgroundColor, optional androidx.glance.unit.ColorProvider contentColor);
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.glance.GlanceComposable") public androidx.glance.ButtonColors buttonColors(androidx.glance.unit.ColorProvider?, androidx.glance.unit.ColorProvider?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.glance.ButtonColors buttonColors(androidx.glance.unit.ColorProvider?, androidx.glance.unit.ColorProvider?, androidx.compose.runtime.Composer?, int, int);
     field public static final androidx.glance.ButtonDefaults INSTANCE;
   }
 
   public final class ButtonKt {
     method @KotlinOnly @androidx.compose.runtime.Composable public static void Button(String text, androidx.glance.action.Action onClick, optional androidx.glance.GlanceModifier modifier, optional boolean enabled, optional androidx.glance.text.TextStyle? style, optional androidx.glance.ButtonColors colors, optional int maxLines);
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.glance.GlanceComposable") public static void Button(String, androidx.glance.action.Action, androidx.glance.GlanceModifier?, boolean, androidx.glance.text.TextStyle?, androidx.glance.ButtonColors?, int, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void Button(String, androidx.glance.action.Action, androidx.glance.GlanceModifier?, boolean, androidx.glance.text.TextStyle?, androidx.glance.ButtonColors?, int, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static void Button(String text, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.glance.GlanceModifier modifier, optional boolean enabled, optional androidx.glance.text.TextStyle? style, optional androidx.glance.ButtonColors colors, optional int maxLines);
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.glance.GlanceComposable") public static void Button(String, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.glance.GlanceModifier?, boolean, androidx.glance.text.TextStyle?, androidx.glance.ButtonColors?, int, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void Button(String, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.glance.GlanceModifier?, boolean, androidx.glance.text.TextStyle?, androidx.glance.ButtonColors?, int, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.glance.ExperimentalGlanceApi public static void Button(String text, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.glance.GlanceModifier modifier, optional boolean enabled, optional androidx.glance.text.TextStyle? style, optional androidx.glance.ButtonColors colors, optional int maxLines, optional String? key);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.glance.GlanceComposable") @androidx.glance.ExperimentalGlanceApi public static void Button(String, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.glance.GlanceModifier?, boolean, androidx.glance.text.TextStyle?, androidx.glance.ButtonColors?, int, String?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.glance.ExperimentalGlanceApi public static void Button(String, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.glance.GlanceModifier?, boolean, androidx.glance.text.TextStyle?, androidx.glance.ButtonColors?, int, String?, androidx.compose.runtime.Composer?, int, int);
   }
 
   public final class ColorFilter {
@@ -101,7 +101,7 @@ package androidx.glance {
 
   public final class GlanceTheme {
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.glance.GlanceComposable public androidx.glance.color.ColorProviders getColors(androidx.compose.runtime.Composer?, int);
-    property public androidx.glance.color.ColorProviders colors;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.glance.GlanceComposable public androidx.glance.color.ColorProviders colors;
     field public static final androidx.glance.GlanceTheme INSTANCE;
   }
 
@@ -618,9 +618,9 @@ package androidx.glance.text {
   }
 
   @androidx.compose.runtime.Immutable public final class TextStyle {
-    ctor public TextStyle();
-    ctor @InaccessibleFromJava public TextStyle(optional androidx.glance.unit.ColorProvider color, optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration, optional androidx.glance.text.FontFamily? fontFamily);
+    ctor @KotlinOnly public TextStyle(optional androidx.glance.unit.ColorProvider color, optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration, optional androidx.glance.text.FontFamily? fontFamily);
     ctor @BytecodeOnly public TextStyle(androidx.glance.unit.ColorProvider!, androidx.compose.ui.unit.TextUnit!, androidx.glance.text.FontWeight!, androidx.glance.text.FontStyle!, androidx.glance.text.TextAlign!, androidx.glance.text.TextDecoration!, androidx.glance.text.FontFamily!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public TextStyle(androidx.glance.unit.ColorProvider!, androidx.compose.ui.unit.TextUnit!, androidx.glance.text.FontWeight!, androidx.glance.text.FontStyle!, androidx.glance.text.TextAlign!, androidx.glance.text.TextDecoration!, androidx.glance.text.FontFamily!, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @KotlinOnly public androidx.glance.text.TextStyle copy(optional androidx.glance.unit.ColorProvider color, optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration, optional androidx.glance.text.FontFamily? fontFamily);
     method @BytecodeOnly public androidx.glance.text.TextStyle copy-KmPxOYk(androidx.glance.unit.ColorProvider, androidx.compose.ui.unit.TextUnit?, androidx.glance.text.FontWeight?, androidx.glance.text.FontStyle?, androidx.glance.text.TextAlign?, androidx.glance.text.TextDecoration?, androidx.glance.text.FontFamily?);
     method @BytecodeOnly public static androidx.glance.text.TextStyle! copy-KmPxOYk$default(androidx.glance.text.TextStyle!, androidx.glance.unit.ColorProvider!, androidx.compose.ui.unit.TextUnit!, androidx.glance.text.FontWeight!, androidx.glance.text.FontStyle!, androidx.glance.text.TextAlign!, androidx.glance.text.TextDecoration!, androidx.glance.text.FontFamily!, int, Object!);

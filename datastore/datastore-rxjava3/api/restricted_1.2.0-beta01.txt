@@ -3,7 +3,7 @@ package androidx.datastore.rxjava3 {
 
   public interface RxDataMigration<T> {
     method public io.reactivex.rxjava3.core.Completable cleanUp();
-    method public io.reactivex.rxjava3.core.Single<T!> migrate(T?);
+    method public io.reactivex.rxjava3.core.Single<T> migrate(T?);
     method public io.reactivex.rxjava3.core.Single<java.lang.Boolean!> shouldMigrate(T?);
   }
 
