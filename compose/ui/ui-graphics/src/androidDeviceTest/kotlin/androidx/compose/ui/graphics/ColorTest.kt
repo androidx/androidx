@@ -1479,6 +1479,21 @@ class ColorTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
+    fun toColorLongUnspecified() {
+        val unspecifiedLong = Color.Unspecified.toColorLong()
+        assertThat(unspecifiedLong).isEqualTo(0L)
+        assertThat(AndroidColor.colorSpace(unspecifiedLong).id).isEqualTo(0)
+
+        val real = Color(red = 3 / 255f, green = 252 / 255f, blue = 21 / 255f, alpha = 0.38f)
+        val blended = real.compositeOver(Color.Unspecified)
+        val blendedLong = blended.toColorLong()
+        assertThat((blendedLong and 0x3fL).toInt()).isEqualTo(0)
+        assertThat(AndroidColor.colorSpace(blendedLong).id).isEqualTo(0)
+        assertThat(Color.fromColorLong(blendedLong).toArgb()).isEqualTo(blended.toArgb())
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
     fun fromColorLong() {
         val argb = 0x1F2B3D4E
         val color = Color(argb)
