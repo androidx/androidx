@@ -17,7 +17,6 @@
 package androidx.annotation.keep.lint
 
 import com.android.tools.lint.checks.AnnotationDetector
-import com.android.tools.lint.checks.ObjectAnimatorDetector
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestFiles.java
 import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
@@ -64,13 +63,13 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/JavaUsage.java:9: Warning: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/JavaUsage.java:9: Error: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                         .invoke(p, s);
                          ~~~~~~
-        src/test/pkg/test.kt:5: Warning: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:5: Error: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                 .invoke(p, s)
                  ~~~~~~
-        0 errors, 2 warnings
+        2 errors
         """
             )
             .expectFixDiffs(
@@ -289,16 +288,16 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/test.kt:13: Warning: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:13: Error: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                 .invoke(p, s) // ERROR 1: wrong class name
                  ~~~~~~
-        src/test/pkg/test.kt:24: Warning: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:24: Error: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                 .invoke(p, s) // ERROR 2: parameter list mismatch
                  ~~~~~~
-        src/test/pkg/test.kt:66: Warning: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:66: Error: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                 .invoke(p, s) // ERROR 3: Shouldn't match empty parameter list
                  ~~~~~~
-        0 errors, 3 warnings
+        3 errors
         """
             )
     }
@@ -351,13 +350,13 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/com/example/keeptest/test.kt:11: Warning: This method calls com.example.FooImpl.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionAnnotation]
+        src/com/example/keeptest/test.kt:11: Error: This method calls com.example.FooImpl.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
                 klass.getConstructor(Context::class.java, Clock::class.java).newInstance(context, clock)
                                                                              ~~~~~~~~~~~
-        src/com/example/keeptest/test.kt:21: Warning: This method calls com.example.FooImpl.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionAnnotation]
+        src/com/example/keeptest/test.kt:21: Error: This method calls com.example.FooImpl.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
                 klass.getDeclaredConstructor().newInstance() as Foo
                                                ~~~~~~~~~~~
-        0 errors, 2 warnings
+        2 errors
         """
             )
             .expectFixDiffs(
@@ -534,28 +533,28 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/com/example/keeptest/JavaTest.java:12: Warning: This method calls test.pkg.api.Bar.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionAnnotation]
+        src/com/example/keeptest/JavaTest.java:12: Error: This method calls test.pkg.api.Bar.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
                     return (Bar) constructor.newInstance(); // ERROR 1
                                              ~~~~~~~~~~~
-        src/com/example/keeptest/JavaTest.java:20: Warning: This method calls test.pkg.api.Bar reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/com/example/keeptest/JavaTest.java:20: Error: This method calls test.pkg.api.Bar reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                   return Class.forName(name).asSubclass(Bar.class); // ERROR 2
                                ~~~~~~~
-        src/com/example/keeptest/JavaTest.java:26: Warning: This method calls test.pkg.api.Bar.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionAnnotation]
+        src/com/example/keeptest/JavaTest.java:26: Error: This method calls test.pkg.api.Bar.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
                     return constructor.newInstance(); // ERROR 3
                                        ~~~~~~~~~~~
-        src/test/pkg/KotlinTest.kt:12: Warning: This method calls test.pkg.api.Bar.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionAnnotation]
+        src/test/pkg/KotlinTest.kt:12: Error: This method calls test.pkg.api.Bar.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
                 klass.getDeclaredConstructor().newInstance() as Bar // ERROR 4
                                                ~~~~~~~~~~~
-        src/test/pkg/KotlinTest.kt:19: Warning: This method calls test.pkg.api.Bar reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/KotlinTest.kt:19: Error: This method calls test.pkg.api.Bar reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
             return Class.forName(name).asSubclass(Bar::class.java) // ERROR 5
                          ~~~~~~~
-        src/test/pkg/KotlinTest.kt:25: Warning: This method calls test.pkg.api.Bar.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionAnnotation]
+        src/test/pkg/KotlinTest.kt:25: Error: This method calls test.pkg.api.Bar.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
                 getBarSubclass(name).getDeclaredConstructor().newInstance() as Bar // ERROR 6
                                                               ~~~~~~~~~~~
-        src/test/pkg/KotlinTest.kt:33: Warning: This method calls test.pkg.api.Bar reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/KotlinTest.kt:33: Error: This method calls test.pkg.api.Bar reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
             return Class.forName(name) as Class<Bar> // ERROR 7
                          ~~~~~~~
-        0 errors, 7 warnings
+        7 errors
         """
             )
             .expectFixDiffs(
@@ -672,10 +671,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/androidx/work/ReflectiveFactory.kt:13: Warning: This method calls androidx.work.ListenableWorker.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionAnnotation]
+        src/androidx/work/ReflectiveFactory.kt:13: Error: This method calls androidx.work.ListenableWorker.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
               val instance = constructor.newInstance(context, parameters)
                                          ~~~~~~~~~~~
-        0 errors, 1 warning
+        1 error
       """
             )
             .expectFixDiffs(
@@ -811,10 +810,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/com/example/keeptest/test.kt:11: Warning: This method references com.example.SomeClass.foo reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionAnnotation]
+        src/com/example/keeptest/test.kt:11: Error: This method references com.example.SomeClass.foo reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionWithoutKeepAnnotations]
                 fieldRef.get(null) as? Foo
                          ~~~
-        0 errors, 1 warning
+        1 error
         """
             )
             .expectFixDiffs(
@@ -920,10 +919,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/ErrorCode.kt:17: Warning: This method references test.pkg.ErrorCode.* reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionAnnotation]
+        src/test/pkg/ErrorCode.kt:17: Error: This method references test.pkg.ErrorCode.* reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionWithoutKeepAnnotations]
                 .declaredFields
                  ~~~~~~~~~~~~~~
-        0 errors, 1 warning
+        1 error
         """
             )
             // No fix since we don't know specific method
@@ -1026,13 +1025,13 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/com/example/keeptest/AppOpsTest.java:25: Warning: This method references OP_POST_NOTIFICATION reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionAnnotation]
+        src/com/example/keeptest/AppOpsTest.java:25: Error: This method references OP_POST_NOTIFICATION reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionWithoutKeepAnnotations]
                 int value = (int) opPostNotificationValue.get(Integer.class);
                                                           ~~~
-        src/com/example/keeptest/AppOpsTest.java:26: Warning: This method calls checkOpNoThrow() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/com/example/keeptest/AppOpsTest.java:26: Error: This method calls checkOpNoThrow() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                 return ((int) checkOpNoThrowMethod.invoke(appOps, value, uid, pkg)
                                                    ~~~~~~
-        0 errors, 2 warnings
+        2 errors
         """
             )
             .expectFixDiffs(
@@ -1172,10 +1171,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/com/example/keeptest/test.kt:12: Warning: This method calls com.example.SomeClass.getFoo() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/com/example/keeptest/test.kt:12: Error: This method calls com.example.SomeClass.getFoo() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                 methodRef.invoke(null) as? Foo
                           ~~~~~~
-        0 errors, 1 warning
+        1 error
         """
             )
             .expectFixDiffs(
@@ -1237,13 +1236,13 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/com/example/keeptest/test.kt:13: Warning: This method calls com.example.SomeClass.getBar() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/com/example/keeptest/test.kt:13: Error: This method calls com.example.SomeClass.getBar() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                 if (clazz.getMethod("getBar").invoke(null) as? Bar == null) {
                                               ~~~~~~
-        src/com/example/keeptest/test.kt:17: Warning: This method calls com.example.SomeClass.getFoo() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/com/example/keeptest/test.kt:17: Error: This method calls com.example.SomeClass.getFoo() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                 clazz.getMethod(methodName).invoke(null) as? Foo
                                             ~~~~~~
-        0 errors, 2 warnings
+        2 errors
         """
             )
             .expectFixDiffs(
@@ -1335,10 +1334,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/com/example/keeptest/NavArgs.kt:39: Warning: This method calls fromBundle() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/com/example/keeptest/NavArgs.kt:39: Error: This method calls fromBundle() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                         args = method.invoke(null, arguments) as Args
                                       ~~~~~~
-        0 errors, 1 warning
+        1 error
         """
             )
             .verifyFixes()
@@ -1514,13 +1513,13 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test.kt:4: Warning: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test.kt:4: Error: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                 .invoke(p, s) // ERROR 1
                  ~~~~~~
-        src/test.kt:10: Warning: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test.kt:10: Error: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                 ?.invoke(p, s) // ERROR 2
                   ~~~~~~
-        0 errors, 2 warnings
+        2 errors
         """
             )
             .expectFixDiffs(
@@ -1579,10 +1578,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-          src/test/pkg/test.kt:17: Warning: This method calls androidx.api.Printer.close() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+          src/test/pkg/test.kt:17: Error: This method calls androidx.api.Printer.close() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
               cls.getDeclaredMethod("close").invoke(p)
                                              ~~~~~~
-          0 errors, 1 warnings
+          1 error
           """
             )
             .expectFixDiffs(
@@ -1621,10 +1620,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-          src/test/pkg/JavaUsage.java:6: Warning: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+          src/test/pkg/JavaUsage.java:6: Error: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                   cls.getDeclaredMethod("print", String.class).invoke(p, s);
                                                                ~~~~~~
-          0 errors, 1 warnings
+          1 error
           """
             )
             .expectFixDiffs(
@@ -1669,10 +1668,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/JavaUsage.java:9: Warning: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/JavaUsage.java:9: Error: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                 cls.getDeclaredMethod("print", String.class).invoke(p, s);
                                                              ~~~~~~
-        0 errors, 1 warnings
+        1 error
         """
             )
             .expectFixDiffs(
@@ -1720,10 +1719,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/test.kt:10: Warning: This method calls androidx.privacysandbox.sdkruntime.core.Versions.handShake() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:10: Error: This method calls androidx.privacysandbox.sdkruntime.core.Versions.handShake() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                 return handShakeMethod.invoke(null, 0) as Int
                                        ~~~~~~
-        0 errors, 1 warning
+        1 error
         """
             )
             .expectFixDiffs(
@@ -1771,10 +1770,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/JavaUsage.java:8: Warning: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/JavaUsage.java:8: Error: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                 cls.getDeclaredMethod(methodName, String.class).invoke(p, s);
                                                                 ~~~~~~
-        0 errors, 1 warnings
+        1 error
         """
             )
             .expectFixDiffs(
@@ -1817,10 +1816,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/test.kt:6: Warning: This method calls androidx.transition.FragmentTransitionSupport.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:6: Error: This method calls androidx.transition.FragmentTransitionSupport.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
                 impl.getDeclaredConstructor().newInstance()
                                               ~~~~~~~~~~~
-        0 errors, 1 warnings
+        1 error
         """
             )
             .expectFixDiffs(
@@ -1862,10 +1861,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/test.kt:8: Warning: This method calls androidx.compose.ui.platform.WrappedComposition.getOwner() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:8: Error: This method calls androidx.compose.ui.platform.WrappedComposition.getOwner() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
             field(instance)
             ~~~~~
-        0 errors, 1 warnings
+        1 error
         """
             )
     }
@@ -1960,13 +1959,13 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/JavaTest.java:11: Warning: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/JavaTest.java:11: Error: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                         .invoke(p, s); // ERROR 1
                          ~~~~~~
-        src/test/pkg/KotlinTest.kt:18: Warning: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/KotlinTest.kt:18: Error: This method calls androidx.api.Printer.print() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                     .invoke(p, s) // ERROR 2
                      ~~~~~~
-        0 errors, 2 warnings
+        2 errors
         """
             )
             .expectFixDiffs(
@@ -2040,34 +2039,34 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/test.kt:5: Warning: This method calls androidx.compose.ui.platform.WrappedComposition.setContent() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:5: Error: This method calls androidx.compose.ui.platform.WrappedComposition.setContent() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
             val method = wrapper.declaredMethods.firstOrNull { it.name == "setContent" } ?: return  // ERROR 1
                                                                ~~~~~~~~~~~~~~~~~~~~~~~
-        src/test/pkg/test.kt:11: Warning: This method calls androidx.compose.ui.platform.WrappedComposition.setContent2() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:11: Error: This method calls androidx.compose.ui.platform.WrappedComposition.setContent2() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
             val method2 = wrapper.declaredMethods.find { it.name == "setContent2" } ?: return         // ERROR 2
                                                          ~~~~~~~~~~~~~~~~~~~~~~~~
-        src/test/pkg/test.kt:12: Warning: This method calls androidx.compose.ui.platform.WrappedComposition.setContent3() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:12: Error: This method calls androidx.compose.ui.platform.WrappedComposition.setContent3() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
             val method3 = wrapper.declaredMethods.findLast { it.name == "setContent3" } ?: return     // ERROR 3
                                                              ~~~~~~~~~~~~~~~~~~~~~~~~
-        src/test/pkg/test.kt:13: Warning: This method calls androidx.compose.ui.platform.WrappedComposition.setContent4() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:13: Error: This method calls androidx.compose.ui.platform.WrappedComposition.setContent4() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
             val method4 = wrapper.declaredMethods.first { it.name == "setContent4" } ?: return        // ERROR 4
                                                           ~~~~~~~~~~~~~~~~~~~~~~~~
-        src/test/pkg/test.kt:14: Warning: This method calls androidx.compose.ui.platform.WrappedComposition.setContent5() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:14: Error: This method calls androidx.compose.ui.platform.WrappedComposition.setContent5() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
             val method5 = wrapper.declaredMethods.single { it.name == "setContent5" } ?: return       // ERROR 5
                                                            ~~~~~~~~~~~~~~~~~~~~~~~~
-        src/test/pkg/test.kt:15: Warning: This method calls androidx.compose.ui.platform.WrappedComposition.setContent6() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:15: Error: This method calls androidx.compose.ui.platform.WrappedComposition.setContent6() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
             val method6 = wrapper.declaredMethods.singleOrNull { it.name == "setContent6" } ?: return // ERROR 6
                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~
-        src/test/pkg/test.kt:21: Warning: This method calls androidx.compose.ui.platform.WrappedComposition.setContent() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:21: Error: This method calls androidx.compose.ui.platform.WrappedComposition.setContent() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
             method.invoke(instance, content) // ERROR 7
                    ~~~~~~
-        src/test/pkg/test.kt:26: Warning: This method references androidx.compose.ui.platform.WrappedComposition.* reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:26: Error: This method references androidx.compose.ui.platform.WrappedComposition.* reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionWithoutKeepAnnotations]
             val method = wrapper.fields.firstOrNull { it.name == "myField" } ?: return
                                  ~~~~~~
-        src/test/pkg/test.kt:32: Warning: This method calls androidx.compose.ui.platform.WrappedComposition.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:32: Error: This method calls androidx.compose.ui.platform.WrappedComposition.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
             val method = wrapper.constructors.firstOrNull { it.parameters.size == 1 } ?: return
                                  ~~~~~~~~~~~~
-        0 errors, 9 warnings
+        9 errors
         """
             )
     }
@@ -2095,10 +2094,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/test.kt:5: Warning: This method calls androidx.compose.ui.platform.WrappedComposition.setContent() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:5: Error: This method calls androidx.compose.ui.platform.WrappedComposition.setContent() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
             val method = wrapper.declaredMethods.firstOrNull { it.name == "setContent" } ?: return  // ERROR 1
                                                                ~~~~~~~~~~~~~~~~~~~~~~~
-        0 errors, 1 warnings
+        1 error
         """
             )
             .expectFixDiffs(
@@ -2136,10 +2135,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/test.kt:5: Warning: This method calls androidx.compose.ui.platform.WrappedComposition.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:5: Error: This method calls androidx.compose.ui.platform.WrappedComposition.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
             val instanceA = wrapper.constructors.first().newInstance()
                                     ~~~~~~~~~~~~
-        0 errors, 1 warnings
+        1 error
         """
             )
             .expectFixDiffs(
@@ -2187,16 +2186,16 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/test.kt:8: Warning: This method references androidx.compose.runtime.HotReloader.Companion reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:8: Error: This method references androidx.compose.runtime.HotReloader.Companion reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionWithoutKeepAnnotations]
             val companion = hotReload.getField("Companion").get(null)
                                                             ~~~
-        src/test/pkg/test.kt:15: Warning: This method calls saveStateAndDispose() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:15: Error: This method calls saveStateAndDispose() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
             val state = save(companion, context)
                         ~~~~
-        src/test/pkg/test.kt:16: Warning: This method calls loadStateAndCompose() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:16: Error: This method calls loadStateAndCompose() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
             load(companion, state)
             ~~~~
-        0 errors, 3 warnings
+        3 errors
         """
             )
             .expectFixDiffs(
@@ -2260,13 +2259,13 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/JavaUsages2.java:9: Warning: This method references androidx.compose.runtime.HotReloader.Companion reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionAnnotation]
+        src/test/pkg/JavaUsages2.java:9: Error: This method references androidx.compose.runtime.HotReloader.Companion reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionWithoutKeepAnnotations]
                 Object companion = hotReload.getField("Companion").get(null);
                                                                    ~~~
-        src/test/pkg/JavaUsages2.java:12: Warning: This method calls saveStateAndDispose() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/JavaUsages2.java:12: Error: This method calls saveStateAndDispose() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                 save.invoke(companion, context);
                      ~~~~~~
-        0 errors, 2 warnings
+        2 errors
         """
             )
             .expectFixDiffs(
@@ -2320,19 +2319,19 @@ class KeepRuleDetectorTest {
                 // shouldn't need to annotate these to keep the whole class. But we don't
                 // currently analyze the whole class to look for this. Should we?
                 """
-        src/test/pkg/ComposableMethodTest.kt:4: Warning: This code calls androidx.compose.runtime.reflect.ComposableMethodTestKt reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/ComposableMethodTest.kt:4: Error: This code calls androidx.compose.runtime.reflect.ComposableMethodTestKt reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
             private val clazz = Class.forName("androidx.compose.runtime.reflect.ComposableMethodTestKt")
                                       ~~~~~~~
-        src/test/pkg/ComposableMethodTest.kt:5: Warning: This code calls androidx.compose.runtime.reflect.ComposablesWrapper reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/ComposableMethodTest.kt:5: Error: This code calls androidx.compose.runtime.reflect.ComposablesWrapper reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
             private val wrapperClazz = Class.forName("androidx.compose.runtime.reflect.ComposablesWrapper")
                                              ~~~~~~~
-        src/test/pkg/ComposableMethodTest.kt:6: Warning: This code calls androidx.compose.runtime.reflect.ComposableMethodTestKt.composableFunction() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/ComposableMethodTest.kt:6: Error: This code calls androidx.compose.runtime.reflect.ComposableMethodTestKt.composableFunction() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
             private val composable = clazz.declaredMethods.find { it.name == "composableFunction" }!!
                                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        src/test/pkg/ComposableMethodTest.kt:8: Warning: This code calls androidx.compose.runtime.reflect.ComposablesWrapper.composableMethod() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/ComposableMethodTest.kt:8: Error: This code calls androidx.compose.runtime.reflect.ComposablesWrapper.composableMethod() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                 wrapperClazz.declaredMethods.find { it.name == "composableMethod" }!!
                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        0 errors, 4 warnings
+        4 errors
         """
             )
             .expectFixDiffs(
@@ -2369,7 +2368,7 @@ class KeepRuleDetectorTest {
             import androidx.annotation.keep.UsesReflectionToAccessMethod
 
             class ComposableMethodTest {
-                @Suppress("ReflectionAnnotation")
+                @Suppress("ReflectionWithoutKeepAnnotations")
                 private val wrapperClazz = Class.forName("androidx.compose.runtime.reflect.ComposablesWrapper")
                 @UsesReflectionToAccessMethod(
                     className = "androidx.compose.runtime.reflect.ComposablesWrapper",
@@ -2405,10 +2404,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test.kt:2: Warning: This method calls test.pkg.Something reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test.kt:2: Error: This method calls test.pkg.Something reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
             return Class.forName("test.pkg.Something")
                          ~~~~~~~
-        0 errors, 1 warning
+        1 error
         """
             )
             // No fix since we don't know specific method
@@ -2471,10 +2470,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/test.kt:8: Warning: This method references androidx.webkit.WebViewFactory.sProviderInstance reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:8: Error: This method references androidx.webkit.WebViewFactory.sProviderInstance reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionWithoutKeepAnnotations]
                     webViewFactoryClass.getDeclaredField("sProviderInstance")
                                         ~~~~~~~~~~~~~~~~
-        0 errors, 1 warnings
+        1 error
         """
             )
             .expectFixDiffs(
@@ -2553,16 +2552,16 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/JavaUsage.java:12: Warning: This method calls androidx.api.Printer.close() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/JavaUsage.java:12: Error: This method calls androidx.api.Printer.close() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                 cls.getDeclaredMethod("close").invoke(p);
                                                ~~~~~~
-        src/test/pkg/JavaUsage.java:21: Warning: This method calls androidx.api.Printer.close() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/JavaUsage.java:21: Error: This method calls androidx.api.Printer.close() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                 cls.getDeclaredMethod("close").invoke(p);
                                                ~~~~~~
-        src/test/pkg/test.kt:17: Warning: This method calls androidx.api.Printer.close() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/test.kt:17: Error: This method calls androidx.api.Printer.close() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
             cls.getDeclaredMethod("close").invoke(p)
                                            ~~~~~~
-        0 errors, 3 warnings
+        3 errors
         """
             )
             .expectFixDiffs(
@@ -2613,10 +2612,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-          src/test/pkg/test.kt:5: Warning: This method references androidx.api.Printer.SPOOL_SIZE reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionAnnotation]
+          src/test/pkg/test.kt:5: Error: This method references androidx.api.Printer.SPOOL_SIZE reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionWithoutKeepAnnotations]
                   .get(o)
                    ~~~
-          0 errors, 1 warnings
+          1 error
           """
             )
             .expectFixDiffs(
@@ -2700,13 +2699,13 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/JavaUsages.java:7: Warning: This code references test.pkg.MyClass.* reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionAnnotation]
+        src/test/pkg/JavaUsages.java:7: Error: This code references test.pkg.MyClass.* reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionWithoutKeepAnnotations]
                 for (Field field : MyClass.class.getDeclaredFields()) { // ERROR 1
                                                  ~~~~~~~~~~~~~~~~~
-        src/test/pkg/JavaUsages.java:12: Warning: This code references test.pkg.MyClass.* reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionAnnotation]
+        src/test/pkg/JavaUsages.java:12: Error: This code references test.pkg.MyClass.* reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionWithoutKeepAnnotations]
             Field[] fields = MyClass.class.getDeclaredFields(); // ERROR 2
                                            ~~~~~~~~~~~~~~~~~
-        0 errors, 2 warnings
+        2 errors
         """
             )
             // No fix since we don't know specific method
@@ -2745,10 +2744,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/MyFieldValuePrinter.java:9: Warning: This method references * reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionAnnotation]
+        src/test/pkg/MyFieldValuePrinter.java:9: Error: This method references * reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionWithoutKeepAnnotations]
                 for (Field field : objectWithFields.getClass().getDeclaredFields()) {
                                                                ~~~~~~~~~~~~~~~~~
-        0 errors, 1 warning
+        1 error
         """
             )
             // No fix since we don't know specific method
@@ -2779,10 +2778,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-          src/test/pkg/MyHiddenMethodCaller.java:5: Warning: This method calls test.pkg.MyHiddenMethodCaller.BaseClass.hiddenMethod() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+          src/test/pkg/MyHiddenMethodCaller.java:5: Error: This method calls test.pkg.MyHiddenMethodCaller.BaseClass.hiddenMethod() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                   Class.forName("test.pkg.MyHiddenMethodCaller.BaseClass").getDeclaredMethod("hiddenMethod").invoke(base);
                                                                                                              ~~~~~~
-          0 errors, 1 warnings
+          1 error
           """
             )
             .expectFixDiffs(
@@ -2826,10 +2825,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-          src/test/pkg/MyHiddenMethodCaller.java:5: Warning: This method calls test.pkg.MyHiddenMethodCaller.BaseClass.hiddenMethod() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+          src/test/pkg/MyHiddenMethodCaller.java:5: Error: This method calls test.pkg.MyHiddenMethodCaller.BaseClass.hiddenMethod() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                   BaseClass.class.getDeclaredMethod("hiddenMethod").invoke(base);
                                                                     ~~~~~~
-          0 errors, 1 warnings
+          1 error
           """
             )
             .expectFixDiffs(
@@ -2979,13 +2978,13 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/JavaParameterTypes.java:14: Warning: This method calls <init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionAnnotation]
+        src/test/pkg/JavaParameterTypes.java:14: Error: This method calls <init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
                 return (T) constructor.newInstance(arguments);
                                        ~~~~~~~~~~~
-        src/test/pkg/KotlinFieldType.kt:17: Warning: This method calls <init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionAnnotation]
+        src/test/pkg/KotlinFieldType.kt:17: Error: This method calls <init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
                 return constructor.newInstance(*arguments) as T
                                    ~~~~~~~~~~~
-        0 errors, 2 warnings
+        2 errors
         """
             )
             .expectFixDiffs(
@@ -3076,13 +3075,13 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/JavaFieldType.java:12: Warning: This method calls setExclusiveCheckable() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/JavaFieldType.java:12: Error: This method calls setExclusiveCheckable() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                                 .getDeclaredMethod("setExclusiveCheckable", Boolean.TYPE);
                                  ~~~~~~~~~~~~~~~~~
-        src/test/pkg/KotlinFieldType.kt:13: Warning: This method calls setExclusiveCheckable() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/KotlinFieldType.kt:13: Error: This method calls setExclusiveCheckable() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                             .getDeclaredMethod("setExclusiveCheckable", Boolean.TYPE)
                              ~~~~~~~~~~~~~~~~~
-        0 errors, 2 warnings
+        2 errors
         """
             )
             .expectFixDiffs(
@@ -3244,194 +3243,26 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/KotlinReflect.kt:16: Warning: This method calls code reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/KotlinReflect.kt:16: Error: This method calls code reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                 val field = Context::class.members.find { it.name == "BIND_NOT_FOREGROUND" } // ERROR 1
                                            ~~~~~~~
-        src/test/pkg/KotlinReflect.kt:21: Warning: This method calls code reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/KotlinReflect.kt:21: Error: This method calls code reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                     Context::class.declaredMembers.find { it.name == "BIND_NOT_FOREGROUND" } // ERROR 2
                                    ~~~~~~~~~~~~~~~
-        src/test/pkg/KotlinReflect.kt:26: Warning: This method calls code reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/KotlinReflect.kt:26: Error: This method calls code reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                     Context::class.members.find { // ERROR 3
                                    ~~~~~~~
-        src/test/pkg/KotlinReflect.kt:35: Warning: This method calls code reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
+        src/test/pkg/KotlinReflect.kt:35: Error: This method calls code reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                     Context::class.declaredFunctions.find { // ERROR 4
                                    ~~~~~~~~~~~~~~~~~
-        src/test/pkg/KotlinReflect.kt:56: Warning: This method calls code reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionAnnotation]
+        src/test/pkg/KotlinReflect.kt:56: Error: This method calls code reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionWithoutKeepAnnotations]
                     kClass.declaredMemberProperties // ERROR 5
                            ~~~~~~~~~~~~~~~~~~~~~~~~
-        0 errors, 5 warnings
+        5 errors
         """
             )
             // No fix since we don't know specific method
             .expectFixDiffs("")
-    }
-
-    @Test
-    fun testObjectAnimators() {
-        lint()
-            .issues(KeepRuleDetector.ISSUE)
-            .files(
-                java(
-                        """
-            package test.pkg;
-
-            import android.animation.ObjectAnimator;
-            import android.animation.PropertyValuesHolder;
-            import android.widget.Button;
-
-            @SuppressWarnings("unused")
-            public class AnimatorTest {
-
-                public void testObjectAnimator1(Button button) {
-                    Object myObject = new MyObject();
-                    ObjectAnimator animator1 = ObjectAnimator.ofInt(myObject, "prop1", 0, 1, 2, 5);
-                    animator1.setDuration(10);
-                    animator1.start();
-                }
-
-                public void testPropertyHolder() {
-                    Object myObject = new MyObject();
-
-                    PropertyValuesHolder p1 = PropertyValuesHolder.ofInt("prop1", 50);
-                    PropertyValuesHolder p2 = PropertyValuesHolder.ofFloat("prop2", 100f);
-                    ObjectAnimator.ofPropertyValuesHolder(myObject, p1, p2).start();
-                    ObjectAnimator.ofPropertyValuesHolder(myObject,
-                            PropertyValuesHolder.ofInt("prop1", 50),
-                            PropertyValuesHolder.ofFloat("prop2", 100f)).start();
-                }
-
-                static class MyObject {
-                    public int getProp1() { }
-                    public void setProp1(int x) { }
-                    private void setProp2(float x) { }
-                }
-            }
-            """
-                    )
-                    .indented(),
-                *usesReflectionStubs,
-            )
-            .issues(ObjectAnimatorDetector.MISSING_KEEP, KeepRuleDetector.ISSUE)
-            .run()
-            .expect(
-                """
-        src/test/pkg/AnimatorTest.java:12: Warning: This method calls test.pkg.AnimatorTest.MyObject.getProp1() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
-                ObjectAnimator animator1 = ObjectAnimator.ofInt(myObject, "prop1", 0, 1, 2, 5);
-                                                                          ~~~~~~~
-        src/test/pkg/AnimatorTest.java:12: Warning: This method calls test.pkg.AnimatorTest.MyObject.setProp1() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
-                ObjectAnimator animator1 = ObjectAnimator.ofInt(myObject, "prop1", 0, 1, 2, 5);
-                                                                          ~~~~~~~
-        src/test/pkg/AnimatorTest.java:20: Warning: This method calls test.pkg.AnimatorTest.MyObject.getProp1() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
-                PropertyValuesHolder p1 = PropertyValuesHolder.ofInt("prop1", 50);
-                                                                     ~~~~~~~
-        src/test/pkg/AnimatorTest.java:20: Warning: This method calls test.pkg.AnimatorTest.MyObject.setProp1() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
-                PropertyValuesHolder p1 = PropertyValuesHolder.ofInt("prop1", 50);
-                                                                     ~~~~~~~
-        src/test/pkg/AnimatorTest.java:21: Warning: This method calls test.pkg.AnimatorTest.MyObject.getProp2() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
-                PropertyValuesHolder p2 = PropertyValuesHolder.ofFloat("prop2", 100f);
-                                                                       ~~~~~~~
-        src/test/pkg/AnimatorTest.java:21: Warning: This method calls test.pkg.AnimatorTest.MyObject.setProp2() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
-                PropertyValuesHolder p2 = PropertyValuesHolder.ofFloat("prop2", 100f);
-                                                                       ~~~~~~~
-        src/test/pkg/AnimatorTest.java:24: Warning: This method calls test.pkg.AnimatorTest.MyObject.getProp1() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
-                        PropertyValuesHolder.ofInt("prop1", 50),
-                                                   ~~~~~~~
-        src/test/pkg/AnimatorTest.java:24: Warning: This method calls test.pkg.AnimatorTest.MyObject.setProp1() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
-                        PropertyValuesHolder.ofInt("prop1", 50),
-                                                   ~~~~~~~
-        src/test/pkg/AnimatorTest.java:25: Warning: This method calls test.pkg.AnimatorTest.MyObject.getProp2() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
-                        PropertyValuesHolder.ofFloat("prop2", 100f)).start();
-                                                     ~~~~~~~
-        src/test/pkg/AnimatorTest.java:25: Warning: This method calls test.pkg.AnimatorTest.MyObject.setProp2() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionAnnotation]
-                        PropertyValuesHolder.ofFloat("prop2", 100f)).start();
-                                                     ~~~~~~~
-        0 errors, 10 warnings
-        """
-            )
-            .expectFixDiffs(
-                """
-        Autofix for src/test/pkg/AnimatorTest.java line 12: Annotate with @UsesReflectionToAccessMethod:
-        @@ -5,0 +6 @@
-        +import androidx.annotation.keep.UsesReflectionToAccessMethod;
-        @@ -9,0 +11,4 @@
-        +    @UsesReflectionToAccessMethod(
-        +        className = "test.pkg.AnimatorTest.MyObject",
-        +        methodName = "getProp1"
-        +    )
-        Autofix for src/test/pkg/AnimatorTest.java line 12: Annotate with @UsesReflectionToAccessMethod:
-        @@ -5,0 +6 @@
-        +import androidx.annotation.keep.UsesReflectionToAccessMethod;
-        @@ -9,0 +11,4 @@
-        +    @UsesReflectionToAccessMethod(
-        +        className = "test.pkg.AnimatorTest.MyObject",
-        +        methodName = "setProp1"
-        +    )
-        Autofix for src/test/pkg/AnimatorTest.java line 20: Annotate with @UsesReflectionToAccessMethod:
-        @@ -5,0 +6 @@
-        +import androidx.annotation.keep.UsesReflectionToAccessMethod;
-        @@ -16,0 +18,4 @@
-        +    @UsesReflectionToAccessMethod(
-        +        className = "test.pkg.AnimatorTest.MyObject",
-        +        methodName = "getProp1"
-        +    )
-        Autofix for src/test/pkg/AnimatorTest.java line 20: Annotate with @UsesReflectionToAccessMethod:
-        @@ -5,0 +6 @@
-        +import androidx.annotation.keep.UsesReflectionToAccessMethod;
-        @@ -16,0 +18,4 @@
-        +    @UsesReflectionToAccessMethod(
-        +        className = "test.pkg.AnimatorTest.MyObject",
-        +        methodName = "setProp1"
-        +    )
-        Autofix for src/test/pkg/AnimatorTest.java line 21: Annotate with @UsesReflectionToAccessMethod:
-        @@ -5,0 +6 @@
-        +import androidx.annotation.keep.UsesReflectionToAccessMethod;
-        @@ -16,0 +18,4 @@
-        +    @UsesReflectionToAccessMethod(
-        +        className = "test.pkg.AnimatorTest.MyObject",
-        +        methodName = "getProp2"
-        +    )
-        Autofix for src/test/pkg/AnimatorTest.java line 21: Annotate with @UsesReflectionToAccessMethod:
-        @@ -5,0 +6 @@
-        +import androidx.annotation.keep.UsesReflectionToAccessMethod;
-        @@ -16,0 +18,4 @@
-        +    @UsesReflectionToAccessMethod(
-        +        className = "test.pkg.AnimatorTest.MyObject",
-        +        methodName = "setProp2"
-        +    )
-        Autofix for src/test/pkg/AnimatorTest.java line 24: Annotate with @UsesReflectionToAccessMethod:
-        @@ -5,0 +6 @@
-        +import androidx.annotation.keep.UsesReflectionToAccessMethod;
-        @@ -16,0 +18,4 @@
-        +    @UsesReflectionToAccessMethod(
-        +        className = "test.pkg.AnimatorTest.MyObject",
-        +        methodName = "getProp1"
-        +    )
-        Autofix for src/test/pkg/AnimatorTest.java line 24: Annotate with @UsesReflectionToAccessMethod:
-        @@ -5,0 +6 @@
-        +import androidx.annotation.keep.UsesReflectionToAccessMethod;
-        @@ -16,0 +18,4 @@
-        +    @UsesReflectionToAccessMethod(
-        +        className = "test.pkg.AnimatorTest.MyObject",
-        +        methodName = "setProp1"
-        +    )
-        Autofix for src/test/pkg/AnimatorTest.java line 25: Annotate with @UsesReflectionToAccessMethod:
-        @@ -5,0 +6 @@
-        +import androidx.annotation.keep.UsesReflectionToAccessMethod;
-        @@ -16,0 +18,4 @@
-        +    @UsesReflectionToAccessMethod(
-        +        className = "test.pkg.AnimatorTest.MyObject",
-        +        methodName = "getProp2"
-        +    )
-        Autofix for src/test/pkg/AnimatorTest.java line 25: Annotate with @UsesReflectionToAccessMethod:
-        @@ -5,0 +6 @@
-        +import androidx.annotation.keep.UsesReflectionToAccessMethod;
-        @@ -16,0 +18,4 @@
-        +    @UsesReflectionToAccessMethod(
-        +        className = "test.pkg.AnimatorTest.MyObject",
-        +        methodName = "setProp2"
-        +    )
-        """
-            )
     }
 }
 
