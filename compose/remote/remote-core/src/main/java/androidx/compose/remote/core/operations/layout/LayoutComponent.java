@@ -103,6 +103,38 @@ public class LayoutComponent extends Component {
         return mVerticalScrollDelegate;
     }
 
+    @Override
+    public boolean hasHorizontalScroll() {
+        if (mHorizontalScrollDelegate != null || mComponentModifiers.hasHorizontalScroll()) {
+            return true;
+        }
+        if (super.hasHorizontalScroll()) {
+            return true;
+        }
+        for (Component c : mChildrenComponents) {
+            if (c.hasHorizontalScroll()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean hasVerticalScroll() {
+        if (mVerticalScrollDelegate != null || mComponentModifiers.hasVerticalScroll()) {
+            return true;
+        }
+        if (super.hasVerticalScroll()) {
+            return true;
+        }
+        for (Component c : mChildrenComponents) {
+            if (c.hasVerticalScroll()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public LayoutComponent(
             @Nullable Component parent,
             int componentId,
