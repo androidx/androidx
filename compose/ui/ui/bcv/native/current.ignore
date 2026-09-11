@@ -5,3 +5,7 @@
 [linuxX64]: Removed declaration androidx.compose.ui.graphics/androidx_compose_ui_graphics_MeshGradientPainter$stableprop from androidx.compose.ui:ui
 [linuxX64]: Removed declaration androidx.compose.ui.graphics/androidx_compose_ui_graphics_MeshGradientPainter$stableprop_getter() from androidx.compose.ui:ui
 [linuxX64]: Removed declaration radius from androidx.compose.ui.draw/BlurScope
+[linuxX64]: Added declaration androidx.compose.ui/androidx_compose_ui_UiMediaScope_WindowFold$stableprop to androidx.compose.ui:ui
+[linuxX64]: Added declaration androidx.compose.ui/androidx_compose_ui_UiMediaScope_WindowPosture$stableprop to androidx.compose.ui:ui
+[linuxX64]: Added declaration androidx.compose.ui/androidx_compose_ui_UiMediaScope_WindowFold$stableprop_getter() to androidx.compose.ui:ui
+[linuxX64]: Added declaration androidx.compose.ui/androidx_compose_ui_UiMediaScope_WindowPosture$stableprop_getter() to androidx.compose.ui:ui
