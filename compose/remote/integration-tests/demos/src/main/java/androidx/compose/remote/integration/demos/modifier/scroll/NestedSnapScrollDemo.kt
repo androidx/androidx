@@ -25,12 +25,12 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.border
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.horizontalScroll
 import androidx.compose.remote.creation.compose.modifier.padding
-import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.state.rc
@@ -39,6 +39,7 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.integration.demos.common.RemoteDemo
 import androidx.compose.remote.tooling.preview.RemoteComponentPreview
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -49,16 +50,19 @@ fun NestedSnapScrollDemo() {
     RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) { NestedSnapScrollDemoContent() }
 }
 
+@Suppress("RestrictedApiAndroidX")
 @RemoteComponentPreview
 @Composable
 @RemoteComposable
 private fun NestedSnapScrollDemoContent() {
     val itemsQuantity = 10
-    val verticalScrollState = rememberRemoteScrollState(notches = itemsQuantity - 1)
+    val verticalScrollState = remember { RemoteScrollState(notches = itemsQuantity - 1) }
     RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
         RemoteColumn(modifier = RemoteModifier.fillMaxSize().verticalScroll(verticalScrollState)) {
             repeat(itemsQuantity) { rowIndex ->
-                val horizontalScrollState = rememberRemoteScrollState(notches = itemsQuantity - 1)
+                val horizontalScrollState = remember {
+                    RemoteScrollState(notches = itemsQuantity - 1)
+                }
                 RemoteBox(modifier = RemoteModifier.padding(vertical = 8.rdp)) {
                     RemoteRow(
                         modifier =

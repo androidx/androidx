@@ -21,6 +21,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.remember
 
 /**
@@ -205,6 +206,7 @@ internal constructor(
  * @param constantValueOrNull A nullable value if this [MutableRemoteLong] is constant.
  */
 public class MutableRemoteLong
+@RememberInComposition
 internal constructor(
     @get:Suppress("AutoBoxing") public override val constantValueOrNull: Long?,
     cacheKey: RemoteStateCacheKey,
@@ -227,6 +229,7 @@ internal constructor(
      *
      * @param id An optional explicit ID for this mutable long. If `null`, a new ID is reserved.
      */
+    @RememberInComposition
     internal constructor(
         id: Int
     ) : this(constantValueOrNull = null, cacheKey = RemoteStateIdKey(id), idProvider = { id })
@@ -236,7 +239,9 @@ internal constructor(
      *
      * @param initialValue The initial [Long] value.
      */
-    internal constructor(
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RememberInComposition
+    public constructor(
         initialValue: Long
     ) : this(
         constantValueOrNull = initialValue,

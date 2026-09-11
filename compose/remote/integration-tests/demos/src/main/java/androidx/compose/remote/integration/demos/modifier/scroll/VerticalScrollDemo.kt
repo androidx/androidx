@@ -23,12 +23,12 @@ import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.padding
-import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -37,6 +37,7 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.integration.demos.common.RemoteDemo
 import androidx.compose.remote.tooling.preview.RemoteComponentPreview
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
@@ -46,11 +47,12 @@ fun VerticalScrollDemo() {
     RemoteDemo(modifier = Modifier.fillMaxSize()) { VerticalScrollDemoContent() }
 }
 
+@Suppress("RestrictedApiAndroidX")
 @RemoteComponentPreview
 @Composable
 @RemoteComposable
 private fun VerticalScrollDemoContent() {
-    val scrollState = rememberRemoteScrollState()
+    val scrollState = remember { RemoteScrollState() }
     val colors = arrayOf(Color(0xFFE0E0E0), Color(0xFFBDBDBD), Color(0xFF9E9E9E), Color(0xFF757575))
     RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
         RemoteColumn(

@@ -40,7 +40,8 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.wrapContentSize
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
+import androidx.compose.remote.creation.compose.state.rememberNamedState
 import androidx.compose.remote.integration.demos.common.RemoteDemo
 import androidx.compose.remote.integration.demos.common.propertyName
 import androidx.compose.remote.tooling.preview.RemoteComponentPreview
@@ -122,7 +123,8 @@ fun RemoteBoxAlignmentsDemo() {
 @Composable
 @RemoteComposable
 private fun RemoteBoxAlignmentsDemoContent(alignments: List<Pair<Int, RemoteAlignment>>) {
-    val currentState = rememberNamedRemoteInt(ALIGNMENT_ID, alignments[0].first)
+    val currentState =
+        rememberNamedState(ALIGNMENT_ID) { createNamedRemoteInt(ALIGNMENT_ID, alignments[0].first) }
 
     RemoteStateLayout(
         modifier = RemoteModifier.wrapContentSize(),

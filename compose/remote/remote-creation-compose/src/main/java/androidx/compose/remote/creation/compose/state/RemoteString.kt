@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.state.RemoteString.Companion.cre
 import androidx.compose.remote.creation.compose.state.RemoteString.OperationKey
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.remember
 
 /**
@@ -1034,6 +1035,7 @@ internal fun mergeSets(a: Set<String>?, b: Set<String>?): Set<String>? {
 
 /** An implementation of [RemoteString] that holds its value in a [MutableState<String>]. */
 public class MutableRemoteString
+@RememberInComposition
 internal constructor(
     @get:Suppress("AutoBoxing") public override val constantValueOrNull: String?,
     cacheKey: RemoteStateCacheKey,
@@ -1041,6 +1043,7 @@ internal constructor(
 ) : RemoteString(cacheKey), MutableRemoteState<String> {
 
     /** Create a MutableRemoteString from an existing id. */
+    @RememberInComposition
     internal constructor(
         id: Int
     ) : this(
@@ -1061,7 +1064,9 @@ internal constructor(
      *
      * @param value The initial [String] value.
      */
-    internal constructor(
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RememberInComposition
+    public constructor(
         value: String
     ) : this(
         constantValueOrNull = null,

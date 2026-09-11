@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.creation.compose.modifier
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -44,7 +45,9 @@ constructor(public val positionState: MutableRemoteFloat, public val notches: In
         notches: Int,
     ) : this(MutableRemoteFloat(position), notches)
 
-    internal constructor(notches: Int = 0) : this(MutableRemoteFloat(), notches)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RememberInComposition
+    public constructor(notches: Int = 0) : this(MutableRemoteFloat(), notches)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -49,6 +49,7 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
+import androidx.compose.remote.creation.compose.text.RemoteTypeface.Companion.create
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -129,8 +130,7 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
                             paint =
                                 RemotePaint().apply {
                                     color = Color.White.rc
-                                    typeface =
-                                        RemoteTypeface.create("default", RemoteTypeface.Style.Bold)
+                                    typeface = create("default", RemoteTypeface.Style.Bold)
                                 },
                             panX = 1f.rf,
                         )

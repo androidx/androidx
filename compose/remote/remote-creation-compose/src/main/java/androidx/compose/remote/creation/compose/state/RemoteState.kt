@@ -255,7 +255,8 @@ public interface MutableRemoteState<T> : RemoteState<T> {
  */
 @RemoteComposable
 @Composable
-internal fun <T : RemoteState<*>> rememberNamedState(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun <T : RemoteState<*>> rememberNamedState(
     name: String,
     domain: RemoteState.Domain = RemoteState.Domain.User,
     function: () -> T,
