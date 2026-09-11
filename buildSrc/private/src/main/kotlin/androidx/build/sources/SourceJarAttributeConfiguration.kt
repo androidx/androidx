@@ -17,9 +17,12 @@
 package androidx.build.sources
 
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.AttributeCompatibilityRule
 import org.gradle.api.attributes.AttributeDisambiguationRule
+import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.CompatibilityCheckDetails
+import org.gradle.api.attributes.DocsType
 import org.gradle.api.attributes.MultipleCandidatesDetails
 import org.gradle.api.attributes.Usage
 import org.gradle.kotlin.dsl.named
@@ -33,6 +36,28 @@ internal object SourceJarAttributeConfiguration {
                 usage.disambiguationRules.add(SourceJarDisambiguationRule::class.java)
                 usage.compatibilityRules.add(SourceJarCompatibilityRule::class.java)
             }
+        }
+    }
+
+    /**
+     * Sets the [Configuration] to resolve a source jar.
+     *
+     * This will resolve the KMP source jar if it exists or the regular source jar if it does not.
+     */
+    fun Configuration.setResolveSources(project: Project) {
+        isTransitive = false
+        isCanBeConsumed = false
+        isCanBeResolved = true
+        attributes {
+            it.attribute(Usage.USAGE_ATTRIBUTE, project.docsSourceJarUsage)
+            it.attribute(
+                Category.CATEGORY_ATTRIBUTE,
+                project.objects.named<Category>(Category.DOCUMENTATION),
+            )
+            it.attribute(
+                DocsType.DOCS_TYPE_ATTRIBUTE,
+                project.objects.named<DocsType>(DocsType.SOURCES),
+            )
         }
     }
 
