@@ -49,8 +49,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalMediaQueryApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.UiMediaScope.FoldOrientation
+import androidx.compose.ui.UiMediaScope.FoldState
 import androidx.compose.ui.UiMediaScope.PointerPrecision
-import androidx.compose.ui.UiMediaScope.Posture
 import androidx.compose.ui.UiMediaScope.ViewingDistance
 import androidx.compose.ui.derivedMediaQuery
 import androidx.compose.ui.draw.clip
@@ -108,44 +109,48 @@ fun MediaQuerySample() {
 @Composable
 fun FoldableAwareSample() {
     Column(Modifier.fillMaxSize()) {
-        when (mediaQuery { windowPosture }) {
-            Posture.Tabletop -> {
-                // Tabletop mode layout: Two rows separated by hinge
-                Column(Modifier.fillMaxSize()) {
+        mediaQuery {
+            when {
+                windowPosture.isTabletop -> {
+                    // Tabletop mode layout: Two rows separated by horizontal hinge
+                    Column(Modifier.fillMaxSize()) {
+                        Box(
+                            Modifier.weight(1f).background(Color.Red).fillMaxWidth(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text("Tabletop mode")
+                        }
+                        Box(
+                            Modifier.height(20.dp).background(Color.Black).fillMaxWidth()
+                        ) // Hinge visualization
+                        Box(Modifier.weight(1f).background(Color.Blue).fillMaxWidth())
+                    }
+                }
+                windowPosture.folds.any {
+                    it.state == FoldState.HalfOpened && it.orientation == FoldOrientation.Vertical
+                } -> {
+                    // Book mode layout: Two columns separated by vertical hinge
+                    Row(Modifier.fillMaxSize()) {
+                        Box(
+                            Modifier.weight(1f).background(Color.Red).fillMaxHeight(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text("Book mode")
+                        }
+                        Box(
+                            Modifier.width(20.dp).background(Color.Black).fillMaxHeight()
+                        ) // Hinge visualization
+                        Box(Modifier.weight(1f).background(Color.Blue).fillMaxHeight())
+                    }
+                }
+                else -> {
+                    // Flat mode
                     Box(
-                        Modifier.weight(1f).background(Color.Red).fillMaxWidth(),
+                        Modifier.background(Color.LightGray).fillMaxSize(),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text("Tabletop mode")
+                        Text("Flat mode")
                     }
-                    Box(
-                        Modifier.height(20.dp).background(Color.Black).fillMaxWidth()
-                    ) // Hinge visualization
-                    Box(Modifier.weight(1f).background(Color.Blue).fillMaxWidth())
-                }
-            }
-            Posture.Book -> {
-                // Book mode layout: Two columns separated by hinge
-                Row(Modifier.fillMaxSize()) {
-                    Box(
-                        Modifier.weight(1f).background(Color.Red).fillMaxHeight(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text("Book mode")
-                    }
-                    Box(
-                        Modifier.width(20.dp).background(Color.Black).fillMaxHeight()
-                    ) // Hinge visualization
-                    Box(Modifier.weight(1f).background(Color.Blue).fillMaxHeight())
-                }
-            }
-            else -> {
-                // Flat mode
-                Box(
-                    Modifier.background(Color.LightGray).fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text("Flat mode")
                 }
             }
         }

@@ -31,8 +31,8 @@ import androidx.compose.ui.LocalUiMediaScope
 import androidx.compose.ui.UiMediaScope
 import androidx.compose.ui.UiMediaScope.KeyboardKind
 import androidx.compose.ui.UiMediaScope.PointerPrecision
-import androidx.compose.ui.UiMediaScope.Posture
 import androidx.compose.ui.UiMediaScope.ViewingDistance
+import androidx.compose.ui.UiMediaScope.WindowPosture
 import androidx.compose.ui.derivedMediaQuery
 import androidx.compose.ui.mediaQuery
 import androidx.compose.ui.platform.LocalView
@@ -379,7 +379,7 @@ class MediaQueryTest {
     private class TestUiMediaScope : UiMediaScope {
         override var windowWidth: Dp by mutableStateOf(0.dp)
         override var windowHeight: Dp by mutableStateOf(0.dp)
-        override var windowPosture: Posture by mutableStateOf(Posture.Flat)
+        override var windowPosture: WindowPosture by mutableStateOf(WindowPosture(emptyList()))
         override var pointerPrecision: PointerPrecision by mutableStateOf(PointerPrecision.None)
         override var keyboardKind: KeyboardKind by mutableStateOf(KeyboardKind.None)
         override var hasMicrophone: Boolean by mutableStateOf(false)

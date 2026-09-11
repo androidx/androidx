@@ -322,7 +322,7 @@ package androidx.compose.ui {
     method @BytecodeOnly public int getPointerPrecision-fpxItnM();
     method @BytecodeOnly public int getViewingDistance-tKro-MQ();
     method @BytecodeOnly @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getWindowHeight-D9Ej5fM();
-    method @BytecodeOnly public int getWindowPosture-m18o9QQ();
+    method @InaccessibleFromKotlin public androidx.compose.ui.UiMediaScope.WindowPosture getWindowPosture();
     method @BytecodeOnly @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getWindowWidth-D9Ej5fM();
     property public abstract boolean hasCamera;
     property public abstract boolean hasMicrophone;
@@ -330,8 +330,34 @@ package androidx.compose.ui {
     property public abstract androidx.compose.ui.UiMediaScope.PointerPrecision pointerPrecision;
     property public abstract androidx.compose.ui.UiMediaScope.ViewingDistance viewingDistance;
     property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract androidx.compose.ui.unit.Dp windowHeight;
-    property public abstract androidx.compose.ui.UiMediaScope.Posture windowPosture;
+    property public abstract androidx.compose.ui.UiMediaScope.WindowPosture windowPosture;
     property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract androidx.compose.ui.unit.Dp windowWidth;
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi @kotlin.jvm.JvmInline public static final value class UiMediaScope.FoldOrientation {
+    method @BytecodeOnly public static androidx.compose.ui.UiMediaScope.FoldOrientation! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.ui.UiMediaScope.FoldOrientation.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public static final class UiMediaScope.FoldOrientation.Companion {
+    method @BytecodeOnly public int getHorizontal-hIhEK1o();
+    method @BytecodeOnly public int getVertical-hIhEK1o();
+    property public androidx.compose.ui.UiMediaScope.FoldOrientation Horizontal;
+    property public androidx.compose.ui.UiMediaScope.FoldOrientation Vertical;
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi @kotlin.jvm.JvmInline public static final value class UiMediaScope.FoldState {
+    method @BytecodeOnly public static androidx.compose.ui.UiMediaScope.FoldState! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.ui.UiMediaScope.FoldState.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public static final class UiMediaScope.FoldState.Companion {
+    method @BytecodeOnly public int getFlat-O5fZRa0();
+    method @BytecodeOnly public int getHalfOpened-O5fZRa0();
+    property public androidx.compose.ui.UiMediaScope.FoldState Flat;
+    property public androidx.compose.ui.UiMediaScope.FoldState HalfOpened;
   }
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi @kotlin.jvm.JvmInline public static final value class UiMediaScope.KeyboardKind {
@@ -366,21 +392,6 @@ package androidx.compose.ui {
     property public androidx.compose.ui.UiMediaScope.PointerPrecision None;
   }
 
-  @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi @kotlin.jvm.JvmInline public static final value class UiMediaScope.Posture {
-    method @BytecodeOnly public static androidx.compose.ui.UiMediaScope.Posture! box-impl(int);
-    method @BytecodeOnly public int unbox-impl();
-    field public static final androidx.compose.ui.UiMediaScope.Posture.Companion Companion;
-  }
-
-  @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi public static final class UiMediaScope.Posture.Companion {
-    method @BytecodeOnly public int getBook-m18o9QQ();
-    method @BytecodeOnly public int getFlat-m18o9QQ();
-    method @BytecodeOnly public int getTabletop-m18o9QQ();
-    property public androidx.compose.ui.UiMediaScope.Posture Book;
-    property public androidx.compose.ui.UiMediaScope.Posture Flat;
-    property public androidx.compose.ui.UiMediaScope.Posture Tabletop;
-  }
-
   @SuppressCompatibility @androidx.compose.ui.ExperimentalMediaQueryApi @kotlin.jvm.JvmInline public static final value class UiMediaScope.ViewingDistance {
     method @BytecodeOnly public static androidx.compose.ui.UiMediaScope.ViewingDistance! box-impl(int);
     method @BytecodeOnly public int unbox-impl();
@@ -394,6 +405,25 @@ package androidx.compose.ui {
     property public androidx.compose.ui.UiMediaScope.ViewingDistance Far;
     property public androidx.compose.ui.UiMediaScope.ViewingDistance Medium;
     property public androidx.compose.ui.UiMediaScope.ViewingDistance Near;
+  }
+
+  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.compose.ui.ExperimentalMediaQueryApi public static final class UiMediaScope.WindowFold {
+    ctor @KotlinOnly public UiMediaScope.WindowFold(androidx.compose.ui.UiMediaScope.FoldState state, androidx.compose.ui.UiMediaScope.FoldOrientation orientation);
+    ctor @BytecodeOnly public UiMediaScope.WindowFold(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @BytecodeOnly public int getOrientation-hIhEK1o();
+    method @BytecodeOnly public int getState-O5fZRa0();
+    property public androidx.compose.ui.UiMediaScope.FoldOrientation orientation;
+    property public androidx.compose.ui.UiMediaScope.FoldState state;
+  }
+
+  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.compose.ui.ExperimentalMediaQueryApi public static final class UiMediaScope.WindowPosture {
+    ctor public UiMediaScope.WindowPosture(java.util.List<androidx.compose.ui.UiMediaScope.WindowFold> folds);
+    method @InaccessibleFromKotlin public java.util.List<androidx.compose.ui.UiMediaScope.WindowFold> getFolds();
+    method @InaccessibleFromKotlin public boolean isFlat();
+    method @InaccessibleFromKotlin public boolean isTabletop();
+    property public java.util.List<androidx.compose.ui.UiMediaScope.WindowFold> folds;
+    property public boolean isFlat;
+    property public boolean isTabletop;
   }
 
   public final class ZIndexModifierKt {
