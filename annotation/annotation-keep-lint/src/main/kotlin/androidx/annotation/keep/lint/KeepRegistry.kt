@@ -28,5 +28,5 @@ class KeepRegistry() : IssueRegistry() {
         get() = CURRENT_API
 
     override val issues: List<Issue>
-        get() = listOf(KeepRuleDetector.ISSUE)
+        get() = listOf(KeepRuleDetector.ISSUE, KeepAnnotationPluginDetector.ISSUE)
 }
