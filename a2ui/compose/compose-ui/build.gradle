@@ -38,6 +38,9 @@ dependencies {
     implementation(project(":a2ui:a2ui-engine"))
     implementation("androidx.collection:collection:1.6.0")
 
+    // Older versions of lifecycle-runtime lint checks use a deleted lint API
+    implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
+
     testImplementation(libs.kotlinTest)
     testImplementation(libs.truth)
     testImplementation(libs.junit)
