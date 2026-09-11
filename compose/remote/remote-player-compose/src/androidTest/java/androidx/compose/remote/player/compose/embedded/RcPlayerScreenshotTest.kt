@@ -41,11 +41,15 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.vector.draw
 import androidx.compose.remote.creation.compose.vector.painterRemoteVector
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.test.R
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
@@ -282,6 +286,62 @@ class RcPlayerScreenshotTest {
             .assertAgainstGolden(
                 screenshotRule,
                 "RcPlayerScreenshotTest_vectorPainter_proceduralDraw",
+            )
+    }
+
+    @Test
+    fun vectorDrawable_clipPath_androidx() {
+        rule.setContent {
+            val document =
+                rememberRemoteDocument(profile = RcPlatformProfiles.ANDROIDX) {
+                    val painter =
+                        painterRemoteVector(
+                            ImageVector.vectorResource(R.drawable.vector_icon_clip_path_1)
+                        )
+                    RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                        with(painter) { onDraw() }
+                    }
+                }
+
+            Box(modifier = Modifier.size(100.dp)) {
+                document.value?.let { RcPlayer(document = it) }
+            }
+        }
+
+        rule
+            .onRoot()
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "RcPlayerScreenshotTest_vectorDrawable_clipPath_androidx",
+            )
+    }
+
+    @Test
+    fun vectorDrawable_clipPath_wearWidgets() {
+        rule.setContent {
+            val document =
+                rememberRemoteDocument(profile = RcPlatformProfiles.WEAR_WIDGETS) {
+                    val painter =
+                        painterRemoteVector(
+                            ImageVector.vectorResource(R.drawable.vector_icon_clip_path_1)
+                        )
+                    RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                        with(painter) { onDraw() }
+                    }
+                }
+
+            Box(modifier = Modifier.size(100.dp)) {
+                document.value?.let { RcPlayer(document = it) }
+            }
+        }
+
+        rule
+            .onRoot()
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "RcPlayerScreenshotTest_vectorDrawable_clipPath_wearWidgets",
             )
     }
 }
