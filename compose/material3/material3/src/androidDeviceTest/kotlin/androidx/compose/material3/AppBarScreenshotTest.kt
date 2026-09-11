@@ -598,6 +598,7 @@ class AppBarScreenshotTest {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(BottomAppBarTestTag)) {
                 BottomAppBar(
+                    windowInsets = NoWindowInsets,
                     actions = {
                         IconButton(onClick = { /* doSomething() */ }) {
                             Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
@@ -627,6 +628,7 @@ class AppBarScreenshotTest {
         composeTestRule.setMaterialContent(darkColorScheme()) {
             Box(Modifier.testTag(BottomAppBarTestTag)) {
                 BottomAppBar(
+                    windowInsets = NoWindowInsets,
                     actions = {
                         IconButton(onClick = { /* doSomething() */ }) {
                             Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
@@ -656,6 +658,7 @@ class AppBarScreenshotTest {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(BottomAppBarTestTag)) {
                 FlexibleBottomAppBar(
+                    windowInsets = NoWindowInsets,
                     horizontalArrangement = Arrangement.SpaceAround,
                     contentPadding = PaddingValues(horizontal = 0.dp),
                     content = {
@@ -699,6 +702,7 @@ class AppBarScreenshotTest {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(BottomAppBarTestTag)) {
                 FlexibleBottomAppBar(
+                    windowInsets = NoWindowInsets,
                     // The default BottomAppBarDefaults.FlexibleHorizontalArrangement is an
                     // Arrangement.SpacedBetween.
                     content = {
@@ -726,7 +730,7 @@ class AppBarScreenshotTest {
                         IconButton(onClick = { /* doSomething() */ }) {
                             Icon(Icons.Filled.Edit, contentDescription = "Localized description")
                         }
-                    }
+                    },
                 )
             }
         }
@@ -742,6 +746,7 @@ class AppBarScreenshotTest {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(BottomAppBarTestTag)) {
                 FlexibleBottomAppBar(
+                    windowInsets = NoWindowInsets,
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     contentPadding = PaddingValues(horizontal = 0.dp),
                     content = {
@@ -785,6 +790,7 @@ class AppBarScreenshotTest {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(BottomAppBarTestTag)) {
                 FlexibleBottomAppBar(
+                    windowInsets = NoWindowInsets,
                     horizontalArrangement = BottomAppBarDefaults.FlexibleFixedHorizontalArrangement,
                     content = {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -827,6 +833,7 @@ class AppBarScreenshotTest {
         composeTestRule.setMaterialContent(darkColorScheme()) {
             Box(Modifier.testTag(BottomAppBarTestTag)) {
                 FlexibleBottomAppBar(
+                    windowInsets = NoWindowInsets,
                     horizontalArrangement = BottomAppBarDefaults.FlexibleFixedHorizontalArrangement,
                     content = {
                         IconButton(onClick = { /* doSomething() */ }) {
@@ -876,4 +883,5 @@ class AppBarScreenshotTest {
 
     private val TopAppBarTestTag = "topAppBar"
     private val BottomAppBarTestTag = "bottomAppBar"
+    private val NoWindowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp)
 }
