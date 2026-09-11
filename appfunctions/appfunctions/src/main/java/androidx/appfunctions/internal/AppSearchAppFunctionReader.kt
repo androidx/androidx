@@ -23,7 +23,7 @@ import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.AppFunctionState
-import androidx.appfunctions.ObserveAppFunctionsEvent
+import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.internal.GenericDocumentUtils.safeCastToDocumentClass
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
@@ -467,7 +467,7 @@ internal class AppSearchAppFunctionReader(
         )
     }
 
-    override fun observeAppFunctions(): Flow<ObserveAppFunctionsEvent> {
+    override fun observeAppFunctions(): Flow<AppFunctionsChangeEvent> {
         return callbackFlow {
             val session = createSearchSession(context)
             val appSearchObserver = AppFunctionObserverCallback()

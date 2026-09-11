@@ -19,7 +19,7 @@ package androidx.appfunctions.internal
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.AppFunctionState
-import androidx.appfunctions.ObserveAppFunctionsEvent
+import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
 import kotlinx.coroutines.flow.Flow
@@ -66,5 +66,5 @@ public interface AppFunctionReader {
      *
      * @return A flow emitting change events when packages or function states are updated.
      */
-    public fun observeAppFunctions(): Flow<ObserveAppFunctionsEvent>
+    public fun observeAppFunctions(): Flow<AppFunctionsChangeEvent>
 }

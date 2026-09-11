@@ -19,7 +19,7 @@ package androidx.appfunctions.internal
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.appfunctions.ObserveAppFunctionsEvent
+import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.internal.AppSearchAppFunctionReader.Companion.APP_FUNCTIONS_NAMESPACE
 import androidx.appfunctions.internal.AppSearchAppFunctionReader.Companion.APP_FUNCTIONS_RUNTIME_DATABASE_NAME
 import androidx.appfunctions.internal.AppSearchAppFunctionReader.Companion.APP_FUNCTIONS_RUNTIME_NAMESPACE
@@ -39,7 +39,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 
 @RequiresApi(Build.VERSION_CODES.S)
 internal class AppFunctionObserverCallback : ObserverCallback, Closeable {
-    private val changeEvents = Channel<ObserveAppFunctionsEvent>(Channel.UNLIMITED)
+    private val changeEvents = Channel<AppFunctionsChangeEvent>(Channel.UNLIMITED)
 
     override fun onSchemaChanged(schemaChangeInfo: SchemaChangeInfo) {
         if (!isAppFunctionDb(schemaChangeInfo.getDatabaseName())) {
@@ -53,7 +53,7 @@ internal class AppFunctionObserverCallback : ObserverCallback, Closeable {
                 .distinct()
                 .toSet()
         if (changedPackages.isNotEmpty()) {
-            changeEvents.trySend(ObserveAppFunctionsEvent.MetadataChanged(changedPackages))
+            changeEvents.trySend(AppFunctionsChangeEvent.MetadataChanged(changedPackages))
         }
     }
 
@@ -78,15 +78,15 @@ internal class AppFunctionObserverCallback : ObserverCallback, Closeable {
         if (changedFunctions.isNotEmpty()) {
             if (isStatic) {
                 val changedPackages = changedFunctions.map { it.packageName }.toSet()
-                changeEvents.trySend(ObserveAppFunctionsEvent.MetadataChanged(changedPackages))
+                changeEvents.trySend(AppFunctionsChangeEvent.MetadataChanged(changedPackages))
             }
             if (isRuntime) {
-                changeEvents.trySend(ObserveAppFunctionsEvent.StatesChanged(changedFunctions))
+                changeEvents.trySend(AppFunctionsChangeEvent.StatesChanged(changedFunctions))
             }
         }
     }
 
-    public fun observe(): Flow<ObserveAppFunctionsEvent> =
+    public fun observe(): Flow<AppFunctionsChangeEvent> =
         changeEvents.receiveAsFlow().debounceAndMerge(OBSERVER_DEBOUNCE_MILLIS)
 
     override fun close() {
