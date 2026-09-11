@@ -72,9 +72,15 @@ class PdfServiceConnectionImplTest {
     }
 
     @Test
-    fun disconnect_whenConnected_closesRemoteDocumentAndUnbindsService() {
+    fun disconnect_whenConnected_closesRemoteDocumentAndUnbindsService() = runTest {
+        whenever(context.bindService(any(), any(), eq(Context.BIND_AUTO_CREATE))).thenReturn(true)
+        val testUri = Uri.parse("content://test/sample.pdf")
+        val connectJob = async { serviceConnection.connect(testUri) }
+        runCurrent()
+
         val fakeRemote = FakePdfDocumentRemote()
         serviceConnection.onServiceConnected(componentName, fakeRemote)
+        runCurrent()
 
         assertThat(serviceConnection.isConnected).isTrue()
 
@@ -85,6 +91,52 @@ class PdfServiceConnectionImplTest {
         verify(context).unbindService(serviceConnection)
         assertThat(serviceConnection.isConnected).isFalse()
         assertThat(serviceConnection.documentBinder).isNull()
+
+        connectJob.await()
+    }
+
+    @Test
+    fun disconnect_whenRemoteExceptionThrown_doesNotCrash() = runTest {
+        whenever(context.bindService(any(), any(), eq(Context.BIND_AUTO_CREATE))).thenReturn(true)
+        val testUri = Uri.parse("content://test/sample.pdf")
+        val connectJob = async { serviceConnection.connect(testUri) }
+        runCurrent()
+
+        val fakeRemote = org.mockito.kotlin.spy(FakePdfDocumentRemote())
+        whenever(fakeRemote.closePdfDocument()).thenThrow(android.os.RemoteException())
+
+        serviceConnection.onServiceConnected(componentName, fakeRemote)
+        runCurrent()
+
+        // This shouldn't throw an exception despite the RemoteException
+        serviceConnection.disconnect()
+
+        verify(context).unbindService(serviceConnection)
+        assertThat(serviceConnection.isConnected).isFalse()
+        assertThat(serviceConnection.documentBinder).isNull()
+
+        connectJob.await()
+    }
+
+    @Test
+    fun disconnect_whenUnbindThrowsIllegalArgumentException_doesNotCrash() = runTest {
+        whenever(context.bindService(any(), any(), eq(Context.BIND_AUTO_CREATE))).thenReturn(true)
+        whenever(context.unbindService(any())).thenThrow(IllegalArgumentException())
+        val testUri = Uri.parse("content://test/sample.pdf")
+        val connectJob = async { serviceConnection.connect(testUri) }
+        runCurrent()
+
+        val fakeRemote = FakePdfDocumentRemote()
+        serviceConnection.onServiceConnected(componentName, fakeRemote)
+        runCurrent()
+
+        // This shouldn't throw an exception despite the IllegalArgumentException
+        serviceConnection.disconnect()
+
+        assertThat(serviceConnection.isConnected).isFalse()
+        assertThat(serviceConnection.documentBinder).isNull()
+
+        connectJob.await()
     }
 
     @Test
@@ -96,34 +148,71 @@ class PdfServiceConnectionImplTest {
     }
 
     @Test
-    fun onServiceDisconnected_marksNeedsToReopenDocumentAndDisconnects() {
+    fun disconnect_whenBoundButNotConnected_unbindsService() = runTest {
+        whenever(context.bindService(any(), any(), eq(Context.BIND_AUTO_CREATE))).thenReturn(true)
+        val testUri = Uri.parse("content://test/sample.pdf")
+        val connectJob = async { serviceConnection.connect(testUri) }
+        runCurrent()
+
+        // At this point, bindService was called, so isBound is true, but isConnected is false.
+        assertThat(serviceConnection.isConnected).isFalse()
+
+        serviceConnection.disconnect()
+
+        verify(context).unbindService(serviceConnection)
+
+        connectJob.cancel()
+    }
+
+    @Test
+    fun onServiceDisconnected_marksNeedsToReopenDocumentAndDisconnects() = runTest {
+        whenever(context.bindService(any(), any(), eq(Context.BIND_AUTO_CREATE))).thenReturn(true)
+        val testUri = Uri.parse("content://test/sample.pdf")
+        val connectJob = async { serviceConnection.connect(testUri) }
+        runCurrent()
+
         val fakeRemote = FakePdfDocumentRemote()
         serviceConnection.onServiceConnected(componentName, fakeRemote)
+        runCurrent()
 
         serviceConnection.onServiceDisconnected(componentName)
 
         assertThat(serviceConnection.needsToReopenDocument).isTrue()
         assertThat(serviceConnection.isConnected).isFalse()
         assertThat(serviceConnection.documentBinder).isNull()
+
+        // Since isProcessing is false, disconnect() is called, which should unbind
+        verify(context).unbindService(serviceConnection)
+
+        connectJob.await()
     }
 
     @Test
-    fun onServiceDisconnected_withActiveJob_setsNeedsToReopenDocumentWithoutImmediateDisconnect() {
-        val fakeRemote = FakePdfDocumentRemote()
-        serviceConnection.onServiceConnected(componentName, fakeRemote)
+    fun onServiceDisconnected_withActiveJob_setsNeedsToReopenDocumentWithoutImmediateDisconnect() =
+        runTest {
+            whenever(context.bindService(any(), any(), eq(Context.BIND_AUTO_CREATE)))
+                .thenReturn(true)
+            val testUri = Uri.parse("content://test/sample.pdf")
+            val connectJob = async { serviceConnection.connect(testUri) }
+            runCurrent()
 
-        val activeJob = Job()
-        serviceConnection.pendingJobs.add(activeJob)
+            val fakeRemote = FakePdfDocumentRemote()
+            serviceConnection.onServiceConnected(componentName, fakeRemote)
+            runCurrent()
 
-        serviceConnection.onServiceDisconnected(componentName)
+            val activeJob = Job()
+            serviceConnection.pendingJobs.add(activeJob)
 
-        assertThat(serviceConnection.needsToReopenDocument).isTrue()
-        assertThat(serviceConnection.isConnected).isFalse()
-        // unbindService shouldn't be called when processing is active
-        verify(context, never()).unbindService(any())
+            serviceConnection.onServiceDisconnected(componentName)
 
-        activeJob.cancel()
-    }
+            assertThat(serviceConnection.needsToReopenDocument).isTrue()
+            assertThat(serviceConnection.isConnected).isFalse()
+            // unbindService shouldn't be called when processing is active
+            verify(context, never()).unbindService(any())
+
+            activeJob.cancel()
+            connectJob.await()
+        }
 
     @Test
     fun connect_bindsServiceAndSuspendsUntilConnected() = runTest {
