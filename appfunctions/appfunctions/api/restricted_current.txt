@@ -164,7 +164,7 @@ package androidx.appfunctions {
     method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) @androidx.appfunctions.ExperimentalAppFunctionsApi public suspend Object? handleAppFunction(androidx.appfunctions.HandleAppFunctionRequest request, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
     method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) @androidx.appfunctions.ExperimentalAppFunctionsApi public suspend Object? handleAppFunction(String functionIdentifier, androidx.appfunctions.SuspendingAppFunction appFunction, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
     method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) @androidx.appfunctions.ExperimentalAppFunctionsApi public suspend Object? handleAppFunctions(java.util.List<androidx.appfunctions.HandleAppFunctionRequest> requests, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
-    method @RequiresPermission(anyOf={"android.permission.EXECUTE_APP_FUNCTIONS", "android.permission.DISCOVER_APP_FUNCTIONS", "android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM"}, conditional=true) public kotlinx.coroutines.flow.Flow<androidx.appfunctions.ObserveAppFunctionsEvent> observeAppFunctions();
+    method @RequiresPermission(anyOf={"android.permission.EXECUTE_APP_FUNCTIONS", "android.permission.DISCOVER_APP_FUNCTIONS", "android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM"}, conditional=true) public kotlinx.coroutines.flow.Flow<androidx.appfunctions.AppFunctionsChangeEvent> observeAppFunctions();
     method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) @androidx.appfunctions.ExperimentalAppFunctionsApi public android.app.appfunctions.AppFunctionRegistration registerAppFunction(String functionIdentifier, java.util.concurrent.Executor executor, androidx.appfunctions.CallbackAppFunction appFunction);
     method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) @androidx.appfunctions.ExperimentalAppFunctionsApi public android.app.appfunctions.AppFunctionRegistration registerAppFunctions(java.util.List<androidx.appfunctions.RegisterAppFunctionRequest> requests);
     method @RequiresPermission(anyOf={"android.permission.EXECUTE_APP_FUNCTIONS", "android.permission.DISCOVER_APP_FUNCTIONS", "android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM"}, conditional=true) public suspend Object? searchAppFunctions(androidx.appfunctions.AppFunctionSearchSpec searchSpec, kotlin.coroutines.Continuation<? super java.util.List<androidx.appfunctions.metadata.AppFunctionMetadata>>);
@@ -319,6 +319,21 @@ package androidx.appfunctions {
     property public abstract String[] allowedSchemes;
   }
 
+  public abstract class AppFunctionsChangeEvent {
+  }
+
+  public static final class AppFunctionsChangeEvent.MetadataChanged extends androidx.appfunctions.AppFunctionsChangeEvent {
+    ctor public AppFunctionsChangeEvent.MetadataChanged(java.util.Set<java.lang.String> changedPackageNames);
+    method @InaccessibleFromKotlin public java.util.Set<java.lang.String> getChangedPackageNames();
+    property public java.util.Set<java.lang.String> changedPackageNames;
+  }
+
+  public static final class AppFunctionsChangeEvent.StatesChanged extends androidx.appfunctions.AppFunctionsChangeEvent {
+    ctor public AppFunctionsChangeEvent.StatesChanged(java.util.Set<androidx.appfunctions.metadata.AppFunctionName> changedFunctionNames);
+    method @InaccessibleFromKotlin public java.util.Set<androidx.appfunctions.metadata.AppFunctionName> getChangedFunctionNames();
+    property public java.util.Set<androidx.appfunctions.metadata.AppFunctionName> changedFunctionNames;
+  }
+
   @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public fun interface CallbackAppFunction {
     method public void onExecuteAppFunction(androidx.appfunctions.ExecuteAppFunctionRequest request, android.os.CancellationSignal cancellationSignal, java.util.function.Consumer<androidx.appfunctions.ExecuteAppFunctionResponse> callback);
   }
@@ -392,21 +407,6 @@ package androidx.appfunctions {
     method public androidx.appfunctions.HandleAppFunctionRequest adapt(T instance);
     method @InaccessibleFromKotlin public String getFunctionIdentifier();
     property public abstract String functionIdentifier;
-  }
-
-  public abstract class ObserveAppFunctionsEvent {
-  }
-
-  public static final class ObserveAppFunctionsEvent.MetadataChanged extends androidx.appfunctions.ObserveAppFunctionsEvent {
-    ctor public ObserveAppFunctionsEvent.MetadataChanged(java.util.Set<java.lang.String> changedPackageNames);
-    method @InaccessibleFromKotlin public java.util.Set<java.lang.String> getChangedPackageNames();
-    property public java.util.Set<java.lang.String> changedPackageNames;
-  }
-
-  public static final class ObserveAppFunctionsEvent.StatesChanged extends androidx.appfunctions.ObserveAppFunctionsEvent {
-    ctor public ObserveAppFunctionsEvent.StatesChanged(java.util.Set<androidx.appfunctions.metadata.AppFunctionName> changedFunctionNames);
-    method @InaccessibleFromKotlin public java.util.Set<androidx.appfunctions.metadata.AppFunctionName> getChangedFunctionNames();
-    property public java.util.Set<androidx.appfunctions.metadata.AppFunctionName> changedFunctionNames;
   }
 
   @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public final class RegisterAppFunctionRequest {

@@ -19,7 +19,7 @@ package androidx.appfunctions.testing
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.AppFunctionState
-import androidx.appfunctions.ObserveAppFunctionsEvent
+import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.internal.AppFunctionReader
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
@@ -56,7 +56,7 @@ class FakeAppFunctionReader : AppFunctionReader {
         TODO("Not yet implemented")
     }
 
-    override fun observeAppFunctions(): Flow<ObserveAppFunctionsEvent> {
+    override fun observeAppFunctions(): Flow<AppFunctionsChangeEvent> {
         TODO("Not yet implemented")
     }
 }

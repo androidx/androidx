@@ -20,13 +20,13 @@ import androidx.appfunctions.metadata.AppFunctionName
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
-class ObserveAppFunctionsEventTest {
+class AppFunctionsChangeEventTest {
 
     @Test
     fun appFunctionPackageChange_equalsAndHashCode() {
-        val change1 = ObserveAppFunctionsEvent.MetadataChanged(setOf("pkg1", "pkg2"))
-        val change2 = ObserveAppFunctionsEvent.MetadataChanged(setOf("pkg2", "pkg1"))
-        val change3 = ObserveAppFunctionsEvent.MetadataChanged(setOf("pkg1"))
+        val change1 = AppFunctionsChangeEvent.MetadataChanged(setOf("pkg1", "pkg2"))
+        val change2 = AppFunctionsChangeEvent.MetadataChanged(setOf("pkg2", "pkg1"))
+        val change3 = AppFunctionsChangeEvent.MetadataChanged(setOf("pkg1"))
 
         assertThat(change1).isEqualTo(change2)
         assertThat(change1.hashCode()).isEqualTo(change2.hashCode())
@@ -40,9 +40,9 @@ class ObserveAppFunctionsEventTest {
         val name1 = AppFunctionName("pkg1", "func1")
         val name2 = AppFunctionName("pkg1", "func2")
 
-        val change1 = ObserveAppFunctionsEvent.StatesChanged(setOf(name1, name2))
-        val change2 = ObserveAppFunctionsEvent.StatesChanged(setOf(name2, name1))
-        val change3 = ObserveAppFunctionsEvent.StatesChanged(setOf(name1))
+        val change1 = AppFunctionsChangeEvent.StatesChanged(setOf(name1, name2))
+        val change2 = AppFunctionsChangeEvent.StatesChanged(setOf(name2, name1))
+        val change3 = AppFunctionsChangeEvent.StatesChanged(setOf(name1))
 
         assertThat(change1).isEqualTo(change2)
         assertThat(change1.hashCode()).isEqualTo(change2.hashCode())
