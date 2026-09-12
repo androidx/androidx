@@ -17,6 +17,8 @@
 
 package androidx.xr.arcore.openxr
 
+import androidx.xr.arcore.runtime.SpatialAnnotationId
+import androidx.xr.arcore.runtime.SpatialAnnotationQuadAlignment
 import androidx.xr.arcore.runtime.Trackable
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
@@ -26,6 +28,17 @@ internal class XrResources(timeSource: OpenXrTimeSource) {
     /** Map of native trackable pointer to [androidx.xr.arcore.runtime.Trackable]. */
     private val _trackablesMap = ConcurrentHashMap<Long, Trackable>()
     val trackablesMap: Map<Long, Trackable> = _trackablesMap
+
+    /** Configuration and handle for a spatial annotation. */
+    internal data class SpatialAnnotationConfig(
+        val handle: Long,
+        val alignment: SpatialAnnotationQuadAlignment? = null,
+    )
+
+    /** Map of spatial annotation id to its native tracking configuration. */
+    private val _annotationConfigs =
+        ConcurrentHashMap<SpatialAnnotationId, SpatialAnnotationConfig>()
+    val annotationConfigs: Map<SpatialAnnotationId, SpatialAnnotationConfig> = _annotationConfigs
 
     /** List of [Updatable]s that are updated every frame. */
     private val _updatables = CopyOnWriteArrayList<Updatable>()
@@ -72,9 +85,7 @@ internal class XrResources(timeSource: OpenXrTimeSource) {
         _trackablesMap[trackableId] = trackable
     }
 
-    internal fun removeTrackable(trackableId: Long) {
-        _trackablesMap.remove(trackableId)
-    }
+    internal fun removeTrackable(trackableId: Long): Trackable? = _trackablesMap.remove(trackableId)
 
     internal fun addUpdatable(updatable: Updatable) {
         _updatables.add(updatable)
@@ -84,7 +95,20 @@ internal class XrResources(timeSource: OpenXrTimeSource) {
         _updatables.remove(updatable)
     }
 
+    internal fun addAnnotationHandle(
+        id: SpatialAnnotationId,
+        handle: Long,
+        alignment: SpatialAnnotationQuadAlignment? = null,
+    ) {
+        _annotationConfigs[id] = SpatialAnnotationConfig(handle, alignment)
+    }
+
+    internal fun removeAnnotationHandle(id: SpatialAnnotationId): Long? {
+        return _annotationConfigs.remove(id)?.handle
+    }
+
     internal fun clear() {
+        _annotationConfigs.clear()
         _trackablesMap.clear()
         _updatables.clear()
     }
