@@ -250,7 +250,6 @@ package @SuppressCompatibility androidx.car.app.dialer {
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi public class InCallTemplate implements androidx.car.app.model.Template {
     method public java.util.List<androidx.car.app.model.Action!> getActions();
-    method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Banner? getBanner();
     method public androidx.car.app.model.Header? getHeader();
     method public androidx.car.app.model.CarIcon? getIcon();
     method public java.util.List<androidx.car.app.model.CarText!> getTexts();
@@ -265,7 +264,6 @@ package @SuppressCompatibility androidx.car.app.dialer {
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.dialer.InCallTemplate.Builder addText(androidx.car.app.model.CarText);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.dialer.InCallTemplate.Builder addText(CharSequence);
     method public androidx.car.app.dialer.InCallTemplate build();
-    method @androidx.car.app.annotations.RequiresCarApi(9) @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.dialer.InCallTemplate.Builder setBanner(androidx.car.app.model.Banner?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.dialer.InCallTemplate.Builder setHeader(androidx.car.app.model.Header?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.dialer.InCallTemplate.Builder setIcon(androidx.car.app.model.CarIcon?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.dialer.InCallTemplate.Builder setLoading(boolean);
@@ -967,7 +965,6 @@ package androidx.car.app.media {
 package androidx.car.app.media.model {
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(8) public class MediaPlaybackTemplate implements androidx.car.app.model.Template {
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Banner? getBanner();
     method public androidx.car.app.model.Header? getHeader();
   }
 
@@ -975,7 +972,6 @@ package androidx.car.app.media.model {
     ctor public MediaPlaybackTemplate.Builder();
     ctor public MediaPlaybackTemplate.Builder(androidx.car.app.media.model.MediaPlaybackTemplate);
     method public androidx.car.app.media.model.MediaPlaybackTemplate build();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.media.model.MediaPlaybackTemplate.Builder setBanner(androidx.car.app.model.Banner?);
     method public androidx.car.app.media.model.MediaPlaybackTemplate.Builder setHeader(androidx.car.app.model.Header?);
   }
 
@@ -1270,20 +1266,6 @@ package androidx.car.app.model {
     method public void sendDismiss(androidx.car.app.OnDoneCallback);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class Background {
-    method public androidx.car.app.model.CarColor? getColor();
-    method public androidx.car.app.model.CarIcon? getImage();
-    field public static final androidx.car.app.model.Background TRANSPARENT;
-  }
-
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class Background.Builder {
-    ctor public Background.Builder();
-    ctor public Background.Builder(androidx.car.app.model.Background);
-    method public androidx.car.app.model.Background build();
-    method public androidx.car.app.model.Background.Builder setColor(androidx.car.app.model.CarColor);
-    method public androidx.car.app.model.Background.Builder setImage(androidx.car.app.model.CarIcon);
-  }
-
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(8) public class Badge {
     method @Deprecated public androidx.car.app.model.CarColor? getBackgroundColor();
     method public androidx.car.app.model.CarColor? getDotColor();
@@ -1300,54 +1282,6 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Badge.Builder setHasDot(boolean);
     method public androidx.car.app.model.Badge.Builder setIcon(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Badge.Builder setIconBackgroundColor(androidx.car.app.model.CarColor);
-  }
-
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class Banner implements androidx.car.app.model.Item {
-    method public androidx.car.app.model.CarColor? getBackgroundColor();
-    method public java.util.List<androidx.car.app.model.Action!> getBelowActions();
-    method public androidx.car.app.model.BannerDismissDelegate? getDismissDelegate();
-    method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
-    method public androidx.car.app.model.CarProgressBar? getProgressBar();
-    method public androidx.car.app.model.CarText? getSubtitle();
-    method public androidx.car.app.model.CarText? getTitle();
-    method public boolean isDismissed();
-  }
-
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class Banner.Builder {
-    ctor public Banner.Builder();
-    method public androidx.car.app.model.Banner.Builder addBelowAction(androidx.car.app.model.Action);
-    method public androidx.car.app.model.Banner.Builder addLeadingAction(androidx.car.app.model.Action);
-    method public androidx.car.app.model.Banner.Builder addLeadingIcon(androidx.car.app.model.CarIcon);
-    method public androidx.car.app.model.Banner.Builder addLeadingImage(androidx.car.app.model.CarIcon);
-    method public androidx.car.app.model.Banner.Builder addTrailingAction(androidx.car.app.model.Action);
-    method public androidx.car.app.model.Banner.Builder addTrailingIcon(androidx.car.app.model.CarIcon);
-    method public androidx.car.app.model.Banner.Builder addTrailingImage(androidx.car.app.model.CarIcon);
-    method public androidx.car.app.model.Banner build();
-    method public androidx.car.app.model.Banner.Builder setBackgroundColor(androidx.car.app.model.CarColor);
-    method public androidx.car.app.model.Banner.Builder setDismissCallback(androidx.car.app.model.BannerDismissCallback);
-    method public androidx.car.app.model.Banner.Builder setDismissed(boolean);
-    method public androidx.car.app.model.Banner.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
-    method public androidx.car.app.model.Banner.Builder setProgressBar(androidx.car.app.model.CarProgressBar);
-    method public androidx.car.app.model.Banner.Builder setSubtitle(androidx.car.app.model.CarText);
-    method public androidx.car.app.model.Banner.Builder setSubtitle(CharSequence);
-    method public androidx.car.app.model.Banner.Builder setTitle(androidx.car.app.model.CarText);
-    method public androidx.car.app.model.Banner.Builder setTitle(CharSequence);
-  }
-
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public interface BannerDismissCallback {
-    method public void onDismiss();
-  }
-
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public interface BannerDismissDelegate {
-    method public void sendDismiss(androidx.car.app.OnDoneCallback);
-  }
-
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class BannerSection extends androidx.car.app.model.Section<androidx.car.app.model.Banner!> {
-  }
-
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class BannerSection.Builder extends androidx.car.app.model.Section.BaseBuilder<androidx.car.app.model.Banner!,androidx.car.app.model.BannerSection.Builder!> {
-    ctor public BannerSection.Builder();
-    method public androidx.car.app.model.BannerSection build();
   }
 
   @androidx.car.app.annotations.CarProtocol public final class CarColor {
@@ -1482,7 +1416,6 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarColor? getBackgroundColor();
     method public androidx.car.app.model.CarColor? getContentColor();
     method public androidx.car.app.model.CarColor? getOutlineColor();
-    method public androidx.car.app.model.Shape? getShape();
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class ChipStyle.Builder {
@@ -1491,7 +1424,6 @@ package androidx.car.app.model {
     method public androidx.car.app.model.ChipStyle.Builder setBackgroundColor(androidx.car.app.model.CarColor);
     method public androidx.car.app.model.ChipStyle.Builder setContentColor(androidx.car.app.model.CarColor);
     method public androidx.car.app.model.ChipStyle.Builder setOutlineColor(androidx.car.app.model.CarColor);
-    method public androidx.car.app.model.ChipStyle.Builder setShape(androidx.car.app.model.Shape);
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(2) public final class ClickableSpan extends androidx.car.app.model.CarSpan {
@@ -1501,53 +1433,16 @@ package androidx.car.app.model {
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class CondensedItem implements androidx.car.app.model.Item {
     method public androidx.car.app.model.CarIcon? getLeadingImage();
-    method public int getLeadingImageType();
-    method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
-    method public androidx.car.app.model.CarProgressBar? getProgressBar();
-    method public androidx.car.app.model.CondensedItemStyle? getStyle();
     method public androidx.car.app.model.CarText? getText();
     method public androidx.car.app.model.CarText? getTitle();
-    method public androidx.car.app.model.CarIcon? getTrailingImage();
-    method public int getTrailingImageType();
-    field public static final int IMAGE_TYPE_ICON = 1; // 0x1
-    field public static final int IMAGE_TYPE_LARGE = 3; // 0x3
-    field public static final int IMAGE_TYPE_SMALL = 2; // 0x2
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public static final class CondensedItem.Builder {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class CondensedItem.Builder {
     ctor public CondensedItem.Builder();
     method public androidx.car.app.model.CondensedItem build();
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setLeadingImage(androidx.car.app.model.CarIcon);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setLeadingImage(androidx.car.app.model.CarIcon, int);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setProgressBar(androidx.car.app.model.CarProgressBar);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setStyle(androidx.car.app.model.CondensedItemStyle);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setText(androidx.car.app.model.CarText);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setText(CharSequence);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setTitle(androidx.car.app.model.CarText);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setTitle(CharSequence);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setTrailingImage(androidx.car.app.model.CarIcon);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setTrailingImage(androidx.car.app.model.CarIcon, int);
-  }
-
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class CondensedItemStyle {
-    method public androidx.car.app.model.Background? getBackground();
-    method public androidx.car.app.model.Shape? getShape();
-  }
-
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public static final class CondensedItemStyle.Builder {
-    ctor public CondensedItemStyle.Builder();
-    method public androidx.car.app.model.CondensedItemStyle build();
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItemStyle.Builder setBackground(androidx.car.app.model.Background);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItemStyle.Builder setShape(androidx.car.app.model.Shape);
-  }
-
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class CondensedSection extends androidx.car.app.model.Section<androidx.car.app.model.CondensedItem!> {
-  }
-
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public static final class CondensedSection.Builder extends androidx.car.app.model.Section.BaseBuilder<androidx.car.app.model.CondensedItem!,androidx.car.app.model.CondensedSection.Builder!> {
-    ctor public CondensedSection.Builder();
-    method public androidx.car.app.model.CondensedSection build();
+    method public androidx.car.app.model.CondensedItem.Builder setLeadingImage(androidx.car.app.model.CarIcon);
+    method public androidx.car.app.model.CondensedItem.Builder setText(CharSequence);
+    method public androidx.car.app.model.CondensedItem.Builder setTitle(CharSequence);
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public interface Content {
@@ -1673,10 +1568,8 @@ package androidx.car.app.model {
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class Header {
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Background? getBackground();
     method public java.util.List<androidx.car.app.model.Action!> getEndHeaderActions();
     method public androidx.car.app.model.Action? getStartHeaderAction();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.CarText? getSubtitle();
     method public androidx.car.app.model.CarText? getTitle();
   }
 
@@ -1684,10 +1577,7 @@ package androidx.car.app.model {
     ctor public Header.Builder();
     method public androidx.car.app.model.Header.Builder addEndHeaderAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.Header build();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Header.Builder setBackground(androidx.car.app.model.Background);
     method public androidx.car.app.model.Header.Builder setStartHeaderAction(androidx.car.app.model.Action);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Header.Builder setSubtitle(androidx.car.app.model.CarText);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Header.Builder setSubtitle(CharSequence);
     method public androidx.car.app.model.Header.Builder setTitle(androidx.car.app.model.CarText);
     method public androidx.car.app.model.Header.Builder setTitle(CharSequence);
   }
@@ -1862,7 +1752,6 @@ package androidx.car.app.model {
 
   @androidx.car.app.annotations.CarProtocol public final class PaneTemplate implements androidx.car.app.model.Template {
     method @Deprecated public androidx.car.app.model.ActionStrip? getActionStrip();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Banner? getBanner();
     method public androidx.car.app.model.Header? getHeader();
     method @Deprecated public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.Pane getPane();
@@ -1873,7 +1762,6 @@ package androidx.car.app.model {
     ctor public PaneTemplate.Builder(androidx.car.app.model.Pane);
     method public androidx.car.app.model.PaneTemplate build();
     method @Deprecated public androidx.car.app.model.PaneTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.PaneTemplate.Builder setBanner(androidx.car.app.model.Banner);
     method @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.PaneTemplate.Builder setHeader(androidx.car.app.model.Header);
     method @Deprecated public androidx.car.app.model.PaneTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
     method @Deprecated public androidx.car.app.model.PaneTemplate.Builder setTitle(CharSequence);
@@ -2036,7 +1924,6 @@ package androidx.car.app.model {
     ctor protected Section(androidx.car.app.model.Section.BaseBuilder<T,? extends java.lang.Object!>);
     method public androidx.car.app.model.CarText? getNoItemsMessage();
     method public androidx.car.app.model.OnItemVisibilityChangedDelegate? getOnItemVisibilityChangedDelegate();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.SectionHeader? getSectionHeader();
     method public androidx.car.app.model.CarText? getTitle();
   }
 
@@ -2048,28 +1935,8 @@ package androidx.car.app.model {
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B setNoItemsMessage(androidx.car.app.model.CarText?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B setNoItemsMessage(CharSequence?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B setOnItemVisibilityChangedListener(androidx.car.app.model.ItemList.OnItemVisibilityChangedListener?);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) @com.google.errorprone.annotations.CanIgnoreReturnValue public B setSectionHeader(androidx.car.app.model.SectionHeader?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B setTitle(androidx.car.app.model.CarText?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B setTitle(CharSequence?);
-  }
-
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class SectionHeader {
-    method public androidx.car.app.model.CarIcon? getEndIcon();
-    method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
-    method public androidx.car.app.model.CarIcon? getStartIcon();
-    method public int getStartIconType();
-    method public androidx.car.app.model.CarText getTitle();
-    field public static final int IMAGE_TYPE_LARGE = 2; // 0x2
-    field public static final int IMAGE_TYPE_SMALL = 1; // 0x1
-  }
-
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class SectionHeader.Builder {
-    ctor public SectionHeader.Builder(androidx.car.app.model.CarText);
-    ctor public SectionHeader.Builder(CharSequence);
-    method public androidx.car.app.model.SectionHeader build();
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setEndIcon(androidx.car.app.model.CarIcon);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setStartIcon(androidx.car.app.model.CarIcon, int);
   }
 
   @androidx.car.app.annotations.CarProtocol public final class SectionedItemList {
@@ -2110,31 +1977,15 @@ package androidx.car.app.model {
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setSections(java.util.List<androidx.car.app.model.Section<? extends java.lang.Object!>!>);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class Shape {
-    method public int getShapeType();
-    field public static final androidx.car.app.model.Shape CORNER_EXTRA_LARGE;
-    field public static final androidx.car.app.model.Shape CORNER_EXTRA_SMALL;
-    field public static final androidx.car.app.model.Shape CORNER_FULL;
-    field public static final androidx.car.app.model.Shape CORNER_LARGE;
-    field public static final androidx.car.app.model.Shape CORNER_MEDIUM;
-    field public static final androidx.car.app.model.Shape CORNER_SMALL;
-    field public static final androidx.car.app.model.Shape NONE;
-    field public static final int TYPE_CORNER_EXTRA_LARGE = 6; // 0x6
-    field public static final int TYPE_CORNER_EXTRA_SMALL = 2; // 0x2
-    field public static final int TYPE_CORNER_FULL = 7; // 0x7
-    field public static final int TYPE_CORNER_LARGE = 5; // 0x5
-    field public static final int TYPE_CORNER_MEDIUM = 4; // 0x4
-    field public static final int TYPE_CORNER_SMALL = 3; // 0x3
-    field public static final int TYPE_NONE = 1; // 0x1
-  }
-
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class SpotlightSection extends androidx.car.app.model.Section<androidx.car.app.model.CondensedItem!> {
     method public androidx.car.app.model.CarIcon getImage();
+    method public androidx.car.app.model.OnClickDelegate? getImageOnClickDelegate();
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class SpotlightSection.Builder extends androidx.car.app.model.Section.BaseBuilder<androidx.car.app.model.CondensedItem!,androidx.car.app.model.SpotlightSection.Builder!> {
     ctor public SpotlightSection.Builder(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.SpotlightSection build();
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SpotlightSection.Builder setImageOnClickListener(androidx.car.app.model.OnClickListener);
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public final class Tab implements androidx.car.app.model.Content {
