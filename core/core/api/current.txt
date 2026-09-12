@@ -2635,6 +2635,8 @@ package androidx.core.os {
 
   public final class ProcessCompat {
     method public static boolean isApplicationUid(int);
+    method public static boolean isIsolatedUid(int);
+    method public static boolean isSdkSandboxUid(int);
   }
 
   public final class Profiling {
