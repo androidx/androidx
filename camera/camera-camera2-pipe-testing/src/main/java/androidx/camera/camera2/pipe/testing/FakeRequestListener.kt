@@ -63,6 +63,11 @@ public class FakeRequestListener(private val replayBuffer: Int = 10) : Request.L
     private val _onFailedFlow = MutableSharedFlow<OnFailed>(replay = replayBuffer)
     public val onFailedFlow: SharedFlow<OnFailed> = _onFailedFlow.asSharedFlow()
 
+    private val _onRequestSequenceCompletedFlow =
+        MutableSharedFlow<OnRequestSequenceCompleted>(replay = replayBuffer)
+    public val onRequestSequenceCompletedFlow: SharedFlow<OnRequestSequenceCompleted> =
+        _onRequestSequenceCompletedFlow.asSharedFlow()
+
     override fun onStarted(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
@@ -141,6 +146,19 @@ public class FakeRequestListener(private val replayBuffer: Int = 10) : Request.L
             "Failed to emit OnFailed event! The size of the replay buffer" +
                 "($replayBuffer) may need to be increased."
         }
+
+    override fun onRequestSequenceCompleted(
+        requestMetadata: RequestMetadata,
+        frameNumber: FrameNumber,
+    ): Unit =
+        check(
+            _onRequestSequenceCompletedFlow.tryEmit(
+                OnRequestSequenceCompleted(requestMetadata, frameNumber)
+            )
+        ) {
+            "Failed to emit OnRequestSequenceCompleted event! The size of the replay buffer" +
+                "($replayBuffer) may need to be increased."
+        }
 }
 
 public sealed class RequestListenerEvent
@@ -182,4 +200,9 @@ public class OnFailed(
     public val requestMetadata: RequestMetadata,
     public val frameNumber: FrameNumber,
     public val requestFailure: RequestFailure,
+) : RequestListenerEvent()
+
+public class OnRequestSequenceCompleted(
+    public val requestMetadata: RequestMetadata,
+    public val frameNumber: FrameNumber,
 ) : RequestListenerEvent()
