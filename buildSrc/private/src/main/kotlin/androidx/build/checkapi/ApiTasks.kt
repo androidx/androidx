@@ -145,7 +145,7 @@ fun Project.configureProjectForApiTasks(
             baselinesApiLocation,
             builtApiLocation,
             outputApiLocations,
-            hasJvmOrAndroidTarget,
+            config,
         )
 
         project.setupWithStableAidlPlugin()
