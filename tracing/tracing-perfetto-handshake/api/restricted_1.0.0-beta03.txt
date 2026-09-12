@@ -4,15 +4,17 @@ package androidx.tracing.perfetto.handshake {
   public final class PerfettoSdkHandshake {
     ctor public PerfettoSdkHandshake(String targetPackage, kotlin.jvm.functions.Function1<? super java.lang.String,? extends java.util.Map<java.lang.String,java.lang.String>> parseJsonMap, kotlin.jvm.functions.Function1<? super java.lang.String,java.lang.String> executeShellCommand);
     method public androidx.tracing.perfetto.handshake.protocol.Response disableTracingColdStart();
-    method public androidx.tracing.perfetto.handshake.protocol.Response enableTracingColdStart();
-    method public androidx.tracing.perfetto.handshake.protocol.Response enableTracingColdStart(optional boolean persistent);
+    method @BytecodeOnly public androidx.tracing.perfetto.handshake.protocol.Response enableTracingColdStart();
+    method @BytecodeOnly public androidx.tracing.perfetto.handshake.protocol.Response enableTracingColdStart(boolean);
     method public androidx.tracing.perfetto.handshake.protocol.Response enableTracingColdStart(optional boolean persistent, optional androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource? librarySource);
+    method @BytecodeOnly public static androidx.tracing.perfetto.handshake.protocol.Response! enableTracingColdStart$default(androidx.tracing.perfetto.handshake.PerfettoSdkHandshake!, boolean, androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource!, int, Object!);
     method public androidx.tracing.perfetto.handshake.protocol.Response enableTracingImmediate(optional androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource? librarySource);
+    method @BytecodeOnly public static androidx.tracing.perfetto.handshake.protocol.Response! enableTracingImmediate$default(androidx.tracing.perfetto.handshake.PerfettoSdkHandshake!, androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource!, int, Object!);
   }
 
-  public abstract static sealed class PerfettoSdkHandshake.LibrarySource {
-    method public static final androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource aarLibrarySource(java.io.File aarFile, java.io.File tempDirectory, kotlin.jvm.functions.Function2<? super java.io.File,? super java.io.File,kotlin.Unit> moveLibFileFromTmpDirToAppDir);
-    method public static final androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource apkLibrarySource(java.io.File apkFile, java.io.File tempDirectory, kotlin.jvm.functions.Function2<? super java.io.File,? super java.io.File,kotlin.Unit> moveLibFileFromTmpDirToAppDir);
+  public abstract static sealed nonexhaustive class PerfettoSdkHandshake.LibrarySource {
+    method @BytecodeOnly public static final androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource aarLibrarySource(java.io.File, java.io.File, kotlin.jvm.functions.Function2<? super java.io.File!,? super java.io.File!,kotlin.Unit!>);
+    method @BytecodeOnly public static final androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource apkLibrarySource(java.io.File, java.io.File, kotlin.jvm.functions.Function2<? super java.io.File!,? super java.io.File!,kotlin.Unit!>);
     field public static final androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource.Companion Companion;
   }
 
@@ -26,15 +28,22 @@ package androidx.tracing.perfetto.handshake {
 package androidx.tracing.perfetto.handshake.protocol {
 
   public final class Response {
-    method public String? getMessage();
-    method public String? getRequiredVersion();
-    method public int getResultCode();
-    property public final String? message;
-    property public final String? requiredVersion;
-    property public final int resultCode;
+    method @InaccessibleFromKotlin public String? getMessage();
+    method @InaccessibleFromKotlin public String? getRequiredVersion();
+    method @InaccessibleFromKotlin public int getResultCode();
+    property public String? message;
+    property public String? requiredVersion;
+    property public int resultCode;
   }
 
   public final class ResponseResultCodes {
+    property public static int RESULT_CODE_ALREADY_ENABLED;
+    property public static int RESULT_CODE_CANCELLED;
+    property public static int RESULT_CODE_ERROR_BINARY_MISSING;
+    property public static int RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR;
+    property public static int RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH;
+    property public static int RESULT_CODE_ERROR_OTHER;
+    property public static int RESULT_CODE_SUCCESS;
     field public static final androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes INSTANCE;
     field public static final int RESULT_CODE_ALREADY_ENABLED = 2; // 0x2
     field public static final int RESULT_CODE_CANCELLED = 0; // 0x0

@@ -52,7 +52,7 @@ package androidx.ink.geometry {
   public final class Angle {
     method @androidx.ink.geometry.AngleRadiansFloat public static float degreesToRadians(@androidx.ink.geometry.AngleDegreesFloat float degrees);
     method @FloatRange(from=-180.0, to=180.0, fromInclusive=false) @androidx.ink.geometry.AngleDegreesFloat public static float normalizedAboutZeroDegrees(@androidx.ink.geometry.AngleDegreesFloat float degrees);
-    method @FloatRange(from=-3.141592653589793, to=PI, fromInclusive=false) @androidx.ink.geometry.AngleRadiansFloat public static float normalizedAboutZeroRadians(@androidx.ink.geometry.AngleRadiansFloat float radians);
+    method @FloatRange(from=-3.141592653589793, to=java.lang.Math.PI, fromInclusive=false) @androidx.ink.geometry.AngleRadiansFloat public static float normalizedAboutZeroRadians(@androidx.ink.geometry.AngleRadiansFloat float radians);
     method @FloatRange(from=0.0, to=360.0, toInclusive=false) @androidx.ink.geometry.AngleDegreesFloat public static float normalizedDegrees(@androidx.ink.geometry.AngleDegreesFloat float degrees);
     method @FloatRange(from=0.0, to=6.283185307179586, toInclusive=false) @androidx.ink.geometry.AngleRadiansFloat public static float normalizedRadians(@androidx.ink.geometry.AngleRadiansFloat float radians);
     method @androidx.ink.geometry.AngleDegreesFloat public static float radiansToDegrees(@androidx.ink.geometry.AngleRadiansFloat float radians);

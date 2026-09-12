@@ -15,7 +15,7 @@ package androidx.core.backported.fixes {
     property public String url;
   }
 
-  public abstract sealed class KnownIssues {
+  public abstract sealed exhaustive class KnownIssues {
     field public static final androidx.core.backported.fixes.KnownIssues.Companion Companion;
     field public static final androidx.core.backported.fixes.KnownIssue KI_350037023;
     field public static final androidx.core.backported.fixes.KnownIssue KI_350037348;

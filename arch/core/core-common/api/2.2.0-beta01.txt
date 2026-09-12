@@ -2,7 +2,7 @@
 package androidx.arch.core.util {
 
   public interface Function<I, O> {
-    method public O! apply(I!);
+    method public O apply(I);
   }
 
 }
