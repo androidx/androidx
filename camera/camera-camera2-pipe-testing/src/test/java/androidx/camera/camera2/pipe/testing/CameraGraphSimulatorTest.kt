@@ -220,6 +220,27 @@ class CameraGraphSimulatorTest {
     }
 
     @Test
+    fun simulatorCanSimulateSequenceCompleted() = testScope.runTest {
+        val stream = simulator.streams[streamConfig]!!
+        val listener = FakeRequestListener()
+        val request = Request(streams = listOf(stream.id), listeners = listOf(listener))
+
+        simulator.acquireSession().use { it.submit(request = request) }
+
+        simulator.start()
+        simulator.initializeSurfaces()
+        simulator.simulateCameraStarted()
+
+        val frame = simulator.simulateNextFrame()
+        assertThat(frame.request).isSameInstanceAs(request)
+
+        frame.requestSequence.invokeOnSequenceCompleted(frame.frameNumber)
+        val sequenceCompletedEvent = listener.onRequestSequenceCompletedFlow.first()
+        assertThat(sequenceCompletedEvent.frameNumber).isEqualTo(frame.frameNumber)
+        assertThat(sequenceCompletedEvent.requestMetadata.request).isSameInstanceAs(request)
+    }
+
+    @Test
     fun simulatorCanIssueMultipleFrames() = testScope.runTest {
         val stream = simulator.streams[streamConfig]!!
         val listener = FakeRequestListener()
