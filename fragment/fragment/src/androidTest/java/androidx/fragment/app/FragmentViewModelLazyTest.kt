@@ -56,12 +56,42 @@ class FragmentViewModelLazyTest {
         assertThat(fragment.savedStateViewModelCE.defaultValue).isEqualTo("value3")
     }
 
+    @UiThreadTest
+    @Test
+    fun keyedVmInitialization() {
+        val fragment =
+            TestVMFragment().apply {
+                @Suppress("DEPRECATION") // bundleOf is deprecated
+                arguments = bundleOf("test" to "fragment-value")
+            }
+        activityRule.activity.supportFragmentManager.commitNow { add(fragment, "tag") }
+
+        assertThat(fragment.keyedVM).isSameInstanceAs(fragment.sameKeyedVM)
+        assertThat(fragment.keyedVM).isNotSameInstanceAs(fragment.otherKeyedVM)
+        assertThat(fragment.keyedVM).isNotSameInstanceAs(fragment.vm)
+        assertThat(fragment.keyedSavedStateViewModel.defaultValue).isEqualTo("fragment-value")
+        assertThat(fragment.keyedActivityVM).isSameInstanceAs(fragment.sameKeyedActivityVM)
+        assertThat(fragment.keyedActivityVM).isSameInstanceAs(activityRule.activity.keyedVM)
+        assertThat(fragment.keyedActivityVM).isNotSameInstanceAs(fragment.otherKeyedActivityVM)
+        assertThat(fragment.keyedActivityVM).isNotSameInstanceAs(fragment.activityVM)
+        assertThat(fragment.keyedActivitySavedStateViewModel.defaultValue).isEqualTo("value")
+    }
+
     class TestVMFragment : Fragment() {
         val vm: TestViewModel by viewModels()
+        val keyedVM: TestViewModel by viewModels(key = "one")
+        val sameKeyedVM: TestViewModel by viewModels(key = "one")
+        val otherKeyedVM: TestViewModel by viewModels(key = "two")
+        val keyedSavedStateViewModel: TestSavedStateViewModel by viewModels(key = "saved-state")
         val factoryVM: TestFactorizedViewModel by viewModels { VMFactory("fragment") }
         lateinit var injectedFactory: ViewModelProvider.Factory
         val daggerPoorCopyVM: TestDaggerViewModel by viewModels { injectedFactory }
         val activityVM: TestActivityViewModel by activityViewModels()
+        val keyedActivityVM: TestActivityViewModel by activityViewModels(key = "activity-one")
+        val sameKeyedActivityVM: TestActivityViewModel by activityViewModels(key = "activity-one")
+        val otherKeyedActivityVM: TestActivityViewModel by activityViewModels(key = "activity-two")
+        val keyedActivitySavedStateViewModel: TestSavedStateViewModel by
+            activityViewModels(key = "activity-saved-state")
         val activityVM2: TestActivityViewModel2 by viewModels({ requireActivity() })
         val savedStateViewModel: TestSavedStateViewModel by viewModels({ requireActivity() })
         val activityVMCE: TestActivityViewModelCE by
@@ -102,6 +132,14 @@ class FragmentViewModelLazyTest {
 
     class TestActivity : FragmentActivity() {
         val vm: TestActivityViewModel by viewModels()
+        val keyedVM: TestActivityViewModel by
+            lazy(LazyThreadSafetyMode.NONE) {
+                ViewModelProvider(
+                    viewModelStore,
+                    defaultViewModelProviderFactory,
+                    defaultViewModelCreationExtras,
+                )["activity-one", TestActivityViewModel::class.java]
+            }
         val vm2: TestActivityViewModel2 by viewModels()
 
         override fun onCreate(savedInstanceState: Bundle?) {

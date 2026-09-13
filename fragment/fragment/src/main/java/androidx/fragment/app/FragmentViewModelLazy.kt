@@ -130,6 +130,49 @@ public inline fun <reified VM : ViewModel> Fragment.viewModels(
 }
 
 /**
+ * Returns [ownerProducer]'s [key]-identified [ViewModel].
+ *
+ * Delegates with the same [key], [ViewModel] type, and [ViewModelStoreOwner] share the same
+ * instance. Different keys allow multiple instances of the same [ViewModel] type in one
+ * [ViewModelStore].
+ *
+ * ```
+ * class MyFragment : Fragment() {
+ *     val primaryViewModel: MyViewModel by viewModels(key = "primary")
+ *     val secondaryViewModel: MyViewModel by viewModels(key = "secondary")
+ * }
+ * ```
+ *
+ * This property can be accessed only after this Fragment is attached, after [Fragment.onAttach()].
+ * Access before that results in an [IllegalArgumentException].
+ *
+ * @param key identifier used to store and retrieve the [ViewModel]
+ * @param ownerProducer producer of the [ViewModelStoreOwner] that owns the [ViewModel]
+ * @param extrasProducer producer of the [CreationExtras] used to create the [ViewModel]
+ * @param factoryProducer producer of the [Factory] used to create the [ViewModel]
+ */
+@MainThread
+public inline fun <reified T : ViewModel> Fragment.viewModels(
+    key: String,
+    noinline ownerProducer: () -> ViewModelStoreOwner = { this },
+    noinline extrasProducer: (() -> CreationExtras)? = null,
+    noinline factoryProducer: (() -> Factory)? = null,
+): Lazy<T> {
+    val owner by lazy(LazyThreadSafetyMode.NONE) { ownerProducer() }
+    return lazy(LazyThreadSafetyMode.NONE) {
+        val factory =
+            factoryProducer?.invoke()
+                ?: (owner as? HasDefaultViewModelProviderFactory)?.defaultViewModelProviderFactory
+                ?: defaultViewModelProviderFactory
+        val extras =
+            extrasProducer?.invoke()
+                ?: (owner as? HasDefaultViewModelProviderFactory)?.defaultViewModelCreationExtras
+                ?: CreationExtras.Empty
+        ViewModelProvider(owner.viewModelStore, factory, extras)[key, T::class.java]
+    }
+}
+
+/**
  * Returns a property delegate to access parent activity's [ViewModel], if [factoryProducer] is
  * specified then [ViewModelProvider.Factory] returned by it will be used to create [ViewModel]
  * first time. Otherwise, the activity's
@@ -187,6 +230,39 @@ public inline fun <reified VM : ViewModel> Fragment.activityViewModels(
         { extrasProducer?.invoke() ?: requireActivity().defaultViewModelCreationExtras },
         factoryProducer ?: { requireActivity().defaultViewModelProviderFactory },
     )
+
+/**
+ * Returns the parent activity's [key]-identified [ViewModel].
+ *
+ * Delegates with the same [key] and [ViewModel] type share the same instance. Different keys allow
+ * multiple instances of the same [ViewModel] type in the parent activity's [ViewModelStore].
+ *
+ * ```
+ * class MyFragment : Fragment() {
+ *     val primaryViewModel: MyViewModel by activityViewModels(key = "primary")
+ *     val secondaryViewModel: MyViewModel by activityViewModels(key = "secondary")
+ * }
+ * ```
+ *
+ * This property can be accessed only after this Fragment is attached, after [Fragment.onAttach()].
+ * Access before that results in an [IllegalArgumentException].
+ *
+ * @param key identifier used to store and retrieve the [ViewModel]
+ * @param extrasProducer producer of the [CreationExtras] used to create the [ViewModel]
+ * @param factoryProducer producer of the [Factory] used to create the [ViewModel]
+ */
+@MainThread
+public inline fun <reified T : ViewModel> Fragment.activityViewModels(
+    key: String,
+    noinline extrasProducer: (() -> CreationExtras)? = null,
+    noinline factoryProducer: (() -> Factory)? = null,
+): Lazy<T> =
+    lazy(LazyThreadSafetyMode.NONE) {
+        val activity = requireActivity()
+        val factory = factoryProducer?.invoke() ?: activity.defaultViewModelProviderFactory
+        val extras = extrasProducer?.invoke() ?: activity.defaultViewModelCreationExtras
+        ViewModelProvider(activity.viewModelStore, factory, extras)[key, T::class.java]
+    }
 
 /**
  * Helper method for creation of [ViewModelLazy], that resolves `null` passed as [factoryProducer]
