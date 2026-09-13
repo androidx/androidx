@@ -1262,6 +1262,33 @@ class SnapshotStateObserverTestsCommon {
         initialRead.value = false
     }
 
+    @Test
+    fun computedState_doesNotLeakDependenciesToScope_whenDependenciesChangeWithoutValueChanged() {
+        var changes = 0
+        val changeBlock: (Any) -> Unit = { changes++ }
+
+        runSimpleTest { stateObserver, _ ->
+            var a by mutableIntStateOf(1)
+            val computed = computedStateOf { a > 0 }
+            val scope = ValueWrapper("scope")
+
+            Snapshot.notifyObjectsInitialized()
+
+            stateObserver.observeReads(scope, changeBlock) {
+                computed.value
+            }
+            assertEquals(0, changes)
+
+            a = 2
+            Snapshot.sendApplyNotifications()
+            assertEquals(0, changes)
+
+            a = 3
+            Snapshot.sendApplyNotifications()
+            assertEquals(0, changes)
+        }
+    }
+
     private fun runSimpleTest(
         block: (modelObserver: SnapshotStateObserver, data: MutableState<Int>) -> Unit
     ) {
