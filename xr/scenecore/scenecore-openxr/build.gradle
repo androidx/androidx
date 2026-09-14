@@ -88,6 +88,12 @@ androidComponents {
 
 androidx {
     name = "XR SceneCore OpenXR"
+
+    // scenecore-openxr is an experimental / work-in-progress OpenXR backend
+    // implementation for SceneCore. It is intentionally not published
+    // to maven.google.com because the OpenXR pathway is not yet supported on
+    // public devices. API tracking is enabled so the surface stays reviewed
+    // while development continues.
     type = SoftwareType.SNAPSHOT_ONLY_LIBRARY_WITH_API_TASKS
     inceptionYear = "2026"
     description = "OpenXR runtime implementation of SceneCore for Jetpack XR."
