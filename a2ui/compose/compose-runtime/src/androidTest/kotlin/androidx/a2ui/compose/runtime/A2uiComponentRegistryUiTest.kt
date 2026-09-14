@@ -19,6 +19,7 @@ package androidx.a2ui.compose.runtime
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiException.A2uiRuntimeException
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.onNodeWithText
@@ -26,12 +27,15 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import kotlin.concurrent.thread
+import kotlin.test.assertIs
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class A2uiComponentRegistryObservationTest {
+class A2uiComponentRegistryUiTest {
 
     private val registry = A2uiComponentRegistry()
 
@@ -154,5 +158,64 @@ class A2uiComponentRegistryObservationTest {
         waitForIdle()
 
         assertThat(recompositionCountB).isEqualTo(initialCountB)
+    }
+
+    @Test
+    fun updateDuringComposition_successfullyUpdatesRegistry() = runComposeUiTest {
+        val registry = A2uiComponentRegistry()
+
+        val compositionStartedLatch = CountDownLatch(1)
+        val backgroundUpdateLatch = CountDownLatch(1)
+
+        val backgroundThread =
+            thread(start = false) {
+                // Wait until the UI thread is actively composing in a read-only snapshot.
+                compositionStartedLatch.await()
+
+                // Advance the global snapshot so the newly created state gets a strictly newer ID.
+                Snapshot.withMutableSnapshot {}
+
+                // Update the registry in the background.
+                registry.update(
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "test_id",
+                            type = "Text",
+                            properties = emptyMap(),
+                        )
+                    )
+                )
+
+                // Unblock the UI thread
+                backgroundUpdateLatch.countDown()
+            }
+
+        backgroundThread.start()
+
+        var record: A2uiComponentRecord? = null
+        setContent {
+            // Signal the background thread that our read-only snapshot is open
+            compositionStartedLatch.countDown()
+
+            // Block the UI thread temporarily to force the race condition.
+            // The read-only snapshot remains open while we wait.
+            backgroundUpdateLatch.await()
+
+            // Retrieving the new component record.
+            record = registry.get("test_id")
+        }
+
+        runOnIdle {
+            assertIs<A2uiComponentRecord.Valid>(record)
+            assertThat((record as A2uiComponentRecord.Valid).type).isEqualTo("Text")
+        }
+
+        backgroundThread.join()
+
+        runOnIdle {
+            val finalRecord = registry.get("test_id")
+            assertIs<A2uiComponentRecord.Valid>(finalRecord)
+            assertThat(finalRecord.type).isEqualTo("Text")
+        }
     }
 }
