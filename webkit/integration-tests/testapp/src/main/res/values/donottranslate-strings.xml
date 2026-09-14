@@ -184,4 +184,10 @@
     <string name="checkbox_open_link_label">Open Link</string>
     <string name="hyperlink_context_menu_webview_title">WebView Area:</string>
 
+    <!-- Navigate-->
+    <string name="navigate_activity_title">Navigate Demo</string>
+    <string name="navigate_url_input_heading">URL to load:</string>
+    <string name="navigate_url_input_text">https://google.com</string>
+    <string name="navigate_url_input_empty_message">Please enter a URL</string>
+    <string name="navigate_load_button">Load URL in WebView</string>
 </resources>
