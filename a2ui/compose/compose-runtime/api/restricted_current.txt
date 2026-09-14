@@ -14,6 +14,7 @@ package androidx.a2ui.compose.runtime {
   }
 
   @androidx.compose.runtime.Immutable public final class A2uiComponentProperties {
+    method public operator boolean contains(androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?> property);
     method public operator <T> T? get(androidx.a2ui.compose.runtime.StaticA2uiProperty<T> property);
   }
 

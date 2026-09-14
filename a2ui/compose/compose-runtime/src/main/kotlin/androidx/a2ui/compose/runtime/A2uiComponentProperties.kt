@@ -55,6 +55,14 @@ public class A2uiComponentProperties internal constructor(internal val raw: Map<
     }
 
     /**
+     * Checks whether the specified [property] is present in the component's payload.
+     *
+     * @param property property to check for presence
+     * @return `true` if the property is present in the payload, `false` otherwise
+     */
+    public operator fun contains(property: A2uiProperty<*>): Boolean = raw.containsKey(property.key)
+
+    /**
      * Retrieves the raw payload for the given property key.
      *
      * @param key The name of the property to retrieve.
