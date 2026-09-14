@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX") // Referring to RemoteString, weight
-
 package androidx.compose.remote.integration.view.demos.examples
 
 import android.graphics.BitmapFactory
@@ -42,10 +40,10 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.modifier.widthIn
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
-import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.integration.view.demos.R
@@ -110,7 +108,7 @@ fun WeatherDemo() {
                         RemoteText("100º".rs, fontSize = 26.rsp, fontWeight = FontWeight.Medium)
                         RemoteImage(
                             image.rb,
-                            RemoteString(""),
+                            "".rs,
                             modifier = RemoteModifier.size(48.rdp),
                         )
                         RemoteText("H: 62º - L: 54º".rs, fontSize = 10.rsp)
@@ -139,7 +137,7 @@ fun WeatherHeader() {
         verticalAlignment = RemoteAlignment.CenterVertically,
     ) {
         WeatherBox()
-        RemoteBox(RemoteModifier.weight(1f).widthIn(min = 0.rdp))
+        RemoteBox(RemoteModifier.weight(1.rf).widthIn(min = 0.rdp))
         WeatherBox2()
     }
 }
@@ -181,8 +179,8 @@ fun WeatherBox2() {
         verticalArrangement = RemoteArrangement.Center,
         horizontalAlignment = RemoteAlignment.End,
     ) {
-        RemoteImage(refresh.rb, RemoteString(""), modifier = RemoteModifier.size(20.rdp))
-        RemoteImage(image.rb, RemoteString(""), modifier = RemoteModifier.size(48.rdp))
+        RemoteImage(refresh.rb, "".rs, modifier = RemoteModifier.size(20.rdp))
+        RemoteImage(image.rb, "".rs, modifier = RemoteModifier.size(48.rdp))
         RemoteText("Mostly cloudy".rs, fontSize = 10.rsp)
     }
 }
@@ -221,7 +219,7 @@ fun Weather(temperature: String, hour: String, resource: Int) {
             fontWeight = FontWeight.SemiBold,
             modifier = RemoteModifier.padding(bottom = 4.rdp),
         )
-        RemoteImage(image.rb, RemoteString(""), RemoteModifier.size(24.rdp))
+        RemoteImage(image.rb, "".rs, RemoteModifier.size(24.rdp))
         RemoteText(hour.rs, modifier = RemoteModifier.padding(top = 4.rdp))
     }
 }
@@ -269,7 +267,7 @@ fun WeatherDay(day: String, precipitation: String, image: Int, temperature: Stri
             ) {
                 RemoteText(day.rs, RemoteModifier.width(70.rdp))
             }
-            val modWeight = RemoteModifier.weight(1f)
+            val modWeight = RemoteModifier.weight(1.rf)
             Temp(modWeight, precipitation, image, temperature)
         }
         RemoteRow(
@@ -282,7 +280,7 @@ fun WeatherDay(day: String, precipitation: String, image: Int, temperature: Stri
             ) {
                 RemoteText(day.substring(IntRange(0, 2)).rs, RemoteModifier.width(100.rdp))
             }
-            val modWeight = RemoteModifier.weight(1f)
+            val modWeight = RemoteModifier.weight(1.rf)
             Temp(modWeight, precipitation, image, temperature)
         }
     }
@@ -304,7 +302,7 @@ private fun Temp(
         RemoteBox(modifier = RemoteModifier.width(30.rdp)) {
             RemoteText(precipitation.rs, RemoteModifier.padding(end = 4.rdp))
         }
-        RemoteImage(image.rb, RemoteString(""), RemoteModifier.size(24.rdp))
+        RemoteImage(image.rb, "".rs, RemoteModifier.size(24.rdp))
     }
     RemoteBox(modWeight.widthIn(min = 0.rdp))
     RemoteBox(modifier = RemoteModifier.width(60.rdp), contentAlignment = RemoteAlignment.Center) {
