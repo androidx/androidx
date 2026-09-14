@@ -19,10 +19,10 @@
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.remote.creation.compose.capture.RemoteImageVector
+import androidx.compose.remote.creation.compose.capture.vectorResource
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.wear.compose.remote.material3.RemoteIcon
 import androidx.wear.compose.remote.material3.previews.utils.RemoteComponentPreviewWrapper
@@ -35,7 +35,8 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 fun RemoteIconSimpleSample(modifier: RemoteModifier = RemoteModifier) {
     RemoteIcon(
         modifier = modifier,
-        imageVector = ImageVector.vectorResource(R.drawable.gs_map_wght500rond100_vd_theme_24),
+        imageVector =
+            RemoteImageVector.vectorResource(R.drawable.gs_map_wght500rond100_vd_theme_24),
         contentDescription = null,
     )
 }

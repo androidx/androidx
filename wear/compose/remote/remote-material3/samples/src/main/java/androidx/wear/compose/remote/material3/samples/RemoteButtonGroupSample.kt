@@ -24,6 +24,8 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.remote.creation.compose.action.hostAction
+import androidx.compose.remote.creation.compose.capture.RemoteImageVector
+import androidx.compose.remote.creation.compose.capture.toRemoteImageVector
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
@@ -32,7 +34,6 @@ import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.wear.compose.remote.material3.RemoteButtonDefaults
 import androidx.wear.compose.remote.material3.RemoteButtonGroup
@@ -50,15 +51,15 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteButtonGroupThreeButtonSample(modifier: RemoteModifier = RemoteModifier) {
     RemoteButtonGroup(modifier = modifier.fillMaxWidth()) {
-        Button(Icons.Filled.MailOutline, RemoteModifier.weight(1f))
-        Button(Icons.Filled.Favorite, RemoteModifier.weight(1f))
-        Button(Icons.Filled.Call, RemoteModifier.weight(1f))
+        Button(Icons.Filled.MailOutline.toRemoteImageVector(), RemoteModifier.weight(1f))
+        Button(Icons.Filled.Favorite.toRemoteImageVector(), RemoteModifier.weight(1f))
+        Button(Icons.Filled.Call.toRemoteImageVector(), RemoteModifier.weight(1f))
     }
 }
 
 @Composable
 @RemoteComposable
-private fun Button(imageVector: ImageVector, modifier: RemoteModifier) {
+private fun Button(imageVector: RemoteImageVector, modifier: RemoteModifier) {
     RemoteIconButton(
         testAction,
         modifier = modifier.widthIn(RemoteButtonGroupDefaults.MinWidth),
