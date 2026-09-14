@@ -19,6 +19,7 @@
 package androidx.build.lint
 
 import androidx.build.lint.Stubs.Companion.RestrictTo
+import com.android.tools.lint.checks.infrastructure.TestMode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -37,10 +38,10 @@ class BanUncheckedReflectionTest :
 
         val expected =
             """
-            src/androidx/sample/core/app/ActivityRecreator.java:261: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
+            src/androidx/sample/core/app/ActivityRecreator.java:261: Error: Method.invoke requires an SDK bounds check to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
                                     performStopActivity3ParamsMethod.invoke(activityThread,
                                     ^
-            src/androidx/sample/core/app/ActivityRecreator.java:264: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
+            src/androidx/sample/core/app/ActivityRecreator.java:264: Error: Method.invoke requires an SDK bounds check to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
                                     performStopActivity2ParamsMethod.invoke(activityThread,
                                     ^
             2 errors, 0 warnings
@@ -56,10 +57,10 @@ class BanUncheckedReflectionTest :
 
         val expected =
             """
-            src/androidx/sample/core/app/ActivityRecreatorKt.kt:170: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
+            src/androidx/sample/core/app/ActivityRecreatorKt.kt:170: Error: Method.invoke requires an SDK bounds check to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
                                     performStopActivity3ParamsMethod!!.invoke(
                                     ^
-            src/androidx/sample/core/app/ActivityRecreatorKt.kt:177: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
+            src/androidx/sample/core/app/ActivityRecreatorKt.kt:177: Error: Method.invoke requires an SDK bounds check to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
                                     performStopActivity2ParamsMethod!!.invoke(activityThread, token, false)
                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             2 errors
@@ -206,5 +207,44 @@ class BanUncheckedReflectionTest :
             )
 
         check(*input).expectClean()
+    }
+
+    @Test
+    fun `Checked reflection allowing HIGHEST_KNOWN_API`() {
+        val input =
+            arrayOf(
+                kotlin(
+                    """
+                    package androidx.foo
+
+                    import android.os.Build
+
+                    fun forceEnablePlatformTracing() {
+                        if (Build.VERSION.SDK_INT <= 25) return
+
+                        if (Build.VERSION.SDK_INT >= 36) {
+                            val method = android.os.Trace::class.java.getMethod(
+                                "setAppTracingAllowed",
+                                Boolean::class.javaPrimitiveType
+                            )
+                            method.invoke(null, true)
+                        }
+                    }
+                    """
+                        .trimIndent()
+                )
+            )
+        val expected =
+            """
+            src/androidx/foo/test.kt:13: Error: Method.invoke requires an SDK bounds check to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
+                    method.invoke(null, true)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~
+            1 error
+            """
+                .trimIndent()
+
+        val testModes = TestMode.values().toMutableList()
+        testModes.remove(TestMode.IF_TO_WHEN)
+        check(*input, testModes = testModes).expect(expected)
     }
 }

@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.4.0-alpha05)" variant="all" version="9.4.0-alpha05">
+<issues format="6" by="lint 9.5.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha05)" variant="all" version="9.5.0-alpha05">
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Method.invoke requires an SDK bounds check to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        errorLine1="                        sNewInstanceMethod.invoke(null, surface, maxImages, format));"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/internal/compat/ImageWriterCompatApi26Impl.java"/>
+    </issue>
 
     <issue
         id="ObsoleteSdkInt"
@@ -17,15 +26,6 @@
         errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/ImageAnalysis.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 24"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 23"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageAnalysisAbstractAnalyzer.java"/>
     </issue>
 
     <issue
