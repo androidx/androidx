@@ -21,6 +21,7 @@ package androidx.wear.compose.remote.material3.previews
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.capture.toRemoteImageVector
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -67,7 +68,12 @@ fun RemoteAppCardDefault() {
         onClick = Action.Empty,
         appName = { RemoteText("App Name".rs) },
         time = { RemoteText("now".rs) },
-        appImage = { RemoteIcon(imageVector = Icons.Filled.Favorite, contentDescription = null) },
+        appImage = {
+            RemoteIcon(
+                imageVector = Icons.Filled.Favorite.toRemoteImageVector(),
+                contentDescription = null,
+            )
+        },
         title = { RemoteText("Card Title".rs) },
     ) {
         RemoteText("Card Content".rs)

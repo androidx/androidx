@@ -26,7 +26,7 @@ Tests are located in `src/androidTest/java/` and typically use `RemoteScreenshot
 @MediumTest
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(JUnit4::class)
-class RemoteIconFromResTest {
+class RemoteIconTest {
     @get:Rule
     val remoteComposeTestRule =
         RemoteScreenshotTestRule(
@@ -35,14 +35,14 @@ class RemoteIconFromResTest {
         )
 
     @Test
-    fun iconsFromRes() {
+    fun volumeUpRemoteIcon() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
         ) {
             // Your Remote Composables here
             RemoteRow {
-                Icon(resId = R.drawable.test_vector)
+                RemoteIcon(imageVector = TestImageVectors.VolumeUp, contentDescription = null)
             }
         }
     }
@@ -74,7 +74,7 @@ usage.
 fun RemoteIconSimpleSample(modifier: RemoteModifier = RemoteModifier) {
     RemoteIcon(
         modifier = modifier.size(24.rdp),
-        imageVector = ImageVector.vectorResource(R.drawable.gs_map_wght500rond100_vd_theme_24),
+        imageVector = TestImageVectors.VolumeUp,
         contentDescription = null,
     )
 }

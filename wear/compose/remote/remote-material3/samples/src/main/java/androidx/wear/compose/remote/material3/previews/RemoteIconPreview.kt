@@ -20,6 +20,7 @@ package androidx.wear.compose.remote.material3.previews
 
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.path
+import androidx.compose.remote.creation.compose.capture.vectorResource
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -33,8 +34,6 @@ import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.wear.compose.remote.material3.RemoteIcon
 import androidx.wear.compose.remote.material3.previews.utils.ProfilePreviewParameterProvider
@@ -58,7 +57,8 @@ private fun RemoteIconPreview(
 @RemoteComposable
 fun RemoteIconFromResource() {
     RemoteIcon(
-        imageVector = ImageVector.vectorResource(R.drawable.gs_map_wght500rond100_vd_theme_24),
+        imageVector =
+            RemoteImageVector.vectorResource(R.drawable.gs_map_wght500rond100_vd_theme_24),
         contentDescription = null,
     )
 }
