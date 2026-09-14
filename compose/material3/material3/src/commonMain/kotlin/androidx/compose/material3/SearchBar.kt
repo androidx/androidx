@@ -688,6 +688,8 @@ private fun AppBarWithSearchImpl(
  *   properties which limit the dialog's size (e.g. [DialogProperties.usePlatformDefaultWidth]) are
  *   ignored.
  * @param content the content of this search bar to display search results below the [inputField].
+ *
+ * @material3expressive
  */
 @Composable
 public fun ExpandedFullScreenContainedSearchBar(
@@ -959,6 +961,8 @@ private fun ExpandedFullScreenSearchBarImpl(
  *   properties which limit the dialog's size (e.g. [DialogProperties.usePlatformDefaultWidth]) are
  *   ignored.
  * @param content the content of this search bar to display search results below the [inputField].
+ *
+ * @material3expressive
  */
 @Composable
 public fun ExpandedDockedSearchBarWithGap(
