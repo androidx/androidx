@@ -42,6 +42,7 @@ internal object MaterialA2uiBasicCatalogV1CheckBox : A2uiBasicCatalogV1.CheckBox
         onValueChange: (Boolean) -> Unit,
         enabled: Boolean,
         accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+        checks: List<A2uiBasicCatalogV1.CheckRule>,
         modifier: Modifier,
     ) {
         val interactionSource = remember { MutableInteractionSource() }

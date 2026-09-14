@@ -21,6 +21,7 @@ import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.testing.A2uiTestController
 import androidx.a2ui.compose.ui.testing.A2uiTestSurface
 import androidx.a2ui.compose.ui.testing.getData
+import androidx.a2ui.model.catalog.functions.A2uiRequiredFunction
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.BasicText
@@ -53,6 +54,7 @@ class A2uiBasicCatalogV1CheckBoxUiTest {
         var capturedOnValueChange: ((Boolean) -> Unit)? = null
         var capturedEnabled: Boolean? = null
         var capturedAccessibility: A2uiBasicCatalogV1.AccessibilityAttributes? = null
+        var capturedChecks: List<A2uiBasicCatalogV1.CheckRule>? = null
 
         @Composable
         override fun A2uiComponentScope.TypedContent(
@@ -61,6 +63,7 @@ class A2uiBasicCatalogV1CheckBoxUiTest {
             onValueChange: (Boolean) -> Unit,
             enabled: Boolean,
             accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+            checks: List<A2uiBasicCatalogV1.CheckRule>,
             modifier: Modifier,
         ) {
             SideEffect {
@@ -69,6 +72,7 @@ class A2uiBasicCatalogV1CheckBoxUiTest {
                 capturedOnValueChange = onValueChange
                 capturedEnabled = enabled
                 capturedAccessibility = accessibility
+                capturedChecks = checks
             }
             val readOnlyStr = if (!enabled) " [RO]" else ""
             BasicText(
@@ -85,7 +89,7 @@ class A2uiBasicCatalogV1CheckBoxUiTest {
         A2uiCatalog(
             catalogId = "test_catalog",
             components = listOf(testCheckBox),
-            functions = emptyList(),
+            functions = listOf(A2uiRequiredFunction.INSTANCE),
         )
 
     @Test
@@ -714,5 +718,172 @@ class A2uiBasicCatalogV1CheckBoxUiTest {
 
         onNode(hasTestTag("initial_tag")).assertDoesNotExist()
         onNode(hasTestTag("updated_tag")).assertIsDisplayed()
+    }
+
+    @Test
+    fun content_checksPresent_resolvesAndPassesToTypedContent() = runComposeUiTest {
+        val checksPayload =
+            listOf(
+                mapOf("condition" to true, "message" to "Must be valid"),
+                mapOf("condition" to false, "message" to "Failed check"),
+            )
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "CheckBox",
+                            properties =
+                                mapOf(
+                                    "label" to "Test",
+                                    "value" to true,
+                                    "checks" to checksPayload,
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { A2uiTestSurface(surface) }
+
+        onNodeWithText("CheckBox: Test = true [RO]").assertIsDisplayed()
+        assertThat(testCheckBox.capturedChecks)
+            .containsExactly(
+                A2uiBasicCatalogV1.CheckRule(condition = true, message = "Must be valid"),
+                A2uiBasicCatalogV1.CheckRule(condition = false, message = "Failed check"),
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun content_noChecks_passesEmptyListToTypedContent() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "CheckBox",
+                            properties = mapOf("label" to "Test", "value" to true),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { A2uiTestSurface(surface) }
+
+        onNodeWithText("CheckBox: Test = true [RO]").assertIsDisplayed()
+        assertThat(testCheckBox.capturedChecks).isEmpty()
+    }
+
+    @Test
+    fun content_dynamicChecks_waitsForDataModelToResolve() = runComposeUiTest {
+        val checksPayload =
+            listOf(
+                mapOf(
+                    "condition" to mapOf("path" to "/verification/isApproved"),
+                    "message" to "Verification is not approved",
+                )
+            )
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "CheckBox",
+                            properties =
+                                mapOf(
+                                    "label" to "Test",
+                                    "value" to true,
+                                    "checks" to checksPayload,
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent {
+            A2uiTestSurface(
+                surface = surface,
+                onLoading = { modifier -> BasicText("Loading...", modifier = modifier) },
+            )
+        }
+
+        // Data model does not have /verification/isApproved yet, so CheckBox is in Loading state.
+        onNodeWithText("Loading...").assertIsDisplayed()
+        onNodeWithText("CheckBox: Test = true [RO]").assertDoesNotExist()
+
+        // Update data model
+        controller.updateData("/verification/isApproved", false)
+        controller.waitForIdle()
+        waitForIdle()
+
+        onNodeWithText("Loading...").assertDoesNotExist()
+        onNodeWithText("CheckBox: Test = true [RO]").assertIsDisplayed()
+        assertThat(testCheckBox.capturedChecks)
+            .containsExactly(
+                A2uiBasicCatalogV1.CheckRule(
+                    condition = false,
+                    message = "Verification is not approved",
+                )
+            )
+    }
+
+    @Test
+    fun content_dynamicChecks_withRequiredFunction_evaluatesCondition() = runComposeUiTest {
+        val checksPayload =
+            listOf(
+                mapOf(
+                    "condition" to
+                        mapOf(
+                            "call" to "required",
+                            "args" to mapOf("value" to mapOf("path" to "/formData/zip")),
+                        ),
+                    "message" to "Zip code is required",
+                )
+            )
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "CheckBox",
+                            properties =
+                                mapOf(
+                                    "label" to "Test",
+                                    "value" to true,
+                                    "checks" to checksPayload,
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { A2uiTestSurface(surface) }
+
+        // Data model does not have /formData/zip yet, so check condition should evaluate to false.
+        onNodeWithText("CheckBox: Test = true [RO]").assertIsDisplayed()
+        assertThat(testCheckBox.capturedChecks)
+            .containsExactly(
+                A2uiBasicCatalogV1.CheckRule(condition = false, message = "Zip code is required")
+            )
+
+        // Update data model
+        controller.updateData("/formData/zip", "94043")
+        controller.waitForIdle()
+        waitForIdle()
+
+        onNodeWithText("CheckBox: Test = true [RO]").assertIsDisplayed()
+        assertThat(testCheckBox.capturedChecks)
+            .containsExactly(
+                A2uiBasicCatalogV1.CheckRule(condition = true, message = "Zip code is required")
+            )
     }
 }

@@ -17,9 +17,11 @@
 package androidx.a2ui.compose.ui.catalog
 
 import androidx.a2ui.compose.runtime.A2uiComponentScope
+import androidx.a2ui.model.schema.A2uiArraySchema
 import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
 import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
+import androidx.a2ui.model.schema.commontypes.A2uiCheckRuleSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -45,6 +47,7 @@ class A2uiBasicCatalogV1TextFieldTest {
                     onValueChange: (String) -> Unit,
                     enabled: Boolean,
                     accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                    checks: List<A2uiBasicCatalogV1.CheckRule>,
                     modifier: Modifier,
                 ) {}
             }
@@ -55,6 +58,7 @@ class A2uiBasicCatalogV1TextFieldTest {
             .containsExactly(
                 A2uiBasicCatalogV1.TextField.AccessibilityProperty,
                 A2uiBasicCatalogV1.WeightProperty,
+                A2uiBasicCatalogV1.TextField.ChecksProperty,
                 A2uiBasicCatalogV1.TextField.LabelProperty,
                 A2uiBasicCatalogV1.TextField.ValueProperty,
                 A2uiBasicCatalogV1.TextField.VariantProperty,
@@ -70,6 +74,12 @@ class A2uiBasicCatalogV1TextFieldTest {
         assertThat(A2uiBasicCatalogV1.TextField.AccessibilityProperty.isRequired).isFalse()
         assertThat(A2uiBasicCatalogV1.TextField.AccessibilityProperty.schema)
             .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
+
+        assertThat(A2uiBasicCatalogV1.TextField.ChecksProperty.key).isEqualTo("checks")
+        assertThat(A2uiBasicCatalogV1.TextField.ChecksProperty.isRequired).isFalse()
+        val checksSchema =
+            assertIs<A2uiArraySchema>(A2uiBasicCatalogV1.TextField.ChecksProperty.schema)
+        assertThat(checksSchema.items).isEqualTo(A2uiCheckRuleSchema.DEFAULT_INSTANCE)
 
         assertThat(A2uiBasicCatalogV1.TextField.LabelProperty.key).isEqualTo("label")
         assertThat(A2uiBasicCatalogV1.TextField.LabelProperty.isRequired).isTrue()

@@ -17,9 +17,11 @@
 package androidx.a2ui.compose.ui.catalog
 
 import androidx.a2ui.compose.runtime.A2uiComponentScope
+import androidx.a2ui.model.schema.A2uiArraySchema
 import androidx.a2ui.model.schema.A2uiNumberSchema
 import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
+import androidx.a2ui.model.schema.commontypes.A2uiCheckRuleSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicNumberSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.compose.runtime.Composable
@@ -46,6 +48,7 @@ class A2uiBasicCatalogV1SliderTest {
                     onValueChange: (Float) -> Unit,
                     enabled: Boolean,
                     accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                    checks: List<A2uiBasicCatalogV1.CheckRule>,
                     modifier: Modifier,
                 ) {}
             }
@@ -57,6 +60,7 @@ class A2uiBasicCatalogV1SliderTest {
             .containsExactly(
                 A2uiBasicCatalogV1.Slider.AccessibilityProperty,
                 A2uiBasicCatalogV1.WeightProperty,
+                A2uiBasicCatalogV1.Slider.ChecksProperty,
                 A2uiBasicCatalogV1.Slider.LabelProperty,
                 A2uiBasicCatalogV1.Slider.MinProperty,
                 A2uiBasicCatalogV1.Slider.MaxProperty,
@@ -71,6 +75,12 @@ class A2uiBasicCatalogV1SliderTest {
         assertThat(A2uiBasicCatalogV1.Slider.AccessibilityProperty.isRequired).isFalse()
         assertThat(A2uiBasicCatalogV1.Slider.AccessibilityProperty.schema)
             .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
+
+        assertThat(A2uiBasicCatalogV1.Slider.ChecksProperty.key).isEqualTo("checks")
+        assertThat(A2uiBasicCatalogV1.Slider.ChecksProperty.isRequired).isFalse()
+        val checksSchema =
+            assertIs<A2uiArraySchema>(A2uiBasicCatalogV1.Slider.ChecksProperty.schema)
+        assertThat(checksSchema.items).isEqualTo(A2uiCheckRuleSchema.DEFAULT_INSTANCE)
 
         assertThat(A2uiBasicCatalogV1.Slider.LabelProperty.key).isEqualTo("label")
         assertThat(A2uiBasicCatalogV1.Slider.LabelProperty.isRequired).isFalse()

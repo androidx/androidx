@@ -466,6 +466,7 @@ class MaterialA2uiBasicCatalogV1Test {
                     variant: A2uiBasicCatalogV1.Button.Variant,
                     action: Map<String, Any?>,
                     accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                    checks: List<A2uiBasicCatalogV1.CheckRule>,
                     modifier: Modifier,
                 ) {}
             }
@@ -500,6 +501,7 @@ class MaterialA2uiBasicCatalogV1Test {
                     onValueChange: (String) -> Unit,
                     enabled: Boolean,
                     accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                    checks: List<A2uiBasicCatalogV1.CheckRule>,
                     modifier: Modifier,
                 ) {}
             }
@@ -532,6 +534,7 @@ class MaterialA2uiBasicCatalogV1Test {
                     onValueChange: (Boolean) -> Unit,
                     enabled: Boolean,
                     accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                    checks: List<A2uiBasicCatalogV1.CheckRule>,
                     modifier: Modifier,
                 ) {}
             }
@@ -568,6 +571,7 @@ class MaterialA2uiBasicCatalogV1Test {
                     onValueChange: (List<String>) -> Unit,
                     enabled: Boolean,
                     accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                    checks: List<A2uiBasicCatalogV1.CheckRule>,
                     modifier: Modifier,
                 ) {}
             }
@@ -602,6 +606,7 @@ class MaterialA2uiBasicCatalogV1Test {
                     onValueChange: (Float) -> Unit,
                     enabled: Boolean,
                     accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                    checks: List<A2uiBasicCatalogV1.CheckRule>,
                     modifier: Modifier,
                 ) {}
             }
@@ -637,6 +642,7 @@ class MaterialA2uiBasicCatalogV1Test {
                     max: Long?,
                     label: String?,
                     accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                    checks: List<A2uiBasicCatalogV1.CheckRule>,
                     modifier: Modifier,
                 ) {}
             }
