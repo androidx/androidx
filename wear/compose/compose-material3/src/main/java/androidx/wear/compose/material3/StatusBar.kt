@@ -116,6 +116,7 @@ internal fun rememberShowStatusBarState(statusBarMode: StatusBarMode): State<Boo
  */
 @Composable
 public fun StatusBarSuppression() {
+    if (!LocalStatusBarEnabled.current) return
     val scaffoldState = LocalScaffoldState.current
     val view = LocalView.current
     val screenIsActive = LocalScreenIsActive.current
