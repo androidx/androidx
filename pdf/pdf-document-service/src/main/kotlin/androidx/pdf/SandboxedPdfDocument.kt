@@ -150,7 +150,8 @@ public class SandboxedPdfDocument(
                     isFormFillingAvailable() &&
                         (pageInfoFlags and PdfDocument.PAGE_INFO_INCLUDE_FORM_WIDGET) != 0L
                 ) {
-                    document.getFormWidgetInfos(pageNumber).map { it.toContentClass() }
+                    document.getFormWidgetInfos(pageNumber)?.mapNotNull { it.toContentClass() }
+                        ?: emptyList()
                 } else {
                     emptyList()
                 }
@@ -265,9 +266,9 @@ public class SandboxedPdfDocument(
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
     override suspend fun getFormWidgetInfos(pageNum: Int, types: Long): List<FormWidgetInfo> {
         return withDocument { document ->
-            document.getFormWidgetInfosOfType(pageNum, getFormWidgetTypesArray(types)).map {
+            document.getFormWidgetInfosOfType(pageNum, getFormWidgetTypesArray(types))?.mapNotNull {
                 it.toContentClass()
-            }
+            } ?: emptyList()
         }
     }
 

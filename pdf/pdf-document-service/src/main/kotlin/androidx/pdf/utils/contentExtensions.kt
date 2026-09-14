@@ -113,7 +113,7 @@ public fun android.graphics.pdf.content.PdfPageLinkContent.toContentClass(): Pdf
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("WrongConstant")
-public fun android.graphics.pdf.models.FormWidgetInfo.toContentClass(): FormWidgetInfo =
+public fun android.graphics.pdf.models.FormWidgetInfo.toContentClass(): FormWidgetInfo? =
     requirePdfContentFeatures {
         return when (widgetType) {
             FormWidgetInfo.WIDGET_TYPE_CHECKBOX ->
@@ -188,7 +188,7 @@ public fun android.graphics.pdf.models.FormWidgetInfo.toContentClass(): FormWidg
                     listItems.map { item -> item.toContentClass() },
                 )
 
-            else -> throw IllegalArgumentException("Unknown widget type")
+            else -> null
         }
     }
 
