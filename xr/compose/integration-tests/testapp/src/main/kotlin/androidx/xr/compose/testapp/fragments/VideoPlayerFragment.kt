@@ -127,7 +127,7 @@ class VideoPlayerFragment : Fragment() {
                 else SpatialExternalSurfaceProtection.None,
         ) {
             onSurfaceCreated {
-                val player = ExoPlayer.Builder(requireActivity()).build()
+                val player = ExoPlayer.Builder(requireActivity().applicationContext).build()
                 exoPlayer = player
                 player.setVideoSurface(it)
                 player.setMediaItem(getMediaItem())
