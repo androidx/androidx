@@ -354,6 +354,9 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
      */
     @Suppress("UNCHECKED_CAST")
     private fun <T : Any> ensureMap(onChanged: (T) -> Unit): ObservedScopeMap {
+        val currentMap = currentMap
+        if (currentMap?.onChanged === onChanged) return currentMap
+
         val scopeMap = observedScopeMaps.firstOrNull { it.onChanged === onChanged }
         if (scopeMap == null) {
             val map = ObservedScopeMap(onChanged as ((Any) -> Unit))
