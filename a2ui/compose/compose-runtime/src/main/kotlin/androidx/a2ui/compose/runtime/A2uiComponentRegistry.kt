@@ -19,6 +19,7 @@ package androidx.a2ui.compose.runtime
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiException
+import androidx.annotation.MainThread
 import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
 import androidx.compose.runtime.MutableState
@@ -39,8 +40,11 @@ import kotlin.concurrent.withLock
 @Stable
 internal class A2uiComponentRegistry : A2uiCoreComponentRegistry {
 
-    /** The map of component IDs to the corresponding component record snapshot states. */
-    private val registry = MutableScatterMap<String, MutableState<A2uiComponentRecord?>>()
+    /** Holds the raw component records, updated by a data layer thread. */
+    private val records = MutableScatterMap<String, A2uiComponentRecord>()
+
+    /** Holds the Compose snapshot states for component records created by the UI thread. */
+    private val states = MutableScatterMap<String, MutableState<A2uiComponentRecord?>>()
 
     /**
      * Synchronizes concurrent updates to ensure thread-safety and prevent snapshot conflicts.
@@ -50,7 +54,7 @@ internal class A2uiComponentRegistry : A2uiCoreComponentRegistry {
     private val updateLock = ReentrantLock(true)
 
     /**
-     * Synchronizes concurrent [registry]-level operations, e.g., record insertion.
+     * Synchronizes concurrent [states] and [records] operations.
      *
      * The lock is configured as fair to ensure updates are applied in the order they are received.
      */
@@ -64,31 +68,37 @@ internal class A2uiComponentRegistry : A2uiCoreComponentRegistry {
             val recordsToApply = ArrayList<A2uiComponentRecord.Valid>(components.size)
             val seenIds = MutableScatterSet<String>(components.size)
 
-            // Iterate backwards so that if a batch contains duplicate IDs, the last payload
-            // provided naturally wins.
-            for (i in components.indices.reversed()) {
-                val payload = components[i]
-                if (!seenIds.add(payload.id)) {
-                    continue // Skip earlier payloads for an ID that was already processed
-                }
+            registryLock.withLock {
+                // Iterate backwards so that if a batch contains duplicate IDs, the last payload
+                // provided naturally wins.
+                for (i in components.indices.reversed()) {
+                    val payload = components[i]
+                    if (!seenIds.add(payload.id)) {
+                        continue // Skip earlier payloads for an ID that was already processed
+                    }
 
-                val state = registryLock.withLock {
-                    registry.getOrPut(payload.id) { mutableStateOf(null) }
-                }
-                val existing = state.value as? A2uiComponentRecord.Valid
+                    val existingRecord = records[payload.id] as? A2uiComponentRecord.Valid
 
-                if (
-                    existing == null ||
-                        existing.type != payload.type ||
-                        existing.properties.raw != payload.properties
-                ) {
-                    statesToApply.add(state)
-                    recordsToApply.add(
-                        A2uiComponentRecord.Valid(
-                            type = payload.type,
-                            properties = A2uiComponentProperties(payload.properties),
-                        )
-                    )
+                    if (
+                        existingRecord == null ||
+                            existingRecord.type != payload.type ||
+                            existingRecord.properties.raw != payload.properties
+                    ) {
+                        val newRecord =
+                            A2uiComponentRecord.Valid(
+                                type = payload.type,
+                                properties = A2uiComponentProperties(payload.properties),
+                            )
+
+                        records[payload.id] = newRecord
+
+                        // If the UI thread is already observing this component, queue the update
+                        val state = states[payload.id]
+                        if (state != null) {
+                            statesToApply.add(state)
+                            recordsToApply.add(newRecord)
+                        }
+                    }
                 }
             }
 
@@ -106,8 +116,16 @@ internal class A2uiComponentRegistry : A2uiCoreComponentRegistry {
 
     override fun reportError(id: String, exception: A2uiException) {
         updateLock.withLock {
-            val state = registryLock.withLock { registry.getOrPut(id) { mutableStateOf(null) } }
-            Snapshot.withMutableSnapshot { state.value = A2uiComponentRecord.Error(exception) }
+            val record = A2uiComponentRecord.Error(exception)
+
+            val stateToUpdate = registryLock.withLock {
+                records[id] = record
+                states[id]
+            }
+
+            stateToUpdate?.let { state ->
+                Snapshot.withMutableSnapshot { state.value = record }
+            }
         }
 
         Snapshot.sendApplyNotifications()
@@ -116,16 +134,36 @@ internal class A2uiComponentRegistry : A2uiCoreComponentRegistry {
     override fun close() {
         updateLock.withLock {
             registryLock.withLock {
-                Snapshot.withMutableSnapshot { registry.forEachValue { it.value = null } }
-                registry.clear()
+                Snapshot.withMutableSnapshot { states.forEachValue { it.value = null } }
+                states.clear()
+                records.clear()
             }
         }
 
         Snapshot.sendApplyNotifications()
     }
 
+    /**
+     * Retrieves the component record for the given [id], establishing a reactive observation.
+     *
+     * **Thread Safety Warning:** To prevent Compose snapshot isolation crashes, this method must
+     * only be called from the composition thread (typically the main UI thread).
+     *
+     * @param id The unique identifier of the component to retrieve.
+     * @return The reactive component record, or `null` if it has not been loaded yet.
+     */
+    @MainThread
     internal fun get(id: String): A2uiComponentRecord? {
-        val state = registryLock.withLock { registry.getOrPut(id) { mutableStateOf(null) } }
+        val state = registryLock.withLock {
+            states.getOrPut(id) {
+                // The MutableState is created on the UI thread to ensure its snapshot ID is <= the
+                // current active read-only snapshot.
+                mutableStateOf(records[id])
+            }
+        }
+
+        // Reading .value here provides fine-grained reactivity matching exactly to this individual
+        // component ID, rather than the entire map structure.
         return state.value
     }
 }
