@@ -124,6 +124,8 @@ import kotlinx.coroutines.launch
  * @param verticalAlignment The vertical alignment of the button group's children.
  * @param content the content displayed in the button group, expected to use a composable that i s
  *   tagged with [ButtonGroupScope.animateWidth].
+ *
+ * @material3expressive
  */
 @Composable
 public fun ButtonGroup(
