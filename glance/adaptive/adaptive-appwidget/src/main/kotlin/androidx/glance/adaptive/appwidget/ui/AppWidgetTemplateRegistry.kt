@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.core.ui
+package androidx.glance.adaptive.appwidget.ui
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
+import androidx.glance.adaptive.appwidget.ui.selection.LocalContainerDimensions
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
-import androidx.glance.adaptive.core.ui.selection.LocalContainerDimensions
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 
 /**
  * Registry that holds the mapping between [AdaptiveGlanceTemplate] and their corresponding layout
- * selector and archetype renderer.
+ * selector and archetype renderer for platform AppWidgets.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public object TemplateRegistry {
+public object AppWidgetTemplateRegistry {
     private val lock = Any()
 
     @VisibleForTesting
