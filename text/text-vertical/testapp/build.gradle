@@ -24,10 +24,10 @@ plugins {
 dependencies {
     implementation(project(":text:text-vertical-compose"))
 
-    implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("androidx.activity:activity-compose:1.12.4")
     implementation("androidx.compose.material3:material3:1.4.0")
 
-    def composeVersion = "1.11.0"
+    def composeVersion = "1.11.4"
     implementation("androidx.compose.ui:ui:" + composeVersion)
     implementation("androidx.compose.ui:ui-graphics:" + composeVersion)
     implementation("androidx.compose.foundation:foundation:" + composeVersion)
