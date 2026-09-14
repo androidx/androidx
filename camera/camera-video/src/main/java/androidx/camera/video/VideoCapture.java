@@ -1570,19 +1570,25 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         MediaSpec mediaSpec = getMediaSpecOrThrow();
 
         QualitySelector qualitySelector = getQualitySelector(mediaSpec);
+        if (qualitySelector == QualitySelector.NONE) {
+            return;
+        }
 
         VideoCaptureConfig<T> config = (VideoCaptureConfig<T>) builder.getUseCaseConfig();
-        if (config.containsOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS)) {
+        if (config.containsOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS)
+                || config.containsOption(OPTION_RESOLUTION_SELECTOR)) {
             checkArgument(getOutput().isQualitySelectorDefault(),
-                    "Custom ordered resolutions and QualitySelector can't both be set");
+                    "Custom ordered resolutions or ResolutionSelector and QualitySelector can't "
+                            + "both be set");
 
             checkArgument(getFeatureGroupQualitySelector() == null,
-                    "Can't set both custom ordered resolutions and QualitySelector  through"
-                            + " a groupable feature (e.g. GroupableFeatures.UHD_RECORDING)");
+                    "Can't set both custom ordered resolutions or ResolutionSelector and "
+                            + "QualitySelector through a groupable feature (e.g. "
+                            + "GroupableFeatures.UHD_RECORDING)");
 
-            // If custom ordered resolutions is set and QualitySelector is not set by user or
-            // feature groups, the default QualitySelector is skipped to avoid overwriting the
-            // custom ordered resolutions.
+            // If custom ordered resolutions or ResolutionSelector is set and QualitySelector is
+            // not set by user or feature groups, the default QualitySelector is skipped to avoid
+            // overwriting the resolution settings.
             return;
         }
 

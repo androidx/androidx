@@ -48,7 +48,7 @@ class VideoOutputTest {
     }
 
     @Test
-    fun getMediaSpec_defaultsToNull(): Unit = runBlocking {
+    fun getMediaSpec_hasDefaultMediaSpec(): Unit = runBlocking {
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
@@ -60,6 +60,6 @@ class VideoOutputTest {
         val videoOutput = VideoOutput { request -> request.willNotProvideSurface() }
 
         val mediaSpec = videoOutput.mediaSpec.asFlow().first()
-        assertThat(mediaSpec).isNull()
+        assertThat(mediaSpec).isEqualTo(MediaSpec.DEFAULT)
     }
 }

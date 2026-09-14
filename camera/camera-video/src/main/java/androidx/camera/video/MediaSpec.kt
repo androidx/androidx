@@ -115,6 +115,9 @@ public constructor(
         /** VP8, VP9 media file format */
         public const val OUTPUT_FORMAT_WEBM: Int = 1
 
+        /** A [MediaSpec] representing the default media configuration. */
+        @JvmField public val DEFAULT: MediaSpec = builder().build()
+
         /** Creates a [Builder]. */
         @RestrictTo(Scope.LIBRARY) @JvmStatic public fun builder(): Builder = Builder()
     }
