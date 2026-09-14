@@ -22,6 +22,7 @@ import androidx.collection.MutableIntObjectMap
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.runtime.annotation.RememberInComposition
 
 /**
  * Represents a mutable array of floats.
@@ -31,6 +32,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteMutableFloatArray
 /** Constructs a [RemoteMutableFloatArray] with [size] elements which are initialized to 0 */
+@RememberInComposition
 constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>(RemoteStateArrayKey(size)) {
 
     public override val constantValueOrNull: List<RemoteFloat>? = null

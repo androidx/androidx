@@ -48,6 +48,7 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.crea
 import androidx.compose.remote.creation.compose.state.RemoteFloat.OperationKey
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.remember
 import java.text.DecimalFormat
 import kotlin.math.pow
@@ -1660,17 +1661,20 @@ public fun yearForReference(referenceEpochMillis: RemoteLong): RemoteFloat {
 
 /** A mutable implementation of [RemoteFloat]. It also implements [MutableRemoteState<Float>]. */
 public class MutableRemoteFloat
+@RememberInComposition
 internal constructor(
     cacheKey: RemoteStateCacheKey,
     private var idProvider: (creationState: RemoteComposeCreationState) -> Float,
 ) : RemoteFloat(cacheKey), MutableRemoteState<Float> {
 
+    @RememberInComposition
     internal constructor() :
         this(
             cacheKey = RemoteStateInstanceKey(),
             idProvider = { creationState -> creationState.document.reserveFloatVariable() },
         )
 
+    @RememberInComposition
     internal constructor(
         id: Int
     ) : this(cacheKey = RemoteStateIdKey(id), idProvider = { asNan(id) })
@@ -1680,7 +1684,9 @@ internal constructor(
      *
      * @param initialValue The initial [Float] value.
      */
-    internal constructor(
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RememberInComposition
+    public constructor(
         initialValue: Float
     ) : this(
         cacheKey = RemoteStateInstanceKey(),
@@ -1692,7 +1698,9 @@ internal constructor(
      *
      * @param value A lambda evaluated within [RemoteFloatContext] that provides the initial value.
      */
-    internal constructor(
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RememberInComposition
+    public constructor(
         value: RemoteFloatContext.() -> RemoteFloat
     ) : this(
         cacheKey = RemoteStateInstanceKey(),
@@ -1755,6 +1763,7 @@ internal constructor(
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class RemoteFloatExpression
+@RememberInComposition
 internal constructor(
     public override val constantValueOrNull: Float?,
     cacheKey: RemoteStateCacheKey,
@@ -1766,7 +1775,8 @@ internal constructor(
      *
      * @param value A lambda evaluated within [RemoteFloatContext] that provides the [RemoteFloat].
      */
-    internal constructor(
+    @RememberInComposition
+    public constructor(
         value: RemoteFloatContext.() -> RemoteFloat
     ) : this(
         constantValueOrNull = null,
@@ -1783,7 +1793,8 @@ internal constructor(
      *
      * @param value A lambda returning the raw [FloatArray] representing the expression.
      */
-    internal constructor(
+    @RememberInComposition
+    public constructor(
         value: () -> FloatArray
     ) : this(
         constantValueOrNull = null,
@@ -1971,6 +1982,7 @@ internal class RemoteFloatSelect(
  * @property arrayProvider A lambda that provides the [FloatArray] representing the expression.
  */
 internal class UncachedRemoteFloatExpression
+@RememberInComposition
 internal constructor(
     public override val constantValueOrNull: Float?,
     cacheKey: RemoteStateCacheKey,
@@ -2003,6 +2015,7 @@ internal constructor(
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnimatedRemoteFloat
+@RememberInComposition
 internal constructor(
     public val input: RemoteFloat,
     public val anim: FloatArray,
@@ -2010,6 +2023,7 @@ internal constructor(
 ) : RemoteFloat(cacheKey) {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RememberInComposition
     public constructor(
         input: RemoteFloat,
         anim: FloatArray,

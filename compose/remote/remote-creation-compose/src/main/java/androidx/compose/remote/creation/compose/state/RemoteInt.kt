@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.create
 import androidx.compose.remote.creation.compose.state.RemoteInt.OperationKey
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.remember
 import java.text.DecimalFormat
 import kotlin.math.abs
@@ -1004,6 +1005,7 @@ public fun clamp(min: RemoteInt, max: RemoteInt, value: RemoteInt): RemoteInt {
 
 /** A mutable implementation of [RemoteInt]. */
 public class MutableRemoteInt
+@RememberInComposition
 internal constructor(
     constantValueOrNull: Int? = null,
     cacheKey: RemoteStateCacheKey,
@@ -1027,6 +1029,7 @@ internal constructor(
      *
      * @param id An explicit ID for this mutable integer.
      */
+    @RememberInComposition
     internal constructor(
         id: Long
     ) : this(
@@ -1040,7 +1043,9 @@ internal constructor(
      *
      * @param initialValue The initial [Int] value.
      */
-    internal constructor(
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RememberInComposition
+    public constructor(
         initialValue: Int
     ) : this(
         constantValueOrNull = null,
@@ -1246,6 +1251,7 @@ public fun selectIfGe(
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class RemoteIntExpression
+@RememberInComposition
 internal constructor(
     public override val constantValueOrNull: Int?,
     cacheKey: RemoteStateCacheKey,

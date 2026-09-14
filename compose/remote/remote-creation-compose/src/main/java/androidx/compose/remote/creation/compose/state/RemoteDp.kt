@@ -203,7 +203,9 @@ internal constructor(
             )
         }
 
-        internal fun createNamedRemoteDp(
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @JvmStatic
+        public fun createNamedRemoteDp(
             name: String,
             domain: RemoteState.Domain = RemoteState.Domain.User,
             value: () -> RemoteDp,
