@@ -487,23 +487,20 @@ public val LocalRippleConfiguration: ProvidableCompositionLocal<RippleConfigurat
  *   including disabling ripples and their indications. This takes next highest priority.
  * - [ripple] parameters allow specifying configuration for individual indication callsites in
  *   components.
+ *
+ * @property color the color override for the ripple. If [Color.Unspecified], then the default color
+ *   from the theme will be used instead. Note that if the ripple has a color explicitly set with
+ *   the parameter on [ripple], that will always be used instead of this value.
+ * @property focus the focus indication override for this ripple. If null, then the default
+ *   indication style will be used instead. This will only be applied if the style of focus
+ *   indication matches the one set by [LocalRippleThemeConfiguration] (opacity vs inset focus
+ *   ring). If the style doesn't match, then this configuration will be ignored and the default
+ *   indication style will be used instead.
  */
 @Immutable
 public class RippleConfiguration
 internal constructor(
-    /**
-     * The color override for the ripple. If [Color.Unspecified], then the default color from the
-     * theme will be used instead. Note that if the ripple has a color explicitly set with the
-     * parameter on [ripple], that will always be used instead of this value.
-     */
     public val color: Color,
-    /**
-     * The focus indication override for this ripple. If null, then the default indication style
-     * will be used instead. This will only be applied if the style of focus indication matches the
-     * one set by [LocalRippleThemeConfiguration] (opacity vs inset focus ring). If the style
-     * doesn't match, then this configuration will be ignored and the default indication style will
-     * be used instead.
-     */
     public val focus: Focus?,
     rippleAlpha: RippleAlpha?,
 ) {
