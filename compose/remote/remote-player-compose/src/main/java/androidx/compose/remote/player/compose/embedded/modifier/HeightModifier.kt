@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation
+import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
+import androidx.compose.remote.player.compose.embedded.dimensionInRawValues
 import androidx.compose.remote.player.compose.embedded.dimensionRawValue
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
@@ -46,7 +48,9 @@ internal fun Modifier.height(op: HeightModifierOperation): Modifier {
                 else resolved
             this.height(heightDp.dp)
         }
-        DimensionModifierOperation.Type.FILL -> this.fillMaxHeight()
+        DimensionModifierOperation.Type.FILL,
+        DimensionModifierOperation.Type.FILL_PARENT_MAX_HEIGHT ->
+            this.fillMaxHeight(op.fillFraction())
         DimensionModifierOperation.Type.WRAP -> this // Default
         else -> this
     }
@@ -55,7 +59,11 @@ internal fun Modifier.height(op: HeightModifierOperation): Modifier {
 @Composable
 internal fun Modifier.heightIn(op: HeightInModifierOperation): Modifier {
     val density = LocalDensity.current.density
-    val heightMinDp = rememberRemoteFloatAsState(op.min).value.constraintPxToDp(density)
-    val heightMaxDp = rememberRemoteFloatAsState(op.max).value.constraintPxToDp(density)
+    val behavior = LocalCoreDocument.current.densityBehavior
+    val (minDimension, maxDimension) = dimensionInRawValues(op)
+    val heightMinDp =
+        rememberRemoteFloatAsState(minDimension).value.constraintDimensionToDp(behavior, density)
+    val heightMaxDp =
+        rememberRemoteFloatAsState(maxDimension).value.constraintDimensionToDp(behavior, density)
     return this.heightIn(heightMinDp, heightMaxDp)
 }

@@ -20,27 +20,28 @@ package androidx.compose.remote.player.compose.embedded.modifier
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation
+import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
+import androidx.compose.remote.player.compose.embedded.paddingRawValues
+import androidx.compose.remote.player.compose.embedded.rawDimensionDp
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.dp
 
 @Composable
 internal fun Modifier.padding(op: PaddingModifierOperation): Modifier {
-    // Padding values arrive in pixels (authoring stores RemoteDp via toPx()), so convert back to dp
-    // by dividing by density — consistent with WidthModifier/BorderModifier/OffsetModifier. Without
-    // this the padding was ~density× too large, shrinking the content so FILL children collapsed.
     val density = LocalDensity.current.density
-    val left = rememberRemoteFloatAsState(op.left).value
-    val top = rememberRemoteFloatAsState(op.top).value
-    val right = rememberRemoteFloatAsState(op.right).value
-    val bottom = rememberRemoteFloatAsState(op.bottom).value
+    val behavior = LocalCoreDocument.current.densityBehavior
+    val (leftSource, topSource, rightSource, bottomSource) = paddingRawValues(op)
+    val left = rememberRemoteFloatAsState(leftSource).value
+    val top = rememberRemoteFloatAsState(topSource).value
+    val right = rememberRemoteFloatAsState(rightSource).value
+    val bottom = rememberRemoteFloatAsState(bottomSource).value
 
     return this.padding(
-        start = (left / density).dp,
-        top = (top / density).dp,
-        end = (right / density).dp,
-        bottom = (bottom / density).dp,
+        start = rawDimensionDp(left, behavior, density),
+        top = rawDimensionDp(top, behavior, density),
+        end = rawDimensionDp(right, behavior, density),
+        bottom = rawDimensionDp(bottom, behavior, density),
     )
 }
