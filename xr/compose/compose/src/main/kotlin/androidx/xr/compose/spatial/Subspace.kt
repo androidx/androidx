@@ -40,6 +40,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 import androidx.core.viewtree.getParentOrViewTreeDisjointParent
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -354,7 +356,7 @@ public fun PlanarEmbeddedSubspace(
                 subspaceMeasurables,
                 _ ->
                 val volumeConstraints = view.findVolumeConstraints()
-                val placeables = subspaceMeasurables.map {
+                val placeables = subspaceMeasurables.fastMap {
                     it.measure(
                         VolumeConstraints(
                             minWidth = constraints.minWidth,
@@ -378,7 +380,7 @@ public fun PlanarEmbeddedSubspace(
                     measuredContentVolume.height,
                     measuredContentVolume.depth,
                 ) {
-                    placeables.forEach { it.place(Pose.Identity) }
+                    placeables.fastForEach { it.place(Pose.Identity) }
                 }
             }
         }
