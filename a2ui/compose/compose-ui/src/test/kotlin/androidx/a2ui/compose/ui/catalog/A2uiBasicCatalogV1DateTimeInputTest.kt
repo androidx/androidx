@@ -18,11 +18,13 @@ package androidx.a2ui.compose.ui.catalog
 
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.model.schema.A2uiAnySchema
+import androidx.a2ui.model.schema.A2uiArraySchema
 import androidx.a2ui.model.schema.A2uiBooleanSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
 import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
+import androidx.a2ui.model.schema.commontypes.A2uiCheckRuleSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -49,6 +51,7 @@ class A2uiBasicCatalogV1DateTimeInputTest {
                     max: Long?,
                     label: String?,
                     accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                    checks: List<A2uiBasicCatalogV1.CheckRule>,
                     modifier: Modifier,
                 ) {}
             }
@@ -60,6 +63,7 @@ class A2uiBasicCatalogV1DateTimeInputTest {
             .containsExactly(
                 A2uiBasicCatalogV1.DateTimeInput.AccessibilityProperty,
                 A2uiBasicCatalogV1.WeightProperty,
+                A2uiBasicCatalogV1.DateTimeInput.ChecksProperty,
                 A2uiBasicCatalogV1.DateTimeInput.ValueProperty,
                 A2uiBasicCatalogV1.DateTimeInput.EnableDateProperty,
                 A2uiBasicCatalogV1.DateTimeInput.EnableTimeProperty,
@@ -77,6 +81,12 @@ class A2uiBasicCatalogV1DateTimeInputTest {
         assertThat(A2uiBasicCatalogV1.DateTimeInput.AccessibilityProperty.isRequired).isFalse()
         assertThat(A2uiBasicCatalogV1.DateTimeInput.AccessibilityProperty.schema)
             .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
+
+        assertThat(A2uiBasicCatalogV1.DateTimeInput.ChecksProperty.key).isEqualTo("checks")
+        assertThat(A2uiBasicCatalogV1.DateTimeInput.ChecksProperty.isRequired).isFalse()
+        val checksSchema =
+            assertIs<A2uiArraySchema>(A2uiBasicCatalogV1.DateTimeInput.ChecksProperty.schema)
+        assertThat(checksSchema.items).isEqualTo(A2uiCheckRuleSchema.DEFAULT_INSTANCE)
 
         assertThat(A2uiBasicCatalogV1.DateTimeInput.ValueProperty.key).isEqualTo("value")
         assertThat(A2uiBasicCatalogV1.DateTimeInput.ValueProperty.isRequired).isTrue()

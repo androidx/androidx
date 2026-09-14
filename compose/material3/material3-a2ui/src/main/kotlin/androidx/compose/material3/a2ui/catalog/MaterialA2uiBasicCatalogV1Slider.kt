@@ -54,6 +54,7 @@ internal object MaterialA2uiBasicCatalogV1Slider : A2uiBasicCatalogV1.Slider {
         onValueChange: (Float) -> Unit,
         enabled: Boolean,
         accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+        checks: List<A2uiBasicCatalogV1.CheckRule>,
         modifier: Modifier,
     ) {
         // TODO(b/549060875): Figure out how this should be reflected in the UI: switch back to the

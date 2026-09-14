@@ -147,8 +147,8 @@ package androidx.a2ui.compose.ui.catalog {
   public static interface A2uiBasicCatalogV1.Button extends androidx.a2ui.compose.ui.A2uiComponent {
     method @KotlinOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
     method @BytecodeOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button.Variant, java.util.Map<java.lang.String!,? extends java.lang.Object!>, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes?, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String childId, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button.Variant variant, java.util.Map<java.lang.String,java.lang.Object?> action, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes? accessibility, androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button.Variant, java.util.Map<java.lang.String!,? extends java.lang.Object!>, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes?, java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule!>, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String childId, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button.Variant variant, java.util.Map<java.lang.String,java.lang.Object?> action, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes? accessibility, java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule> checks, androidx.compose.ui.Modifier modifier);
     method @InaccessibleFromKotlin public default String getDescription();
     method @InaccessibleFromKotlin public default String getName();
     method @InaccessibleFromKotlin public default java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> getProperties();
@@ -161,10 +161,12 @@ package androidx.a2ui.compose.ui.catalog {
   public static final class A2uiBasicCatalogV1.Button.Companion {
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes> getAccessibilityProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.util.Map<java.lang.String,java.lang.Object?>> getActionProperty();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule>> getChecksProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.String> getChildProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button.Variant> getVariantProperty();
     property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes> AccessibilityProperty;
     property public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.util.Map<java.lang.String,java.lang.Object?>> ActionProperty;
+    property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule>> ChecksProperty;
     property public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.String> ChildProperty;
     property public androidx.a2ui.compose.runtime.StaticA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button.Variant> VariantProperty;
   }
@@ -206,8 +208,8 @@ package androidx.a2ui.compose.ui.catalog {
   public static interface A2uiBasicCatalogV1.CheckBox extends androidx.a2ui.compose.ui.A2uiComponent {
     method @KotlinOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
     method @BytecodeOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String, boolean, kotlin.jvm.functions.Function1<? super java.lang.Boolean!,kotlin.Unit!>, boolean, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes?, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String label, boolean value, kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit> onValueChange, boolean enabled, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes? accessibility, androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String, boolean, kotlin.jvm.functions.Function1<? super java.lang.Boolean!,kotlin.Unit!>, boolean, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes?, java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule!>, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String label, boolean value, kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit> onValueChange, boolean enabled, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes? accessibility, java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule> checks, androidx.compose.ui.Modifier modifier);
     method @InaccessibleFromKotlin public default String getDescription();
     method @InaccessibleFromKotlin public default String getName();
     method @InaccessibleFromKotlin public default java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> getProperties();
@@ -219,18 +221,28 @@ package androidx.a2ui.compose.ui.catalog {
 
   public static final class A2uiBasicCatalogV1.CheckBox.Companion {
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes> getAccessibilityProperty();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule>> getChecksProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> getLabelProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.Boolean> getValueProperty();
     property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes> AccessibilityProperty;
+    property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule>> ChecksProperty;
     property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> LabelProperty;
     property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.Boolean> ValueProperty;
+  }
+
+  @androidx.compose.runtime.Immutable public static final class A2uiBasicCatalogV1.CheckRule {
+    ctor public A2uiBasicCatalogV1.CheckRule(boolean condition, String message);
+    method @InaccessibleFromKotlin public boolean getCondition();
+    method @InaccessibleFromKotlin public String getMessage();
+    property public boolean condition;
+    property public String message;
   }
 
   public static interface A2uiBasicCatalogV1.ChoicePicker extends androidx.a2ui.compose.ui.A2uiComponent {
     method @KotlinOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
     method @BytecodeOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String?, java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.ChoicePicker.Option!>, java.util.List<java.lang.String!>, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.ChoicePicker.Variant, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.ChoicePicker.DisplayStyle, boolean, kotlin.jvm.functions.Function1<? super java.util.List<java.lang.String!>!,kotlin.Unit!>, boolean, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes?, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String? label, java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.ChoicePicker.Option> options, java.util.List<java.lang.String> value, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.ChoicePicker.Variant variant, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.ChoicePicker.DisplayStyle displayStyle, boolean filterable, kotlin.jvm.functions.Function1<java.util.List<java.lang.String>,kotlin.Unit> onValueChange, boolean enabled, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes? accessibility, androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String?, java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.ChoicePicker.Option!>, java.util.List<java.lang.String!>, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.ChoicePicker.Variant, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.ChoicePicker.DisplayStyle, boolean, kotlin.jvm.functions.Function1<? super java.util.List<java.lang.String!>!,kotlin.Unit!>, boolean, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes?, java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule!>, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String? label, java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.ChoicePicker.Option> options, java.util.List<java.lang.String> value, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.ChoicePicker.Variant variant, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.ChoicePicker.DisplayStyle displayStyle, boolean filterable, kotlin.jvm.functions.Function1<java.util.List<java.lang.String>,kotlin.Unit> onValueChange, boolean enabled, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes? accessibility, java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule> checks, androidx.compose.ui.Modifier modifier);
     method @InaccessibleFromKotlin public default String getDescription();
     method @InaccessibleFromKotlin public default String getName();
     method @InaccessibleFromKotlin public default java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> getProperties();
@@ -242,6 +254,7 @@ package androidx.a2ui.compose.ui.catalog {
 
   public static final class A2uiBasicCatalogV1.ChoicePicker.Companion {
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes> getAccessibilityProperty();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule>> getChecksProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.ChoicePicker.DisplayStyle> getDisplayStyleProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Boolean> getFilterableProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> getLabelProperty();
@@ -249,6 +262,7 @@ package androidx.a2ui.compose.ui.catalog {
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.util.List<java.lang.String>> getValueProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.ChoicePicker.Variant> getVariantProperty();
     property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes> AccessibilityProperty;
+    property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule>> ChecksProperty;
     property public androidx.a2ui.compose.runtime.StaticA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.ChoicePicker.DisplayStyle> DisplayStyleProperty;
     property public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Boolean> FilterableProperty;
     property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> LabelProperty;
@@ -360,8 +374,8 @@ package androidx.a2ui.compose.ui.catalog {
   public static interface A2uiBasicCatalogV1.DateTimeInput extends androidx.a2ui.compose.ui.A2uiComponent {
     method @KotlinOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
     method @BytecodeOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, Long?, kotlin.jvm.functions.Function1<? super java.lang.Long!,kotlin.Unit!>?, boolean, boolean, Long?, Long?, String?, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes?, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, Long? value, kotlin.jvm.functions.Function1<java.lang.Long?,kotlin.Unit>? onValueChange, boolean enableDate, boolean enableTime, Long? min, Long? max, String? label, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes? accessibility, androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, Long?, kotlin.jvm.functions.Function1<? super java.lang.Long!,kotlin.Unit!>?, boolean, boolean, Long?, Long?, String?, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes?, java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule!>, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, Long? value, kotlin.jvm.functions.Function1<java.lang.Long?,kotlin.Unit>? onValueChange, boolean enableDate, boolean enableTime, Long? min, Long? max, String? label, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes? accessibility, java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule> checks, androidx.compose.ui.Modifier modifier);
     method @InaccessibleFromKotlin public default String getDescription();
     method @InaccessibleFromKotlin public default String getName();
     method @InaccessibleFromKotlin public default java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> getProperties();
@@ -373,6 +387,7 @@ package androidx.a2ui.compose.ui.catalog {
 
   public static final class A2uiBasicCatalogV1.DateTimeInput.Companion {
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes> getAccessibilityProperty();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule>> getChecksProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Boolean> getEnableDateProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Boolean> getEnableTimeProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> getLabelProperty();
@@ -380,6 +395,7 @@ package androidx.a2ui.compose.ui.catalog {
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> getMinProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> getValueProperty();
     property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes> AccessibilityProperty;
+    property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule>> ChecksProperty;
     property public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Boolean> EnableDateProperty;
     property public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Boolean> EnableTimeProperty;
     property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> LabelProperty;
@@ -723,8 +739,8 @@ package androidx.a2ui.compose.ui.catalog {
   public static interface A2uiBasicCatalogV1.Slider extends androidx.a2ui.compose.ui.A2uiComponent {
     method @KotlinOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
     method @BytecodeOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String?, float, float, float, kotlin.jvm.functions.Function1<? super java.lang.Float!,kotlin.Unit!>, boolean, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes?, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String? label, float min, float max, float value, kotlin.jvm.functions.Function1<java.lang.Float,kotlin.Unit> onValueChange, boolean enabled, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes? accessibility, androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String?, float, float, float, kotlin.jvm.functions.Function1<? super java.lang.Float!,kotlin.Unit!>, boolean, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes?, java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule!>, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String? label, float min, float max, float value, kotlin.jvm.functions.Function1<java.lang.Float,kotlin.Unit> onValueChange, boolean enabled, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes? accessibility, java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule> checks, androidx.compose.ui.Modifier modifier);
     method @InaccessibleFromKotlin public default String getDescription();
     method @InaccessibleFromKotlin public default String getName();
     method @InaccessibleFromKotlin public default java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> getProperties();
@@ -736,11 +752,13 @@ package androidx.a2ui.compose.ui.catalog {
 
   public static final class A2uiBasicCatalogV1.Slider.Companion {
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes> getAccessibilityProperty();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule>> getChecksProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> getLabelProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Number> getMaxProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Number> getMinProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.Number> getValueProperty();
     property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes> AccessibilityProperty;
+    property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule>> ChecksProperty;
     property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> LabelProperty;
     property public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Number> MaxProperty;
     property public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Number> MinProperty;
@@ -823,8 +841,8 @@ package androidx.a2ui.compose.ui.catalog {
   public static interface A2uiBasicCatalogV1.TextField extends androidx.a2ui.compose.ui.A2uiComponent {
     method @KotlinOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
     method @BytecodeOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String, String?, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField.Variant, String?, kotlin.jvm.functions.Function1<? super java.lang.String!,kotlin.Unit!>, boolean, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes?, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String label, String? value, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField.Variant variant, String? validationRegexp, kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit> onValueChange, boolean enabled, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes? accessibility, androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String, String?, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField.Variant, String?, kotlin.jvm.functions.Function1<? super java.lang.String!,kotlin.Unit!>, boolean, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes?, java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule!>, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String label, String? value, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField.Variant variant, String? validationRegexp, kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit> onValueChange, boolean enabled, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes? accessibility, java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule> checks, androidx.compose.ui.Modifier modifier);
     method @InaccessibleFromKotlin public default String getDescription();
     method @InaccessibleFromKotlin public default String getName();
     method @InaccessibleFromKotlin public default java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> getProperties();
@@ -836,11 +854,13 @@ package androidx.a2ui.compose.ui.catalog {
 
   public static final class A2uiBasicCatalogV1.TextField.Companion {
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes> getAccessibilityProperty();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule>> getChecksProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> getLabelProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.String> getValidationRegexpProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> getValueProperty();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField.Variant> getVariantProperty();
     property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes> AccessibilityProperty;
+    property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.util.List<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckRule>> ChecksProperty;
     property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> LabelProperty;
     property public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.String> ValidationRegexpProperty;
     property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> ValueProperty;
