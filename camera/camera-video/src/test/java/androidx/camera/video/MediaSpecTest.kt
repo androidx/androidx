@@ -16,26 +16,20 @@
 
 package androidx.camera.video
 
-import android.os.Build
-import androidx.camera.testing.impl.AndroidUtil.isEmulator
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assume.assumeFalse
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.internal.DoNotInstrument
 
-@SmallTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(RobolectricTestRunner::class)
+@DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class MediaSpecTest {
 
     @Test
     fun newBuilder_containsCorrectDefaults() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         val mediaSpec = MediaSpec.builder().build()
 
         val defaultAudioSpec = AudioSpec.builder().build()
@@ -47,11 +41,6 @@ class MediaSpecTest {
 
     @Test
     fun canConfigureVideo_fromMediaSpecBuilder() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         val testFrameRate = 30
         val mediaSpec =
             MediaSpec.builder().configureVideo { it.setEncodeFrameRate(testFrameRate) }.build()
@@ -61,11 +50,6 @@ class MediaSpecTest {
 
     @Test
     fun canConfigureAudio_fromMediaSpecBuilder() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         val mediaSpec =
             MediaSpec.builder()
                 .configureAudio { it.setChannelCount(AudioSpec.CHANNEL_COUNT_STEREO) }

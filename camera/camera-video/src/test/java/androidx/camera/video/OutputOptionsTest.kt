@@ -20,23 +20,22 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.location.Location
-import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
-import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
-import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.io.File
-import org.junit.Assume.assumeFalse
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.internal.DoNotInstrument
 
-@SmallTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(RobolectricTestRunner::class)
+@DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class OutputOptionsTest {
 
     companion object {
@@ -48,11 +47,6 @@ class OutputOptionsTest {
 
     @Test
     fun canBuildFileOutputOptions() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         val savedFile = File.createTempFile("CameraX", ".tmp")
         savedFile.deleteOnExit()
 
@@ -65,11 +59,6 @@ class OutputOptionsTest {
 
     @Test
     fun canBuildMediaStoreOutputOptions() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         val context: Context = ApplicationProvider.getApplicationContext()
         val contentResolver: ContentResolver = context.contentResolver
         val fileName = "OutputOptionTest"
@@ -97,11 +86,6 @@ class OutputOptionsTest {
 
     @Test
     fun canBuildFileDescriptorOutputOptions() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         val savedFile = File.createTempFile("CameraX", ".tmp")
         savedFile.deleteOnExit()
         ParcelFileDescriptor.open(savedFile, ParcelFileDescriptor.MODE_READ_WRITE).use { pfd ->
@@ -115,11 +99,6 @@ class OutputOptionsTest {
 
     @Test
     fun mediaStore_builderContainsCorrectDefaults() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         val context: Context = ApplicationProvider.getApplicationContext()
         val contentResolver: ContentResolver = context.contentResolver
 
@@ -136,11 +115,6 @@ class OutputOptionsTest {
 
     @Test
     fun canBuildOutputOptions() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         val outputOptions =
             FakeOutputOptions.Builder()
                 .setFileSizeLimit(FILE_SIZE_LIMIT)
@@ -154,11 +128,6 @@ class OutputOptionsTest {
 
     @Test
     fun defaultValuesCorrect() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         val outputOptions = FakeOutputOptions.Builder().build()
 
         assertThat(outputOptions.location).isNull()
@@ -168,11 +137,6 @@ class OutputOptionsTest {
 
     @Test
     fun invalidFileSizeLimit_throwsException() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         assertThrows(IllegalArgumentException::class.java) {
             FakeOutputOptions.Builder().setFileSizeLimit(INVALID_FILE_SIZE_LIMIT)
         }
@@ -180,11 +144,6 @@ class OutputOptionsTest {
 
     @Test
     fun invalidDurationLimit_throwsException() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         assertThrows(IllegalArgumentException::class.java) {
             FakeOutputOptions.Builder().setDurationLimitMillis(INVALID_DURATION_LIMIT)
         }
@@ -192,11 +151,6 @@ class OutputOptionsTest {
 
     @Test
     fun setValidLocation() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         listOf(
                 createLocation(0.0, 0.0),
                 createLocation(90.0, 180.0),
@@ -214,11 +168,6 @@ class OutputOptionsTest {
 
     @Test
     fun setInvalidLocation() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         listOf(
                 createLocation(Double.NaN, 0.0),
                 createLocation(0.0, Double.NaN),
