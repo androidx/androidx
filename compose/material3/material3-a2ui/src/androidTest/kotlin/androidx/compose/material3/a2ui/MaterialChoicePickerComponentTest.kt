@@ -44,6 +44,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.v2.runComposeUiTest
+import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -338,6 +339,8 @@ class MaterialChoicePickerComponentTest {
         // Enter filter query "pine"
         onNode(hasSetTextAction()).performTextInput("pine")
         controller.waitForIdle()
+        waitForIdle()
+        closeSoftKeyboard()
 
         // Select Pineapple from menu -> selection updates and filter query clears
         onNodeWithText("Pineapple").performClick()
@@ -569,6 +572,8 @@ class MaterialChoicePickerComponentTest {
         // Type filter query "re"
         onNode(hasSetTextAction()).performTextInput("re")
         controller.waitForIdle()
+        waitForIdle()
+        closeSoftKeyboard()
 
         onNodeWithText("Red").assertIsDisplayed()
         onNodeWithText("Green").assertIsDisplayed()
@@ -669,6 +674,8 @@ class MaterialChoicePickerComponentTest {
         // Type filter query "app"
         onNode(hasSetTextAction()).performTextInput("app")
         controller.waitForIdle()
+        waitForIdle()
+        closeSoftKeyboard()
 
         onNodeWithText("Apple").assertIsDisplayed()
         onNodeWithText("Pineapple").assertIsDisplayed()
@@ -687,6 +694,8 @@ class MaterialChoicePickerComponentTest {
         // Clear filter query (onValueChange expands dropdown and restores all options)
         onNode(hasSetTextAction()).performTextReplacement("")
         controller.waitForIdle()
+        waitForIdle()
+        closeSoftKeyboard()
 
         onNodeWithText("Apple").assertIsDisplayed()
         onNodeWithText("Banana").assertIsDisplayed()
@@ -733,6 +742,8 @@ class MaterialChoicePickerComponentTest {
         // Filter with non-matching query
         onNode(hasSetTextAction()).performTextInput("xyz")
         controller.waitForIdle()
+        waitForIdle()
+        closeSoftKeyboard()
 
         onNodeWithText("Alpha").assertDoesNotExist()
         onNodeWithText("Beta").assertDoesNotExist()
@@ -772,6 +783,8 @@ class MaterialChoicePickerComponentTest {
         // Type filter query "xyz" -> no options visible
         onNode(hasSetTextAction()).performTextInput("xyz")
         controller.waitForIdle()
+        waitForIdle()
+        closeSoftKeyboard()
 
         onNodeWithText("Alpha").assertDoesNotExist()
 
@@ -819,6 +832,8 @@ class MaterialChoicePickerComponentTest {
             // Type filter query "app"
             onNode(hasSetTextAction()).performTextInput("app")
             controller.waitForIdle()
+            waitForIdle()
+            closeSoftKeyboard()
 
             // Select Apple from menu
             onNodeWithText("Apple").performClick()

@@ -129,13 +129,13 @@ internal object A2uiCoreDynamicEvaluatorImpl : A2uiCoreDynamicEvaluator {
             return true
         }
 
-        when (tryProcessPathNode(mapNode, dataPath, resultStack, executionContext)) {
+        when (tryProcessPathNode(mapNode, dataPath, workStack, resultStack, executionContext)) {
             PathNodeProcessingResult.PROCESSED -> return true
             PathNodeProcessingResult.FAILED -> return false
             PathNodeProcessingResult.NOT_MATCHED -> {}
         }
 
-        if (tryProcessCallNode(mapNode, workStack)) {
+        if (tryProcessCallNode(mapNode, workStack, executionContext)) {
             return true
         }
 
@@ -168,6 +168,7 @@ internal object A2uiCoreDynamicEvaluatorImpl : A2uiCoreDynamicEvaluator {
     private fun tryProcessPathNode(
         mapNode: Map<*, *>,
         dataPath: A2uiDataPath,
+        workStack: MutableList<Any?>,
         resultStack: MutableList<Any?>,
         executionContext: A2uiExecutionContext,
     ): PathNodeProcessingResult {
@@ -176,8 +177,17 @@ internal object A2uiCoreDynamicEvaluatorImpl : A2uiCoreDynamicEvaluator {
         if (path == null || mapNode.size != 1) return PathNodeProcessingResult.NOT_MATCHED
 
         val resolvedPath = dataPath / path
-        val result =
-            executionContext.resolveValue(resolvedPath) ?: return PathNodeProcessingResult.FAILED
+        val result = executionContext.resolveValue(resolvedPath)
+        // If a path cannot be resolved:
+        // - In plain properties (maps/lists) or functions requiring resolved arguments, evaluation
+        //   fails so the component can wait in a loading state until the data model is populated.
+        // - In functions that accept unresolved arguments (such as `required` opting in
+        //   via [A2uiFunctionDefinition.acceptsUnresolvedArguments]), null is pushed onto the
+        //   result stack and omitted from the evaluated arguments map passed to the function.
+        val parentFrame = workStack.lastOrNull { it is Frame } as? Frame
+        if (result == null && parentFrame?.acceptsUnresolvedArguments != true) {
+            return PathNodeProcessingResult.FAILED
+        }
         resultStack.add(result)
         return PathNodeProcessingResult.PROCESSED
     }
@@ -187,7 +197,11 @@ internal object A2uiCoreDynamicEvaluatorImpl : A2uiCoreDynamicEvaluator {
      * if processed.
      */
     @Suppress("UNCHECKED_CAST")
-    private fun tryProcessCallNode(mapNode: Map<String, *>, workStack: MutableList<Any?>): Boolean {
+    private fun tryProcessCallNode(
+        mapNode: Map<String, *>,
+        workStack: MutableList<Any?>,
+        executionContext: A2uiExecutionContext,
+    ): Boolean {
         val call = mapNode[KEY_CALL] as? String ?: return false
 
         for (key in mapNode.keys) {
@@ -206,12 +220,15 @@ internal object A2uiCoreDynamicEvaluatorImpl : A2uiCoreDynamicEvaluator {
             return false
         }
 
+        val acceptsUnresolvedArguments =
+            executionContext.getFunctionDefinition(call)?.acceptsUnresolvedArguments == true
+
         if (argsMap.isNullOrEmpty()) {
-            workStack.add(Frame(call, emptyArray()))
+            workStack.add(Frame(call, emptyArray(), acceptsUnresolvedArguments))
             return true
         }
         val keys = argsMap.keys.toTypedArray()
-        workStack.add(Frame(call, keys))
+        workStack.add(Frame(call, keys, acceptsUnresolvedArguments))
         for (i in keys.indices.reversed()) {
             workStack.add(argsMap[keys[i]])
         }
@@ -314,10 +331,14 @@ internal object A2uiCoreDynamicEvaluatorImpl : A2uiCoreDynamicEvaluator {
     }
 
     /**
-     * Scheduled function call waiting for execution. Tracks the function name [callName] and
-     * ordered argument parameter [keys].
+     * Scheduled function call waiting for execution. Tracks the function name [callName], ordered
+     * argument parameter [keys], and whether the function [acceptsUnresolvedArguments].
      */
-    private class Frame(val callName: String, val keys: Array<String>)
+    private class Frame(
+        val callName: String,
+        val keys: Array<String>,
+        val acceptsUnresolvedArguments: Boolean,
+    )
 
     /**
      * Scheduled plain map waiting for its values to be evaluated. Tracks the map
