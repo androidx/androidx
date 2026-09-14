@@ -18,11 +18,11 @@ final class androidx.appstate.statestore/StateStore { // androidx.appstate.state
 }
 
 open class <#A: kotlin/Any?> androidx.appstate.statestore/StateStoreKey { // androidx.appstate.statestore/StateStoreKey|null[0]
-    constructor <init>(#A, androidx.appstate.statestore/StateStoreKey<#A>? = ..., kotlin/Function1<androidx.appstate.statestore/StateStore, kotlin/Boolean> = ...) // androidx.appstate.statestore/StateStoreKey.<init>|<init>(1:0;androidx.appstate.statestore.StateStoreKey<1:0>?;kotlin.Function1<androidx.appstate.statestore.StateStore,kotlin.Boolean>){}[0]
+    constructor <init>(#A, androidx.appstate.statestore/StateStoreKey<*>? = ..., kotlin/Function1<androidx.appstate.statestore/StateStore, kotlin/Boolean> = ...) // androidx.appstate.statestore/StateStoreKey.<init>|<init>(1:0;androidx.appstate.statestore.StateStoreKey<*>?;kotlin.Function1<androidx.appstate.statestore.StateStore,kotlin.Boolean>){}[0]
     constructor <init>(kotlin/Int, #A?, kotlinx.serialization.internal/SerializationConstructorMarker?) // androidx.appstate.statestore/StateStoreKey.<init>|<init>(kotlin.Int;1:0?;kotlinx.serialization.internal.SerializationConstructorMarker?){}[0]
 
     final val autoClearKey // androidx.appstate.statestore/StateStoreKey.autoClearKey|{}autoClearKey[0]
-        final fun <get-autoClearKey>(): androidx.appstate.statestore/StateStoreKey<#A>? // androidx.appstate.statestore/StateStoreKey.autoClearKey.<get-autoClearKey>|<get-autoClearKey>(){}[0]
+        final fun <get-autoClearKey>(): androidx.appstate.statestore/StateStoreKey<*>? // androidx.appstate.statestore/StateStoreKey.autoClearKey.<get-autoClearKey>|<get-autoClearKey>(){}[0]
     final val defaultValue // androidx.appstate.statestore/StateStoreKey.defaultValue|{}defaultValue[0]
         final fun <get-defaultValue>(): #A // androidx.appstate.statestore/StateStoreKey.defaultValue.<get-defaultValue>|<get-defaultValue>(){}[0]
     final val shouldClearState // androidx.appstate.statestore/StateStoreKey.shouldClearState|{}shouldClearState[0]
