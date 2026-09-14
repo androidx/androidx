@@ -48,11 +48,11 @@ internal constructor(
         get() = remoteCanvas.creationState
 
     /** The width of the drawing area as a [RemoteFloat]. */
-    public val width: RemoteFloat
+    public open val width: RemoteFloat
         get() = remoteCanvas.remote.component.width
 
     /** The height of the drawing area as a [RemoteFloat]. */
-    public val height: RemoteFloat
+    public open val height: RemoteFloat
         get() = remoteCanvas.remote.component.height
 
     /** The center of the drawing area as a [RemoteOffset]. */

@@ -21,9 +21,15 @@ import androidx.compose.remote.creation.compose.capture.LocalRemoteDensity
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.modifier.DrawWithContentModifier
+import androidx.compose.remote.creation.compose.modifier.PaddingModifier
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.find
+import androidx.compose.remote.creation.compose.modifier.resolveBottom
+import androidx.compose.remote.creation.compose.modifier.resolveLeft
+import androidx.compose.remote.creation.compose.modifier.resolveRight
+import androidx.compose.remote.creation.compose.modifier.resolveTop
+import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.DisallowComposableCalls
@@ -48,13 +54,90 @@ internal abstract class RemoteComposeNode {
         remoteCanvas: RemoteCanvas,
         reversed: Boolean = false,
     ) {
-        val drawWithContent = modifier.find<DrawWithContentModifier>()
+        val scope = overriddenScope(creationState)
+        var drawWithContent: DrawWithContentModifier? = null
+        var paddingLeft: RemoteFloat? = null
+        var paddingTop: RemoteFloat? = null
+        var paddingRight: RemoteFloat? = null
+        var paddingBottom: RemoteFloat? = null
+
+        modifier.foldIn<Unit>(Unit) { _, element ->
+            if (drawWithContent != null) {
+                return@foldIn
+            }
+            if (element is DrawWithContentModifier) {
+                drawWithContent = element
+            } else if (element is PaddingModifier) {
+                val left = element.resolveLeft(scope)
+                val top = element.resolveTop(scope)
+                val right = element.resolveRight(scope)
+                val bottom = element.resolveBottom(scope)
+
+                if (left.constantValueOrNull != 0f) {
+                    paddingLeft = paddingLeft?.let { it + left } ?: left
+                }
+                if (top.constantValueOrNull != 0f) {
+                    paddingTop = paddingTop?.let { it + top } ?: top
+                }
+                if (right.constantValueOrNull != 0f) {
+                    paddingRight = paddingRight?.let { it + right } ?: right
+                }
+                if (bottom.constantValueOrNull != 0f) {
+                    paddingBottom = paddingBottom?.let { it + bottom } ?: bottom
+                }
+            }
+        }
 
         if (drawWithContent != null) {
-            val drawWithContentScope = RemoteContentDrawScope(remoteCanvas)
+            val contentWidthProvider =
+                if (paddingLeft != null || paddingRight != null) {
+                    {
+                        val totalHorizPadding =
+                            if (paddingLeft != null && paddingRight != null) {
+                                paddingLeft!! + paddingRight!!
+                            } else {
+                                paddingLeft ?: paddingRight!!
+                            }
+                        remoteCanvas.remote.component.width - totalHorizPadding
+                    }
+                } else {
+                    null
+                }
+
+            val contentHeightProvider =
+                if (paddingTop != null || paddingBottom != null) {
+                    {
+                        val totalVertPadding =
+                            if (paddingTop != null && paddingBottom != null) {
+                                paddingTop!! + paddingBottom!!
+                            } else {
+                                paddingTop ?: paddingBottom!!
+                            }
+                        remoteCanvas.remote.component.height - totalVertPadding
+                    }
+                } else {
+                    null
+                }
+
+            val hasOffset = paddingLeft != null || paddingTop != null
+            val drawWithContentScope =
+                RemoteContentDrawScope(
+                    remoteCanvas = remoteCanvas,
+                    contentWidth = contentWidthProvider,
+                    contentHeight = contentHeightProvider,
+                    paddingLeft = paddingLeft,
+                    paddingTop = paddingTop,
+                )
 
             creationState.document.startCanvasOperations()
+            if (hasOffset) {
+                remoteCanvas.save()
+                remoteCanvas.translate(paddingLeft ?: 0f.rf, paddingTop ?: 0f.rf)
+            }
             drawWithContent.onDraw(drawWithContentScope)
+            if (hasOffset) {
+                remoteCanvas.restore()
+            }
             remoteCanvas.flush()
             creationState.document.endCanvasOperations()
         }
