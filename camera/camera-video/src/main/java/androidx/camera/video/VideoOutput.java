@@ -149,7 +149,7 @@ public interface VideoOutput {
      */
     @RestrictTo(Scope.LIBRARY)
     default @NonNull Observable<MediaSpec> getMediaSpec() {
-        return ConstantObservable.withValue(null);
+        return ConstantObservable.withValue(MediaSpec.DEFAULT);
     }
 
     /**
