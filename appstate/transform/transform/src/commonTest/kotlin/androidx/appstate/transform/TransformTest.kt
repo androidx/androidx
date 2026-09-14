@@ -22,13 +22,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.kruth.assertThat
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class TransformTest {
+
+    @BeforeTest
+    fun setUp() {
+        TransformScope.isGlobalSnapshotManagerEnabled = false
+    }
+
+    @AfterTest
+    fun tearDown() {
+        TransformScope.isGlobalSnapshotManagerEnabled = true
+    }
 
     @Test
     fun testBasicTransform() = transformTest {
@@ -116,5 +131,61 @@ class TransformTest {
         flow3.value = 30
         advance()
         assertThat(state.value).isEqualTo(60)
+    }
+
+    @Test
+    fun testViewModelTransform() = transformTest {
+        val viewModel = HomeViewModel(backgroundScope, testDispatcher)
+
+        assertThat(viewModel.uiState.value)
+            .isEqualTo(HomeUiState(tracks = emptyList(), isOnline = false, currentTrackId = "none"))
+
+        viewModel.isOnline.value = true
+        advance()
+        assertThat(viewModel.uiState.value)
+            .isEqualTo(HomeUiState(tracks = emptyList(), isOnline = true, currentTrackId = "none"))
+
+        viewModel.tracksFlow.value = listOf("Track 1", "Track 2")
+        viewModel.currentTrackId.value = "track-1"
+        advance()
+        assertThat(viewModel.uiState.value)
+            .isEqualTo(
+                HomeUiState(
+                    tracks = listOf("Track 1", "Track 2"),
+                    isOnline = true,
+                    currentTrackId = "track-1",
+                )
+            )
+    }
+
+    private data class HomeUiState(
+        val tracks: List<String> = emptyList(),
+        val isOnline: Boolean = false,
+        val currentTrackId: String = "none",
+    )
+
+    private class HomeViewModel(
+        scope: CoroutineScope,
+        dispatcher: CoroutineDispatcher,
+    ) : ViewModel(scope) {
+        val tracksFlow = MutableStateFlow(emptyList<String>())
+        val isOnline = mutableStateOf(false)
+        val currentTrackId = mutableStateOf("none")
+
+        val uiState =
+            transform(
+                initialValue = HomeUiState(),
+                scope = viewModelScope,
+                dispatcher = dispatcher,
+            ) {
+                val tracks by tracksFlow.collectAsState()
+                val online by isOnline
+                val trackId by currentTrackId
+                HomeUiState(
+                    tracks = tracks,
+                    isOnline = online,
+                    currentTrackId = trackId,
+                )
+            }
     }
 }
