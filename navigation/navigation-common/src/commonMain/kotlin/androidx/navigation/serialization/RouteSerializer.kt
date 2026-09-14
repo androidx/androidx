@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+@file:OptIn(ExperimentalSerializationApi::class, InternalSerializationApi::class)
 
 package androidx.navigation.serialization
 
@@ -24,12 +24,14 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import kotlin.jvm.JvmName
 import kotlin.reflect.KType
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.descriptors.capturedKClass
+import kotlinx.serialization.internal.GeneratedSerializer
 import kotlinx.serialization.serializer
 
 /**
@@ -99,13 +101,14 @@ public fun <T> KSerializer<T>.generateNavArguments(
         )
     }
 
+    val childSerializers = (this as? GeneratedSerializer<T>)?.childSerializers()
     return List(descriptor.elementsCount) { index ->
         val name = descriptor.getElementName(index)
         navArgument(name) {
             val element = descriptor.getElementDescriptor(index)
             val isNullable = element.isNullable
             type =
-                element.computeNavType(typeMap)
+                element.computeNavType(typeMap, childSerializers?.get(index))
                     ?: throw IllegalArgumentException(
                         unknownNavTypeErrorMessage(
                             name,
@@ -161,10 +164,13 @@ private fun <T> KSerializer<T>.assertNotAbstractClass(handler: () -> Unit) {
  * 2. Match to a built-in NavType such as [NavType.IntType], [NavType.BoolArrayType] etc.
  */
 @Suppress("UNCHECKED_CAST")
-private fun SerialDescriptor.computeNavType(typeMap: Map<KType, NavType<*>>): NavType<Any?>? {
+private fun SerialDescriptor.computeNavType(
+    typeMap: Map<KType, NavType<*>>,
+    serializer: KSerializer<*>?,
+): NavType<Any?>? {
     val customType =
         typeMap.keys.find { kType -> matchKType(kType) }?.let { typeMap[it] } as? NavType<Any?>
-    val result = customType ?: getNavType()
+    val result = customType ?: getNavType(serializer)
     return if (result == UNKNOWN) null else result as NavType<Any?>
 }
 
@@ -182,11 +188,12 @@ private fun <T> KSerializer<T>.forEachIndexed(
     typeMap: Map<KType, NavType<*>> = emptyMap(),
     operation: (index: Int, argName: String, navType: NavType<Any?>) -> Unit,
 ) {
+    val childSerializers = (this as? GeneratedSerializer<T>)?.childSerializers()
     for (i in 0 until descriptor.elementsCount) {
         val argName = descriptor.getElementName(i)
 
         val navType =
-            descriptor.getElementDescriptor(i).computeNavType(typeMap)
+            descriptor.getElementDescriptor(i).computeNavType(typeMap, childSerializers?.get(i))
                 ?: throw IllegalArgumentException(
                     unknownNavTypeErrorMessage(
                         argName,

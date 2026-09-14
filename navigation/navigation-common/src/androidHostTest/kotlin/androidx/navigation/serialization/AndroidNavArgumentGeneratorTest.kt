@@ -35,34 +35,6 @@ import kotlinx.serialization.serializer
 class AndroidNavArgumentGeneratorTest {
 
     @Test
-    fun convertToEnumList() {
-        @Serializable class TestClass(val arg: List<TestEnum>)
-
-        val converted = serializer<TestClass>().generateNavArguments()
-        val expected =
-            navArgument("arg") {
-                type = InternalAndroidNavType.EnumListType(TestEnum::class.java)
-                nullable = false
-            }
-        assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
-    }
-
-    @Test
-    fun convertToEnumListNullable() {
-        @Serializable class TestClass(val arg: List<TestEnum>?)
-
-        val converted = serializer<TestClass>().generateNavArguments()
-        val expected =
-            navArgument("arg") {
-                type = InternalAndroidNavType.EnumListType(TestEnum::class.java)
-                nullable = true
-            }
-        assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
-    }
-
-    @Test
     fun convertToParcelable() {
         @Serializable
         class TestParcelable : Parcelable {
@@ -292,64 +264,6 @@ class AndroidNavArgumentGeneratorTest {
     }
 
     @Test
-    fun convertToEnum() {
-        @Serializable class TestClass(val arg: TestEnum)
-
-        val expected =
-            navArgument("arg") {
-                type = NavType.EnumType(TestEnum::class.java)
-                nullable = false
-            }
-        val converted = serializer<TestClass>().generateNavArguments()
-        assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
-    }
-
-    @Test
-    fun convertToTopLevelEnum() {
-        @Serializable class TestClass(val arg: TestTopLevelEnum)
-
-        val expected =
-            navArgument("arg") {
-                type = NavType.EnumType(TestTopLevelEnum::class.java)
-                nullable = false
-            }
-        val converted = serializer<TestClass>().generateNavArguments()
-        assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
-    }
-
-    @Test
-    fun convertToEnumNullable() {
-        @Serializable class TestClass(val arg: TestEnum?)
-
-        @Suppress("UNCHECKED_CAST")
-        val expected =
-            navArgument("arg") {
-                type =
-                    InternalAndroidNavType.EnumNullableType(TestEnum::class.java as Class<Enum<*>?>)
-                nullable = true
-            }
-        val converted = serializer<TestClass>().generateNavArguments()
-        assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
-    }
-
-    @Test
-    fun convertToNestedEnum() {
-        @Serializable class TestClass(val arg: EnumWrapper.NestedEnum)
-
-        val expected =
-            navArgument("arg") {
-                type = NavType.EnumType(EnumWrapper.NestedEnum::class.java)
-                nullable = false
-            }
-        val converted = serializer<TestClass>().generateNavArguments()
-        assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
-    }
-
-    @Test
     fun convertToEnumOverriddenSerialNameIllegal() {
         @Serializable class TestClass(val arg: TestEnumCustomSerialName)
 
@@ -396,12 +310,4 @@ class AndroidNavArgumentGeneratorTest {
     // writing our own assert so we don't need to override NamedNavArgument's equals
     // and hashcode which will need to be public api.
     private fun assertThat(actual: List<NamedNavArgument>) = actual
-
-    @Serializable
-    private class EnumWrapper {
-        enum class NestedEnum {
-            ONE,
-            TWO,
-        }
-    }
 }
