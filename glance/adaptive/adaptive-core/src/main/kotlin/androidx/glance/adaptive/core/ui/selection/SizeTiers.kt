@@ -17,8 +17,6 @@
 package androidx.glance.adaptive.core.ui.selection
 
 import androidx.annotation.RestrictTo
-import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.compositionLocalOf
 
 /**
  * Represents 2D container dimensions in density-independent pixels.
@@ -37,12 +35,6 @@ public class Dimensions(public val widthDp: Int, public val heightDp: Int) {
     override fun hashCode(): Int = 31 * widthDp + heightDp
 
     override fun toString(): String = "Dimensions(widthDp=$widthDp, heightDp=$heightDp)"
-}
-
-/** CompositionLocal providing current container [Dimensions] for local host layout resolution. */
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public val LocalContainerDimensions: ProvidableCompositionLocal<Dimensions> = compositionLocalOf {
-    Dimensions(0, 0)
 }
 
 /** Standardized horizontal size tiers representing canonical width breakpoint columns (W1..W4). */
