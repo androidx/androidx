@@ -1,0 +1,63 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.glance.adaptive.appwidget.ui.templates
+
+import androidx.annotation.RestrictTo
+import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
+import androidx.glance.adaptive.appwidget.ui.selection.from
+import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
+import androidx.glance.adaptive.core.ui.selection.HostConstraints
+import androidx.glance.adaptive.core.ui.selection.SizeTiers
+import androidx.glance.adaptive.core.ui.selection.WidthTier
+import androidx.glance.adaptive.core.ui.templates.TrackTemplate
+
+/**
+ * Resolves the [TrackArchetype] for a [TrackTemplate] on platform AppWidget surfaces.
+ *
+ * Track is width-driven: [WidthTier.W1] containers are too narrow for the standard layout and
+ * resolve to [TrackArchetype.THIN], everything wider resolves to [TrackArchetype.STANDARD]. Height
+ * does not participate.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public object TrackSizeSelector :
+    ArchetypeSelector<TrackTemplate, AppWidgetGlanceSurface, TrackArchetype> {
+
+    /**
+     * Selects the optimal [TrackArchetype] for [template] under [constraints].
+     *
+     * [template] does not currently influence the result, but is part of the contract and allows
+     * data-aware fallbacks (e.g. degrading when optional fields are absent) to be added without an
+     * API change.
+     *
+     * @param template The template data payload.
+     * @param constraints Container size in DP plus the target AppWidget surface, which decides
+     *   which breakpoints apply.
+     * @return Resolved [TrackArchetype].
+     */
+    override fun select(
+        template: TrackTemplate,
+        constraints: HostConstraints<AppWidgetGlanceSurface>,
+    ): TrackArchetype {
+        val sizeTiers = SizeTiers.from(constraints.dimensions, constraints.surface)
+        return when (sizeTiers.width) {
+            WidthTier.W1 -> TrackArchetype.THIN
+            WidthTier.W2,
+            WidthTier.W3,
+            WidthTier.W4 -> TrackArchetype.STANDARD
+        }
+    }
+}
