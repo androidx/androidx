@@ -17,6 +17,7 @@
 package androidx.glance.adaptive.appwidget.ui.templates
 
 import android.os.Build
+import androidx.annotation.DrawableRes
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
@@ -24,13 +25,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
+import androidx.glance.adaptive.appwidget.R
 import androidx.glance.adaptive.appwidget.ui.components.BarChartBlock
+import androidx.glance.adaptive.appwidget.ui.components.ContainedRingBlock
 import androidx.glance.adaptive.appwidget.ui.components.PrimaryValueBlock
 import androidx.glance.adaptive.appwidget.ui.components.ProgressRingBlock
 import androidx.glance.adaptive.appwidget.ui.components.SpecialBadgeBlock
 import androidx.glance.adaptive.appwidget.ui.components.SupportingValueBlock
+import androidx.glance.adaptive.appwidget.ui.components.TERTIARY_TEXT_SIZE_SP
 import androidx.glance.adaptive.appwidget.ui.components.TertiaryLabelBlock
 import androidx.glance.adaptive.appwidget.ui.components.TrackBar
+import androidx.glance.adaptive.appwidget.ui.components.estimateTextWidthDp
+import androidx.glance.adaptive.appwidget.ui.components.fitMetric
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
 import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
@@ -39,6 +45,7 @@ import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
@@ -46,6 +53,7 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.layout.size
 import androidx.glance.layout.width
 import androidx.glance.unit.ColorProvider
 
@@ -54,9 +62,6 @@ private val FallbackCornerRadius = 28.dp
 
 /** Height of the supporting row. */
 private val SupportingRowHeight = 24.dp
-
-/** Gap between the progress ring and the headline metric. */
-private val TitleSlotSpacing = 8.dp
 
 /**
  * Hero chart columns.
@@ -77,6 +82,19 @@ private val PlaceholderBars =
 
 /** Hero chart caption. Placeholder for the same reason as [PlaceholderBars]. */
 private val PlaceholderChartDescription = "7 Day Avg" to "13,843 steps"
+
+/**
+ * Glyph drawn inside the progress ring. Placeholder for the same reason as [PlaceholderBars].
+ *
+ * The design carries an icon in every ring, but which one is a property of the activity being
+ * tracked and so belongs to the payload, not the renderer.
+ *
+ * Declared with an explicit type and a getter because the docs build analyses these sources without
+ * the generated `R` class, and cannot infer a type it has to resolve `R` to find.
+ */
+@get:DrawableRes
+private val PlaceholderGlyph: Int
+    get() = R.drawable.glance_adaptive_appwidget_track_placeholder_steps_glyph
 
 /** Second supporting value. Placeholder for the same reason as [PlaceholderBars]. */
 private const val PLACEHOLDER_SECONDARY_STATUS = "3,118 to go"
@@ -139,12 +157,20 @@ public object TrackTemplateRenderer :
  *   supporting to the bottom edge and title to the top.
  * - **Title only**: the column centers it.
  *
+ * [TrackSlots.containedRing] is the one genuine exception, and the design draws it as such: the
+ * card gives way to a single ring with the metric inside it.
+ *
  * @param template The template data payload.
  * @param slots Which slots to emit, and at what size.
  */
 @Composable
 @VisibleForTesting
 internal fun TrackLayout(template: TrackTemplate, slots: TrackSlots) {
+    if (slots.containedRing) {
+        ContainedRingTrack(template, slots)
+        return
+    }
+
     Column(
         modifier =
             GlanceModifier.fillMaxSize()
@@ -181,6 +207,42 @@ internal fun TrackLayout(template: TrackTemplate, slots: TrackSlots) {
 }
 
 /**
+ * The shortest narrow breakpoint, where the widget *is* the progress ring.
+ *
+ * There is no card: a circle carries the ring, the glyph and the headline metric. The circle is
+ * sized to the container's shorter axis and centered, rather than drawn by rounding the widget's
+ * own bounds — an oblong box rounded to half its shorter axis keeps a flat run along its longer
+ * one, which reads as a circle with its top and bottom sliced off.
+ *
+ * @param template The template data payload.
+ * @param slots Which slots to emit, and at what size.
+ */
+@Composable
+private fun ContainedRingTrack(template: TrackTemplate, slots: TrackSlots) {
+    Box(
+        modifier = GlanceModifier.fillMaxSize().appWidgetBackground(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(
+            modifier =
+                GlanceModifier.size(slots.containedRingContainer)
+                    .background(GlanceTheme.colors.widgetBackground)
+                    .cornerRadius(slots.containedRingContainer / 2),
+            contentAlignment = Alignment.Center,
+        ) {
+            ContainedRingBlock(
+                progress = template.progress,
+                value =
+                    fitMetric(template.title, slots.primaryMaxWidth.value, slots.primaryTextSize),
+                size = slots.ringSize,
+                fontSize = slots.primaryTextSize,
+                iconRes = PlaceholderGlyph,
+            )
+        }
+    }
+}
+
+/**
  * Progress ring, headline metric and — where it fits — the trailing unit label.
  *
  * The same three blocks either way; [TrackSlots.stackTitle] only decides whether they run across or
@@ -192,27 +254,51 @@ private fun TitleSlot(template: TrackTemplate, slots: TrackSlots) {
     val showLabel = slots.showTertiary && label != null
 
     if (slots.stackTitle) {
+        // The label goes underneath here, so the metric keeps the whole content width.
+        val metric = fitMetric(template.title, slots.primaryMaxWidth.value, slots.primaryTextSize)
+
         Column(
             modifier = GlanceModifier.fillMaxWidth(),
             horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
         ) {
-            ProgressRingBlock(progress = template.progress, size = slots.ringSize)
+            ProgressRingBlock(
+                progress = template.progress,
+                size = slots.ringSize,
+                iconRes = PlaceholderGlyph,
+            )
             Spacer(GlanceModifier.height(TitleSlotSpacing))
-            PrimaryValueBlock(value = template.title, fontSize = slots.primaryTextSize)
+            PrimaryValueBlock(value = metric, fontSize = slots.primaryTextSize)
             if (showLabel) {
                 Spacer(GlanceModifier.height(TitleSlotSpacing))
                 TertiaryLabelBlock(label!!)
             }
         }
     } else {
+        val labelWidth =
+            if (showLabel) {
+                TitleSlotSpacing.value + estimateTextWidthDp(label!!, TERTIARY_TEXT_SIZE_SP)
+            } else {
+                0f
+            }
+        val metric =
+            fitMetric(
+                template.title,
+                slots.primaryMaxWidth.value - labelWidth,
+                slots.primaryTextSize,
+            )
+
         Row(
             modifier = GlanceModifier.fillMaxWidth().height(slots.ringSize),
             verticalAlignment = Alignment.Vertical.CenterVertically,
         ) {
-            ProgressRingBlock(progress = template.progress, size = slots.ringSize)
+            ProgressRingBlock(
+                progress = template.progress,
+                size = slots.ringSize,
+                iconRes = PlaceholderGlyph,
+            )
             Spacer(GlanceModifier.width(TitleSlotSpacing))
             PrimaryValueBlock(
-                value = template.title,
+                value = metric,
                 fontSize = slots.primaryTextSize,
                 modifier = GlanceModifier.defaultWeight(),
             )

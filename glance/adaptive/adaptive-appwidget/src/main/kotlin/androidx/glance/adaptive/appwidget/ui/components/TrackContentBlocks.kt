@@ -54,8 +54,24 @@ import kotlin.math.ceil
 /** Ratio of icon edge to ring edge, from the design's 30.5 dp glyph inside a 56 dp ring. */
 private const val RING_ICON_RATIO = 0.545f
 
+/**
+ * Ratio of icon edge to ring edge inside the contained ring, from the design's 16 dp glyph inside
+ * an 80 dp ring.
+ *
+ * Far smaller than [RING_ICON_RATIO] because here the glyph shares the ring with the metric rather
+ * than filling it alone.
+ */
+private const val CONTAINED_RING_ICON_RATIO = 0.2f
+
 /** Opacity of the unfilled remainder of the progress ring. */
 private const val RING_TRACK_ALPHA = 0.18f
+
+/**
+ * Type size of the unit label beside the headline metric.
+ *
+ * Shared rather than inlined because the metric's width budget has to deduct the label's run.
+ */
+internal const val TERTIARY_TEXT_SIZE_SP = 12f
 
 /** Opacity of a chart bar that has not reached its goal. */
 private const val BAR_MUTED_ALPHA = 0.35f
@@ -68,11 +84,19 @@ private const val BAR_MUTED_ALPHA = 0.35f
  */
 private const val MAX_CONTAINER_CHILDREN = 10
 
-/** Thickness of the progress ring. */
-private val RingStrokeWidth = 4.dp
+/**
+ * Ring thickness as a fraction of its diameter, from the design's 4 dp stroke on a 56 dp ring.
+ *
+ * The contained ring at the narrowest breakpoint is drawn far larger but keeps the same ratio, so
+ * the stroke is derived rather than fixed.
+ */
+private const val RING_STROKE_RATIO = 4f / 56f
 
 /** Fully rounded ends, matching the design's `rounded-[100px]` bars. */
 private val BarCornerRadius = 100.dp
+
+/** Gap between the contained ring's glyph and the metric beneath it. */
+private val ContainedRingIconSpacing = 2.dp
 
 /** Space between a chart bar and its axis label. */
 private val BarLabelSpacing = 4.dp
@@ -123,7 +147,7 @@ internal fun ProgressRingBlock(
     val progressColor = primary.toArgb()
     val trackColor = primary.copy(alpha = RING_TRACK_ALPHA).toArgb()
     val sizePx = (size.value * density).toInt()
-    val strokePx = RingStrokeWidth.value * density
+    val strokePx = size.value * RING_STROKE_RATIO * density
 
     val bitmap =
         remember(sizePx, strokePx, progress, trackColor, progressColor, containerColor) {
@@ -149,6 +173,82 @@ internal fun ProgressRingBlock(
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(GlanceTheme.colors.primary),
                 modifier = GlanceModifier.size(size * RING_ICON_RATIO),
+            )
+        }
+    }
+}
+
+/**
+ * The whole widget as one progress ring — the design's `Progress.Ring_Contained`.
+ *
+ * At the shortest narrow breakpoint there is no room to stack a ring above a metric, so the design
+ * drops the card and puts the metric *inside* a ring drawn at the container's full width. That
+ * makes this a different composition from [ProgressRingBlock] rather than a size of it: here the
+ * ring is the background and the content sits over it, so the two are kept separate.
+ *
+ * @param progress Normalized progress in `[0.0, 1.0]`, or `null` to draw an empty ring.
+ * @param value Headline metric drawn inside the ring.
+ * @param size Outer diameter of the ring.
+ * @param fontSize Type size of [value].
+ * @param modifier Modifier applied to the ring.
+ * @param iconRes Optional glyph drawn above [value], tinted with the primary color.
+ */
+@Composable
+internal fun ContainedRingBlock(
+    @FloatRange(from = 0.0, to = 1.0) progress: Float?,
+    value: String,
+    size: Dp,
+    fontSize: TextUnit,
+    modifier: GlanceModifier = GlanceModifier,
+    @DrawableRes iconRes: Int? = null,
+) {
+    val context = LocalContext.current
+    val density = context.resources.displayMetrics.density
+    val primary = GlanceTheme.colors.primary.getColor(context)
+    val containerColor = GlanceTheme.colors.widgetBackground.getColor(context).toArgb()
+    val progressColor = primary.toArgb()
+    val trackColor = primary.copy(alpha = RING_TRACK_ALPHA).toArgb()
+    val sizePx = (size.value * density).toInt()
+    val strokePx = size.value * RING_STROKE_RATIO * density
+
+    val bitmap =
+        remember(sizePx, strokePx, progress, trackColor, progressColor, containerColor) {
+            createProgressRingBitmap(
+                sizePx = sizePx,
+                strokeWidthPx = strokePx,
+                progress = progress,
+                trackColor = trackColor,
+                progressColor = progressColor,
+                containerColor = containerColor,
+            )
+        }
+
+    Box(modifier = modifier.size(size), contentAlignment = Alignment.Center) {
+        Image(
+            provider = ImageProvider(bitmap),
+            contentDescription = null,
+            modifier = GlanceModifier.size(size),
+        )
+        Column(horizontalAlignment = Alignment.Horizontal.CenterHorizontally) {
+            if (iconRes != null) {
+                Image(
+                    provider = ImageProvider(iconRes),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(GlanceTheme.colors.primary),
+                    modifier = GlanceModifier.size(size * CONTAINED_RING_ICON_RATIO),
+                )
+                Spacer(GlanceModifier.height(ContainedRingIconSpacing))
+            }
+            Text(
+                text = value,
+                maxLines = 1,
+                style =
+                    TextStyle(
+                        fontSize = fontSize,
+                        fontWeight = FontWeight.Bold,
+                        color = GlanceTheme.colors.primary,
+                        textAlign = TextAlign.Center,
+                    ),
             )
         }
     }
@@ -194,7 +294,7 @@ internal fun TertiaryLabelBlock(label: String, modifier: GlanceModifier = Glance
         modifier = modifier,
         style =
             TextStyle(
-                fontSize = 12.sp,
+                fontSize = TERTIARY_TEXT_SIZE_SP.sp,
                 fontWeight = FontWeight.Medium,
                 color = GlanceTheme.colors.primary,
                 textAlign = TextAlign.Center,

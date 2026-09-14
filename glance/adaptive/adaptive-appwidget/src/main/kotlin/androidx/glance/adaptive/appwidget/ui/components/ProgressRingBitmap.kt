@@ -34,9 +34,10 @@ private const val START_ANGLE_DEGREES = -90f
  * Largest bitmap edge, in pixels, the ring is rasterized at.
  *
  * RemoteViews ships bitmaps across Binder, so an oversized ring on a high density display is paid
- * for on every update. The ring is a 56 dp circle, which stays under this cap up to ~4x density.
+ * for on every update. The largest ring the design asks for is the contained one at the narrowest
+ * breakpoint, roughly 80 dp, which stays under this cap up to ~4x density.
  */
-@VisibleForTesting internal const val MAX_RING_SIZE_PX: Int = 256
+@VisibleForTesting internal const val MAX_RING_SIZE_PX: Int = 384
 
 /**
  * Rasterizes the determinate progress ring from the Track title slot.

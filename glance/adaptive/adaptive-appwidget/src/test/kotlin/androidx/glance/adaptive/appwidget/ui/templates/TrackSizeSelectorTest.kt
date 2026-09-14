@@ -43,9 +43,9 @@ class TrackSizeSelectorTest {
         )
 
     @Test
-    fun select_homeScreen_atW1Boundary_switchesAt130Dp() {
-        assertThat(selectOnHomeScreen(widthDp = 129).stackTitle).isTrue()
-        assertThat(selectOnHomeScreen(widthDp = 130).stackTitle).isFalse()
+    fun select_homeScreen_atW1Boundary_switchesAt132Dp() {
+        assertThat(selectOnHomeScreen(widthDp = 131).stackTitle).isTrue()
+        assertThat(selectOnHomeScreen(widthDp = 132).stackTitle).isFalse()
     }
 
     @Test
@@ -61,8 +61,8 @@ class TrackSizeSelectorTest {
     fun select_tabletHomeScreen_usesHomeScreenBreakpoints() {
         val surface = AppWidgetGlanceSurface.TABLET_HOME_SCREEN
 
-        assertThat(select(surface, widthDp = 129).stackTitle).isTrue()
-        assertThat(select(surface, widthDp = 130).stackTitle).isFalse()
+        assertThat(select(surface, widthDp = 131).stackTitle).isTrue()
+        assertThat(select(surface, widthDp = 132).stackTitle).isFalse()
     }
 
     @Test

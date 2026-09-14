@@ -113,16 +113,114 @@ class TrackSlotsTest {
 
     @Test
     fun headlineMetric_scalesWithWidth() {
-        assertThat(slotsAt(WidthTier.W1, HeightTier.H4).primaryTextSize).isEqualTo(18.sp)
+        assertThat(slotsAt(WidthTier.W1, HeightTier.H4).primaryTextSize).isEqualTo(20.sp)
         assertThat(slotsAt(WidthTier.W2, HeightTier.H4).primaryTextSize).isEqualTo(30.sp)
         assertThat(slotsAt(WidthTier.W3, HeightTier.H4).primaryTextSize).isEqualTo(30.sp)
         assertThat(slotsAt(WidthTier.W4, HeightTier.H4).primaryTextSize).isEqualTo(40.sp)
     }
 
     @Test
-    fun progressRing_shrinksSlightlyAtW1() {
-        assertThat(slotsAt(WidthTier.W1, HeightTier.H4).ringSize).isEqualTo(54.dp)
-        assertThat(slotsAt(WidthTier.W3, HeightTier.H4).ringSize).isEqualTo(56.dp)
+    fun progressRing_isTheSameSizeWhereverItSitsBesideContent() {
+        for (width in WidthTier.entries) {
+            for (height in listOf(HeightTier.H2, HeightTier.H3, HeightTier.H4)) {
+                assertThat(slotsAt(width, height).ringSize).isEqualTo(56.dp)
+            }
+        }
+    }
+
+    @Test
+    fun containedRing_isResolvedAtTheShortestNarrowTiers() {
+        assertThat(slotsAt(WidthTier.W1, HeightTier.H0).containedRing).isTrue()
+        assertThat(slotsAt(WidthTier.W1, HeightTier.H1).containedRing).isTrue()
+        assertThat(slotsAt(WidthTier.W1, HeightTier.H2).containedRing).isFalse()
+    }
+
+    @Test
+    fun containedRing_isNeverResolvedOnAWiderTier() {
+        for (width in listOf(WidthTier.W2, WidthTier.W3, WidthTier.W4)) {
+            for (height in HeightTier.entries) {
+                assertThat(slotsAt(width, height).containedRing).isFalse()
+            }
+        }
+    }
+
+    @Test
+    fun containedRing_fillsItsContainer() {
+        val slots = slotsAt(WidthTier.W1, HeightTier.H1)
+
+        // An 88x88 circle with the design's 4 dp inset on each side.
+        assertThat(slots.containedRingContainer).isEqualTo(88.dp)
+        assertThat(slots.ringSize).isEqualTo(80.dp)
+    }
+
+    @Test
+    fun containedRing_staysCircularInAnOblongContainer() {
+        // Both are bounded by the shorter axis, so neither can spill out of an oblong container —
+        // and the circle stays a circle rather than picking up a flat run along the longer axis.
+        val oblong = TrackSlots.from(SizeTiers(WidthTier.W1, HeightTier.H1), Dimensions(128, 96))
+
+        assertThat(oblong.containedRingContainer).isEqualTo(96.dp)
+        assertThat(oblong.ringSize).isEqualTo(88.dp)
+    }
+
+    @Test
+    fun containedRing_shrinksRatherThanOverflowAShortContainer() {
+        val short = TrackSlots.from(SizeTiers(WidthTier.W1, HeightTier.H0), Dimensions(88, 52))
+
+        assertThat(short.containedRingContainer).isEqualTo(52.dp)
+        assertThat(short.ringSize).isEqualTo(44.dp)
+    }
+
+    @Test
+    fun containedRingContainer_isUnsetWhereThereIsNoContainedRing() {
+        assertThat(slotsAt(WidthTier.W1, HeightTier.H4).containedRingContainer).isEqualTo(0.dp)
+        assertThat(slotsAt(WidthTier.W4, HeightTier.H4).containedRingContainer).isEqualTo(0.dp)
+    }
+
+    @Test
+    fun ringBesideTheMetric_shrinksToTheContentBoxRatherThanOverflowIt() {
+        // A launcher rarely hands over the design's exact row: this device reports the 88 dp row as
+        // 85 dp, which leaves 53 dp once 16 dp of padding comes off each side. A 56 dp ring would
+        // overflow and be clipped flat top and bottom, so it has to come down to the content box.
+        val cell = TrackSlots.from(SizeTiers(WidthTier.W3, HeightTier.H1), Dimensions(289, 85))
+
+        assertThat(cell.containedRing).isFalse()
+        assertThat(cell.ringSize).isEqualTo(53.dp)
+    }
+
+    @Test
+    fun ringAboveTheMetric_shrinksToTheContentWidthRatherThanOverflowIt() {
+        // Stacked, the ring is bounded by the width instead: an 88 dp column reported as 85 dp
+        // leaves 53 dp of content box, so a 56 dp ring would be clipped flat left and right.
+        val cell = TrackSlots.from(SizeTiers(WidthTier.W1, HeightTier.H3), Dimensions(85, 176))
+
+        assertThat(cell.stackTitle).isTrue()
+        assertThat(cell.ringSize).isEqualTo(53.dp)
+    }
+
+    @Test
+    fun ringBesideTheMetric_keepsItsNominalSizeWhereTheContentBoxAllowsIt() {
+        val roomy = TrackSlots.from(SizeTiers(WidthTier.W3, HeightTier.H2), Dimensions(264, 132))
+
+        assertThat(roomy.ringSize).isEqualTo(56.dp)
+    }
+
+    @Test
+    fun primaryMaxWidth_isBoundedByTheRingWhenTheMetricSitsInsideIt() {
+        // 80 dp ring, less the stroke either side.
+        assertThat(slotsAt(WidthTier.W1, HeightTier.H1).primaryMaxWidth).isEqualTo(68.8f.dp)
+    }
+
+    @Test
+    fun primaryMaxWidth_isTheWholeContentWidthWhenTheTitleStacks() {
+        // 88 dp wide less 16 dp padding either side; the unit label sits underneath, not beside.
+        assertThat(slotsAt(WidthTier.W1, HeightTier.H4).primaryMaxWidth).isEqualTo(56f.dp)
+    }
+
+    @Test
+    fun primaryMaxWidth_leavesRoomForTheRingWhenTheTitleRunsAcross() {
+        // 348 dp wide, less 20 dp padding either side, the 56 dp ring and the 8 dp gap after it.
+        assertThat(slotsAt(WidthTier.W4, HeightTier.H4).primaryMaxWidth).isEqualTo(244f.dp)
     }
 
     @Test

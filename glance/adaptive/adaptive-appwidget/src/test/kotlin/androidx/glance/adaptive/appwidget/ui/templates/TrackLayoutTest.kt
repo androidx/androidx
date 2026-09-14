@@ -48,7 +48,7 @@ class TrackLayoutTest {
 
     private val template =
         TrackTemplate(
-            title = "11,056",
+            title = "10K",
             subtitle = "Steps",
             progress = 0.55f,
             statusText = "55%",
@@ -58,7 +58,7 @@ class TrackLayoutTest {
     fun titleSlot_isAlwaysEmitted() = runGlanceAppWidgetUnitTest {
         provideComposable { Track(template, WidthTier.W2, HeightTier.H1) }
 
-        onNode(hasText("11,056")).assertExists()
+        onNode(hasText("10K")).assertExists()
     }
 
     @Test
@@ -146,7 +146,7 @@ class TrackLayoutTest {
         // of across, and at H4 it keeps both the unit label and a supporting value.
         provideComposable { Track(template, WidthTier.W1, HeightTier.H4) }
 
-        onNode(hasText("11,056")).assertExists()
+        onNode(hasText("10K")).assertExists()
         onNode(hasText("Steps")).assertExists()
         onNode(hasText("55%")).assertExists()
     }
@@ -156,6 +156,43 @@ class TrackLayoutTest {
         provideComposable { Track(template, WidthTier.W1, HeightTier.H4) }
 
         onAllNodes(hasTextEqualTo("W")).assertCountEquals(0)
+    }
+
+    @Test
+    fun containedRing_showsOnlyTheHeadlineMetric() = runGlanceAppWidgetUnitTest {
+        // The shortest narrow container is the ring plus the metric inside it, nothing else.
+        provideComposable { Track(template, WidthTier.W1, HeightTier.H1) }
+
+        onNode(hasText("10K")).assertExists()
+        onNode(hasText("Steps")).assertDoesNotExist()
+        onNode(hasText("55%")).assertDoesNotExist()
+    }
+
+    @Test
+    fun containedRing_composesWithoutATemplateProgressValue() = runGlanceAppWidgetUnitTest {
+        // An empty ring still has to rasterize, and the metric still has to render over it.
+        val bare = TrackTemplate(title = "0")
+
+        provideComposable { Track(bare, WidthTier.W1, HeightTier.H1) }
+
+        onNode(hasText("0")).assertExists()
+    }
+
+    @Test
+    fun headlineMetric_isAbbreviatedWhereTheBreakpointCannotHoldItWhole() {
+        val long = TrackTemplate(title = "11,056", subtitle = "Steps", progress = 0.55f)
+
+        runGlanceAppWidgetUnitTest {
+            provideComposable { Track(long, WidthTier.W1, HeightTier.H4) }
+
+            onNode(hasTextEqualTo("11K")).assertExists()
+        }
+
+        runGlanceAppWidgetUnitTest {
+            provideComposable { Track(long, WidthTier.W4, HeightTier.H4) }
+
+            onNode(hasTextEqualTo("11,056")).assertExists()
+        }
     }
 
     @Test

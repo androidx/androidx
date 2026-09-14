@@ -60,13 +60,13 @@ class TrackTemplateRendererTest {
 
     @Test
     fun render_resolvesSlotsFromContainer() {
-        // 320x260 dp on a home screen is the widest column and the second tallest row.
-        val tiers = SizeTiers.from(Dimensions(320, 260), AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+        // 348x176 dp is the design's widest column and second tallest row.
+        val tiers = SizeTiers.from(Dimensions(348, 176), AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
 
         assertThat(tiers).isEqualTo(SizeTiers(WidthTier.W4, HeightTier.H3))
 
-        val slots = TrackSizeSelector.select(template, constraints(widthDp = 320, heightDp = 260))
-        assertThat(slots).isEqualTo(TrackSlots.from(tiers, Dimensions(320, 260)))
+        val slots = TrackSizeSelector.select(template, constraints(widthDp = 348, heightDp = 176))
+        assertThat(slots).isEqualTo(TrackSlots.from(tiers, Dimensions(348, 176)))
         assertThat(slots.supportingCount).isEqualTo(3)
     }
 
