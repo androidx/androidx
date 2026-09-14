@@ -21,6 +21,9 @@ import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.runtime.math.BoundingBox
+import androidx.xr.runtime.math.FloatSize3d
+import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -329,11 +332,168 @@ class CustomMeshTest {
         val customMesh = builder.build()
 
         val newBounds =
-            androidx.xr.runtime.math.BoundingBox.fromCenterAndHalfExtents(
-                androidx.xr.runtime.math.Vector3(1f, 2f, 3f),
-                androidx.xr.runtime.math.FloatSize3d(4f, 5f, 6f),
-            )
+            BoundingBox.fromCenterAndHalfExtents(Vector3(1f, 2f, 3f), FloatSize3d(4f, 5f, 6f))
         customMesh.bounds = newBounds
         assertThat(customMesh.bounds).isEqualTo(newBounds)
+    }
+
+    @Test
+    fun meshBufferBuilder_withBounds_succeeds() {
+        val bounds =
+            BoundingBox.fromCenterAndHalfExtents(Vector3(1f, 2f, 3f), FloatSize3d(4f, 5f, 6f))
+        val customMesh =
+            CustomMesh.BuilderFromMeshBuffer(session, meshBuffer)
+                .addSubset(MeshSubsetTopology.TRIANGLES, 0, 3)
+                .setBounds(bounds)
+                .build()
+
+        assertThat(customMesh).isNotNull()
+    }
+
+    @Test
+    fun buildStatic_withNullVertexData_throwsException() {
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                CustomMesh.BuilderFromMeshData(session, vertexLayout).addVertexData(null)
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("Null vertex data is only allowed when constructing a dynamic mesh.")
+    }
+
+    @Test
+    fun buildStatic_withNullIndexData_throwsException() {
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                CustomMesh.BuilderFromMeshData(session, vertexLayout).setIndexData(null)
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("Null index data is only allowed when constructing a dynamic mesh.")
+    }
+
+    @Test
+    fun constructor_withNonPositiveMaxVertices_throwsException() {
+        val exceptionZero =
+            assertThrows(IllegalArgumentException::class.java) {
+                CustomMesh.BuilderFromMeshData(
+                    session,
+                    vertexLayout,
+                    maxVertices = 0,
+                    maxIndices = 10,
+                )
+            }
+        assertThat(exceptionZero).hasMessageThat().contains("maxVertices must be positive.")
+
+        val exceptionNegative =
+            assertThrows(IllegalArgumentException::class.java) {
+                CustomMesh.BuilderFromMeshData(
+                    session,
+                    vertexLayout,
+                    maxVertices = -1,
+                    maxIndices = 10,
+                )
+            }
+        assertThat(exceptionNegative).hasMessageThat().contains("maxVertices must be positive.")
+    }
+
+    @Test
+    fun constructor_withNonPositiveMaxIndices_throwsException() {
+        val exceptionZero =
+            assertThrows(IllegalArgumentException::class.java) {
+                CustomMesh.BuilderFromMeshData(
+                    session,
+                    vertexLayout,
+                    maxVertices = 10,
+                    maxIndices = 0,
+                )
+            }
+        assertThat(exceptionZero).hasMessageThat().contains("maxIndices must be positive.")
+
+        val exceptionNegative =
+            assertThrows(IllegalArgumentException::class.java) {
+                CustomMesh.BuilderFromMeshData(
+                    session,
+                    vertexLayout,
+                    maxVertices = 10,
+                    maxIndices = -1,
+                )
+            }
+        assertThat(exceptionNegative).hasMessageThat().contains("maxIndices must be positive.")
+    }
+
+    @Test
+    fun buildDynamic_withOmittedVertexAndIndexData_succeeds() {
+        val customMesh =
+            CustomMesh.BuilderFromMeshData(session, vertexLayout, maxVertices = 10, maxIndices = 30)
+                .setTopology(MeshSubsetTopology.TRIANGLES)
+                .build()
+
+        assertThat(customMesh.meshBuffer.meshUsage).isEqualTo(MeshBuffer.MeshUsage.DYNAMIC)
+        assertThat(customMesh.subsets).hasSize(1)
+        assertThat(customMesh.subsets[0].topology).isEqualTo(MeshSubsetTopology.TRIANGLES)
+        assertThat(customMesh.subsets[0].indexOffset).isEqualTo(0)
+        assertThat(customMesh.subsets[0].indexCount).isEqualTo(30)
+    }
+
+    @Test
+    fun buildDynamic_withTopology_succeeds() {
+        val customMesh =
+            CustomMesh.BuilderFromMeshData(session, vertexLayout, maxVertices = 10, maxIndices = 30)
+                .addVertexData(null)
+                .setIndexData(null)
+                .setTopology(MeshSubsetTopology.TRIANGLES)
+                .build()
+
+        assertThat(customMesh.meshBuffer.meshUsage).isEqualTo(MeshBuffer.MeshUsage.DYNAMIC)
+        assertThat(customMesh.subsets).hasSize(1)
+        assertThat(customMesh.subsets[0].topology).isEqualTo(MeshSubsetTopology.TRIANGLES)
+        assertThat(customMesh.subsets[0].indexOffset).isEqualTo(0)
+        assertThat(customMesh.subsets[0].indexCount).isEqualTo(30)
+    }
+
+    @Test
+    fun buildDynamic_withSubsets_succeeds() {
+        val customMesh =
+            CustomMesh.BuilderFromMeshData(session, vertexLayout, maxVertices = 10, maxIndices = 30)
+                .addVertexData(vertexBufferRegion)
+                .setIndexData(indexBufferRegion)
+                .addSubset(MeshSubsetTopology.TRIANGLES, 0, 3)
+                .build()
+
+        assertThat(customMesh.meshBuffer.meshUsage).isEqualTo(MeshBuffer.MeshUsage.DYNAMIC)
+        assertThat(customMesh.subsets).hasSize(1)
+        assertThat(customMesh.subsets[0].topology).isEqualTo(MeshSubsetTopology.TRIANGLES)
+        assertThat(customMesh.subsets[0].indexOffset).isEqualTo(0)
+        assertThat(customMesh.subsets[0].indexCount).isEqualTo(3)
+    }
+
+    @Test
+    fun buildDynamic_withInitialVertexDataExceedingCapacity_throwsException() {
+        val largeVertexBuffer = ByteBuffer.allocateDirect(24).order(ByteOrder.nativeOrder())
+        val builder =
+            CustomMesh.BuilderFromMeshData(session, vertexLayout, maxVertices = 1, maxIndices = 3)
+                .addVertexData(ByteBufferRegion(largeVertexBuffer, 0, 24))
+                .setIndexData(null)
+                .setTopology(MeshSubsetTopology.TRIANGLES)
+
+        val exception = assertThrows(IllegalStateException::class.java) { builder.build() }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("Provided initial dynamic vertex data exceeds maxVertices.")
+    }
+
+    @Test
+    fun buildDynamic_withInitialIndexDataExceedingCapacity_throwsException() {
+        val builder =
+            CustomMesh.BuilderFromMeshData(session, vertexLayout, maxVertices = 3, maxIndices = 1)
+                .addVertexData(null)
+                .setIndexData(indexBufferRegion)
+                .setTopology(MeshSubsetTopology.TRIANGLES)
+
+        val exception = assertThrows(IllegalStateException::class.java) { builder.build() }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("Provided initial dynamic index data exceeds maxIndices.")
     }
 }

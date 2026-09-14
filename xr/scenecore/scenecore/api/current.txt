@@ -163,16 +163,17 @@ package androidx.xr.scenecore {
 
   public static final class CustomMesh.BuilderFromMeshData {
     ctor public CustomMesh.BuilderFromMeshData(androidx.xr.runtime.Session session, androidx.xr.scenecore.VertexLayout vertexLayout);
+    ctor @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public CustomMesh.BuilderFromMeshData(androidx.xr.runtime.Session session, androidx.xr.scenecore.VertexLayout vertexLayout, @IntRange(from=1L) int maxVertices, @IntRange(from=1L) int maxIndices);
     method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData addSubset(androidx.xr.scenecore.MeshSubset subset);
     method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData addSubset(androidx.xr.scenecore.MeshSubsetTopology topology, @IntRange(from=0L) int indexOffset, @IntRange(from=0L) int indexCount);
-    method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData addVertexData(androidx.xr.scenecore.ByteBufferRegion vertexData);
+    method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData addVertexData(androidx.xr.scenecore.ByteBufferRegion? vertexData);
     method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData addVertexData(java.nio.ByteBuffer buffer);
     method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData addVertexData(java.nio.ByteBuffer buffer, optional @IntRange(from=0L) int offset);
     method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData addVertexData(java.nio.ByteBuffer buffer, optional @IntRange(from=0L) int offset, optional @IntRange(from=1L) int size);
     method @BytecodeOnly public static androidx.xr.scenecore.CustomMesh.BuilderFromMeshData! addVertexData$default(androidx.xr.scenecore.CustomMesh.BuilderFromMeshData!, java.nio.ByteBuffer!, int, int, int, Object!);
     method @MainThread public androidx.xr.scenecore.CustomMesh build();
     method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData setBounds(androidx.xr.runtime.math.BoundingBox bounds);
-    method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData setIndexData(androidx.xr.scenecore.ByteBufferRegion indexData);
+    method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData setIndexData(androidx.xr.scenecore.ByteBufferRegion? indexData);
     method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData setIndexData(java.nio.ByteBuffer buffer);
     method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData setIndexData(java.nio.ByteBuffer buffer, optional @IntRange(from=0L) int offset);
     method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData setIndexData(java.nio.ByteBuffer buffer, optional @IntRange(from=0L) int offset, optional @IntRange(from=1L) int size);
@@ -576,13 +577,39 @@ package androidx.xr.scenecore {
   public final class MeshBuffer implements java.lang.AutoCloseable {
     method @MainThread public void close();
     method @MainThread public static androidx.xr.scenecore.MeshBuffer create(androidx.xr.runtime.Session session, androidx.xr.scenecore.VertexLayout vertexLayout, java.util.List<androidx.xr.scenecore.ByteBufferRegion> vertexData, androidx.xr.scenecore.ByteBufferRegion indexData);
+    method @MainThread @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public static androidx.xr.scenecore.MeshBuffer createDynamic(androidx.xr.runtime.Session session, androidx.xr.scenecore.VertexLayout vertexLayout, @IntRange(from=1L) int vertexCount, @IntRange(from=1L) int indexCount);
+    method @MainThread @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public static androidx.xr.scenecore.MeshBuffer createDynamic(androidx.xr.runtime.Session session, androidx.xr.scenecore.VertexLayout vertexLayout, @IntRange(from=1L) int vertexCount, @IntRange(from=1L) int indexCount, optional java.util.List<androidx.xr.scenecore.ByteBufferRegion?>? vertexData);
+    method @MainThread @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public static androidx.xr.scenecore.MeshBuffer createDynamic(androidx.xr.runtime.Session session, androidx.xr.scenecore.VertexLayout vertexLayout, @IntRange(from=1L) int vertexCount, @IntRange(from=1L) int indexCount, optional java.util.List<androidx.xr.scenecore.ByteBufferRegion?>? vertexData, optional androidx.xr.scenecore.ByteBufferRegion? indexData);
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.MeshBuffer.MeshUsage getMeshUsage();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.VertexLayout getVertexLayout();
+    method @MainThread public void updateIndexData(androidx.xr.scenecore.ByteBufferRegion indexData);
+    method @MainThread public void updateIndexData(androidx.xr.scenecore.ByteBufferRegion indexData, optional @IntRange(from=0L) int offsetInBytes);
+    method @BytecodeOnly @MainThread public static void updateIndexData$default(androidx.xr.scenecore.MeshBuffer!, androidx.xr.scenecore.ByteBufferRegion!, int, int, Object!);
+    method @MainThread public void updateVertexData(@IntRange(from=0L) int bufferIndex, androidx.xr.scenecore.ByteBufferRegion vertexData);
+    method @MainThread public void updateVertexData(@IntRange(from=0L) int bufferIndex, androidx.xr.scenecore.ByteBufferRegion vertexData, optional @IntRange(from=0L) int offsetInBytes);
+    method @BytecodeOnly @MainThread public static void updateVertexData$default(androidx.xr.scenecore.MeshBuffer!, int, androidx.xr.scenecore.ByteBufferRegion!, int, int, Object!);
+    property public androidx.xr.scenecore.MeshBuffer.MeshUsage meshUsage;
     property public androidx.xr.scenecore.VertexLayout vertexLayout;
     field public static final androidx.xr.scenecore.MeshBuffer.Companion Companion;
   }
 
   public static final class MeshBuffer.Companion {
     method @MainThread public androidx.xr.scenecore.MeshBuffer create(androidx.xr.runtime.Session session, androidx.xr.scenecore.VertexLayout vertexLayout, java.util.List<androidx.xr.scenecore.ByteBufferRegion> vertexData, androidx.xr.scenecore.ByteBufferRegion indexData);
+    method @MainThread @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public androidx.xr.scenecore.MeshBuffer createDynamic(androidx.xr.runtime.Session session, androidx.xr.scenecore.VertexLayout vertexLayout, @IntRange(from=1L) int vertexCount, @IntRange(from=1L) int indexCount);
+    method @MainThread @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public androidx.xr.scenecore.MeshBuffer createDynamic(androidx.xr.runtime.Session session, androidx.xr.scenecore.VertexLayout vertexLayout, @IntRange(from=1L) int vertexCount, @IntRange(from=1L) int indexCount, optional java.util.List<androidx.xr.scenecore.ByteBufferRegion?>? vertexData);
+    method @MainThread @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public androidx.xr.scenecore.MeshBuffer createDynamic(androidx.xr.runtime.Session session, androidx.xr.scenecore.VertexLayout vertexLayout, @IntRange(from=1L) int vertexCount, @IntRange(from=1L) int indexCount, optional java.util.List<androidx.xr.scenecore.ByteBufferRegion?>? vertexData, optional androidx.xr.scenecore.ByteBufferRegion? indexData);
+    method @BytecodeOnly @MainThread @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public static androidx.xr.scenecore.MeshBuffer! createDynamic$default(androidx.xr.scenecore.MeshBuffer.Companion!, androidx.xr.runtime.Session!, androidx.xr.scenecore.VertexLayout!, int, int, java.util.List!, androidx.xr.scenecore.ByteBufferRegion!, int, Object!);
+  }
+
+  public static final class MeshBuffer.MeshUsage {
+    field public static final androidx.xr.scenecore.MeshBuffer.MeshUsage.Companion Companion;
+    field public static final androidx.xr.scenecore.MeshBuffer.MeshUsage DYNAMIC;
+    field public static final androidx.xr.scenecore.MeshBuffer.MeshUsage STATIC;
+  }
+
+  public static final class MeshBuffer.MeshUsage.Companion {
+    property public androidx.xr.scenecore.MeshBuffer.MeshUsage DYNAMIC;
+    property public androidx.xr.scenecore.MeshBuffer.MeshUsage STATIC;
   }
 
   public final class MeshEntity extends androidx.xr.scenecore.Entity {
