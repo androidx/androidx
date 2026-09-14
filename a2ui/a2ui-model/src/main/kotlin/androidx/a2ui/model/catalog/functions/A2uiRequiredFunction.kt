@@ -40,6 +40,8 @@ public class A2uiRequiredFunction private constructor() : A2uiFunction {
 
             override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.BOOLEAN
 
+            override val acceptsUnresolvedArguments: Boolean = true
+
             override val argumentSchema: A2uiSchema =
                 A2uiObjectSchema(
                     properties =
@@ -52,15 +54,18 @@ public class A2uiRequiredFunction private constructor() : A2uiFunction {
         }
 
     /**
-     * Checks if the value in [args] is present and not blank.
+     * Checks if the value in [args] is present and not empty.
      *
      * @param args arguments containing the "value" to check
      * @param executionContext context allowing to execute other functions, evaluate dynamic
      *   payloads and resolving data bindings
-     * @return true if the value is not null, not empty, and not blank
+     * @return true if the value is not missing, not null, and not empty
      */
     override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
-        val value = A2uiFunctionArgParser.getArg(args, ARG_VALUE_KEY) ?: return false
+        if (!args.containsKey(ARG_VALUE_KEY)) {
+            return false
+        }
+        val value = A2uiFunctionArgParser.getArg(args, ARG_VALUE_KEY)
         return when (value) {
             is CharSequence -> value.isNotEmpty()
             is Collection<*> -> value.isNotEmpty()

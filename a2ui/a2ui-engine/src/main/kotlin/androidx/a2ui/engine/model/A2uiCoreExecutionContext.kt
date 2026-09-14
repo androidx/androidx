@@ -70,6 +70,9 @@ internal class A2uiCoreExecutionContext(
         }
     }
 
+    override fun getFunctionDefinition(name: String): A2uiFunctionDefinition? =
+        catalog.functions[name]?.definition
+
     override fun resolveValue(path: A2uiDataPath): Any? = valueResolver.resolve(path)
 
     override fun <T : Any> getOrCreateFunctionScopedCache(
