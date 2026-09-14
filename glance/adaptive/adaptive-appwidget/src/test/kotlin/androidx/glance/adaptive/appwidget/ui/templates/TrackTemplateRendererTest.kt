@@ -16,19 +16,16 @@
 
 package androidx.glance.adaptive.appwidget.ui.templates
 
-import androidx.compose.runtime.AbstractApplier
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Composition
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Recomposer
 import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
-import androidx.glance.adaptive.appwidget.ui.selection.LocalContainerDimensions
+import androidx.glance.adaptive.appwidget.ui.selection.from
 import androidx.glance.adaptive.core.ui.selection.Dimensions
+import androidx.glance.adaptive.core.ui.selection.HeightTier
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
+import androidx.glance.adaptive.core.ui.selection.SizeTiers
+import androidx.glance.adaptive.core.ui.selection.WidthTier
 import androidx.glance.adaptive.core.ui.templates.TrackTemplate
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.Dispatchers
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,6 +35,9 @@ import org.robolectric.annotation.Config
 /**
  * Covers [TrackTemplateRenderer] as an implementation of the core rendering contract, and its
  * default wiring into [AppWidgetTemplateRegistry].
+ *
+ * The emitted hierarchy is covered by [TrackLayoutTest]; what matters here is that content is
+ * produced without composing, and that the slot plan handed to it matches the container.
  */
 @Config(sdk = [Config.TARGET_SDK])
 @RunWith(RobolectricTestRunner::class)
@@ -59,21 +59,15 @@ class TrackTemplateRendererTest {
     }
 
     @Test
-    fun render_producesDistinctContentPerArchetype() {
-        var thinRendered = false
-        var standardRendered = false
+    fun render_resolvesSlotsFromContainer() {
+        // 320x260 dp on a home screen is the widest column and the second tallest row.
+        val tiers = SizeTiers.from(Dimensions(320, 260), AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
 
-        runComposition {
-            TrackTemplateRenderer.Render(template, TrackArchetype.THIN)
-            thinRendered = true
-        }
-        runComposition {
-            TrackTemplateRenderer.Render(template, TrackArchetype.STANDARD)
-            standardRendered = true
-        }
+        assertThat(tiers).isEqualTo(SizeTiers(WidthTier.W4, HeightTier.H3))
 
-        assertThat(thinRendered).isTrue()
-        assertThat(standardRendered).isTrue()
+        val slots = TrackSizeSelector.select(template, constraints(widthDp = 320, heightDp = 260))
+        assertThat(slots).isEqualTo(TrackSlots.from(tiers, Dimensions(320, 260)))
+        assertThat(slots.supportingCount).isEqualTo(3)
     }
 
     @Test
@@ -83,39 +77,6 @@ class TrackTemplateRendererTest {
             .isSameInstanceAs(TrackTemplateRenderer)
     }
 
-    @Test
-    fun registryRender_composesForBothArchetypes() {
-        for (widthDp in listOf(120, 300)) {
-            runComposition {
-                CompositionLocalProvider(
-                    LocalContainerDimensions provides Dimensions(widthDp, 200)
-                ) {
-                    AppWidgetTemplateRegistry.render(
-                        template,
-                        AppWidgetGlanceSurface.MOBILE_HOME_SCREEN,
-                    )
-                }
-            }
-        }
-    }
-
     private fun constraints(widthDp: Int, heightDp: Int = 200) =
         HostConstraints(Dimensions(widthDp, heightDp), AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
-
-    private fun runComposition(content: @Composable () -> Unit) {
-        val applier =
-            object : AbstractApplier<Unit>(Unit) {
-                override fun insertTopDown(index: Int, instance: Unit) {}
-
-                override fun insertBottomUp(index: Int, instance: Unit) {}
-
-                override fun remove(index: Int, count: Int) {}
-
-                override fun move(from: Int, to: Int, count: Int) {}
-
-                override fun onClear() {}
-            }
-        val composition = Composition(applier, Recomposer(Dispatchers.Unconfined))
-        composition.setContent(content)
-    }
 }

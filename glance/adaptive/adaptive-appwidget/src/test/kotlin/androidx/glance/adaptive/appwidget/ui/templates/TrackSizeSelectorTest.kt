@@ -23,6 +23,15 @@ import androidx.glance.adaptive.core.ui.templates.TrackTemplate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
+/**
+ * Covers [TrackSizeSelector]'s own responsibility: mapping a container onto the breakpoints of its
+ * surface.
+ *
+ * Which slots each breakpoint then enables belongs to [TrackSlots] and is covered by
+ * [TrackSlotsTest]. The assertions here deliberately probe a single tier-sensitive property —
+ * [TrackSlots.stackTitle], which is on at `W1` and off everywhere else — so that they fail for a
+ * misplaced breakpoint rather than for a redesigned slot.
+ */
 class TrackSizeSelectorTest {
 
     private val template =
@@ -34,82 +43,63 @@ class TrackSizeSelectorTest {
         )
 
     @Test
-    fun select_homeScreen_w1_isThin() {
-        assertThat(selectOnHomeScreen(widthDp = 120)).isEqualTo(TrackArchetype.THIN)
-    }
-
-    @Test
-    fun select_homeScreen_w2AndWider_isStandard() {
-        assertThat(selectOnHomeScreen(widthDp = 180)).isEqualTo(TrackArchetype.STANDARD)
-        assertThat(selectOnHomeScreen(widthDp = 260)).isEqualTo(TrackArchetype.STANDARD)
-        assertThat(selectOnHomeScreen(widthDp = 400)).isEqualTo(TrackArchetype.STANDARD)
-    }
-
-    @Test
     fun select_homeScreen_atW1Boundary_switchesAt130Dp() {
-        assertThat(selectOnHomeScreen(widthDp = 129)).isEqualTo(TrackArchetype.THIN)
-        assertThat(selectOnHomeScreen(widthDp = 130)).isEqualTo(TrackArchetype.STANDARD)
+        assertThat(selectOnHomeScreen(widthDp = 129).stackTitle).isTrue()
+        assertThat(selectOnHomeScreen(widthDp = 130).stackTitle).isFalse()
     }
 
     @Test
     fun select_lockScreen_atW1Boundary_switchesAt100Dp() {
-        assertThat(select(AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN, widthDp = 99, heightDp = 50))
-            .isEqualTo(TrackArchetype.THIN)
-        assertThat(select(AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN, widthDp = 100, heightDp = 50))
-            .isEqualTo(TrackArchetype.STANDARD)
+        // The lock screen has its own, narrower breakpoints.
+        val surface = AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN
+
+        assertThat(select(surface, widthDp = 99, heightDp = 50).stackTitle).isTrue()
+        assertThat(select(surface, widthDp = 100, heightDp = 50).stackTitle).isFalse()
     }
 
     @Test
     fun select_tabletHomeScreen_usesHomeScreenBreakpoints() {
-        assertThat(select(AppWidgetGlanceSurface.TABLET_HOME_SCREEN, widthDp = 129))
-            .isEqualTo(TrackArchetype.THIN)
-        assertThat(select(AppWidgetGlanceSurface.TABLET_HOME_SCREEN, widthDp = 130))
-            .isEqualTo(TrackArchetype.STANDARD)
+        val surface = AppWidgetGlanceSurface.TABLET_HOME_SCREEN
+
+        assertThat(select(surface, widthDp = 129).stackTitle).isTrue()
+        assertThat(select(surface, widthDp = 130).stackTitle).isFalse()
     }
 
     @Test
-    fun select_isIndependentOfHeight() {
+    fun select_titleOrientation_isIndependentOfHeight() {
         for (heightDp in listOf(40, 90, 150, 250, 400)) {
-            assertThat(selectOnHomeScreen(widthDp = 100, heightDp = heightDp))
-                .isEqualTo(TrackArchetype.THIN)
-            assertThat(selectOnHomeScreen(widthDp = 300, heightDp = heightDp))
-                .isEqualTo(TrackArchetype.STANDARD)
+            assertThat(selectOnHomeScreen(widthDp = 100, heightDp = heightDp).stackTitle).isTrue()
+            assertThat(selectOnHomeScreen(widthDp = 300, heightDp = heightDp).stackTitle).isFalse()
         }
     }
 
     @Test
-    fun select_isIndependentOfOptionalData() {
-        val sparseTemplate = TrackTemplate(title = "Morning Run")
+    fun select_sizesHeroFromContainer_notFromTier() {
+        // Both are W4/H4, so a tier-only plan would size their charts identically.
+        val short = selectOnHomeScreen(widthDp = 360, heightDp = 300)
+        val tall = selectOnHomeScreen(widthDp = 360, heightDp = 420)
 
-        assertThat(
-                TrackSizeSelector.select(
-                    sparseTemplate,
-                    HostConstraints(
-                        Dimensions(100, 200),
-                        AppWidgetGlanceSurface.MOBILE_HOME_SCREEN,
-                    ),
-                )
-            )
-            .isEqualTo(TrackArchetype.THIN)
-        assertThat(
-                TrackSizeSelector.select(
-                    sparseTemplate,
-                    HostConstraints(
-                        Dimensions(300, 200),
-                        AppWidgetGlanceSurface.MOBILE_HOME_SCREEN,
-                    ),
-                )
-            )
-            .isEqualTo(TrackArchetype.STANDARD)
+        assertThat(tall.barMaxHeight).isGreaterThan(short.barMaxHeight)
+    }
+
+    @Test
+    fun select_isIndependentOfOptionalData() {
+        // Selection may consult the payload, but must not currently depend on it.
+        val sparseTemplate = TrackTemplate(title = "Morning Run")
+        val constraints =
+            HostConstraints(Dimensions(300, 200), AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+
+        assertThat(TrackSizeSelector.select(sparseTemplate, constraints))
+            .isEqualTo(TrackSizeSelector.select(template, constraints))
     }
 
     private fun select(
         surface: AppWidgetGlanceSurface,
         widthDp: Int,
         heightDp: Int = 200,
-    ): TrackArchetype =
+    ): TrackSlots =
         TrackSizeSelector.select(template, HostConstraints(Dimensions(widthDp, heightDp), surface))
 
-    private fun selectOnHomeScreen(widthDp: Int, heightDp: Int = 200): TrackArchetype =
+    private fun selectOnHomeScreen(widthDp: Int, heightDp: Int = 200): TrackSlots =
         select(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, widthDp, heightDp)
 }

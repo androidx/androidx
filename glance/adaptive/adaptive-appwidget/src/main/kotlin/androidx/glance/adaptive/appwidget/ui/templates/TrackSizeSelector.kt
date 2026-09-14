@@ -22,22 +22,21 @@ import androidx.glance.adaptive.appwidget.ui.selection.from
 import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.selection.SizeTiers
-import androidx.glance.adaptive.core.ui.selection.WidthTier
 import androidx.glance.adaptive.core.ui.templates.TrackTemplate
 
 /**
- * Resolves the [TrackArchetype] for a [TrackTemplate] on platform AppWidget surfaces.
+ * Resolves the [TrackSlots] layout plan for a [TrackTemplate] on platform AppWidget surfaces.
  *
- * Track is width-driven: [WidthTier.W1] containers are too narrow for the standard layout and
- * resolve to [TrackArchetype.THIN], everything wider resolves to [TrackArchetype.STANDARD]. Height
- * does not participate.
+ * Track has no family of archetypes to choose between: every breakpoint renders the same component
+ * with different slots turned on. The slot plan *is* the archetype, so selection reduces to mapping
+ * the container onto its breakpoints and asking [TrackSlots] what fits.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object TrackSizeSelector :
-    ArchetypeSelector<TrackTemplate, AppWidgetGlanceSurface, TrackArchetype> {
+    ArchetypeSelector<TrackTemplate, AppWidgetGlanceSurface, TrackSlots> {
 
     /**
-     * Selects the optimal [TrackArchetype] for [template] under [constraints].
+     * Selects the slot plan for [template] under [constraints].
      *
      * [template] does not currently influence the result, but is part of the contract and allows
      * data-aware fallbacks (e.g. degrading when optional fields are absent) to be added without an
@@ -46,18 +45,14 @@ public object TrackSizeSelector :
      * @param template The template data payload.
      * @param constraints Container size in DP plus the target AppWidget surface, which decides
      *   which breakpoints apply.
-     * @return Resolved [TrackArchetype].
+     * @return Resolved [TrackSlots].
      */
     override fun select(
         template: TrackTemplate,
         constraints: HostConstraints<AppWidgetGlanceSurface>,
-    ): TrackArchetype {
-        val sizeTiers = SizeTiers.from(constraints.dimensions, constraints.surface)
-        return when (sizeTiers.width) {
-            WidthTier.W1 -> TrackArchetype.THIN
-            WidthTier.W2,
-            WidthTier.W3,
-            WidthTier.W4 -> TrackArchetype.STANDARD
-        }
-    }
+    ): TrackSlots =
+        TrackSlots.from(
+            tiers = SizeTiers.from(constraints.dimensions, constraints.surface),
+            dimensions = constraints.dimensions,
+        )
 }

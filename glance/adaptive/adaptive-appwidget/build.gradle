@@ -36,6 +36,7 @@ dependencies {
     implementation(libs.kotlinCoroutinesCore)
     api("androidx.glance:glance-appwidget:1.1.1")
 
+    testImplementation(project(":glance:glance-appwidget-testing"))
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
