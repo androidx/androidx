@@ -69,7 +69,7 @@ import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
 import androidx.compose.remote.creation.compose.shaders.image
 import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
+import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createRotate
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.deltaFromReferenceInSeconds
@@ -4253,8 +4253,7 @@ class RcPlayerPrimitivesTest {
                                                         androidx.compose.ui.graphics.TileMode.Clamp,
                                                     )
                                                     .apply {
-                                                        remoteMatrix3x3 =
-                                                            RemoteMatrix3x3.createRotate(45f.rf)
+                                                        remoteMatrix3x3 = createRotate(45f.rf)
                                                     }
                                         }
                                 drawRect(

@@ -29,12 +29,12 @@ import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.border
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.height
-import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -46,6 +46,7 @@ import androidx.compose.remote.integration.demos.widget.listWidget
 import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
@@ -83,7 +84,7 @@ class ListActivity : ComponentActivity() {
 @Composable
 @Suppress("RestrictedApiAndroidX") // Referring to remote-player-view
 fun ScrollableList(name: String, modifier: RemoteModifier = RemoteModifier) {
-    val scrollState = rememberRemoteScrollState()
+    val scrollState = remember { RemoteScrollState() }
     RemoteColumn(
         modifier = modifier.verticalScroll(scrollState).background(Color.Yellow.rc),
         horizontalAlignment = RemoteAlignment.CenterHorizontally,
