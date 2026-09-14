@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.5.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha04)" variant="all" version="9.5.0-alpha04">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Navigator can only be called from within the same library group (referenced groupId=`androidx.navigation` from groupId=`androidx.`)"
+        errorLine1="    Navigator&lt;TestNavigator.Destination>(&quot;test&quot;) {"
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/nonAndroidMain/kotlin/androidx/testutils/TestNavigator.nonAndroid.kt"/>
+    </issue>
+
+</issues>

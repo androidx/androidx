@@ -1,5 +1,581 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.5.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha01)" variant="all" version="9.5.0-alpha01">
+<issues format="6" by="lint 9.5.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha04)" variant="all" version="9.5.0-alpha04">
+
+    <issue
+        id="LazyDelegate"
+        message="Using `by lazy` has high overhead. Instead, either always execute the initialization or use a nullable or other invalid value by default to detect that the value hasn&apos;t been initialized. If `lazy` is intended, then the `mode` parameter should always be passed."
+        errorLine1="    private val boundsInRoot: Rect by lazy { semanticsNode.boundsInRoot }"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/MultiModalInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="LazyDelegate"
+        message="Using `by lazy` has high overhead. Instead, either always execute the initialization or use a nullable or other invalid value by default to detect that the value hasn&apos;t been initialized. If `lazy` is intended, then the `mode` parameter should always be passed."
+        errorLine1="    override val visibleSize: IntSize by lazy {"
+        errorLine2="                                      ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/MultiModalInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    root.children.forEach { child ->"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Actions.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    root.children.forEach { child ->"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Actions.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    val matchingActions = actions.filter { labelPredicate(it.label) }"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Actions.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                missingProperties.joinToString { it.name }"
+        errorLine2="                                  ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Actions.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    val rootWithActivityFocus = roots.firstOrNull { it.hasFocusAndWindowFocus }"
+        errorLine2="                                      ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Actions.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    nodes.forEach {"
+        errorLine2="          ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Assertions.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    val matchedTextLayoutResults = textLayoutResults.filter { texts.contains(it.layoutInput.text) }"
+        errorLine2="                                                     ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/BoundsAssertions.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    for (textLayoutResult in matchedTextLayoutResults) {"
+        errorLine2="                          ~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/BoundsAssertions.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val link = text.getLinkAnnotations(0, text.length).firstOrNull(predicate)"
+        errorLine2="                                                           ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/BoundsAssertions.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                        val placeables = measurables.map { it.measure(constraints) }"
+        errorLine2="                                                     ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/DensityForcedSize.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                            placeables.forEach { it.placeRelative(0, 0) }"
+        errorLine2="                                       ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/DensityForcedSize.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val placeables = measurables.map { it.measure(constraints) }"
+        errorLine2="                                     ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/DensityForcedSize.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        layout(placeables.maxOf(Placeable::width), placeables.maxOf(Placeable::height)) {"
+        errorLine2="                          ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/DensityForcedSize.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        layout(placeables.maxOf(Placeable::width), placeables.maxOf(Placeable::height)) {"
+        errorLine2="                                                              ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/DensityForcedSize.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            placeables.forEach { it.placeRelative(0, 0) }"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/DensityForcedSize.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            it.config.getOrNull(SemanticsProperties.ContentDescription)?.any { item ->"
+        errorLine2="                                                                         ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Filters.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            it.config.getOrNull(SemanticsProperties.ContentDescription)?.any { item ->"
+        errorLine2="                                                                         ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Filters.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                it.config.getOrNull(Text)?.any { item -> item.text.contains(text, ignoreCase) }"
+        errorLine2="                                           ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Filters.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                it.config.getOrNull(Text)?.any { item -> item.text.equals(text, ignoreCase) }"
+        errorLine2="                                           ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Filters.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        node.config.getOrNull(Text)?.let { actual.addAll(it.map { anStr -> anStr.text }) }"
+        errorLine2="                                                            ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Filters.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        node.config.getOrNull(Text)?.let { actual.addAll(it.map { anStr -> anStr.text }) }"
+        errorLine2="                                                            ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Filters.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.parent?.run { matcher.matchesAny(this.children.filter { child -> child.id != node.id }) }"
+        errorLine2="                                                          ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Filters.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            busy.joinToString { &quot;\n- [busy] ${it.indentBy(&quot;         &quot;)}&quot; } +"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/jvmAndAndroidMain/kotlin/androidx/compose/ui/test/IdlingResourceRegistry.jvmAndAndroid.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            idle.joinToString { &quot;\n- [idle] $it&quot; } +"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/jvmAndAndroidMain/kotlin/androidx/compose/ui/test/IdlingResourceRegistry.jvmAndAndroid.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    require(keyTimes.all { it in validRange }) {"
+        errorLine2="                     ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/IndirectPointerInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    require(keyTimes.asSequence().zipWithNext { a, b -> a &lt;= b }.all { it }) {"
+        errorLine2="                     ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/IndirectPointerInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    curves.forEachIndexed { i, curve -> down(pointerId = i, position = curve(startTime)) }"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/IndirectPointerInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        historicalCoordinates.forEach { listOfPositions ->"
+        errorLine2="                              ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/IndirectPointerInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            listOfPositions.forEach { position -> validatePosition(position) }"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/IndirectPointerInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        fs.forEachIndexed { i, f -> updatePointerTo(i, f(t)) }"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/IndirectPointerInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    keys.forEach { keyDown(it) }"
+        errorLine2="         ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/KeyInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        keys.forEach { keyUp(it) }"
+        errorLine2="             ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/KeyInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    keys.forEachIndexed { idx: Int, key: Key ->"
+        errorLine2="         ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/KeyInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    val children = this.children.toList()"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Output.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    children.forEachIndexed { index, child ->"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Output.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    val sorted = config.toList().sortedBy { it.key.name }"
+        errorLine2="                                 ~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Output.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    for ((key, value) in sorted) {"
+        errorLine2="                      ~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Output.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        append(units.joinToString(separator = &quot;, &quot;))"
+        errorLine2="                     ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Output.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        append(actions.joinToString(separator = &quot;, &quot;))"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Output.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        return parent?.run { this.children.filter { it.id != node.id } } ?: emptyList()"
+        errorLine2="                                           ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Selectors.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            toRun.forEach { it(frameTime) }"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/jvmAndAndroidMain/kotlin/androidx/compose/ui/test/TestMonotonicFrameClock.jvmAndAndroid.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    require(keyTimes.all { it in validRange }) {"
+        errorLine2="                     ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    require(keyTimes.asSequence().zipWithNext { a, b -> a &lt;= b }.all { it }) {"
+        errorLine2="                     ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    curves.forEachIndexed { i, curve -> down(i, curve(startTime)) }"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        fs.forEachIndexed { i, f -> updatePointerTo(i, f(t)) }"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    require(keyTimes.all { it in validRange }) {"
+        errorLine2="                     ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TrackpadInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    require(keyTimes.asSequence().zipWithNext { a, b -> a &lt;= b }.all { it }) {"
+        errorLine2="                     ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TrackpadInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method enqueueTouchMoves has parameter relativeHistoricalTimes with type List&lt;Long>: replace with LongList"
+        errorLine1="        relativeHistoricalTimes: List&lt;Long>,"
+        errorLine2="                                 ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/InputDispatcher.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method enqueueMoves has parameter relativeHistoricalTimes with type List&lt;Long>: replace with LongList"
+        errorLine1="        relativeHistoricalTimes: List&lt;Long>,"
+        errorLine2="                                 ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/InputDispatcher.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field lastPositions with type Map&lt;Integer, Offset>: replace with IntLongMap"
+        errorLine1="    val lastPositions = mutableMapOf(Pair(pointerId, startPosition))"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/InputDispatcher.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;Integer, Offset> of getLastPositions: replace with IntLongMap"
+        errorLine1="    val lastPositions = mutableMapOf(Pair(pointerId, startPosition))"
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/InputDispatcher.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field pressedButtons with type Set&lt;Integer>: replace with IntSet"
+        errorLine1="    val pressedButtons: MutableSet&lt;Int> = mutableSetOf()"
+        errorLine2="                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/InputDispatcher.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Set&lt;Integer> of getPressedButtons: replace with IntSet"
+        errorLine1="    val pressedButtons: MutableSet&lt;Int> = mutableSetOf()"
+        errorLine2="                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/InputDispatcher.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field downKeys with type HashSet&lt;Key>: replace with LongSet"
+        errorLine1="    private val downKeys: HashSet&lt;Key> = hashSetOf()"
+        errorLine2="                          ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/InputDispatcher.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method withKeysDown has parameter keys with type List&lt;Key>: replace with LongList"
+        errorLine1="public fun KeyInjectionScope.withKeysDown(keys: List&lt;Key>, block: KeyInjectionScope.() -> Unit) {"
+        errorLine2="                                                ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/KeyInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method withKeysToggled has parameter keys with type List&lt;Key>: replace with LongList"
+        errorLine1="public fun KeyInjectionScope.withKeysToggled(keys: List&lt;Key>, block: KeyInjectionScope.() -> Unit) {"
+        errorLine2="                                                   ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/KeyInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method pressKeys has parameter keys with type List&lt;Key>: replace with LongList"
+        errorLine1="private fun KeyInjectionScope.pressKeys(keys: List&lt;Key>) ="
+        errorLine2="                                              ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/KeyInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method moveWithHistoryMultiPointer has parameter relativeHistoricalTimes with type List&lt;Long>: replace with LongList"
+        errorLine1="        relativeHistoricalTimes: List&lt;Long>,"
+        errorLine2="                                 ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method moveWithHistory has parameter relativeHistoricalTimes with type List&lt;Long>: replace with LongList"
+        errorLine1="        relativeHistoricalTimes: List&lt;Long>,"
+        errorLine2="                                 ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method moveWithHistory has parameter historicalCoordinates with type List&lt;Offset>: replace with LongList"
+        errorLine1="        historicalCoordinates: List&lt;Offset>,"
+        errorLine2="                               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method swipe has parameter keyTimes with type List&lt;Long>: replace with LongList"
+        errorLine1="    keyTimes: List&lt;Long> = emptyList(),"
+        errorLine2="              ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method multiTouchSwipe has parameter keyTimes with type List&lt;Long>: replace with LongList"
+        errorLine1="    keyTimes: List&lt;Long> = emptyList(),"
+        errorLine2="              ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
+    </issue>
 
     <issue
         id="KotlinRunTestResultUnused"

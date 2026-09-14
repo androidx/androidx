@@ -46,4 +46,49 @@
             file="src/commonMain/kotlin/androidx/compose/runtime/external/kotlinx/collections/immutable/extensions.kt"/>
     </issue>
 
+    <issue
+        id="PrimitiveInCollection"
+        message="return type ImmutableList&lt;Character> of toImmutableList: replace with IntList"
+        errorLine1="internal fun CharSequence.toImmutableList(): ImmutableList&lt;Char> = toPersistentList()"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/external/kotlinx/collections/immutable/extensions.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type PersistentList&lt;Character> of toPersistentList: replace with IntList"
+        errorLine1="internal fun CharSequence.toPersistentList(): PersistentList&lt;Char> ="
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/external/kotlinx/collections/immutable/extensions.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type PersistentSet&lt;Character> of toImmutableSet: replace with IntSet"
+        errorLine1="internal fun CharSequence.toImmutableSet(): PersistentSet&lt;Char> = toPersistentSet()"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/external/kotlinx/collections/immutable/extensions.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type PersistentSet&lt;Character> of toPersistentSet: replace with IntSet"
+        errorLine1="internal fun CharSequence.toPersistentSet(): PersistentSet&lt;Char> ="
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/external/kotlinx/collections/immutable/extensions.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type PersistentSet&lt;Character> of toPersistentHashSet: replace with IntSet"
+        errorLine1="internal fun CharSequence.toPersistentHashSet(): PersistentSet&lt;Char> ="
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/external/kotlinx/collections/immutable/extensions.kt"/>
+    </issue>
+
 </issues>
