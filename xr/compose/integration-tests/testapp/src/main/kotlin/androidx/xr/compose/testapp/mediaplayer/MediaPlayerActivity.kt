@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -68,11 +69,13 @@ class MediaPlayerActivity : ComponentActivity() {
     private fun VideoPlayerXR() {
         val context = LocalContext.current
         val videoUri = "file:///android_asset/videos/sample_video.mp4"
-        val mediaItem = MediaItem.fromUri(videoUri)
-        val player = ExoPlayer.Builder(context).build()
-        player.setMediaItem(mediaItem)
-        val playerView = PlayerView(context)
-        playerView.player = player
+        val mediaItem = remember(videoUri) { MediaItem.fromUri(videoUri) }
+        val player =
+            remember(context) {
+                ExoPlayer.Builder(context.applicationContext).build().apply {
+                    setMediaItem(mediaItem)
+                }
+            }
 
         LaunchedEffect(player) {
             player.prepare()
@@ -81,6 +84,19 @@ class MediaPlayerActivity : ComponentActivity() {
 
         DisposableEffect(player) { onDispose { player.release() } }
 
-        AndroidView(modifier = Modifier.fillMaxSize(), factory = { playerView })
+        AndroidView(
+            modifier = Modifier.fillMaxSize(),
+            factory = { ctx ->
+                PlayerView(ctx).apply {
+                    this.player = player
+                }
+            },
+            update = { playerView ->
+                playerView.player = player
+            },
+            onRelease = { playerView ->
+                playerView.player = null
+            },
+        )
     }
 }
