@@ -42,6 +42,7 @@ android {
 
 androidx {
     name = "XR Runtime Projected"
+    // This library is currently WIP and will be updated to PUBLISHED_LIBRARY when ready.
     type = SoftwareType.SNAPSHOT_ONLY_LIBRARY_WITH_API_TASKS
 
     inceptionYear = "2026"
