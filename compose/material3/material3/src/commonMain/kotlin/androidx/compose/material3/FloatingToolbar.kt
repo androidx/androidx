@@ -167,6 +167,8 @@ import kotlinx.coroutines.launch
  *   collapsed.
  * @param content the main content of this FloatingToolbar. The default layout here is a [Row], so
  *   content inside will be placed horizontally.
+ *
+ * @material3expressive
  */
 // TODO: b/520030940 - Upload image asset and reference here
 @Composable
@@ -269,6 +271,8 @@ public fun HorizontalFloatingToolbar(
  *   collapsed.
  * @param content the main content of this floating toolbar. The default layout here is a [Row], so
  *   content inside will be placed horizontally.
+ *
+ * @material3expressive
  */
 @Composable
 public fun HorizontalFloatingToolbar(
@@ -340,6 +344,8 @@ public fun HorizontalFloatingToolbar(
  *   collapsed.
  * @param content the main content of this FloatingToolbar. The default layout here is a [Column],
  *   so content inside will be placed vertically.
+ *
+ * @material3expressive
  */
 @Composable
 public fun VerticalFloatingToolbar(
@@ -434,6 +440,8 @@ public fun VerticalFloatingToolbar(
  *   collapsed.
  * @param content the main content of this floating toolbar. The default layout here is a [Column],
  *   so content inside will be placed vertically.
+ *
+ * @material3expressive
  */
 @Composable
 public fun VerticalFloatingToolbar(
