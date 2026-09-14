@@ -276,6 +276,8 @@ public fun SmallFloatingActionButton(
  *   preview the FAB in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
  * @param content the content of this FAB, typically an [Icon]
+ *
+ * @material3expressive
  */
 @Composable
 public fun MediumFloatingActionButton(
@@ -391,6 +393,8 @@ public fun LargeFloatingActionButton(
  *   preview the FAB in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
  * @param content the content of this FAB, typically a [Text] label
+ *
+ * @material3expressive
  */
 @Composable
 public fun SmallExtendedFloatingActionButton(
@@ -456,6 +460,8 @@ public fun SmallExtendedFloatingActionButton(
  *   preview the FAB in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
  * @param content the content of this FAB, typically a [Text] label
+ *
+ * @material3expressive
  */
 @Composable
 public fun MediumExtendedFloatingActionButton(
@@ -521,6 +527,8 @@ public fun MediumExtendedFloatingActionButton(
  *   preview the FAB in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
  * @param content the content of this FAB, typically a [Text] label
+ *
+ * @material3expressive
  */
 @Composable
 public fun LargeExtendedFloatingActionButton(
@@ -654,6 +662,8 @@ public fun ExtendedFloatingActionButton(
  *   emitting [Interaction]s for this FAB. You can use this to change the FAB's appearance or
  *   preview the FAB in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
+ *
+ * @material3expressive
  */
 @Composable
 public fun SmallExtendedFloatingActionButton(
@@ -721,6 +731,8 @@ public fun SmallExtendedFloatingActionButton(
  *   emitting [Interaction]s for this FAB. You can use this to change the FAB's appearance or
  *   preview the FAB in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
+ *
+ * @material3expressive
  */
 @Composable
 public fun MediumExtendedFloatingActionButton(
@@ -788,6 +800,8 @@ public fun MediumExtendedFloatingActionButton(
  *   emitting [Interaction]s for this FAB. You can use this to change the FAB's appearance or
  *   preview the FAB in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
+ *
+ * @material3expressive
  */
 @Composable
 public fun LargeExtendedFloatingActionButton(
