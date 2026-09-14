@@ -47,8 +47,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -886,17 +884,10 @@ fun SwipeToRevealWithTransformingLazyColumnDemo() {
                     )
                 },
                 onSwipePrimaryAction = { messages.remove(message) },
+                transformation = SurfaceTransformation(transformationSpec),
                 modifier =
                     Modifier.transformedHeight(this@items, transformationSpec)
                         .animateItem()
-                        .graphicsLayer {
-                            with(transformationSpec) {
-                                applyContainerTransformation(scrollProgress)
-                            }
-                            // Is needed to disable clipping.
-                            compositingStrategy = CompositingStrategy.ModulateAlpha
-                            clip = false
-                        }
                         .minimumVerticalContentPadding(
                             ButtonDefaults.minimumVerticalListContentPadding
                         ),
@@ -968,17 +959,10 @@ fun SwipeToRevealTwoActionsWithTransformingLazyColumnDemo(
                         icon = { Icon(Icons.Outlined.MoreVert, contentDescription = "More") },
                     )
                 },
+                transformation = SurfaceTransformation(transformationSpec),
                 modifier =
                     Modifier.transformedHeight(this@items, transformationSpec)
                         .animateItem()
-                        .graphicsLayer {
-                            with(transformationSpec) {
-                                applyContainerTransformation(scrollProgress)
-                            }
-                            // Is needed to disable clipping.
-                            compositingStrategy = CompositingStrategy.ModulateAlpha
-                            clip = false
-                        }
                         .minimumVerticalContentPadding(
                             ButtonDefaults.minimumVerticalListContentPadding
                         ),
@@ -1099,17 +1083,10 @@ fun SwipeToRevealCustomDragDemo() {
                         text = { Text("Undo Delete") },
                     )
                 },
+                transformation = SurfaceTransformation(transformationSpec),
                 modifier =
                     Modifier.transformedHeight(this@item, transformationSpec)
                         .animateItem()
-                        .graphicsLayer {
-                            with(transformationSpec) {
-                                applyContainerTransformation(scrollProgress)
-                            }
-                            // Is needed to disable clipping.
-                            compositingStrategy = CompositingStrategy.ModulateAlpha
-                            clip = false
-                        }
                         .minimumVerticalContentPadding(
                             ButtonDefaults.minimumVerticalListContentPadding
                         ),
@@ -1209,17 +1186,10 @@ fun SwipeToRevealIconOnlyWithTransformingLazyColumnDemo() {
                     )
                 },
                 onSwipePrimaryAction = { messages.remove(message) },
+                transformation = SurfaceTransformation(transformationSpec),
                 modifier =
                     Modifier.transformedHeight(this@items, transformationSpec)
                         .animateItem()
-                        .graphicsLayer {
-                            with(transformationSpec) {
-                                applyContainerTransformation(scrollProgress)
-                            }
-                            // Is needed to disable clipping.
-                            compositingStrategy = CompositingStrategy.ModulateAlpha
-                            clip = false
-                        }
                         .minimumVerticalContentPadding(
                             CardDefaults.minimumVerticalListContentPadding
                         ),
@@ -1321,16 +1291,9 @@ fun SwipeToRevealWithTransformingLazyColumnExpansionAndDeletionDemo() {
                     }
                     messages.remove(message)
                 },
+                transformation = SurfaceTransformation(transformationSpec),
                 modifier =
                     Modifier.transformedHeight(this@items, transformationSpec)
-                        .graphicsLayer {
-                            with(transformationSpec) {
-                                applyContainerTransformation(scrollProgress)
-                            }
-                            // Is needed to disable clipping.
-                            compositingStrategy = CompositingStrategy.ModulateAlpha
-                            clip = false
-                        }
                         .animateItem()
                         .minimumVerticalContentPadding(
                             CardDefaults.minimumVerticalListContentPadding

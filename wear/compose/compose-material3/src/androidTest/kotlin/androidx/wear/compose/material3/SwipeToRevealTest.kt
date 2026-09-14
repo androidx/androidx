@@ -20,6 +20,7 @@ import android.app.Activity
 import androidx.activity.ComponentActivity
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -46,6 +47,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.GraphicsLayerScope
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -2186,6 +2190,38 @@ class SwipeToRevealTest {
         actions?.invoke(revealStateOne, revealStateTwo, density)
 
         rule.runOnIdle { assertions(revealStateOne, revealStateTwo) }
+    }
+
+    @Test
+    fun appliesContainerTransformationWhenProvided() {
+        var transformationCalled = false
+        val testTransformation =
+            object : SurfaceTransformation {
+                override fun createContainerPainter(
+                    painter: Painter,
+                    shape: Shape,
+                    border: BorderStroke?,
+                ): Painter = painter
+
+                override fun GraphicsLayerScope.applyContentTransformation() {}
+
+                override fun GraphicsLayerScope.applyContainerTransformation() {
+                    transformationCalled = true
+                }
+            }
+
+        rule.setContent {
+            SwipeToReveal(
+                primaryAction = { DefaultPrimaryActionButton() },
+                onSwipePrimaryAction = {},
+                transformation = testTransformation,
+            ) {
+                DefaultContent()
+            }
+        }
+
+        rule.waitForIdle()
+        assertTrue(transformationCalled)
     }
 
     @Composable
