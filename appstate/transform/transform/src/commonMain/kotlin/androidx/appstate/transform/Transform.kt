@@ -50,7 +50,7 @@ public fun <R> transform(
     initialValue: R,
     scope: CoroutineScope,
     dispatcher: CoroutineDispatcher = Dispatchers.Default,
-    onUpdate: @Composable () -> R,
+    onUpdate: @Composable (R) -> R,
 ): State<R> {
     GlobalSnapshotManager.ensureStarted(dispatcher)
     // TODO: Figure out the appropriate frame clock
@@ -70,7 +70,7 @@ public fun <R> transform(
 
     val state = mutableStateOf(initialValue)
 
-    composition.setContent { state.value = onUpdate() }
+    composition.setContent { state.value = onUpdate(state.value) }
 
     return state
 }
@@ -89,7 +89,7 @@ public fun <R> transform(
 public fun <R> transform(
     initialValue: R,
     dispatcher: CoroutineDispatcher = Dispatchers.Default,
-    onUpdate: @Composable () -> R,
+    onUpdate: @Composable (R) -> R,
 ): State<R> {
     val scope = rememberCoroutineScope()
     return remember(scope) { transform(initialValue, scope, dispatcher, onUpdate) }
