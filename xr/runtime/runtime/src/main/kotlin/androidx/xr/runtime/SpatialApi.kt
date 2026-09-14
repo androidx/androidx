@@ -81,7 +81,12 @@ public object SpatialApiVersions {
  * ```
  */
 @Retention(AnnotationRetention.RUNTIME)
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY,
+    AnnotationTarget.CLASS,
+    AnnotationTarget.CONSTRUCTOR,
+)
 public annotation class RequiresSpatialApi(
     /**
      * The minimum Spatial API version required. The value should be one of the constants from

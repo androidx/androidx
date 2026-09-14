@@ -230,6 +230,8 @@ constructor(
         }
     }
 
+    internal val byteStride: Int
+
     init {
         require(attributes.isNotEmpty()) {
             "VertexBufferLayout must contain at least one attribute."
@@ -263,6 +265,7 @@ constructor(
             "stride ($stride) must be at least the minimum byte stride required to " +
                 "encompass all attributes in the buffer ($minRequiredStride)."
         }
+        byteStride = if (stride == AUTO_STRIDE) minRequiredStride else stride
     }
 
     override fun equals(other: Any?): Boolean {

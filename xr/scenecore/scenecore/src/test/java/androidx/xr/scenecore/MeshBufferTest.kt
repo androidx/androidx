@@ -117,4 +117,332 @@ class MeshBufferTest {
             }
         assertThat(exception).hasMessageThat().contains("indexData must be non-empty")
     }
+
+    @Test
+    fun create_withValidArguments_createsStaticMeshBuffer() {
+        val vertexBuffer1 = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+        val vertexBuffer2 = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+        val indexBuffer = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+
+        val meshBuffer =
+            MeshBuffer.create(
+                session,
+                vertexLayout,
+                listOf(
+                    ByteBufferRegion(vertexBuffer1, 0, 12),
+                    ByteBufferRegion(vertexBuffer2, 0, 12),
+                ),
+                ByteBufferRegion(indexBuffer, 0, 12),
+            )
+
+        assertThat(meshBuffer.meshUsage).isEqualTo(MeshBuffer.MeshUsage.STATIC)
+        assertThat(meshBuffer.vertexLayout).isEqualTo(vertexLayout)
+    }
+
+    @Test
+    fun createDynamic_withPositiveCounts_createsDynamicMeshBuffer() {
+        val meshBuffer =
+            MeshBuffer.createDynamic(
+                session = session,
+                vertexLayout = vertexLayout,
+                vertexCount = 10,
+                indexCount = 30,
+            )
+
+        assertThat(meshBuffer.meshUsage).isEqualTo(MeshBuffer.MeshUsage.DYNAMIC)
+        assertThat(meshBuffer.vertexLayout).isEqualTo(vertexLayout)
+    }
+
+    @Test
+    fun createDynamic_withInitialData_succeeds() {
+        val vertexBuffer = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+        val indexBuffer = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+
+        val meshBuffer =
+            MeshBuffer.createDynamic(
+                session = session,
+                vertexLayout = vertexLayout,
+                vertexCount = 10,
+                indexCount = 30,
+                vertexData = listOf(ByteBufferRegion(vertexBuffer, 0, 12), null),
+                indexData = ByteBufferRegion(indexBuffer, 0, 12),
+            )
+
+        assertThat(meshBuffer.meshUsage).isEqualTo(MeshBuffer.MeshUsage.DYNAMIC)
+    }
+
+    @Test
+    fun createDynamic_withNonPositiveVertexCount_throwsException() {
+        val exceptionZero =
+            assertThrows(IllegalArgumentException::class.java) {
+                MeshBuffer.createDynamic(session, vertexLayout, vertexCount = 0, indexCount = 10)
+            }
+        assertThat(exceptionZero).hasMessageThat().contains("vertexCount must be positive")
+
+        val exceptionNegative =
+            assertThrows(IllegalArgumentException::class.java) {
+                MeshBuffer.createDynamic(session, vertexLayout, vertexCount = -1, indexCount = 10)
+            }
+        assertThat(exceptionNegative).hasMessageThat().contains("vertexCount must be positive")
+    }
+
+    @Test
+    fun createDynamic_withNonPositiveIndexCount_throwsException() {
+        val exceptionZero =
+            assertThrows(IllegalArgumentException::class.java) {
+                MeshBuffer.createDynamic(session, vertexLayout, vertexCount = 10, indexCount = 0)
+            }
+        assertThat(exceptionZero).hasMessageThat().contains("indexCount must be positive")
+
+        val exceptionNegative =
+            assertThrows(IllegalArgumentException::class.java) {
+                MeshBuffer.createDynamic(session, vertexLayout, vertexCount = 10, indexCount = -1)
+            }
+        assertThat(exceptionNegative).hasMessageThat().contains("indexCount must be positive")
+    }
+
+    @Test
+    fun createDynamic_withMismatchedVertexDataSize_throwsException() {
+        val vertexBuffer = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                MeshBuffer.createDynamic(
+                    session = session,
+                    vertexLayout = vertexLayout,
+                    vertexCount = 10,
+                    indexCount = 30,
+                    vertexData = listOf(ByteBufferRegion(vertexBuffer, 0, 12)),
+                )
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("vertexData size must match the number of buffers in VertexLayout.")
+    }
+
+    @Test
+    fun updateVertexData_onDynamicMeshBuffer_succeeds() {
+        val meshBuffer =
+            MeshBuffer.createDynamic(
+                session = session,
+                vertexLayout = vertexLayout,
+                vertexCount = 10,
+                indexCount = 30,
+            )
+        val updateBuffer = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+        val region = ByteBufferRegion(updateBuffer, 0, 12)
+
+        meshBuffer.updateVertexData(0, region, 0)
+        meshBuffer.updateVertexData(1, region, 12)
+    }
+
+    @Test
+    fun updateVertexData_onStaticMeshBuffer_throwsException() {
+        val vertexBuffer1 = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+        val vertexBuffer2 = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+        val indexBuffer = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+
+        val meshBuffer =
+            MeshBuffer.create(
+                session,
+                vertexLayout,
+                listOf(
+                    ByteBufferRegion(vertexBuffer1, 0, 12),
+                    ByteBufferRegion(vertexBuffer2, 0, 12),
+                ),
+                ByteBufferRegion(indexBuffer, 0, 12),
+            )
+        val updateBuffer = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+
+        val exception =
+            assertThrows(IllegalStateException::class.java) {
+                meshBuffer.updateVertexData(0, ByteBufferRegion(updateBuffer, 0, 12))
+            }
+        assertThat(exception).hasMessageThat().contains("MeshBuffer is not dynamic.")
+    }
+
+    @Test
+    fun updateVertexData_withOutOfBoundsBufferIndex_throwsException() {
+        val meshBuffer =
+            MeshBuffer.createDynamic(
+                session = session,
+                vertexLayout = vertexLayout,
+                vertexCount = 10,
+                indexCount = 30,
+            )
+        val updateBuffer = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+        val region = ByteBufferRegion(updateBuffer, 0, 12)
+
+        val exceptionNegative =
+            assertThrows(IllegalArgumentException::class.java) {
+                meshBuffer.updateVertexData(-1, region)
+            }
+        assertThat(exceptionNegative).hasMessageThat().contains("bufferIndex out of bounds.")
+
+        val exceptionTooLarge =
+            assertThrows(IllegalArgumentException::class.java) {
+                meshBuffer.updateVertexData(2, region)
+            }
+        assertThat(exceptionTooLarge).hasMessageThat().contains("bufferIndex out of bounds.")
+    }
+
+    @Test
+    fun updateVertexData_withNegativeOffset_throwsException() {
+        val meshBuffer =
+            MeshBuffer.createDynamic(
+                session = session,
+                vertexLayout = vertexLayout,
+                vertexCount = 10,
+                indexCount = 30,
+            )
+        val updateBuffer = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+        val region = ByteBufferRegion(updateBuffer, 0, 12)
+
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                meshBuffer.updateVertexData(0, region, offsetInBytes = -1)
+            }
+        assertThat(exception).hasMessageThat().contains("offsetInBytes must be non-negative.")
+    }
+
+    @Test
+    fun updateVertexData_exceedingCapacity_throwsException() {
+        val meshBuffer =
+            MeshBuffer.createDynamic(
+                session = session,
+                vertexLayout = vertexLayout,
+                vertexCount = 2,
+                indexCount = 6,
+            )
+        val updateBuffer = ByteBuffer.allocateDirect(24).order(ByteOrder.nativeOrder())
+
+        val exceptionOffset =
+            assertThrows(IllegalArgumentException::class.java) {
+                meshBuffer.updateVertexData(
+                    0,
+                    ByteBufferRegion(updateBuffer, 0, 24),
+                    offsetInBytes = 1,
+                )
+            }
+        assertThat(exceptionOffset)
+            .hasMessageThat()
+            .contains("Update exceeds pre-allocated capacity.")
+
+        val largeUpdateBuffer = ByteBuffer.allocateDirect(36).order(ByteOrder.nativeOrder())
+        val exceptionSize =
+            assertThrows(IllegalArgumentException::class.java) {
+                meshBuffer.updateVertexData(
+                    0,
+                    ByteBufferRegion(largeUpdateBuffer, 0, 36),
+                    offsetInBytes = 0,
+                )
+            }
+        assertThat(exceptionSize)
+            .hasMessageThat()
+            .contains("Update exceeds pre-allocated capacity.")
+    }
+
+    @Test
+    fun updateIndexData_onDynamicMeshBuffer_succeeds() {
+        val meshBuffer =
+            MeshBuffer.createDynamic(
+                session = session,
+                vertexLayout = vertexLayout,
+                vertexCount = 10,
+                indexCount = 30,
+            )
+        val updateBuffer = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+        val region = ByteBufferRegion(updateBuffer, 0, 12)
+
+        meshBuffer.updateIndexData(region, 0)
+        meshBuffer.updateIndexData(region, 12)
+    }
+
+    @Test
+    fun updateIndexData_onStaticMeshBuffer_throwsException() {
+        val vertexBuffer1 = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+        val vertexBuffer2 = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+        val indexBuffer = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+
+        val meshBuffer =
+            MeshBuffer.create(
+                session,
+                vertexLayout,
+                listOf(
+                    ByteBufferRegion(vertexBuffer1, 0, 12),
+                    ByteBufferRegion(vertexBuffer2, 0, 12),
+                ),
+                ByteBufferRegion(indexBuffer, 0, 12),
+            )
+        val updateBuffer = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+
+        val exception =
+            assertThrows(IllegalStateException::class.java) {
+                meshBuffer.updateIndexData(ByteBufferRegion(updateBuffer, 0, 12))
+            }
+        assertThat(exception).hasMessageThat().contains("MeshBuffer is not dynamic.")
+    }
+
+    @Test
+    fun updateIndexData_withNegativeOffset_throwsException() {
+        val meshBuffer =
+            MeshBuffer.createDynamic(
+                session = session,
+                vertexLayout = vertexLayout,
+                vertexCount = 10,
+                indexCount = 30,
+            )
+        val updateBuffer = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+        val region = ByteBufferRegion(updateBuffer, 0, 12)
+
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                meshBuffer.updateIndexData(region, offsetInBytes = -1)
+            }
+        assertThat(exception).hasMessageThat().contains("offsetInBytes must be non-negative.")
+    }
+
+    @Test
+    fun updateIndexData_exceedingCapacity_throwsException() {
+        val meshBuffer =
+            MeshBuffer.createDynamic(
+                session = session,
+                vertexLayout = vertexLayout,
+                vertexCount = 2,
+                indexCount = 2,
+            )
+        val updateBuffer = ByteBuffer.allocateDirect(8).order(ByteOrder.nativeOrder())
+
+        val exceptionOffset =
+            assertThrows(IllegalArgumentException::class.java) {
+                meshBuffer.updateIndexData(ByteBufferRegion(updateBuffer, 0, 8), offsetInBytes = 4)
+            }
+        assertThat(exceptionOffset)
+            .hasMessageThat()
+            .contains("Update exceeds pre-allocated index capacity.")
+
+        val largeUpdateBuffer = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
+        val exceptionSize =
+            assertThrows(IllegalArgumentException::class.java) {
+                meshBuffer.updateIndexData(
+                    ByteBufferRegion(largeUpdateBuffer, 0, 12),
+                    offsetInBytes = 0,
+                )
+            }
+        assertThat(exceptionSize)
+            .hasMessageThat()
+            .contains("Update exceeds pre-allocated index capacity.")
+    }
+
+    @Test
+    fun close_destroysMeshBuffer() {
+        val meshBuffer =
+            MeshBuffer.createDynamic(
+                session = session,
+                vertexLayout = vertexLayout,
+                vertexCount = 10,
+                indexCount = 30,
+            )
+        meshBuffer.close()
+    }
 }
