@@ -36,7 +36,7 @@ import org.junit.runner.RunWith
 class StateStoreDeviceTest {
     @Serializable object StringKey : StateStoreKey<String>("default")
 
-    @Serializable object AutoClearKey : StateStoreKey<String>("default", autoClearKey = StringKey)
+    @Serializable object AutoClearKey : StateStoreKey<Int>(0, autoClearKey = StringKey)
 
     @Serializable
     object StringKeyWithPredicate :
@@ -80,7 +80,7 @@ class StateStoreDeviceTest {
     fun testAutoClear() = runTest {
         val stateStore = StateStore()
 
-        stateStore.setState(AutoClearKey, "targetValue")
+        stateStore.setState(AutoClearKey, 1)
         assertThat(stateStore.keys).contains(AutoClearKey)
 
         // Set key to trigger clear
