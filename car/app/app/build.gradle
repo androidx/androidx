@@ -23,6 +23,7 @@
 import androidx.build.SoftwareType
 import androidx.build.Release
 import androidx.build.metalava.MetalavaRunnerKt
+import androidx.build.metalava.MetalavaTask
 import androidx.build.uptodatedness.EnableCachingKt
 import androidx.build.Version
 
@@ -103,29 +104,18 @@ androidx {
     enableRobolectric()
 }
 
-// Use MetalavaRunnerKt to execute Metalava operations. MetalavaRunnerKt is defined in the buildSrc
-// project and provides convience methods for interacting with Metalava. Configruation required
-// for MetalavaRunnerKt is taken from buildSrc/src/main/kotlin/androidx/build/checkapi/ApiTasks.kt.
-abstract class ProtocolApiTask extends DefaultTask {
-    private final WorkerExecutor workerExecutor
+// Use MetalavaTask to execute Metalava operations. MetalavaTask is defined in the buildSrc project
+// and provides convenience methods for interacting with Metalava. Configuration required for
+// MetalavaTask is taken from buildSrc/src/main/kotlin/androidx/build/metalava/MetalavaTasks.kt.
+abstract class ProtocolApiTask extends MetalavaTask {
 
-    @Classpath
-    public FileCollection metalavaClasspath
-    @Classpath
-    public FileCollection bootClasspath
-    @Classpath
-    public FileCollection dependencyClasspath
     @InputFiles
     @PathSensitive(PathSensitivity.RELATIVE)
     public FileCollection sourceDirs
 
-    @Input
-    public Property<KotlinVersion> kotlinSourceLevel
-
     @Inject
-    ProtocolApiTask(WorkerExecutor workerExecutor, ObjectFactory objects) {
-        this.workerExecutor = workerExecutor
-        this.kotlinSourceLevel = objects.property(KotlinVersion)
+    ProtocolApiTask(WorkerExecutor workerExecutor) {
+        super(workerExecutor)
     }
 
     @Internal
@@ -153,8 +143,8 @@ abstract class ProtocolApiTask extends DefaultTask {
 // with @androidx.car.app.annotations.CarProtocol
 abstract class GenerateProtocolApiTask extends ProtocolApiTask {
     @Inject
-    GenerateProtocolApiTask(WorkerExecutor workerExecutor, ObjectFactory objects) {
-        super(workerExecutor, objects)
+    GenerateProtocolApiTask(WorkerExecutor workerExecutor) {
+        super(workerExecutor)
     }
 
     @OutputFile
@@ -244,8 +234,8 @@ abstract class CheckProtocolApiTask extends DefaultTask {
 // used to detect backward-compatibility breaking changes to protocol API.
 abstract class CheckProtocolApiCompatibilityTask extends ProtocolApiTask {
     @Inject
-    CheckProtocolApiCompatibilityTask(WorkerExecutor workerExecutor, ObjectFactory objects) {
-        super(workerExecutor, objects)
+    CheckProtocolApiCompatibilityTask(WorkerExecutor workerExecutor) {
+        super(workerExecutor)
     }
 
     @InputFile
@@ -405,9 +395,9 @@ androidComponents {
             task.dependsOn(assemble)
             task.generatedApi = projectProtocolLocation.generatedApi
             task.sourceDirs = sourceCollection
-            task.dependencyClasspath = dependencyClasspath
-            task.metalavaClasspath = metalavaClasspath
-            task.bootClasspath = bootClasspath
+            task.dependencyClasspath.from(dependencyClasspath)
+            task.metalavaClasspath.from(metalavaClasspath)
+            task.bootClasspath.from(bootClasspath)
             task.kotlinSourceLevel.set(kotlinSourceLevel)
         }
         tasks.register("checkProtocolApiCompat", CheckProtocolApiCompatibilityTask) { task ->
@@ -416,9 +406,9 @@ androidComponents {
             task.generatedApi = projectProtocolLocation.generatedApi
             task.dependsOn(generateProtocolApi)
             task.sourceDirs = sourceCollection
-            task.dependencyClasspath = dependencyClasspath
-            task.metalavaClasspath = metalavaClasspath
-            task.bootClasspath = bootClasspath
+            task.dependencyClasspath.from(dependencyClasspath)
+            task.metalavaClasspath.from(metalavaClasspath)
+            task.bootClasspath.from(bootClasspath)
             task.kotlinSourceLevel.set(kotlinSourceLevel)
         }
         tasks.register("checkProtocolApi", CheckProtocolApiTask) { task ->

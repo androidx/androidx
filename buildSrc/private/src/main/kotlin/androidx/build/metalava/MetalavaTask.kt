@@ -56,7 +56,8 @@ constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTas
 
     @get:Input abstract val kotlinSourceLevel: Property<KotlinVersion>
 
-    @get:Input abstract val targetsJavaConsumers: Property<Boolean>
+    // Marked optional for car app protocol API tasks
+    @get:Optional @get:Input abstract val targetsJavaConsumers: Property<Boolean>
 
     @get:InputFile
     @get:PathSensitive(PathSensitivity.NONE)
