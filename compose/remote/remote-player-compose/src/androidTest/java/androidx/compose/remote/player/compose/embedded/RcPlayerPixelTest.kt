@@ -45,10 +45,10 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberNamedState
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
@@ -370,10 +370,9 @@ class RcPlayerPixelTest {
         val d = rule.density.density
         val document = runBlocking {
             captureRule.captureDocument(context = rule.activity) {
-                val radius =
-                    rememberNamedState("radius") {
-                        createNamedRemoteFloatExpression("radius") { 0f.rf }
-                    }
+                val radius = remember {
+                    createNamedRemoteFloatExpression("radius") { 0f.rf }
+                }
                 RemoteBox(
                     modifier =
                         RemoteModifier.size(100.rdp)
