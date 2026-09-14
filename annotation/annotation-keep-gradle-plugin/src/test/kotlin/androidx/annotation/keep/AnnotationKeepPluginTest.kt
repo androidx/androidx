@@ -119,6 +119,58 @@ class AnnotationKeepPluginTest {
     }
 
     @Test
+    fun kotlinMultiplatformLibraryRegistersTransformAarTask() {
+        val projectRoot = projectSetup.rootDir
+        val resolvers =
+            projectSetup.allRepositoryPaths.joinToString(separator = "\n") {
+                """
+                    |maven {
+                    | url "$it"
+                    |}
+                """
+                    .trimMargin()
+            }
+        val buildScript =
+            """
+                |plugins {
+                |  id("org.jetbrains.kotlin.multiplatform")
+                |  id("com.android.kotlin.multiplatform.library")
+                |  id("androidx.annotation.keep")
+                |}
+                |
+                |repositories {
+                |  $resolvers
+                |}
+                |
+                |kotlin {
+                |  androidLibrary {
+                |    namespace = "androidx.keep.annotation.plugin.kmp.example"
+                |    compileSdk = ${projectSetup.props.compileSdk}
+                |  }
+                |}
+                """
+                .trimMargin()
+
+        File(projectRoot, "build.gradle").writeText(buildScript)
+        File(projectRoot, "settings.gradle")
+            .writeText("rootProject.name = 'kmp-library-keep-example'")
+
+        @Suppress("WithPluginClasspathUsage")
+        val result =
+            GradleRunner.create()
+                .withProjectDir(projectRoot)
+                // Avoid withPluginClassPath() and test against well known AGP versions. b/557395311
+                .withPluginClasspath()
+                .withArguments("tasks")
+                .build()
+
+        assertThat(result.output)
+            .contains(
+                "androidMainKeepRulesTransformAar - Transforms the androidMain AAR to inject keep rules."
+            )
+    }
+
+    @Test
     fun registerJavaArchiveTransform() {
         val projectRoot = projectSetup.rootDir
         val resolvers =
