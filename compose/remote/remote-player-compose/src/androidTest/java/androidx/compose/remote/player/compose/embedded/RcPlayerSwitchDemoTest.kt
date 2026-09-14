@@ -49,11 +49,11 @@ import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteEnum
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier as ComposeModifier
 import androidx.compose.ui.graphics.Color
@@ -269,9 +269,9 @@ class RcPlayerSwitchDemoTest {
     @RemoteComposable
     fun SwitchWidgetDemo() {
         RemoteColumn(modifier = Modifier.padding(8.rdp).background(Color.LightGray.rc)) {
-            val checkedA = rememberMutableRemoteEnum(SwitchState.Off)
-            val checkedB = rememberMutableRemoteEnum(SwitchState.Off)
-            val checkedC = rememberMutableRemoteEnum(SwitchState.On)
+            val checkedA = remember { MutableRemoteEnum(SwitchState.Off) }
+            val checkedB = remember { MutableRemoteEnum(SwitchState.Off) }
+            val checkedC = remember { MutableRemoteEnum(SwitchState.On) }
 
             val visibilityModifierC = Modifier.visibility(checkedC.visibility)
             RowSwitch(checkedA, "State A")

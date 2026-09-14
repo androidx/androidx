@@ -22,6 +22,7 @@ import androidx.compose.remote.core.operations.ImageAttribute.IMAGE_WIDTH
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -142,7 +143,9 @@ internal constructor(
                 )
             }
 
-        internal fun createNamedRemoteImageBitmap(
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @JvmStatic
+        public fun createNamedRemoteImageBitmap(
             name: String,
             domain: RemoteState.Domain = RemoteState.Domain.User,
             value: () -> ImageBitmap,
@@ -159,7 +162,9 @@ internal constructor(
             }
         }
 
-        internal fun createNamedRemoteImageBitmap(
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @JvmStatic
+        public fun createNamedRemoteImageBitmap(
             name: String,
             url: String,
             domain: RemoteState.Domain = RemoteState.Domain.User,
@@ -195,6 +200,7 @@ internal constructor(
  * A mutable implementation of [RemoteImageBitmap] that holds its value in a [MutableState<Bitmap>].
  */
 public class MutableRemoteImageBitmap
+@RememberInComposition
 internal constructor(
     constantValueOrNull: ImageBitmap?,
     cacheKey: RemoteStateCacheKey?,
@@ -208,7 +214,9 @@ internal constructor(
      *
      * @param initialValue The initial [ImageBitmap] value.
      */
-    internal constructor(
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RememberInComposition
+    public constructor(
         initialValue: ImageBitmap
     ) : this(
         constantValueOrNull = initialValue,

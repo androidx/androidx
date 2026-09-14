@@ -24,8 +24,9 @@ import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteImage
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteImageBitmap
+import androidx.compose.remote.creation.compose.state.rememberNamedState
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.integration.demos.common.RemoteDemo
 import androidx.compose.remote.player.core.platform.BitmapLoader
@@ -73,10 +74,12 @@ fun BitmapLoaderDemo() {
             colors.forEach { color ->
                 val hex = String.format("%06X", 0xFFFFFF and color)
                 val bitmap =
-                    rememberNamedRemoteImageBitmap(
-                        name = "color_$hex",
-                        url = "${SolidColorBitmapLoader.PREFIX}$hex",
-                    )
+                    rememberNamedState("color_$hex") {
+                        createNamedRemoteImageBitmap(
+                            name = "color_$hex",
+                            url = "${SolidColorBitmapLoader.PREFIX}$hex",
+                        )
+                    }
                 RemoteImage(
                     remoteBitmap = bitmap,
                     contentDescription = "Color $hex".rs,

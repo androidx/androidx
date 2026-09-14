@@ -39,11 +39,11 @@ import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocum
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.contentDescription
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.padding
-import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.state.rdp
@@ -203,7 +203,7 @@ class ScrollableListActivity : ComponentActivity() {
                         profile = RcPlatformProfiles.ANDROIDX,
                         context = context,
                     ) {
-                        val scrollState = rememberRemoteScrollState()
+                        val scrollState = remember { RemoteScrollState() }
                         RemoteColumn(
                             modifier =
                                 RemoteModifier.fillMaxSize()

@@ -41,20 +41,20 @@ import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.combinedClickable
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.padding
-import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.modifier.width
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -162,10 +162,10 @@ fun GesturePropagationDemo() {
                     }
                 },
             ) {
-                val scrollState = rememberRemoteScrollState()
-                val clickCount = rememberMutableRemoteInt(0)
-                val doubleClickCount = rememberMutableRemoteInt(0)
-                val longClickCount = rememberMutableRemoteInt(0)
+                val scrollState = remember { RemoteScrollState() }
+                val clickCount = remember { MutableRemoteInt(0) }
+                val doubleClickCount = remember { MutableRemoteInt(0) }
+                val longClickCount = remember { MutableRemoteInt(0) }
                 RemoteColumn(
                     modifier =
                         RemoteModifier.fillMaxSize()

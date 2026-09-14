@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.remember
 
 /**
@@ -471,10 +472,14 @@ internal constructor(
 }
 
 /** A mutable implementation of [RemoteBoolean]. */
-public class MutableRemoteBoolean internal constructor(remoteInt: MutableRemoteInt) :
+public class MutableRemoteBoolean
+@RememberInComposition
+internal constructor(remoteInt: MutableRemoteInt) :
     RemoteBoolean(remoteInt), MutableRemoteState<Boolean> {
 
-    internal constructor(initialValue: Boolean) : this(MutableRemoteInt(if (initialValue) 1 else 0))
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RememberInComposition
+    public constructor(initialValue: Boolean) : this(MutableRemoteInt(if (initialValue) 1 else 0))
 
     @get:Suppress("AutoBoxing")
     public override val constantValueOrNull: Boolean?
