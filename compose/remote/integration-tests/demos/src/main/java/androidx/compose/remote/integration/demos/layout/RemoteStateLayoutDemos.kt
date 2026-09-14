@@ -69,7 +69,6 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
-import androidx.compose.remote.creation.compose.state.rememberNamedState
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
@@ -125,8 +124,7 @@ fun RemoteStateLayoutSimpleDemo() {
         }
 
         RemoteDemo(update = { player -> player.setUserLocalInt(stateId, selectedState) }) {
-            val remoteState =
-                rememberNamedState(stateId) { createNamedRemoteInt(stateId, states[0]) }
+            val remoteState = remember(stateId) { createNamedRemoteInt(stateId, states[0]) }
 
             RemoteStateLayout(currentState = remoteState, states = states) { state ->
                 val color =
