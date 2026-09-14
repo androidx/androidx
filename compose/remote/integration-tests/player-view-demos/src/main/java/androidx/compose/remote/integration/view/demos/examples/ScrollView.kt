@@ -59,7 +59,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import java.text.DecimalFormat
 
-@Suppress("RestrictedApiAndroidX") // Referring to RemoteText, background, drawAnchoredText
+@Suppress("RestrictedApiAndroidX") // Referring to drawAnchoredText
 @Composable
 fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 0) {
 
@@ -191,10 +191,7 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
 }
 
 @SuppressLint("UnrememberedMutableState")
-@Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to RemoteRectangleShape, RemoteText, graphicsLayer, rememberRemoteScrollState,
-// verticalScroll
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteColor, RemoteText, times
 @Composable
 @RemoteComposable
 fun ScrollViewDemo() {
@@ -253,10 +250,7 @@ fun ScrollViewDemo() {
     }
 }
 
-@Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to RemoteRectangleShape, RemoteText, background, drawAnchoredText, graphicsLayer,
-// rememberRemoteScrollState, verticalScroll
+@Suppress("RestrictedApiAndroidX") // Referring to drawAnchoredText
 @Preview
 @Composable
 private fun CanvasCalendarMonthPreview() = RemoteContentPreview { CanvasCalendarMonth() }

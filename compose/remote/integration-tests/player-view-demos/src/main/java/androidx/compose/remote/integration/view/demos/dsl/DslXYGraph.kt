@@ -30,12 +30,12 @@ import androidx.compose.remote.integration.view.demos.examples.Plot
 import androidx.compose.remote.integration.view.demos.examples.XYGraphProperties
 import androidx.compose.remote.integration.view.demos.examples.rcPlotXY
 
-@Suppress("RestrictedApiAndroidX") // Referring to drawLine, drawPath, remote-creation
+@Suppress("RestrictedApiAndroidX") // Referring to drawPath, remote-creation
 fun RcPaint.setStyle(style: RcPaintStyle): RcPaint {
     return this.setStyle(style.value)
 }
 
-@Suppress("RestrictedApiAndroidX") // Referring to drawLine, drawPath, remote-creation
+@Suppress("RestrictedApiAndroidX") // Referring to drawPath, remote-creation
 fun RcCanvasScope.translate(dx: Float, dy: Float) {
     // If we can't get writer, we can't easily implement it here without modifying RcScope.
     // For now we will try to use scale(1f, 1f, dx, dy) as a very rough alternative if needed
@@ -45,7 +45,7 @@ fun RcCanvasScope.translate(dx: Float, dy: Float) {
     // we can try to find another way.
 }
 
-@Suppress("RestrictedApiAndroidX") // Referring to drawLine, drawPath, remote-creation
+@Suppress("RestrictedApiAndroidX") // Referring to drawPath, remote-creation
 class PlotParams(
     val scope: RcScope,
     val prop: XYGraphProperties,
@@ -73,7 +73,7 @@ class PlotParams(
     val insertBottom = scope.remoteFloat(50f)
 }
 
-@Suppress("RestrictedApiAndroidX") // Referring to drawLine, drawPath, remote-creation
+@Suppress("RestrictedApiAndroidX") // Referring to drawPath, remote-creation
 class XYGraphProperties {
     var minorVAxisColor: RcColorValue = 0xFF444444.rcColor()
     var minorHAxisColor: RcColorValue = 0xFF444444.rcColor()
@@ -89,10 +89,10 @@ class XYGraphProperties {
     var plotColor: RcColorValue = 0xFF000000.rcColor()
 }
 
-@Suppress("RestrictedApiAndroidX") // Referring to drawLine, drawPath, remote-creation
+@Suppress("RestrictedApiAndroidX") // Referring to drawPath, remote-creation
 class Range(val minX: RcFloat, val maxX: RcFloat, val minY: RcFloat, val maxY: RcFloat)
 
-@Suppress("RestrictedApiAndroidX") // Referring to drawLine, drawPath, remote-creation
+@Suppress("RestrictedApiAndroidX") // Referring to drawPath, remote-creation
 interface PlotBase {
     fun plot(scope: RcCanvasScope, params: PlotParams)
 
@@ -177,7 +177,7 @@ class DataPlot(val data: RcFloat) : PlotBase {
 }
 
 /** Simple xy Plotter */
-@Suppress("RestrictedApiAndroidX") // Referring to drawLine, drawPath, remote-creation
+@Suppress("RestrictedApiAndroidX") // Referring to drawPath, remote-creation
 fun RcCanvasScope.rcPlotXY(
     left: RcFloat,
     top: RcFloat,
@@ -207,7 +207,7 @@ fun RcCanvasScope.rcPlotXY(
     }
 }
 
-@Suppress("RestrictedApiAndroidX") // Referring to drawLine, remote-creation
+@Suppress("RestrictedApiAndroidX") // Referring to remote-creation
 private fun RcCanvasScope.drawAxis(params: PlotParams) {
     val w = params.right - params.left
     val h = params.bottom - params.top

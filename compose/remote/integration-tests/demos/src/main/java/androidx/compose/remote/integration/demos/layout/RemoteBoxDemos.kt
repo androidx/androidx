@@ -118,9 +118,7 @@ fun RemoteBoxAlignmentsDemo() {
     }
 }
 
-@Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to RemoteComponentPreview, background, setUserLocalInt
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview, setUserLocalInt
 @Composable
 @RemoteComposable
 private fun RemoteBoxAlignmentsDemoContent(alignments: List<Pair<Int, RemoteAlignment>>) {
@@ -148,9 +146,7 @@ private fun RemoteBoxAlignmentsDemoPreview() {
     RemoteBoxAlignmentsDemo()
 }
 
-@Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to RemoteComponentPreview, background, setUserLocalInt
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview, setUserLocalInt
 @RemoteComponentPreview
 @Composable
 @RemoteComposable
