@@ -291,6 +291,10 @@ class A2uiComponentRegistryTest {
 
     @Test
     fun update_batchUpdate_appliesAsSingleSnapshot() {
+        // Pre-populate states to simulate active UI observation, enabling Snapshot updates
+        registry.get("comp_1")
+        registry.get("comp_2")
+
         var applyNotifications = 0
         val unregister = Snapshot.registerApplyObserver { _, _ -> applyNotifications++ }
 
