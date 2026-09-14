@@ -8,7 +8,7 @@ Provides core interfaces and manager delegates for Glance Adaptive widgets.
 
 # Package androidx.glance.adaptive.core.ui
 
-Provides template registry and orchestration for adaptive UI rendering.
+Provides interfaces and contracts for adaptive UI templates and renderers.
 
 # Package androidx.glance.adaptive.core.ui.action
 
@@ -20,4 +20,4 @@ Provides selection, routing, and sizing tiers (WidthTier, HeightTier, SizeTiers)
 
 # Package androidx.glance.adaptive.core.ui.templates
 
-Provides template interfaces, size selectors, and archetype renderers for standard templates.
+Provides template interfaces and contracts for standard templates.
