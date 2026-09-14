@@ -201,6 +201,8 @@ public expect fun DropdownMenu(
  * @param popupPositionProvider [DropdownMenuPopupPositionProvider] to be used to position the menu.
  * @param properties [PopupProperties] for further customization of this popup's behavior.
  * @param content the content of this dropdown menu.
+ *
+ * @material3expressive
  */
 @Composable
 public fun DropdownMenuPopup(
@@ -266,6 +268,8 @@ public fun DropdownMenuPopup(
  *   emitting [Interaction]s for this menu group. This is currently only used for hover
  *   interactions.
  * @param content the content of this menu group, typically [DropdownMenuItem]s.
+ *
+ * @material3expressive
  */
 @Composable
 public fun DropdownMenuGroup(
@@ -375,6 +379,8 @@ public expect fun DropdownMenuItem(
  * @param contentPadding the padding applied to the content of this menu item.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
  *   emitting [Interaction]s for this menu item.
+ *
+ * @material3expressive
  */
 @Composable
 public fun DropdownMenuItem(
@@ -450,6 +456,8 @@ public fun DropdownMenuItem(
  * @param contentPadding the padding applied to the content of this menu item.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
  *   emitting [Interaction]s for this menu item.
+ *
+ * @material3expressive
  */
 @Composable
 public fun CheckableDropdownMenuItem(
@@ -528,6 +536,8 @@ public fun CheckableDropdownMenuItem(
  * @param contentPadding the padding applied to the content of this menu item.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
  *   emitting [Interaction]s for this menu item.
+ *
+ * @material3expressive
  */
 @Deprecated(
     message = "Use CheckableDropdownMenuItem instead.",
@@ -607,6 +617,8 @@ public fun DropdownMenuItem(
  * @param contentPadding the padding applied to the content of this menu item
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
  *   emitting [Interaction]s for this menu item
+ *
+ * @material3expressive
  */
 @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
 @JvmName("DropdownMenuItem")
@@ -686,6 +698,8 @@ public fun DropdownMenuItemLegacy(
  * @param contentPadding the padding applied to the content of this menu item.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
  *   emitting [Interaction]s for this menu item.
+ *
+ * @material3expressive
  */
 @Composable
 public fun SelectableDropdownMenuItem(
@@ -764,6 +778,8 @@ public fun SelectableDropdownMenuItem(
  * @param contentPadding the padding applied to the content of this menu item.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
  *   emitting [Interaction]s for this menu item.
+ *
+ * @material3expressive
  */
 @Deprecated(
     message = "Use SelectableDropdownMenuItem instead.",
@@ -843,6 +859,8 @@ public fun DropdownMenuItem(
  * @param contentPadding the padding applied to the content of this menu item
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
  *   emitting [Interaction]s for this menu item
+ *
+ * @material3expressive
  */
 @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
 @JvmName("DropdownMenuItem")
