@@ -20,7 +20,11 @@ import android.content.Intent
 import android.util.Log
 import androidx.credentials.registry.provider.UiDelegationFulfillmentProvider
 
-internal class UiDelegationFulfillmentProviderFactory {
+internal class UiDelegationFulfillmentProviderFactory(
+    private val classLoader: ClassLoader =
+        UiDelegationFulfillmentProviderFactory::class.java.classLoader
+            ?: ClassLoader.getSystemClassLoader()
+) {
     fun getBestAvailableProvider(intent: Intent): UiDelegationFulfillmentProvider? {
         val className =
             intent.extras?.getString(UiDelegationFulfillmentProvider.EXTRA_STUB_IMPL_CLASS_NAME)
@@ -32,7 +36,11 @@ internal class UiDelegationFulfillmentProviderFactory {
 
     private fun instantiateProvider(className: String): UiDelegationFulfillmentProvider? {
         try {
-            val klass = Class.forName(className)
+            val klass = Class.forName(className, /* initialize= */ false, classLoader)
+            if (!UiDelegationFulfillmentProvider::class.java.isAssignableFrom(klass)) {
+                Log.e(TAG, "Class $className does not implement UiDelegationFulfillmentProvider")
+                return null
+            }
             return klass.getConstructor().newInstance() as UiDelegationFulfillmentProvider
         } catch (e: Throwable) {
             Log.e(TAG, "Exception thrown while instantiating provider class", e)
