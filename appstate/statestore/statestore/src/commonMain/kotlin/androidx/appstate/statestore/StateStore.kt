@@ -146,6 +146,6 @@ public class StateStore {
 @Serializable
 public open class StateStoreKey<T>(
     public val defaultValue: T,
-    @Transient public val autoClearKey: StateStoreKey<T>? = null,
+    @Transient public val autoClearKey: StateStoreKey<*>? = null,
     @Transient public val shouldClearState: (StateStore) -> Boolean = { true },
 )
