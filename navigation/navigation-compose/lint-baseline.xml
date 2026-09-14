@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.4.0-alpha05)" variant="all" version="9.4.0-alpha05">
+<issues format="6" by="lint 9.5.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha04)" variant="all" version="9.5.0-alpha04">
 
     <issue
         id="UnrememberedGetBackStackEntry"
@@ -17,6 +17,195 @@
         errorLine2="                                                                   ~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidDeviceTest/kotlin/androidx/navigation/compose/NavHostTest.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        entries.forEach { entry -> state.pushWithTransition(entry) }"
+        errorLine2="                ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/ComposeNavigator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    visibleBackStack.forEach { backStackEntry ->"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/DialogHost.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        entries.forEach { entry -> state.push(entry) }"
+        errorLine2="                ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/DialogNavigator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                arguments.forEach { (argumentName, argument) ->"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/NavGraphBuilder.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                deepLinks.forEach { deepLink -> addDeepLink(deepLink) }"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/NavGraphBuilder.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                arguments.forEach { (argumentName, argument) -> argument(argumentName, argument) }"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/NavGraphBuilder.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                deepLinks.forEach { deepLink -> deepLink(deepLink) }"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/NavGraphBuilder.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                arguments.forEach { (argumentName, argument) -> argument(argumentName, argument) }"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/NavGraphBuilder.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                deepLinks.forEach { deepLink -> deepLink(deepLink) }"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/NavGraphBuilder.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                deepLinks.forEach { deepLink -> deepLink(deepLink) }"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/NavGraphBuilder.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            arguments.forEach { (argumentName, argument) -> addArgument(argumentName, argument) }"
+        errorLine2="                      ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/NavGraphBuilder.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            deepLinks.forEach { deepLink -> addDeepLink(deepLink) }"
+        errorLine2="                      ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/NavGraphBuilder.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            deepLinks.forEach { deepLink -> addDeepLink(deepLink) }"
+        errorLine2="                      ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/NavGraphBuilder.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            deepLinks.forEach { deepLink -> addDeepLink(deepLink) }"
+        errorLine2="                      ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/NavGraphBuilder.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                arguments.forEach { (argumentName, argument) -> argument(argumentName, argument) }"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/NavGraphBuilder.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                deepLinks.forEach { deepLink -> deepLink(deepLink) }"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/NavGraphBuilder.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            .apply { deepLinks.forEach { deepLink -> deepLink(deepLink) } }"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/NavGraphBuilder.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                currentBackStack.dropLast(1).reversed().fastMap { entry ->"
+        errorLine2="                                             ~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/NavHost.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            allVisibleEntries.filter { entry ->"
+        errorLine2="                              ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/NavHost.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                visibleEntries.forEach { entry -> composeNavigator.onTransitionComplete(entry) }"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/NavHost.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                visibleEntries.forEach { entry -> composeNavigator.onTransitionComplete(entry) }"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation/compose/NavHost.kt"/>
     </issue>
 
 </issues>

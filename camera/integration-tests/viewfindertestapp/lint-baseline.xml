@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.4.0-alpha05)" variant="all" version="9.4.0-alpha05">
+<issues format="6" by="lint 9.5.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha04)" variant="all" version="9.5.0-alpha04">
+
+    <issue
+        id="ThreadConstraint"
+        message="Statement must run from `@WorkerThread`, incompatible with earlier code that must run from `@{Main,Ui}Thread`"
+        errorLine1="        bitmap?.let { saveBitmapAsFile(it) }"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/viewfinder/CameraViewfinderFoldableFragment.kt"/>
+    </issue>
 
     <issue
         id="ObsoleteSdkInt"

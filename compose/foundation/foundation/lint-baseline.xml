@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.5.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha01)" variant="all" version="9.5.0-alpha01">
+<issues format="6" by="lint 9.5.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha04)" variant="all" version="9.5.0-alpha04">
 
     <issue
         id="NewApi"
@@ -1529,6 +1529,321 @@
         errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/foundation/text/input/internal/TextFieldLayoutStateCache.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of calculateCrossAxisCellSizes: replace with IntList"
+        errorLine1="    public fun Density.calculateCrossAxisCellSizes(availableSize: Int, spacing: Int): List&lt;Int>"
+        errorLine2="                                                                                      ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of calculateCellsCrossAxisSizeImpl: replace with IntList"
+        errorLine1="): List&lt;Int> {"
+        errorLine2="   ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor LazyGridMeasuredLine has parameter spans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="    private val spans: List&lt;GridItemSpan>,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasuredLine.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field spans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="    private val spans: List&lt;GridItemSpan>,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasuredLine.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method createLine has parameter spans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="        spans: List&lt;GridItemSpan>,"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasuredLineProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor LineConfiguration has parameter spans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="    class LineConfiguration(val firstItemIndex: Int, val spans: List&lt;GridItemSpan>)"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field spans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="    class LineConfiguration(val firstItemIndex: Int, val spans: List&lt;GridItemSpan>)"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;GridItemSpan> of getSpans: replace with LongList"
+        errorLine1="    class LineConfiguration(val firstItemIndex: Int, val spans: List&lt;GridItemSpan>)"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field cachedBucket with type List&lt;Integer>: replace with IntList"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field previousDefaultSpans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="    /** List of 1x1 spans if we do not have custom spans. */"
+        errorLine2="    ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;GridItemSpan> of getDefaultSpans: replace with LongList"
+        errorLine1="    private fun getDefaultSpans(currentSlotsPerLine: Int) ="
+        errorLine2="                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable spans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="        val spans = mutableListOf&lt;GridItemSpan>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="    @OptIn(ComposeToolingApi::class)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/CacheWindowLogic.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="    @OptIn(ComposeToolingApi::class)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/CacheWindowLogic.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="    @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
+    </issue>
+
+    <issue
+        id="TextFieldBufferInternalAppend"
+        message="Do not use `append` on TextFieldBuffer internally as it swallows the hardware source tracking information. Use the internal `replace` overload instead."
+        errorLine1="            append(newText.toString())"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/input/internal/TransformedTextFieldState.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="        override val fontScale: Float"
+        errorLine2="                     ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AbstractScrollableNode.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="internal class LazyLayoutMeasureScopeImpl"
+        errorLine2="^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutMeasureScope.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.toDp-GaN1DYA can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="    override fun TextUnit.toDp(): Dp = with(subcomposeMeasureScope) { toDp() }"
+        errorLine2="                                                                      ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutMeasureScope.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.toSp-0xMU5do can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="    override fun Dp.toSp(): TextUnit = with(subcomposeMeasureScope) { toSp() }"
+        errorLine2="                                                                      ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutMeasureScope.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="                Density(density.density, density.fontScale),"
+        errorLine2="                                                 ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/MinLinesConstrainer.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="        override val fontScale"
+        errorLine2="                     ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/MultiParagraphLayoutCache.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="            get() = this@MultiParagraphLayoutCache.density!!.fontScale"
+        errorLine2="                                                             ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/MultiParagraphLayoutCache.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.toDp-GaN1DYA can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="            return toDp().toPx()"
+        errorLine2="                   ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/MultiParagraphLayoutCache.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="        override val fontScale: Float = 1f"
+        errorLine2="                     ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerState.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="    override val fontScale: Float,"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/shape/PolygonShape.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="            PolygonShapeScopeImpl(density.density, density.fontScale, size, layoutDirection)"
+        errorLine2="                                                           ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/shape/PolygonShape.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="                ?: PolygonShapeScopeImpl(density.density, density.fontScale, size, layoutDirection)"
+        errorLine2="                                                                  ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/shape/PolygonShape.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="    override val fontScale: Float"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/style/ResolvedStyle.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="    override val fontScale: Float"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/style/StylePropertyCollector.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="            override val fontScale: Float"
+        errorLine2="                         ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/style/StyleResolver.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="                get() = node.requireDensity().fontScale"
+        errorLine2="                                              ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/style/StyleResolver.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="/** [detectTapGestures]&apos;s implementation of [PressGestureScope]. */"
+        errorLine2="^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/TapGestureDetector.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="                    cachedRecord.fontScale == measureInputs.density.fontScale &amp;&amp;"
+        errorLine2="                                                                    ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/input/internal/TextFieldLayoutStateCache.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="        val fontScale: Float = density.fontScale"
+        errorLine2="                                       ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/input/internal/TextFieldLayoutStateCache.kt"/>
     </issue>
 
     <issue
