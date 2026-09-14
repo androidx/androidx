@@ -33,6 +33,7 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemotePath
+import androidx.compose.remote.creation.compose.layout.RemoteCustomPropertiesScope
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.shapes.MorphTweenUtility
@@ -2678,6 +2679,42 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
     /** Draws the component content within a custom drawing stream. */
     public fun drawComponentContent() {
         recordRenderingOp { document.drawComponentContent() }
+    }
+
+    /**
+     * Records a custom component layout operation.
+     *
+     * @param config The configuration string for the custom component.
+     * @param modifier The [RemoteModifier] applied to this component.
+     * @param content Optional drawing commands to record inside the custom component layout.
+     * @param properties Scope for configuring custom component properties and return bindings.
+     */
+    public fun custom(
+        config: String,
+        modifier: RemoteModifier = RemoteModifier,
+        content: (() -> Unit)? = null,
+        properties: RemoteCustomPropertiesScope.() -> Unit = {},
+    ) {
+        val scope = RemoteCustomPropertiesScope().apply(properties)
+        val childSpan =
+            if (content != null) {
+                val span = recordInChildSpan(content)
+                if (buffer.enableOptimizations) {
+                    buffer.optimizeSpan(span)
+                }
+                span
+            } else {
+                null
+            }
+
+        val op =
+            recordRenderingOp(CanvasOp.CustomComponent(config, modifier, scope.entries, childSpan))
+        for (i in scope.entries.indices) {
+            val state = scope.entries[i].state
+            if (state != null) {
+                buffer.addRoots(op, state)
+            }
+        }
     }
 
     public companion object {
