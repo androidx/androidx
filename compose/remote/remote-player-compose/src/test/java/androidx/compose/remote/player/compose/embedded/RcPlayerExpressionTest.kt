@@ -403,4 +403,32 @@ class RcPlayerExpressionTest {
         assertThat(isExpressionTimeDependent(dayOfMonthExpr)).isFalse()
         assertThat(isExpressionTimeDependent(plainExpr)).isFalse()
     }
+
+    @Test
+    fun testFloatResultsFeedIntegerReader() {
+        val floatExpr =
+            FloatExpression(
+                50,
+                floatArrayOf(1.75f),
+                null,
+            )
+        val computedOps =
+            mutableIntObjectMapOf<Operation>().apply {
+                put(50, floatExpr)
+            }
+        val realState = SnapshotRemoteComposeState()
+        val graph =
+            GraphContext(
+                realState = realState,
+                computedOps = computedOps,
+                timeMillis = mutableStateOf(0f),
+                clock = RemoteClock.SYSTEM,
+            )
+        assertThat(graph.getFloat(50)).isEqualTo(1.75f)
+        assertThat(graph.getInteger(50)).isEqualTo(1)
+
+        realState.updateFloat(51, 2.75f)
+        assertThat(realState.getFloat(51)).isEqualTo(2.75f)
+        assertThat(realState.getInteger(51)).isEqualTo(2)
+    }
 }
