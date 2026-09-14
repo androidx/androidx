@@ -16,21 +16,30 @@
 
 package androidx.compose.remote.creation.compose.capture
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.Utils
+import androidx.compose.remote.core.operations.layout.managers.Custom.CustomProperty
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.RemotePath
+import androidx.compose.remote.creation.compose.layout.RemoteCustomPropertiesScope
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.CompatAndroidRemotePaint
+import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
+import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
+import androidx.compose.remote.creation.compose.state.MutableRemoteString
 import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
@@ -50,6 +59,7 @@ import androidx.compose.remote.creation.compose.state.RemoteString.Companion.cre
 import androidx.compose.remote.creation.compose.state.RemoteStringArray
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.selectIfGt
 import androidx.compose.remote.creation.compose.state.selectIfLt
@@ -58,6 +68,9 @@ import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.TestPlayer
+import androidx.compose.remote.player.core.platform.AndroidCustomContext
+import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.graphics.shapes.RoundedPolygon
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
@@ -236,6 +249,224 @@ class RecordingCanvasTest {
                 "endConditionalOperations",
                 "addContainerEnd",
             )
+    }
+
+    @Test
+    fun testCustomComponent_hoistsExpression() {
+        val x = createNamedRemoteFloat("x", 10f)
+        val y = createNamedRemoteFloat("y", 20f)
+        val sub = x + y // Common subexpression
+
+        // Used both in custom component and in another canvas operation
+        recordingCanvas.custom("testConfig") {
+            property(0, sub)
+        }
+        recordingCanvas.drawRect(sub, 1f.rf, 2f.rf, 3f.rf, Paint())
+
+        recordingCanvas.flush()
+
+        val subId = creationState.remoteVariableToId.getOrDefault(sub.cacheKey, -1)
+        assertThat(subId).isNotEqualTo(-1)
+
+        // Hoisted animated float must be emitted before custom component content start
+        val animatedFloatIndex =
+            fakeBuffer.calls.indexOfFirst { it.startsWith("addAnimatedFloat($subId)") }
+        val contentStartIndex = fakeBuffer.calls.indexOf("addContentStart")
+        val containerEndIndex = fakeBuffer.calls.indexOf("addContainerEnd")
+
+        assertThat(animatedFloatIndex).isNotEqualTo(-1)
+        assertThat(contentStartIndex).isNotEqualTo(-1)
+        assertThat(containerEndIndex).isNotEqualTo(-1)
+        assertThat(animatedFloatIndex).isLessThan(contentStartIndex)
+        assertThat(contentStartIndex).isLessThan(containerEndIndex)
+    }
+
+    @Test
+    fun testCustomComponent_withChildDrawingContent() {
+        recordingCanvas.custom(
+            "testConfig",
+            content = {
+                recordingCanvas.drawRect(1f, 2f, 3f, 4f, Paint())
+            },
+        )
+
+        recordingCanvas.flush()
+
+        val contentStartIndex = fakeBuffer.calls.indexOf("addContentStart")
+        val drawRectIndex = fakeBuffer.calls.indexOf("addDrawRect(1.0, 2.0, 3.0, 4.0)")
+        val containerEndIndex = fakeBuffer.calls.indexOf("addContainerEnd")
+
+        assertThat(contentStartIndex).isNotEqualTo(-1)
+        assertThat(drawRectIndex).isNotEqualTo(-1)
+        assertThat(containerEndIndex).isNotEqualTo(-1)
+        assertThat(contentStartIndex).isLessThan(drawRectIndex)
+        assertThat(drawRectIndex).isLessThan(containerEndIndex)
+    }
+
+    @Test
+    fun testCustomComponent_withMultipleStateTypes() {
+        val floatState = 5f.rf
+        val intState = 42.ri
+        val stringState = "hello".rs
+        val dpState = 16.rdp
+        val colorState = RemoteColor(Color.RED)
+        val boolState = RemoteBoolean(true)
+
+        recordingCanvas.custom("multiTypeConfig") {
+            property(0, floatState)
+            property(1, intState)
+            property(2, stringState)
+            property(3, dpState)
+            property(4, colorState)
+            property(5, boolState)
+        }
+
+        recordingCanvas.flush()
+
+        assertThat(fakeBuffer.calls).contains("addContentStart")
+        assertThat(fakeBuffer.calls).contains("addContainerEnd")
+    }
+
+    @Test
+    fun testCustomComponent_withMutableStateTypes_asReturns() {
+        val floatState = MutableRemoteFloat(5f)
+        val intState = MutableRemoteInt(42)
+        val stringState = MutableRemoteString("hello")
+        val boolState = MutableRemoteBoolean(true)
+
+        recordingCanvas.custom("mutableReturnConfig") {
+            bindReturn(0, floatState)
+            bindReturn(1, intState)
+            bindReturn(2, stringState)
+            bindReturn(3, boolState)
+        }
+
+        recordingCanvas.flush()
+
+        assertThat(fakeBuffer.calls).contains("addContentStart")
+        assertThat(fakeBuffer.calls).contains("addContainerEnd")
+    }
+
+    @Test
+    fun testCustomComponent_booleanReturn_playerExecution() {
+        val boolState = MutableRemoteBoolean(false)
+        val expectedBoolId = boolState.getIdForCreationState(creationState)
+
+        recordingCanvas.custom("testBooleanReturn") {
+            bindReturn(1, boolState)
+        }
+        recordingCanvas.flush()
+
+        val coreDoc =
+            CoreDocument().apply {
+                fakeBuffer.buffer.index = 0
+                initFromBuffer(fakeBuffer)
+            }
+
+        var configuredVarId = -1
+        val remoteContext =
+            AndroidRemoteContext().apply {
+                useCanvas(Canvas(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)))
+            }
+        val customSupport =
+            object : AndroidCustomContext {
+                override fun setRemoteContext(remoteContext: RemoteContext?) {}
+
+                override fun setContext(context: Context) {}
+
+                override fun setCanvas(canvas: Canvas?) {}
+
+                override fun createCustom(id: Int, config: String) {}
+
+                override fun configureCustom(id: Int, type: Int, value: String) {}
+
+                override fun configureCustom(id: Int, type: Int, value: Int) {
+                    if (type == 1) {
+                        configuredVarId = value
+                        remoteContext.overrideInteger(value, 12345)
+                    }
+                }
+
+                override fun configureCustom(id: Int, type: Int, value: Float) {}
+
+                override fun measureCustom(id: Int, bounds: FloatArray) {}
+
+                override fun layoutCustom(id: Int, bounds: FloatArray) {}
+
+                override fun touchCustom(id: Int, type: Int, x: Float, y: Float): Boolean = false
+
+                override fun drawCustom(id: Int) {}
+            }
+        remoteContext.paintContext?.setCustomSupport(customSupport)
+
+        // Before paint, the boolean variable has its initial value 0 (false)
+        coreDoc.initializeContext(remoteContext)
+        assertThat(remoteContext.getInteger(expectedBoolId)).isEqualTo(0)
+
+        // Painting the document executes the custom component which updates the variable to 12345
+        coreDoc.paint(remoteContext, 0)
+
+        assertThat(configuredVarId).isEqualTo(expectedBoolId)
+        assertThat(remoteContext.getInteger(expectedBoolId)).isEqualTo(12345)
+    }
+
+    @Test
+    fun testCustomComponent_withMutableStateTypes_asInputs() {
+        val floatState = MutableRemoteFloat(5f)
+        val intState = MutableRemoteInt(42)
+        val stringState = MutableRemoteString("hello")
+        val boolState = MutableRemoteBoolean(true)
+
+        recordingCanvas.custom("mutableInputConfig") {
+            property(0, floatState)
+            property(1, intState)
+            property(2, stringState)
+            property(3, boolState)
+        }
+
+        recordingCanvas.flush()
+
+        assertThat(fakeBuffer.calls).contains("addContentStart")
+        assertThat(fakeBuffer.calls).contains("addContainerEnd")
+    }
+
+    @Test
+    fun testRemoteCustomPropertiesScope_generatesExpectedCustomProperties() {
+        val scope =
+            RemoteCustomPropertiesScope().apply {
+                property(0, 42)
+                property(1, ComposeColor(Color.RED))
+                property(2, 3.14f)
+                property(3, "test")
+                property(4, true)
+                property(5, 10f.rf)
+                property(6, 16.rdp)
+                property(7, "remoteString".rs)
+                property(8, 99.ri)
+                property(9, RemoteColor(Color.BLUE))
+                property(10, RemoteBoolean(false))
+                bindReturn(11, MutableRemoteFloat(1f))
+                bindReturn(12, MutableRemoteString("ret"))
+                bindReturn(13, MutableRemoteInt(7))
+                bindReturn(14, MutableRemoteBoolean(true))
+            }
+
+        val properties = scope.entries.map { it.toCustomProperty(creationState) }
+        assertThat(properties[0].mDataType).isEqualTo(CustomProperty.INT_PROP)
+        assertThat(properties[1].mDataType).isEqualTo(CustomProperty.COLOR_PROP)
+        assertThat(properties[2].mDataType).isEqualTo(CustomProperty.FLOAT_PROP)
+        assertThat(properties[3].mDataType).isEqualTo(CustomProperty.STRING_PROP)
+        assertThat(properties[4].mDataType).isEqualTo(CustomProperty.INT_PROP)
+        assertThat(properties[5].mDataType).isEqualTo(CustomProperty.FLOAT_PROP)
+        assertThat(properties[6].mDataType).isEqualTo(CustomProperty.FLOAT_PROP)
+        assertThat(properties[7].mDataType).isEqualTo(CustomProperty.STRING_PROP)
+        assertThat(properties[8].mDataType).isEqualTo(CustomProperty.INT_PROP)
+        assertThat(properties[9].mDataType).isEqualTo(CustomProperty.COLOR_PROP)
+        assertThat(properties[10].mDataType).isEqualTo(CustomProperty.INT_PROP)
+        assertThat(properties[11].mDataType).isEqualTo(CustomProperty.FLOAT_RETURN)
+        assertThat(properties[12].mDataType).isEqualTo(CustomProperty.TEXT_RETURN)
+        assertThat(properties[13].mDataType).isEqualTo(CustomProperty.INT_RETURN)
+        assertThat(properties[14].mDataType).isEqualTo(CustomProperty.INT_RETURN)
     }
 
     @Test

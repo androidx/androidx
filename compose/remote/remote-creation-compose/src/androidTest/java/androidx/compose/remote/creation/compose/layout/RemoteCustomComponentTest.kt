@@ -19,7 +19,15 @@ package androidx.compose.remote.creation.compose.layout
 import android.content.Context
 import android.view.View
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.Operation
+import androidx.compose.remote.core.WireBuffer
+import androidx.compose.remote.core.operations.Utils
+import androidx.compose.remote.core.operations.layout.Container
+import androidx.compose.remote.core.operations.layout.managers.Custom
+import androidx.compose.remote.core.operations.layout.managers.Custom.CustomProperty
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
+import androidx.compose.remote.creation.compose.state.rememberNamedRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteString
 import androidx.compose.remote.creation.compose.state.rf
@@ -68,9 +76,11 @@ class RemoteCustomComponentTest {
         val creationDisplayInfo = RemoteCreationDisplayInfo(200, 200, 160, 1.0f)
         val profile = TestProfiles.androidXExperimental
 
+        var capturedDoc: CoreDocument? = null
         remoteContentTestRule.setContent(
             remoteCreationDisplayInfo = creationDisplayInfo,
             profile = profile,
+            onCoreDocumentCreated = { capturedDoc = it },
             player =
                 object : RemoteBaseContentTestRule.Player {
                     @Composable
@@ -88,9 +98,17 @@ class RemoteCustomComponentTest {
             RemoteCustomComponent(name = "TextReturnCustom") { bindReturn(1, textState) }
         }
 
+        assertThat(capturedDoc).isNotNull()
+        val customOp = capturedDoc!!.findCustomOperations().single()
+        assertThat(capturedDoc!!.getText(customOp.configId)).isEqualTo("TextReturnCustom")
+        val prop = customOp.properties.single()
+        assertThat(prop.mType).isEqualTo(1.toShort())
+        assertThat(prop.mDataType).isEqualTo(CustomProperty.TEXT_RETURN)
+
         val remoteContext = customSupport.getRemoteContext() as? AndroidRemoteContext
         assertThat(remoteContext).isNotNull()
         val textVarId = remoteContext!!.getVariableId("USER:named_text_return")
+        assertThat(prop.mIntValue).isEqualTo(textVarId)
         assertThat(remoteContext.getText(textVarId)).isEqualTo("Returned from Custom")
     }
 
@@ -116,9 +134,11 @@ class RemoteCustomComponentTest {
         val creationDisplayInfo = RemoteCreationDisplayInfo(200, 200, 160, 1.0f)
         val profile = TestProfiles.androidXExperimental
 
+        var capturedDoc: CoreDocument? = null
         remoteContentTestRule.setContent(
             remoteCreationDisplayInfo = creationDisplayInfo,
             profile = profile,
+            onCoreDocumentCreated = { capturedDoc = it },
             player =
                 object : RemoteBaseContentTestRule.Player {
                     @Composable
@@ -136,9 +156,190 @@ class RemoteCustomComponentTest {
             RemoteCustomComponent(name = "FloatReturnCustom") { bindReturn(2, floatState) }
         }
 
+        assertThat(capturedDoc).isNotNull()
+        val customOp = capturedDoc!!.findCustomOperations().single()
+        assertThat(capturedDoc!!.getText(customOp.configId)).isEqualTo("FloatReturnCustom")
+        val prop = customOp.properties.single()
+        assertThat(prop.mType).isEqualTo(2.toShort())
+        assertThat(prop.mDataType).isEqualTo(CustomProperty.FLOAT_RETURN)
+
         val remoteContext = customSupport.getRemoteContext() as? AndroidRemoteContext
         assertThat(remoteContext).isNotNull()
         val floatVarId = remoteContext!!.getVariableId("USER:named_float_return")
+        assertThat(Utils.idFromNan(prop.mFloatValue)).isEqualTo(floatVarId)
         assertThat(remoteContext.getFloat(floatVarId)).isEqualTo(42.5f)
+    }
+
+    @Test
+    fun customComponent_booleanReturn() {
+        val customSupport = AndroidCustomContextImpl()
+        var returnVarId = -1
+        val booleanReturnDelegate =
+            object : AndroidComponentSupport {
+                override fun createView(context: Context): View = View(context)
+
+                override fun configure(view: View, type: Int, value: String) {}
+
+                override fun configure(view: View, type: Int, value: Int) {
+                    if (type == 3) {
+                        returnVarId = value
+                        (customSupport.getRemoteContext() as? AndroidRemoteContext)
+                            ?.overrideInteger(
+                                value,
+                                12345,
+                            )
+                    }
+                }
+
+                override fun configure(view: View, type: Int, value: Float) {}
+            }
+        customSupport.registerDelegate("BooleanReturnCustom", booleanReturnDelegate)
+
+        val creationDisplayInfo = RemoteCreationDisplayInfo(200, 200, 160, 1.0f)
+        val profile = TestProfiles.androidXExperimental
+
+        var capturedDoc: CoreDocument? = null
+        remoteContentTestRule.setContent(
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            profile = profile,
+            onCoreDocumentCreated = { capturedDoc = it },
+            player =
+                object : RemoteBaseContentTestRule.Player {
+                    @Composable
+                    override fun Play(coreDocument: CoreDocument, size: Size) {
+                        RemoteDocumentPlayer(
+                            document = coreDocument,
+                            documentWidth = size.width.toInt(),
+                            documentHeight = size.height.toInt(),
+                            customSupport = customSupport,
+                        )
+                    }
+                },
+        ) {
+            val boolState = rememberMutableRemoteBoolean(false)
+            RemoteCustomComponent(name = "BooleanReturnCustom") { bindReturn(3, boolState) }
+        }
+
+        assertThat(capturedDoc).isNotNull()
+        val customOp = capturedDoc!!.findCustomOperations().single()
+        assertThat(capturedDoc!!.getText(customOp.configId)).isEqualTo("BooleanReturnCustom")
+        val prop = customOp.properties.single()
+        assertThat(prop.mType).isEqualTo(3.toShort())
+        assertThat(prop.mDataType).isEqualTo(CustomProperty.INT_RETURN)
+        val expectedBoolId = prop.mIntValue
+
+        val remoteContext = customSupport.getRemoteContext() as? AndroidRemoteContext
+        assertThat(remoteContext).isNotNull()
+        assertThat(returnVarId).isEqualTo(expectedBoolId)
+        assertThat(remoteContext!!.getInteger(expectedBoolId)).isEqualTo(12345)
+    }
+
+    @Test
+    fun customComponent_namedBooleanReturn() {
+        val customSupport = AndroidCustomContextImpl()
+        val booleanReturnDelegate =
+            object : AndroidComponentSupport {
+                override fun createView(context: Context): View = View(context)
+
+                override fun configure(view: View, type: Int, value: String) {}
+
+                override fun configure(view: View, type: Int, value: Int) {
+                    if (type == 3) {
+                        (customSupport.getRemoteContext() as? AndroidRemoteContext)
+                            ?.overrideInteger(
+                                value,
+                                1,
+                            )
+                    }
+                }
+
+                override fun configure(view: View, type: Int, value: Float) {}
+            }
+        customSupport.registerDelegate("NamedBooleanReturnCustom", booleanReturnDelegate)
+
+        val creationDisplayInfo = RemoteCreationDisplayInfo(200, 200, 160, 1.0f)
+        val profile = TestProfiles.androidXExperimental
+
+        var capturedDoc: CoreDocument? = null
+        remoteContentTestRule.setContent(
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            profile = profile,
+            onCoreDocumentCreated = { capturedDoc = it },
+            player =
+                object : RemoteBaseContentTestRule.Player {
+                    @Composable
+                    override fun Play(coreDocument: CoreDocument, size: Size) {
+                        RemoteDocumentPlayer(
+                            document = coreDocument,
+                            documentWidth = size.width.toInt(),
+                            documentHeight = size.height.toInt(),
+                            customSupport = customSupport,
+                        )
+                    }
+                },
+        ) {
+            val boolState = rememberNamedRemoteBoolean("named_bool_return", false)
+            RemoteCustomComponent(name = "NamedBooleanReturnCustom") { bindReturn(3, boolState) }
+        }
+
+        assertThat(capturedDoc).isNotNull()
+        val customOp = capturedDoc!!.findCustomOperations().single()
+        assertThat(capturedDoc!!.getText(customOp.configId)).isEqualTo("NamedBooleanReturnCustom")
+        val prop = customOp.properties.single()
+        assertThat(prop.mType).isEqualTo(3.toShort())
+        assertThat(prop.mDataType).isEqualTo(CustomProperty.INT_RETURN)
+
+        val remoteContext = customSupport.getRemoteContext() as? AndroidRemoteContext
+        assertThat(remoteContext).isNotNull()
+        val boolVarId = remoteContext!!.getVariableId("USER:named_bool_return")
+        assertThat(prop.mIntValue).isEqualTo(boolVarId)
+        assertThat(remoteContext.getInteger(boolVarId)).isEqualTo(1)
+    }
+
+    private fun CoreDocument.findCustomOperations(): List<Custom> {
+        val result = mutableListOf<Custom>()
+        fun traverse(ops: List<Operation>) {
+            for (op in ops) {
+                if (op is Custom) {
+                    result.add(op)
+                }
+                if (op is Container) {
+                    traverse(op.list)
+                }
+            }
+        }
+        traverse(operations)
+        return result
+    }
+
+    private val Custom.configId: Int
+        get() = parseFromWireBuffer().first
+
+    private val Custom.properties: List<CustomProperty>
+        get() = parseFromWireBuffer().second
+
+    private fun Custom.parseFromWireBuffer(): Pair<Int, List<CustomProperty>> {
+        val buffer = WireBuffer()
+        write(buffer)
+        buffer.setIndex(0)
+        buffer.readByte() // Operations.LAYOUT_CUSTOM
+        buffer.readInt() // componentId
+        buffer.readInt() // animationId
+        val configId = buffer.readId()
+        val propCount = buffer.readInt()
+        val properties = buildList {
+            for (i in 0 until propCount) {
+                val type = buffer.readShort().toShort()
+                val dataType = buffer.readShort().toShort()
+                if (
+                    dataType == CustomProperty.FLOAT_PROP || dataType == CustomProperty.FLOAT_RETURN
+                ) {
+                    add(CustomProperty(type, dataType, buffer.readFloat()))
+                } else {
+                    add(CustomProperty(type, dataType, buffer.readInt()))
+                }
+            }
+        }
+        return configId to properties
     }
 }
