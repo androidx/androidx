@@ -38,6 +38,7 @@ val Demos =
             ComposableDemo("Surface") { SurfaceSampleUsage() },
             ComposableDemo("Icons") { IconSampleUsage() },
             ComposableDemo("Cards") { CardSampleUsage() },
+            ComposableDemo("AlertDialog") { AlertDialogDemo() },
             DemoCategory("Buttons", ButtonDemos),
             DemoCategory("ButtonGroups", ButtonGroupDemos),
             ComposableDemo("ListItems") { ListItemSampleUsage() },
