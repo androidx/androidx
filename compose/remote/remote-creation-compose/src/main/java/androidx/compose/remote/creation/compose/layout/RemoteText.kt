@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
+import androidx.compose.remote.creation.compose.text.combineFontSettings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -126,7 +127,8 @@ public fun RemoteText(
         lineBreak = style.lineBreak,
         hyphens = style.hyphens,
         textDecoration = style.textDecoration,
-        fontVariationSettings = style.combinedFontVariationSettings,
+        fontVariationSettings = style.fontVariationSettings,
+        fontFeatureSettings = style.fontFeatureSettings,
     )
 }
 
@@ -154,6 +156,7 @@ public fun RemoteText(
     hyphens: Hyphens = Hyphens.Unspecified,
     textDecoration: TextDecoration? = null,
     fontVariationSettings: FontVariation.Settings? = null,
+    fontFeatureSettings: String? = null,
 ) {
     val fontWeightAdjustment = LocalFontWeightAdjustment.current
 
@@ -180,6 +183,7 @@ public fun RemoteText(
             set(lineBreak) { this.lineBreakStrategy = lineBreak.encode() }
             set(hyphens) { this.hyphenationFrequency = hyphens.encode() }
             set(fontVariationSettings) { this.fontVariationSettings = it }
+            set(fontFeatureSettings) { this.fontFeatureSettings = it }
         },
     )
 }
@@ -204,6 +208,7 @@ internal class RemoteTextNode : RemoteComposeNode() {
     var lineBreakStrategy: Int = 0
     var hyphenationFrequency: Int = 0
     var fontVariationSettings: FontVariation.Settings? = null
+    var fontFeatureSettings: String? = null
 
     private fun extractFontSettings(
         settings: List<FontVariation.Setting>?
@@ -227,7 +232,8 @@ internal class RemoteTextNode : RemoteComposeNode() {
                 -1
             }
 
-        val (fontAxisNames, fontAxisValues) = extractFontSettings(fontVariationSettings?.settings)
+        val combinedSettings = combineFontSettings(fontFeatureSettings, fontVariationSettings)
+        val (fontAxisNames, fontAxisValues) = extractFontSettings(combinedSettings?.settings)
 
         val fontSizePxId = fontSize.toPx(remoteDensity).getFloatIdForCreationState(creationState)
 
