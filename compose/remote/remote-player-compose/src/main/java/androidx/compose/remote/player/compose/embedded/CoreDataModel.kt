@@ -125,7 +125,11 @@ internal data class MarqueeModifierOperationData(
     val velocity: Float,
 )
 
-internal data class GraphicsLayerAttributeValueData(val name: String, val id: Int, val value: Float)
+internal data class GraphicsLayerAttributeValueData(
+    val name: String,
+    val id: Int,
+    val source: Float,
+)
 
 internal data class HostNamedActionOperationData(val textId: Int, val type: Int, val valueId: Int)
 

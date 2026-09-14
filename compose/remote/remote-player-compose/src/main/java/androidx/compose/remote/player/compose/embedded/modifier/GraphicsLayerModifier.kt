@@ -19,7 +19,6 @@
 package androidx.compose.remote.player.compose.embedded.modifier
 
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation
-import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.getValuesReflection
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
@@ -28,28 +27,30 @@ import androidx.compose.ui.graphics.graphicsLayer
 
 @Composable
 internal fun Modifier.graphicsLayer(op: GraphicsLayerModifierOperation): Modifier {
-    val document = LocalCoreDocument.current
     val values = op.getValuesReflection()
     val scaleX =
-        rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.SCALE_X].value).value
+        rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.SCALE_X].source).value
     val scaleY =
-        rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.SCALE_Y].value).value
-    val alpha = rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.ALPHA].value).value
+        rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.SCALE_Y].source).value
+    val alpha =
+        rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.ALPHA].source).value
     val translationX =
-        rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.TRANSLATION_X].value).value
+        rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.TRANSLATION_X].source)
+            .value
     val translationY =
-        rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.TRANSLATION_Y].value).value
+        rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.TRANSLATION_Y].source)
+            .value
     val shadowElevation =
-        rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.SHADOW_ELEVATION].value)
+        rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.SHADOW_ELEVATION].source)
             .value
     val rotationX =
-        rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.ROTATION_X].value).value
+        rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.ROTATION_X].source).value
     val rotationY =
-        rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.ROTATION_Y].value).value
+        rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.ROTATION_Y].source).value
     val rotationZ =
-        rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.ROTATION_Z].value).value
+        rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.ROTATION_Z].source).value
     val cameraDistance =
-        rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.CAMERA_DISTANCE].value)
+        rememberRemoteFloatAsState(values[GraphicsLayerModifierOperation.CAMERA_DISTANCE].source)
             .value
 
     return this.graphicsLayer {
