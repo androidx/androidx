@@ -96,7 +96,7 @@ class SpatialAudioActivity : ComponentActivity() {
             PointSourceExoplayerAudioOutput(session, PointSourceParams())
         }
         val pointSourcePlayer = remember {
-            ExoPlayer.Builder(context)
+            ExoPlayer.Builder(context.applicationContext)
                 .setAudioOutputProvider(pointSourceOutput.audioOutputProvider)
                 .build()
         }
@@ -109,7 +109,7 @@ class SpatialAudioActivity : ComponentActivity() {
             )
         }
         val soundFieldPlayer = remember {
-            ExoPlayer.Builder(context)
+            ExoPlayer.Builder(context.applicationContext)
                 .setAudioOutputProvider(soundFieldOutput.audioOutputProvider)
                 .build()
         }

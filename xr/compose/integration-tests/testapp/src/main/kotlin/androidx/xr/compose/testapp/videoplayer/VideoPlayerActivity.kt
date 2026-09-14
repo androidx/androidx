@@ -184,6 +184,7 @@ class VideoPlayerActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        exoPlayer?.clearVideoSurface()
         exoPlayer?.release()
         exoPlayer = null
         if (alphaMaskTexture != null) {
@@ -228,13 +229,14 @@ class VideoPlayerActivity : ComponentActivity() {
 
     fun initializeExoPlayer(context: Context): ExoPlayer {
         if (exoPlayer == null) {
-            exoPlayer = ExoPlayer.Builder(context).build()
+            exoPlayer = ExoPlayer.Builder(context.applicationContext).build()
         }
         return exoPlayer!!
     }
 
     fun destroySurfaceEntity() {
         videoPlaying = false
+        exoPlayer?.clearVideoSurface()
         exoPlayer?.release()
         exoPlayer = null
         surfaceEntity!!.parent = null
