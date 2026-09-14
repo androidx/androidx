@@ -74,6 +74,7 @@ internal fun KSType.replaceTypeAliases(resolver: Resolver): KSType {
                 .type
                 .resolve()
                 .replaceTypeArgs(resolver, typeParamNameToTypeArgs)
+                .replaceTypeAliases(resolver)
         } else {
             this
         }

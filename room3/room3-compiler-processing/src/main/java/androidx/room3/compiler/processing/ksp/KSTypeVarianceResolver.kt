@@ -90,7 +90,9 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
                     declaration.typeParameters.indices.associate { i ->
                         declaration.typeParameters[i].name.asString() to arguments[i]
                     }
-                replaceType(declaration.type.resolve()).replaceTypeArgs(typeParamNameToTypeArgs)
+                replaceType(declaration.type.resolve())
+                    .replaceTypeArgs(typeParamNameToTypeArgs)
+                    .replaceTypeAliases()
             } else {
                 this
             }
@@ -422,7 +424,11 @@ private class KSTypeWrapper(
     }
 
     fun replaceType(newType: KSType): KSTypeWrapper =
-        copy(newType = newType, annotations = annotations + newType.annotations)
+        copy(
+            newType = newType,
+            newTypeArguments = null,
+            annotations = annotations + newType.annotations,
+        )
 
     fun replace(newTypeArguments: List<KSTypeArgumentWrapper>) =
         copy(newTypeArguments = newTypeArguments)
