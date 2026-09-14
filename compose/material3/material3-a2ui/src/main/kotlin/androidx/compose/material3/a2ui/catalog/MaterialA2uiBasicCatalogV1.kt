@@ -67,6 +67,8 @@ import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
  *   [MaterialA2uiBasicCatalogV1Defaults.textField]
  * @param checkBox [A2uiBasicCatalogV1.CheckBox] component implementation, defaults to
  *   [MaterialA2uiBasicCatalogV1Defaults.checkBox]
+ * @param choicePicker [A2uiBasicCatalogV1.ChoicePicker] component implementation, defaults to
+ *   [MaterialA2uiBasicCatalogV1Defaults.choicePicker]
  * @param slider [A2uiBasicCatalogV1.Slider] component implementation, defaults to
  *   [MaterialA2uiBasicCatalogV1Defaults.slider]
  * @param dateTimeInput [A2uiBasicCatalogV1.DateTimeInput] component implementation, defaults to
@@ -92,6 +94,7 @@ public fun materialA2uiBasicCatalogV1(
     button: A2uiBasicCatalogV1.Button = MaterialA2uiBasicCatalogV1Defaults.button,
     textField: A2uiBasicCatalogV1.TextField = MaterialA2uiBasicCatalogV1Defaults.textField,
     checkBox: A2uiBasicCatalogV1.CheckBox = MaterialA2uiBasicCatalogV1Defaults.checkBox,
+    choicePicker: A2uiBasicCatalogV1.ChoicePicker = MaterialA2uiBasicCatalogV1Defaults.choicePicker,
     slider: A2uiBasicCatalogV1.Slider = MaterialA2uiBasicCatalogV1Defaults.slider,
     dateTimeInput: A2uiBasicCatalogV1.DateTimeInput =
         MaterialA2uiBasicCatalogV1Defaults.dateTimeInput,
@@ -114,6 +117,7 @@ public fun materialA2uiBasicCatalogV1(
             button = button,
             textField = textField,
             checkBox = checkBox,
+            choicePicker = choicePicker,
             slider = slider,
             dateTimeInput = dateTimeInput,
             // TODO(b/547851648): Add the rest of the basic catalog component types.
@@ -187,6 +191,10 @@ public object MaterialA2uiBasicCatalogV1Defaults {
 
     /** Default Material 3 implementation of the [A2uiBasicCatalogV1.CheckBox] component. */
     public val checkBox: A2uiBasicCatalogV1.CheckBox = MaterialA2uiBasicCatalogV1CheckBox
+
+    /** Default Material 3 implementation of the [A2uiBasicCatalogV1.ChoicePicker] component. */
+    public val choicePicker: A2uiBasicCatalogV1.ChoicePicker =
+        MaterialA2uiBasicCatalogV1ChoicePicker
 
     /** Default Material 3 implementation of the [A2uiBasicCatalogV1.Slider] component. */
     public val slider: A2uiBasicCatalogV1.Slider = MaterialA2uiBasicCatalogV1Slider

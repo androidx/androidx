@@ -26,7 +26,9 @@ import androidx.a2ui.compose.runtime.StaticA2uiProperty
 import androidx.a2ui.compose.ui.A2uiComponent
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.protocol.A2uiException
+import androidx.a2ui.model.protocol.A2uiException.A2uiRuntimeException
 import androidx.a2ui.model.schema.A2uiAnySchema
+import androidx.a2ui.model.schema.A2uiArraySchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.A2uiSchemaKeyword
@@ -34,8 +36,10 @@ import androidx.a2ui.model.schema.A2uiStringSchema
 import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDataBindingSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
+import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -70,6 +74,7 @@ import java.util.TimeZone
  * @property button The [Button] component implementation.
  * @property textField The [TextField] component implementation.
  * @property checkBox The [CheckBox] component implementation.
+ * @property choicePicker The [ChoicePicker] component implementation.
  * @property slider The [Slider] component implementation.
  * @property dateTimeInput The [DateTimeInput] component implementation.
  * @property functions The list of [A2uiFunction]s supported by this catalog, recommended default is
@@ -92,6 +97,7 @@ public class A2uiBasicCatalogV1(
     public val button: Button,
     public val textField: TextField,
     public val checkBox: CheckBox,
+    public val choicePicker: ChoicePicker,
     public val slider: Slider,
     public val dateTimeInput: DateTimeInput,
     // TODO(b/547851648): Add the rest of the basic catalog component types.
@@ -122,6 +128,7 @@ public class A2uiBasicCatalogV1(
             button,
             textField,
             checkBox,
+            choicePicker,
             slider,
             dateTimeInput,
             // TODO(b/547851648): Add the rest of the basic catalog component types.
@@ -2476,6 +2483,311 @@ public class A2uiBasicCatalogV1(
             accessibility: AccessibilityAttributes?,
             modifier: Modifier,
         )
+    }
+
+    /**
+     * The A2UI `"ChoicePicker"` component for selecting one or more options from a list.
+     *
+     * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the choice picker.
+     * * `label` (Dynamic String, optional): The label for the group of options.
+     * * `variant` (String Enum, optional): A hint for how the choice picker should be displayed and
+     *   behave. Valid options: `"mutuallyExclusive"`, `"multipleSelection"`. Defaults to
+     *   `"mutuallyExclusive"`.
+     * * `options` (NestedList, required): The list of available options to choose from. Each item
+     *   defines `label` (Dynamic String, required) and `value` (String, required).
+     * * `value` (Dynamic String List, required): The list of currently selected values. This should
+     *   be bound to a string array in the data model.
+     * * `displayStyle` (String Enum, optional): The display style of the component. Valid options:
+     *   `"checkbox"`, `"chips"`. Defaults to `"checkbox"`.
+     * * `filterable` (Boolean, optional): If true, displays a search input to filter the options.
+     *   Defaults to `false`.
+     */
+    public interface ChoicePicker : A2uiComponent {
+        override val name: String
+            get() = "ChoicePicker"
+
+        override val description: String
+            get() = "A component that allows selecting one or more options from a list."
+
+        /** A hint for how the choice picker should be displayed and behave. */
+        public enum class Variant(public val value: String) {
+            MutuallyExclusive("mutuallyExclusive"),
+            MultipleSelection("multipleSelection");
+
+            public companion object {
+                /** The default variant when unspecified in the component payload. */
+                public val Default: Variant = MutuallyExclusive
+
+                /** Returns the [Variant] matching [value], or [Default] if unknown. */
+                public fun fromValue(value: String): Variant =
+                    entries.fastFirstOrNull { it.value == value } ?: Default
+            }
+        }
+
+        /** The display style of the choice picker component. */
+        public enum class DisplayStyle(public val value: String) {
+            Checkbox("checkbox"),
+            Chips("chips");
+
+            public companion object {
+                /** The default display style when unspecified in the component payload. */
+                public val Default: DisplayStyle = Checkbox
+
+                /** Returns the [DisplayStyle] matching [value], or [Default] if unknown. */
+                public fun fromValue(value: String): DisplayStyle =
+                    entries.fastFirstOrNull { it.value == value } ?: Default
+            }
+        }
+
+        /** Represents a choice picker option with its evaluated label and stable value. */
+        @Immutable
+        public class Option(public val label: String, public val value: String) {
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (other !is Option) return false
+                if (label != other.label) return false
+                if (value != other.value) return false
+                return true
+            }
+
+            override fun hashCode(): Int {
+                var result = label.hashCode()
+                result = 31 * result + value.hashCode()
+                return result
+            }
+
+            override fun toString(): String {
+                return "Option(label='$label', value='$value')"
+            }
+        }
+
+        public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of a [ChoicePicker]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
+            /** The [A2uiProperty] for the `"label"` property of a [ChoicePicker]. */
+            public val LabelProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicString(
+                    key = "label",
+                    required = false,
+                    description = "The label for the group of options.",
+                )
+
+            /** The [A2uiProperty] for the `"variant"` property of a [ChoicePicker]. */
+            public val VariantProperty: StaticA2uiProperty<Variant> =
+                A2uiProperty.enum(
+                    key = "variant",
+                    enumValues = Variant.entries,
+                    mapToString = { it.value },
+                    convertFromString = Variant::fromValue,
+                    defaultValue = Variant.Default,
+                    description =
+                        "A hint for how the choice picker should be displayed and behave.",
+                )
+
+            /** The [A2uiProperty] for the `"options"` property of a [ChoicePicker]. */
+            public val OptionsProperty: DynamicA2uiProperty<kotlin.collections.List<Option>> =
+                A2uiProperty.dynamicCustom(
+                    key = "options",
+                    required = true,
+                    schema =
+                        A2uiArraySchema(
+                            items =
+                                A2uiObjectSchema(
+                                    properties =
+                                        mapOf(
+                                            "label" to
+                                                A2uiDynamicStringSchema(
+                                                    description =
+                                                        "The text to display for this option."
+                                                ),
+                                            "value" to
+                                                A2uiStringSchema(
+                                                    description =
+                                                        "The stable value associated with " +
+                                                            "this option."
+                                                ),
+                                        ),
+                                    required = setOf("label", "value"),
+                                    isAdditionalPropertiesAllowed = false,
+                                ),
+                            description = "The list of available options to choose from.",
+                        ),
+                    safeCast = { value ->
+                        val list = value as? kotlin.collections.List<*> ?: return@dynamicCustom null
+                        buildList(list.size) {
+                            for (i in list.indices) {
+                                when (val item = list[i]) {
+                                    is Option -> add(item)
+                                    is Map<*, *> -> {
+                                        val label =
+                                            item["label"]?.toString() ?: return@dynamicCustom null
+                                        val optionValue =
+                                            item["value"]?.toString() ?: return@dynamicCustom null
+                                        add(Option(label = label, value = optionValue))
+                                    }
+                                    else -> return@dynamicCustom null
+                                }
+                            }
+                        }
+                    },
+                )
+
+            /** The [A2uiProperty] for the `"value"` property of a [ChoicePicker]. */
+            public val ValueProperty: DynamicA2uiProperty<kotlin.collections.List<String>> =
+                A2uiProperty.dynamicStringList(
+                    key = "value",
+                    required = true,
+                    description =
+                        "The list of currently selected values. This should be bound to a " +
+                            "string array in the data model.",
+                )
+
+            /** The [A2uiProperty] for the `"displayStyle"` property of a [ChoicePicker]. */
+            public val DisplayStyleProperty: StaticA2uiProperty<DisplayStyle> =
+                A2uiProperty.enum(
+                    key = "displayStyle",
+                    enumValues = DisplayStyle.entries,
+                    mapToString = { it.value },
+                    convertFromString = DisplayStyle::fromValue,
+                    defaultValue = DisplayStyle.Default,
+                    description = "The display style of the component.",
+                )
+
+            /** The [A2uiProperty] for the `"filterable"` property of a [ChoicePicker]. */
+            public val FilterableProperty: StaticA2uiProperty<Boolean> =
+                A2uiProperty.booleanWithDefault(
+                    key = "filterable",
+                    defaultValue = false,
+                    description = "If true, displays a search input to filter the options.",
+                )
+
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
+                listOf(
+                    AccessibilityProperty,
+                    WeightProperty,
+                    LabelProperty,
+                    VariantProperty,
+                    OptionsProperty,
+                    ValueProperty,
+                    DisplayStyleProperty,
+                    FilterableProperty,
+                )
+        }
+
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean {
+            return properties.bind(OptionsProperty) != null &&
+                properties.bind(ValueProperty) != null
+        }
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val options =
+                checkNotNull(properties.bind(OptionsProperty)) {
+                    "Required property '${OptionsProperty.key}' is missing."
+                }
+            val value =
+                checkNotNull(properties.bind(ValueProperty)) {
+                    "Required property '${ValueProperty.key}' is missing."
+                }
+            val onValueChange = properties.bindUpdater(ValueProperty)
+            val isEnabled = onValueChange != null
+
+            val label = properties.bind(LabelProperty)
+            val variant = properties[VariantProperty] ?: Variant.Default
+            val displayStyle = properties[DisplayStyleProperty] ?: DisplayStyle.Default
+            val filterable = properties[FilterableProperty] ?: false
+            val accessibility = properties.bind(AccessibilityProperty)
+
+            ReportDuplicateOptions(options)
+
+            TypedContent(
+                label = label,
+                options = options,
+                value = value,
+                variant = variant,
+                displayStyle = displayStyle,
+                filterable = filterable,
+                onValueChange = { newValue -> onValueChange?.invoke(newValue) },
+                enabled = isEnabled,
+                accessibility = accessibility,
+                modifier = modifier,
+            )
+        }
+
+        /**
+         * Renders the [ChoicePicker] with its resolved properties.
+         *
+         * @param label The label for the group of options.
+         * @param options The list of available options to choose from.
+         * @param value The list of currently selected values.
+         * @param variant A hint for how the choice picker should be displayed and behave.
+         * @param displayStyle The display style of the component.
+         * @param filterable If true, displays a search input to filter the options.
+         * @param onValueChange Callback invoked when user selects or deselects options.
+         * @param enabled Controls the enabled state of the choice picker.
+         * @param accessibility Accessibility attributes for the choice picker.
+         * @param modifier [Modifier] to apply to the layout.
+         */
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            label: String?,
+            options: kotlin.collections.List<Option>,
+            value: kotlin.collections.List<String>,
+            variant: Variant,
+            displayStyle: DisplayStyle,
+            filterable: Boolean,
+            onValueChange: (kotlin.collections.List<String>) -> Unit,
+            enabled: Boolean,
+            accessibility: AccessibilityAttributes?,
+            modifier: Modifier,
+        )
+
+        @Composable
+        private fun A2uiComponentScope.ReportDuplicateOptions(
+            options: kotlin.collections.List<Option>
+        ) {
+            val duplicates =
+                remember(options) {
+                    val seen = mutableScatterSetOf<String>()
+                    val dups = mutableScatterSetOf<String>()
+                    for (i in options.indices) {
+                        val option = options[i]
+                        if (!seen.add(option.value)) {
+                            dups.add(option.value)
+                        }
+                    }
+                    dups
+                }
+
+            if (duplicates.isNotEmpty()) {
+                LaunchedEffect(duplicates) {
+                    val duplicatesString = buildString {
+                        var first = true
+                        duplicates.forEach { duplicate ->
+                            if (!first) append(", ")
+                            append("'$duplicate'")
+                            first = false
+                        }
+                    }
+                    reportError(
+                        A2uiRuntimeException(
+                            "Duplicate option values [$duplicatesString] found in " +
+                                "ChoicePicker options."
+                        )
+                    )
+                }
+            }
+        }
     }
 
     override fun equals(other: Any?): Boolean {
