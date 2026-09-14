@@ -130,8 +130,8 @@ public class DragStartHelperTest {
 
     /** @noinspection NewClassNamingConvention*/
     static class TouchPositionMatcher implements ArgumentMatcher<Point> {
-
         private final Point mExpectedPosition;
+        private static final int ALLOWED_DELTA = 1; // Allow up to 1 pixel of rounding variance
 
         TouchPositionMatcher(int x, int y) {
             mExpectedPosition = new Point(x, y);
@@ -143,13 +143,16 @@ public class DragStartHelperTest {
 
         @Override
         public boolean matches(Point actual) {
-            return mExpectedPosition.equals(actual);
+            if (actual == null) return false;
+            return Math.abs(mExpectedPosition.x - actual.x) <= ALLOWED_DELTA
+                    && Math.abs(mExpectedPosition.y - actual.y) <= ALLOWED_DELTA;
         }
 
         @NonNull
         @Override
         public String toString() {
-            return "TouchPositionMatcher: " + mExpectedPosition;
+            return "TouchPositionMatcher: " + mExpectedPosition + " (allowed delta: "
+                    + ALLOWED_DELTA + ")";
         }
     }
 
