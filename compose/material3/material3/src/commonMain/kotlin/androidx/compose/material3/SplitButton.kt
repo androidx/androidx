@@ -113,6 +113,8 @@ import androidx.compose.ui.util.fastFirst
  *   [SplitButtonDefaults.TrailingButton]
  * @param modifier the [Modifier] to be applied to this split button.
  * @param spacing The spacing between the [leadingButton] and [trailingButton]
+ *
+ * @material3expressive
  */
 @Composable
 public fun SplitButtonLayout(
