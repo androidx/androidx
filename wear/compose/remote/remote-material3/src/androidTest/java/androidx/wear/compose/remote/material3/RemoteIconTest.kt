@@ -19,6 +19,7 @@ import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.toRemoteImageVector
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.border
@@ -110,7 +111,7 @@ class RemoteIconTest {
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             RemoteIcon(
-                imageVector = Icons.Filled.Favorite,
+                imageVector = Icons.Filled.Favorite.toRemoteImageVector(),
                 contentDescription = null,
                 modifier = RemoteModifier.size(48.rdp),
             )

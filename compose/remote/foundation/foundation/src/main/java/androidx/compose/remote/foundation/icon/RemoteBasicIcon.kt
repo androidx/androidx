@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.painter.RemotePainter
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.rc
@@ -62,7 +63,11 @@ public fun RemoteBasicIcon(
     RemoteBox(
         modifier.semantics { this.contentDescription = contentDescription }.defaultSizeFor(painter)
     ) {
-        RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) { with(painter) { onDraw() } }
+        RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+            with(painter) { onDraw() }
+            // TODO(b/474687917): Temporary fix to reset tinted paint
+            usePaint(RemotePaint()) {}
+        }
     }
 }
 

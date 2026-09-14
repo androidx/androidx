@@ -16,13 +16,21 @@
 
 package androidx.compose.remote.creation.compose.capture
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.asRdp
+import androidx.compose.remote.creation.compose.state.asRemoteDp
+import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.vector.RemotePathData
 import androidx.compose.remote.creation.compose.vector.RemotePathNode
 import androidx.compose.remote.creation.compose.vector.RemotePathScope
+import androidx.compose.remote.creation.compose.vector.toRemotePathNodes
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -31,7 +39,11 @@ import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.DefaultFillType
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.VectorGroup
+import androidx.compose.ui.graphics.vector.VectorPath
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.isSpecified
 
 /**
  * A base class for defining vector graphics that can be drawn in a remote compose. It could be
@@ -43,11 +55,12 @@ public class RemoteImageVector
  * Create a RemoteImageVector.
  *
  * @param name Name of the Vector asset
- * @param viewportWidth Used to define the height of the viewport space. Viewport is basically the
+ * @param defaultWidth The default width of the vector asset
+ * @param defaultHeight The default height of the vector asset
+ * @param viewportWidth Used to define the width of the viewport space. Viewport is basically the
  *   virtual canvas where the paths are drawn on.
- * @param viewportHeight Used to define the width of the viewport space. Viewport is basically the
+ * @param viewportHeight Used to define the height of the viewport space. Viewport is basically the
  *   virtual canvas where the paths are drawn on.
- * @param root Root group of the vector asset that contains all the child groups and paths
  * @param tintColor Optional tint color to be applied to the vector graphic
  * @param tintBlendMode Blend mode used to apply [tintColor]
  * @param autoMirror Determines if the vector asset should automatically be mirrored for right to
@@ -55,13 +68,35 @@ public class RemoteImageVector
  */
 internal constructor(
     internal val name: String,
+    internal val defaultWidth: RemoteFloat,
+    internal val defaultHeight: RemoteFloat,
     internal val viewportWidth: RemoteFloat,
     internal val viewportHeight: RemoteFloat,
     internal val tintColor: RemoteColor = RemoteColor(Color.Unspecified),
     internal val tintBlendMode: BlendMode = BlendMode.SrcIn,
     internal val autoMirror: Boolean = false,
 ) {
+    internal constructor(
+        name: String,
+        viewportWidth: RemoteFloat,
+        viewportHeight: RemoteFloat,
+        tintColor: RemoteColor = RemoteColor(Color.Black),
+        tintBlendMode: BlendMode = BlendMode.SrcIn,
+        autoMirror: Boolean = false,
+    ) : this(
+        name = name,
+        defaultWidth = viewportWidth,
+        defaultHeight = viewportHeight,
+        viewportWidth = viewportWidth,
+        viewportHeight = viewportHeight,
+        tintColor = tintColor,
+        tintBlendMode = tintBlendMode,
+        autoMirror = autoMirror,
+    )
+
     internal lateinit var root: RemoteVectorGroup
+
+    public companion object
 
     /**
      * Builder used to construct a Vector graphic tree. This is useful for caching the result of
@@ -69,36 +104,60 @@ internal constructor(
      * graphic could be serialized and downloaded from a server and represented internally in a
      * ImageVector before it is composed through The generated ImageVector is recommended to be
      * memoized across composition calls to avoid doing redundant work
+     *
+     * @param defaultWidth The default width of the vector asset in [RemoteDp]
+     * @param defaultHeight The default height of the vector asset in [RemoteDp]
+     * @param viewportWidth Used to define the width of the viewport space. Viewport is basically
+     *   the virtual canvas where the paths are drawn on.
+     * @param viewportHeight Used to define the height of the viewport space. Viewport is basically
+     *   the virtual canvas where the paths are drawn on.
+     * @param tintColor Optional color used to tint the entire vector image
+     * @param name Name of the vector asset
+     * @param tintBlendMode Blend mode used to apply the tint color
+     * @param autoMirror Determines if the vector asset should automatically be mirrored for right
+     *   to left locales
      */
     @Suppress("MissingGetterMatchingBuilder", "EmptyBuilder")
     public class Builder(
-
-        /**
-         * Used to define the width of the viewport space. Viewport is basically the virtual canvas
-         * where the paths are drawn on.
-         */
+        private val defaultWidth: RemoteDp,
+        private val defaultHeight: RemoteDp,
         private val viewportWidth: RemoteFloat,
-
-        /**
-         * Used to define the height of the viewport space. Viewport is basically the virtual canvas
-         * where the paths are drawn on.
-         */
         private val viewportHeight: RemoteFloat,
-
-        /** Optional color used to tint the entire vector image */
         private val tintColor: RemoteColor,
-
-        /** Name of the vector asset */
         private val name: String = DefaultGroupName,
-
-        /** Blend mode used to apply the tint color */
         private val tintBlendMode: BlendMode = BlendMode.SrcIn,
-
-        /**
-         * Determines if the vector asset should automatically be mirrored for right to left locales
-         */
         private val autoMirror: Boolean = false,
     ) {
+        /**
+         * Create a [Builder] with default dimensions matching [viewportWidth] and [viewportHeight].
+         *
+         * @param viewportWidth Used to define the width of the viewport space. Viewport is
+         *   basically the virtual canvas where the paths are drawn on.
+         * @param viewportHeight Used to define the height of the viewport space. Viewport is
+         *   basically the virtual canvas where the paths are drawn on.
+         * @param tintColor Optional color used to tint the entire vector image
+         * @param name Name of the vector asset
+         * @param tintBlendMode Blend mode used to apply the tint color
+         * @param autoMirror Determines if the vector asset should automatically be mirrored for
+         *   right to left locales
+         */
+        public constructor(
+            viewportWidth: RemoteFloat,
+            viewportHeight: RemoteFloat,
+            tintColor: RemoteColor,
+            name: String = DefaultGroupName,
+            tintBlendMode: BlendMode = BlendMode.SrcIn,
+            autoMirror: Boolean = false,
+        ) : this(
+            defaultWidth = viewportWidth.asRemoteDp(),
+            defaultHeight = viewportHeight.asRemoteDp(),
+            viewportWidth = viewportWidth,
+            viewportHeight = viewportHeight,
+            tintColor = tintColor,
+            name = name,
+            tintBlendMode = tintBlendMode,
+            autoMirror = autoMirror,
+        )
 
         private val nodes = ArrayList<RemoteGroupParams>()
 
@@ -249,6 +308,8 @@ internal constructor(
             val vectorImage =
                 RemoteImageVector(
                         name = name,
+                        defaultWidth = defaultWidth.value,
+                        defaultHeight = defaultHeight.value,
                         viewportWidth = viewportWidth,
                         viewportHeight = viewportHeight,
                         tintColor = tintColor,
@@ -546,6 +607,79 @@ public fun RemoteImageVector.Builder.group(
     addGroup(name, rotate, pivotX, pivotY, scaleX, scaleY, translationX, translationY, clipPathData)
     block()
     clearGroup()
+}
+
+/** Converts a Compose UI [ImageVector] to a [RemoteImageVector]. */
+public fun ImageVector.toRemoteImageVector(): RemoteImageVector {
+    val defWidth = if (defaultWidth.isSpecified) defaultWidth.asRdp() else DefaultIconSize.rdp
+    val defHeight = if (defaultHeight.isSpecified) defaultHeight.asRdp() else DefaultIconSize.rdp
+    val vWidth = if (viewportWidth.isNaN()) defWidth.value else viewportWidth.rf
+    val vHeight = if (viewportHeight.isNaN()) defHeight.value else viewportHeight.rf
+
+    val builder =
+        RemoteImageVector.Builder(
+            defaultWidth = defWidth,
+            defaultHeight = defHeight,
+            viewportWidth = vWidth,
+            viewportHeight = vHeight,
+            tintColor = RemoteColor(tintColor),
+            name = name,
+            tintBlendMode = tintBlendMode,
+            autoMirror = autoMirror,
+        )
+
+    fun addGroupToBuilder(group: VectorGroup) {
+        for (i in 0 until group.size) {
+            val node = group[i]
+            if (node is VectorPath) {
+                builder.addPath(
+                    pathData = node.pathData.toRemotePathNodes(),
+                    pathFillType = node.pathFillType,
+                    name = node.name,
+                    fill = node.fill,
+                    fillAlpha = node.fillAlpha.rf,
+                    stroke = node.stroke,
+                    strokeAlpha = node.strokeAlpha.rf,
+                    strokeLineWidth = node.strokeLineWidth.rf,
+                    strokeLineCap = node.strokeLineCap,
+                    strokeLineJoin = node.strokeLineJoin,
+                    strokeLineMiter = node.strokeLineMiter.rf,
+                    trimPathStart = node.trimPathStart.rf,
+                    trimPathEnd = node.trimPathEnd.rf,
+                    trimPathOffset = node.trimPathOffset.rf,
+                )
+            } else if (node is VectorGroup) {
+                builder.addGroup(
+                    name = node.name,
+                    rotate = node.rotation.rf,
+                    pivotX = node.pivotX.rf,
+                    pivotY = node.pivotY.rf,
+                    scaleX = node.scaleX.rf,
+                    scaleY = node.scaleY.rf,
+                    translationX = node.translationX.rf,
+                    translationY = node.translationY.rf,
+                    clipPathData = node.clipPathData.toRemotePathNodes(),
+                )
+                addGroupToBuilder(node)
+                builder.clearGroup()
+            }
+        }
+    }
+
+    addGroupToBuilder(root)
+    return builder.build()
+}
+
+/**
+ * Load a [RemoteImageVector] from an Android vector resource.
+ *
+ * @param id the drawable resource identifier of the vector drawable
+ * @return the [RemoteImageVector] associated with the resource
+ */
+@Composable
+public fun RemoteImageVector.Companion.vectorResource(@DrawableRes id: Int): RemoteImageVector {
+    val imageVector = ImageVector.vectorResource(id)
+    return remember(imageVector) { imageVector.toRemoteImageVector() }
 }
 
 private fun <T> ArrayList<T>.push(value: T): Boolean = add(value)
