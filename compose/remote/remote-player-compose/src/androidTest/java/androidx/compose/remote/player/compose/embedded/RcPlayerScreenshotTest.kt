@@ -16,8 +16,17 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Text
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.path
 import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
@@ -43,17 +52,23 @@ import androidx.compose.remote.creation.compose.vector.draw
 import androidx.compose.remote.creation.compose.vector.painterRemoteVector
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.R
+import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertAgainstGolden
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -343,5 +358,99 @@ class RcPlayerScreenshotTest {
                 screenshotRule,
                 "RcPlayerScreenshotTest_vectorDrawable_clipPath_wearWidgets",
             )
+    }
+
+    @Test
+    fun vectorDrawable_clipPath_comparison() {
+        rule.setContent {
+            Column(
+                modifier = Modifier.background(Color.White).padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text(
+                        "Compose",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp,
+                        modifier = Modifier.width(80.dp),
+                        textAlign = TextAlign.Center,
+                    )
+                    Text(
+                        "RC (AndroidX)",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp,
+                        modifier = Modifier.width(80.dp),
+                        textAlign = TextAlign.Center,
+                    )
+                    Text(
+                        "RC (without\npath_clip)",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp,
+                        modifier = Modifier.width(80.dp),
+                        textAlign = TextAlign.Center,
+                    )
+                }
+
+                ComparisonRow(resId = R.drawable.vector_icon_clip_path_1)
+                ComparisonRow(resId = R.drawable.vector_icon_clip_diamond_fill)
+                ComparisonRow(resId = R.drawable.vector_icon_clip_diamond_stroke)
+            }
+        }
+
+        rule
+            .onRoot()
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "RcPlayerScreenshotTest_vectorDrawable_clipPath_comparison",
+            )
+    }
+
+    @Composable
+    private fun ComparisonRow(resId: Int) {
+        val docAndroidx =
+            rememberRemoteDocument(profile = RcPlatformProfiles.ANDROIDX) {
+                val painter = painterRemoteVector(ImageVector.vectorResource(resId))
+                RemoteCanvas(modifier = RemoteModifier.size(80.rdp)) {
+                    with(painter) { onDraw() }
+                }
+            }
+
+        val docWearWidgets =
+            rememberRemoteDocument(profile = RcPlatformProfiles.WEAR_WIDGETS) {
+                val painter = painterRemoteVector(ImageVector.vectorResource(resId))
+                RemoteCanvas(modifier = RemoteModifier.size(80.rdp)) {
+                    with(painter) { onDraw() }
+                }
+            }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Box(
+                modifier = Modifier.size(80.dp).background(Color(0xFFF0F0F0)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Image(
+                    painter = painterResource(resId),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+            Box(
+                modifier = Modifier.size(80.dp).background(Color(0xFFF0F0F0)),
+                contentAlignment = Alignment.Center,
+            ) {
+                docAndroidx.value?.let { RcPlayer(document = it) }
+            }
+            Box(
+                modifier = Modifier.size(80.dp).background(Color(0xFFF0F0F0)),
+                contentAlignment = Alignment.Center,
+            ) {
+                docWearWidgets.value?.let { RcPlayer(document = it) }
+            }
+        }
     }
 }
