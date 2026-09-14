@@ -28,6 +28,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.work.Configuration
 import androidx.work.DatabaseTest
 import androidx.work.ForegroundInfo
@@ -117,6 +118,7 @@ class ProcessorTests : DatabaseTest() {
         processor = Processor(context, configuration, taskExecutor, mDatabase)
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testInterruptNotInCriticalSection() {
@@ -158,6 +160,7 @@ class ProcessorTests : DatabaseTest() {
         assertTrue(context.intents.isEmpty())
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testStartForegroundStopWork() {
@@ -179,6 +182,7 @@ class ProcessorTests : DatabaseTest() {
         assertTrue(executionFinished.await(3, TimeUnit.SECONDS))
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testInterruptStopsService() {
@@ -202,6 +206,7 @@ class ProcessorTests : DatabaseTest() {
         assertTrue(intent.filterEquals(stopIntentExpected))
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testStartOldGenerationDoesntStopCurrentWorker() {
@@ -227,6 +232,7 @@ class ProcessorTests : DatabaseTest() {
         assertTrue(executionFinished.await(3, TimeUnit.SECONDS))
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testStartNewGenerationDoesntStopCurrentWorker() {
@@ -253,6 +259,7 @@ class ProcessorTests : DatabaseTest() {
         assertTrue(executionFinished.await(3, TimeUnit.SECONDS))
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testOldGenerationDoesntStart() {
@@ -273,6 +280,7 @@ class ProcessorTests : DatabaseTest() {
         assertTrue(called)
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testListenerCanModifyListDuringRunOnExecuted() {
@@ -313,6 +321,7 @@ class ProcessorTests : DatabaseTest() {
         assertFalse(firstListenerCalled)
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testListenerCanModifyListDuringOnExecuted() {
@@ -376,6 +385,7 @@ class ProcessorTests : DatabaseTest() {
         assertFalse(firstListenerCalled)
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testForegroundStart_notifiesListener() = runBlocking {
@@ -409,6 +419,7 @@ class ProcessorTests : DatabaseTest() {
         withTimeout(3000) { executionFinished.await() }
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testExecutionFinishes_notifiesForegroundListener() = runBlocking {
@@ -444,6 +455,7 @@ class ProcessorTests : DatabaseTest() {
         assertFalse(foregroundState)
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testStopForegroundWork_notifiesListener() = runBlocking {
