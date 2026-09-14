@@ -1737,4 +1737,47 @@ class DeferredAnimatedContentTest {
         assertEquals(0f, measuredOffsetX, 0.1f)
         assertEquals(0f, measuredOffsetY, 0.1f)
     }
+
+    @Test
+    fun mutableContentTransform_fromTwoMutableTransforms_appliesInitialAndTargetTransformsDuringDefer() {
+        val state = DeferredTransitionState(0)
+        var initialOffsetX = 0f
+        var targetOffsetX = 0f
+
+        val initialTransform = MutableTransform { offset = IntOffset(-80, 0) }
+        val targetTransform = MutableTransform { offset = IntOffset(120, 0) }
+
+        rule.setContent {
+            val transition = rememberDeferredTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = { EnterTransition.None togetherWith ExitTransition.None },
+                mutableTransformSpec = {
+                    MutableContentTransform(
+                        initialTransform = initialTransform,
+                        targetTransform = targetTransform,
+                    )
+                },
+            ) { page ->
+                Box(
+                    Modifier.size(100.dp).onGloballyPositioned { coords ->
+                        if (page == 0) {
+                            initialOffsetX = coords.positionInRoot().x
+                        } else {
+                            targetOffsetX = coords.positionInRoot().x
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        assertEquals(0f, initialOffsetX, 0.1f)
+
+        rule.runOnIdle { state.defer(1) }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        assertEquals(-80f, initialOffsetX, 0.1f)
+        assertEquals(120f, targetOffsetX, 0.1f)
+    }
 }
