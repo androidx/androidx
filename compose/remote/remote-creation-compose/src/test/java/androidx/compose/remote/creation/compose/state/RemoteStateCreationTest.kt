@@ -33,6 +33,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.cr
 import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createNamedRemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
@@ -205,6 +206,105 @@ class RemoteStateCreationTest {
                             .background(painterRemoteImageBitmap(namedBitmap))
                 )
             }
+    }
+
+    @Test
+    fun rememberCreateNamedRemoteImageBitmap_fromUrl_matchesPreviousBehavior() = runTest {
+        limitsRule.setEnableImageUrls(true)
+        limitsRule.setEnableImageFiles(true)
+        val url = "android.resource://androidx.compose.remote.foundation/drawable/dummy"
+        val prevDoc =
+            remoteCaptureRule.captureDocument(context) {
+                val namedBitmap = rememberNamedRemoteImageBitmap(name = "testBitmapUrl", url = url)
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(100.rdp)
+                            .background(painterRemoteImageBitmap(namedBitmap))
+                )
+            }
+        val newDoc =
+            remoteCaptureRule.captureDocument(context) {
+                val namedBitmap = remember {
+                    createNamedRemoteImageBitmap(name = "testBitmapUrl", url = url)
+                }
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(100.rdp)
+                            .background(painterRemoteImageBitmap(namedBitmap))
+                )
+            }
+        assertThat(newDoc.getNamedVariables(NamedVariable.IMAGE_TYPE))
+            .asList()
+            .containsExactlyElementsIn(prevDoc.getNamedVariables(NamedVariable.IMAGE_TYPE))
+    }
+
+    @Test
+    fun rememberCreateNamedRemoteImageBitmap_fromImageBitmap_matchesPreviousBehavior() = runTest {
+        limitsRule.setEnableImageUrls(true)
+        limitsRule.setEnableImageFiles(true)
+        fun createBitmap() =
+            Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
+                .apply { eraseColor(android.graphics.Color.GREEN) }
+                .asImageBitmap()
+
+        val prevDoc =
+            remoteCaptureRule.captureDocument(context) {
+                val namedBitmap =
+                    rememberNamedRemoteImageBitmap("testBitmapImage") { createBitmap() }
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(100.rdp)
+                            .background(painterRemoteImageBitmap(namedBitmap))
+                )
+            }
+        val newDoc =
+            remoteCaptureRule.captureDocument(context) {
+                val namedBitmap = remember {
+                    createNamedRemoteImageBitmap("testBitmapImage") { createBitmap() }
+                }
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(100.rdp)
+                            .background(painterRemoteImageBitmap(namedBitmap))
+                )
+            }
+        assertThat(newDoc.getNamedVariables(NamedVariable.IMAGE_TYPE))
+            .asList()
+            .containsExactlyElementsIn(prevDoc.getNamedVariables(NamedVariable.IMAGE_TYPE))
+    }
+
+    @Test
+    fun rememberCreateNamedRemoteImageBitmap_sameName_isDeduplicated() = runTest {
+        limitsRule.setEnableImageUrls(true)
+        limitsRule.setEnableImageFiles(true)
+        var id1 = -1
+        var id2 = -1
+        var id3 = -1
+        val coreDoc =
+            remoteCaptureRule.captureDocument(context) {
+                val creationState = LocalRemoteComposeCreationState.current
+                val bitmap1 = remember {
+                    createNamedRemoteImageBitmap(name = "sharedBitmap", url = "url1")
+                }
+                val bitmap2 = remember {
+                    createNamedRemoteImageBitmap(name = "sharedBitmap", url = "url1")
+                }
+                val bitmap3 = remember {
+                    createNamedRemoteImageBitmap(name = "otherBitmap", url = "url2")
+                }
+
+                id1 = bitmap1.getIdForCreationState(creationState)
+                id2 = bitmap2.getIdForCreationState(creationState)
+                id3 = bitmap3.getIdForCreationState(creationState)
+            }
+
+        assertThat(id1).isNotEqualTo(-1)
+        assertThat(id1).isEqualTo(id2)
+        assertThat(id1).isNotEqualTo(id3)
+
+        val namedImageVars = coreDoc.getNamedVariables(NamedVariable.IMAGE_TYPE).toList()
+        assertThat(namedImageVars.filter { it == "${RemoteDomains.USER}:sharedBitmap" }).hasSize(1)
+        assertThat(namedImageVars.filter { it == "${RemoteDomains.USER}:otherBitmap" }).hasSize(1)
     }
 
     @Test
@@ -409,5 +509,22 @@ class RemoteStateCreationTest {
         playbackContext.androidContext = context
         coreDoc.initializeContext(playbackContext, null)
         coreDoc.applyDataOperations(playbackContext)
+    }
+
+    @Test
+    fun rememberWithCreateNamedRemote_reusesVariableIdAcrossCalls() = runTest {
+        val coreDoc =
+            remoteCaptureRule.captureDocument(context) {
+                val state = LocalRemoteComposeCreationState.current
+                val intA = remember { createNamedRemoteInt("cachedInt", 10) }
+                val intB = remember { createNamedRemoteInt("cachedInt", 20) }
+
+                val idA = intA.getIdForCreationState(state)
+                val idB = intB.getIdForCreationState(state)
+
+                assertThat(idA).isEqualTo(idB)
+            }
+        val intVars = coreDoc.getNamedVariables(NamedVariable.INT_TYPE).toList()
+        assertThat(intVars.filter { it == "${RemoteDomains.USER}:cachedInt" }).hasSize(1)
     }
 }
