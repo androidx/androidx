@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
+@file:Suppress("RestrictedApiAndroidX", "DEPRECATION")
 
 package androidx.wear.compose.remote.material3.previews
 

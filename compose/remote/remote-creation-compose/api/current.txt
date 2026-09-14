@@ -439,6 +439,23 @@ package androidx.compose.remote.creation.compose.modifier {
     method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier alpha(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat alpha);
   }
 
+  public final class AnimateSpecModifierKt {
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier animateEnterExit(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition enter, optional androidx.compose.remote.creation.compose.modifier.RemoteExitTransition exit, optional androidx.compose.remote.creation.compose.state.RemoteTweenSpec spec);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! animateEnterExit$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition!, androidx.compose.remote.creation.compose.modifier.RemoteExitTransition!, androidx.compose.remote.creation.compose.state.RemoteTweenSpec!, int, Object!);
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier animationSpec(androidx.compose.remote.creation.compose.modifier.RemoteModifier, boolean enabled);
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier animationSpec(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional int animationId, optional androidx.compose.remote.creation.compose.state.RemoteTweenSpec motionSpec, optional androidx.compose.remote.creation.compose.state.RemoteTweenSpec visibilitySpec, optional androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition enter, optional androidx.compose.remote.creation.compose.modifier.RemoteExitTransition exit);
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier animationSpec(androidx.compose.remote.creation.compose.modifier.RemoteModifier, int animationId, boolean enabled);
+    method @Deprecated public static androidx.compose.remote.creation.compose.modifier.RemoteModifier animationSpec(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional int animationId, optional float motionDuration, optional int motionEasingType, optional float visibilityDuration, optional int visibilityEasingType, optional androidx.compose.remote.core.operations.layout.animation.AnimationSpec.ANIMATION enterAnimation, optional androidx.compose.remote.core.operations.layout.animation.AnimationSpec.ANIMATION exitAnimation, optional boolean enabled);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! animationSpec$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, int, androidx.compose.remote.creation.compose.state.RemoteTweenSpec!, androidx.compose.remote.creation.compose.state.RemoteTweenSpec!, androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition!, androidx.compose.remote.creation.compose.modifier.RemoteExitTransition!, int, Object!);
+    method @BytecodeOnly @Deprecated public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! animationSpec$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, int, float, int, float, int, androidx.compose.remote.core.operations.layout.animation.AnimationSpec.ANIMATION!, androidx.compose.remote.core.operations.layout.animation.AnimationSpec.ANIMATION!, boolean, int, Object!);
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition remoteFadeIn();
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteExitTransition remoteFadeOut();
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier sharedBounds(androidx.compose.remote.creation.compose.modifier.RemoteModifier, int key, optional androidx.compose.remote.creation.compose.state.RemoteTweenSpec spec, optional androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition enter, optional androidx.compose.remote.creation.compose.modifier.RemoteExitTransition exit);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! sharedBounds$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, int, androidx.compose.remote.creation.compose.state.RemoteTweenSpec!, androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition!, androidx.compose.remote.creation.compose.modifier.RemoteExitTransition!, int, Object!);
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier sharedElement(androidx.compose.remote.creation.compose.modifier.RemoteModifier, int key, optional androidx.compose.remote.creation.compose.state.RemoteTweenSpec spec, optional androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition enter, optional androidx.compose.remote.creation.compose.modifier.RemoteExitTransition exit);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! sharedElement$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, int, androidx.compose.remote.creation.compose.state.RemoteTweenSpec!, androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition!, androidx.compose.remote.creation.compose.modifier.RemoteExitTransition!, int, Object!);
+  }
+
   public final class BackgroundModifierKt {
     method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier background(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.painter.RemotePainter remotePainter);
     method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier background(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteColor color);
@@ -554,6 +571,48 @@ package androidx.compose.remote.creation.compose.modifier {
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! padding$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, Object!);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! padding$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! padding$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
+  }
+
+  public final class RemoteEnterTransition {
+    field public static final androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition.Companion Companion;
+  }
+
+  public static final class RemoteEnterTransition.Companion {
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition getFadeIn();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition getParticle();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition getRotate();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition getSlideInBottom();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition getSlideInLeft();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition getSlideInRight();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition getSlideInTop();
+    property public androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition FadeIn;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition Particle;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition Rotate;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition SlideInBottom;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition SlideInLeft;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition SlideInRight;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition SlideInTop;
+  }
+
+  public final class RemoteExitTransition {
+    field public static final androidx.compose.remote.creation.compose.modifier.RemoteExitTransition.Companion Companion;
+  }
+
+  public static final class RemoteExitTransition.Companion {
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteExitTransition getFadeOut();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteExitTransition getParticle();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteExitTransition getRotate();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteExitTransition getSlideOutBottom();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteExitTransition getSlideOutLeft();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteExitTransition getSlideOutRight();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteExitTransition getSlideOutTop();
+    property public androidx.compose.remote.creation.compose.modifier.RemoteExitTransition FadeOut;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteExitTransition Particle;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteExitTransition Rotate;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteExitTransition SlideOutBottom;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteExitTransition SlideOutLeft;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteExitTransition SlideOutRight;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteExitTransition SlideOutTop;
   }
 
   @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteModifier {
@@ -934,6 +993,22 @@ package androidx.compose.remote.creation.compose.state {
     method public operator androidx.compose.remote.creation.compose.state.MutableRemoteString invoke(String initialValue);
   }
 
+  public final class RemoteAnimationKt {
+    method public static androidx.compose.remote.creation.compose.state.RemoteDp animateRemoteDpAsState(androidx.compose.remote.creation.compose.state.RemoteDp targetValue, optional androidx.compose.remote.creation.compose.state.RemoteAnimationSpec animationSpec, optional float initialValue);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteDp! animateRemoteDpAsState$default(androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteAnimationSpec!, float, int, Object!);
+    method public static androidx.compose.remote.creation.compose.state.RemoteFloat animateRemoteFloatAsState(androidx.compose.remote.creation.compose.state.RemoteFloat targetValue, optional androidx.compose.remote.creation.compose.state.RemoteAnimationSpec animationSpec, optional float initialValue, optional float wrap);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteFloat! animateRemoteFloatAsState$default(androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteAnimationSpec!, float, float, int, Object!);
+    method public static androidx.compose.remote.creation.compose.state.RemoteAnimationSpec remoteSpring(optional float stiffness, optional float dampingRatio, optional float stopThreshold, optional int boundaryMode);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteAnimationSpec! remoteSpring$default(float, float, float, int, int, Object!);
+    method public static androidx.compose.remote.creation.compose.state.RemoteTweenSpec remoteTween(optional int durationMillis, optional androidx.compose.remote.creation.compose.state.RemoteEasing easing);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteTweenSpec! remoteTween$default(int, androidx.compose.remote.creation.compose.state.RemoteEasing!, int, Object!);
+  }
+
+  public sealed nonexhaustive interface RemoteAnimationSpec {
+    method public androidx.compose.remote.creation.compose.state.RemoteFloat animate(androidx.compose.remote.creation.compose.state.RemoteFloat targetValue, optional float initialValue, optional float wrap);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteFloat! animate$default(androidx.compose.remote.creation.compose.state.RemoteAnimationSpec!, androidx.compose.remote.creation.compose.state.RemoteFloat!, float, float, int, Object!);
+  }
+
   public class RemoteBoolean extends androidx.compose.remote.creation.compose.state.BaseRemoteState<java.lang.Boolean> {
     method public final infix androidx.compose.remote.creation.compose.state.RemoteBoolean and(androidx.compose.remote.creation.compose.state.RemoteBoolean other);
     method public static final androidx.compose.remote.creation.compose.state.RemoteBoolean createNamedRemoteBoolean(String name, boolean defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
@@ -1060,6 +1135,31 @@ package androidx.compose.remote.creation.compose.state {
     method public static androidx.compose.remote.creation.compose.state.RemoteDp toRemoteDp(androidx.compose.remote.creation.compose.state.RemoteFloat);
     property public static androidx.compose.remote.creation.compose.state.RemoteDp int.rdp;
     property public static androidx.compose.remote.creation.compose.state.RemoteDp float.rdp;
+  }
+
+  public final class RemoteEasing {
+    field public static final androidx.compose.remote.creation.compose.state.RemoteEasing.Companion Companion;
+  }
+
+  public static final class RemoteEasing.Companion {
+    method public androidx.compose.remote.creation.compose.state.RemoteEasing Cubic(float x1, float y1, float x2, float y2);
+    method public androidx.compose.remote.creation.compose.state.RemoteEasing Spline(float[] points);
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteEasing getAccelerate();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteEasing getAnticipate();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteEasing getBounce();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteEasing getDecelerate();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteEasing getElastic();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteEasing getLinear();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteEasing getOvershoot();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteEasing getStandard();
+    property public androidx.compose.remote.creation.compose.state.RemoteEasing Accelerate;
+    property public androidx.compose.remote.creation.compose.state.RemoteEasing Anticipate;
+    property public androidx.compose.remote.creation.compose.state.RemoteEasing Bounce;
+    property public androidx.compose.remote.creation.compose.state.RemoteEasing Decelerate;
+    property public androidx.compose.remote.creation.compose.state.RemoteEasing Elastic;
+    property public androidx.compose.remote.creation.compose.state.RemoteEasing Linear;
+    property public androidx.compose.remote.creation.compose.state.RemoteEasing Overshoot;
+    property public androidx.compose.remote.creation.compose.state.RemoteEasing Standard;
   }
 
   public class RemoteEnum<T extends java.lang.Enum<T>> extends androidx.compose.remote.creation.compose.state.BaseRemoteState<T> {
@@ -1347,6 +1447,17 @@ package androidx.compose.remote.creation.compose.state {
     method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit toRsp(androidx.compose.ui.unit.Dp);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit toRsp-0680j_4(float);
     property public static androidx.compose.remote.creation.compose.state.RemoteTextUnit int.rsp;
+  }
+
+  public final class RemoteTweenSpec implements androidx.compose.remote.creation.compose.state.RemoteAnimationSpec {
+    ctor public RemoteTweenSpec();
+    ctor public RemoteTweenSpec(optional int durationMillis, optional androidx.compose.remote.creation.compose.state.RemoteEasing easing);
+    ctor @BytecodeOnly public RemoteTweenSpec(int, androidx.compose.remote.creation.compose.state.RemoteEasing!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.compose.remote.creation.compose.state.RemoteFloat animate(androidx.compose.remote.creation.compose.state.RemoteFloat targetValue, optional float initialValue, optional float wrap);
+    method @InaccessibleFromKotlin public int getDurationMillis();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteEasing getEasing();
+    property public int durationMillis;
+    property public androidx.compose.remote.creation.compose.state.RemoteEasing easing;
   }
 
 }

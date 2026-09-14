@@ -49,7 +49,7 @@ public fun createSupportEditTextDocument(
     initialText: String = "Hello Remote Compose",
     hint: String = "Type here...",
 ): ByteArray {
-    var textTargetId = -1
+    var textTargetId: Int
     val docContext =
         RemoteComposeContextAndroid(
             300,
