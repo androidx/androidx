@@ -21,9 +21,12 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.openxr.testing.FakeSceneCoreOpenXrNative
 import androidx.xr.scenecore.runtime.Space
+import androidx.xr.scenecore.runtime.SpatialCapabilities
+import androidx.xr.scenecore.runtime.SpatialVisibility
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
+import java.util.function.Consumer
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
@@ -70,6 +73,19 @@ class OpenXrSceneRuntimeTest {
         assertThat(runtime.perceptionSpaceActivityPose).isNotNull()
         assertThat(nodeRegistry.getAllSystemSpaceScenePoses())
             .contains(runtime.perceptionSpaceActivityPose)
+    }
+
+    @Test
+    fun mainPanelEntity_isNotNullAndParentedToActivitySpace_beforeInitialize() {
+        assertThat(runtime.mainPanelEntity).isNotNull()
+        assertThat(runtime.mainPanelEntity.parent).isEqualTo(runtime.activitySpace)
+        assertThat((runtime.mainPanelEntity as? OpenXrEntity)?.entityHandle)
+            .isEqualTo(INVALID_HANDLE)
+    }
+
+    @Test
+    fun spatialEnvironment_isNotNull() {
+        assertThat(runtime.spatialEnvironment).isNotNull()
     }
 
     @Test
@@ -121,13 +137,14 @@ class OpenXrSceneRuntimeTest {
 
     @Test
     fun initialize_whenInitFails_throwsIllegalStateException() {
+        fakeNative.simulateInitFailure = true
+
         val exception = assertThrows(IllegalStateException::class.java) { runtime.initialize() }
         assertThat(exception).hasMessageThat().isEqualTo("SceneCoreOpenXrNative.init failed.")
     }
 
     @Test
     fun initialize_whenCreateSpatialContainerFails_throwsIllegalStateException() {
-        fakeNative.allowInvalidSessionHandle = true
         fakeNative.simulateCreateSpatialContainerFailure = true
 
         val exception = assertThrows(IllegalStateException::class.java) { runtime.initialize() }
@@ -138,14 +155,15 @@ class OpenXrSceneRuntimeTest {
 
     @Test
     fun initialize_succeedsAndSetsRootEntity() {
-        fakeNative.allowInvalidSessionHandle = true
-
         runtime.initialize()
 
         assertThat((runtime.activitySpace as? OpenXrEntity)?.entityHandle)
             .isEqualTo(fakeNative.fakeRootEntityHandle)
         assertThat(nodeRegistry.getEntityForNode(fakeNative.fakeRootEntityHandle))
             .isEqualTo(runtime.activitySpace)
+        assertThat((runtime.mainPanelEntity as? OpenXrEntity)?.entityHandle)
+            .isNotEqualTo(INVALID_HANDLE)
+        assertThat(runtime.mainPanelEntity.parent).isEqualTo(runtime.activitySpace)
     }
 
     @Test
@@ -183,16 +201,54 @@ class OpenXrSceneRuntimeTest {
 
     @Test
     fun initialize_calledMultipleTimes_isIdempotent() {
-        fakeNative.allowInvalidSessionHandle = true
         runtime.initialize()
         runtime.initialize() // Should safely early return without throwing
         assertThat(runtime.isInitialized).isTrue()
     }
 
     @Test
-    fun destroy_beforeInitialize_disposesActivitySpace() {
+    fun destroy_beforeInitialize_disposesEntities() {
         runtime.destroy()
         assertThat(runtime.isDestroyed).isTrue()
         assertThat((runtime.activitySpace as? OpenXrEntity)?.entityHandle).isEqualTo(INVALID_HANDLE)
+        assertThat((runtime.mainPanelEntity as? OpenXrEntity)?.entityHandle)
+            .isEqualTo(INVALID_HANDLE)
+    }
+
+    @Test
+    fun destroy_afterInitialize_disposesMainPanelEntityAndActivitySpace() {
+        runtime.initialize()
+        val mainPanelHandle = (runtime.mainPanelEntity as OpenXrEntity).entityHandle
+        assertThat(mainPanelHandle).isNotEqualTo(INVALID_HANDLE)
+
+        runtime.destroy()
+
+        assertThat(runtime.isDestroyed).isTrue()
+        assertThat(fakeNative.destroyedEntities).contains(mainPanelHandle)
+        assertThat((runtime.mainPanelEntity as? OpenXrEntity)?.entityHandle)
+            .isEqualTo(INVALID_HANDLE)
+        assertThat((runtime.activitySpace as? OpenXrEntity)?.entityHandle).isEqualTo(INVALID_HANDLE)
+    }
+
+    @Test
+    fun getScenePoseFromPerceptionPose_returnsPlatformReferenceScenePose() {
+        val testPose = Pose(Vector3(1f, 2f, 3f))
+        val scenePose = runtime.getScenePoseFromPerceptionPose(testPose)
+
+        assertThat(scenePose.activitySpacePose).isNotNull()
+    }
+
+    @Test
+    fun spatialCapabilitiesChangedListener_addAndRemove_succeeds() {
+        val listener = Consumer<SpatialCapabilities> {}
+        runtime.addSpatialCapabilitiesChangedListener(executor, listener)
+        runtime.removeSpatialCapabilitiesChangedListener(listener)
+    }
+
+    @Test
+    fun spatialVisibilityChangedListener_setAndClear_succeeds() {
+        val listener = Consumer<SpatialVisibility> {}
+        runtime.setSpatialVisibilityChangedListener(executor, listener)
+        runtime.clearSpatialVisibilityChangedListener()
     }
 }

@@ -17,11 +17,15 @@
 package androidx.xr.scenecore.openxr
 
 import androidx.activity.ComponentActivity
+import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.xr.runtime.Session
+import androidx.xr.runtime.SessionCreateSuccess
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
@@ -93,34 +97,63 @@ class OpenXrSceneRuntimeTest {
 
     @Test
     fun coordinatedTeardown_releasesSceneCoreChildHandlesBeforeNativeDestroy() {
-        activityRule.scenario.onActivity { activity ->
-            val runtime = OpenXrSceneRuntime.create(activity)
-
-            runtime.initialize()
-
-            // Tearing down the SceneCore runtime must safely free native resources.
-            runtime.destroy()
-
-            assertThat(runtime.isDestroyed).isTrue()
-            assertThat(runtime.nativeWrapper.nativeScenecore).isEqualTo(INVALID_HANDLE)
+        var activity: ComponentActivity? = null
+        activityRule.scenario.onActivity { activity = it }
+        var runtime: OpenXrSceneRuntime? = null
+        runBlocking {
+            val session = (Session.create(context = activity!!) as SessionCreateSuccess).session
+            runtime = session.runtimes.filterIsInstance<OpenXrSceneRuntime>().first()
         }
+
+        activityRule.scenario.moveToState(Lifecycle.State.DESTROYED)
+
+        assertThat(runtime!!.isDestroyed).isTrue()
+        assertThat(runtime!!.nativeWrapper.nativeScenecore).isEqualTo(INVALID_HANDLE)
     }
 
     @Test
-    fun coordinatedTeardown_fiftyIterations_noLeaksOrCrashes() {
+    fun destroy_fiftyIterations_noLeaksOrCrashes() {
         activityRule.scenario.onActivity { activity ->
             repeat(50) {
                 val runtime = OpenXrSceneRuntime.create(activity)
                 assertThat(runtime.isDestroyed).isFalse()
                 assertThat(runtime.nativeWrapper.nativeScenecore).isNotEqualTo(INVALID_HANDLE)
-
-                runtime.initialize()
-
                 runtime.destroy()
-
                 assertThat(runtime.isDestroyed).isTrue()
                 assertThat(runtime.nativeWrapper.nativeScenecore).isEqualTo(INVALID_HANDLE)
             }
+        }
+    }
+
+    @Test
+    fun initialize_mainPanelEntityIsParentedToActivitySpace() {
+        var activity: ComponentActivity? = null
+        activityRule.scenario.onActivity { activity = it }
+        try {
+            runBlocking {
+                val session = (Session.create(context = activity!!) as SessionCreateSuccess).session
+                val runtime = session.runtimes.filterIsInstance<OpenXrSceneRuntime>().first()
+                assertThat(runtime.mainPanelEntity.parent).isEqualTo(runtime.activitySpace)
+            }
+        } finally {
+            activityRule.scenario.moveToState(Lifecycle.State.DESTROYED)
+        }
+    }
+
+    @Test
+    fun sessionCreate_succeeds() {
+        var activity: ComponentActivity? = null
+        activityRule.scenario.onActivity { activity = it }
+        try {
+            runBlocking {
+                val result = Session.create(context = activity!!)
+                assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
+                val session = (result as SessionCreateSuccess).session
+                assertThat(session).isNotNull()
+                assertThat(session.runtimes.filterIsInstance<OpenXrSceneRuntime>()).isNotEmpty()
+            }
+        } finally {
+            activityRule.scenario.moveToState(Lifecycle.State.DESTROYED)
         }
     }
 }

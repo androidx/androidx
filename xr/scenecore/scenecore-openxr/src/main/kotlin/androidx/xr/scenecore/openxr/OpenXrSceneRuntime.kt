@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+@file:Suppress("BanConcurrentHashMap")
 @file:SuppressLint("RestrictedApiAndroidX")
 
 package androidx.xr.scenecore.openxr
@@ -68,6 +69,8 @@ import androidx.xr.scenecore.runtime.SpatialVisibility
 import androidx.xr.scenecore.runtime.SubspaceNodeEntity
 import androidx.xr.scenecore.runtime.TrackableComponent
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
+import androidx.xr.scenecore.runtime.impl.PlatformReferenceScenePose
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -114,6 +117,11 @@ internal constructor(
     private val perceptionSpaceScenePose: PerceptionSpaceScenePose =
         PerceptionSpaceScenePoseImpl(activitySpace)
 
+    private val spatialCapabilitiesChangedListeners =
+        ConcurrentHashMap<Consumer<SpatialCapabilities>, Executor>()
+    @Volatile
+    private var spatialVisibilityHandler: Pair<Executor, Consumer<SpatialVisibility>>? = null
+
     init {
         sceneNodeRegistry.addSystemSpaceScenePose(activitySpace)
         sceneNodeRegistry.addSystemSpaceScenePose(perceptionSpaceScenePose)
@@ -131,7 +139,7 @@ internal constructor(
             if (
                 !nativeWrapper.init(
                     nativeData.instancePointer,
-                    INVALID_HANDLE, // TODO: b/538912011 - Provide real session handle.
+                    nativeData.sessionPointer,
                     nativeData.functionTablePointer,
                 )
             ) {
@@ -143,6 +151,10 @@ internal constructor(
             val rootHandle = nativeWrapper.getRootEntityHandle()
             if (rootHandle != INVALID_HANDLE) {
                 (activitySpace as? OpenXrEntity)?.bindEntityHandle(rootHandle)
+                (mainPanelEntity as? OpenXrEntity)?.bindEntityHandle(
+                    nativeWrapper.createSceneEntity()
+                )
+                mainPanelEntity.parent = activitySpace
             }
         }
     }
@@ -152,35 +164,38 @@ internal constructor(
         activity = null
         isDestroyed = true
         (activitySpace as? OpenXrEntity)?.dispose()
+        (mainPanelEntity as? OpenXrEntity)?.dispose()
         sceneNodeRegistry.getAllEntities().forEach(Entity::dispose)
         sceneNodeRegistry.clear()
+        spatialCapabilitiesChangedListeners.clear()
+        spatialVisibilityHandler = null
         scheduledExecutorService.shutdown()
         nativeWrapper.destroy()
     }
 
-    override val spatialCapabilities: SpatialCapabilities
-        get() = TODO("OpenXrSceneRuntime.spatialCapabilities is not yet implemented")
+    // TODO: b/558684002 - Implement actual OpenXR spatial capabilities query.
+    override val spatialCapabilities: SpatialCapabilities = SpatialCapabilities(0)
 
     override val perceptionSpaceActivityPose: PerceptionSpaceScenePose
         get() = perceptionSpaceScenePose
 
-    override val mainPanelEntity: PanelEntity
-        get() = TODO("OpenXrSceneRuntime.mainPanelEntity is not yet implemented")
+    override val mainPanelEntity: PanelEntity =
+        OpenXrMainPanelEntity(
+            activity,
+            INVALID_HANDLE,
+            nativeWrapper,
+            sceneNodeRegistry,
+            scheduledExecutorService,
+            parent = activitySpace,
+        )
 
-    override var keyEntity: Entity?
-        get() = TODO("OpenXrSceneRuntime.keyEntity getter is not yet implemented")
-        set(_) {
-            TODO("OpenXrSceneRuntime.keyEntity setter is not yet implemented")
-        }
+    // TODO: b/558683521 - Implement keyEntity spatial continuity hint.
+    override var keyEntity: Entity? = null
 
-    override val spatialEnvironment: SpatialEnvironment
-        get() = TODO("OpenXrSceneRuntime.spatialEnvironment is not yet implemented")
+    override val spatialEnvironment: SpatialEnvironment = OpenXrSpatialEnvironment(nativeWrapper)
 
-    override var spatialModeChangeListener: SpatialModeChangeListener?
-        get() = TODO("OpenXrSceneRuntime.spatialModeChangeListener getter is not yet implemented")
-        set(_) {
-            TODO("OpenXrSceneRuntime.spatialModeChangeListener setter is not yet implemented")
-        }
+    // TODO: b/558683128 - Implement spatial mode change callback handling.
+    override var spatialModeChangeListener: SpatialModeChangeListener? = null
 
     override val soundPoolExtensionsWrapper: SoundPoolExtensionsWrapper
         get() = TODO("OpenXrSceneRuntime.soundPoolExtensionsWrapper is not yet implemented")
@@ -195,7 +210,7 @@ internal constructor(
         get() = TODO("OpenXrSceneRuntime.isBoundaryConsentGranted is not yet implemented")
 
     override fun getScenePoseFromPerceptionPose(pose: Pose): ScenePose =
-        TODO("OpenXrSceneRuntime.getScenePoseFromPerceptionPose is not yet implemented")
+        PlatformReferenceScenePose(activitySpace, pose)
 
     // TODO: b/538961468 - Implement OpenXrPanelEntity with SurfaceControlViewHost support.
     override fun createPanelEntity(
@@ -260,26 +275,28 @@ internal constructor(
     ): SubspaceNodeEntity =
         TODO("OpenXrSceneRuntime.createSubspaceNodeEntity is not yet implemented")
 
+    // TODO: b/558684002 - Implement OpenXR spatial capabilities callbacks.
     override fun addSpatialCapabilitiesChangedListener(
         callbackExecutor: Executor,
         listener: Consumer<SpatialCapabilities>,
     ) {
-        TODO("OpenXrSceneRuntime.addSpatialCapabilitiesChangedListener is not yet implemented")
+        spatialCapabilitiesChangedListeners[listener] = callbackExecutor
     }
 
     override fun removeSpatialCapabilitiesChangedListener(listener: Consumer<SpatialCapabilities>) {
-        TODO("OpenXrSceneRuntime.removeSpatialCapabilitiesChangedListener is not yet implemented")
+        spatialCapabilitiesChangedListeners.remove(listener)
     }
 
+    // TODO: b/558687235 - Implement OpenXR spatial visibility callbacks.
     override fun setSpatialVisibilityChangedListener(
         callbackExecutor: Executor,
         listener: Consumer<SpatialVisibility>,
     ) {
-        TODO("OpenXrSceneRuntime.setSpatialVisibilityChangedListener is not yet implemented")
+        spatialVisibilityHandler = callbackExecutor to listener
     }
 
     override fun clearSpatialVisibilityChangedListener() {
-        TODO("OpenXrSceneRuntime.clearSpatialVisibilityChangedListener is not yet implemented")
+        spatialVisibilityHandler = null
     }
 
     override fun addPerceivedResolutionChangedListener(
