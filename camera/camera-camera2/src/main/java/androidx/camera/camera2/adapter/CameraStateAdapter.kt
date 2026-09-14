@@ -105,14 +105,20 @@ constructor(private val sessionLifecycleAdapter: CameraSessionLifecycleAdapter) 
     public fun onGraphClosed(cameraGraph: CameraGraph): Unit =
         synchronized(lock) {
             if (currentGraph == cameraGraph) {
+                val wasClosed = currentCameraInternalState == CameraInternal.State.CLOSED
                 // If we are still in a non-closed state, force a transition to CLOSED.
-                if (currentCameraInternalState != CameraInternal.State.CLOSED) {
+                if (!wasClosed) {
                     // Transition to closing state and we will wait for CameraGraph to stop
                     // and then transition to CLOSED state.
                     postCameraState(CameraInternal.State.CLOSING)
                     postCameraState(CameraInternal.State.CLOSED)
                 }
-                closedGraph = cameraGraph
+                if (wasClosed) {
+                    currentGraph = null
+                    closedGraph = null
+                } else {
+                    closedGraph = cameraGraph
+                }
                 currentCameraInternalState = CameraInternal.State.CLOSED
             }
         }
@@ -129,6 +135,15 @@ constructor(private val sessionLifecycleAdapter: CameraSessionLifecycleAdapter) 
             handleStateTransition(cameraGraph, graphState)
             if (cameraGraph == currentGraph) {
                 sessionLifecycleAdapter.dispatchSessionLifecycle(graphState)
+            }
+            if (graphState == GraphStateStopped && cameraGraph == closedGraph) {
+                Camera2Logger.debug {
+                    "Graph $cameraGraph is stopped and closed, clearing references."
+                }
+                if (currentGraph == cameraGraph) {
+                    currentGraph = null
+                }
+                closedGraph = null
             }
         }
     }
