@@ -46,13 +46,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-@Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview, RemoteText, background
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview
 @Composable
 fun TouchActionDemo() {
     RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) { TouchActionDemoContent() }
 }
 
-@Suppress("RestrictedApiAndroidX") // Referring to RemoteText
+@Suppress("RestrictedApiAndroidX") // Referring to plus
 @RemoteComponentPreview
 @Composable
 @RemoteComposable

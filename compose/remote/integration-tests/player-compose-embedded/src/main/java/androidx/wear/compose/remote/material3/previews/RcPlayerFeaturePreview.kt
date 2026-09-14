@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("RestrictedApiAndroidX") // Referring to background, verticalGradient
+
+@file:Suppress("RestrictedApiAndroidX") // Referring to background
 
 package androidx.wear.compose.remote.material3.previews
 

@@ -44,9 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 
-@SuppressLint(
-    "RestrictedApiAndroidX"
-) // Referring to RemoteComposeWidget, RemoteText, background, onClick
+@SuppressLint("RestrictedApiAndroidX") // Referring to RemoteComposeWidget, onClick
 class MyWidget : RemoteComposeWidget() {
     @RemoteComposable
     @Composable

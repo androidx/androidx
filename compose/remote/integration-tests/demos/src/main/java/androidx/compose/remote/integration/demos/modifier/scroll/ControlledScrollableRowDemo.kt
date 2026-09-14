@@ -46,18 +46,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
-@Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to RemoteComponentPreview, RemoteText, background, horizontalScroll,
-// rememberRemoteScrollState, scrollBy
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview
 @Composable
 fun ControlledScrollableRowDemo() {
     RemoteDemo(modifier = Modifier.fillMaxSize()) { ControlledScrollableRowDemoContent() }
 }
 
-@Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to RemoteText, horizontalScroll, rememberRemoteScrollState, scrollBy
+@Suppress("RestrictedApiAndroidX") // Referring to scrollBy
 @RemoteComponentPreview
 @Composable
 @RemoteComposable
@@ -89,7 +84,6 @@ private fun ControlledScrollableRowDemoContent() {
     }
 }
 
-@Suppress("RestrictedApiAndroidX") // Referring to RemoteText
 @Composable
 @RemoteComposable
 private fun Square(index: Int) {
@@ -109,10 +103,7 @@ private fun Square(index: Int) {
     }
 }
 
-@Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to RemoteComponentPreview, RemoteText, background, horizontalScroll,
-// rememberRemoteScrollState, scrollBy
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview
 @Composable
 @RemoteComposable
 private fun Button(onClick: Action, content: @Composable @RemoteComposable () -> Unit) {

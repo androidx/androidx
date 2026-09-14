@@ -25,7 +25,7 @@ import androidx.compose.remote.creation.RemotePathBase
  * RcPlatformServices.RcPathArrayCreator.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Suppress("RestrictedApiAndroidX") // Referring to drawLine, drawPath, remote-creation
+@Suppress("RestrictedApiAndroidX") // Referring to drawPath, remote-creation
 class RcPathData : RemotePathBase, RcPlatformServices.RcPathArrayCreator {
     private var customCreator: RcPlatformServices.RcPathArrayCreator? = null
 

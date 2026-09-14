@@ -15,7 +15,6 @@
  */
 package androidx.compose.remote.integration.view.demos.examples.old.compose
 
-import android.annotation.SuppressLint
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -35,7 +34,10 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview
 @Composable
 @RemoteComposable
-@SuppressLint("RestrictedApiAndroidX") // Referring to background, drawCircle, drawLine
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to ContinuousSec, RemoteOffset, animateFloat, component, div, height, times,
+// translate, width
 fun AnimatedChangesDemo() {
     RemoteColumn(
         modifier = RemoteModifier.fillMaxSize(),
