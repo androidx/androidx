@@ -1443,7 +1443,7 @@ public fun rememberNamedRemoteInt(
     defaultValue: Int,
     domain: RemoteState.Domain = RemoteState.Domain.User,
 ): RemoteInt {
-    return rememberNamedState(name, domain) { createNamedRemoteInt(name, defaultValue, domain) }
+    return remember(name, domain) { createNamedRemoteInt(name, defaultValue, domain) }
 }
 
 /** Extension property to convert an [Int] to a [RemoteInt]. */
