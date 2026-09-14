@@ -51,6 +51,7 @@ import androidx.compose.remote.core.operations.FloatFunctionCall
 import androidx.compose.remote.core.operations.ParticlesCreate
 import androidx.compose.remote.core.operations.ParticlesLoop
 import androidx.compose.remote.core.operations.TouchExpression
+import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.LayoutComponent
@@ -70,10 +71,13 @@ import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifi
 import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionInModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation
 import androidx.compose.remote.core.operations.layout.modifiers.MarqueeModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.OffsetModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ValueFloatChangeActionOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ValueFloatExpressionChangeActionOperation
@@ -633,10 +637,18 @@ internal fun GraphicsLayerModifierOperation.getValuesReflection():
         val nameField = clazz.getDeclaredField("mName").apply { isAccessible = true }
         val idField = clazz.getDeclaredField("mId").apply { isAccessible = true }
         val getValueMethod = clazz.getDeclaredMethod("getValue").apply { isAccessible = true }
+        val animatable =
+            clazz.getDeclaredField("mAnimatableValue").apply { isAccessible = true }.get(item)
+        val source =
+            if (animatable != null && animatableIsVariableField.getBoolean(animatable)) {
+                Utils.asNan(animatableIdField.getInt(animatable))
+            } else {
+                getValueMethod.invoke(item) as Float
+            }
         GraphicsLayerAttributeValueData(
             name = nameField.get(item) as String,
             id = idField.getInt(item),
-            value = getValueMethod.invoke(item) as Float,
+            source = source,
         )
     }
 }
@@ -645,6 +657,13 @@ private val graphicsLayerValuesField =
     GraphicsLayerModifierOperation::class.java.getDeclaredField("mValues").apply {
         isAccessible = true
     }
+
+private val animatableValueClass =
+    Class.forName("androidx.compose.remote.core.operations.layout.AnimatableValue")
+private val animatableIsVariableField =
+    animatableValueClass.getDeclaredField("mIsVariable").apply { isAccessible = true }
+private val animatableIdField =
+    animatableValueClass.getDeclaredField("mId").apply { isAccessible = true }
 
 // HostNamedActionOperation
 
@@ -1365,6 +1384,29 @@ private val dimensionMValueField =
 internal fun dimensionRawValue(op: DimensionModifierOperation): Float =
     dimensionMValueField.getFloat(op)
 
+// OffsetModifier Reflection
+private val offsetXSourceField =
+    OffsetModifierOperation::class.java.getDeclaredField("mX").apply { isAccessible = true }
+private val offsetYSourceField =
+    OffsetModifierOperation::class.java.getDeclaredField("mY").apply { isAccessible = true }
+
+internal fun offsetRawValues(op: OffsetModifierOperation): FloatArray =
+    floatArrayOf(offsetXSourceField.getFloat(op), offsetYSourceField.getFloat(op))
+
+// DimensionInModifier Reflection
+private val dimensionInMinSourceField =
+    DimensionInModifierOperation::class.java.getDeclaredField("mValue1").apply {
+        isAccessible = true
+    }
+private val dimensionInMaxSourceField =
+    DimensionInModifierOperation::class.java.getDeclaredField("mValue2").apply {
+        isAccessible = true
+    }
+
+/** The raw min/max constraint sources, in dp or as NaN-encoded variable ids. */
+internal fun dimensionInRawValues(op: DimensionInModifierOperation): FloatArray =
+    floatArrayOf(dimensionInMinSourceField.getFloat(op), dimensionInMaxSourceField.getFloat(op))
+
 // 10. CollapsiblePriority Reflection
 private val sortWithPrioritiesMethod =
     Class.forName("androidx.compose.remote.core.operations.layout.managers.CollapsiblePriority")
@@ -1394,3 +1436,22 @@ private val componentAnimationSpecField =
 
 internal val Component.animationSpecReflection: AnimationSpec?
     get() = componentAnimationSpecField.get(this) as? AnimationSpec
+
+// 13. PaddingModifierOperation Raw Values Reflection
+private val paddingLeftField =
+    PaddingModifierOperation::class.java.getDeclaredField("mLeft").apply { isAccessible = true }
+private val paddingTopField =
+    PaddingModifierOperation::class.java.getDeclaredField("mTop").apply { isAccessible = true }
+private val paddingRightField =
+    PaddingModifierOperation::class.java.getDeclaredField("mRight").apply { isAccessible = true }
+private val paddingBottomField =
+    PaddingModifierOperation::class.java.getDeclaredField("mBottom").apply { isAccessible = true }
+
+internal fun paddingRawValues(op: PaddingModifierOperation): FloatArray {
+    return floatArrayOf(
+        paddingLeftField.getFloat(op),
+        paddingTopField.getFloat(op),
+        paddingRightField.getFloat(op),
+        paddingBottomField.getFloat(op),
+    )
+}

@@ -61,7 +61,10 @@ class RcPlayerModifierOrderTest {
         var resolvedModifier: Modifier = Modifier
 
         rule.setContent {
-            CompositionLocalProvider(LocalRemoteContext provides remoteContext) {
+            CompositionLocalProvider(
+                LocalRemoteContext provides remoteContext,
+                LocalCoreDocument provides CoreDocument(),
+            ) {
                 resolvedModifier = componentModifiers.toModifier(drawOpsList = emptyList())
             }
         }
@@ -88,7 +91,10 @@ class RcPlayerModifierOrderTest {
         var resolvedModifier: Modifier = Modifier
 
         rule.setContent {
-            CompositionLocalProvider(LocalRemoteContext provides remoteContext) {
+            CompositionLocalProvider(
+                LocalRemoteContext provides remoteContext,
+                LocalCoreDocument provides CoreDocument(),
+            ) {
                 resolvedModifier = componentModifiers.toModifier(drawOpsList = emptyList())
             }
         }
@@ -113,7 +119,10 @@ class RcPlayerModifierOrderTest {
         var resolvedModifier: Modifier = Modifier
 
         rule.setContent {
-            CompositionLocalProvider(LocalRemoteContext provides remoteContext) {
+            CompositionLocalProvider(
+                LocalRemoteContext provides remoteContext,
+                LocalCoreDocument provides CoreDocument(),
+            ) {
                 resolvedModifier = componentModifiers.toModifier(drawOpsList = listOf())
             }
         }

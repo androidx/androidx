@@ -21,6 +21,7 @@ package androidx.compose.remote.player.compose.embedded.modifier
 import androidx.compose.foundation.layout.offset
 import androidx.compose.remote.core.operations.layout.modifiers.OffsetModifierOperation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
+import androidx.compose.remote.player.compose.embedded.offsetRawValues
 import androidx.compose.remote.player.compose.embedded.rawDimensionDp
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
@@ -31,8 +32,9 @@ import androidx.compose.ui.platform.LocalDensity
 internal fun Modifier.offset(op: OffsetModifierOperation): Modifier {
     val density = LocalDensity.current.density
     val behavior = LocalCoreDocument.current.densityBehavior
-    val x = rememberRemoteFloatAsState(op.x).value
-    val y = rememberRemoteFloatAsState(op.y).value
+    val (xSource, ySource) = offsetRawValues(op)
+    val x = rememberRemoteFloatAsState(xSource).value
+    val y = rememberRemoteFloatAsState(ySource).value
 
     return this.offset(
         x = rawDimensionDp(x, behavior, density),
