@@ -151,7 +151,6 @@ constructor(
             syncLocalButton()
         }
 
-    @get:RestrictTo(LIBRARY_GROUP_PREFIX)
     internal val effectiveConfiguration: Configuration
         get() {
             val currentLocales = locales
