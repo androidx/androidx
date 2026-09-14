@@ -205,6 +205,7 @@ class AnimateSpecModifierTest {
             .inOrder()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testAnimationSpecLegacyExplicitDuration() {
         val modifier = RemoteModifier.animationSpec(animationId = 5, motionDuration = 250f)

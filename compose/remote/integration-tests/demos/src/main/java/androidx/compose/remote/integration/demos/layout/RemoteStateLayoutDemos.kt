@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.remote.integration.demos.layout
 
 import androidx.compose.foundation.border

@@ -16,31 +16,28 @@
 
 package androidx.compose.remote.creation.compose.state
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.utilities.easing.FloatAnimation
 import kotlin.math.sqrt
 
 /** Specification for animations in Remote Compose. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public sealed interface RemoteAnimationSpec {
     /**
      * Creates an animated [RemoteFloat] based on the provided [targetValue] and animation
      * parameters.
      *
      * @param targetValue The target value to animate towards.
-     * @param initialValue Optional initial value if animating from a start value, or `null`.
-     * @param wrap Optional wrap modulo bound (e.g. 360f for angles), or `null`.
+     * @param initialValue Optional initial value if animating from a start value, or [Float.NaN].
+     * @param wrap Optional wrap modulo bound (e.g. 360f for angles), or [Float.NaN].
      * @return An animated [RemoteFloat].
      */
     public fun animate(
         targetValue: RemoteFloat,
-        initialValue: Float? = null,
-        wrap: Float? = null,
+        initialValue: Float = Float.NaN,
+        wrap: Float = Float.NaN,
     ): RemoteFloat
 }
 
 /** Defines the easing curve used for Remote Compose animations. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteEasing
 internal constructor(internal val type: Int, internal val spec: FloatArray? = null) {
     public companion object {
@@ -86,7 +83,6 @@ internal constructor(internal val type: Int, internal val spec: FloatArray? = nu
  * @property durationMillis The duration of the animation in milliseconds.
  * @property easing The easing curve to apply.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteTweenSpec(
     public val durationMillis: Int = 300,
     public val easing: RemoteEasing = RemoteEasing.Standard,
@@ -95,19 +91,15 @@ public class RemoteTweenSpec(
         require(durationMillis >= 0) { "durationMillis must be non-negative: $durationMillis" }
     }
 
-    override fun animate(
-        targetValue: RemoteFloat,
-        initialValue: Float?,
-        wrap: Float?,
-    ): RemoteFloat {
+    override fun animate(targetValue: RemoteFloat, initialValue: Float, wrap: Float): RemoteFloat {
         val durationSec = durationMillis / 1000f
         val anim =
             FloatAnimation.packToFloatArray(
                 durationSec,
                 easing.type,
                 easing.spec,
-                initialValue ?: Float.NaN,
-                wrap ?: Float.NaN,
+                initialValue,
+                wrap,
             )
         return AnimatedRemoteFloat(input = targetValue, anim = anim)
     }
@@ -150,13 +142,9 @@ internal class RemoteSpringSpec(
         require(stopThreshold > 0) { "stopThreshold must be greater than 0: $stopThreshold" }
     }
 
-    override fun animate(
-        targetValue: RemoteFloat,
-        initialValue: Float?,
-        wrap: Float?,
-    ): RemoteFloat {
-        require(initialValue == null) { "initialValue is not supported for RemoteSpringSpec" }
-        require(wrap == null) { "wrap is not supported for RemoteSpringSpec" }
+    override fun animate(targetValue: RemoteFloat, initialValue: Float, wrap: Float): RemoteFloat {
+        require(initialValue.isNaN()) { "initialValue is not supported for RemoteSpringSpec" }
+        require(wrap.isNaN()) { "wrap is not supported for RemoteSpringSpec" }
         val dampingCoefficient = 2f * dampingRatio * sqrt(stiffness)
         val encodedBoundaryMode = Float.fromBits(boundaryMode)
         val anim =
@@ -198,7 +186,6 @@ internal class RemoteSpringSpec(
  * @param durationMillis Duration of the animation in milliseconds.
  * @param easing Easing curve to apply.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun remoteTween(
     durationMillis: Int = 300,
     easing: RemoteEasing = RemoteEasing.Standard,
@@ -212,7 +199,6 @@ public fun remoteTween(
  * @param stopThreshold Threshold for stopping velocity/displacement.
  * @param boundaryMode Boundary mode for the spring.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun remoteSpring(
     stiffness: Float = 50f,
     dampingRatio: Float = 1f,
@@ -234,12 +220,11 @@ public fun remoteSpring(
  * @param initialValue Optional initial value if animating from a start value.
  * @param wrap Optional wrap modulo bound (e.g. 360f for angles).
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun animateRemoteFloatAsState(
     targetValue: RemoteFloat,
     animationSpec: RemoteAnimationSpec = remoteTween(),
-    initialValue: Float? = null,
-    wrap: Float? = null,
+    initialValue: Float = Float.NaN,
+    wrap: Float = Float.NaN,
 ): RemoteFloat =
     animationSpec.animate(targetValue = targetValue, initialValue = initialValue, wrap = wrap)
 
@@ -250,11 +235,10 @@ public fun animateRemoteFloatAsState(
  * @param animationSpec The specification for the animation (e.g. [remoteTween] or [remoteSpring]).
  * @param initialValue Optional initial value if animating from a start value.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun animateRemoteDpAsState(
     targetValue: RemoteDp,
     animationSpec: RemoteAnimationSpec = remoteTween(),
-    initialValue: Float? = null,
+    initialValue: Float = Float.NaN,
 ): RemoteDp =
     RemoteDp(
         value =
