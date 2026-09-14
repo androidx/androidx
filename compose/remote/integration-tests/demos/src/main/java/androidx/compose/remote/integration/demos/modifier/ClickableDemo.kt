@@ -36,6 +36,7 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
+import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.integration.demos.common.RemoteDemo
 import androidx.compose.remote.tooling.preview.RemoteComponentPreview
@@ -56,7 +57,7 @@ fun ClickableDemo() {
 @RemoteComposable
 private fun ClickableDemoContent() {
     val clickCounter = rememberMutableRemoteInt(0)
-    val onClickAction = valueChange(clickCounter, clickCounter + 1)
+    val onClickAction = valueChange(clickCounter, clickCounter + 1.ri)
 
     RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
         RemoteRow {

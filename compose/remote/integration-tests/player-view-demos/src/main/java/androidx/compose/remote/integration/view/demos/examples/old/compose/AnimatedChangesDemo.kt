@@ -36,8 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @RemoteComposable
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to ContinuousSec, RemoteOffset, animateFloat, component, div, height, times,
-// translate, width
+) // Referring to ContinuousSec, RemoteOffset, animateFloat, component, height, translate, width
 fun AnimatedChangesDemo() {
     RemoteColumn(
         modifier = RemoteModifier.fillMaxSize(),
@@ -47,14 +46,14 @@ fun AnimatedChangesDemo() {
         RemoteCanvas(modifier = RemoteModifier.fillMaxSize().background(Color.White.rc)) {
             val width = remote.component.width
             val height = remote.component.height
-            val centerX = width / 2f
-            val centerY = height / 2f
-            val rad = width.min(height) / 4f
+            val centerX = width / 2.rf
+            val centerY = height / 2.rf
+            val rad = width.min(height) / 4.rf
 
-            val beat = remote.time.ContinuousSec() * 2f
+            val beat = remote.time.ContinuousSec() * 2.rf
             val anim = remote.animateFloat(beat, duration = 0.5f)
 
-            translate(0.rf, anim * 100f) {
+            translate(0.rf, anim * 100.rf) {
                 drawCircle(
                     paint = RemotePaint().apply { color = Color.Red.rc },
                     radius = rad,
@@ -67,7 +66,7 @@ fun AnimatedChangesDemo() {
                 val len = centerY
                 drawLine(
                     paint = RemotePaint().apply { this.color = Color(color).rc },
-                    start = RemoteOffset(centerX, 0f),
+                    start = RemoteOffset(centerX, 0.rf),
                     end = RemoteOffset(centerX, len),
                 )
                 drawCircle(
