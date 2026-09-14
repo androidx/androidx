@@ -1125,6 +1125,70 @@ class NavArgumentGeneratorTest {
         assertThat(converted).containsExactlyInOrder(expected)
     }
 
+    @Test
+    fun convertToEnum() {
+        @Serializable class TestClass(val arg: TestEnum)
+
+        val argument = serializer<TestClass>().generateNavArguments().single().argument
+
+        assertThat(argument.isNullable).isFalse()
+        assertThat(argument.type.parseValue("TEST")).isEqualTo(TestEnum.TEST)
+    }
+
+    @Test
+    fun convertToTopLevelEnum() {
+        @Serializable class TestClass(val arg: TestTopLevelEnum)
+
+        val argument = serializer<TestClass>().generateNavArguments().single().argument
+
+        assertThat(argument.isNullable).isFalse()
+        assertThat(argument.type.parseValue("TEST")).isEqualTo(TestTopLevelEnum.TEST)
+    }
+
+    @Test
+    fun convertToEnumNullable() {
+        @Serializable class TestClass(val arg: TestEnum?)
+
+        val argument = serializer<TestClass>().generateNavArguments().single().argument
+
+        assertThat(argument.isNullable).isTrue()
+        assertThat(argument.type.isNullableAllowed).isTrue()
+        assertThat(argument.type.parseValue("TEST")).isEqualTo(TestEnum.TEST)
+    }
+
+    @Test
+    fun convertToNestedEnum() {
+        @Serializable class TestClass(val arg: EnumWrapper.NestedEnum)
+
+        val argument = serializer<TestClass>().generateNavArguments().single().argument
+
+        assertThat(argument.isNullable).isFalse()
+        assertThat(argument.type.parseValue("ONE")).isEqualTo(EnumWrapper.NestedEnum.ONE)
+    }
+
+    @Test
+    fun convertToEnumList() {
+        @Serializable class TestClass(val arg: List<TestEnum>)
+
+        val argument = serializer<TestClass>().generateNavArguments().single().argument
+
+        assertThat(argument.isNullable).isFalse()
+        assertThat(argument.type.parseValue("TEST")).isEqualTo(listOf(TestEnum.TEST))
+        assertThat(argument.type.parseValue("TEST", listOf(TestEnum.TEST)))
+            .isEqualTo(listOf(TestEnum.TEST, TestEnum.TEST))
+    }
+
+    @Test
+    fun convertToEnumListNullable() {
+        @Serializable class TestClass(val arg: List<TestEnum>?)
+
+        val argument = serializer<TestClass>().generateNavArguments().single().argument
+
+        assertThat(argument.isNullable).isTrue()
+        assertThat(argument.type.isNullableAllowed).isTrue()
+        assertThat(argument.type.parseValue("TEST")).isEqualTo(listOf(TestEnum.TEST))
+    }
+
     @Serializable @JvmInline value class TestValueClass(val arg: Int)
 
     // writing our own assert so we don't need to override NamedNavArgument's equals

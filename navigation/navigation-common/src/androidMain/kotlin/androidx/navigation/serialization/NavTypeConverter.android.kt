@@ -21,13 +21,14 @@ import androidx.navigation.NavType
 import androidx.savedstate.SavedState
 import java.io.Serializable
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
 
-internal actual fun SerialDescriptor.parseEnum(): NavType<*> =
+internal actual fun SerialDescriptor.parseEnum(serializer: KSerializer<*>?): NavType<*> =
     NavType.parseSerializableOrParcelableType(getClass(), false) ?: UNKNOWN
 
-internal actual fun SerialDescriptor.parseNullableEnum(): NavType<*> {
+internal actual fun SerialDescriptor.parseNullableEnum(serializer: KSerializer<*>?): NavType<*> {
     val clazz = getClass()
     return if (Enum::class.java.isAssignableFrom(clazz)) {
         @Suppress("UNCHECKED_CAST")
@@ -36,7 +37,7 @@ internal actual fun SerialDescriptor.parseNullableEnum(): NavType<*> {
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-internal actual fun SerialDescriptor.parseEnumList(): NavType<*> {
+internal actual fun SerialDescriptor.parseEnumList(serializer: KSerializer<*>?): NavType<*> {
     @Suppress("UNCHECKED_CAST")
     return InternalAndroidNavType.EnumListType(getElementDescriptor(0).getClass() as Class<Enum<*>>)
 }
