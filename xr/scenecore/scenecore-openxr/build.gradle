@@ -30,6 +30,16 @@ plugins {
     id("com.android.library")
 }
 
+// Exclude production ARCore perception backends (transitively pulled in by scenecore-runtime)
+// from the test APK so instrumented tests can run on emulators and CI without requiring hardware
+// OpenXR perception drivers. Session.create() will use arcore-testing fakes instead.
+configurations.configureEach { configuration ->
+    if (configuration.name.toLowerCase().contains("androidtest")) {
+        configuration.exclude group: "androidx.xr.arcore", module: "arcore-openxr"
+        configuration.exclude group: "androidx.xr.arcore", module: "arcore-play-services"
+    }
+}
+
 dependencies {
     api(project(":xr:scenecore:scenecore-runtime"))
 
@@ -50,6 +60,14 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
     androidTestImplementation("androidx.appcompat:appcompat:1.2.0")
+    // Exclude the default spatial-core and spatial-rendering runtime backends so that
+    // Session.create() selects and tests OpenXrSceneRuntimeFactory in isolation without
+    // runtime factory provider conflicts or pulling in CPM/spatial-core native dependencies.
+    androidTestImplementation(project(":xr:scenecore:scenecore")) {
+        exclude group: "androidx.xr.scenecore", module: "scenecore-spatial-core"
+        exclude group: "androidx.xr.scenecore", module: "scenecore-spatial-rendering"
+    }
+    androidTestImplementation(project(":xr:arcore:arcore-testing"))
 }
 
 android {
