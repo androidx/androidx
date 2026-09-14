@@ -28,8 +28,8 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
-import com.android.tools.lint.detector.api.VersionChecks.Companion.isPrecededByVersionCheckExit
-import com.android.tools.lint.detector.api.VersionChecks.Companion.isWithinVersionCheckConditional
+import com.android.tools.lint.detector.api.VersionChecks.Companion.findPrecedingVersionCheckExitConstraints
+import com.android.tools.lint.detector.api.VersionChecks.Companion.getOuterVersionCheckConstraint
 import com.intellij.psi.PsiAnnotation
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UCallExpression
@@ -50,21 +50,14 @@ class BanUncheckedReflection : Detector(), SourceCodeScanner {
         // Skip if this isn't a call to `Method.invoke`.
         if (!context.evaluator.isMemberInClass(method, METHOD_REFLECTION_CLASS)) return
 
-        // Flag if the call isn't inside or preceded by an SDK_INT check.
+        // Find all version constraints surrounding and preceding the invocation
+        val outerConstraint = getOuterVersionCheckConstraint(context, node) ?: ApiConstraint.ALL
+        val exitConstraint = findPrecedingVersionCheckExitConstraints(context, node)
+        val constraint = outerConstraint.and(exitConstraint)
+
+        // Flag if the call is allowed to happen for the HIGHEST_KNOWN_API
         if (
-            !isWithinVersionCheckConditional(
-                context,
-                node,
-                ApiConstraint.get(HIGHEST_KNOWN_API),
-                false,
-            ) &&
-                !isWithinVersionCheckConditional(context, node, ApiConstraint.get(1), true) &&
-                !isPrecededByVersionCheckExit(
-                    context,
-                    node,
-                    ApiConstraint.get(HIGHEST_KNOWN_API),
-                ) &&
-                !isPrecededByVersionCheckExit(context, node, ApiConstraint.get(1)) &&
+            constraint.includes(HIGHEST_KNOWN_API) &&
                 !isWithinDeprecatedSinceApiMethod(node) &&
                 !isWithinDeprecatedSinceApiClass(node)
         ) {
@@ -73,8 +66,8 @@ class BanUncheckedReflection : Detector(), SourceCodeScanner {
                     .issue(ISSUE)
                     .location(context.getLocation(node))
                     .message(
-                        "Method.invoke requires both an upper and lower SDK bounds checks to be" +
-                            " safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+                        "Method.invoke requires an SDK bounds check to be safe, and the upper " +
+                            "bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
                     )
                     .scope(node)
             context.report(incident)
