@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.4.0-alpha05)" variant="all" version="9.4.0-alpha05">
+<issues format="6" by="lint 9.5.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha04)" variant="all" version="9.5.0-alpha04">
 
     <issue
         id="MissingPermission"
@@ -26,6 +26,24 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Statement must run from `@WorkerThread`, incompatible with earlier code that must run from `@{Main,Ui}Thread`"
+        errorLine1="        try {"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/example/android/supportv4/content/FileProviderExample.java"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Call must be from `@{Main,Ui}Thread`, but the work passed to `thread` is expected to run from `@WorkerThread`"
+        errorLine1="                visibility.post {"
+        errorLine2="                           ^">
+        <location
+            file="src/main/java/com/example/android/supportv4/view/WindowInsetsControllerPlayground.kt"/>
     </issue>
 
     <issue

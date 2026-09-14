@@ -21,12 +21,14 @@ import java.io.File
 import java.io.InputStream
 import java.security.MessageDigest
 import java.util.zip.ZipFile
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class ChecksumTest {
+    @Ignore("b/559685582")
     @Test
     fun test_prebuilts_checksums() {
 

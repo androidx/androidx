@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.5.0-alpha04" type="baseline" client="gradle" dependencies="true" name="AGP (9.5.0-alpha04)" variant="all" version="9.5.0-alpha04">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteInt.minus can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="        decreaseAction = valueChange(value, max(value - 1.ri, 0.ri)),"
+        errorLine2="                                                      ~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/samples/RemoteSliderSample.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteIntKt.max can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="        decreaseAction = valueChange(value, max(value - 1.ri, 0.ri)),"
+        errorLine2="                                            ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/samples/RemoteSliderSample.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteInt.plus can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="        increaseAction = valueChange(value, min(value + 1.ri, 5.ri)),"
+        errorLine2="                                                      ~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/samples/RemoteSliderSample.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteIntKt.min can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="        increaseAction = valueChange(value, min(value + 1.ri, 5.ri)),"
+        errorLine2="                                            ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/samples/RemoteSliderSample.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteInt.minus can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="        decreaseAction = valueChange(value, max(value - 1.ri, 0.ri)),"
+        errorLine2="                                                      ~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/samples/RemoteStepperSample.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteIntKt.max can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="        decreaseAction = valueChange(value, max(value - 1.ri, 0.ri)),"
+        errorLine2="                                            ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/samples/RemoteStepperSample.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteInt.plus can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="        increaseAction = valueChange(value, min(value + 1.ri, 5.ri)),"
+        errorLine2="                                                      ~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/samples/RemoteStepperSample.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteIntKt.min can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="        increaseAction = valueChange(value, min(value + 1.ri, 5.ri)),"
+        errorLine2="                                            ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/samples/RemoteStepperSample.kt"/>
+    </issue>
+
+</issues>

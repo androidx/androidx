@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.5.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha04)" variant="all" version="9.5.0-alpha04">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.toDp-GaN1DYA can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="            if (!before.isUnspecified) before.toDp() else Dp.Unspecified,"
+        errorLine2="                                              ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/AlignmentLine.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.toDp-GaN1DYA can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="            if (!after.isUnspecified) after.toDp() else Dp.Unspecified,"
+        errorLine2="                                            ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/AlignmentLine.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="    override val fontScale: Float"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlexBox.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="        get() = _density.fontScale"
+        errorLine2="                         ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlexBox.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.toSp-0xMU5do can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="    override fun Dp.toSp(): TextUnit = with(_density) { this@toSp.toSp() }"
+        errorLine2="                                                                  ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlexBox.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.toDp-GaN1DYA can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="    override fun TextUnit.toDp(): Dp = with(_density) { this@toDp.toDp() }"
+        errorLine2="                                                                  ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlexBox.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="    override val fontScale: Float"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlexBox.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="        get() = _density.fontScale"
+        errorLine2="                         ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlexBox.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.toSp-0xMU5do can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="    override fun Dp.toSp(): TextUnit = with(_density) { this@toSp.toSp() }"
+        errorLine2="                                                                  ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlexBox.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.toDp-GaN1DYA can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="    override fun TextUnit.toDp(): Dp = with(_density) { this@toDp.toDp() }"
+        errorLine2="                                                                  ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlexBox.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="        override val fontScale: Float = 1f"
+        errorLine2="                     ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlexBox.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="            override val fontScale: Float"
+        errorLine2="                         ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlowLayout.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="                get() = this@breakDownItems.fontScale"
+        errorLine2="                                            ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/FlowLayout.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="private class GridConfigurationScopeImpl(density: Density, override val constraints: Constraints) :"
+        errorLine2="^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/layout/Grid.kt"/>
+    </issue>
+
+</issues>

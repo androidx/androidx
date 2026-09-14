@@ -1,5 +1,320 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.4.0-alpha05)" variant="all" version="9.4.0-alpha05">
+<issues format="6" by="lint 9.5.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha04)" variant="all" version="9.5.0-alpha04">
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method linearGradient has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="            colors: List&lt;Color>,"
+        errorLine2="                    ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method horizontalGradient has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="            colors: List&lt;Color>,"
+        errorLine2="                    ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method verticalGradient has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="            colors: List&lt;Color>,"
+        errorLine2="                    ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method radialGradient has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="            colors: List&lt;Color>,"
+        errorLine2="                    ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method sweepGradient has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="        public fun sweepGradient(colors: List&lt;Color>, center: Offset = Offset.Unspecified): Brush ="
+        errorLine2="                                         ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method drawPoints has parameter points with type List&lt;Offset>: replace with LongList"
+        errorLine1="    public fun drawPoints(pointMode: PointMode, points: List&lt;Offset>, paint: Paint)"
+        errorLine2="                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Canvas.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method drawPoints has parameter points with type List&lt;Offset>: replace with LongList"
+        errorLine1="        points: List&lt;Offset>,"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/drawscope/CanvasDrawScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method drawPoints has parameter points with type List&lt;Offset>: replace with LongList"
+        errorLine1="        points: List&lt;Offset>,"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/drawscope/CanvasDrawScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method drawPoints has parameter points with type List&lt;Offset>: replace with LongList"
+        errorLine1="        points: List&lt;Offset>,"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/drawscope/DrawScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method drawPoints has parameter points with type List&lt;Offset>: replace with LongList"
+        errorLine1="        points: List&lt;Offset>,"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/drawscope/DrawScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method drawPoints has parameter points with type List&lt;Offset>: replace with LongList"
+        errorLine1="    override fun drawPoints(pointMode: PointMode, points: List&lt;Offset>, paint: Paint) {"
+        errorLine2="                                                          ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/drawscope/EmptyCanvas.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method ActualLinearGradientShader has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    colors: List&lt;Color>,"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/commonStubsMain/kotlin/androidx/compose/ui/graphics/Shader.commonStubs.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method ActualLinearGradientShader has parameter colorStops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    colorStops: List&lt;Float>?,"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/commonStubsMain/kotlin/androidx/compose/ui/graphics/Shader.commonStubs.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method ActualRadialGradientShader has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    colors: List&lt;Color>,"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/commonStubsMain/kotlin/androidx/compose/ui/graphics/Shader.commonStubs.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method ActualRadialGradientShader has parameter colorStops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    colorStops: List&lt;Float>?,"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/commonStubsMain/kotlin/androidx/compose/ui/graphics/Shader.commonStubs.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method ActualSweepGradientShader has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    colors: List&lt;Color>,"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/commonStubsMain/kotlin/androidx/compose/ui/graphics/Shader.commonStubs.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method ActualSweepGradientShader has parameter colorStops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    colorStops: List&lt;Float>?,"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/commonStubsMain/kotlin/androidx/compose/ui/graphics/Shader.commonStubs.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method LinearGradientShader has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    colors: List&lt;Color>,"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Shader.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method LinearGradientShader has parameter colorStops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    colorStops: List&lt;Float>? = null,"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Shader.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method ActualLinearGradientShader has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    colors: List&lt;Color>,"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Shader.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method ActualLinearGradientShader has parameter colorStops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    colorStops: List&lt;Float>?,"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Shader.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method RadialGradientShader has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    colors: List&lt;Color>,"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Shader.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method RadialGradientShader has parameter colorStops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    colorStops: List&lt;Float>? = null,"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Shader.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method ActualRadialGradientShader has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    colors: List&lt;Color>,"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Shader.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method ActualRadialGradientShader has parameter colorStops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    colorStops: List&lt;Float>?,"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Shader.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method SweepGradientShader has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    colors: List&lt;Color>,"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Shader.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method SweepGradientShader has parameter colorStops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    colorStops: List&lt;Float>? = null,"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Shader.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method ActualSweepGradientShader has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    colors: List&lt;Color>,"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Shader.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method ActualSweepGradientShader has parameter colorStops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    colorStops: List&lt;Float>?,"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Shader.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor Vertices has parameter positions with type List&lt;Offset>: replace with LongList"
+        errorLine1="        positions: List&lt;Offset>,"
+        errorLine2="                   ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Vertices.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor Vertices has parameter textureCoordinates with type List&lt;Offset>: replace with LongList"
+        errorLine1="        textureCoordinates: List&lt;Offset>,"
+        errorLine2="                            ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Vertices.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor Vertices has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="        colors: List&lt;Color>,"
+        errorLine2="                ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Vertices.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor Vertices has parameter indices with type List&lt;Integer>: replace with IntList"
+        errorLine1="        indices: List&lt;Int>,"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Vertices.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method encodeColorList has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    private fun encodeColorList(colors: List&lt;Color>): IntArray {"
+        errorLine2="                                        ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Vertices.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method encodePointList has parameter points with type List&lt;Offset>: replace with LongList"
+        errorLine1="    private fun encodePointList(points: List&lt;Offset>): FloatArray {"
+        errorLine2="                                        ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Vertices.kt"/>
+    </issue>
 
     <issue
         id="ObsoleteSdkInt"
@@ -472,8 +787,8 @@
     <issue
         id="PrimitiveInCollection"
         message="constructor Vertices has parameter positions with type List&lt;Offset>: replace with LongList"
-        errorLine1="    positions: List&lt;Offset>,"
-        errorLine2="               ~~~~~~~~~~~~">
+        errorLine1="        positions: List&lt;Offset>,"
+        errorLine2="                   ~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/graphics/Vertices.kt"/>
     </issue>
@@ -481,8 +796,8 @@
     <issue
         id="PrimitiveInCollection"
         message="constructor Vertices has parameter textureCoordinates with type List&lt;Offset>: replace with LongList"
-        errorLine1="    textureCoordinates: List&lt;Offset>,"
-        errorLine2="                        ~~~~~~~~~~~~">
+        errorLine1="        textureCoordinates: List&lt;Offset>,"
+        errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/graphics/Vertices.kt"/>
     </issue>
@@ -490,8 +805,8 @@
     <issue
         id="PrimitiveInCollection"
         message="constructor Vertices has parameter colors with type List&lt;Color>: replace with LongList"
-        errorLine1="    colors: List&lt;Color>,"
-        errorLine2="            ~~~~~~~~~~~">
+        errorLine1="        colors: List&lt;Color>,"
+        errorLine2="                ~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/graphics/Vertices.kt"/>
     </issue>
@@ -499,8 +814,8 @@
     <issue
         id="PrimitiveInCollection"
         message="constructor Vertices has parameter indices with type List&lt;Integer>: replace with IntList"
-        errorLine1="    indices: List&lt;Int>,"
-        errorLine2="             ~~~~~~~~~">
+        errorLine1="        indices: List&lt;Int>,"
+        errorLine2="                 ~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/graphics/Vertices.kt"/>
     </issue>

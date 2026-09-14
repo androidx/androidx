@@ -1,5 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.5.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha01)" variant="all" version="9.5.0-alpha01">
+<issues format="6" by="lint 9.5.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha04)" variant="all" version="9.5.0-alpha04">
+
+    <issue
+        id="Range"
+        message="Value must be ≥ 0 but `lastIndex` can be -1"
+        errorLine1="                        previousEnds.removeAt(previousEnds.lastIndex)"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/text/AnnotatedString.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;FontStyle> of values: replace with IntList"
+        errorLine1="        public fun values(): List&lt;FontStyle> = listOf(Normal, Italic)"
+        errorLine2="                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/text/font/FontStyle.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable transitions with type TreeSet&lt;Integer>: replace with IntSet"
+        errorLine1="    val transitions = sortedSetOf(0, text.length)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/jvmAndAndroidMain/kotlin/androidx/compose/ui/text/JvmAnnotatedString.jvmAndAndroid.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method collectRangeTransitions has parameter target with type SortedSet&lt;Integer>: replace with IntSet"
+        errorLine1="private fun collectRangeTransitions(ranges: List&lt;Range&lt;*>>?, target: SortedSet&lt;Int>) {"
+        errorLine2="                                                                     ~~~~~~~~~~~~~~">
+        <location
+            file="src/jvmAndAndroidMain/kotlin/androidx/compose/ui/text/JvmAnnotatedString.jvmAndAndroid.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable list with type List&lt;? extends Float>: replace with FloatList"
+        errorLine1="            @Suppress(&quot;UNCHECKED_CAST&quot;) val list = it as List&lt;Float>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/text/Savers.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;TextAlign> of values: replace with IntList"
+        errorLine1="        public fun values(): List&lt;TextAlign> = listOf(Left, Right, Center, Justify, Start, End)"
+        errorLine2="                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/text/style/TextAlign.kt"/>
+    </issue>
 
     <issue
         id="Range"
