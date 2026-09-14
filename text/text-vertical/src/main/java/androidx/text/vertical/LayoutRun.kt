@@ -580,10 +580,6 @@ private inline fun <reified T> CharSequence.getSpans(start: Int, end: Int): Arra
     }
 
 internal fun isEmphasisTarget(cp: Int): Boolean {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-        // Treat all letters as an emphasis target on API25 or below.
-        return true
-    }
     val type = UCharacter.getType(cp).toByte()
     return !(type == UCharacterCategory.CONTROL ||
         type == UCharacterCategory.FORMAT ||
