@@ -20,13 +20,11 @@ import androidx.compose.ui.focus.FocusProperties
 import androidx.compose.ui.focus.FocusPropertiesModifierNode
 import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.focus.Focusability
-import androidx.compose.ui.focus.requestFocusForChildInRootBounds
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.focus.requestFocusForChildInLocalBounds
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.platform.InspectorInfo
-import kotlin.math.roundToInt
 
 /** Directs the initial focus and focus re-enter to the current top item of the stack. */
 internal class StackInitialFocusElement(private val stackState: StackState) :
@@ -72,16 +70,12 @@ internal class StackInitialFocusNode(private var stackState: StackState) :
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
         focusProperties.onEnter = {
-            val coordinates = requireLayoutCoordinates()
-            val offset = coordinates.localToRoot(Offset.Zero)
-            val left = offset.x.roundToInt()
-            val top = offset.y.roundToInt()
-            val size = coordinates.size
-            requestFocusForChildInRootBounds(
-                left = left,
-                top = top,
-                right = left + size.width,
-                bottom = top + size.height,
+            val size = requireLayoutCoordinates().size
+            requestFocusForChildInLocalBounds(
+                left = 0,
+                top = 0,
+                right = size.width,
+                bottom = size.height,
             )
         }
     }
