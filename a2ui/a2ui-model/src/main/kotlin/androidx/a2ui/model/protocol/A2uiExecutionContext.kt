@@ -44,6 +44,14 @@ public interface A2uiExecutionContext {
     public fun executeFunction(name: String, args: Map<String, Any>): Any?
 
     /**
+     * Returns the definition of a catalog function by name, or null if not found.
+     *
+     * @param name name of the function
+     * @return function definition, or null if the function is not found in the catalog
+     */
+    public fun getFunctionDefinition(name: String): A2uiFunctionDefinition? = null
+
+    /**
      * Resolves a value from the data model at the given path.
      *
      * @param path data path to resolve

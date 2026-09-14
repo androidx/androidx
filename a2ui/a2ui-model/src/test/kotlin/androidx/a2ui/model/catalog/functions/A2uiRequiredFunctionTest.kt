@@ -16,9 +16,7 @@
 
 package androidx.a2ui.model.catalog.functions
 
-import androidx.a2ui.model.protocol.A2uiException
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert.assertThrows
 import org.junit.Test
 
 class A2uiRequiredFunctionTest {
@@ -191,10 +189,13 @@ class A2uiRequiredFunctionTest {
     }
 
     @Test
-    fun execute_missingValue_throwsValidationException() {
-        assertThrows(A2uiException.A2uiValidationException::class.java) {
-            A2uiRequiredFunction.INSTANCE.execute(emptyMap())
-        }
+    fun execute_missingValue_returnsFalse() {
+        assertThat(A2uiRequiredFunction.INSTANCE.execute(emptyMap())).isEqualTo(false)
+    }
+
+    @Test
+    fun execute_whitespaceString_returnsTrue() {
+        assertThat(A2uiRequiredFunction.INSTANCE.execute(mapOf(ARG_VALUE to "   "))).isEqualTo(true)
     }
 
     private companion object {

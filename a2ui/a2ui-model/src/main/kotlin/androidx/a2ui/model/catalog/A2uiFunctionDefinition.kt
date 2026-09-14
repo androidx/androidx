@@ -44,6 +44,21 @@ public interface A2uiFunctionDefinition {
 
     /** The type of the value returned by the function. */
     public val returnType: A2uiFunctionReturnType
+
+    /**
+     * Indicates if this function should execute even if some of its data-bound arguments cannot be
+     * resolved (e.g., data is not yet available for a dynamic property).
+     *
+     * When false (default), if any argument cannot be resolved, evaluation halts and returns null
+     * indicating to the component that it should wait in a loading state.
+     *
+     * When true, arguments whose data bindings cannot be resolved are omitted from the arguments
+     * map passed to [A2uiFunction.execute], allowing the function to execute with the remaining
+     * resolved arguments.
+     */
+    @get:Suppress("GetterSetterNames")
+    public val acceptsUnresolvedArguments: Boolean
+        get() = false
 }
 
 /**
