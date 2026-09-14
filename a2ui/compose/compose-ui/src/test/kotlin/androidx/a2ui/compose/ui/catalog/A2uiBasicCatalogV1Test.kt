@@ -101,11 +101,13 @@ class A2uiBasicCatalogV1Test {
             .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
         assertThat(A2uiBasicCatalogV1.TextField.AccessibilityProperty)
             .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
+        assertThat(A2uiBasicCatalogV1.CheckBox.AccessibilityProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
+        assertThat(A2uiBasicCatalogV1.ChoicePicker.AccessibilityProperty)
+            .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
         assertThat(A2uiBasicCatalogV1.Slider.AccessibilityProperty)
             .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
         assertThat(A2uiBasicCatalogV1.DateTimeInput.AccessibilityProperty)
-            .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
-        assertThat(A2uiBasicCatalogV1.CheckBox.AccessibilityProperty)
             .isSameInstanceAs(A2uiBasicCatalogV1.AccessibilityProperty)
     }
 
@@ -134,6 +136,7 @@ class A2uiBasicCatalogV1Test {
         val button = TestButtonComponent()
         val textField = TestTextFieldComponent()
         val checkBox = TestCheckBoxComponent()
+        val choicePicker = TestChoicePickerComponent()
         val slider = TestSliderComponent()
         val dateTimeInput = TestDateTimeInputComponent()
         val catalog =
@@ -153,6 +156,7 @@ class A2uiBasicCatalogV1Test {
                 button = button,
                 textField = textField,
                 checkBox = checkBox,
+                choicePicker = choicePicker,
                 slider = slider,
                 dateTimeInput = dateTimeInput,
                 functions = listOf(A2uiFormatStringFunction.INSTANCE),
@@ -173,6 +177,7 @@ class A2uiBasicCatalogV1Test {
         assertThat(catalog.button).isSameInstanceAs(button)
         assertThat(catalog.textField).isSameInstanceAs(textField)
         assertThat(catalog.checkBox).isSameInstanceAs(checkBox)
+        assertThat(catalog.choicePicker).isSameInstanceAs(choicePicker)
         assertThat(catalog.slider).isSameInstanceAs(slider)
         assertThat(catalog.dateTimeInput).isSameInstanceAs(dateTimeInput)
         assertThat(catalog.components)
@@ -192,6 +197,7 @@ class A2uiBasicCatalogV1Test {
                 button,
                 textField,
                 checkBox,
+                choicePicker,
                 slider,
                 dateTimeInput,
             )
@@ -215,6 +221,7 @@ class A2uiBasicCatalogV1Test {
         val button = TestButtonComponent()
         val textField = TestTextFieldComponent()
         val checkBox = TestCheckBoxComponent()
+        val choicePicker = TestChoicePickerComponent()
         val slider = TestSliderComponent()
         val dateTimeInput = TestDateTimeInputComponent()
         val catalog1 =
@@ -234,6 +241,7 @@ class A2uiBasicCatalogV1Test {
                 button = button,
                 textField = textField,
                 checkBox = checkBox,
+                choicePicker = choicePicker,
                 slider = slider,
                 dateTimeInput = dateTimeInput,
             )
@@ -254,6 +262,7 @@ class A2uiBasicCatalogV1Test {
                 button = button,
                 textField = textField,
                 checkBox = checkBox,
+                choicePicker = choicePicker,
                 slider = slider,
                 dateTimeInput = dateTimeInput,
             )
@@ -280,6 +289,7 @@ class A2uiBasicCatalogV1Test {
         val sharedButton = TestButtonComponent()
         val sharedTextField = TestTextFieldComponent()
         val sharedCheckBox = TestCheckBoxComponent()
+        val sharedChoicePicker = TestChoicePickerComponent()
         val sharedSlider = TestSliderComponent()
         val sharedDateTimeInput = TestDateTimeInputComponent()
         val catalog1 =
@@ -299,6 +309,7 @@ class A2uiBasicCatalogV1Test {
                 button = sharedButton,
                 textField = sharedTextField,
                 checkBox = sharedCheckBox,
+                choicePicker = sharedChoicePicker,
                 slider = sharedSlider,
                 dateTimeInput = sharedDateTimeInput,
             )
@@ -319,6 +330,7 @@ class A2uiBasicCatalogV1Test {
                 button = sharedButton,
                 textField = sharedTextField,
                 checkBox = sharedCheckBox,
+                choicePicker = sharedChoicePicker,
                 slider = sharedSlider,
                 dateTimeInput = sharedDateTimeInput,
             )
@@ -336,7 +348,8 @@ class A2uiBasicCatalogV1Test {
         assertThat(catalog.toString())
             .containsMatch(
                 "components=.*Text.*Image.*Icon.*Video.*AudioPlayer.*Card.*Row.*Column.*List." +
-                    "*Tabs.*Modal.*Divider.*Button.*TextField.*CheckBox.*Slider.*DateTimeInput"
+                    "*Tabs.*Modal.*Divider.*Button.*TextField.*CheckBox.*ChoicePicker.*Slider" +
+                    ".*DateTimeInput"
             )
         assertThat(catalog.toString()).contains("functions=[]")
     }
@@ -357,6 +370,7 @@ class A2uiBasicCatalogV1Test {
         button: A2uiBasicCatalogV1.Button = TestButtonComponent(),
         textField: A2uiBasicCatalogV1.TextField = TestTextFieldComponent(),
         checkBox: A2uiBasicCatalogV1.CheckBox = TestCheckBoxComponent(),
+        choicePicker: A2uiBasicCatalogV1.ChoicePicker = TestChoicePickerComponent(),
         slider: A2uiBasicCatalogV1.Slider = TestSliderComponent(),
         dateTimeInput: A2uiBasicCatalogV1.DateTimeInput = TestDateTimeInputComponent(),
         functions: List<A2uiFunction> = emptyList(),
@@ -377,6 +391,7 @@ class A2uiBasicCatalogV1Test {
             button = button,
             textField = textField,
             checkBox = checkBox,
+            choicePicker = choicePicker,
             slider = slider,
             dateTimeInput = dateTimeInput,
             functions = functions,
@@ -533,6 +548,22 @@ class A2uiBasicCatalogV1Test {
             label: String,
             value: Boolean,
             onValueChange: (Boolean) -> Unit,
+            enabled: Boolean,
+            accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+            modifier: Modifier,
+        ) {}
+    }
+
+    private class TestChoicePickerComponent : A2uiBasicCatalogV1.ChoicePicker {
+        @Composable
+        override fun A2uiComponentScope.TypedContent(
+            label: String?,
+            options: List<A2uiBasicCatalogV1.ChoicePicker.Option>,
+            value: List<String>,
+            variant: A2uiBasicCatalogV1.ChoicePicker.Variant,
+            displayStyle: A2uiBasicCatalogV1.ChoicePicker.DisplayStyle,
+            filterable: Boolean,
+            onValueChange: (List<String>) -> Unit,
             enabled: Boolean,
             accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
