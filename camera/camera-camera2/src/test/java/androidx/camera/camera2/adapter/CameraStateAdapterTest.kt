@@ -695,6 +695,26 @@ internal class CameraStateAdapterTest {
         assertThat(finalState.error!!.code).isEqualTo(ERROR_CAMERA_REMOVED)
     }
 
+    @Test
+    fun testEventsAreIgnored_afterGraphIsClosedAndStopped() {
+        // 1. Arrange: Setup graph and open it.
+        cameraStateAdapter.onGraphUpdated(cameraGraph1)
+        cameraStateAdapter.onGraphStateUpdated(cameraGraph1, GraphStateStarting)
+        cameraStateAdapter.onGraphStateUpdated(cameraGraph1, GraphStateStarted)
+        assertThat(cameraStateAdapter.cameraState.value?.type).isEqualTo(CameraState.Type.OPEN)
+
+        // 2. Act: Close the graph and wait for it to stop.
+        cameraStateAdapter.onGraphClosed(cameraGraph1)
+        cameraStateAdapter.onGraphStateUpdated(cameraGraph1, GraphStateStopped)
+        assertThat(cameraStateAdapter.cameraState.value?.type).isEqualTo(CameraState.Type.CLOSED)
+
+        // 3. Act: Send a new event from the OLD graph.
+        cameraStateAdapter.onGraphStateUpdated(cameraGraph1, GraphStateStarting)
+
+        // 4. Assert: State should still be CLOSED because the event from old graph is ignored.
+        assertThat(cameraStateAdapter.cameraState.value?.type).isEqualTo(CameraState.Type.CLOSED)
+    }
+
     private class TestStateListener : Consumer<CameraState> {
         val states = mutableListOf<CameraState>()
 
