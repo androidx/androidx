@@ -40,6 +40,8 @@ import android.text.style.ReplacementSpan
  * @property textScale The text scale ratio of the ruby text relative to the base text. Defaults to
  *   0.5f.
  */
+// TODO(b/559972124): honor `position` in horizontal text layout. It is currently only honored in
+//  vertical text layout; HorizontalRubySpanLayout always draws the ruby above the base text.
 public class RubySpan
 @JvmOverloads
 constructor(

@@ -233,6 +233,26 @@ class RubyLayoutRunTest {
             }
         }
     }
+
+    @Test
+    fun rubyLayoutRun_PositionBeforeReservesSpaceOnRight() {
+        val rubySpan = RubySpan(RUBY_TEXT, AnnotationPosition.Before)
+        RubyLayoutRun(TEXT, LATIN_START, LATIN_END, TextOrientation.Mixed, PAINT, rubySpan).run {
+            assertThat(width).isEqualTo(ONE_EM * 1.5f)
+            assertThat(leftSideOffset).isEqualTo(-HALF_EM)
+            assertThat(rightSideOffset).isEqualTo(ONE_EM) // right half of 1em + 0.5em ruby
+        }
+    }
+
+    @Test
+    fun rubyLayoutRun_PositionAfterReservesSpaceOnLeft() {
+        val rubySpan = RubySpan(RUBY_TEXT, AnnotationPosition.After)
+        RubyLayoutRun(TEXT, LATIN_START, LATIN_END, TextOrientation.Mixed, PAINT, rubySpan).run {
+            assertThat(width).isEqualTo(ONE_EM * 1.5f)
+            assertThat(leftSideOffset).isEqualTo(-ONE_EM) // left half of 1em + 0.5em ruby
+            assertThat(rightSideOffset).isEqualTo(HALF_EM)
+        }
+    }
 }
 
 private fun Paint.hasVerticalTextFlag() =

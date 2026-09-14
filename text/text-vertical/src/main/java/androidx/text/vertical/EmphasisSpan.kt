@@ -34,7 +34,7 @@ import android.text.style.ReplacementSpan
  * @param isFilled Whether the mark should be filled or outlined. When `true`, the emphasis mark
  *   will be drawn as a solid shape. When `false`, it will be drawn as an outline.
  * @param position The position of the emphasis mark relative to the text. NOTE: this is reserved
- *   value, to be implemented (b/495457561).
+ *   value, to be implemented (b/559972132).
  * @param scale The scale factor for the size of the mark. This value determines the size of the
  *   emphasis mark relative to the font size. A scale of 0.5f means the emphasis mark will be half
  *   the size of the text.
