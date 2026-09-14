@@ -26,6 +26,7 @@ import androidx.savedstate.read
 import androidx.savedstate.write
 import kotlin.reflect.KType
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.serializerOrNull
@@ -64,7 +65,7 @@ private enum class InternalType {
  *
  * Returns [UNKNOWN] type if the argument does not have built-in NavType support.
  */
-internal fun SerialDescriptor.getNavType(): NavType<*> {
+internal fun SerialDescriptor.getNavType(serializer: KSerializer<*>? = null): NavType<*> {
     val type =
         when (this.toInternalType()) {
             InternalType.INT -> NavType.IntType
@@ -102,22 +103,22 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
                     InternalType.LONG -> NavType.LongListType
                     InternalType.STRING -> NavType.StringListType
                     InternalType.STRING_NULLABLE -> InternalNavType.StringNullableListType
-                    InternalType.ENUM -> parseEnumList()
+                    InternalType.ENUM -> parseEnumList(serializer)
                     else -> UNKNOWN
                 }
             }
-            InternalType.ENUM -> parseEnum()
-            InternalType.ENUM_NULLABLE -> parseNullableEnum()
+            InternalType.ENUM -> parseEnum(serializer)
+            InternalType.ENUM_NULLABLE -> parseNullableEnum(serializer)
             else -> UNKNOWN
         }
     return type
 }
 
-internal expect fun SerialDescriptor.parseEnum(): NavType<*>
+internal expect fun SerialDescriptor.parseEnum(serializer: KSerializer<*>?): NavType<*>
 
-internal expect fun SerialDescriptor.parseNullableEnum(): NavType<*>
+internal expect fun SerialDescriptor.parseNullableEnum(serializer: KSerializer<*>?): NavType<*>
 
-internal expect fun SerialDescriptor.parseEnumList(): NavType<*>
+internal expect fun SerialDescriptor.parseEnumList(serializer: KSerializer<*>?): NavType<*>
 
 /**
  * Convert SerialDescriptor to an InternalCommonType.
