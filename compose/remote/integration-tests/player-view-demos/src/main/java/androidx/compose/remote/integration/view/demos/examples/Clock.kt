@@ -16,7 +16,7 @@
 
 @file:Suppress(
     "RestrictedApiAndroidX"
-) // Referring to drawAnchoredText, drawCircle, drawLine, drawPath, drawText, remote-core,
+) // Referring to drawAnchoredText, drawPath, drawText, remote-core
 
 // remote-creation, remotePath
 

@@ -50,8 +50,7 @@ private const val CLICK_ACTION = "clickAction"
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteComponentPreview, RemoteText, background, combinedClickable, remote-core,
-// remote-creation-core
+) // Referring to RemoteComponentPreview, combinedClickable, remote-core
 @Composable
 fun CombinedClickableDemo() {
     val experimentalProfile =

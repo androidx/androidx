@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to RemoteCollapsibleColumn, RemoteCollapsibleRow,
 
-// RemoteText, background, height, heightIn, width, widthIn
+@file:Suppress("RestrictedApiAndroidX") // Referring to RemoteString, weight
 
 package androidx.compose.remote.integration.view.demos.examples
 

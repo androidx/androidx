@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to CUBIC_DECELERATE, RemoteText, RemoteTextUnit,
+@file:Suppress("RestrictedApiAndroidX") // Referring to CUBIC_DECELERATE
 
 // background, clamp, interpolateRemoteFloat, remote-core
 
