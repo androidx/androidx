@@ -292,7 +292,7 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.RequiredCalibrationType REQUIRED_CALIBRATION_TYPE_FACE_TRACKING;
   }
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.CLASS}) public @interface RequiresSpatialApi {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface RequiresSpatialApi {
     ctor @KotlinOnly public RequiresSpatialApi(int value);
     method @InaccessibleFromKotlin public abstract int value();
     property public abstract int value;
