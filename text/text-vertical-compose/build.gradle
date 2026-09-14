@@ -43,6 +43,9 @@ dependencies {
     api("androidx.compose.ui:ui-text:" + composeVersion)
     api("androidx.compose.runtime:runtime:" + composeVersion)
 
+    // Older versions of lifecycle-runtime lint checks use a deleted lint API
+    implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
+
     androidTestImplementation("androidx.activity:activity-compose:1.12.4")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:" + composeVersion)
     debugImplementation("androidx.compose.ui:ui-test-manifest:" + composeVersion)
