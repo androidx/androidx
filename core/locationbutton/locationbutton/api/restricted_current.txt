@@ -8,7 +8,6 @@ package androidx.core.locationbutton {
     ctor public LocationButton(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr, optional int defStyleRes);
     ctor @BytecodeOnly public LocationButton(android.content.Context!, android.util.AttributeSet!, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public int getCompositionOrder();
-    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) internal android.content.res.Configuration getEffectiveConfiguration$main();
     method @InaccessibleFromKotlin public android.os.LocaleList getLocales();
     method @InaccessibleFromKotlin public android.app.Activity? getParentActivity();
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isLocalButtonVisible();
@@ -28,7 +27,6 @@ package androidx.core.locationbutton {
     method public void setStrokeWidth(int strokeWidth);
     method public void setTextColor(int color);
     method public void setTextType(@androidx.core.locationbutton.LocationButton.LocationButtonTextType int textType);
-    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) internal android.content.res.Configuration effectiveConfiguration;
     property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public boolean isLocalButtonVisible;
     property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public boolean isRemoteSessionActive;
     property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public boolean isSurfaceViewVisible;
