@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -52,11 +53,13 @@ import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.inputDeviceCenterLeft
 import androidx.compose.ui.test.isFocused
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
@@ -91,7 +94,7 @@ class ButtonGroupTest {
         val spacingWidth = 8.dp
 
         val state = ButtonGroupState()
-        rule.setGlimmerThemeContent {
+        rule.setButtonGroupTestContent {
             ButtonGroup(
                 modifier = Modifier.testTag("buttonGroup").width(50.dp),
                 state = state,
@@ -113,7 +116,7 @@ class ButtonGroupTest {
     @Test
     fun testSemanticsScrollToValidIndex_updatesScrollValue() {
         val state = ButtonGroupState()
-        rule.setGlimmerThemeContent {
+        rule.setButtonGroupTestContent {
             ButtonGroup(
                 modifier = Modifier.width(500.dp).height(100.dp).testTag("buttonGroup"),
                 state = state,
@@ -128,14 +131,15 @@ class ButtonGroupTest {
         }
         rule.waitForIdle()
         // We scrolled to the center of index 2 (2*100dp + 50dp for the center of this item)
-        state.userScroll.toDp().assertIsEqualTo(250.dp, "userScroll after ScrollToIndex(2)")
+        with(ButtonGroupTestDensity) { state.userScroll.toDp() }
+            .assertIsEqualTo(250.dp, "userScroll after ScrollToIndex(2)")
         assertThat(state.currentItemIndex).isEqualTo(2)
     }
 
     @Test
     fun testSemanticsScrollToInvalidIndex_updatesScrollValue() {
         val state = ButtonGroupState()
-        rule.setGlimmerThemeContent {
+        rule.setButtonGroupTestContent {
             ButtonGroup(
                 modifier = Modifier.width(500.dp).height(100.dp).testTag("buttonGroup"),
                 state = state,
@@ -150,7 +154,8 @@ class ButtonGroupTest {
         }
         rule.waitForIdle()
         // We stayed at item 0; the center of item 0 is at 50dp
-        state.userScroll.toDp().assertIsEqualTo(50.dp, "userScroll after failed ScrollToIndex(20)")
+        with(ButtonGroupTestDensity) { state.userScroll.toDp() }
+            .assertIsEqualTo(50.dp, "userScroll after failed ScrollToIndex(20)")
         assertThat(state.currentItemIndex).isEqualTo(0)
     }
 
@@ -161,7 +166,7 @@ class ButtonGroupTest {
         val buttonPaddingWidth = 8.dp
 
         val state = ButtonGroupState(initialItemIndex = initialItemIndex)
-        rule.setGlimmerThemeContent {
+        rule.setButtonGroupTestContent {
             ButtonGroup(state = state) {
                 repeat(5) { i ->
                     Button(modifier = Modifier.width(buttonWidth), onClick = {}) { Text("$i") }
@@ -172,13 +177,14 @@ class ButtonGroupTest {
             ((buttonWidth + buttonPaddingWidth) * initialItemIndex) + (buttonWidth / 2)
         rule.runOnIdle {
             assertThat(state.currentItemIndex).isEqualTo(1)
-            state.userScroll.toDp().assertIsEqualTo(expectedInitialScroll, "initial scroll")
+            with(ButtonGroupTestDensity) { state.userScroll.toDp() }
+                .assertIsEqualTo(expectedInitialScroll, "initial scroll")
         }
     }
 
     @Test
     fun smallButtonGroup_defaultCenteredInParent() {
-        rule.setGlimmerThemeContent {
+        rule.setButtonGroupTestContent {
             // Default horizontalArrangement aligns to center when there is extra space
             ButtonGroup(modifier = Modifier.width(200.dp).testTag("parent")) {
                 // 3 children that fit within the viewport
@@ -196,7 +202,7 @@ class ButtonGroupTest {
     @Test
     fun smallButtonGroup_scrollToEnd_lastItemCenteredAndSelected() {
         val state = ButtonGroupState()
-        rule.setGlimmerThemeContent {
+        rule.setButtonGroupTestContent {
             ButtonGroup(modifier = Modifier.width(200.dp).testTag("parent"), state = state) {
                 // 3 children that fit within the viewport
                 Box(Modifier.width(50.dp))
@@ -217,7 +223,7 @@ class ButtonGroupTest {
 
     @Test
     fun contentPaddingsAreRespected() {
-        rule.setGlimmerThemeContent {
+        rule.setButtonGroupTestContent {
             // 200x200 ButtonGroup contains a single 200x200 Button, but the contentPadding means
             // that the Button will not fit perfectly in the container.
             ButtonGroup(
@@ -246,7 +252,7 @@ class ButtonGroupTest {
     @Test
     fun scrollToItem_movesViewport() {
         val state = ButtonGroupState()
-        rule.setGlimmerThemeContent {
+        rule.setButtonGroupTestContent {
             ButtonGroup(modifier = Modifier.width(500.dp).height(100.dp), state = state) {
                 // 500dp ButtonGroup containing 10x100dp buttons will have to scroll
                 repeat(10) { i -> Box(Modifier.width(100.dp).height(100.dp).testTag("box-$i")) }
@@ -266,7 +272,7 @@ class ButtonGroupTest {
     @Test
     fun animateScrollToItem_movesViewport() {
         val state = ButtonGroupState()
-        rule.setGlimmerThemeContent {
+        rule.setButtonGroupTestContent {
             ButtonGroup(modifier = Modifier.width(500.dp).height(100.dp), state = state) {
                 // 500dp ButtonGroup containing 10x100dp buttons will have to scroll
                 repeat(10) { i -> Box(Modifier.width(100.dp).height(100.dp).testTag("box-$i")) }
@@ -288,7 +294,7 @@ class ButtonGroupTest {
     fun itemCountIncrease_updatesItemCount() {
         val state = ButtonGroupState()
         var buttonCount by mutableIntStateOf(1)
-        rule.setGlimmerThemeContent {
+        rule.setButtonGroupTestContent {
             ButtonGroup(state = state) {
                 repeat(buttonCount) { i -> Button(onClick = {}) { Text("Button $i") } }
             }
@@ -302,7 +308,7 @@ class ButtonGroupTest {
     fun itemCountDecrease_updatesCurrentItemIndex() {
         val state = ButtonGroupState()
         var buttonCount by mutableIntStateOf(5)
-        rule.setGlimmerThemeContent {
+        rule.setButtonGroupTestContent {
             ButtonGroup(state = state) {
                 repeat(buttonCount) { i -> Button(onClick = {}) { Text("Button $i") } }
             }
@@ -319,7 +325,7 @@ class ButtonGroupTest {
     fun itemResize_currentItemIndexIsUpdated() {
         val state = ButtonGroupState()
         var buttonWidth by mutableStateOf(100.dp)
-        rule.setGlimmerThemeContent {
+        rule.setButtonGroupTestContent {
             ButtonGroup(state = state) {
                 repeat(5) { i ->
                     Button(onClick = {}, modifier = Modifier.width(buttonWidth)) {
@@ -331,20 +337,22 @@ class ButtonGroupTest {
         rule.runOnIdle {
             assertThat(state.currentItemIndex).isEqualTo(0)
             // buttonWidth is 100dp, so we should be at the mid-point of this item (50dp)
-            state.userScroll.toDp().assertIsEqualTo(50.dp, "initial scroll")
+            with(ButtonGroupTestDensity) { state.userScroll.toDp() }
+                .assertIsEqualTo(50.dp, "initial scroll")
         }
         buttonWidth = 200.dp
         rule.runOnIdle {
             assertThat(state.currentItemIndex).isEqualTo(0)
             // buttonWidth updated to 200dp, we should leave the user at the mid-point still (100dp)
-            state.userScroll.toDp().assertIsEqualTo(100.dp, "scroll after resize")
+            with(ButtonGroupTestDensity) { state.userScroll.toDp() }
+                .assertIsEqualTo(100.dp, "scroll after resize")
         }
     }
 
     @Test
     fun currentItemIndex_updatesWhenScrolling() {
         val state = ButtonGroupState()
-        rule.setGlimmerThemeContent {
+        rule.setButtonGroupTestContent {
             ButtonGroup(modifier = Modifier.width(200.dp), state = state) {
                 repeat(10) { i ->
                     Button(onClick = {}, modifier = Modifier.width(100.dp)) { Text("Button $i") }
@@ -363,7 +371,7 @@ class ButtonGroupTest {
     @Test
     fun currentItemIndex_updatesOnAnimatedScrolling() {
         val state = ButtonGroupState()
-        rule.setGlimmerThemeContent {
+        rule.setButtonGroupTestContent {
             ButtonGroup(modifier = Modifier.width(200.dp), state = state) {
                 repeat(10) { i ->
                     Button(onClick = {}, modifier = Modifier.width(100.dp)) { Text("Button $i") }
@@ -382,7 +390,7 @@ class ButtonGroupTest {
     @Test
     fun scrollToItem_withInvalidIndex_throws() {
         val state = ButtonGroupState()
-        rule.setGlimmerThemeContent {
+        rule.setButtonGroupTestContent {
             ButtonGroup(state = state) {
                 repeat(3) { i -> Button(onClick = {}) { Text("Button $i") } }
             }
@@ -395,7 +403,7 @@ class ButtonGroupTest {
     @Test
     fun emptyButtonGroup_hasNoItemsOrCurrentItemIndex() {
         val state = ButtonGroupState()
-        rule.setGlimmerThemeContent { ButtonGroup(state = state) {} }
+        rule.setButtonGroupTestContent { ButtonGroup(state = state) {} }
         rule.runOnIdle {
             assertThat(state.itemCount).isEqualTo(0)
             assertThat(state.currentItemIndex).isEqualTo(-1)
@@ -406,30 +414,28 @@ class ButtonGroupTest {
     fun scrollIndirect() {
         val numButtons = 10
         val state = ButtonGroupState()
-        rule.setGlimmerThemeContent {
-            CompositionLocalProvider(
-                LocalViewConfiguration provides TestViewConfiguration(touchSlop = 0f)
+        rule.setButtonGroupTestContent {
+            ButtonGroup(
+                modifier = Modifier.width(500.dp),
+                state = state,
+                horizontalArrangement = Arrangement.spacedBy(0.dp),
+                contentPadding = PaddingValues.Zero,
             ) {
-                ButtonGroup(
-                    modifier = Modifier.width(500.dp),
-                    state = state,
-                    horizontalArrangement = Arrangement.spacedBy(0.dp),
-                    contentPadding = PaddingValues.Zero,
-                ) {
-                    repeat(numButtons) { i ->
-                        Button(
-                            onClick = {},
-                            modifier = Modifier.width(100.dp).testTag("button-$i"),
-                        ) {
-                            Text("Button $i")
-                        }
+                repeat(numButtons) { i ->
+                    Button(
+                        onClick = {},
+                        modifier = Modifier.width(100.dp).testTag("button-$i"),
+                    ) {
+                        Text("Button $i")
                     }
                 }
             }
         }
 
         fun scrollBy(x: Dp) {
-            rule.sendGlimmerIndirectPointerInput { moveBy(Offset(x.toPx(), 0f)) }
+            rule.sendGlimmerIndirectPointerInput {
+                moveBy(Offset(with(ButtonGroupTestDensity) { x.toPx() }, 0f))
+            }
         }
         fun down() {
             rule.sendGlimmerIndirectPointerInput { down(inputDeviceCenterLeft) }
@@ -464,30 +470,28 @@ class ButtonGroupTest {
     fun scrollDirect() {
         val state = ButtonGroupState()
 
-        rule.setGlimmerThemeContent {
-            CompositionLocalProvider(
-                LocalViewConfiguration provides TestViewConfiguration(touchSlop = 0f)
+        rule.setButtonGroupTestContent {
+            ButtonGroup(
+                modifier = Modifier.width(500.dp),
+                state = state,
+                horizontalArrangement = Arrangement.spacedBy(0.dp),
+                contentPadding = PaddingValues.Zero,
             ) {
-                ButtonGroup(
-                    modifier = Modifier.width(500.dp),
-                    state = state,
-                    horizontalArrangement = Arrangement.spacedBy(0.dp),
-                    contentPadding = PaddingValues.Zero,
-                ) {
-                    repeat(10) { i ->
-                        Button(
-                            onClick = {},
-                            modifier = Modifier.width(100.dp).testTag("button-$i"),
-                        ) {
-                            Text("Button $i")
-                        }
+                repeat(10) { i ->
+                    Button(
+                        onClick = {},
+                        modifier = Modifier.width(100.dp).testTag("button-$i"),
+                    ) {
+                        Text("Button $i")
                     }
                 }
             }
         }
 
         fun scrollBy(x: Dp) {
-            rule.onRoot().performTouchInput { moveBy(Offset(-x.toPx(), 0f)) }
+            rule.onRoot().performTouchInput {
+                moveBy(Offset(with(ButtonGroupTestDensity) { -x.toPx() }, 0f))
+            }
         }
         fun down() {
             rule.onRoot().performTouchInput { down(center) }
@@ -519,7 +523,7 @@ class ButtonGroupTest {
 
     @Test
     fun noEnabledButtonsInGroup_focusGoesToNextButton() {
-        rule.setGlimmerThemeContent {
+        rule.setButtonGroupTestContent {
             ButtonGroup {
                 repeat(10) { i ->
                     Button(enabled = false, onClick = {}, modifier = Modifier.width(100.dp)) {
@@ -538,7 +542,7 @@ class ButtonGroupTest {
 
     @Test
     fun verticalAlignment_alignsChildrenInButtonGroup() {
-        rule.setGlimmerThemeContent {
+        rule.setButtonGroupTestContent {
             ButtonGroup(modifier = Modifier.height(500.dp), verticalAlignment = Alignment.Bottom) {
                 Button(onClick = {}, modifier = Modifier.height(100.dp).testTag("button")) {
                     Text("Button")
@@ -561,14 +565,12 @@ class ButtonGroupTest {
         expectedMaxValue: Dp,
     ): SemanticsNodeInteraction {
         val range = fetchSemanticsNode().config[SemanticsProperties.HorizontalScrollAxisRange]
-        val actualValue = range.value().toDp()
-        val actualMaxValue = range.maxValue().toDp()
+        val actualValue = with(ButtonGroupTestDensity) { range.value().toDp() }
+        val actualMaxValue = with(ButtonGroupTestDensity) { range.maxValue().toDp() }
         actualValue.assertIsEqualTo(expectedValue, "current horizontal scroll")
         actualMaxValue.assertIsEqualTo(expectedMaxValue, "max horizontal scroll")
         return this
     }
-
-    private fun Float.toDp(): Dp = with(rule.density) { toDp() }
 
     private fun ButtonGroupState.assertState(
         scroll: Dp,
@@ -576,7 +578,7 @@ class ButtonGroupTest {
         focusedNodeTag: String?,
     ) {
         rule.waitForIdle()
-        userScroll.toDp().assertIsEqualTo(scroll, "userScroll")
+        with(ButtonGroupTestDensity) { userScroll.toDp() }.assertIsEqualTo(scroll, "userScroll")
         assertThat(currentItemIndex).isEqualTo(currentItem)
         if (focusedNodeTag == null) {
             // We are in touch mode, so assert that no buttons are actually focused
@@ -617,3 +619,24 @@ private fun DpRect.assertIsEqualTo(expected: DpRect, subject: String) {
     right.assertIsEqualTo(expected.right, "$subject (right)")
     bottom.assertIsEqualTo(expected.bottom, "$subject (bottom)")
 }
+
+/**
+ * [setGlimmerThemeContent] with density and touch-slop set as needed for [ButtonGroup] tests.
+ *
+ * We need touch-slop set to 0 so that scroll is not consumed by the ButtonGroup, throwing off our
+ * calculations.
+ *
+ * We need density set to a nicely-divisible number like 2 so that rounding errors don't occur when
+ * we translate from dp -> px -> dp during assertions.
+ */
+private fun ComposeContentTestRule.setButtonGroupTestContent(content: @Composable () -> Unit) {
+    setGlimmerThemeContent(density = ButtonGroupTestDensity) {
+        CompositionLocalProvider(
+            LocalViewConfiguration provides TestViewConfiguration(touchSlop = 0f),
+            content = content,
+        )
+    }
+}
+
+// TODO(b/562338491): Integrate into ComposeUiTestConfig if possible
+private val ButtonGroupTestDensity = Density(2f)
