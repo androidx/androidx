@@ -86,6 +86,8 @@ class MaterialA2uiBasicCatalogV1Test {
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.textField)
         assertThat(catalog.components["CheckBox"])
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.checkBox)
+        assertThat(catalog.components["ChoicePicker"])
+            .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.choicePicker)
         assertThat(catalog.components["Slider"])
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.slider)
         assertThat(catalog.components["DateTimeInput"])
@@ -552,6 +554,42 @@ class MaterialA2uiBasicCatalogV1Test {
     }
 
     @Test
+    fun factory_withCustomChoicePickerComponent_overridesDefaultMaterialChoicePicker() {
+        val customChoicePicker =
+            object : A2uiBasicCatalogV1.ChoicePicker {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    label: String?,
+                    options: List<A2uiBasicCatalogV1.ChoicePicker.Option>,
+                    value: List<String>,
+                    variant: A2uiBasicCatalogV1.ChoicePicker.Variant,
+                    displayStyle: A2uiBasicCatalogV1.ChoicePicker.DisplayStyle,
+                    filterable: Boolean,
+                    onValueChange: (List<String>) -> Unit,
+                    enabled: Boolean,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        val catalog =
+            materialA2uiBasicCatalogV1(
+                image = MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer),
+                video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
+                audioPlayer =
+                    MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
+                urlOpener = fakeUrlOpener,
+                messageFormatter = fakeMessageFormatter,
+                localeProvider = fakeLocaleProvider,
+                choicePicker = customChoicePicker,
+            )
+
+        assertThat(catalog.components["ChoicePicker"]).isSameInstanceAs(customChoicePicker)
+        assertThat(catalog.components["ChoicePicker"])
+            .isNotSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.choicePicker)
+    }
+
+    @Test
     fun factory_withCustomSliderComponent_overridesDefaultMaterialSlider() {
         val customSlider =
             object : A2uiBasicCatalogV1.Slider {
@@ -652,6 +690,8 @@ class MaterialA2uiBasicCatalogV1Test {
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1TextField)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.checkBox)
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1CheckBox)
+        assertThat(MaterialA2uiBasicCatalogV1Defaults.choicePicker)
+            .isSameInstanceAs(MaterialA2uiBasicCatalogV1ChoicePicker)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.slider)
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Slider)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.dateTimeInput)

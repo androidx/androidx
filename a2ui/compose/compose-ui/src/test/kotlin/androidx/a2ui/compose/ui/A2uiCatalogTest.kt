@@ -148,6 +148,7 @@ class A2uiCatalogTest {
         assertThat(catalog.components["Button"]).isSameInstanceAs(basicCatalog.button)
         assertThat(catalog.components["TextField"]).isSameInstanceAs(basicCatalog.textField)
         assertThat(catalog.components["CheckBox"]).isSameInstanceAs(basicCatalog.checkBox)
+        assertThat(catalog.components["ChoicePicker"]).isSameInstanceAs(basicCatalog.choicePicker)
         assertThat(catalog.components["Slider"]).isSameInstanceAs(basicCatalog.slider)
         assertThat(catalog.components["DateTimeInput"]).isSameInstanceAs(basicCatalog.dateTimeInput)
         assertThat(catalog.functions["TestFunc"]).isSameInstanceAs(testFunction)
@@ -350,6 +351,7 @@ class A2uiCatalogTest {
             button: A2uiBasicCatalogV1.Button = createStubButton(),
             textField: A2uiBasicCatalogV1.TextField = createStubTextField(),
             checkBox: A2uiBasicCatalogV1.CheckBox = createStubCheckBox(),
+            choicePicker: A2uiBasicCatalogV1.ChoicePicker = createStubChoicePicker(),
             slider: A2uiBasicCatalogV1.Slider = createStubSlider(),
             dateTimeInput: A2uiBasicCatalogV1.DateTimeInput = createStubDateTimeInput(),
             functions: List<A2uiFunction> = emptyList(),
@@ -370,6 +372,7 @@ class A2uiCatalogTest {
                 button = button,
                 textField = textField,
                 checkBox = checkBox,
+                choicePicker = choicePicker,
                 slider = slider,
                 dateTimeInput = dateTimeInput,
                 functions = functions,
@@ -541,6 +544,23 @@ class A2uiCatalogTest {
                     label: String,
                     value: Boolean,
                     onValueChange: (Boolean) -> Unit,
+                    enabled: Boolean,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        fun createStubChoicePicker() =
+            object : A2uiBasicCatalogV1.ChoicePicker {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    label: String?,
+                    options: List<A2uiBasicCatalogV1.ChoicePicker.Option>,
+                    value: List<String>,
+                    variant: A2uiBasicCatalogV1.ChoicePicker.Variant,
+                    displayStyle: A2uiBasicCatalogV1.ChoicePicker.DisplayStyle,
+                    filterable: Boolean,
+                    onValueChange: (List<String>) -> Unit,
                     enabled: Boolean,
                     accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,

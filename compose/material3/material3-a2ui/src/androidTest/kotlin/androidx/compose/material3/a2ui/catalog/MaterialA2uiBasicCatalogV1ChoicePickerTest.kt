@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.a2ui
+package androidx.compose.material3.a2ui.catalog
 
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.testing.A2uiTestController
@@ -51,10 +51,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class MaterialChoicePickerComponentTest {
+class MaterialA2uiBasicCatalogV1ChoicePickerTest {
 
     private val testCatalog =
-        A2uiCatalog(catalogId = "test_catalog", components = listOf(MaterialChoicePickerComponent))
+        A2uiCatalog(
+            catalogId = "test_catalog",
+            components = listOf(MaterialA2uiBasicCatalogV1Defaults.choicePicker),
+        )
 
     // =======================================================
     // Category 1: Checkbox & Dropdown Selection Interactions
@@ -1251,5 +1254,40 @@ class MaterialChoicePickerComponentTest {
 
         onNodeWithTag("initial_tag").assertDoesNotExist()
         onNodeWithTag("updated_tag").assertIsDisplayed()
+    }
+
+    // =======================================================
+    // Category 5: Accessibility
+    // =======================================================
+
+    @Test
+    fun accessibility_withLabelAndDescription_setsContentDescription() = runComposeUiTest {
+        val optionsList = listOf(mapOf("label" to "Option 1", "value" to "1"))
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "ChoicePicker",
+                            properties =
+                                mapOf(
+                                    "options" to optionsList,
+                                    "value" to listOf("1"),
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Choice Picker",
+                                            "description" to "Select options from list",
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+
+        val surface = controller.start()
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithContentDescription("Choice Picker - Select options from list").assertIsDisplayed()
     }
 }
