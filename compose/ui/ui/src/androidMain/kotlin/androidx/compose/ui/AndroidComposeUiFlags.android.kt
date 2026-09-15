@@ -133,4 +133,17 @@ public object AndroidComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isScrollAccessibilityFocusEventEnabled: Boolean = true
+
+    /**
+     * Restricts touch-exploration hover forwarding to interop views, so that an embedded
+     * AndroidView only receives hover events when it is the front-most hit, matching pointer input
+     * z-ordering, instead of receiving them whenever the point falls within its View bounds.
+     *
+     * When disabled, hover is forwarded to the interop layer unconditionally, which allows a view
+     * that is visually covered by Compose content to take accessibility focus.
+     */
+    // TODO: b/565033965 - Remove this flag once the behavior has rolled out and proven stable.
+    @field:Suppress("MutableBareField")
+    @JvmField
+    internal var isInteropHoverZOrderEnabled: Boolean = true
 }
