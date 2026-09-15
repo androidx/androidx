@@ -30,6 +30,7 @@ import androidx.build.checkapi.LibraryApiTaskConfig
 import androidx.build.checkapi.MultiplatformCompilationInputs
 import androidx.build.checkapi.SourceSetInputs
 import androidx.build.checkapi.getRequiredCompatibilityApiLocation
+import androidx.build.getLibraryClasspath
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import androidx.build.version
 import org.gradle.api.Project
@@ -260,3 +261,5 @@ internal object MetalavaTasks {
         }
     }
 }
+
+fun Project.getMetalavaClasspath(): FileCollection = getLibraryClasspath("metalava")
