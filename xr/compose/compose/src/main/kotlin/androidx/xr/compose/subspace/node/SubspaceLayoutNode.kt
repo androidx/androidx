@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.fastMap
 import androidx.xr.compose.subspace.layout.CoreEntity
 import androidx.xr.compose.subspace.layout.CoreEntityNode
 import androidx.xr.compose.subspace.layout.LayoutSubspaceMeasureScope
@@ -527,7 +528,7 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
                 with(measurePolicy) {
                     LayoutSubspaceMeasureScope(this@SubspaceLayoutNode)
                         .measure(
-                            this@SubspaceLayoutNode.children.map { it.measurableLayout }.toList(),
+                            this@SubspaceLayoutNode.children.fastMap { it.measurableLayout },
                             constraints,
                         )
                 }
