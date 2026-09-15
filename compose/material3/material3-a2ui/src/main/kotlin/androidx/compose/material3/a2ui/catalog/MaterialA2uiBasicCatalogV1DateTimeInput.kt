@@ -54,7 +54,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFirstOrNull
 import java.text.DateFormat
 import java.util.Calendar
 import java.util.Date
@@ -80,6 +83,8 @@ internal object MaterialA2uiBasicCatalogV1DateTimeInput : A2uiBasicCatalogV1.Dat
         modifier: Modifier,
     ) {
         val isEnabled = onValueChange != null
+        val failedCheck = checks.fastFirstOrNull { !it.condition }
+        val errorMessage = failedCheck?.message
 
         var showStartDateDialog by rememberSaveable { mutableStateOf(false) }
         var showStartTimeDialog by rememberSaveable { mutableStateOf(false) }
@@ -161,6 +166,13 @@ internal object MaterialA2uiBasicCatalogV1DateTimeInput : A2uiBasicCatalogV1.Dat
                 )
             }
 
+            val chipModifier =
+                if (!errorMessage.isNullOrBlank()) {
+                    Modifier.semantics { error(errorMessage) }
+                } else {
+                    Modifier
+                }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -170,6 +182,7 @@ internal object MaterialA2uiBasicCatalogV1DateTimeInput : A2uiBasicCatalogV1.Dat
                         onClick = { showStartDateDialog = true },
                         enabled = isEnabled,
                         label = { Text(startDateText) },
+                        modifier = chipModifier,
                     )
                 }
                 if (enableDate && enableTime) {
@@ -180,8 +193,18 @@ internal object MaterialA2uiBasicCatalogV1DateTimeInput : A2uiBasicCatalogV1.Dat
                         onClick = { showStartTimeDialog = true },
                         enabled = isEnabled,
                         label = { Text(startTimeText) },
+                        modifier = chipModifier,
                     )
                 }
+            }
+
+            if (!errorMessage.isNullOrBlank()) {
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = DateTimeInputErrorModifier,
+                )
             }
         }
 
@@ -324,3 +347,5 @@ private fun TimeInputDialog(
         TimePicker(state = timePickerState)
     }
 }
+
+private val DateTimeInputErrorModifier = Modifier.padding(top = 4.dp)

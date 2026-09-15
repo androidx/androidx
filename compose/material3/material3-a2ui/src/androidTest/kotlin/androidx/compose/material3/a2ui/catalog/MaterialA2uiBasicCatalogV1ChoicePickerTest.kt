@@ -20,6 +20,7 @@ import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.testing.A2uiTestController
 import androidx.a2ui.compose.ui.testing.A2uiTestSurface
 import androidx.a2ui.compose.ui.testing.getData
+import androidx.a2ui.model.catalog.functions.A2uiRequiredFunction
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,6 +29,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
@@ -57,6 +62,7 @@ class MaterialA2uiBasicCatalogV1ChoicePickerTest {
         A2uiCatalog(
             catalogId = "test_catalog",
             components = listOf(MaterialA2uiBasicCatalogV1Defaults.choicePicker),
+            functions = listOf(A2uiRequiredFunction.INSTANCE),
         )
 
     // =======================================================
@@ -1257,7 +1263,7 @@ class MaterialA2uiBasicCatalogV1ChoicePickerTest {
     }
 
     // =======================================================
-    // Category 5: Accessibility
+    // Category 7: Accessibility
     // =======================================================
 
     @Test
@@ -1289,5 +1295,289 @@ class MaterialA2uiBasicCatalogV1ChoicePickerTest {
         setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
 
         onNodeWithContentDescription("Choice Picker - Select options from list").assertIsDisplayed()
+    }
+
+    // =======================================================
+    // Category 8: Checks
+    // =======================================================
+
+    @Test
+    fun checks_passingCheck_doesNotDisplayError() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "ChoicePicker",
+                            properties =
+                                mapOf(
+                                    "options" to
+                                        listOf(mapOf("label" to "Books", "value" to "books")),
+                                    "value" to listOf<String>(),
+                                    "checks" to
+                                        listOf(
+                                            mapOf(
+                                                "condition" to
+                                                    mapOf(
+                                                        "call" to "required",
+                                                        "args" to
+                                                            mapOf(
+                                                                "value" to
+                                                                    mapOf(
+                                                                        "path" to "/form/category"
+                                                                    )
+                                                            ),
+                                                    ),
+                                                "message" to "Category is required",
+                                            )
+                                        ),
+                                ),
+                        )
+                    ),
+                initialData = mapOf("form" to mapOf("category" to "books")),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error)).assertCountEquals(0)
+        onNodeWithText("Category is required").assertDoesNotExist()
+    }
+
+    @Test
+    fun checks_failedCheck_displaysErrorMessage() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "ChoicePicker",
+                            properties =
+                                mapOf(
+                                    "options" to
+                                        listOf(mapOf("label" to "Books", "value" to "books")),
+                                    "value" to listOf<String>(),
+                                    "checks" to
+                                        listOf(
+                                            mapOf(
+                                                "condition" to
+                                                    mapOf(
+                                                        "call" to "required",
+                                                        "args" to
+                                                            mapOf(
+                                                                "value" to
+                                                                    mapOf(
+                                                                        "path" to "/form/category"
+                                                                    )
+                                                            ),
+                                                    ),
+                                                "message" to "Category is required",
+                                            )
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Error, "Category is required"))
+        onNodeWithText("Category is required").assertIsDisplayed()
+    }
+
+    @Test
+    fun checks_dynamicCondition_updatesErrorMessage() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "ChoicePicker",
+                            properties =
+                                mapOf(
+                                    "options" to
+                                        listOf(mapOf("label" to "Books", "value" to "books")),
+                                    "value" to listOf<String>(),
+                                    "checks" to
+                                        listOf(
+                                            mapOf(
+                                                "condition" to
+                                                    mapOf(
+                                                        "call" to "required",
+                                                        "args" to
+                                                            mapOf(
+                                                                "value" to
+                                                                    mapOf(
+                                                                        "path" to "/form/category"
+                                                                    )
+                                                            ),
+                                                    ),
+                                                "message" to "Category is required",
+                                            )
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Error, "Category is required"))
+        onNodeWithText("Category is required").assertIsDisplayed()
+
+        controller.updateData("/form/category", "books")
+        controller.waitForIdle()
+        waitForIdle()
+
+        onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error)).assertCountEquals(0)
+        onNodeWithText("Category is required").assertDoesNotExist()
+    }
+
+    @Test
+    fun checks_multipleChecks_displaysFirstFailedCheck() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "ChoicePicker",
+                            properties =
+                                mapOf(
+                                    "options" to
+                                        listOf(mapOf("label" to "Books", "value" to "books")),
+                                    "value" to listOf<String>(),
+                                    "checks" to
+                                        listOf(
+                                            mapOf(
+                                                "condition" to
+                                                    mapOf(
+                                                        "call" to "required",
+                                                        "args" to
+                                                            mapOf(
+                                                                "value" to
+                                                                    mapOf(
+                                                                        "path" to "/form/category"
+                                                                    )
+                                                            ),
+                                                    ),
+                                                "message" to "Category is required",
+                                            ),
+                                            mapOf(
+                                                "condition" to
+                                                    mapOf(
+                                                        "call" to "required",
+                                                        "args" to
+                                                            mapOf(
+                                                                "value" to
+                                                                    mapOf(
+                                                                        "path" to
+                                                                            "/form/subcategory"
+                                                                    )
+                                                            ),
+                                                    ),
+                                                "message" to "Subcategory is required",
+                                            ),
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Error, "Category is required"))
+        onNodeWithText("Category is required").assertIsDisplayed()
+        onNodeWithText("Subcategory is required").assertDoesNotExist()
+
+        controller.updateData("/form/category", "books")
+        controller.waitForIdle()
+        waitForIdle()
+
+        onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
+            .assert(
+                SemanticsMatcher.expectValue(SemanticsProperties.Error, "Subcategory is required")
+            )
+        onNodeWithText("Category is required").assertDoesNotExist()
+        onNodeWithText("Subcategory is required").assertIsDisplayed()
+
+        controller.updateData("/form/subcategory", "fiction")
+        controller.waitForIdle()
+        waitForIdle()
+
+        onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error)).assertCountEquals(0)
+        onNodeWithText("Category is required").assertDoesNotExist()
+        onNodeWithText("Subcategory is required").assertDoesNotExist()
+    }
+
+    @Test
+    fun checks_chipsDisplayStyle_failedCheck_displaysErrorMessage() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "ChoicePicker",
+                            properties =
+                                mapOf(
+                                    "displayStyle" to "chips",
+                                    "options" to
+                                        listOf(
+                                            mapOf("label" to "Books", "value" to "books"),
+                                            mapOf("label" to "Music", "value" to "music"),
+                                        ),
+                                    "value" to listOf<String>(),
+                                    "checks" to
+                                        listOf(
+                                            mapOf(
+                                                "condition" to
+                                                    mapOf(
+                                                        "call" to "required",
+                                                        "args" to
+                                                            mapOf(
+                                                                "value" to
+                                                                    mapOf(
+                                                                        "path" to "/form/category"
+                                                                    )
+                                                            ),
+                                                    ),
+                                                "message" to "Category is required",
+                                            )
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        // Every option chip is annotated with the error so TalkBack announces it regardless of
+        // which chip is focused.
+        onAllNodes(SemanticsMatcher.expectValue(SemanticsProperties.Error, "Category is required"))
+            .assertCountEquals(2)
+        onNodeWithText("Category is required").assertIsDisplayed()
+
+        controller.updateData("/form/category", "books")
+        controller.waitForIdle()
+        waitForIdle()
+
+        onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error)).assertCountEquals(0)
+        onNodeWithText("Category is required").assertDoesNotExist()
     }
 }

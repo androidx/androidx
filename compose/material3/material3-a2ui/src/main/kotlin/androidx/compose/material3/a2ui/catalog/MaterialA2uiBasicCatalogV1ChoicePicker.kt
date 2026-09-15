@@ -64,12 +64,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 
 /**
@@ -92,6 +94,8 @@ internal object MaterialA2uiBasicCatalogV1ChoicePicker : A2uiBasicCatalogV1.Choi
         modifier: Modifier,
     ) {
         val selectedSet = remember(value) { value.toScatterSet() }
+        val failedCheck = checks.fastFirstOrNull { !it.condition }
+        val errorMessage = failedCheck?.message
 
         var filterQuery by rememberSaveable { mutableStateOf("") }
         val visibleOptions =
@@ -132,6 +136,7 @@ internal object MaterialA2uiBasicCatalogV1ChoicePicker : A2uiBasicCatalogV1.Choi
                         isFilterable = filterable,
                         hasHeaderLabel = !label.isNullOrEmpty(),
                         isEnabled = enabled,
+                        errorMessage = errorMessage,
                         onToggleOption = onToggleOption,
                     )
                 }
@@ -143,9 +148,19 @@ internal object MaterialA2uiBasicCatalogV1ChoicePicker : A2uiBasicCatalogV1.Choi
                         onFilterQueryChange = { filterQuery = it },
                         isFilterable = filterable,
                         isEnabled = enabled,
+                        errorMessage = errorMessage,
                         onToggleOption = onToggleOption,
                     )
                 }
+            }
+
+            if (!errorMessage.isNullOrBlank()) {
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = ChoicePickerErrorModifier,
+                )
             }
         }
     }
@@ -161,6 +176,7 @@ internal object MaterialA2uiBasicCatalogV1ChoicePicker : A2uiBasicCatalogV1.Choi
         isFilterable: Boolean,
         hasHeaderLabel: Boolean,
         isEnabled: Boolean,
+        errorMessage: String?,
         onToggleOption: (String) -> Unit,
     ) {
         var expanded by rememberSaveable { mutableStateOf(false) }
@@ -212,6 +228,7 @@ internal object MaterialA2uiBasicCatalogV1ChoicePicker : A2uiBasicCatalogV1.Choi
                     expanded = expanded,
                     chosenOption = chosenOption,
                     isEnabled = isEnabled,
+                    errorMessage = errorMessage,
                     onToggleOption = onToggleOption,
                 )
 
@@ -251,6 +268,7 @@ internal object MaterialA2uiBasicCatalogV1ChoicePicker : A2uiBasicCatalogV1.Choi
         expanded: Boolean,
         chosenOption: Option?,
         isEnabled: Boolean,
+        errorMessage: String?,
         onToggleOption: (String) -> Unit,
     ) {
         OutlinedTextField(
@@ -276,6 +294,7 @@ internal object MaterialA2uiBasicCatalogV1ChoicePicker : A2uiBasicCatalogV1.Choi
                 )
             },
             enabled = isEnabled,
+            isError = !errorMessage.isNullOrBlank(),
             singleLine = true,
             modifier =
                 Modifier.menuAnchor(
@@ -286,7 +305,12 @@ internal object MaterialA2uiBasicCatalogV1ChoicePicker : A2uiBasicCatalogV1.Choi
                         },
                         isEnabled,
                     )
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .semantics {
+                        if (!errorMessage.isNullOrBlank()) {
+                            error(errorMessage)
+                        }
+                    },
         )
     }
 
@@ -462,6 +486,7 @@ internal object MaterialA2uiBasicCatalogV1ChoicePicker : A2uiBasicCatalogV1.Choi
         onFilterQueryChange: (String) -> Unit,
         isFilterable: Boolean,
         isEnabled: Boolean,
+        errorMessage: String?,
         onToggleOption: (String) -> Unit,
     ) {
         if (isFilterable) {
@@ -496,6 +521,13 @@ internal object MaterialA2uiBasicCatalogV1ChoicePicker : A2uiBasicCatalogV1.Choi
                 modifier = Modifier.padding(vertical = 8.dp),
             )
         } else {
+            val chipModifier =
+                if (!errorMessage.isNullOrBlank()) {
+                    Modifier.semantics { error(errorMessage) }
+                } else {
+                    Modifier
+                }
+
             CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
                 FlowRow(
                     horizontalArrangement = ChipSpacingArrangement,
@@ -509,6 +541,7 @@ internal object MaterialA2uiBasicCatalogV1ChoicePicker : A2uiBasicCatalogV1.Choi
                                 onClick = { onToggleOption(option.value) },
                                 label = { SingleLineText(option.label) },
                                 enabled = isEnabled,
+                                modifier = chipModifier,
                             )
                         }
                     }
@@ -524,6 +557,7 @@ internal object MaterialA2uiBasicCatalogV1ChoicePicker : A2uiBasicCatalogV1.Choi
 }
 
 private val GroupLabelModifier = Modifier.padding(bottom = 8.dp)
+private val ChoicePickerErrorModifier = Modifier.padding(top = 4.dp)
 private val FilterTextFieldModifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
 private val DropdownMenuHeightModifier = Modifier.heightIn(max = 192.dp)
 private val ChipSpacingArrangement = Arrangement.spacedBy(4.dp)

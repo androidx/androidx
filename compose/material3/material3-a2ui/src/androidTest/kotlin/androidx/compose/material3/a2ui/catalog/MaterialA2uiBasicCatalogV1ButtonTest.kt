@@ -21,6 +21,7 @@ import androidx.a2ui.compose.ui.testing.A2uiComponentPayload
 import androidx.a2ui.compose.ui.testing.A2uiComponentStub
 import androidx.a2ui.compose.ui.testing.A2uiTestController
 import androidx.a2ui.compose.ui.testing.A2uiTestSurface
+import androidx.a2ui.model.catalog.functions.A2uiRequiredFunction
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiException.A2uiRuntimeException
 import androidx.compose.material3.CircularProgressIndicator
@@ -37,6 +38,8 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasProgressBarRangeInfo
@@ -63,6 +66,7 @@ class MaterialA2uiBasicCatalogV1ButtonTest {
         A2uiCatalog(
             catalogId = "test_catalog",
             components = listOf(MaterialA2uiBasicCatalogV1Defaults.button),
+            functions = listOf(A2uiRequiredFunction.INSTANCE),
         )
 
     @Test
@@ -871,4 +875,287 @@ class MaterialA2uiBasicCatalogV1ButtonTest {
 
             assertThat(controller.outboundEvents.single().type).isEqualTo("click")
         }
+
+    @Test
+    fun checks_allChecksPass_buttonIsEnabledAndDispatchesActionOnClick() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Button",
+                            properties =
+                                mapOf(
+                                    "child" to "btn_text",
+                                    "action" to mapOf("event" to mapOf("name" to "submit")),
+                                    "checks" to
+                                        listOf(
+                                            mapOf(
+                                                "condition" to
+                                                    mapOf(
+                                                        "call" to "required",
+                                                        "args" to
+                                                            mapOf(
+                                                                "value" to
+                                                                    mapOf("path" to "/form/name")
+                                                            ),
+                                                    ),
+                                                "message" to "Name is required",
+                                            )
+                                        ),
+                                ),
+                        ),
+                        A2uiComponentPayload(id = "btn_text"),
+                    ),
+                initialData = mapOf("form" to mapOf("name" to "Test User")),
+                componentStubs =
+                    listOf(
+                        A2uiComponentStub.withId("btn_text") { _, modifier ->
+                            Text("Submit", modifier = modifier)
+                        }
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        val button = onNode(hasRole(Role.Button))
+        button.assertIsDisplayed().assertIsEnabled()
+        button.assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
+        onNodeWithText("Name is required").assertDoesNotExist()
+        button.performClick()
+        waitForIdle()
+        controller.waitForIdle()
+
+        assertThat(controller.outboundEvents.single().type).isEqualTo("submit")
+    }
+
+    @Test
+    fun checks_failedCheck_buttonIsDisabledAndDoesNotDispatchAction() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Button",
+                            properties =
+                                mapOf(
+                                    "child" to "btn_text",
+                                    "action" to mapOf("event" to mapOf("name" to "submit")),
+                                    "checks" to
+                                        listOf(
+                                            mapOf(
+                                                "condition" to
+                                                    mapOf(
+                                                        "call" to "required",
+                                                        "args" to
+                                                            mapOf(
+                                                                "value" to
+                                                                    mapOf("path" to "/form/name")
+                                                            ),
+                                                    ),
+                                                "message" to "Name is required",
+                                            )
+                                        ),
+                                ),
+                        ),
+                        A2uiComponentPayload(id = "btn_text"),
+                    ),
+                componentStubs =
+                    listOf(
+                        A2uiComponentStub.withId("btn_text") { _, modifier ->
+                            Text("Submit", modifier = modifier)
+                        }
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        val button = onNode(hasRole(Role.Button))
+        button.assertIsDisplayed().assertIsNotEnabled()
+        button.assert(
+            SemanticsMatcher.expectValue(
+                SemanticsProperties.Error,
+                "Name is required",
+            )
+        )
+        onNodeWithText("Name is required").assertIsDisplayed()
+        button.performClick()
+        waitForIdle()
+        controller.waitForIdle()
+
+        assertThat(controller.outboundEvents).isEmpty()
+    }
+
+    @Test
+    fun checks_dynamicCondition_updatesEnabledState() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Button",
+                            properties =
+                                mapOf(
+                                    "child" to "btn_text",
+                                    "action" to mapOf("event" to mapOf("name" to "submit")),
+                                    "checks" to
+                                        listOf(
+                                            mapOf(
+                                                "condition" to
+                                                    mapOf(
+                                                        "call" to "required",
+                                                        "args" to
+                                                            mapOf(
+                                                                "value" to
+                                                                    mapOf("path" to "/form/name")
+                                                            ),
+                                                    ),
+                                                "message" to "Name is required",
+                                            )
+                                        ),
+                                ),
+                        ),
+                        A2uiComponentPayload(id = "btn_text"),
+                    ),
+                componentStubs =
+                    listOf(
+                        A2uiComponentStub.withId("btn_text") { _, modifier ->
+                            Text("Submit", modifier = modifier)
+                        }
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        val button = onNode(hasRole(Role.Button))
+        button.assertIsDisplayed().assertIsNotEnabled()
+        button.assert(
+            SemanticsMatcher.expectValue(
+                SemanticsProperties.Error,
+                "Name is required",
+            )
+        )
+        onNodeWithText("Name is required").assertIsDisplayed()
+
+        controller.updateData("/form/name", "Test User")
+        controller.waitForIdle()
+        waitForIdle()
+
+        button.assertIsEnabled()
+        button.assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
+        onNodeWithText("Name is required").assertDoesNotExist()
+        button.performClick()
+        waitForIdle()
+        controller.waitForIdle()
+
+        assertThat(controller.outboundEvents.single().type).isEqualTo("submit")
+    }
+
+    @Test
+    fun checks_multipleChecks_allMustPassToBeEnabled() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Button",
+                            properties =
+                                mapOf(
+                                    "child" to "btn_text",
+                                    "action" to mapOf("event" to mapOf("name" to "submit")),
+                                    "checks" to
+                                        listOf(
+                                            mapOf(
+                                                "condition" to
+                                                    mapOf(
+                                                        "call" to "required",
+                                                        "args" to
+                                                            mapOf(
+                                                                "value" to
+                                                                    mapOf("path" to "/form/name")
+                                                            ),
+                                                    ),
+                                                "message" to "Name is required",
+                                            ),
+                                            mapOf(
+                                                "condition" to
+                                                    mapOf(
+                                                        "call" to "required",
+                                                        "args" to
+                                                            mapOf(
+                                                                "value" to
+                                                                    mapOf("path" to "/form/email")
+                                                            ),
+                                                    ),
+                                                "message" to "Email is required",
+                                            ),
+                                        ),
+                                ),
+                        ),
+                        A2uiComponentPayload(id = "btn_text"),
+                    ),
+                componentStubs =
+                    listOf(
+                        A2uiComponentStub.withId("btn_text") { _, modifier ->
+                            Text("Submit", modifier = modifier)
+                        }
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        val button = onNode(hasRole(Role.Button))
+        button.assertIsDisplayed().assertIsNotEnabled()
+        button.assert(
+            SemanticsMatcher.expectValue(
+                SemanticsProperties.Error,
+                "Name is required",
+            )
+        )
+        onNodeWithText("Name is required").assertIsDisplayed()
+        onNodeWithText("Email is required").assertDoesNotExist()
+
+        controller.updateData("/form/name", "Test User")
+        controller.waitForIdle()
+        waitForIdle()
+
+        button.assertIsNotEnabled()
+        button.assert(
+            SemanticsMatcher.expectValue(
+                SemanticsProperties.Error,
+                "Email is required",
+            )
+        )
+        onNodeWithText("Name is required").assertDoesNotExist()
+        onNodeWithText("Email is required").assertIsDisplayed()
+
+        controller.updateData("/form/email", "user@example.com")
+        controller.waitForIdle()
+        waitForIdle()
+
+        button.assertIsEnabled()
+        button.assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
+        onNodeWithText("Name is required").assertDoesNotExist()
+        onNodeWithText("Email is required").assertDoesNotExist()
+        button.performClick()
+        waitForIdle()
+        controller.waitForIdle()
+
+        assertThat(controller.outboundEvents.single().type).isEqualTo("submit")
+    }
+
+    private fun hasRole(role: Role): SemanticsMatcher =
+        SemanticsMatcher.expectValue(SemanticsProperties.Role, role)
 }

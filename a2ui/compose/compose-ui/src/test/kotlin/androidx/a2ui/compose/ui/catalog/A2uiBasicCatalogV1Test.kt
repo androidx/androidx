@@ -172,10 +172,10 @@ class A2uiBasicCatalogV1Test {
         val icon = TestIconComponent()
         val video = TestVideoComponent()
         val audioPlayer = TestAudioPlayerComponent()
-        val card = TestCardComponent()
         val row = TestRowComponent()
         val column = TestColumnComponent()
         val list = TestListComponent()
+        val card = TestCardComponent()
         val tabs = TestTabsComponent()
         val modal = TestModalComponent()
         val divider = TestDividerComponent()
@@ -192,10 +192,10 @@ class A2uiBasicCatalogV1Test {
                 icon = icon,
                 video = video,
                 audioPlayer = audioPlayer,
-                card = card,
                 row = row,
                 column = column,
                 list = list,
+                card = card,
                 tabs = tabs,
                 modal = modal,
                 divider = divider,
@@ -233,10 +233,10 @@ class A2uiBasicCatalogV1Test {
                 icon,
                 video,
                 audioPlayer,
-                card,
                 row,
                 column,
                 list,
+                card,
                 tabs,
                 modal,
                 divider,
@@ -257,10 +257,10 @@ class A2uiBasicCatalogV1Test {
         val icon = TestIconComponent()
         val video = TestVideoComponent()
         val audioPlayer = TestAudioPlayerComponent()
-        val card = TestCardComponent()
         val row = TestRowComponent()
         val column = TestColumnComponent()
         val list = TestListComponent()
+        val card = TestCardComponent()
         val tabs = TestTabsComponent()
         val modal = TestModalComponent()
         val divider = TestDividerComponent()
@@ -277,10 +277,10 @@ class A2uiBasicCatalogV1Test {
                 icon = icon,
                 video = video,
                 audioPlayer = audioPlayer,
-                card = card,
                 row = row,
                 column = column,
                 list = list,
+                card = card,
                 tabs = tabs,
                 modal = modal,
                 divider = divider,
@@ -298,10 +298,10 @@ class A2uiBasicCatalogV1Test {
                 icon = icon,
                 video = video,
                 audioPlayer = audioPlayer,
-                card = card,
                 row = row,
                 column = column,
                 list = list,
+                card = card,
                 tabs = tabs,
                 modal = modal,
                 divider = divider,
@@ -345,10 +345,10 @@ class A2uiBasicCatalogV1Test {
                 icon = sharedIcon,
                 video = sharedVideo,
                 audioPlayer = sharedAudioPlayer,
-                card = sharedCard,
                 row = sharedRow,
                 column = sharedColumn,
                 list = sharedList,
+                card = sharedCard,
                 tabs = sharedTabs,
                 modal = sharedModal,
                 divider = sharedDivider,
@@ -366,10 +366,10 @@ class A2uiBasicCatalogV1Test {
                 icon = sharedIcon,
                 video = sharedVideo,
                 audioPlayer = sharedAudioPlayer,
-                card = sharedCard,
                 row = sharedRow,
                 column = sharedColumn,
                 list = sharedList,
+                card = sharedCard,
                 tabs = sharedTabs,
                 modal = sharedModal,
                 divider = sharedDivider,
@@ -393,7 +393,7 @@ class A2uiBasicCatalogV1Test {
         assertThat(catalog.toString()).contains("themeSchema=${A2uiBasicCatalogV1.ThemeSchema}")
         assertThat(catalog.toString())
             .containsMatch(
-                "components=.*Text.*Image.*Icon.*Video.*AudioPlayer.*Card.*Row.*Column.*List." +
+                "components=.*Text.*Image.*Icon.*Video.*AudioPlayer.*Row.*Column.*List.*Card." +
                     "*Tabs.*Modal.*Divider.*Button.*TextField.*CheckBox.*ChoicePicker.*Slider" +
                     ".*DateTimeInput"
             )
@@ -406,10 +406,10 @@ class A2uiBasicCatalogV1Test {
         icon: A2uiBasicCatalogV1.Icon = TestIconComponent(),
         video: A2uiBasicCatalogV1.Video = TestVideoComponent(),
         audioPlayer: A2uiBasicCatalogV1.AudioPlayer = TestAudioPlayerComponent(),
-        card: A2uiBasicCatalogV1.Card = TestCardComponent(),
         row: A2uiBasicCatalogV1.Row = TestRowComponent(),
         column: A2uiBasicCatalogV1.Column = TestColumnComponent(),
         list: A2uiBasicCatalogV1.List = TestListComponent(),
+        card: A2uiBasicCatalogV1.Card = TestCardComponent(),
         tabs: A2uiBasicCatalogV1.Tabs = TestTabsComponent(),
         modal: A2uiBasicCatalogV1.Modal = TestModalComponent(),
         divider: A2uiBasicCatalogV1.Divider = TestDividerComponent(),
@@ -427,10 +427,10 @@ class A2uiBasicCatalogV1Test {
             icon = icon,
             video = video,
             audioPlayer = audioPlayer,
-            card = card,
             row = row,
             column = column,
             list = list,
+            card = card,
             tabs = tabs,
             modal = modal,
             divider = divider,

@@ -22,6 +22,7 @@ import androidx.a2ui.compose.ui.A2uiComponent
 import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
@@ -40,8 +41,11 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFirstOrNull
 
 /** A Jetpack Compose Material 3 implementation of the A2UI Basic Catalog `"Button"` component. */
 internal object MaterialA2uiBasicCatalogV1Button : A2uiBasicCatalogV1.Button {
@@ -61,48 +65,67 @@ internal object MaterialA2uiBasicCatalogV1Button : A2uiBasicCatalogV1.Button {
         val childState = observeA2uiComponentState(childId)
         val isError = childState is A2uiComponentState.Error
         val isLoading = childState is A2uiComponentState.Loading
+        val failedCheck = checks.fastFirstOrNull { !it.condition }
+        val errorMessage = failedCheck?.message
+        val allChecksPassed = failedCheck == null
 
-        ButtonVariant(
-            variant = variant,
-            enabled = !isLoading && !isError,
-            error = isError,
-            onClick = onClick,
-            modifier =
-                modifier.a2uiAccessibility(
-                    attributes = accessibility,
-                    isClickable = true,
-                ),
-        ) {
-            AnimatedContent(
-                targetState = childState,
-                transitionSpec = MaterialA2uiDefaults.transitionSpec(),
-                contentKey = { state ->
+        Column(modifier = modifier) {
+            ButtonVariant(
+                variant = variant,
+                enabled = !isLoading && !isError && allChecksPassed,
+                error = isError,
+                onClick = onClick,
+                modifier =
+                    Modifier.a2uiAccessibility(
+                            attributes = accessibility,
+                            isClickable = true,
+                        )
+                        .semantics {
+                            if (!allChecksPassed && !errorMessage.isNullOrBlank()) {
+                                error(errorMessage)
+                            }
+                        },
+            ) {
+                AnimatedContent(
+                    targetState = childState,
+                    transitionSpec = MaterialA2uiDefaults.transitionSpec(),
+                    contentKey = { state ->
+                        when (state) {
+                            A2uiComponentState.Loading -> "loading"
+                            is A2uiComponentState.Error -> "error"
+                            is A2uiComponentState.Success -> Pair(childId, state.component.type)
+                        }
+                    },
+                    label = "ButtonChildTransition",
+                ) { state ->
                     when (state) {
-                        A2uiComponentState.Loading -> "loading"
-                        is A2uiComponentState.Error -> "error"
-                        is A2uiComponentState.Success -> Pair(childId, state.component.type)
-                    }
-                },
-                label = "ButtonChildTransition",
-            ) { state ->
-                when (state) {
-                    is A2uiComponentState.Error -> {
-                        Text(
-                            text = stringResource(R.string.error),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                    is A2uiComponentState.Loading -> {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            strokeWidth = 2.dp,
-                        )
-                    }
-                    is A2uiComponentState.Success -> {
-                        A2uiComponent(component = state.component)
+                        is A2uiComponentState.Error -> {
+                            Text(
+                                text = stringResource(R.string.error),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                        is A2uiComponentState.Loading -> {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp,
+                            )
+                        }
+                        is A2uiComponentState.Success -> {
+                            A2uiComponent(component = state.component)
+                        }
                     }
                 }
+            }
+
+            if (!errorMessage.isNullOrBlank()) {
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = ButtonErrorModifier,
+                )
             }
         }
     }
@@ -183,3 +206,4 @@ internal object MaterialA2uiBasicCatalogV1Button : A2uiBasicCatalogV1.Button {
 }
 
 private val DefaultButtonModifier: Modifier = Modifier.padding(vertical = 4.dp)
+private val ButtonErrorModifier: Modifier = Modifier.padding(top = 4.dp)
