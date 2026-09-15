@@ -131,6 +131,10 @@ class MainActivity : AppCompatActivity() {
                         getResources().getString(R.string.hyperlink_context_menu_activity_title),
                         Intent(this, HyperlinkContextMenuActivity::class.java),
                     ),
+                    MenuListView.MenuItem(
+                        getResources().getString(R.string.navigate_activity_title),
+                        Intent(this, NavigateActivity::class.java),
+                    ),
                 )
             )
     }
