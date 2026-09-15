@@ -109,9 +109,8 @@ private constructor(
      *   playback or a data stream and becomes user-aware.
      * * The registered input receiver is automatically cleared when the Projected device is
      *   disconnected or no longer worn.
-     * * Even if the application is already in the foreground without user awareness, the platform
-     *   will still send the provided [PendingIntent] when it becomes perceptible, regardless of
-     *   whether the component in the [PendingIntent] exactly matches the foreground component.
+     * * If the application is already in the foreground without user awareness, the platform will
+     *   not send the provided [PendingIntent] when it becomes user-aware.
      *
      * Usage example:
      * ```
