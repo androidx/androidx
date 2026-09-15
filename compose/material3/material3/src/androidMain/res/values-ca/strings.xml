@@ -28,8 +28,10 @@
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"Suggeriments a continuació"</string>
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"Selecciona la data"</string>
     <string name="m3c_date_picker_headline" msgid="7605002211875882969">"Data seleccionada"</string>
-    <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"Canvia a la selecció de l\'any"</string>
-    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"Llisca per seleccionar un any o toca per tornar a seleccionar un dia"</string>
+    <!-- no translation found for m3c_date_picker_switch_to_year_selection (1627411828238538995) -->
+    <skip />
+    <!-- no translation found for m3c_date_picker_switch_to_day_selection (6328798869762130418) -->
+    <skip />
     <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"Canvia al mes següent"</string>
     <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"Canvia al mes anterior"</string>
     <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"Navega fins a l\'any %1$s"</string>

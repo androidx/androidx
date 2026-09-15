@@ -28,8 +28,8 @@
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"Vorschläge unten"</string>
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"Datum auswählen"</string>
     <string name="m3c_date_picker_headline" msgid="7605002211875882969">"Ausgewähltes Datum"</string>
-    <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"Zur Jahresauswahl wechseln"</string>
-    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"Wischen, um ein Jahr auszuwählen, oder tippen, um zur Tagesauswahl zurückzukehren"</string>
+    <string name="m3c_date_picker_switch_to_year_selection" msgid="1627411828238538995">"Aktivieren, um das Jahr zu ändern"</string>
+    <string name="m3c_date_picker_switch_to_day_selection" msgid="6328798869762130418">"Aktivieren, um den Monat und das Datum zu ändern"</string>
     <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"Zum nächsten Monat wechseln"</string>
     <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"Zum vorherigen Monat wechseln"</string>
     <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"Zum Jahr %1$s wechseln"</string>
