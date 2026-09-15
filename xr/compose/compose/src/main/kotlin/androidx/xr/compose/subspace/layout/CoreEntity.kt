@@ -275,8 +275,11 @@ internal class CoreGroupEntity(pixelDensity: PixelDensity, entity: Entity) :
  */
 internal sealed class CoreBasePanelEntity(
     pixelDensity: PixelDensity,
-    private val panelEntity: PanelEntity,
+    panelEntity: PanelEntity?,
 ) : CoreEntity(pixelDensity, panelEntity), InteractableCoreEntity {
+    private val panelEntity: PanelEntity?
+        get() = entity as? PanelEntity
+
     // Density set from setShape.
     private var shapeDensity: Density? = null
 
@@ -298,7 +301,7 @@ internal sealed class CoreBasePanelEntity(
         set(value) {
             if (super.size != value) {
                 super.size = value
-                panelEntity.sizeInPixels =
+                panelEntity?.sizeInPixels =
                     IntSize2d(size.width.coerceAtLeast(1), size.height.coerceAtLeast(1))
                 shapeDensity?.let { updateShape(it) }
             }
@@ -334,7 +337,7 @@ internal sealed class CoreBasePanelEntity(
         if (shape is SpatialRoundedCornerShape) {
             val radius =
                 shape.computeCornerRadius(size.width.toFloat(), size.height.toFloat(), density)
-            panelEntity.cornerRadius = radius.pxToMeters(pixelDensity)
+            panelEntity?.cornerRadius = radius.pxToMeters(pixelDensity)
         }
     }
 }
@@ -348,10 +351,13 @@ internal class CorePanelEntity(pixelDensity: PixelDensity, entity: PanelEntity) 
 
 internal class CoreActivityPanelEntity(
     pixelDensity: PixelDensity,
-    private val activityPanelEntity: ActivityPanelEntity,
+    activityPanelEntity: ActivityPanelEntity,
 ) : CoreBasePanelEntity(pixelDensity, activityPanelEntity) {
+    private val activityPanelEntity: ActivityPanelEntity?
+        get() = entity as? ActivityPanelEntity
+
     fun startActivity(intent: Intent) {
-        activityPanelEntity.startActivity(intent)
+        activityPanelEntity?.startActivity(intent)
     }
 }
 
