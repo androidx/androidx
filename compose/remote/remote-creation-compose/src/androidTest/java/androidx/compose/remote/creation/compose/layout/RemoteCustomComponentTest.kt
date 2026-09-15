@@ -28,6 +28,7 @@ import androidx.compose.remote.core.operations.layout.managers.Custom.CustomProp
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteBoolean
+import androidx.compose.remote.creation.compose.state.rememberNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteString
 import androidx.compose.remote.creation.compose.state.rf
@@ -39,6 +40,7 @@ import androidx.compose.remote.testing.RemoteBaseContentTestRule
 import androidx.compose.remote.testing.RemoteContentTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -162,6 +164,32 @@ class RemoteCustomComponentTest {
 
         assertThat(returnVarId).isEqualTo(expectedBoolId)
         assertThat(remoteContext.getInteger(expectedBoolId)).isEqualTo(12345)
+    }
+
+    @Test
+    fun customComponent_colorReturn() {
+        val capturedDoc =
+            setContent(
+                name = "ColorReturnCustom",
+                configureInt = { _, type, value ->
+                    if (type == 4) {
+                        remoteContext.mRemoteComposeState.overrideColor(value, 0xFF00FF00.toInt())
+                    }
+                },
+            ) {
+                val colorState = rememberNamedRemoteColor("named_color_return", Color.Red)
+                RemoteCustomComponent(name = "ColorReturnCustom") { bindReturn(4, colorState) }
+            }
+
+        val customOp = capturedDoc.findCustomOperations().single()
+        assertThat(capturedDoc.getText(customOp.configId)).isEqualTo("ColorReturnCustom")
+        val prop = customOp.properties.single()
+        assertThat(prop.mType).isEqualTo(4.toShort())
+        assertThat(prop.mDataType).isEqualTo(CustomProperty.COLOR_RETURN)
+
+        val colorVarId = remoteContext.getVariableId("USER:named_color_return")
+        assertThat(prop.mIntValue).isEqualTo(colorVarId)
+        assertThat(remoteContext.getColor(colorVarId)).isEqualTo(0xFF00FF00.toInt())
     }
 
     private fun setContent(

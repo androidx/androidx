@@ -449,6 +449,7 @@ class RecordingCanvasTest {
                 bindReturn(12, MutableRemoteString("ret"))
                 bindReturn(13, MutableRemoteInt(7))
                 bindReturn(14, MutableRemoteBoolean(true))
+                bindReturn(15, RemoteColor(Color.GREEN))
             }
 
         val properties = scope.entries.map { it.toCustomProperty(creationState) }
@@ -467,6 +468,7 @@ class RecordingCanvasTest {
         assertThat(properties[12].mDataType).isEqualTo(CustomProperty.TEXT_RETURN)
         assertThat(properties[13].mDataType).isEqualTo(CustomProperty.INT_RETURN)
         assertThat(properties[14].mDataType).isEqualTo(CustomProperty.INT_RETURN)
+        assertThat(properties[15].mDataType).isEqualTo(CustomProperty.COLOR_RETURN)
     }
 
     @Test
