@@ -18,6 +18,7 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
@@ -29,6 +30,7 @@ public class RemoteFloatArray
 internal constructor(
     public override val constantValueOrNull: List<RemoteFloat>?,
     internal override val cacheKey: RemoteStateCacheKey,
+    internal val idProvider: ((creationState: RemoteComposeCreationState) -> Int)? = null,
 ) : BaseRemoteState<List<RemoteFloat>>(cacheKey) {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -40,6 +42,12 @@ internal constructor(
             RemoteOperationCacheKey.create(OperationKey.Create, *values.toTypedArray())
         } ?: RemoteStateInstanceKey(),
     )
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(vararg values: Float) : this(values.map { RemoteFloat(it) })
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(vararg values: RemoteFloat) : this(values.toList())
 
     internal enum class OperationKey : RemoteOperation {
         Create {
@@ -81,6 +89,9 @@ internal constructor(
         // pattern definition), return that ID directly instead of writing to the document.
         if (cacheKey is RemoteStateIdKey) {
             return (cacheKey as RemoteStateIdKey).id
+        }
+        if (idProvider != null) {
+            return idProvider.invoke(creationState)
         }
         val asFloat =
             with(creationState) { constantValueOrNull!!.fastMap { it.floatId }.toFloatArray() }
@@ -163,6 +174,38 @@ internal constructor(
     private fun arrayForCreationState(creationState: RemoteComposeCreationState): FloatArray {
         return creationState.getOrPutFloatArray(cacheKey) {
             floatArrayOf(getFloatIdForCreationState(creationState))
+        }
+    }
+
+    public companion object {
+        /**
+         * Creates a named [RemoteFloatArray].
+         *
+         * @param name The unique name for this remote float array.
+         * @param defaultValue The initial [FloatArray] value for the named array.
+         * @param domain The domain of the named array (defaults to [RemoteState.Domain.User]).
+         * @return A [RemoteFloatArray] representing the named float array.
+         */
+        @JvmStatic
+        public fun createNamedRemoteFloatArray(
+            name: String,
+            defaultValue: FloatArray,
+            domain: RemoteState.Domain = RemoteState.Domain.User,
+        ): RemoteFloatArray {
+            return RemoteFloatArray(
+                constantValueOrNull = null,
+                cacheKey = RemoteNamedCacheKey(domain, name),
+                idProvider = { creationState ->
+                    val floatId = creationState.document.addFloatArray(defaultValue)
+                    val id = Utils.idFromNan(floatId)
+                    creationState.document.setNamedVariable(
+                        id,
+                        domain.prefixed(name),
+                        NamedVariable.FLOAT_ARRAY_TYPE,
+                    )
+                    id
+                },
+            )
         }
     }
 }

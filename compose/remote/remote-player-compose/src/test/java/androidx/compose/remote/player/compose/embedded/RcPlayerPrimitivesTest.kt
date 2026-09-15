@@ -69,6 +69,7 @@ import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
 import androidx.compose.remote.creation.compose.shaders.image
 import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteFloatArray.Companion.createNamedRemoteFloatArray
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createRotate
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
@@ -90,6 +91,7 @@ import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
@@ -109,6 +111,7 @@ import java.io.ByteArrayInputStream
 import kotlin.OptIn
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Ignore
@@ -4702,6 +4705,116 @@ class RcPlayerPrimitivesTest {
             try {
                 val bounds = rule.onNodeWithText("Click").getUnclippedBoundsInRoot()
             } catch (e: Throwable) {}
+        }
+    }
+
+    @Test
+    fun testChartWithNamedFloatArrayUpdate() {
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+
+            val initialData = floatArrayOf(20f, 50f, 80f)
+            val documentBytes =
+                captureSingleRemoteDocument(
+                        context = context,
+                        content = {
+                            val chartData = remember {
+                                createNamedRemoteFloatArray(
+                                    name = "chartData",
+                                    defaultValue = initialData,
+                                )
+                            }
+                            RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                                val paintRed = RemotePaint { color = RemoteColor(Color.Red) }
+                                val paintGreen = RemotePaint { color = RemoteColor(Color.Green) }
+                                val paintBlue = RemotePaint { color = RemoteColor(Color.Blue) }
+                                drawRect(
+                                    paint = paintRed,
+                                    topLeft = RemoteOffset(10f.rf, 100f.rf - chartData[0]),
+                                    size = RemoteSize(20f.rf, chartData[0]),
+                                )
+                                drawRect(
+                                    paint = paintGreen,
+                                    topLeft = RemoteOffset(40f.rf, 100f.rf - chartData[1]),
+                                    size = RemoteSize(20f.rf, chartData[1]),
+                                )
+                                drawRect(
+                                    paint = paintBlue,
+                                    topLeft = RemoteOffset(70f.rf, 100f.rf - chartData[2]),
+                                    size = RemoteSize(20f.rf, chartData[2]),
+                                )
+                            }
+                        },
+                    )
+                    .bytes
+
+            val document =
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                    }
+                }
+
+            rule.setContent {
+                Box(modifier = Modifier.size(100.dp).testTag("chartRoot")) {
+                    RcPlayer(document = document)
+                }
+            }
+
+            rule.mainClock.advanceTimeBy(100)
+            rule.onNodeWithTag("chartRoot").assertExists()
+
+            fun findNamedVariable(ops: Collection<Operation>, name: String): NamedVariable? {
+                for (op in ops) {
+                    if (op is NamedVariable && op.mVarName == name) {
+                        return op
+                    }
+                    if (op is Container) {
+                        val found = findNamedVariable(op.getList(), name)
+                        if (found != null) return found
+                    }
+                    if (op is LayoutComponent) {
+                        val canvasOps = op.getCanvasOperations()
+                        if (canvasOps != null) {
+                            val found = findNamedVariable(listOf(canvasOps), name)
+                            if (found != null) return found
+                        }
+                    }
+                }
+                return null
+            }
+
+            val namedVar = findNamedVariable(document.getOperationsReflection(), "USER:chartData")
+            assertNotNull(namedVar)
+            assertEquals(NamedVariable.FLOAT_ARRAY_TYPE, namedVar!!.mVarType)
+            val arrayId = namedVar.mVarId
+
+            val initialArray = document.getArray(arrayId)
+            assertNotNull(initialArray)
+            assertArrayEquals(initialData, initialArray!!.getFloats(), 0.001f)
+            assertEquals(20f, document.remoteComposeState.getFloatValue(arrayId, 0), 0.001f)
+            assertEquals(50f, document.remoteComposeState.getFloatValue(arrayId, 1), 0.001f)
+            assertEquals(80f, document.remoteComposeState.getFloatValue(arrayId, 2), 0.001f)
+
+            // Update named float array state via delta document
+            val updatedData = floatArrayOf(80f, 20f, 40f)
+            val deltaBuffer = RemoteComposeBuffer()
+            deltaBuffer.addFloatArray(arrayId, updatedData)
+            val deltaDoc =
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    initFromBuffer(deltaBuffer)
+                }
+            document.applyUpdate(deltaDoc)
+
+            rule.mainClock.advanceTimeBy(100)
+
+            val updatedArray = document.getArray(arrayId)
+            assertNotNull(updatedArray)
+            assertArrayEquals(updatedData, updatedArray!!.getFloats(), 0.001f)
+            assertEquals(80f, document.remoteComposeState.getFloatValue(arrayId, 0), 0.001f)
+            assertEquals(20f, document.remoteComposeState.getFloatValue(arrayId, 1), 0.001f)
+            assertEquals(40f, document.remoteComposeState.getFloatValue(arrayId, 2), 0.001f)
+            rule.onNodeWithTag("chartRoot").assertExists()
         }
     }
 
