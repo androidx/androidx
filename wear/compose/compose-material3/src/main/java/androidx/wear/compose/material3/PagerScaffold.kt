@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -38,11 +37,9 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.lerp
 import androidx.wear.compose.foundation.LocalReduceMotion
-import androidx.wear.compose.foundation.LocalScreenIsActive
 import androidx.wear.compose.foundation.ScrollInfoProvider
 import androidx.wear.compose.foundation.pager.PagerDefaults
 import androidx.wear.compose.foundation.pager.PagerState
@@ -340,30 +337,17 @@ private fun PagerScaffoldImpl(
     pageIndicatorAnimationSpec: AnimationSpec<Float>?,
 ) {
     val scaffoldState = LocalScaffoldState.current
-    val key = remember { Any() }
-
     val showStatusBarState = rememberShowStatusBarState(StatusBarMode.Inherit)
     val timeTextState = rememberUpdatedState<(@Composable () -> Unit)?>(null)
     val scrollInfoProviderState = rememberUpdatedState(scrollInfoProvider)
-    val viewState = rememberUpdatedState(LocalView.current)
 
     scaffoldState?.screenContent?.UpdateIdlingDetectorIfNeeded()
 
-    val screenIsActive = LocalScreenIsActive.current
-    DisposableEffect(screenIsActive, scaffoldState) {
-        if (screenIsActive) {
-            scaffoldState
-                ?.screenContent
-                ?.addScreen(
-                    key = key,
-                    view = viewState,
-                    timeText = timeTextState,
-                    scrollInfoProvider = scrollInfoProviderState,
-                    showStatusBar = showStatusBarState,
-                )
-        }
-        onDispose { scaffoldState?.screenContent?.removeScreen(key) }
-    }
+    ScreenContentRegistration(
+        timeText = timeTextState,
+        scrollInfoProvider = scrollInfoProviderState,
+    )
+    StatusBarRegistration(showStatusBar = showStatusBarState)
 
     CompositionLocalProvider(LocalInheritedShowStatusBar provides showStatusBarState.value) {
         Box(modifier) {
