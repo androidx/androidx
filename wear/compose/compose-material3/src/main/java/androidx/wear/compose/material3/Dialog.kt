@@ -69,9 +69,9 @@ import kotlinx.coroutines.launch
  *   by setting [visible] to false.
  * @param modifier Modifier to be applied to the dialog content.
  * @param properties An optional [DialogProperties] object for configuring the dialog's behavior.
- *   When the system status bar is enabled (see [LocalStatusBarEnabled]),
- *   [DialogProperties.usePlatformDefaultWidth] and [DialogProperties.decorFitsSystemWindows] are
- *   overridden to false to ensure edge-to-edge full width display.
+ *   When the system status bar is enabled on the device, [DialogProperties.usePlatformDefaultWidth]
+ *   and [DialogProperties.decorFitsSystemWindows] are overridden to false to ensure edge-to-edge
+ *   full width display.
  * @param content A composable function that defines the content of the dialog.
  */
 @Composable

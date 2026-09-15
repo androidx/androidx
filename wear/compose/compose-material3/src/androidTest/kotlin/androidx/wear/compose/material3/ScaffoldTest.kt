@@ -1055,34 +1055,13 @@ class ScaffoldTest {
     }
 
     @Test
-    fun screenStack_statusBar_topScreenExplicitOverride_takesPrecedence() {
-        var scaffoldState: ScaffoldState? = null
-        rule.setContentWithTheme {
-            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
-                    scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {
-                        ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {}
-                    }
-                }
-            }
-        }
-
-        rule.runOnIdle {
-            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isTrue()
-        }
-    }
-
-    @Test
     fun screenStack_statusBar_topScreenInherit_inheritsUnderlyingScreenOverride() {
         var scaffoldState: ScaffoldState? = null
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {
-                        ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {}
-                    }
+                    ScreenScaffold(timeText = { TimeText() }) { ScreenScaffold {} }
                 }
             }
         }
@@ -1097,11 +1076,9 @@ class ScaffoldTest {
         var scaffoldState: ScaffoldState? = null
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {
-                        ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {}
-                    }
+                    ScreenScaffold { ScreenScaffold {} }
                 }
             }
         }
@@ -1118,11 +1095,9 @@ class ScaffoldTest {
 
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
-                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
-                        enabledScreenShow = LocalInheritedShowStatusBar.current
-                    }
-                    ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {
+                AppScaffold {
+                    ScreenScaffold { enabledScreenShow = LocalInheritedShowStatusBar.current }
+                    ScreenScaffold(timeText = { TimeText() }) {
                         disabledScreenShow = LocalInheritedShowStatusBar.current
                     }
                 }
@@ -1142,12 +1117,10 @@ class ScaffoldTest {
 
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
-                    ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {
+                AppScaffold {
+                    ScreenScaffold(timeText = { TimeText() }) {
                         outerShow = LocalInheritedShowStatusBar.current
-                        ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {
-                            innerShow = LocalInheritedShowStatusBar.current
-                        }
+                        ScreenScaffold { innerShow = LocalInheritedShowStatusBar.current }
                     }
                 }
             }
@@ -1166,10 +1139,10 @@ class ScaffoldTest {
 
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = appShowStatusBar) {
-                    ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {
-                        screenShow = LocalInheritedShowStatusBar.current
-                    }
+                AppScaffold(
+                    timeText = if (appShowStatusBar) AppScaffoldDefaults.timeText else ({})
+                ) {
+                    ScreenScaffold { screenShow = LocalInheritedShowStatusBar.current }
                 }
             }
         }
@@ -1187,12 +1160,12 @@ class ScaffoldTest {
 
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = appShowStatusBar) {
+                AppScaffold(
+                    timeText = if (appShowStatusBar) AppScaffoldDefaults.timeText else ({})
+                ) {
                     val pagerState = rememberPagerState { 1 }
                     HorizontalPagerScaffold(pagerState = pagerState) {
-                        ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {
-                            pageScreenShow = LocalInheritedShowStatusBar.current
-                        }
+                        ScreenScaffold { pageScreenShow = LocalInheritedShowStatusBar.current }
                     }
                 }
             }
@@ -1210,9 +1183,9 @@ class ScaffoldTest {
 
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
-                    val pagerState = rememberPagerState { 2 }
+                    val pagerState = rememberPagerState { 1 }
                     HorizontalPagerScaffold(pagerState = pagerState) { Box {} }
                 }
             }
@@ -1230,11 +1203,11 @@ class ScaffoldTest {
 
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
                     val pagerState = rememberPagerState { 1 }
                     HorizontalPagerScaffold(pagerState = pagerState) {
-                        ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {}
+                        ScreenScaffold(timeText = {}) {}
                     }
                 }
             }
@@ -1251,7 +1224,7 @@ class ScaffoldTest {
 
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = false) {
+                AppScaffold(timeText = {}) {
                     scaffoldState = LocalScaffoldState.current
                     val pagerState = rememberPagerState { 1 }
                     HorizontalPagerScaffold(pagerState = pagerState) { Box {} }
@@ -1270,7 +1243,7 @@ class ScaffoldTest {
 
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
                     val pagerState = rememberPagerState { 2 }
                     VerticalPagerScaffold(pagerState = pagerState) { Box {} }
@@ -1290,11 +1263,11 @@ class ScaffoldTest {
 
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
                     val pagerState = rememberPagerState { 1 }
                     VerticalPagerScaffold(pagerState = pagerState) {
-                        ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {}
+                        ScreenScaffold(timeText = {}) {}
                     }
                 }
             }
@@ -1311,7 +1284,7 @@ class ScaffoldTest {
 
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = false) {
+                AppScaffold(timeText = {}) {
                     scaffoldState = LocalScaffoldState.current
                     val pagerState = rememberPagerState { 1 }
                     VerticalPagerScaffold(pagerState = pagerState) { Box {} }
@@ -1335,28 +1308,21 @@ class ScaffoldTest {
 
     @Test
     fun screenScaffold_whenHardwareUnsupported_alwaysResolvesToDisabled() {
-        var enabledScreenShow: Boolean? = null
         var disabledScreenShow: Boolean? = null
         var inheritScreenShow: Boolean? = null
 
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides false) {
-                AppScaffold(isStatusBarEnabled = true) {
-                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
-                        enabledScreenShow = LocalInheritedShowStatusBar.current
-                    }
-                    ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {
+                AppScaffold {
+                    ScreenScaffold(timeText = { TimeText() }) {
                         disabledScreenShow = LocalInheritedShowStatusBar.current
                     }
-                    ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {
-                        inheritScreenShow = LocalInheritedShowStatusBar.current
-                    }
+                    ScreenScaffold { inheritScreenShow = LocalInheritedShowStatusBar.current }
                 }
             }
         }
 
         rule.runOnIdle {
-            assertThat(enabledScreenShow).isFalse()
             assertThat(disabledScreenShow).isFalse()
             assertThat(inheritScreenShow).isFalse()
         }
@@ -1369,10 +1335,10 @@ class ScaffoldTest {
 
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
                     CompositionLocalProvider(LocalScreenIsActive provides screenIsActive) {
-                        ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {}
+                        ScreenScaffold(timeText = { TimeText() }) {}
                     }
                 }
             }
