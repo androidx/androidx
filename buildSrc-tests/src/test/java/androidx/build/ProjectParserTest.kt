@@ -62,6 +62,24 @@ class ProjectParserTest {
     }
 
     @Test
+    fun parseStubsLibrary() {
+        val parsed =
+            ProjectParser.parseProject(
+                """
+                androidx {
+                    name = "Stubs"
+                    type = SoftwareType.STUBS
+                }
+                """
+                    .trimIndent()
+            )
+        assertThat(parsed.softwareType).isEqualTo(SoftwareType.STUBS)
+        assertThat(parsed.specifiesVersion).isFalse()
+        assertThat(parsed.shouldPublish()).isTrue()
+        assertThat(parsed.shouldRelease()).isTrue()
+    }
+
+    @Test
     fun parseIgnoresComments() {
         val parsed =
             ProjectParser.parseProject(

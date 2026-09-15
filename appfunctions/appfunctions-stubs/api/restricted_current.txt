@@ -1,0 +1,77 @@
+// Signature format: 4.0
+package com.android.extensions.appfunctions {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class AppFunctionException extends java.lang.Exception {
+    ctor public AppFunctionException(int, String?);
+    ctor public AppFunctionException(int, String?, android.os.Bundle);
+    method @com.android.extensions.appfunctions.AppFunctionException.ErrorCategory public int getErrorCategory();
+    method @com.android.extensions.appfunctions.AppFunctionException.ErrorCode public int getErrorCode();
+    method public String? getErrorMessage();
+    method public android.os.Bundle getExtras();
+    field public static final int ERROR_APP_UNKNOWN_ERROR = 3000; // 0xbb8
+    field public static final int ERROR_CANCELLED = 2001; // 0x7d1
+    field public static final int ERROR_CATEGORY_APP = 3; // 0x3
+    field public static final int ERROR_CATEGORY_REQUEST_ERROR = 1; // 0x1
+    field public static final int ERROR_CATEGORY_SYSTEM = 2; // 0x2
+    field public static final int ERROR_CATEGORY_UNKNOWN = 0; // 0x0
+    field public static final int ERROR_DENIED = 1000; // 0x3e8
+    field public static final int ERROR_DISABLED = 1002; // 0x3ea
+    field public static final int ERROR_ENTERPRISE_POLICY_DISALLOWED = 2002; // 0x7d2
+    field public static final int ERROR_FUNCTION_NOT_FOUND = 1003; // 0x3eb
+    field public static final int ERROR_INVALID_ARGUMENT = 1001; // 0x3e9
+    field public static final int ERROR_SYSTEM_ERROR = 2000; // 0x7d0
+  }
+
+  @IntDef({com.android.extensions.appfunctions.AppFunctionException.ERROR_CATEGORY_UNKNOWN, com.android.extensions.appfunctions.AppFunctionException.ERROR_CATEGORY_REQUEST_ERROR, com.android.extensions.appfunctions.AppFunctionException.ERROR_CATEGORY_APP, com.android.extensions.appfunctions.AppFunctionException.ERROR_CATEGORY_SYSTEM}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AppFunctionException.ErrorCategory {
+  }
+
+  @IntDef({com.android.extensions.appfunctions.AppFunctionException.ERROR_DENIED, com.android.extensions.appfunctions.AppFunctionException.ERROR_APP_UNKNOWN_ERROR, com.android.extensions.appfunctions.AppFunctionException.ERROR_FUNCTION_NOT_FOUND, com.android.extensions.appfunctions.AppFunctionException.ERROR_SYSTEM_ERROR, com.android.extensions.appfunctions.AppFunctionException.ERROR_INVALID_ARGUMENT, com.android.extensions.appfunctions.AppFunctionException.ERROR_DISABLED, com.android.extensions.appfunctions.AppFunctionException.ERROR_CANCELLED, com.android.extensions.appfunctions.AppFunctionException.ERROR_ENTERPRISE_POLICY_DISALLOWED}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AppFunctionException.ErrorCode {
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class AppFunctionManager {
+    ctor public AppFunctionManager(android.content.Context);
+    method public void executeAppFunction(com.android.extensions.appfunctions.ExecuteAppFunctionRequest, java.util.concurrent.Executor, android.os.CancellationSignal, android.os.OutcomeReceiver<com.android.extensions.appfunctions.ExecuteAppFunctionResponse!,com.android.extensions.appfunctions.AppFunctionException!>);
+    method public void isAppFunctionEnabled(String, String, java.util.concurrent.Executor, android.os.OutcomeReceiver<java.lang.Boolean!,java.lang.Exception!>);
+    method public void isAppFunctionEnabled(String, java.util.concurrent.Executor, android.os.OutcomeReceiver<java.lang.Boolean!,java.lang.Exception!>);
+    method public void setAppFunctionEnabled(String, @com.android.extensions.appfunctions.AppFunctionManager.EnabledState int, java.util.concurrent.Executor, android.os.OutcomeReceiver<java.lang.Void!,java.lang.Exception!>);
+    field public static final int APP_FUNCTION_STATE_DEFAULT = 0; // 0x0
+    field public static final int APP_FUNCTION_STATE_DISABLED = 2; // 0x2
+    field public static final int APP_FUNCTION_STATE_ENABLED = 1; // 0x1
+  }
+
+  @IntDef({com.android.extensions.appfunctions.AppFunctionManager.APP_FUNCTION_STATE_DEFAULT, com.android.extensions.appfunctions.AppFunctionManager.APP_FUNCTION_STATE_ENABLED, com.android.extensions.appfunctions.AppFunctionManager.APP_FUNCTION_STATE_DISABLED}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AppFunctionManager.EnabledState {
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class AppFunctionService extends android.app.Service {
+    ctor public AppFunctionService();
+    method public final android.os.IBinder onBind(android.content.Intent?);
+    method @MainThread public abstract void onExecuteFunction(com.android.extensions.appfunctions.ExecuteAppFunctionRequest, String, android.os.CancellationSignal, android.os.OutcomeReceiver<com.android.extensions.appfunctions.ExecuteAppFunctionResponse!,com.android.extensions.appfunctions.AppFunctionException!>);
+    field public static final String BIND_APP_FUNCTION_SERVICE = "android.permission.BIND_APP_FUNCTION_SERVICE";
+    field public static final String SERVICE_INTERFACE = "android.app.appfunctions.AppFunctionService";
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ExecuteAppFunctionRequest {
+    ctor public ExecuteAppFunctionRequest();
+    method public android.os.Bundle getExtras();
+    method public String getFunctionIdentifier();
+    method public android.app.appsearch.GenericDocument getParameters();
+    method public String getTargetPackageName();
+  }
+
+  public static final class ExecuteAppFunctionRequest.Builder {
+    ctor public ExecuteAppFunctionRequest.Builder(String, String);
+    method public com.android.extensions.appfunctions.ExecuteAppFunctionRequest build();
+    method public com.android.extensions.appfunctions.ExecuteAppFunctionRequest.Builder setExtras(android.os.Bundle);
+    method public com.android.extensions.appfunctions.ExecuteAppFunctionRequest.Builder setParameters(android.app.appsearch.GenericDocument);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ExecuteAppFunctionResponse {
+    ctor public ExecuteAppFunctionResponse(android.app.appsearch.GenericDocument);
+    ctor public ExecuteAppFunctionResponse(android.app.appsearch.GenericDocument, android.os.Bundle);
+    method public android.os.Bundle getExtras();
+    method public android.app.appsearch.GenericDocument getResultDocument();
+    field public static final String PROPERTY_RETURN_VALUE = "androidAppfunctionsReturnValue";
+  }
+
+}
+
