@@ -48,6 +48,8 @@ internal class FrameBufferImpl(
 
     private val lock = Any()
 
+    @GuardedBy("lock") private var _capacity: Int = capacity
+
     @GuardedBy("lock") private var frameQueue: ArrayDeque<BufferEntry> = ArrayDeque(capacity)
 
     @GuardedBy("lock") private var closed = false
@@ -67,7 +69,8 @@ internal class FrameBufferImpl(
     private val _size = MutableStateFlow(0)
     override val size: StateFlow<Int> = _size.asStateFlow()
 
-    override var capacity: Int = capacity
+    override var capacity: Int
+        get() = synchronized(lock) { _capacity }
         set(newCapacity) {
             require(newCapacity >= 0) { "Capacity cannot be negative" }
 
@@ -77,11 +80,11 @@ internal class FrameBufferImpl(
                     return
                 }
 
-                val previousCapacity = field
+                val previousCapacity = _capacity
 
                 if (newCapacity == previousCapacity) return
 
-                field = newCapacity
+                _capacity = newCapacity
 
                 val currentSize = frameQueue.size
                 if (newCapacity < currentSize) {
@@ -128,7 +131,7 @@ internal class FrameBufferImpl(
                     frameToClose = entryToAdd.frame
                 }
             } else {
-                if (frameQueue.size == capacity) {
+                if (frameQueue.size == _capacity) {
                     val evictedItem = frameQueue.removeFirst()
                     if (evictedItem is BufferEntry.WithFrame) {
                         frameToClose = evictedItem.frame

@@ -30,7 +30,7 @@ public interface FrameGraph : CameraGraphBase<FrameGraph.Session>, CameraControl
     ) {
         init {
             val cameraGraphCount = cameraGraphConfigs.graphConfigs.size
-            val frameGraphCount = cameraGraphConfigs.graphConfigs.size
+            val frameGraphCount = frameGraphConfigs.size
 
             require(frameGraphCount == cameraGraphCount) {
                 "Invalid FrameGraph.ConcurrentConfig! Expected $cameraGraphCount configs, but " +
