@@ -18,7 +18,7 @@ package com.testdata
 
 import androidx.appfunctions.ExtensionsAppFunctionService
 import androidx.appfunctions.AppFunctionServiceEntryPoint
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 
 @AppFunctionServiceEntryPoint("MyExtensionService", "my_extension_service")
 abstract class ExtensionEntryPoint: ExtensionsAppFunctionService() {
@@ -29,7 +29,7 @@ abstract class ExtensionEntryPoint: ExtensionsAppFunctionService() {
      * @param string String param.
      * @return Result.
      */
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     internal fun simpleFunction(int: Int, string: String): String {
         TODO("Not implemented")
     }

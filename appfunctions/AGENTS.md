@@ -4,7 +4,7 @@
 AppFunctions allow Android apps to share pieces of functionality that the system and various AI agents can discover and invoke.
 This Jetpack library has two types of users: callers and target apps that implement AppFunctions.
 For callers, this library provides backward-compatible APIs to discover and invoke AppFunctions.
-For target apps, this library simplifies implementation using KSP code generation. Developers write functions and annotate them with `@AppFunction`, and an `AppFunctionService` implementation will be generated.
+For target apps, this library simplifies implementation using KSP code generation. Developers write functions and annotate them with `@AppFunctionDeclaration`, and an `AppFunctionService` implementation will be generated.
 
 ## General Instructions
 

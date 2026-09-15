@@ -1,16 +1,16 @@
 package com.testdata
 
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 
 class NestedDerivedSerializableInputFunctions {
-    @AppFunction
+    @AppFunctionDeclaration
     fun functionWithDerivedSerializable(
         appFunctionContext: AppFunctionContext,
         serializable: NestedDerivedSerializable
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun functionWithDerivedSerializableList(
         appFunctionContext: AppFunctionContext,
         serializable: List<NestedDerivedSerializable>,

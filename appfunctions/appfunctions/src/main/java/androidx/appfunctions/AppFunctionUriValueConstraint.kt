@@ -21,8 +21,9 @@ package androidx.appfunctions
  * properties in app functions.
  *
  * This annotation can be applied to:
- * - parameters of an `@AppFunction` (of type [android.net.Uri]),
- * - functions annotated with `@AppFunction` (for the return value of type [android.net.Uri]),
+ * - parameters of an `@AppFunctionDeclaration` (of type [android.net.Uri]),
+ * - functions annotated with `@AppFunctionDeclaration` (for the return value of type
+ *   [android.net.Uri]),
  * - or properties within an `@AppFunctionSerializable` (of type [android.net.Uri]).
  *
  * At compile time, the compiler translates this constraint into an
@@ -35,7 +36,7 @@ package androidx.appfunctions
  * ### Usage Example:
  * ```
  * // Constraining a parameter:
- * @AppFunction
+ * @AppFunctionDeclaration
  * fun updateWallpaper(
  *     @AppFunctionUriValueConstraint(allowedSchemes = ["content"])
  *     wallpaperUri: Uri
@@ -44,7 +45,7 @@ package androidx.appfunctions
  * }
  *
  * // Constraining a function return value:
- * @AppFunction
+ * @AppFunctionDeclaration
  * @AppFunctionUriValueConstraint(allowedSchemes = ["content"])
  * fun getProfilePictureUri(): Uri {
  *     // Function body

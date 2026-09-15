@@ -1,40 +1,40 @@
 package com.testdata
 
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 
 class DerivedSerializableInputFunctions {
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionWithDerivedSerializable(
         appFunctionContext: AppFunctionContext,
         serializable: DerivedSerializable
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionWithDerivedSerializableList(
         appFunctionContext: AppFunctionContext,
         serializable: List<DerivedSerializable>,
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionWithNullableDerivedSerializableList(
         appFunctionContext: AppFunctionContext,
         serializable: List<DerivedSerializable>?,
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionWithNullableDerivedSerializable(
         appFunctionContext: AppFunctionContext,
         serializable: DerivedSerializable?,
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionWithDerivedSerializableListItemNullable(
         appFunctionContext: AppFunctionContext,
         serializable: List<DerivedSerializable?>,
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionWithBothDerivedSerializableListAndListItemNullable(
         appFunctionContext: AppFunctionContext,
         serializable: List<DerivedSerializable?>?,

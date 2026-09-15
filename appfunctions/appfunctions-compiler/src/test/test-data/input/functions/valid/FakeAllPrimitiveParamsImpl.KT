@@ -1,10 +1,10 @@
 package com.testdata
 
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 
 class FakeAllPrimitiveParamsImpl : FakeAllPrimitiveParams {
-    @AppFunction
+    @AppFunctionDeclaration
     override fun allPrimitiveParams(
         appFunctionContext: AppFunctionContext,
         arg1: Int,
@@ -17,7 +17,7 @@ class FakeAllPrimitiveParamsImpl : FakeAllPrimitiveParams {
 }
 
 class FakeAllPrimitiveArrayParamsImpl : FakeAllPrimitiveArrayParams {
-    @AppFunction
+    @AppFunctionDeclaration
     override fun allPrimitiveArrayParams(
         appFunctionContext: AppFunctionContext,
         arg1: IntArray,

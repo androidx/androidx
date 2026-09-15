@@ -19,10 +19,10 @@ package com.testdata
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionIntValueConstraint
 import androidx.appfunctions.AppFunctionSerializable
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 
 class IntEnumValueFunctions {
-    @AppFunction
+    @AppFunctionDeclaration
     fun intEnumParamFunction(
         ctx: AppFunctionContext,
         @AppFunctionIntValueConstraint(enumValues = [0, 1])
@@ -30,13 +30,13 @@ class IntEnumValueFunctions {
     ) {
     }
 
-    @AppFunction
+    @AppFunctionDeclaration
     @AppFunctionIntValueConstraint(enumValues = [0, 1])
     fun intEnumReturnFunction(
         ctx: AppFunctionContext,
     ): Int = 0
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun intEnumSerializableFunction(
         ctx: AppFunctionContext,
         intEnumPropSerializable: IntEnumPropSerializable

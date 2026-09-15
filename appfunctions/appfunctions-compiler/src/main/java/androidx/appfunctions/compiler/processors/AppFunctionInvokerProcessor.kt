@@ -59,7 +59,7 @@ import com.squareup.kotlinpoet.buildCodeBlock
  * under the same package. For example,
  * ```
  * class NoteFunction: CreateNote {
- *   @AppFunction
+ *   @AppFunctionDeclaration
  *   override suspend fun createNote(): Note { ... }
  * }
  * ```

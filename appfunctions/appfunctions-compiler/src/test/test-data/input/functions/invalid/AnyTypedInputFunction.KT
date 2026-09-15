@@ -1,9 +1,9 @@
 package com.testdata
 
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 
 class AnyTypedInputFunction {
-    @AppFunction
+    @AppFunctionDeclaration
     fun badFunctionInput(appFunctionContext: AppFunctionContext, badParam: Any) {}
 }

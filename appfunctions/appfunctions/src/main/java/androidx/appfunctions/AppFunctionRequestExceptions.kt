@@ -56,8 +56,8 @@ internal constructor(errorMessage: String? = null, extras: Bundle) :
 /**
  * Thrown when the caller tried to execute a disabled app function. An app function can be enabled
  * at runtime through the AppFunctionManager or by setting
- * [androidx.appfunctions.AppFunction.isEnabled] to true in the [androidx.appfunctions.AppFunction]
- * annotation.
+ * [androidx.appfunctions.AppFunctionDeclaration.isEnabled] to true in the
+ * [androidx.appfunctions.AppFunctionDeclaration] annotation.
  */
 public class AppFunctionDisabledException
 internal constructor(errorMessage: String? = null, extras: Bundle) :

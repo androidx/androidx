@@ -74,7 +74,7 @@ import com.squareup.kotlinpoet.buildCodeBlock
  * ```
  * @AppFunctionServiceEntryPoint(serviceName = "MyService")
  * abstract class MyBaseService : AppFunctionService() {
- *   @AppFunction
+ *   @AppFunctionDeclaration
  *   suspend fun doSomething() { ... }
  * }
  * ```
@@ -85,7 +85,7 @@ import com.squareup.kotlinpoet.buildCodeBlock
  *   override suspend fun onExecuteFunction(
  *     request: ExecuteAppFunctionRequest
  *   ): ExecuteAppFunctionResponse {
- *     // Routes the request to the corresponding method annotated with @AppFunction
+ *     // Routes the request to the corresponding method annotated with @AppFunctionDeclaration
  *     ...
  *   }
  * }

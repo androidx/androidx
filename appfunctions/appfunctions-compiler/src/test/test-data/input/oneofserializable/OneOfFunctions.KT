@@ -18,11 +18,11 @@ package com.testdata.oneofserializable
 
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 
 class OneOfFunctions {
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun oneOfSealedParam(
         appFunctionContext: AppFunctionContext,
         oneOfSealedInterface: OneOfSealedInterface,
@@ -30,21 +30,21 @@ class OneOfFunctions {
         oneOfSealedInterfaceList: List<OneOfSealedInterface>,
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun oneOfSealedReturn(appFunctionContext: AppFunctionContext): OneOfSealedClass =
         OneOfSealedClass.ASubclass("", "")
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun oneOfSealedListReturn(appFunctionContext: AppFunctionContext): List<OneOfSealedClass> =
         emptyList()
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun oneOfSealedNestedSerializable(
         appFunctionContext: AppFunctionContext,
         oneOfSealedNestedSerializable: OneOfSealedNestedSerializable,
     ) = OneOfSealedNestedSerializable(BSubclass("", 0))
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun oneOfNonSealedOneOfSerializableParam(
         appFunctionContext: AppFunctionContext,
         nonSealedOneOfSerializable: NonSealedOneOfSerializable,

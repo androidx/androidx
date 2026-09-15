@@ -41,7 +41,7 @@ import com.squareup.kotlinpoet.buildCodeBlock
 /**
  * Generates implementations for the AppFunctionInventory interface.
  *
- * It resolves all functions in a class annotated with `@AppFunction`, and generates the
+ * It resolves all functions in a class annotated with `@AppFunctionDeclaration`, and generates the
  * corresponding metadata for those functions.
  *
  * **Important:** [androidx.appfunctions.compiler.processors.AppFunctionInventoryProcessor] will
