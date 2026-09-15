@@ -185,7 +185,7 @@ internal open class SpatialElement {
     /** Detaches all of its children and clears the [children] list. */
     @CallSuper
     public open fun removeChildren() {
-        _children.forEach { it.parent = null }
+        _children.fastForEach { it.parent = null }
         _children.clear()
     }
 
