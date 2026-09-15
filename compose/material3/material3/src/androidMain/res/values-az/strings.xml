@@ -28,8 +28,8 @@
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"Təkliflər aşağıdadır"</string>
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"Tarix seçin"</string>
     <string name="m3c_date_picker_headline" msgid="7605002211875882969">"Seçilmiş tarix"</string>
-    <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"İl seçiminə keçin"</string>
-    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"İl seçmək üçün sürüşdürün. Gün seçiminə qayıtmaq üçün toxunun"</string>
+    <string name="m3c_date_picker_switch_to_year_selection" msgid="1627411828238538995">"İli dəyişmək üçün aktivləşdirin"</string>
+    <string name="m3c_date_picker_switch_to_day_selection" msgid="6328798869762130418">"Ay və tarixi dəyişmək üçün aktivləşdirin"</string>
     <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"Növbəti aya dəyişin"</string>
     <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"Əvvəlki aya dəyişin"</string>
     <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"Bu ilə keçin: %1$s"</string>

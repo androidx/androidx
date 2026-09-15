@@ -28,8 +28,8 @@
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"ការណែនាំខាងក្រោម"</string>
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"ជ្រើសរើស​កាលបរិច្ឆេទ"</string>
     <string name="m3c_date_picker_headline" msgid="7605002211875882969">"កាលបរិច្ឆេទដែលបាន​ជ្រើសរើស"</string>
-    <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"ប្ដូរទៅ​ការជ្រើសរើសឆ្នាំ"</string>
-    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"អូសដើម្បីជ្រើសរើសឆ្នាំ ឬចុចដើម្បីប្ដូរត្រឡប់ទៅការជ្រើសរើសថ្ងៃវិញ"</string>
+    <string name="m3c_date_picker_switch_to_year_selection" msgid="1627411828238538995">"បើកដំណើរការ ដើម្បីប្ដូរឆ្នាំ"</string>
+    <string name="m3c_date_picker_switch_to_day_selection" msgid="6328798869762130418">"បើកដំណើរការ ដើម្បីប្ដូរខែ និងកាលបរិច្ឆេទ"</string>
     <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"ប្ដូរ​ទៅ​ខែបន្ទាប់"</string>
     <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"ប្ដូរ​ទៅ​ខែមុន"</string>
     <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"រុករកទៅកាន់ឆ្នាំ %1$s"</string>

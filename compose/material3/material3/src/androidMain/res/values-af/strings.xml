@@ -28,8 +28,8 @@
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"Voorstelle hieronder"</string>
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"Kies datum"</string>
     <string name="m3c_date_picker_headline" msgid="7605002211875882969">"Gekose datum"</string>
-    <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"Skakel oor na kies van ’n jaar"</string>
-    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"Swiep om ’n jaar te kies of tik om terug te skakel om ’n dag te kies"</string>
+    <string name="m3c_date_picker_switch_to_year_selection" msgid="1627411828238538995">"Aktiveer om die jaar te verander"</string>
+    <string name="m3c_date_picker_switch_to_day_selection" msgid="6328798869762130418">"Aktiveer om maand en datum te verander"</string>
     <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"Verander na volgende maand"</string>
     <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"Verander na vorige maand"</string>
     <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"Gaan na jaar %1$s"</string>

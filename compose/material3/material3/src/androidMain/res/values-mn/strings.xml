@@ -28,8 +28,10 @@
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"Доорх зөвлөмжүүд"</string>
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"Огноо сонгох"</string>
     <string name="m3c_date_picker_headline" msgid="7605002211875882969">"Сонгосон огноо"</string>
-    <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"Он сонгох руу сэлгэх"</string>
-    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"Он сонгохын тулд шудрах эсвэл өдөр сонгох руу буцааж сэлгэхийн тулд товшино уу"</string>
+    <!-- no translation found for m3c_date_picker_switch_to_year_selection (1627411828238538995) -->
+    <skip />
+    <!-- no translation found for m3c_date_picker_switch_to_day_selection (6328798869762130418) -->
+    <skip />
     <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"Дараагийн сар луу өөрчлөх"</string>
     <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"Өмнөх сар луу өөрчлөх"</string>
     <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"%1$s он руу шилжих"</string>

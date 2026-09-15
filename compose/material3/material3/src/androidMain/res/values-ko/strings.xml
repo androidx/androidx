@@ -28,8 +28,8 @@
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"아래의 추천 검색어"</string>
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"날짜 선택"</string>
     <string name="m3c_date_picker_headline" msgid="7605002211875882969">"선택한 날짜"</string>
-    <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"연도 선택으로 전환"</string>
-    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"스와이프하여 연도를 선택하거나 탭하여 날짜 선택으로 돌아가세요."</string>
+    <string name="m3c_date_picker_switch_to_year_selection" msgid="1627411828238538995">"활성화하여 연도 변경"</string>
+    <string name="m3c_date_picker_switch_to_day_selection" msgid="6328798869762130418">"활성화하여 월 및 일자 변경"</string>
     <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"다음 달로 변경"</string>
     <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"이전 달로 변경"</string>
     <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"%1$s년으로 이동"</string>

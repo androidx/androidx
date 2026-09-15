@@ -28,8 +28,8 @@
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"Sugestii mai jos"</string>
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"Selectează data"</string>
     <string name="m3c_date_picker_headline" msgid="7605002211875882969">"Data selectată"</string>
-    <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"Comută la selectarea anului"</string>
-    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"Glisează pentru a selecta un an sau atinge pentru a reveni la selectarea zilei"</string>
+    <string name="m3c_date_picker_switch_to_year_selection" msgid="1627411828238538995">"Activează ca să schimbi anul"</string>
+    <string name="m3c_date_picker_switch_to_day_selection" msgid="6328798869762130418">"Activează ca să schimbi luna și ziua"</string>
     <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"Treci la luna următoare"</string>
     <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"Treci la luna anterioară"</string>
     <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"Navighează la anul %1$s"</string>
