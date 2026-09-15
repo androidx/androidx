@@ -1205,6 +1205,126 @@ class ScaffoldTest {
     }
 
     @Test
+    fun pagerScaffold_registersWithScreenContent_statusBarAndScrollInfo() {
+        var scaffoldState: ScaffoldState? = null
+
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    val pagerState = rememberPagerState { 2 }
+                    HorizontalPagerScaffold(pagerState = pagerState) { Box {} }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(scaffoldState?.screenContent?.currentScrollInfoProvider?.value).isNotNull()
+            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isTrue()
+        }
+    }
+
+    @Test
+    fun pagerScaffold_childScreenScaffold_layersStatusBarOnTopOfPager() {
+        var scaffoldState: ScaffoldState? = null
+
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    val pagerState = rememberPagerState { 1 }
+                    HorizontalPagerScaffold(pagerState = pagerState) {
+                        ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {}
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isFalse()
+        }
+    }
+
+    @Test
+    fun pagerScaffold_whenAppStatusBarDisabled_registersDisabledWithScreenContent() {
+        var scaffoldState: ScaffoldState? = null
+
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = false) {
+                    scaffoldState = LocalScaffoldState.current
+                    val pagerState = rememberPagerState { 1 }
+                    HorizontalPagerScaffold(pagerState = pagerState) { Box {} }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isFalse()
+        }
+    }
+
+    @Test
+    fun verticalPagerScaffold_registersWithScreenContent_statusBarAndScrollInfo() {
+        var scaffoldState: ScaffoldState? = null
+
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    val pagerState = rememberPagerState { 2 }
+                    VerticalPagerScaffold(pagerState = pagerState) { Box {} }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(scaffoldState?.screenContent?.currentScrollInfoProvider?.value).isNotNull()
+            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isTrue()
+        }
+    }
+
+    @Test
+    fun verticalPagerScaffold_childScreenScaffold_layersStatusBarOnTopOfPager() {
+        var scaffoldState: ScaffoldState? = null
+
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    val pagerState = rememberPagerState { 1 }
+                    VerticalPagerScaffold(pagerState = pagerState) {
+                        ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {}
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isFalse()
+        }
+    }
+
+    @Test
+    fun verticalPagerScaffold_whenAppStatusBarDisabled_registersDisabledWithScreenContent() {
+        var scaffoldState: ScaffoldState? = null
+
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = false) {
+                    scaffoldState = LocalScaffoldState.current
+                    val pagerState = rememberPagerState { 1 }
+                    VerticalPagerScaffold(pagerState = pagerState) { Box {} }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isFalse()
+        }
+    }
+
+    @Test
     fun localInheritedShowStatusBar_defaultIsFalse() {
         var inheritedShow: Boolean? = null
 
@@ -1362,6 +1482,28 @@ class ScaffoldTest {
 
         rule.runOnIdle {
             assertThat(scaffoldState?.screenContent?.currentScrollInfoProvider?.value).isNull()
+        }
+    }
+
+    @Test
+    fun screenStack_statusBarSuppression_doesNotAffectScrollInfoProvider() {
+        var scaffoldState: ScaffoldState? = null
+        var stateProvider: ScrollInfoProvider? = null
+
+        rule.setContentWithTheme {
+            AppScaffold {
+                scaffoldState = LocalScaffoldState.current
+                val state = rememberScalingLazyListState()
+                stateProvider = remember(state) { ScrollInfoProvider(state) }
+
+                ScreenScaffold(scrollInfoProvider = stateProvider) { StatusBarSuppression() }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(scaffoldState?.screenContent?.currentScrollInfoProvider?.value)
+                .isEqualTo(stateProvider)
+            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isFalse()
         }
     }
 }
