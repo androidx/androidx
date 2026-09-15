@@ -566,7 +566,7 @@ internal abstract class DragGestureNode(
         if (!ComposeFoundationFlags.isDragNodeOffsetDoubleCountingFixEnabled) {
             nodeOffset = Offset.Zero
         } else {
-            rootOffset = Offset.Zero
+            resetRootOffset()
         }
 
         resetGestureNodes()
@@ -713,13 +713,50 @@ internal abstract class DragGestureNode(
             trackers = LongSparseArray()
             velocityTrackerMulti = trackers
         }
+        if (trackers.isEmpty()) {
+            // No pointer is being tracked yet, so this is the start of a new gesture and the
+            // offset accumulated during the previous one is no longer relevant.
+            resetRootOffset()
+        }
         pointerEvent.changes.fastForEach {
             if (trackers[it.id.value] == null) {
                 trackers.append(it.id.value, VelocityTracker())
             }
         }
 
-        pointerEvent.changes.fastForEach { trackers[it.id.value]!!.addPointerInputChange(it) }
+        if (ComposeFoundationFlags.isDragNodeOffsetDoubleCountingFixEnabled) {
+            updateRootOffset()
+        }
+        pointerEvent.changes.fastForEach {
+            trackers[it.id.value]!!.addPointerInputChange(it, rootOffset)
+        }
+    }
+
+    /**
+     * Accumulates into [rootOffset] how much the root moved on screen since the previous pointer
+     * event.
+     *
+     * Positions of a [PointerInputChange] are expressed relative to the root, so whenever the root
+     * itself moves on screen (e.g. the hosting `View` is translated), a pointer that physically
+     * stayed in place reports a different position. Adding [rootOffset] to those positions cancels
+     * out that movement, keeping the data fed to the velocity trackers in a stable coordinate
+     * space.
+     */
+    private fun updateRootOffset() {
+        val currentRootPositionOnScreen =
+            requireLayoutCoordinates().findRootCoordinates().positionOnScreen()
+        if (
+            previousRootPositionOnScreen != Offset.Unspecified &&
+                currentRootPositionOnScreen != previousRootPositionOnScreen
+        ) {
+            rootOffset += currentRootPositionOnScreen - previousRootPositionOnScreen
+        }
+        previousRootPositionOnScreen = currentRootPositionOnScreen
+    }
+
+    private fun resetRootOffset() {
+        rootOffset = Offset.Zero
+        previousRootPositionOnScreen = Offset.Unspecified
     }
 
     private fun postProcessVelocity(pointerEvent: PointerEvent) {
@@ -1204,8 +1241,11 @@ internal abstract class DragGestureNode(
             // or in this case the event that triggered the touch slop minus
             // the post slop offset
             nodeOffset = Offset.Zero // restart node offset
-        } else {
-            rootOffset = Offset.Zero
+        } else if (!ComposeFoundationFlags.isDraggableVelocityTrackerFixEnabled) {
+            // Otherwise the root offset is tracked for the whole gesture, starting at the initial
+            // down, so resetting it here would discard the movement observed before touch slop
+            // was crossed.
+            resetRootOffset()
         }
         if (canDrag(down.type)) {
             if (!isListeningForEvents) {
@@ -1216,7 +1256,7 @@ internal abstract class DragGestureNode(
             }
             if (!ComposeFoundationFlags.isDragNodeOffsetDoubleCountingFixEnabled) {
                 previousPositionOnScreen = requireLayoutCoordinates().positionOnScreen()
-            } else {
+            } else if (!ComposeFoundationFlags.isDraggableVelocityTrackerFixEnabled) {
                 previousRootPositionOnScreen =
                     requireLayoutCoordinates().findRootCoordinates().positionOnScreen()
             }
@@ -1240,16 +1280,7 @@ internal abstract class DragGestureNode(
                 previousPositionOnScreen = currentPositionOnScreen
                 requireVelocityTracker().addPointerInputChange(event = change, offset = nodeOffset)
             } else {
-                val currentRootPositionOnScreen =
-                    requireLayoutCoordinates().findRootCoordinates().positionOnScreen()
-                if (
-                    previousRootPositionOnScreen != Offset.Unspecified &&
-                        currentRootPositionOnScreen != previousRootPositionOnScreen
-                ) {
-                    val delta = currentRootPositionOnScreen - previousRootPositionOnScreen
-                    rootOffset += delta
-                }
-                previousRootPositionOnScreen = currentRootPositionOnScreen
+                updateRootOffset()
                 requireVelocityTracker().addPointerInputChange(change, rootOffset)
             }
         }
