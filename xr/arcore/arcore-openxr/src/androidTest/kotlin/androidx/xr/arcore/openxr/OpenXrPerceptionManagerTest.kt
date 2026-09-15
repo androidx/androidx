@@ -25,24 +25,32 @@ import androidx.test.filters.SdkSuppress
 import androidx.xr.arcore.runtime.AnchorInvalidUuidException
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
 import androidx.xr.arcore.runtime.HandJointType
+import androidx.xr.arcore.runtime.SpatialAnnotationId
+import androidx.xr.arcore.runtime.SpatialAnnotationImageFormat
+import androidx.xr.arcore.runtime.SpatialAnnotationQuadAlignment
 import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.AugmentedImageDatabase
 import androidx.xr.runtime.AugmentedImageDatabaseEntryMode
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.ExperimentalSpatialAnnotationsApi
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.QrCodeTrackingMode
 import androidx.xr.runtime.math.FieldOfView
+import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quad
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Ray
+import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 import java.util.UUID
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Before
@@ -53,6 +61,7 @@ import org.junit.runner.RunWith
 
 // TODO - b/382119583: Remove the @SdkSuppress annotation once "androidx.xr.arcore.openxr.test"
 // supports a lower SDK version.
+@OptIn(ExperimentalSpatialAnnotationsApi::class)
 @SdkSuppress(minSdkVersion = 29)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -507,6 +516,175 @@ class OpenXrPerceptionManagerTest {
         assertThat(underTest.xrResources.trackablesMap).isEmpty()
         assertThat(underTest.xrResources.updatables).isEmpty()
     }
+
+    @Ignore(
+        "Requires updated libandroidx.xr.arcore.openxr.test.so prebuilt with spatial annotation stub support"
+    )
+    @Test
+    fun startSpatialAnnotationTracking_singleQuad_invokesNativeMethod() =
+        initOpenXrRuntimeAndRunTest {
+            val id = SpatialAnnotationId.fromString("test_annotation")
+            val quad =
+                Quad.fromCorners(
+                    upperLeft = Vector2(-1f, 1f),
+                    upperRight = Vector2(1f, 1f),
+                    lowerRight = Vector2(1f, -1f),
+                    lowerLeft = Vector2(-1f, -1f),
+                )
+            val imageBuffer = ByteBuffer.allocateDirect(100)
+
+            runBlocking {
+                underTest.startSpatialAnnotationTracking(
+                    imageBuffer = imageBuffer,
+                    imageSize = IntSize2d(10, 10),
+                    rowStride = 10,
+                    format = SpatialAnnotationImageFormat.GRAYSCALE,
+                    alignment = SpatialAnnotationQuadAlignment.SCREEN,
+                    quads = mapOf(id to quad),
+                    timestampNanos = 1000L,
+                )
+            }
+        }
+
+    @Ignore(
+        "Requires updated libandroidx.xr.arcore.openxr.test.so prebuilt with spatial annotation stub support"
+    )
+    @Test
+    fun startSpatialAnnotationTracking_multipleQuads_invokesNativeMethod() =
+        initOpenXrRuntimeAndRunTest {
+            val id1 = SpatialAnnotationId.fromString("annotation_1")
+            val id2 = SpatialAnnotationId.fromString("annotation_2")
+            val quad1 =
+                Quad.fromCorners(
+                    upperLeft = Vector2(-1f, 1f),
+                    upperRight = Vector2(1f, 1f),
+                    lowerRight = Vector2(1f, -1f),
+                    lowerLeft = Vector2(-1f, -1f),
+                )
+            val quad2 =
+                Quad.fromCorners(
+                    upperLeft = Vector2(-2f, 2f),
+                    upperRight = Vector2(2f, 2f),
+                    lowerRight = Vector2(2f, -2f),
+                    lowerLeft = Vector2(-2f, -2f),
+                )
+            val imageBuffer = ByteBuffer.allocateDirect(100)
+
+            runBlocking {
+                underTest.startSpatialAnnotationTracking(
+                    imageBuffer = imageBuffer,
+                    imageSize = IntSize2d(10, 10),
+                    rowStride = 10,
+                    format = SpatialAnnotationImageFormat.RGBA,
+                    alignment = SpatialAnnotationQuadAlignment.OBJECT,
+                    quads = mapOf(id1 to quad1, id2 to quad2),
+                    timestampNanos = 2000L,
+                )
+            }
+
+            assertThat(underTest.xrResources.annotationConfigs).containsKey(id1)
+            assertThat(underTest.xrResources.annotationConfigs).containsKey(id2)
+            assertThat(underTest.xrResources.annotationConfigs[id1]?.alignment)
+                .isEqualTo(SpatialAnnotationQuadAlignment.OBJECT)
+            assertThat(underTest.xrResources.annotationConfigs[id2]?.alignment)
+                .isEqualTo(SpatialAnnotationQuadAlignment.OBJECT)
+        }
+
+    @Test
+    fun stopSpatialAnnotationTracking_removesTrackableAndUpdatable() = initOpenXrRuntimeAndRunTest {
+        val id = SpatialAnnotationId.fromString("test_annotation")
+        val handle = 42L
+        underTest.xrResources.addAnnotationHandle(
+            id,
+            handle,
+            SpatialAnnotationQuadAlignment.SCREEN,
+        )
+        underTest.updateSpatialAnnotations(1000L)
+        val trackable = underTest.xrResources.trackablesMap[handle]
+        checkNotNull(trackable)
+        check(underTest.xrResources.updatables.contains(trackable as Updatable))
+
+        underTest.stopSpatialAnnotationTracking(listOf(id))
+
+        assertThat(underTest.xrResources.annotationConfigs).doesNotContainKey(id)
+        assertThat(underTest.xrResources.trackablesMap).doesNotContainKey(handle)
+        assertThat(underTest.xrResources.updatables).doesNotContain(trackable as Updatable)
+    }
+
+    @Test
+    fun stopSpatialAnnotationTracking_emptyList_stopsAllAnnotations() =
+        initOpenXrRuntimeAndRunTest {
+            val id1 = SpatialAnnotationId.fromString("annotation_1")
+            val id2 = SpatialAnnotationId.fromString("annotation_2")
+            underTest.xrResources.addAnnotationHandle(
+                id1,
+                101L,
+                SpatialAnnotationQuadAlignment.SCREEN,
+            )
+            underTest.xrResources.addAnnotationHandle(
+                id2,
+                102L,
+                SpatialAnnotationQuadAlignment.OBJECT,
+            )
+            underTest.updateSpatialAnnotations(1000L)
+            check(underTest.xrResources.trackablesMap.size == 2)
+            val trackable1 = underTest.xrResources.trackablesMap[101L] as Updatable
+            val trackable2 = underTest.xrResources.trackablesMap[102L] as Updatable
+            check(underTest.xrResources.updatables.contains(trackable1))
+            check(underTest.xrResources.updatables.contains(trackable2))
+
+            underTest.stopSpatialAnnotationTracking(emptyList())
+
+            assertThat(underTest.xrResources.annotationConfigs).isEmpty()
+            assertThat(underTest.xrResources.trackablesMap).isEmpty()
+            assertThat(underTest.xrResources.updatables).doesNotContain(trackable1)
+            assertThat(underTest.xrResources.updatables).doesNotContain(trackable2)
+        }
+
+    @Test
+    fun stopSpatialAnnotationTracking_specificId_removesOnlyTargetAnnotation() =
+        initOpenXrRuntimeAndRunTest {
+            val id1 = SpatialAnnotationId.fromString("annotation_1")
+            val id2 = SpatialAnnotationId.fromString("annotation_2")
+            underTest.xrResources.addAnnotationHandle(
+                id1,
+                101L,
+                SpatialAnnotationQuadAlignment.SCREEN,
+            )
+            underTest.xrResources.addAnnotationHandle(
+                id2,
+                102L,
+                SpatialAnnotationQuadAlignment.OBJECT,
+            )
+            underTest.updateSpatialAnnotations(1000L)
+
+            underTest.stopSpatialAnnotationTracking(listOf(id1))
+
+            assertThat(underTest.xrResources.annotationConfigs).doesNotContainKey(id1)
+            assertThat(underTest.xrResources.annotationConfigs).containsKey(id2)
+            assertThat(underTest.xrResources.trackablesMap).doesNotContainKey(101L)
+            assertThat(underTest.xrResources.trackablesMap).containsKey(102L)
+            val trackable2 = underTest.xrResources.trackablesMap[102L] as Updatable
+            assertThat(underTest.xrResources.updatables).contains(trackable2)
+        }
+
+    @Test
+    fun stopSpatialAnnotationTracking_partiallyKnownIds_removesOnlyKnownId() =
+        initOpenXrRuntimeAndRunTest {
+            val id1 = SpatialAnnotationId.fromString("annotation_1")
+            val unknownId = SpatialAnnotationId.fromString("unknown")
+            underTest.xrResources.addAnnotationHandle(
+                id1,
+                101L,
+                SpatialAnnotationQuadAlignment.SCREEN,
+            )
+            underTest.updateSpatialAnnotations(1000L)
+
+            underTest.stopSpatialAnnotationTracking(listOf(id1, unknownId))
+
+            assertThat(underTest.xrResources.annotationConfigs).doesNotContainKey(id1)
+            assertThat(underTest.xrResources.trackablesMap).doesNotContainKey(101L)
+        }
 
     private fun initOpenXrRuntimeAndRunTest(testBody: () -> Unit) {
         activityRule.scenario.onActivity {
