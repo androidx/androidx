@@ -125,4 +125,84 @@ class TypeAliasTest {
             }
         }
     }
+
+    @Test
+    fun transitiveTypeAlias() {
+        fun produceSource(pkg: String) =
+            Source.kotlin(
+                "$pkg/Foo.kt",
+                """
+                package $pkg
+                interface MyInterface
+                typealias TypeAlias = MyInterface
+                typealias AnotherTypeAlias = TypeAlias
+
+                interface MyGeneric<T>
+                typealias GenericAlias1<T> = MyGeneric<T>
+                typealias GenericAlias2<T> = GenericAlias1<List<T>>
+
+                class Subject {
+                    val prop: AnotherTypeAlias = TODO()
+                    val nullableProp: AnotherTypeAlias? = null
+                    val genericProp: GenericAlias2<String> = TODO()
+                }
+                """
+                    .trimIndent(),
+            )
+        val lib = compileFiles(listOf(produceSource("lib")))
+        runProcessorTest(sources = listOf(produceSource("app")), classpath = lib) { invocation ->
+            listOf("lib", "app").forEach { pkg ->
+                val subject = invocation.processingEnv.requireTypeElement("$pkg.Subject")
+                val myInterface = invocation.processingEnv.requireTypeElement("$pkg.MyInterface")
+                val myGeneric = invocation.processingEnv.requireTypeElement("$pkg.MyGeneric")
+
+                subject.getField("prop").type.let { prop ->
+                    assertThat(prop.nullability).isEqualTo(XNullability.NONNULL)
+                    assertThat(prop.typeElement).isEqualTo(myInterface)
+                    assertThat(prop.asTypeName()).isEqualTo(myInterface.asClassName())
+                }
+
+                subject.getField("nullableProp").type.let { nullableProp ->
+                    assertThat(nullableProp.nullability).isEqualTo(XNullability.NULLABLE)
+                    assertThat(nullableProp.typeElement).isEqualTo(myInterface)
+                    assertThat(nullableProp.asTypeName())
+                        .isEqualTo(myInterface.asClassName().copy(nullable = true))
+                }
+
+                subject.getField("genericProp").type.let { genericProp ->
+                    assertThat(genericProp.nullability).isEqualTo(XNullability.NONNULL)
+                    assertThat(genericProp.typeElement).isEqualTo(myGeneric)
+                    assertThat(genericProp.asTypeName())
+                        .isEqualTo(
+                            myGeneric
+                                .asClassName()
+                                .parametrizedBy(XTypeName.LIST.parametrizedBy(XTypeName.STRING))
+                        )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun recursiveTypeAlias() {
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
+                package foo.bar
+                typealias A = B
+                typealias B = A
+                class Subject {
+                    val prop: A = TODO()
+                }
+                """
+                    .trimIndent(),
+            )
+        runProcessorTest(sources = listOf(src)) { invocation ->
+            val subject = invocation.processingEnv.findTypeElement("foo.bar.Subject")
+            val propType = subject?.getField("prop")?.type
+            assertThat(propType?.isError()).isTrue()
+            invocation.assertCompilationResult { compilationDidFail() }
+        }
+    }
 }
