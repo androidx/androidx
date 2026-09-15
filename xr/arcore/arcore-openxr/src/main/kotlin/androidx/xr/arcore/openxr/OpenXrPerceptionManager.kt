@@ -44,6 +44,9 @@ import androidx.xr.runtime.math.Vector3
 import java.nio.ByteBuffer
 import java.util.Arrays
 import java.util.UUID
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * Implementation of the perception capabilities of a runtime using OpenXR.
@@ -306,7 +309,7 @@ internal class OpenXrPerceptionManager(private val timeSource: OpenXrTimeSource)
         }
     }
 
-    override fun startSpatialAnnotationTracking(
+    override suspend fun startSpatialAnnotationTracking(
         imageBuffer: ByteBuffer,
         imageSize: IntSize2d,
         rowStride: Int,
@@ -314,7 +317,7 @@ internal class OpenXrPerceptionManager(private val timeSource: OpenXrTimeSource)
         alignment: SpatialAnnotationQuadAlignment,
         quads: Map<SpatialAnnotationId, Quad>,
         timestampNanos: Long,
-    ) {
+    ): Unit = suspendCancellableCoroutine { continuation ->
         val keys = quads.keys.toList()
         val quadsExtents =
             quads.values
@@ -329,26 +332,33 @@ internal class OpenXrPerceptionManager(private val timeSource: OpenXrTimeSource)
 
         // TODO(b/559357621): Add RGBA support in the native code.
         // TODO(b/560289000): Prove imageBuffer.isDirect.
-        try {
-            // TODO(b/560289167): Investigate coroutines teardown issue.
-            nativeStartSpatialAnnotationTracking(
-                imageBuffer,
-                imageSize.width,
-                imageSize.height,
-                rowStride,
-                format.value,
-                alignment.value,
-                quadsExtents,
-                timestampNanos,
-            ) { handles ->
+        // TODO(b/560289167): Investigate coroutines teardown issue.
+        nativeStartSpatialAnnotationTracking(
+            imageBuffer,
+            imageSize.width,
+            imageSize.height,
+            rowStride,
+            format.value,
+            alignment.value,
+            quadsExtents,
+            timestampNanos,
+        ) { handles ->
+            if (continuation.isActive) {
                 if (handles?.size == keys.size) {
                     keys.forEachIndexed { index, key ->
                         xrResources.addAnnotationHandle(key, handles[index], alignment)
                     }
+                    continuation.resume(Unit)
+                } else {
+                    continuation.resumeWithException(
+                        IllegalStateException("Failed to start spatial annotation tracking.")
+                    )
+                }
+            } else {
+                if (handles != null && handles.isNotEmpty()) {
+                    nativeStopSpatialAnnotationTracking(handles)
                 }
             }
-        } catch (_: UnsatisfiedLinkError) {
-            // Native method is not linked in JVM host unit tests.
         }
     }
 
@@ -364,11 +374,7 @@ internal class OpenXrPerceptionManager(private val timeSource: OpenXrTimeSource)
             .mapNotNull { xrResources.removeTrackable(it) as? Updatable }
             .forEach(xrResources::removeUpdatable)
         if (handlesToStop.isNotEmpty()) {
-            try {
-                nativeStopSpatialAnnotationTracking(handlesToStop.toLongArray())
-            } catch (_: UnsatisfiedLinkError) {
-                // Native method is not linked in JVM host unit tests.
-            }
+            nativeStopSpatialAnnotationTracking(handlesToStop.toLongArray())
         }
     }
 
@@ -442,7 +448,7 @@ internal class OpenXrPerceptionManager(private val timeSource: OpenXrTimeSource)
     private external fun nativeIsQrCodeSizeEstimationSupported(): Boolean
 
     private external fun nativeStartSpatialAnnotationTracking(
-        imageBuffer: java.nio.ByteBuffer,
+        imageBuffer: ByteBuffer,
         width: Int,
         height: Int,
         rowStride: Int,

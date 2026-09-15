@@ -104,6 +104,8 @@ public interface PerceptionManager {
     /**
      * Starts tracking a [SpatialAnnotation]
      *
+     * Suspends until the underlying perception engine initializes tracking for the annotations.
+     *
      * @param imageBuffer the [ByteBuffer] containing the input image data
      * @param imageSize the [IntSize2d] of the input image
      * @param rowStride the row stride of the input image in bytes
@@ -112,13 +114,14 @@ public interface PerceptionManager {
      * @param quads a map of SpatialAnnotationIds to bounding quads
      * @param timestampNanos the system timestamp of the input image in nanoseconds (typically
      *   provided via [System.nanoTime])
+     * @throws IllegalStateException if tracking cannot be started or is cancelled by the runtime
      * @throws [UnsupportedOperationException] if the current runtime does not support spatial
      *   annotation tracking
      * @throws [IllegalArgumentException] if any of the provided [quads] violate the geometric
      *   constraints of the specified [alignment]
      */
     @OptIn(ExperimentalSpatialAnnotationsApi::class)
-    public fun startSpatialAnnotationTracking(
+    public suspend fun startSpatialAnnotationTracking(
         imageBuffer: ByteBuffer,
         imageSize: IntSize2d,
         rowStride: Int,

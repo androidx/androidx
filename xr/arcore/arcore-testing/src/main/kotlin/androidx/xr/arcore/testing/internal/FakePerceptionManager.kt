@@ -248,7 +248,7 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
     }
 
     @OptIn(ExperimentalSpatialAnnotationsApi::class)
-    override fun startSpatialAnnotationTracking(
+    override suspend fun startSpatialAnnotationTracking(
         imageBuffer: ByteBuffer,
         imageSize: IntSize2d,
         rowStride: Int,
@@ -268,6 +268,8 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
                 )
             )
         }
+
+        FakePerceptionRuntime.allowOneMoreCallToUpdate()
     }
 
     override fun stopSpatialAnnotationTracking(ids: List<SpatialAnnotationId>) {

@@ -102,11 +102,20 @@ internal constructor(internal val runtimeSpatialAnnotation: RuntimeSpatialAnnota
         /**
          * Starts tracking one or more Spatial Annotations in 3D physical space.
          *
+         * The app will not receive tracking updates for these annotations until this method
+         * completes. It is recommended to call this method before calling [subscribe].
+         *
          * @param session the active JXR session
          * @param options configuration generated via [SpatialAnnotationTrackingOptions.Builder]
+         * @throws IllegalStateException if tracking cannot be started or is cancelled by the
+         *   runtime
+         * @throws IllegalArgumentException if the provided options are invalid
          */
         @JvmStatic
-        public fun startTracking(session: Session, options: SpatialAnnotationTrackingOptions) {
+        public suspend fun startTracking(
+            session: Session,
+            options: SpatialAnnotationTrackingOptions,
+        ) {
             val extender = getPerceptionStateExtender(session)
 
             val runtimeFormat =
