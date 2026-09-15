@@ -34,6 +34,7 @@ import androidx.compose.remote.creation.compose.modifier.contentDescription
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.visibility
+import androidx.compose.remote.creation.compose.state.RemoteFloatArray.Companion.createNamedRemoteFloatArray
 import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.rdp
@@ -332,5 +333,24 @@ class RcPlayerStateTest {
         assertThat(customImage).isEqualTo(newBitmap)
         customImage = null
         assertThat(customImage!!.sameAs(initialAndroidBitmap)).isTrue()
+    }
+
+    @Test
+    fun testFloatArrayState() {
+        val document = createDocument {
+            val chartData = createNamedRemoteFloatArray("chartData", floatArrayOf(10f, 20f, 30f))
+            RemoteBox(modifier = RemoteModifier.size(chartData[0].asRemoteDp()))
+        }
+
+        val playerState = RcPlayerState(document)
+        var chartData by playerState.floatArrayState("chartData")
+        assertThat(chartData).isEqualTo(floatArrayOf(10f, 20f, 30f))
+
+        val updated = floatArrayOf(40f, 50f, 60f)
+        chartData = updated
+        assertThat(chartData).isEqualTo(updated)
+
+        playerState.clearOverride("chartData")
+        assertThat(chartData).isEqualTo(floatArrayOf(10f, 20f, 30f))
     }
 }

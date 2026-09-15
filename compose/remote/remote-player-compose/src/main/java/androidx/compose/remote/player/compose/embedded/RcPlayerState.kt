@@ -24,12 +24,15 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.SystemClock
+import androidx.compose.remote.core.operations.DataListFloat
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.creation.compose.capture.CapturedDocument
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.util.fastForEach
@@ -72,6 +75,11 @@ public interface RcPlayerState {
 
     public fun colorState(name: String, prefix: String? = defaultPrefix): MutableState<Color>
 
+    public fun floatArrayState(
+        name: String,
+        prefix: String? = defaultPrefix,
+    ): MutableState<FloatArray>
+
     public fun bitmapState(name: String, prefix: String? = defaultPrefix): MutableState<Bitmap?>
 
     /** Clears any override applied to [name] and restores its authored document default. */
@@ -113,6 +121,23 @@ public fun RcPlayerState(
     return RcPlayerStateImpl(coreDoc, defaultPrefix)
 }
 
+/** Creates and remembers an [RcPlayerState] for the given [document]. */
+@Composable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun rememberRcPlayerState(
+    document: CoreDocument,
+    defaultPrefix: String? = "USER",
+): RcPlayerState = remember(document, defaultPrefix) { RcPlayerState(document, defaultPrefix) }
+
+/** Creates and remembers an [RcPlayerState] for the given [capturedDocument]. */
+@Composable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun rememberRcPlayerState(
+    capturedDocument: CapturedDocument,
+    defaultPrefix: String? = "USER",
+): RcPlayerState =
+    remember(capturedDocument, defaultPrefix) { RcPlayerState(capturedDocument, defaultPrefix) }
+
 internal class RcPlayerStateImpl(
     override val document: CoreDocument,
     override val defaultPrefix: String?,
@@ -142,12 +167,14 @@ internal class RcPlayerStateImpl(
     private val initialColors = mutableMapOf<Int, Int>()
     private val initialStrings = mutableMapOf<Int, String>()
     private val initialBitmaps = mutableMapOf<Int, Bitmap>()
+    private val initialFloatArrays = mutableMapOf<Int, FloatArray>()
 
     private val floatStates = mutableMapOf<String, MutableState<Float>>()
     private val intStates = mutableMapOf<String, MutableState<Int>>()
     private val booleanStates = mutableMapOf<String, MutableState<Boolean>>()
     private val stringStates = mutableMapOf<String, MutableState<String>>()
     private val colorStates = mutableMapOf<String, MutableState<Color>>()
+    private val floatArrayStates = mutableMapOf<String, MutableState<FloatArray>>()
     private val bitmapStates = mutableMapOf<String, MutableState<Bitmap?>>()
 
     init {
@@ -191,6 +218,11 @@ internal class RcPlayerStateImpl(
                     NamedVariable.IMAGE_TYPE -> {
                         resolveBitmap(remoteContext, id)?.let {
                             initialBitmaps[id] = it
+                        }
+                    }
+                    NamedVariable.FLOAT_ARRAY_TYPE -> {
+                        remoteContext.mRemoteComposeState.getFloats(id)?.let {
+                            initialFloatArrays[id] = it
                         }
                     }
                 }
@@ -388,6 +420,37 @@ internal class RcPlayerStateImpl(
             { n, v -> if (v != null) setBitmap(n, v, null) else clearBitmap(n, null) },
         )
 
+    private fun setFloatArray(name: String, value: FloatArray, prefix: String?) {
+        val resolved = resolveName(name, prefix)
+        val id = remoteContext.getVariableIdReflection(resolved)
+        if (id != -1) {
+            remoteContext.mRemoteComposeState.addCollection(id, DataListFloat(id, value))
+            remoteContext.mRemoteComposeState.markVariableDirty(id)
+        }
+    }
+
+    private fun getFloatArray(name: String, prefix: String?): FloatArray =
+        getOrDefault(name, prefix, FloatArray(0)) {
+            remoteContext.mRemoteComposeState.getFloats(it) ?: FloatArray(0)
+        }
+
+    private fun clearFloatArray(name: String, prefix: String?) =
+        restoreInitial(name, prefix) { state, id ->
+            initialFloatArrays[id]?.let {
+                state.addCollection(id, DataListFloat(id, it))
+                state.markVariableDirty(id)
+            }
+        }
+
+    override fun floatArrayState(name: String, prefix: String?): MutableState<FloatArray> =
+        getOrCreateState(
+            floatArrayStates,
+            name,
+            prefix,
+            { getFloatArray(it, null) },
+            { n, v -> setFloatArray(n, v, null) },
+        )
+
     override fun clearOverride(name: String, prefix: String?) {
         clearFloat(name, prefix)
         clearInt(name, prefix)
@@ -395,6 +458,7 @@ internal class RcPlayerStateImpl(
         clearString(name, prefix)
         clearBitmap(name, prefix)
         clearColor(name, prefix)
+        clearFloatArray(name, prefix)
     }
 }
 

@@ -29,9 +29,7 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import androidx.annotation.RestrictTo
 import androidx.collection.IntObjectMap
-import androidx.collection.ObjectIntMap
 import androidx.collection.emptyIntObjectMap
-import androidx.collection.emptyObjectIntMap
 import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.animation.core.Easing as ComposeEasing
 import androidx.compose.animation.core.FastOutLinearInEasing
@@ -111,7 +109,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionOnScreen
@@ -136,12 +133,6 @@ import kotlin.math.abs
  * Re-installing onto an already-initialized document is guarded against below so an accidental
  * reuse doesn't clobber existing state, but the two players would then share one state, which is
  * not supported.
- *
- * Theme colors: the document already carries each named color's authored default (a `ColorConstant`
- * emitted alongside the `NamedVariable`), which is applied at setup. To re-theme from the host —
- * the embedded equivalent of the View player's `setColor(name, value)` — pass [namedColorOverrides]
- * (variable name -> ARGB int); each entry is applied via `setNamedColorOverride` after the
- * document's defaults.
  */
 @OptIn(ExperimentalRemotePlayerApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -151,7 +142,6 @@ import kotlin.math.abs
 public fun RcPlayer(
     state: RcPlayerState,
     modifier: Modifier = Modifier,
-    namedColorOverrides: ObjectIntMap<String> = emptyObjectIntMap(),
     imageLoader: RcImageLoader? = null,
     isShaderValid: (shaderSource: String) -> Boolean = { true },
     onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
@@ -202,9 +192,6 @@ public fun RcPlayer(
                 ctx,
                 CoreDocument.ShaderControl { source -> isShaderValid(source) },
             )
-            namedColorOverrides.forEach { name, color ->
-                state.colorState(name).value = Color(color)
-            }
             ctx
         }
 
@@ -215,12 +202,6 @@ public fun RcPlayer(
             14f * density.fontScale * density.density,
         )
         remoteContext.loadFloat(RemoteContext.ID_DENSITY, density.density)
-    }
-
-    LaunchedEffect(namedColorOverrides) {
-        namedColorOverrides.forEach { name, color ->
-            state.colorState(name).value = Color(color)
-        }
     }
 
     // Time and animations are driven on demand. A static document — no declared animations and no
@@ -415,13 +396,6 @@ public fun RcPlayer(
  * the same `CoreDocument` concurrently — give each its own document (re-`initFromBuffer`).
  * Re-installing onto an already-initialized document is guarded against below so an accidental
  * reuse doesn't clobber existing state, but the two players would then share one state, which is
- * not supported.
- *
- * Theme colors: the document already carries each named color's authored default (a `ColorConstant`
- * emitted alongside the `NamedVariable`), which is applied at setup. To re-theme from the host —
- * the embedded equivalent of the View player's `setColor(name, value)` — pass [namedColorOverrides]
- * (variable name -> ARGB int); each entry is applied via `setNamedColorOverride` after the
- * document's defaults.
  */
 @OptIn(ExperimentalRemotePlayerApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -431,7 +405,6 @@ public fun RcPlayer(
 public fun RcPlayer(
     document: CoreDocument,
     modifier: Modifier = Modifier,
-    namedColorOverrides: ObjectIntMap<String> = emptyObjectIntMap(),
     imageLoader: RcImageLoader? = null,
     isShaderValid: (shaderSource: String) -> Boolean = { true },
     onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
@@ -442,11 +415,10 @@ public fun RcPlayer(
     typefaceResolver: TypefaceResolver? = LocalTypefaceResolver.current,
     theme: Int = Theme.SYSTEM,
 ) {
-    val state = remember(document) { RcPlayerState(document) }
+    val state = rememberRcPlayerState(document)
     RcPlayer(
         state = state,
         modifier = modifier,
-        namedColorOverrides = namedColorOverrides,
         imageLoader = imageLoader,
         isShaderValid = isShaderValid,
         onAction = onAction,
@@ -473,7 +445,6 @@ public fun RcPlayer(
 public fun RcPlayer(
     capturedDocument: CapturedDocument,
     modifier: Modifier = Modifier,
-    namedColorOverrides: ObjectIntMap<String> = emptyObjectIntMap(),
     imageLoader: RcImageLoader? = null,
     isShaderValid: (shaderSource: String) -> Boolean = { true },
     onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
@@ -481,11 +452,10 @@ public fun RcPlayer(
     customPlugins: CustomPluginRegistry? = null,
     theme: Int = Theme.SYSTEM,
 ) {
-    val state = remember(capturedDocument) { RcPlayerState(capturedDocument) }
+    val state = rememberRcPlayerState(capturedDocument)
     RcPlayer(
         state = state,
         modifier = modifier,
-        namedColorOverrides = namedColorOverrides,
         imageLoader = imageLoader,
         isShaderValid = isShaderValid,
         onAction = onAction,
@@ -667,6 +637,7 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
     var hasWakeIn = false
 
     fun visitOp(op: Operation) {
+
         if (
             op is ColorConstant ||
                 op is FloatConstant ||

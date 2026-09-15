@@ -19,6 +19,7 @@
 package androidx.compose.remote.player.compose.embedded
 
 import androidx.compose.remote.core.RemoteComposeState
+import androidx.compose.remote.core.operations.utilities.ArrayAccess
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 
@@ -238,4 +239,58 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
 
     /** Whether a data override should take precedence over the id's authored expression. */
     internal fun isDataOverridden(id: Int): Boolean = overriddenData[id] == true
+
+    // --- Collections ---
+    private val collectionVersions: SnapshotStateMap<Int, Int> = mutableStateMapOf()
+
+    override fun addCollection(
+        id: Int,
+        collection: ArrayAccess,
+    ) {
+        super.addCollection(id, collection)
+        val maskedId = id and 0xFFFFF
+        collectionVersions[maskedId] = (collectionVersions[maskedId] ?: 0) + 1
+    }
+
+    override fun getFloatValue(id: Int, index: Int): Float {
+        val maskedId = id and 0xFFFFF
+        collectionVersions[maskedId]
+        return super.getFloatValue(id, index)
+    }
+
+    override fun getFloats(id: Int): FloatArray? {
+        val maskedId = id and 0xFFFFF
+        collectionVersions[maskedId]
+        return super.getFloats(id)
+    }
+
+    override fun getDynamicFloats(id: Int): FloatArray? {
+        val maskedId = id and 0xFFFFF
+        collectionVersions[maskedId]
+        return super.getDynamicFloats(id)
+    }
+
+    override fun getArray(id: Int): ArrayAccess? {
+        val maskedId = id and 0xFFFFF
+        collectionVersions[maskedId]
+        return super.getArray(id)
+    }
+
+    override fun getListLength(id: Int): Int {
+        val maskedId = id and 0xFFFFF
+        collectionVersions[maskedId]
+        return super.getListLength(id)
+    }
+
+    override fun getId(listId: Int, index: Int): Int {
+        val maskedId = listId and 0xFFFFF
+        collectionVersions[maskedId]
+        return super.getId(listId, index)
+    }
+
+    override fun markVariableDirty(id: Int) {
+        super.markVariableDirty(id)
+        val maskedId = id and 0xFFFFF
+        collectionVersions[maskedId] = (collectionVersions[maskedId] ?: 0) + 1
+    }
 }

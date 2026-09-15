@@ -19,8 +19,6 @@
 package androidx.compose.remote.player.compose.embedded
 
 import androidx.annotation.RestrictTo
-import androidx.collection.ObjectIntMap
-import androidx.collection.emptyObjectIntMap
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
@@ -42,7 +40,6 @@ import androidx.compose.ui.Modifier
 public fun ExperimentalRemoteDocumentPlayer(
     document: RemoteDocument,
     modifier: Modifier = Modifier,
-    namedColorOverrides: ObjectIntMap<String> = emptyObjectIntMap(),
     imageLoader: RcImageLoader? = null,
     isShaderValid: (shaderSource: String) -> Boolean = { true },
     onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
@@ -53,7 +50,6 @@ public fun ExperimentalRemoteDocumentPlayer(
     RcPlayer(
         document = document.document,
         modifier = modifier,
-        namedColorOverrides = namedColorOverrides,
         imageLoader = imageLoader,
         isShaderValid = isShaderValid,
         onAction = onAction,
