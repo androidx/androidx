@@ -28,8 +28,8 @@
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"以下是搜索建议"</string>
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"选择日期"</string>
     <string name="m3c_date_picker_headline" msgid="7605002211875882969">"选定的日期"</string>
-    <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"切换为选择年份"</string>
-    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"滑动可选择年份，点按可切换回选择日期"</string>
+    <string name="m3c_date_picker_switch_to_year_selection" msgid="1627411828238538995">"激活即可更改年份"</string>
+    <string name="m3c_date_picker_switch_to_day_selection" msgid="6328798869762130418">"激活即可更改月份和日期"</string>
     <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"转到下个月"</string>
     <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"转到上个月"</string>
     <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"切换到年份：%1$s"</string>

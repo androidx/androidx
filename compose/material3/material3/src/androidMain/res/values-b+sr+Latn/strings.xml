@@ -28,8 +28,8 @@
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"Predlozi su u nastavku"</string>
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"Izaberite datum"</string>
     <string name="m3c_date_picker_headline" msgid="7605002211875882969">"Izabrani datum"</string>
-    <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"Pređite na izbor godine"</string>
-    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"Prevucite da biste izabrali godinu ili dodirnite da biste se vratili na izbor dana"</string>
+    <string name="m3c_date_picker_switch_to_year_selection" msgid="1627411828238538995">"Aktivirajte da biste promenili godinu"</string>
+    <string name="m3c_date_picker_switch_to_day_selection" msgid="6328798869762130418">"Aktivirajte da biste promenili mesec i datum"</string>
     <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"Pređite na sledeći mesec"</string>
     <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"Pređite na prethodni mesec"</string>
     <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"Idite na godinu: %1$s"</string>

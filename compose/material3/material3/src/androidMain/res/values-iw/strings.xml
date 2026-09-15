@@ -28,8 +28,8 @@
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"הצעות מופיעות למטה"</string>
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"בחירת תאריך"</string>
     <string name="m3c_date_picker_headline" msgid="7605002211875882969">"התאריך הנבחר"</string>
-    <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"החלפה לבחירה של שנה"</string>
-    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"יש להחליק כדי לבחור שנה, או ללחוץ כדי לחזור לבחירת היום"</string>
+    <string name="m3c_date_picker_switch_to_year_selection" msgid="1627411828238538995">"צריך להפעיל כדי לשנות את השנה"</string>
+    <string name="m3c_date_picker_switch_to_day_selection" msgid="6328798869762130418">"צריך להפעיל כדי לשנות את החודש והיום"</string>
     <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"מעבר לחודש הבא"</string>
     <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"מעבר לחודש הקודם"</string>
     <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"‏ניווט לשנת %1$s"</string>
