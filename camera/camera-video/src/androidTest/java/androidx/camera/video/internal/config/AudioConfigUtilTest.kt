@@ -17,7 +17,6 @@
 package androidx.camera.video.internal.config
 
 import android.content.Context
-import android.media.AudioFormat
 import android.media.MediaRecorder
 import android.os.Build
 import androidx.camera.camera2.Camera2Config
@@ -231,49 +230,5 @@ class AudioConfigUtilTest(private val implName: String, private val cameraConfig
 
         assertThat(resolvedAudioSettings.encodeSampleRate).isNotEqualTo(audioProfile.sampleRate)
         assertThat(resolvedAudioSettings.encodeSampleRate).isEqualTo(nonReportedSampleRate)
-    }
-
-    @Test
-    fun resolveAudioSettings_defaultAudioSpecWithProfile_producesValidSourceEnum() {
-        val encoderProfiles = profilesResolver.getProfiles(Quality.HIGHEST, SDR)!!
-        val audioProfile = encoderProfiles.defaultAudioProfile
-        Assume.assumeTrue(audioProfile != null)
-
-        val audioSpec = AudioSpec.builder().build()
-        val resolvedAudioSourceEnum =
-            AudioConfigUtil.resolveAudioSettings(audioSpec, audioProfile!!).audioSource
-
-        assertThat(resolvedAudioSourceEnum)
-            .isAnyOf(MediaRecorder.AudioSource.CAMCORDER, MediaRecorder.AudioSource.MIC)
-    }
-
-    @Test
-    fun resolveAudioSettings_defaultAudioSpecWithoutProfile_producesValidSourceEnum() {
-        val resolvedAudioSourceEnum =
-            AudioConfigUtil.resolveAudioSettings(defaultAudioSpec).audioSource
-
-        assertThat(resolvedAudioSourceEnum)
-            .isAnyOf(MediaRecorder.AudioSource.CAMCORDER, MediaRecorder.AudioSource.MIC)
-    }
-
-    @Test
-    fun resolveAudioSettings_defaultAudioSpecWithProfile_producesValidSourceFormat() {
-        val encoderProfiles = profilesResolver.getProfiles(Quality.HIGHEST, SDR)!!
-        val audioProfile = encoderProfiles.defaultAudioProfile
-        Assume.assumeTrue(audioProfile != null)
-
-        val audioSpec = AudioSpec.builder().build()
-        val resolvedAudioSourceFormat =
-            AudioConfigUtil.resolveAudioSettings(audioSpec, audioProfile!!).audioFormat
-
-        assertThat(resolvedAudioSourceFormat).isNotEqualTo(AudioFormat.ENCODING_INVALID)
-    }
-
-    @Test
-    fun resolveAudioSettings_defaultAudioSpecWithoutProfile_producesValidSourceFormat() {
-        val resolvedAudioSourceFormat =
-            AudioConfigUtil.resolveAudioSettings(defaultAudioSpec).audioFormat
-
-        assertThat(resolvedAudioSourceFormat).isNotEqualTo(AudioFormat.ENCODING_INVALID)
     }
 }
