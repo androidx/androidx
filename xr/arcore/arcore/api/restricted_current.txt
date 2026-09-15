@@ -709,7 +709,7 @@ package androidx.xr.arcore {
     method @InaccessibleFromKotlin public androidx.xr.arcore.SpatialAnnotationId getId();
     method @InaccessibleFromKotlin public androidx.xr.arcore.SpatialAnnotationQuadAlignment? getQuadAlignment();
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.SpatialAnnotation.State> getState();
-    method public static void startTracking(androidx.xr.runtime.Session session, androidx.xr.arcore.SpatialAnnotationTrackingOptions options);
+    method public static suspend Object? startTracking(androidx.xr.runtime.Session session, androidx.xr.arcore.SpatialAnnotationTrackingOptions options, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public static void stopTracking(androidx.xr.runtime.Session session, java.util.List<androidx.xr.arcore.SpatialAnnotationId> ids);
     method public static void stopTrackingAllAnnotations(androidx.xr.runtime.Session session);
     method public static kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.xr.arcore.SpatialAnnotation>> subscribe(androidx.xr.runtime.Session session);
@@ -720,7 +720,7 @@ package androidx.xr.arcore {
   }
 
   @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public static final class SpatialAnnotation.Companion {
-    method public void startTracking(androidx.xr.runtime.Session session, androidx.xr.arcore.SpatialAnnotationTrackingOptions options);
+    method public suspend Object? startTracking(androidx.xr.runtime.Session session, androidx.xr.arcore.SpatialAnnotationTrackingOptions options, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public void stopTracking(androidx.xr.runtime.Session session, java.util.List<androidx.xr.arcore.SpatialAnnotationId> ids);
     method public void stopTrackingAllAnnotations(androidx.xr.runtime.Session session);
     method public kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.xr.arcore.SpatialAnnotation>> subscribe(androidx.xr.runtime.Session session);

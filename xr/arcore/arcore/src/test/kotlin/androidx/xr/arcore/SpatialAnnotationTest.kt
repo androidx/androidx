@@ -347,6 +347,40 @@ class SpatialAnnotationTest {
         }
 
     @Test
+    fun startTracking_addsSpatialAnnotationsToSession() =
+        runTest(testDispatcher) {
+            activityController.resume()
+            val fakeBuffer = ByteBuffer.allocateDirect(400)
+            val id = SpatialAnnotationId.fromString("test_annotation")
+            val quad =
+                Quad.fromCorners(
+                    Vector2(-1f, 1f),
+                    Vector2(1f, 1f),
+                    Vector2(1f, -1f),
+                    Vector2(-1f, -1f),
+                )
+            val options =
+                SpatialAnnotationTrackingOptions.Builder(fakeBuffer, IntSize2d(10, 10), 1000L)
+                    .setRowStride(40)
+                    .setFormat(SpatialAnnotationImageFormat.RGBA)
+                    .setAlignment(SpatialAnnotationQuadAlignment.OBJECT)
+                    .setQuads(mapOf(id to quad))
+                    .build()
+
+            SpatialAnnotation.startTracking(session, options)
+            advanceUntilIdle()
+
+            var underTest = emptyList<SpatialAnnotation>()
+            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                SpatialAnnotation.subscribe(session).collect { underTest = it.toList() }
+            }
+            advanceUntilIdle()
+
+            assertThat(underTest).hasSize(1)
+            assertThat(underTest.single().id).isEqualTo(id)
+        }
+
+    @Test
     fun stopTracking_withEmptyList_throwsIllegalArgumentException() =
         runTest(testDispatcher) {
             assertFailsWith<IllegalArgumentException> {
