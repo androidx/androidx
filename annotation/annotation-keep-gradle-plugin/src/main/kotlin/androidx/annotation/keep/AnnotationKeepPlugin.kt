@@ -16,16 +16,19 @@
 
 package androidx.annotation.keep
 
+import com.android.build.api.artifact.Artifacts
 import com.android.build.api.artifact.ScopedArtifact
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.instrumentation.FramesComputationMode
 import com.android.build.api.instrumentation.InstrumentationScope
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
+import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.ScopedArtifacts
 import com.android.build.api.variant.Variant
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
+import com.android.build.gradle.api.KotlinMultiplatformAndroidPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -45,6 +48,9 @@ class AnnotationKeepPlugin : Plugin<Project> {
                 is AppPlugin -> configureAndroidApplication(project)
                 // Library
                 is LibraryPlugin -> configureAndroidLibrary(project)
+                // Kotlin Multiplatform Android Library
+                is KotlinMultiplatformAndroidPlugin ->
+                    configureKotlinMultiplatformAndroidLibrary(project)
             }
         }
     }
@@ -90,20 +96,36 @@ class AnnotationKeepPlugin : Plugin<Project> {
         val libraryComponents =
             project.extensions.getByType(LibraryAndroidComponentsExtension::class.java)
         libraryComponents.onVariants { variant ->
-            val taskProvider =
-                project.tasks.register(
-                    "${variant.name}KeepRulesTransformAar",
-                    AarModificationTask::class.java,
-                ) { task ->
-                    task.group = "Build"
-                    task.description = "Transforms the ${variant.name} AAR to inject keep rules."
-                }
-
-            variant.artifacts
-                .use(taskProvider)
-                .wiredWithFiles(AarModificationTask::inputAar, AarModificationTask::outputJar)
-                .toTransform(SingleArtifact.AAR)
+            registerTransformAarTask(project, variant.name, variant.artifacts)
         }
+    }
+
+    private fun configureKotlinMultiplatformAndroidLibrary(project: Project) {
+        val kmpComponents =
+            project.extensions.getByType(KotlinMultiplatformAndroidComponentsExtension::class.java)
+        kmpComponents.onVariants { variant ->
+            registerTransformAarTask(project, variant.name, variant.artifacts)
+        }
+    }
+
+    private fun registerTransformAarTask(
+        project: Project,
+        variantName: String,
+        artifacts: Artifacts,
+    ) {
+        val taskProvider =
+            project.tasks.register(
+                "${variantName}KeepRulesTransformAar",
+                AarModificationTask::class.java,
+            ) { task ->
+                task.group = "Build"
+                task.description = "Transforms the $variantName AAR to inject keep rules."
+            }
+
+        artifacts
+            .use(taskProvider)
+            .wiredWithFiles(AarModificationTask::inputAar, AarModificationTask::outputJar)
+            .toTransform(SingleArtifact.AAR)
     }
 
     private fun Variant.instrumentClasses() {
