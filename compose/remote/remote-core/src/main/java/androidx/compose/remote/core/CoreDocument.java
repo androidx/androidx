@@ -115,6 +115,7 @@ public class CoreDocument implements Serializable {
     private static final int DEFAULT_FEATURE_PRIORITY_FIX = 1;
     private static final int DEFAULT_FEATURE_LT_RESIZE = 1;
     private static final int DEFAULT_FEATURE_ARRAY_LISTENERS = 1;
+    private static final int DEFAULT_FEATURE_DISALLOW_INTERCEPT_TOUCH = 1;
     public static final int OPTIMIZATION_NONE = 0;
     public static final int OPTIMIZATION_MEASURE_CACHE = 1;
     public static final int OPTIMIZATION_LAYOUT_BOUNDARIES = 2;
@@ -875,6 +876,9 @@ public class CoreDocument implements Serializable {
         }
         if (featureId == Header.FEATURE_ARRAY_LISTENERS) {
             return useFeature(featureId, DEFAULT_FEATURE_ARRAY_LISTENERS);
+        }
+        if (featureId == Header.FEATURE_DISALLOW_INTERCEPT_TOUCH) {
+            return useFeature(featureId, DEFAULT_FEATURE_DISALLOW_INTERCEPT_TOUCH);
         }
         return useFeature(featureId, 0);
     }

@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.RcPlatformServices;
+import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.Rem;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
@@ -889,6 +890,22 @@ public class RemoteComposeJsonParserTest {
         assertNotNull(debugNames);
         assertTrue(debugNames.contains("=myCount"));
         assertTrue(debugNames.contains("=myScale"));
+    }
+
+    @Test
+    public void testDisallowInterceptTouchInHeader() throws JSONException {
+        String json = "{\n"
+                + "  \"header\": {\n"
+                + "    \"disallowInterceptTouch\": 0\n"
+                + "  },\n"
+                + "  \"root\": {\n"
+                + "    \"type\": \"box\"\n"
+                + "  }\n"
+                + "}";
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        assertEquals(1, tags.length);
+        assertEquals(Header.FEATURE_DISALLOW_INTERCEPT_TOUCH, tags[0].getTag());
+        assertEquals(0, tags[0].getValue());
     }
 
     @Test

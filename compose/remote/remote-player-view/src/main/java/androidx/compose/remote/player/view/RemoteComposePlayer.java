@@ -43,6 +43,7 @@ import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.RemoteContextActions;
+import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.NamedVariable;
 import androidx.compose.remote.core.operations.RootContentBehavior;
 import androidx.compose.remote.core.operations.Theme;
@@ -536,9 +537,19 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
                 this, gainFocus, direction, previouslyFocusedRect);
     }
 
+    private boolean useDisallowInterceptTouch() {
+        if (mInner != null && mInner.getDocument() != null) {
+            return mInner.getDocument().useFeature(Header.FEATURE_DISALLOW_INTERCEPT_TOUCH);
+        }
+        return true;
+    }
+
     @Override
     public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
         super.requestDisallowInterceptTouchEvent(disallowIntercept);
+        if (!useDisallowInterceptTouch()) {
+            return;
+        }
         if (!disallowIntercept) {
             ViewParent parent = getParent();
             ViewParent scrollingAncestor = null;
@@ -569,6 +580,10 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     @Override
     public void addFocusables(
             @NonNull ArrayList<View> views, int direction, int focusableMode) {
+        if (!useDisallowInterceptTouch()) {
+            super.addFocusables(views, direction, focusableMode);
+            return;
+        }
         final int count = getChildCount();
         for (int i = 0; i < count; i++) {
             final View child = getChildAt(i);
@@ -580,6 +595,9 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
 
     @Override
     public boolean requestFocus(int direction, @Nullable Rect previouslyFocusedRect) {
+        if (!useDisallowInterceptTouch()) {
+            return super.requestFocus(direction, previouslyFocusedRect);
+        }
         return onRequestFocusInDescendants(direction, previouslyFocusedRect);
     }
 
@@ -1048,18 +1066,22 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
 
     @Override
     public boolean performClick() {
-        ViewParent parent = getParent();
-        if (parent instanceof View) {
-            ((View) parent).performClick();
+        if (useDisallowInterceptTouch()) {
+            ViewParent parent = getParent();
+            if (parent instanceof View) {
+                ((View) parent).performClick();
+            }
         }
         return super.performClick();
     }
 
     @Override
     public boolean performLongClick() {
-        ViewParent parent = getParent();
-        if (parent instanceof View) {
-            ((View) parent).performLongClick();
+        if (useDisallowInterceptTouch()) {
+            ViewParent parent = getParent();
+            if (parent instanceof View) {
+                ((View) parent).performLongClick();
+            }
         }
         return super.performLongClick();
     }
