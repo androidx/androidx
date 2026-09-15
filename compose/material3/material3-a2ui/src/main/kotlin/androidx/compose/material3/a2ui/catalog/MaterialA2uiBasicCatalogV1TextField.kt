@@ -29,11 +29,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.hintText
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.coerceIn
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.util.fastFirstOrNull
 
 /**
  * A Jetpack Compose Material 3 implementation of the A2UI Basic Catalog `"TextField"` component.
@@ -88,11 +90,15 @@ internal object MaterialA2uiBasicCatalogV1TextField : A2uiBasicCatalogV1.TextFie
             }
         }
 
-        val isError =
+        val isRegexError =
             regex != null &&
                 remember(textFieldValue.text, regex) {
                     textFieldValue.text.isNotEmpty() && !regex.matches(textFieldValue.text)
                 }
+
+        val failedCheck = checks.fastFirstOrNull { !it.condition }
+        val errorMessage = failedCheck?.message
+        val isError = isRegexError || failedCheck != null
 
         val singleLine = variant != A2uiBasicCatalogV1.TextField.Variant.LongText
         @Suppress("DEPRECATION") // b/553995833
@@ -112,8 +118,15 @@ internal object MaterialA2uiBasicCatalogV1TextField : A2uiBasicCatalogV1.TextFie
 
         val hint = accessibility?.toContentDescription()
         val textFieldModifier =
-            if (hint != null) {
-                modifier.semantics { hintText = hint }
+            if (hint != null || (isError && !errorMessage.isNullOrBlank())) {
+                modifier.semantics {
+                    if (hint != null) {
+                        hintText = hint
+                    }
+                    if (isError && !errorMessage.isNullOrBlank()) {
+                        error(errorMessage)
+                    }
+                }
             } else {
                 modifier
             }
@@ -132,6 +145,12 @@ internal object MaterialA2uiBasicCatalogV1TextField : A2uiBasicCatalogV1.TextFie
             readOnly = !enabled,
             label = { Text(text = label) },
             isError = isError,
+            supportingText =
+                if (!errorMessage.isNullOrBlank()) {
+                    { Text(text = errorMessage) }
+                } else {
+                    null
+                },
             singleLine = singleLine,
             visualTransformation = visualTransformation,
             keyboardOptions = keyboardOptions,

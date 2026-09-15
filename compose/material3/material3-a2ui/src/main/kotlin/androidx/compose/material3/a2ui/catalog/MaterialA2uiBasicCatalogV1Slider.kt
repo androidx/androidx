@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.SliderState
@@ -38,8 +39,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.roundToInt
 
 /** A Jetpack Compose Material 3 implementation of the A2UI Basic Catalog `"Slider"` component. */
@@ -57,6 +60,9 @@ internal object MaterialA2uiBasicCatalogV1Slider : A2uiBasicCatalogV1.Slider {
         checks: List<A2uiBasicCatalogV1.CheckRule>,
         modifier: Modifier,
     ) {
+        val failedCheck = checks.fastFirstOrNull { !it.condition }
+        val errorMessage = failedCheck?.message
+
         // TODO(b/549060875): Figure out how this should be reflected in the UI: switch back to the
         //  loading state or show some kind of error.
         if (min > max) {
@@ -98,7 +104,12 @@ internal object MaterialA2uiBasicCatalogV1Slider : A2uiBasicCatalogV1.Slider {
                 Slider(
                     state = sliderState,
                     modifier =
-                        Modifier.sliderAccessibility(accessibility = accessibility, label = label),
+                        Modifier.sliderAccessibility(accessibility = accessibility, label = label)
+                            .semantics {
+                                if (!errorMessage.isNullOrBlank()) {
+                                    error(errorMessage)
+                                }
+                            },
                     onValueChange = onValueChange,
                     enabled = enabled,
                     track = { state ->
@@ -109,6 +120,14 @@ internal object MaterialA2uiBasicCatalogV1Slider : A2uiBasicCatalogV1.Slider {
                         )
                     },
                 )
+
+                if (!errorMessage.isNullOrBlank()) {
+                    Text(
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
             }
         }
     }

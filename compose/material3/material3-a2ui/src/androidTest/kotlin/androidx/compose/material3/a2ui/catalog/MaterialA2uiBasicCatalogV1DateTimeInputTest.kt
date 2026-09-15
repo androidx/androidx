@@ -21,6 +21,7 @@ import androidx.a2ui.compose.ui.testing.A2uiTestController
 import androidx.a2ui.compose.ui.testing.A2uiTestSurface
 import androidx.a2ui.compose.ui.testing.getData
 import androidx.a2ui.model.catalog.functions.A2uiFormatDateFunction
+import androidx.a2ui.model.catalog.functions.A2uiRequiredFunction
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,8 +30,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.StateRestorationTester
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -60,7 +64,11 @@ class MaterialA2uiBasicCatalogV1DateTimeInputTest {
         A2uiCatalog(
             catalogId = "test_catalog",
             components = listOf(MaterialA2uiBasicCatalogV1Defaults.dateTimeInput),
-            functions = listOf(A2uiFormatDateFunction.INSTANCE),
+            functions =
+                listOf(
+                    A2uiFormatDateFunction.INSTANCE,
+                    A2uiRequiredFunction.INSTANCE,
+                ),
         )
 
     private val dateFormatter =
@@ -1257,5 +1265,210 @@ class MaterialA2uiBasicCatalogV1DateTimeInputTest {
 
         onNodeWithContentDescription("Date Input - Select appointment date and time")
             .assertIsDisplayed()
+    }
+
+    @Test
+    fun checks_allChecksPass_noErrorMessage() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "DateTimeInput",
+                properties =
+                    mapOf(
+                        "value" to "2026-03-24T15:25:00",
+                        "enableDate" to true,
+                        "checks" to
+                            listOf(
+                                mapOf(
+                                    "condition" to
+                                        mapOf(
+                                            "call" to "required",
+                                            "args" to
+                                                mapOf("value" to mapOf("path" to "/form/timeZone")),
+                                        ),
+                                    "message" to "Time zone is required",
+                                )
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents = listOf(payload),
+                initialData = mapOf("form" to mapOf("timeZone" to "America/New_York")),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithText(formatTestDate(2026, 3, 24)).assertIsDisplayed()
+        onNodeWithText(formatTestDate(2026, 3, 24))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
+        onNodeWithText("Time zone is required").assertDoesNotExist()
+    }
+
+    @Test
+    fun checks_failedCheck_displaysErrorMessage() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "DateTimeInput",
+                properties =
+                    mapOf(
+                        "value" to "2026-03-24T15:25:00",
+                        "enableDate" to true,
+                        "checks" to
+                            listOf(
+                                mapOf(
+                                    "condition" to
+                                        mapOf(
+                                            "call" to "required",
+                                            "args" to
+                                                mapOf("value" to mapOf("path" to "/form/timeZone")),
+                                        ),
+                                    "message" to "Time zone is required",
+                                )
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(payload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithText(formatTestDate(2026, 3, 24)).assertIsDisplayed()
+        onNodeWithText(formatTestDate(2026, 3, 24))
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.Error,
+                    "Time zone is required",
+                )
+            )
+        onNodeWithText("Time zone is required").assertIsDisplayed()
+    }
+
+    @Test
+    fun checks_dynamicCondition_updatesErrorMessage() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "DateTimeInput",
+                properties =
+                    mapOf(
+                        "value" to "2026-03-24T15:25:00",
+                        "enableDate" to true,
+                        "checks" to
+                            listOf(
+                                mapOf(
+                                    "condition" to
+                                        mapOf(
+                                            "call" to "required",
+                                            "args" to
+                                                mapOf("value" to mapOf("path" to "/form/timeZone")),
+                                        ),
+                                    "message" to "Time zone is required",
+                                )
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents = listOf(payload),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithText(formatTestDate(2026, 3, 24))
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.Error,
+                    "Time zone is required",
+                )
+            )
+        onNodeWithText("Time zone is required").assertIsDisplayed()
+
+        controller.updateData("/form/timeZone", "America/New_York")
+        controller.waitForIdle()
+        waitForIdle()
+
+        onNodeWithText(formatTestDate(2026, 3, 24))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
+        onNodeWithText("Time zone is required").assertDoesNotExist()
+    }
+
+    @Test
+    fun checks_multipleChecks_displaysFirstFailedCheck() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "DateTimeInput",
+                properties =
+                    mapOf(
+                        "value" to "2026-03-24T15:25:00",
+                        "enableDate" to true,
+                        "checks" to
+                            listOf(
+                                mapOf(
+                                    "condition" to
+                                        mapOf(
+                                            "call" to "required",
+                                            "args" to
+                                                mapOf("value" to mapOf("path" to "/form/timeZone")),
+                                        ),
+                                    "message" to "Time zone is required",
+                                ),
+                                mapOf(
+                                    "condition" to
+                                        mapOf(
+                                            "call" to "required",
+                                            "args" to
+                                                mapOf("value" to mapOf("path" to "/form/location")),
+                                        ),
+                                    "message" to "Location is required",
+                                ),
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(payload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithText(formatTestDate(2026, 3, 24))
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.Error,
+                    "Time zone is required",
+                )
+            )
+        onNodeWithText("Time zone is required").assertIsDisplayed()
+        onNodeWithText("Location is required").assertDoesNotExist()
+
+        controller.updateData("/form/timeZone", "America/New_York")
+        controller.waitForIdle()
+        waitForIdle()
+
+        onNodeWithText(formatTestDate(2026, 3, 24))
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.Error,
+                    "Location is required",
+                )
+            )
+        onNodeWithText("Time zone is required").assertDoesNotExist()
+        onNodeWithText("Location is required").assertIsDisplayed()
+
+        controller.updateData("/form/location", "Building 1")
+        controller.waitForIdle()
+        waitForIdle()
+
+        onNodeWithText(formatTestDate(2026, 3, 24))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
+        onNodeWithText("Time zone is required").assertDoesNotExist()
+        onNodeWithText("Location is required").assertDoesNotExist()
     }
 }

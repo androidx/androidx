@@ -20,6 +20,7 @@ import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.testing.A2uiTestController
 import androidx.a2ui.compose.ui.testing.A2uiTestSurface
 import androidx.a2ui.compose.ui.testing.getData
+import androidx.a2ui.model.catalog.functions.A2uiRequiredFunction
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -57,6 +58,7 @@ class MaterialA2uiBasicCatalogV1SliderTest {
         A2uiCatalog(
             catalogId = "test_catalog",
             components = listOf(MaterialA2uiBasicCatalogV1Defaults.slider),
+            functions = listOf(A2uiRequiredFunction.INSTANCE),
         )
 
     @Test
@@ -709,4 +711,228 @@ class MaterialA2uiBasicCatalogV1SliderTest {
                 actual.range == rangeInfo.range &&
                 actual.steps == rangeInfo.steps
         }
+
+    @Test
+    fun checks_allChecksPass_noErrorMessage() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Slider",
+                properties =
+                    mapOf(
+                        "label" to "Volume",
+                        "value" to 50,
+                        "max" to 100,
+                        "checks" to
+                            listOf(
+                                mapOf(
+                                    "condition" to
+                                        mapOf(
+                                            "call" to "required",
+                                            "args" to
+                                                mapOf(
+                                                    "value" to
+                                                        mapOf("path" to "/settings/audioProfile")
+                                                ),
+                                        ),
+                                    "message" to "Audio profile is required",
+                                )
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents = listOf(payload),
+                initialData = mapOf("settings" to mapOf("audioProfile" to "stereo")),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithText("Volume").assertIsDisplayed()
+        onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo(50f, 0f..100f, 99)))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
+        onNodeWithText("Audio profile is required").assertDoesNotExist()
+    }
+
+    @Test
+    fun checks_failedCheck_displaysErrorMessage() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Slider",
+                properties =
+                    mapOf(
+                        "label" to "Volume",
+                        "value" to 50,
+                        "max" to 100,
+                        "checks" to
+                            listOf(
+                                mapOf(
+                                    "condition" to
+                                        mapOf(
+                                            "call" to "required",
+                                            "args" to
+                                                mapOf(
+                                                    "value" to
+                                                        mapOf("path" to "/settings/audioProfile")
+                                                ),
+                                        ),
+                                    "message" to "Audio profile is required",
+                                )
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(payload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNodeWithText("Volume").assertIsDisplayed()
+        onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo(50f, 0f..100f, 99)))
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.Error,
+                    "Audio profile is required",
+                )
+            )
+        onNodeWithText("Audio profile is required").assertIsDisplayed()
+    }
+
+    @Test
+    fun checks_dynamicCondition_updatesErrorMessage() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Slider",
+                properties =
+                    mapOf(
+                        "label" to "Volume",
+                        "value" to 50,
+                        "max" to 100,
+                        "checks" to
+                            listOf(
+                                mapOf(
+                                    "condition" to
+                                        mapOf(
+                                            "call" to "required",
+                                            "args" to
+                                                mapOf(
+                                                    "value" to
+                                                        mapOf("path" to "/settings/audioProfile")
+                                                ),
+                                        ),
+                                    "message" to "Audio profile is required",
+                                )
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents = listOf(payload),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo(50f, 0f..100f, 99)))
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.Error,
+                    "Audio profile is required",
+                )
+            )
+        onNodeWithText("Audio profile is required").assertIsDisplayed()
+
+        controller.updateData("/settings/audioProfile", "stereo")
+        controller.waitForIdle()
+        waitForIdle()
+
+        onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo(50f, 0f..100f, 99)))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
+        onNodeWithText("Audio profile is required").assertDoesNotExist()
+    }
+
+    @Test
+    fun checks_multipleChecks_displaysFirstFailedCheck() = runComposeUiTest {
+        val payload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Slider",
+                properties =
+                    mapOf(
+                        "label" to "Volume",
+                        "value" to 50,
+                        "max" to 100,
+                        "checks" to
+                            listOf(
+                                mapOf(
+                                    "condition" to
+                                        mapOf(
+                                            "call" to "required",
+                                            "args" to
+                                                mapOf(
+                                                    "value" to
+                                                        mapOf("path" to "/settings/audioProfile")
+                                                ),
+                                        ),
+                                    "message" to "Audio profile is required",
+                                ),
+                                mapOf(
+                                    "condition" to
+                                        mapOf(
+                                            "call" to "required",
+                                            "args" to
+                                                mapOf(
+                                                    "value" to
+                                                        mapOf("path" to "/settings/outputDevice")
+                                                ),
+                                        ),
+                                    "message" to "Output device is required",
+                                ),
+                            ),
+                    ),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(payload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface = surface) } }
+
+        onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo(50f, 0f..100f, 99)))
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.Error,
+                    "Audio profile is required",
+                )
+            )
+        onNodeWithText("Audio profile is required").assertIsDisplayed()
+        onNodeWithText("Output device is required").assertDoesNotExist()
+
+        controller.updateData("/settings/audioProfile", "stereo")
+        controller.waitForIdle()
+        waitForIdle()
+
+        onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo(50f, 0f..100f, 99)))
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.Error,
+                    "Output device is required",
+                )
+            )
+        onNodeWithText("Audio profile is required").assertDoesNotExist()
+        onNodeWithText("Output device is required").assertIsDisplayed()
+
+        controller.updateData("/settings/outputDevice", "speaker")
+        controller.waitForIdle()
+        waitForIdle()
+
+        onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo(50f, 0f..100f, 99)))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Error))
+        onNodeWithText("Audio profile is required").assertDoesNotExist()
+        onNodeWithText("Output device is required").assertDoesNotExist()
+    }
 }

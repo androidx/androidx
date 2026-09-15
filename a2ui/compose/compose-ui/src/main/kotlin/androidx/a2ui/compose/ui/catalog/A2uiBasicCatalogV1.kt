@@ -65,10 +65,10 @@ import java.util.TimeZone
  * @property icon The [Icon] component implementation.
  * @property video The [Video] component implementation.
  * @property audioPlayer The [AudioPlayer] component implementation.
- * @property card The [Card] component implementation.
  * @property row The [Row] component implementation.
  * @property column The [Column] component implementation.
  * @property list The [List] component implementation.
+ * @property card The [Card] component implementation.
  * @property tabs The [Tabs] component implementation.
  * @property modal The [Modal] component implementation.
  * @property divider The [Divider] component implementation.
@@ -88,10 +88,10 @@ public class A2uiBasicCatalogV1(
     public val icon: Icon,
     public val video: Video,
     public val audioPlayer: AudioPlayer,
-    public val card: Card,
     public val row: Row,
     public val column: Column,
     public val list: List,
+    public val card: Card,
     public val tabs: Tabs,
     public val modal: Modal,
     public val divider: Divider,
@@ -119,10 +119,10 @@ public class A2uiBasicCatalogV1(
             icon,
             video,
             audioPlayer,
-            card,
             row,
             column,
             list,
+            card,
             tabs,
             modal,
             divider,
@@ -997,73 +997,6 @@ public class A2uiBasicCatalogV1(
     }
 
     /**
-     * The A2UI `"Card"` component for displaying content in a styled container.
-     *
-     * **Schema Properties:**
-     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the card.
-     * * `child` (Component ID String, required): The ID of the child component to be rendered
-     *   inside the card. Multiple elements must be wrapped in a layout container (e.g. Row or
-     *   Column).
-     */
-    public interface Card : A2uiComponent {
-        override val name: String
-            get() = "Card"
-
-        override val description: String
-            get() = "A layout component that wraps its child content in a styled card container."
-
-        public companion object {
-            /** The [A2uiProperty] for the `"accessibility"` property of a [Card]. */
-            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
-                A2uiBasicCatalogV1.AccessibilityProperty
-
-            /** The [A2uiProperty] for the `"child"` property of a [Card]. */
-            public val ChildProperty: StaticA2uiProperty<String> =
-                A2uiProperty.componentId(
-                    key = "child",
-                    required = true,
-                    description =
-                        "The ID of the single child component to be rendered inside the card. To " +
-                            "display multiple elements, you MUST wrap them in a layout component " +
-                            "(like Column or Row) and pass that container's ID here. Do NOT pass " +
-                            "multiple IDs or a non-existent ID.",
-                )
-            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(AccessibilityProperty, WeightProperty, ChildProperty)
-        }
-
-        override val properties: kotlin.collections.List<A2uiProperty<*>>
-            get() = ComponentProperties
-
-        @Composable
-        override fun A2uiComponentScope.Content(
-            properties: A2uiComponentProperties,
-            modifier: Modifier,
-        ) {
-            val childId =
-                checkNotNull(properties[ChildProperty]) {
-                    "Required property '${ChildProperty.key}' is missing."
-                }
-            val accessibility = properties.bind(AccessibilityProperty)
-            TypedContent(childId = childId, accessibility = accessibility, modifier = modifier)
-        }
-
-        /**
-         * Renders the [Card] with its resolved [childId] and optional [accessibility] attributes.
-         *
-         * @param childId The ID of the child component inside the card.
-         * @param accessibility Accessibility attributes for the card.
-         * @param modifier [Modifier] to apply to the layout.
-         */
-        @Composable
-        public fun A2uiComponentScope.TypedContent(
-            childId: String,
-            accessibility: AccessibilityAttributes?,
-            modifier: Modifier,
-        )
-    }
-
-    /**
      * The A2UI `"Row"` component for displaying content in a horizontal layout.
      *
      * **Schema Properties:**
@@ -1525,6 +1458,73 @@ public class A2uiBasicCatalogV1(
             children: kotlin.collections.List<A2uiComponentReference>,
             direction: Direction,
             align: Align,
+            accessibility: AccessibilityAttributes?,
+            modifier: Modifier,
+        )
+    }
+
+    /**
+     * The A2UI `"Card"` component for displaying content in a styled container.
+     *
+     * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the card.
+     * * `child` (Component ID String, required): The ID of the child component to be rendered
+     *   inside the card. Multiple elements must be wrapped in a layout container (e.g. Row or
+     *   Column).
+     */
+    public interface Card : A2uiComponent {
+        override val name: String
+            get() = "Card"
+
+        override val description: String
+            get() = "A layout component that wraps its child content in a styled card container."
+
+        public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of a [Card]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
+            /** The [A2uiProperty] for the `"child"` property of a [Card]. */
+            public val ChildProperty: StaticA2uiProperty<String> =
+                A2uiProperty.componentId(
+                    key = "child",
+                    required = true,
+                    description =
+                        "The ID of the single child component to be rendered inside the card. To " +
+                            "display multiple elements, you MUST wrap them in a layout component " +
+                            "(like Column or Row) and pass that container's ID here. Do NOT pass " +
+                            "multiple IDs or a non-existent ID.",
+                )
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
+                listOf(AccessibilityProperty, WeightProperty, ChildProperty)
+        }
+
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val childId =
+                checkNotNull(properties[ChildProperty]) {
+                    "Required property '${ChildProperty.key}' is missing."
+                }
+            val accessibility = properties.bind(AccessibilityProperty)
+            TypedContent(childId = childId, accessibility = accessibility, modifier = modifier)
+        }
+
+        /**
+         * Renders the [Card] with its resolved [childId] and optional [accessibility] attributes.
+         *
+         * @param childId The ID of the child component inside the card.
+         * @param accessibility Accessibility attributes for the card.
+         * @param modifier [Modifier] to apply to the layout.
+         */
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            childId: String,
             accessibility: AccessibilityAttributes?,
             modifier: Modifier,
         )
@@ -2148,424 +2148,6 @@ public class A2uiBasicCatalogV1(
     }
 
     /**
-     * The A2UI `"Slider"` component for selecting a numeric value within a range.
-     *
-     * **Schema Properties:**
-     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the slider.
-     * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the slider. See
-     *   [CheckRule].
-     * * `label` (Dynamic String, optional): The label for the slider.
-     * * `min` (Number, optional): The minimum value of the slider. Defaults to `0`.
-     * * `max` (Number, required): The maximum value of the slider.
-     * * `value` (Dynamic Number, required): The current value of the slider.
-     */
-    public interface Slider : A2uiComponent {
-        override val name: String
-            get() = "Slider"
-
-        override val description: String
-            get() = "A slider for selecting a numeric value within a range."
-
-        public companion object {
-            /** The [A2uiProperty] for the `"accessibility"` property of a [Slider]. */
-            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
-                A2uiBasicCatalogV1.AccessibilityProperty
-
-            /** The [A2uiProperty] for the `"checks"` property of a [Slider]. See [CheckRule]. */
-            public val ChecksProperty: DynamicA2uiProperty<kotlin.collections.List<CheckRule>> =
-                A2uiBasicCatalogV1.ChecksProperty
-
-            /** The [A2uiProperty] for the `"label"` property of a [Slider]. */
-            public val LabelProperty: DynamicA2uiProperty<String> =
-                A2uiProperty.dynamicString(
-                    key = "label",
-                    required = false,
-                    description = "The label for the slider.",
-                )
-
-            /** The [A2uiProperty] for the `"min"` property of a [Slider]. */
-            public val MinProperty: StaticA2uiProperty<Number> =
-                A2uiProperty.number(
-                    key = "min",
-                    defaultValue = 0,
-                    description = "The minimum value of the slider.",
-                )
-
-            /** The [A2uiProperty] for the `"max"` property of a [Slider]. */
-            public val MaxProperty: StaticA2uiProperty<Number> =
-                A2uiProperty.number(
-                    key = "max",
-                    required = true,
-                    description = "The maximum value of the slider.",
-                )
-
-            /** The [A2uiProperty] for the `"value"` property of a [Slider]. */
-            public val ValueProperty: DynamicA2uiProperty<Number> =
-                A2uiProperty.dynamicNumber(
-                    key = "value",
-                    required = true,
-                    description = "The current value of the slider.",
-                )
-
-            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(
-                    AccessibilityProperty,
-                    WeightProperty,
-                    ChecksProperty,
-                    LabelProperty,
-                    MinProperty,
-                    MaxProperty,
-                    ValueProperty,
-                )
-        }
-
-        override val properties: kotlin.collections.List<A2uiProperty<*>>
-            get() = ComponentProperties
-
-        @Composable
-        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean =
-            properties.bind(ValueProperty) != null && bindChecks(properties) != null
-
-        @Composable
-        override fun A2uiComponentScope.Content(
-            properties: A2uiComponentProperties,
-            modifier: Modifier,
-        ) {
-            val label = properties.bind(LabelProperty)
-            val min = properties[MinProperty]?.toFloat() ?: 0f
-            val max =
-                checkNotNull(properties[MaxProperty]?.toFloat()) {
-                    "Required property '${MaxProperty.key}' is missing."
-                }
-            val value =
-                checkNotNull(properties.bind(ValueProperty)?.toFloat()) {
-                    "Required property '${ValueProperty.key}' is missing."
-                }
-            val onValueChange = properties.bindUpdater(ValueProperty)
-            val isEnabled = onValueChange != null
-            val accessibility = properties.bind(AccessibilityProperty)
-            val checks =
-                checkNotNull(bindChecks(properties)) {
-                    "Property '${ChecksProperty.key}' could not be resolved."
-                }
-
-            TypedContent(
-                label = label,
-                min = min,
-                max = max,
-                value = value,
-                onValueChange = { newValue -> onValueChange?.invoke(newValue) },
-                enabled = isEnabled,
-                accessibility = accessibility,
-                checks = checks,
-                modifier = modifier,
-            )
-        }
-
-        /**
-         * Renders the [Slider] with its resolved properties.
-         *
-         * @param label The text label for the slider.
-         * @param min The minimum value of the slider.
-         * @param max The maximum value of the slider.
-         * @param value The current value of the slider.
-         * @param onValueChange callback invoked when the user interacts with the slider.
-         * @param enabled controls the enabled state of the slider. When `false`, this component
-         *   will not respond to user input.
-         * @param accessibility Accessibility attributes for the slider.
-         * @param checks validation rules for this slider. When any [CheckRule.condition] is false,
-         *   the slider should indicate an error state. See [CheckRule].
-         * @param modifier [Modifier] to apply to the layout.
-         */
-        @Composable
-        public fun A2uiComponentScope.TypedContent(
-            label: String?,
-            min: Float,
-            max: Float,
-            value: Float,
-            onValueChange: (Float) -> Unit,
-            enabled: Boolean,
-            accessibility: AccessibilityAttributes?,
-            checks: kotlin.collections.List<CheckRule>,
-            modifier: Modifier,
-        )
-    }
-
-    /**
-     * The A2UI `"DateTimeInput"` component for selecting date and/or time.
-     *
-     * **Schema Properties:**
-     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the date/time
-     *   input.
-     * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the date/time
-     *   input. See [CheckRule].
-     * * `value` (Dynamic String, required): The selected date and/or time value in ISO 8601 format.
-     *   If not yet set, initialize with an empty string.
-     * * `enableDate` (Boolean, optional): If true, allows the user to select a date. Defaults to
-     *   `false`.
-     * * `enableTime` (Boolean, optional): If true, allows the user to select a time. Defaults to
-     *   `false`.
-     * * `min` (Dynamic String, optional): The minimum allowed date/time in ISO 8601 format.
-     * * `max` (Dynamic String, optional): The maximum allowed date/time in ISO 8601 format.
-     * * `label` (Dynamic String, optional): The text label for the component.
-     */
-    public interface DateTimeInput : A2uiComponent {
-        override val name: String
-            get() = "DateTimeInput"
-
-        override val description: String
-            get() = "Allows the user to select a date and/or time."
-
-        public companion object {
-            /** The [A2uiProperty] for the `"accessibility"` property of a [DateTimeInput]. */
-            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
-                A2uiBasicCatalogV1.AccessibilityProperty
-
-            /**
-             * The [A2uiProperty] for the `"checks"` property of a [DateTimeInput]. See [CheckRule].
-             */
-            public val ChecksProperty: DynamicA2uiProperty<kotlin.collections.List<CheckRule>> =
-                A2uiBasicCatalogV1.ChecksProperty
-
-            private val DateTimeFormatConstraintSchema =
-                A2uiAnySchema(
-                    keywords =
-                        listOf(
-                            A2uiSchemaKeyword.IfThen(
-                                ifSchema = A2uiStringSchema.INSTANCE,
-                                thenSchema =
-                                    A2uiAnySchema(
-                                        keywords =
-                                            listOf(
-                                                A2uiSchemaKeyword.OneOf(
-                                                    listOf(
-                                                        A2uiAnySchema(
-                                                            keywords =
-                                                                listOf(
-                                                                    A2uiSchemaKeyword.Format("date")
-                                                                )
-                                                        ),
-                                                        A2uiAnySchema(
-                                                            keywords =
-                                                                listOf(
-                                                                    A2uiSchemaKeyword.Format("time")
-                                                                )
-                                                        ),
-                                                        A2uiAnySchema(
-                                                            keywords =
-                                                                listOf(
-                                                                    A2uiSchemaKeyword.Format(
-                                                                        "date-time"
-                                                                    )
-                                                                )
-                                                        ),
-                                                    )
-                                                )
-                                            )
-                                    ),
-                            )
-                        )
-                )
-
-            /** The [A2uiProperty] for the `"value"` property of a [DateTimeInput]. */
-            public val ValueProperty: DynamicA2uiProperty<String> =
-                A2uiProperty.dynamicString(
-                    key = "value",
-                    required = true,
-                    description =
-                        "The selected date and/or time value in ISO 8601 format. " +
-                            "If not yet set, initialize with an empty string.",
-                )
-
-            /** The [A2uiProperty] for the `"enableDate"` property of a [DateTimeInput]. */
-            public val EnableDateProperty: StaticA2uiProperty<Boolean> =
-                A2uiProperty.booleanWithDefault(
-                    key = "enableDate",
-                    defaultValue = false,
-                    description = "If true, allows the user to select a date.",
-                )
-
-            /** The [A2uiProperty] for the `"enableTime"` property of a [DateTimeInput]. */
-            public val EnableTimeProperty: StaticA2uiProperty<Boolean> =
-                A2uiProperty.booleanWithDefault(
-                    key = "enableTime",
-                    defaultValue = false,
-                    description = "If true, allows the user to select a time.",
-                )
-
-            /** The [A2uiProperty] for the `"min"` property of a [DateTimeInput]. */
-            public val MinProperty: DynamicA2uiProperty<String> =
-                A2uiProperty.dynamicCustom(
-                    key = "min",
-                    schema =
-                        A2uiAnySchema(
-                            description = "The minimum allowed date/time in ISO 8601 format.",
-                            keywords =
-                                listOf(
-                                    A2uiSchemaKeyword.AllOf(
-                                        listOf(
-                                            A2uiDynamicStringSchema.DEFAULT_INSTANCE,
-                                            DateTimeFormatConstraintSchema,
-                                        )
-                                    )
-                                ),
-                        ),
-                    safeCast = { it as? String },
-                    required = false,
-                )
-
-            /** The [A2uiProperty] for the `"max"` property of a [DateTimeInput]. */
-            public val MaxProperty: DynamicA2uiProperty<String> =
-                A2uiProperty.dynamicCustom(
-                    key = "max",
-                    schema =
-                        A2uiAnySchema(
-                            description = "The maximum allowed date/time in ISO 8601 format.",
-                            keywords =
-                                listOf(
-                                    A2uiSchemaKeyword.AllOf(
-                                        listOf(
-                                            A2uiDynamicStringSchema.DEFAULT_INSTANCE,
-                                            DateTimeFormatConstraintSchema,
-                                        )
-                                    )
-                                ),
-                        ),
-                    safeCast = { it as? String },
-                    required = false,
-                )
-
-            /** The [A2uiProperty] for the `"label"` property of a [DateTimeInput]. */
-            public val LabelProperty: DynamicA2uiProperty<String> =
-                A2uiProperty.dynamicString(
-                    key = "label",
-                    required = false,
-                    description = "The text label for the component.",
-                )
-
-            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(
-                    AccessibilityProperty,
-                    WeightProperty,
-                    ChecksProperty,
-                    ValueProperty,
-                    EnableDateProperty,
-                    EnableTimeProperty,
-                    MinProperty,
-                    MaxProperty,
-                    LabelProperty,
-                )
-        }
-
-        override val properties: kotlin.collections.List<A2uiProperty<*>>
-            get() = ComponentProperties
-
-        @Composable
-        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean {
-            if (bindChecks(properties) == null) return false
-            val value = properties.bind(ValueProperty) ?: return false
-            if (value.isEmpty()) return true
-            val valueMillis = parseIsoDateTimeToUtcMillis(value)
-            if (valueMillis == null) {
-                SideEffect(value) {
-                    reportError(
-                        A2uiException.A2uiRuntimeException("Invalid date-time format: $value")
-                    )
-                }
-                return false
-            }
-            return true
-        }
-
-        @Composable
-        override fun A2uiComponentScope.Content(
-            properties: A2uiComponentProperties,
-            modifier: Modifier,
-        ) {
-            val value =
-                checkNotNull(properties.bind(ValueProperty)) {
-                    "Required property '${ValueProperty.key}' is missing."
-                }
-            val valueMillis =
-                if (value.isNotEmpty()) {
-                    checkNotNull(remember(value) { parseIsoDateTimeToUtcMillis(value) }) {
-                        "Required property '${ValueProperty.key}' could not be parsed: '$value'."
-                    }
-                } else {
-                    null
-                }
-
-            val onValueChange = properties.bindUpdater(ValueProperty)
-            val enableDate = properties[EnableDateProperty] ?: false
-            val enableTime = properties[EnableTimeProperty] ?: false
-            val min = properties.bind(MinProperty)
-            val max = properties.bind(MaxProperty)
-            val label = properties.bind(LabelProperty)
-
-            val minMillis = remember(min) { parseIsoDateTimeToUtcMillis(min) }
-            val maxMillis = remember(max) { parseIsoDateTimeToUtcMillis(max) }
-
-            val onValueChangeMillis: ((Long?) -> Unit)? =
-                if (onValueChange != null) {
-                    { newMillis ->
-                        val formatted = formatUtcMillisToIso(newMillis, enableDate, enableTime)
-                        onValueChange(formatted)
-                    }
-                } else null
-            val accessibility = properties.bind(AccessibilityProperty)
-            val checks =
-                checkNotNull(bindChecks(properties)) {
-                    "Property '${ChecksProperty.key}' could not be resolved."
-                }
-
-            TypedContent(
-                value = valueMillis,
-                onValueChange = onValueChangeMillis,
-                enableDate = enableDate,
-                enableTime = enableTime,
-                min = minMillis,
-                max = maxMillis,
-                label = label,
-                accessibility = accessibility,
-                checks = checks,
-                modifier = modifier,
-            )
-        }
-
-        /**
-         * Renders the [DateTimeInput] component with resolved property values.
-         *
-         * @param value selected date and/or time in UTC epoch milliseconds, or `null` if not yet
-         *   set
-         * @param onValueChange callback invoked when the user selects a date or time in UTC epoch
-         *   milliseconds, or `null` if the input is read-only
-         * @param enableDate whether date selection is enabled
-         * @param enableTime whether time selection is enabled
-         * @param min minimum allowed date/time in UTC epoch milliseconds, or `null` if unbounded
-         * @param max maximum allowed date/time in UTC epoch milliseconds, or `null` if unbounded
-         * @param label text label describing the input, or `null` if none
-         * @param accessibility Accessibility attributes for the date/time input
-         * @param checks validation rules for this date/time input. When any [CheckRule.condition]
-         *   is false, the input should display an error state and show the failing
-         *   [CheckRule.message]. See [CheckRule].
-         * @param modifier [Modifier] applied to the component layout
-         */
-        @Composable
-        public fun A2uiComponentScope.TypedContent(
-            @Suppress("AutoBoxing") value: Long?,
-            onValueChange: ((Long?) -> Unit)?,
-            enableDate: Boolean,
-            enableTime: Boolean,
-            @Suppress("AutoBoxing") min: Long?,
-            @Suppress("AutoBoxing") max: Long?,
-            label: String?,
-            accessibility: AccessibilityAttributes?,
-            checks: kotlin.collections.List<CheckRule>,
-            modifier: Modifier,
-        )
-    }
-
-    /**
      * The A2UI `"CheckBox"` component for displaying a checkable control with an associated label.
      *
      * **Schema Properties:**
@@ -3005,6 +2587,424 @@ public class A2uiBasicCatalogV1(
                 }
             }
         }
+    }
+
+    /**
+     * The A2UI `"Slider"` component for selecting a numeric value within a range.
+     *
+     * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the slider.
+     * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the slider. See
+     *   [CheckRule].
+     * * `label` (Dynamic String, optional): The label for the slider.
+     * * `min` (Number, optional): The minimum value of the slider. Defaults to `0`.
+     * * `max` (Number, required): The maximum value of the slider.
+     * * `value` (Dynamic Number, required): The current value of the slider.
+     */
+    public interface Slider : A2uiComponent {
+        override val name: String
+            get() = "Slider"
+
+        override val description: String
+            get() = "A slider for selecting a numeric value within a range."
+
+        public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of a [Slider]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
+            /** The [A2uiProperty] for the `"checks"` property of a [Slider]. See [CheckRule]. */
+            public val ChecksProperty: DynamicA2uiProperty<kotlin.collections.List<CheckRule>> =
+                A2uiBasicCatalogV1.ChecksProperty
+
+            /** The [A2uiProperty] for the `"label"` property of a [Slider]. */
+            public val LabelProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicString(
+                    key = "label",
+                    required = false,
+                    description = "The label for the slider.",
+                )
+
+            /** The [A2uiProperty] for the `"min"` property of a [Slider]. */
+            public val MinProperty: StaticA2uiProperty<Number> =
+                A2uiProperty.number(
+                    key = "min",
+                    defaultValue = 0,
+                    description = "The minimum value of the slider.",
+                )
+
+            /** The [A2uiProperty] for the `"max"` property of a [Slider]. */
+            public val MaxProperty: StaticA2uiProperty<Number> =
+                A2uiProperty.number(
+                    key = "max",
+                    required = true,
+                    description = "The maximum value of the slider.",
+                )
+
+            /** The [A2uiProperty] for the `"value"` property of a [Slider]. */
+            public val ValueProperty: DynamicA2uiProperty<Number> =
+                A2uiProperty.dynamicNumber(
+                    key = "value",
+                    required = true,
+                    description = "The current value of the slider.",
+                )
+
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
+                listOf(
+                    AccessibilityProperty,
+                    WeightProperty,
+                    ChecksProperty,
+                    LabelProperty,
+                    MinProperty,
+                    MaxProperty,
+                    ValueProperty,
+                )
+        }
+
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean =
+            properties.bind(ValueProperty) != null && bindChecks(properties) != null
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val label = properties.bind(LabelProperty)
+            val min = properties[MinProperty]?.toFloat() ?: 0f
+            val max =
+                checkNotNull(properties[MaxProperty]?.toFloat()) {
+                    "Required property '${MaxProperty.key}' is missing."
+                }
+            val value =
+                checkNotNull(properties.bind(ValueProperty)?.toFloat()) {
+                    "Required property '${ValueProperty.key}' is missing."
+                }
+            val onValueChange = properties.bindUpdater(ValueProperty)
+            val isEnabled = onValueChange != null
+            val accessibility = properties.bind(AccessibilityProperty)
+            val checks =
+                checkNotNull(bindChecks(properties)) {
+                    "Property '${ChecksProperty.key}' could not be resolved."
+                }
+
+            TypedContent(
+                label = label,
+                min = min,
+                max = max,
+                value = value,
+                onValueChange = { newValue -> onValueChange?.invoke(newValue) },
+                enabled = isEnabled,
+                accessibility = accessibility,
+                checks = checks,
+                modifier = modifier,
+            )
+        }
+
+        /**
+         * Renders the [Slider] with its resolved properties.
+         *
+         * @param label The text label for the slider.
+         * @param min The minimum value of the slider.
+         * @param max The maximum value of the slider.
+         * @param value The current value of the slider.
+         * @param onValueChange callback invoked when the user interacts with the slider.
+         * @param enabled controls the enabled state of the slider. When `false`, this component
+         *   will not respond to user input.
+         * @param accessibility Accessibility attributes for the slider.
+         * @param checks validation rules for this slider. When any [CheckRule.condition] is false,
+         *   the slider should indicate an error state. See [CheckRule].
+         * @param modifier [Modifier] to apply to the layout.
+         */
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            label: String?,
+            min: Float,
+            max: Float,
+            value: Float,
+            onValueChange: (Float) -> Unit,
+            enabled: Boolean,
+            accessibility: AccessibilityAttributes?,
+            checks: kotlin.collections.List<CheckRule>,
+            modifier: Modifier,
+        )
+    }
+
+    /**
+     * The A2UI `"DateTimeInput"` component for selecting date and/or time.
+     *
+     * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the date/time
+     *   input.
+     * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the date/time
+     *   input. See [CheckRule].
+     * * `value` (Dynamic String, required): The selected date and/or time value in ISO 8601 format.
+     *   If not yet set, initialize with an empty string.
+     * * `enableDate` (Boolean, optional): If true, allows the user to select a date. Defaults to
+     *   `false`.
+     * * `enableTime` (Boolean, optional): If true, allows the user to select a time. Defaults to
+     *   `false`.
+     * * `min` (Dynamic String, optional): The minimum allowed date/time in ISO 8601 format.
+     * * `max` (Dynamic String, optional): The maximum allowed date/time in ISO 8601 format.
+     * * `label` (Dynamic String, optional): The text label for the component.
+     */
+    public interface DateTimeInput : A2uiComponent {
+        override val name: String
+            get() = "DateTimeInput"
+
+        override val description: String
+            get() = "Allows the user to select a date and/or time."
+
+        public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of a [DateTimeInput]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiBasicCatalogV1.AccessibilityProperty
+
+            /**
+             * The [A2uiProperty] for the `"checks"` property of a [DateTimeInput]. See [CheckRule].
+             */
+            public val ChecksProperty: DynamicA2uiProperty<kotlin.collections.List<CheckRule>> =
+                A2uiBasicCatalogV1.ChecksProperty
+
+            private val DateTimeFormatConstraintSchema =
+                A2uiAnySchema(
+                    keywords =
+                        listOf(
+                            A2uiSchemaKeyword.IfThen(
+                                ifSchema = A2uiStringSchema.INSTANCE,
+                                thenSchema =
+                                    A2uiAnySchema(
+                                        keywords =
+                                            listOf(
+                                                A2uiSchemaKeyword.OneOf(
+                                                    listOf(
+                                                        A2uiAnySchema(
+                                                            keywords =
+                                                                listOf(
+                                                                    A2uiSchemaKeyword.Format("date")
+                                                                )
+                                                        ),
+                                                        A2uiAnySchema(
+                                                            keywords =
+                                                                listOf(
+                                                                    A2uiSchemaKeyword.Format("time")
+                                                                )
+                                                        ),
+                                                        A2uiAnySchema(
+                                                            keywords =
+                                                                listOf(
+                                                                    A2uiSchemaKeyword.Format(
+                                                                        "date-time"
+                                                                    )
+                                                                )
+                                                        ),
+                                                    )
+                                                )
+                                            )
+                                    ),
+                            )
+                        )
+                )
+
+            /** The [A2uiProperty] for the `"value"` property of a [DateTimeInput]. */
+            public val ValueProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicString(
+                    key = "value",
+                    required = true,
+                    description =
+                        "The selected date and/or time value in ISO 8601 format. " +
+                            "If not yet set, initialize with an empty string.",
+                )
+
+            /** The [A2uiProperty] for the `"enableDate"` property of a [DateTimeInput]. */
+            public val EnableDateProperty: StaticA2uiProperty<Boolean> =
+                A2uiProperty.booleanWithDefault(
+                    key = "enableDate",
+                    defaultValue = false,
+                    description = "If true, allows the user to select a date.",
+                )
+
+            /** The [A2uiProperty] for the `"enableTime"` property of a [DateTimeInput]. */
+            public val EnableTimeProperty: StaticA2uiProperty<Boolean> =
+                A2uiProperty.booleanWithDefault(
+                    key = "enableTime",
+                    defaultValue = false,
+                    description = "If true, allows the user to select a time.",
+                )
+
+            /** The [A2uiProperty] for the `"min"` property of a [DateTimeInput]. */
+            public val MinProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicCustom(
+                    key = "min",
+                    schema =
+                        A2uiAnySchema(
+                            description = "The minimum allowed date/time in ISO 8601 format.",
+                            keywords =
+                                listOf(
+                                    A2uiSchemaKeyword.AllOf(
+                                        listOf(
+                                            A2uiDynamicStringSchema.DEFAULT_INSTANCE,
+                                            DateTimeFormatConstraintSchema,
+                                        )
+                                    )
+                                ),
+                        ),
+                    safeCast = { it as? String },
+                    required = false,
+                )
+
+            /** The [A2uiProperty] for the `"max"` property of a [DateTimeInput]. */
+            public val MaxProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicCustom(
+                    key = "max",
+                    schema =
+                        A2uiAnySchema(
+                            description = "The maximum allowed date/time in ISO 8601 format.",
+                            keywords =
+                                listOf(
+                                    A2uiSchemaKeyword.AllOf(
+                                        listOf(
+                                            A2uiDynamicStringSchema.DEFAULT_INSTANCE,
+                                            DateTimeFormatConstraintSchema,
+                                        )
+                                    )
+                                ),
+                        ),
+                    safeCast = { it as? String },
+                    required = false,
+                )
+
+            /** The [A2uiProperty] for the `"label"` property of a [DateTimeInput]. */
+            public val LabelProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicString(
+                    key = "label",
+                    required = false,
+                    description = "The text label for the component.",
+                )
+
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
+                listOf(
+                    AccessibilityProperty,
+                    WeightProperty,
+                    ChecksProperty,
+                    ValueProperty,
+                    EnableDateProperty,
+                    EnableTimeProperty,
+                    MinProperty,
+                    MaxProperty,
+                    LabelProperty,
+                )
+        }
+
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean {
+            if (bindChecks(properties) == null) return false
+            val value = properties.bind(ValueProperty) ?: return false
+            if (value.isEmpty()) return true
+            val valueMillis = parseIsoDateTimeToUtcMillis(value)
+            if (valueMillis == null) {
+                SideEffect(value) {
+                    reportError(
+                        A2uiException.A2uiRuntimeException("Invalid date-time format: $value")
+                    )
+                }
+                return false
+            }
+            return true
+        }
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val value =
+                checkNotNull(properties.bind(ValueProperty)) {
+                    "Required property '${ValueProperty.key}' is missing."
+                }
+            val valueMillis =
+                if (value.isNotEmpty()) {
+                    checkNotNull(remember(value) { parseIsoDateTimeToUtcMillis(value) }) {
+                        "Required property '${ValueProperty.key}' could not be parsed: '$value'."
+                    }
+                } else {
+                    null
+                }
+
+            val onValueChange = properties.bindUpdater(ValueProperty)
+            val enableDate = properties[EnableDateProperty] ?: false
+            val enableTime = properties[EnableTimeProperty] ?: false
+            val min = properties.bind(MinProperty)
+            val max = properties.bind(MaxProperty)
+            val label = properties.bind(LabelProperty)
+
+            val minMillis = remember(min) { parseIsoDateTimeToUtcMillis(min) }
+            val maxMillis = remember(max) { parseIsoDateTimeToUtcMillis(max) }
+
+            val onValueChangeMillis: ((Long?) -> Unit)? =
+                if (onValueChange != null) {
+                    { newMillis ->
+                        val formatted = formatUtcMillisToIso(newMillis, enableDate, enableTime)
+                        onValueChange(formatted)
+                    }
+                } else null
+            val accessibility = properties.bind(AccessibilityProperty)
+            val checks =
+                checkNotNull(bindChecks(properties)) {
+                    "Property '${ChecksProperty.key}' could not be resolved."
+                }
+
+            TypedContent(
+                value = valueMillis,
+                onValueChange = onValueChangeMillis,
+                enableDate = enableDate,
+                enableTime = enableTime,
+                min = minMillis,
+                max = maxMillis,
+                label = label,
+                accessibility = accessibility,
+                checks = checks,
+                modifier = modifier,
+            )
+        }
+
+        /**
+         * Renders the [DateTimeInput] component with resolved property values.
+         *
+         * @param value selected date and/or time in UTC epoch milliseconds, or `null` if not yet
+         *   set
+         * @param onValueChange callback invoked when the user selects a date or time in UTC epoch
+         *   milliseconds, or `null` if the input is read-only
+         * @param enableDate whether date selection is enabled
+         * @param enableTime whether time selection is enabled
+         * @param min minimum allowed date/time in UTC epoch milliseconds, or `null` if unbounded
+         * @param max maximum allowed date/time in UTC epoch milliseconds, or `null` if unbounded
+         * @param label text label describing the input, or `null` if none
+         * @param accessibility Accessibility attributes for the date/time input
+         * @param checks validation rules for this date/time input. When any [CheckRule.condition]
+         *   is false, the input should display an error state and show the failing
+         *   [CheckRule.message]. See [CheckRule].
+         * @param modifier [Modifier] applied to the component layout
+         */
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            @Suppress("AutoBoxing") value: Long?,
+            onValueChange: ((Long?) -> Unit)?,
+            enableDate: Boolean,
+            enableTime: Boolean,
+            @Suppress("AutoBoxing") min: Long?,
+            @Suppress("AutoBoxing") max: Long?,
+            label: String?,
+            accessibility: AccessibilityAttributes?,
+            checks: kotlin.collections.List<CheckRule>,
+            modifier: Modifier,
+        )
     }
 
     override fun equals(other: Any?): Boolean {
