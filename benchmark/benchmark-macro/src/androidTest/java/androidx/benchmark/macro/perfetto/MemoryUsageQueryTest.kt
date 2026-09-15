@@ -19,13 +19,13 @@ package androidx.benchmark.macro.perfetto
 import android.os.Build.VERSION.SDK_INT
 import androidx.benchmark.DeviceInfo.isEmulator
 import androidx.benchmark.macro.MemoryUsageMetric
-import androidx.benchmark.macro.MemoryUsageMetric.SubMetric
 import androidx.benchmark.macro.createTempFileFromAsset
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.runSingleSessionServer
 import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import kotlin.test.assertEquals
 import org.junit.Assume.assumeTrue
 import org.junit.Test
@@ -44,10 +44,10 @@ class MemoryUsageQueryTest {
             // Note: this particular trace has same values for last and max
             val expected =
                 mapOf(
-                    SubMetric.HeapSize to 3067,
-                    SubMetric.RssAnon to 47260,
-                    SubMetric.RssFile to 67668,
-                    SubMetric.RssShmem to 1160,
+                    MemoryUsageMetric.SubMetric.HeapSize to 3067,
+                    MemoryUsageMetric.SubMetric.RssAnon to 47260,
+                    MemoryUsageMetric.SubMetric.RssFile to 67668,
+                    MemoryUsageMetric.SubMetric.RssShmem to 1160,
                 )
             assertEquals(
                 expected,
@@ -69,62 +69,92 @@ class MemoryUsageQueryTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 33)
     @MediumTest
     fun fixedTrace33() {
         // Our API 23 emulators seem to be misconfigured b/438214932
         assumeTrue(!isEmulator || SDK_INT != 23)
         assumeTrue(PerfettoHelper.isAbiSupported())
-        val traceFile = createTempFileFromAsset("api33_motionlayout_messagejson", ".perfetto-trace")
+        val traceFile = createTempFileFromAsset("api33_startup_memory", ".perfetto-trace")
         TraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
             assertEquals(
                 mapOf(
-                    SubMetric.HeapSize to 25019,
-                    SubMetric.RssAnon to 78516,
-                    SubMetric.RssFile to 88036,
-                    SubMetric.RssShmem to 1540,
+                    MemoryUsageMetric.SubMetric.HeapSize to 11172,
+                    MemoryUsageMetric.SubMetric.RssAnon to 52724,
+                    MemoryUsageMetric.SubMetric.RssFile to 102604,
+                    MemoryUsageMetric.SubMetric.RssShmem to 756,
+                    MemoryUsageMetric.SubMetric.Swap to 25156,
                 ),
                 MemoryUsageQuery.getMemoryUsageKb(
                     this,
-                    "androidx.constraintlayout.compose.integration.macrobenchmark.target",
+                    "com.android.developers.androidify",
                     mode = MemoryUsageMetric.Mode.Last,
                 ),
             )
             assertEquals(
                 mapOf(
-                    SubMetric.HeapSize to 25019,
-                    SubMetric.RssAnon to 78516,
-                    SubMetric.RssFile to 88168,
-                    SubMetric.RssShmem to 1540,
+                    MemoryUsageMetric.SubMetric.HeapSize to 11172,
+                    MemoryUsageMetric.SubMetric.RssAnon to 52724,
+                    MemoryUsageMetric.SubMetric.RssFile to 102604,
+                    MemoryUsageMetric.SubMetric.RssShmem to 756,
+                    MemoryUsageMetric.SubMetric.Swap to 32400,
                 ),
                 MemoryUsageQuery.getMemoryUsageKb(
                     this,
-                    "androidx.constraintlayout.compose.integration.macrobenchmark.target",
+                    "com.android.developers.androidify",
                     mode = MemoryUsageMetric.Mode.Max,
                 ),
             )
         }
     }
 
+    @SdkSuppress(minSdkVersion = 36)
     @Test
     @MediumTest
-    fun fixedGpuTrace34() {
-        // Our API 23 emulators seem to be misconfigured b/438214932
+    fun fixedTraceStartupMemoryLast36() {
         assumeTrue(!isEmulator || SDK_INT != 23)
         assumeTrue(PerfettoHelper.isAbiSupported())
-        val traceFile = createTempFileFromAsset("api34_startup_cold", ".perfetto-trace")
+        val traceFile = createTempFileFromAsset("startup_androidify_bitmap", ".perfetto-trace")
         TraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
             assertEquals(
                 mapOf(
-                    SubMetric.Gpu to 30840,
-                    SubMetric.HeapSize to 3385,
-                    SubMetric.RssAnon to 47152,
-                    SubMetric.RssFile to 96868,
-                    SubMetric.RssShmem to 16336,
+                    MemoryUsageMetric.SubMetric.HeapSize to 11560,
+                    MemoryUsageMetric.SubMetric.RssAnon to 58248,
+                    MemoryUsageMetric.SubMetric.RssFile to 149060,
+                    MemoryUsageMetric.SubMetric.RssShmem to 1236,
+                    MemoryUsageMetric.SubMetric.Swap to 21276,
+                    MemoryUsageMetric.SubMetric.BitmapMemory to 7264,
                 ),
                 MemoryUsageQuery.getMemoryUsageKb(
                     this,
-                    "com.android.systemui.people",
+                    "com.android.developers.androidify",
                     mode = MemoryUsageMetric.Mode.Last,
+                ),
+            )
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 36)
+    @Test
+    @MediumTest
+    fun fixedTraceStartupMemoryMax34() {
+        assumeTrue(!isEmulator || SDK_INT != 23)
+        assumeTrue(PerfettoHelper.isAbiSupported())
+        val traceFile = createTempFileFromAsset("startup_androidify_bitmap", ".perfetto-trace")
+        TraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+            assertEquals(
+                mapOf(
+                    MemoryUsageMetric.SubMetric.HeapSize to 11560,
+                    MemoryUsageMetric.SubMetric.RssAnon to 60688,
+                    MemoryUsageMetric.SubMetric.RssFile to 149060,
+                    MemoryUsageMetric.SubMetric.RssShmem to 1236,
+                    MemoryUsageMetric.SubMetric.Swap to 25208,
+                    MemoryUsageMetric.SubMetric.BitmapMemory to 7264,
+                ),
+                MemoryUsageQuery.getMemoryUsageKb(
+                    this,
+                    "com.android.developers.androidify",
+                    mode = MemoryUsageMetric.Mode.Max,
                 ),
             )
         }
