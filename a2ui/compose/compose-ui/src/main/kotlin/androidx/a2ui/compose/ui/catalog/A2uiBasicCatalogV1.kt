@@ -55,7 +55,7 @@ import java.util.TimeZone
 
 /**
  * Defines the API contract and schemas for the A2UI Basic Catalog V1 following the specification in
- * https://a2ui.org/specification/v0_9_1/catalogs/basic/catalog.json.
+ * https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json.
  *
  * This class is intended to support the Basic Catalog specification 1.0 defined in
  * https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json, support for it is planned.
@@ -140,7 +140,7 @@ public class A2uiBasicCatalogV1(
         /** The catalog ID for the A2UI Basic Catalog V1. */
         // TODO(b/547900174): update to v1.0 once the support for it is implemented.
         public const val CatalogId: String =
-            "https://a2ui.org/specification/v0_9_1/catalogs/basic/catalog.json"
+            "https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json"
 
         /** The standard theme schema for the A2UI Basic Catalog V1. */
         public val ThemeSchema: A2uiSchema =

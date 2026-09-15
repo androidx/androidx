@@ -107,7 +107,7 @@ package androidx.a2ui.compose.ui.catalog {
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField textField;
     property public androidx.a2ui.model.schema.A2uiSchema themeSchema;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Video video;
-    field public static final String CatalogId = "https://a2ui.org/specification/v0_9_1/catalogs/basic/catalog.json";
+    field public static final String CatalogId = "https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json";
     field public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Companion Companion;
   }
 
