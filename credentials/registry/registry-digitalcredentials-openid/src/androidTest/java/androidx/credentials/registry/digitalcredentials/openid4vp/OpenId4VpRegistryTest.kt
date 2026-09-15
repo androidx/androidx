@@ -20,7 +20,6 @@ import android.graphics.Bitmap
 import androidx.credentials.registry.digitalcredentials.mdoc.MdocEntry
 import androidx.credentials.registry.digitalcredentials.mdoc.MdocField
 import androidx.credentials.registry.digitalcredentials.mdoc.MdocInlineIssuanceEntry
-import androidx.credentials.registry.digitalcredentials.openid4vp.OpenId4VpDefaults.DEFAULT_MATCHER
 import androidx.credentials.registry.digitalcredentials.sdjwt.SdJwtClaim
 import androidx.credentials.registry.digitalcredentials.sdjwt.SdJwtEntry
 import androidx.credentials.registry.digitalcredentials.sdjwt.SdJwtInlineIssuanceEntry
@@ -30,6 +29,7 @@ import androidx.credentials.registry.provider.digitalcredentials.VerificationEnt
 import androidx.credentials.registry.provider.digitalcredentials.VerificationFieldDisplayProperties
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
 import java.nio.ByteBuffer
@@ -43,6 +43,9 @@ import org.junit.runner.RunWith
 @SmallTest
 class OpenId4VpRegistryTest {
 
+    private val context = InstrumentationRegistry.getInstrumentation().context
+    private val defaultMatcher = context.assets.open("presentation.wasm").use { it.readBytes() }
+
     private companion object {
         private val TEST_ICON_1 = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
         private val TEST_ICON_2 = Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_4444)
@@ -52,7 +55,8 @@ class OpenId4VpRegistryTest {
     @Test
     fun construction_longId_throws() {
         assertThrows(IllegalArgumentException::class.java) {
-            OpenId4VpRegistry(
+            OpenId4VpRegistry.create(
+                context = context,
                 credentialEntries = emptyList(),
                 id = "a".repeat(65),
                 intentAction = "androidx.credentials.IntentAction",
@@ -63,7 +67,8 @@ class OpenId4VpRegistryTest {
     @Test
     fun construction_longIntentAction_throws() {
         assertThrows(IllegalArgumentException::class.java) {
-            OpenId4VpRegistry(
+            OpenId4VpRegistry.create(
+                context = context,
                 credentialEntries = emptyList(),
                 id = "id",
                 intentAction = "a".repeat(65),
@@ -74,7 +79,8 @@ class OpenId4VpRegistryTest {
     @Test
     fun construction_emptyEntries() {
         val registry =
-            OpenId4VpRegistry(
+            OpenId4VpRegistry.create(
+                context = context,
                 credentialEntries = emptyList(),
                 id = "id",
                 intentAction = "androidx.credentials.IntentAction",
@@ -90,7 +96,7 @@ class OpenId4VpRegistryTest {
         assertThat(json.getJSONObject("credentials").getJSONObject("issuance").length())
             .isEqualTo(0)
         assertThat(icons).isEmpty()
-        assertThat(registry.matcher).isEqualTo(DEFAULT_MATCHER)
+        assertThat(registry.matcher).isEqualTo(defaultMatcher)
     }
 
     @Test
@@ -118,10 +124,15 @@ class OpenId4VpRegistryTest {
                 id = "sd-jwt-id",
             )
 
-        val registry = OpenId4VpRegistry(credentialEntries = listOf(sdJwtEntry), id = "registry_id")
+        val registry =
+            OpenId4VpRegistry.create(
+                context = context,
+                credentialEntries = listOf(sdJwtEntry),
+                id = "registry_id",
+            )
 
         assertThat(registry.id).isEqualTo("registry_id")
-        assertThat(registry.matcher).isEqualTo(DEFAULT_MATCHER)
+        assertThat(registry.matcher).isEqualTo(defaultMatcher)
         assertThat(registry.intentAction).isEqualTo(RegistryManager.ACTION_GET_CREDENTIAL)
         val (json, icons) = parseCredentialBytes(registry.credentials)
         assertThat(json.has("credentials")).isTrue()
@@ -228,14 +239,15 @@ class OpenId4VpRegistryTest {
             )
 
         val registry =
-            OpenId4VpRegistry(
+            OpenId4VpRegistry.create(
+                context = context,
                 credentialEntries = listOf(sdJwtEntry1, sdJwtEntry2, sdJwtEntry3),
                 id = "registry_id",
                 intentAction = "custom",
             )
 
         assertThat(registry.id).isEqualTo("registry_id")
-        assertThat(registry.matcher).isEqualTo(DEFAULT_MATCHER)
+        assertThat(registry.matcher).isEqualTo(defaultMatcher)
         assertThat(registry.intentAction).isEqualTo("custom")
         val (json, icons) = parseCredentialBytes(registry.credentials)
         assertThat(json.has("credentials")).isTrue()
@@ -350,10 +362,15 @@ class OpenId4VpRegistryTest {
                 id = "mdocid",
             )
 
-        val registry = OpenId4VpRegistry(credentialEntries = listOf(mdocEntry), id = "registry_id")
+        val registry =
+            OpenId4VpRegistry.create(
+                context = context,
+                credentialEntries = listOf(mdocEntry),
+                id = "registry_id",
+            )
 
         assertThat(registry.id).isEqualTo("registry_id")
-        assertThat(registry.matcher).isEqualTo(DEFAULT_MATCHER)
+        assertThat(registry.matcher).isEqualTo(defaultMatcher)
         assertThat(registry.intentAction).isEqualTo(RegistryManager.ACTION_GET_CREDENTIAL)
         val (json, icons) = parseCredentialBytes(registry.credentials)
         assertThat(json.has("credentials")).isTrue()
@@ -441,13 +458,14 @@ class OpenId4VpRegistryTest {
             )
 
         val registry =
-            OpenId4VpRegistry(
+            OpenId4VpRegistry.create(
+                context = context,
                 credentialEntries = listOf(mdocEntry1, mdocEntry2, mdocEntry3),
                 id = "registry_id",
             )
 
         assertThat(registry.id).isEqualTo("registry_id")
-        assertThat(registry.matcher).isEqualTo(DEFAULT_MATCHER)
+        assertThat(registry.matcher).isEqualTo(defaultMatcher)
         assertThat(registry.intentAction).isEqualTo(RegistryManager.ACTION_GET_CREDENTIAL)
         val (json, icons) = parseCredentialBytes(registry.credentials)
         assertThat(json.has("credentials")).isTrue()
@@ -626,7 +644,8 @@ class OpenId4VpRegistryTest {
             )
 
         val registry =
-            OpenId4VpRegistry(
+            OpenId4VpRegistry.create(
+                context = context,
                 credentialEntries =
                     listOf(
                         sdJwtEntry1,
@@ -641,7 +660,7 @@ class OpenId4VpRegistryTest {
             )
 
         assertThat(registry.id).isEqualTo("registry_id")
-        assertThat(registry.matcher).isEqualTo(DEFAULT_MATCHER)
+        assertThat(registry.matcher).isEqualTo(defaultMatcher)
         assertThat(registry.intentAction).isEqualTo(RegistryManager.ACTION_GET_CREDENTIAL)
         val (json, icons) = parseCredentialBytes(registry.credentials)
         assertThat(json.has("credentials")).isTrue()
@@ -795,7 +814,8 @@ class OpenId4VpRegistryTest {
             )
 
         val registry =
-            OpenId4VpRegistry(
+            OpenId4VpRegistry.create(
+                context = context,
                 credentialEntries = emptyList(),
                 inlineIssuanceEntries = listOf(issuanceEntry),
                 id = "registry_id",
@@ -821,7 +841,8 @@ class OpenId4VpRegistryTest {
 
     @Test
     fun construction_defaultSupportedProtocols() {
-        val registry = OpenId4VpRegistry(credentialEntries = emptyList(), id = "id")
+        val registry =
+            OpenId4VpRegistry.create(context = context, credentialEntries = emptyList(), id = "id")
 
         val (json, _) = parseCredentialBytes(registry.credentials)
         assertThat(json.has("supported_protocols")).isTrue()
@@ -839,7 +860,8 @@ class OpenId4VpRegistryTest {
     @Test
     fun construction_customSupportedProtocols() {
         val registry =
-            OpenId4VpRegistry(
+            OpenId4VpRegistry.create(
+                context = context,
                 credentialEntries = emptyList(),
                 id = "id",
                 supportedProtocols =
