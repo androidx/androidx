@@ -36,6 +36,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
+import androidx.compose.ui.window.SecureFlagPolicy
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -245,8 +246,7 @@ class DialogTest {
                     properties =
                         DialogProperties(
                             windowTitle = "CustomTitle",
-                            decorFitsSystemWindows = true,
-                            usePlatformDefaultWidth = true,
+                            securePolicy = SecureFlagPolicy.SecureOn,
                         ),
                 ) {
                     var parent = LocalView.current.parent
@@ -262,8 +262,8 @@ class DialogTest {
         Assert.assertEquals("CustomTitle", window!!.attributes.title)
         val flags = window!!.attributes.flags
         Assert.assertTrue(
-            "Expected FLAG_LAYOUT_IN_SCREEN not to be set when decorFitsSystemWindows is true",
-            (flags and WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN) == 0,
+            "Expected FLAG_SECURE to be set when securePolicy is SecureOn",
+            (flags and WindowManager.LayoutParams.FLAG_SECURE) != 0,
         )
     }
 
@@ -284,7 +284,7 @@ class DialogTest {
         var innerShow: Boolean? = null
         rule.setContentWithTheme {
             Dialog(visible = true, onDismissRequest = {}) {
-                ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {
+                ScreenScaffold {
                     innerShow = LocalInheritedShowStatusBar.current
                 }
             }

@@ -40,6 +40,47 @@ import androidx.compose.ui.platform.LocalView
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components.
  *
+ * On devices that support the system status bar, the system status bar overlay replaces
+ * application-rendered [TimeText] across screens inside this scaffold. On devices that do not
+ * support the system status bar, this scaffold automatically falls back to rendering standard
+ * in-app [TimeText]. It provides a slot for the main application content, which will usually be
+ * supplied by a navigation component such as Navigation3's NavDisplay with
+ * SwipeDismissableSceneStrategy.
+ *
+ * Example of using AppScaffold and ScreenScaffold:
+ *
+ * @sample androidx.wear.compose.material3.samples.ScaffoldSample
+ *
+ * ![ScaffoldSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_ScaffoldSample_CompositeImage.png)
+ *
+ * @param modifier The modifier for the top level of the scaffold.
+ * @param containerColor The container color of the app drawn behind the [content], i.e. the color
+ *   of the background behind the content.
+ * @param contentColor The content color for the application [content].
+ * @param content The main content for this application.
+ */
+@Composable
+public fun AppScaffold(
+    modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.background,
+    contentColor: Color = contentColorFor(containerColor),
+    content: @Composable BoxScope.() -> Unit,
+): Unit =
+    AppScaffold(
+        modifier = modifier,
+        timeText = AppScaffoldDefaults.timeText,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        content = content,
+    )
+
+/**
+ * [AppScaffold] is one of the Wear Material3 scaffold components.
+ *
+ * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
+ * coordinate transitions of the [ScrollIndicator] and [TimeText] components.
+ *
  * [AppScaffold] allows static screen elements such as [TimeText] to remain visible during in-app
  * transitions such as swipe-to-dismiss. It provides a slot for the main application content, which
  * will usually be supplied by a navigation component such as SwipeDismissableNavHost.
@@ -52,25 +93,21 @@ import androidx.compose.ui.platform.LocalView
  * Image](https://developer.android.com/wear/images/design/WearComposeM3_ScaffoldSample_CompositeImage.png)
  *
  * @param modifier The modifier for the top level of the scaffold.
- * @param timeText The default time (and potentially status message) to display at the top middle of
- *   the screen in this app. When [AppScaffold] is used in combination with [ScreenScaffold], the
- *   time text will be scrolled away and shown/hidden according to the scroll state of the screen.
+ * @param timeText The default time text to display across screens in this application. Defaults to
+ *   [AppScaffoldDefaults.timeText], which enables the system status bar overlay on supported Wear
+ *   OS devices (API 35+). Passing any custom lambda disables the system status bar overlay and
+ *   renders the provided composable locally instead.
  * @param containerColor The container color of the app drawn behind the [content], i.e. the color
  *   of the background behind the content.
  * @param contentColor The content color for the application [content].
- * @param isStatusBarEnabled Whether to display the system status bar overlay across screens inside
- *   this scaffold. On devices that support the system status bar, the system overlay status bar
- *   replaces the app-level [TimeText] to prevent overlapping. When false or on unsupported devices,
- *   the scaffold defers to local [TimeText] rendering.
  * @param content The main content for this application.
  */
 @Composable
 public fun AppScaffold(
     modifier: Modifier = Modifier,
-    timeText: @Composable () -> Unit = { TimeText() },
+    timeText: @Composable () -> Unit = AppScaffoldDefaults.timeText,
     containerColor: Color = MaterialTheme.colorScheme.background,
     contentColor: Color = contentColorFor(containerColor),
-    isStatusBarEnabled: Boolean = true,
     content: @Composable BoxScope.() -> Unit,
 ) {
     // Run the animator coordinator if needed.
@@ -78,7 +115,8 @@ public fun AppScaffold(
 
     val appShowStatusBarState =
         rememberShowStatusBarState(
-            if (isStatusBarEnabled) StatusBarMode.Enabled else StatusBarMode.Disabled
+            if (timeText === AppScaffoldDefaults.timeText) StatusBarMode.Enabled
+            else StatusBarMode.Disabled
         )
     val timeTextState = rememberUpdatedState(timeText)
     val appWindowViewState = rememberUpdatedState(LocalView.current)
@@ -151,24 +189,8 @@ public fun AppScaffold(
     }
 }
 
-@Deprecated(
-    message =
-        "This overload is deprecated, please use the new overload with the isStatusBarEnabled parameter.",
-    level = DeprecationLevel.HIDDEN,
-)
-@Composable
-public fun AppScaffold(
-    modifier: Modifier = Modifier,
-    timeText: @Composable () -> Unit = { TimeText() },
-    containerColor: Color = MaterialTheme.colorScheme.background,
-    contentColor: Color = contentColorFor(containerColor),
-    content: @Composable BoxScope.() -> Unit,
-): Unit =
-    AppScaffold(
-        modifier = modifier,
-        timeText = timeText,
-        containerColor = containerColor,
-        contentColor = contentColor,
-        isStatusBarEnabled = true,
-        content = content,
-    )
+/** Contains default values used by [AppScaffold]. */
+public object AppScaffoldDefaults {
+    /** The default time text provided by [AppScaffold]. */
+    public val timeText: @Composable () -> Unit = { TimeText() }
+}
