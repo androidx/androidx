@@ -59,6 +59,8 @@ constructor(
     @GuardedBy("lock") private var _flashMode = DEFAULT_FLASH_MODE
     @GuardedBy("lock") private var _template = DEFAULT_REQUEST_TEMPLATE
     @GuardedBy("lock") private var _tryExternalFlashAeMode = false
+    @GuardedBy("lock") private var _preferredTorchAeMode: Int? = null
+    @GuardedBy("lock") private var _preferredLowLightBoostAeMode: Int? = null
     @GuardedBy("lock") private var _preferredAeMode: Int? = null
     @GuardedBy("lock") private var _preferredFocusMode: Int? = null
 
@@ -79,7 +81,10 @@ constructor(
      * best option.
      */
     public val preferredAeMode: Int?
-        get() = synchronized(lock) { _preferredAeMode }
+        get() =
+            synchronized(lock) {
+                _preferredTorchAeMode ?: _preferredLowLightBoostAeMode ?: _preferredAeMode
+            }
 
     public val preferredFocusMode: Int?
         get() = synchronized(lock) { _preferredFocusMode }
@@ -104,6 +109,16 @@ constructor(
         return update()
     }
 
+    public fun setPreferredTorchAeModeAsync(value: Int?): Deferred<Unit> {
+        synchronized(lock) { _preferredTorchAeMode = value }
+        return update()
+    }
+
+    public fun setPreferredLowLightBoostAeModeAsync(value: Int?): Deferred<Unit> {
+        synchronized(lock) { _preferredLowLightBoostAeMode = value }
+        return update()
+    }
+
     public fun setPreferredFocusModeAsync(value: Int?): Deferred<Unit> {
         synchronized(lock) { _preferredFocusMode = value }
         return update()
@@ -113,6 +128,8 @@ constructor(
         synchronized(lock) {
             _tryExternalFlashAeMode = false
             _preferredAeMode = null
+            _preferredTorchAeMode = null
+            _preferredLowLightBoostAeMode = null
             _preferredFocusMode = null
             _flashMode = DEFAULT_FLASH_MODE
             _template = DEFAULT_REQUEST_TEMPLATE
@@ -200,7 +217,8 @@ constructor(
                     flashMode = _flashMode,
                     template = _template,
                     tryExternalFlashAeMode = _tryExternalFlashAeMode,
-                    preferredAeMode = _preferredAeMode,
+                    preferredAeMode =
+                        _preferredTorchAeMode ?: _preferredLowLightBoostAeMode ?: _preferredAeMode,
                     preferredFocusMode = _preferredFocusMode,
                 )
             }
@@ -262,7 +280,11 @@ constructor(
     public fun getFinalSupportedAeMode(): Int =
         synchronized(lock) {
             cameraProperties.metadata.getSupportedAeMode(
-                getFinalPreferredAeMode(_flashMode, _tryExternalFlashAeMode, _preferredAeMode)
+                getFinalPreferredAeMode(
+                    _flashMode,
+                    _tryExternalFlashAeMode,
+                    _preferredTorchAeMode ?: _preferredLowLightBoostAeMode ?: _preferredAeMode,
+                )
             )
         }
 
@@ -272,10 +294,13 @@ constructor(
      * Note that this may not be supported via the camera and should be sanitized with
      * [getSupportedAeMode].
      */
-    private fun getFinalPreferredAeMode(
-        flashMode: Int,
-        tryExternalFlashAeMode: Boolean,
-        preferredAeMode: Int?,
+    internal fun getFinalPreferredAeMode(
+        flashMode: Int = synchronized(lock) { _flashMode },
+        tryExternalFlashAeMode: Boolean = synchronized(lock) { _tryExternalFlashAeMode },
+        preferredAeMode: Int? =
+            synchronized(lock) {
+                _preferredTorchAeMode ?: _preferredLowLightBoostAeMode ?: _preferredAeMode
+            },
     ): Int {
         var preferAeMode =
             preferredAeMode

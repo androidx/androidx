@@ -474,7 +474,6 @@ public class CameraXActivity extends AppCompatActivity {
     private final Set<DynamicRange> mSelectableDynamicRanges = new HashSet<>();
     private int mMirrorMode = MIRROR_MODE_ON_FRONT_ONLY;
     private boolean mIsPreviewStabilizationOn = false;
-    private boolean mIsLowLightBoostOn = false;
     private Range<Integer> mFpsRange = FPS_UNSPECIFIED;
     private boolean mForceEnableStreamSharing;
     private boolean mDisableViewPort = true;
@@ -2512,39 +2511,44 @@ public class CameraXActivity extends AppCompatActivity {
 
     @SuppressWarnings("FutureReturnValueIgnored")
     private void setUpLowLightBoostButton() {
-        mIsLowLightBoostOn = false;
-        mLowLightBoostToggle.setVisibility(
-                mCamera == null || !mCamera.getCameraInfo().isLowLightBoostSupported() ? View.GONE
-                        : View.VISIBLE);
+        if (mCamera == null || !mCamera.getCameraInfo().isLowLightBoostSupported()) {
+            mLowLightBoostToggle.setVisibility(View.GONE);
+            return;
+        }
+        mLowLightBoostToggle.setVisibility(View.VISIBLE);
+        mCamera.getCameraInfo().getLowLightBoostState().removeObservers(this);
+        mCamera.getCameraInfo().getLowLightBoostState().observe(
+                this,
+                state -> {
+                    int resId;
+                    switch (state) {
+                        case LowLightBoostState.INACTIVE:
+                            resId = R.string.toggle_low_light_boost_inactive;
+                            mLowLightBoostToggle.setChecked(true);
+                            break;
+                        case LowLightBoostState.ACTIVE:
+                            resId = R.string.toggle_low_light_boost_active;
+                            mLowLightBoostToggle.setChecked(true);
+                            break;
+                        default:
+                            resId = R.string.toggle_low_light_boost_off;
+                            mLowLightBoostToggle.setChecked(false);
+                            break;
+                    }
+                    mLowLightBoostToggle.setText(resId);
+                }
+        );
         if (mLowLightBoostToggle.hasOnClickListeners()) {
             return;
         }
         mLowLightBoostToggle.setOnClickListener(v -> {
-            mIsLowLightBoostOn = !mIsLowLightBoostOn;
             if (mCamera == null) {
                 return;
             }
-            if (!mCamera.getCameraInfo().getLowLightBoostState().hasObservers()) {
-                // Show the low-light boost state to the toggle button text for easy observation.
-                mCamera.getCameraInfo().getLowLightBoostState().observe(
-                        this,
-                        state -> {
-                            int resId;
-                            switch (state) {
-                                case LowLightBoostState.INACTIVE:
-                                    resId = R.string.toggle_low_light_boost_inactive;
-                                    break;
-                                case LowLightBoostState.ACTIVE:
-                                    resId = R.string.toggle_low_light_boost_active;
-                                    break;
-                                default:
-                                    resId = R.string.toggle_low_light_boost_off;
-                            }
-                            mLowLightBoostToggle.setText(resId);
-                        }
-                );
-            }
-            mCamera.getCameraControl().enableLowLightBoostAsync(mIsLowLightBoostOn);
+            Integer llbState = mCamera.getCameraInfo().getLowLightBoostState().getValue();
+            boolean isLlbOn = Objects.equals(llbState, LowLightBoostState.ACTIVE)
+                    || Objects.equals(llbState, LowLightBoostState.INACTIVE);
+            mCamera.getCameraControl().enableLowLightBoostAsync(!isLlbOn);
         });
     }
 

@@ -41,6 +41,7 @@ import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -50,6 +51,7 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.floor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
@@ -151,7 +153,8 @@ class LowLightBoostDeviceTest(
     }
 
     @Test
-    fun turnsOnTorchThrowsException_whenLowLightBoostIsOn() {
+    @LabTestRule.LabTestRearCamera
+    fun turnsOnTorch_willTurnsOffLowLightBoost() {
         assumeTrue(
             cameraSelector.lensFacing == CameraSelector.LENS_FACING_BACK &&
                 camera.cameraInfo.hasFlashUnit()
@@ -168,10 +171,95 @@ class LowLightBoostDeviceTest(
         camera.cameraControl.enableLowLightBoostAsync(true)[1, TimeUnit.SECONDS]
         verifyLowLightBoostOnStatesReceived()
 
-        // Checks that ExecutionException will be thrown after turning torch on
-        assertThrows<ExecutionException> {
-            camera.cameraControl.enableTorch(true)[1, TimeUnit.SECONDS]
+        // Checks that torch will be turned on and turns low-light boost off
+        camera.cameraControl.enableTorch(true)[1, TimeUnit.SECONDS]
+        assertThat(camera.cameraInfo.torchState.value).isEqualTo(TorchState.ON)
+        verifyLowLightBoostOffStateReceived()
+
+        // Checks that turning off torch does not restore low-light boost
+        camera.cameraControl.enableTorch(false)[1, TimeUnit.SECONDS]
+        assertThat(camera.cameraInfo.torchState.value).isEqualTo(TorchState.OFF)
+        assertThat(camera.cameraInfo.lowLightBoostState.value).isEqualTo(LowLightBoostState.OFF)
+    }
+
+    @Test
+    @LabTestRule.LabTestRearCamera
+    fun turnsOffTorch_whenLowLightBoostIsOn_wontChangeLowLightBoost() {
+        assumeTrue(
+            cameraSelector.lensFacing == CameraSelector.LENS_FACING_BACK &&
+                camera.cameraInfo.hasFlashUnit()
+        )
+
+        // Binds a Preview
+        val preview = Preview.Builder().build()
+        instrumentation.runOnMainSync {
+            preview.surfaceProvider = SurfaceTextureProvider.createSurfaceTextureProvider()
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
         }
+
+        // Enables low-light boost
+        camera.cameraControl.enableLowLightBoostAsync(true)[1, TimeUnit.SECONDS]
+        verifyLowLightBoostOnStatesReceived()
+
+        // Checks that turning off torch succeeds and does not disturb low-light boost
+        camera.cameraControl.enableTorch(false)[1, TimeUnit.SECONDS]
+        assertThat(camera.cameraInfo.torchState.value).isEqualTo(TorchState.OFF)
+        verifyLowLightBoostOnStatesReceived()
+    }
+
+    @Test
+    @LabTestRule.LabTestRearCamera
+    fun turnsOffLowLightBoost_whenTorchIsOn_wontChangeTorch() {
+        assumeTrue(
+            cameraSelector.lensFacing == CameraSelector.LENS_FACING_BACK &&
+                camera.cameraInfo.hasFlashUnit()
+        )
+
+        // Binds a Preview
+        val preview = Preview.Builder().build()
+        instrumentation.runOnMainSync {
+            preview.surfaceProvider = SurfaceTextureProvider.createSurfaceTextureProvider()
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
+        }
+
+        // Enables torch
+        camera.cameraControl.enableTorch(true)[1, TimeUnit.SECONDS]
+        assertThat(camera.cameraInfo.torchState.value).isEqualTo(TorchState.ON)
+
+        // Checks that turning off low-light boost succeeds and does not disturb torch
+        camera.cameraControl.enableLowLightBoostAsync(false)[1, TimeUnit.SECONDS]
+        assertThat(camera.cameraInfo.torchState.value).isEqualTo(TorchState.ON)
+        assertThat(camera.cameraInfo.lowLightBoostState.value).isEqualTo(LowLightBoostState.OFF)
+    }
+
+    @Test
+    @LabTestRule.LabTestRearCamera
+    fun turnsOnLowLightBoost_afterTorchTurnedOn_turnsOnLowLightBoostAndTurnsOffTorch() {
+        assumeTrue(
+            cameraSelector.lensFacing == CameraSelector.LENS_FACING_BACK &&
+                camera.cameraInfo.hasFlashUnit()
+        )
+
+        // Binds a Preview
+        val preview = Preview.Builder().build()
+        instrumentation.runOnMainSync {
+            preview.surfaceProvider = SurfaceTextureProvider.createSurfaceTextureProvider()
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
+        }
+
+        // 1. Enables low-light boost
+        camera.cameraControl.enableLowLightBoostAsync(true)[1, TimeUnit.SECONDS]
+        verifyLowLightBoostOnStatesReceived()
+
+        // 2. Turns on torch (turns off low-light boost)
+        camera.cameraControl.enableTorch(true)[1, TimeUnit.SECONDS]
+        assertThat(camera.cameraInfo.torchState.value).isEqualTo(TorchState.ON)
+        verifyLowLightBoostOffStateReceived()
+
+        // 3. Turns on low-light boost again (turns off torch)
+        camera.cameraControl.enableLowLightBoostAsync(true)[1, TimeUnit.SECONDS]
+        verifyLowLightBoostOnStatesReceived()
+        assertThat(camera.cameraInfo.torchState.value).isEqualTo(TorchState.OFF)
     }
 
     @Test
@@ -250,8 +338,12 @@ class LowLightBoostDeviceTest(
     }
 
     @Test
-    fun turnsOnLowLightBoost_willDisableFlash() {
-        assumeTrue(camera.cameraInfo.hasFlashUnit())
+    @LabTestRule.LabTestRearCamera
+    fun turnsOnLowLightBoost_flashCanStillFireWhenCapturingImage() {
+        assumeTrue(
+            cameraSelector.lensFacing == CameraSelector.LENS_FACING_BACK &&
+                camera.cameraInfo.hasFlashUnit()
+        )
 
         // Binds Preview and ImageCapture
         val preview = Preview.Builder().build()
@@ -265,30 +357,53 @@ class LowLightBoostDeviceTest(
         camera.cameraControl.enableLowLightBoostAsync(true)[1, TimeUnit.SECONDS]
         verifyLowLightBoostOnStatesReceived()
 
+        val observedOffState = AtomicBoolean(false)
+        val observer =
+            Observer<Int> { state ->
+                if (state == LowLightBoostState.OFF) {
+                    observedOffState.set(true)
+                }
+            }
+        instrumentation.runOnMainSync {
+            camera.cameraInfo.lowLightBoostState.observeForever(observer)
+        }
+
         val capturedCountDownLatch = CountDownLatch(1)
         var error: Exception? = null
         var flashState: Int = FlashState.UNKNOWN
 
-        imageCapture.takePicture(
-            Dispatchers.Main.asExecutor(),
-            object : ImageCapture.OnImageCapturedCallback() {
-                override fun onCaptureSuccess(image: ImageProxy) {
-                    flashState = image.imageInfo.flashState
-                    image.close()
-                    capturedCountDownLatch.countDown()
-                }
+        try {
+            imageCapture.takePicture(
+                Dispatchers.Main.asExecutor(),
+                object : ImageCapture.OnImageCapturedCallback() {
+                    override fun onCaptureSuccess(image: ImageProxy) {
+                        flashState = image.imageInfo.flashState
+                        image.close()
+                        capturedCountDownLatch.countDown()
+                    }
 
-                override fun onError(exception: ImageCaptureException) {
-                    error = exception
-                    capturedCountDownLatch.countDown()
-                }
-            },
-        )
+                    override fun onError(exception: ImageCaptureException) {
+                        error = exception
+                        capturedCountDownLatch.countDown()
+                    }
+                },
+            )
 
-        // Checks the image is captured successfully with flash state NOT_FIRED
-        assertThat(capturedCountDownLatch.await(5, TimeUnit.SECONDS)).isTrue()
-        assertThat(error).isNull()
-        assertThat(flashState).isEqualTo(FlashState.NOT_FIRED)
+            // Checks the image is captured successfully with flash state FIRED
+            assertThat(capturedCountDownLatch.await(10, TimeUnit.SECONDS)).isTrue()
+            assertThat(error).isNull()
+            assertThat(flashState).isEqualTo(FlashState.FIRED)
+
+            // Checks that lowLightBoostState never flickered to OFF during the flash override
+            assertThat(observedOffState.get()).isFalse()
+
+            // Verifies that low-light boost remains on / restored after capture
+            verifyLowLightBoostOnStatesReceived()
+        } finally {
+            instrumentation.runOnMainSync {
+                camera.cameraInfo.lowLightBoostState.removeObserver(observer)
+            }
+        }
     }
 
     @Test
