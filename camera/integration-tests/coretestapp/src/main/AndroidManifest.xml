@@ -66,6 +66,17 @@ limitations under the License.
             </intent-filter>
         </activity>
         <activity
+            android:name=".CustomVideoOutputActivity"
+            android:exported="true"
+            android:label="Custom VideoOutput Test App"
+            android:taskAffinity="androidx.camera.integration.core.CustomVideoOutputActivity"
+            android:theme="@style/NoTitleTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".ServiceSettingActivity"
             android:exported="true"
             android:label="Service Test App"
