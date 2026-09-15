@@ -245,7 +245,7 @@ class AnimatedTest {
 
         // advance a third between animations
         composeTestRule.mainClock.advanceTimeBy(
-            DEFAULT_TRANSITION_DURATION_MILLISECOND.toLong() / 3
+            DEFAULT_TRANSITION_DURATION_MILLISECOND.toLong() / 20
         )
 
         composeTestRule.waitForIdle()
@@ -318,9 +318,9 @@ class AnimatedTest {
         // interrupt pop third by pop second as well
         composeTestRule.runOnIdle { backStack.removeLastOrNull() }
 
-        // advance a third between animations
+        // advance a small amount to catch the fast spring interruption midway
         composeTestRule.mainClock.advanceTimeBy(
-            DEFAULT_TRANSITION_DURATION_MILLISECOND.toLong() / 3
+            DEFAULT_TRANSITION_DURATION_MILLISECOND.toLong() / 20
         )
 
         composeTestRule.waitForIdle()
@@ -395,7 +395,7 @@ class AnimatedTest {
 
         // advance a third between animations
         composeTestRule.mainClock.advanceTimeBy(
-            DEFAULT_TRANSITION_DURATION_MILLISECOND.toLong() / 3
+            DEFAULT_TRANSITION_DURATION_MILLISECOND.toLong() / 20
         )
 
         composeTestRule.waitForIdle()

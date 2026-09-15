@@ -50,7 +50,13 @@ internal class SharedEntryInSceneNavEntryDecorator<T : Any>(
                 with(sharedTransitionScope) {
                     Box(
                         Modifier.sharedElement(
-                            rememberSharedContentState(entry.contentKey),
+                            rememberSharedContentState(
+                                key = entry.contentKey,
+                                config =
+                                    SharedContentConfig(
+                                        permitTransformDuringDeferredTransition = false
+                                    ),
+                            ),
                             animatedVisibilityScope = LocalNavAnimatedContentScope.current,
                         )
                     ) {

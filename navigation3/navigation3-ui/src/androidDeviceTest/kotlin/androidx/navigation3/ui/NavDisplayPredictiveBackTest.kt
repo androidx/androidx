@@ -21,9 +21,12 @@ import androidx.activity.BackEventCompat
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -335,18 +338,34 @@ class NavDisplayPredictiveBackTest {
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
                 transitionSpec = {
-                    ContentTransform(
-                        targetContentEnter =
-                            slideIntoContainer(
-                                AnimatedContentTransitionScope.SlideDirection.Start,
-                                animationSpec = tween(1000, easing = LinearEasing),
-                            ),
-                        initialContentExit =
-                            slideOutOfContainer(
-                                AnimatedContentTransitionScope.SlideDirection.Start,
-                                animationSpec = tween(1000, easing = LinearEasing),
-                            ),
-                    )
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Start,
+                        animationSpec = tween(1000, easing = LinearEasing),
+                    ) togetherWith
+                        slideOutOfContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Start,
+                            animationSpec = tween(1000, easing = LinearEasing),
+                        )
+                },
+                popTransitionSpec = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.End,
+                        animationSpec = tween(1000, easing = LinearEasing),
+                    ) togetherWith
+                        slideOutOfContainer(
+                            AnimatedContentTransitionScope.SlideDirection.End,
+                            animationSpec = tween(1000, easing = LinearEasing),
+                        )
+                },
+                predictivePopTransitionSpec = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.End,
+                        animationSpec = tween(1000, easing = LinearEasing),
+                    ) togetherWith
+                        slideOutOfContainer(
+                            AnimatedContentTransitionScope.SlideDirection.End,
+                            animationSpec = tween(1000, easing = LinearEasing),
+                        )
                 },
             ) { key ->
                 NavEntry(key) { Box(modifier = Modifier.fillMaxSize()) { Text(key.toString()) } }
@@ -355,15 +374,17 @@ class NavDisplayPredictiveBackTest {
 
         composeTestRule.onNodeWithText(first).assertExists()
 
-        // Trigger forward navigation with clock paused
+        // 1. Trigger forward navigation with clock paused and advance halfway (500ms / 1000ms)
         composeTestRule.mainClock.autoAdvance = false
         composeTestRule.runOnIdle { backStack.add(second) }
-
-        // Advance time partially (e.g. 500ms = 50% into forward transition)
         composeTestRule.mainClock.advanceTimeBy(500)
         composeTestRule.waitForIdle()
 
-        // Initiate predictive back and seek back towards first (progress = 0.9f)
+        val secondSceneLeftPositionAt500ms =
+            composeTestRule.onNodeWithText(second).getUnclippedBoundsInRoot().left
+        assertThat(secondSceneLeftPositionAt500ms).isGreaterThan(0.dp)
+
+        // 2. Initiate predictive back gesture towards first (progress = 0.9f)
         composeTestRule.runOnIdle {
             input.backStarted(
                 NavigationEvent(
@@ -383,21 +404,136 @@ class NavDisplayPredictiveBackTest {
             )
         }
 
-        // Advance 2 frames: one to recompose the retargeted scene and one to apply seeking
-        composeTestRule.mainClock.advanceTimeByFrame()
-        composeTestRule.mainClock.advanceTimeByFrame()
+        // Allow spring catch-up animation to transition the in-flight slide to the gesture's offset
+        composeTestRule.mainClock.advanceTimeBy(500)
+        composeTestRule.waitForIdle()
 
-        val secondSceneLeftPosition =
+        val secondSceneLeftPositionAt90Percent =
             composeTestRule.onNodeWithText(second).getUnclippedBoundsInRoot().left
+        val firstSceneLeftPositionAt90Percent =
+            composeTestRule.onNodeWithText(first).getUnclippedBoundsInRoot().left
 
-        // Assert that the entering scene is being seeked backward towards its exit (< 0.dp)
-        assertThat(secondSceneLeftPosition).isLessThan(0.dp)
+        // Because predictivePopTransitionSpec defines slide:
+        // - second is being seeked towards its pop exit to the right (> position at 500ms).
+        // - first is being seeked in from the left (< 0.dp).
+        assertThat(secondSceneLeftPositionAt90Percent).isGreaterThan(secondSceneLeftPositionAt500ms)
+        assertThat(firstSceneLeftPositionAt90Percent).isLessThan(0.dp)
+        composeTestRule.onNodeWithText(first).assertExists()
+        composeTestRule.onNodeWithText(second).assertExists()
 
-        // Cancel back gesture and verify it settles on second
+        // 3. Cancel back gesture and verify it settles on second
         composeTestRule.runOnIdle { input.backCancelled() }
         composeTestRule.mainClock.autoAdvance = true
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText(second).assertExists()
         composeTestRule.onNodeWithText(first).assertDoesNotExist()
+        assertThat(composeTestRule.onNodeWithText(second).getUnclippedBoundsInRoot().left)
+            .isEqualTo(0.dp)
+    }
+
+    @Test
+    fun testPredictiveBackHandoff() {
+        lateinit var input: DirectNavigationEventInput
+        lateinit var navEventDispatcher: NavigationEventDispatcher
+        lateinit var backStack: MutableList<Any>
+
+        composeTestRule.setContent {
+            navEventDispatcher =
+                LocalNavigationEventDispatcherOwner.current!!.navigationEventDispatcher
+            input = DirectNavigationEventInput()
+            navEventDispatcher.addInput(input)
+            backStack = remember { mutableStateListOf(first) }
+            NavDisplay(
+                backStack = backStack,
+                predictivePopTransitionSpec = {
+                    slideInHorizontally(
+                        animationSpec = tween(100, easing = LinearEasing),
+                        initialOffsetX = { -it / 2 },
+                    ) togetherWith
+                        slideOutHorizontally(
+                            animationSpec = tween(100, easing = LinearEasing),
+                            targetOffsetX = { it / 2 },
+                        )
+                },
+                popTransitionSpec = {
+                    slideInHorizontally(
+                        animationSpec = tween(1000, easing = LinearEasing),
+                        initialOffsetX = { -it / 2 },
+                    ) togetherWith
+                        slideOutVertically(
+                            animationSpec = tween(1000, easing = LinearEasing),
+                            targetOffsetY = { it / 2 },
+                        )
+                },
+                onBack = { backStack.removeAt(backStack.lastIndex) },
+            ) { key ->
+                when (key) {
+                    first -> NavEntry(first) { Box(Modifier.fillMaxSize()) { Text(first) } }
+                    second -> NavEntry(second) { Box(Modifier.fillMaxSize()) { Text(second) } }
+                    else -> error("Invalid key passed")
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle { backStack.add(second) }
+        composeTestRule.waitForIdle()
+
+        composeTestRule.runOnIdle {
+            input.backStarted(
+                NavigationEvent(
+                    swipeEdge = NavigationEvent.EDGE_LEFT,
+                    progress = 0.5F,
+                    touchX = 0.1F,
+                    touchY = 0.1F,
+                )
+            )
+            input.backProgressed(
+                NavigationEvent(
+                    swipeEdge = NavigationEvent.EDGE_LEFT,
+                    progress = 0.5F,
+                    touchX = 0.1F,
+                    touchY = 0.1F,
+                )
+            )
+        }
+
+        composeTestRule.mainClock.autoAdvance = false
+        composeTestRule.waitForIdle()
+        composeTestRule.mainClock.advanceTimeByFrame()
+        composeTestRule.mainClock.advanceTimeByFrame()
+
+        val enterXAt50 = composeTestRule.onNodeWithText(first).fetchSemanticsNode().positionInRoot.x
+        val exitXAt50 = composeTestRule.onNodeWithText(second).fetchSemanticsNode().positionInRoot.x
+
+        assertWithMessage("exitX should be > 0 at 50%").that(exitXAt50).isGreaterThan(0f)
+        assertWithMessage("enterX should be < 0 at 50%").that(enterXAt50).isLessThan(0f)
+
+        composeTestRule.runOnIdle { input.backCompleted() }
+
+        composeTestRule.mainClock.advanceTimeByFrame()
+        composeTestRule.mainClock.advanceTimeByFrame()
+
+        val enterX = composeTestRule.onNodeWithText(first).fetchSemanticsNode().positionInRoot.x
+        val exitX = composeTestRule.onNodeWithText(second).fetchSemanticsNode().positionInRoot.x
+        val exitY = composeTestRule.onNodeWithText(second).fetchSemanticsNode().positionInRoot.y
+
+        assertWithMessage("exitX should not jump back to 0 during handoff")
+            .that(exitX)
+            .isGreaterThan(0f)
+        assertWithMessage("enterX should not jump back to full left during handoff")
+            .that(enterX)
+            .isLessThan(0f)
+
+        // Advance further to allow popTransitionSpec to take over and start animating vertically
+        composeTestRule.mainClock.advanceTimeBy(100)
+
+        val exitYLater =
+            composeTestRule.onNodeWithText(second).fetchSemanticsNode().positionInRoot.y
+        assertWithMessage("exitY should start animating downwards due to popTransitionSpec")
+            .that(exitYLater)
+            .isGreaterThan(exitY)
+
+        composeTestRule.mainClock.autoAdvance = true
+        composeTestRule.waitForIdle()
     }
 }

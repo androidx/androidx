@@ -153,8 +153,8 @@ class NavDisplayLifecycleTest {
             .containsExactly(
                 "A" to "ON_RESUME",
                 "B" to "ON_RESUME",
-                "B" to "ON_PAUSE",
                 "A" to "ON_PAUSE",
+                "B" to "ON_PAUSE",
                 "A" to "ON_RESUME",
             )
             .inOrder()
