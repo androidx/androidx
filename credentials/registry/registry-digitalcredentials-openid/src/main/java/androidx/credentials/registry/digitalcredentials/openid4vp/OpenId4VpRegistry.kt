@@ -16,12 +16,13 @@
 
 package androidx.credentials.registry.digitalcredentials.openid4vp
 
+import android.content.Context
 import android.graphics.Bitmap
 import androidx.annotation.RestrictTo
 import androidx.annotation.StringDef
+import androidx.annotation.WorkerThread
 import androidx.credentials.registry.digitalcredentials.mdoc.MdocEntry
 import androidx.credentials.registry.digitalcredentials.mdoc.MdocInlineIssuanceEntry
-import androidx.credentials.registry.digitalcredentials.openid4vp.OpenId4VpDefaults.DEFAULT_MATCHER
 import androidx.credentials.registry.digitalcredentials.sdjwt.SdJwtEntry
 import androidx.credentials.registry.digitalcredentials.sdjwt.SdJwtInlineIssuanceEntry
 import androidx.credentials.registry.provider.DelegationType
@@ -46,40 +47,19 @@ import org.json.JSONObject
  * [OpenID for Verifiable Presentations protocol](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html)
  * based request.
  *
+ * Use [create] to build an instance.
+ *
  * The ([type], [id]) properties together act as a primary key for this registry record stored with
  * the Registry Manager. You later can use the same values of [type] + [id] to overwrite or delete a
  * previously registered registry. Therefore, you should track the ids you use for various registry
  * use cases (most often you only need one) so that you can later use them to update the same
  * registry record.
- *
- * If both [credentialEntries] and [inlineIssuanceEntries] are empty, the registry will never be
- * used to answer a request.
- *
- * @param credentialEntries the list of entries to register
- * @param id the unique id for this registry
- * @param intentAction the intent action that will be used to launch your fulfillment activity when
- *   one of your credentials was chosen by the user, default to
- *   [RegistryManager.ACTION_GET_CREDENTIAL] when unspecified; when Credential Manager launches your
- *   fulfillment activity, it will build an intent with the given `intentAction` targeting your
- *   package, so this is useful when you need to define different fulfillment activities for
- *   different registries
- * @param inlineIssuanceEntries the list of inline issuance entries to add the user credentials on
- *   the fly, if applicable
- * @param supportedProtocols an ordered list of [OpenId4VpProtocol] identifiers that your registry
- *   supports, in descending order of preference (highest priority first). When an incoming
- *   OpenID4VP request is received, the system evaluates it against each protocol in this list
- *   sequentially, stopping immediately on the first successful match. Any protocol not included in
- *   this list is strictly ignored. Defaults to [PROTOCOL_OPENID4VP_1_0_SIGNED],
- *   [PROTOCOL_OPENID4VP_1_0_UNSIGNED], and [PROTOCOL_OPENID4VP_1_0_MULTISIGNED]
- * @param serviceAction the intent action that will be used to bind to your background fulfillment
- *   service (silent / FULL delegation), defaults to [RegistryManager.ACTION_GET_CREDENTIAL_SERVICE]
- * @throws IllegalArgumentException if [id] or [intentAction] length is greater than 64 characters
  */
 public class OpenId4VpRegistry
-@JvmOverloads
-public constructor(
+internal constructor(
     credentialEntries: List<DigitalCredentialEntry>,
     id: String,
+    matcher: ByteArray,
     intentAction: String = RegistryManager.ACTION_GET_CREDENTIAL,
     inlineIssuanceEntries: List<InlineIssuanceEntry> = emptyList(),
     supportedProtocols: List<@OpenId4VpProtocol String> =
@@ -94,7 +74,7 @@ public constructor(
         id = id,
         credentials =
             toCredentialBytes(credentialEntries, inlineIssuanceEntries, supportedProtocols),
-        matcher = DEFAULT_MATCHER,
+        matcher = matcher,
         intentAction = intentAction,
         serviceAction = serviceAction,
     ) {
@@ -120,6 +100,69 @@ public constructor(
         public const val PROTOCOL_OPENID4VP_1_0_SIGNED: String = "openid4vp-v1-signed"
         /** OpenID4VP 1.0 multi-signed protocol identifier. */
         public const val PROTOCOL_OPENID4VP_1_0_MULTISIGNED: String = "openid4vp-v1-multisigned"
+
+        private const val MATCHER_BINARY = "presentation.wasm"
+
+        /**
+         * Creates an [OpenId4VpRegistry]. The registry will be created with a default matcher for
+         * OpenID4VP presentation requests.
+         *
+         * If both [credentialEntries] and [inlineIssuanceEntries] are empty, the registry will
+         * never be used to answer a request.
+         *
+         * @param context the context of the calling app
+         * @param credentialEntries the list of entries to register
+         * @param id the unique id for this registry
+         * @param intentAction the intent action that will be used to launch your fulfillment
+         *   activity when one of your credentials was chosen by the user, default to
+         *   [RegistryManager.ACTION_GET_CREDENTIAL] when unspecified; when Credential Manager
+         *   launches your fulfillment activity, it will build an intent with the given
+         *   `intentAction` targeting your package, so this is useful when you need to define
+         *   different fulfillment activities for different registries
+         * @param inlineIssuanceEntries the list of inline issuance entries to add the user
+         *   credentials on the fly, if applicable
+         * @param supportedProtocols an ordered list of [OpenId4VpProtocol] identifiers that your
+         *   registry supports, in descending order of preference (highest priority first). When an
+         *   incoming OpenID4VP request is received, the system evaluates it against each protocol
+         *   in this list sequentially, stopping immediately on the first successful match. Any
+         *   protocol not included in this list is strictly ignored. Defaults to
+         *   [PROTOCOL_OPENID4VP_1_0_SIGNED], [PROTOCOL_OPENID4VP_1_0_UNSIGNED], and
+         *   [PROTOCOL_OPENID4VP_1_0_MULTISIGNED]
+         * @param serviceAction the intent action that will be used to bind to your background
+         *   fulfillment service (silent / FULL delegation), defaults to
+         *   [RegistryManager.ACTION_GET_CREDENTIAL_SERVICE]
+         * @return a new [OpenId4VpRegistry] instance
+         * @throws IllegalArgumentException if [id] or [intentAction] length is greater than 64
+         *   characters
+         */
+        @WorkerThread
+        @JvmStatic
+        @JvmOverloads
+        public fun create(
+            context: Context,
+            credentialEntries: List<DigitalCredentialEntry>,
+            id: String,
+            intentAction: String = RegistryManager.ACTION_GET_CREDENTIAL,
+            inlineIssuanceEntries: List<InlineIssuanceEntry> = emptyList(),
+            supportedProtocols: List<@OpenId4VpProtocol String> =
+                listOf(
+                    PROTOCOL_OPENID4VP_1_0_SIGNED,
+                    PROTOCOL_OPENID4VP_1_0_UNSIGNED,
+                    PROTOCOL_OPENID4VP_1_0_MULTISIGNED,
+                ),
+            serviceAction: String = RegistryManager.ACTION_GET_CREDENTIAL_SERVICE,
+        ): OpenId4VpRegistry {
+            val matcher = context.assets.open(MATCHER_BINARY).use { it.readBytes() }
+            return OpenId4VpRegistry(
+                credentialEntries = credentialEntries,
+                id = id,
+                matcher = matcher,
+                intentAction = intentAction,
+                inlineIssuanceEntries = inlineIssuanceEntries,
+                supportedProtocols = supportedProtocols,
+                serviceAction = serviceAction,
+            )
+        }
 
         private const val CREDENTIALS = "credentials"
         private const val SUPPORTED_PROTOCOLS = "supported_protocols"
