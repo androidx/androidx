@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
@@ -38,14 +39,17 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastLastOrNull
+import androidx.wear.compose.foundation.LocalScreenIsActive
 import androidx.wear.compose.foundation.ScrollInfoProvider
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.delay
@@ -113,7 +117,7 @@ internal class ScreenContent(
      * orchestrator if no screen is on the stack.
      */
     val currentActiveOrchestrator: State<StatusBarOrchestrator> = derivedStateOf {
-        val targetView = contentItems.lastOrNull()?.view?.value ?: appWindowView.value
+        val targetView = statusBarItems.lastOrNull()?.view?.value ?: appWindowView.value
         orchestrators.fastFirstOrNull { it.isForWindow(targetView) }
             ?: run {
                 cleanupUnusedOrchestrators()
@@ -126,7 +130,7 @@ internal class ScreenContent(
      * [appShowStatusBar] if no screen is on the stack.
      */
     val currentScreenShowStatusBar: State<Boolean> = derivedStateOf {
-        contentItems.lastOrNull()?.showStatusBar?.value ?: appShowStatusBar.value
+        statusBarItems.lastOrNull()?.showStatusBar?.value ?: appShowStatusBar.value
     }
 
     /**
@@ -138,7 +142,7 @@ internal class ScreenContent(
      */
     val shouldAppWindowShowStatusBar: State<Boolean> = derivedStateOf {
         val appView = appWindowView.value
-        contentItems
+        statusBarItems
             .toList()
             .fastLastOrNull { appView.isSameWindow(it.view.value) }
             ?.showStatusBar
@@ -150,7 +154,7 @@ internal class ScreenContent(
      * one, or `null` if no screen on the stack is scrollable.
      */
     val currentScrollInfoProvider: State<ScrollInfoProvider?> = derivedStateOf {
-        contentItems
+        screenItems
             .toList()
             .fastLastOrNull { it.scrollInfoProvider.value != null }
             ?.scrollInfoProvider
@@ -166,12 +170,21 @@ internal class ScreenContent(
     }
 
     /**
+     * Evaluates the active time text composable from the screen stack, falling back to
+     * [appTimeText] if none provided.
+     */
+    val currentTimeText: State<@Composable () -> Unit> = derivedStateOf {
+        screenItems.toList().fastLastOrNull { it.timeText.value != null }?.timeText?.value
+            ?: appTimeText.value
+    }
+
+    /**
      * Renders the active time text element, wrapping it with scroll-away behavior if a
      * [ScrollInfoProvider] is present on the active screen.
      */
     val timeText: @Composable (() -> Unit)
         get() = {
-            val (_, timeText) = currentContent()
+            val timeText = currentTimeText.value
             val scrollInfoProvider = currentScrollInfoProvider.value
             Box(
                 modifier =
@@ -184,51 +197,80 @@ internal class ScreenContent(
         }
 
     /**
-     * Removes the screen associated with [key] from the screen stack and disposes its associated
-     * window orchestrator if no remaining screens or host view are using it.
+     * Removes the screen content associated with [key] from the screen stack.
      *
-     * @param key The unique key identifying the screen to remove.
+     * @param key The unique key identifying the screen content to remove.
      */
-    fun removeScreen(key: Any) {
-        val index = contentItems.indexOfFirst { it.key === key }
+    fun removeScreenContent(key: Any) {
+        val index = screenItems.indexOfFirst { it.key === key }
         if (index >= 0) {
-            contentItems.removeAt(index)
+            screenItems.removeAt(index)
+        }
+    }
+
+    /**
+     * Adds screen content (time text and scroll info provider) to the top of the screen stack using
+     * reactive [State] handles.
+     *
+     * @param key The unique key identifying this screen.
+     * @param timeText The custom time text composable state for this screen.
+     * @param scrollInfoProvider The [ScrollInfoProvider] state for scroll-driven effects.
+     */
+    fun addScreenContent(
+        key: Any,
+        timeText: State<(@Composable () -> Unit)?>,
+        scrollInfoProvider: State<ScrollInfoProvider?>,
+    ) {
+        val existingIndex = screenItems.indexOfFirst { it.key === key }
+        if (existingIndex >= 0) {
+            screenItems.removeAt(existingIndex)
+        }
+        screenItems.add(
+            ScreenData(
+                key = key,
+                scrollInfoProvider = scrollInfoProvider,
+                timeText = timeText,
+            )
+        )
+    }
+
+    /**
+     * Removes the status bar configuration associated with [key] from the status bar stack and
+     * disposes its associated window orchestrator if no remaining status bar layers or host view
+     * are using it.
+     *
+     * @param key The unique key identifying the status bar layer to remove.
+     */
+    fun removeStatusBar(key: Any) {
+        val index = statusBarItems.indexOfFirst { it.key === key }
+        if (index >= 0) {
+            statusBarItems.removeAt(index)
             cleanupUnusedOrchestrators()
         }
     }
 
     /**
-     * Adds a screen to the top of the screen stack using reactive [State] handles.
+     * Adds a status bar configuration to the top of the status bar stack using reactive [State]
+     * handles.
      *
-     * @param key The unique key identifying this screen.
-     * @param view The [View] state associated with this screen, used to resolve its root window.
-     * @param timeText The custom time text composable state for this screen.
-     * @param scrollInfoProvider The [ScrollInfoProvider] state for scroll-driven effects.
-     * @param showStatusBar Whether status bar overlay is enabled for this screen.
+     * @param key The unique key identifying this status bar layer.
+     * @param view The [View] state associated with this layer, used to resolve its root window.
+     * @param showStatusBar Whether the status bar overlay is enabled for this layer.
      */
-    fun addScreen(
+    fun addStatusBar(
         key: Any,
         view: State<View>,
-        timeText: State<(@Composable () -> Unit)?>,
-        scrollInfoProvider: State<ScrollInfoProvider?>,
         showStatusBar: State<Boolean>,
     ) {
-        // If a screen with this key is already present, remove it first. This ensures no duplicate
-        // entries exist in contentItems (which would cause removeScreen to orphan duplicate
-        // entries and leak window orchestrators during cleanup) and pushes the newly activated
-        // screen to the top of the stack.
-        val existingIndex = contentItems.indexOfFirst { it.key === key }
+        val existingIndex = statusBarItems.indexOfFirst { it.key === key }
         if (existingIndex >= 0) {
-            contentItems.removeAt(existingIndex)
+            statusBarItems.removeAt(existingIndex)
         }
-
-        contentItems.add(
-            ScreenContentData(
+        statusBarItems.add(
+            StatusBarData(
                 key = key,
                 view = view,
-                scrollInfoProvider = scrollInfoProvider,
                 showStatusBar = showStatusBar,
-                timeText = timeText,
             )
         )
     }
@@ -259,14 +301,14 @@ internal class ScreenContent(
 
     /**
      * Disposes and evicts any [StatusBarOrchestrator] that is no longer in active use by either
-     * [appWindowView] or any active screen in [contentItems].
+     * [appWindowView] or any active screen in [statusBarItems].
      */
     private fun cleanupUnusedOrchestrators() {
         val appView = appWindowView.value
         orchestrators.removeAll { orchestrator ->
             val inUse =
                 orchestrator.isForWindow(appView) ||
-                    contentItems.toList().fastAny { orchestrator.isForWindow(it.view.value) }
+                    statusBarItems.toList().fastAny { orchestrator.isForWindow(it.view.value) }
             if (!inUse) {
                 // An orchestrator not in use belongs to a secondary window (e.g. a Dialog)
                 // with no remaining screens on the stack (appWindowView is retained in inUse).
@@ -283,43 +325,37 @@ internal class ScreenContent(
         }
     }
 
-    /**
-     * Finds the nearest [ScreenContentData] that provides scroll info and the active time text
-     * composable from the screen stack, falling back to [appTimeText] if none provided.
-     */
-    private fun currentContent(): Pair<ScreenContentData?, @Composable (() -> Unit)> {
-        var resultTimeText: @Composable (() -> Unit)? = null
-        var resultContent: ScreenContentData? = null
-        contentItems.toList().fastForEach {
-            if (it.timeText.value != null) {
-                resultTimeText = it.timeText.value
-            }
-            if (it.scrollInfoProvider.value != null) {
-                resultContent = it
-            }
-        }
-        return resultContent to (resultTimeText ?: appTimeText.value)
-    }
-
     /** Stack of active screens registered with the scaffold. */
-    private val contentItems = mutableStateListOf<ScreenContentData>()
+    private val screenItems = mutableStateListOf<ScreenData>()
+
+    /** Stack of active status bar configurations registered with the scaffold. */
+    private val statusBarItems = mutableStateListOf<StatusBarData>()
 
     /**
      * Internal metadata representing a screen registered with [ScreenContent].
      *
      * @property key Unique identifier for the screen.
-     * @property view The Android [View] associated with the screen, used to resolve its root
-     *   window.
      * @property scrollInfoProvider Provider for scroll information used for scroll-away effects.
-     * @property showStatusBar Whether the status bar overlay is enabled for this screen.
      * @property timeText Optional custom time text composable for this screen.
      */
-    private class ScreenContentData(
+    private class ScreenData(
+        val key: Any,
+        val scrollInfoProvider: State<ScrollInfoProvider?>,
+        val timeText: State<(@Composable () -> Unit)?>,
+    )
+
+    /**
+     * Internal metadata representing a status bar configuration registered with [ScreenContent].
+     *
+     * @property key Unique identifier for the status bar layer.
+     * @property view The Android [View] associated with this layer, used to resolve its root
+     *   window.
+     * @property showStatusBar Whether the status bar overlay is enabled for this layer.
+     */
+    private class StatusBarData(
         val key: Any,
         val view: State<View>,
-        val scrollInfoProvider: State<ScrollInfoProvider?>,
         val showStatusBar: State<Boolean>,
-        val timeText: State<(@Composable () -> Unit)?>,
     )
 }
 
@@ -362,6 +398,70 @@ internal fun AnimatedIndicator(
 }
 
 internal val LocalScaffoldState = compositionLocalOf<ScaffoldState?> { null }
+
+/**
+ * Registers an active screen content layer (timeText and scrollInfoProvider) with
+ * [ScaffoldState.screenContent]. Typically used by [ScreenScaffold], [HorizontalPagerScaffold], and
+ * [VerticalPagerScaffold] to sync their internal state with the global [AppScaffold].
+ *
+ * Coordinates screen lifecycle with the scaffold, attaching [timeText] and [scrollInfoProvider]
+ * state handles while active and removing the screen content registration when leaving composition
+ * or becoming inactive.
+ */
+@Composable
+internal fun ScreenContentRegistration(
+    timeText: State<(@Composable () -> Unit)?>,
+    scrollInfoProvider: State<ScrollInfoProvider?>,
+) {
+    // If there is no AppScaffold in the hierarchy (such as when ScreenScaffold or
+    // PagerScaffold is rendered standalone in tests or isolated previews), there is no
+    // application-level time text or scroll-away coordination, making registration a safe no-op.
+    val scaffoldState = LocalScaffoldState.current ?: return
+    val screenIsActive = LocalScreenIsActive.current
+
+    val key = remember { Any() }
+
+    DisposableEffect(screenIsActive, scaffoldState) {
+        if (screenIsActive) {
+            scaffoldState.screenContent.addScreenContent(
+                key = key,
+                timeText = timeText,
+                scrollInfoProvider = scrollInfoProvider,
+            )
+        }
+        onDispose { scaffoldState.screenContent.removeScreenContent(key) }
+    }
+}
+
+/**
+ * Registers an active status bar layer with [ScaffoldState.screenContent]. Typically used by
+ * [ScreenScaffold], [HorizontalPagerScaffold], [VerticalPagerScaffold], and [StatusBarSuppression]
+ * to sync their status bar state with the global [AppScaffold].
+ *
+ * Coordinates status bar lifecycle with the scaffold, attaching [showStatusBar] state handle while
+ * active and removing the status bar registration when leaving composition or becoming inactive.
+ */
+@Composable
+internal fun StatusBarRegistration(showStatusBar: State<Boolean>) {
+    // If there is no AppScaffold in the hierarchy, system status bar orchestration is not active
+    // on this window, so registering status bar state with an application scaffold is a safe no-op.
+    val scaffoldState = LocalScaffoldState.current ?: return
+    val screenIsActive = LocalScreenIsActive.current
+
+    val key = remember { Any() }
+    val viewState = rememberUpdatedState(LocalView.current)
+
+    DisposableEffect(screenIsActive, scaffoldState) {
+        if (screenIsActive) {
+            scaffoldState.screenContent.addStatusBar(
+                key = key,
+                view = viewState,
+                showStatusBar = showStatusBar,
+            )
+        }
+        onDispose { scaffoldState.screenContent.removeStatusBar(key) }
+    }
+}
 
 private const val IDLE_DELAY = 2000L
 

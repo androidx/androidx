@@ -42,7 +42,6 @@ import androidx.compose.foundation.overscroll
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -73,7 +72,6 @@ import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
-import androidx.wear.compose.foundation.LocalScreenIsActive
 import androidx.wear.compose.foundation.ScrollInfoProvider
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
@@ -1042,27 +1040,17 @@ public fun ScreenScaffold(
     val viewState = rememberUpdatedState(LocalView.current)
     val scaffoldState =
         LocalScaffoldState.current ?: remember { ScaffoldState(appWindowView = viewState) }
-    val key = remember { Any() }
-
     val showStatusBarState = rememberShowStatusBarState(statusBarMode)
     val timeTextState = rememberUpdatedState(timeText)
     val scrollInfoProviderState = rememberUpdatedState(scrollInfoProvider)
 
     scaffoldState.screenContent.UpdateIdlingDetectorIfNeeded()
 
-    val screenIsActive = LocalScreenIsActive.current
-    DisposableEffect(screenIsActive, scaffoldState) {
-        if (screenIsActive) {
-            scaffoldState.screenContent.addScreen(
-                key = key,
-                view = viewState,
-                timeText = timeTextState,
-                scrollInfoProvider = scrollInfoProviderState,
-                showStatusBar = showStatusBarState,
-            )
-        }
-        onDispose { scaffoldState.screenContent.removeScreen(key) }
-    }
+    ScreenContentRegistration(
+        timeText = timeTextState,
+        scrollInfoProvider = scrollInfoProviderState,
+    )
+    StatusBarRegistration(showStatusBar = showStatusBarState)
 
     // Resolve the system status bar top inset boundaries.
     // - When showStatusBar is true (and supported on hardware):

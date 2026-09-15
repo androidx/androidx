@@ -1138,21 +1138,17 @@ class StatusBarTest {
         val key2 = Any()
 
         // Add first screen
-        screenContent.addScreen(
+        screenContent.addStatusBar(
             key = key1,
             view = mutableStateOf(view1),
-            timeText = mutableStateOf(null),
-            scrollInfoProvider = mutableStateOf(null),
             showStatusBar = mutableStateOf(true),
         )
         val orchestrator1 = screenContent.currentActiveOrchestrator.value
 
         // Add second screen sharing the same window
-        screenContent.addScreen(
+        screenContent.addStatusBar(
             key = key2,
             view = mutableStateOf(view2),
-            timeText = mutableStateOf(null),
-            scrollInfoProvider = mutableStateOf(null),
             showStatusBar = mutableStateOf(true),
         )
         val orchestrator2 = screenContent.currentActiveOrchestrator.value
@@ -1170,7 +1166,7 @@ class StatusBarTest {
 
         // Remove first screen: window is still in use by screen 2, so restore() should NOT be
         // called yet
-        screenContent.removeScreen(key1)
+        screenContent.removeStatusBar(key1)
         Assert.assertEquals(
             "Removing first screen should not restore window when second screen is still active",
             0,
@@ -1179,7 +1175,7 @@ class StatusBarTest {
 
         // Remove second screen: window is no longer in use, orchestrator is disposed without insets
         // mutation
-        screenContent.removeScreen(key2)
+        screenContent.removeStatusBar(key2)
         Assert.assertEquals(
             "Removing last screen in window must dispose orchestrator without mutating window insets",
             0,
@@ -1384,11 +1380,9 @@ class StatusBarTest {
 
         val key = Any()
         var currentScreenView by mutableStateOf<View>(windowA)
-        screenContent.addScreen(
+        screenContent.addStatusBar(
             key = key,
             view = derivedStateOf { currentScreenView },
-            timeText = mutableStateOf(null),
-            scrollInfoProvider = mutableStateOf(null),
             showStatusBar = mutableStateOf(true),
         )
         screenContent.currentActiveOrchestrator.value.hide()
@@ -1407,7 +1401,7 @@ class StatusBarTest {
         )
 
         // Removing screen disposes windowB without insets mutation
-        screenContent.removeScreen(key)
+        screenContent.removeStatusBar(key)
         Assert.assertEquals(
             "Removing screen should dispose new window without insets mutation",
             0,
@@ -1431,11 +1425,9 @@ class StatusBarTest {
             )
 
         val key = Any()
-        screenContent.addScreen(
+        screenContent.addStatusBar(
             key = key,
             view = mutableStateOf(hostWindow),
-            timeText = mutableStateOf(null),
-            scrollInfoProvider = mutableStateOf(null),
             showStatusBar = mutableStateOf(true),
         )
         screenContent.currentActiveOrchestrator.value.hide()
@@ -1443,7 +1435,7 @@ class StatusBarTest {
 
         // Removing screen that shares hostWindow should NOT restore hostWindow because hostWindow
         // is still in use
-        screenContent.removeScreen(key)
+        screenContent.removeStatusBar(key)
         Assert.assertEquals(
             "Host window should not be restored while still used by appWindowView",
             0,
@@ -1470,18 +1462,14 @@ class StatusBarTest {
 
         val key1 = Any()
         val key2 = Any()
-        screenContent.addScreen(
+        screenContent.addStatusBar(
             key = key1,
             view = mutableStateOf(dialogWindow),
-            timeText = mutableStateOf(null),
-            scrollInfoProvider = mutableStateOf(null),
             showStatusBar = mutableStateOf(true),
         )
-        screenContent.addScreen(
+        screenContent.addStatusBar(
             key = key2,
             view = mutableStateOf(dialogWindow),
-            timeText = mutableStateOf(null),
-            scrollInfoProvider = mutableStateOf(null),
             showStatusBar = mutableStateOf(true),
         )
 
@@ -1490,7 +1478,7 @@ class StatusBarTest {
 
         // Removing key2 leaves key1 still using dialogWindow -> dialogWindow should NOT be disposed
         // yet
-        screenContent.removeScreen(key2)
+        screenContent.removeStatusBar(key2)
         Assert.assertEquals(
             "Dialog window should not be disposed while key1 is still using it",
             0,
@@ -1499,7 +1487,7 @@ class StatusBarTest {
 
         // Removing key1 leaves no screens using dialogWindow -> dialogWindow is disposed without
         // mutating insets
-        screenContent.removeScreen(key1)
+        screenContent.removeStatusBar(key1)
         Assert.assertEquals(
             "Dialog window should be disposed without mutating insets once all screens using it are removed",
             0,
@@ -1526,19 +1514,15 @@ class StatusBarTest {
 
         val keyA = Any()
         val keyB = Any()
-        screenContent.addScreen(
+        screenContent.addStatusBar(
             key = keyA,
             view = mutableStateOf(windowA),
-            timeText = mutableStateOf(null),
-            scrollInfoProvider = mutableStateOf(null),
             showStatusBar = mutableStateOf(true),
         )
         screenContent.currentActiveOrchestrator.value.hide()
-        screenContent.addScreen(
+        screenContent.addStatusBar(
             key = keyB,
             view = mutableStateOf(windowB),
-            timeText = mutableStateOf(null),
-            scrollInfoProvider = mutableStateOf(null),
             showStatusBar = mutableStateOf(true),
         )
         screenContent.currentActiveOrchestrator.value.hide()
@@ -1653,22 +1637,18 @@ class StatusBarTest {
         val dialogScreenKey = Any()
 
         // 1. App screen with showStatusBar = true
-        screenContent.addScreen(
+        screenContent.addStatusBar(
             key = appScreenKey,
             view = mutableStateOf(appView),
-            timeText = mutableStateOf(null),
-            scrollInfoProvider = mutableStateOf(null),
             showStatusBar = mutableStateOf(true),
         )
         Assert.assertTrue(screenContent.currentScreenShowStatusBar.value)
         Assert.assertTrue(screenContent.shouldAppWindowShowStatusBar.value)
 
         // 2. Dialog screen added on top with showStatusBar = false
-        screenContent.addScreen(
+        screenContent.addStatusBar(
             key = dialogScreenKey,
             view = mutableStateOf(dialogView),
-            timeText = mutableStateOf(null),
-            scrollInfoProvider = mutableStateOf(null),
             showStatusBar = mutableStateOf(false),
         )
 
@@ -1788,11 +1768,9 @@ class StatusBarTest {
         val overlayScreenKey = Any()
 
         // 1. Add background screen with showStatusBar = true
-        screenContent.addScreen(
+        screenContent.addStatusBar(
             key = backgroundScreenKey,
             view = dummyView,
-            timeText = mutableStateOf(null),
-            scrollInfoProvider = mutableStateOf(null),
             showStatusBar = mutableStateOf(true),
         )
 
@@ -1800,11 +1778,9 @@ class StatusBarTest {
         Assert.assertTrue(screenContent.currentScreenShowStatusBar.value)
 
         // 2. Add overlay screen with showStatusBar = false
-        screenContent.addScreen(
+        screenContent.addStatusBar(
             key = overlayScreenKey,
             view = dummyView,
-            timeText = mutableStateOf(null),
-            scrollInfoProvider = mutableStateOf(null),
             showStatusBar = mutableStateOf(false),
         )
 
@@ -1812,7 +1788,7 @@ class StatusBarTest {
         Assert.assertFalse(screenContent.currentScreenShowStatusBar.value)
 
         // 3. Remove overlay screen -> currentScreenShowStatusBar reverts to true
-        screenContent.removeScreen(overlayScreenKey)
+        screenContent.removeStatusBar(overlayScreenKey)
         Assert.assertTrue(screenContent.currentScreenShowStatusBar.value)
     }
 
@@ -1830,19 +1806,146 @@ class StatusBarTest {
         Assert.assertTrue(screenContent.currentScreenShowStatusBar.value)
 
         val screenKey = Any()
-        screenContent.addScreen(
+        screenContent.addStatusBar(
             key = screenKey,
             view = dummyView,
-            timeText = mutableStateOf(null),
-            scrollInfoProvider = mutableStateOf(null),
             showStatusBar = mutableStateOf(false),
         )
         // With screen added, reflects screen showStatusBar (false)
         Assert.assertFalse(screenContent.currentScreenShowStatusBar.value)
 
         // After removing screen, reverts to appShowStatusBar (true)
-        screenContent.removeScreen(screenKey)
+        screenContent.removeStatusBar(screenKey)
         Assert.assertTrue(screenContent.currentScreenShowStatusBar.value)
+    }
+
+    @Test
+    fun screenContent_addStatusBar_doesNotAffectScreenContent() {
+        val dummyView = mutableStateOf(View(ApplicationProvider.getApplicationContext()))
+        val screenContent =
+            ScreenContent(
+                appWindowView = dummyView,
+                appShowStatusBar = mutableStateOf(true),
+                appTimeText = mutableStateOf({}),
+            )
+
+        val screenKey = Any()
+        val mockScrollInfo =
+            object : ScrollInfoProvider {
+                override val anchorItemOffset: Float = 10f
+                override val isScrollAwayValid: Boolean = true
+                override val isScrollInProgress: Boolean = false
+                override val isScrollable: Boolean = true
+                override val lastItemOffset: Float = 0f
+            }
+
+        screenContent.addScreenContent(
+            key = screenKey,
+            timeText = mutableStateOf(null),
+            scrollInfoProvider = mutableStateOf(mockScrollInfo),
+        )
+
+        Assert.assertSame(mockScrollInfo, screenContent.currentScrollInfoProvider.value)
+
+        // Adding a status bar layer (e.g. from StatusBarSuppression) should NOT affect
+        // screen content or scroll info provider.
+        val statusBarKey = Any()
+        screenContent.addStatusBar(
+            key = statusBarKey,
+            view = dummyView,
+            showStatusBar = mutableStateOf(false),
+        )
+
+        Assert.assertFalse(screenContent.currentScreenShowStatusBar.value)
+        Assert.assertSame(mockScrollInfo, screenContent.currentScrollInfoProvider.value)
+
+        // Removing status bar restores status bar visibility while screen content remains intact.
+        screenContent.removeStatusBar(statusBarKey)
+        Assert.assertTrue(screenContent.currentScreenShowStatusBar.value)
+        Assert.assertSame(mockScrollInfo, screenContent.currentScrollInfoProvider.value)
+    }
+
+    @Test
+    fun screenContent_addScreenContent_doesNotAffectStatusBar() {
+        val dummyView = mutableStateOf(View(ApplicationProvider.getApplicationContext()))
+        val screenContent =
+            ScreenContent(
+                appWindowView = dummyView,
+                appShowStatusBar = mutableStateOf(true),
+                appTimeText = mutableStateOf({}),
+            )
+
+        val statusBarKey = Any()
+        screenContent.addStatusBar(
+            key = statusBarKey,
+            view = dummyView,
+            showStatusBar = mutableStateOf(false),
+        )
+
+        Assert.assertFalse(screenContent.currentScreenShowStatusBar.value)
+
+        // Adding screen content (e.g. PagerScaffold settled page) should NOT affect
+        // status bar visibility.
+        val screenKey = Any()
+        val mockScrollInfo =
+            object : ScrollInfoProvider {
+                override val anchorItemOffset: Float = 10f
+                override val isScrollAwayValid: Boolean = true
+                override val isScrollInProgress: Boolean = false
+                override val isScrollable: Boolean = true
+                override val lastItemOffset: Float = 0f
+            }
+        screenContent.addScreenContent(
+            key = screenKey,
+            timeText = mutableStateOf(null),
+            scrollInfoProvider = mutableStateOf(mockScrollInfo),
+        )
+
+        Assert.assertFalse(screenContent.currentScreenShowStatusBar.value)
+        Assert.assertSame(mockScrollInfo, screenContent.currentScrollInfoProvider.value)
+    }
+
+    @Test
+    fun screenContent_removeStatusBar_cleansUpOrchestratorWhileScreenContentRemains() {
+        val hostWindow = View(ApplicationProvider.getApplicationContext())
+        val secondaryWindow = View(ApplicationProvider.getApplicationContext())
+        val screenContent =
+            ScreenContent(
+                appWindowView = mutableStateOf(hostWindow),
+                appShowStatusBar = mutableStateOf(true),
+                appTimeText = mutableStateOf({}),
+            )
+
+        val key = Any()
+        val mockScrollInfo =
+            object : ScrollInfoProvider {
+                override val anchorItemOffset: Float = 10f
+                override val isScrollAwayValid: Boolean = true
+                override val isScrollInProgress: Boolean = false
+                override val isScrollable: Boolean = true
+                override val lastItemOffset: Float = 0f
+            }
+
+        // Add screen content and status bar for the secondary window
+        screenContent.addScreenContent(
+            key = key,
+            timeText = mutableStateOf(null),
+            scrollInfoProvider = mutableStateOf(mockScrollInfo),
+        )
+        screenContent.addStatusBar(
+            key = key,
+            view = mutableStateOf(secondaryWindow),
+            showStatusBar = mutableStateOf(false),
+        )
+
+        val orchestrator = screenContent.currentActiveOrchestrator.value
+        Assert.assertTrue(orchestrator.isForWindow(secondaryWindow))
+
+        // Removing only status bar should clean up the secondary window's orchestrator,
+        // even though screen content remains on the stack.
+        screenContent.removeStatusBar(key)
+        Assert.assertTrue(screenContent.currentActiveOrchestrator.value.isForWindow(hostWindow))
+        Assert.assertSame(mockScrollInfo, screenContent.currentScrollInfoProvider.value)
     }
 
     @Test
@@ -1986,6 +2089,390 @@ class StatusBarTest {
     }
 
     @Test
+    fun dialog_whenDisplayedInScaffold_suppressesStatusBarAndPreservesUnderlyingScreen() {
+        var showDialog by mutableStateOf(false)
+        var scaffoldState: ScaffoldState? = null
+        val mockScrollInfo =
+            object : ScrollInfoProvider {
+                override val anchorItemOffset: Float = 10f
+                override val isScrollAwayValid: Boolean = true
+                override val isScrollInProgress: Boolean = false
+                override val isScrollable: Boolean = true
+                override val lastItemOffset: Float = 0f
+            }
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold(
+                        statusBarMode = StatusBarMode.Enabled,
+                        scrollInfoProvider = mockScrollInfo,
+                        timeText = { Text("AppTimeText") },
+                    ) {
+                        Dialog(visible = showDialog, onDismissRequest = { showDialog = false }) {
+                            Text("DialogContent")
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+        Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
+
+        composeTestRule.runOnUiThread { showDialog = true }
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("DialogContent").assertIsDisplayed()
+
+        // Status bar is suppressed by dialog, but underlying screen's scrollInfoProvider is
+        // preserved
+        Assert.assertFalse(state.screenContent.currentScreenShowStatusBar.value)
+        Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
+
+        composeTestRule.runOnUiThread { showDialog = false }
+        composeTestRule.waitForIdle()
+
+        // Status bar restored, scrollInfoProvider still preserved
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+        Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
+    }
+
+    @Test
+    fun multipleSuppressionScreens_whenOverlapping_maintainsSuppressionUntilAllDismissed() {
+        var showDialog by mutableStateOf(false)
+        var showStepper by mutableStateOf(false)
+        var scaffoldState: ScaffoldState? = null
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                        Dialog(visible = showDialog, onDismissRequest = { showDialog = false }) {
+                            Text("DialogContent")
+                        }
+                        if (showStepper) {
+                            Stepper(
+                                value = 1f,
+                                onValueChange = {},
+                                steps = 2,
+                                increaseIcon = { Text("+") },
+                                decreaseIcon = { Text("-") },
+                            ) {
+                                Text("StepperContent")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+
+        // Show Dialog -> suppressed
+        composeTestRule.runOnUiThread { showDialog = true }
+        composeTestRule.waitForIdle()
+        Assert.assertFalse(state.screenContent.currentScreenShowStatusBar.value)
+
+        // Show Stepper while Dialog is still open -> still suppressed
+        composeTestRule.runOnUiThread { showStepper = true }
+        composeTestRule.waitForIdle()
+        Assert.assertFalse(state.screenContent.currentScreenShowStatusBar.value)
+
+        // Dismiss Stepper -> still suppressed by Dialog
+        composeTestRule.runOnUiThread { showStepper = false }
+        composeTestRule.waitForIdle()
+        Assert.assertFalse(state.screenContent.currentScreenShowStatusBar.value)
+
+        // Dismiss Dialog -> restored
+        composeTestRule.runOnUiThread { showDialog = false }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+    }
+
+    @Test
+    fun stepper_whenDisplayedInScaffold_preservesUnderlyingScreenScrollInfo() {
+        var showStepper by mutableStateOf(false)
+        var scaffoldState: ScaffoldState? = null
+        val mockScrollInfo =
+            object : ScrollInfoProvider {
+                override val anchorItemOffset: Float = 10f
+                override val isScrollAwayValid: Boolean = true
+                override val isScrollInProgress: Boolean = false
+                override val isScrollable: Boolean = true
+                override val lastItemOffset: Float = 0f
+            }
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold(
+                        statusBarMode = StatusBarMode.Enabled,
+                        scrollInfoProvider = mockScrollInfo,
+                    ) {
+                        if (showStepper) {
+                            Stepper(
+                                value = 2f,
+                                onValueChange = {},
+                                steps = 3,
+                                increaseIcon = { Text("+") },
+                                decreaseIcon = { Text("-") },
+                            ) {
+                                Text("StepperContent")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
+
+        composeTestRule.runOnUiThread { showStepper = true }
+        composeTestRule.waitForIdle()
+        Assert.assertFalse(state.screenContent.currentScreenShowStatusBar.value)
+        Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
+
+        composeTestRule.runOnUiThread { showStepper = false }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+        Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
+    }
+
+    @Test
+    fun timePicker_whenDisplayedInScaffold_preservesUnderlyingScreenScrollInfo() {
+        var showTimePicker by mutableStateOf(false)
+        var scaffoldState: ScaffoldState? = null
+        val mockScrollInfo =
+            object : ScrollInfoProvider {
+                override val anchorItemOffset: Float = 10f
+                override val isScrollAwayValid: Boolean = true
+                override val isScrollInProgress: Boolean = false
+                override val isScrollable: Boolean = true
+                override val lastItemOffset: Float = 0f
+            }
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold(
+                        statusBarMode = StatusBarMode.Enabled,
+                        scrollInfoProvider = mockScrollInfo,
+                    ) {
+                        if (showTimePicker) {
+                            TimePicker(initialTime = LocalTime.of(10, 30), onTimePicked = {})
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
+
+        composeTestRule.runOnUiThread { showTimePicker = true }
+        composeTestRule.waitForIdle()
+        Assert.assertFalse(state.screenContent.currentScreenShowStatusBar.value)
+        Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
+
+        composeTestRule.runOnUiThread { showTimePicker = false }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+        Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
+    }
+
+    @Test
+    fun datePicker_whenDisplayedInScaffold_preservesUnderlyingScreenScrollInfo() {
+        var showDatePicker by mutableStateOf(false)
+        var scaffoldState: ScaffoldState? = null
+        val mockScrollInfo =
+            object : ScrollInfoProvider {
+                override val anchorItemOffset: Float = 10f
+                override val isScrollAwayValid: Boolean = true
+                override val isScrollInProgress: Boolean = false
+                override val isScrollable: Boolean = true
+                override val lastItemOffset: Float = 0f
+            }
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold(
+                        statusBarMode = StatusBarMode.Enabled,
+                        scrollInfoProvider = mockScrollInfo,
+                    ) {
+                        if (showDatePicker) {
+                            DatePicker(initialDate = LocalDate.of(2026, 1, 1), onDatePicked = {})
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
+
+        composeTestRule.runOnUiThread { showDatePicker = true }
+        composeTestRule.waitForIdle()
+        Assert.assertFalse(state.screenContent.currentScreenShowStatusBar.value)
+        Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
+
+        composeTestRule.runOnUiThread { showDatePicker = false }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+        Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
+    }
+
+    @Test
+    fun screenNavigation_switchingActiveScreen_updatesStatusBarAndScrollInfo() {
+        var activeScreen by mutableStateOf("A")
+        var scaffoldState: ScaffoldState? = null
+        val scrollInfoA =
+            object : ScrollInfoProvider {
+                override val anchorItemOffset: Float = 10f
+                override val isScrollAwayValid: Boolean = true
+                override val isScrollInProgress: Boolean = false
+                override val isScrollable: Boolean = true
+                override val lastItemOffset: Float = 0f
+            }
+        val scrollInfoB =
+            object : ScrollInfoProvider {
+                override val anchorItemOffset: Float = 20f
+                override val isScrollAwayValid: Boolean = true
+                override val isScrollInProgress: Boolean = false
+                override val isScrollable: Boolean = true
+                override val lastItemOffset: Float = 0f
+            }
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    CompositionLocalProvider(LocalScreenIsActive provides (activeScreen == "A")) {
+                        ScreenScaffold(
+                            statusBarMode = StatusBarMode.Enabled,
+                            scrollInfoProvider = scrollInfoA,
+                        ) {}
+                    }
+                    CompositionLocalProvider(LocalScreenIsActive provides (activeScreen == "B")) {
+                        ScreenScaffold(
+                            statusBarMode = StatusBarMode.Disabled,
+                            scrollInfoProvider = scrollInfoB,
+                        ) {}
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+        Assert.assertSame(scrollInfoA, state.screenContent.currentScrollInfoProvider.value)
+
+        // Switch to Screen B
+        composeTestRule.runOnUiThread { activeScreen = "B" }
+        composeTestRule.waitForIdle()
+        Assert.assertFalse(state.screenContent.currentScreenShowStatusBar.value)
+        Assert.assertSame(scrollInfoB, state.screenContent.currentScrollInfoProvider.value)
+
+        // Switch back to Screen A
+        composeTestRule.runOnUiThread { activeScreen = "A" }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+        Assert.assertSame(scrollInfoA, state.screenContent.currentScrollInfoProvider.value)
+    }
+
+    @Test
+    fun screenScaffold_abruptDisposal_removesFromScreenAndStatusBarStacks() {
+        var showScreen by mutableStateOf(true)
+        var scaffoldState: ScaffoldState? = null
+        val mockScrollInfo =
+            object : ScrollInfoProvider {
+                override val anchorItemOffset: Float = 10f
+                override val isScrollAwayValid: Boolean = true
+                override val isScrollInProgress: Boolean = false
+                override val isScrollable: Boolean = true
+                override val lastItemOffset: Float = 0f
+            }
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    if (showScreen) {
+                        ScreenScaffold(
+                            statusBarMode = StatusBarMode.Disabled,
+                            scrollInfoProvider = mockScrollInfo,
+                        ) {}
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertFalse(state.screenContent.currentScreenShowStatusBar.value)
+        Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
+
+        // Abruptly dispose the ScreenScaffold
+        composeTestRule.runOnUiThread { showScreen = false }
+        composeTestRule.waitForIdle()
+
+        // Reverts to AppScaffold fallback
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+        Assert.assertNull(state.screenContent.currentScrollInfoProvider.value)
+    }
+
+    @Test
+    fun appScaffold_dynamicToggle_updatesInheritedScreens() {
+        var appShowStatusBar by mutableStateOf(true)
+        var scaffoldState: ScaffoldState? = null
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = appShowStatusBar) {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {}
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+
+        composeTestRule.runOnUiThread { appShowStatusBar = false }
+        composeTestRule.waitForIdle()
+        Assert.assertFalse(state.screenContent.currentScreenShowStatusBar.value)
+
+        composeTestRule.runOnUiThread { appShowStatusBar = true }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(state.screenContent.currentScreenShowStatusBar.value)
+    }
+
+    @Test
+    fun appScaffold_withNoScreenScaffolds_drivesStatusBarDirectly() {
+        var scaffoldState: ScaffoldState? = null
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = false) {
+                    scaffoldState = LocalScaffoldState.current
+                    Box(modifier = Modifier.fillMaxSize())
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertFalse(state.screenContent.currentScreenShowStatusBar.value)
+        Assert.assertNull(state.screenContent.currentScrollInfoProvider.value)
+    }
+
+    @Test
     fun statusBarSuppression_whenInScaffold_registersSuppressionScreen() {
         var suppress by mutableStateOf(false)
         var scaffoldState: ScaffoldState? = null
@@ -2114,10 +2601,7 @@ class StatusBarTest {
                     scaffoldState = LocalScaffoldState.current
                     ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
                         if (showTimePicker) {
-                            TimePicker(
-                                initialTime = LocalTime.of(10, 30),
-                                onTimePicked = {},
-                            )
+                            TimePicker(initialTime = LocalTime.of(10, 30), onTimePicked = {})
                         } else {
                             Box(modifier = Modifier.fillMaxSize())
                         }
@@ -2155,10 +2639,7 @@ class StatusBarTest {
                 LocalView provides testView,
             ) {
                 if (showTimePicker) {
-                    TimePicker(
-                        initialTime = LocalTime.of(10, 30),
-                        onTimePicked = {},
-                    )
+                    TimePicker(initialTime = LocalTime.of(10, 30), onTimePicked = {})
                 }
             }
         }
@@ -2185,10 +2666,7 @@ class StatusBarTest {
                     scaffoldState = LocalScaffoldState.current
                     ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
                         if (showDatePicker) {
-                            DatePicker(
-                                initialDate = LocalDate.of(2026, 1, 1),
-                                onDatePicked = {},
-                            )
+                            DatePicker(initialDate = LocalDate.of(2026, 1, 1), onDatePicked = {})
                         } else {
                             Box(modifier = Modifier.fillMaxSize())
                         }
@@ -2226,10 +2704,7 @@ class StatusBarTest {
                 LocalView provides testView,
             ) {
                 if (showDatePicker) {
-                    DatePicker(
-                        initialDate = LocalDate.of(2026, 1, 1),
-                        onDatePicked = {},
-                    )
+                    DatePicker(initialDate = LocalDate.of(2026, 1, 1), onDatePicked = {})
                 }
             }
         }
