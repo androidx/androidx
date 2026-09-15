@@ -98,7 +98,6 @@ public fun materialA2uiBasicCatalogV1(
     slider: A2uiBasicCatalogV1.Slider = MaterialA2uiBasicCatalogV1Defaults.slider,
     dateTimeInput: A2uiBasicCatalogV1.DateTimeInput =
         MaterialA2uiBasicCatalogV1Defaults.dateTimeInput,
-    // TODO(b/547851648): Add the rest of the basic catalog component types.
 ): A2uiCatalog =
     A2uiCatalog(
         A2uiBasicCatalogV1(
@@ -120,7 +119,6 @@ public fun materialA2uiBasicCatalogV1(
             choicePicker = choicePicker,
             slider = slider,
             dateTimeInput = dateTimeInput,
-            // TODO(b/547851648): Add the rest of the basic catalog component types.
             functions = createBasicCatalogFunctions(urlOpener, messageFormatter, localeProvider),
         )
     )
@@ -202,6 +200,4 @@ public object MaterialA2uiBasicCatalogV1Defaults {
     /** Default Material 3 implementation of the [A2uiBasicCatalogV1.DateTimeInput] component. */
     public val dateTimeInput: A2uiBasicCatalogV1.DateTimeInput =
         MaterialA2uiBasicCatalogV1DateTimeInput
-
-    // TODO(b/547851648): Add the rest of the basic catalog component types.
 }
