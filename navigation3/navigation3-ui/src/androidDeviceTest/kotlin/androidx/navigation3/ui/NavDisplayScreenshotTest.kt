@@ -36,7 +36,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -168,13 +167,8 @@ class NavDisplayScreenshotTest {
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
-                    first -> NavEntry(first) { Text(first) }
-                    second ->
-                        NavEntry(second) {
-                            Box(Modifier.fillMaxSize().background(Color.Blue)) {
-                                Text(second, Modifier.size(50.dp))
-                            }
-                        }
+                    first -> NavEntry(first) { RedBox(first) }
+                    second -> NavEntry(second) { BlueBox(second) }
                     else -> error("Invalid key passed")
                 }
             }
@@ -228,7 +222,7 @@ class NavDisplayScreenshotTest {
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
-                    first -> NavEntry(first) { Text(first) }
+                    first -> NavEntry(first) { RedBox(first) }
                     second ->
                         NavEntry(
                             second,
@@ -245,9 +239,7 @@ class NavDisplayScreenshotTest {
                                     }
                                 },
                         ) {
-                            Box(Modifier.fillMaxSize().background(Color.Blue)) {
-                                Text(second, Modifier.size(50.dp))
-                            }
+                            BlueBox(second)
                         }
                     else -> error("Invalid key passed")
                 }
@@ -364,7 +356,7 @@ class NavDisplayScreenshotTest {
         composeTestRule.mainClock.autoAdvance = false
         backPressedDispatcher.onBackPressed()
 
-        composeTestRule.mainClock.advanceTimeBy((duration / 2).toLong())
+        composeTestRule.mainClock.advanceTimeBy((duration / 20).toLong())
         // make sure popped entry is not blank screen
         composeTestRule
             .onNodeWithTag(navHostTag)
