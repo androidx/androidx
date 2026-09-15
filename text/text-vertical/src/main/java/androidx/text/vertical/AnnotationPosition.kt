@@ -22,8 +22,6 @@ package androidx.text.vertical
  *
  * @property value The integer representation of this position, used for serialization.
  */
-// TODO(b/559972124): honor RubySpan.position in horizontal text layout; it is currently ignored
-//  there. Vertical text layout honors it.
 // TODO(b/559972132): honor EmphasisSpan.position; it is currently ignored in both writing modes.
 public sealed class AnnotationPosition protected constructor(@JvmField public val value: Int) {
     public companion object {
