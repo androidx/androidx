@@ -115,9 +115,6 @@ import kotlinx.coroutines.launch
  *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
  *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
  *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
- * @param timeText Time text (both time and potentially status message) for this screen, if
- *   different to the time text at the [AppScaffold] level. When null, the time text from the
- *   [AppScaffold] is displayed for this screen.
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
@@ -126,11 +123,78 @@ import kotlinx.coroutines.launch
  *   layout. This overscroll effect will be shared with all components within this ScreenScaffold
  *   such as [edgeButton] and [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this
  *   behaviour can be disabled by passing overscrollEffect = null.
- * @param statusBarMode Whether to display the status bar overlay specifically for this screen.
- *   Defaults to [StatusBarMode.Inherit], which inherits the setting from underlying screens in the
- *   screen stack or falls back to the parent [AppScaffold] if no screen specifies a mode. On
- *   devices that support the status bar, the system status bar replaces the app-level [TimeText]
- *   when enabled to prevent overlapping.
+ * @param content The body content for this screen. The lambda receives a [PaddingValues] that
+ *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
+ *   contentPadding parameter when used with lists to properly offset the [EdgeButton].
+ */
+@Composable
+public fun ScreenScaffold(
+    scrollState: ScalingLazyListState,
+    edgeButton: @Composable BoxScope.() -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
+    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
+    edgeButtonSpacing: Dp = ScreenScaffoldDefaults.EdgeButtonSpacing,
+    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
+    content: @Composable BoxScope.(PaddingValues) -> Unit,
+): Unit =
+    ScreenScaffold(
+        scrollState = scrollState,
+        edgeButton = edgeButton,
+        modifier = modifier,
+        contentPadding = contentPadding,
+        timeText = null,
+        scrollIndicator = scrollIndicator,
+        edgeButtonSpacing = edgeButtonSpacing,
+        overscrollEffect = overscrollEffect,
+        content = content,
+    )
+
+/**
+ * [ScreenScaffold] is one of the Wear Material3 scaffold components.
+ *
+ * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
+ * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
+ * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
+ * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
+ * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
+ * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
+ * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
+ *
+ * This version of [ScreenScaffold] has a special slot for a button at the bottom, that grows and
+ * shrinks to take the available space after the scrollable content.
+ *
+ * When using ScreenScaffold with [EdgeButton] and [ScalingLazyColumn], you should pass
+ * autoCentering = null for the [ScalingLazyColumn] in order to achieve the correct spacing above
+ * the [EdgeButton].
+ *
+ * @param scrollState The scroll state for [ScalingLazyColumn], used to drive screen transitions
+ *   such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ * @param edgeButton Slot for an [EdgeButton] that takes the available space below a scrolling list.
+ *   It will scale up and fade in when the user scrolls to the end of the list, and scale down and
+ *   fade out as the user scrolls up.
+ * @param modifier The modifier for the screen scaffold.
+ * @param contentPadding The padding to apply around the entire content. This contentPadding is then
+ *   received by the [content] and should be consumed by using
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
+ *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
+ *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
+ * @param timeText The time text and status bar configuration for this screen:
+ *     - `null` (default): inherits status bar mode and time text from [AppScaffold] or underlying
+ *       screens.
+ *     - Any custom composable: disables the system status bar overlay and renders this composable
+ *       locally in place of the status bar.
+ *
+ * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
+ *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
+ *   provided by default. No scroll indicator is displayed if null is passed.
+ * @param edgeButtonSpacing The space between [EdgeButton] and the list content.
+ * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
+ *   layout. This overscroll effect will be shared with all components within this ScreenScaffold
+ *   such as [edgeButton] and [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this
+ *   behaviour can be disabled by passing overscrollEffect = null.
  * @param content The body content for this screen. The lambda receives a [PaddingValues] that
  *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
  *   contentPadding parameter when used with lists to properly offset the [EdgeButton].
@@ -145,7 +209,6 @@ public fun ScreenScaffold(
     scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
     edgeButtonSpacing: Dp = ScreenScaffoldDefaults.EdgeButtonSpacing,
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    statusBarMode: StatusBarMode = StatusBarMode.Inherit,
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit =
     ScreenScaffold(
@@ -157,37 +220,6 @@ public fun ScreenScaffold(
         scrollIndicator = scrollIndicator,
         edgeButtonSpacing = edgeButtonSpacing,
         overscrollEffect = overscrollEffect,
-        statusBarMode = statusBarMode,
-        content = content,
-    )
-
-@Deprecated(
-    message =
-        "This overload is deprecated, please use the new overload with the statusBarMode parameter.",
-    level = DeprecationLevel.HIDDEN,
-)
-@Composable
-public fun ScreenScaffold(
-    scrollState: ScalingLazyListState,
-    edgeButton: @Composable BoxScope.() -> Unit,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
-    timeText: (@Composable () -> Unit)? = null,
-    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
-    edgeButtonSpacing: Dp = ScreenScaffoldDefaults.EdgeButtonSpacing,
-    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    content: @Composable BoxScope.(PaddingValues) -> Unit,
-): Unit =
-    ScreenScaffold(
-        scrollState = scrollState,
-        edgeButton = edgeButton,
-        modifier = modifier,
-        contentPadding = contentPadding,
-        timeText = timeText,
-        scrollIndicator = scrollIndicator,
-        edgeButtonSpacing = edgeButtonSpacing,
-        overscrollEffect = overscrollEffect,
-        statusBarMode = StatusBarMode.Inherit,
         content = content,
     )
 
@@ -210,9 +242,6 @@ public fun ScreenScaffold(
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
  *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
- * @param timeText Time text (both time and potentially status message) for this screen, if
- *   different to the time text at the [AppScaffold] level. When null, the time text from the
- *   [AppScaffold] is displayed for this screen.
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
@@ -220,14 +249,64 @@ public fun ScreenScaffold(
  *   layout. This overscroll effect will be shared with all components within this ScreenScaffold
  *   such as [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this behaviour can be
  *   disabled by passing overscrollEffect = null.
- * @param statusBarMode Whether to display the status bar overlay specifically for this screen.
- *   Defaults to [StatusBarMode.Inherit], which inherits the setting from underlying screens in the
- *   screen stack or falls back to the parent [AppScaffold] if no screen specifies a mode. On
- *   devices that support the status bar, the system status bar replaces the app-level [TimeText]
- *   when enabled to prevent overlapping.
  * @param content The body content for this screen. The lambda receives a [PaddingValues] that
  *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
- *   contentPadding parameter when used with lists to properly offset the [EdgeButton].
+ *   contentPadding parameter when used with lists.
+ */
+@Composable
+public fun ScreenScaffold(
+    scrollState: ScalingLazyListState,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
+    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
+    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
+    content: @Composable BoxScope.(PaddingValues) -> Unit,
+): Unit =
+    ScreenScaffold(
+        scrollState = scrollState,
+        modifier = modifier,
+        contentPadding = contentPadding,
+        timeText = null,
+        scrollIndicator = scrollIndicator,
+        overscrollEffect = overscrollEffect,
+        content = content,
+    )
+
+/**
+ * [ScreenScaffold] is one of the Wear Material3 scaffold components.
+ *
+ * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
+ * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
+ * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
+ * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
+ * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
+ * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
+ * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
+ *
+ * @param scrollState The scroll state for [ScalingLazyColumn], used to drive screen transitions
+ *   such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ * @param modifier The modifier for the screen scaffold.
+ * @param contentPadding The padding to apply around the entire content. This contentPadding is then
+ *   received by the [content] and should be consumed by using
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
+ * @param timeText The time text and status bar configuration for this screen:
+ *     - `null` (default): inherits status bar mode and time text from [AppScaffold] or underlying
+ *       screens.
+ *     - Any custom composable: disables the system status bar overlay and renders this composable
+ *       locally in place of the status bar.
+ *
+ * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
+ *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
+ *   provided by default. No scroll indicator is displayed if null is passed.
+ * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
+ *   layout. This overscroll effect will be shared with all components within this ScreenScaffold
+ *   such as [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this behaviour can be
+ *   disabled by passing overscrollEffect = null.
+ * @param content The body content for this screen. The lambda receives a [PaddingValues] that
+ *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
+ *   contentPadding parameter when used with lists.
  */
 @Composable
 public fun ScreenScaffold(
@@ -237,7 +316,6 @@ public fun ScreenScaffold(
     timeText: (@Composable () -> Unit)? = null,
     scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    statusBarMode: StatusBarMode = StatusBarMode.Inherit,
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit =
     ScreenScaffold(
@@ -246,34 +324,7 @@ public fun ScreenScaffold(
         timeText = timeText,
         scrollInfoProvider = remember(scrollState) { ScrollInfoProvider(scrollState) },
         scrollIndicator = scrollIndicator,
-        statusBarMode = statusBarMode,
         overscrollEffect = overscrollEffect,
-        content = content,
-    )
-
-@Deprecated(
-    message =
-        "This overload is deprecated, please use the new overload with the statusBarMode parameter.",
-    level = DeprecationLevel.HIDDEN,
-)
-@Composable
-public fun ScreenScaffold(
-    scrollState: ScalingLazyListState,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
-    timeText: (@Composable () -> Unit)? = null,
-    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
-    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    content: @Composable BoxScope.(PaddingValues) -> Unit,
-): Unit =
-    ScreenScaffold(
-        scrollState = scrollState,
-        modifier = modifier,
-        contentPadding = contentPadding,
-        timeText = timeText,
-        scrollIndicator = scrollIndicator,
-        overscrollEffect = overscrollEffect,
-        statusBarMode = StatusBarMode.Inherit,
         content = content,
     )
 
@@ -312,9 +363,6 @@ public fun ScreenScaffold(
  *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
  *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
  *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
- * @param timeText Time text (both time and potentially status message) for this screen, if
- *   different to the time text at the [AppScaffold] level. When null, the time text from the
- *   [AppScaffold] is displayed for this screen.
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
@@ -323,11 +371,82 @@ public fun ScreenScaffold(
  *   layout. This overscroll effect will be shared with all components within this ScreenScaffold
  *   such as [edgeButton] and [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this
  *   behaviour can be disabled by passing overscrollEffect = null.
- * @param statusBarMode Whether to display the status bar overlay specifically for this screen.
- *   Defaults to [StatusBarMode.Inherit], which inherits the setting from underlying screens in the
- *   screen stack or falls back to the parent [AppScaffold] if no screen specifies a mode. On
- *   devices that support the status bar, the system status bar replaces the app-level [TimeText]
- *   when enabled to prevent overlapping.
+ * @param content The body content for this screen. The lambda receives a [PaddingValues] that
+ *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
+ *   contentPadding parameter when used with lists to properly offset the [EdgeButton].
+ */
+@Composable
+public fun ScreenScaffold(
+    scrollState: TransformingLazyColumnState,
+    edgeButton: @Composable BoxScope.() -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
+    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
+    edgeButtonSpacing: Dp = ScreenScaffoldDefaults.EdgeButtonSpacing,
+    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
+    content: @Composable BoxScope.(PaddingValues) -> Unit,
+): Unit =
+    ScreenScaffold(
+        scrollState = scrollState,
+        edgeButton = edgeButton,
+        modifier = modifier,
+        contentPadding = contentPadding,
+        timeText = null,
+        scrollIndicator = scrollIndicator,
+        edgeButtonSpacing = edgeButtonSpacing,
+        overscrollEffect = overscrollEffect,
+        content = content,
+    )
+
+/**
+ * [ScreenScaffold] is one of the Wear Material3 scaffold components.
+ *
+ * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
+ * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
+ * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
+ * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
+ * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
+ * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
+ * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
+ *
+ * This version of [ScreenScaffold] has a special slot for a button at the bottom, that grows and
+ * shrinks to take the available space after the scrollable content.
+ *
+ * Example of using AppScaffold and ScreenScaffold with TransformingLazyColumn:
+ *
+ * @sample androidx.wear.compose.material3.samples.ScaffoldWithTLCEdgeButtonSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_ScaffoldWithTLCEdgeButtonSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
+ * @param scrollState The scroll state for [TransformingLazyColumn], used to drive screen
+ *   transitions such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ * @param edgeButton Slot for an [EdgeButton] that takes the available space below a scrolling list.
+ *   It will scale up and fade in when the user scrolls to the end of the list, and scale down and
+ *   fade out as the user scrolls up.
+ * @param modifier The modifier for the screen scaffold.
+ * @param contentPadding The padding to apply around the entire content. This contentPadding is then
+ *   received by the [content] and should be consumed by using
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
+ *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
+ *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
+ * @param timeText The time text and status bar configuration for this screen:
+ *     - `null` (default): inherits status bar mode and time text from [AppScaffold] or underlying
+ *       screens.
+ *     - Any custom composable: disables the system status bar overlay and renders this composable
+ *       locally in place of the status bar.
+ *
+ * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
+ *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
+ *   provided by default. No scroll indicator is displayed if null is passed.
+ * @param edgeButtonSpacing The space between [EdgeButton] and the list content.
+ * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
+ *   layout. This overscroll effect will be shared with all components within this ScreenScaffold
+ *   such as [edgeButton] and [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this
+ *   behaviour can be disabled by passing overscrollEffect = null.
  * @param content The body content for this screen. The lambda receives a [PaddingValues] that
  *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
  *   contentPadding parameter when used with lists to properly offset the [EdgeButton].
@@ -342,7 +461,6 @@ public fun ScreenScaffold(
     scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
     edgeButtonSpacing: Dp = ScreenScaffoldDefaults.EdgeButtonSpacing,
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    statusBarMode: StatusBarMode = StatusBarMode.Inherit,
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit =
     ScreenScaffold(
@@ -353,38 +471,7 @@ public fun ScreenScaffold(
         timeText = timeText,
         scrollIndicator = scrollIndicator,
         edgeButtonSpacing = edgeButtonSpacing,
-        statusBarMode = statusBarMode,
         overscrollEffect = overscrollEffect,
-        content = content,
-    )
-
-@Deprecated(
-    message =
-        "This overload is deprecated, please use the new overload with the statusBarMode parameter.",
-    level = DeprecationLevel.HIDDEN,
-)
-@Composable
-public fun ScreenScaffold(
-    scrollState: TransformingLazyColumnState,
-    edgeButton: @Composable BoxScope.() -> Unit,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
-    timeText: (@Composable () -> Unit)? = null,
-    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
-    edgeButtonSpacing: Dp = ScreenScaffoldDefaults.EdgeButtonSpacing,
-    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    content: @Composable BoxScope.(PaddingValues) -> Unit,
-): Unit =
-    ScreenScaffold(
-        scrollState = scrollState,
-        edgeButton = edgeButton,
-        modifier = modifier,
-        contentPadding = contentPadding,
-        timeText = timeText,
-        scrollIndicator = scrollIndicator,
-        edgeButtonSpacing = edgeButtonSpacing,
-        overscrollEffect = overscrollEffect,
-        statusBarMode = StatusBarMode.Inherit,
         content = content,
     )
 
@@ -414,9 +501,6 @@ public fun ScreenScaffold(
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
  *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
- * @param timeText Time text (both time and potentially status message) for this screen, if
- *   different to the time text at the [AppScaffold] level. When null, the time text from the
- *   [AppScaffold] is displayed for this screen.
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
@@ -424,11 +508,68 @@ public fun ScreenScaffold(
  *   layout. This overscroll effect will be shared with all components within this ScreenScaffold
  *   such as [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this behaviour can be
  *   disabled by passing overscrollEffect = null.
- * @param statusBarMode Whether to display the status bar overlay specifically for this screen.
- *   Defaults to [StatusBarMode.Inherit], which inherits the setting from underlying screens in the
- *   screen stack or falls back to the parent [AppScaffold] if no screen specifies a mode. On
- *   devices that support the status bar, the system status bar replaces the app-level [TimeText]
- *   when enabled to prevent overlapping.
+ * @param content The body content for this screen. The lambda receives a [PaddingValues] that
+ *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
+ *   contentPadding parameter when used with lists.
+ */
+@Composable
+public fun ScreenScaffold(
+    scrollState: TransformingLazyColumnState,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
+    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
+    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
+    content: @Composable BoxScope.(PaddingValues) -> Unit,
+): Unit =
+    ScreenScaffold(
+        scrollState = scrollState,
+        modifier = modifier,
+        contentPadding = contentPadding,
+        timeText = null,
+        scrollIndicator = scrollIndicator,
+        overscrollEffect = overscrollEffect,
+        content = content,
+    )
+
+/**
+ * [ScreenScaffold] is one of the Wear Material3 scaffold components.
+ *
+ * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
+ * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
+ * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
+ * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
+ * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
+ * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
+ * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
+ *
+ * Example of using AppScaffold and ScreenScaffold:
+ *
+ * @sample androidx.wear.compose.material3.samples.ScaffoldSample
+ *
+ * ![ScaffoldSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_ScaffoldSample_CompositeImage.png)
+ *
+ * @param scrollState The scroll state for [TransformingLazyColumn], used to drive screen
+ *   transitions such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ * @param modifier The modifier for the screen scaffold.
+ * @param contentPadding The padding to apply around the entire content. This contentPadding is then
+ *   received by the [content] and should be consumed by using
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
+ * @param timeText The time text and status bar configuration for this screen:
+ *     - `null` (default): inherits status bar mode and time text from [AppScaffold] or underlying
+ *       screens.
+ *     - Any custom composable: disables the system status bar overlay and renders this composable
+ *       locally in place of the status bar.
+ *
+ * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
+ *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
+ *   provided by default. No scroll indicator is displayed if null is passed.
+ * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
+ *   layout. This overscroll effect will be shared with all components within this ScreenScaffold
+ *   such as [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this behaviour can be
+ *   disabled by passing overscrollEffect = null.
  * @param content The body content for this screen. The lambda receives a [PaddingValues] that
  *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
  *   contentPadding parameter when used with lists.
@@ -441,7 +582,6 @@ public fun ScreenScaffold(
     timeText: (@Composable () -> Unit)? = null,
     scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    statusBarMode: StatusBarMode = StatusBarMode.Inherit,
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit =
     ScreenScaffold(
@@ -450,34 +590,7 @@ public fun ScreenScaffold(
         contentPadding = contentPadding,
         timeText = timeText,
         scrollIndicator = scrollIndicator,
-        statusBarMode = statusBarMode,
         overscrollEffect = overscrollEffect,
-        content = content,
-    )
-
-@Deprecated(
-    message =
-        "This overload is deprecated, please use the new overload with the statusBarMode parameter.",
-    level = DeprecationLevel.HIDDEN,
-)
-@Composable
-public fun ScreenScaffold(
-    scrollState: TransformingLazyColumnState,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
-    timeText: (@Composable () -> Unit)? = null,
-    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
-    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    content: @Composable BoxScope.(PaddingValues) -> Unit,
-): Unit =
-    ScreenScaffold(
-        scrollState = scrollState,
-        modifier = modifier,
-        contentPadding = contentPadding,
-        timeText = timeText,
-        scrollIndicator = scrollIndicator,
-        overscrollEffect = overscrollEffect,
-        statusBarMode = StatusBarMode.Inherit,
         content = content,
     )
 
@@ -508,9 +621,6 @@ public fun ScreenScaffold(
  *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
  *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
  *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
- * @param timeText Time text (both time and potentially status message) for this screen, if
- *   different to the time text at the [AppScaffold] level. When null, the time text from the
- *   [AppScaffold] is displayed for this screen.
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
@@ -519,11 +629,74 @@ public fun ScreenScaffold(
  *   such as [edgeButton] and [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this
  *   behaviour can be disabled by passing overscrollEffect = null.
  * @param edgeButtonSpacing The space between [EdgeButton] and the list content.
- * @param statusBarMode Whether to display the status bar overlay specifically for this screen.
- *   Defaults to [StatusBarMode.Inherit], which inherits the setting from underlying screens in the
- *   screen stack or falls back to the parent [AppScaffold] if no screen specifies a mode. On
- *   devices that support the status bar, the system status bar replaces the app-level [TimeText]
- *   when enabled to prevent overlapping.
+ * @param content The body content for this screen. The lambda receives a [PaddingValues] that
+ *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
+ *   contentPadding parameter when used with lists to properly offset the [EdgeButton].
+ */
+@Composable
+public fun ScreenScaffold(
+    scrollState: LazyListState,
+    edgeButton: @Composable BoxScope.() -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
+    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
+    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
+    edgeButtonSpacing: Dp = ScreenScaffoldDefaults.EdgeButtonSpacing,
+    content: @Composable BoxScope.(PaddingValues) -> Unit,
+): Unit =
+    ScreenScaffold(
+        scrollState = scrollState,
+        edgeButton = edgeButton,
+        modifier = modifier,
+        contentPadding = contentPadding,
+        timeText = null,
+        scrollIndicator = scrollIndicator,
+        overscrollEffect = overscrollEffect,
+        edgeButtonSpacing = edgeButtonSpacing,
+        content = content,
+    )
+
+/**
+ * [ScreenScaffold] is one of the Wear Material3 scaffold components.
+ *
+ * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
+ * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
+ * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
+ * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
+ * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
+ * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
+ * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
+ *
+ * This version of [ScreenScaffold] has a special slot for a button at the bottom, that grows and
+ * shrinks to take the available space after the scrollable content.
+ *
+ * @param scrollState The scroll state for [androidx.compose.foundation.lazy.LazyColumn], used to
+ *   drive screen transitions such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ * @param edgeButton Slot for an [EdgeButton] that takes the available space below a scrolling list.
+ *   It will scale up and fade in when the user scrolls to the end of the list, and scale down and
+ *   fade out as the user scrolls up.
+ * @param modifier The modifier for the screen scaffold.
+ * @param contentPadding The padding to apply around the entire content. This contentPadding is then
+ *   received by the [content] and should be consumed by using
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
+ *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
+ *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
+ * @param timeText The time text and status bar configuration for this screen:
+ *     - `null` (default): inherits status bar mode and time text from [AppScaffold] or underlying
+ *       screens.
+ *     - Any custom composable: disables the system status bar overlay and renders this composable
+ *       locally in place of the status bar.
+ *
+ * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
+ *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
+ *   provided by default. No scroll indicator is displayed if null is passed.
+ * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
+ *   layout. This overscroll effect will be shared with all components within this ScreenScaffold
+ *   such as [edgeButton] and [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this
+ *   behaviour can be disabled by passing overscrollEffect = null.
+ * @param edgeButtonSpacing The space between [EdgeButton] and the list content.
  * @param content The body content for this screen. The lambda receives a [PaddingValues] that
  *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
  *   contentPadding parameter when used with lists to properly offset the [EdgeButton].
@@ -538,7 +711,6 @@ public fun ScreenScaffold(
     scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
     edgeButtonSpacing: Dp = ScreenScaffoldDefaults.EdgeButtonSpacing,
-    statusBarMode: StatusBarMode = StatusBarMode.Inherit,
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit =
     ScreenScaffold(
@@ -549,38 +721,7 @@ public fun ScreenScaffold(
         timeText = timeText,
         scrollIndicator = scrollIndicator,
         edgeButtonSpacing = edgeButtonSpacing,
-        statusBarMode = statusBarMode,
         overscrollEffect = overscrollEffect,
-        content = content,
-    )
-
-@Deprecated(
-    message =
-        "This overload is deprecated, please use the new overload with the statusBarMode parameter.",
-    level = DeprecationLevel.HIDDEN,
-)
-@Composable
-public fun ScreenScaffold(
-    scrollState: LazyListState,
-    edgeButton: @Composable BoxScope.() -> Unit,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
-    timeText: (@Composable () -> Unit)? = null,
-    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
-    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    edgeButtonSpacing: Dp = ScreenScaffoldDefaults.EdgeButtonSpacing,
-    content: @Composable BoxScope.(PaddingValues) -> Unit,
-): Unit =
-    ScreenScaffold(
-        scrollState = scrollState,
-        edgeButton = edgeButton,
-        modifier = modifier,
-        contentPadding = contentPadding,
-        timeText = timeText,
-        scrollIndicator = scrollIndicator,
-        overscrollEffect = overscrollEffect,
-        edgeButtonSpacing = edgeButtonSpacing,
-        statusBarMode = StatusBarMode.Inherit,
         content = content,
     )
 
@@ -603,9 +744,6 @@ public fun ScreenScaffold(
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
  *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
- * @param timeText Time text (both time and potentially status message) for this screen, if
- *   different to the time text at the [AppScaffold] level. When null, the time text from the
- *   [AppScaffold] is displayed for this screen.
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
@@ -613,11 +751,61 @@ public fun ScreenScaffold(
  *   layout. This overscroll effect will be shared with all components within this ScreenScaffold
  *   such as [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this behaviour can be
  *   disabled by passing overscrollEffect = null.
- * @param statusBarMode Whether to display the status bar overlay specifically for this screen.
- *   Defaults to [StatusBarMode.Inherit], which inherits the setting from underlying screens in the
- *   screen stack or falls back to the parent [AppScaffold] if no screen specifies a mode. On
- *   devices that support the status bar, the system status bar replaces the app-level [TimeText]
- *   when enabled to prevent overlapping.
+ * @param content The body content for this screen. The lambda receives a [PaddingValues] that
+ *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
+ *   contentPadding parameter when used with lists.
+ */
+@Composable
+public fun ScreenScaffold(
+    scrollState: LazyListState,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
+    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
+    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
+    content: @Composable BoxScope.(PaddingValues) -> Unit,
+): Unit =
+    ScreenScaffold(
+        scrollState = scrollState,
+        modifier = modifier,
+        contentPadding = contentPadding,
+        timeText = null,
+        scrollIndicator = scrollIndicator,
+        overscrollEffect = overscrollEffect,
+        content = content,
+    )
+
+/**
+ * [ScreenScaffold] is one of the Wear Material3 scaffold components.
+ *
+ * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
+ * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
+ * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
+ * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
+ * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
+ * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
+ * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
+ *
+ * @param scrollState The scroll state for [androidx.compose.foundation.lazy.LazyColumn], used to
+ *   drive screen transitions such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ * @param modifier The modifier for the screen scaffold.
+ * @param contentPadding The padding to apply around the entire content. This contentPadding is then
+ *   received by the [content] and should be consumed by using
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
+ * @param timeText The time text and status bar configuration for this screen:
+ *     - `null` (default): inherits status bar mode and time text from [AppScaffold] or underlying
+ *       screens.
+ *     - Any custom composable: disables the system status bar overlay and renders this composable
+ *       locally in place of the status bar.
+ *
+ * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
+ *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
+ *   provided by default. No scroll indicator is displayed if null is passed.
+ * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
+ *   layout. This overscroll effect will be shared with all components within this ScreenScaffold
+ *   such as [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this behaviour can be
+ *   disabled by passing overscrollEffect = null.
  * @param content The body content for this screen. The lambda receives a [PaddingValues] that
  *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
  *   contentPadding parameter when used with lists.
@@ -630,7 +818,6 @@ public fun ScreenScaffold(
     timeText: (@Composable () -> Unit)? = null,
     scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    statusBarMode: StatusBarMode = StatusBarMode.Inherit,
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit =
     ScreenScaffold(
@@ -639,34 +826,7 @@ public fun ScreenScaffold(
         contentPadding = contentPadding,
         timeText = timeText,
         scrollIndicator = scrollIndicator,
-        statusBarMode = statusBarMode,
         overscrollEffect = overscrollEffect,
-        content = content,
-    )
-
-@Deprecated(
-    message =
-        "This overload is deprecated, please use the new overload with the statusBarMode parameter.",
-    level = DeprecationLevel.HIDDEN,
-)
-@Composable
-public fun ScreenScaffold(
-    scrollState: LazyListState,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
-    timeText: (@Composable () -> Unit)? = null,
-    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
-    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    content: @Composable BoxScope.(PaddingValues) -> Unit,
-): Unit =
-    ScreenScaffold(
-        scrollState = scrollState,
-        modifier = modifier,
-        contentPadding = contentPadding,
-        timeText = timeText,
-        scrollIndicator = scrollIndicator,
-        overscrollEffect = overscrollEffect,
-        statusBarMode = StatusBarMode.Inherit,
         content = content,
     )
 
@@ -698,9 +858,6 @@ public fun ScreenScaffold(
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
  *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
- * @param timeText Time text (both time and potentially status message) for this screen, if
- *   different to the time text at the [AppScaffold] level. When null, the time text from the
- *   [AppScaffold] is displayed for this screen.
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
@@ -708,11 +865,70 @@ public fun ScreenScaffold(
  *   layout. This overscroll effect will be shared with all components within this ScreenScaffold
  *   such as [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this behaviour can be
  *   disabled by passing overscrollEffect = null.
- * @param statusBarMode Whether to display the status bar overlay specifically for this screen.
- *   Defaults to [StatusBarMode.Inherit], which inherits the setting from underlying screens in the
- *   screen stack or falls back to the parent [AppScaffold] if no screen specifies a mode. On
- *   devices that support the status bar, the system status bar replaces the app-level [TimeText]
- *   when enabled to prevent overlapping.
+ * @param content The body content for this screen. The lambda receives a [PaddingValues] that
+ *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
+ *   contentPadding parameter when used with lists.
+ */
+@Composable
+public fun ScreenScaffold(
+    scrollState: ScrollState,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
+    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
+    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
+    content: @Composable BoxScope.(PaddingValues) -> Unit,
+): Unit =
+    ScreenScaffold(
+        scrollState = scrollState,
+        modifier = modifier,
+        contentPadding = contentPadding,
+        timeText = null,
+        scrollIndicator = scrollIndicator,
+        overscrollEffect = overscrollEffect,
+        content = content,
+    )
+
+/**
+ * [ScreenScaffold] is one of the Wear Material3 scaffold components.
+ *
+ * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
+ * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
+ * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
+ * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
+ * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
+ * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
+ * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState]. Note that
+ * this version doesn't support a bottom button slot, for that use the overload that takes
+ * [LazyListState] or the one that takes a [ScalingLazyListState].
+ *
+ * Example of using AppScaffold and ScreenScaffold:
+ *
+ * @sample androidx.wear.compose.material3.samples.ScaffoldSample
+ *
+ * ![ScaffoldSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_ScaffoldSample_CompositeImage.png)
+ *
+ * @param scrollState The scroll state for a Column, used to drive screen transitions such as
+ *   [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ * @param modifier The modifier for the screen scaffold.
+ * @param contentPadding The padding to apply around the entire content. This contentPadding is then
+ *   received by the [content] and should be consumed by using
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
+ * @param timeText The time text and status bar configuration for this screen:
+ *     - `null` (default): inherits status bar mode and time text from [AppScaffold] or underlying
+ *       screens.
+ *     - Any custom composable: disables the system status bar overlay and renders this composable
+ *       locally in place of the status bar.
+ *
+ * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
+ *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
+ *   provided by default. No scroll indicator is displayed if null is passed.
+ * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
+ *   layout. This overscroll effect will be shared with all components within this ScreenScaffold
+ *   such as [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this behaviour can be
+ *   disabled by passing overscrollEffect = null.
  * @param content The body content for this screen. The lambda receives a [PaddingValues] that
  *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
  *   contentPadding parameter when used with lists.
@@ -725,7 +941,6 @@ public fun ScreenScaffold(
     timeText: (@Composable () -> Unit)? = null,
     scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    statusBarMode: StatusBarMode = StatusBarMode.Inherit,
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit =
     ScreenScaffold(
@@ -734,34 +949,7 @@ public fun ScreenScaffold(
         contentPadding = contentPadding,
         timeText = timeText,
         scrollIndicator = scrollIndicator,
-        statusBarMode = statusBarMode,
         overscrollEffect = overscrollEffect,
-        content = content,
-    )
-
-@Deprecated(
-    message =
-        "This overload is deprecated, please use the new overload with the statusBarMode parameter.",
-    level = DeprecationLevel.HIDDEN,
-)
-@Composable
-public fun ScreenScaffold(
-    scrollState: ScrollState,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
-    timeText: (@Composable () -> Unit)? = null,
-    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
-    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    content: @Composable BoxScope.(PaddingValues) -> Unit,
-): Unit =
-    ScreenScaffold(
-        scrollState = scrollState,
-        modifier = modifier,
-        contentPadding = contentPadding,
-        timeText = timeText,
-        scrollIndicator = scrollIndicator,
-        overscrollEffect = overscrollEffect,
-        statusBarMode = StatusBarMode.Inherit,
         content = content,
     )
 
@@ -795,9 +983,6 @@ public fun ScreenScaffold(
  *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
  *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
  *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
- * @param timeText Time text (both time and potentially status message) for this screen, if
- *   different to the time text at the [AppScaffold] level. When null, the time text from the
- *   [AppScaffold] is displayed for this screen.
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
@@ -807,11 +992,78 @@ public fun ScreenScaffold(
  *   layout. This overscroll effect will be shared with all components within this ScreenScaffold
  *   such as [edgeButton] and [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this
  *   behaviour can be disabled by passing overscrollEffect = null.
- * @param statusBarMode Whether to display the status bar overlay specifically for this screen.
- *   Defaults to [StatusBarMode.Inherit], which inherits the setting from underlying screens in the
- *   screen stack or falls back to the parent [AppScaffold] if no screen specifies a mode. On
- *   devices that support the status bar, the system status bar replaces the app-level [TimeText]
- *   when enabled to prevent overlapping.
+ * @param content The body content for this screen. The lambda receives a [PaddingValues] that
+ *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
+ *   contentPadding parameter when used with lists to properly offset the [EdgeButton].
+ */
+@Composable
+public fun ScreenScaffold(
+    scrollInfoProvider: ScrollInfoProvider,
+    edgeButton: @Composable BoxScope.() -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
+    scrollIndicator: (@Composable BoxScope.() -> Unit)? = null,
+    edgeButtonSpacing: Dp = ScreenScaffoldDefaults.EdgeButtonSpacing,
+    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
+    content: @Composable BoxScope.(PaddingValues) -> Unit,
+): Unit =
+    ScreenScaffold(
+        scrollInfoProvider = scrollInfoProvider,
+        edgeButton = edgeButton,
+        modifier = modifier,
+        contentPadding = contentPadding,
+        timeText = null,
+        scrollIndicator = scrollIndicator,
+        edgeButtonSpacing = edgeButtonSpacing,
+        overscrollEffect = overscrollEffect,
+        content = content,
+    )
+
+/**
+ * [ScreenScaffold] is one of the Wear Material3 scaffold components.
+ *
+ * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
+ * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
+ * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
+ * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
+ * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
+ * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
+ * coordinates showing/hiding [TimeText], [ScrollIndicator] and the bottom button according to a
+ * [scrollInfoProvider].
+ *
+ * This version of [ScreenScaffold] has a special slot for a button at the bottom, that grows and
+ * shrinks to take the available space after the scrollable content. In this overload, both
+ * edgeButton and scrollInfoProvider must be specified.
+ *
+ * @param scrollInfoProvider Provider for scroll information used to scroll away screen elements
+ *   such as [TimeText] and coordinate showing/hiding the [ScrollIndicator], this needs to be a
+ *   [ScrollInfoProvider].
+ * @param edgeButton slot for a [EdgeButton] that takes the available space below a scrolling list.
+ *   It will scale up and fade in when the user scrolls to the end of the list, and scale down and
+ *   fade out as the user scrolls up.
+ * @param modifier The modifier for the screen scaffold.
+ * @param contentPadding The padding to apply around the entire content. This contentPadding is then
+ *   received by the [content] and should be consumed by using
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
+ *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
+ *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
+ * @param timeText The time text and status bar configuration for this screen:
+ *     - `null` (default): inherits status bar mode and time text from [AppScaffold] or underlying
+ *       screens.
+ *     - Any custom composable: disables the system status bar overlay and renders this composable
+ *       locally in place of the status bar.
+ *
+ * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
+ *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
+ *   provided by default. No scroll indicator is displayed if null is passed.
+ * @param edgeButtonSpacing The space between [EdgeButton] and the list content. This gap size could
+ *   not be smaller then [ScreenScaffoldDefaults.EdgeButtonMinSpacing].
+ * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
+ *   layout. This overscroll effect will be shared with all components within this ScreenScaffold
+ *   such as [edgeButton] and [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this
+ *   behaviour can be disabled by passing overscrollEffect = null.
  * @param content The body content for this screen. The lambda receives a [PaddingValues] that
  *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
  *   contentPadding parameter when used with lists to properly offset the [EdgeButton].
@@ -826,7 +1078,6 @@ public fun ScreenScaffold(
     scrollIndicator: (@Composable BoxScope.() -> Unit)? = null,
     edgeButtonSpacing: Dp = ScreenScaffoldDefaults.EdgeButtonSpacing,
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    statusBarMode: StatusBarMode = StatusBarMode.Inherit,
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ) {
     val localDensity = LocalDensity.current
@@ -843,7 +1094,6 @@ public fun ScreenScaffold(
         timeText = timeText,
         scrollInfoProvider = scrollInfoProvider,
         scrollIndicator = scrollIndicator,
-        statusBarMode = statusBarMode,
         overscrollEffect = overscrollEffect,
         content = { innerContentPadding ->
             var intrinsicButtonHeight by remember(edgeButton) { mutableStateOf<Float?>(null) }
@@ -946,36 +1196,6 @@ public fun ScreenScaffold(
     )
 }
 
-@Deprecated(
-    message =
-        "This overload is deprecated, please use the new overload with the statusBarMode parameter.",
-    level = DeprecationLevel.HIDDEN,
-)
-@Composable
-public fun ScreenScaffold(
-    scrollInfoProvider: ScrollInfoProvider,
-    edgeButton: @Composable BoxScope.() -> Unit,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
-    timeText: (@Composable () -> Unit)? = null,
-    scrollIndicator: (@Composable BoxScope.() -> Unit)? = null,
-    edgeButtonSpacing: Dp = ScreenScaffoldDefaults.EdgeButtonSpacing,
-    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    content: @Composable BoxScope.(PaddingValues) -> Unit,
-): Unit =
-    ScreenScaffold(
-        scrollInfoProvider = scrollInfoProvider,
-        edgeButton = edgeButton,
-        modifier = modifier,
-        contentPadding = contentPadding,
-        timeText = timeText,
-        scrollIndicator = scrollIndicator,
-        edgeButtonSpacing = edgeButtonSpacing,
-        overscrollEffect = overscrollEffect,
-        statusBarMode = StatusBarMode.Inherit,
-        content = content,
-    )
-
 private enum class SlotsEnum {
     Main,
     EdgeButton,
@@ -1007,9 +1227,6 @@ private enum class SlotsEnum {
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
  *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
- * @param timeText Time text (both time and potentially status message) for this screen, if
- *   different to the time text at the [AppScaffold] level. When null, the time text from the
- *   [AppScaffold] is displayed for this screen.
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
@@ -1017,11 +1234,68 @@ private enum class SlotsEnum {
  *   layout. This overscroll effect will be shared with all components within this ScreenScaffold
  *   such as [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this behaviour can be
  *   disabled by passing overscrollEffect = null.
- * @param statusBarMode Whether to display the status bar overlay specifically for this screen.
- *   Defaults to [StatusBarMode.Inherit], which inherits the setting from underlying screens in the
- *   screen stack or falls back to the parent [AppScaffold] if no screen specifies a mode. On
- *   devices that support the status bar, the system status bar replaces the app-level [TimeText]
- *   when enabled to prevent overlapping.
+ * @param content The body content for this screen. The lambda receives a [PaddingValues] that
+ *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
+ *   contentPadding parameter when used with lists.
+ */
+@Composable
+public fun ScreenScaffold(
+    modifier: Modifier = Modifier,
+    scrollInfoProvider: ScrollInfoProvider? = null,
+    contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
+    scrollIndicator: (@Composable BoxScope.() -> Unit)? = null,
+    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
+    content: @Composable BoxScope.(PaddingValues) -> Unit,
+): Unit =
+    ScreenScaffold(
+        modifier = modifier,
+        scrollInfoProvider = scrollInfoProvider,
+        contentPadding = contentPadding,
+        timeText = null,
+        scrollIndicator = scrollIndicator,
+        overscrollEffect = overscrollEffect,
+        content = content,
+    )
+
+/**
+ * [ScreenScaffold] is one of the Wear Material3 scaffold components.
+ *
+ * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
+ * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
+ * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
+ * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
+ * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
+ * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
+ * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollInfoProvider].
+ *
+ * Example of using AppScaffold and ScreenScaffold:
+ *
+ * @sample androidx.wear.compose.material3.samples.ScaffoldSample
+ *
+ * ![ScaffoldSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_ScaffoldSample_CompositeImage.png)
+ *
+ * @param modifier The modifier for the screen scaffold.
+ * @param scrollInfoProvider Provider for scroll information used to scroll away screen elements
+ *   such as [TimeText] and coordinate showing/hiding the [ScrollIndicator].
+ * @param contentPadding The padding to apply around the entire content. This contentPadding is then
+ *   received by the [content] and should be consumed by using
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
+ * @param timeText The time text and status bar configuration for this screen:
+ *     - `null` (default): inherits status bar mode and time text from [AppScaffold] or underlying
+ *       screens.
+ *     - Any custom composable: disables the system status bar overlay and renders this composable
+ *       locally in place of the status bar.
+ *
+ * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
+ *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
+ *   provided by default. No scroll indicator is displayed if null is passed.
+ * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
+ *   layout. This overscroll effect will be shared with all components within this ScreenScaffold
+ *   such as [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this behaviour can be
+ *   disabled by passing overscrollEffect = null.
  * @param content The body content for this screen. The lambda receives a [PaddingValues] that
  *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
  *   contentPadding parameter when used with lists.
@@ -1034,12 +1308,12 @@ public fun ScreenScaffold(
     timeText: (@Composable () -> Unit)? = null,
     scrollIndicator: (@Composable BoxScope.() -> Unit)? = null,
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    statusBarMode: StatusBarMode = StatusBarMode.Inherit,
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit {
     val viewState = rememberUpdatedState(LocalView.current)
     val scaffoldState =
         LocalScaffoldState.current ?: remember { ScaffoldState(appWindowView = viewState) }
+    val statusBarMode = if (timeText == null) StatusBarMode.Inherit else StatusBarMode.Disabled
     val showStatusBarState = rememberShowStatusBarState(statusBarMode)
     val timeTextState = rememberUpdatedState(timeText)
     val scrollInfoProviderState = rememberUpdatedState(scrollInfoProvider)
@@ -1113,32 +1387,6 @@ public fun ScreenScaffold(
         }
     }
 }
-
-@Deprecated(
-    message =
-        "ScreenScaffold with default parameter configuration is deprecated to support the Global Status Bar integration.",
-    level = DeprecationLevel.HIDDEN,
-)
-@Composable
-public fun ScreenScaffold(
-    modifier: Modifier = Modifier,
-    scrollInfoProvider: ScrollInfoProvider? = null,
-    contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
-    timeText: (@Composable () -> Unit)? = null,
-    scrollIndicator: (@Composable BoxScope.() -> Unit)? = null,
-    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    content: @Composable BoxScope.(PaddingValues) -> Unit,
-): Unit =
-    ScreenScaffold(
-        modifier = modifier,
-        scrollInfoProvider = scrollInfoProvider,
-        contentPadding = contentPadding,
-        timeText = timeText,
-        scrollIndicator = scrollIndicator,
-        overscrollEffect = overscrollEffect,
-        statusBarMode = StatusBarMode.Inherit,
-        content = content,
-    )
 
 /** Contains the default values used by [ScreenScaffold] */
 public object ScreenScaffoldDefaults {
