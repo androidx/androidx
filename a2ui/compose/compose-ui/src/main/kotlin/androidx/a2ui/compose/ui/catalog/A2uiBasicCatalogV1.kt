@@ -104,7 +104,6 @@ public class A2uiBasicCatalogV1(
     public val choicePicker: ChoicePicker,
     public val slider: Slider,
     public val dateTimeInput: DateTimeInput,
-    // TODO(b/547851648): Add the rest of the basic catalog component types.
     public val functions: kotlin.collections.List<A2uiFunction>,
 ) {
 
@@ -135,7 +134,6 @@ public class A2uiBasicCatalogV1(
             choicePicker,
             slider,
             dateTimeInput,
-            // TODO(b/547851648): Add the rest of the basic catalog component types.
         )
 
     public companion object {
