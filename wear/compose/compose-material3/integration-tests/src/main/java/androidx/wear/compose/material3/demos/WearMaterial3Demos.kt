@@ -40,6 +40,8 @@ import androidx.wear.compose.material3.samples.LevelIndicatorSample
 import androidx.wear.compose.material3.samples.ListHeaderSample
 import androidx.wear.compose.material3.samples.NonClickableImageCardSample
 import androidx.wear.compose.material3.samples.NonClickableTitleCardWithImageWithTimeAndTitleSample
+import androidx.wear.compose.material3.samples.PullToRefreshCustomIndicatorSample
+import androidx.wear.compose.material3.samples.PullToRefreshSample
 import androidx.wear.compose.material3.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material3.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material3.samples.SurfaceTransformationOnCustomComponent
@@ -324,6 +326,13 @@ val WearMaterial3Demos =
                     ),
                 ),
                 Material3DemoCategory("One Handed Gestures", OneHandedGestureDemos),
+                Material3DemoCategory(
+                    "Pull To Refresh",
+                    listOf(
+                        ComposableDemo("Simple PullToRefresh") { PullToRefreshSample() },
+                        ComposableDemo("Custom Indicator") { PullToRefreshCustomIndicatorSample() },
+                    ),
+                ),
                 ComposableDemo("Text Block") { TextBlockDemo() },
                 ComposableDemo("Text Marquee") { TextMarqueeDemo() },
                 ComposableDemo("Text Weights") { TextWeightDemo() },
