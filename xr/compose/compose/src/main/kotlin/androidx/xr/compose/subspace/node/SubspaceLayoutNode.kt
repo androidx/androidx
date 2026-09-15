@@ -25,7 +25,6 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
 import androidx.xr.compose.subspace.layout.CoreEntity
 import androidx.xr.compose.subspace.layout.CoreEntityNode
@@ -242,8 +241,8 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
 
     /** Removes all children nodes. */
     internal fun removeAll() {
-        children.reversed().fastForEachIndexed { i, child ->
-            onChildRemoved(child, children.size - i - 1)
+        for (i in children.size - 1 downTo 0) {
+            onChildRemoved(children[i], i)
         }
 
         children.clear()
@@ -276,7 +275,7 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
         }
 
         owner = subspaceOwner
-        depth = ancestors().fold(0) { i, _ -> i + 1 }
+        depth = (parent?.depth ?: -1) + 1
 
         subspaceOwner.onAttach(this)
         syncCoreEntityHierarchy()
