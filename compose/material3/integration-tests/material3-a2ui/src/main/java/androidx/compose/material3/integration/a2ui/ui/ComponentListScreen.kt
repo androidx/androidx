@@ -35,7 +35,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.integration.a2ui.icons.ChevronForwardIcon
@@ -167,31 +166,10 @@ private fun ComponentRow(
             fontWeight = FontWeight.Medium,
             color = colorScheme.onSurface,
         )
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            if (!component.isSupported) {
-                ComingSoonBadge(modifier = Modifier.padding(end = 8.dp))
-            }
-            Icon(
-                imageVector = ChevronForwardIcon,
-                contentDescription = null,
-                tint = colorScheme.onSurfaceVariant,
-            )
-        }
-    }
-}
-
-@Composable
-private fun ComingSoonBadge(modifier: Modifier = Modifier) {
-    Surface(
-        shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHighest,
-        modifier = modifier,
-    ) {
-        Text(
-            text = "Coming soon",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+        Icon(
+            imageVector = ChevronForwardIcon,
+            contentDescription = null,
+            tint = colorScheme.onSurfaceVariant,
         )
     }
 }
