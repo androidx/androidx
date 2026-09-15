@@ -42,12 +42,7 @@ internal constructor(
 
     override fun update(xrTime: Long) {
         val spatialAnnotationState =
-            try {
-                nativeGetSpatialAnnotationState(nativeSpatialAnnotationId, xrTime)
-            } catch (_: UnsatisfiedLinkError) {
-                // Native method is not linked in JVM host unit tests.
-                null
-            }
+            nativeGetSpatialAnnotationState(nativeSpatialAnnotationId, xrTime)
         if (spatialAnnotationState == null) {
             trackingState = TrackingState.PAUSED
             return

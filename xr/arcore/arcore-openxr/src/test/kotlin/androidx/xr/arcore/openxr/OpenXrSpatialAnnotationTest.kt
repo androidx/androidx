@@ -49,11 +49,4 @@ class OpenXrSpatialAnnotationTest {
 
         assertThat(underTest.alignment).isEqualTo(SpatialAnnotationQuadAlignment.SCREEN)
     }
-
-    @Test
-    fun update_invokesNativeMethod() {
-        val underTest = OpenXrSpatialAnnotation(handle, id)
-
-        underTest.update(1000L)
-    }
 }
