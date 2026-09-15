@@ -160,6 +160,13 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
         }
     }
 
+    /**
+     * Called when widget instances are deleted. Removes cached widget options associated with the
+     * deleted [appWidgetIds] from the internal cache.
+     *
+     * If this method is overridden, `super.onDeleted` must be called to ensure internal cache
+     * cleanup.
+     */
     @CallSuper
     override fun onDeleted(
         @Suppress("InvalidNullabilityOverride") context: Context,
