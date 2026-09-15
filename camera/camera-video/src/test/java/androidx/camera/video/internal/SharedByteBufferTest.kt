@@ -16,14 +16,7 @@
 
 package androidx.camera.video.internal
 
-import android.os.Build
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.testing.impl.AndroidUtil.isEmulator
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
-import androidx.test.filters.MediumTest
-import androidx.test.filters.SmallTest
-import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import java.lang.ref.PhantomReference
 import java.lang.ref.ReferenceQueue
@@ -36,21 +29,20 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
-import org.junit.Assume.assumeFalse
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.internal.DoNotInstrument
 
-@RunWith(AndroidJUnit4::class)
-@SmallTest
+@RunWith(RobolectricTestRunner::class)
+@DoNotInstrument
+@Config(sdk = [Config.ALL_SDKS])
 class SharedByteBufferTest {
 
     @Test
     fun canRetrieveByteBuffer_fromOriginal() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         val buf = ByteBuffer.allocate(0)
         SharedByteBuffer.newSharedInstance(buf, CameraXExecutors.directExecutor()) {
                 // no-op close action
@@ -60,11 +52,6 @@ class SharedByteBufferTest {
 
     @Test
     fun canRetrieveByteBuffer_fromShared() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         val buf = ByteBuffer.allocate(0)
         SharedByteBuffer.newSharedInstance(buf, CameraXExecutors.directExecutor()) {
                 // no-op close action
@@ -76,11 +63,6 @@ class SharedByteBufferTest {
 
     @Test
     fun closeActionRuns_afterAllSharedBufsClosed() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         // Arrange
         val buf = ByteBuffer.allocate(0)
         var closeActionRan = false
@@ -102,11 +84,6 @@ class SharedByteBufferTest {
 
     @Test
     fun closedSharedBuf_throwsOnGet() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         val buf = ByteBuffer.allocate(0)
         val sharedBuf =
             SharedByteBuffer.newSharedInstance(buf, CameraXExecutors.directExecutor()) {
@@ -115,16 +92,11 @@ class SharedByteBufferTest {
 
         sharedBuf.close()
 
-        assertThrows<IllegalStateException> { sharedBuf.get() }
+        assertThrows(IllegalStateException::class.java) { sharedBuf.get() }
     }
 
     @Test
     fun closedSharedBuf_throwsOnShare() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         val buf = ByteBuffer.allocate(0)
         val sharedBuf =
             SharedByteBuffer.newSharedInstance(buf, CameraXExecutors.directExecutor()) {
@@ -133,16 +105,11 @@ class SharedByteBufferTest {
 
         sharedBuf.close()
 
-        assertThrows<IllegalStateException> { sharedBuf.share() }
+        assertThrows(IllegalStateException::class.java) { sharedBuf.share() }
     }
 
     @Test
     fun canGetFromSharedBuf_afterOrigClosed() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         val buf = ByteBuffer.allocate(0)
         val origBuf =
             SharedByteBuffer.newSharedInstance(buf, CameraXExecutors.directExecutor()) {
@@ -157,11 +124,6 @@ class SharedByteBufferTest {
 
     @Test
     fun closeAction_onlyRunsOnce_afterLastBufferClosed() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         val buf = ByteBuffer.allocate(0)
         var numFinalCloseInvocations = 0
         SharedByteBuffer.newSharedInstance(buf, CameraXExecutors.directExecutor()) {
@@ -174,11 +136,6 @@ class SharedByteBufferTest {
 
     @Test
     fun closeAction_onlyRunsOnce_whenCloseCalledMultipleTimes() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         val buf = ByteBuffer.allocate(0)
         var numFinalCloseInvocations = 0
         val sharedBuf =
@@ -196,11 +153,6 @@ class SharedByteBufferTest {
 
     @Test
     fun limitIsTransferred_toChildSharedInstances() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         val buf = ByteBuffer.allocate(16)
         val origLimit: Int
         val sharedInstanceLimit0: Int
@@ -229,11 +181,6 @@ class SharedByteBufferTest {
 
     @Test
     fun positionIsTransferred_toChildSharedInstances() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         val buf = ByteBuffer.allocate(16)
         val origPos: Int
         val sharedInstancePos0: Int
@@ -262,11 +209,6 @@ class SharedByteBufferTest {
 
     @Test
     fun markIsTransferred_toChildSharedInstances() {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
         val buf = ByteBuffer.allocate(16)
         val origMark: Int
         val sharedInstanceMark0: Int
@@ -312,14 +254,8 @@ class SharedByteBufferTest {
     }
 
     @Test
-    @MediumTest
     fun closeAction_runsOnBackgroundThread_whenFinalInstanceClosedOnBackgroundThread(): Unit =
         runBlocking {
-            // Skip for b/264902324
-            assumeFalse(
-                "Emulator API 30 crashes running this test.",
-                Build.VERSION.SDK_INT == 30 && isEmulator(),
-            )
             val buf = ByteBuffer.allocate(0)
             val closeActionThreadNameDeferred = CompletableDeferred<String>()
             val origBuf =
@@ -332,7 +268,7 @@ class SharedByteBufferTest {
             repeat(25) {
                 val sharedBuf = origBuf.share()
                 launch(Dispatchers.IO) {
-                    // Wait for original to be closed on test runner instrumentation thread
+                    // Wait for original to be closed on test runner thread
                     origClosedDeferred.await()
                     sharedBuf.use {
                         // Should be able to retrieve buffer as long as sharedBuf is not closed
@@ -348,18 +284,7 @@ class SharedByteBufferTest {
         }
 
     @Test
-    @LargeTest
     fun finalizeClosesUnclosedInstances() = runBlocking {
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
-        )
-        assumeFalse(
-            "Ignore devices that get flaky result. See b/278842333",
-            isModel("moto c") || isModel("rne-l23"),
-        )
-
         val buf = ByteBuffer.allocate(0)
         val closeActionDeferred = CompletableDeferred<Unit>()
         val origBuf =
@@ -373,7 +298,7 @@ class SharedByteBufferTest {
         try {
             // Close original buffer. Only phantomly reachable instances will now exist.
             origBuf.close()
-            // Run gc until all finalizers have fun or timeout occurs
+            // Run gc until all finalizers have run or timeout occurs
             withTimeout(timeMillis = 1000) {
                 withContext(Dispatchers.IO) {
                     var numFinalized = 0
@@ -398,6 +323,4 @@ class SharedByteBufferTest {
             phantomReferences.forEach { it.clear() }
         }
     }
-
-    private fun isModel(model: String) = model.equals(Build.MODEL, true)
 }
