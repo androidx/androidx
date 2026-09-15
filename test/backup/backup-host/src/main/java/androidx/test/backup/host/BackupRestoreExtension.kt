@@ -146,9 +146,9 @@ private constructor(
             .filter { it.isOnline }
 
         if (devices.isEmpty()) {
-            throw IllegalStateException(
-                "No online Android devices or emulators were detected via ADB."
-            )
+            val errorMsg = "No online Android devices or emulators were detected via ADB."
+            extensionContext.reportPreconditionFailure(BackupErrorCode.NO_ONLINE_DEVICE, errorMsg)
+            throw IllegalStateException(errorMsg)
         }
 
         // Filter devices based on annotation qualifiers
@@ -172,10 +172,11 @@ private constructor(
                         "${d.serialNumber} (API $api)"
                     }
                     .joinToString(", ")
-            throw IllegalStateException(
+            val errorMsg =
                 "Could not find any online devices matching requirements: API=$requestedApi, Serial='$requestedSerial'. " +
                     "Available devices: [$available]"
-            )
+            extensionContext.reportPreconditionFailure(BackupErrorCode.NO_MATCHING_DEVICE, errorMsg)
+            throw IllegalStateException(errorMsg)
         }
 
         // Resolve the matching device (default to parameter index distribution if multiple devices
@@ -191,10 +192,14 @@ private constructor(
         val api = runBlocking { selectedDevice.deviceProperties().api(0) }
 
         if (api < MIN_REQUIRED_API) {
-            throw IllegalStateException(
+            val errorMsg =
                 "Backup & Restore testing requires Android 12 (API level 31) or higher. " +
                     "Detected device/emulator $serial is running API level $api."
+            extensionContext.reportPreconditionFailure(
+                BackupErrorCode.UNSUPPORTED_API_LEVEL,
+                errorMsg,
             )
+            throw IllegalStateException(errorMsg)
         }
 
         val deviceImpl =
@@ -203,6 +208,9 @@ private constructor(
                 serialNumber = serial,
                 apiLevel = api,
                 applicationId = config.applicationId,
+                telemetryPublisher = { key, value ->
+                    extensionContext?.publishReportEntry(key, value)
+                },
             )
 
         // Automatically install tested APKs (main app) and test APKs if provided by AGP test suite
@@ -308,6 +316,25 @@ private constructor(
         }
 
         return deviceImpl
+    }
+
+    /**
+     * Publishes the report entries describing a precondition failure, so that failures detected
+     * before a [BackupRestoreController] exists are reported with the same vocabulary that
+     * [BackupRestoreControllerImpl] uses for completed executions.
+     */
+    private fun ExtensionContext?.reportPreconditionFailure(
+        errorCode: BackupErrorCode,
+        errorMessage: String,
+    ) {
+        val context = this ?: return
+        context.publishReportEntry(BackupReportKeys.STATUS, BackupReportKeys.STATUS_FAILURE)
+        context.publishReportEntry(BackupReportKeys.ERROR_CODE, errorCode.name)
+        context.publishReportEntry(
+            BackupReportKeys.FAILURE_STAGE,
+            BackupExecutionStage.PRECONDITION.name,
+        )
+        context.publishReportEntry(BackupReportKeys.ERROR_MESSAGE, errorMessage)
     }
 
     /** Configuration constants and system property keys for device resolution and setup. */

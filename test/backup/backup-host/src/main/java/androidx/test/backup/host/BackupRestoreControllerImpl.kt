@@ -29,6 +29,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.Duration
+import java.util.Locale
 import java.util.UUID
 import java.util.logging.Logger
 import kotlinx.coroutines.delay
@@ -46,7 +47,11 @@ internal class BackupRestoreControllerImpl(
     override val serialNumber: String,
     override val apiLevel: Int,
     override val applicationId: String,
+    private val telemetryPublisher: ((key: String, value: String) -> Unit)? = null,
 ) : BackupRestoreController {
+
+    internal var lastExecutionSummary: BackupExecutionSummary? = null
+        private set
 
     private val logger = Logger.getLogger(BackupRestoreControllerImpl::class.java.name)
 
@@ -171,67 +176,211 @@ internal class BackupRestoreControllerImpl(
         outputDir: Path,
         mode: BackupTransportMode,
     ): BackupRestoreController {
-        if (storages.isEmpty()) {
-            throw IllegalArgumentException("At least one StorageDomain must be provided.")
-        }
-        logger.info(
-            "Executing standard backup and restore flow for $applicationId across " +
-                "${storages.size} storage domains..."
-        )
+        val totalStartTime = System.nanoTime()
+        var stageStartTime = System.nanoTime()
+        var seedingDuration = Duration.ZERO
+        var backupDuration = Duration.ZERO
+        var clearDataDuration = Duration.ZERO
+        var restoreDuration = Duration.ZERO
+        var verificationDuration = Duration.ZERO
+        var currentStage = BackupExecutionStage.PRECONDITION
+        var flowSummary: BackupExecutionSummary? = null
 
-        // 1. Put data for each storage domain (seeds the app sandbox)
-        val domainArgs = storages.map { domain ->
-            val putArgs = getPutStorageArgs(domain)
-            logger.info("Seeding data on device via PopulateStorageAction for $domain...")
-            val putResult =
-                runOnDevice(
-                    actionClassName = BackupRestoreController.ACTION_POPULATE_STORAGE,
-                    args = putArgs,
-                )
-            if (putResult is BackupActionResult.Failure) {
-                throw IOException(
-                    "PopulateStorageAction failed for $domain: ${putResult.errorMessage}"
-                )
+        try {
+            if (storages.isEmpty()) {
+                throw IllegalArgumentException("At least one StorageDomain must be provided.")
             }
-            domain to putArgs
-        }
+            logger.info(
+                "Executing standard backup and restore flow for $applicationId across " +
+                    "${storages.size} storage domains..."
+            )
 
-        // 2. Stop App to ensure filesystem flushes
-        stopApp()
+            // 1. Put data for each storage domain (seeds the app sandbox)
+            currentStage = BackupExecutionStage.SEEDING
+            stageStartTime = System.nanoTime()
+            val domainArgs = storages.map { domain ->
+                val putArgs = getPutStorageArgs(domain)
+                logger.info("Seeding data on device via PopulateStorageAction for $domain...")
+                val putResult =
+                    runOnDevice(
+                        actionClassName = BackupRestoreController.ACTION_POPULATE_STORAGE,
+                        args = putArgs,
+                    )
+                if (putResult is BackupActionResult.Failure) {
+                    throw IOException(
+                        "PopulateStorageAction failed for $domain: ${putResult.errorMessage}"
+                    )
+                }
+                domain to putArgs
+            }
+            seedingDuration = Duration.ofNanos(System.nanoTime() - stageStartTime)
 
-        // 3. Perform Backup
-        logger.info("Performing backup via performBackup ($mode)...")
-        val backupFile = performBackup(mode = mode, outputDir = outputDir)
+            // 2. Perform Backup (stops app to flush filesystem, then invokes BMGR)
+            currentStage = BackupExecutionStage.BACKUP
+            stageStartTime = System.nanoTime()
+            stopApp()
+            logger.info("Performing backup via performBackup ($mode)...")
+            val backupFile = performBackup(mode = mode, outputDir = outputDir)
+            backupDuration = Duration.ofNanos(System.nanoTime() - stageStartTime)
 
-        // 4. Clear App Data (simulates uninstall/device wipe)
-        logger.info("Clearing app sandbox via clearAppData...")
-        clearAppData()
+            // 3. Clear App Data (simulates uninstall/device wipe)
+            currentStage = BackupExecutionStage.CLEAR_DATA
+            stageStartTime = System.nanoTime()
+            logger.info("Clearing app sandbox via clearAppData...")
+            clearAppData()
+            clearDataDuration = Duration.ofNanos(System.nanoTime() - stageStartTime)
 
-        // 5. Perform Restore
-        logger.info("Restoring data via performRestore...")
-        performRestore(backupFile = backupFile)
+            // 4. Perform Restore
+            currentStage = BackupExecutionStage.RESTORE
+            stageStartTime = System.nanoTime()
+            logger.info("Restoring data via performRestore...")
+            performRestore(backupFile = backupFile)
+            restoreDuration = Duration.ofNanos(System.nanoTime() - stageStartTime)
 
-        // 6. Verify Data for each storage domain (asserts sandbox is restored perfectly)
-        for ((domain, putArgs) in domainArgs) {
-            logger.info("Verifying restored data on device via AssertStorageAction for $domain...")
-            val verifyArgs = getVerifyStorageArgs(domain, putArgs)
-            val verifyResult =
-                runOnDevice(
-                    actionClassName = BackupRestoreController.ACTION_ASSERT_STORAGE,
-                    args = verifyArgs,
+            // 5. Verify Data for each storage domain (asserts sandbox is restored perfectly)
+            currentStage = BackupExecutionStage.VERIFICATION
+            stageStartTime = System.nanoTime()
+            for ((domain, putArgs) in domainArgs) {
+                logger.info(
+                    "Verifying restored data on device via AssertStorageAction for $domain..."
                 )
-            if (verifyResult is BackupActionResult.Failure) {
-                throw IOException(
-                    "AssertStorageAction failed for $domain: ${verifyResult.errorMessage}"
+                val verifyArgs = getVerifyStorageArgs(domain, putArgs)
+                val verifyResult =
+                    runOnDevice(
+                        actionClassName = BackupRestoreController.ACTION_ASSERT_STORAGE,
+                        args = verifyArgs,
+                    )
+                if (verifyResult is BackupActionResult.Failure) {
+                    throw IOException(
+                        "AssertStorageAction failed for $domain: ${verifyResult.errorMessage}"
+                    )
+                }
+            }
+            verificationDuration = Duration.ofNanos(System.nanoTime() - stageStartTime)
+
+            val totalDuration = Duration.ofNanos(System.nanoTime() - totalStartTime)
+            val successSummary =
+                BackupExecutionSummary(
+                    transportMode = mode,
+                    storageDomainCount = storages.size,
+                    seedingDuration = seedingDuration,
+                    backupDuration = backupDuration,
+                    clearDataDuration = clearDataDuration,
+                    restoreDuration = restoreDuration,
+                    verificationDuration = verificationDuration,
+                    totalDuration = totalDuration,
+                    isSuccess = true,
+                    errorCode = BackupErrorCode.NONE,
                 )
+            flowSummary = successSummary
+            lastExecutionSummary = successSummary
+        } catch (e: Exception) {
+            val totalDuration = Duration.ofNanos(System.nanoTime() - totalStartTime)
+            val elapsedInCurrentStage = Duration.ofNanos(System.nanoTime() - stageStartTime)
+            when (currentStage) {
+                BackupExecutionStage.SEEDING -> seedingDuration = elapsedInCurrentStage
+                BackupExecutionStage.BACKUP -> backupDuration = elapsedInCurrentStage
+                BackupExecutionStage.CLEAR_DATA -> clearDataDuration = elapsedInCurrentStage
+                BackupExecutionStage.RESTORE -> restoreDuration = elapsedInCurrentStage
+                BackupExecutionStage.VERIFICATION -> verificationDuration = elapsedInCurrentStage
+                BackupExecutionStage.PRECONDITION -> {}
+            }
+            val errorCode = mapExceptionToErrorCode(currentStage, e)
+            val failureSummary =
+                BackupExecutionSummary(
+                    transportMode = mode,
+                    storageDomainCount = storages.size,
+                    seedingDuration = seedingDuration,
+                    backupDuration = backupDuration,
+                    clearDataDuration = clearDataDuration,
+                    restoreDuration = restoreDuration,
+                    verificationDuration = verificationDuration,
+                    totalDuration = totalDuration,
+                    isSuccess = false,
+                    errorCode = errorCode,
+                    failureStage = currentStage,
+                    errorMessage = e.message,
+                )
+            flowSummary = failureSummary
+            lastExecutionSummary = failureSummary
+            throw e
+        } finally {
+            flowSummary?.let { summary ->
+                try {
+                    publishMetrics(summary)
+                } catch (telemetryEx: Throwable) {
+                    logger.warning("Failed to publish telemetry: ${telemetryEx.message}")
+                }
             }
         }
 
         logger.info(
             "Standard backup and restore flow executed successfully across all storage " +
-                "domains with 100% data integrity!"
+                "domains with 100% data integrity! (${flowSummary?.totalDuration?.toMillis()}ms)"
         )
         return this
+    }
+
+    private fun publishMetrics(summary: BackupExecutionSummary) {
+        val pub = telemetryPublisher ?: return
+        pub(BackupReportKeys.LIBRARY_VERSION, LIBRARY_VERSION)
+        pub(BackupReportKeys.TRANSPORT_MODE, summary.transportMode.toString())
+        pub(BackupReportKeys.STORAGE_DOMAIN_COUNT, summary.storageDomainCount.toString())
+        pub(BackupReportKeys.SEEDING_DURATION, summary.seedingDuration.toMillis().toString())
+        pub(BackupReportKeys.BACKUP_DURATION, summary.backupDuration.toMillis().toString())
+        pub(BackupReportKeys.CLEAR_DATA_DURATION, summary.clearDataDuration.toMillis().toString())
+        pub(BackupReportKeys.RESTORE_DURATION, summary.restoreDuration.toMillis().toString())
+        pub(
+            BackupReportKeys.VERIFICATION_DURATION,
+            summary.verificationDuration.toMillis().toString(),
+        )
+        pub(BackupReportKeys.TOTAL_DURATION, summary.totalDuration.toMillis().toString())
+        pub(
+            BackupReportKeys.STATUS,
+            if (summary.isSuccess) BackupReportKeys.STATUS_SUCCESS
+            else BackupReportKeys.STATUS_FAILURE,
+        )
+        if (!summary.isSuccess) {
+            pub(BackupReportKeys.ERROR_CODE, summary.errorCode.name)
+            summary.failureStage?.let { pub(BackupReportKeys.FAILURE_STAGE, it.name) }
+            summary.errorMessage?.let { pub(BackupReportKeys.ERROR_MESSAGE, it) }
+        }
+    }
+
+    internal fun mapExceptionToErrorCode(
+        stage: BackupExecutionStage,
+        e: Exception,
+    ): BackupErrorCode {
+        val msg = e.message?.lowercase(Locale.ROOT) ?: ""
+        return when (stage) {
+            BackupExecutionStage.PRECONDITION ->
+                if (msg.contains("keyguard")) {
+                    BackupErrorCode.KEYGUARD_UNLOCK_FAILED
+                } else {
+                    BackupErrorCode.UNKNOWN_ERROR
+                }
+            BackupExecutionStage.SEEDING -> BackupErrorCode.SEEDING_FAILED
+            BackupExecutionStage.BACKUP ->
+                when {
+                    msg.contains("gmscore") || msg.contains("play store") ->
+                        BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING
+                    msg.contains("bmgr") || msg.contains("transport") ->
+                        BackupErrorCode.BMGR_INIT_FAILED
+                    else -> BackupErrorCode.BACKUP_FAILED
+                }
+            BackupExecutionStage.CLEAR_DATA -> BackupErrorCode.CLEAR_DATA_FAILED
+            BackupExecutionStage.RESTORE ->
+                when {
+                    msg.contains("timeout") || msg.contains("polling") ->
+                        BackupErrorCode.RESTORE_POLL_TIMEOUT
+                    msg.contains("gmscore") || msg.contains("play store") ->
+                        BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING
+                    msg.contains("bmgr") || msg.contains("transport") ->
+                        BackupErrorCode.BMGR_INIT_FAILED
+                    else -> BackupErrorCode.RESTORE_FAILED
+                }
+            BackupExecutionStage.VERIFICATION -> BackupErrorCode.VERIFICATION_FAILED
+        }
     }
 
     override suspend fun runOnDevice(
@@ -517,7 +666,7 @@ internal class BackupRestoreControllerImpl(
             }
 
         val backupFile =
-            File(outputDir.toFile(), "backup_${mode.toString().lowercase()}_device.zip")
+            File(outputDir.toFile(), "backup_${mode.toString().lowercase(Locale.ROOT)}_device.zip")
         if (backupFile.exists()) {
             backupFile.delete()
         }
@@ -920,6 +1069,32 @@ internal class BackupRestoreControllerImpl(
     }
 
     private companion object {
+        /**
+         * Version of this library, read from the version resource packaged into the artifact.
+         *
+         * Falls back to [BackupReportKeys.UNKNOWN_LIBRARY_VERSION] when the resource is absent, for
+         * example when running against locally built classes rather than a published artifact.
+         * Reporting a placeholder here keeps the telemetry honest instead of attributing runs to a
+         * release that may not be the one under test.
+         */
+        private val LIBRARY_VERSION: String by lazy {
+            try {
+                readVersionResource("/META-INF/androidx.test.backup_backup-host.version")
+                    ?: readVersionResource("/META-INF/androidx.test.backup_backup.version")
+                    ?: BackupReportKeys.UNKNOWN_LIBRARY_VERSION
+            } catch (_: Throwable) {
+                BackupReportKeys.UNKNOWN_LIBRARY_VERSION
+            }
+        }
+
+        private fun readVersionResource(resourcePath: String): String? =
+            BackupRestoreControllerImpl::class
+                .java
+                .getResourceAsStream(resourcePath)
+                ?.bufferedReader()
+                ?.use { it.readLine()?.trim() }
+                ?.takeIf { it.isNotEmpty() }
+
         /**
          * Minimum Google Play Services (GmsCore) version code (24.09.13) required by the underlying
          * backup transport emulation service library.
