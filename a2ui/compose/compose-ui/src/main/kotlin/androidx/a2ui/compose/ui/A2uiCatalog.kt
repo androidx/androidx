@@ -20,7 +20,6 @@ import androidx.a2ui.compose.runtime.A2uiComponentModel
 import androidx.a2ui.compose.runtime.A2uiProperty
 import androidx.a2ui.compose.runtime.A2uiReadinessEvaluator
 import androidx.a2ui.compose.runtime.A2uiRuntimeCatalog
-import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.catalog.A2uiCoreCatalogSerializer
 import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
@@ -126,25 +125,6 @@ public fun A2uiCatalog(
         isInline,
     )
 }
-
-/**
- * Creates a new, immutable [A2uiCatalog] mapping a [A2uiBasicCatalogV1] to its respective protocol
- * definitions.
- *
- * @param basicCatalog The [A2uiBasicCatalogV1] defining the basic catalog configuration and
- *   components.
- * @param isInline Indicates whether this catalog's full JSON Schema should be serialized inline.
- *   Defaults to false.
- * @return A fully initialized and validated [A2uiCatalog].
- */
-public fun A2uiCatalog(basicCatalog: A2uiBasicCatalogV1, isInline: Boolean = false): A2uiCatalog =
-    A2uiCatalog(
-        catalogId = basicCatalog.catalogId,
-        components = basicCatalog.components,
-        functions = basicCatalog.functions,
-        themeSchema = basicCatalog.themeSchema,
-        isInline = isInline,
-    )
 
 /**
  * Creates an [A2uiReadinessEvaluator] that resolves readiness states using the components
