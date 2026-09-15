@@ -1,30 +1,30 @@
 package com.testdata
 
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
 
 class SerializableOutputFunctions {
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunction(appFunctionContext: AppFunctionContext): SampleSerializable {
         return SampleSerializable("testValue", listOf("testListValue"))
     }
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionSerializableList(
         appFunctionContext: AppFunctionContext,
     ): List<SampleSerializable> {
         return listOf(SampleSerializable("testValue", listOf("testListValue")))
     }
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionNullableSerializableList(
         appFunctionContext: AppFunctionContext,
     ): List<SampleSerializable>? {
         return null
     }
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionNullableSerializable(
         appFunctionContext: AppFunctionContext,
     ): SampleSerializable? {

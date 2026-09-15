@@ -3,7 +3,7 @@ package com.testdata
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionInstruction
 import androidx.appfunctions.AppFunctionSerializable
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 
 class FakeFreeFormFunctionsWithInstruction {
     /**
@@ -13,7 +13,7 @@ class FakeFreeFormFunctionsWithInstruction {
      * @param arg2 The second argument which shouldn't be overridden.
      * @return The return value but we want to override it.
      */
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     @AppFunctionInstruction("Overridden function description")
     fun myInstructionFunction(
         appFunctionContext: AppFunctionContext,
@@ -25,7 +25,7 @@ class FakeFreeFormFunctionsWithInstruction {
         return (arg1 + arg2).toString()
     }
 
-    @AppFunction
+    @AppFunctionDeclaration
     @AppFunctionInstruction("Overridden function description without kdoc")
     fun myInstructionFunctionWithoutKdoc(
         appFunctionContext: AppFunctionContext,

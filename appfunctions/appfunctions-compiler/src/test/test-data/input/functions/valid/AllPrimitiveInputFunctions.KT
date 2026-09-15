@@ -1,112 +1,112 @@
 package com.testdata
 
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 
 class AllPrimitiveInputFunctions {
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionInt(appFunctionContext: AppFunctionContext, intParam: Int) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionLong(appFunctionContext: AppFunctionContext, longParam: Long) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionFloat(appFunctionContext: AppFunctionContext, floatParam: Float) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionDouble(appFunctionContext: AppFunctionContext, doubleParam: Double) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionBoolean(appFunctionContext: AppFunctionContext, booleanParam: Boolean) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionString(appFunctionContext: AppFunctionContext, stringParam: String) {}
 
     // Nullable single
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionNullableInt(appFunctionContext: AppFunctionContext, intParam: Int?) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionNullableLong(appFunctionContext: AppFunctionContext, longParam: Long?) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionNullableFloat(appFunctionContext: AppFunctionContext, floatParam: Float?) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionNullableDouble(appFunctionContext: AppFunctionContext, doubleParam: Double?) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionNullableBoolean(appFunctionContext: AppFunctionContext, booleanParam: Boolean?) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionNullableString(appFunctionContext: AppFunctionContext, stringParam: String?) {}
 
     // Array
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionIntArray(appFunctionContext: AppFunctionContext, intArrayParam: IntArray) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionLongArray(
         appFunctionContext: AppFunctionContext,
         longArrayParam: LongArray
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionFloatArray(
         appFunctionContext: AppFunctionContext,
         floatArrayParam: FloatArray
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionDoubleArray(
         appFunctionContext: AppFunctionContext,
         doubleArrayParam: DoubleArray
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionBooleanArray(
         appFunctionContext: AppFunctionContext,
         booleanArrayParam: BooleanArray
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionStringList(
         appFunctionContext: AppFunctionContext,
         stringListParam: List<String>
     ) {}
 
     // Nullable array
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionNullableIntArray(
         appFunctionContext: AppFunctionContext,
         intArrayParam: IntArray?
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionNullableLongArray(
         appFunctionContext: AppFunctionContext,
         longArrayParam: LongArray?
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionNullableFloatArray(
         appFunctionContext: AppFunctionContext,
         floatArrayParam: FloatArray?
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionNullableDoubleArray(
         appFunctionContext: AppFunctionContext,
         doubleArrayParam: DoubleArray?
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionNullableBooleanArray(
         appFunctionContext: AppFunctionContext,
         booleanArrayParam: BooleanArray?
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionNullableStringList(
         appFunctionContext: AppFunctionContext,
         stringListParam: List<String>?

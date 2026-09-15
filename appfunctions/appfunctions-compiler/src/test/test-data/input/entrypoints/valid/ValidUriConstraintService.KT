@@ -1,7 +1,7 @@
 package com.testdata
 
 import android.net.Uri
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionService
 import androidx.appfunctions.AppFunctionServiceEntryPoint
@@ -10,32 +10,32 @@ import androidx.appfunctions.AppFunctionUriValueConstraint
 
 @AppFunctionServiceEntryPoint("ValidUriService", "valid_uri_service")
 abstract class ValidUriConstraintService : AppFunctionService() {
-    @AppFunction
+    @AppFunctionDeclaration
     fun functionWithContentUri(
         @AppFunctionUriValueConstraint(allowedSchemes = ["content"]) fileUri: Uri
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun functionWithMultiSchemeUri(
         @AppFunctionUriValueConstraint(allowedSchemes = ["content", "file"]) multiUri: Uri
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun functionWithUnconstrainedUri(
         plainUri: Uri
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun functionWithStringConstraintNoEnumValues(
         @AppFunctionStringValueConstraint(pattern = "^[a-z]+$", format = "custom") stringParam: String
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun functionWithSerializableValueConstraints(
         param: SerializableWithValueConstraints
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     @AppFunctionUriValueConstraint(allowedSchemes = ["content"])
     fun functionWithUriReturn(): Uri {
         return Uri.EMPTY

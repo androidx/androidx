@@ -1,14 +1,14 @@
 package com.testdata
 
 import androidx.appfunctions.AppFunctionSerializable
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 
 @AppFunctionSerializable
 class SerializableData(val intValue: Int)
 
 class AppFunctionWithOptionalNonNullSerializable {
-    @AppFunction
+    @AppFunctionDeclaration
     fun withOptionalNonNullSerializable(
         appFunctionContext: AppFunctionContext,
         optionalNonNullSerializable: SerializableData = SerializableData(0)

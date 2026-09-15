@@ -19,15 +19,15 @@ package androidx.appfunctions
 /**
  * Marks a function under [AppFunctionServiceEntryPoint] as callable by other applications.
  *
- * The `@AppFunction` annotation signals that the annotated function can be invoked by external
- * applications with proper permission (e.g., an agent). For instance, a note-taking app could
- * expose a function allowing an agent to create notes based on user commands.
+ * The `@AppFunctionDeclaration` annotation signals that the annotated function can be invoked by
+ * external applications with proper permission (e.g., an agent). For instance, a note-taking app
+ * could expose a function allowing an agent to create notes based on user commands.
  *
  * ### Thread Management
  *
- * IMPORTANT: By default functions annotated with @AppFunction are executed on the main thread.
- * declare the function as a suspend function and switch threads if the implementation performs
- * blocking operations.
+ * IMPORTANT: By default functions annotated with @AppFunctionDeclaration are executed on the main
+ * thread. declare the function as a suspend function and switch threads if the implementation
+ * performs blocking operations.
  *
  * ### Cancellation Handling
  *
@@ -41,7 +41,7 @@ package androidx.appfunctions
  *
  * For example:
  * ```kotlin
- * @AppFunction
+ * @AppFunctionDeclaration
  * suspend fun processLargeData(
  *     context: AppFunctionContext,
  *     data: List<String>
@@ -84,7 +84,7 @@ package androidx.appfunctions
  *
  * Example:
  * ```
- * @AppFunction
+ * @AppFunctionDeclaration
  * @Deprecated(
  *   message = "Use newSearchFunction(query) instead. " +
  *     "This function will be removed in a future version.",
@@ -101,7 +101,7 @@ package androidx.appfunctions
 // Use BINARY here so that the annotation is kept around at the aggregation stage.
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FUNCTION)
-public annotation class AppFunction(
+public annotation class AppFunctionDeclaration(
     /**
      * Indicates whether this function is enabled. The default value is `true`.
      *
@@ -138,7 +138,7 @@ public annotation class AppFunction(
      * * @return The created note.
      * * @throws IllegalArgumentException if the `title` or `content` is empty or too long.
      * */
-     * @AppFunction(isDescribedByKDoc = true)
+     * @AppFunctionDeclaration(isDescribedByKDoc = true)
      * fun CreateNote(title: String, content: String): Note { .. }
      * ```
      *

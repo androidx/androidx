@@ -46,7 +46,7 @@ import com.squareup.kotlinpoet.buildCodeBlock
  *
  * The processor would only start aggregation process when
  * * [AppFunctionCompilerOptions.aggregateAppFunctions] is true.
- * * AND there is no remaining @AppFunction nodes to processed.
+ * * AND there is no remaining @AppFunctionDeclaration nodes to processed.
  */
 class AppFunctionAggregateProcessor(
     private val options: AppFunctionCompilerOptions,

@@ -2,7 +2,7 @@ package com.testdata
 
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 
 /**
  * Tests the generation of descriptions elements for app functions and serializable classes.
@@ -20,7 +20,7 @@ class FakeFreeFormFunctions {
      * @return The result string.
      * @throws IllegalArgumentException if the parameters have an incorrect format.
      */
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun fakeFreeFormFunction_isDescribedByKDoc_true(
         appFunctionContext: AppFunctionContext,
         serializableParam: InputToFakeFreeFormFunction,
@@ -40,7 +40,7 @@ class FakeFreeFormFunctions {
      * @return The result string.
      * @throws IllegalArgumentException if the inputString is in an incorrect format.
      */
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun fakeFreeFormFunction_isDescribedByKDoc_withDerivedSerializable_true(
         appFunctionContext: AppFunctionContext,
         input: DerivedInputToFakeFreeFormFunction,
@@ -59,7 +59,7 @@ class FakeFreeFormFunctions {
      * @return The result string.
      * @throws IllegalArgumentException if the inputString is in an incorrect format.
      */
-    @AppFunction(isDescribedByKDoc = false)
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun fakeFreeFormFunction_isDescribedByKDoc_false(
         appFunctionContext: AppFunctionContext,
         input: InputToFakeFreeFormFunction,
@@ -68,21 +68,21 @@ class FakeFreeFormFunctions {
     }
 
     /** Tests the description elements for serializable's parametrized properties. */
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun fakeFreeFormFunction_withParametrizedTypes(
         appFunctionContext: AppFunctionContext,
         parametrizedTypesInput: InputWithParametrizedTypes,
     ) {}
 
     /** Tests the description elements for serializable's repeated properties. */
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun fakeFreeFormFunction_withRepeatedTypes(
         appFunctionContext: AppFunctionContext,
         parametrizedTypesInput: InputWithRepeatedTypes,
     ) {}
 
     /** Tests that the input class description is empty when class's isDescribedByKDoc = false. */
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun fakeFreeFormFunction_inputClassDescribedByKdoc_false(
         appFunctionContext: AppFunctionContext,
         notDescribedByKdoc: NotDescribedByKdoc,

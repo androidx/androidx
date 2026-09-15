@@ -70,7 +70,8 @@ class AppFunctionMetadataCreatorHelper(
      * Computes [AppFunctionAnnotationProperties] from [appFunctionAnnotation] and
      * [schemaDefinitionAnnotation].
      *
-     * @param appFunctionAnnotation The @AppFunction annotation on the function declaration.
+     * @param appFunctionAnnotation The @AppFunctionDeclaration annotation on the function
+     *   declaration.
      * @param schemaDefinitionAnnotation The @AppFunctionSchemaDefinition annotation on the schema
      *   interface declaration.
      * @return [AppFunctionAnnotationProperties] contains the properties from annotations.
@@ -921,8 +922,8 @@ class AppFunctionMetadataCreatorHelper(
     }
 
     /**
-     * A data class contains the properties from @AppFunction and @AppFunctionSchemaDefinition
-     * annotations.
+     * A data class contains the properties from @AppFunctionDeclaration
+     * and @AppFunctionSchemaDefinition annotations.
      */
     data class AppFunctionAnnotationProperties(
         val isEnabledByDefault: Boolean?,

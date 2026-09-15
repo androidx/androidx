@@ -58,7 +58,7 @@ internal constructor(
          * @param factory The factory to create the instance of [enclosingClass]. This is called by
          *   the AppFunctions framework to instantiate the class whenever an instance of
          *   [enclosingClass] is needed.
-         * @see AppFunction
+         * @see AppFunctionDeclaration
          */
         public fun <T : Any> addEnclosingClassFactory(
             enclosingClass: Class<T>,

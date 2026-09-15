@@ -38,7 +38,7 @@ import com.squareup.kotlinpoet.asTypeName
  * developer to access the function id easily. For example,
  * ```
  * class NoteFunction: CreateNote {
- *   @AppFunction
+ *   @AppFunctionDeclaration
  *   override suspend fun createNote(): Note { ... }
  * }
  * ```

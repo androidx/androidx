@@ -17,11 +17,11 @@
 package com.testdata
 
 import androidx.appfunctions.AppFunctionContext
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 import android.os.Parcelable
 
 class InvalidBaseParcelable {
-    @AppFunction
+    @AppFunctionDeclaration
     fun invalidBaseParcelable(
         ctx: AppFunctionContext,
         parcelableParam: Parcelable,
