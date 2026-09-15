@@ -42,7 +42,7 @@ class A2uiBasicCatalogV1Test {
 
         assertThat(catalog.catalogId).isEqualTo(A2uiBasicCatalogV1.CatalogId)
         assertThat(catalog.catalogId)
-            .isEqualTo("https://a2ui.org/specification/v0_9_1/catalogs/basic/catalog.json")
+            .isEqualTo("https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json")
     }
 
     @Test
@@ -134,9 +134,7 @@ class A2uiBasicCatalogV1Test {
     fun components_relevantIncludeChecksProperty() {
         val catalog = createTestBasicCatalog()
         val componentsWithChecks =
-            catalog.components.filter {
-                it.properties.contains(A2uiBasicCatalogV1.ChecksProperty)
-            }
+            catalog.components.filter { it.properties.contains(A2uiBasicCatalogV1.ChecksProperty) }
 
         assertThat(componentsWithChecks)
             .containsExactly(
