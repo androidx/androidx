@@ -18,7 +18,6 @@ package androidx.wear.compose.material3.onehandedgesture
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -254,12 +253,12 @@ public class OneHandedGestureScrollIndicatorState @RememberInComposition constru
             keepIndicatorVisible?.value = true
 
             // Animate indicator visibility in
-            launch { avdAnimationScale.animateTo(1f, EXPRESSIVE_DEFAULT_SPATIAL_SPRING_FLOAT) }
+            launch { scaleAnimatable.animateTo(1f, EXPRESSIVE_DEFAULT_SPATIAL_SPRING_FLOAT) }
             launch { colorProgress.animateTo(1f, EXPRESSIVE_DEFAULT_EFFECTS_SPRING_FLOAT) }
             delay(INDICATOR_ANIMATION_START_DELAY_MILLIS.milliseconds)
 
             // Play indicator animation
-            avdActive = true // Start the AVD
+            active = true // Start the animation
             val jiggleAmount = 0.5f
 
             // delay before kicking off the downward scrollbar jiggle
@@ -299,7 +298,7 @@ public class OneHandedGestureScrollIndicatorState @RememberInComposition constru
 
             // Animate indicator visibility out
             val finalScaleAnimationJob = launch {
-                avdAnimationScale.animateTo(0f, EXPRESSIVE_DEFAULT_EFFECTS_SPRING_FLOAT)
+                scaleAnimatable.animateTo(0f, EXPRESSIVE_DEFAULT_EFFECTS_SPRING_FLOAT)
             }
 
             val indicatorColorResetJob = launch {
@@ -315,10 +314,10 @@ public class OneHandedGestureScrollIndicatorState @RememberInComposition constru
         } finally {
             keepIndicatorVisible?.value = false
             scrollIndicatorState.jiggleAmount = 0f
-            avdActive = false
+            active = false
 
             withContext(NonCancellable) {
-                avdAnimationScale.snapTo(0f)
+                scaleAnimatable.snapTo(0f)
 
                 colorProgress.snapTo(0f)
 
@@ -337,8 +336,8 @@ public class OneHandedGestureScrollIndicatorState @RememberInComposition constru
 
     // Animatables
     internal var colorProgress = Animatable(0f)
-    internal var avdActive by mutableStateOf(false)
-    internal val avdAnimationScale = Animatable(0f)
+    internal var active by mutableStateOf(false)
+    internal val scaleAnimatable = Animatable(0f)
     internal val jiggleFractionAnimatable = Animatable(0f)
 }
 
@@ -356,8 +355,7 @@ private fun GestureScrollIndicator(
     scrollIndicatorColors: ScrollIndicatorColors,
 ) {
     val gestureManager = LocalOneHandedGestureManager.current
-    val avd = gestureConfiguration.action.animatedImageVector()
-    val duration = avd.totalDuration.milliseconds
+    val duration = gestureConfiguration.action.indicatorDuration
 
     // Gesture manager needs to know whether this indicator draws outside the boundary of its UI
     // element as that affects the frequency with which it is shown.
@@ -395,8 +393,8 @@ private fun GestureScrollIndicator(
         Box(
             modifier =
                 Modifier.graphicsLayer {
-                        scaleX = state.avdAnimationScale.value
-                        scaleY = state.avdAnimationScale.value
+                        scaleX = state.scaleAnimatable.value
+                        scaleY = state.scaleAnimatable.value
                         transformOrigin =
                             TransformOrigin(
                                 pivotFractionX = if (isRtl) 0f else 1f,
@@ -406,17 +404,6 @@ private fun GestureScrollIndicator(
                     .size(backgroundSize),
             contentAlignment = Alignment.CenterStart,
         ) {
-            val painter =
-                rememberAnimatedVectorPainter(animatedImageVector = avd, atEnd = state.avdActive)
-            val avdSize =
-                remember(painter, density) {
-                    with(density) {
-                        DpSize(
-                            painter.intrinsicSize.width.toDp(),
-                            painter.intrinsicSize.height.toDp(),
-                        )
-                    }
-                }
             Icon(
                 painter = backgroundPainter,
                 contentDescription = null,
@@ -428,11 +415,19 @@ private fun GestureScrollIndicator(
                 modifier = Modifier.size(backgroundSize.height),
                 contentAlignment = Alignment.Center,
             ) {
-                GestureIndicatorImage(
-                    painter = painter,
-                    size = avdSize,
-                    tint = gestureIndicatorTint,
-                )
+                if (gestureConfiguration.action == OneHandedGestureAction.Dismiss) {
+                    DismissIndicatorBox(
+                        active = state.active,
+                        size = DpSize(36.dp, 36.dp),
+                        tint = gestureIndicatorTint,
+                    )
+                } else {
+                    PrimaryIndicatorBox(
+                        active = state.active,
+                        size = DpSize(36.dp, 36.dp),
+                        tint = gestureIndicatorTint,
+                    )
+                }
             }
         }
         Spacer(modifier = Modifier.width(6.dp))
