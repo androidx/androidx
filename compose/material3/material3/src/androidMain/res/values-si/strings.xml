@@ -28,8 +28,8 @@
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"පහත යෝජනා"</string>
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"දිනය තෝරන්න"</string>
     <string name="m3c_date_picker_headline" msgid="7605002211875882969">"තෝරා ගත් දිනය"</string>
-    <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"වසරක් තේරීමට මාරු වන්න"</string>
-    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"වසරක් තේරීමට ස්වයිප් කරන්න, නැතහොත් දිනක් තේරීමට ආපසු මාරු වීමට තට්ටු කරන්න"</string>
+    <string name="m3c_date_picker_switch_to_year_selection" msgid="1627411828238538995">"වසර වෙනස් කිරීමට සක්‍රිය කරන්න"</string>
+    <string name="m3c_date_picker_switch_to_day_selection" msgid="6328798869762130418">"මාසය සහ දිනය වෙනස් කිරීමට සක්‍රිය කරන්න"</string>
     <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"ඊළඟ මාසයට වෙනස් කරන්න"</string>
     <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"පෙර මාසයට වෙනස් කරන්න"</string>
     <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"%1$s වසර වෙත සංචලන කරන්න"</string>
