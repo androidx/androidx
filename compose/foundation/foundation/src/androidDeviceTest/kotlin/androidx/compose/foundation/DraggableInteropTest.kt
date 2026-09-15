@@ -32,27 +32,34 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.absoluteValue
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+/**
+ * Note that this scenario is only exercised once both
+ * [ComposeFoundationFlags.isDraggableVelocityTrackerFixEnabled] and
+ * [androidx.compose.ui.ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled] are
+ * enabled: the former selects the velocity tracking path under test, and the latter makes Compose
+ * dispatch the move event that follows the translation, whose raw coordinates are unchanged and
+ * which would otherwise be dropped before the velocity tracker could see the jump.
+ */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class DraggableInteropTest {
     @get:Rule val activityRule = createAndroidComposeRule<ComponentActivity>()
 
-    @Ignore("b/548340312")
     @Test
     fun draggable_velocityIsCorrect_whenComposeViewTranslates() {
         var dragVelocity = 1000f
+        var root: FrameLayout? = null
         var view: ComposeView? = null
         activityRule.activityRule.scenario.onActivity { activity ->
-            val root = FrameLayout(activity)
+            root = FrameLayout(activity)
             activity.setContentView(root)
 
             view = ComposeView(activity)
-            root.addView(view)
+            root!!.addView(view)
 
             view!!.setContent {
                 Box(
@@ -70,52 +77,51 @@ class DraggableInteropTest {
         val downTime = SystemClock.uptimeMillis()
         var time = downTime
 
-        fun dispatchMove(y: Float, timeDelta: Long = 10) {
-            time += timeDelta
+        // Events are dispatched to the parent, so their coordinates stay in the parent's (fixed)
+        // space and the View hierarchy applies the ComposeView's translation for us. Dispatching
+        // straight to the ComposeView and hand-adjusting y instead would leave rawY inconsistent
+        // with y, and AndroidComposeView derives its window position from rawY - so the
+        // translation would cancel itself out and this test could never fail.
+        //
+        // Events are also 10 ms apart: the VelocityTracker discards everything before a gap larger
+        // than 40 ms, so a coarser cadence would leave it with too few samples to compute a
+        // velocity at all, and the assertion below would hold no matter what.
+        fun dispatch(action: Int, y: Float) {
             activityRule.runOnIdle {
-                view!!.dispatchTouchEvent(
-                    MotionEvent.obtain(downTime, time, MotionEvent.ACTION_MOVE, 50f, y, 0)
-                )
+                root!!.dispatchTouchEvent(MotionEvent.obtain(downTime, time, action, 50f, y, 0))
             }
+            time += 10
         }
+
+        fun dispatchMove(y: Float) = dispatch(MotionEvent.ACTION_MOVE, y)
 
         // 1. Initial touch
-        activityRule.runOnIdle {
-            view!!.dispatchTouchEvent(
-                MotionEvent.obtain(downTime, time, MotionEvent.ACTION_DOWN, 50f, 100f, 0)
-            )
-        }
+        dispatch(MotionEvent.ACTION_DOWN, 100f)
 
-        // slowly drag past touch slop (reach 160f)
-        dispatchMove(120f, 100)
-        dispatchMove(140f, 100)
-        dispatchMove(160f, 100)
+        // drag past touch slop (reach 160f)
+        dispatchMove(120f)
+        dispatchMove(140f)
+        dispatchMove(160f)
 
-        // finger stays completely still for 200 ms to bring velocity to 0
-        dispatchMove(160f, 100)
-        dispatchMove(160f, 100)
+        // finger stays completely still, long enough for the initial motion to fall out of the
+        // tracker's 100 ms horizon and bring the velocity to 0
+        repeat(15) { dispatchMove(160f) }
 
-        // 2. Translate view up by 50px physically
-        // This means the local Y coordinate of the stationary finger becomes 160 + 50 = 210f
+        // 2. Translate the ComposeView up by 50px.
+        // The finger doesn't move, but its Y coordinate local to the ComposeView jumps by +50.
         activityRule.runOnIdle { view!!.translationY = -50f }
 
-        // 3. Dispatch move at same physical spot but new local spot for 10 ms (local Y = 210f)
-        dispatchMove(210f, 10)
+        // 3. Keep the finger at the exact same physical spot
+        dispatchMove(160f)
 
         // 4. Release
-        activityRule.runOnIdle {
-            time += 10
-            view!!.dispatchTouchEvent(
-                MotionEvent.obtain(downTime, time, MotionEvent.ACTION_UP, 50f, 210f, 0)
-            )
-        }
+        dispatch(MotionEvent.ACTION_UP, 160f)
 
         activityRule.waitForIdle()
 
-        // Without the fix, the jump from 150f to 200f creates a 50px delta over 10ms -> 5000px/s
-        // velocity
-        // With the fix, rootOffset = -50 is added, canceling out the 50px local jump, leaving ~0
-        // velocity.
+        // The finger was stationary for the whole second half of the gesture, so the fling velocity
+        // must be ~0. Without the fix, the 50px jump in local coordinates caused by translating the
+        // view is mistaken for pointer movement and reported as a large velocity instead.
         assertThat(dragVelocity.absoluteValue).isLessThan(100f)
     }
 }
