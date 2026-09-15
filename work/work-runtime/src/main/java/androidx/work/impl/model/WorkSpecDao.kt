@@ -432,8 +432,7 @@ public interface WorkSpecDao {
      */
     @Query(
         "SELECT * FROM workspec WHERE " + // Unfinished work
-            "state=" +
-            ENQUEUED + // We only want WorkSpecs which have been scheduled.
+            "state IN ($ENQUEUED, $RUNNING)" +
             " AND schedule_requested_at<>" +
             WorkSpec.SCHEDULE_NOT_REQUESTED_YET
     )
@@ -461,9 +460,8 @@ public interface WorkSpecDao {
      *   longer considered "representative".
      */
     @Query(
-        "SELECT * FROM workspec WHERE " + // Unfinished work
-            "state=" +
-            ENQUEUED + // We only want WorkSpecs which have been scheduled.
+        "SELECT * FROM workspec WHERE " +
+            "state IN ($ENQUEUED, $RUNNING)" +
             " AND schedule_requested_at<>" +
             WorkSpec.SCHEDULE_NOT_REQUESTED_YET +
             " AND LENGTH(content_uri_triggers)=0"

@@ -605,6 +605,99 @@ class SchedulersTest {
     }
 
     @Test
+    fun representativeJobs_runningWork_countsAgainstSchedulerLimit() {
+        val maxSchedulerLimit = 20
+        val config =
+            Configuration.Builder()
+                .setWorkerFactory(factory)
+                .setMaxSchedulerLimit(
+                    // SDK 23 halves the max slots for double scheduling.
+                    if (Build.VERSION.SDK_INT == 23) 2 * maxSchedulerLimit else maxSchedulerLimit
+                )
+                .setRepresentativeJobsEnabled(true)
+                .build()
+        val testEnv = TestEnv(config)
+        val db = testEnv.db
+
+        val emptyConstraints = Constraints.Builder().build()
+
+        // Schedule initial 20 workers
+        val initialSpecs = buildList {
+            for (i in 1..maxSchedulerLimit) {
+                add(createWorkSpec(testEnv, "ws_initial_$i", emptyConstraints, 1000L))
+            }
+        }
+        insertWorkSpecs(db, initialSpecs)
+        androidx.work.impl.Schedulers.schedule(config, db, fakeSchedulers)
+
+        assertThat(limitedSlotsScheduler.scheduledWork)
+            .containsExactlyElementsIn(initialSpecs.map { it.id })
+
+        // Transition 10 workers to RUNNING state
+        val runningSpecs = initialSpecs.take(10)
+        runningSpecs.forEach { db.workSpecDao().setState(WorkInfo.State.RUNNING, it.id) }
+
+        // Add 15 new unblocked workers
+        val newSpecs = buildList {
+            for (i in 1..15) {
+                add(createWorkSpec(testEnv, "ws_new_$i", emptyConstraints, 0L))
+            }
+        }
+        insertWorkSpecs(db, newSpecs)
+        androidx.work.impl.Schedulers.schedule(config, db, fakeSchedulers)
+
+        // Total scheduled work in limited scheduler must equal
+        // maxSchedulerLimit (20) and preserve all 10 running workers.
+        assertThat(limitedSlotsScheduler.scheduledWork).hasSize(maxSchedulerLimit)
+        assertThat(limitedSlotsScheduler.scheduledWork)
+            .containsAtLeastElementsIn(runningSpecs.map { it.id })
+    }
+
+    @Test
+    fun representativeJobs_runningWorkFillsSchedulerLimit_noNewWorkScheduled() {
+        val maxSchedulerLimit = 20
+        val config =
+            Configuration.Builder()
+                .setWorkerFactory(factory)
+                .setMaxSchedulerLimit(
+                    // SDK 23 halves the max slots for double scheduling.
+                    if (Build.VERSION.SDK_INT == 23) 2 * maxSchedulerLimit else maxSchedulerLimit
+                )
+                .setRepresentativeJobsEnabled(true)
+                .build()
+        val testEnv = TestEnv(config)
+        val db = testEnv.db
+
+        val emptyConstraints = Constraints.Builder().build()
+
+        // Fill every slot, then transition all of the scheduled work to RUNNING.
+        val runningSpecs = buildList {
+            for (i in 1..maxSchedulerLimit) {
+                add(createWorkSpec(testEnv, "ws_running_$i", emptyConstraints, 1000L))
+            }
+        }
+        insertWorkSpecs(db, runningSpecs)
+        androidx.work.impl.Schedulers.schedule(config, db, fakeSchedulers)
+        runningSpecs.forEach { db.workSpecDao().setState(WorkInfo.State.RUNNING, it.id) }
+
+        // Add workers that would be representative if any slots were left.
+        val newSpecs = buildList {
+            for (i in 1..5) {
+                add(createWorkSpec(testEnv, "ws_new_$i", emptyConstraints, 0L))
+            }
+        }
+        insertWorkSpecs(db, newSpecs)
+        androidx.work.impl.Schedulers.schedule(config, db, fakeSchedulers)
+
+        // No slots are available, so running work is preserved and no new work is scheduled.
+        assertThat(limitedSlotsScheduler.scheduledWork)
+            .containsExactlyElementsIn(runningSpecs.map { it.id })
+        // The unlimited scheduler is unaffected by the limit.
+        assertThat(unlimitedSlotsScheduler.scheduledWork)
+            .containsExactlyElementsIn(runningSpecs.plus(newSpecs).map { it.id })
+    }
+
+    @Test
     fun greedyScheduler_createdByDefault() {
         val config = Configuration.Builder().build()
         val wm = WorkManagerImpl(context, config, env.taskExecutor, env.db)
