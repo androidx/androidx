@@ -27,7 +27,6 @@ import androidx.compose.remote.core.Operations.DRAW_TEXT_ON_PATH
 import androidx.compose.remote.core.Operations.DRAW_TO_BITMAP
 import androidx.compose.remote.core.Operations.LAYOUT_COLLAPSIBLE_COLUMN
 import androidx.compose.remote.core.Operations.LAYOUT_COLLAPSIBLE_ROW
-import androidx.compose.remote.core.Operations.MODIFIER_ALIGN_BY
 import androidx.compose.remote.core.Operations.MODIFIER_COLLAPSIBLE_PRIORITY
 import androidx.compose.remote.core.Operations.MODIFIER_SCROLL
 import androidx.compose.remote.core.Operations.MODIFIER_TOUCH_CANCEL
@@ -84,7 +83,7 @@ class WearWidgetsProfileTest {
             )
 
         // Things not in AndroidX profile, so either experimental, Widgets or Wear related
-        val missingFromAndroidX = setOf(DRAW_TEXT_ON_CIRCLE, MODIFIER_ALIGN_BY)
+        val missingFromAndroidX = setOf(DRAW_TEXT_ON_CIRCLE)
 
         assertThat(operations.intersect(exclusions)).isEmpty()
 

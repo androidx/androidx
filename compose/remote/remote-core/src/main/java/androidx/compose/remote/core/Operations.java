@@ -584,7 +584,8 @@ public class Operations {
                     CORE_TEXT,
                     TEXT_STYLE,
                     TEXT_TRANSFORM,
-                    COLOR_THEME);
+                    COLOR_THEME,
+                    MODIFIER_ALIGN_BY);
         }
         return sMapV7AndroidX;
     }
@@ -595,7 +596,6 @@ public class Operations {
             populateMapFromAll(
                     sMapV7AndroidXExperimental,
                     7,
-                    MODIFIER_ALIGN_BY,
                     LAYOUT_COMPUTE,
                     LAYOUT_FLOW,
                     MODIFIER_MULTI_CLICK,
@@ -646,7 +646,8 @@ public class Operations {
                     CORE_TEXT,
                     TEXT_STYLE,
                     TEXT_TRANSFORM,
-                    COLOR_THEME);
+                    COLOR_THEME,
+                    MODIFIER_ALIGN_BY);
         }
         return sMapV7Widgets;
     }
@@ -657,7 +658,6 @@ public class Operations {
             populateMapFromAll(
                     sMapV7WidgetsExperimental,
                     7,
-                    MODIFIER_ALIGN_BY,
                     LAYOUT_COMPUTE,
                     LAYOUT_FLOW,
                     MODIFIER_MULTI_CLICK,
