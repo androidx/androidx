@@ -47,6 +47,7 @@ import androidx.work.worker.TestWorker;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -387,6 +388,85 @@ public class WorkSpecDaoTest extends DatabaseTest {
 
     @Test
     @SmallTest
+    public void testGetScheduledWork() {
+        long startTime = System.currentTimeMillis();
+        OneTimeWorkRequest runningScheduled =
+                new OneTimeWorkRequest.Builder(TestWorker.class)
+                        .setInitialState(RUNNING)
+                        .build();
+        OneTimeWorkRequest enqueuedScheduled =
+                new OneTimeWorkRequest.Builder(TestWorker.class)
+                        .build();
+        OneTimeWorkRequest runningNotScheduled =
+                new OneTimeWorkRequest.Builder(TestWorker.class)
+                        .setInitialState(RUNNING)
+                        .build();
+        OneTimeWorkRequest blockedScheduled =
+                new OneTimeWorkRequest.Builder(TestWorker.class)
+                        .setInitialState(BLOCKED)
+                        .build();
+        OneTimeWorkRequest succeededScheduled =
+                new OneTimeWorkRequest.Builder(TestWorker.class)
+                        .setInitialState(SUCCEEDED)
+                        .build();
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        insertWork(runningScheduled);
+        insertWork(enqueuedScheduled);
+        insertWork(runningNotScheduled);
+        insertWork(blockedScheduled);
+        insertWork(succeededScheduled);
+
+        workSpecDao.markWorkSpecScheduled(runningScheduled.getStringId(), startTime);
+        workSpecDao.markWorkSpecScheduled(enqueuedScheduled.getStringId(), startTime);
+        workSpecDao.markWorkSpecScheduled(blockedScheduled.getStringId(), startTime);
+        workSpecDao.markWorkSpecScheduled(succeededScheduled.getStringId(), startTime);
+
+        List<WorkSpec> scheduled = workSpecDao.getScheduledWork();
+        assertThat(workSpecIds(scheduled), containsInAnyOrder(
+                runningScheduled.getStringId(),
+                enqueuedScheduled.getStringId()));
+
+        List<WorkSpec> scheduledWithUris = workSpecDao.getScheduledWorkWithContentUris();
+        assertThat(workSpecIds(scheduledWithUris), containsInAnyOrder(
+                runningScheduled.getStringId(),
+                enqueuedScheduled.getStringId()));
+    }
+
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    @SmallTest
+    public void testGetScheduledWorkWithContentUris() {
+        long startTime = System.currentTimeMillis();
+        Constraints constraints = new Constraints.Builder().addContentUriTrigger(
+                Media.EXTERNAL_CONTENT_URI, true).build();
+        OneTimeWorkRequest scheduledNoUris =
+                new OneTimeWorkRequest.Builder(TestWorker.class)
+                        .build();
+        OneTimeWorkRequest scheduledWithUris =
+                new OneTimeWorkRequest.Builder(TestWorker.class)
+                        .setConstraints(constraints)
+                        .build();
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        insertWork(scheduledNoUris);
+        insertWork(scheduledWithUris);
+
+        workSpecDao.markWorkSpecScheduled(scheduledNoUris.getStringId(), startTime);
+        workSpecDao.markWorkSpecScheduled(scheduledWithUris.getStringId(), startTime);
+
+        // Content URI triggered work is scheduled independently of representative jobs, so it is
+        // excluded from getScheduledWork().
+        assertThat(workSpecIds(workSpecDao.getScheduledWork()),
+                containsInAnyOrder(scheduledNoUris.getStringId()));
+        assertThat(workSpecIds(workSpecDao.getScheduledWorkWithContentUris()),
+                containsInAnyOrder(
+                        scheduledNoUris.getStringId(),
+                        scheduledWithUris.getStringId()));
+    }
+
+    @Test
+    @SmallTest
     public void checkSetCancelled() {
         OneTimeWorkRequest request1 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(WorkInfo.State.RUNNING)
@@ -435,5 +515,13 @@ public class WorkSpecDaoTest extends DatabaseTest {
         } else {
             assertThat(newConstraints.getRequiredNetworkType(), is(NetworkType.CONNECTED));
         }
+    }
+
+    private static List<String> workSpecIds(List<WorkSpec> workSpecs) {
+        List<String> ids = new ArrayList<>(workSpecs.size());
+        for (WorkSpec workSpec : workSpecs) {
+            ids.add(workSpec.id);
+        }
+        return ids;
     }
 }
