@@ -31,11 +31,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.capture.LocalRemoteDensity
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -48,6 +46,7 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.remote.player.compose.test.utils.GoldenScreenshotNameTestRule
+import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -74,6 +73,7 @@ import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.wear.compose.remote.material3.util.TestProfiles
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -96,6 +96,8 @@ class RemoteTextFontScaleComparisonTest {
 
     @get:Rule val goldenNameRule = GoldenScreenshotNameTestRule()
 
+    @get:Rule val captureRule = RemoteCaptureTestRule()
+
     private val size1 = 12
     private val size2 = 16
     private val size3 = 30
@@ -114,8 +116,16 @@ class RemoteTextFontScaleComparisonTest {
 
     @Test fun textComparison_fontScale_1_24() = runFontScaleTest(1.24f)
 
-    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
-    private fun runFontScaleTest(fontScale: Float) {
+    private fun runFontScaleTest(fontScale: Float) = runTest {
+        val document =
+            captureRule.captureDocument(
+                context = context,
+                creationDisplayInfo = creationDisplayInfo,
+                profile = TestProfiles.androidXWithCoreText,
+            ) {
+                RCText(fontScale)
+            }
+
         composeTestRule.setContent {
             val density = LocalDensity.current
             val sizeInDp = with(density) { size.width.toDp() }
@@ -127,21 +137,11 @@ class RemoteTextFontScaleComparisonTest {
                 ComposeText()
                 Spacer(modifier = Modifier.width(4.dp).fillMaxHeight().background(Color.Red))
                 Box(modifier = Modifier.weight(1f)) {
-                    val document: CoreDocument? by
-                        rememberRemoteDocument(
-                            creationDisplayInfo = creationDisplayInfo,
-                            profile = TestProfiles.androidXWithCoreText,
-                        ) {
-                            RCText(fontScale)
-                        }
-
-                    document?.let { coreDocument ->
-                        RemoteDocumentPlayer(
-                            document = coreDocument,
-                            documentWidth = size.width.toInt(),
-                            documentHeight = size.height.toInt(),
-                        )
-                    }
+                    RemoteDocumentPlayer(
+                        document = document,
+                        documentWidth = size.width.toInt(),
+                        documentHeight = size.height.toInt(),
+                    )
                 }
             }
         }

@@ -16,9 +16,6 @@
 
 package androidx.compose.remote.creation.compose.capture
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -29,237 +26,93 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.player.compose.RemoteDocumentPlayer
-import androidx.compose.remote.player.compose.test.utils.GoldenScreenshotNameTestRule
+import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
+import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.testutils.assertAgainstGolden
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.screenshot.AndroidXScreenshotTestRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** These tests validate the LayoutDirection, without using the `remote-testing` module. */
+/** These tests validate the LayoutDirection using [RemoteScreenshotTestRule]. */
 @MediumTest
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(AndroidJUnit4::class)
 class LayoutDirectionTest {
-    @get:Rule val composeTestRule: ComposeContentTestRule = createComposeRule()
-    @get:Rule val screenshotTestRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
-
-    @get:Rule val goldenScreenshotNameTestRule = GoldenScreenshotNameTestRule()
+    @get:Rule
+    val remoteComposeTestRule =
+        RemoteScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
+        )
 
     @Test
     fun creationLtr_playLtr() {
-        composeTestRule.setContent {
-            val creationDisplayInfo = createCreationDisplayInfo()
-
-            val coreDocument: CoreDocument? by
-                rememberRemoteDocument(creationDisplayInfo = creationDisplayInfo) {
-                    SimpleContent()
-                }
-
-            coreDocument?.let {
-                Player(coreDocument = it, creationDisplayInfo = creationDisplayInfo)
-            }
-        }
-
-        val screenshot = composeTestRule.onRoot().captureToImage()
-        screenshot.assertAgainstGolden(
-            screenshotTestRule,
-            goldenScreenshotNameTestRule.getGoldenScreenshotName().getName(),
-        )
+        remoteComposeTestRule.runScreenshotTest { SimpleContent() }
     }
 
     @Test
     fun creationLtr_playRtl() {
-        composeTestRule.setContent {
-            val creationDisplayInfo = createCreationDisplayInfo()
-
-            val coreDocument: CoreDocument? by
-                rememberRemoteDocument(creationDisplayInfo = creationDisplayInfo) {
-                    SimpleContent()
-                }
-
-            coreDocument?.let {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    Player(coreDocument = it, creationDisplayInfo = creationDisplayInfo)
-                }
-            }
+        remoteComposeTestRule.runScreenshotTest(playComposableWrapper = ComposableWrappers.rtl) {
+            SimpleContent()
         }
-
-        val screenshot = composeTestRule.onRoot().captureToImage()
-        screenshot.assertAgainstGolden(
-            screenshotTestRule,
-            goldenScreenshotNameTestRule.getGoldenScreenshotName().getName(),
-        )
     }
 
     @Test
     fun creationRtl_playLtr() {
-        composeTestRule.setContent {
-            val creationDisplayInfo = createCreationDisplayInfo()
-
-            val coreDocumentState =
-                rememberRemoteDocumentCustom(
-                    creationDisplayInfo = creationDisplayInfo,
-                    layoutDirection = LayoutDirection.Rtl,
-                ) {
-                    SimpleContent()
-                }
-
-            val coreDocument = coreDocumentState.value
-            coreDocument?.let {
-                Player(coreDocument = coreDocument, creationDisplayInfo = creationDisplayInfo)
-            }
+        remoteComposeTestRule.runScreenshotTest(
+            creationComposableWrapper = ComposableWrappers.rtl
+        ) {
+            SimpleContent()
         }
-
-        val screenshot = composeTestRule.onRoot().captureToImage()
-        screenshot.assertAgainstGolden(
-            screenshotTestRule,
-            goldenScreenshotNameTestRule.getGoldenScreenshotName().getName(),
-        )
     }
 
     @Test
     fun creationRtl_playRtl() {
-        composeTestRule.setContent {
-            val creationDisplayInfo = createCreationDisplayInfo()
-
-            val coreDocumentState =
-                rememberRemoteDocumentCustom(
-                    creationDisplayInfo = creationDisplayInfo,
-                    layoutDirection = LayoutDirection.Rtl,
-                ) {
-                    SimpleContent()
-                }
-            val coreDocument = coreDocumentState.value
-            coreDocument?.let {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    Player(coreDocument = coreDocument, creationDisplayInfo = creationDisplayInfo)
-                }
-            }
+        remoteComposeTestRule.runScreenshotTest(
+            creationComposableWrapper = ComposableWrappers.rtl,
+            playComposableWrapper = ComposableWrappers.rtl,
+        ) {
+            SimpleContent()
         }
-
-        val screenshot = composeTestRule.onRoot().captureToImage()
-        screenshot.assertAgainstGolden(
-            screenshotTestRule,
-            goldenScreenshotNameTestRule.getGoldenScreenshotName().getName(),
-        )
     }
 
     @Test
     fun complex_creationLtr_playLtr() {
-        composeTestRule.setContent {
-            val creationDisplayInfo = createCreationDisplayInfo()
-
-            val coreDocument: CoreDocument? by
-                rememberRemoteDocument(creationDisplayInfo = creationDisplayInfo) {
-                    ComplexContent()
-                }
-
-            coreDocument?.let {
-                Player(coreDocument = it, creationDisplayInfo = creationDisplayInfo)
-            }
-        }
-
-        val screenshot = composeTestRule.onRoot().captureToImage()
-        screenshot.assertAgainstGolden(
-            screenshotTestRule,
-            goldenScreenshotNameTestRule.getGoldenScreenshotName().getName(),
-        )
+        remoteComposeTestRule.runScreenshotTest { ComplexContent() }
     }
 
     @Test
     fun complex_creationLtr_playRtl() {
-        composeTestRule.setContent {
-            val creationDisplayInfo = createCreationDisplayInfo()
-
-            val coreDocument: CoreDocument? by
-                rememberRemoteDocument(creationDisplayInfo = creationDisplayInfo) {
-                    ComplexContent()
-                }
-
-            coreDocument?.let {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    Player(coreDocument = it, creationDisplayInfo = creationDisplayInfo)
-                }
-            }
+        remoteComposeTestRule.runScreenshotTest(playComposableWrapper = ComposableWrappers.rtl) {
+            ComplexContent()
         }
-
-        val screenshot = composeTestRule.onRoot().captureToImage()
-        screenshot.assertAgainstGolden(
-            screenshotTestRule,
-            goldenScreenshotNameTestRule.getGoldenScreenshotName().getName(),
-        )
     }
 
     @Test
     fun complex_creationRtl_playLtr() {
-        composeTestRule.setContent {
-            val creationDisplayInfo = createCreationDisplayInfo()
-
-            val coreDocumentState =
-                rememberRemoteDocumentCustom(
-                    creationDisplayInfo = creationDisplayInfo,
-                    layoutDirection = LayoutDirection.Rtl,
-                ) {
-                    ComplexContent()
-                }
-
-            val coreDocument = coreDocumentState.value
-            coreDocument?.let {
-                Player(coreDocument = coreDocument, creationDisplayInfo = creationDisplayInfo)
-            }
+        remoteComposeTestRule.runScreenshotTest(
+            creationComposableWrapper = ComposableWrappers.rtl
+        ) {
+            ComplexContent()
         }
-
-        val screenshot = composeTestRule.onRoot().captureToImage()
-        screenshot.assertAgainstGolden(
-            screenshotTestRule,
-            goldenScreenshotNameTestRule.getGoldenScreenshotName().getName(),
-        )
     }
 
     @Test
     fun complex_creationRtl_playRtl() {
-        composeTestRule.setContent {
-            val creationDisplayInfo = createCreationDisplayInfo()
-
-            val coreDocumentState =
-                rememberRemoteDocumentCustom(
-                    creationDisplayInfo = creationDisplayInfo,
-                    layoutDirection = LayoutDirection.Rtl,
-                ) {
-                    ComplexContent()
-                }
-            val coreDocument = coreDocumentState.value
-            coreDocument?.let {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    Player(coreDocument = coreDocument, creationDisplayInfo = creationDisplayInfo)
-                }
-            }
+        remoteComposeTestRule.runScreenshotTest(
+            creationComposableWrapper = ComposableWrappers.rtl,
+            playComposableWrapper = ComposableWrappers.rtl,
+        ) {
+            ComplexContent()
         }
-
-        val screenshot = composeTestRule.onRoot().captureToImage()
-        screenshot.assertAgainstGolden(
-            screenshotTestRule,
-            goldenScreenshotNameTestRule.getGoldenScreenshotName().getName(),
-        )
     }
 
     @Composable
@@ -292,36 +145,6 @@ class LayoutDirectionTest {
                     }
                 }
             }
-        }
-    }
-
-    @Composable
-    private fun rememberRemoteDocumentCustom(
-        creationDisplayInfo: RemoteCreationDisplayInfo = createCreationDisplayInfo(),
-        layoutDirection: LayoutDirection = LayoutDirection.Rtl,
-        content: @Composable () -> Unit,
-    ): MutableState<CoreDocument?> {
-        val coreDocumentState = remember { mutableStateOf<CoreDocument?>(null) }
-        CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-            val docState =
-                rememberRemoteDocument(creationDisplayInfo = creationDisplayInfo, content = content)
-            coreDocumentState.value = docState.value
-        }
-        return coreDocumentState
-    }
-
-    @Composable
-    private fun Player(
-        modifier: Modifier = Modifier,
-        coreDocument: CoreDocument,
-        creationDisplayInfo: RemoteCreationDisplayInfo,
-    ) {
-        Box(modifier = modifier.fillMaxSize()) {
-            RemoteDocumentPlayer(
-                document = coreDocument,
-                documentWidth = creationDisplayInfo.size.width.toInt(),
-                documentHeight = creationDisplayInfo.size.height.toInt(),
-            )
         }
     }
 }
