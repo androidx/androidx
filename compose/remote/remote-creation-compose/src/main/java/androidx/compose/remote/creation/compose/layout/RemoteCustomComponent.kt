@@ -203,6 +203,14 @@ internal class RemoteIntReturnEntry(
         CustomProperty(id, CustomProperty.INT_RETURN, state.getIdForCreationState(creationState))
 }
 
+internal class RemoteColorReturnEntry(
+    override val id: Short,
+    override val state: RemoteColor,
+) : CustomPropertyEntry() {
+    override fun toCustomProperty(creationState: RemoteComposeCreationState): CustomProperty =
+        CustomProperty(id, CustomProperty.COLOR_RETURN, state.getIdForCreationState(creationState))
+}
+
 internal class RemoteBooleanReturnEntry(
     override val id: Short,
     override val state: RemoteBoolean,
@@ -235,8 +243,8 @@ public constructor(private val creationState: RemoteComposeCreationState? = null
         entries.add(IntPropertyEntry(id.toShort(), value))
     }
 
-    public fun property(id: Int, color: Color) {
-        entries.add(ColorPropertyEntry(id.toShort(), color))
+    public fun property(id: Int, value: Color) {
+        entries.add(ColorPropertyEntry(id.toShort(), value))
     }
 
     public fun property(id: Int, value: Float) {
@@ -288,6 +296,11 @@ public constructor(private val creationState: RemoteComposeCreationState? = null
     public fun bindReturn(id: Int, state: RemoteInt?) {
         if (state == null) return
         entries.add(RemoteIntReturnEntry(id.toShort(), state))
+    }
+
+    public fun bindReturn(id: Int, state: RemoteColor?) {
+        if (state == null) return
+        entries.add(RemoteColorReturnEntry(id.toShort(), state))
     }
 
     public fun bindReturn(id: Int, state: RemoteBoolean?) {
