@@ -32,7 +32,7 @@ import kotlinx.coroutines.withContext
 @OptIn(ExperimentalFollowingSubspaceApi::class)
 internal class ExponentialDecayFollowMode(
     private val dimensions: TrackedDimensions = TrackedDimensions.All,
-    private val halfLifeMs: Long = SoftFollowMode.DEFAULT_HALF_LIFE_MS,
+    private val halfLifeMillis: Long = SoftFollowMode.DEFAULT_HALF_LIFE_MILLIS,
     private val startDelay: Long = SoftFollowMode.DEFAULT_START_DELAY,
     private val startThresholds: FollowThresholds = SoftFollowMode.DEFAULT_START_THRESHOLDS,
     private val settleThresholds: FollowThresholds = SoftFollowMode.DEFAULT_SETTLE_THRESHOLDS,
@@ -153,11 +153,11 @@ internal class ExponentialDecayFollowMode(
     /**
      * Calculates the frame-rate independent interpolation factor using exponential decay half-life.
      *
-     * Over each [halfLifeMs] interval, exactly 50% of the remaining distance to the target is
+     * Over each [halfLifeMillis] interval, exactly 50% of the remaining distance to the target is
      * covered: decayFactor = 1 - 0.5^(dtSeconds / halfLifeSeconds)
      */
     private fun calculateDecayFactor(dtSeconds: Float): Float {
-        val halfLifeSeconds = halfLifeMs / 1000f
+        val halfLifeSeconds = halfLifeMillis / 1000f
         if (halfLifeSeconds <= 0.001f) return 1.0f
         return (1.0f - 0.5f.pow(dtSeconds / halfLifeSeconds)).coerceIn(0.0f, 1.0f)
     }
@@ -196,7 +196,7 @@ internal class ExponentialDecayFollowMode(
         if (this === other) return true
         if (other !is ExponentialDecayFollowMode) return false
 
-        return halfLifeMs == other.halfLifeMs &&
+        return halfLifeMillis == other.halfLifeMillis &&
             startDelay == other.startDelay &&
             startThresholds == other.startThresholds &&
             settleThresholds == other.settleThresholds &&
@@ -204,7 +204,7 @@ internal class ExponentialDecayFollowMode(
     }
 
     override fun hashCode(): Int {
-        var result = halfLifeMs.hashCode()
+        var result = halfLifeMillis.hashCode()
         result = 31 * result + startDelay.hashCode()
         result = 31 * result + startThresholds.hashCode()
         result = 31 * result + settleThresholds.hashCode()

@@ -129,7 +129,7 @@ class ViewFollowingSubspaceActivity : ComponentActivity() {
                     UiBehaviorSelection.SOFT ->
                         FollowMode.soft(
                             dimensions = dimensions,
-                            halfLifeMs = softFollowHalfLife.toLong(),
+                            halfLifeMillis = softFollowHalfLife.toLong(),
                         )
                     UiBehaviorSelection.EXPONENTIAL_DECAY ->
                         FollowMode.exponentialDecay(dimensions = dimensions)
@@ -241,7 +241,7 @@ class ViewFollowingSubspaceActivity : ComponentActivity() {
                                 isYTracked = true,
                                 isZTracked = true,
                             ),
-                        halfLifeMs = softFollowHalfLife.toLong(),
+                        halfLifeMillis = softFollowHalfLife.toLong(),
                     )
                 )
         ) {

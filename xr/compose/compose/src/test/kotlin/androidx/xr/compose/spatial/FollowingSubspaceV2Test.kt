@@ -534,7 +534,7 @@ class FollowingSubspaceV2Test {
                 Subspace(
                     follow =
                         FollowTarget.view(
-                            mode = FollowMode.soft(halfLifeMs = animationTime.toLong())
+                            mode = FollowMode.soft(halfLifeMillis = animationTime.toLong())
                         ),
                     modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
                 ) {}
@@ -548,7 +548,7 @@ class FollowingSubspaceV2Test {
             )
 
             // The first device pose should cause the subspace to instantly spawn at that location.
-            // The animation halfLifeMs parameter only affects subsequent movements.
+            // The animation halfLifeMillis parameter only affects subsequent movements.
             var subspaceTranslation =
                 assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2").translation
             assertThat(subspaceTranslation).isEqualTo(unitVector)
@@ -621,7 +621,7 @@ class FollowingSubspaceV2Test {
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
 
             var followMode by
-                mutableStateOf(ExponentialDecayFollowMode(halfLifeMs = 100L, startDelay = 0L))
+                mutableStateOf(ExponentialDecayFollowMode(halfLifeMillis = 100L, startDelay = 0L))
 
             composeTestRule.setContent {
                 Subspace(
@@ -643,7 +643,7 @@ class FollowingSubspaceV2Test {
             assertThat(subspaceTranslation).isEqualTo(unitVector)
 
             // Change halfLife to 400ms
-            followMode = ExponentialDecayFollowMode(halfLifeMs = 400L, startDelay = 0L)
+            followMode = ExponentialDecayFollowMode(halfLifeMillis = 400L, startDelay = 0L)
             composeTestRule.waitForIdle()
 
             // Move 1 unit vector again

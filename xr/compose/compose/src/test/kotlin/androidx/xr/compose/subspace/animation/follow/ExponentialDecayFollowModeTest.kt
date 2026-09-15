@@ -39,7 +39,7 @@ class ExponentialDecayFollowModeTest {
         val mode1 =
             ExponentialDecayFollowMode(
                 dimensions = TrackedDimensions.All,
-                halfLifeMs = 200L,
+                halfLifeMillis = 200L,
                 startDelay = 50L,
                 startThresholds = FollowThresholds(translationMeters = 0.1f),
                 settleThresholds = FollowThresholds(translationMeters = 0.01f),
@@ -47,7 +47,7 @@ class ExponentialDecayFollowModeTest {
         val mode2 =
             ExponentialDecayFollowMode(
                 dimensions = TrackedDimensions.All,
-                halfLifeMs = 200L,
+                halfLifeMillis = 200L,
                 startDelay = 50L,
                 startThresholds = FollowThresholds(translationMeters = 0.1f),
                 settleThresholds = FollowThresholds(translationMeters = 0.01f),
@@ -66,9 +66,9 @@ class ExponentialDecayFollowModeTest {
     }
 
     @Test
-    fun exponentialDecayFollowMode_equals_differentHalfLifeMs_returnsFalse() {
-        val mode1 = ExponentialDecayFollowMode(halfLifeMs = 200L)
-        val mode2 = ExponentialDecayFollowMode(halfLifeMs = 500L)
+    fun exponentialDecayFollowMode_equals_differentHalfLifeMillis_returnsFalse() {
+        val mode1 = ExponentialDecayFollowMode(halfLifeMillis = 200L)
+        val mode2 = ExponentialDecayFollowMode(halfLifeMillis = 500L)
 
         assertThat(mode1).isNotEqualTo(mode2)
     }
@@ -126,7 +126,7 @@ class ExponentialDecayFollowModeTest {
         val mode1 =
             ExponentialDecayFollowMode(
                 dimensions = TrackedDimensions.All,
-                halfLifeMs = 200L,
+                halfLifeMillis = 200L,
                 startDelay = 50L,
                 startThresholds = FollowThresholds(translationMeters = 0.1f),
                 settleThresholds = FollowThresholds(translationMeters = 0.01f),
@@ -134,7 +134,7 @@ class ExponentialDecayFollowModeTest {
         val mode2 =
             ExponentialDecayFollowMode(
                 dimensions = TrackedDimensions.All,
-                halfLifeMs = 200L,
+                halfLifeMillis = 200L,
                 startDelay = 50L,
                 startThresholds = FollowThresholds(translationMeters = 0.1f),
                 settleThresholds = FollowThresholds(translationMeters = 0.01f),
@@ -153,9 +153,9 @@ class ExponentialDecayFollowModeTest {
     }
 
     @Test
-    fun exponentialDecayFollowMode_hashCode_differentHalfLifeMs_differs() {
-        val mode1 = ExponentialDecayFollowMode(halfLifeMs = 200L)
-        val mode2 = ExponentialDecayFollowMode(halfLifeMs = 500L)
+    fun exponentialDecayFollowMode_hashCode_differentHalfLifeMillis_differs() {
+        val mode1 = ExponentialDecayFollowMode(halfLifeMillis = 200L)
+        val mode2 = ExponentialDecayFollowMode(halfLifeMillis = 500L)
 
         assertThat(mode1.hashCode()).isNotEqualTo(mode2.hashCode())
     }
