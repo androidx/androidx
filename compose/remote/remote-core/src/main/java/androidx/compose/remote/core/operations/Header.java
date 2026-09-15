@@ -155,6 +155,12 @@ public class Header extends Operation implements RemoteComposeOperation {
     /** Specify layout optimization level: 0 = none, 1 = partial, 2 = all */
     public static final short FEATURE_OPTIMIZATION_LEVEL = 28;
 
+    /**
+     * Controls the usage of API ViewParent#requestDisallowInterceptTouchEvent when handling gesture
+     * propagation between RemoteCompose and host views. 0: disabled, 1: enabled.
+     */
+    public static final short FEATURE_DISALLOW_INTERCEPT_TOUCH = 29;
+
     /** The object is an integer */
     private static final short DATA_TYPE_INT = 0;
 
@@ -187,6 +193,7 @@ public class Header extends Operation implements RemoteComposeOperation {
         FEATURE_CLICK_VERSION,
         DOC_DENSITY_BEHAVIOR,
         FEATURE_OPTIMIZATION_LEVEL,
+        FEATURE_DISALLOW_INTERCEPT_TOUCH,
     };
     private static final String[] KEY_NAMES = {
         "DOC_WIDTH",
@@ -207,7 +214,8 @@ public class Header extends Operation implements RemoteComposeOperation {
         "ARRAY_LISTENERS",
         "CLICK_VERSION",
         "DENSITY_BEHAVIOR",
-        "OPTIMIZATION_LEVEL"
+        "OPTIMIZATION_LEVEL",
+        "DISALLOW_INTERCEPT_TOUCH"
     };
 
     /**
