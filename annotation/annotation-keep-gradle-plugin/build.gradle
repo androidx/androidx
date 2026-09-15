@@ -50,6 +50,7 @@ dependencies {
     testImplementation(libs.truth)
     // Bootstrap Plugin test classpath
     testPlugin(libs.androidGradlePluginApi)
+    testPlugin(libs.androidKotlinMultiplatform)
     testPlugin(libs.kotlinGradlePlugin)
 }
 
