@@ -19,12 +19,10 @@ package androidx.text.vertical
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import android.os.Build
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.StaticLayout
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.text.vertical.RubyPixel.BITMAP_SIZE
 import androidx.text.vertical.RubyPixel.INVISIBLE_CHAR
@@ -36,6 +34,12 @@ import org.junit.runner.RunWith
 
 /** Vertical padding, so that neither annotation band is ever clipped by the top edge. */
 private const val DRAW_ORIGIN_Y = 100
+
+/**
+ * Width of a paragraph that holds two ruby spans. This is more than one span but less than two, so
+ * the layout puts each span on its own line.
+ */
+private const val ONE_SPAN_WIDTH = 150
 
 /**
  * Verifies that [RubySpan.position] is honored when the span is laid out in **horizontal** writing
@@ -133,17 +137,9 @@ class HorizontalRubyAnnotationPositionTest {
     // ---------------------------------------------------------------------------------------
     // Line box metrics. Reserving space on the wrong side would let the annotation collide with
     // the adjacent line, so placement has to move the reservation, not just the drawing.
-    //
-    // TODO(b/561323466): remove the @SdkSuppress below once the metrics defect is fixed.
-    //  These two cases fail on API < 28. HorizontalRubySpanLayout.fillFontMetrics only *widens*
-    //  FontMetricsInt.top/bottom (via min/max) instead of assigning them, and before API 28 the
-    //  platform reuses one pooled FontMetricsInt across measurements without resetting it. An
-    //  earlier measurement therefore leaks into every later one, permanently inflating the line
-    //  box: Before measures 201 on its own but 268 once an After measurement has run first.
     // ---------------------------------------------------------------------------------------
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // See TODO(b/561323466) above.
     fun lineHeight_isIdenticalForBeforeAndAfter() {
         val before = layoutOf(VISIBLE_CHAR, VISIBLE_CHAR, AnnotationPosition.Before)
         val after = layoutOf(VISIBLE_CHAR, VISIBLE_CHAR, AnnotationPosition.After)
@@ -154,7 +150,6 @@ class HorizontalRubyAnnotationPositionTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // See TODO(b/561323466) above.
     fun positionAfter_baselineSitsAboveTheBeforeBaseline() {
         val before = layoutOf(VISIBLE_CHAR, VISIBLE_CHAR, AnnotationPosition.Before)
         val after = layoutOf(VISIBLE_CHAR, VISIBLE_CHAR, AnnotationPosition.After)
@@ -162,6 +157,22 @@ class HorizontalRubyAnnotationPositionTest {
         // Before reserves the ruby box in the ascent, which pushes the baseline down. After
         // reserves it in the descent instead, so the baseline stays near the top of the line.
         assertThat(after.getLineBaseline(0)).isLessThan(before.getLineBaseline(0))
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // Two ruby spans in one paragraph. The platform gives one FontMetricsInt to every run and
+    // does not clear it. A span that merges the box of an earlier run into its own box makes the
+    // later line too tall. See b/561323466.
+    // ---------------------------------------------------------------------------------------
+
+    @Test
+    fun lineHeight_isIdenticalForTwoRubySpansInOneParagraph() {
+        val layout = layoutOfTwoRubyLines()
+        assertThat(layout.lineCount).isEqualTo(2)
+
+        val firstLine = layout.getLineBottom(0) - layout.getLineTop(0)
+        val secondLine = layout.getLineBottom(1) - layout.getLineTop(1)
+        assertThat(secondLine).isEqualTo(firstLine)
     }
 
     // ---------------------------------------------------------------------------------------
@@ -194,6 +205,29 @@ class HorizontalRubyAnnotationPositionTest {
             Spanned.SPAN_INCLUSIVE_EXCLUSIVE,
         )
         return StaticLayout.Builder.obtain(spannable, 0, spannable.length, paint, BITMAP_SIZE)
+            .build()
+    }
+
+    /**
+     * Lays out two ruby spans in one paragraph, one span to a line. The first span puts the
+     * annotation before the base text and the second span puts it after. The two spans write
+     * different boxes, but they reserve the same height.
+     */
+    private fun layoutOfTwoRubyLines(): StaticLayout {
+        val spannable = SpannableString(VISIBLE_CHAR + VISIBLE_CHAR)
+        spannable.setSpan(
+            RubySpan(VISIBLE_CHAR, AnnotationPosition.Before, textScale = RUBY_SCALE),
+            0,
+            1,
+            Spanned.SPAN_INCLUSIVE_EXCLUSIVE,
+        )
+        spannable.setSpan(
+            RubySpan(VISIBLE_CHAR, AnnotationPosition.After, textScale = RUBY_SCALE),
+            1,
+            2,
+            Spanned.SPAN_INCLUSIVE_EXCLUSIVE,
+        )
+        return StaticLayout.Builder.obtain(spannable, 0, spannable.length, paint, ONE_SPAN_WIDTH)
             .build()
     }
 

@@ -121,6 +121,28 @@ class HorizontalRubySpanLayoutPositionTest {
     }
 
     @Test
+    fun fillFontMetrics_reservedHeightIsIndependentOfPosition() {
+        // The platform hands the same FontMetricsInt to every span in a paragraph and, below API
+        // 28, does not reset it in between. Reuse a single instance here so that a measurement
+        // which widens rather than assigns leaks into the next one, exactly as it does at runtime.
+        val fm = Paint.FontMetricsInt()
+
+        val before = reservedHeight(AnnotationPosition.Before, fm)
+        val after = reservedHeight(AnnotationPosition.After, fm)
+        val beforeAgain = reservedHeight(AnnotationPosition.Before, fm)
+
+        // Both positions reserve the same amount of space, just on opposite sides of the baseline.
+        assertWithMessage("After reserved a different height than Before")
+            .that(after)
+            .isEqualTo(before)
+        // The third measurement is the one that catches contamination: an implementation that
+        // widens measures Before correctly in isolation but not once After has run first.
+        assertWithMessage("Before changed after an unrelated After measurement ran first")
+            .that(beforeAgain)
+            .isEqualTo(before)
+    }
+
+    @Test
     fun spanWidth_isIndependentOfPosition() {
         // The span is as wide as the wider of the two texts, so both sides of that choice have to
         // be covered: a position that leaked into the width would only show up on one of them.
@@ -177,13 +199,33 @@ class HorizontalRubySpanLayoutPositionTest {
             .isEqualTo(before.spanWidth)
     }
 
+    /**
+     * Measures [position] into [fm] and returns the total height it reserved. Takes [fm] from the
+     * caller so a single instance can be threaded through several measurements.
+     */
+    private fun reservedHeight(position: AnnotationPosition, fm: Paint.FontMetricsInt): Int {
+        layoutOf(VISIBLE_CHAR, VISIBLE_CHAR, position).fillFontMetrics(fm)
+        return fm.bottom - fm.top
+    }
+
     private fun assertMetrics(position: AnnotationPosition, expectRubyAbove: Boolean) {
         val layout = layoutOf(VISIBLE_CHAR, VISIBLE_CHAR, position)
         val (bodyAscent, bodyDescent) = RubyPixel.lineMetrics(paint, VISIBLE_CHAR, 1f)
         val (rubyAscent, rubyDescent) = RubyPixel.lineMetrics(paint, VISIBLE_CHAR, RUBY_SCALE)
         val rubyLineHeight = rubyDescent - rubyAscent
 
-        val fm = Paint.FontMetricsInt()
+        // Seed every field with a value the layout must overwrite. The box is deliberately taller
+        // than anything the layout can produce and deliberately asymmetric: if the implementation
+        // widened these fields instead of assigning them, the seeded box would survive and every
+        // assertion below would fail. A zeroed instance cannot make that distinction, because
+        // min(ascent, 0) == ascent and max(descent, 0) == descent for the values involved.
+        val fm =
+            Paint.FontMetricsInt().apply {
+                ascent = 1_111
+                descent = -2_222
+                top = -3_333
+                bottom = 4_444
+            }
         layout.fillFontMetrics(fm)
 
         val expectedAscent = if (expectRubyAbove) bodyAscent - rubyLineHeight else bodyAscent
