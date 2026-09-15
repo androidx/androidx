@@ -30,18 +30,20 @@ import kotlin.math.min
 /**
  * A helper class that handles the layout logic, measurement, and drawing for [RubySpan].
  *
- * @param text The original Spanned text.
- * @param start The start index of the span.
- * @param end The end index of the span.
- * @param rubyText The ruby text content.
- * @param paint The paint used for the initial measurement.
- * @param rubyScale The scaling factor for the ruby text.
+ * @param text the original [Spanned] text
+ * @param start the start index of the span
+ * @param end the end index of the span
+ * @param rubyText the ruby text content
+ * @param position where the ruby text sits relative to the base text
+ * @param paint the paint used for the initial measurement
+ * @param rubyScale the scaling factor for the ruby text
  */
 internal class HorizontalRubySpanLayout(
     text: Spanned,
     start: Int,
     end: Int,
     rubyText: CharSequence,
+    position: AnnotationPosition,
     paint: Paint,
     private val rubyScale: Float,
 ) : HorizontalSpanLayout {
@@ -54,6 +56,8 @@ internal class HorizontalRubySpanLayout(
     init {
         val copiedBodyText = cloneWithoutReplacementSpan(text, start, end)
 
+        // TODO(b/561269843): The body and ruby StaticLayouts share the same ThreadLocal TextPaint
+        // instance. Mutating this paint during draw() races with other threads measuring.
         // Use a thread-local paint to avoid allocation overhead during measurement
         val workPaint = workingPaintCache.getOrSet { TextPaint() }
         workPaint.set(paint)
@@ -96,16 +100,34 @@ internal class HorizontalRubySpanLayout(
     private val rubyAscent = rubyLayout.getLineAscent(0)
     private val rubyDescent = rubyLayout.getLineDescent(0)
 
+    /** Height of the ruby line box, i.e. the space the annotation needs on its chosen side. */
+    private val rubyLineHeight = rubyDescent - rubyAscent
+
     /**
-     * Updates the provided FontMetrics to ensure there is enough vertical space for the ruby text
-     * above the body text.
+     * True when the ruby text is placed over the base text line, which is how
+     * [AnnotationPosition.Before] renders in horizontal writing mode. See
+     * [`line-over` CSS](https://drafts.csswg.org/css-writing-modes-4/#line-over) for further
+     * information. Any unrecognized position falls back to this, matching
+     * [RubySpan.DEFAULT_POSITION].
+     */
+    private val isRubyOver = position != AnnotationPosition.After
+
+    /**
+     * Reserves vertical space for the ruby text on the side its position selects.
      *
-     * @param fm The FontMetrics object to update.
+     * Reserving it on the wrong side would leave the annotation to collide with the adjacent line,
+     * so the position has to move the reservation and not just the drawing.
+     *
+     * @param fm the font metrics to expand in place
      */
     override fun fillFontMetrics(fm: Paint.FontMetricsInt) {
-        // Calculate the effective ascent required to fit the ruby text
-        fm.ascent = bodyAscent - rubyDescent + rubyAscent
-        fm.descent = bodyDescent
+        if (isRubyOver) {
+            fm.ascent = bodyAscent - rubyLineHeight
+            fm.descent = bodyDescent
+        } else {
+            fm.ascent = bodyAscent
+            fm.descent = bodyDescent + rubyLineHeight
+        }
         fm.top = min(fm.ascent, fm.top)
         fm.bottom = max(fm.descent, fm.bottom)
     }
@@ -132,7 +154,9 @@ internal class HorizontalRubySpanLayout(
 
         // Draw Ruby Text
         canvas.withSave {
-            val rubyDrawY = y + bodyAscent + rubyAscent - rubyDescent
+            // `y` is the baseline and StaticLayout draws from the top of its line box, so butt the
+            // ruby box against either the top or the bottom of the body's box.
+            val rubyDrawY = if (isRubyOver) y + bodyAscent - rubyLineHeight else y + bodyDescent
             translate(x + rubyXOffset, rubyDrawY)
 
             // The paint object stored in the layout is a shared cache, so reset it to the drawing
