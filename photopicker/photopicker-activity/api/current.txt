@@ -103,10 +103,12 @@ package androidx.photopicker.activity {
     method @InaccessibleFromKotlin public androidx.photopicker.activity.PickVisualMedia.MediaCapabilities? getMediaCapabilitiesForTranscoding();
     method @InaccessibleFromKotlin public androidx.photopicker.activity.PickVisualMedia.VisualMediaType getMediaType();
     method @InaccessibleFromKotlin public boolean isCustomAccentColorApplied();
+    method @InaccessibleFromKotlin public boolean isLocationMetadataAccessRequested();
     method @InaccessibleFromKotlin public boolean isOrderedSelection();
     property public long accentColor;
     property public androidx.photopicker.activity.PickVisualMedia.DefaultTab defaultTab;
     property public boolean isCustomAccentColorApplied;
+    property public boolean isLocationMetadataAccessRequested;
     property public boolean isOrderedSelection;
     property public int maxItems;
     property public androidx.photopicker.activity.PickVisualMedia.MediaCapabilities? mediaCapabilitiesForTranscoding;
@@ -118,6 +120,7 @@ package androidx.photopicker.activity {
     method public androidx.photopicker.activity.PickVisualMediaRequest build();
     method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setAccentColor(long accentColor);
     method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setDefaultTab(androidx.photopicker.activity.PickVisualMedia.DefaultTab defaultTab);
+    method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setLocationMetadataAccessRequested(boolean isLocationMetadataAccessRequested);
     method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setMaxItems(@IntRange(from=2L) int maxItems);
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public androidx.photopicker.activity.PickVisualMediaRequest.Builder setMediaCapabilitiesForTranscoding(androidx.photopicker.activity.PickVisualMedia.MediaCapabilities? mediaCapabilities);
     method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setMediaType(androidx.photopicker.activity.PickVisualMedia.VisualMediaType mediaType);
