@@ -55,30 +55,33 @@ import java.util.TimeZone
 
 /**
  * Defines the API contract and schemas for the A2UI Basic Catalog V1 following the specification in
- * https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json.
+ * https://a2ui.org/specification/v0_9_1/catalogs/basic/catalog.json.
+ *
+ * This class is intended to support the Basic Catalog specification 1.0 defined in
+ * https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json, support for it is planned.
  *
  * This class acts as the API contract for any design system (e.g. Material 3, Jetpack Compose
  * Glimmer, TV Compose) wishing to implement the basic catalog specification.
  *
- * @property text The [Text] component implementation.
- * @property image The [Image] component implementation.
- * @property icon The [Icon] component implementation.
- * @property video The [Video] component implementation.
- * @property audioPlayer The [AudioPlayer] component implementation.
- * @property row The [Row] component implementation.
- * @property column The [Column] component implementation.
- * @property list The [List] component implementation.
- * @property card The [Card] component implementation.
- * @property tabs The [Tabs] component implementation.
- * @property modal The [Modal] component implementation.
- * @property divider The [Divider] component implementation.
- * @property button The [Button] component implementation.
- * @property textField The [TextField] component implementation.
- * @property checkBox The [CheckBox] component implementation.
- * @property choicePicker The [ChoicePicker] component implementation.
- * @property slider The [Slider] component implementation.
- * @property dateTimeInput The [DateTimeInput] component implementation.
- * @property functions The list of [A2uiFunction]s supported by this catalog, recommended default is
+ * @property text the [Text] component implementation
+ * @property image the [Image] component implementation
+ * @property icon the [Icon] component implementation
+ * @property video the [Video] component implementation
+ * @property audioPlayer the [AudioPlayer] component implementation
+ * @property row the [Row] component implementation
+ * @property column the [Column] component implementation
+ * @property list the [List] component implementation
+ * @property card the [Card] component implementation
+ * @property tabs the [Tabs] component implementation
+ * @property modal the [Modal] component implementation
+ * @property divider the [Divider] component implementation
+ * @property button the [Button] component implementation
+ * @property textField the [TextField] component implementation
+ * @property checkBox the [CheckBox] component implementation
+ * @property choicePicker the [ChoicePicker] component implementation
+ * @property slider the [Slider] component implementation
+ * @property dateTimeInput the [DateTimeInput] component implementation
+ * @property functions the list of [A2uiFunction]s supported by this catalog, recommended default is
  *   to create the function list using
  *   [androidx.a2ui.model.catalog.basiccatalog.createBasicCatalogFunctions]
  */
@@ -280,12 +283,12 @@ public class A2uiBasicCatalogV1(
      * Attributes to enhance accessibility of the A2UI Basic Catalog components when using assistive
      * technologies like screen readers.
      *
-     * @property label A short string, typically 1 to 3 words, used by assistive technologies to
+     * @property label a short string, typically 1 to 3 words, used by assistive technologies to
      *   convey the purpose or intent of an element. For example, an input field might have an
      *   accessible label of 'User ID' or a button might be labeled 'Submit'. When `null`, no custom
      *   accessibility label is set, and assistive technologies fall back to the component's default
      *   text or intrinsic content.
-     * @property description Additional information provided by assistive technologies about an
+     * @property description additional information provided by assistive technologies about an
      *   element such as instructions, format requirements, or result of an action. For example, a
      *   mute button might have a label of 'Mute' and a description of 'Silences notifications about
      *   this conversation'. When `null`, no supplemental description is provided beyond the
@@ -371,6 +374,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the text.
+     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
+     *   May only be set when the component is a direct descendant of a Row or Column. See
+     *   [WeightProperty].
      * * `text` (Dynamic String, required): The text content to display. Accepts either a static
      *   string literal or a dynamic data binding.
      * * `variant` (String Enum, optional): A hint for the base text style. This is a static
@@ -384,7 +390,7 @@ public class A2uiBasicCatalogV1(
         override val description: String
             get() = "Displays dynamic text."
 
-        /** Text variant determining typography styling. */
+        /** Typography style variant for a [Text]. */
         public enum class Variant(public val value: String) {
             H1("h1"),
             H2("h2"),
@@ -395,6 +401,7 @@ public class A2uiBasicCatalogV1(
             Body("body");
 
             public companion object {
+                /** Returns the [Variant] matching [value], or [Body] if unknown. */
                 public fun fromValue(value: String): Variant =
                     entries.fastFirstOrNull { it.value == value } ?: Body
             }
@@ -458,13 +465,12 @@ public class A2uiBasicCatalogV1(
         }
 
         /**
-         * Renders the [Text] with its resolved [text] string, [variant] style hint, and optional
-         * [accessibility] attributes.
+         * Renders the [Text] with its resolved property values.
          *
-         * @param text The text string to display.
-         * @param variant The text style variant to use.
-         * @param accessibility Accessibility attributes for the text.
-         * @param modifier [Modifier] to apply to the layout.
+         * @param text the text string to display
+         * @param variant [Variant] typography style of the text
+         * @param accessibility accessibility attributes for the text
+         * @param modifier [Modifier] to apply to the layout
          */
         @Composable
         public fun A2uiComponentScope.TypedContent(
@@ -480,6 +486,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the image.
+     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
+     *   May only be set when the component is a direct descendant of a Row or Column. See
+     *   [WeightProperty].
      * * `url` (Dynamic String, required): The URL of the image to display.
      * * `description` (Dynamic String, optional): Accessibility text for the image.
      * * `fit` (String Enum, optional): Specifies how the image should be resized to fit its
@@ -496,7 +505,7 @@ public class A2uiBasicCatalogV1(
         override val description: String
             get() = "Displays an image from a URL."
 
-        /** Specifies how the image should be resized to fit its container. */
+        /** Resizing behavior for an [Image] within its container. */
         public enum class Fit(public val value: String) {
             Contain("contain"),
             Cover("cover"),
@@ -511,7 +520,7 @@ public class A2uiBasicCatalogV1(
             }
         }
 
-        /** A visual variant determining the image size and style hint. */
+        /** Size and style variant for an [Image]. */
         public enum class Variant(public val value: String) {
             Icon("icon"),
             Avatar("avatar"),
@@ -615,15 +624,14 @@ public class A2uiBasicCatalogV1(
         }
 
         /**
-         * Renders the [Image] with its resolved [url], [description], [fit], [variant], and
-         * optional [accessibility] attributes.
+         * Renders the [Image] with its resolved property values.
          *
-         * @param url The URL of the image to display.
-         * @param description Accessibility text for the image.
-         * @param fit Specifies how the image should be resized to fit its container.
-         * @param variant A hint for the image size and style.
-         * @param accessibility Accessibility attributes for the image.
-         * @param modifier [Modifier] to apply to the layout.
+         * @param url the URL of the image to display
+         * @param description accessibility text for the image
+         * @param fit [Fit] resizing behavior of the image within its container
+         * @param variant [Variant] size and style of the image
+         * @param accessibility accessibility attributes for the image
+         * @param modifier [Modifier] to apply to the layout
          */
         @Composable
         public fun A2uiComponentScope.TypedContent(
@@ -640,10 +648,13 @@ public class A2uiBasicCatalogV1(
      * The A2UI `"Icon"` component for displaying an icon.
      *
      * **Schema Properties:**
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the icon.
+     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
+     *   May only be set when the component is a direct descendant of a Row or Column. See
+     *   [WeightProperty].
      * * `name` (Dynamic Custom, required): The name of the icon to display. Accepts either a static
      *   string literal from the predefined list, an object with an `svgPath` string, or a dynamic
      *   data binding.
-     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the icon.
      */
     public interface Icon : A2uiComponent {
         override val name: String
@@ -655,7 +666,11 @@ public class A2uiBasicCatalogV1(
         /** The visual source for the [Icon]. */
         public sealed interface Source
 
-        /** Indicates an icon should be drawn from a bespoke client-provided SVG path. */
+        /**
+         * An [Icon] drawn from a client-provided SVG path rather than a [BuiltIn] token.
+         *
+         * @property svgPath the SVG path data to draw
+         */
         @Immutable
         public class SvgPath(public val svgPath: String) : Source {
             override fun equals(other: Any?): Boolean {
@@ -669,7 +684,7 @@ public class A2uiBasicCatalogV1(
             override fun toString(): String = "SvgPath(svgPath='$svgPath')"
         }
 
-        /** Supported built-in icon tokens in the A2UI basic catalog schema. */
+        /** Built-in icon token for an [Icon]. */
         public enum class BuiltIn(public val value: String) : Source {
             AccountCircle("accountCircle"),
             Add("add"),
@@ -732,7 +747,7 @@ public class A2uiBasicCatalogV1(
             Warning("warning");
 
             public companion object {
-                /** Returns the [BuiltIn] matching [value], or null if unknown. */
+                /** Returns the [BuiltIn] matching [value], or `null` if unknown. */
                 public fun fromValue(value: String): BuiltIn? = entries.fastFirstOrNull {
                     it.value == value
                 }
@@ -740,8 +755,9 @@ public class A2uiBasicCatalogV1(
         }
 
         /**
-         * Indicates an icon specified by an unrecognized name string that does not match any
-         * predefined [BuiltIn] token.
+         * An [Icon] named by a string that matches no predefined [BuiltIn] token.
+         *
+         * @property name the unrecognized icon name from the component payload
          */
         @Immutable
         public class Unrecognized(public val name: String) : Source {
@@ -827,12 +843,11 @@ public class A2uiBasicCatalogV1(
         }
 
         /**
-         * Renders the [Icon] with its resolved [source] built-in name or SVG path and optional
-         * [accessibility] attributes.
+         * Renders the [Icon] with its resolved property values.
          *
-         * @param source The resolved [Source] identifying the visual to draw.
-         * @param accessibility Accessibility attributes for the icon.
-         * @param modifier [Modifier] to apply to the layout.
+         * @param source the resolved [Source] identifying the visual to draw
+         * @param accessibility accessibility attributes for the icon
+         * @param modifier [Modifier] to apply to the layout
          */
         @Composable
         public fun A2uiComponentScope.TypedContent(
@@ -847,6 +862,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the video.
+     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
+     *   May only be set when the component is a direct descendant of a Row or Column. See
+     *   [WeightProperty].
      * * `url` (Dynamic String, required): The URL of the video to display.
      */
     public interface Video : A2uiComponent {
@@ -895,12 +913,11 @@ public class A2uiBasicCatalogV1(
         }
 
         /**
-         * Renders the [Video] with its resolved [url] property and optional [accessibility]
-         * attributes.
+         * Renders the [Video] with its resolved property values.
          *
-         * @param url The URL of the video to display.
-         * @param accessibility Accessibility attributes for the video.
-         * @param modifier [Modifier] to apply to the layout.
+         * @param url the URL of the video to display
+         * @param accessibility accessibility attributes for the video
+         * @param modifier [Modifier] to apply to the layout
          */
         @Composable
         public fun A2uiComponentScope.TypedContent(
@@ -915,6 +932,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the audio player.
+     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
+     *   May only be set when the component is a direct descendant of a Row or Column. See
+     *   [WeightProperty].
      * * `url` (Dynamic String, required): The URL of the audio to be played.
      * * `description` (Dynamic String, optional): A description of the audio, such as a title or
      *   summary.
@@ -979,13 +999,12 @@ public class A2uiBasicCatalogV1(
         }
 
         /**
-         * Renders the [AudioPlayer] with its resolved [url], [description], and optional
-         * [accessibility] attributes.
+         * Renders the [AudioPlayer] with its resolved property values.
          *
-         * @param url The URL of the audio to be played.
-         * @param description A description of the audio, such as a title or summary.
-         * @param accessibility Accessibility attributes for the audio player.
-         * @param modifier [Modifier] to apply to the layout.
+         * @param url the URL of the audio to be played
+         * @param description a description of the audio, such as a title or summary
+         * @param accessibility accessibility attributes for the audio player
+         * @param modifier [Modifier] to apply to the layout
          */
         @Composable
         public fun A2uiComponentScope.TypedContent(
@@ -1001,6 +1020,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the row.
+     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
+     *   May only be set when the component is a direct descendant of a Row or Column. See
+     *   [WeightProperty].
      * * `children` (ChildList, required): Defines the children, accepting either an array of
      *   strings for a fixed set of children, or a template object to generate children from a data
      *   list.
@@ -1020,7 +1042,7 @@ public class A2uiBasicCatalogV1(
                 "A layout component that arranges its children horizontally. To create a grid " +
                     "layout, nest Columns within this Row."
 
-        /** Arrangement of children along the main axis. */
+        /** Arrangement of children along the main axis of a [Row]. */
         public enum class Justify(public val value: String) {
             Center("center"),
             End("end"),
@@ -1037,7 +1059,7 @@ public class A2uiBasicCatalogV1(
             }
         }
 
-        /** Alignment of children along the cross axis. */
+        /** Alignment of children along the cross axis of a [Row]. */
         public enum class Align(public val value: String) {
             Start("start"),
             Center("center"),
@@ -1137,13 +1159,12 @@ public class A2uiBasicCatalogV1(
         }
 
         /**
-         * Renders the [Row] with its resolved [children], [justify], [align], and optional
-         * [accessibility] attributes.
+         * Renders the [Row] with its resolved property values.
          *
          * @param children list of child [A2uiComponentReference]s to render in this row
          * @param justify [Justify] arrangement of children along the horizontal main axis
          * @param align [Align] alignment of children along the vertical cross axis
-         * @param accessibility Accessibility attributes for the row
+         * @param accessibility accessibility attributes for the row
          * @param modifier [Modifier] to apply to the layout
          */
         @Composable
@@ -1161,6 +1182,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the column.
+     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
+     *   May only be set when the component is a direct descendant of a Row or Column. See
+     *   [WeightProperty].
      * * `children` (ChildList, required): Defines the children, accepting either an array of
      *   strings for a fixed set of children, or a template object to generate children from a data
      *   list.
@@ -1180,7 +1204,7 @@ public class A2uiBasicCatalogV1(
                 "A layout component that arranges its children vertically. To create a grid " +
                     "layout, nest Rows within this Column."
 
-        /** Arrangement of children along the main axis. */
+        /** Arrangement of children along the main axis of a [Column]. */
         public enum class Justify(public val value: String) {
             Start("start"),
             Center("center"),
@@ -1197,7 +1221,7 @@ public class A2uiBasicCatalogV1(
             }
         }
 
-        /** Alignment of children along the cross axis. */
+        /** Alignment of children along the cross axis of a [Column]. */
         public enum class Align(public val value: String) {
             Center("center"),
             End("end"),
@@ -1296,13 +1320,12 @@ public class A2uiBasicCatalogV1(
         }
 
         /**
-         * Renders the [Column] with its resolved [children], [justify], [align], and optional
-         * [accessibility] attributes.
+         * Renders the [Column] with its resolved property values.
          *
          * @param children list of child [A2uiComponentReference]s to render in this column
          * @param justify [Justify] arrangement of children along the vertical main axis
          * @param align [Align] alignment of children along the horizontal cross axis
-         * @param accessibility Accessibility attributes for the column
+         * @param accessibility accessibility attributes for the column
          * @param modifier [Modifier] to apply to the layout
          */
         @Composable
@@ -1320,6 +1343,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the list.
+     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
+     *   May only be set when the component is a direct descendant of a Row or Column. See
+     *   [WeightProperty].
      * * `children` (ChildList, required): Defines the children. Use an array of strings for a fixed
      *   set of children, or a template object to generate children from a data list.
      * * `direction` (String Enum, optional): The direction in which the list items are laid out.
@@ -1334,13 +1360,13 @@ public class A2uiBasicCatalogV1(
         override val description: String
             get() = "A scrollable list of components laid out vertically or horizontally."
 
-        /** The direction in which the list items are laid out. */
+        /** Layout direction of the items in a [List]. */
         public enum class Direction(public val value: String) {
             Vertical("vertical"),
             Horizontal("horizontal");
 
             public companion object {
-                /** The default [Direction] value. */
+                /** The default [Direction] when unspecified in the component payload. */
                 public val Default: Direction = Vertical
 
                 /** Returns the [Direction] matching [value], or [Default] if unknown. */
@@ -1349,7 +1375,7 @@ public class A2uiBasicCatalogV1(
             }
         }
 
-        /** Defines the alignment of children along the cross axis. */
+        /** Alignment of children along the cross axis of a [List]. */
         public enum class Align(public val value: String) {
             Start("start"),
             Center("center"),
@@ -1357,7 +1383,7 @@ public class A2uiBasicCatalogV1(
             Stretch("stretch");
 
             public companion object {
-                /** The default [Align] value. */
+                /** The default [Align] when unspecified in the component payload. */
                 public val Default: Align = Stretch
 
                 /** Returns the [Align] matching [value], or [Default] if unknown. */
@@ -1444,13 +1470,12 @@ public class A2uiBasicCatalogV1(
         }
 
         /**
-         * Renders the [List] with its resolved [children], [direction], [align], and optional
-         * [accessibility] attributes.
+         * Renders the [List] with its resolved property values.
          *
          * @param children list of child [A2uiComponentReference]s to render in this list
          * @param direction [Direction] layout direction of the list items
          * @param align [Align] alignment of children along the cross axis
-         * @param accessibility Accessibility attributes for the list
+         * @param accessibility accessibility attributes for the list
          * @param modifier [Modifier] to apply to the layout
          */
         @Composable
@@ -1468,6 +1493,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the card.
+     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
+     *   May only be set when the component is a direct descendant of a Row or Column. See
+     *   [WeightProperty].
      * * `child` (Component ID String, required): The ID of the child component to be rendered
      *   inside the card. Multiple elements must be wrapped in a layout container (e.g. Row or
      *   Column).
@@ -1516,11 +1544,11 @@ public class A2uiBasicCatalogV1(
         }
 
         /**
-         * Renders the [Card] with its resolved [childId] and optional [accessibility] attributes.
+         * Renders the [Card] with its resolved property values.
          *
-         * @param childId The ID of the child component inside the card.
-         * @param accessibility Accessibility attributes for the card.
-         * @param modifier [Modifier] to apply to the layout.
+         * @param childId the ID of the child component inside the card
+         * @param accessibility accessibility attributes for the card
+         * @param modifier [Modifier] to apply to the layout
          */
         @Composable
         public fun A2uiComponentScope.TypedContent(
@@ -1536,6 +1564,9 @@ public class A2uiBasicCatalogV1(
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the tabs
      *   container.
+     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
+     *   May only be set when the component is a direct descendant of a Row or Column. See
+     *   [WeightProperty].
      * * `tabs` (NestedList, required): An array of objects, where each object defines a tab with a
      *   `title` (Dynamic String) and a `child` (ComponentId) component ID.
      */
@@ -1546,7 +1577,12 @@ public class A2uiBasicCatalogV1(
         override val description: String
             get() = "A set of tabs, each with a title and a corresponding child component."
 
-        /** Represents a resolved tab with its evaluated title and child component ID. */
+        /**
+         * A resolved tab within a [Tabs] component.
+         *
+         * @property title the evaluated title shown on the tab
+         * @property childId the ID of the component to show while this tab is selected
+         */
         @Immutable
         public class Tab(public val title: String, public val childId: String) {
             override fun equals(other: Any?): Boolean {
@@ -1573,7 +1609,7 @@ public class A2uiBasicCatalogV1(
             public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
                 A2uiBasicCatalogV1.AccessibilityProperty
 
-            /** The [A2uiProperty] for the `"title"` property of a Tab in [Tabs]. */
+            /** The [A2uiProperty] for the `"title"` property of a [Tab]. */
             public val TitleProperty: DynamicA2uiProperty<String> =
                 A2uiProperty.dynamicString(
                     key = "title",
@@ -1581,7 +1617,7 @@ public class A2uiBasicCatalogV1(
                     description = "The tab title.",
                 )
 
-            /** The [A2uiProperty] for the `"child"` property of a Tab in [Tabs]. */
+            /** The [A2uiProperty] for the `"child"` property of a [Tab]. */
             public val ChildProperty: StaticA2uiProperty<String> =
                 A2uiProperty.componentId(
                     key = "child",
@@ -1589,7 +1625,7 @@ public class A2uiBasicCatalogV1(
                     description = "The ID of the child component.",
                 )
 
-            /** The [A2uiProperty] for the `"tabs"` property of [Tabs]. */
+            /** The [A2uiProperty] for the `"tabs"` property of a [Tabs]. */
             public val TabsProperty:
                 StaticA2uiProperty<kotlin.collections.List<A2uiComponentProperties>> =
                 A2uiProperty.nestedList(
@@ -1648,10 +1684,10 @@ public class A2uiBasicCatalogV1(
         }
 
         /**
-         * Renders the [Tabs] with its resolved [tabs] and optional [accessibility] attributes.
+         * Renders the [Tabs] with its resolved property values.
          *
          * @param tabs list of [Tab] objects to render
-         * @param accessibility Accessibility attributes for the tabs container
+         * @param accessibility accessibility attributes for the tabs container
          * @param modifier [Modifier] to apply to the layout
          */
         @Composable
@@ -1667,6 +1703,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the modal.
+     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
+     *   May only be set when the component is a direct descendant of a Row or Column. See
+     *   [WeightProperty].
      * * `trigger` (Component ID String, required): The ID of the component that opens the modal
      *   when interacted with.
      * * `content` (Component ID String, required): The ID of the component to be displayed inside
@@ -1736,13 +1775,12 @@ public class A2uiBasicCatalogV1(
         }
 
         /**
-         * Renders the [Modal] with its resolved [triggerId], [contentId], and optional
-         * [accessibility] attributes.
+         * Renders the [Modal] with its resolved property values.
          *
-         * @param triggerId The ID of the component that opens the modal when interacted with.
-         * @param contentId The ID of the component to be displayed inside the modal.
-         * @param accessibility Accessibility attributes for the modal
-         * @param modifier [Modifier] to apply to the layout.
+         * @param triggerId the ID of the component that opens the modal when interacted with
+         * @param contentId the ID of the component to be displayed inside the modal
+         * @param accessibility accessibility attributes for the modal
+         * @param modifier [Modifier] to apply to the layout
          */
         @Composable
         public fun A2uiComponentScope.TypedContent(
@@ -1758,6 +1796,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the divider.
+     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
+     *   May only be set when the component is a direct descendant of a Row or Column. See
+     *   [WeightProperty].
      * * `axis` (String Enum, optional): The orientation of the divider. Valid options:
      *   `"horizontal"`, `"vertical"`. Defaults to `"horizontal"`.
      */
@@ -1768,13 +1809,13 @@ public class A2uiBasicCatalogV1(
         override val description: String
             get() = "A horizontal or vertical dividing line."
 
-        /** The orientation of the divider. */
+        /** Orientation of a [Divider]. */
         public enum class Axis(public val value: String) {
             Horizontal("horizontal"),
             Vertical("vertical");
 
             public companion object {
-                /** The default [Axis] value. */
+                /** The default [Axis] when unspecified in the component payload. */
                 public val Default: Axis = Horizontal
 
                 /** Returns the [Axis] matching [value], or [Default] if unknown. */
@@ -1820,11 +1861,10 @@ public class A2uiBasicCatalogV1(
         }
 
         /**
-         * Renders the [Divider] with its resolved [axis] property and optional [accessibility]
-         * attributes.
+         * Renders the [Divider] with its resolved property values.
          *
          * @param axis [Axis] orientation of the divider
-         * @param accessibility Accessibility attributes for the divider
+         * @param accessibility accessibility attributes for the divider
          * @param modifier [Modifier] to apply to the layout
          */
         @Composable
@@ -1840,6 +1880,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the button.
+     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
+     *   May only be set when the component is a direct descendant of a Row or Column. See
+     *   [WeightProperty].
      * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the button. See
      *   [CheckRule].
      * * `child` (Component ID String, required): The ID of the child component inside the button
@@ -1958,13 +2001,12 @@ public class A2uiBasicCatalogV1(
         }
 
         /**
-         * Renders the [Button] with its resolved [childId], [variant], [action], optional
-         * [accessibility] attributes, and validation [checks].
+         * Renders the [Button] with its resolved property values.
          *
          * @param childId ID of the child component to render inside this button
          * @param variant [Variant] visual style variant of the button
          * @param action action payload [Map] dispatched when clicked
-         * @param accessibility Accessibility attributes for the button
+         * @param accessibility accessibility attributes for the button
          * @param checks validation rules for this button. When any [CheckRule.condition] is false,
          *   the button implementation should indicate an error state or disable action dispatch.
          *   See [CheckRule].
@@ -1986,6 +2028,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the text field.
+     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
+     *   May only be set when the component is a direct descendant of a Row or Column. See
+     *   [WeightProperty].
      * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the text field.
      *   See [CheckRule].
      * * `label` (Dynamic String, required): The text label for the input field.
@@ -2002,7 +2047,7 @@ public class A2uiBasicCatalogV1(
         override val description: String
             get() = "A field for user text input."
 
-        /** Text field input variant. */
+        /** Input style variant for a [TextField]. */
         public enum class Variant(public val value: String) {
             LongText("longText"),
             Number("number"),
@@ -2010,7 +2055,7 @@ public class A2uiBasicCatalogV1(
             Obscured("obscured");
 
             public companion object {
-                /** The default variant when unspecified in the component payload. */
+                /** The default [Variant] when unspecified in the component payload. */
                 public val Default: Variant = ShortText
 
                 /** Returns the [Variant] matching [value], or [Default] if unknown. */
@@ -2117,21 +2162,21 @@ public class A2uiBasicCatalogV1(
         }
 
         /**
-         * Renders the [TextField] with its resolved properties.
+         * Renders the [TextField] with its resolved property values.
          *
-         * @param label The text label for the input field.
-         * @param value The current text value of the field, or `null` if not set.
-         * @param variant The [Variant] visual style of the text field.
-         * @param validationRegexp An optional regex pattern for client-side input validation, or
-         *   `null` if none.
-         * @param onValueChange Callback invoked when the user updates the text in the field.
-         * @param enabled Controls whether the text field is interactive. When `false`, it does not
-         *   respond to user input.
-         * @param accessibility Accessibility attributes for the text field.
+         * @param label the text label for the input field
+         * @param value the current text value of the field, or `null` if not set
+         * @param variant [Variant] input style of the text field
+         * @param validationRegexp an optional regex pattern for client-side input validation, or
+         *   `null` if none
+         * @param onValueChange callback invoked when the user updates the text in the field
+         * @param enabled controls the enabled state of the text field. When `false`, this component
+         *   will not respond to user input.
+         * @param accessibility accessibility attributes for the text field
          * @param checks validation rules for this text field. When any [CheckRule.condition] is
          *   false, the text field should display an error state and show the failing
          *   [CheckRule.message]. See [CheckRule].
-         * @param modifier [Modifier] to apply to the layout.
+         * @param modifier [Modifier] to apply to the layout
          */
         @Composable
         public fun A2uiComponentScope.TypedContent(
@@ -2152,6 +2197,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the checkbox.
+     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
+     *   May only be set when the component is a direct descendant of a Row or Column. See
+     *   [WeightProperty].
      * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the checkbox.
      *   See [CheckRule].
      * * `label` (Dynamic String, required): The text to display next to the checkbox.
@@ -2243,17 +2291,17 @@ public class A2uiBasicCatalogV1(
         }
 
         /**
-         * Renders the [CheckBox] with its resolved [label] and [value] properties.
+         * Renders the [CheckBox] with its resolved property values.
          *
-         * @param label The text to display next to the checkbox.
-         * @param value The current state of the checkbox.
-         * @param onValueChange callback invoked when the user toggles the checkbox.
+         * @param label the text to display next to the checkbox
+         * @param value the current state of the checkbox
+         * @param onValueChange callback invoked when the user toggles the checkbox
          * @param enabled controls the enabled state of the checkbox. When `false`, this component
          *   will not respond to user input.
-         * @param accessibility Accessibility attributes for the checkbox.
+         * @param accessibility accessibility attributes for the checkbox
          * @param checks validation rules for this checkbox. When any [CheckRule.condition] is
          *   false, the checkbox should indicate an error state. See [CheckRule].
-         * @param modifier [Modifier] to apply to the layout.
+         * @param modifier [Modifier] to apply to the layout
          */
         @Composable
         public fun A2uiComponentScope.TypedContent(
@@ -2272,6 +2320,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the choice picker.
+     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
+     *   May only be set when the component is a direct descendant of a Row or Column. See
+     *   [WeightProperty].
      * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the choice
      *   picker. See [CheckRule].
      * * `label` (Dynamic String, optional): The label for the group of options.
@@ -2294,13 +2345,13 @@ public class A2uiBasicCatalogV1(
         override val description: String
             get() = "A component that allows selecting one or more options from a list."
 
-        /** A hint for how the choice picker should be displayed and behave. */
+        /** Selection behavior variant for a [ChoicePicker]. */
         public enum class Variant(public val value: String) {
             MutuallyExclusive("mutuallyExclusive"),
             MultipleSelection("multipleSelection");
 
             public companion object {
-                /** The default variant when unspecified in the component payload. */
+                /** The default [Variant] when unspecified in the component payload. */
                 public val Default: Variant = MutuallyExclusive
 
                 /** Returns the [Variant] matching [value], or [Default] if unknown. */
@@ -2309,13 +2360,13 @@ public class A2uiBasicCatalogV1(
             }
         }
 
-        /** The display style of the choice picker component. */
+        /** Display style for a [ChoicePicker]. */
         public enum class DisplayStyle(public val value: String) {
             Checkbox("checkbox"),
             Chips("chips");
 
             public companion object {
-                /** The default display style when unspecified in the component payload. */
+                /** The default [DisplayStyle] when unspecified in the component payload. */
                 public val Default: DisplayStyle = Checkbox
 
                 /** Returns the [DisplayStyle] matching [value], or [Default] if unknown. */
@@ -2324,7 +2375,12 @@ public class A2uiBasicCatalogV1(
             }
         }
 
-        /** Represents a choice picker option with its evaluated label and stable value. */
+        /**
+         * A selectable option within a [ChoicePicker] component.
+         *
+         * @property label the evaluated text shown for the option
+         * @property value the stable value reported when the option is selected
+         */
         @Immutable
         public class Option(public val label: String, public val value: String) {
             override fun equals(other: Any?): Boolean {
@@ -2521,20 +2577,21 @@ public class A2uiBasicCatalogV1(
         }
 
         /**
-         * Renders the [ChoicePicker] with its resolved properties.
+         * Renders the [ChoicePicker] with its resolved property values.
          *
-         * @param label The label for the group of options.
-         * @param options The list of available options to choose from.
-         * @param value The list of currently selected values.
-         * @param variant A hint for how the choice picker should be displayed and behave.
-         * @param displayStyle The display style of the component.
-         * @param filterable If true, displays a search input to filter the options.
-         * @param onValueChange Callback invoked when user selects or deselects options.
-         * @param enabled Controls the enabled state of the choice picker.
-         * @param accessibility Accessibility attributes for the choice picker.
+         * @param label the label for the group of options
+         * @param options the list of available options to choose from
+         * @param value the list of currently selected values
+         * @param variant [Variant] selection behavior of the choice picker
+         * @param displayStyle [DisplayStyle] display style of the choice picker
+         * @param filterable if true, displays a search input to filter the options
+         * @param onValueChange callback invoked when user selects or deselects options
+         * @param enabled controls the enabled state of the choice picker. When `false`, this
+         *   component will not respond to user input.
+         * @param accessibility accessibility attributes for the choice picker
          * @param checks validation rules for this choice picker. When any [CheckRule.condition] is
          *   false, the choice picker should indicate an error state. See [CheckRule].
-         * @param modifier [Modifier] to apply to the layout.
+         * @param modifier [Modifier] to apply to the layout
          */
         @Composable
         public fun A2uiComponentScope.TypedContent(
@@ -2594,6 +2651,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the slider.
+     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
+     *   May only be set when the component is a direct descendant of a Row or Column. See
+     *   [WeightProperty].
      * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the slider. See
      *   [CheckRule].
      * * `label` (Dynamic String, optional): The label for the slider.
@@ -2705,19 +2765,19 @@ public class A2uiBasicCatalogV1(
         }
 
         /**
-         * Renders the [Slider] with its resolved properties.
+         * Renders the [Slider] with its resolved property values.
          *
-         * @param label The text label for the slider.
-         * @param min The minimum value of the slider.
-         * @param max The maximum value of the slider.
-         * @param value The current value of the slider.
-         * @param onValueChange callback invoked when the user interacts with the slider.
+         * @param label the text label for the slider
+         * @param min the minimum value of the slider
+         * @param max the maximum value of the slider
+         * @param value the current value of the slider
+         * @param onValueChange callback invoked when the user interacts with the slider
          * @param enabled controls the enabled state of the slider. When `false`, this component
          *   will not respond to user input.
-         * @param accessibility Accessibility attributes for the slider.
+         * @param accessibility accessibility attributes for the slider
          * @param checks validation rules for this slider. When any [CheckRule.condition] is false,
          *   the slider should indicate an error state. See [CheckRule].
-         * @param modifier [Modifier] to apply to the layout.
+         * @param modifier [Modifier] to apply to the layout
          */
         @Composable
         public fun A2uiComponentScope.TypedContent(
@@ -2739,6 +2799,9 @@ public class A2uiBasicCatalogV1(
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the date/time
      *   input.
+     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
+     *   May only be set when the component is a direct descendant of a Row or Column. See
+     *   [WeightProperty].
      * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the date/time
      *   input. See [CheckRule].
      * * `value` (Dynamic String, required): The selected date and/or time value in ISO 8601 format.
@@ -2975,7 +3038,7 @@ public class A2uiBasicCatalogV1(
         }
 
         /**
-         * Renders the [DateTimeInput] component with resolved property values.
+         * Renders the [DateTimeInput] with its resolved property values.
          *
          * @param value selected date and/or time in UTC epoch milliseconds, or `null` if not yet
          *   set
@@ -2986,11 +3049,11 @@ public class A2uiBasicCatalogV1(
          * @param min minimum allowed date/time in UTC epoch milliseconds, or `null` if unbounded
          * @param max maximum allowed date/time in UTC epoch milliseconds, or `null` if unbounded
          * @param label text label describing the input, or `null` if none
-         * @param accessibility Accessibility attributes for the date/time input
+         * @param accessibility accessibility attributes for the date/time input
          * @param checks validation rules for this date/time input. When any [CheckRule.condition]
          *   is false, the input should display an error state and show the failing
          *   [CheckRule.message]. See [CheckRule].
-         * @param modifier [Modifier] applied to the component layout
+         * @param modifier [Modifier] to apply to the layout
          */
         @Composable
         public fun A2uiComponentScope.TypedContent(
