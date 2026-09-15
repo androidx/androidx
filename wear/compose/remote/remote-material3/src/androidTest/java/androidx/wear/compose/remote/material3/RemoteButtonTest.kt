@@ -66,7 +66,7 @@ import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.wear.compose.remote.material3.util.TestProfiles
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -83,6 +83,8 @@ class RemoteButtonTest {
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
             context = ApplicationProvider.getApplicationContext(),
         )
+
+    @get:Rule val captureRule = RemoteCaptureTestRule()
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     private val creationDisplayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
@@ -457,49 +459,43 @@ class RemoteButtonTest {
     }
 
     @Test
-    fun button_enabled_and_has_action_click_modifier_is_added() {
-        runBlocking {
-            val captureRule = RemoteCaptureTestRule()
-            val document =
-                captureRule.captureDocument(
-                    context = context,
-                    creationDisplayInfo = creationDisplayInfo,
+    fun button_enabled_and_has_action_click_modifier_is_added(): Unit = runTest {
+        val document =
+            captureRule.captureDocument(
+                context = context,
+                creationDisplayInfo = creationDisplayInfo,
+            ) {
+                RemoteButton(
+                    modifier = RemoteModifier.buttonSizeModifier(),
+                    onClick = testAction,
+                    enabled = true.rb,
                 ) {
-                    RemoteButton(
-                        modifier = RemoteModifier.buttonSizeModifier(),
-                        onClick = testAction,
-                        enabled = true.rb,
-                    ) {
-                        RemoteText("button_enabled".rs)
-                    }
+                    RemoteText("button_enabled".rs)
                 }
-            val actualContent = document.displayHierarchy()
+            }
+        val actualContent = document.displayHierarchy()
 
-            assertThat(actualContent.normalizeWhiteSpace()).contains("CLICK_MODIFIER")
-        }
+        assertThat(actualContent.normalizeWhiteSpace()).contains("CLICK_MODIFIER")
     }
 
     @Test
-    fun button_disabled_click_modifier_is_not_added() {
-        runBlocking {
-            val captureRule = RemoteCaptureTestRule()
-            val document =
-                captureRule.captureDocument(
-                    context = context,
-                    creationDisplayInfo = creationDisplayInfo,
+    fun button_disabled_click_modifier_is_not_added(): Unit = runTest {
+        val document =
+            captureRule.captureDocument(
+                context = context,
+                creationDisplayInfo = creationDisplayInfo,
+            ) {
+                RemoteButton(
+                    onClick = testAction,
+                    modifier = RemoteModifier.buttonSizeModifier(),
+                    enabled = false.rb,
                 ) {
-                    RemoteButton(
-                        onClick = testAction,
-                        modifier = RemoteModifier.buttonSizeModifier(),
-                        enabled = false.rb,
-                    ) {
-                        RemoteText("button_disabled".rs)
-                    }
+                    RemoteText("button_disabled".rs)
                 }
-            val actualContent = document.displayHierarchy()
+            }
+        val actualContent = document.displayHierarchy()
 
-            assertThat(actualContent.normalizeWhiteSpace()).doesNotContain("CLICK_MODIFIER")
-        }
+        assertThat(actualContent.normalizeWhiteSpace()).doesNotContain("CLICK_MODIFIER")
     }
 
     @Test
