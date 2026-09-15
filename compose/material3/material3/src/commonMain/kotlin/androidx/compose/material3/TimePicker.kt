@@ -282,6 +282,8 @@ public fun TimePicker(
  *   time picker in different states. See [TimePickerDefaults.vibrantColors].
  * @param layoutType the different [TimePickerLayoutType] supported by this time picker, it will
  *   change the position and sizing of different components of the time picker
+ *
+ * @material3expressive
  */
 @Composable
 public fun TimePicker(
@@ -341,6 +343,8 @@ public fun TimeInput(
  * @param modifier the [Modifier] to be applied to this time input
  * @param colors colors [TimeInputColors] that will be used to resolve the colors used for this time
  *   input in different states. See [TimeInputDefaults.vibrantColors].
+ *
+ * @material3expressive
  */
 @Composable
 public fun TimeInput(
@@ -370,6 +374,8 @@ public fun TimeInput(
  * @param modifier the [Modifier] to be applied to this time input
  * @param colors colors [TimeInputColors] that will be used to resolve the colors used for this time
  *   input in different states. See [TimeInputDefaults.vibrantColors].
+ *
+ * @material3expressive
  */
 @Composable
 public fun TimeInput(
@@ -410,6 +416,8 @@ public fun TimeInput(
  * @param modifier the [Modifier] to be applied to this time scroll picker
  * @param colors colors [TimePickerColors] that will be used to resolve the colors used for this
  *   time input in different states. See [TimePickerDefaults.vibrantColors].
+ *
+ * @material3expressive
  */
 @Composable
 public fun TimeScroll(
@@ -439,6 +447,8 @@ public fun TimeScroll(
  * @param modifier the [Modifier] to be applied to this time input
  * @param colors colors [TimePickerColors] that will be used to resolve the colors used for this
  *   time input in different states. See [TimePickerDefaults.vibrantColors].
+ *
+ * @material3expressive
  */
 @Composable
 public fun TimeScroll(
