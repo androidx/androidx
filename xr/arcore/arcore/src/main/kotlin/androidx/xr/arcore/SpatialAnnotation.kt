@@ -190,16 +190,18 @@ internal constructor(internal val runtimeSpatialAnnotation: RuntimeSpatialAnnota
      * State containing physical properties that update frame-to-frame.
      *
      * @property trackingState the [TrackingState] of the SpatialAnnotation
-     * @property centerPose the [Pose] of the center of the annotation's active physical state, the
-     *   +Y axis relative to the [centerPose] is equivalent to the normal of the bounded region
-     * @property quad the physical spatial geometry (in meters) residing on the XZ plane relative to
-     *   the [centerPose], this will only have a value when the spatial tracking mode is set to quad
+     * @property pose the [Pose] of the 2D plane origin where the annotation quad is rooted. The
+     *   local +Z axis relative to the [pose] is equivalent to the surface normal, with the quad
+     *   residing on the local XY plane
+     * @property quad the physical spatial geometry (in meters) residing on the local XY plane
+     *   relative to the [pose], this will only have a value when the spatial tracking mode is set
+     *   to quad
      * @property owner the [SpatialAnnotation] that owns this state
      */
     public class State
     internal constructor(
         public override val trackingState: TrackingState,
-        public val centerPose: Pose,
+        public val pose: Pose,
         public val quad: Quad?,
         public val owner: SpatialAnnotation,
     ) : Trackable.State {
@@ -207,28 +209,28 @@ internal constructor(internal val runtimeSpatialAnnotation: RuntimeSpatialAnnota
             if (this === other) return true
             if (other !is State) return false
             return trackingState == other.trackingState &&
-                centerPose == other.centerPose &&
+                pose == other.pose &&
                 quad == other.quad &&
                 owner == other.owner
         }
 
         override fun hashCode(): Int {
             var result = trackingState.hashCode()
-            result = 31 * result + centerPose.hashCode()
+            result = 31 * result + pose.hashCode()
             result = 31 * result + (quad?.hashCode() ?: 0)
             result = 31 * result + owner.hashCode()
             return result
         }
 
         override fun toString(): String =
-            "State(trackingState=$trackingState, centerPose=$centerPose, quad=$quad)"
+            "State(trackingState=$trackingState, pose=$pose, quad=$quad)"
     }
 
     private val _state =
         MutableStateFlow(
             State(
                 trackingState = runtimeSpatialAnnotation.trackingState.toTrackingState(),
-                centerPose = runtimeSpatialAnnotation.centerPose,
+                pose = runtimeSpatialAnnotation.pose,
                 quad = runtimeSpatialAnnotation.quad,
                 owner = this,
             )
@@ -245,7 +247,7 @@ internal constructor(internal val runtimeSpatialAnnotation: RuntimeSpatialAnnota
         _state.emit(
             State(
                 trackingState = runtimeSpatialAnnotation.trackingState.toTrackingState(),
-                centerPose = runtimeSpatialAnnotation.centerPose,
+                pose = runtimeSpatialAnnotation.pose,
                 quad = runtimeSpatialAnnotation.quad,
                 owner = this,
             )

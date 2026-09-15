@@ -34,7 +34,7 @@ internal class FakeRuntimeSpatialAnnotation(
     override var trackingState: TrackingState = TrackingState.TRACKING,
     override val id: SpatialAnnotationId = SpatialAnnotationId.fromString("box-1"),
     override var alignment: SpatialAnnotationQuadAlignment? = null,
-    override var centerPose: Pose = Pose(),
+    override var pose: Pose = Pose(),
     override var quad: Quad? =
         Quad.fromCorners(
             upperLeft = Vector2.Zero,

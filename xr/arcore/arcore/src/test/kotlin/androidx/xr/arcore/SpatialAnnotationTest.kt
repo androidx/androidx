@@ -174,7 +174,7 @@ class SpatialAnnotationTest {
         }
 
     @Test
-    fun update_centerPoseMatchesTestAnnotationCenterPose() =
+    fun update_poseMatchesTestAnnotationPose() =
         runTest(testDispatcher) {
             activityController.resume()
             val testAnnotation = TestSpatialAnnotation(TEST_ANNOTATION_ID)
@@ -187,13 +187,13 @@ class SpatialAnnotationTest {
             }
             advanceUntilIdle()
 
-            assertThat(underTest.single().state.value.centerPose).isEqualTo(Pose())
+            assertThat(underTest.single().state.value.pose).isEqualTo(Pose())
 
             val newPose = Pose(Vector3(1.0f, 2.0f, 3.0f), Quaternion(1.0f, 2.0f, 3.0f, 4.0f))
-            testAnnotation.centerPose = newPose
+            testAnnotation.pose = newPose
             advanceUntilIdle()
 
-            assertThat(underTest.single().state.value.centerPose).isEqualTo(newPose)
+            assertThat(underTest.single().state.value.pose).isEqualTo(newPose)
         }
 
     @Test
