@@ -19,6 +19,7 @@
 package androidx.camera.camera2.adapter
 
 import android.annotation.SuppressLint
+import androidx.camera.camera2.compat.workaround.isFlashAvailable
 import androidx.camera.camera2.config.CameraScope
 import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.impl.CameraProperties
@@ -46,8 +47,6 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
 import androidx.camera.core.ImageCapture.FLASH_MODE_ON
 import androidx.camera.core.InteropConfigurator
-import androidx.camera.core.LowLightBoostState
-import androidx.camera.core.TorchState
 import androidx.camera.core.imagecapture.CameraCapturePipeline
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
@@ -119,15 +118,11 @@ constructor(
 
     override fun enableTorch(torch: Boolean): ListenableFuture<Void> {
         if (
-            cameraProperties.metadata.supportsLowLightBoost &&
-                lowLightBoostControl.lowLightBoostStateLiveData.value != LowLightBoostState.OFF
+            cameraProperties.isFlashAvailable() &&
+                torch &&
+                cameraProperties.metadata.supportsLowLightBoost
         ) {
-            Camera2Logger.debug { "Unable to enable/disable torch when low-light boost is on." }
-            return Futures.immediateFailedFuture<Void>(
-                IllegalStateException(
-                    "Torch can not be enabled/disable when low-light boost is on!"
-                )
-            )
+            lowLightBoostControl.setLowLightBoostAsync(false)
         }
 
         return Futures.nonCancellationPropagating(
@@ -150,20 +145,12 @@ constructor(
             )
         }
 
+        if (lowLightBoost && cameraProperties.isFlashAvailable()) {
+            torchControl.setTorchAsync(false)
+        }
+
         return Futures.nonCancellationPropagating(
-            Futures.transformAsync(
-                if (torchControl.torchStateLiveData.value == TorchState.ON) {
-                    torchControl.setTorchAsync(false).asVoidListenableFuture()
-                } else {
-                    CompletableDeferred(Unit).apply { complete(Unit) }.asVoidListenableFuture()
-                },
-                {
-                    lowLightBoostControl
-                        .setLowLightBoostAsync(lowLightBoost)
-                        .asVoidListenableFuture()
-                },
-                CameraXExecutors.directExecutor(),
-            )
+            lowLightBoostControl.setLowLightBoostAsync(lowLightBoost).asVoidListenableFuture()
         )
     }
 
