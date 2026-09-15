@@ -51,17 +51,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.focus.Focusability
-import androidx.compose.ui.focus.requestFocusForChildInRootBounds
+import androidx.compose.ui.focus.requestFocusForChildInLocalBounds
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.SemanticsModifierNode
-import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
@@ -455,11 +452,13 @@ private class ButtonGroupNode(
             rowPlaceable.place(x, 0)
             // Request focus at the scroll position
             if (focusTargetModifierNode.focusState.hasFocus) {
+                // Round once, so the requested area stays a zero-width vertical line.
+                val focusLineX = (totalScroll + x).fastRoundToInt()
                 node.requestFocusForChildInLocalBounds(
-                    left = totalScroll + x,
-                    top = 0f,
-                    right = totalScroll + x,
-                    bottom = rowPlaceable.height.toFloat(),
+                    left = focusLineX,
+                    top = 0,
+                    right = focusLineX,
+                    bottom = rowPlaceable.height,
                 )
             }
         }
@@ -726,28 +725,3 @@ private class GappedMutableIntervalListBuilder<T> {
  * is too short to scroll, the focus line moves using different rules.
  */
 private const val ScrollableFocusLineProportionalThresholdFactor = 0.6
-
-/**
- * Attempts to request focus for the most suitable focusable child node that overlaps with the given
- * rect area ([left], [top], [right], [bottom]).
- *
- * The rectangle is interpreted in the coordinate space **relative to the local node's root**.
- *
- * @see requestFocusForChildInRootBounds to request focus for a rect relative to the Compose root
- */
-private fun DelegatableNode.requestFocusForChildInLocalBounds(
-    left: Float,
-    top: Float,
-    right: Float,
-    bottom: Float,
-) {
-    val rootOrigin = requireLayoutCoordinates().positionInRoot()
-    val x = rootOrigin.x
-    val y = rootOrigin.y
-    requestFocusForChildInRootBounds(
-        left = (x + left).fastRoundToInt(),
-        top = (y + top).fastRoundToInt(),
-        right = (x + right).fastRoundToInt(),
-        bottom = (y + bottom).fastRoundToInt(),
-    )
-}
