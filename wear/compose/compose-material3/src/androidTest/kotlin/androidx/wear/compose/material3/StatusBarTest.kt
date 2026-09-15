@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsIgnoringVisibility
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.derivedStateOf
@@ -103,7 +104,7 @@ class StatusBarTest {
         var showStatusBar = false
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     showStatusBar =
                         LocalScaffoldState.current?.screenContent?.currentScreenShowStatusBar?.value
                             ?: false
@@ -122,7 +123,7 @@ class StatusBarTest {
         var resolvedStatus: Boolean? = null
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     resolvedStatus =
                         LocalScaffoldState.current?.screenContent?.currentScreenShowStatusBar?.value
                     Box(modifier = Modifier.fillMaxSize())
@@ -137,7 +138,7 @@ class StatusBarTest {
         var resolvedStatus: Boolean? = null
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides false) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     resolvedStatus =
                         LocalScaffoldState.current?.screenContent?.currentScreenShowStatusBar?.value
                     Box(modifier = Modifier.fillMaxSize())
@@ -149,15 +150,19 @@ class StatusBarTest {
 
     @Test
     fun appScaffold_whenNotSupported_displaysLocalTimeText() {
+        var scaffoldState: ScaffoldState? = null
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides false) {
-                AppScaffold(isStatusBarEnabled = true, timeText = { Text("10:10") }) {
+                AppScaffold(timeText = { Text("10:10") }) {
+                    scaffoldState = LocalScaffoldState.current
                     Box(modifier = Modifier.fillMaxSize())
                 }
             }
         }
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("10:10").assertIsDisplayed()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertFalse(state.screenContent.shouldAppWindowShowStatusBar.value)
     }
 
     @Test
@@ -166,9 +171,9 @@ class StatusBarTest {
         var defaultTopPadding = 0.dp
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides false) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     defaultTopPadding = ScreenScaffoldDefaults.contentPadding.calculateTopPadding()
-                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) { contentPadding ->
+                    ScreenScaffold { contentPadding ->
                         resolvedTopPadding = contentPadding.calculateTopPadding()
                         Box(modifier = Modifier.fillMaxSize())
                     }
@@ -188,9 +193,9 @@ class StatusBarTest {
         var scaffoldState: ScaffoldState? = null
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {
+                    ScreenScaffold(timeText = { TimeText() }) {
                         Box(modifier = Modifier.fillMaxSize())
                     }
                 }
@@ -198,6 +203,53 @@ class StatusBarTest {
         }
         composeTestRule.waitForIdle()
         Assert.assertEquals(false, scaffoldState?.screenContent?.currentScreenShowStatusBar?.value)
+    }
+
+    @Test
+    fun screenScaffold_customTimeText_disablesStatusBar() {
+        var scaffoldState: ScaffoldState? = null
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold(timeText = { TimeText() }) {
+                        Box(modifier = Modifier.fillMaxSize())
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(false, scaffoldState?.screenContent?.currentScreenShowStatusBar?.value)
+    }
+
+    @Test
+    fun screenScaffold_emptyTimeText_disablesStatusBar() {
+        var scaffoldState: ScaffoldState? = null
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold(timeText = {}) { Box(modifier = Modifier.fillMaxSize()) }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(false, scaffoldState?.screenContent?.currentScreenShowStatusBar?.value)
+    }
+
+    @Test
+    fun screenScaffold_defaultTimeText_enablesStatusBar() {
+        var scaffoldState: ScaffoldState? = null
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(true, scaffoldState?.screenContent?.currentScreenShowStatusBar?.value)
     }
 
     @Test
@@ -231,11 +283,8 @@ class StatusBarTest {
                 LocalStatusBarEnabledForTest provides true,
                 LocalView provides testView,
             ) {
-                AppScaffold(isStatusBarEnabled = true) {
-                    ScreenScaffold(
-                        scrollInfoProvider = mockScrollInfo,
-                        statusBarMode = StatusBarMode.Inherit,
-                    ) {
+                AppScaffold {
+                    ScreenScaffold(scrollInfoProvider = mockScrollInfo) {
                         Box(modifier = Modifier.fillMaxSize())
                     }
                 }
@@ -326,11 +375,8 @@ class StatusBarTest {
                 LocalStatusBarEnabledForTest provides true,
                 LocalView provides testView,
             ) {
-                AppScaffold(isStatusBarEnabled = true) {
-                    ScreenScaffold(
-                        scrollInfoProvider = mockScrollInfo,
-                        statusBarMode = StatusBarMode.Inherit,
-                    ) {
+                AppScaffold {
+                    ScreenScaffold(scrollInfoProvider = mockScrollInfo) {
                         Box(modifier = Modifier.fillMaxSize())
                     }
                 }
@@ -391,7 +437,7 @@ class StatusBarTest {
                 LocalStatusBarEnabledForTest provides true,
                 LocalView provides testView,
             ) {
-                AppScaffold(isStatusBarEnabled = false) { Box(modifier = Modifier.fillMaxSize()) }
+                AppScaffold(timeText = {}) { Box(modifier = Modifier.fillMaxSize()) }
             }
         }
 
@@ -416,7 +462,7 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     val density = LocalDensity.current
                     val insets =
                         androidx.compose.foundation.layout.WindowInsets.statusBarsIgnoringVisibility
@@ -425,17 +471,14 @@ class StatusBarTest {
 
                     // Background screen with statusBarMode = Enabled and contentPadding = 0.dp
                     // so that top padding is entirely driven by status bar insets
-                    ScreenScaffold(
-                        statusBarMode = StatusBarMode.Enabled,
-                        contentPadding = PaddingValues(0.dp),
-                    ) { contentPadding ->
+                    ScreenScaffold(contentPadding = PaddingValues(0.dp)) { contentPadding ->
                         backgroundScreenTopPadding = contentPadding.calculateTopPadding()
                         Box(modifier = Modifier.fillMaxSize())
                     }
 
                     // Overlay screen (e.g. Dialog) with statusBarMode = Disabled
                     if (showOverlayScreen) {
-                        ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {
+                        ScreenScaffold(timeText = { TimeText() }) {
                             Box(modifier = Modifier.fillMaxSize())
                         }
                     }
@@ -472,7 +515,7 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     val density = LocalDensity.current
                     val insets =
                         androidx.compose.foundation.layout.WindowInsets.statusBarsIgnoringVisibility
@@ -480,17 +523,15 @@ class StatusBarTest {
                     expectedTopPadding = maxOf(statusBarTopInset, customTopPadding)
 
                     // Background screen with statusBarMode = Enabled and custom contentPadding
-                    ScreenScaffold(
-                        statusBarMode = StatusBarMode.Enabled,
-                        contentPadding = PaddingValues(top = customTopPadding),
-                    ) { contentPadding ->
+                    ScreenScaffold(contentPadding = PaddingValues(top = customTopPadding)) {
+                        contentPadding ->
                         backgroundScreenTopPadding = contentPadding.calculateTopPadding()
                         Box(modifier = Modifier.fillMaxSize())
                     }
 
                     // Overlay screen (e.g. Dialog) with statusBarMode = Disabled
                     if (showOverlayScreen) {
-                        ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {
+                        ScreenScaffold(timeText = { TimeText() }) {
                             Box(modifier = Modifier.fillMaxSize())
                         }
                     }
@@ -524,9 +565,9 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     ScreenScaffold(
-                        statusBarMode = StatusBarMode.Disabled,
+                        timeText = { TimeText() },
                         contentPadding = PaddingValues(0.dp),
                     ) { contentPadding ->
                         observedPaddings.add(contentPadding.calculateTopPadding())
@@ -552,17 +593,14 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     if (!showDisabledScreen) {
-                        ScreenScaffold(
-                            statusBarMode = StatusBarMode.Enabled,
-                            contentPadding = PaddingValues(0.dp),
-                        ) {
+                        ScreenScaffold(contentPadding = PaddingValues(0.dp)) {
                             Box(modifier = Modifier.fillMaxSize())
                         }
                     } else {
                         ScreenScaffold(
-                            statusBarMode = StatusBarMode.Disabled,
+                            timeText = { TimeText() },
                             contentPadding = PaddingValues(0.dp),
                         ) { contentPadding ->
                             observedDisabledPaddings.add(contentPadding.calculateTopPadding())
@@ -595,17 +633,14 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     // Outer container (e.g. DialogBase) with StatusBarMode.Disabled
                     ScreenScaffold(
-                        statusBarMode = StatusBarMode.Disabled,
+                        timeText = { TimeText() },
                         contentPadding = PaddingValues(0.dp),
                     ) {
                         // Inner screen with StatusBarMode.Inherit
-                        ScreenScaffold(
-                            statusBarMode = StatusBarMode.Inherit,
-                            contentPadding = PaddingValues(0.dp),
-                        ) { contentPadding ->
+                        ScreenScaffold(contentPadding = PaddingValues(0.dp)) { contentPadding ->
                             observedInnerPaddings.add(contentPadding.calculateTopPadding())
                             Box(modifier = Modifier.fillMaxSize())
                         }
@@ -633,9 +668,9 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                    ScreenScaffold {
                         Dialog(visible = showDialog, onDismissRequest = { showDialog = false }) {
                             Box(modifier = Modifier.fillMaxSize())
                         }
@@ -681,13 +716,11 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                    ScreenScaffold {
                         Dialog(visible = showDialog, onDismissRequest = { showDialog = false }) {
-                            ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {
-                                Box(modifier = Modifier.fillMaxSize())
-                            }
+                            ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
                         }
                     }
                 }
@@ -704,43 +737,15 @@ class StatusBarTest {
     }
 
     @Test
-    fun dialog_withInnerScreenScaffoldEnabled_overridesDialog() {
-        var scaffoldState: ScaffoldState? = null
-        var showDialog by mutableStateOf(true)
-
-        composeTestRule.setContent {
-            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
-                    scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {
-                        Dialog(visible = showDialog, onDismissRequest = { showDialog = false }) {
-                            ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
-                                Box(modifier = Modifier.fillMaxSize())
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        composeTestRule.waitForIdle()
-        // Inner screen with explicit Enabled must override Dialog -> currentScreenShowStatusBar
-        // is true
-        Assert.assertEquals(
-            "Inner ScreenScaffold with explicit Enabled must override Dialog",
-            true,
-            scaffoldState?.screenContent?.currentScreenShowStatusBar?.value,
-        )
-    }
-
-    @Test
     fun dialog_whenOpen_doesNotTriggerAppScaffoldBackgroundTimeText() {
         var showDialog by mutableStateOf(false)
+        var scaffoldState: ScaffoldState? = null
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true, timeText = { Text("App Time") }) {
-                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                AppScaffold {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold {
                         Dialog(visible = showDialog, onDismissRequest = { showDialog = false }) {
                             Box(modifier = Modifier.fillMaxSize())
                         }
@@ -750,14 +755,15 @@ class StatusBarTest {
         }
 
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText("App Time").assertDoesNotExist()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertTrue(state.screenContent.shouldAppWindowShowStatusBar.value)
 
         composeTestRule.runOnUiThread { showDialog = true }
         composeTestRule.waitForIdle()
 
         // When dialog opens, AppScaffold in the background must NOT suddenly start drawing local
         // TimeText
-        composeTestRule.onNodeWithText("App Time").assertDoesNotExist()
+        Assert.assertTrue(state.screenContent.shouldAppWindowShowStatusBar.value)
     }
 
     @Test
@@ -766,14 +772,14 @@ class StatusBarTest {
         var expectedStatusBarTopPercent = 0.dp
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     val density = LocalDensity.current
                     val insets =
                         androidx.compose.foundation.layout.WindowInsets.statusBarsIgnoringVisibility
                     expectedStatusBarTopPercent =
                         insets.asPaddingValues(density).calculateTopPadding()
 
-                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) { contentPadding ->
+                    ScreenScaffold { contentPadding ->
                         resolvedTopPadding = contentPadding.calculateTopPadding()
                         Box(modifier = Modifier.fillMaxSize())
                     }
@@ -794,9 +800,9 @@ class StatusBarTest {
         var defaultTopPadding = 0.dp
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     defaultTopPadding = ScreenScaffoldDefaults.contentPadding.calculateTopPadding()
-                    ScreenScaffold(statusBarMode = StatusBarMode.Disabled) { contentPadding ->
+                    ScreenScaffold(timeText = { TimeText() }) { contentPadding ->
                         resolvedTopPadding = contentPadding.calculateTopPadding()
                         Box(modifier = Modifier.fillMaxSize())
                     }
@@ -886,10 +892,10 @@ class StatusBarTest {
         var scaffoldState: ScaffoldState? = null
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
-                        ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {
+                    ScreenScaffold {
+                        ScreenScaffold(timeText = { TimeText() }) {
                             Box(modifier = Modifier.fillMaxSize())
                         }
                     }
@@ -1027,8 +1033,8 @@ class StatusBarTest {
         var compositionCount = 0
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
-                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                AppScaffold {
+                    ScreenScaffold {
                         compositionCount++
                         Box(modifier = Modifier.fillMaxSize())
                     }
@@ -1050,12 +1056,12 @@ class StatusBarTest {
         var defaultTopPadding = 0.dp
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     defaultTopPadding = ScreenScaffoldDefaults.contentPadding.calculateTopPadding()
                     val insets =
                         androidx.compose.foundation.layout.WindowInsets.statusBarsIgnoringVisibility
                     Box(modifier = Modifier.fillMaxSize().consumeWindowInsets(insets)) {
-                        ScreenScaffold(statusBarMode = StatusBarMode.Enabled) { contentPadding ->
+                        ScreenScaffold { contentPadding ->
                             resolvedTopPadding = contentPadding.calculateTopPadding()
                             Box(modifier = Modifier.fillMaxSize())
                         }
@@ -1200,17 +1206,13 @@ class StatusBarTest {
                 LocalStatusBarEnabledForTest provides true,
                 LocalView provides appWindowView,
             ) {
-                AppScaffold(isStatusBarEnabled = true) {
-                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
-                        Box(modifier = Modifier.fillMaxSize())
-                    }
+                AppScaffold {
+                    ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
 
                     if (showDialog) {
                         // Provide dialog's LocalView inside dialog content
                         CompositionLocalProvider(LocalView provides dialogView) {
-                            ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
-                                Box(modifier = Modifier.fillMaxSize())
-                            }
+                            ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
                         }
                     }
                 }
@@ -1277,11 +1279,7 @@ class StatusBarTest {
                     LocalStatusBarEnabledForTest provides true,
                     LocalView provides appWindowView,
                 ) {
-                    AppScaffold(isStatusBarEnabled = true) {
-                        ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
-                            Box(modifier = Modifier.fillMaxSize())
-                        }
-                    }
+                    AppScaffold { ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) } }
                 }
             }
         }
@@ -1320,11 +1318,7 @@ class StatusBarTest {
                 LocalStatusBarEnabledForTest provides true,
                 LocalView provides currentAppWindowView,
             ) {
-                AppScaffold(isStatusBarEnabled = true) {
-                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
-                        Box(modifier = Modifier.fillMaxSize())
-                    }
-                }
+                AppScaffold { ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) } }
             }
         }
 
@@ -1670,22 +1664,20 @@ class StatusBarTest {
         dialogView.mockRootWindowInsets = mockInsets
 
         var showDialog by mutableStateOf(false)
+        var scaffoldState: ScaffoldState? = null
 
         composeTestRule.setContent {
             CompositionLocalProvider(
                 LocalStatusBarEnabledForTest provides true,
                 LocalView provides appWindowView,
             ) {
-                AppScaffold(isStatusBarEnabled = true, timeText = { Text("AppTimeText") }) {
-                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
-                        Box(modifier = Modifier.fillMaxSize())
-                    }
+                AppScaffold {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
 
                     if (showDialog) {
                         CompositionLocalProvider(LocalView provides dialogView) {
-                            ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {
-                                Box(modifier = Modifier.fillMaxSize())
-                            }
+                            ScreenScaffold(timeText = {}) { Box(modifier = Modifier.fillMaxSize()) }
                         }
                     }
                 }
@@ -1693,10 +1685,11 @@ class StatusBarTest {
         }
 
         composeTestRule.waitForIdle()
-        // App window has status bar enabled -> AppTimeText is NOT displayed
-        composeTestRule.onNodeWithText("AppTimeText").assertDoesNotExist()
+        val state = checkNotNull(scaffoldState)
+        // App window has status bar enabled -> shouldAppWindowShowStatusBar is true
+        Assert.assertTrue(state.screenContent.shouldAppWindowShowStatusBar.value)
 
-        // Open Dialog with StatusBarMode.Disabled
+        // Open Dialog with empty timeText (Disabled)
         composeTestRule.runOnUiThread { showDialog = true }
         composeTestRule.waitForIdle()
 
@@ -1707,22 +1700,22 @@ class StatusBarTest {
         )
 
         // But local AppTimeText in AppScaffold must STILL NOT be displayed!
-        composeTestRule.onNodeWithText("AppTimeText").assertDoesNotExist()
+        Assert.assertTrue(state.screenContent.shouldAppWindowShowStatusBar.value)
     }
 
     @Test
     fun multiWindow_realDialogWithDisabledStatusBar_doesNotShowLocalTimeTextInAppScaffold() {
         var showDialog by mutableStateOf(false)
+        var scaffoldState: ScaffoldState? = null
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true, timeText = { Text("AppTimeText") }) {
-                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
-                        Box(modifier = Modifier.fillMaxSize())
-                    }
+                AppScaffold {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
 
                     Dialog(visible = showDialog, onDismissRequest = { showDialog = false }) {
-                        ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {
+                        ScreenScaffold(timeText = {}) {
                             Box(modifier = Modifier.fillMaxSize()) { Text("DialogContent") }
                         }
                     }
@@ -1731,11 +1724,12 @@ class StatusBarTest {
         }
 
         composeTestRule.waitForIdle()
-        // App window has status bar enabled -> AppTimeText is NOT displayed
-        composeTestRule.onNodeWithText("AppTimeText").assertDoesNotExist()
+        val state = checkNotNull(scaffoldState)
+        // App window has status bar enabled
+        Assert.assertTrue(state.screenContent.shouldAppWindowShowStatusBar.value)
         composeTestRule.onNodeWithText("DialogContent").assertDoesNotExist()
 
-        // Open Real Dialog with StatusBarMode.Disabled
+        // Open Real Dialog with empty timeText (Disabled)
         composeTestRule.runOnUiThread { showDialog = true }
         composeTestRule.waitForIdle()
 
@@ -1744,14 +1738,14 @@ class StatusBarTest {
 
         // Local AppTimeText in AppScaffold must STILL NOT be displayed because AppScaffold's
         // window status bar remains enabled for the app window
-        composeTestRule.onNodeWithText("AppTimeText").assertDoesNotExist()
+        Assert.assertTrue(state.screenContent.shouldAppWindowShowStatusBar.value)
 
         // Dismiss Dialog
         composeTestRule.runOnUiThread { showDialog = false }
         composeTestRule.waitForIdle()
 
         composeTestRule.onNodeWithText("DialogContent").assertDoesNotExist()
-        composeTestRule.onNodeWithText("AppTimeText").assertDoesNotExist()
+        Assert.assertTrue(state.screenContent.shouldAppWindowShowStatusBar.value)
     }
 
     @Test
@@ -1955,9 +1949,9 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                    ScreenScaffold {
                         if (showStepper) {
                             Stepper(
                                 value = 2f,
@@ -1995,10 +1989,10 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
                     CompositionLocalProvider(LocalScreenIsActive provides screenIsActive) {
-                        ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                        ScreenScaffold {
                             Stepper(
                                 value = 2f,
                                 onValueChange = {},
@@ -2103,13 +2097,9 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold(
-                        statusBarMode = StatusBarMode.Enabled,
-                        scrollInfoProvider = mockScrollInfo,
-                        timeText = { Text("AppTimeText") },
-                    ) {
+                    ScreenScaffold(scrollInfoProvider = mockScrollInfo) {
                         Dialog(visible = showDialog, onDismissRequest = { showDialog = false }) {
                             Text("DialogContent")
                         }
@@ -2147,9 +2137,9 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                    ScreenScaffold {
                         Dialog(visible = showDialog, onDismissRequest = { showDialog = false }) {
                             Text("DialogContent")
                         }
@@ -2208,12 +2198,9 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold(
-                        statusBarMode = StatusBarMode.Enabled,
-                        scrollInfoProvider = mockScrollInfo,
-                    ) {
+                    ScreenScaffold(scrollInfoProvider = mockScrollInfo) {
                         if (showStepper) {
                             Stepper(
                                 value = 2f,
@@ -2232,7 +2219,6 @@ class StatusBarTest {
         composeTestRule.waitForIdle()
         val state = checkNotNull(scaffoldState)
         Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
-
         composeTestRule.runOnUiThread { showStepper = true }
         composeTestRule.waitForIdle()
         Assert.assertFalse(state.screenContent.currentScreenShowStatusBar.value)
@@ -2259,12 +2245,9 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold(
-                        statusBarMode = StatusBarMode.Enabled,
-                        scrollInfoProvider = mockScrollInfo,
-                    ) {
+                    ScreenScaffold(scrollInfoProvider = mockScrollInfo) {
                         if (showTimePicker) {
                             TimePicker(initialTime = LocalTime.of(10, 30), onTimePicked = {})
                         }
@@ -2275,7 +2258,6 @@ class StatusBarTest {
         composeTestRule.waitForIdle()
         val state = checkNotNull(scaffoldState)
         Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
-
         composeTestRule.runOnUiThread { showTimePicker = true }
         composeTestRule.waitForIdle()
         Assert.assertFalse(state.screenContent.currentScreenShowStatusBar.value)
@@ -2302,12 +2284,9 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold(
-                        statusBarMode = StatusBarMode.Enabled,
-                        scrollInfoProvider = mockScrollInfo,
-                    ) {
+                    ScreenScaffold(scrollInfoProvider = mockScrollInfo) {
                         if (showDatePicker) {
                             DatePicker(initialDate = LocalDate.of(2026, 1, 1), onDatePicked = {})
                         }
@@ -2353,17 +2332,14 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
                     CompositionLocalProvider(LocalScreenIsActive provides (activeScreen == "A")) {
-                        ScreenScaffold(
-                            statusBarMode = StatusBarMode.Enabled,
-                            scrollInfoProvider = scrollInfoA,
-                        ) {}
+                        ScreenScaffold(scrollInfoProvider = scrollInfoA) {}
                     }
                     CompositionLocalProvider(LocalScreenIsActive provides (activeScreen == "B")) {
                         ScreenScaffold(
-                            statusBarMode = StatusBarMode.Disabled,
+                            timeText = { TimeText() },
                             scrollInfoProvider = scrollInfoB,
                         ) {}
                     }
@@ -2403,11 +2379,11 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
                     if (showScreen) {
                         ScreenScaffold(
-                            statusBarMode = StatusBarMode.Disabled,
+                            timeText = { TimeText() },
                             scrollInfoProvider = mockScrollInfo,
                         ) {}
                     }
@@ -2435,9 +2411,12 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = appShowStatusBar) {
+                val emptyTimeText: @Composable () -> Unit = {}
+                AppScaffold(
+                    timeText = if (appShowStatusBar) AppScaffoldDefaults.timeText else emptyTimeText
+                ) {
                     scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {}
+                    ScreenScaffold {}
                 }
             }
         }
@@ -2460,7 +2439,7 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = false) {
+                AppScaffold(timeText = {}) {
                     scaffoldState = LocalScaffoldState.current
                     Box(modifier = Modifier.fillMaxSize())
                 }
@@ -2479,9 +2458,9 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                    ScreenScaffold {
                         if (suppress) {
                             StatusBarSuppression()
                         }
@@ -2597,9 +2576,9 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                    ScreenScaffold {
                         if (showTimePicker) {
                             TimePicker(initialTime = LocalTime.of(10, 30), onTimePicked = {})
                         } else {
@@ -2662,9 +2641,9 @@ class StatusBarTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(isStatusBarEnabled = true) {
+                AppScaffold {
                     scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                    ScreenScaffold {
                         if (showDatePicker) {
                             DatePicker(initialDate = LocalDate.of(2026, 1, 1), onDatePicked = {})
                         } else {

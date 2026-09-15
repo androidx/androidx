@@ -73,7 +73,7 @@ public fun StatusBarSuppression() {
 }
 
 /** [CompositionLocal] to determine if the system status bar is enabled on the device. */
-public val LocalStatusBarEnabled: CompositionLocal<Boolean> =
+internal val LocalStatusBarEnabled: CompositionLocal<Boolean> =
     compositionLocalWithComputedDefaultOf {
         isStatusBarEnabled(LocalContext.currentValue.applicationContext)
     }
@@ -81,19 +81,19 @@ public val LocalStatusBarEnabled: CompositionLocal<Boolean> =
 /** Represents the status bar display mode for a screen within [ScreenScaffold]. */
 @Immutable
 @JvmInline
-public value class StatusBarMode internal constructor(internal val value: Int) {
-    public companion object {
+internal value class StatusBarMode internal constructor(internal val value: Int) {
+    internal companion object {
         /**
          * Inherits the status bar mode from the underlying screen in the screen stack, or falls
          * back to the [AppScaffold] setting if no screen in the stack specifies a mode.
          */
-        public val Inherit: StatusBarMode = StatusBarMode(0)
+        internal val Inherit: StatusBarMode = StatusBarMode(0)
 
         /** Explicitly enables the system status bar overlay for this screen. */
-        public val Enabled: StatusBarMode = StatusBarMode(1)
+        internal val Enabled: StatusBarMode = StatusBarMode(1)
 
         /** Explicitly disables the system status bar overlay for this screen. */
-        public val Disabled: StatusBarMode = StatusBarMode(2)
+        internal val Disabled: StatusBarMode = StatusBarMode(2)
     }
 
     override fun toString(): String =
