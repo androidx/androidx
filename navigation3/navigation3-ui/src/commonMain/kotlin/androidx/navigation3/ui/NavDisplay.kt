@@ -33,7 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.computedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateMapOf
@@ -619,13 +619,13 @@ public fun <T : Any> NavDisplay(
 
     val inPredictiveBackGesturePhase by
         remember(previousScene, navigationEventState) {
-            derivedStateOf {
+            computedStateOf {
                 navigationEventState.transitionState is InProgress && previousScene != null
             }
         }
     val swipeEdge by
         remember(navigationEventState) {
-            derivedStateOf {
+            computedStateOf {
                 val state = navigationEventState.transitionState
                 if (state is InProgress) state.latestEvent.swipeEdge else NavigationEvent.EDGE_NONE
             }

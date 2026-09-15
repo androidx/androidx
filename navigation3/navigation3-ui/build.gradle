@@ -45,7 +45,7 @@ androidXMultiplatform {
             api(project(":navigation3:navigation3-runtime"))
             api("androidx.navigationevent:navigationevent-compose:1.1.1")
             api("androidx.compose.animation:animation:1.13.0-alpha03")
-            api("androidx.compose.runtime:runtime:1.10.0")
+            api("androidx.compose.runtime:runtime:1.13.0-alpha03")
             api("androidx.compose.runtime:runtime-saveable:1.10.0")
             api("androidx.compose.ui:ui:1.10.0")
             api("androidx.savedstate:savedstate:1.4.0")
