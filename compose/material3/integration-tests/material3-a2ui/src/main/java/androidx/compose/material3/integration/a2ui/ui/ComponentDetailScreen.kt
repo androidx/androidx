@@ -67,8 +67,8 @@ import androidx.compose.material3.integration.a2ui.ui.samples.AudioPlayerSample
 import androidx.compose.material3.integration.a2ui.ui.samples.ButtonSample
 import androidx.compose.material3.integration.a2ui.ui.samples.CardSample
 import androidx.compose.material3.integration.a2ui.ui.samples.CheckBoxSample
+import androidx.compose.material3.integration.a2ui.ui.samples.ChoicePickerSample
 import androidx.compose.material3.integration.a2ui.ui.samples.ColumnSample
-import androidx.compose.material3.integration.a2ui.ui.samples.ComingSoonSample
 import androidx.compose.material3.integration.a2ui.ui.samples.DateTimeInputSample
 import androidx.compose.material3.integration.a2ui.ui.samples.DividerSample
 import androidx.compose.material3.integration.a2ui.ui.samples.IconSample
@@ -410,10 +410,8 @@ private fun ComponentDetailTopBar(
             }
         },
         actions = {
-            if (component.isSupported) {
-                IconButton(onClick = onShowJson) {
-                    Icon(imageVector = CodeIcon, contentDescription = "View A2UI JSON")
-                }
+            IconButton(onClick = onShowJson) {
+                Icon(imageVector = CodeIcon, contentDescription = "View A2UI JSON")
             }
         },
     )
@@ -442,33 +440,23 @@ private fun ComponentPreviewCard(
                     .padding(16.dp),
             contentAlignment = Alignment.Center,
         ) {
-            if (component.isSupported) {
-                if (surfaceModel != null) {
-                    val surfaceModifier =
-                        when (component) {
-                            UiComponent.ROW ->
-                                Modifier.fillMaxWidth()
-                                    .wrapContentHeight(Alignment.CenterVertically)
-                            UiComponent.COLUMN,
-                            UiComponent.LIST,
-                            UiComponent.DIVIDER -> Modifier.fillMaxSize()
-                            UiComponent.TABS ->
-                                Modifier.fillMaxWidth()
-                                    .wrapContentHeight(Alignment.CenterVertically)
-                            UiComponent.SLIDER,
-                            UiComponent.DATE_TIME_INPUT ->
-                                Modifier.fillMaxWidth()
-                                    .wrapContentHeight(Alignment.CenterVertically)
-                            else -> Modifier.wrapContentSize(Alignment.Center)
-                        }
-                    A2uiSurface(surfaceModel = surfaceModel, modifier = surfaceModifier)
-                }
-            } else {
-                Text(
-                    text = "Preview coming soon",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+            if (surfaceModel != null) {
+                val surfaceModifier =
+                    when (component) {
+                        UiComponent.ROW ->
+                            Modifier.fillMaxWidth().wrapContentHeight(Alignment.CenterVertically)
+                        UiComponent.COLUMN,
+                        UiComponent.LIST,
+                        UiComponent.DIVIDER -> Modifier.fillMaxSize()
+                        UiComponent.TABS ->
+                            Modifier.fillMaxWidth().wrapContentHeight(Alignment.CenterVertically)
+                        UiComponent.SLIDER,
+                        UiComponent.DATE_TIME_INPUT,
+                        UiComponent.CHOICE_PICKER ->
+                            Modifier.fillMaxWidth().wrapContentHeight(Alignment.CenterVertically)
+                        else -> Modifier.wrapContentSize(Alignment.Center)
+                    }
+                A2uiSurface(surfaceModel = surfaceModel, modifier = surfaceModifier)
             }
         }
     }
@@ -497,6 +485,6 @@ private fun ComponentControlsSection(
         UiComponent.AUDIO_PLAYER -> AudioPlayerSample(onPayloadUpdated = onPayloadUpdated)
         UiComponent.TEXT_FIELD -> TextFieldSample(onPayloadUpdated = onPayloadUpdated)
         UiComponent.MODAL -> ModalSample(onPayloadUpdated = onPayloadUpdated)
-        UiComponent.CHOICE_PICKER -> ComingSoonSample(component = component)
+        UiComponent.CHOICE_PICKER -> ChoicePickerSample(onPayloadUpdated = onPayloadUpdated)
     }
 }
