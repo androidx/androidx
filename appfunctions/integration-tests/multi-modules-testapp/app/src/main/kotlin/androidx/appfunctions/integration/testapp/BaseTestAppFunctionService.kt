@@ -34,7 +34,7 @@ import androidx.appfunction.integration.test.sharedschema.Owner
 import androidx.appfunction.integration.test.sharedschema.ProxyTypesWrapper
 import androidx.appfunction.integration.test.sharedschema.ResourceFunctionResponse
 import androidx.appfunction.integration.test.sharedschema.UpdateNoteParams
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionIntValueConstraint
 import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.AppFunctionService
@@ -59,18 +59,20 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
      * @param num2 The second number.
      * @return The sum of the two numbers.
      */
-    @AppFunction(isDescribedByKDoc = true) internal fun add(num1: Long, num2: Long) = num1 + num2
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    internal fun add(num1: Long, num2: Long) = num1 + num2
 
-    @AppFunction internal fun echoProxyTypes(value: ProxyTypesWrapper): ProxyTypesWrapper = value
+    @AppFunctionDeclaration
+    internal fun echoProxyTypes(value: ProxyTypesWrapper): ProxyTypesWrapper = value
 
-    @AppFunction
+    @AppFunctionDeclaration
     internal fun doThrow() {
         throw AppFunctionInvalidArgumentException("invalid")
     }
 
-    @AppFunction internal fun voidFunction() {}
+    @AppFunctionDeclaration internal fun voidFunction() {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     internal fun createNoteSimple(createNoteParams: CreateNoteParams): Note {
         return Note(
             title = createNoteParams.title,
@@ -80,7 +82,7 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
         )
     }
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun updateNote(updateNoteParams: UpdateNoteParams): Note {
         return Note(
             title =
@@ -96,7 +98,7 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
         )
     }
 
-    @AppFunction
+    @AppFunctionDeclaration
     internal fun getOpenableNote(createNoteParams: CreateNoteParams): OpenableNote {
         return OpenableNote(
             title = createNoteParams.title,
@@ -108,14 +110,14 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
         )
     }
 
-    @AppFunction
+    @AppFunctionDeclaration
     internal fun echoClassWithOptionalValues(
         classWithOptionalValues: ClassWithOptionalValues
     ): ClassWithOptionalValues {
         return classWithOptionalValues
     }
 
-    @AppFunction
+    @AppFunctionDeclaration
     internal fun enumValueFunction(
         @AppFunctionIntValueConstraint(enumValues = [0, 1]) intEnum: Int,
         @AppFunctionStringValueConstraint(enumValues = ["A", "B"]) stringEnum: String,
@@ -124,7 +126,7 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
         throw UnsupportedOperationException("Not implemented")
     }
 
-    @AppFunction
+    @AppFunctionDeclaration
     internal fun echoFunctionWithOptionalParameters(
         // Int
         optionalNonNullInt: Int = 1,
@@ -210,7 +212,7 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
         )
     }
 
-    @AppFunction
+    @AppFunctionDeclaration
     internal fun getFilesData(): FilesData {
         return FilesData(
             readOnlyUri =
@@ -253,19 +255,19 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
         )
     }
 
-    @AppFunction
+    @AppFunctionDeclaration
     internal suspend fun longRunningFunction(): String {
         delay(500)
         return "Completed"
     }
 
-    @AppFunction
+    @AppFunctionDeclaration
     @Deprecated("deprecatedFunction is deprecated")
     internal fun deprecatedFunction() {}
 
-    @AppFunction(isEnabled = false) internal fun functionDisabledByDefault() {}
+    @AppFunctionDeclaration(isEnabled = false) internal fun functionDisabledByDefault() {}
 
-    @AppFunction(isEnabled = true) internal fun functionEnabledByDefault() {}
+    @AppFunctionDeclaration(isEnabled = true) internal fun functionEnabledByDefault() {}
 
     /**
      * Create a note.
@@ -275,7 +277,7 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
      * @return [androidx.appfunction.integration.test.sharedschema.CreateNoteAppFunction.Response]
      *   as response.
      */
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     override suspend fun createNote(
         parameters: CreateNoteAppFunction.Parameters,
         tag: String?,
@@ -286,7 +288,7 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
         )
     }
 
-    @AppFunction(isEnabled = false)
+    @AppFunctionDeclaration(isEnabled = false)
     internal suspend fun createNoteDisabled(
         parameters: CreateNoteAppFunction.Parameters,
         tag: String?,
@@ -297,24 +299,24 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
         )
     }
 
-    @AppFunction
+    @AppFunctionDeclaration
     internal fun oneOfFunction(oneOfList: List<OneOfSealedInterface>) = oneOfList.map {
         OneOfSealedNestedSerializable(sealedInterface = it)
     }
 
     // TODO: b/542935459 - Add additional integration tests for multiple allowed URI schemes
-    @AppFunction
+    @AppFunctionDeclaration
     internal fun echoUriWithConstraint(
         @AppFunctionUriValueConstraint(allowedSchemes = ["content"]) uriParam: Uri
     ): Uri = uriParam
 
-    @AppFunction
+    @AppFunctionDeclaration
     internal fun echoStringWithConstraint(
         @AppFunctionStringValueConstraint(pattern = "^[a-z]+$", format = "custom")
         stringParam: String
     ): String = stringParam
 
-    @AppFunction
+    @AppFunctionDeclaration
     internal fun textResourceFunction(text: String): ResourceFunctionResponse =
         ResourceFunctionResponse(
             stringValue = text,

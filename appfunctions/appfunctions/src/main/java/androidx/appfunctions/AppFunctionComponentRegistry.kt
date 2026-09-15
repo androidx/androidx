@@ -37,7 +37,7 @@ import androidx.annotation.StringDef
  * package com.notes
  *
  * class NotesFunction {
- *   @AppFunction
+ *   @AppFunctionDeclaration
  *   suspend fun createNote(params: Params): Note { ... }
  * }
  * ```

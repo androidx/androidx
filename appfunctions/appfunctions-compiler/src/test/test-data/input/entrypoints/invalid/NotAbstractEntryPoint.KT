@@ -4,11 +4,11 @@ import androidx.appfunctions.AppFunctionService
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.AppFunctionServiceEntryPoint
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 
 @AppFunctionServiceEntryPoint("MySimpleService", "app_functions_v2.xml")
 class NotAbstractEntryPoint: AppFunctionService() {
-    @AppFunction fun simpleFunction() {}
+    @AppFunctionDeclaration fun simpleFunction() {}
     override suspend fun onExecuteFunction(
         request: ExecuteAppFunctionRequest
     ): ExecuteAppFunctionResponse {

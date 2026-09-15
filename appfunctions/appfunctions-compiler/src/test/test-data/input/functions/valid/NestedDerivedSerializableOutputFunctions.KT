@@ -1,15 +1,15 @@
 package com.testdata
 
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 
 class NestedDerivedSerializableOutputFunctions {
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunction(appFunctionContext: AppFunctionContext): NestedDerivedSerializable {
         return NestedDerivedSerializable("testValue", null, 2, null)
     }
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun simpleFunctionSerializableList(
         appFunctionContext: AppFunctionContext,
     ): List<NestedDerivedSerializable> {
