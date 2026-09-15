@@ -17,6 +17,7 @@
 package androidx.photopicker.activity
 
 import android.os.Build
+import android.os.ext.SdkExtensions
 import android.provider.MediaStore
 import androidx.photopicker.activity.PickVisualMedia.MediaCapabilities
 import androidx.photopicker.activity.PickVisualMedia.MediaCapabilities.Companion.TYPE_HDR10
@@ -181,5 +182,60 @@ class PickVisualMediaRequestTest {
         assertThat(request.accentColor).isEqualTo(0xffff0000)
         assertThat(request.mediaCapabilitiesForTranscoding?.supportedHdrTypes)
             .containsExactly(TYPE_HLG10, TYPE_HDR10, TYPE_HDR10_PLUS)
+    }
+
+    @Test
+    fun testPickVisualMediaRequest_locationMetadataAccess_default() {
+        val request = PickVisualMediaRequest.Builder().build()
+        assertThat(request.isLocationMetadataAccessRequested).isFalse()
+    }
+
+    @Test
+    fun testPickVisualMediaRequest_locationMetadataAccess_set() {
+        val request =
+            PickVisualMediaRequest.Builder().setLocationMetadataAccessRequested(true).build()
+        assertThat(request.isLocationMetadataAccessRequested).isTrue()
+    }
+
+    @Test
+    fun testPickVisualMedia_createIntent_locationMetadataAccess() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val request =
+            PickVisualMediaRequest.Builder().setLocationMetadataAccessRequested(true).build()
+        val intent = PickVisualMedia().createIntent(context, request)
+
+        val isExt23 =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                SdkExtensions.getExtensionVersion(Build.VERSION_CODES.TIRAMISU) >= 23
+
+        if (isExt23) {
+            assertThat(
+                    intent.getBooleanExtra(MediaStore.EXTRA_REQUEST_LOCATION_METADATA_ACCESS, false)
+                )
+                .isTrue()
+        } else {
+            assertThat(intent.hasExtra(MediaStore.EXTRA_REQUEST_LOCATION_METADATA_ACCESS)).isFalse()
+        }
+    }
+
+    @Test
+    fun testPickMultipleVisualMedia_createIntent_locationMetadataAccess() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val request =
+            PickVisualMediaRequest.Builder().setLocationMetadataAccessRequested(true).build()
+        val intent = PickMultipleVisualMedia().createIntent(context, request)
+
+        val isExt23 =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                SdkExtensions.getExtensionVersion(Build.VERSION_CODES.TIRAMISU) >= 23
+
+        if (isExt23) {
+            assertThat(
+                    intent.getBooleanExtra(MediaStore.EXTRA_REQUEST_LOCATION_METADATA_ACCESS, false)
+                )
+                .isTrue()
+        } else {
+            assertThat(intent.hasExtra(MediaStore.EXTRA_REQUEST_LOCATION_METADATA_ACCESS)).isFalse()
+        }
     }
 }

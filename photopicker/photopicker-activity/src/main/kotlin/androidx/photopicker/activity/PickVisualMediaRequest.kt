@@ -200,6 +200,9 @@ public class PickVisualMediaRequest internal constructor() {
     public var mediaCapabilitiesForTranscoding: MediaCapabilities? = null
         internal set
 
+    public var isLocationMetadataAccessRequested: Boolean = false
+        internal set
+
     /** A builder for constructing [PickVisualMediaRequest] instances. */
     public class Builder {
 
@@ -210,6 +213,7 @@ public class PickVisualMediaRequest internal constructor() {
         private var isCustomAccentColorApplied: Boolean = false
         private var accentColor: Long = 0
         private var mediaCapabilitiesForTranscoding: MediaCapabilities? = null
+        private var isLocationMetadataAccessRequested: Boolean = false
 
         /**
          * Set the media type for the [PickVisualMediaRequest].
@@ -307,6 +311,32 @@ public class PickVisualMediaRequest internal constructor() {
         }
 
         /**
+         * Sets whether the caller requests access to location metadata for the selected media
+         * items.
+         *
+         * When set to `true`, this informs the Photopicker that the app is requesting location
+         * information (such as EXIF GPS data) for the media items selected by the user. The default
+         * value is `false`, meaning location metadata is redacted by default.
+         *
+         * Requesting location metadata does not guarantee that the calling app will receive it. The
+         * Photopicker may prompt the user via the picker UI, and the user's choice to allow or deny
+         * location sharing is final. If granted, calling apps can access this metadata when the
+         * selected media files are opened via the returned URIs.
+         *
+         * This parameter might be not supported by the underlying Photopicker implementation.
+         *
+         * @param isLocationMetadataAccessRequested boolean whether to request location metadata
+         *   access from the Photopicker
+         * @return This builder.
+         */
+        public fun setLocationMetadataAccessRequested(
+            isLocationMetadataAccessRequested: Boolean
+        ): Builder {
+            this.isLocationMetadataAccessRequested = isLocationMetadataAccessRequested
+            return this
+        }
+
+        /**
          * Build the PickVisualMediaRequest specified by this builder.
          *
          * @return the newly constructed PickVisualMediaRequest.
@@ -320,6 +350,8 @@ public class PickVisualMediaRequest internal constructor() {
                 this.isCustomAccentColorApplied = this@Builder.isCustomAccentColorApplied
                 this.accentColor = this@Builder.accentColor
                 this.mediaCapabilitiesForTranscoding = this@Builder.mediaCapabilitiesForTranscoding
+                this.isLocationMetadataAccessRequested =
+                    this@Builder.isLocationMetadataAccessRequested
             }
     }
 }

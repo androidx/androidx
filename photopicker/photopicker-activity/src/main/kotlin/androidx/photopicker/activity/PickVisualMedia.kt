@@ -180,6 +180,12 @@ public open class PickVisualMedia : ActivityResultContract<PickVisualMediaReques
         }
 
         @JvmStatic
+        internal fun isLocationMetadataAvailable(): Boolean {
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                getExtensionVersion(Build.VERSION_CODES.TIRAMISU) >= 23
+        }
+
+        @JvmStatic
         internal fun isSystemFallbackPickerAvailable(context: Context): Boolean {
             return getSystemFallbackPicker(context) != null
         }
@@ -338,6 +344,12 @@ public open class PickVisualMedia : ActivityResultContract<PickVisualMediaReques
                             MediaStore.EXTRA_MEDIA_CAPABILITIES,
                             capabilities.toApplicationMediaCapabilities(),
                         )
+                    }
+                }
+
+                if (isLocationMetadataAvailable()) {
+                    if (input.isLocationMetadataAccessRequested) {
+                        putExtra(MediaStore.EXTRA_REQUEST_LOCATION_METADATA_ACCESS, true)
                     }
                 }
             }
