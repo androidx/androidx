@@ -103,9 +103,9 @@ internal fun State3A.wasAwbUnlocked(current: State3A): Boolean {
  *
  * The state is comprised of the modes, metering regions for ae, af and awb, and locks for ae and
  * awb. We don't track the lock for af since af lock is achieved by setting 'af trigger = start' in
- * in a request and then omitting the af trigger field in the subsequent requests doesn't disturb
- * the af state. However for ae and awb, the lock type is boolean and should be explicitly set to
- * 'true' in the subsequent requests once we have locked ae/awb and want them to stay locked.
+ * a request and then omitting the af trigger field in the subsequent requests doesn't disturb the
+ * af state. However for ae and awb, the lock type is boolean and should be explicitly set to 'true'
+ * in the subsequent requests once we have locked ae/awb and want them to stay locked.
  */
 @CameraGraphScope
 internal class GraphState3A @Inject constructor() {
