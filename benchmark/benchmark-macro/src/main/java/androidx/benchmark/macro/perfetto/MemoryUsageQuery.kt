@@ -36,8 +36,10 @@ internal object MemoryUsageQuery {
                 ${processNameLikePkg(targetPackageName)} AND
                 (
                     track.name LIKE 'mem.rss%' OR
+                    track.name LIKE 'mem.swap' OR
                     track.name LIKE 'Heap size (KB)' OR
-                    track.name LIKE 'GPU Memory'
+                    track.name LIKE 'GPU Memory' OR
+                    track.name LIKE 'Bitmap Memory'
                 )
             GROUP BY counter_name
         """
