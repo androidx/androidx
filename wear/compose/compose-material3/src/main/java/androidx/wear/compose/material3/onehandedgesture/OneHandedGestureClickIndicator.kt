@@ -17,7 +17,6 @@
 package androidx.wear.compose.material3.onehandedgesture
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -25,13 +24,11 @@ import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.util.fastFirst
 import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.time.Duration.Companion.milliseconds
@@ -81,8 +78,7 @@ public fun OneHandedGestureClickIndicator(
     content: @Composable () -> Unit,
 ) {
     val gestureManager = LocalOneHandedGestureManager.current
-    val avd = gestureConfiguration.action.animatedImageVector()
-    val duration = avd.totalDuration.milliseconds
+    val duration = gestureConfiguration.action.indicatorDuration
 
     // Gesture manager needs to know whether this indicator draws outside the boundary of its UI
     // element as that affects the frequency with which it is shown.
@@ -92,19 +88,19 @@ public fun OneHandedGestureClickIndicator(
 
     Layout(
         content = {
-            Box(modifier = Modifier.layoutId("icon"), contentAlignment = Alignment.Center) {
-                val painter =
-                    rememberAnimatedVectorPainter(
-                        animatedImageVector = avd,
-                        atEnd = state.avdActive,
-                    )
-
-                GestureIndicatorImage(
-                    painter = painter,
-                    size = DpSize(gestureIndicatorSize.size, gestureIndicatorSize.size),
-                    tint = gestureIndicatorTint,
-                    scaleX = { state.avdAnimationScale.value },
-                    scaleY = { state.avdAnimationScale.value },
+            if (gestureConfiguration.action == OneHandedGestureAction.Dismiss) {
+                DismissIndicatorBox(
+                    modifier = Modifier.layoutId("icon"),
+                    state = state,
+                    gestureIndicatorSize = gestureIndicatorSize,
+                    gestureIndicatorTint = gestureIndicatorTint,
+                )
+            } else {
+                PrimaryIndicatorBox(
+                    modifier = Modifier.layoutId("icon"),
+                    state = state,
+                    gestureIndicatorSize = gestureIndicatorSize,
+                    gestureIndicatorTint = gestureIndicatorTint,
                 )
             }
             Box(
@@ -171,17 +167,17 @@ public class OneHandedGestureClickIndicatorState @RememberInComposition construc
         try {
             // Animate indicator visibility in
             launch { contentAlpha.animateTo(0f, EXPRESSIVE_DEFAULT_EFFECTS_SPRING_FLOAT) }
-            launch { avdAnimationScale.animateTo(1f, EXPRESSIVE_DEFAULT_SPATIAL_SPRING_FLOAT) }
+            launch { scaleAnimatable.animateTo(1f, EXPRESSIVE_DEFAULT_SPATIAL_SPRING_FLOAT) }
             delay(INDICATOR_ANIMATION_START_DELAY_MILLIS.milliseconds)
 
             // Play indicator animation
-            avdActive = true // Start the AVD
+            active = true // Start the animation
             delay(gestureIndicator.duration)
             delay(POST_INDICATOR_ANIMATION_DELAY_MILLIS.milliseconds)
 
             // Animate indicator visibility out
             val finalScaleAnimationJob = launch {
-                avdAnimationScale.animateTo(0f, EXPRESSIVE_DEFAULT_EFFECTS_SPRING_FLOAT)
+                scaleAnimatable.animateTo(0f, EXPRESSIVE_DEFAULT_EFFECTS_SPRING_FLOAT)
             }
             val finalButtonAnimationJob = launch {
                 contentAlpha.animateTo(1f, EXPRESSIVE_DEFAULT_SPATIAL_SPRING_FLOAT)
@@ -194,11 +190,11 @@ public class OneHandedGestureClickIndicatorState @RememberInComposition construc
             // tally for frequency checking.
             gestureManager.notifyIndicatorShown(gestureConfiguration)
         } finally {
-            avdActive = false
+            active = false
 
             withContext(NonCancellable) {
                 contentAlpha.snapTo(1f)
-                avdAnimationScale.snapTo(0f)
+                scaleAnimatable.snapTo(0f)
             }
         }
     }
@@ -208,6 +204,6 @@ public class OneHandedGestureClickIndicatorState @RememberInComposition construc
     private val mutex = Mutex()
 
     internal val contentAlpha = Animatable(1f)
-    internal var avdActive: Boolean by mutableStateOf(false)
-    internal val avdAnimationScale = Animatable(0f)
+    internal var active: Boolean by mutableStateOf(false)
+    internal val scaleAnimatable = Animatable(0f)
 }

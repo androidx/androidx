@@ -17,7 +17,6 @@
 package androidx.wear.compose.material3.onehandedgesture
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -243,13 +242,13 @@ public class OneHandedGesturePageIndicatorState @RememberInComposition construct
     ): Unit {
         try {
             // Animate indicator visibility in
-            launch { avdAnimationScale.animateTo(1f, EXPRESSIVE_DEFAULT_SPATIAL_SPRING_FLOAT) }
+            launch { scaleAnimatable.animateTo(1f, EXPRESSIVE_DEFAULT_SPATIAL_SPRING_FLOAT) }
             delay(INDICATOR_ANIMATION_START_DELAY_MILLIS.milliseconds)
 
             // Play indicator animation
-            avdActive = true // Start the AVD
+            active = true // Start the animation
 
-            // Wait for AVD duration
+            // Wait for animation to complete
             delay(
                 (gestureIndicator.duration.inWholeMilliseconds +
                         POST_INDICATOR_ANIMATION_DELAY_MILLIS)
@@ -258,7 +257,7 @@ public class OneHandedGesturePageIndicatorState @RememberInComposition construct
 
             // Animate indicator visibility out
             val finalScaleAnimationJob = launch {
-                avdAnimationScale.animateTo(0f, EXPRESSIVE_DEFAULT_EFFECTS_SPRING_FLOAT)
+                scaleAnimatable.animateTo(0f, EXPRESSIVE_DEFAULT_EFFECTS_SPRING_FLOAT)
             }
 
             finalScaleAnimationJob.join()
@@ -267,9 +266,9 @@ public class OneHandedGesturePageIndicatorState @RememberInComposition construct
             // tally for frequency checking.
             gestureManager.notifyIndicatorShown(gestureConfiguration)
         } finally {
-            avdActive = false
+            active = false
 
-            withContext(NonCancellable) { avdAnimationScale.snapTo(0f) }
+            withContext(NonCancellable) { scaleAnimatable.snapTo(0f) }
         }
     }
 
@@ -277,8 +276,8 @@ public class OneHandedGesturePageIndicatorState @RememberInComposition construct
     internal lateinit var gestureConfiguration: OneHandedGestureConfiguration
     private val mutex = Mutex()
 
-    internal var avdActive by mutableStateOf(false)
-    internal val avdAnimationScale = Animatable(0f)
+    internal var active by mutableStateOf(false)
+    internal val scaleAnimatable = Animatable(0f)
 }
 
 @Composable
@@ -293,8 +292,7 @@ private fun GesturePageIndicator(
     gestureIndicatorBackgroundColor: Color,
 ) {
     val gestureManager = LocalOneHandedGestureManager.current
-    val avd = gestureConfiguration.action.animatedImageVector()
-    val duration = avd.totalDuration.milliseconds
+    val duration = gestureConfiguration.action.indicatorDuration
 
     // Gesture manager needs to know whether this indicator draws outside the boundary of its UI
     // element as that affects the frequency with which it is shown.
@@ -305,8 +303,6 @@ private fun GesturePageIndicator(
     state.gestureManager = gestureManager
 
     val density = LocalDensity.current
-    val avdPainter =
-        rememberAnimatedVectorPainter(animatedImageVector = avd, atEnd = state.avdActive)
     val backgroundPainter =
         painterResource(R.drawable.wear_one_handed_gesture_indicator_pointer_background)
     val backgroundSize =
@@ -318,22 +314,13 @@ private fun GesturePageIndicator(
                 )
             }
         }
-    val avdSize =
-        remember(avdPainter, density) {
-            with(density) {
-                DpSize(
-                    avdPainter.intrinsicSize.width.toDp(),
-                    avdPainter.intrinsicSize.height.toDp(),
-                )
-            }
-        }
     val largestBackgroundSide = max(backgroundSize.width, backgroundSize.height)
 
     Box(
         modifier =
             Modifier.graphicsLayer {
-                    scaleX = state.avdAnimationScale.value
-                    scaleY = state.avdAnimationScale.value
+                    scaleX = state.scaleAnimatable.value
+                    scaleY = state.scaleAnimatable.value
                     transformOrigin = transform
                 }
                 .size(largestBackgroundSide),
@@ -353,7 +340,19 @@ private fun GesturePageIndicator(
             modifier = Modifier.size(backgroundSize.height).align(avdAlignment),
             contentAlignment = Alignment.Center,
         ) {
-            GestureIndicatorImage(painter = avdPainter, size = avdSize, tint = gestureIndicatorTint)
+            if (gestureConfiguration.action == OneHandedGestureAction.Dismiss) {
+                DismissIndicatorBox(
+                    active = state.active,
+                    size = DpSize(36.dp, 36.dp),
+                    tint = gestureIndicatorTint,
+                )
+            } else {
+                PrimaryIndicatorBox(
+                    active = state.active,
+                    size = DpSize(36.dp, 36.dp),
+                    tint = gestureIndicatorTint,
+                )
+            }
         }
     }
 }
