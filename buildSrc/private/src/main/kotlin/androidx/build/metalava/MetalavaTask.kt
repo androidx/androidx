@@ -106,8 +106,6 @@ constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTas
                     //   of just javadoc comments (like @hide)
                     // - This allows us to improve cacheability of Metalava tasks
                     "--ignore-comments",
-                    "--hide",
-                    "DeprecationMismatch",
 
                     // Don't track annotations that aren't needed for review or checking compat.
                     "--exclude-annotation",
