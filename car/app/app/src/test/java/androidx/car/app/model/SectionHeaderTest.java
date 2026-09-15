@@ -20,7 +20,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.net.Uri;
+
 import androidx.car.app.TestUtils;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Test;
@@ -121,6 +124,17 @@ public final class SectionHeaderTest {
     }
 
     @Test
+    public void setStartIcon_uriIcon() {
+        CarIcon uriIcon = new CarIcon.Builder(
+                IconCompat.createWithContentUri(Uri.parse("content://test"))).build();
+        SectionHeader header = new SectionHeader.Builder("title")
+                .setStartIcon(uriIcon, SectionHeader.IMAGE_TYPE_LARGE)
+                .build();
+        assertThat(header.getStartIcon()).isEqualTo(uriIcon);
+        assertThat(header.getStartIconType()).isEqualTo(SectionHeader.IMAGE_TYPE_LARGE);
+    }
+
+    @Test
     public void setStartIcon_nonCustomIcon_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class,
                 () -> new SectionHeader.Builder("title").setStartIcon(CarIcon.BACK));
@@ -135,6 +149,16 @@ public final class SectionHeaderTest {
                 .setEndIcon(mIcon)
                 .build();
         assertThat(header.getEndIcon()).isEqualTo(mIcon);
+    }
+
+    @Test
+    public void setEndIcon_uriIcon() {
+        CarIcon uriIcon = new CarIcon.Builder(
+                IconCompat.createWithContentUri(Uri.parse("content://test"))).build();
+        SectionHeader header = new SectionHeader.Builder("title")
+                .setEndIcon(uriIcon)
+                .build();
+        assertThat(header.getEndIcon()).isEqualTo(uriIcon);
     }
 
     @Test

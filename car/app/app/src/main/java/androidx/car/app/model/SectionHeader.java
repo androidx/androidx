@@ -43,45 +43,35 @@ import java.util.Objects;
 /**
  * Represents a header for a section within a {@link SectionedItemTemplate}.
  *
- * <p>A section header must include a title. It can also include a start icon, an end icon, and
- * can handle click events.
+ * <p>A section header must include a title. It can also include a start icon, an end icon, and can
+ * handle click events.
  */
 @CarProtocol
 @ExperimentalCarApi
 @RequiresCarApi(9)
 @KeepFields
 public final class SectionHeader {
-    /**
-     * The type of image to display in the section header.
-     */
+    /** The type of image to display in the section header. */
     @RestrictTo(LIBRARY)
     @IntDef(value = {IMAGE_TYPE_SMALL, IMAGE_TYPE_LARGE})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface SectionHeaderImageType {
-    }
+    public @interface SectionHeaderImageType {}
 
-    /**
-     * Represents a small icon to be displayed in the section header.
-     */
+    /** Represents a small icon to be displayed in the section header. */
     public static final int IMAGE_TYPE_SMALL = 1;
 
-    /**
-     * Represents a large sized image to be displayed in the section header.
-     */
+    /** Represents a large sized image to be displayed in the section header. */
     public static final int IMAGE_TYPE_LARGE = 2;
 
     private final @NonNull CarText mTitle;
     private final @Nullable CarText mHeadline;
     private final @Nullable CarText mSubtitle;
     private final @Nullable CarIcon mStartIcon;
-    @SectionHeaderImageType
-    private final int mStartIconType;
+    @SectionHeaderImageType private final int mStartIconType;
     private final @Nullable CarIcon mEndIcon;
     private final @Nullable OnClickDelegate mOnClickDelegate;
 
-    /**
-     * Returns the title of the header.
-     */
+    /** Returns the title of the header. */
     public @NonNull CarText getTitle() {
         return mTitle;
     }
@@ -136,8 +126,8 @@ public final class SectionHeader {
     }
 
     /**
-     * Returns the {@link OnClickDelegate} to handle click events on the header, or {@code null}
-     * if the header is not clickable.
+     * Returns the {@link OnClickDelegate} to handle click events on the header, or {@code null} if
+     * the header is not clickable.
      */
     public @Nullable OnClickDelegate getOnClickDelegate() {
         return mOnClickDelegate;
@@ -145,15 +135,32 @@ public final class SectionHeader {
 
     @Override
     public @NonNull String toString() {
-        return "SectionHeader { headline: " + mHeadline + ", title: " + mTitle
-                + ", subtitle: " + mSubtitle + ", startIcon: " + mStartIcon
-                + ", startIconType: " + mStartIconType + ", endIcon: " + mEndIcon
-                + ", hasClickListener: " + (mOnClickDelegate != null) + " }";
+        return "SectionHeader { headline: "
+                + mHeadline
+                + ", title: "
+                + mTitle
+                + ", subtitle: "
+                + mSubtitle
+                + ", startIcon: "
+                + mStartIcon
+                + ", startIconType: "
+                + mStartIconType
+                + ", endIcon: "
+                + mEndIcon
+                + ", hasClickListener: "
+                + (mOnClickDelegate != null)
+                + " }";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mHeadline, mTitle, mSubtitle, mStartIcon, mStartIconType, mEndIcon,
+        return Objects.hash(
+                mHeadline,
+                mTitle,
+                mSubtitle,
+                mStartIcon,
+                mStartIconType,
+                mEndIcon,
                 mOnClickDelegate == null);
     }
 
@@ -198,33 +205,25 @@ public final class SectionHeader {
 
     /** A builder of {@link SectionHeader}. */
     public static final class Builder {
-        @NonNull
-        CarText mTitle;
-        @Nullable
-        CarText mHeadline;
-        @Nullable
-        CarText mSubtitle;
-        @Nullable
-        CarIcon mStartIcon;
-        @SectionHeaderImageType
-        int mStartIconType = IMAGE_TYPE_SMALL;
-        @Nullable
-        CarIcon mEndIcon;
-        @Nullable
-        OnClickDelegate mOnClickDelegate;
+        @NonNull CarText mTitle;
+        @Nullable CarText mHeadline;
+        @Nullable CarText mSubtitle;
+        @Nullable CarIcon mStartIcon;
+        @SectionHeaderImageType int mStartIconType = IMAGE_TYPE_SMALL;
+        @Nullable CarIcon mEndIcon;
+        @Nullable OnClickDelegate mOnClickDelegate;
 
         /**
          * Sets the headline of the header.
          *
          * <p>The headline appears above the title as an eyebrow or overline. It must be a plain
-         * string with no spans other than those supported by
-         * {@link CarTextConstraints#TEXT_ONLY}.
+         * string with no spans other than those supported by {@link CarTextConstraints#TEXT_ONLY}.
          *
-         * <p>A section header cannot have both a headline and a subtitle. If both are set,
-         * {@link #build()} will throw an {@link IllegalStateException}.
+         * <p>A section header cannot have both a headline and a subtitle. If both are set, {@link
+         * #build()} will throw an {@link IllegalStateException}.
          *
          * @param headline the headline to set
-         * @throws NullPointerException     if {@code headline} is {@code null}
+         * @throws NullPointerException if {@code headline} is {@code null}
          * @throws IllegalArgumentException if {@code headline} contains unsupported spans
          * @see CarText
          */
@@ -239,11 +238,10 @@ public final class SectionHeader {
          * Sets the headline of the header.
          *
          * <p>The headline appears above the title as an eyebrow or overline. It must be a plain
-         * string with no spans other than those supported by
-         * {@link CarTextConstraints#TEXT_ONLY}.
+         * string with no spans other than those supported by {@link CarTextConstraints#TEXT_ONLY}.
          *
-         * <p>A section header cannot have both a headline and a subtitle. If both are set,
-         * {@link #build()} will throw an {@link IllegalStateException}.
+         * <p>A section header cannot have both a headline and a subtitle. If both are set, {@link
+         * #build()} will throw an {@link IllegalStateException}.
          *
          * @param headline the headline to set
          * @throws IllegalArgumentException if {@code headline} contains unsupported spans
@@ -264,8 +262,8 @@ public final class SectionHeader {
          * <p>The subtitle appears below the title. It must be a plain string with no spans other
          * than those supported by {@link CarTextConstraints#TEXT_WITH_COLORS}.
          *
-         * <p>A section header cannot have both a headline and a subtitle. If both are set,
-         * {@link #build()} will throw an {@link IllegalStateException}.
+         * <p>A section header cannot have both a headline and a subtitle. If both are set, {@link
+         * #build()} will throw an {@link IllegalStateException}.
          *
          * @param subtitle the subtitle to set
          * @throws IllegalArgumentException if {@code subtitle} contains unsupported spans
@@ -288,8 +286,8 @@ public final class SectionHeader {
          * <p>The subtitle appears below the title. It must be a plain string with no spans other
          * than those supported by {@link CarTextConstraints#TEXT_WITH_COLORS}.
          *
-         * <p>A section header cannot have both a headline and a subtitle. If both are set,
-         * {@link #build()} will throw an {@link IllegalStateException}.
+         * <p>A section header cannot have both a headline and a subtitle. If both are set, {@link
+         * #build()} will throw an {@link IllegalStateException}.
          *
          * @param subtitle the subtitle to set
          * @throws IllegalArgumentException if {@code subtitle} contains unsupported spans
@@ -309,11 +307,10 @@ public final class SectionHeader {
          *
          * <p>Only custom icon types (e.g. {@link CarIcon#TYPE_CUSTOM}) are supported.
          *
-         * @param startIcon     the {@link CarIcon} to display before the title
-         * @throws NullPointerException     if {@code startIcon} is {@code null}
-         * @throws IllegalArgumentException if {@code startIcon} is not a custom icon, or if it
-         *                                  does not meet the {@link CarIconConstraints#DEFAULT}
-         *                                  constraints
+         * @param startIcon the {@link CarIcon} to display before the title
+         * @throws NullPointerException if {@code startIcon} is {@code null}
+         * @throws IllegalArgumentException if {@code startIcon} is not a custom icon, or if it does
+         *     not meet the {@link CarIconConstraints#UNCONSTRAINED} constraints
          */
         @CanIgnoreReturnValue
         public @NonNull Builder setStartIcon(@NonNull CarIcon startIcon) {
@@ -325,22 +322,21 @@ public final class SectionHeader {
          *
          * <p>Only custom icon types (e.g. {@link CarIcon#TYPE_CUSTOM}) are supported.
          *
-         * @param startIcon     the {@link CarIcon} to display before the title
+         * @param startIcon the {@link CarIcon} to display before the title
          * @param startIconType the type of image to display. See {@link SectionHeader} for
-         *                      supported image types (e.g. {@link SectionHeader#IMAGE_TYPE_SMALL}).
-         * @throws NullPointerException     if {@code startIcon} is {@code null}
-         * @throws IllegalArgumentException if {@code startIcon} is not a custom icon, or if it
-         *                                  does not meet the {@link CarIconConstraints#DEFAULT}
-         *                                  constraints
+         *     supported image types (e.g. {@link SectionHeader#IMAGE_TYPE_SMALL}).
+         * @throws NullPointerException if {@code startIcon} is {@code null}
+         * @throws IllegalArgumentException if {@code startIcon} is not a custom icon, or if it does
+         *     not meet the {@link CarIconConstraints#UNCONSTRAINED} constraints
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setStartIcon(@NonNull CarIcon startIcon,
-                @SectionHeaderImageType int startIconType) {
+        public @NonNull Builder setStartIcon(
+                @NonNull CarIcon startIcon, @SectionHeaderImageType int startIconType) {
             requireNonNull(startIcon);
             if (startIcon.getType() != CarIcon.TYPE_CUSTOM) {
                 throw new IllegalArgumentException("Only custom icon types are supported");
             }
-            CarIconConstraints.DEFAULT.validateOrThrow(startIcon);
+            CarIconConstraints.UNCONSTRAINED.validateOrThrow(startIcon);
             mStartIcon = startIcon;
             mStartIconType = startIconType;
             return this;
@@ -351,11 +347,10 @@ public final class SectionHeader {
          *
          * <p>Only custom icon types (e.g. {@link CarIcon#TYPE_CUSTOM}) are supported.
          *
-         * @param endIcon     the {@link CarIcon} to display after the title
-         * @throws NullPointerException     if {@code endIcon} is {@code null}
-         * @throws IllegalArgumentException if {@code endIcon} is not a custom icon, or if it
-         *                                  does not meet the {@link CarIconConstraints#DEFAULT}
-         *                                  constraints
+         * @param endIcon the {@link CarIcon} to display after the title
+         * @throws NullPointerException if {@code endIcon} is {@code null}
+         * @throws IllegalArgumentException if {@code endIcon} is not a custom icon, or if it does
+         *     not meet the {@link CarIconConstraints#UNCONSTRAINED} constraints
          */
         @CanIgnoreReturnValue
         public @NonNull Builder setEndIcon(@NonNull CarIcon endIcon) {
@@ -363,7 +358,7 @@ public final class SectionHeader {
             if (endIcon.getType() != CarIcon.TYPE_CUSTOM) {
                 throw new IllegalArgumentException("Only custom icon types are supported");
             }
-            CarIconConstraints.DEFAULT.validateOrThrow(endIcon);
+            CarIconConstraints.UNCONSTRAINED.validateOrThrow(endIcon);
             mEndIcon = endIcon;
             return this;
         }
@@ -398,10 +393,10 @@ public final class SectionHeader {
         /**
          * Returns a {@link Builder} instance configured with the given {@code title}.
          *
-         * <p>The title must be a plain string with no spans other than those supported by
-         * {@link CarTextConstraints#TEXT_ONLY}.
+         * <p>The title must be a plain string with no spans other than those supported by {@link
+         * CarTextConstraints#TEXT_ONLY}.
          *
-         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws NullPointerException if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
          */
@@ -412,10 +407,10 @@ public final class SectionHeader {
         /**
          * Returns a {@link Builder} instance configured with the given {@code title}.
          *
-         * <p>The title must be a plain string with no spans other than those supported by
-         * {@link CarTextConstraints#TEXT_ONLY}.
+         * <p>The title must be a plain string with no spans other than those supported by {@link
+         * CarTextConstraints#TEXT_ONLY}.
          *
-         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws NullPointerException if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          */
         public Builder(@NonNull CarText title) {
