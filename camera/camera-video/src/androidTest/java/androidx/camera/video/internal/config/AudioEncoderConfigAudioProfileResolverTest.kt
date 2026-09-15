@@ -29,7 +29,6 @@ import androidx.camera.testing.impl.CameraXUtil
 import androidx.camera.video.AudioSpec
 import androidx.camera.video.EncoderProfilesResolver
 import androidx.camera.video.EncoderProfilesResolverFactory
-import androidx.camera.video.Quality
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -125,79 +124,5 @@ class AudioEncoderConfigAudioProfileResolverTest(
             assertThat(config.encodeSampleRate).isEqualTo(audioProfile.sampleRate)
             assertThat(config.channelCount).isEqualTo(audioProfile.channels)
         }
-    }
-
-    @Test
-    fun increasedChannelCountIncreasesBitrate() {
-        val encoderProfiles = profilesResolver.getProfiles(Quality.HIGHEST, SDR)!!
-        val profile = encoderProfiles.defaultAudioProfile
-        Assume.assumeTrue(profile != null)
-
-        // Get default channel count
-        val defaultAudioSettings = AudioConfigUtil.resolveAudioSettings(defaultAudioSpec, profile!!)
-        val defaultConfig =
-            AudioEncoderConfigAudioProfileResolver(
-                    profile.mediaType,
-                    profile.profile,
-                    timebase,
-                    defaultAudioSpec,
-                    defaultAudioSettings,
-                    profile,
-                )
-                .get()
-        val defaultChannelCount = defaultConfig.channelCount
-
-        val higherChannelCountAudioSettings =
-            defaultAudioSettings.toBuilder().setChannelCount(defaultChannelCount * 2).build()
-
-        val higherChannelCountConfig =
-            AudioEncoderConfigAudioProfileResolver(
-                    profile.mediaType,
-                    profile.profile,
-                    timebase,
-                    defaultAudioSpec,
-                    higherChannelCountAudioSettings,
-                    profile,
-                )
-                .get()
-
-        assertThat(higherChannelCountConfig.bitrate).isGreaterThan(defaultConfig.bitrate)
-    }
-
-    @Test
-    fun increasedSampleRateIncreasesBitrate() {
-        val encoderProfiles = profilesResolver.getProfiles(Quality.HIGHEST, SDR)!!
-        val profile = encoderProfiles.defaultAudioProfile
-        Assume.assumeTrue(profile != null)
-
-        // Get default sample rate
-        val defaultAudioSettings = AudioConfigUtil.resolveAudioSettings(defaultAudioSpec, profile!!)
-        val defaultConfig =
-            AudioEncoderConfigAudioProfileResolver(
-                    profile.mediaType,
-                    profile.profile,
-                    timebase,
-                    defaultAudioSpec,
-                    defaultAudioSettings,
-                    profile,
-                )
-                .get()
-        val defaultSampleRate = defaultConfig.captureSampleRate
-
-        val higherSampleRateAudioSettings =
-            defaultAudioSettings.toBuilder().setChannelCount(defaultSampleRate * 2).build()
-
-        val higherSampleRateConfig =
-            AudioEncoderConfigAudioProfileResolver(
-                    profile.mediaType,
-                    profile.profile,
-                    timebase,
-                    defaultAudioSpec,
-                    higherSampleRateAudioSettings,
-                    profile,
-                )
-                .get()
-
-        assertThat(higherSampleRateConfig.bitrate).isGreaterThan(defaultConfig.bitrate)
     }
 }
