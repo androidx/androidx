@@ -36,7 +36,7 @@ public class Version private constructor(@JvmField public val value: Int) : Comp
         VALUE_TO_INSTANCE[value] = this
     }
 
-    override fun toString(): String = if (value == Int.MAX_VALUE) "experimental" else "v$value"
+    override fun toString(): String = if (value == Int.MAX_VALUE) "DEVELOPMENT" else "V$value"
 
     override operator fun compareTo(other: Version): Int = value.compareTo(other.value)
 

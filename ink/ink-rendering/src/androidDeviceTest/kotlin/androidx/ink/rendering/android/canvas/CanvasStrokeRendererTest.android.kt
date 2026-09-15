@@ -641,7 +641,8 @@ class CanvasStrokeRendererTest {
     private val textureStore = TextureBitmapStore { id ->
         when (id) {
             TEXTURE_ID_AIRPLANE_EMOJI -> R.drawable.airplane_emoji
-            TEXTURE_ID_CHECKERBOARD -> androidx.ink.rendering.test.R.drawable.checkerboard
+            TEXTURE_ID_CHECKERBOARD ->
+                androidx.ink.rendering.test.R.drawable.checkerboard_black_and_transparent
             TEXTURE_ID_CIRCLE -> R.drawable.circle
             TEXTURE_ID_POOP_EMOJI -> R.drawable.poop_emoji
             else -> null

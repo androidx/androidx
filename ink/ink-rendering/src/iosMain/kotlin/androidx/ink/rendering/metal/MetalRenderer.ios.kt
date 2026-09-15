@@ -51,7 +51,9 @@ import platform.Metal.MTLRenderCommandEncoderProtocol
  *   not being used, this should be `MTLPixelFormatInvalid`.
  * @param sampleCount The number of samples per pixel for MSAA. If unset or null, shader-based
  *   antialiasing will be used instead.
- * @param textureImageStore An optional callback for retrieving texture images by ID.
+ * @param textureImageStore An optional callback for retrieving texture images by ID. Currently only
+ *   supports loading textures from pre-loaded `UIImage` objects (ones that wrap `CGImage` instead
+ *   of `CIImage`).
  */
 @ExperimentalInkCrossPlatformRenderingApi
 @OptIn(InkInternalOnlyApi::class, ExperimentalForeignApi::class)
@@ -93,9 +95,9 @@ public class MetalRenderer(
         private val textureForIdCallback:
             CPointer<CFunction<(Long, CPointer<ByteVar>?) -> CPointer<out CPointed>?>> =
             staticCFunction({ metalRendererNativePtr, textureIdPtr ->
-                val store = textureImageStoresByPtr[metalRendererNativePtr]
-                val textureId = textureIdPtr?.toKString()
-                textureId?.let { store?.get(it) }
+                textureImageStoresByPtr[metalRendererNativePtr]?.let { store ->
+                    textureIdPtr?.toKString()?.let { store[it]?.CGImage }
+                }
             })
     }
 

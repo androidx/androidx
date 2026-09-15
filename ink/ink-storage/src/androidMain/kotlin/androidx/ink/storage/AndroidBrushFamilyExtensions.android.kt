@@ -34,7 +34,7 @@ import java.io.OutputStream
 public fun interface BrushFamilyDecodeCallback {
     /**
      * Called for each texture used by a BrushFamily when that BrushFamily is decoded. In the
-     * implementation of this method, the returned String should be mapped to [bitmap] (or a client-
+     * implementation of this method, the returned string should be mapped to [bitmap] (or a client-
      * provided replacement) in the supporting [TextureBitmapStore].
      *
      * @param clientTextureId the ID for this texture in the serialized form of the BrushFamily.

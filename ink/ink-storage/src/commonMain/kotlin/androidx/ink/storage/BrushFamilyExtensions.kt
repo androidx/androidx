@@ -33,9 +33,8 @@ import kotlin.jvm.JvmName
 
 /**
  * Write a gzip-compressed `ink.proto.BrushFamily` binary proto message representing the
- * [BrushFamily] to the given [ByteArray] using the provided texture map represented in
- * corresponding arrays of keys (client texture IDs) and values (PNG bytes). If
- * [BrushFamily.hasFallbacks] is true, then the stored proto message including fallbacks for this
+ * [BrushFamily] to the given [ByteArray] using the provided callback to retrieve texture PNG bytes.
+ * If [BrushFamily.hasFallbacks] is true, then the stored proto message including fallbacks for this
  * [BrushFamily] will be used instead of recomputing the proto from the [BrushFamily] object.
  *
  * @param textureIdToPngBytes A callback to retrieve the PNG bytes of the texture bitmap for a given
