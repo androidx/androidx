@@ -19,8 +19,7 @@ package androidx.xr.glimmer.pager
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.focus.Focusability
-import androidx.compose.ui.focus.requestFocusForChildInRootBounds
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.focus.requestFocusForChildInLocalBounds
 import androidx.compose.ui.input.indirect.IndirectPointerEvent
 import androidx.compose.ui.input.indirect.IndirectPointerInputModifierNode
 import androidx.compose.ui.input.key.KeyEvent
@@ -130,30 +129,27 @@ private class PagerAutoFocusNode(private var state: GlimmerPagerState) :
     }
 
     private fun requestPageFocus() {
-        val coordinates = requireLayoutCoordinates()
-        val rootTopLeft = coordinates.localToRoot(Offset.Zero)
-
         val layoutInfo = state.layoutInfo
         val pageSize = layoutInfo.pageSize
         val currentPageScrollOffset = state.currentPageOffsetFraction * pageSize
 
         val pageLeftX =
             if ((requireLayoutDirection() == LayoutDirection.Rtl) xor layoutInfo.reverseLayout) {
-                rootTopLeft.x + currentPageScrollOffset
+                currentPageScrollOffset
             } else {
-                rootTopLeft.x - currentPageScrollOffset
+                -currentPageScrollOffset
             }
         val pageRightX = pageLeftX + pageSize
 
-        // `requestFocusForChildInRootBounds` performs a strict intersection check.
+        // `requestFocusForChildInLocalBounds` performs a strict intersection check.
         // `intersectionTolerancePx` ensures focus requested area sits definitively inside the
         // page's bounds.
         val intersectionTolerancePx = requireDensity().density
-        requestFocusForChildInRootBounds(
+        requestFocusForChildInLocalBounds(
             left = (pageLeftX + intersectionTolerancePx).fastRoundToInt(),
-            top = rootTopLeft.y.fastRoundToInt(),
+            top = 0,
             right = (pageRightX - intersectionTolerancePx).fastRoundToInt(),
-            bottom = (rootTopLeft.y + coordinates.size.height).fastRoundToInt(),
+            bottom = requireLayoutCoordinates().size.height,
         )
     }
 

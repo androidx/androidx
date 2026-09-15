@@ -17,8 +17,7 @@
 package androidx.xr.glimmer.list
 
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.ui.focus.requestFocusForChildInRootBounds
-import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.focus.requestFocusForChildInLocalBounds
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.util.fastCoerceIn
@@ -87,27 +86,6 @@ internal class GlimmerLazyListAutoFocusState {
             pendingRequestFocus = false
         }
     }
-}
-
-/**
- * Requests focus at the position along the main-axis where the focus line is, along the entire
- * cross-axis size of the layout node.
- */
-private fun DelegatableNode.requestFocusForChildInLocalBounds(
-    left: Int,
-    top: Int,
-    right: Int,
-    bottom: Int,
-) {
-    val rootOrigin = requireLayoutCoordinates().positionInRoot()
-    val x = rootOrigin.x.fastRoundToInt()
-    val y = rootOrigin.y.fastRoundToInt()
-    requestFocusForChildInRootBounds(
-        left = x + left,
-        top = y + top,
-        right = x + right,
-        bottom = y + bottom,
-    )
 }
 
 /** Returns the focus line position along the main axis */
