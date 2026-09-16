@@ -24,15 +24,64 @@
 package androidx.webgpu
 
 /** Options for requesting a graphics adapter. */
-public class GPURequestAdapterOptions(
-    @FeatureLevel.Type public var featureLevel: Int = FeatureLevel.Core,
-    @PowerPreference.Type public var powerPreference: Int = PowerPreference.Undefined,
-    @get:JvmName("isForceFallbackAdapter") public var forceFallbackAdapter: Boolean = false,
-    @BackendType.Type public var backendType: Int = BackendType.Undefined,
-    public var compatibleSurface: GPUSurface? = null,
+public class GPURequestAdapterOptions {
+    @FeatureLevel.Type public var featureLevel: Int
+    @PowerPreference.Type public var powerPreference: Int
+    @get:JvmName("isForceFallbackAdapter") public var forceFallbackAdapter: Boolean
+    @BackendType.Type public var backendType: Int
+    public var compatibleSurface: GPUSurface?
+    @android.annotation.SuppressLint("ExperimentalPropertyAnnotation")
+    @ExperimentalWebGpuApi
+    public var dawnTogglesDescriptor: GPUDawnTogglesDescriptor? = null
     /** Extension for WebXR interop options when requesting an adapter. */
-    public var requestAdapterWebXROptions: GPURequestAdapterWebXROptions? = null,
-) {
+    public var requestAdapterWebXROptions: GPURequestAdapterWebXROptions?
+
+    public constructor() {
+        this.featureLevel = FeatureLevel.Core
+        this.powerPreference = PowerPreference.Undefined
+        this.forceFallbackAdapter = false
+        this.backendType = BackendType.Undefined
+        this.compatibleSurface = null
+        this.requestAdapterWebXROptions = null
+    }
+
+    public constructor(
+        @FeatureLevel.Type featureLevel: Int = FeatureLevel.Core,
+        @PowerPreference.Type powerPreference: Int = PowerPreference.Undefined,
+        forceFallbackAdapter: Boolean = false,
+        @BackendType.Type backendType: Int = BackendType.Undefined,
+        compatibleSurface: GPUSurface? = null,
+        requestAdapterWebXROptions: GPURequestAdapterWebXROptions? = null,
+    ) {
+        this.featureLevel = featureLevel
+        this.powerPreference = powerPreference
+        this.forceFallbackAdapter = forceFallbackAdapter
+        this.backendType = backendType
+        this.compatibleSurface = compatibleSurface
+        this.requestAdapterWebXROptions = requestAdapterWebXROptions
+    }
+
+    // TODO: When stabilizing, fold the experimental parameters into the stable constructor. The
+    // previous stable constructor should be marked with @Deprecated(level =
+    // DeprecationLevel.HIDDEN) to maintain backward compatibility.
+    @ExperimentalWebGpuApi
+    public constructor(
+        @FeatureLevel.Type featureLevel: Int = FeatureLevel.Core,
+        @PowerPreference.Type powerPreference: Int = PowerPreference.Undefined,
+        forceFallbackAdapter: Boolean = false,
+        @BackendType.Type backendType: Int = BackendType.Undefined,
+        compatibleSurface: GPUSurface? = null,
+        dawnTogglesDescriptor: GPUDawnTogglesDescriptor?,
+        requestAdapterWebXROptions: GPURequestAdapterWebXROptions? = null,
+    ) {
+        this.featureLevel = featureLevel
+        this.powerPreference = powerPreference
+        this.forceFallbackAdapter = forceFallbackAdapter
+        this.backendType = backendType
+        this.compatibleSurface = compatibleSurface
+        this.dawnTogglesDescriptor = dawnTogglesDescriptor
+        this.requestAdapterWebXROptions = requestAdapterWebXROptions
+    }
 
     /** Builder for [GPURequestAdapterOptions]. */
     public class Builder() {
@@ -41,6 +90,7 @@ public class GPURequestAdapterOptions(
         private var forceFallbackAdapter: Boolean = false
         @BackendType.Type private var backendType: Int = BackendType.Undefined
         private var compatibleSurface: GPUSurface? = null
+        @ExperimentalWebGpuApi private var dawnTogglesDescriptor: GPUDawnTogglesDescriptor? = null
         private var requestAdapterWebXROptions: GPURequestAdapterWebXROptions? = null
 
         public fun setFeatureLevel(@FeatureLevel.Type featureLevel: Int): Builder = apply {
@@ -63,11 +113,21 @@ public class GPURequestAdapterOptions(
             this.compatibleSurface = compatibleSurface
         }
 
+        @ExperimentalWebGpuApi
+        public fun setDawnTogglesDescriptor(
+            dawnTogglesDescriptor: GPUDawnTogglesDescriptor?
+        ): Builder = apply {
+            this.dawnTogglesDescriptor = dawnTogglesDescriptor
+        }
+
         public fun setRequestAdapterWebXROptions(
             requestAdapterWebXROptions: GPURequestAdapterWebXROptions?
-        ): Builder = apply { this.requestAdapterWebXROptions = requestAdapterWebXROptions }
+        ): Builder = apply {
+            this.requestAdapterWebXROptions = requestAdapterWebXROptions
+        }
 
         /** Builds the [GPURequestAdapterOptions]. */
+        @OptIn(ExperimentalWebGpuApi::class)
         public fun build(): GPURequestAdapterOptions =
             GPURequestAdapterOptions(
                 featureLevel = featureLevel,
@@ -75,6 +135,7 @@ public class GPURequestAdapterOptions(
                 forceFallbackAdapter = forceFallbackAdapter,
                 backendType = backendType,
                 compatibleSurface = compatibleSurface,
+                dawnTogglesDescriptor = dawnTogglesDescriptor,
                 requestAdapterWebXROptions = requestAdapterWebXROptions,
             )
     }

@@ -24,11 +24,30 @@
 package androidx.webgpu
 
 /** Describes the layout of a bind group, specifying the types of resources it contains. */
-public class GPUBindGroupLayoutDescriptor
-@JvmOverloads
-constructor(
+public class GPUBindGroupLayoutDescriptor(
     /** A human-readable label for debugging. */
     public var label: String? = null,
     /** An array of entries describing the layout of each binding. */
     public var entries: Array<GPUBindGroupLayoutEntry> = arrayOf(),
-)
+) {
+    /** Builder for [GPUBindGroupLayoutDescriptor]. */
+    public class Builder() {
+        private var label: String? = null
+        private var entries: Array<GPUBindGroupLayoutEntry> = arrayOf()
+
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
+
+        public fun setEntries(entries: Array<GPUBindGroupLayoutEntry>): Builder = apply {
+            this.entries = entries
+        }
+
+        /** Builds the [GPUBindGroupLayoutDescriptor]. */
+        public fun build(): GPUBindGroupLayoutDescriptor =
+            GPUBindGroupLayoutDescriptor(
+                label = label,
+                entries = entries,
+            )
+    }
+}

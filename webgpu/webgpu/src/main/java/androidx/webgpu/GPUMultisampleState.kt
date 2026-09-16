@@ -24,12 +24,37 @@
 package androidx.webgpu
 
 /** Describes the multisampling state for a render pipeline. */
-public class GPUMultisampleState
-@JvmOverloads
-constructor(
+public class GPUMultisampleState(
     /** The number of samples per pixel. */
     public var count: Int = 1,
     /** A bitmask controlling which samples are written. */
     public var mask: Int = -1,
     @get:JvmName("isAlphaToCoverageEnabled") public var alphaToCoverageEnabled: Boolean = false,
-)
+) {
+    /** Builder for [GPUMultisampleState]. */
+    public class Builder() {
+        private var count: Int = 1
+        private var mask: Int = -1
+        private var alphaToCoverageEnabled: Boolean = false
+
+        public fun setCount(count: Int): Builder = apply {
+            this.count = count
+        }
+
+        public fun setMask(mask: Int): Builder = apply {
+            this.mask = mask
+        }
+
+        public fun setAlphaToCoverageEnabled(alphaToCoverageEnabled: Boolean): Builder = apply {
+            this.alphaToCoverageEnabled = alphaToCoverageEnabled
+        }
+
+        /** Builds the [GPUMultisampleState]. */
+        public fun build(): GPUMultisampleState =
+            GPUMultisampleState(
+                count = count,
+                mask = mask,
+                alphaToCoverageEnabled = alphaToCoverageEnabled,
+            )
+    }
+}

@@ -208,6 +208,80 @@ package androidx.webgpu {
     property public static int WaitAnyOnly;
   }
 
+  public final class ColorSpacePrimariesDawn {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.ColorSpacePrimariesDawn.Companion Companion;
+    field public static final int DisplayP3 = 4; // 0x4
+    field public static final int Rec2020 = 3; // 0x3
+    field public static final int Rec601 = 2; // 0x2
+    field public static final int Rec709 = 1; // 0x1
+    field public static final int SRGB = 1; // 0x1
+  }
+
+  public static final class ColorSpacePrimariesDawn.Companion {
+    method public String toString(int value);
+    property public static int DisplayP3;
+    property public static int Rec2020;
+    property public static int Rec601;
+    property public static int Rec709;
+    property public static int SRGB;
+  }
+
+  public final class ColorSpaceTransferDawn {
+    method public static String toString(int value);
+    field public static final int BT_1886 = 7; // 0x7
+    field public static final androidx.webgpu.ColorSpaceTransferDawn.Companion Companion;
+    field public static final int DisplayP3 = 3; // 0x3
+    field public static final int HLG = 5; // 0x5
+    field public static final int Identity = 1; // 0x1
+    field public static final int PQ = 6; // 0x6
+    field public static final int SMPTE_170M = 4; // 0x4
+    field public static final int SRGB = 2; // 0x2
+  }
+
+  public static final class ColorSpaceTransferDawn.Companion {
+    method public String toString(int value);
+    property public static int BT_1886;
+    property public static int DisplayP3;
+    property public static int HLG;
+    property public static int Identity;
+    property public static int PQ;
+    property public static int SMPTE_170M;
+    property public static int SRGB;
+  }
+
+  public final class ColorSpaceYCbCrMatrixDawn {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.ColorSpaceYCbCrMatrixDawn.Companion Companion;
+    field public static final int Identity = 1; // 0x1
+    field public static final int Rec2020 = 4; // 0x4
+    field public static final int Rec601 = 2; // 0x2
+    field public static final int Rec709 = 3; // 0x3
+  }
+
+  public static final class ColorSpaceYCbCrMatrixDawn.Companion {
+    method public String toString(int value);
+    property public static int Identity;
+    property public static int Rec2020;
+    property public static int Rec601;
+    property public static int Rec709;
+  }
+
+  public final class ColorSpaceYCbCrRangeDawn {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.ColorSpaceYCbCrRangeDawn.Companion Companion;
+    field public static final int Full = 3; // 0x3
+    field public static final int Identity = 1; // 0x1
+    field public static final int Narrow = 2; // 0x2
+  }
+
+  public static final class ColorSpaceYCbCrRangeDawn.Companion {
+    method public String toString(int value);
+    property public static int Full;
+    property public static int Identity;
+    property public static int Narrow;
+  }
+
   public final class ColorWriteMask {
     method public static String toString(int value);
     field public static final int All = 15; // 0xf
@@ -473,6 +547,26 @@ package androidx.webgpu {
     property public static int Validation;
   }
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This WebGPU API is experimental and subject to change.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface ExperimentalWebGpuApi {
+  }
+
+  @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public final class ExternalTextureRotation {
+    method public static String toString(int value);
+    field public static final androidx.webgpu.ExternalTextureRotation.Companion Companion;
+    field public static final int Rotate0Degrees = 1; // 0x1
+    field public static final int Rotate180Degrees = 3; // 0x3
+    field public static final int Rotate270Degrees = 4; // 0x4
+    field public static final int Rotate90Degrees = 2; // 0x2
+  }
+
+  @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public static final class ExternalTextureRotation.Companion {
+    method public String toString(int value);
+    property public static int Rotate0Degrees;
+    property public static int Rotate180Degrees;
+    property public static int Rotate270Degrees;
+    property public static int Rotate90Degrees;
+  }
+
   public final class FeatureLevel {
     method public static String toString(int value);
     field public static final androidx.webgpu.FeatureLevel.Companion Companion;
@@ -500,9 +594,13 @@ package androidx.webgpu {
     field public static final int Float32Blendable = 15; // 0xf
     field public static final int Float32Filterable = 14; // 0xe
     field public static final int IndirectFirstInstance = 10; // 0xa
+    field @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public static final int OpaqueYCbCrAndroidForExternalTexture = 327741; // 0x5003d
     field public static final int PrimitiveIndex = 21; // 0x15
     field public static final int RG11B10UfloatRenderable = 12; // 0xc
     field public static final int ShaderF16 = 11; // 0xb
+    field @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public static final int SharedFenceSyncFD = 327719; // 0x50027
+    field @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public static final int SharedTextureMemoryAHardwareBuffer = 327710; // 0x5001e
+    field public static final int SubgroupSizeControl = 23; // 0x17
     field public static final int Subgroups = 18; // 0x12
     field public static final int TextureComponentSwizzle = 22; // 0x16
     field public static final int TextureCompressionASTC = 7; // 0x7
@@ -513,6 +611,7 @@ package androidx.webgpu {
     field public static final int TextureFormatsTier1 = 19; // 0x13
     field public static final int TextureFormatsTier2 = 20; // 0x14
     field public static final int TimestampQuery = 9; // 0x9
+    field @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public static final int YCbCrVulkanSamplers = 327725; // 0x5002d
   }
 
   public static final class FeatureName.Companion {
@@ -526,9 +625,13 @@ package androidx.webgpu {
     property public static int Float32Blendable;
     property public static int Float32Filterable;
     property public static int IndirectFirstInstance;
+    property @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public static int OpaqueYCbCrAndroidForExternalTexture;
     property public static int PrimitiveIndex;
     property public static int RG11B10UfloatRenderable;
     property public static int ShaderF16;
+    property @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public static int SharedFenceSyncFD;
+    property @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public static int SharedTextureMemoryAHardwareBuffer;
+    property public static int SubgroupSizeControl;
     property public static int Subgroups;
     property public static int TextureComponentSwizzle;
     property public static int TextureCompressionASTC;
@@ -539,6 +642,7 @@ package androidx.webgpu {
     property public static int TextureFormatsTier1;
     property public static int TextureFormatsTier2;
     property public static int TimestampQuery;
+    property @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public static int YCbCrVulkanSamplers;
   }
 
   public final class FilterMode {
@@ -599,7 +703,6 @@ package androidx.webgpu {
   }
 
   public final class GPUAdapterInfo {
-    ctor public GPUAdapterInfo(String vendor, String architecture, String device, String description, int adapterType, int vendorID, int deviceID, int subgroupMinSize, int subgroupMaxSize);
     ctor public GPUAdapterInfo(String vendor, String architecture, String device, String description, int adapterType, int vendorID, int deviceID, int subgroupMinSize, int subgroupMaxSize, optional int backendType);
     ctor @BytecodeOnly public GPUAdapterInfo(String!, String!, String!, String!, int, int, int, int, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getAdapterType();
@@ -634,6 +737,12 @@ package androidx.webgpu {
     property public int vendorID;
   }
 
+  public static final class GPUAdapterInfo.Builder {
+    ctor public GPUAdapterInfo.Builder(String vendor, String architecture, String device, String description, int adapterType, int vendorID, int deviceID, int subgroupMinSize, int subgroupMaxSize);
+    method public androidx.webgpu.GPUAdapterInfo build();
+    method public androidx.webgpu.GPUAdapterInfo.Builder setBackendType(int backendType);
+  }
+
   public final class GPUBindGroup implements java.lang.AutoCloseable {
     method public void close();
     method @InaccessibleFromKotlin public long getHandle();
@@ -642,8 +751,6 @@ package androidx.webgpu {
   }
 
   public final class GPUBindGroupDescriptor {
-    ctor public GPUBindGroupDescriptor(androidx.webgpu.GPUBindGroupLayout layout);
-    ctor public GPUBindGroupDescriptor(androidx.webgpu.GPUBindGroupLayout layout, optional String? label);
     ctor public GPUBindGroupDescriptor(androidx.webgpu.GPUBindGroupLayout layout, optional String? label, optional androidx.webgpu.GPUBindGroupEntry[] entries);
     ctor @BytecodeOnly public GPUBindGroupDescriptor(androidx.webgpu.GPUBindGroupLayout!, String!, androidx.webgpu.GPUBindGroupEntry![]!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.webgpu.GPUBindGroupEntry[] getEntries();
@@ -655,6 +762,13 @@ package androidx.webgpu {
     property public androidx.webgpu.GPUBindGroupEntry[] entries;
     property public String? label;
     property public androidx.webgpu.GPUBindGroupLayout layout;
+  }
+
+  public static final class GPUBindGroupDescriptor.Builder {
+    ctor public GPUBindGroupDescriptor.Builder(androidx.webgpu.GPUBindGroupLayout layout);
+    method public androidx.webgpu.GPUBindGroupDescriptor build();
+    method public androidx.webgpu.GPUBindGroupDescriptor.Builder setEntries(androidx.webgpu.GPUBindGroupEntry[] entries);
+    method public androidx.webgpu.GPUBindGroupDescriptor.Builder setLabel(String? label);
   }
 
   public final class GPUBindGroupEntry {
@@ -703,7 +817,6 @@ package androidx.webgpu {
 
   public final class GPUBindGroupLayoutDescriptor {
     ctor public GPUBindGroupLayoutDescriptor();
-    ctor public GPUBindGroupLayoutDescriptor(optional String? label);
     ctor public GPUBindGroupLayoutDescriptor(optional String? label, optional androidx.webgpu.GPUBindGroupLayoutEntry[] entries);
     ctor @BytecodeOnly public GPUBindGroupLayoutDescriptor(String!, androidx.webgpu.GPUBindGroupLayoutEntry![]!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.webgpu.GPUBindGroupLayoutEntry[] getEntries();
@@ -712,6 +825,13 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public void setLabel(String?);
     property public androidx.webgpu.GPUBindGroupLayoutEntry[] entries;
     property public String? label;
+  }
+
+  public static final class GPUBindGroupLayoutDescriptor.Builder {
+    ctor public GPUBindGroupLayoutDescriptor.Builder();
+    method public androidx.webgpu.GPUBindGroupLayoutDescriptor build();
+    method public androidx.webgpu.GPUBindGroupLayoutDescriptor.Builder setEntries(androidx.webgpu.GPUBindGroupLayoutEntry[] entries);
+    method public androidx.webgpu.GPUBindGroupLayoutDescriptor.Builder setLabel(String? label);
   }
 
   public final class GPUBindGroupLayoutEntry {
@@ -756,8 +876,6 @@ package androidx.webgpu {
 
   public final class GPUBlendComponent {
     ctor public GPUBlendComponent();
-    ctor public GPUBlendComponent(optional int operation);
-    ctor public GPUBlendComponent(optional int operation, optional int srcFactor);
     ctor public GPUBlendComponent(optional int operation, optional int srcFactor, optional int dstFactor);
     ctor @BytecodeOnly public GPUBlendComponent(int, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getDstFactor();
@@ -771,9 +889,16 @@ package androidx.webgpu {
     property public int srcFactor;
   }
 
+  public static final class GPUBlendComponent.Builder {
+    ctor public GPUBlendComponent.Builder();
+    method public androidx.webgpu.GPUBlendComponent build();
+    method public androidx.webgpu.GPUBlendComponent.Builder setDstFactor(int dstFactor);
+    method public androidx.webgpu.GPUBlendComponent.Builder setOperation(int operation);
+    method public androidx.webgpu.GPUBlendComponent.Builder setSrcFactor(int srcFactor);
+  }
+
   public final class GPUBlendState {
     ctor public GPUBlendState();
-    ctor public GPUBlendState(optional androidx.webgpu.GPUBlendComponent color);
     ctor public GPUBlendState(optional androidx.webgpu.GPUBlendComponent color, optional androidx.webgpu.GPUBlendComponent alpha);
     ctor @BytecodeOnly public GPUBlendState(androidx.webgpu.GPUBlendComponent!, androidx.webgpu.GPUBlendComponent!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.webgpu.GPUBlendComponent getAlpha();
@@ -782,6 +907,13 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public void setColor(androidx.webgpu.GPUBlendComponent);
     property public androidx.webgpu.GPUBlendComponent alpha;
     property public androidx.webgpu.GPUBlendComponent color;
+  }
+
+  public static final class GPUBlendState.Builder {
+    ctor public GPUBlendState.Builder();
+    method public androidx.webgpu.GPUBlendState build();
+    method public androidx.webgpu.GPUBlendState.Builder setAlpha(androidx.webgpu.GPUBlendComponent alpha);
+    method public androidx.webgpu.GPUBlendState.Builder setColor(androidx.webgpu.GPUBlendComponent color);
   }
 
   public final class GPUBuffer implements java.lang.AutoCloseable {
@@ -816,8 +948,6 @@ package androidx.webgpu {
 
   public final class GPUBufferBindingLayout {
     ctor public GPUBufferBindingLayout();
-    ctor public GPUBufferBindingLayout(optional int type);
-    ctor public GPUBufferBindingLayout(optional int type, optional boolean hasDynamicOffset);
     ctor public GPUBufferBindingLayout(optional int type, optional boolean hasDynamicOffset, optional long minBindingSize);
     ctor @BytecodeOnly public GPUBufferBindingLayout(int, boolean, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public long getMinBindingSize();
@@ -831,9 +961,15 @@ package androidx.webgpu {
     property public int type;
   }
 
+  public static final class GPUBufferBindingLayout.Builder {
+    ctor public GPUBufferBindingLayout.Builder();
+    method public androidx.webgpu.GPUBufferBindingLayout build();
+    method public androidx.webgpu.GPUBufferBindingLayout.Builder setHasDynamicOffset(boolean hasDynamicOffset);
+    method public androidx.webgpu.GPUBufferBindingLayout.Builder setMinBindingSize(long minBindingSize);
+    method public androidx.webgpu.GPUBufferBindingLayout.Builder setType(int type);
+  }
+
   public final class GPUBufferDescriptor {
-    ctor public GPUBufferDescriptor(int usage, long size);
-    ctor public GPUBufferDescriptor(int usage, long size, optional String? label);
     ctor public GPUBufferDescriptor(int usage, long size, optional String? label, optional boolean mappedAtCreation);
     ctor @BytecodeOnly public GPUBufferDescriptor(int, long, String!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public String? getLabel();
@@ -848,6 +984,13 @@ package androidx.webgpu {
     property public boolean mappedAtCreation;
     property public long size;
     property public int usage;
+  }
+
+  public static final class GPUBufferDescriptor.Builder {
+    ctor public GPUBufferDescriptor.Builder(int usage, long size);
+    method public androidx.webgpu.GPUBufferDescriptor build();
+    method public androidx.webgpu.GPUBufferDescriptor.Builder setLabel(String? label);
+    method public androidx.webgpu.GPUBufferDescriptor.Builder setMappedAtCreation(boolean mappedAtCreation);
   }
 
   public final class GPUColor {
@@ -866,10 +1009,37 @@ package androidx.webgpu {
     property public double r;
   }
 
+  public final class GPUColorSpaceDawn {
+    ctor public GPUColorSpaceDawn(int primaries, optional int transfer, optional int yCbCrRange, optional int yCbCrMatrix, optional float hdrReferenceWhiteLuminance);
+    ctor @BytecodeOnly public GPUColorSpaceDawn(int, int, int, int, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public float getHdrReferenceWhiteLuminance();
+    method @InaccessibleFromKotlin public int getPrimaries();
+    method @InaccessibleFromKotlin public int getTransfer();
+    method @InaccessibleFromKotlin public int getYCbCrMatrix();
+    method @InaccessibleFromKotlin public int getYCbCrRange();
+    method @InaccessibleFromKotlin public void setHdrReferenceWhiteLuminance(float);
+    method @InaccessibleFromKotlin public void setPrimaries(int);
+    method @InaccessibleFromKotlin public void setTransfer(int);
+    method @InaccessibleFromKotlin public void setYCbCrMatrix(int);
+    method @InaccessibleFromKotlin public void setYCbCrRange(int);
+    property public float hdrReferenceWhiteLuminance;
+    property public int primaries;
+    property public int transfer;
+    property public int yCbCrMatrix;
+    property public int yCbCrRange;
+  }
+
+  public static final class GPUColorSpaceDawn.Builder {
+    ctor public GPUColorSpaceDawn.Builder(int primaries);
+    method public androidx.webgpu.GPUColorSpaceDawn build();
+    method public androidx.webgpu.GPUColorSpaceDawn.Builder setHdrReferenceWhiteLuminance(float hdrReferenceWhiteLuminance);
+    method public androidx.webgpu.GPUColorSpaceDawn.Builder setTransfer(int transfer);
+    method public androidx.webgpu.GPUColorSpaceDawn.Builder setYCbCrMatrix(int yCbCrMatrix);
+    method public androidx.webgpu.GPUColorSpaceDawn.Builder setYCbCrRange(int yCbCrRange);
+  }
+
   public final class GPUColorTargetState {
     ctor public GPUColorTargetState();
-    ctor public GPUColorTargetState(optional int format);
-    ctor public GPUColorTargetState(optional int format, optional androidx.webgpu.GPUBlendState? blend);
     ctor public GPUColorTargetState(optional int format, optional androidx.webgpu.GPUBlendState? blend, optional int writeMask);
     ctor @BytecodeOnly public GPUColorTargetState(int, androidx.webgpu.GPUBlendState!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.webgpu.GPUBlendState? getBlend();
@@ -881,6 +1051,14 @@ package androidx.webgpu {
     property public androidx.webgpu.GPUBlendState? blend;
     property public int format;
     property public int writeMask;
+  }
+
+  public static final class GPUColorTargetState.Builder {
+    ctor public GPUColorTargetState.Builder();
+    method public androidx.webgpu.GPUColorTargetState build();
+    method public androidx.webgpu.GPUColorTargetState.Builder setBlend(androidx.webgpu.GPUBlendState? blend);
+    method public androidx.webgpu.GPUColorTargetState.Builder setFormat(int format);
+    method public androidx.webgpu.GPUColorTargetState.Builder setWriteMask(int writeMask);
   }
 
   public final class GPUCommandBuffer implements java.lang.AutoCloseable {
@@ -897,6 +1075,12 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public String? getLabel();
     method @InaccessibleFromKotlin public void setLabel(String?);
     property public String? label;
+  }
+
+  public static final class GPUCommandBufferDescriptor.Builder {
+    ctor public GPUCommandBufferDescriptor.Builder();
+    method public androidx.webgpu.GPUCommandBufferDescriptor build();
+    method public androidx.webgpu.GPUCommandBufferDescriptor.Builder setLabel(String? label);
   }
 
   public final class GPUCommandEncoder implements java.lang.AutoCloseable {
@@ -935,6 +1119,12 @@ package androidx.webgpu {
     property public String? label;
   }
 
+  public static final class GPUCommandEncoderDescriptor.Builder {
+    ctor public GPUCommandEncoderDescriptor.Builder();
+    method public androidx.webgpu.GPUCommandEncoderDescriptor build();
+    method public androidx.webgpu.GPUCommandEncoderDescriptor.Builder setLabel(String? label);
+  }
+
   public final class GPUCompatibilityModeLimits {
     ctor public GPUCompatibilityModeLimits();
     ctor public GPUCompatibilityModeLimits(optional int maxStorageBuffersInVertexStage, optional int maxStorageTexturesInVertexStage, optional int maxStorageBuffersInFragmentStage, optional int maxStorageTexturesInFragmentStage);
@@ -971,6 +1161,12 @@ package androidx.webgpu {
     property public androidx.webgpu.GPUCompilationMessage[] messages;
   }
 
+  public static final class GPUCompilationInfo.Builder {
+    ctor public GPUCompilationInfo.Builder();
+    method public androidx.webgpu.GPUCompilationInfo build();
+    method public androidx.webgpu.GPUCompilationInfo.Builder setMessages(androidx.webgpu.GPUCompilationMessage[] messages);
+  }
+
   public final class GPUCompilationMessage {
     ctor public GPUCompilationMessage(String message, int type, long lineNum, long linePos, long offset, long length);
     method @InaccessibleFromKotlin public long getLength();
@@ -995,7 +1191,6 @@ package androidx.webgpu {
 
   public final class GPUComputePassDescriptor {
     ctor public GPUComputePassDescriptor();
-    ctor public GPUComputePassDescriptor(optional String? label);
     ctor public GPUComputePassDescriptor(optional String? label, optional androidx.webgpu.GPUPassTimestampWrites? timestampWrites);
     ctor @BytecodeOnly public GPUComputePassDescriptor(String!, androidx.webgpu.GPUPassTimestampWrites!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public String? getLabel();
@@ -1004,6 +1199,13 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public void setTimestampWrites(androidx.webgpu.GPUPassTimestampWrites?);
     property public String? label;
     property public androidx.webgpu.GPUPassTimestampWrites? timestampWrites;
+  }
+
+  public static final class GPUComputePassDescriptor.Builder {
+    ctor public GPUComputePassDescriptor.Builder();
+    method public androidx.webgpu.GPUComputePassDescriptor build();
+    method public androidx.webgpu.GPUComputePassDescriptor.Builder setLabel(String? label);
+    method public androidx.webgpu.GPUComputePassDescriptor.Builder setTimestampWrites(androidx.webgpu.GPUPassTimestampWrites? timestampWrites);
   }
 
   public final class GPUComputePassEncoder implements java.lang.AutoCloseable {
@@ -1022,6 +1224,7 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public void setBindGroup(int groupIndex, optional androidx.webgpu.GPUBindGroup? group);
     method public void setBindGroup(int groupIndex, optional androidx.webgpu.GPUBindGroup? group, optional int[] dynamicOffsets);
     method @BytecodeOnly public static void setBindGroup$default(androidx.webgpu.GPUComputePassEncoder!, int, androidx.webgpu.GPUBindGroup!, int[]!, int, Object!);
+    method public void setImmediates(int offset, java.nio.ByteBuffer data);
     method public void setLabel(String label);
     method public void setPipeline(androidx.webgpu.GPUComputePipeline pipeline);
     property public long handle;
@@ -1036,8 +1239,6 @@ package androidx.webgpu {
   }
 
   public final class GPUComputePipelineDescriptor {
-    ctor public GPUComputePipelineDescriptor(androidx.webgpu.GPUComputeState compute);
-    ctor public GPUComputePipelineDescriptor(androidx.webgpu.GPUComputeState compute, optional String? label);
     ctor public GPUComputePipelineDescriptor(androidx.webgpu.GPUComputeState compute, optional String? label, optional androidx.webgpu.GPUPipelineLayout? layout);
     ctor @BytecodeOnly public GPUComputePipelineDescriptor(androidx.webgpu.GPUComputeState!, String!, androidx.webgpu.GPUPipelineLayout!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.webgpu.GPUComputeState getCompute();
@@ -1051,9 +1252,14 @@ package androidx.webgpu {
     property public androidx.webgpu.GPUPipelineLayout? layout;
   }
 
+  public static final class GPUComputePipelineDescriptor.Builder {
+    ctor public GPUComputePipelineDescriptor.Builder(androidx.webgpu.GPUComputeState compute);
+    method public androidx.webgpu.GPUComputePipelineDescriptor build();
+    method public androidx.webgpu.GPUComputePipelineDescriptor.Builder setLabel(String? label);
+    method public androidx.webgpu.GPUComputePipelineDescriptor.Builder setLayout(androidx.webgpu.GPUPipelineLayout? layout);
+  }
+
   public final class GPUComputeState {
-    ctor public GPUComputeState(androidx.webgpu.GPUShaderModule module);
-    ctor public GPUComputeState(androidx.webgpu.GPUShaderModule module, optional String? entryPoint);
     ctor public GPUComputeState(androidx.webgpu.GPUShaderModule module, optional String? entryPoint, optional androidx.webgpu.GPUConstantEntry[] constants);
     ctor @BytecodeOnly public GPUComputeState(androidx.webgpu.GPUShaderModule!, String!, androidx.webgpu.GPUConstantEntry![]!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.webgpu.GPUConstantEntry[] getConstants();
@@ -1067,6 +1273,13 @@ package androidx.webgpu {
     property public androidx.webgpu.GPUShaderModule module;
   }
 
+  public static final class GPUComputeState.Builder {
+    ctor public GPUComputeState.Builder(androidx.webgpu.GPUShaderModule module);
+    method public androidx.webgpu.GPUComputeState build();
+    method public androidx.webgpu.GPUComputeState.Builder setConstants(androidx.webgpu.GPUConstantEntry[] constants);
+    method public androidx.webgpu.GPUComputeState.Builder setEntryPoint(String? entryPoint);
+  }
+
   public final class GPUConstantEntry {
     ctor public GPUConstantEntry(String key, double value);
     method @InaccessibleFromKotlin public String getKey();
@@ -1075,6 +1288,25 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public void setValue(double);
     property public String key;
     property public double value;
+  }
+
+  @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public final class GPUDawnTogglesDescriptor {
+    ctor public GPUDawnTogglesDescriptor();
+    ctor public GPUDawnTogglesDescriptor(optional String[] enabledToggles, optional String[] disabledToggles);
+    ctor @BytecodeOnly public GPUDawnTogglesDescriptor(String![]!, String![]!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String[] getDisabledToggles();
+    method @InaccessibleFromKotlin public String[] getEnabledToggles();
+    method @InaccessibleFromKotlin public void setDisabledToggles(String[]);
+    method @InaccessibleFromKotlin public void setEnabledToggles(String[]);
+    property public String[] disabledToggles;
+    property public String[] enabledToggles;
+  }
+
+  @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public static final class GPUDawnTogglesDescriptor.Builder {
+    ctor public GPUDawnTogglesDescriptor.Builder();
+    method public androidx.webgpu.GPUDawnTogglesDescriptor build();
+    method public androidx.webgpu.GPUDawnTogglesDescriptor.Builder setDisabledToggles(String[] disabledToggles);
+    method public androidx.webgpu.GPUDawnTogglesDescriptor.Builder setEnabledToggles(String[] enabledToggles);
   }
 
   public final class GPUDepthStencilState {
@@ -1141,6 +1373,8 @@ package androidx.webgpu {
     method public androidx.webgpu.GPUComputePipeline createComputePipeline(androidx.webgpu.GPUComputePipelineDescriptor descriptor);
     method @kotlin.jvm.Throws(exceptionClasses=WebGpuException::class) public suspend Object? createComputePipelineAndAwait(androidx.webgpu.GPUComputePipelineDescriptor descriptor, kotlin.coroutines.Continuation<? super androidx.webgpu.GPUComputePipeline>) throws androidx.webgpu.WebGpuException;
     method public void createComputePipelineAsync(androidx.webgpu.GPUComputePipelineDescriptor descriptor, java.util.concurrent.Executor callbackExecutor, androidx.webgpu.GPURequestCallback<androidx.webgpu.GPUComputePipeline> callback);
+    method @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public androidx.webgpu.GPUExternalTexture createErrorExternalTexture();
+    method @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public androidx.webgpu.GPUExternalTexture createExternalTexture(androidx.webgpu.GPUExternalTextureDescriptor externalTextureDescriptor);
     method public androidx.webgpu.GPUPipelineLayout createPipelineLayout(androidx.webgpu.GPUPipelineLayoutDescriptor descriptor);
     method public androidx.webgpu.GPUQuerySet createQuerySet(androidx.webgpu.GPUQuerySetDescriptor descriptor);
     method public androidx.webgpu.GPURenderBundleEncoder createRenderBundleEncoder(androidx.webgpu.GPURenderBundleEncoderDescriptor descriptor);
@@ -1172,7 +1406,10 @@ package androidx.webgpu {
 
   public final class GPUDeviceDescriptor {
     ctor public GPUDeviceDescriptor(java.util.concurrent.Executor deviceLostCallbackExecutor, java.util.concurrent.Executor uncapturedErrorCallbackExecutor, optional String? label, optional int[] requiredFeatures, optional androidx.webgpu.GPULimits? requiredLimits, optional androidx.webgpu.GPUQueueDescriptor defaultQueue, androidx.webgpu.DeviceLostCallback? deviceLostCallback, androidx.webgpu.UncapturedErrorCallback? uncapturedErrorCallback);
+    ctor @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public GPUDeviceDescriptor(java.util.concurrent.Executor deviceLostCallbackExecutor, java.util.concurrent.Executor uncapturedErrorCallbackExecutor, optional String? label, optional int[] requiredFeatures, optional androidx.webgpu.GPULimits? requiredLimits, optional androidx.webgpu.GPUQueueDescriptor defaultQueue, androidx.webgpu.DeviceLostCallback? deviceLostCallback, androidx.webgpu.UncapturedErrorCallback? uncapturedErrorCallback, androidx.webgpu.GPUDawnTogglesDescriptor? dawnTogglesDescriptor);
+    ctor @BytecodeOnly @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public GPUDeviceDescriptor(java.util.concurrent.Executor!, java.util.concurrent.Executor!, String!, int[]!, androidx.webgpu.GPULimits!, androidx.webgpu.GPUQueueDescriptor!, androidx.webgpu.DeviceLostCallback!, androidx.webgpu.UncapturedErrorCallback!, androidx.webgpu.GPUDawnTogglesDescriptor!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public GPUDeviceDescriptor(java.util.concurrent.Executor!, java.util.concurrent.Executor!, String!, int[]!, androidx.webgpu.GPULimits!, androidx.webgpu.GPUQueueDescriptor!, androidx.webgpu.DeviceLostCallback!, androidx.webgpu.UncapturedErrorCallback!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public androidx.webgpu.GPUDawnTogglesDescriptor? getDawnTogglesDescriptor();
     method @InaccessibleFromKotlin public androidx.webgpu.GPUQueueDescriptor getDefaultQueue();
     method @InaccessibleFromKotlin public androidx.webgpu.DeviceLostCallback? getDeviceLostCallback();
     method @InaccessibleFromKotlin public java.util.concurrent.Executor getDeviceLostCallbackExecutor();
@@ -1181,6 +1418,7 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public androidx.webgpu.GPULimits? getRequiredLimits();
     method @InaccessibleFromKotlin public androidx.webgpu.UncapturedErrorCallback? getUncapturedErrorCallback();
     method @InaccessibleFromKotlin public java.util.concurrent.Executor getUncapturedErrorCallbackExecutor();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public void setDawnTogglesDescriptor(androidx.webgpu.GPUDawnTogglesDescriptor?);
     method @InaccessibleFromKotlin public void setDefaultQueue(androidx.webgpu.GPUQueueDescriptor);
     method @InaccessibleFromKotlin public void setDeviceLostCallback(androidx.webgpu.DeviceLostCallback?);
     method public void setDeviceLostCallback(java.util.concurrent.Executor deviceLostCallbackExecutor, androidx.webgpu.DeviceLostCallback? deviceLostCallback);
@@ -1191,6 +1429,7 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public void setUncapturedErrorCallback(androidx.webgpu.UncapturedErrorCallback?);
     method public void setUncapturedErrorCallback(java.util.concurrent.Executor uncapturedErrorCallbackExecutor, androidx.webgpu.UncapturedErrorCallback? uncapturedErrorCallback);
     method @InaccessibleFromKotlin public void setUncapturedErrorCallbackExecutor(java.util.concurrent.Executor);
+    property @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public androidx.webgpu.GPUDawnTogglesDescriptor? dawnTogglesDescriptor;
     property public androidx.webgpu.GPUQueueDescriptor defaultQueue;
     property public androidx.webgpu.DeviceLostCallback? deviceLostCallback;
     property public java.util.concurrent.Executor deviceLostCallbackExecutor;
@@ -1204,15 +1443,24 @@ package androidx.webgpu {
   public static final class GPUDeviceDescriptor.Builder {
     ctor public GPUDeviceDescriptor.Builder(java.util.concurrent.Executor deviceLostCallbackExecutor, java.util.concurrent.Executor uncapturedErrorCallbackExecutor, androidx.webgpu.DeviceLostCallback? deviceLostCallback, androidx.webgpu.UncapturedErrorCallback? uncapturedErrorCallback);
     method public androidx.webgpu.GPUDeviceDescriptor build();
+    method @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public androidx.webgpu.GPUDeviceDescriptor.Builder setDawnTogglesDescriptor(androidx.webgpu.GPUDawnTogglesDescriptor? dawnTogglesDescriptor);
     method public androidx.webgpu.GPUDeviceDescriptor.Builder setDefaultQueue(androidx.webgpu.GPUQueueDescriptor defaultQueue);
     method public androidx.webgpu.GPUDeviceDescriptor.Builder setLabel(String? label);
     method public androidx.webgpu.GPUDeviceDescriptor.Builder setRequiredFeatures(int[] requiredFeatures);
     method public androidx.webgpu.GPUDeviceDescriptor.Builder setRequiredLimits(androidx.webgpu.GPULimits? requiredLimits);
   }
 
+  @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public final class GPUExtent2D {
+    ctor public GPUExtent2D(int width, int height);
+    method @InaccessibleFromKotlin public int getHeight();
+    method @InaccessibleFromKotlin public int getWidth();
+    method @InaccessibleFromKotlin public void setHeight(int);
+    method @InaccessibleFromKotlin public void setWidth(int);
+    property public int height;
+    property public int width;
+  }
+
   public final class GPUExtent3D {
-    ctor public GPUExtent3D(int width);
-    ctor public GPUExtent3D(int width, optional int height);
     ctor public GPUExtent3D(int width, optional int height, optional int depthOrArrayLayers);
     ctor @BytecodeOnly public GPUExtent3D(int, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getDepthOrArrayLayers();
@@ -1226,8 +1474,16 @@ package androidx.webgpu {
     property public int width;
   }
 
+  public static final class GPUExtent3D.Builder {
+    ctor public GPUExtent3D.Builder(int width);
+    method public androidx.webgpu.GPUExtent3D build();
+    method public androidx.webgpu.GPUExtent3D.Builder setDepthOrArrayLayers(int depthOrArrayLayers);
+    method public androidx.webgpu.GPUExtent3D.Builder setHeight(int height);
+  }
+
   public final class GPUExternalTexture implements java.lang.AutoCloseable {
     method public void close();
+    method @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public void destroy();
     method @InaccessibleFromKotlin public long getHandle();
     method public void setLabel(String label);
     property public long handle;
@@ -1244,10 +1500,46 @@ package androidx.webgpu {
     ctor public GPUExternalTextureBindingLayout();
   }
 
+  @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public final class GPUExternalTextureDescriptor {
+    ctor public GPUExternalTextureDescriptor(androidx.webgpu.GPUExtent2D cropSize, androidx.webgpu.GPUColorSpaceDawn srcColorSpace, int dstColorSpace, optional String? label, optional androidx.webgpu.GPUTextureView? plane1, optional androidx.webgpu.GPUOrigin2D cropOrigin, optional boolean mirrored, optional int rotation);
+    ctor @BytecodeOnly public GPUExternalTextureDescriptor(androidx.webgpu.GPUExtent2D!, androidx.webgpu.GPUColorSpaceDawn!, int, String!, androidx.webgpu.GPUTextureView!, androidx.webgpu.GPUOrigin2D!, boolean, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public androidx.webgpu.GPUOrigin2D getCropOrigin();
+    method @InaccessibleFromKotlin public androidx.webgpu.GPUExtent2D getCropSize();
+    method @InaccessibleFromKotlin public int getDstColorSpace();
+    method @InaccessibleFromKotlin public String? getLabel();
+    method @InaccessibleFromKotlin public androidx.webgpu.GPUTextureView? getPlane1();
+    method @InaccessibleFromKotlin public int getRotation();
+    method @InaccessibleFromKotlin public androidx.webgpu.GPUColorSpaceDawn getSrcColorSpace();
+    method @InaccessibleFromKotlin public boolean isMirrored();
+    method @InaccessibleFromKotlin public void setCropOrigin(androidx.webgpu.GPUOrigin2D);
+    method @InaccessibleFromKotlin public void setCropSize(androidx.webgpu.GPUExtent2D);
+    method @InaccessibleFromKotlin public void setDstColorSpace(int);
+    method @InaccessibleFromKotlin public void setLabel(String?);
+    method @InaccessibleFromKotlin public void setMirrored(boolean);
+    method @InaccessibleFromKotlin public void setPlane1(androidx.webgpu.GPUTextureView?);
+    method @InaccessibleFromKotlin public void setRotation(int);
+    method @InaccessibleFromKotlin public void setSrcColorSpace(androidx.webgpu.GPUColorSpaceDawn);
+    property public androidx.webgpu.GPUOrigin2D cropOrigin;
+    property public androidx.webgpu.GPUExtent2D cropSize;
+    property public int dstColorSpace;
+    property public String? label;
+    property public boolean mirrored;
+    property public androidx.webgpu.GPUTextureView? plane1;
+    property public int rotation;
+    property public androidx.webgpu.GPUColorSpaceDawn srcColorSpace;
+  }
+
+  @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public static final class GPUExternalTextureDescriptor.Builder {
+    ctor public GPUExternalTextureDescriptor.Builder(androidx.webgpu.GPUExtent2D cropSize, androidx.webgpu.GPUColorSpaceDawn srcColorSpace, int dstColorSpace);
+    method public androidx.webgpu.GPUExternalTextureDescriptor build();
+    method public androidx.webgpu.GPUExternalTextureDescriptor.Builder setCropOrigin(androidx.webgpu.GPUOrigin2D cropOrigin);
+    method public androidx.webgpu.GPUExternalTextureDescriptor.Builder setLabel(String? label);
+    method public androidx.webgpu.GPUExternalTextureDescriptor.Builder setMirrored(boolean mirrored);
+    method public androidx.webgpu.GPUExternalTextureDescriptor.Builder setPlane1(androidx.webgpu.GPUTextureView? plane1);
+    method public androidx.webgpu.GPUExternalTextureDescriptor.Builder setRotation(int rotation);
+  }
+
   public final class GPUFragmentState {
-    ctor public GPUFragmentState(androidx.webgpu.GPUShaderModule module);
-    ctor public GPUFragmentState(androidx.webgpu.GPUShaderModule module, optional String? entryPoint);
-    ctor public GPUFragmentState(androidx.webgpu.GPUShaderModule module, optional String? entryPoint, optional androidx.webgpu.GPUConstantEntry[] constants);
     ctor public GPUFragmentState(androidx.webgpu.GPUShaderModule module, optional String? entryPoint, optional androidx.webgpu.GPUConstantEntry[] constants, optional androidx.webgpu.GPUColorTargetState[] targets);
     ctor @BytecodeOnly public GPUFragmentState(androidx.webgpu.GPUShaderModule!, String!, androidx.webgpu.GPUConstantEntry![]!, androidx.webgpu.GPUColorTargetState![]!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.webgpu.GPUConstantEntry[] getConstants();
@@ -1262,6 +1554,36 @@ package androidx.webgpu {
     property public String? entryPoint;
     property public androidx.webgpu.GPUShaderModule module;
     property public androidx.webgpu.GPUColorTargetState[] targets;
+  }
+
+  public static final class GPUFragmentState.Builder {
+    ctor public GPUFragmentState.Builder(androidx.webgpu.GPUShaderModule module);
+    method public androidx.webgpu.GPUFragmentState build();
+    method public androidx.webgpu.GPUFragmentState.Builder setConstants(androidx.webgpu.GPUConstantEntry[] constants);
+    method public androidx.webgpu.GPUFragmentState.Builder setEntryPoint(String? entryPoint);
+    method public androidx.webgpu.GPUFragmentState.Builder setTargets(androidx.webgpu.GPUColorTargetState[] targets);
+  }
+
+  @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public final class GPUHardwareBufferExternalTexture extends androidx.webgpu.GPUHardwareBufferWrapper {
+    ctor public GPUHardwareBufferExternalTexture(long handle, androidx.webgpu.GPUExternalTexture externalTexture);
+    method @InaccessibleFromKotlin public androidx.webgpu.GPUExternalTexture getExternalTexture();
+    property public androidx.webgpu.GPUExternalTexture externalTexture;
+  }
+
+  @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public final class GPUHardwareBufferTexture extends androidx.webgpu.GPUHardwareBufferWrapper {
+    ctor public GPUHardwareBufferTexture(long handle, androidx.webgpu.GPUTexture texture);
+    method @InaccessibleFromKotlin public androidx.webgpu.GPUTexture getTexture();
+    property public androidx.webgpu.GPUTexture texture;
+  }
+
+  @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public abstract class GPUHardwareBufferWrapper implements java.lang.AutoCloseable {
+    ctor public GPUHardwareBufferWrapper(long handle);
+    method public final void beginAccess(androidx.webgpu.GPUSyncFence[]? fences);
+    method public void close();
+    method public final androidx.webgpu.GPUSyncFence? endAccess();
+    method protected final void nativeBeginAccess(long handle, int[]? fences);
+    method protected final void nativeDestroy(long handle);
+    method protected final int nativeEndAccess(long handle);
   }
 
   public final class GPUInstance implements java.lang.AutoCloseable {
@@ -1283,15 +1605,27 @@ package androidx.webgpu {
 
   public final class GPUInstanceDescriptor {
     ctor public GPUInstanceDescriptor();
-    ctor public GPUInstanceDescriptor(optional int[] requiredFeatures);
     ctor public GPUInstanceDescriptor(optional int[] requiredFeatures, optional androidx.webgpu.GPUInstanceLimits? requiredLimits);
+    ctor @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public GPUInstanceDescriptor(optional int[] requiredFeatures, optional androidx.webgpu.GPUInstanceLimits? requiredLimits, androidx.webgpu.GPUDawnTogglesDescriptor? dawnTogglesDescriptor);
+    ctor @BytecodeOnly @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public GPUInstanceDescriptor(int[]!, androidx.webgpu.GPUInstanceLimits!, androidx.webgpu.GPUDawnTogglesDescriptor!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public GPUInstanceDescriptor(int[]!, androidx.webgpu.GPUInstanceLimits!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public androidx.webgpu.GPUDawnTogglesDescriptor? getDawnTogglesDescriptor();
     method @InaccessibleFromKotlin public int[] getRequiredFeatures();
     method @InaccessibleFromKotlin public androidx.webgpu.GPUInstanceLimits? getRequiredLimits();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public void setDawnTogglesDescriptor(androidx.webgpu.GPUDawnTogglesDescriptor?);
     method @InaccessibleFromKotlin public void setRequiredFeatures(int[]);
     method @InaccessibleFromKotlin public void setRequiredLimits(androidx.webgpu.GPUInstanceLimits?);
+    property @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public androidx.webgpu.GPUDawnTogglesDescriptor? dawnTogglesDescriptor;
     property public int[] requiredFeatures;
     property public androidx.webgpu.GPUInstanceLimits? requiredLimits;
+  }
+
+  public static final class GPUInstanceDescriptor.Builder {
+    ctor public GPUInstanceDescriptor.Builder();
+    method public androidx.webgpu.GPUInstanceDescriptor build();
+    method @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public androidx.webgpu.GPUInstanceDescriptor.Builder setDawnTogglesDescriptor(androidx.webgpu.GPUDawnTogglesDescriptor? dawnTogglesDescriptor);
+    method public androidx.webgpu.GPUInstanceDescriptor.Builder setRequiredFeatures(int[] requiredFeatures);
+    method public androidx.webgpu.GPUInstanceDescriptor.Builder setRequiredLimits(androidx.webgpu.GPUInstanceLimits? requiredLimits);
   }
 
   public final class GPUInstanceLimits {
@@ -1301,6 +1635,12 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public long getTimedWaitAnyMaxCount();
     method @InaccessibleFromKotlin public void setTimedWaitAnyMaxCount(long);
     property public long timedWaitAnyMaxCount;
+  }
+
+  public static final class GPUInstanceLimits.Builder {
+    ctor public GPUInstanceLimits.Builder();
+    method public androidx.webgpu.GPUInstanceLimits build();
+    method public androidx.webgpu.GPUInstanceLimits.Builder setTimedWaitAnyMaxCount(long timedWaitAnyMaxCount);
   }
 
   public final class GPULimits {
@@ -1448,8 +1788,6 @@ package androidx.webgpu {
 
   public final class GPUMultisampleState {
     ctor public GPUMultisampleState();
-    ctor public GPUMultisampleState(optional int count);
-    ctor public GPUMultisampleState(optional int count, optional int mask);
     ctor public GPUMultisampleState(optional int count, optional int mask, optional boolean alphaToCoverageEnabled);
     ctor @BytecodeOnly public GPUMultisampleState(int, int, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getCount();
@@ -1463,10 +1801,35 @@ package androidx.webgpu {
     property public int mask;
   }
 
+  public static final class GPUMultisampleState.Builder {
+    ctor public GPUMultisampleState.Builder();
+    method public androidx.webgpu.GPUMultisampleState build();
+    method public androidx.webgpu.GPUMultisampleState.Builder setAlphaToCoverageEnabled(boolean alphaToCoverageEnabled);
+    method public androidx.webgpu.GPUMultisampleState.Builder setCount(int count);
+    method public androidx.webgpu.GPUMultisampleState.Builder setMask(int mask);
+  }
+
+  @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public final class GPUOrigin2D {
+    ctor public GPUOrigin2D();
+    ctor public GPUOrigin2D(optional int x, optional int y);
+    ctor @BytecodeOnly public GPUOrigin2D(int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public int getX();
+    method @InaccessibleFromKotlin public int getY();
+    method @InaccessibleFromKotlin public void setX(int);
+    method @InaccessibleFromKotlin public void setY(int);
+    property public int x;
+    property public int y;
+  }
+
+  @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public static final class GPUOrigin2D.Builder {
+    ctor public GPUOrigin2D.Builder();
+    method public androidx.webgpu.GPUOrigin2D build();
+    method public androidx.webgpu.GPUOrigin2D.Builder setX(int x);
+    method public androidx.webgpu.GPUOrigin2D.Builder setY(int y);
+  }
+
   public final class GPUOrigin3D {
     ctor public GPUOrigin3D();
-    ctor public GPUOrigin3D(optional int x);
-    ctor public GPUOrigin3D(optional int x, optional int y);
     ctor public GPUOrigin3D(optional int x, optional int y, optional int z);
     ctor @BytecodeOnly public GPUOrigin3D(int, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getX();
@@ -1480,9 +1843,15 @@ package androidx.webgpu {
     property public int z;
   }
 
+  public static final class GPUOrigin3D.Builder {
+    ctor public GPUOrigin3D.Builder();
+    method public androidx.webgpu.GPUOrigin3D build();
+    method public androidx.webgpu.GPUOrigin3D.Builder setX(int x);
+    method public androidx.webgpu.GPUOrigin3D.Builder setY(int y);
+    method public androidx.webgpu.GPUOrigin3D.Builder setZ(int z);
+  }
+
   public final class GPUPassTimestampWrites {
-    ctor public GPUPassTimestampWrites(androidx.webgpu.GPUQuerySet querySet);
-    ctor public GPUPassTimestampWrites(androidx.webgpu.GPUQuerySet querySet, optional int beginningOfPassWriteIndex);
     ctor public GPUPassTimestampWrites(androidx.webgpu.GPUQuerySet querySet, optional int beginningOfPassWriteIndex, optional int endOfPassWriteIndex);
     ctor @BytecodeOnly public GPUPassTimestampWrites(androidx.webgpu.GPUQuerySet!, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getBeginningOfPassWriteIndex();
@@ -1496,6 +1865,13 @@ package androidx.webgpu {
     property public androidx.webgpu.GPUQuerySet querySet;
   }
 
+  public static final class GPUPassTimestampWrites.Builder {
+    ctor public GPUPassTimestampWrites.Builder(androidx.webgpu.GPUQuerySet querySet);
+    method public androidx.webgpu.GPUPassTimestampWrites build();
+    method public androidx.webgpu.GPUPassTimestampWrites.Builder setBeginningOfPassWriteIndex(int beginningOfPassWriteIndex);
+    method public androidx.webgpu.GPUPassTimestampWrites.Builder setEndOfPassWriteIndex(int endOfPassWriteIndex);
+  }
+
   public final class GPUPipelineLayout implements java.lang.AutoCloseable {
     method public void close();
     method @InaccessibleFromKotlin public long getHandle();
@@ -1505,8 +1881,6 @@ package androidx.webgpu {
 
   public final class GPUPipelineLayoutDescriptor {
     ctor public GPUPipelineLayoutDescriptor();
-    ctor public GPUPipelineLayoutDescriptor(optional String? label);
-    ctor public GPUPipelineLayoutDescriptor(optional String? label, optional androidx.webgpu.GPUBindGroupLayout[] bindGroupLayouts);
     ctor public GPUPipelineLayoutDescriptor(optional String? label, optional androidx.webgpu.GPUBindGroupLayout[] bindGroupLayouts, optional int immediateSize);
     ctor @BytecodeOnly public GPUPipelineLayoutDescriptor(String!, androidx.webgpu.GPUBindGroupLayout![]!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.webgpu.GPUBindGroupLayout[] getBindGroupLayouts();
@@ -1518,6 +1892,14 @@ package androidx.webgpu {
     property public androidx.webgpu.GPUBindGroupLayout[] bindGroupLayouts;
     property public int immediateSize;
     property public String? label;
+  }
+
+  public static final class GPUPipelineLayoutDescriptor.Builder {
+    ctor public GPUPipelineLayoutDescriptor.Builder();
+    method public androidx.webgpu.GPUPipelineLayoutDescriptor build();
+    method public androidx.webgpu.GPUPipelineLayoutDescriptor.Builder setBindGroupLayouts(androidx.webgpu.GPUBindGroupLayout[] bindGroupLayouts);
+    method public androidx.webgpu.GPUPipelineLayoutDescriptor.Builder setImmediateSize(int immediateSize);
+    method public androidx.webgpu.GPUPipelineLayoutDescriptor.Builder setLabel(String? label);
   }
 
   public final class GPUPrimitiveState {
@@ -1566,7 +1948,6 @@ package androidx.webgpu {
   }
 
   public final class GPUQuerySetDescriptor {
-    ctor public GPUQuerySetDescriptor(int type, int count);
     ctor public GPUQuerySetDescriptor(int type, int count, optional String? label);
     ctor @BytecodeOnly public GPUQuerySetDescriptor(int, int, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getCount();
@@ -1578,6 +1959,12 @@ package androidx.webgpu {
     property public int count;
     property public String? label;
     property public int type;
+  }
+
+  public static final class GPUQuerySetDescriptor.Builder {
+    ctor public GPUQuerySetDescriptor.Builder(int type, int count);
+    method public androidx.webgpu.GPUQuerySetDescriptor build();
+    method public androidx.webgpu.GPUQuerySetDescriptor.Builder setLabel(String? label);
   }
 
   public final class GPUQueue implements java.lang.AutoCloseable {
@@ -1605,6 +1992,12 @@ package androidx.webgpu {
     property public String? label;
   }
 
+  public static final class GPUQueueDescriptor.Builder {
+    ctor public GPUQueueDescriptor.Builder();
+    method public androidx.webgpu.GPUQueueDescriptor build();
+    method public androidx.webgpu.GPUQueueDescriptor.Builder setLabel(String? label);
+  }
+
   public final class GPURenderBundle implements java.lang.AutoCloseable {
     method public void close();
     method @InaccessibleFromKotlin public long getHandle();
@@ -1619,6 +2012,12 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public String? getLabel();
     method @InaccessibleFromKotlin public void setLabel(String?);
     property public String? label;
+  }
+
+  public static final class GPURenderBundleDescriptor.Builder {
+    ctor public GPURenderBundleDescriptor.Builder();
+    method public androidx.webgpu.GPURenderBundleDescriptor build();
+    method public androidx.webgpu.GPURenderBundleDescriptor.Builder setLabel(String? label);
   }
 
   public final class GPURenderBundleEncoder implements java.lang.AutoCloseable {
@@ -1647,6 +2046,7 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public void setBindGroup(int groupIndex, optional androidx.webgpu.GPUBindGroup? group);
     method public void setBindGroup(int groupIndex, optional androidx.webgpu.GPUBindGroup? group, optional int[] dynamicOffsets);
     method @BytecodeOnly public static void setBindGroup$default(androidx.webgpu.GPURenderBundleEncoder!, int, androidx.webgpu.GPUBindGroup!, int[]!, int, Object!);
+    method public void setImmediates(int offset, java.nio.ByteBuffer data);
     method @InaccessibleFromKotlin public void setIndexBuffer(androidx.webgpu.GPUBuffer buffer);
     method @InaccessibleFromKotlin public void setIndexBuffer(androidx.webgpu.GPUBuffer buffer, optional int format);
     method @InaccessibleFromKotlin public void setIndexBuffer(androidx.webgpu.GPUBuffer buffer, optional int format, optional long offset);
@@ -1840,6 +2240,7 @@ package androidx.webgpu {
     method public void setBindGroup(int groupIndex, optional androidx.webgpu.GPUBindGroup? group, optional int[] dynamicOffsets);
     method @BytecodeOnly public static void setBindGroup$default(androidx.webgpu.GPURenderPassEncoder!, int, androidx.webgpu.GPUBindGroup!, int[]!, int, Object!);
     method public void setBlendConstant(androidx.webgpu.GPUColor color);
+    method public void setImmediates(int offset, java.nio.ByteBuffer data);
     method @InaccessibleFromKotlin public void setIndexBuffer(androidx.webgpu.GPUBuffer buffer);
     method @InaccessibleFromKotlin public void setIndexBuffer(androidx.webgpu.GPUBuffer buffer, optional int format);
     method @InaccessibleFromKotlin public void setIndexBuffer(androidx.webgpu.GPUBuffer buffer, optional int format, optional long offset);
@@ -1865,6 +2266,12 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public long getMaxDrawCount();
     method @InaccessibleFromKotlin public void setMaxDrawCount(long);
     property public long maxDrawCount;
+  }
+
+  public static final class GPURenderPassMaxDrawCount.Builder {
+    ctor public GPURenderPassMaxDrawCount.Builder();
+    method public androidx.webgpu.GPURenderPassMaxDrawCount build();
+    method public androidx.webgpu.GPURenderPassMaxDrawCount.Builder setMaxDrawCount(long maxDrawCount);
   }
 
   public final class GPURenderPipeline implements java.lang.AutoCloseable {
@@ -1914,22 +2321,27 @@ package androidx.webgpu {
 
   public final class GPURequestAdapterOptions {
     ctor public GPURequestAdapterOptions();
+    ctor @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public GPURequestAdapterOptions(optional int featureLevel, optional int powerPreference, optional boolean forceFallbackAdapter, optional int backendType, optional androidx.webgpu.GPUSurface? compatibleSurface, androidx.webgpu.GPUDawnTogglesDescriptor? dawnTogglesDescriptor, optional androidx.webgpu.GPURequestAdapterWebXROptions? requestAdapterWebXROptions);
+    ctor @BytecodeOnly @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public GPURequestAdapterOptions(int, int, boolean, int, androidx.webgpu.GPUSurface!, androidx.webgpu.GPUDawnTogglesDescriptor!, androidx.webgpu.GPURequestAdapterWebXROptions!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public GPURequestAdapterOptions(optional int featureLevel, optional int powerPreference, optional boolean forceFallbackAdapter, optional int backendType, optional androidx.webgpu.GPUSurface? compatibleSurface, optional androidx.webgpu.GPURequestAdapterWebXROptions? requestAdapterWebXROptions);
     ctor @BytecodeOnly public GPURequestAdapterOptions(int, int, boolean, int, androidx.webgpu.GPUSurface!, androidx.webgpu.GPURequestAdapterWebXROptions!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getBackendType();
     method @InaccessibleFromKotlin public androidx.webgpu.GPUSurface? getCompatibleSurface();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public androidx.webgpu.GPUDawnTogglesDescriptor? getDawnTogglesDescriptor();
     method @InaccessibleFromKotlin public int getFeatureLevel();
     method @InaccessibleFromKotlin public int getPowerPreference();
     method @InaccessibleFromKotlin public androidx.webgpu.GPURequestAdapterWebXROptions? getRequestAdapterWebXROptions();
     method @InaccessibleFromKotlin public boolean isForceFallbackAdapter();
     method @InaccessibleFromKotlin public void setBackendType(int);
     method @InaccessibleFromKotlin public void setCompatibleSurface(androidx.webgpu.GPUSurface?);
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public void setDawnTogglesDescriptor(androidx.webgpu.GPUDawnTogglesDescriptor?);
     method @InaccessibleFromKotlin public void setFeatureLevel(int);
     method @InaccessibleFromKotlin public void setForceFallbackAdapter(boolean);
     method @InaccessibleFromKotlin public void setPowerPreference(int);
     method @InaccessibleFromKotlin public void setRequestAdapterWebXROptions(androidx.webgpu.GPURequestAdapterWebXROptions?);
     property public int backendType;
     property public androidx.webgpu.GPUSurface? compatibleSurface;
+    property @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public androidx.webgpu.GPUDawnTogglesDescriptor? dawnTogglesDescriptor;
     property public int featureLevel;
     property public boolean forceFallbackAdapter;
     property public int powerPreference;
@@ -1941,6 +2353,7 @@ package androidx.webgpu {
     method public androidx.webgpu.GPURequestAdapterOptions build();
     method public androidx.webgpu.GPURequestAdapterOptions.Builder setBackendType(int backendType);
     method public androidx.webgpu.GPURequestAdapterOptions.Builder setCompatibleSurface(androidx.webgpu.GPUSurface? compatibleSurface);
+    method @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public androidx.webgpu.GPURequestAdapterOptions.Builder setDawnTogglesDescriptor(androidx.webgpu.GPUDawnTogglesDescriptor? dawnTogglesDescriptor);
     method public androidx.webgpu.GPURequestAdapterOptions.Builder setFeatureLevel(int featureLevel);
     method public androidx.webgpu.GPURequestAdapterOptions.Builder setForceFallbackAdapter(boolean forceFallbackAdapter);
     method public androidx.webgpu.GPURequestAdapterOptions.Builder setPowerPreference(int powerPreference);
@@ -1977,6 +2390,12 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public int getType();
     method @InaccessibleFromKotlin public void setType(int);
     property public int type;
+  }
+
+  public static final class GPUSamplerBindingLayout.Builder {
+    ctor public GPUSamplerBindingLayout.Builder();
+    method public androidx.webgpu.GPUSamplerBindingLayout build();
+    method public androidx.webgpu.GPUSamplerBindingLayout.Builder setType(int type);
   }
 
   public final class GPUSamplerDescriptor {
@@ -2045,8 +2464,6 @@ package androidx.webgpu {
 
   public final class GPUShaderModuleDescriptor {
     ctor public GPUShaderModuleDescriptor();
-    ctor public GPUShaderModuleDescriptor(optional String? label);
-    ctor public GPUShaderModuleDescriptor(optional String? label, optional androidx.webgpu.GPUShaderSourceSPIRV? shaderSourceSPIRV);
     ctor public GPUShaderModuleDescriptor(optional String? label, optional androidx.webgpu.GPUShaderSourceSPIRV? shaderSourceSPIRV, optional androidx.webgpu.GPUShaderSourceWGSL? shaderSourceWGSL);
     ctor @BytecodeOnly public GPUShaderModuleDescriptor(String!, androidx.webgpu.GPUShaderSourceSPIRV!, androidx.webgpu.GPUShaderSourceWGSL!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public String? getLabel();
@@ -2060,6 +2477,14 @@ package androidx.webgpu {
     property public androidx.webgpu.GPUShaderSourceWGSL? shaderSourceWGSL;
   }
 
+  public static final class GPUShaderModuleDescriptor.Builder {
+    ctor public GPUShaderModuleDescriptor.Builder();
+    method public androidx.webgpu.GPUShaderModuleDescriptor build();
+    method public androidx.webgpu.GPUShaderModuleDescriptor.Builder setLabel(String? label);
+    method public androidx.webgpu.GPUShaderModuleDescriptor.Builder setShaderSourceSPIRV(androidx.webgpu.GPUShaderSourceSPIRV? shaderSourceSPIRV);
+    method public androidx.webgpu.GPUShaderModuleDescriptor.Builder setShaderSourceWGSL(androidx.webgpu.GPUShaderSourceWGSL? shaderSourceWGSL);
+  }
+
   public final class GPUShaderSourceSPIRV {
     ctor public GPUShaderSourceSPIRV();
     ctor public GPUShaderSourceSPIRV(optional int[] code);
@@ -2067,6 +2492,12 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public int[] getCode();
     method @InaccessibleFromKotlin public void setCode(int[]);
     property public int[] code;
+  }
+
+  public static final class GPUShaderSourceSPIRV.Builder {
+    ctor public GPUShaderSourceSPIRV.Builder();
+    method public androidx.webgpu.GPUShaderSourceSPIRV build();
+    method public androidx.webgpu.GPUShaderSourceSPIRV.Builder setCode(int[] code);
   }
 
   public final class GPUShaderSourceWGSL {
@@ -2105,8 +2536,6 @@ package androidx.webgpu {
 
   public final class GPUStorageTextureBindingLayout {
     ctor public GPUStorageTextureBindingLayout();
-    ctor public GPUStorageTextureBindingLayout(optional int access);
-    ctor public GPUStorageTextureBindingLayout(optional int access, optional int format);
     ctor public GPUStorageTextureBindingLayout(optional int access, optional int format, optional int viewDimension);
     ctor @BytecodeOnly public GPUStorageTextureBindingLayout(int, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getAccess();
@@ -2120,6 +2549,14 @@ package androidx.webgpu {
     property public int viewDimension;
   }
 
+  public static final class GPUStorageTextureBindingLayout.Builder {
+    ctor public GPUStorageTextureBindingLayout.Builder();
+    method public androidx.webgpu.GPUStorageTextureBindingLayout build();
+    method public androidx.webgpu.GPUStorageTextureBindingLayout.Builder setAccess(int access);
+    method public androidx.webgpu.GPUStorageTextureBindingLayout.Builder setFormat(int format);
+    method public androidx.webgpu.GPUStorageTextureBindingLayout.Builder setViewDimension(int viewDimension);
+  }
+
   public final class GPUSupportedFeatures {
     ctor public GPUSupportedFeatures();
     ctor public GPUSupportedFeatures(optional int[] features);
@@ -2127,6 +2564,12 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public int[] getFeatures();
     method @InaccessibleFromKotlin public void setFeatures(int[]);
     property public int[] features;
+  }
+
+  public static final class GPUSupportedFeatures.Builder {
+    ctor public GPUSupportedFeatures.Builder();
+    method public androidx.webgpu.GPUSupportedFeatures build();
+    method public androidx.webgpu.GPUSupportedFeatures.Builder setFeatures(int[] features);
   }
 
   public final class GPUSupportedInstanceFeatures {
@@ -2138,6 +2581,12 @@ package androidx.webgpu {
     property public int[] features;
   }
 
+  public static final class GPUSupportedInstanceFeatures.Builder {
+    ctor public GPUSupportedInstanceFeatures.Builder();
+    method public androidx.webgpu.GPUSupportedInstanceFeatures build();
+    method public androidx.webgpu.GPUSupportedInstanceFeatures.Builder setFeatures(int[] features);
+  }
+
   public final class GPUSupportedWGSLLanguageFeatures {
     ctor public GPUSupportedWGSLLanguageFeatures();
     ctor public GPUSupportedWGSLLanguageFeatures(optional int[] features);
@@ -2145,6 +2594,12 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public int[] getFeatures();
     method @InaccessibleFromKotlin public void setFeatures(int[]);
     property public int[] features;
+  }
+
+  public static final class GPUSupportedWGSLLanguageFeatures.Builder {
+    ctor public GPUSupportedWGSLLanguageFeatures.Builder();
+    method public androidx.webgpu.GPUSupportedWGSLLanguageFeatures build();
+    method public androidx.webgpu.GPUSupportedWGSLLanguageFeatures.Builder setFeatures(int[] features);
   }
 
   public final class GPUSurface implements java.lang.AutoCloseable {
@@ -2160,9 +2615,6 @@ package androidx.webgpu {
   }
 
   public final class GPUSurfaceCapabilities {
-    ctor public GPUSurfaceCapabilities(int usages);
-    ctor public GPUSurfaceCapabilities(int usages, optional int[] formats);
-    ctor public GPUSurfaceCapabilities(int usages, optional int[] formats, optional int[] presentModes);
     ctor public GPUSurfaceCapabilities(int usages, optional int[] formats, optional int[] presentModes, optional int[] alphaModes);
     ctor @BytecodeOnly public GPUSurfaceCapabilities(int, int[]!, int[]!, int[]!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int[] getAlphaModes();
@@ -2177,6 +2629,14 @@ package androidx.webgpu {
     property public int[] formats;
     property public int[] presentModes;
     property public int usages;
+  }
+
+  public static final class GPUSurfaceCapabilities.Builder {
+    ctor public GPUSurfaceCapabilities.Builder(int usages);
+    method public androidx.webgpu.GPUSurfaceCapabilities build();
+    method public androidx.webgpu.GPUSurfaceCapabilities.Builder setAlphaModes(int[] alphaModes);
+    method public androidx.webgpu.GPUSurfaceCapabilities.Builder setFormats(int[] formats);
+    method public androidx.webgpu.GPUSurfaceCapabilities.Builder setPresentModes(int[] presentModes);
   }
 
   public final class GPUSurfaceColorManagement {
@@ -2230,8 +2690,6 @@ package androidx.webgpu {
 
   public final class GPUSurfaceDescriptor {
     ctor public GPUSurfaceDescriptor();
-    ctor public GPUSurfaceDescriptor(optional String? label);
-    ctor public GPUSurfaceDescriptor(optional String? label, optional androidx.webgpu.GPUSurfaceColorManagement? surfaceColorManagement);
     ctor public GPUSurfaceDescriptor(optional String? label, optional androidx.webgpu.GPUSurfaceColorManagement? surfaceColorManagement, optional androidx.webgpu.GPUSurfaceSourceAndroidNativeWindow? surfaceSourceAndroidNativeWindow);
     ctor @BytecodeOnly public GPUSurfaceDescriptor(String!, androidx.webgpu.GPUSurfaceColorManagement!, androidx.webgpu.GPUSurfaceSourceAndroidNativeWindow!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public String? getLabel();
@@ -2243,6 +2701,14 @@ package androidx.webgpu {
     property public String? label;
     property public androidx.webgpu.GPUSurfaceColorManagement? surfaceColorManagement;
     property public androidx.webgpu.GPUSurfaceSourceAndroidNativeWindow? surfaceSourceAndroidNativeWindow;
+  }
+
+  public static final class GPUSurfaceDescriptor.Builder {
+    ctor public GPUSurfaceDescriptor.Builder();
+    method public androidx.webgpu.GPUSurfaceDescriptor build();
+    method public androidx.webgpu.GPUSurfaceDescriptor.Builder setLabel(String? label);
+    method public androidx.webgpu.GPUSurfaceDescriptor.Builder setSurfaceColorManagement(androidx.webgpu.GPUSurfaceColorManagement? surfaceColorManagement);
+    method public androidx.webgpu.GPUSurfaceDescriptor.Builder setSurfaceSourceAndroidNativeWindow(androidx.webgpu.GPUSurfaceSourceAndroidNativeWindow? surfaceSourceAndroidNativeWindow);
   }
 
   public final class GPUSurfaceSourceAndroidNativeWindow {
@@ -2262,8 +2728,18 @@ package androidx.webgpu {
     property public androidx.webgpu.GPUTexture texture;
   }
 
+  @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public final class GPUSyncFence implements java.lang.AutoCloseable {
+    method public boolean await(long timeoutMillis);
+    method public void close();
+    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static androidx.webgpu.GPUSyncFence fromSyncFence(android.hardware.SyncFence syncFence);
+    field public static final androidx.webgpu.GPUSyncFence.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public static final class GPUSyncFence.Companion {
+    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public androidx.webgpu.GPUSyncFence fromSyncFence(android.hardware.SyncFence syncFence);
+  }
+
   public final class GPUTexelCopyBufferInfo {
-    ctor public GPUTexelCopyBufferInfo(androidx.webgpu.GPUBuffer buffer);
     ctor public GPUTexelCopyBufferInfo(androidx.webgpu.GPUBuffer buffer, optional androidx.webgpu.GPUTexelCopyBufferLayout layout);
     ctor @BytecodeOnly public GPUTexelCopyBufferInfo(androidx.webgpu.GPUBuffer!, androidx.webgpu.GPUTexelCopyBufferLayout!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.webgpu.GPUBuffer getBuffer();
@@ -2274,10 +2750,14 @@ package androidx.webgpu {
     property public androidx.webgpu.GPUTexelCopyBufferLayout layout;
   }
 
+  public static final class GPUTexelCopyBufferInfo.Builder {
+    ctor public GPUTexelCopyBufferInfo.Builder(androidx.webgpu.GPUBuffer buffer);
+    method public androidx.webgpu.GPUTexelCopyBufferInfo build();
+    method public androidx.webgpu.GPUTexelCopyBufferInfo.Builder setLayout(androidx.webgpu.GPUTexelCopyBufferLayout layout);
+  }
+
   public final class GPUTexelCopyBufferLayout {
     ctor public GPUTexelCopyBufferLayout();
-    ctor public GPUTexelCopyBufferLayout(optional long offset);
-    ctor public GPUTexelCopyBufferLayout(optional long offset, optional int bytesPerRow);
     ctor public GPUTexelCopyBufferLayout(optional long offset, optional int bytesPerRow, optional int rowsPerImage);
     ctor @BytecodeOnly public GPUTexelCopyBufferLayout(long, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getBytesPerRow();
@@ -2291,10 +2771,15 @@ package androidx.webgpu {
     property public int rowsPerImage;
   }
 
+  public static final class GPUTexelCopyBufferLayout.Builder {
+    ctor public GPUTexelCopyBufferLayout.Builder();
+    method public androidx.webgpu.GPUTexelCopyBufferLayout build();
+    method public androidx.webgpu.GPUTexelCopyBufferLayout.Builder setBytesPerRow(int bytesPerRow);
+    method public androidx.webgpu.GPUTexelCopyBufferLayout.Builder setOffset(long offset);
+    method public androidx.webgpu.GPUTexelCopyBufferLayout.Builder setRowsPerImage(int rowsPerImage);
+  }
+
   public final class GPUTexelCopyTextureInfo {
-    ctor public GPUTexelCopyTextureInfo(androidx.webgpu.GPUTexture texture);
-    ctor public GPUTexelCopyTextureInfo(androidx.webgpu.GPUTexture texture, optional int mipLevel);
-    ctor public GPUTexelCopyTextureInfo(androidx.webgpu.GPUTexture texture, optional int mipLevel, optional androidx.webgpu.GPUOrigin3D origin);
     ctor public GPUTexelCopyTextureInfo(androidx.webgpu.GPUTexture texture, optional int mipLevel, optional androidx.webgpu.GPUOrigin3D origin, optional int aspect);
     ctor @BytecodeOnly public GPUTexelCopyTextureInfo(androidx.webgpu.GPUTexture!, int, androidx.webgpu.GPUOrigin3D!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getAspect();
@@ -2309,6 +2794,14 @@ package androidx.webgpu {
     property public int mipLevel;
     property public androidx.webgpu.GPUOrigin3D origin;
     property public androidx.webgpu.GPUTexture texture;
+  }
+
+  public static final class GPUTexelCopyTextureInfo.Builder {
+    ctor public GPUTexelCopyTextureInfo.Builder(androidx.webgpu.GPUTexture texture);
+    method public androidx.webgpu.GPUTexelCopyTextureInfo build();
+    method public androidx.webgpu.GPUTexelCopyTextureInfo.Builder setAspect(int aspect);
+    method public androidx.webgpu.GPUTexelCopyTextureInfo.Builder setMipLevel(int mipLevel);
+    method public androidx.webgpu.GPUTexelCopyTextureInfo.Builder setOrigin(androidx.webgpu.GPUOrigin3D origin);
   }
 
   public final class GPUTexture implements java.lang.AutoCloseable {
@@ -2351,8 +2844,6 @@ package androidx.webgpu {
 
   public final class GPUTextureBindingLayout {
     ctor public GPUTextureBindingLayout();
-    ctor public GPUTextureBindingLayout(optional int sampleType);
-    ctor public GPUTextureBindingLayout(optional int sampleType, optional int viewDimension);
     ctor public GPUTextureBindingLayout(optional int sampleType, optional int viewDimension, optional boolean multisampled);
     ctor @BytecodeOnly public GPUTextureBindingLayout(int, int, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getSampleType();
@@ -2366,6 +2857,14 @@ package androidx.webgpu {
     property public int viewDimension;
   }
 
+  public static final class GPUTextureBindingLayout.Builder {
+    ctor public GPUTextureBindingLayout.Builder();
+    method public androidx.webgpu.GPUTextureBindingLayout build();
+    method public androidx.webgpu.GPUTextureBindingLayout.Builder setMultisampled(boolean multisampled);
+    method public androidx.webgpu.GPUTextureBindingLayout.Builder setSampleType(int sampleType);
+    method public androidx.webgpu.GPUTextureBindingLayout.Builder setViewDimension(int viewDimension);
+  }
+
   public final class GPUTextureBindingViewDimension {
     ctor public GPUTextureBindingViewDimension();
     ctor public GPUTextureBindingViewDimension(optional int textureBindingViewDimension);
@@ -2373,6 +2872,12 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public int getTextureBindingViewDimension();
     method @InaccessibleFromKotlin public void setTextureBindingViewDimension(int);
     property public int textureBindingViewDimension;
+  }
+
+  public static final class GPUTextureBindingViewDimension.Builder {
+    ctor public GPUTextureBindingViewDimension.Builder();
+    method public androidx.webgpu.GPUTextureBindingViewDimension build();
+    method public androidx.webgpu.GPUTextureBindingViewDimension.Builder setTextureBindingViewDimension(int textureBindingViewDimension);
   }
 
   public final class GPUTextureComponentSwizzle {
@@ -2409,6 +2914,12 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public androidx.webgpu.GPUTextureComponentSwizzle getSwizzle();
     method @InaccessibleFromKotlin public void setSwizzle(androidx.webgpu.GPUTextureComponentSwizzle);
     property public androidx.webgpu.GPUTextureComponentSwizzle swizzle;
+  }
+
+  public static final class GPUTextureComponentSwizzleDescriptor.Builder {
+    ctor public GPUTextureComponentSwizzleDescriptor.Builder();
+    method public androidx.webgpu.GPUTextureComponentSwizzleDescriptor build();
+    method public androidx.webgpu.GPUTextureComponentSwizzleDescriptor.Builder setSwizzle(androidx.webgpu.GPUTextureComponentSwizzle swizzle);
   }
 
   public final class GPUTextureDescriptor {
@@ -2527,8 +3038,6 @@ package androidx.webgpu {
   }
 
   public final class GPUVertexBufferLayout {
-    ctor public GPUVertexBufferLayout(long arrayStride);
-    ctor public GPUVertexBufferLayout(long arrayStride, optional int stepMode);
     ctor public GPUVertexBufferLayout(long arrayStride, optional int stepMode, optional androidx.webgpu.GPUVertexAttribute[] attributes);
     ctor @BytecodeOnly public GPUVertexBufferLayout(long, int, androidx.webgpu.GPUVertexAttribute![]!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public long getArrayStride();
@@ -2542,10 +3051,14 @@ package androidx.webgpu {
     property public int stepMode;
   }
 
+  public static final class GPUVertexBufferLayout.Builder {
+    ctor public GPUVertexBufferLayout.Builder(long arrayStride);
+    method public androidx.webgpu.GPUVertexBufferLayout build();
+    method public androidx.webgpu.GPUVertexBufferLayout.Builder setAttributes(androidx.webgpu.GPUVertexAttribute[] attributes);
+    method public androidx.webgpu.GPUVertexBufferLayout.Builder setStepMode(int stepMode);
+  }
+
   public final class GPUVertexState {
-    ctor public GPUVertexState(androidx.webgpu.GPUShaderModule module);
-    ctor public GPUVertexState(androidx.webgpu.GPUShaderModule module, optional String? entryPoint);
-    ctor public GPUVertexState(androidx.webgpu.GPUShaderModule module, optional String? entryPoint, optional androidx.webgpu.GPUConstantEntry[] constants);
     ctor public GPUVertexState(androidx.webgpu.GPUShaderModule module, optional String? entryPoint, optional androidx.webgpu.GPUConstantEntry[] constants, optional androidx.webgpu.GPUVertexBufferLayout[] buffers);
     ctor @BytecodeOnly public GPUVertexState(androidx.webgpu.GPUShaderModule!, String!, androidx.webgpu.GPUConstantEntry![]!, androidx.webgpu.GPUVertexBufferLayout![]!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.webgpu.GPUVertexBufferLayout[] getBuffers();
@@ -2560,6 +3073,14 @@ package androidx.webgpu {
     property public androidx.webgpu.GPUConstantEntry[] constants;
     property public String? entryPoint;
     property public androidx.webgpu.GPUShaderModule module;
+  }
+
+  public static final class GPUVertexState.Builder {
+    ctor public GPUVertexState.Builder(androidx.webgpu.GPUShaderModule module);
+    method public androidx.webgpu.GPUVertexState build();
+    method public androidx.webgpu.GPUVertexState.Builder setBuffers(androidx.webgpu.GPUVertexBufferLayout[] buffers);
+    method public androidx.webgpu.GPUVertexState.Builder setConstants(androidx.webgpu.GPUConstantEntry[] constants);
+    method public androidx.webgpu.GPUVertexState.Builder setEntryPoint(String? entryPoint);
   }
 
   public final class IndexFormat {
@@ -2731,13 +3252,19 @@ package androidx.webgpu {
     method public static String toString(int value);
     field public static final androidx.webgpu.PredefinedColorSpace.Companion Companion;
     field public static final int DisplayP3 = 2; // 0x2
+    field public static final int DisplayP3Linear = 327684; // 0x50004
+    field public static final int Rec2020Linear = 327685; // 0x50005
     field public static final int SRGB = 1; // 0x1
+    field public static final int SRGBLinear = 327683; // 0x50003
   }
 
   public static final class PredefinedColorSpace.Companion {
     method public String toString(int value);
     property public static int DisplayP3;
+    property public static int DisplayP3Linear;
+    property public static int Rec2020Linear;
     property public static int SRGB;
+    property public static int SRGBLinear;
   }
 
   public final class PresentMode {
@@ -2874,6 +3401,7 @@ package androidx.webgpu {
     method public static String toString(int value);
     field public static final androidx.webgpu.SType.Companion Companion;
     field public static final int CompatibilityModeLimits = 15; // 0xf
+    field @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public static final int DawnTogglesDescriptor = 327690; // 0x5000a
     field public static final int ExternalTextureBindingEntry = 14; // 0xe
     field public static final int ExternalTextureBindingLayout = 13; // 0xd
     field public static final int RenderPassMaxDrawCount = 3; // 0x3
@@ -2894,6 +3422,7 @@ package androidx.webgpu {
   public static final class SType.Companion {
     method public String toString(int value);
     property public static int CompatibilityModeLimits;
+    property @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public static int DawnTogglesDescriptor;
     property public static int ExternalTextureBindingEntry;
     property public static int ExternalTextureBindingLayout;
     property public static int RenderPassMaxDrawCount;
@@ -3413,6 +3942,7 @@ package androidx.webgpu {
     field public static final int Sint8 = 4; // 0x4
     field public static final int Sint8x2 = 5; // 0x5
     field public static final int Sint8x4 = 6; // 0x6
+    field public static final int Snorm10_10_10_2 = 42; // 0x2a
     field public static final int Snorm16 = 22; // 0x16
     field public static final int Snorm16x2 = 23; // 0x17
     field public static final int Snorm16x4 = 24; // 0x18
@@ -3458,6 +3988,7 @@ package androidx.webgpu {
     property public static int Sint8;
     property public static int Sint8x2;
     property public static int Sint8x4;
+    property public static int Snorm10_10_10_2;
     property public static int Snorm16;
     property public static int Snorm16x2;
     property public static int Snorm16x4;
@@ -3501,12 +4032,17 @@ package androidx.webgpu {
 
   public final class WGSLLanguageFeatureName {
     method public static String toString(int value);
+    field public static final int BufferView = 12; // 0xc
     field public static final androidx.webgpu.WGSLLanguageFeatureName.Companion Companion;
+    field public static final int FragmentDepth = 14; // 0xe
+    field public static final int ImmediateAddressSpace = 11; // 0xb
+    field public static final int LinearIndexing = 10; // 0xa
     field public static final int Packed4x8IntegerDotProduct = 2; // 0x2
     field public static final int PointerCompositeAccess = 4; // 0x4
     field public static final int ReadonlyAndReadwriteStorageTextures = 1; // 0x1
     field public static final int SubgroupId = 6; // 0x6
     field public static final int SubgroupUniformity = 8; // 0x8
+    field public static final int SwizzleAssignment = 13; // 0xd
     field public static final int TextureAndSamplerLet = 7; // 0x7
     field public static final int TextureFormatsTier1 = 9; // 0x9
     field public static final int UniformBufferStandardLayout = 5; // 0x5
@@ -3515,11 +4051,16 @@ package androidx.webgpu {
 
   public static final class WGSLLanguageFeatureName.Companion {
     method public String toString(int value);
+    property public static int BufferView;
+    property public static int FragmentDepth;
+    property public static int ImmediateAddressSpace;
+    property public static int LinearIndexing;
     property public static int Packed4x8IntegerDotProduct;
     property public static int PointerCompositeAccess;
     property public static int ReadonlyAndReadwriteStorageTextures;
     property public static int SubgroupId;
     property public static int SubgroupUniformity;
+    property public static int SwizzleAssignment;
     property public static int TextureAndSamplerLet;
     property public static int TextureFormatsTier1;
     property public static int UniformBufferStandardLayout;
@@ -3552,7 +4093,14 @@ package androidx.webgpu.helper {
 
   public final class ExtensionsKt {
     method public static androidx.webgpu.GPUColor toGPUColor(int);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.webgpu.GPUColor toGPUColor(long);
+    method public static androidx.webgpu.GPUColor toGPUColor(long);
+    method @SuppressCompatibility @androidx.webgpu.ExperimentalWebGpuApi public static android.hardware.SyncFence? toSyncFence(androidx.webgpu.GPUSyncFence?);
+  }
+
+  public final class GPUAndroidHardwareBufferUtil {
+    method public androidx.webgpu.GPUHardwareBufferExternalTexture createExternalTexture(androidx.webgpu.GPUDevice device, android.hardware.HardwareBuffer ahb, androidx.webgpu.GPUExternalTextureDescriptor descriptor);
+    method public androidx.webgpu.GPUHardwareBufferTexture createTexture(androidx.webgpu.GPUDevice device, android.hardware.HardwareBuffer ahb, int usage);
+    field public static final androidx.webgpu.helper.GPUAndroidHardwareBufferUtil INSTANCE;
   }
 
   public final class RoundingUtils {
@@ -3578,17 +4126,27 @@ package androidx.webgpu.helper {
 
   public abstract class WebGpu implements java.lang.AutoCloseable {
     ctor public WebGpu();
+    method public final suspend <T> Object? execute(kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super T>);
+    method @InaccessibleFromKotlin public abstract androidx.webgpu.GPUAdapter getAdapter();
     method @InaccessibleFromKotlin public abstract androidx.webgpu.GPUDevice getDevice();
+    method @InaccessibleFromKotlin public abstract kotlinx.coroutines.CoroutineDispatcher getDispatcher();
     method @InaccessibleFromKotlin public abstract androidx.webgpu.GPUInstance getInstance();
     method @InaccessibleFromKotlin public abstract androidx.webgpu.GPUSurface getWebgpuSurface();
+    method @InaccessibleFromKotlin protected final java.util.concurrent.atomic.AtomicBoolean isClosed();
+    method public final suspend Object? processEventsLoop(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public abstract androidx.webgpu.GPUAdapter adapter;
     property public abstract androidx.webgpu.GPUDevice device;
+    property public abstract kotlinx.coroutines.CoroutineDispatcher dispatcher;
     property public abstract androidx.webgpu.GPUInstance instance;
+    property protected final java.util.concurrent.atomic.AtomicBoolean isClosed;
     property public abstract androidx.webgpu.GPUSurface webgpuSurface;
   }
 
   public final class WebGpuUtils {
     method public static suspend Object? createWebGpu(optional android.view.Surface? surface, optional androidx.webgpu.GPUInstanceDescriptor instanceDescriptor, optional androidx.webgpu.GPURequestAdapterOptions requestAdapterOptions, optional androidx.webgpu.GPUDeviceDescriptor deviceDescriptor, kotlin.coroutines.Continuation<? super androidx.webgpu.helper.WebGpu>);
+    method public static suspend Object? createWebGpu(kotlinx.coroutines.CoroutineDispatcher dispatcher, optional android.view.Surface? surface, optional androidx.webgpu.GPUInstanceDescriptor instanceDescriptor, optional androidx.webgpu.GPURequestAdapterOptions requestAdapterOptions, optional androidx.webgpu.GPUDeviceDescriptor deviceDescriptor, kotlin.coroutines.Continuation<? super androidx.webgpu.helper.WebGpu>);
     method @BytecodeOnly public static Object! createWebGpu$default(android.view.Surface!, androidx.webgpu.GPUInstanceDescriptor!, androidx.webgpu.GPURequestAdapterOptions!, androidx.webgpu.GPUDeviceDescriptor!, kotlin.coroutines.Continuation!, int, Object!);
+    method @BytecodeOnly public static Object! createWebGpu$default(kotlinx.coroutines.CoroutineDispatcher!, android.view.Surface!, androidx.webgpu.GPUInstanceDescriptor!, androidx.webgpu.GPURequestAdapterOptions!, androidx.webgpu.GPUDeviceDescriptor!, kotlin.coroutines.Continuation!, int, Object!);
     method public static void initLibrary();
   }
 

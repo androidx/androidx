@@ -40,14 +40,24 @@ public class Status private constructor() {
 
         /** An error occurred. */
         public const val Error: Int = 0x00000002
-        internal val names: Map<Int, String> = mapOf(0x00000001 to "Success", 0x00000002 to "Error")
+        internal val names: Map<Int, String> =
+            mapOf(
+                0x00000001 to "Success",
+                0x00000002 to "Error",
+            )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Success, Error])
+    @IntDef(
+        value =
+            [
+                Success,
+                Error,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

@@ -33,7 +33,6 @@ public class GPURenderBundleEncoderDescriptor(
     @get:JvmName("isDepthReadOnly") public var depthReadOnly: Boolean = false,
     @get:JvmName("isStencilReadOnly") public var stencilReadOnly: Boolean = false,
 ) {
-
     /** Builder for [GPURenderBundleEncoderDescriptor]. */
     public class Builder() {
         private var label: String? = null
@@ -43,7 +42,9 @@ public class GPURenderBundleEncoderDescriptor(
         private var depthReadOnly: Boolean = false
         private var stencilReadOnly: Boolean = false
 
-        public fun setLabel(label: String?): Builder = apply { this.label = label }
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
 
         public fun setColorFormats(@TextureFormat.Type colorFormats: IntArray): Builder = apply {
             this.colorFormats = colorFormats

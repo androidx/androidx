@@ -24,9 +24,7 @@
 package androidx.webgpu
 
 /** Describes a buffer to be created. */
-public class GPUBufferDescriptor
-@JvmOverloads
-constructor(
+public class GPUBufferDescriptor(
     /** The allowed usages for the buffer. */
     @BufferUsage.Type public var usage: Int,
     /** The size of the buffer in bytes. */
@@ -34,4 +32,30 @@ constructor(
     /** A human-readable label for debugging. */
     public var label: String? = null,
     @get:JvmName("isMappedAtCreation") public var mappedAtCreation: Boolean = false,
-)
+) {
+    /** Builder for [GPUBufferDescriptor]. */
+    public class Builder(
+        @BufferUsage.Type private val usage: Int,
+        private val size: Long,
+    ) {
+        private var label: String? = null
+        private var mappedAtCreation: Boolean = false
+
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
+
+        public fun setMappedAtCreation(mappedAtCreation: Boolean): Builder = apply {
+            this.mappedAtCreation = mappedAtCreation
+        }
+
+        /** Builds the [GPUBufferDescriptor]. */
+        public fun build(): GPUBufferDescriptor =
+            GPUBufferDescriptor(
+                usage = usage,
+                size = size,
+                label = label,
+                mappedAtCreation = mappedAtCreation,
+            )
+    }
+}

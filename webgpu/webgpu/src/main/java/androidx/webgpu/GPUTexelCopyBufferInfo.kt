@@ -24,11 +24,25 @@
 package androidx.webgpu
 
 /** Describes a buffer used in a texel copy operation. */
-public class GPUTexelCopyBufferInfo
-@JvmOverloads
-constructor(
+public class GPUTexelCopyBufferInfo(
     /** The buffer object. */
     public var buffer: GPUBuffer,
     /** The layout of the buffer data. */
     public var layout: GPUTexelCopyBufferLayout = GPUTexelCopyBufferLayout(),
-)
+) {
+    /** Builder for [GPUTexelCopyBufferInfo]. */
+    public class Builder(private val buffer: GPUBuffer) {
+        private var layout: GPUTexelCopyBufferLayout = GPUTexelCopyBufferLayout()
+
+        public fun setLayout(layout: GPUTexelCopyBufferLayout): Builder = apply {
+            this.layout = layout
+        }
+
+        /** Builds the [GPUTexelCopyBufferInfo]. */
+        public fun build(): GPUTexelCopyBufferInfo =
+            GPUTexelCopyBufferInfo(
+                buffer = buffer,
+                layout = layout,
+            )
+    }
+}

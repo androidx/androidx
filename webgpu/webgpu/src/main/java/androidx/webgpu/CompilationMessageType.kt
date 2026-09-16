@@ -44,14 +44,25 @@ public class CompilationMessageType private constructor() {
         /** An informational message. */
         public const val Info: Int = 0x00000003
         internal val names: Map<Int, String> =
-            mapOf(0x00000001 to "Error", 0x00000002 to "Warning", 0x00000003 to "Info")
+            mapOf(
+                0x00000001 to "Error",
+                0x00000002 to "Warning",
+                0x00000003 to "Info",
+            )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Error, Warning, Info])
+    @IntDef(
+        value =
+            [
+                Error,
+                Warning,
+                Info,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

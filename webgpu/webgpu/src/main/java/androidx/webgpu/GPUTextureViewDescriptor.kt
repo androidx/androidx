@@ -46,7 +46,6 @@ public class GPUTextureViewDescriptor(
      */
     public var textureComponentSwizzleDescriptor: GPUTextureComponentSwizzleDescriptor? = null,
 ) {
-
     /** Builder for [GPUTextureViewDescriptor]. */
     public class Builder() {
         private var label: String? = null
@@ -60,7 +59,9 @@ public class GPUTextureViewDescriptor(
         @TextureUsage.Type private var usage: Int = TextureUsage.None
         private var textureComponentSwizzleDescriptor: GPUTextureComponentSwizzleDescriptor? = null
 
-        public fun setLabel(label: String?): Builder = apply { this.label = label }
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
 
         public fun setFormat(@TextureFormat.Type format: Int): Builder = apply {
             this.format = format
@@ -90,7 +91,9 @@ public class GPUTextureViewDescriptor(
             this.aspect = aspect
         }
 
-        public fun setUsage(@TextureUsage.Type usage: Int): Builder = apply { this.usage = usage }
+        public fun setUsage(@TextureUsage.Type usage: Int): Builder = apply {
+            this.usage = usage
+        }
 
         public fun setTextureComponentSwizzleDescriptor(
             textureComponentSwizzleDescriptor: GPUTextureComponentSwizzleDescriptor?

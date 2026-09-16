@@ -24,13 +24,38 @@
 package androidx.webgpu
 
 /** Describes a shader module. */
-public class GPUShaderModuleDescriptor
-@JvmOverloads
-constructor(
+public class GPUShaderModuleDescriptor(
     /** A human-readable label for debugging. */
     public var label: String? = null,
     /** Extension for providing SPIR-V shader source code. */
     public var shaderSourceSPIRV: GPUShaderSourceSPIRV? = null,
     /** Extension for providing WGSL shader source code. */
     public var shaderSourceWGSL: GPUShaderSourceWGSL? = null,
-)
+) {
+    /** Builder for [GPUShaderModuleDescriptor]. */
+    public class Builder() {
+        private var label: String? = null
+        private var shaderSourceSPIRV: GPUShaderSourceSPIRV? = null
+        private var shaderSourceWGSL: GPUShaderSourceWGSL? = null
+
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
+
+        public fun setShaderSourceSPIRV(shaderSourceSPIRV: GPUShaderSourceSPIRV?): Builder = apply {
+            this.shaderSourceSPIRV = shaderSourceSPIRV
+        }
+
+        public fun setShaderSourceWGSL(shaderSourceWGSL: GPUShaderSourceWGSL?): Builder = apply {
+            this.shaderSourceWGSL = shaderSourceWGSL
+        }
+
+        /** Builds the [GPUShaderModuleDescriptor]. */
+        public fun build(): GPUShaderModuleDescriptor =
+            GPUShaderModuleDescriptor(
+                label = label,
+                shaderSourceSPIRV = shaderSourceSPIRV,
+                shaderSourceWGSL = shaderSourceWGSL,
+            )
+    }
+}

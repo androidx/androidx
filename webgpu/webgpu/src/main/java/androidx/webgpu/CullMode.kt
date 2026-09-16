@@ -59,7 +59,15 @@ public class CullMode private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Undefined, None, Front, Back])
+    @IntDef(
+        value =
+            [
+                Undefined,
+                None,
+                Front,
+                Back,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

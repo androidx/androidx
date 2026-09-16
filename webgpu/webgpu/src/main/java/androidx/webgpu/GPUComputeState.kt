@@ -24,12 +24,32 @@
 package androidx.webgpu
 
 /** Describes the compute shader stage of a pipeline. */
-public class GPUComputeState
-@JvmOverloads
-constructor(
+public class GPUComputeState(
     /** The shader module containing the compute shader. */
     public var module: GPUShaderModule,
     public var entryPoint: String? = null,
     /** An array of pipeline-overridable constants. */
     public var constants: Array<GPUConstantEntry> = arrayOf(),
-)
+) {
+    /** Builder for [GPUComputeState]. */
+    public class Builder(private val module: GPUShaderModule) {
+        private var entryPoint: String? = null
+        private var constants: Array<GPUConstantEntry> = arrayOf()
+
+        public fun setEntryPoint(entryPoint: String?): Builder = apply {
+            this.entryPoint = entryPoint
+        }
+
+        public fun setConstants(constants: Array<GPUConstantEntry>): Builder = apply {
+            this.constants = constants
+        }
+
+        /** Builds the [GPUComputeState]. */
+        public fun build(): GPUComputeState =
+            GPUComputeState(
+                module = module,
+                entryPoint = entryPoint,
+                constants = constants,
+            )
+    }
+}

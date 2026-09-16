@@ -24,12 +24,22 @@
 package androidx.webgpu
 
 /** Describes the layout of a sampler binding. */
-public class GPUSamplerBindingLayout
-@JvmOverloads
-constructor(
+public class GPUSamplerBindingLayout(
     /**
      * The type of the sampler binding. Defaults to @see [SamplerBindingType.Filtering] if
      * `undefined`.
      */
     @SamplerBindingType.Type public var type: Int = SamplerBindingType.Filtering
-)
+) {
+    /** Builder for [GPUSamplerBindingLayout]. */
+    public class Builder() {
+        @SamplerBindingType.Type private var type: Int = SamplerBindingType.Filtering
+
+        public fun setType(@SamplerBindingType.Type type: Int): Builder = apply {
+            this.type = type
+        }
+
+        /** Builds the [GPUSamplerBindingLayout]. */
+        public fun build(): GPUSamplerBindingLayout = GPUSamplerBindingLayout(type = type)
+    }
+}

@@ -107,6 +107,18 @@ public class GPUDevice private constructor(public val handle: Long) : AutoClosea
         createComputePipelineAsync(descriptor, Executor(Runnable::run), callback)
     }
 
+    @ExperimentalWebGpuApi
+    @FastNative
+    @JvmName("createErrorExternalTexture")
+    public external fun createErrorExternalTexture(): GPUExternalTexture
+
+    @ExperimentalWebGpuApi
+    @FastNative
+    @JvmName("createExternalTexture")
+    public external fun createExternalTexture(
+        externalTextureDescriptor: GPUExternalTextureDescriptor
+    ): GPUExternalTexture
+
     /**
      * Creates a new pipeline layout.
      *

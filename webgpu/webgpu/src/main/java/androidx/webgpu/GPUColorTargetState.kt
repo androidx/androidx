@@ -24,12 +24,37 @@
 package androidx.webgpu
 
 /** Describes the state of a single color target in a render pipeline. */
-public class GPUColorTargetState
-@JvmOverloads
-constructor(
+public class GPUColorTargetState(
     /** The texture format of the color target. */
     @TextureFormat.Type public var format: Int = TextureFormat.Undefined,
     /** The blending state for this target. */
     public var blend: GPUBlendState? = null,
     @ColorWriteMask.Type public var writeMask: Int = ColorWriteMask.All,
-)
+) {
+    /** Builder for [GPUColorTargetState]. */
+    public class Builder() {
+        @TextureFormat.Type private var format: Int = TextureFormat.Undefined
+        private var blend: GPUBlendState? = null
+        @ColorWriteMask.Type private var writeMask: Int = ColorWriteMask.All
+
+        public fun setFormat(@TextureFormat.Type format: Int): Builder = apply {
+            this.format = format
+        }
+
+        public fun setBlend(blend: GPUBlendState?): Builder = apply {
+            this.blend = blend
+        }
+
+        public fun setWriteMask(@ColorWriteMask.Type writeMask: Int): Builder = apply {
+            this.writeMask = writeMask
+        }
+
+        /** Builds the [GPUColorTargetState]. */
+        public fun build(): GPUColorTargetState =
+            GPUColorTargetState(
+                format = format,
+                blend = blend,
+                writeMask = writeMask,
+            )
+    }
+}

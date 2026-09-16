@@ -24,9 +24,20 @@
 package androidx.webgpu
 
 /** A list of supported optional instance features. */
-public class GPUSupportedInstanceFeatures
-@JvmOverloads
-constructor(
+public class GPUSupportedInstanceFeatures(
     /** An array of supported instance feature names. */
     @InstanceFeatureName.Type public var features: IntArray = intArrayOf()
-)
+) {
+    /** Builder for [GPUSupportedInstanceFeatures]. */
+    public class Builder() {
+        @InstanceFeatureName.Type private var features: IntArray = intArrayOf()
+
+        public fun setFeatures(@InstanceFeatureName.Type features: IntArray): Builder = apply {
+            this.features = features
+        }
+
+        /** Builds the [GPUSupportedInstanceFeatures]. */
+        public fun build(): GPUSupportedInstanceFeatures =
+            GPUSupportedInstanceFeatures(features = features)
+    }
+}

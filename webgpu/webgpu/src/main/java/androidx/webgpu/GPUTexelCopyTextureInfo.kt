@@ -24,9 +24,7 @@
 package androidx.webgpu
 
 /** Describes a texture used in a texel copy operation. */
-public class GPUTexelCopyTextureInfo
-@JvmOverloads
-constructor(
+public class GPUTexelCopyTextureInfo(
     /** The texture object. */
     public var texture: GPUTexture,
     public var mipLevel: Int = 0,
@@ -34,4 +32,32 @@ constructor(
     public var origin: GPUOrigin3D = GPUOrigin3D(),
     /** The texture aspect to use. Defaults to @see [TextureAspect.All]. */
     @TextureAspect.Type public var aspect: Int = TextureAspect.All,
-)
+) {
+    /** Builder for [GPUTexelCopyTextureInfo]. */
+    public class Builder(private val texture: GPUTexture) {
+        private var mipLevel: Int = 0
+        private var origin: GPUOrigin3D = GPUOrigin3D()
+        @TextureAspect.Type private var aspect: Int = TextureAspect.All
+
+        public fun setMipLevel(mipLevel: Int): Builder = apply {
+            this.mipLevel = mipLevel
+        }
+
+        public fun setOrigin(origin: GPUOrigin3D): Builder = apply {
+            this.origin = origin
+        }
+
+        public fun setAspect(@TextureAspect.Type aspect: Int): Builder = apply {
+            this.aspect = aspect
+        }
+
+        /** Builds the [GPUTexelCopyTextureInfo]. */
+        public fun build(): GPUTexelCopyTextureInfo =
+            GPUTexelCopyTextureInfo(
+                texture = texture,
+                mipLevel = mipLevel,
+                origin = origin,
+                aspect = aspect,
+            )
+    }
+}

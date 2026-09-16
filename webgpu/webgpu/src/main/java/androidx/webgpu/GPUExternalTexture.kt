@@ -26,6 +26,8 @@ package androidx.webgpu
 import dalvik.annotation.optimization.FastNative
 
 public class GPUExternalTexture private constructor(public val handle: Long) : AutoCloseable {
+    @ExperimentalWebGpuApi @FastNative @JvmName("destroy") public external fun destroy(): Unit
+
     @FastNative @JvmName("setLabel") public external fun setLabel(label: String): Unit
 
     /**

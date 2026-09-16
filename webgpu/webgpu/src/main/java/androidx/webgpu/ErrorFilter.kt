@@ -44,14 +44,25 @@ public class ErrorFilter private constructor() {
         /** Captures internal implementation errors. */
         public const val Internal: Int = 0x00000003
         internal val names: Map<Int, String> =
-            mapOf(0x00000001 to "Validation", 0x00000002 to "OutOfMemory", 0x00000003 to "Internal")
+            mapOf(
+                0x00000001 to "Validation",
+                0x00000002 to "OutOfMemory",
+                0x00000003 to "Internal",
+            )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Validation, OutOfMemory, Internal])
+    @IntDef(
+        value =
+            [
+                Validation,
+                OutOfMemory,
+                Internal,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

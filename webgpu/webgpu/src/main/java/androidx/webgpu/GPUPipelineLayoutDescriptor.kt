@@ -24,11 +24,37 @@
 package androidx.webgpu
 
 /** Describes a pipeline layout. */
-public class GPUPipelineLayoutDescriptor
-@JvmOverloads
-constructor(
+public class GPUPipelineLayoutDescriptor(
     /** A human-readable label for debugging. */
     public var label: String? = null,
     public var bindGroupLayouts: Array<GPUBindGroupLayout> = arrayOf(),
     public var immediateSize: Int = 0,
-)
+) {
+    /** Builder for [GPUPipelineLayoutDescriptor]. */
+    public class Builder() {
+        private var label: String? = null
+        private var bindGroupLayouts: Array<GPUBindGroupLayout> = arrayOf()
+        private var immediateSize: Int = 0
+
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
+
+        public fun setBindGroupLayouts(bindGroupLayouts: Array<GPUBindGroupLayout>): Builder =
+            apply {
+                this.bindGroupLayouts = bindGroupLayouts
+            }
+
+        public fun setImmediateSize(immediateSize: Int): Builder = apply {
+            this.immediateSize = immediateSize
+        }
+
+        /** Builds the [GPUPipelineLayoutDescriptor]. */
+        public fun build(): GPUPipelineLayoutDescriptor =
+            GPUPipelineLayoutDescriptor(
+                label = label,
+                bindGroupLayouts = bindGroupLayouts,
+                immediateSize = immediateSize,
+            )
+    }
+}

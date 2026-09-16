@@ -57,7 +57,14 @@ public class CallbackMode private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [WaitAnyOnly, AllowProcessEvents, AllowSpontaneous])
+    @IntDef(
+        value =
+            [
+                WaitAnyOnly,
+                AllowProcessEvents,
+                AllowSpontaneous,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

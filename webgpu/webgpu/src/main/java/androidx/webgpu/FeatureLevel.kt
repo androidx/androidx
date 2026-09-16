@@ -46,14 +46,25 @@ public class FeatureLevel private constructor() {
         /** `Core` profile, requiring modern APIs like Vulkan, Metal, or Direct3D 12. */
         public const val Core: Int = 0x00000002
         internal val names: Map<Int, String> =
-            mapOf(0x00000000 to "Undefined", 0x00000001 to "Compatibility", 0x00000002 to "Core")
+            mapOf(
+                0x00000000 to "Undefined",
+                0x00000001 to "Compatibility",
+                0x00000002 to "Core",
+            )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Undefined, Compatibility, Core])
+    @IntDef(
+        value =
+            [
+                Undefined,
+                Compatibility,
+                Core,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

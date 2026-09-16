@@ -24,4 +24,17 @@
 package androidx.webgpu
 
 /** Defines limits for an instance. */
-public class GPUInstanceLimits @JvmOverloads constructor(public var timedWaitAnyMaxCount: Long = 0)
+public class GPUInstanceLimits(public var timedWaitAnyMaxCount: Long = 0) {
+    /** Builder for [GPUInstanceLimits]. */
+    public class Builder() {
+        private var timedWaitAnyMaxCount: Long = 0
+
+        public fun setTimedWaitAnyMaxCount(timedWaitAnyMaxCount: Long): Builder = apply {
+            this.timedWaitAnyMaxCount = timedWaitAnyMaxCount
+        }
+
+        /** Builds the [GPUInstanceLimits]. */
+        public fun build(): GPUInstanceLimits =
+            GPUInstanceLimits(timedWaitAnyMaxCount = timedWaitAnyMaxCount)
+    }
+}

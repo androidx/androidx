@@ -47,14 +47,25 @@ public class RequestDeviceStatus private constructor() {
         /** An error occurred during device creation. */
         public const val Error: Int = 0x00000003
         internal val names: Map<Int, String> =
-            mapOf(0x00000001 to "Success", 0x00000002 to "CallbackCancelled", 0x00000003 to "Error")
+            mapOf(
+                0x00000001 to "Success",
+                0x00000002 to "CallbackCancelled",
+                0x00000003 to "Error",
+            )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Success, CallbackCancelled, Error])
+    @IntDef(
+        value =
+            [
+                Success,
+                CallbackCancelled,
+                Error,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

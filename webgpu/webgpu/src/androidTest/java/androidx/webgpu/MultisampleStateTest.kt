@@ -21,6 +21,13 @@ import androidx.test.filters.SdkSuppress
 import androidx.webgpu.WebGpuTestConstants.EMULATOR_TESTS_MIN_API_LEVEL
 import androidx.webgpu.helper.WebGpu
 import androidx.webgpu.helper.createWebGpu
+import java.util.concurrent.Executors
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -40,27 +47,39 @@ class MultisampleStateTest {
         private const val BYTES_PER_ROW = 256
     }
 
+    private val dispatcher: CoroutineDispatcher =
+        Executors.newSingleThreadExecutor { runnable ->
+                Thread(runnable, "Test-WebGPU-Thread")
+            }
+            .asCoroutineDispatcher()
+    private val testScope = CoroutineScope(dispatcher)
     private lateinit var device: GPUDevice
     private lateinit var webGpu: WebGpu
     @get:Rule val apiSkipRule = ApiLevelSkipRule()
 
     @Before
-    fun setup() = runBlocking {
-        webGpu = createWebGpu()
+    fun setup(): Unit = runBlocking {
+        webGpu = createWebGpu(dispatcher)
         device = webGpu.device
+        testScope.launch {
+            webGpu.processEventsLoop()
+        }
     }
 
     @After
     fun teardown() {
-        runCatching { device.destroy() }
-        webGpu.close()
+        if (::webGpu.isInitialized) {
+            webGpu.close()
+        }
+        testScope.cancel()
+        (dispatcher as? ExecutorCoroutineDispatcher)?.close()
     }
 
     /**
      * Helper function to run the MSAA test with a specific sample mask. returns the Red channel
      * value of the first pixel (0-255).
      */
-    private fun executeMsaaTest(multiSampleState: GPUMultisampleState): Int {
+    private suspend fun executeMsaaTest(multiSampleState: GPUMultisampleState): Int {
         // 1. Create Textures
         val msaaTexture =
             device.createTexture(
@@ -163,10 +182,8 @@ class MultisampleStateTest {
 
         device.queue.submit(arrayOf(encoder.finish()))
 
-        runBlocking {
-            device.queue.onSubmittedWorkDone()
-            outputBuffer.mapAndAwait(MapMode.Read, 0, outputBufferSize)
-        }
+        device.queue.onSubmittedWorkDone()
+        outputBuffer.mapAndAwait(MapMode.Read, 0, outputBufferSize)
 
         // 6. Read Result
         val data = outputBuffer.getConstMappedRange()
@@ -183,19 +200,29 @@ class MultisampleStateTest {
     @Test
     @SdkSuppress(maxSdkVersion = 36) // b/537525245
     @ApiRequirement(minApi = EMULATOR_TESTS_MIN_API_LEVEL, onlySkipOnEmulator = true)
-    fun verifyDefaultMaskEnablesAllSamplesInMSAARender() {
-        // Default mask (0xFFFFFFFF or -1) should allow drawing.
-        // We draw White on Black background -> Expect White (255).
-        val actualValue = executeMsaaTest(GPUMultisampleState(count = MSAA_COUNT))
-        assertEquals("Should be White (255)", 255, actualValue)
+    fun verifyDefaultMaskEnablesAllSamplesInMSAARender() = runBlocking {
+        val unused = webGpu.execute {
+            // Default mask (0xFFFFFFFF or -1) should allow drawing.
+            // We draw White on Black background -> Expect White (255).
+            val actualValue = executeMsaaTest(GPUMultisampleState(count = MSAA_COUNT))
+            assertEquals("Should be White (255)", 255, actualValue)
+        }
     }
 
     @Test
-    @ApiRequirement(minApi = EMULATOR_TESTS_MIN_API_LEVEL, onlySkipOnEmulator = true)
-    fun verifyZeroMaskDisablesUpdates() {
-        // Zero mask (0x0) should block all samples from being updated.
-        // We draw White on Black background -> Expect Black (0) because the draw was masked out.
-        val actualValue = executeMsaaTest(GPUMultisampleState(count = MSAA_COUNT, mask = 0))
-        assertEquals("Should be Black (0) because mask prevented write", 0, actualValue)
+    fun verifyZeroMaskDisablesUpdates() = runBlocking {
+        val unused = webGpu.execute {
+            // Zero mask (0x0) should block all samples from being updated.
+            // We draw White on Black background -> Expect Black (0) because the draw was masked
+            // out.
+            val actualValue =
+                executeMsaaTest(
+                    GPUMultisampleState(
+                        count = MSAA_COUNT,
+                        mask = 0,
+                    )
+                )
+            assertEquals("Should be Black (0) because mask prevented write", 0, actualValue)
+        }
     }
 }

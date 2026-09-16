@@ -24,13 +24,39 @@
 package androidx.webgpu
 
 /** Describes the capabilities of a surface for a given adapter. */
-public class GPUSurfaceCapabilities
-@JvmOverloads
-constructor(
+public class GPUSurfaceCapabilities(
     /** The supported texture usages for the surface. */
     @TextureUsage.Type public var usages: Int,
     /** An array of supported texture formats for the surface. */
     @TextureFormat.Type public var formats: IntArray = intArrayOf(),
     @PresentMode.Type public var presentModes: IntArray = intArrayOf(),
     @CompositeAlphaMode.Type public var alphaModes: IntArray = intArrayOf(),
-)
+) {
+    /** Builder for [GPUSurfaceCapabilities]. */
+    public class Builder(@TextureUsage.Type private val usages: Int) {
+        @TextureFormat.Type private var formats: IntArray = intArrayOf()
+        @PresentMode.Type private var presentModes: IntArray = intArrayOf()
+        @CompositeAlphaMode.Type private var alphaModes: IntArray = intArrayOf()
+
+        public fun setFormats(@TextureFormat.Type formats: IntArray): Builder = apply {
+            this.formats = formats
+        }
+
+        public fun setPresentModes(@PresentMode.Type presentModes: IntArray): Builder = apply {
+            this.presentModes = presentModes
+        }
+
+        public fun setAlphaModes(@CompositeAlphaMode.Type alphaModes: IntArray): Builder = apply {
+            this.alphaModes = alphaModes
+        }
+
+        /** Builds the [GPUSurfaceCapabilities]. */
+        public fun build(): GPUSurfaceCapabilities =
+            GPUSurfaceCapabilities(
+                usages = usages,
+                formats = formats,
+                presentModes = presentModes,
+                alphaModes = alphaModes,
+            )
+    }
+}

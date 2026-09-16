@@ -16,9 +16,11 @@
 package androidx.webgpu.helper
 
 import android.graphics.Color
+import android.hardware.SyncFence
 import android.os.Build
-import androidx.annotation.RequiresApi
+import androidx.webgpu.ExperimentalWebGpuApi
 import androidx.webgpu.GPUColor
+import androidx.webgpu.GPUSyncFence
 
 /**
  * Converts an Android color integer to a [GPUColor].
@@ -39,7 +41,6 @@ public fun Int.toGPUColor(): GPUColor {
  *
  * @return The [GPUColor] representation of the long color.
  */
-@RequiresApi(Build.VERSION_CODES.O)
 public fun Long.toGPUColor(): GPUColor {
     val r = Color.red(this).toDouble()
     val g = Color.green(this).toDouble()
@@ -47,4 +48,20 @@ public fun Long.toGPUColor(): GPUColor {
     val a = Color.alpha(this).toDouble()
 
     return GPUColor(r, g, b, a)
+}
+
+/**
+ * Converts to an Android platform [SyncFence].
+ *
+ * Safely handles API level compatibility internally. On devices below Android T (API 33), this
+ * function will safely return `null` without requiring API version checks at the call site.
+ */
+@ExperimentalWebGpuApi
+public fun GPUSyncFence?.toSyncFence(): SyncFence? {
+    if (this == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+        return null
+    }
+
+    val duplicatedPfd = this.getParcelFileDescriptor().dup()
+    return GPUSyncFenceHelper.createSyncFenceFromFd(duplicatedPfd)
 }

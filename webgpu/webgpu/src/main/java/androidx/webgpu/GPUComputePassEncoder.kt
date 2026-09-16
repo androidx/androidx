@@ -24,6 +24,7 @@
 package androidx.webgpu
 
 import dalvik.annotation.optimization.FastNative
+import java.nio.ByteBuffer
 
 /** An object used to record commands for a compute pass. */
 public class GPUComputePassEncoder private constructor(public val handle: Long) : AutoCloseable {
@@ -95,6 +96,10 @@ public class GPUComputePassEncoder private constructor(public val handle: Long) 
         group: GPUBindGroup? = null,
         dynamicOffsets: IntArray = intArrayOf(),
     ): Unit
+
+    @FastNative
+    @JvmName("setImmediates")
+    public external fun setImmediates(offset: Int, data: java.nio.ByteBuffer): Unit
 
     /**
      * Sets a human-readable label for debugging.

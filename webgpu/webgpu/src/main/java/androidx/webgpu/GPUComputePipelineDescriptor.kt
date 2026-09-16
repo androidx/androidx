@@ -24,13 +24,33 @@
 package androidx.webgpu
 
 /** Describes a compute pipeline. */
-public class GPUComputePipelineDescriptor
-@JvmOverloads
-constructor(
+public class GPUComputePipelineDescriptor(
     /** The compute shader stage configuration. */
     public var compute: GPUComputeState,
     /** A human-readable label for debugging. */
     public var label: String? = null,
     /** The pipeline layout. If {@code null}, a default layout is inferred. */
     public var layout: GPUPipelineLayout? = null,
-)
+) {
+    /** Builder for [GPUComputePipelineDescriptor]. */
+    public class Builder(private val compute: GPUComputeState) {
+        private var label: String? = null
+        private var layout: GPUPipelineLayout? = null
+
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
+
+        public fun setLayout(layout: GPUPipelineLayout?): Builder = apply {
+            this.layout = layout
+        }
+
+        /** Builds the [GPUComputePipelineDescriptor]. */
+        public fun build(): GPUComputePipelineDescriptor =
+            GPUComputePipelineDescriptor(
+                compute = compute,
+                label = label,
+                layout = layout,
+            )
+    }
+}

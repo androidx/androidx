@@ -24,6 +24,17 @@
 package androidx.webgpu
 
 /** An extension for specifying the maximum draw count in a render pass. */
-public class GPURenderPassMaxDrawCount
-@JvmOverloads
-constructor(public var maxDrawCount: Long = 50000000)
+public class GPURenderPassMaxDrawCount(public var maxDrawCount: Long = 50000000) {
+    /** Builder for [GPURenderPassMaxDrawCount]. */
+    public class Builder() {
+        private var maxDrawCount: Long = 50000000
+
+        public fun setMaxDrawCount(maxDrawCount: Long): Builder = apply {
+            this.maxDrawCount = maxDrawCount
+        }
+
+        /** Builds the [GPURenderPassMaxDrawCount]. */
+        public fun build(): GPURenderPassMaxDrawCount =
+            GPURenderPassMaxDrawCount(maxDrawCount = maxDrawCount)
+    }
+}

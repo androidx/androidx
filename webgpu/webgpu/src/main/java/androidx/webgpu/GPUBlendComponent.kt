@@ -24,11 +24,36 @@
 package androidx.webgpu
 
 /** Defines the blending behavior for a single color component (color or alpha). */
-public class GPUBlendComponent
-@JvmOverloads
-constructor(
+public class GPUBlendComponent(
     /** The blend operation to perform. Defaults to @see [BlendOperation.Add] if `undefined`. */
     @BlendOperation.Type public var operation: Int = BlendOperation.Add,
     @BlendFactor.Type public var srcFactor: Int = BlendFactor.One,
     @BlendFactor.Type public var dstFactor: Int = BlendFactor.Zero,
-)
+) {
+    /** Builder for [GPUBlendComponent]. */
+    public class Builder() {
+        @BlendOperation.Type private var operation: Int = BlendOperation.Add
+        @BlendFactor.Type private var srcFactor: Int = BlendFactor.One
+        @BlendFactor.Type private var dstFactor: Int = BlendFactor.Zero
+
+        public fun setOperation(@BlendOperation.Type operation: Int): Builder = apply {
+            this.operation = operation
+        }
+
+        public fun setSrcFactor(@BlendFactor.Type srcFactor: Int): Builder = apply {
+            this.srcFactor = srcFactor
+        }
+
+        public fun setDstFactor(@BlendFactor.Type dstFactor: Int): Builder = apply {
+            this.dstFactor = dstFactor
+        }
+
+        /** Builds the [GPUBlendComponent]. */
+        public fun build(): GPUBlendComponent =
+            GPUBlendComponent(
+                operation = operation,
+                srcFactor = srcFactor,
+                dstFactor = dstFactor,
+            )
+    }
+}
