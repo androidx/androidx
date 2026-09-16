@@ -583,4 +583,158 @@ class KeepAnnotationPluginDetectorTest {
             .run()
             .expectClean()
     }
+
+    @Test
+    fun testAndroidXWorkProjectInterProjectDependencyMissingPlugin() {
+        lint()
+            .files(
+                gradle(
+                        "build.gradle",
+                        """
+            /**
+             * This file was created using the `createProject` gradle task (./gradlew createProject)
+             */
+            plugins {
+                id("AndroidXPlugin")
+                id("com.android.library")
+            }
+
+            android {
+                namespace = "androidx.work.impl.background.gcm"
+            }
+
+            dependencies {
+                api("androidx.core:core:1.12.0")
+                implementation(project(":annotation:annotation-keep"))
+            }
+            """,
+                    )
+                    .indented()
+            )
+            .run()
+            .expect(
+                """
+        build.gradle:15: Error: The androidx.annotation:annotation-keep dependency requires the androidx.annotation.keep plugin to be applied in this build file [MissingKeepAnnotationPlugin]
+            implementation(project(":annotation:annotation-keep"))
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        1 errors, 0 warnings
+        """
+            )
+            .expectFixDiffs(
+                """
+        Fix for build.gradle line 15: Apply androidx.annotation.keep plugin:
+        @@ -6,0 +7 @@
+        +    id("androidx.annotation.keep")
+        """
+            )
+    }
+
+    @Test
+    fun testAndroidXProjectDependencySingleQuotes() {
+        lint()
+            .files(
+                gradle(
+                        "build.gradle",
+                        """
+            plugins {
+                id 'com.android.library'
+            }
+
+            dependencies {
+                implementation project(':annotation:annotation-keep')
+            }
+            """,
+                    )
+                    .indented()
+            )
+            .run()
+            .expect(
+                """
+        build.gradle:6: Error: The androidx.annotation:annotation-keep dependency requires the androidx.annotation.keep plugin to be applied in this build file [MissingKeepAnnotationPlugin]
+            implementation project(':annotation:annotation-keep')
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        1 errors, 0 warnings
+        """
+            )
+            .expectFixDiffs(
+                """
+        Fix for build.gradle line 6: Apply androidx.annotation.keep plugin:
+        @@ -2,0 +3 @@
+        +    id 'androidx.annotation.keep'
+        """
+            )
+    }
+
+    @Test
+    fun testKmpProjectDependencyMissingPlugin() {
+        lint()
+            .files(
+                kts(
+                        "build.gradle.kts",
+                        """
+            plugins {
+                kotlin("multiplatform")
+            }
+
+            kotlin {
+                sourceSets {
+                    commonMain.dependencies {
+                        implementation(project(":annotation:annotation-keep"))
+                    }
+                }
+            }
+            """,
+                    )
+                    .indented()
+            )
+            .run()
+            .expect(
+                """
+        build.gradle.kts:8: Error: The androidx.annotation:annotation-keep dependency requires the androidx.annotation.keep plugin to be applied in this build file [MissingKeepAnnotationPlugin]
+                    implementation(project(":annotation:annotation-keep"))
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        1 errors, 0 warnings
+        """
+            )
+    }
+
+    @Test
+    fun testAndroidXMultiplatformSourceSetSyntax() {
+        lint()
+            .files(
+                gradle(
+                        "build.gradle",
+                        """
+            plugins {
+                id("AndroidXPlugin")
+            }
+
+            androidXMultiplatform {
+                sourceSets {
+                    commonMain.dependencies {
+                        implementation(project(":annotation:annotation-keep"))
+                    }
+                }
+            }
+            """,
+                    )
+                    .indented()
+            )
+            .run()
+            .expect(
+                """
+        build.gradle:8: Error: The androidx.annotation:annotation-keep dependency requires the androidx.annotation.keep plugin to be applied in this build file [MissingKeepAnnotationPlugin]
+                    implementation(project(":annotation:annotation-keep"))
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        1 errors, 0 warnings
+        """
+            )
+            .expectFixDiffs(
+                """
+        Fix for build.gradle line 8: Apply androidx.annotation.keep plugin:
+        @@ -2,0 +3 @@
+        +    id("androidx.annotation.keep")
+        """
+            )
+    }
 }

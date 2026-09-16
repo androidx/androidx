@@ -156,4 +156,42 @@ class PluginBlockAnalyzerTest {
         assertFalse(analysis.hasPluginsBlock)
         assertNull(analysis.anchorLine)
     }
+
+    @Test
+    fun testGroovyParenthesesMethodCallSyntax() {
+        val block =
+            """
+            plugins {
+                id("AndroidXPlugin")
+                id("com.android.library")
+            }
+            """
+                .trimIndent()
+
+        val analysis = PluginBlockAnalyzer.analyze(block, isKts = false)
+        assertTrue(analysis.usesParentheses)
+        assertEquals("\"", analysis.quote)
+    }
+
+    @Test
+    fun testGroovyNoParenthesesSyntax() {
+        val block =
+            """
+            plugins {
+                id 'com.android.application'
+            }
+            """
+                .trimIndent()
+
+        val analysis = PluginBlockAnalyzer.analyze(block, isKts = false)
+        assertFalse(analysis.usesParentheses)
+        assertEquals("'", analysis.quote)
+    }
+
+    @Test
+    fun testKotlinDslAlwaysUsesParentheses() {
+        val block = "plugins {\n    id(\"com.android.application\")\n}"
+        val analysis = PluginBlockAnalyzer.analyze(block, isKts = true)
+        assertTrue(analysis.usesParentheses)
+    }
 }
