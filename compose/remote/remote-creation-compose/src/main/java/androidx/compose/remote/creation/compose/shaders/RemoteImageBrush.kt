@@ -21,6 +21,7 @@ import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.remote.creation.compose.layout.toTileModeInt
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
@@ -33,7 +34,6 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.TileMode as ComposeTileMode
-import androidx.compose.ui.graphics.toAndroidTileMode
 import androidx.compose.ui.layout.ContentScale
 
 internal class RemoteImageShader(
@@ -44,8 +44,8 @@ internal class RemoteImageShader(
     override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {
         paintBundle.setTextureShader(
             bitmap.getIdForCreationState(creationState),
-            tileModeX.toAndroidTileMode().ordinal.toShort(),
-            tileModeY.toAndroidTileMode().ordinal.toShort(),
+            tileModeX.toTileModeInt().toShort(),
+            tileModeY.toTileModeInt().toShort(),
             Rc.Texture.FILTER_DEFAULT,
             0,
         )
