@@ -11,13 +11,13 @@ package androidx.web {
   }
 
   public static final class WebContent.Builder {
-    ctor @RequiresFeature(name="WEB_CONTENT", enforcement="androidx.web.WebFeature#isFeatureSupported") public WebContent.Builder();
+    ctor @RequiresFeature(name=androidx.web.WebFeature.WEB_CONTENT, enforcement="androidx.web.WebFeature#isFeatureSupported") public WebContent.Builder();
     method public androidx.web.WebContent build();
   }
 
   public final class WebContentKt {
-    method @InaccessibleFromJava @RequiresFeature(name="WEB_CONTENT", enforcement="androidx.web.WebFeature#isFeatureSupported") @kotlin.jvm.JvmSynthetic public static androidx.web.WebContent WebContent(optional kotlin.jvm.functions.Function1<androidx.web.WebContent.Builder,kotlin.Unit> block);
-    method @BytecodeOnly @RequiresFeature(name="WEB_CONTENT", enforcement="androidx.web.WebFeature#isFeatureSupported") @kotlin.jvm.JvmSynthetic public static androidx.web.WebContent! WebContent$default(kotlin.jvm.functions.Function1!, int, Object!);
+    method @InaccessibleFromJava @RequiresFeature(name=androidx.web.WebFeature.WEB_CONTENT, enforcement="androidx.web.WebFeature#isFeatureSupported") @kotlin.jvm.JvmSynthetic public static androidx.web.WebContent WebContent(optional kotlin.jvm.functions.Function1<androidx.web.WebContent.Builder,kotlin.Unit> block);
+    method @BytecodeOnly @RequiresFeature(name=androidx.web.WebFeature.WEB_CONTENT, enforcement="androidx.web.WebFeature#isFeatureSupported") @kotlin.jvm.JvmSynthetic public static androidx.web.WebContent! WebContent$default(kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   public class WebContentView extends android.webkit.WebView {
@@ -28,7 +28,9 @@ package androidx.web {
 
   public final class WebFeature {
     method public static boolean isFeatureSupported(String feature);
+    property public static String WEB_CONTENT;
     field public static final androidx.web.WebFeature INSTANCE;
+    field public static final String WEB_CONTENT = "WEB_CONTENT";
   }
 
 }
