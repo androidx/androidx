@@ -1021,7 +1021,7 @@ internal interface LazyRemoteString {
 internal fun String.toCodePointSet(): Set<String> {
     val s = HashSet<String>()
     for (cPoint in codePoints()) {
-        s.add(Character.toString(cPoint))
+        s.add(StringBuilder().appendCodePoint(cPoint).toString())
     }
     return s
 }
