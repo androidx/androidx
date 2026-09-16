@@ -29,9 +29,7 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import androidx.annotation.RestrictTo
 import androidx.collection.IntObjectMap
-import androidx.collection.ObjectIntMap
 import androidx.collection.emptyIntObjectMap
-import androidx.collection.emptyObjectIntMap
 import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.animation.core.Easing as ComposeEasing
 import androidx.compose.animation.core.FastOutLinearInEasing
@@ -48,7 +46,6 @@ import androidx.compose.remote.core.Limiter
 import androidx.compose.remote.core.Limits
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteClock
-import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.SystemClock
 import androidx.compose.remote.core.VariableProvider
@@ -124,7 +121,6 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
-import java.io.ByteArrayInputStream
 import kotlin.math.abs
 
 /**
@@ -137,12 +133,6 @@ import kotlin.math.abs
  * Re-installing onto an already-initialized document is guarded against below so an accidental
  * reuse doesn't clobber existing state, but the two players would then share one state, which is
  * not supported.
- *
- * Theme colors: the document already carries each named color's authored default (a `ColorConstant`
- * emitted alongside the `NamedVariable`), which is applied at setup. To re-theme from the host —
- * the embedded equivalent of the View player's `setColor(name, value)` — pass [namedColorOverrides]
- * (variable name -> ARGB int); each entry is applied via `setNamedColorOverride` after the
- * document's defaults.
  */
 @OptIn(ExperimentalRemotePlayerApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -150,9 +140,8 @@ import kotlin.math.abs
 @Suppress("PrimitiveInCollection")
 @Composable
 public fun RcPlayer(
-    document: CoreDocument,
+    state: RcPlayerState,
     modifier: Modifier = Modifier,
-    namedColorOverrides: ObjectIntMap<String> = emptyObjectIntMap(),
     imageLoader: RcImageLoader? = null,
     isShaderValid: (shaderSource: String) -> Boolean = { true },
     onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
@@ -167,6 +156,7 @@ public fun RcPlayer(
         "Embedded player is disabled. Set RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = true to enable."
     }
 
+    val document = state.document
     val clock = remember {
         if (document.clock is SystemClock) {
             RemoteClock.SYSTEM
@@ -179,84 +169,40 @@ public fun RcPlayer(
     val resolvedTheme = remember(theme, isDark) { resolveThemeMode(theme, isDark) }
     val androidContext = LocalContext.current
 
-    val preprocessed = remember(document) { preprocessDocument(document) }
+    val preprocessed =
+        (state as? RcPlayerStateImpl)?.preprocessed
+            ?: remember(document) { preprocessDocument(document) }
 
     val density = LocalDensity.current
     val remoteContext =
-        remember(typefaceResolver, preprocessed) {
-            // Consider a Compose Clock
-            AndroidRemoteContext(clock).also {
-                val resolvedResolver = typefaceResolver ?: EmbeddedPlayerTypefaceResolver
-                it.setTypefaceResolver(resolvedResolver)
-                // Back the document's reactive scalar state (float/int/color) with Compose snapshot
-                // state, so those variables resolve reactively without a per-id listener bridge
-                // (see
-                // SnapshotRemoteComposeState / rememberRemoteFloatAsState). Swap before
-                // initializeContext
-                // propagates the document's state to the context, and re-gather the collections the
-                // loader put in the previous state. Guard against re-installing onto a document
-                // already
-                // initialized by a player (see the one-player-per-document note on RcPlayer): don't
-                // clobber the existing snapshot state.
-                if (document.remoteComposeState !is SnapshotRemoteComposeState) {
-                    document.setRemoteComposeState(SnapshotRemoteComposeState())
-                    document.recollectCollectionsReflection()
-                }
-                it.useChoreographer = true
-                it.loadFloat(RemoteContext.ID_FONT_SIZE, 14f * density.fontScale * density.density)
-                it.loadFloat(RemoteContext.ID_DENSITY, density.density)
-                it.density = density.density
-                // Initialize theme mode, map Android framework colors, and apply data ops
-                // with lazy bitmap decoding.
-                it.paintTheme = resolvedTheme
-                it.setTheme(resolvedTheme)
-                AndroidColorThemeResolver.mapColors(androidContext, document)
-                document.initializeContext(it, null)
-                document.applyDataOperationsWithoutBitmaps(it)
-
-                document.setLayoutCallback {}
-
-                // Validate shaders before applying operations: a ShaderData only loads itself (via
-                // ShaderData.apply -> loadShader) once enabled, and it defaults to disabled.
-                // checkShaders
-                // applies the shader source TextData and calls isShaderValid to enable approved
-                // shaders,
-                // so the subsequent applyOperations caches them for the draw path's
-                // buildRuntimeShader.
-                // Mirrors the View player's RemoteComposePlayer.checkShaders(shaderControl).
-                document.checkShaders(
-                    it,
-                    CoreDocument.ShaderControl { source -> isShaderValid(source) },
-                )
-
-                // Apply only the global setup ops here — those up to the root layout component
-                // (color
-                // constants, named variables, top-level data collections, ...) — mirroring the
-                // core's
-                // first-paint pass, which stops at the root layout. The layout tree's *internal*
-                // ops
-                // are
-                // applied in data order via getData below (and re-evaluated reactively at draw).
-                // Eagerly
-                // recursing the whole tree here evaluated layout-internal animation/array
-                document.applyOperationsReflection(it, preprocessed.globalOps)
-                document.applyOperationsReflection(it, preprocessed.constantOps)
-
-                // applyOperations above ran each ColorConstant -> loadColor, so every named color
-                // now
-                // holds its authored default. Host theme overrides (if any) replace them by name,
-                // the
-                // same path the View player's setColor(name, value) uses.
-                namedColorOverrides.forEach { name, color ->
-                    val prefixedName = if (name.contains(':')) name else "USER:$name"
-                    it.setNamedColorOverride(prefixedName, color)
-                }
-
-                val dataOps = ArrayList<Operation>()
-                document.rootLayoutComponent?.getData(dataOps, true)
-                document.applyOperationsReflection(it, dataOps)
-            }
+        remember(typefaceResolver, preprocessed, state) {
+            val ctx =
+                (state as? RcPlayerStateImpl)?.remoteContext
+                    ?: initializePlayerRemoteContext(document, clock, preprocessed)
+            val resolvedResolver = typefaceResolver ?: EmbeddedPlayerTypefaceResolver
+            ctx.setTypefaceResolver(resolvedResolver)
+            ctx.useChoreographer = true
+            ctx.loadFloat(RemoteContext.ID_FONT_SIZE, 14f * density.fontScale * density.density)
+            ctx.loadFloat(RemoteContext.ID_DENSITY, density.density)
+            ctx.density = density.density
+            ctx.paintTheme = resolvedTheme
+            ctx.setTheme(resolvedTheme)
+            AndroidColorThemeResolver.mapColors(androidContext, document)
+            document.checkShaders(
+                ctx,
+                CoreDocument.ShaderControl { source -> isShaderValid(source) },
+            )
+            ctx
         }
+
+    LaunchedEffect(density) {
+        remoteContext.density = density.density
+        remoteContext.loadFloat(
+            RemoteContext.ID_FONT_SIZE,
+            14f * density.fontScale * density.density,
+        )
+        remoteContext.loadFloat(RemoteContext.ID_DENSITY, density.density)
+    }
 
     // Time and animations are driven on demand. A static document — no declared animations and no
     // time-driven content — ticks for a frame and then the loop suspends, so the player goes fully
@@ -264,7 +210,9 @@ public fun RcPlayer(
     // (continuous/seconds/minutes) keep the frame loop running. This replaces the previous
     // always-on rememberInfiniteTransition + unconditional per-frame full-document re-evaluation,
     // which never let the runtime go idle even for a wholly static document.
-    val currentTimeMillisState = remember { mutableFloatStateOf(0f) }
+    val currentTimeMillisState =
+        (state as? RcPlayerStateImpl)?.currentTimeMillisState
+            ?: remember { mutableFloatStateOf(0f) }
     val hasAnimations = preprocessed.hasAnimations
     val isTimeDependent = preprocessed.isTimeDependent
     val hasParticles = preprocessed.hasParticles
@@ -321,18 +269,19 @@ public fun RcPlayer(
     // compose naturally. (Frame loop above still drives time/animation; plain/expression float/int
     // and animated floats keep their dedicated resolvers.)
     val graphContext =
-        remember(document, remoteContext) {
-            (remoteContext.mRemoteComposeState as? SnapshotRemoteComposeState)?.let { snapshotState
-                ->
-                GraphContext(
-                        snapshotState,
-                        preprocessed.computedOpIndex,
-                        currentTimeMillisState,
-                        clock,
-                    )
-                    .also { gc -> gc.setTypefaceResolver(remoteContext.typefaceResolver) }
+        (state as? RcPlayerStateImpl)?.graphContext
+            ?: remember(document, remoteContext) {
+                (remoteContext.mRemoteComposeState as? SnapshotRemoteComposeState)?.let {
+                    snapshotState ->
+                    GraphContext(
+                            snapshotState,
+                            preprocessed.computedOpIndex,
+                            currentTimeMillisState,
+                            clock,
+                        )
+                        .also { gc -> gc.setTypefaceResolver(remoteContext.typefaceResolver) }
+                }
             }
-        }
 
     // The document's root content description (Header DOC_CONTENT_DESCRIPTION /
     // RootContentDescription
@@ -439,6 +388,50 @@ public fun RcPlayer(
 }
 
 /**
+ * A player of a [CoreDocument].
+ *
+ * **One player per document.** First composition installs this player's runtime state *onto the
+ * document* (swaps in a [SnapshotRemoteComposeState], re-gathers collections, applies operations),
+ * so a given [CoreDocument] instance is bound to a single `RcPlayer`. Don't drive two players from
+ * the same `CoreDocument` concurrently — give each its own document (re-`initFromBuffer`).
+ * Re-installing onto an already-initialized document is guarded against below so an accidental
+ * reuse doesn't clobber existing state, but the two players would then share one state, which is
+ */
+@OptIn(ExperimentalRemotePlayerApi::class)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@SuppressLint("RestrictedApiAndroidX")
+@Suppress("PrimitiveInCollection")
+@Composable
+public fun RcPlayer(
+    document: CoreDocument,
+    modifier: Modifier = Modifier,
+    imageLoader: RcImageLoader? = null,
+    isShaderValid: (shaderSource: String) -> Boolean = { true },
+    onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
+    onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
+    customPlugins: CustomPluginRegistry? = null,
+    lambdas: IntObjectMap<() -> Unit> = emptyIntObjectMap(),
+    pendingIntents: IntObjectMap<PendingIntent> = emptyIntObjectMap(),
+    typefaceResolver: TypefaceResolver? = LocalTypefaceResolver.current,
+    theme: Int = Theme.SYSTEM,
+) {
+    val state = rememberRcPlayerState(document)
+    RcPlayer(
+        state = state,
+        modifier = modifier,
+        imageLoader = imageLoader,
+        isShaderValid = isShaderValid,
+        onAction = onAction,
+        onNamedAction = onNamedAction,
+        customPlugins = customPlugins,
+        lambdas = lambdas,
+        pendingIntents = pendingIntents,
+        typefaceResolver = typefaceResolver,
+        theme = theme,
+    )
+}
+
+/**
  * A player of a [CapturedDocument].
  *
  * This overload extracts the [CoreDocument] and any associated lambdas from the [CapturedDocument]
@@ -452,7 +445,6 @@ public fun RcPlayer(
 public fun RcPlayer(
     capturedDocument: CapturedDocument,
     modifier: Modifier = Modifier,
-    namedColorOverrides: ObjectIntMap<String> = emptyObjectIntMap(),
     imageLoader: RcImageLoader? = null,
     isShaderValid: (shaderSource: String) -> Boolean = { true },
     onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
@@ -460,25 +452,10 @@ public fun RcPlayer(
     customPlugins: CustomPluginRegistry? = null,
     theme: Int = Theme.SYSTEM,
 ) {
-    check(RemoteComposePlayerFlags.isEmbeddedPlayerEnabled) {
-        "Embedded player is disabled. Set RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = true to enable."
-    }
-
-    RemoteImageSupport.enableEncodedImageReferences()
-
-    val coreDoc =
-        remember(capturedDocument) {
-            CoreDocument(RemoteClock.SYSTEM).apply {
-                ByteArrayInputStream(capturedDocument.bytes).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                }
-            }
-        }
-
+    val state = rememberRcPlayerState(capturedDocument)
     RcPlayer(
-        document = coreDoc,
+        state = state,
         modifier = modifier,
-        namedColorOverrides = namedColorOverrides,
         imageLoader = imageLoader,
         isShaderValid = isShaderValid,
         onAction = onAction,
@@ -660,6 +637,7 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
     var hasWakeIn = false
 
     fun visitOp(op: Operation) {
+
         if (
             op is ColorConstant ||
                 op is FloatConstant ||
@@ -784,4 +762,26 @@ internal fun mapEasing(type: Int): ComposeEasing {
         RemoteEasing.CUBIC_DECELERATE -> LinearOutSlowInEasing
         else -> LinearEasing
     }
+}
+
+internal fun initializePlayerRemoteContext(
+    document: CoreDocument,
+    clock: RemoteClock,
+    preprocessed: DocumentPreprocessResult,
+): AndroidRemoteContext {
+    val ctx = AndroidRemoteContext(clock)
+    ctx.useChoreographer = true
+    if (document.remoteComposeState !is SnapshotRemoteComposeState) {
+        document.setRemoteComposeState(SnapshotRemoteComposeState())
+        document.recollectCollectionsReflection()
+    }
+    document.initializeContext(ctx, null)
+    document.applyDataOperationsWithoutBitmaps(ctx)
+    document.setLayoutCallback {}
+    document.applyOperationsReflection(ctx, preprocessed.globalOps)
+    document.applyOperationsReflection(ctx, preprocessed.constantOps)
+    val dataOps = ArrayList<Operation>()
+    document.rootLayoutComponent?.getData(dataOps, true)
+    document.applyOperationsReflection(ctx, dataOps)
+    return ctx
 }

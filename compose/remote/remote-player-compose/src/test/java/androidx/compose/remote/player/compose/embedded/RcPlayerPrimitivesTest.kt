@@ -4041,10 +4041,10 @@ class RcPlayerPrimitivesTest {
                     }
                 }
 
-            val overrides = androidx.collection.mutableObjectIntMapOf<String>()
-            overrides["myColor"] = 0xFF00FF00.toInt() // Green
+            val playerState = RcPlayerState(document)
+            playerState.colorState("myColor").value = Color(0xFF00FF00.toInt())
 
-            rule.setContent { RcPlayer(document = document, namedColorOverrides = overrides) }
+            rule.setContent { RcPlayer(state = playerState) }
 
             rule.mainClock.advanceTimeBy(100)
 
