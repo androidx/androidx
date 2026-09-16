@@ -19,11 +19,9 @@ package androidx.text.vertical
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import android.os.Build
 import android.text.SpannableString
 import android.text.TextPaint
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -98,9 +96,6 @@ private val AFTER_BASE_TEXT_BAND = RUBY_PX until LAYOUT_W
  */
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-// Below BAKLAVA, drawing goes through the per-cluster backport in CanvasCompat rather than native
-// vertical text. The band math is derived from paint.textSize and holds on either path.
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
 class RubyAnnotationPositionTest {
 
     private val paint =
