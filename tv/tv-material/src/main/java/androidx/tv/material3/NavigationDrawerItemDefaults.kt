@@ -17,6 +17,8 @@
 package androidx.tv.material3
 
 import androidx.annotation.FloatRange
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideIn
@@ -33,59 +35,62 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.tokens.Elevation
 
 /** Contains the default values used by selectable [NavigationDrawerItem] */
-object NavigationDrawerItemDefaults {
+public object NavigationDrawerItemDefaults {
     /** The default Icon size used by [NavigationDrawerItem] */
-    val IconSize = 24.dp
+    public val IconSize: Dp = 24.dp
 
     /** The size of the [NavigationDrawerItem] when the drawer is collapsed */
-    val CollapsedDrawerItemWidth = 56.dp
+    public val CollapsedDrawerItemWidth: Dp = 56.dp
 
     /** The size of the [NavigationDrawerItem] when the drawer is expanded */
-    val ExpandedDrawerItemWidth = 256.dp
+    public val ExpandedDrawerItemWidth: Dp = 256.dp
 
     /**
      * The default content padding [PaddingValues] used by [NavigationDrawerItem] with 1 line when
      * the drawer is expanded
      */
-    val ContainerHeightOneLine = 48.dp
+    public val ContainerHeightOneLine: Dp = 48.dp
 
     /**
      * The default content padding [PaddingValues] used by [NavigationDrawerItem] with 2 lines when
      * the drawer is expanded
      */
-    val ContainerHeightTwoLine = 56.dp
+    public val ContainerHeightTwoLine: Dp = 56.dp
 
     /** The default elevation used by [NavigationDrawerItem] */
-    val NavigationDrawerItemElevation = Elevation.Level0
+    public val NavigationDrawerItemElevation: Dp = Elevation.Level0
 
     /** Animation enter default for inner content */
-    val ContentAnimationEnter = fadeIn() + slideIn { IntOffset(-it.width, 0) }
+    public val ContentAnimationEnter: EnterTransition =
+        fadeIn() + slideIn { IntOffset(-it.width, 0) }
 
     /** Animation exit default for inner content */
-    val ContentAnimationExit = fadeOut() + slideOut { IntOffset(0, 0) }
+    public val ContentAnimationExit: ExitTransition = fadeOut() + slideOut { IntOffset(0, 0) }
 
     /** Default border used by [NavigationDrawerItem] */
-    val DefaultBorder
+    public val DefaultBorder: Border
         @ReadOnlyComposable
         @Composable
         get() =
             Border(border = BorderStroke(width = 2.dp, color = MaterialTheme.colorScheme.border))
 
     /** The default container color used by [NavigationDrawerItem]'s trailing badge */
-    val TrailingBadgeContainerColor
+    public val TrailingBadgeContainerColor: Color
         @ReadOnlyComposable @Composable get() = MaterialTheme.colorScheme.tertiary
 
     /** The default text style used by [NavigationDrawerItem]'s trailing badge */
-    val TrailingBadgeTextStyle
+    public val TrailingBadgeTextStyle: TextStyle
         @ReadOnlyComposable @Composable get() = MaterialTheme.typography.labelSmall
 
     /** The default content color used by [NavigationDrawerItem]'s trailing badge */
-    val TrailingBadgeContentColor
+    public val TrailingBadgeContentColor: Color
         @ReadOnlyComposable @Composable get() = MaterialTheme.colorScheme.onTertiary
 
     /** Creates a trailing badge for [NavigationDrawerItem] */
@@ -93,7 +98,7 @@ object NavigationDrawerItemDefaults {
     @OptIn(
         ExperimentalTvMaterial3Api::class
     ) // TODO: This will be removed once Text API is marked as stable
-    fun TrailingBadge(
+    public fun TrailingBadge(
         text: String,
         containerColor: Color = TrailingBadgeContainerColor,
         contentColor: Color = TrailingBadgeContentColor,
@@ -124,7 +129,7 @@ object NavigationDrawerItemDefaults {
      * @param pressedSelectedShape the shape used when the [NavigationDrawerItem] is enabled,
      *   pressed and selected
      */
-    fun shape(
+    public fun shape(
         shape: Shape = RoundedCornerShape(50),
         focusedShape: Shape = shape,
         pressedShape: Shape = shape,
@@ -133,7 +138,7 @@ object NavigationDrawerItemDefaults {
         focusedSelectedShape: Shape = shape,
         focusedDisabledShape: Shape = disabledShape,
         pressedSelectedShape: Shape = shape,
-    ) =
+    ): NavigationDrawerItemShape =
         NavigationDrawerItemShape(
             shape = shape,
             focusedShape = focusedShape,
@@ -183,7 +188,7 @@ object NavigationDrawerItemDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun colors(
+    public fun colors(
         containerColor: Color = Color.Transparent,
         contentColor: Color = MaterialTheme.colorScheme.onSurface,
         inactiveContentColor: Color = contentColor.copy(alpha = 0.4f),
@@ -201,7 +206,7 @@ object NavigationDrawerItemDefaults {
         focusedSelectedContentColor: Color = focusedContentColor,
         pressedSelectedContainerColor: Color = pressedContainerColor,
         pressedSelectedContentColor: Color = pressedContentColor,
-    ) =
+    ): NavigationDrawerItemColors =
         NavigationDrawerItemColors(
             containerColor = containerColor,
             contentColor = contentColor,
@@ -241,7 +246,7 @@ object NavigationDrawerItemDefaults {
      * @param pressedSelectedScale the scale used when the [NavigationDrawerItem] is enabled,
      *   pressed and selected
      */
-    fun scale(
+    public fun scale(
         @FloatRange(from = 0.0) scale: Float = 1f,
         @FloatRange(from = 0.0) focusedScale: Float = 1.05f,
         @FloatRange(from = 0.0) pressedScale: Float = scale,
@@ -250,7 +255,7 @@ object NavigationDrawerItemDefaults {
         @FloatRange(from = 0.0) focusedSelectedScale: Float = focusedScale,
         @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale,
         @FloatRange(from = 0.0) pressedSelectedScale: Float = scale,
-    ) =
+    ): NavigationDrawerItemScale =
         NavigationDrawerItemScale(
             scale = scale,
             focusedScale = focusedScale,
@@ -281,7 +286,7 @@ object NavigationDrawerItemDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun border(
+    public fun border(
         border: Border = Border.None,
         focusedBorder: Border = border,
         pressedBorder: Border = focusedBorder,
@@ -290,7 +295,7 @@ object NavigationDrawerItemDefaults {
         focusedSelectedBorder: Border = focusedBorder,
         focusedDisabledBorder: Border = DefaultBorder,
         pressedSelectedBorder: Border = border,
-    ) =
+    ): NavigationDrawerItemBorder =
         NavigationDrawerItemBorder(
             border = border,
             focusedBorder = focusedBorder,
@@ -316,14 +321,14 @@ object NavigationDrawerItemDefaults {
      * @param pressedSelectedGlow the [Glow] used when the [NavigationDrawerItem] is enabled,
      *   pressed and selected
      */
-    fun glow(
+    public fun glow(
         glow: Glow = Glow.None,
         focusedGlow: Glow = glow,
         pressedGlow: Glow = glow,
         selectedGlow: Glow = glow,
         focusedSelectedGlow: Glow = focusedGlow,
         pressedSelectedGlow: Glow = glow,
-    ) =
+    ): NavigationDrawerItemGlow =
         NavigationDrawerItemGlow(
             glow = glow,
             focusedGlow = focusedGlow,

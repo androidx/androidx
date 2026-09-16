@@ -20,4 +20,4 @@ package androidx.tv.material3
     "This tv-material API is experimental and likely to change or be removed in the future."
 )
 @Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalTvMaterial3Api
+public annotation class ExperimentalTvMaterial3Api

@@ -77,26 +77,26 @@ import androidx.tv.material3.tokens.TypographyTokens
  *   annotate imagery or to introduce a headline.
  */
 @Immutable
-class Typography(
-    val displayLarge: TextStyle = TypographyTokens.DisplayLarge,
-    val displayMedium: TextStyle = TypographyTokens.DisplayMedium,
-    val displaySmall: TextStyle = TypographyTokens.DisplaySmall,
-    val headlineLarge: TextStyle = TypographyTokens.HeadlineLarge,
-    val headlineMedium: TextStyle = TypographyTokens.HeadlineMedium,
-    val headlineSmall: TextStyle = TypographyTokens.HeadlineSmall,
-    val titleLarge: TextStyle = TypographyTokens.TitleLarge,
-    val titleMedium: TextStyle = TypographyTokens.TitleMedium,
-    val titleSmall: TextStyle = TypographyTokens.TitleSmall,
-    val bodyLarge: TextStyle = TypographyTokens.BodyLarge,
-    val bodyMedium: TextStyle = TypographyTokens.BodyMedium,
-    val bodySmall: TextStyle = TypographyTokens.BodySmall,
-    val labelLarge: TextStyle = TypographyTokens.LabelLarge,
-    val labelMedium: TextStyle = TypographyTokens.LabelMedium,
-    val labelSmall: TextStyle = TypographyTokens.LabelSmall,
+public class Typography(
+    public val displayLarge: TextStyle = TypographyTokens.DisplayLarge,
+    public val displayMedium: TextStyle = TypographyTokens.DisplayMedium,
+    public val displaySmall: TextStyle = TypographyTokens.DisplaySmall,
+    public val headlineLarge: TextStyle = TypographyTokens.HeadlineLarge,
+    public val headlineMedium: TextStyle = TypographyTokens.HeadlineMedium,
+    public val headlineSmall: TextStyle = TypographyTokens.HeadlineSmall,
+    public val titleLarge: TextStyle = TypographyTokens.TitleLarge,
+    public val titleMedium: TextStyle = TypographyTokens.TitleMedium,
+    public val titleSmall: TextStyle = TypographyTokens.TitleSmall,
+    public val bodyLarge: TextStyle = TypographyTokens.BodyLarge,
+    public val bodyMedium: TextStyle = TypographyTokens.BodyMedium,
+    public val bodySmall: TextStyle = TypographyTokens.BodySmall,
+    public val labelLarge: TextStyle = TypographyTokens.LabelLarge,
+    public val labelMedium: TextStyle = TypographyTokens.LabelMedium,
+    public val labelSmall: TextStyle = TypographyTokens.LabelSmall,
 ) {
 
     /** Returns a copy of this Typography, optionally overriding some of the values. */
-    fun copy(
+    public fun copy(
         displayLarge: TextStyle = this.displayLarge,
         displayMedium: TextStyle = this.displayMedium,
         displaySmall: TextStyle = this.displaySmall,

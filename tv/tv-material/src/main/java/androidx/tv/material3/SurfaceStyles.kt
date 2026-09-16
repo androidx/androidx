@@ -24,7 +24,7 @@ import androidx.compose.ui.graphics.Shape
 
 /** Defines [Shape] for all TV [Interaction] states of a Clickable Surface. */
 @Immutable
-class ClickableSurfaceShape
+public class ClickableSurfaceShape
 internal constructor(
     internal val shape: Shape,
     internal val focusedShape: Shape,
@@ -66,7 +66,7 @@ internal constructor(
 
 /** Defines [Shape] for all TV [Interaction] states of a selectable Surface. */
 @Immutable
-class SelectableSurfaceShape
+public class SelectableSurfaceShape
 internal constructor(
     internal val shape: Shape,
     internal val focusedShape: Shape,
@@ -127,7 +127,7 @@ internal constructor(
 
 /** Defines [Color] for all TV [Interaction] states of a Clickable Surface. */
 @Immutable
-class ClickableSurfaceColors
+public class ClickableSurfaceColors
 internal constructor(
     internal val containerColor: Color,
     internal val contentColor: Color,
@@ -183,7 +183,7 @@ internal constructor(
 
 /** Defines [Color] for all TV [Interaction] states of a selectable Surface. */
 @Immutable
-class SelectableSurfaceColors
+public class SelectableSurfaceColors
 internal constructor(
     internal val containerColor: Color,
     internal val contentColor: Color,
@@ -266,7 +266,7 @@ internal constructor(
  * non-negative float.
  */
 @Immutable
-class ClickableSurfaceScale
+public class ClickableSurfaceScale
 internal constructor(
     @FloatRange(from = 0.0) internal val scale: Float,
     @FloatRange(from = 0.0) internal val focusedScale: Float,
@@ -305,12 +305,12 @@ internal constructor(
             "focusedDisabledScale=$focusedDisabledScale)"
     }
 
-    companion object {
+    public companion object {
         /**
          * Signifies the absence of a scale in TV Components. Use this if you do not want to display
          * a [ScaleIndication] in any of the Leanback TV Components.
          */
-        val None =
+        public val None: ClickableSurfaceScale =
             ClickableSurfaceScale(
                 scale = 1f,
                 focusedScale = 1f,
@@ -326,7 +326,7 @@ internal constructor(
  * a non-negative float.
  */
 @Immutable
-class SelectableSurfaceScale
+public class SelectableSurfaceScale
 internal constructor(
     @FloatRange(from = 0.0) internal val scale: Float,
     @FloatRange(from = 0.0) internal val focusedScale: Float,
@@ -384,9 +384,9 @@ internal constructor(
             "focusedSelectedDisabledScale=$focusedSelectedDisabledScale)"
     }
 
-    companion object {
+    public companion object {
         /** Signifies the absence of a [ScaleIndication] in selectable surface. */
-        val None =
+        public val None: SelectableSurfaceScale =
             SelectableSurfaceScale(
                 scale = 1f,
                 focusedScale = 1f,
@@ -404,7 +404,7 @@ internal constructor(
 
 /** Defines [Border] for all TV states of [Surface]. */
 @Immutable
-class ClickableSurfaceBorder
+public class ClickableSurfaceBorder
 internal constructor(
     internal val border: Border,
     internal val focusedBorder: Border,
@@ -448,7 +448,7 @@ internal constructor(
 
 /** Defines [Border] for all TV states of a selectable Surface. */
 @Immutable
-class SelectableSurfaceBorder
+public class SelectableSurfaceBorder
 internal constructor(
     internal val border: Border,
     internal val focusedBorder: Border,
@@ -509,7 +509,7 @@ internal constructor(
 
 /** Defines [Glow] for all TV [Interaction] states of [Surface]. */
 @Immutable
-class ClickableSurfaceGlow
+public class ClickableSurfaceGlow
 internal constructor(
     internal val glow: Glow,
     internal val focusedGlow: Glow,
@@ -544,7 +544,7 @@ internal constructor(
 
 /** Defines [Glow] for all TV [Interaction] states of a selectable Surface. */
 @Immutable
-class SelectableSurfaceGlow
+public class SelectableSurfaceGlow
 internal constructor(
     internal val glow: Glow,
     internal val focusedGlow: Glow,
@@ -589,7 +589,7 @@ internal constructor(
 
 /** Defines the container & content color [Color] for a non interactive surface. */
 @Immutable
-class SurfaceColors
+public class SurfaceColors
 internal constructor(internal val containerColor: Color, internal val contentColor: Color) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

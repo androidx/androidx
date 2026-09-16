@@ -88,7 +88,7 @@ import androidx.compose.ui.zIndex
  * @param tabs a composable which will render all the tabs
  */
 @Composable
-fun TabRow(
+public fun TabRow(
     selectedTabIndex: Int,
     modifier: Modifier = Modifier,
     containerColor: Color = TabRowDefaults.ContainerColor,
@@ -182,18 +182,18 @@ fun TabRow(
     }
 }
 
-object TabRowDefaults {
+public object TabRowDefaults {
     /** Color of the background of a tab */
-    val ContainerColor = Color.Transparent
+    public val ContainerColor: Color = Color.Transparent
 
     /** Space between tabs in the tab row */
     @Composable
-    fun TabSeparator() {
+    public fun TabSeparator() {
         Spacer(modifier = Modifier.width(8.dp))
     }
 
     /** Default accent color for the TabRow */
-    @Composable fun contentColor(): Color = MaterialTheme.colorScheme.onSurface
+    @Composable public fun contentColor(): Color = MaterialTheme.colorScheme.onSurface
 
     /**
      * Adds a pill indicator behind the tab
@@ -205,7 +205,7 @@ object TabRowDefaults {
      * @param inactiveColor color of indicator when [TabRow] is inactive
      */
     @Composable
-    fun PillIndicator(
+    public fun PillIndicator(
         currentTabPosition: DpRect,
         doesTabRowHaveFocus: Boolean,
         modifier: Modifier = Modifier,
@@ -250,7 +250,7 @@ object TabRowDefaults {
      * @param inactiveColor color of indicator when [TabRow] is inactive
      */
     @Composable
-    fun UnderlinedIndicator(
+    public fun UnderlinedIndicator(
         currentTabPosition: DpRect,
         doesTabRowHaveFocus: Boolean,
         modifier: Modifier = Modifier,

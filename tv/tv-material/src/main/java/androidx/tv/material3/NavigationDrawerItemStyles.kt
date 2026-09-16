@@ -40,15 +40,15 @@ import androidx.compose.ui.graphics.Shape
  *   for the default shape used in a [NavigationDrawerItem]
  */
 @Immutable
-class NavigationDrawerItemShape(
-    val shape: Shape,
-    val focusedShape: Shape,
-    val pressedShape: Shape,
-    val selectedShape: Shape,
-    val disabledShape: Shape,
-    val focusedSelectedShape: Shape,
-    val focusedDisabledShape: Shape,
-    val pressedSelectedShape: Shape,
+public class NavigationDrawerItemShape(
+    public val shape: Shape,
+    public val focusedShape: Shape,
+    public val pressedShape: Shape,
+    public val selectedShape: Shape,
+    public val disabledShape: Shape,
+    public val focusedSelectedShape: Shape,
+    public val focusedDisabledShape: Shape,
+    public val pressedSelectedShape: Shape,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -127,23 +127,23 @@ class NavigationDrawerItemShape(
  *   for the default colors used in a [NavigationDrawerItem]
  */
 @Immutable
-class NavigationDrawerItemColors(
-    val containerColor: Color,
-    val contentColor: Color,
-    val inactiveContentColor: Color,
-    val focusedContainerColor: Color,
-    val focusedContentColor: Color,
-    val pressedContainerColor: Color,
-    val pressedContentColor: Color,
-    val selectedContainerColor: Color,
-    val selectedContentColor: Color,
-    val disabledContainerColor: Color,
-    val disabledContentColor: Color,
-    val disabledInactiveContentColor: Color,
-    val focusedSelectedContainerColor: Color,
-    val focusedSelectedContentColor: Color,
-    val pressedSelectedContainerColor: Color,
-    val pressedSelectedContentColor: Color,
+public class NavigationDrawerItemColors(
+    public val containerColor: Color,
+    public val contentColor: Color,
+    public val inactiveContentColor: Color,
+    public val focusedContainerColor: Color,
+    public val focusedContentColor: Color,
+    public val pressedContainerColor: Color,
+    public val pressedContentColor: Color,
+    public val selectedContainerColor: Color,
+    public val selectedContentColor: Color,
+    public val disabledContainerColor: Color,
+    public val disabledContentColor: Color,
+    public val disabledInactiveContentColor: Color,
+    public val focusedSelectedContainerColor: Color,
+    public val focusedSelectedContentColor: Color,
+    public val pressedSelectedContainerColor: Color,
+    public val pressedSelectedContentColor: Color,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -225,15 +225,15 @@ class NavigationDrawerItemColors(
  *   for the default scale used in a [NavigationDrawerItem]
  */
 @Immutable
-class NavigationDrawerItemScale(
-    @FloatRange(from = 0.0) val scale: Float,
-    @FloatRange(from = 0.0) val focusedScale: Float,
-    @FloatRange(from = 0.0) val pressedScale: Float,
-    @FloatRange(from = 0.0) val selectedScale: Float,
-    @FloatRange(from = 0.0) val disabledScale: Float,
-    @FloatRange(from = 0.0) val focusedSelectedScale: Float,
-    @FloatRange(from = 0.0) val focusedDisabledScale: Float,
-    @FloatRange(from = 0.0) val pressedSelectedScale: Float,
+public class NavigationDrawerItemScale(
+    @FloatRange(from = 0.0) public val scale: Float,
+    @FloatRange(from = 0.0) public val focusedScale: Float,
+    @FloatRange(from = 0.0) public val pressedScale: Float,
+    @FloatRange(from = 0.0) public val selectedScale: Float,
+    @FloatRange(from = 0.0) public val disabledScale: Float,
+    @FloatRange(from = 0.0) public val focusedSelectedScale: Float,
+    @FloatRange(from = 0.0) public val focusedDisabledScale: Float,
+    @FloatRange(from = 0.0) public val pressedSelectedScale: Float,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -275,9 +275,9 @@ class NavigationDrawerItemScale(
             "pressedSelectedScale=$pressedSelectedScale)"
     }
 
-    companion object {
+    public companion object {
         /** Signifies the absence of a [ScaleIndication] in [NavigationDrawerItem] */
-        val None =
+        public val None: NavigationDrawerItemScale =
             NavigationDrawerItemScale(
                 scale = 1f,
                 focusedScale = 1f,
@@ -309,15 +309,15 @@ class NavigationDrawerItemScale(
  *   for the default border used in a [NavigationDrawerItem]
  */
 @Immutable
-class NavigationDrawerItemBorder(
-    val border: Border,
-    val focusedBorder: Border,
-    val pressedBorder: Border,
-    val selectedBorder: Border,
-    val disabledBorder: Border,
-    val focusedSelectedBorder: Border,
-    val focusedDisabledBorder: Border,
-    val pressedSelectedBorder: Border,
+public class NavigationDrawerItemBorder(
+    public val border: Border,
+    public val focusedBorder: Border,
+    public val pressedBorder: Border,
+    public val selectedBorder: Border,
+    public val disabledBorder: Border,
+    public val focusedSelectedBorder: Border,
+    public val focusedDisabledBorder: Border,
+    public val pressedSelectedBorder: Border,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -375,13 +375,13 @@ class NavigationDrawerItemBorder(
  *   the default glow used in a [NavigationDrawerItem]
  */
 @Immutable
-class NavigationDrawerItemGlow(
-    val glow: Glow,
-    val focusedGlow: Glow,
-    val pressedGlow: Glow,
-    val selectedGlow: Glow,
-    val focusedSelectedGlow: Glow,
-    val pressedSelectedGlow: Glow,
+public class NavigationDrawerItemGlow(
+    public val glow: Glow,
+    public val focusedGlow: Glow,
+    public val pressedGlow: Glow,
+    public val selectedGlow: Glow,
+    public val focusedSelectedGlow: Glow,
+    public val pressedSelectedGlow: Glow,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

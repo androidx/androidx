@@ -17,9 +17,9 @@
 package androidx.tv.material3
 
 /** [TabRowScope] is used to provide the doesTabRowHaveFocus state to the [Tab] composable */
-interface TabRowScope {
+public interface TabRowScope {
     /** Whether any [Tab] within the [TabRow] is focused */
-    @get:Suppress("GetterSetterNames") val hasFocus: Boolean
+    @get:Suppress("GetterSetterNames") public val hasFocus: Boolean
 }
 
 internal class TabRowScopeImpl internal constructor(override val hasFocus: Boolean) : TabRowScope

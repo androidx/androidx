@@ -62,7 +62,7 @@ import androidx.compose.ui.unit.Dp
  * @param content main content of this composable
  */
 @Composable
-fun NavigationDrawerScope.NavigationDrawerItem(
+public fun NavigationDrawerScope.NavigationDrawerItem(
     selected: Boolean,
     onClick: () -> Unit,
     leadingContent: @Composable () -> Unit,

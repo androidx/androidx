@@ -61,7 +61,7 @@ import androidx.compose.ui.graphics.Color
  *   be used with the `imageCard` composable.
  */
 @Composable
-fun StandardCardContainer(
+public fun StandardCardContainer(
     imageCard: @Composable (interactionSource: MutableInteractionSource) -> Unit,
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -117,7 +117,7 @@ fun StandardCardContainer(
  *   be used with the `imageCard` composable.
  */
 @Composable
-fun WideCardContainer(
+public fun WideCardContainer(
     imageCard: @Composable (interactionSource: MutableInteractionSource) -> Unit,
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -154,7 +154,7 @@ internal fun CardContainerContent(
     }
 }
 
-object CardContainerDefaults {
+public object CardContainerDefaults {
     /**
      * Creates [CardContainerColors] that represents the default content colors used in a
      * CardContainer.
@@ -165,11 +165,11 @@ object CardContainerDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun contentColor(
+    public fun contentColor(
         contentColor: Color = MaterialTheme.colorScheme.onSurface,
         focusedContentColor: Color = contentColor,
         pressedContentColor: Color = focusedContentColor,
-    ) =
+    ): CardContainerColors =
         CardContainerColors(
             contentColor = contentColor,
             focusedContentColor = focusedContentColor,
@@ -179,7 +179,7 @@ object CardContainerDefaults {
 
 /** Represents the [Color] of content in a CardContainer for different interaction states. */
 @Immutable
-class CardContainerColors
+public class CardContainerColors
 internal constructor(
     internal val contentColor: Color,
     internal val focusedContentColor: Color,

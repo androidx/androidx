@@ -36,16 +36,16 @@ import androidx.compose.ui.graphics.Shape
  *   default shapes used in a [ListItem].
  */
 @Immutable
-class ListItemShape
+public class ListItemShape
 constructor(
-    val shape: Shape,
-    val focusedShape: Shape,
-    val pressedShape: Shape,
-    val selectedShape: Shape,
-    val disabledShape: Shape,
-    val focusedSelectedShape: Shape,
-    val focusedDisabledShape: Shape,
-    val pressedSelectedShape: Shape,
+    public val shape: Shape,
+    public val focusedShape: Shape,
+    public val pressedShape: Shape,
+    public val selectedShape: Shape,
+    public val disabledShape: Shape,
+    public val focusedSelectedShape: Shape,
+    public val focusedDisabledShape: Shape,
+    public val pressedSelectedShape: Shape,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -115,22 +115,22 @@ constructor(
  *   default colors used in a [ListItem].
  */
 @Immutable
-class ListItemColors
+public class ListItemColors
 constructor(
-    val containerColor: Color,
-    val contentColor: Color,
-    val focusedContainerColor: Color,
-    val focusedContentColor: Color,
-    val pressedContainerColor: Color,
-    val pressedContentColor: Color,
-    val selectedContainerColor: Color,
-    val selectedContentColor: Color,
-    val disabledContainerColor: Color,
-    val disabledContentColor: Color,
-    val focusedSelectedContainerColor: Color,
-    val focusedSelectedContentColor: Color,
-    val pressedSelectedContainerColor: Color,
-    val pressedSelectedContentColor: Color,
+    public val containerColor: Color,
+    public val contentColor: Color,
+    public val focusedContainerColor: Color,
+    public val focusedContentColor: Color,
+    public val pressedContainerColor: Color,
+    public val pressedContentColor: Color,
+    public val selectedContainerColor: Color,
+    public val selectedContentColor: Color,
+    public val disabledContainerColor: Color,
+    public val disabledContentColor: Color,
+    public val focusedSelectedContainerColor: Color,
+    public val focusedSelectedContentColor: Color,
+    public val pressedSelectedContainerColor: Color,
+    public val pressedSelectedContentColor: Color,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -208,16 +208,16 @@ constructor(
  *   the default scale factors used in a [ListItem].
  */
 @Immutable
-class ListItemScale
+public class ListItemScale
 constructor(
-    @FloatRange(from = 0.0) val scale: Float,
-    @FloatRange(from = 0.0) val focusedScale: Float,
-    @FloatRange(from = 0.0) val pressedScale: Float,
-    @FloatRange(from = 0.0) val selectedScale: Float,
-    @FloatRange(from = 0.0) val disabledScale: Float,
-    @FloatRange(from = 0.0) val focusedSelectedScale: Float,
-    @FloatRange(from = 0.0) val focusedDisabledScale: Float,
-    @FloatRange(from = 0.0) val pressedSelectedScale: Float,
+    @FloatRange(from = 0.0) public val scale: Float,
+    @FloatRange(from = 0.0) public val focusedScale: Float,
+    @FloatRange(from = 0.0) public val pressedScale: Float,
+    @FloatRange(from = 0.0) public val selectedScale: Float,
+    @FloatRange(from = 0.0) public val disabledScale: Float,
+    @FloatRange(from = 0.0) public val focusedSelectedScale: Float,
+    @FloatRange(from = 0.0) public val focusedDisabledScale: Float,
+    @FloatRange(from = 0.0) public val pressedSelectedScale: Float,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -261,9 +261,9 @@ constructor(
             "pressedSelectedScale=$pressedSelectedScale)"
     }
 
-    companion object {
+    public companion object {
         /** Signifies the absence of a [ScaleIndication] in ListItem component. */
-        val None =
+        public val None: ListItemScale =
             ListItemScale(
                 scale = 1f,
                 focusedScale = 1f,
@@ -294,16 +294,16 @@ constructor(
  *   default borders used in a [ListItem].
  */
 @Immutable
-class ListItemBorder
+public class ListItemBorder
 constructor(
-    val border: Border,
-    val focusedBorder: Border,
-    val pressedBorder: Border,
-    val selectedBorder: Border,
-    val disabledBorder: Border,
-    val focusedSelectedBorder: Border,
-    val focusedDisabledBorder: Border,
-    val pressedSelectedBorder: Border,
+    public val border: Border,
+    public val focusedBorder: Border,
+    public val pressedBorder: Border,
+    public val selectedBorder: Border,
+    public val disabledBorder: Border,
+    public val focusedSelectedBorder: Border,
+    public val focusedDisabledBorder: Border,
+    public val pressedSelectedBorder: Border,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -361,14 +361,14 @@ constructor(
  *   glows used in a [ListItem].
  */
 @Immutable
-class ListItemGlow
+public class ListItemGlow
 constructor(
-    val glow: Glow,
-    val focusedGlow: Glow,
-    val pressedGlow: Glow,
-    val selectedGlow: Glow,
-    val focusedSelectedGlow: Glow,
-    val pressedSelectedGlow: Glow,
+    public val glow: Glow,
+    public val focusedGlow: Glow,
+    public val pressedGlow: Glow,
+    public val selectedGlow: Glow,
+    public val focusedSelectedGlow: Glow,
+    public val pressedSelectedGlow: Glow,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
