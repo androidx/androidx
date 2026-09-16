@@ -67,7 +67,7 @@ public fun IconMarker(
     contentDescription: String,
     modifier: Modifier = Modifier,
     size: IconMarkerSize = IconMarkerSize.Medium,
-    color: Color = IconMarkerDefaults.color(),
+    color: Color = GlimmerTheme.colors.surface,
     contentColor: Color = IconMarkerDefaults.contentColor(color),
     contentPadding: PaddingValues = IconMarkerDefaults.contentPadding(size),
     interactionSource: MutableInteractionSource? = null,
@@ -168,21 +168,6 @@ public value class IconMarkerSize internal constructor(private val value: Int) {
 
 /** Contains default values used by [IconMarker]. */
 public object IconMarkerDefaults {
-
-    /**
-     * Default background surface color for clickable [IconMarker].
-     *
-     * Calculates the background [Color] for a surface derived from the provided [color]. Adjusts
-     * the provided [color] so that it is suitable for use as a surface background.
-     *
-     * @param color the base [Color] of the surface
-     * @return the surface background [Color], adjusted to improve content contrast
-     * @see SurfaceDefaults.color
-     */
-    @Composable
-    public fun color(color: Color = GlimmerTheme.colors.surface): Color {
-        return SurfaceDefaults.color(color)
-    }
 
     /**
      * Default content color for [IconMarker]. It defines the color of icon in [Icon].
