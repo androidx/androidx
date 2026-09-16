@@ -121,6 +121,21 @@ internal value class Strings(@StringRes val value: Int) {
 
         inline val DatePickerContentDescription
             get() = Strings(R.string.wear_m3c_date_picker_content_description)
+
+        inline val DurationPickerHours
+            get() = Strings(R.string.wear_m3c_duration_picker_hours)
+
+        inline val DurationPickerMinutes
+            get() = Strings(R.string.wear_m3c_duration_picker_minutes)
+
+        inline val DurationPickerSeconds
+            get() = Strings(R.string.wear_m3c_duration_picker_seconds)
+
+        inline val DurationPickerHeading
+            get() = Strings(R.string.wear_m3c_duration_picker_heading)
+
+        inline val DurationPickerDisabledRange
+            get() = Strings(R.string.wear_m3c_duration_picker_disabled_range_description)
     }
 }
 
@@ -136,5 +151,14 @@ internal value class Plurals(@PluralsRes val value: Int) {
 
         inline val TimePickerSecondsContentDescription
             get() = Plurals(R.plurals.wear_m3c_time_picker_seconds_content_description)
+
+        inline val DurationPickerHoursContentDescription
+            get() = Plurals(R.plurals.wear_m3c_duration_picker_hours_content_description)
+
+        inline val DurationPickerMinutesContentDescription
+            get() = Plurals(R.plurals.wear_m3c_duration_picker_minutes_content_description)
+
+        inline val DurationPickerSecondsContentDescription
+            get() = Plurals(R.plurals.wear_m3c_duration_picker_seconds_content_description)
     }
 }

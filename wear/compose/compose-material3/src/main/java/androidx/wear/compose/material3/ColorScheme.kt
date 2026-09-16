@@ -287,6 +287,7 @@ public class ColorScheme(
     // Picker
     internal var defaultTimePickerColorsCached: TimePickerColors? = null
     internal var defaultDatePickerColorsCached: DatePickerColors? = null
+    internal var defaultDurationPickerColorsCached: DurationPickerColors? = null
 
     /**
      * The complementary color of [primary], with its chroma increased by

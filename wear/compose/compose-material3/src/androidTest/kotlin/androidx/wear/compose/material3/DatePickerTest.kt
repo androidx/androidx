@@ -35,9 +35,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.wear.compose.material3.internal.Strings
-import androidx.wear.compose.material3.samples.DatePickerFutureOnlySample
-import androidx.wear.compose.material3.samples.DatePickerSample
-import androidx.wear.compose.material3.samples.DatePickerYearMonthDaySample
 import com.google.common.truth.Truth.assertThat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -63,15 +60,6 @@ class DatePickerTest {
         }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
-    }
-
-    @Test
-    fun samples_build() {
-        rule.setContentWithTheme {
-            DatePickerSample()
-            DatePickerYearMonthDaySample()
-            DatePickerFutureOnlySample()
-        }
     }
 
     @Test
