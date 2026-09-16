@@ -28,6 +28,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -214,6 +215,43 @@ public class CallStats extends BaseStats {
         return mAppSearchResponseBytes;
     }
 
+    /**
+     * Returns a new {@link CallStats} instance accumulating latency, counts, and byte metrics from
+     * {@code rhs} into {@code lhs}.
+     */
+    public static @NonNull CallStats accumulate(@NonNull CallStats lhs, @NonNull CallStats rhs) {
+        Objects.requireNonNull(lhs);
+        Objects.requireNonNull(rhs);
+        return new Builder(lhs)
+                .setStatusCode(rhs.getStatusCode())
+                .setTotalLatencyMillis(lhs.mTotalLatencyMillis + rhs.getTotalLatencyMillis())
+                .setNumOperationsSucceeded(
+                        lhs.mNumOperationsSucceeded + rhs.getNumOperationsSucceeded())
+                .setNumOperationsFailed(
+                        lhs.mNumOperationsFailed + rhs.getNumOperationsFailed())
+                .setExecutorAcquisitionLatencyMillis(
+                        lhs.mExecutorAcquisitionLatencyMillis
+                                + rhs.getExecutorAcquisitionLatencyMillis())
+                .setOnExecutorLatencyMillis(
+                        lhs.mOnExecutorLatencyMillis + rhs.getOnExecutorLatencyMillis())
+                .setEstimatedBinderLatencyMillis(
+                        lhs.mEstimatedBinderLatencyMillis + rhs.getEstimatedBinderLatencyMillis())
+                .setGetUserInstanceLatency(
+                        lhs.mGetUserInstanceLatencyMillis + rhs.getGetUserInstanceLatencyMillis())
+                .setPvmBinderLatency(
+                        lhs.mPvmBinderLatencyMillis + rhs.getPvmBinderLatencyMillis())
+                .addIcingSearchEngineRequestBytes(
+                        (int) rhs.getIcingSearchEngineRequestBytes())
+                .addIcingSearchEngineResponseBytes(
+                        (int) rhs.getIcingSearchEngineResponseBytes())
+                .addAppSearchRequestBytes((int) rhs.getAppSearchRequestBytes())
+                .addAppSearchResponseBytes((int) rhs.getAppSearchResponseBytes())
+                .setUnblockedAppSearchLatencyMillis(
+                        lhs.getUnblockedAppSearchLatencyMillis()
+                                + rhs.getUnblockedAppSearchLatencyMillis())
+                .build();
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -283,6 +321,36 @@ public class CallStats extends BaseStats {
         long mIcingSearchEngineResponseBytes;
         long mAppSearchRequestBytes;
         long mAppSearchResponseBytes;
+
+        /** Creates a new {@link CallStats.Builder}. */
+        public Builder() {}
+
+        /**
+         * Copy constructor for {@link CallStats.Builder}.
+         *
+         * @param callStats The {@link CallStats} to copy from.
+         */
+        public Builder(@NonNull CallStats callStats) {
+            super(Objects.requireNonNull(callStats));
+            mPackageName = callStats.getPackageName();
+            mDatabase = callStats.getDatabase();
+            mStatusCode = callStats.getStatusCode();
+            mTotalLatencyMillis = callStats.getTotalLatencyMillis();
+            mCallType = callStats.getCallType();
+            mEstimatedBinderLatencyMillis = callStats.getEstimatedBinderLatencyMillis();
+            mNumOperationsSucceeded = callStats.getNumOperationsSucceeded();
+            mNumOperationsFailed = callStats.getNumOperationsFailed();
+            mCallReceivedTimestampMillis = callStats.getCallReceivedTimestampMillis();
+            mLastCallTypeHoldExecutor = callStats.getLastCallTypeHoldExecutor();
+            mExecutorAcquisitionLatencyMillis = callStats.getExecutorAcquisitionLatencyMillis();
+            mOnExecutorLatencyMillis = callStats.getOnExecutorLatencyMillis();
+            mGetUserInstanceLatencyMillis = callStats.getGetUserInstanceLatencyMillis();
+            mPvmBinderLatencyMillis = callStats.getPvmBinderLatencyMillis();
+            mIcingSearchEngineRequestBytes = callStats.getIcingSearchEngineRequestBytes();
+            mIcingSearchEngineResponseBytes = callStats.getIcingSearchEngineResponseBytes();
+            mAppSearchRequestBytes = callStats.getAppSearchRequestBytes();
+            mAppSearchResponseBytes = callStats.getAppSearchResponseBytes();
+        }
 
         /** Sets the PackageName used by the session. */
         @CanIgnoreReturnValue

@@ -5912,11 +5912,6 @@ public class AppSearchImplTest {
             public void logStats(@NonNull PutDocumentStats stats) {
                 assertThat(stats.getEnabledFeatures()).isEqualTo(onlyLaunchVmFeature);
             }
-
-            @Override
-            public void logStats(@NonNull QueryStats stats) {
-                assertThat(stats.getEnabledFeatures()).isEqualTo(onlyLaunchVmFeature);
-            }
         };
         GenericDocument document =
                 new GenericDocument.Builder<>("namespace1", "id1", "type").build();
@@ -5942,10 +5937,14 @@ public class AppSearchImplTest {
                 PersistType.Code.LITE,
                 /*callStatsBuilder=*/ null);
 
+        QueryStats.Builder queryStatsBuilder =
+                new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_LOCAL, "package")
+                        .setDatabase("database");
         mAppSearchImpl.query(
                 "package", "database", "",
-                new SearchSpec.Builder().build(), fakeLogger,
+                new SearchSpec.Builder().build(), queryStatsBuilder,
                 /*callStatsBuilder=*/null);
+        assertThat(queryStatsBuilder.build().getEnabledFeatures()).isEqualTo(onlyLaunchVmFeature);
 
         // Delete the document and check remove stats
         RemoveStats.Builder removeStatsBuilder = new RemoveStats.Builder(
@@ -6012,11 +6011,6 @@ public class AppSearchImplTest {
             public void logStats(@NonNull PutDocumentStats stats) {
                 assertThat(stats.getEnabledFeatures()).isEqualTo(noLaunchFeature);
             }
-
-            @Override
-            public void logStats(@NonNull QueryStats stats) {
-                assertThat(stats.getEnabledFeatures()).isEqualTo(noLaunchFeature);
-            }
         };
         GenericDocument document =
                 new GenericDocument.Builder<>("namespace1", "id1", "type").build();
@@ -6043,10 +6037,14 @@ public class AppSearchImplTest {
                 PersistType.Code.LITE,
                 /*callStatsBuilder=*/ null);
 
+        QueryStats.Builder queryStatsBuilder =
+                new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_LOCAL, "package")
+                        .setDatabase("database");
         mAppSearchImpl.query(
                 "package", "database", "",
-                new SearchSpec.Builder().build(), fakeLogger,
+                new SearchSpec.Builder().build(), queryStatsBuilder,
                 /*callStatsBuilder=*/null);
+        assertThat(queryStatsBuilder.build().getEnabledFeatures()).isEqualTo(noLaunchFeature);
 
         // Delete the document and check remove stats
         RemoveStats.Builder removeStatsBuilder = new RemoveStats.Builder(
@@ -6114,11 +6112,6 @@ public class AppSearchImplTest {
             public void logStats(@NonNull PutDocumentStats stats) {
                 assertThat(stats.getEnabledFeatures()).isEqualTo(launchVmAndAiSealFeature);
             }
-
-            @Override
-            public void logStats(@NonNull QueryStats stats) {
-                assertThat(stats.getEnabledFeatures()).isEqualTo(launchVmAndAiSealFeature);
-            }
         };
         GenericDocument document =
                 new GenericDocument.Builder<>("namespace1", "id1", "type").build();
@@ -6144,10 +6137,15 @@ public class AppSearchImplTest {
                 PersistType.Code.LITE,
                 /*callStatsBuilder=*/ null);
 
+        QueryStats.Builder queryStatsBuilder =
+                new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_LOCAL, "package")
+                        .setDatabase("database");
         mAppSearchImpl.query(
                 "package", "database", "",
-                new SearchSpec.Builder().build(), fakeLogger,
+                new SearchSpec.Builder().build(), queryStatsBuilder,
                 /*callStatsBuilder=*/null);
+        assertThat(queryStatsBuilder.build().getEnabledFeatures())
+                .isEqualTo(launchVmAndAiSealFeature);
 
         // Delete the document and check remove stats
         RemoveStats.Builder removeStatsBuilder = new RemoveStats.Builder(
@@ -6210,11 +6208,6 @@ public class AppSearchImplTest {
             public void logStats(@NonNull PutDocumentStats stats) {
                 assertThat(stats.getEnabledFeatures()).isEqualTo(noLaunchFeature);
             }
-
-            @Override
-            public void logStats(@NonNull QueryStats stats) {
-                assertThat(stats.getEnabledFeatures()).isEqualTo(noLaunchFeature);
-            }
         };
         GenericDocument document =
                 new GenericDocument.Builder<>("namespace1", "id1", "type").build();
@@ -6240,10 +6233,14 @@ public class AppSearchImplTest {
                 PersistType.Code.LITE,
                 /*callStatsBuilder=*/ null);
 
+        QueryStats.Builder queryStatsBuilder =
+                new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_LOCAL, "package")
+                        .setDatabase("database");
         mAppSearchImpl.query(
                 "package", "database", "",
-                new SearchSpec.Builder().build(), fakeLogger,
+                new SearchSpec.Builder().build(), queryStatsBuilder,
                 /*callStatsBuilder=*/null);
+        assertThat(queryStatsBuilder.build().getEnabledFeatures()).isEqualTo(noLaunchFeature);
 
         // Delete the document and check remove stats
         RemoveStats.Builder removeStatsBuilder = new RemoveStats.Builder(
@@ -6309,38 +6306,40 @@ public class AppSearchImplTest {
                 PersistType.Code.LITE,
                 /*callStatsBuilder=*/ null);
 
-        AppSearchLogger fakeLogger = new AppSearchLogger() {
-            @Override
-            public void logStats(@NonNull QueryStats stats) {
-                assertThat(stats.getResultSchemas()).containsExactly("type1", "type2", "type3");
-            }
-        };
+        QueryStats.Builder queryStatsBuilder =
+                new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_LOCAL, "package")
+                        .setDatabase("database");
         mAppSearchImpl.query(
-                "package", "database", "",
-                new SearchSpec.Builder().build(), fakeLogger,
-                /*callStatsBuilder=*/null);
+                "package",
+                "database",
+                "",
+                new SearchSpec.Builder().build(),
+                queryStatsBuilder,
+                /* callStatsBuilder= */ null);
+        assertThat(queryStatsBuilder.build().getResultSchemas())
+                .containsExactly("type1", "type2", "type3");
 
-        fakeLogger = new AppSearchLogger() {
-            @Override
-            public void logStats(@NonNull QueryStats stats) {
-                assertThat(stats.getResultSchemas()).containsExactly("type1", "type2");
-            }
-        };
+        queryStatsBuilder = new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_LOCAL, "package")
+                .setDatabase("database");
         mAppSearchImpl.query(
-                "package", "database", "",
-                new SearchSpec.Builder().addFilterSchemas("type1", "type2").build(), fakeLogger,
-                /*callStatsBuilder=*/null);
+                "package",
+                "database",
+                "",
+                new SearchSpec.Builder().addFilterSchemas("type1", "type2").build(),
+                queryStatsBuilder,
+                /* callStatsBuilder= */ null);
+        assertThat(queryStatsBuilder.build().getResultSchemas()).containsExactly("type1", "type2");
 
-        fakeLogger = new AppSearchLogger() {
-            @Override
-            public void logStats(@NonNull QueryStats stats) {
-                assertThat(stats.getResultSchemas()).containsExactly("type1");
-            }
-        };
+        queryStatsBuilder = new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_LOCAL, "package")
+                .setDatabase("database");
         mAppSearchImpl.query(
-                "package", "database", "",
-                new SearchSpec.Builder().addFilterSchemas("type1", "type4").build(), fakeLogger,
-                /*callStatsBuilder=*/null);
+                "package",
+                "database",
+                "",
+                new SearchSpec.Builder().addFilterSchemas("type1", "type4").build(),
+                queryStatsBuilder,
+                /* callStatsBuilder= */ null);
+        assertThat(queryStatsBuilder.build().getResultSchemas()).containsExactly("type1");
     }
 
     @Test
@@ -6426,30 +6425,35 @@ public class AppSearchImplTest {
                 .isEqualTo(BaseStats.CALL_TYPE_PUT_DOCUMENT);
 
         // Search document and check last write operation is PUT_DOCUMENTS
-        fakeLogger = new AppSearchLogger() {
-            @Override
-            public void logStats(@NonNull QueryStats stats) {
-                assertThat(stats.getLastBlockingOperation()).isEqualTo(
-                        BaseStats.CALL_TYPE_PUT_DOCUMENTS);
-            }
-        };
+        QueryStats.Builder queryStatsBuilder =
+                new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_LOCAL, "package")
+                        .setDatabase("database");
         callStatsBuilder = new CallStats.Builder();
         mAppSearchImpl.query(
-                "package", "database", "",
-                new SearchSpec.Builder().build(), fakeLogger,
+                "package",
+                "database",
+                "",
+                new SearchSpec.Builder().build(),
+                queryStatsBuilder,
                 callStatsBuilder);
+        assertThat(queryStatsBuilder.build().getLastBlockingOperation())
+                .isEqualTo(BaseStats.CALL_TYPE_PUT_DOCUMENTS);
         callStats = callStatsBuilder.build();
         assertThat(callStats.getLastBlockingOperation())
                 .isEqualTo(BaseStats.CALL_TYPE_PUT_DOCUMENTS);
 
         // Global query will only blocked by write operation
         callStatsBuilder = new CallStats.Builder();
+        QueryStats.Builder globalQueryStatsBuilder =
+                new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_GLOBAL, "package");
         mAppSearchImpl.globalQuery(
                 "",
                 new SearchSpec.Builder().build(),
                 mSelfCallerAccess,
-                fakeLogger,
+                globalQueryStatsBuilder,
                 callStatsBuilder);
+        assertThat(globalQueryStatsBuilder.build().getLastBlockingOperation())
+                .isEqualTo(BaseStats.CALL_TYPE_PUT_DOCUMENTS);
         callStats = callStatsBuilder.build();
         assertThat(callStats.getLastBlockingOperation())
                 .isEqualTo(BaseStats.CALL_TYPE_PUT_DOCUMENTS);
@@ -6769,7 +6773,7 @@ public class AppSearchImplTest {
         callStatsBuilder = new CallStats.Builder();
         mAppSearchImpl.query(
                 "package", "database", "",
-                new SearchSpec.Builder().build(), fakeLogger,
+                new SearchSpec.Builder().build(), /*queryStatsBuilder=*/ null,
                 callStatsBuilder);
         assertThat(callStatsBuilder.build().getNumIcingCalls()).isEqualTo(1);
 
@@ -6927,7 +6931,7 @@ public class AppSearchImplTest {
         callStatsBuilder = new CallStats.Builder();
         mAppSearchImpl.query(
                 "package", "database", "",
-                new SearchSpec.Builder().build(), fakeLogger,
+                new SearchSpec.Builder().build(), /*queryStatsBuilder=*/ null,
                 callStatsBuilder);
         assertThat(callStatsBuilder.build().getIcingSearchEngineRequestBytes())
                 .isGreaterThan(0);
