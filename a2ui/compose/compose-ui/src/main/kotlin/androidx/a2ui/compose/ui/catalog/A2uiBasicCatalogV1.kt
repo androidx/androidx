@@ -140,7 +140,7 @@ public class A2uiBasicCatalogV1(
     public companion object {
         /** The catalog ID for the A2UI Basic Catalog V1. */
         // TODO(b/547900174): update to v1.0 once the support for it is implemented.
-        public const val CatalogId: String =
+        public val CatalogId: String =
             "https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json"
 
         /** The standard theme schema for the A2UI Basic Catalog V1. */
