@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.Hyphens
@@ -253,5 +254,14 @@ internal fun Hyphens.encode(): Int =
         Hyphens.Auto -> 2 // Layout.HYPHENATION_FREQUENCY_FULL
         Hyphens.None,
         Hyphens.Unspecified -> 0 // Layout.HYPHENATION_FREQUENCY_NONE
+        else -> 0
+    }
+
+internal fun TileMode.toTileModeInt(): Int =
+    when (this) {
+        TileMode.Clamp -> 0
+        TileMode.Repeated -> 1
+        TileMode.Mirror -> 2
+        TileMode.Decal -> 3
         else -> 0
     }
