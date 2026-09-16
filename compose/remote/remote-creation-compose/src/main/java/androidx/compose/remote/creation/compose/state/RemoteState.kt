@@ -24,7 +24,6 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteComposeNode
-import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 
@@ -102,10 +101,10 @@ public interface RemoteState<T> {
          *
          * Recommended for application-specific state.
          */
-        public object User : Domain(RemoteDomains.USER.toString())
+        public object User : Domain(USER_DOMAIN)
 
         /** The system-defined domain, used for platform-level or framework state. */
-        public object System : Domain(RemoteDomains.SYSTEM.toString())
+        public object System : Domain(SYSTEM_DOMAIN)
 
         /** The domain for states that do not belong to any specific domain. */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public object None : Domain(null)
@@ -123,6 +122,12 @@ public interface RemoteState<T> {
         }
     }
 }
+
+/** The canonical domain identifier for user-defined state in the RemoteCompose wire protocol. */
+private const val USER_DOMAIN: String = "USER"
+
+/** The canonical domain identifier for system-defined state in the RemoteCompose wire protocol. */
+private const val SYSTEM_DOMAIN: String = "SYSTEM"
 
 /** Common base class for all Remote types. */
 public abstract class BaseRemoteState<T : Any>
