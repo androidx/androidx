@@ -74,6 +74,41 @@ class CollapsibleColumnPartialPassTest {
             mList.add(c)
         }
 
+        fun setWidthModifier(modifier: WidthModifierOperation) {
+            mWidthModifier = modifier
+            mComponentModifiers.add(modifier)
+        }
+
+        fun setHeightModifier(modifier: HeightModifierOperation) {
+            mHeightModifier = modifier
+            mComponentModifiers.add(modifier)
+        }
+
+        override fun isRelayoutBoundary(): Boolean = true
+    }
+
+    private class TestCollapsibleRowLayout(parent: Component?, id: Int) :
+        CollapsibleRowLayout(parent, id, -1, 0, 0, 0f) {
+        init {
+            mWidthModifier = WidthModifierOperation(DimensionModifierOperation.Type.FILL, 1f)
+            mHeightModifier = HeightModifierOperation(DimensionModifierOperation.Type.FILL, 1f)
+        }
+
+        fun addChild(c: Component) {
+            mChildrenComponents.add(c)
+            mList.add(c)
+        }
+
+        fun setWidthModifier(modifier: WidthModifierOperation) {
+            mWidthModifier = modifier
+            mComponentModifiers.add(modifier)
+        }
+
+        fun setHeightModifier(modifier: HeightModifierOperation) {
+            mHeightModifier = modifier
+            mComponentModifiers.add(modifier)
+        }
+
         override fun isRelayoutBoundary(): Boolean = true
     }
 
@@ -168,5 +203,65 @@ class CollapsibleColumnPartialPassTest {
 
         // Verify dirty boundaries are cleared after full pass
         assertThat(root.needsMeasure()).isFalse()
+    }
+
+    @Test
+    fun testMinIntrinsicWidth_exactModifier_doesNotAddChildWidth() {
+        val mockRemoteContext: RemoteContext = mock()
+        val collapsible = TestCollapsibleColumnLayout(null, 100)
+        collapsible.setWidthModifier(
+            WidthModifierOperation(DimensionModifierOperation.Type.EXACT, 380f)
+        )
+        val child = TestChildComponent(collapsible, 101)
+        collapsible.addChild(child)
+
+        val minWidth = collapsible.minIntrinsicWidth(mockRemoteContext)
+
+        assertThat(minWidth).isEqualTo(380f)
+    }
+
+    @Test
+    fun testMinIntrinsicHeight_exactModifier_doesNotAddChildHeight() {
+        val mockRemoteContext: RemoteContext = mock()
+        val collapsible = TestCollapsibleColumnLayout(null, 100)
+        collapsible.setHeightModifier(
+            HeightModifierOperation(DimensionModifierOperation.Type.EXACT, 200f)
+        )
+        val child = TestChildComponent(collapsible, 101)
+        collapsible.addChild(child)
+
+        val minHeight = collapsible.minIntrinsicHeight(mockRemoteContext)
+
+        assertThat(minHeight).isEqualTo(200f)
+    }
+
+    @Test
+    fun testCollapsibleRow_minIntrinsicWidth_exactModifier_doesNotAddChildWidth() {
+        val mockRemoteContext: RemoteContext = mock()
+        val collapsible = TestCollapsibleRowLayout(null, 100)
+        collapsible.setWidthModifier(
+            WidthModifierOperation(DimensionModifierOperation.Type.EXACT, 300f)
+        )
+        val child = TestChildComponent(collapsible, 101)
+        collapsible.addChild(child)
+
+        val minWidth = collapsible.minIntrinsicWidth(mockRemoteContext)
+
+        assertThat(minWidth).isEqualTo(300f)
+    }
+
+    @Test
+    fun testCollapsibleRow_minIntrinsicHeight_exactModifier_doesNotAddChildHeight() {
+        val mockRemoteContext: RemoteContext = mock()
+        val collapsible = TestCollapsibleRowLayout(null, 100)
+        collapsible.setHeightModifier(
+            HeightModifierOperation(DimensionModifierOperation.Type.EXACT, 150f)
+        )
+        val child = TestChildComponent(collapsible, 101)
+        collapsible.addChild(child)
+
+        val minHeight = collapsible.minIntrinsicHeight(mockRemoteContext)
+
+        assertThat(minHeight).isEqualTo(150f)
     }
 }
