@@ -105,7 +105,7 @@ internal constructor(
 
     init {
         check(config.camera == cameraMetadata.camera) {
-            "CameraGraphSimulator must be creating with a camera id that matches the provided " +
+            "CameraGraphSimulator must be created with a camera id that matches the provided " +
                 "cameraMetadata! Received ${config.camera}, but expected " +
                 "${cameraMetadata.camera}"
         }
@@ -168,9 +168,7 @@ internal constructor(
     }
 
     override fun initializeSurfaces() {
-        check(!closed.value) {
-            "Cannot call simulateFakeSurfaceConfiguration on $this after close."
-        }
+        check(!closed.value) { "Cannot call initializeSurfaces on $this after close." }
         for (stream in streams.streams) {
             if (externalSurfaces.contains(stream.id)) {
                 // This stream is configured with an external Surface. Skip.

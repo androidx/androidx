@@ -237,7 +237,7 @@ internal class OutputDistributor<T>(
     /**
      * Indicates a camera2 output has arrived for a specific [outputNumber].
      *
-     * This value is the primary keu used to match `onOutputStart` events with `onOutputResult`
+     * This value is the primary key used to match `onOutputStart` events with `onOutputResult`
      * events. For images, these values will often refer to the nanosecond timestamp of the Image,
      * and for TotalCaptureResults, this value will often reference the associated FrameNumber.
      */

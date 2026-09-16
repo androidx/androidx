@@ -31,7 +31,7 @@ import androidx.camera.camera2.pipe.media.ImageSource
  *
  * The simulator does not make (many) assumptions about how the simulator will be used, and for this
  * reason it does not automatically put the underlying graph into a "started" state. In most cases,
- * the test will need start the [CameraGraph], [simulateCameraStarted], and either configure
+ * the test will need to start the [CameraGraph], [simulateCameraStarted], and either configure
  * surfaces for the [CameraGraph] or call [initializeSurfaces] to put the graph into a state where
  * it is able to send and simulate interactions with the camera. This mirrors the normal lifecycle
  * of a [CameraGraph]. Tests using [CameraSimulator]s should also close them after they've completed
@@ -69,7 +69,7 @@ public interface CameraSimulator {
         advanceBarrier: Boolean = true,
     ): CameraGraphSimulator.FrameSimulator
 
-    /** Utility function to simulate the production of a [FakeImage]s for one or more streams. */
+    /** Utility function to simulate the production of [FakeImage]s for one or more streams. */
     public fun simulateImage(
         streamId: StreamId,
         imageTimestamp: Long,

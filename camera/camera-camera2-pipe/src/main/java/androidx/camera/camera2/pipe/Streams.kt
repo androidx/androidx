@@ -33,7 +33,7 @@ import androidx.camera.camera2.pipe.compat.Api33Compat
  *   may be changed, although this may cause the camera to stall and reconfigure.
  * - [CameraStream]'s may be added to [Request]'s that are sent to the [CameraGraph]. This causes
  *   the associated surface to be used by the Camera to produce one or more of the outputs (defined
- *   by outputs.
+ *   by outputs).
  *
  * [CameraStream] may be configured in several different ways with the requirement that each
  * [CameraStream] may only represent a single surface that is sent to Camera2, and that each
@@ -129,9 +129,9 @@ internal constructor(public val id: StreamId, public val outputs: List<OutputStr
             ): Config = Config(listOf(output), imageSourceConfig)
 
             /**
-             * Create a [CameraStream] from multiple [OutputStream.Config]s. This is used to to
-             * define a [CameraStream] that may produce one or more of the outputs when used in a
-             * request to the camera.
+             * Create a [CameraStream] from multiple [OutputStream.Config]s. This is used to define
+             * a [CameraStream] that may produce one or more of the outputs when used in a request
+             * to the camera.
              */
             public fun create(
                 outputs: List<OutputStream.Config>,
@@ -480,8 +480,8 @@ public interface OutputStream {
     /**
      * If this OutputStream is a valid stream for HIGH_SPEED recording. The requirement is that the
      * surface must be either video encoder surface or preview surface. The checks below can be used
-     * to ensure that the we are passing along the right intention for any further checks when
-     * actually configuring and using this stream.
+     * to ensure that we are passing along the right intention for any further checks when actually
+     * configuring and using this stream.
      *
      * [Camera2 reference]
      * [https://developer.android.com/reference/android/hardware/camera2/CameraDevice#constrained-high-speed-recording]

@@ -279,7 +279,7 @@ internal constructor(
             return OutputStatus.AVAILABLE
         }
 
-        // If no output is available, but all the statues are the same, use the status.
+        // If no output is available, but all the statuses are the same, use the status.
         if (statuses.all { it == statuses.first() }) {
             return statuses.first()
         }

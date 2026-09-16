@@ -33,7 +33,7 @@ public interface SharedOutputImage : OutputImage {
      * Create a new [SharedOutputImage] copy that can be independently managed or closed. Throws an
      * exception if this reference is already closed.
      *
-     * [onClose] if provided, is invoked exactly once at the start of the close method.
+     * [onClose] if provided, is invoked exactly once at the end of the close method.
      */
     public fun acquire(onClose: (() -> Unit) = {}): SharedOutputImage
 
@@ -41,7 +41,7 @@ public interface SharedOutputImage : OutputImage {
      * Create a new [SharedOutputImage] copy that can be independently managed or closed. Returns
      * null if this image has already been finalized.
      *
-     * [onClose] if provided, is invoked exactly once at the start of the close method.
+     * [onClose] if provided, is invoked exactly once at the end of the close method.
      */
     public fun acquireOrNull(onClose: (() -> Unit) = {}): SharedOutputImage?
 
@@ -112,7 +112,7 @@ public interface SharedOutputImage : OutputImage {
                         ImageWrapper::class.java -> this as T?
                         Image::class.java ->
                             throw UnsupportedOperationException(
-                                "Cannot unwrap $this as android.media.Image. Use setFinalizer" +
+                                "Cannot unwrap $this as android.media.Image. Use setFinalizer " +
                                     "instead and close all outstanding references."
                             )
                         else -> outputImage.unwrapAs(type)
