@@ -16,7 +16,6 @@
 package androidx.compose.remote.core;
 
 import static androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX;
-import static androidx.compose.remote.core.RcProfiles.PROFILE_ANDROID_NATIVE;
 import static androidx.compose.remote.core.RcProfiles.PROFILE_DEPRECATED;
 import static androidx.compose.remote.core.RcProfiles.PROFILE_EXPERIMENTAL;
 import static androidx.compose.remote.core.RcProfiles.PROFILE_WIDGETS;
@@ -60,6 +59,7 @@ import androidx.compose.remote.core.operations.DrawTextAnchored;
 import androidx.compose.remote.core.operations.DrawTextOnPath;
 import androidx.compose.remote.core.operations.DrawToBitmap;
 import androidx.compose.remote.core.operations.DrawTweenPath;
+import androidx.compose.remote.core.operations.EventActionOperation;
 import androidx.compose.remote.core.operations.FloatConstant;
 import androidx.compose.remote.core.operations.FloatExpression;
 import androidx.compose.remote.core.operations.FloatFunctionCall;
@@ -328,6 +328,11 @@ public class Operations {
     ///////////////////////////////////////// ======================
 
     ////////////////////////////////////////
+    // Communication
+    ////////////////////////////////////////
+    public static final int EVENT_ACTION = 110;
+
+    ////////////////////////////////////////
     // Layout commands
     /// /////////////////////////////////////
 
@@ -520,6 +525,8 @@ public class Operations {
             sMapV7AndroidXExperimental.put(DATA_SOUND, SoundData::read);
             sMapV7AndroidXExperimental.put(SOUND_EXPRESSION, SoundExpression::read);
             sMapV7AndroidXExperimental.put(PLAY_SOUND, PlaySound::read);
+
+            sMapV7AndroidXExperimental.put(EVENT_ACTION, EventActionOperation::read);
         }
         return sMapV7AndroidXExperimental;
     }
@@ -628,7 +635,8 @@ public class Operations {
                 }
                 listProfiles.add(widgets);
             }
-            // Profiles defined externally (e.g. PROFILE_ANDROID_NATIVE) add no built-in profile overrides here.
+            // Profiles defined externally (e.g. PROFILE_ANDROID_NATIVE) add no built-in profile
+            // overrides here.
 
             if (listProfiles.size() == 1) {
                 mapV7.putAll(listProfiles.get(0));

@@ -3557,6 +3557,29 @@ public class RemoteComposeWriter {
     }
 
     /**
+     * Writes an event handler containing nested actions.
+     *
+     * @param type      type identifying compatible events
+     * @param filter    filter metadata required to match onEvent
+     * @param flags     routing specific status flags returned on success
+     * @param dataIds   optional mapping of input payload indices to target float variables
+     * @param condition optional RPN condition used to conditionally trigger actions
+     * @param actions   nested action children written inside the container block
+     */
+    public void onEvent(
+            int type,
+            int filter,
+            int flags,
+            int @Nullable[] dataIds,
+            float @Nullable[] condition,
+            Action @NonNull ... actions
+    ) {
+        mBuffer.startEventActions(type, filter, flags, dataIds, condition);
+        addAction(actions);
+        mBuffer.endEventActions();
+    }
+
+    /**
      * Add a box layout
      *
      * @param modifier   list of modifiers for the layout

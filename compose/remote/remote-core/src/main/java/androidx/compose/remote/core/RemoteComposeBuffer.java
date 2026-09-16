@@ -55,6 +55,7 @@ import androidx.compose.remote.core.operations.DrawTextOnCircle;
 import androidx.compose.remote.core.operations.DrawTextOnPath;
 import androidx.compose.remote.core.operations.DrawToBitmap;
 import androidx.compose.remote.core.operations.DrawTweenPath;
+import androidx.compose.remote.core.operations.EventActionOperation;
 import androidx.compose.remote.core.operations.FloatConstant;
 import androidx.compose.remote.core.operations.FloatExpression;
 import androidx.compose.remote.core.operations.FloatFunctionCall;
@@ -192,6 +193,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 /** Provides an abstract buffer to encode/decode RemoteCompose operations */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -211,7 +213,7 @@ public class RemoteComposeBuffer {
     protected int mLastComponentId = 0;
     private int mGeneratedComponentId = -1;
     protected int mApiLevel = CoreDocument.DOCUMENT_API_LEVEL;
-    private final java.util.Stack<Integer> mPatternDefineOffsets = new java.util.Stack<>();
+    private final Stack<Integer> mPatternDefineOffsets = new Stack<>();
     protected int mProfileMask = 0;
     protected boolean mIsCustomMap = false;
 
@@ -2771,6 +2773,29 @@ public class RemoteComposeBuffer {
 
     /** Ends the current conditional operation stared by {@link #addConditionalOperations}. */
     public void endConditionalOperations() {
+        addContainerEnd();
+    }
+
+    /**
+     * Starts an event actions block.
+     *
+     * @param type the event type
+     * @param filter the filter metadata
+     * @param flags the routing flags
+     * @param dataIds optional target payload data mapping IDs
+     * @param condition optional conditional float expression RPN stream
+     */
+    public void startEventActions(
+            int type,
+            int filter,
+            int flags,
+            int @Nullable [] dataIds,
+            float @Nullable [] condition) {
+        EventActionOperation.apply(mBuffer, type, filter, flags, dataIds, condition);
+    }
+
+    /** Ends the current event actions block. */
+    public void endEventActions() {
         addContainerEnd();
     }
 
