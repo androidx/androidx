@@ -177,7 +177,7 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
-    fun getFeatureStatus_featuresAddedInExt13_areAvailableInExt13() {
+    fun getFeatureStatus_sdkExt13Features_available() {
         assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 13)
 
         for (feature in
@@ -192,7 +192,7 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
-    fun getFeatureStatus_belowUExt13_noneIsAvailable() {
+    fun getFeatureStatus_sdkExt13Features_unavailable() {
         assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) < 13)
 
         val features =
@@ -203,6 +203,7 @@ class HealthConnectClientUpsideDownImplTest {
                 HealthConnectFeatures.FEATURE_PLANNED_EXERCISE,
                 HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION,
                 HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY,
+                HealthConnectFeatures.FEATURE_ON_DEVICE_STEP_TRACKING,
                 HealthConnectFeatures.FEATURE_MATCHMAKING,
             )
 
@@ -213,7 +214,7 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
-    fun getFeatureStatus_featuresAddedInExt15_areAvailableInExt15() {
+    fun getFeatureStatus_sdkExt15Features_available() {
         assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 15)
 
         for (feature in
@@ -227,7 +228,7 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
-    fun getFeatureStatus_belowUExt15_noneIsAvailable() {
+    fun getFeatureStatus_sdkExt15Features_unavailable() {
         assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) < 15)
 
         val features =
@@ -243,7 +244,7 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
-    fun getFeatureStatus_featuresAddedInExt16_areAvailableInExt16() {
+    fun getFeatureStatus_sdkExt16Features_available() {
         assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 16)
 
         assertThat(
@@ -255,10 +256,34 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
-    fun getFeatureStatus_belowUExt16_noneIsAvailable() {
+    fun getFeatureStatus_sdkExt16Features_unavailable() {
         assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) < 16)
 
         val features = listOf(HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY)
+        for (feature in features) {
+            assertThat(healthConnectClient.features.getFeatureStatus(feature))
+                .isEqualTo(HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE)
+        }
+    }
+
+    @Test
+    fun getFeatureStatus_sdkExt20Features_available() {
+        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 20)
+
+        assertThat(
+                healthConnectClient.features.getFeatureStatus(
+                    HealthConnectFeatures.FEATURE_ON_DEVICE_STEP_TRACKING
+                )
+            )
+            .isEqualTo(HealthConnectFeatures.FEATURE_STATUS_AVAILABLE)
+    }
+
+    @Test
+    fun getFeatureStatus_sdkExt20Features_unavailable() {
+        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) < 20)
+
+        val features = listOf(HealthConnectFeatures.FEATURE_ON_DEVICE_STEP_TRACKING)
+
         for (feature in features) {
             assertThat(healthConnectClient.features.getFeatureStatus(feature))
                 .isEqualTo(HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE)
