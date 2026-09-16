@@ -103,32 +103,69 @@ internal class QuadOverlayRenderer {
         canvas: Canvas,
         width: Int,
         height: Int,
+        interactionState: InteractionState,
         dotPlacement: DotPlacement,
         dotRadius: Float,
         renderAsDot: Boolean,
         color: Int,
         text: String,
+        distance: Float,
     ) {
         if (renderAsDot) {
             fillPaint.color = color
-            drawDots(dotPlacement, width, height, topCy = dotRadius) { cx, cy ->
+            val outerRadius = dotRadius + (hoverOuterPaint.strokeWidth / 2f)
+            val topCy = if (interactionState == InteractionState.HOVERED) outerRadius else dotRadius
+            drawDots(dotPlacement, width, height, topCy = topCy) { cx, cy ->
+                if (interactionState == InteractionState.HOVERED) {
+                    canvas.drawCircle(cx, cy, outerRadius, hoverOuterPaint)
+                }
                 canvas.drawCircle(cx, cy, dotRadius, fillPaint)
             }
         } else {
-            standardStrokePaint.color = color
-            val halfStroke = standardStrokePaint.strokeWidth / 2f
-            if (width.toFloat() > 2f * halfStroke && height.toFloat() > 2f * halfStroke) {
-                canvas.drawRect(
-                    halfStroke,
-                    halfStroke,
-                    width.toFloat() - halfStroke,
-                    height.toFloat() - halfStroke,
-                    standardStrokePaint,
-                )
+            if (interactionState == InteractionState.HOVERED) {
+                val halfOuter = hoverOuterPaint.strokeWidth / 2f
+                if (width.toFloat() > 2f * halfOuter && height.toFloat() > 2f * halfOuter) {
+                    canvas.drawRect(
+                        halfOuter,
+                        halfOuter,
+                        width.toFloat() - halfOuter,
+                        height.toFloat() - halfOuter,
+                        hoverOuterPaint,
+                    )
+                }
+                val innerInset =
+                    hoverOuterPaint.strokeWidth +
+                        (HOVER_INNER_STROKE_INSET_PX * distance) +
+                        (hoverInnerPaint.strokeWidth / 2f)
+                if (width.toFloat() > 2f * innerInset && height.toFloat() > 2f * innerInset) {
+                    hoverInnerPaint.color = color
+                    canvas.drawRect(
+                        innerInset,
+                        innerInset,
+                        width.toFloat() - innerInset,
+                        height.toFloat() - innerInset,
+                        hoverInnerPaint,
+                    )
+                }
+            } else {
+                standardStrokePaint.color = color
+                val halfStroke = standardStrokePaint.strokeWidth / 2f
+                if (width.toFloat() > 2f * halfStroke && height.toFloat() > 2f * halfStroke) {
+                    canvas.drawRect(
+                        halfStroke,
+                        halfStroke,
+                        width.toFloat() - halfStroke,
+                        height.toFloat() - halfStroke,
+                        standardStrokePaint,
+                    )
+                }
             }
-            textPaint.color = color
+            textPaint.color =
+                if (interactionState == InteractionState.HOVERED) Color.WHITE else color
             val textY = calculateBaselineY(textPaint, height.toFloat())
-            canvas.drawText(text, width / 2f, textY, textPaint)
+            val displayText =
+                if (interactionState == InteractionState.HOVERED) OVERLAY_TEXT_STOP else text
+            canvas.drawText(displayText, width / 2f, textY, textPaint)
         }
     }
 
@@ -164,7 +201,16 @@ internal class QuadOverlayRenderer {
             return
         }
 
-        val canvas = surface.lockCanvas(null)
+        val canvas =
+            try {
+                surface.lockCanvas(null)
+            } catch (e: IllegalArgumentException) {
+                Log.w(TAG, "Surface is already locked or invalid, skipping quad overlay render", e)
+                return
+            } catch (e: IllegalStateException) {
+                Log.w(TAG, "Surface is in an illegal state, skipping quad overlay render", e)
+                return
+            }
         if (canvas == null) {
             Log.w(TAG, "Failed to lock surface canvas for rendering quad overlay")
             return
@@ -204,6 +250,7 @@ internal class QuadOverlayRenderer {
                             }
                         } else {
                             if (interactionState == InteractionState.HOVERED) {
+                                hoverInnerPaint.color = Color.WHITE
                                 val halfOuter = hoverOuterPaint.strokeWidth / 2f
                                 if (
                                     width.toFloat() > 2f * halfOuter &&
@@ -267,11 +314,13 @@ internal class QuadOverlayRenderer {
                             canvas = canvas,
                             width = width,
                             height = height,
+                            interactionState = interactionState,
                             dotPlacement = effectiveDotPlacement,
                             dotRadius = dotRadius,
                             renderAsDot = isSmall,
                             color = Color.RED,
                             text = OVERLAY_TEXT_PAUSED,
+                            distance = distance,
                         )
                     }
                     TrackingState.STOPPED -> {
@@ -279,11 +328,13 @@ internal class QuadOverlayRenderer {
                             canvas = canvas,
                             width = width,
                             height = height,
+                            interactionState = interactionState,
                             dotPlacement = effectiveDotPlacement,
                             dotRadius = dotRadius,
                             renderAsDot = isSmall,
-                            color = Color.BLUE,
+                            color = Color.RED,
                             text = OVERLAY_TEXT_STOPPED,
+                            distance = distance,
                         )
                     }
                 }
