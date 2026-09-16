@@ -35,6 +35,7 @@ import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
@@ -99,12 +100,18 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
 
     private var lastSnapshot: FrameSnapshot? = null
     var isTrackingStarted by mutableStateOf(false)
+    private var activeFrameWidth by
+        mutableFloatStateOf(CameraFrameAnalyzer.DEFAULT_FRAME_WIDTH.toFloat())
+    private var activeFrameHeight by
+        mutableFloatStateOf(CameraFrameAnalyzer.DEFAULT_FRAME_HEIGHT.toFloat())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         cameraFrameAnalyzer = CameraFrameAnalyzer { width, height ->
             Log.d("HelloAr", "Camera resolution updated: ${width}x${height}")
+            activeFrameWidth = width
+            activeFrameHeight = height
         }
 
         spatialAnnotationRenderer =
@@ -132,13 +139,8 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
                                 ) {
                                     CameraPreviewScreen(
                                         cameraPreviewUseCase = cameraPreviewUseCase,
-                                        // TODO(b/561608504): Support dynamic camera resolution and
-                                        // back
-                                        // activeFrameWidth/Height with Compose state.
-                                        activeFrameWidth =
-                                            CameraFrameAnalyzer.DEFAULT_FRAME_WIDTH.toFloat(),
-                                        activeFrameHeight =
-                                            CameraFrameAnalyzer.DEFAULT_FRAME_HEIGHT.toFloat(),
+                                        activeFrameWidth = activeFrameWidth,
+                                        activeFrameHeight = activeFrameHeight,
                                         onStartTrackingClick = ::onStartTrackingClicked,
                                     )
                                 }
