@@ -113,18 +113,18 @@ abstract class SwitchCameraStressTestBase(
 
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
 
+        requireForegroundRule.deferCleanup {
+            if (::cameraProvider.isInitialized) {
+                cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
+            }
+        }
+
         cameraIdCameraSelector = createCameraSelectorById(cameraId)
 
         camera =
             withContext(Dispatchers.Main) {
                 cameraProvider.bindToLifecycle(FakeLifecycleOwner(), cameraIdCameraSelector)
             }
-
-        requireForegroundRule.deferCleanup {
-            if (::cameraProvider.isInitialized) {
-                cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
-            }
-        }
     }
 
     /** Repeatedly switch the cameras and checks the use cases' capture functions can work. */

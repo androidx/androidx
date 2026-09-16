@@ -83,8 +83,6 @@ class ImageCaptureTest(private val cameraId: String, private val extensionMode: 
 
         extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
-        assumeExtensionModeSupported(extensionsManager, cameraId, extensionMode)
-
         requireForegroundRule.deferCleanup {
             if (::cameraProvider.isInitialized) {
                 cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
@@ -94,6 +92,8 @@ class ImageCaptureTest(private val cameraId: String, private val extensionMode: 
                 extensionsManager.shutdown()
             }
         }
+
+        assumeExtensionModeSupported(extensionsManager, cameraId, extensionMode)
     }
 
     /**
