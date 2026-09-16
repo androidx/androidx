@@ -26,7 +26,6 @@ androidx {
     mavenVersion = LibraryVersions.CORE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'core' artifact"
-    legacyDisableKotlinStrictApiMode = true
     doNotDocumentReason = "empty artifact maintained for compatibility"
 }
 
