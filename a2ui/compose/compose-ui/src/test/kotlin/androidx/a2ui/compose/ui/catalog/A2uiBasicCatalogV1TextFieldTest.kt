@@ -135,7 +135,7 @@ class A2uiBasicCatalogV1TextFieldTest {
         assertThat(variantSchema.keywords)
             .containsExactly(
                 A2uiSchemaKeyword.Enum(listOf("longText", "number", "shortText", "obscured")),
-                A2uiSchemaKeyword.Default(A2uiBasicCatalogV1.TextField.Variant.Default.value),
+                A2uiSchemaKeyword.Default(A2uiBasicCatalogV1.TextField.Variant.ShortText.value),
             )
     }
 
@@ -198,8 +198,8 @@ class A2uiBasicCatalogV1TextFieldTest {
     @Test
     fun variant_fromValue_invalidOrEmptyString_fallsBackToDefault() {
         assertThat(A2uiBasicCatalogV1.TextField.Variant.fromValue("invalid_variant"))
-            .isEqualTo(A2uiBasicCatalogV1.TextField.Variant.ShortText)
+            .isEqualTo(A2uiBasicCatalogV1.TextField.Variant.Default)
         assertThat(A2uiBasicCatalogV1.TextField.Variant.fromValue(""))
-            .isEqualTo(A2uiBasicCatalogV1.TextField.Variant.ShortText)
+            .isEqualTo(A2uiBasicCatalogV1.TextField.Variant.Default)
     }
 }

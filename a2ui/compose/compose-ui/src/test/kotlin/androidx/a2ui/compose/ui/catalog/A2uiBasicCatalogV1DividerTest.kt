@@ -69,7 +69,7 @@ class A2uiBasicCatalogV1DividerTest {
         assertThat(axisSchema.keywords)
             .contains(A2uiSchemaKeyword.Enum(listOf("horizontal", "vertical")))
         assertThat(axisSchema.keywords)
-            .contains(A2uiSchemaKeyword.Default(A2uiBasicCatalogV1.Divider.Axis.Default.value))
+            .contains(A2uiSchemaKeyword.Default(A2uiBasicCatalogV1.Divider.Axis.Horizontal.value))
     }
 
     @Test
@@ -89,7 +89,7 @@ class A2uiBasicCatalogV1DividerTest {
         assertThat(axisSchema.keywords)
             .containsExactly(
                 A2uiSchemaKeyword.Enum(listOf("horizontal", "vertical")),
-                A2uiSchemaKeyword.Default(A2uiBasicCatalogV1.Divider.Axis.Default.value),
+                A2uiSchemaKeyword.Default(A2uiBasicCatalogV1.Divider.Axis.Horizontal.value),
             )
     }
 
