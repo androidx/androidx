@@ -29,13 +29,14 @@ import kotlin.math.ceil
  * A helper class responsible for measuring and drawing text with horizontal emphasis marks.
  *
  * This class handles the layout of the body text and the positioning of emphasis marks (e.g., dots)
- * above the text. It calculates the necessary font metrics adjustments to accommodate the emphasis
- * marks and draws them at the correct positions.
+ * on the side that [position] selects. It calculates the necessary font metrics adjustments to
+ * accommodate the emphasis marks and draws them at the correct positions.
  *
  * @param text The source text containing the emphasis span.
  * @param start The start index of the emphasis span in the source text.
  * @param end The end index of the emphasis span in the source text.
  * @param emphasis The string to be used as the emphasis mark (e.g., "•").
+ * @param position Where the emphasis mark sits relative to the base text.
  * @param paint The paint used for measuring and drawing the text.
  * @param relSize The relative size of the emphasis mark compared to the body text size.
  */
@@ -44,6 +45,7 @@ internal class HorizontalEmphasisSpanLayout(
     start: Int,
     end: Int,
     private val emphasis: String,
+    position: AnnotationPosition,
     paint: Paint,
     private val relSize: Float,
 ) : HorizontalSpanLayout {
@@ -82,7 +84,7 @@ internal class HorizontalEmphasisSpanLayout(
 
         // Calculate drawing position of emphasis letter.
         positions = FloatArray(copied.length) { Float.NaN }
-        copied.forStyleRuns(0, end - start, wPaint) { ss, se, paint, _, _, _, _ ->
+        copied.forStyleRuns(0, end - start, wPaint) { ss, se, paint, _, _, _ ->
             copied.forEachGrapheme(ss, se, paint.textLocale) { gs, ge ->
                 if (isEmphasisTarget(Character.codePointAt(copied, gs))) {
                     val width = paint.measureText(copied, gs, ge)
@@ -96,9 +98,34 @@ internal class HorizontalEmphasisSpanLayout(
     private val bodyAscent = bodyLayout.getLineAscent(0)
     private val bodyDescent = bodyLayout.getLineDescent(0)
 
+    /** Height of the emphasis line box, i.e. the space the mark needs on its chosen side. */
+    private val markLineHeight = emphasisDescent - emphasisAscent
+
+    /**
+     * True when the emphasis mark is placed over the base text line, which is how
+     * [AnnotationPosition.Before] renders in horizontal writing mode. See
+     * [`line-over` CSS](https://drafts.csswg.org/css-writing-modes-4/#line-over) for further
+     * information. Any unrecognized position falls back to this, matching
+     * [EmphasisSpan.DEFAULT_POSITION].
+     */
+    private val isMarkOver = position != AnnotationPosition.After
+
+    /**
+     * Reserves vertical space for the emphasis mark on the side its position selects.
+     *
+     * Reserving it on the wrong side would leave the mark to collide with the adjacent line, so the
+     * position has to move the reservation and not just the drawing.
+     *
+     * @param fm the font metrics to overwrite in place
+     */
     override fun fillFontMetrics(fm: Paint.FontMetricsInt) {
-        fm.ascent = bodyAscent - emphasisDescent + emphasisAscent
-        fm.descent = bodyDescent
+        if (isMarkOver) {
+            fm.ascent = bodyAscent - markLineHeight
+            fm.descent = bodyDescent
+        } else {
+            fm.ascent = bodyAscent
+            fm.descent = bodyDescent + markLineHeight
+        }
         fm.top = fm.ascent
         fm.bottom = fm.descent
     }
@@ -116,7 +143,8 @@ internal class HorizontalEmphasisSpanLayout(
         }
 
         // Draw Emphasis Text
-        val emphasisDrawY = y + bodyAscent - emphasisDescent
+        val emphasisDrawY =
+            if (isMarkOver) y + bodyAscent - emphasisDescent else y + bodyDescent - emphasisAscent
         paint.withTextScale(relSize) {
             positions.forEach { pos ->
                 if (pos.isNaN()) return@forEach
