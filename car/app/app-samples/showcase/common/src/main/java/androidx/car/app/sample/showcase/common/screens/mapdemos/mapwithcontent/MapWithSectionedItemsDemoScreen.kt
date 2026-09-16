@@ -218,7 +218,9 @@ class MapWithSectionedItemsDemoScreen(carContext: CarContext) :
                 .build()
 
         return BannerSection.Builder()
-            .setSectionHeader(SectionHeader.Builder("Rich Banner Section").build())
+            .setSectionHeader(
+                SectionHeader.Builder("Rich Banner Section").setHeadline("FEATURED").build()
+            )
             .addItem(banner)
             .build()
     }
