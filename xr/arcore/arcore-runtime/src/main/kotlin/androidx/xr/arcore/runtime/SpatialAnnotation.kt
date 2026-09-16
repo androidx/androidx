@@ -32,12 +32,15 @@ public interface SpatialAnnotation : Trackable {
      */
     public val alignment: SpatialAnnotationQuadAlignment?
 
-    /** The center physical pose of the spatial annotation. */
-    public val centerPose: Pose
+    /**
+     * The physical pose of the 2D plane origin where the spatial annotation quad is rooted. The
+     * local +Z axis is the surface normal, with the quad residing on the local XY plane.
+     */
+    public val pose: Pose
 
     /**
-     * The geometric boundary of the tracked spatial annotation in meters, relative to [centerPose].
-     * Will be null if the annotation is tracking purely in dimensional POINT mode.
+     * The geometric boundary of the tracked spatial annotation in meters, relative to [pose] on the
+     * local XY plane. Will be null if the annotation is tracking purely in dimensional POINT mode.
      */
     public val quad: Quad?
 }

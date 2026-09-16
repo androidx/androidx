@@ -725,12 +725,12 @@ package androidx.xr.arcore {
   }
 
   @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public static final class SpatialAnnotation.State implements androidx.xr.arcore.Trackable.State {
-    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getCenterPose();
     method @InaccessibleFromKotlin public androidx.xr.arcore.SpatialAnnotation getOwner();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Quad? getQuad();
     method @InaccessibleFromKotlin public androidx.xr.arcore.TrackingState getTrackingState();
-    property public androidx.xr.runtime.math.Pose centerPose;
     property public androidx.xr.arcore.SpatialAnnotation owner;
+    property public androidx.xr.runtime.math.Pose pose;
     property public androidx.xr.runtime.math.Quad? quad;
     property public androidx.xr.arcore.TrackingState trackingState;
   }

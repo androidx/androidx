@@ -31,7 +31,7 @@ internal constructor(
     override val alignment: SpatialAnnotationQuadAlignment? = null,
 ) : SpatialAnnotation, Updatable {
 
-    override var centerPose: Pose = Pose()
+    override var pose: Pose = Pose()
         private set
 
     override var quad: Quad? = null
@@ -49,7 +49,7 @@ internal constructor(
         }
 
         trackingState = spatialAnnotationState.trackingState
-        spatialAnnotationState.pose?.let { centerPose = it }
+        spatialAnnotationState.pose?.let { pose = it }
 
         val ul = spatialAnnotationState.upperLeft
         val ur = spatialAnnotationState.upperRight
