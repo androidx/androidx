@@ -21,6 +21,11 @@ internal data class PluginBlockAnalysis(
     val indent: String,
     val quote: String,
     /**
+     * Whether plugin calls in the block use method call syntax with parentheses (e.g. `id(...)`).
+     * Kotlin DSL always uses parentheses, while Groovy may use `id "..."` or `id("...")`.
+     */
+    val usesParentheses: Boolean,
+    /**
      * The line to anchor quickfix insertions after (the last plugin statement, or the opening
      * `plugins {` line if empty), or `null` if the block is absent.
      */
@@ -47,6 +52,7 @@ internal object PluginBlockAnalyzer {
             return PluginBlockAnalysis(
                 indent = DEFAULT_INDENT,
                 quote = if (isKts) DOUBLE_QUOTE else GROOVY_SINGLE_QUOTE,
+                usesParentheses = isKts,
                 anchorLine = null,
                 hasPluginsBlock = false,
             )
@@ -59,11 +65,13 @@ internal object PluginBlockAnalyzer {
 
         val indent = detectIndent(blockText)
         val quote = detectQuote(blockText, isKts)
+        val usesParentheses = detectParentheses(blockText, isKts)
         val anchorLine = findAnchorLine(blockText)
 
         return PluginBlockAnalysis(
             indent = indent,
             quote = quote,
+            usesParentheses = usesParentheses,
             anchorLine = anchorLine,
             hasPluginsBlock = hasPluginsBlock,
         )
@@ -103,5 +111,20 @@ internal object PluginBlockAnalyzer {
             if (hasDouble && !hasSingle) return DOUBLE_QUOTE
         }
         return GROOVY_SINGLE_QUOTE
+    }
+
+    private fun detectParentheses(blockText: String?, isKts: Boolean): Boolean {
+        if (isKts) {
+            return true
+        }
+        if (blockText != null) {
+            if (Regex("""\b(?:id|alias)\s*\(""").containsMatchIn(blockText)) {
+                return true
+            }
+            if (Regex("""\b(?:id|alias)\s+['"]""").containsMatchIn(blockText)) {
+                return false
+            }
+        }
+        return false
     }
 }
