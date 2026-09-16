@@ -219,51 +219,57 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
     private fun onStartTrackingClicked(config: ViewfinderTrackingConfig) {
         val currentSession = session ?: return
 
-        spatialAnnotationRenderer.isDotCenter = config.isDotCenter
-        spatialAnnotationRenderer.isDotTop = config.isDotTop
-
-        val snapshot = cameraFrameAnalyzer.copyLatestFrame()
-        if (snapshot == null) {
-            Toast.makeText(this, "Waiting for camera frame...", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        lastSnapshot = snapshot // Prevent GC of native memory while C++ processes asynchronously!
-        val effectiveWidth =
-            if (snapshot.isRotated) config.boxHeight.toFloat() else config.boxWidth.toFloat()
-        val effectiveHeight =
-            if (snapshot.isRotated) config.boxWidth.toFloat() else config.boxHeight.toFloat()
-        val coercedWidth = effectiveWidth.coerceIn(50f, snapshot.width.toFloat())
-        val coercedHeight = effectiveHeight.coerceIn(50f, snapshot.height.toFloat())
-        val w2 = coercedWidth / 2f
-        val h2 = coercedHeight / 2f
-        val centerX = snapshot.width.toFloat() / 2f
-        val centerY = snapshot.height.toFloat() / 2f
-
-        val quad =
-            // TODO(b/561608415): Investigate possible misalignment on rotation.
-            Quad.fromCorners(
-                upperLeft = Vector2(centerX - w2, centerY - h2),
-                upperRight = Vector2(centerX + w2, centerY - h2),
-                lowerRight = Vector2(centerX + w2, centerY + h2),
-                lowerLeft = Vector2(centerX - w2, centerY + h2),
-            )
-
-        if (isSnapshotSaveEnabled()) {
-            lifecycleScope.launch(Dispatchers.IO) { saveSnapshotWithQuad(snapshot, quad) }
-        }
-
         lifecycleScope.launch {
             try {
-                if (isTrackingStarted) {
-                    try {
-                        // TODO(b/561608917): Stop previous tracking before capturing new snapshot.
-                        SpatialAnnotation.stopTrackingAllAnnotations(currentSession)
-                    } catch (e: Exception) {
-                        Log.w("HelloAr", "Error stopping previous tracking before starting new", e)
-                    }
-                    isTrackingStarted = false
+                try {
+                    SpatialAnnotation.stopTrackingAllAnnotations(currentSession)
+                } catch (e: Exception) {
+                    Log.w("HelloAr", "Error stopping previous tracking before starting new", e)
                 }
+                isTrackingStarted = false
+
+                spatialAnnotationRenderer.isDotCenter = config.isDotCenter
+                spatialAnnotationRenderer.isDotTop = config.isDotTop
+
+                val snapshot = cameraFrameAnalyzer.copyLatestFrame()
+                if (snapshot == null) {
+                    Toast.makeText(
+                            this@HelloArSpatialAnnotationActivity,
+                            "Waiting for camera frame...",
+                            Toast.LENGTH_SHORT,
+                        )
+                        .show()
+                    return@launch
+                }
+
+                lastSnapshot =
+                    snapshot // Prevent GC of native memory while C++ processes asynchronously!
+                val effectiveWidth =
+                    if (snapshot.isRotated) config.boxHeight.toFloat()
+                    else config.boxWidth.toFloat()
+                val effectiveHeight =
+                    if (snapshot.isRotated) config.boxWidth.toFloat()
+                    else config.boxHeight.toFloat()
+                val coercedWidth = effectiveWidth.coerceIn(50f, snapshot.width.toFloat())
+                val coercedHeight = effectiveHeight.coerceIn(50f, snapshot.height.toFloat())
+                val w2 = coercedWidth / 2f
+                val h2 = coercedHeight / 2f
+                val centerX = snapshot.width.toFloat() / 2f
+                val centerY = snapshot.height.toFloat() / 2f
+
+                val quad =
+                    // TODO(b/561608415): Investigate possible misalignment on rotation.
+                    Quad.fromCorners(
+                        upperLeft = Vector2(centerX - w2, centerY - h2),
+                        upperRight = Vector2(centerX + w2, centerY - h2),
+                        lowerRight = Vector2(centerX + w2, centerY + h2),
+                        lowerLeft = Vector2(centerX - w2, centerY + h2),
+                    )
+
+                if (isSnapshotSaveEnabled()) {
+                    launch(Dispatchers.IO) { saveSnapshotWithQuad(snapshot, quad) }
+                }
+
                 Log.d(
                     "XR_TESTAPP",
                     "TimestampNs: ${snapshot.timestampNs}\nNanoTime: ${System.nanoTime()}\nElapsed: ${SystemClock.elapsedRealtimeNanos()}",
