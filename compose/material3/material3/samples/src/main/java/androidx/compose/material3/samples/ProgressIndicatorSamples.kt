@@ -61,7 +61,11 @@ fun LinearProgressIndicatorSample() {
         LinearProgressIndicator(progress = { animatedProgress })
         Spacer(Modifier.requiredHeight(30.dp))
         Text("Set progress:")
-        Slider(state = sliderState, modifier = Modifier.width(300.dp))
+        Slider(
+            state = sliderState,
+            onValueChange = { sliderState.value = it },
+            modifier = Modifier.width(300.dp),
+        )
     }
 }
 
@@ -80,7 +84,11 @@ fun LinearWavyProgressIndicatorSample() {
         LinearWavyProgressIndicator(progress = { animatedProgress })
         Spacer(Modifier.requiredHeight(30.dp))
         Text("Set progress:")
-        Slider(state = sliderState, modifier = Modifier.width(300.dp))
+        Slider(
+            state = sliderState,
+            onValueChange = { sliderState.value = it },
+            modifier = Modifier.width(300.dp),
+        )
     }
 }
 
@@ -110,7 +118,11 @@ fun LinearThickWavyProgressIndicatorSample() {
         )
         Spacer(Modifier.requiredHeight(30.dp))
         Text("Set progress:")
-        Slider(state = sliderState, modifier = Modifier.width(300.dp))
+        Slider(
+            state = sliderState,
+            onValueChange = { sliderState.value = it },
+            modifier = Modifier.width(300.dp),
+        )
     }
 }
 
@@ -143,7 +155,11 @@ fun CircularProgressIndicatorSample() {
         CircularProgressIndicator(progress = { animatedProgress })
         Spacer(Modifier.requiredHeight(30.dp))
         Text("Set progress:")
-        Slider(state = sliderState, modifier = Modifier.width(300.dp))
+        Slider(
+            state = sliderState,
+            onValueChange = { sliderState.value = it },
+            modifier = Modifier.width(300.dp),
+        )
     }
 }
 
@@ -162,7 +178,11 @@ fun CircularWavyProgressIndicatorSample() {
         CircularWavyProgressIndicator(progress = { animatedProgress })
         Spacer(Modifier.requiredHeight(30.dp))
         Text("Set progress:")
-        Slider(state = sliderState, modifier = Modifier.width(300.dp))
+        Slider(
+            state = sliderState,
+            onValueChange = { sliderState.value = it },
+            modifier = Modifier.width(300.dp),
+        )
     }
 }
 
@@ -190,7 +210,11 @@ fun CircularThickWavyProgressIndicatorSample() {
         )
         Spacer(Modifier.requiredHeight(30.dp))
         Text("Set progress:")
-        Slider(state = sliderState, modifier = Modifier.width(300.dp))
+        Slider(
+            state = sliderState,
+            onValueChange = { sliderState.value = it },
+            modifier = Modifier.width(300.dp),
+        )
     }
 }
 
@@ -228,7 +252,11 @@ fun LegacyLinearProgressIndicatorSample() {
         )
         Spacer(Modifier.requiredHeight(30.dp))
         Text("Set progress:")
-        Slider(state = sliderState, modifier = Modifier.width(300.dp))
+        Slider(
+            state = sliderState,
+            onValueChange = { sliderState.value = it },
+            modifier = Modifier.width(300.dp),
+        )
     }
 }
 
@@ -263,7 +291,11 @@ fun LegacyCircularProgressIndicatorSample() {
         )
         Spacer(Modifier.requiredHeight(30.dp))
         Text("Set progress:")
-        Slider(state = sliderState, modifier = Modifier.width(300.dp))
+        Slider(
+            state = sliderState,
+            onValueChange = { sliderState.value = it },
+            modifier = Modifier.width(300.dp),
+        )
     }
 }
 

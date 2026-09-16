@@ -53,7 +53,7 @@ internal class SliderTestCase : LayeredComposeTestCase(), ToggleableTestCase {
     override fun MeasuredContent() {
         state = remember { SliderState() }
 
-        Slider(state)
+        Slider(state, onValueChange = { state.value = it })
     }
 
     @Composable

@@ -97,7 +97,11 @@ fun DeterminateLoadingIndicatorSample() {
         LoadingIndicator(progress = { animatedProgress })
         Spacer(Modifier.requiredHeight(30.dp))
         Text("Set loading progress:")
-        Slider(state = sliderState, modifier = Modifier.width(300.dp))
+        Slider(
+            state = sliderState,
+            onValueChange = { sliderState.value = it },
+            modifier = Modifier.width(300.dp),
+        )
     }
 }
 
@@ -122,7 +126,11 @@ fun DeterminateContainedLoadingIndicatorSample() {
         ContainedLoadingIndicator(progress = { animatedProgress })
         Spacer(Modifier.requiredHeight(30.dp))
         Text("Set loading progress:")
-        Slider(state = sliderState, modifier = Modifier.width(300.dp))
+        Slider(
+            state = sliderState,
+            onValueChange = { sliderState.value = it },
+            modifier = Modifier.width(300.dp),
+        )
     }
 }
 

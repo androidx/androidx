@@ -75,7 +75,9 @@ class SliderScreenshotTest {
     @Test
     fun sliderTest_origin() {
         rule.setMaterialContent(lightColorScheme()) {
-            Box(wrap.testTag(wrapperTestTag)) { Slider(remember { SliderState(0f) }) }
+            Box(wrap.testTag(wrapperTestTag)) {
+                Slider(remember { SliderState(0f) }, onValueChange = {})
+            }
         }
         assertSliderAgainstGolden("slider_origin")
     }
@@ -95,6 +97,7 @@ class SliderScreenshotTest {
                 Box(wrap.testTag(wrapperTestTag).padding(vertical = 4.dp)) {
                     Slider(
                         state = remember { SliderState(0.5f) },
+                        onValueChange = {},
                         modifier = Modifier.focusRequester(focusRequester),
                     )
                 }
@@ -113,7 +116,9 @@ class SliderScreenshotTest {
     fun sliderTest_origin_rtl() {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                Box(wrap.testTag(wrapperTestTag)) { Slider(remember { SliderState(0f) }) }
+                Box(wrap.testTag(wrapperTestTag)) {
+                    Slider(remember { SliderState(0f) }, onValueChange = {})
+                }
             }
         }
         assertSliderAgainstGolden("slider_origin_rtl")
@@ -124,7 +129,7 @@ class SliderScreenshotTest {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 Box(wrap.testTag(wrapperTestTag)) {
-                    Slider(remember { SliderState(value = 0.2f, steps = 4) })
+                    Slider(remember { SliderState(value = 0.2f, steps = 4) }, onValueChange = {})
                 }
             }
         }
@@ -137,7 +142,10 @@ class SliderScreenshotTest {
             LookaheadScope {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                     Box(wrap.testTag(wrapperTestTag)) {
-                        Slider(remember { SliderState(value = 0.2f, steps = 4) })
+                        Slider(
+                            remember { SliderState(value = 0.2f, steps = 4) },
+                            onValueChange = {},
+                        )
                     }
                 }
             }
@@ -149,7 +157,7 @@ class SliderScreenshotTest {
     fun sliderTest_origin_disabled() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                Slider(remember { SliderState(0f) }, enabled = false)
+                Slider(remember { SliderState(0f) }, onValueChange = {}, enabled = false)
             }
         }
         assertSliderAgainstGolden("slider_origin_disabled")
@@ -158,7 +166,9 @@ class SliderScreenshotTest {
     @Test
     fun sliderTest_middle() {
         rule.setMaterialContent(lightColorScheme()) {
-            Box(wrap.testTag(wrapperTestTag)) { Slider(remember { SliderState(0.5f) }) }
+            Box(wrap.testTag(wrapperTestTag)) {
+                Slider(remember { SliderState(0.5f) }, onValueChange = {})
+            }
         }
         assertSliderAgainstGolden("slider_middle")
     }
@@ -169,6 +179,7 @@ class SliderScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 Slider(
                     state = remember { SliderState(0.5f) },
+                    onValueChange = {},
                     track = { SliderDefaults.Track(sliderState = it, thumbTrackGapSize = 0.dp) },
                 )
             }
@@ -182,6 +193,7 @@ class SliderScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 Slider(
                     state = remember { SliderState(0.5f) },
+                    onValueChange = {},
                     track = {
                         SliderDefaults.Track(sliderState = it, trackInsideCornerSize = 0.dp)
                     },
@@ -197,6 +209,7 @@ class SliderScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 Slider(
                     state = remember { SliderState(0.5f) },
+                    onValueChange = {},
                     track = { SliderDefaults.Track(sliderState = it, drawStopIndicator = null) },
                 )
             }
@@ -207,7 +220,9 @@ class SliderScreenshotTest {
     @Test
     fun sliderTest_middle_dark() {
         rule.setMaterialContent(darkColorScheme()) {
-            Box(wrap.testTag(wrapperTestTag)) { Slider(remember { SliderState(0.5f) }) }
+            Box(wrap.testTag(wrapperTestTag)) {
+                Slider(remember { SliderState(0.5f) }, onValueChange = {})
+            }
         }
         assertSliderAgainstGolden("slider_middle_dark")
     }
@@ -216,7 +231,7 @@ class SliderScreenshotTest {
     fun sliderTest_middle_dark_disabled() {
         rule.setMaterialContent(darkColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                Slider(remember { SliderState(0.5f) }, enabled = false)
+                Slider(remember { SliderState(0.5f) }, onValueChange = {}, enabled = false)
             }
         }
         assertSliderAgainstGolden("slider_middle_dark_disabled")
@@ -225,7 +240,9 @@ class SliderScreenshotTest {
     @Test
     fun sliderTest_end() {
         rule.setMaterialContent(lightColorScheme()) {
-            Box(wrap.testTag(wrapperTestTag)) { Slider(remember { SliderState(1f) }) }
+            Box(wrap.testTag(wrapperTestTag)) {
+                Slider(remember { SliderState(1f) }, onValueChange = {})
+            }
         }
         assertSliderAgainstGolden("slider_end")
     }
@@ -234,7 +251,9 @@ class SliderScreenshotTest {
     fun sliderTest_end_rtl() {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                Box(wrap.testTag(wrapperTestTag)) { Slider(remember { SliderState(1f) }) }
+                Box(wrap.testTag(wrapperTestTag)) {
+                    Slider(remember { SliderState(1f) }, onValueChange = {})
+                }
             }
         }
         assertSliderAgainstGolden("slider_end_rtl")
@@ -243,7 +262,9 @@ class SliderScreenshotTest {
     @Test
     fun sliderTest_middle_steps() {
         rule.setMaterialContent(lightColorScheme()) {
-            Box(wrap.testTag(wrapperTestTag)) { Slider(remember { SliderState(0.5f, steps = 5) }) }
+            Box(wrap.testTag(wrapperTestTag)) {
+                Slider(remember { SliderState(0.5f, steps = 5) }, onValueChange = {})
+            }
         }
         assertSliderAgainstGolden("slider_middle_steps")
     }
@@ -251,7 +272,9 @@ class SliderScreenshotTest {
     @Test
     fun sliderTest_first_steps() {
         rule.setMaterialContent(lightColorScheme()) {
-            Box(wrap.testTag(wrapperTestTag)) { Slider(remember { SliderState(0.1f, steps = 9) }) }
+            Box(wrap.testTag(wrapperTestTag)) {
+                Slider(remember { SliderState(0.1f, steps = 9) }, onValueChange = {})
+            }
         }
         assertSliderAgainstGolden("sliderTest_first_steps")
     }
@@ -259,7 +282,9 @@ class SliderScreenshotTest {
     @Test
     fun sliderTest_last_steps() {
         rule.setMaterialContent(lightColorScheme()) {
-            Box(wrap.testTag(wrapperTestTag)) { Slider(remember { SliderState(0.9f, steps = 9) }) }
+            Box(wrap.testTag(wrapperTestTag)) {
+                Slider(remember { SliderState(0.9f, steps = 9) }, onValueChange = {})
+            }
         }
         assertSliderAgainstGolden("sliderTest_last_steps")
     }
@@ -267,7 +292,9 @@ class SliderScreenshotTest {
     @Test
     fun sliderTest_middle_steps_dark() {
         rule.setMaterialContent(darkColorScheme()) {
-            Box(wrap.testTag(wrapperTestTag)) { Slider(remember { SliderState(0.5f, steps = 5) }) }
+            Box(wrap.testTag(wrapperTestTag)) {
+                Slider(remember { SliderState(0.5f, steps = 5) }, onValueChange = {})
+            }
         }
         assertSliderAgainstGolden("slider_middle_steps_dark")
     }
@@ -276,7 +303,11 @@ class SliderScreenshotTest {
     fun sliderTest_middle_steps_disabled() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                Slider(remember { SliderState(0.5f, steps = 5) }, enabled = false)
+                Slider(
+                    remember { SliderState(0.5f, steps = 5) },
+                    onValueChange = {},
+                    enabled = false,
+                )
             }
         }
         assertSliderAgainstGolden("slider_middle_steps_disabled")
@@ -288,6 +319,7 @@ class SliderScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 Slider(
                     state = remember { SliderState(0.5f, steps = 5) },
+                    onValueChange = {},
                     track = {
                         SliderDefaults.Track(
                             sliderState = it,
@@ -312,6 +344,7 @@ class SliderScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 Slider(
                     remember { SliderState(0.5f, steps = 5) },
+                    onValueChange = {},
                     colors =
                         SliderDefaults.colors(
                             thumbColor = Color.Red,
@@ -331,6 +364,7 @@ class SliderScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 Slider(
                     remember { SliderState(0.5f, steps = 5) },
+                    onValueChange = {},
                     enabled = false,
                     // this is intentionally made to appear as enabled in disabled state for a
                     // brighter test
@@ -351,7 +385,9 @@ class SliderScreenshotTest {
     @Test
     fun sliderTest_min_corner() {
         rule.setMaterialContent(lightColorScheme()) {
-            Box(wrap.testTag(wrapperTestTag)) { Slider(remember { SliderState(0.91f) }) }
+            Box(wrap.testTag(wrapperTestTag)) {
+                Slider(remember { SliderState(0.91f) }, onValueChange = {})
+            }
         }
         assertSliderAgainstGolden("slider_min_corner")
     }
@@ -365,6 +401,7 @@ class SliderScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 Slider(
                     state = sliderState,
+                    onValueChange = {},
                     track = {
                         with(LocalDensity.current) {
                             val iconSize = Size(20.dp.toPx(), 20.dp.toPx())
@@ -445,6 +482,7 @@ class SliderScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 VerticalSlider(
                     state = sliderState,
+                    onValueChange = {},
                     modifier = Modifier.height(300.dp),
                     track = {
                         SliderDefaults.Track(
@@ -467,6 +505,7 @@ class SliderScreenshotTest {
                 Box(wrap.testTag(wrapperTestTag)) {
                     VerticalSlider(
                         state = sliderState,
+                        onValueChange = {},
                         modifier = Modifier.height(300.dp),
                         track = {
                             SliderDefaults.Track(
@@ -489,6 +528,7 @@ class SliderScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 VerticalSlider(
                     state = sliderState,
+                    onValueChange = {},
                     modifier = Modifier.height(300.dp),
                     track = {
                         SliderDefaults.Track(
@@ -511,6 +551,7 @@ class SliderScreenshotTest {
                 val sliderState = remember { SliderState(value = -25f, trackRange = -50f..50f) }
                 Slider(
                     sliderState,
+                    onValueChange = {},
                     track = { SliderDefaults.CenteredTrack(sliderState = sliderState) },
                 )
             }
@@ -525,6 +566,7 @@ class SliderScreenshotTest {
                 val sliderState = remember { SliderState(value = -25f, trackRange = -50f..50f) }
                 Slider(
                     sliderState,
+                    onValueChange = {},
                     track = { SliderDefaults.CenteredTrack(sliderState = sliderState) },
                 )
             }
@@ -540,6 +582,7 @@ class SliderScreenshotTest {
                     val sliderState = remember { SliderState(value = -25f, trackRange = -50f..50f) }
                     Slider(
                         sliderState,
+                        onValueChange = {},
                         track = { SliderDefaults.CenteredTrack(sliderState = sliderState) },
                     )
                 }
@@ -555,6 +598,7 @@ class SliderScreenshotTest {
                 val sliderState = remember { SliderState(value = 0f, trackRange = -50f..50f) }
                 Slider(
                     sliderState,
+                    onValueChange = {},
                     track = { SliderDefaults.CenteredTrack(sliderState = sliderState) },
                 )
             }
@@ -571,6 +615,7 @@ class SliderScreenshotTest {
                 }
                 Slider(
                     sliderState,
+                    onValueChange = {},
                     track = { SliderDefaults.CenteredTrack(sliderState = sliderState) },
                 )
             }
@@ -585,6 +630,7 @@ class SliderScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 VerticalSlider(
                     state = sliderState,
+                    onValueChange = {},
                     modifier = Modifier.height(300.dp),
                     track = { SliderDefaults.CenteredTrack(sliderState = sliderState) },
                 )
@@ -599,6 +645,7 @@ class SliderScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 RangeSlider(
                     state = remember { RangeSliderState(0.5f, 1f) },
+                    onValueChange = {},
                     track = {
                         SliderDefaults.Track(rangeSliderState = it, thumbTrackGapSize = 0.dp)
                     },
@@ -614,6 +661,7 @@ class SliderScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 RangeSlider(
                     state = remember { RangeSliderState(0.5f, 1f) },
+                    onValueChange = {},
                     track = { SliderDefaults.Track(rangeSliderState = it, trackCornerSize = 0.dp) },
                 )
             }
@@ -627,6 +675,7 @@ class SliderScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 RangeSlider(
                     state = remember { RangeSliderState(0.5f, 1f) },
+                    onValueChange = {},
                     track = {
                         SliderDefaults.Track(rangeSliderState = it, trackInsideCornerSize = 0.dp)
                     },
@@ -643,6 +692,7 @@ class SliderScreenshotTest {
                 Box(wrap.testTag(wrapperTestTag)) {
                     RangeSlider(
                         state = remember { RangeSliderState(0.5f, 1f) },
+                        onValueChange = {},
                         track = {
                             SliderDefaults.Track(
                                 rangeSliderState = it,
@@ -664,6 +714,7 @@ class SliderScreenshotTest {
                     Box(wrap.testTag(wrapperTestTag)) {
                         RangeSlider(
                             state = remember { RangeSliderState(0.5f, 1f) },
+                            onValueChange = {},
                             track = {
                                 SliderDefaults.Track(
                                     rangeSliderState = it,
@@ -684,6 +735,7 @@ class SliderScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 RangeSlider(
                     state = remember { RangeSliderState(0.5f, 1f) },
+                    onValueChange = {},
                     track = {
                         SliderDefaults.Track(rangeSliderState = it, drawStopIndicator = null)
                     },
@@ -700,6 +752,7 @@ class SliderScreenshotTest {
                 Box(wrap.testTag(wrapperTestTag)) {
                     RangeSlider(
                         state = remember { RangeSliderState(0.5f, 1f) },
+                        onValueChange = {},
                         track = {
                             SliderDefaults.Track(rangeSliderState = it, drawStopIndicator = null)
                         },
@@ -714,7 +767,11 @@ class SliderScreenshotTest {
     fun rangeSliderTest_middle_steps_disabled() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                RangeSlider(remember { RangeSliderState(0.5f, 1f, steps = 5) }, enabled = false)
+                RangeSlider(
+                    remember { RangeSliderState(0.5f, 1f, steps = 5) },
+                    onValueChange = {},
+                    enabled = false,
+                )
             }
         }
         assertSliderAgainstGolden("rangeSlider_middle_steps_disabled")
@@ -724,7 +781,10 @@ class SliderScreenshotTest {
     fun rangeSliderTest_middle_steps_enabled() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                RangeSlider(remember { RangeSliderState(0.5f, 1f, steps = 5) })
+                RangeSlider(
+                    remember { RangeSliderState(0.5f, 1f, steps = 5) },
+                    onValueChange = {},
+                )
             }
         }
         assertSliderAgainstGolden("rangeSlider_middle_steps_enabled")
@@ -734,7 +794,10 @@ class SliderScreenshotTest {
     fun rangeSliderTest_middle_steps_dark_enabled() {
         rule.setMaterialContent(darkColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                RangeSlider(remember { RangeSliderState(0.5f, 1f, steps = 5) })
+                RangeSlider(
+                    remember { RangeSliderState(0.5f, 1f, steps = 5) },
+                    onValueChange = {},
+                )
             }
         }
         assertSliderAgainstGolden("rangeSlider_middle_steps_dark_enabled")
@@ -744,7 +807,11 @@ class SliderScreenshotTest {
     fun rangeSliderTest_middle_steps_dark_disabled() {
         rule.setMaterialContent(darkColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                RangeSlider(remember { RangeSliderState(0.5f, 1f, steps = 5) }, enabled = false)
+                RangeSlider(
+                    remember { RangeSliderState(0.5f, 1f, steps = 5) },
+                    onValueChange = {},
+                    enabled = false,
+                )
             }
         }
         assertSliderAgainstGolden("rangeSlider_middle_steps_dark_disabled")
@@ -756,6 +823,7 @@ class SliderScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 RangeSlider(
                     state = remember { RangeSliderState(0.5f, 1f, steps = 5) },
+                    onValueChange = {},
                     track = {
                         SliderDefaults.Track(
                             rangeSliderState = it,
@@ -778,7 +846,10 @@ class SliderScreenshotTest {
     fun rangeSliderTest_overlappingThumbs() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                RangeSlider(remember { RangeSliderState(0.5f, 0.51f) })
+                RangeSlider(
+                    remember { RangeSliderState(0.5f, 0.51f) },
+                    onValueChange = {},
+                )
             }
         }
         assertSliderAgainstGolden("rangeSlider_overlappingThumbs")
@@ -787,7 +858,9 @@ class SliderScreenshotTest {
     @Test
     fun rangeSliderTest_fullRange() {
         rule.setMaterialContent(lightColorScheme()) {
-            Box(wrap.testTag(wrapperTestTag)) { RangeSlider(remember { RangeSliderState(0f, 1f) }) }
+            Box(wrap.testTag(wrapperTestTag)) {
+                RangeSlider(remember { RangeSliderState(0f, 1f) }, onValueChange = {})
+            }
         }
         assertSliderAgainstGolden("rangeSlider_fullRange")
     }
@@ -796,7 +869,7 @@ class SliderScreenshotTest {
     fun rangeSliderTest_asymmetric_startEnd() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                RangeSlider(remember { RangeSliderState(0.25f, 0.6f) })
+                RangeSlider(remember { RangeSliderState(0.25f, 0.6f) }, onValueChange = {})
             }
         }
         assertSliderAgainstGolden("rangeSliderTest_asymmetric_startEnd")
@@ -807,7 +880,7 @@ class SliderScreenshotTest {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 Box(wrap.testTag(wrapperTestTag)) {
-                    RangeSlider(remember { RangeSliderState(0.25f, 0.6f) })
+                    RangeSlider(remember { RangeSliderState(0.25f, 0.6f) }, onValueChange = {})
                 }
             }
         }
@@ -823,6 +896,7 @@ class SliderScreenshotTest {
                 }
                 RangeSlider(
                     state = state,
+                    onValueChange = {},
                     colors =
                         SliderDefaults.colors(
                             thumbColor = Color.Blue,

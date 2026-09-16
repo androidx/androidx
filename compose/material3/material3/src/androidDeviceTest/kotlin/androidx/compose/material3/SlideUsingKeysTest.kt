@@ -249,7 +249,10 @@ class SlideUsingKeysTest {
             currentValue = rememberSaveable { mutableFloatStateOf(state.value) }
             VerticalSlider(
                 state = state,
-                onValueChange = { newValue -> currentValue.floatValue = newValue },
+                onValueChange = { newValue ->
+                    currentValue.floatValue = newValue
+                    state.value = newValue
+                },
                 modifier =
                     Modifier.testTag("Slider").height(300.dp).onFocusChanged {
                         sliderFocused = it.isFocused
@@ -310,7 +313,10 @@ class SlideUsingKeysTest {
             currentValue = rememberSaveable { mutableFloatStateOf(state.value) }
             VerticalSlider(
                 state = state,
-                onValueChange = { newValue -> currentValue.floatValue = newValue },
+                onValueChange = { newValue ->
+                    currentValue.floatValue = newValue
+                    state.value = newValue
+                },
                 modifier =
                     Modifier.testTag("Slider").height(300.dp).onFocusChanged {
                         sliderFocused = it.isFocused
@@ -373,7 +379,10 @@ class SlideUsingKeysTest {
                 currentValue = rememberSaveable { mutableFloatStateOf(state.value) }
                 VerticalSlider(
                     state = state,
-                    onValueChange = { newValue -> currentValue.floatValue = newValue },
+                    onValueChange = { newValue ->
+                        currentValue.floatValue = newValue
+                        state.value = newValue
+                    },
                     modifier =
                         Modifier.testTag("Slider").height(300.dp).onFocusChanged {
                             sliderFocused = it.isFocused
@@ -437,7 +446,10 @@ class SlideUsingKeysTest {
 
                 VerticalSlider(
                     state = state,
-                    onValueChange = { newValue -> currentValue.floatValue = newValue },
+                    onValueChange = { newValue ->
+                        currentValue.floatValue = newValue
+                        state.value = newValue
+                    },
                     modifier =
                         Modifier.testTag("Slider").height(300.dp).onFocusChanged {
                             sliderFocused = it.isFocused
