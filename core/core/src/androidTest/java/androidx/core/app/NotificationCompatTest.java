@@ -3633,6 +3633,125 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    public void projectedExtenderAddGetClearActions() {
+        NotificationCompat.ProjectedExtender projectedExtender =
+                new NotificationCompat.ProjectedExtender();
+        NotificationCompat.Action action1 =
+                new NotificationCompat.Action.Builder(0, "Action 1", createIntent("action1"))
+                        .build();
+        NotificationCompat.Action action2 =
+                new NotificationCompat.Action.Builder(0, "Action 2", createIntent("action2"))
+                        .build();
+        NotificationCompat.Action action3 =
+                new NotificationCompat.Action.Builder(0, "Action 3", createIntent("action3"))
+                        .build();
+
+        projectedExtender.addAction(action1);
+        assertEquals(Collections.singletonList(action1), projectedExtender.getActions());
+
+        projectedExtender.addActions(Arrays.asList(action2, action3));
+        assertEquals(Arrays.asList(action1, action2, action3), projectedExtender.getActions());
+
+        projectedExtender.clearActions();
+        assertTrue(projectedExtender.getActions().isEmpty());
+    }
+
+    @Test
+    public void projectedExtenderActionsSetsExtras() {
+        PendingIntent replyIntent = createIntent("reply");
+        RemoteInput remoteInput = new RemoteInput.Builder("reply_key")
+                .setLabel("Reply label")
+                .build();
+        NotificationCompat.Action replyAction =
+                new NotificationCompat.Action.Builder(
+                        android.R.drawable.ic_menu_send, "Quick Reply", replyIntent)
+                        .addRemoteInput(remoteInput)
+                        .build();
+
+        NotificationCompat.ProjectedExtender projectedExtender =
+                new NotificationCompat.ProjectedExtender().addAction(replyAction);
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(mContext, "test channel")
+                        .setSmallIcon(0)
+                        .setContentTitle("title")
+                        .setContentText("text");
+
+        builder = projectedExtender.extend(builder);
+        Notification notification = builder.build();
+
+        Bundle projectedExtensions =
+                notification.extras.getBundle(
+                        NotificationCompat.ProjectedExtender.EXTRA_PROJECTED_EXTENDER);
+        assertNotNull(projectedExtensions);
+        ArrayList<Notification.Action> actions =
+                BundleCompat.getParcelableArrayList(
+                        projectedExtensions,
+                        NotificationCompat.ProjectedExtender.KEY_ACTIONS,
+                        Notification.Action.class);
+        assertNotNull(actions);
+        assertEquals(1, actions.size());
+        Notification.Action actualAction = actions.get(0);
+        assertEquals("Quick Reply", actualAction.title.toString());
+        assertEquals(replyIntent, actualAction.actionIntent);
+        assertNotNull(actualAction.getRemoteInputs());
+        assertEquals(1, actualAction.getRemoteInputs().length);
+        assertEquals("reply_key", actualAction.getRemoteInputs()[0].getResultKey());
+    }
+
+    @Test
+    public void projectedExtenderActionsFromNotification() {
+        PendingIntent contentIntent = createIntent("content");
+        PendingIntent replyIntent = createIntent("reply");
+        PendingIntent dismissIntent = createIntent("dismiss");
+        RemoteInput remoteInput = new RemoteInput.Builder("reply_key")
+                .setLabel("Reply label")
+                .build();
+
+        NotificationCompat.Action replyAction =
+                new NotificationCompat.Action.Builder(
+                        android.R.drawable.ic_menu_send, "Quick Reply", replyIntent)
+                        .addRemoteInput(remoteInput)
+                        .build();
+        NotificationCompat.Action dismissAction =
+                new NotificationCompat.Action.Builder(
+                        android.R.drawable.ic_delete, "Dismiss", dismissIntent)
+                        .build();
+
+        NotificationCompat.ProjectedExtender projectedExtender =
+                new NotificationCompat.ProjectedExtender()
+                        .setContentIntent(contentIntent)
+                        .addAction(replyAction)
+                        .addAction(dismissAction);
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(mContext, "test channel")
+                        .setSmallIcon(0)
+                        .setContentTitle("title")
+                        .setContentText("text");
+
+        builder = projectedExtender.extend(builder);
+        Notification notification = builder.build();
+
+        NotificationCompat.ProjectedExtender recoveredExtender =
+                new NotificationCompat.ProjectedExtender(notification);
+        assertEquals(contentIntent, recoveredExtender.getContentIntent());
+        List<NotificationCompat.Action> recoveredActions = recoveredExtender.getActions();
+        assertEquals(2, recoveredActions.size());
+
+        NotificationCompat.Action recoveredReply = recoveredActions.get(0);
+        assertEquals("Quick Reply", recoveredReply.getTitle().toString());
+        assertEquals(replyIntent, recoveredReply.getActionIntent());
+        assertEquals(android.R.drawable.ic_menu_send, recoveredReply.getIconCompat().getResId());
+        assertNotNull(recoveredReply.getRemoteInputs());
+        assertEquals(1, recoveredReply.getRemoteInputs().length);
+        assertEquals("reply_key", recoveredReply.getRemoteInputs()[0].getResultKey());
+
+        NotificationCompat.Action recoveredDismiss = recoveredActions.get(1);
+        assertEquals("Dismiss", recoveredDismiss.getTitle().toString());
+        assertEquals(dismissIntent, recoveredDismiss.getActionIntent());
+        assertEquals(android.R.drawable.ic_delete, recoveredDismiss.getIconCompat().getResId());
+    }
+
+    @Test
     public void setBubbleMetadataIntent() {
         IconCompat icon = IconCompat.createWithAdaptiveBitmap(BitmapFactory.decodeResource(
                 mContext.getResources(),
