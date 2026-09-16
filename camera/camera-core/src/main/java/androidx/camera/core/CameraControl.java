@@ -134,7 +134,12 @@ public interface CameraControl {
      *
      * <p>Only one {@link FocusMeteringAction} is allowed to run at a time. If multiple
      * {@link FocusMeteringAction} are executed in a row, only the latest one will work and
-     * other actions will be cancelled.
+     * other actions will be cancelled. However, starting a new action does not unlock 3A
+     * components (AF, AE, or AWB) that were already locked by a previous action if they are not
+     * included in the new action's {@link FocusMeteringAction.Builder#setLockingMode(int) locking
+     * mode}; all 3A locks and continuous autofocus are only restored when
+     * {@link #cancelFocusAndMetering()} is called or the latest action's auto-cancel duration is
+     * reached.
      *
      * <p>If the {@link FocusMeteringAction} specifies more AF/AE/AWB points than what is
      * supported on the current device, only the first point and then in order up to the number of

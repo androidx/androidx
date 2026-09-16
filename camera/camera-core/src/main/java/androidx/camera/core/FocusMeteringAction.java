@@ -70,11 +70,13 @@ import java.util.concurrent.TimeUnit;
  *     <li><b>AF:</b> If AF points are specified and {@link #FLAG_AF} is included in the locking
  *     mode (which is the default), it triggers an autofocus manual scan and locks focus. If
  *     {@link #FLAG_AF} is NOT in the locking mode, it updates the AF region without triggering a
- *     scan, allowing the camera to continue in its current AF mode (e.g., continuous autofocus).
+ *     scan, allowing the camera to continue in its current AF mode (e.g., continuous autofocus, or
+ *     remaining locked if AF was already locked by a previous action).
  *     <li><b>AE/AWB:</b> If AE/AWB points are specified and {@link #FLAG_AE} / {@link #FLAG_AWB}
  *     are included in the locking mode, the camera locks the exposure and white balance
- *     respectively. If not included, the regions are updated but exposure and white balance
- *     continue to adjust automatically.
+ *     respectively. If not included, the regions are updated without acquiring new AE/AWB locks
+ *     (allowing exposure and white balance to continue adjusting automatically unless already
+ *     locked by a previous action).
  *   </ul>
  * <li><b>Completion:</b> The returned {@link ListenableFuture} completes when the regions are
  * updated and the requested locks are acquired. {@link FocusMeteringResult#isFocusSuccessful()}
@@ -98,6 +100,15 @@ import java.util.concurrent.TimeUnit;
  * in {@link Builder#setLockingMode(int)}. Locking mode is a combination of flags consisting
  * of {@link #FLAG_AF}, {@link #FLAG_AE}, and {@link #FLAG_AWB}. For example, to lock both AF and
  * AE, use {@code FLAG_AF | FLAG_AE}.
+ *
+ * <p>Starting a new {@link FocusMeteringAction} via
+ * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} does not unlock 3A components
+ * (AF, AE, or AWB) that were locked by a previous action if those components are excluded from the
+ * new action's locking mode. For example, if an action locks AF ({@code setLockingMode(FLAG_AF)})
+ * and a subsequent action only locks AE ({@code setLockingMode(FLAG_AE)}), AF remains locked and
+ * continuous autofocus stays disabled. Any acquired 3A locks and disabled continuous autofocus are
+ * only reset when {@link CameraControl#cancelFocusAndMetering()} is called or the latest action's
+ * auto-cancel duration is reached.
  */
 public final class FocusMeteringAction {
 
@@ -336,7 +347,11 @@ public final class FocusMeteringAction {
          * the AF region will be updated but the camera will not explicitly trigger an autofocus
          * scan. In this case, how and when the camera focuses on the new region will depend on the
          * current AF mode (e.g., whether it is a continuous autofocus mode) and device-specific
-         * behavior.
+         * behavior. Note that excluding a 3A flag from the locking mode does not unlock that 3A
+         * component or re-enable continuous autofocus if it was already locked by a prior
+         * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} call; call
+         * {@link CameraControl#cancelFocusAndMetering()} (or rely on auto-cancel) to unlock 3A and
+         * restore continuous autofocus.
          *
          * @param lockingMode a combination of flags consisting of {@link #FLAG_AF},
          *                    {@link #FLAG_AE}, and {@link #FLAG_AWB}.
