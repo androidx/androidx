@@ -77,13 +77,13 @@ public class GraphicsLayerModifier(
                 shadowElevation.floatId,
             )
         }
-        if (transformOriginX.floatId != 0.5f) {
+        if (transformOriginX.floatId != 0f) {
             layer.setFloatAttribute(
                 GraphicsLayerModifierOperation.TRANSFORM_ORIGIN_X,
                 transformOriginX.floatId,
             )
         }
-        if (transformOriginY.floatId != 0.5f) {
+        if (transformOriginY.floatId != 0f) {
             layer.setFloatAttribute(
                 GraphicsLayerModifierOperation.TRANSFORM_ORIGIN_Y,
                 transformOriginY.floatId,

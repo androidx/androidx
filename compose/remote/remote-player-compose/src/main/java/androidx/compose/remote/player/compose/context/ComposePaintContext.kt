@@ -565,7 +565,7 @@ internal class ComposePaintContext(
                         node.pivotX = value as Float * node.width
 
                     GraphicsLayerModifierOperation.TRANSFORM_ORIGIN_Y ->
-                        node.pivotY = value as Float * node.width
+                        node.pivotY = value as Float * node.height
 
                     GraphicsLayerModifierOperation.TRANSLATION_X ->
                         node.translationX = value as Float
