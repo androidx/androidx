@@ -43,6 +43,9 @@ internal class FrameCaptureQueue @Inject constructor() : AutoCloseable {
 
     @GuardedBy("lock") private var closed = false
 
+    internal val pendingRequests: List<Request>
+        get() = synchronized(lock) { queue.map { it.request } }
+
     fun remove(request: Request): FrameCaptureImpl? =
         synchronized(lock) {
             if (closed) return null

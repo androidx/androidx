@@ -20,8 +20,7 @@ import android.content.Context
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
-import androidx.camera.camera2.pipe.FrameBuffers.tryPeekFirst
-import androidx.camera.camera2.pipe.FrameBuffers.tryPeekLast
+import androidx.camera.camera2.pipe.Frame
 import androidx.camera.camera2.pipe.FrameGraph
 import androidx.camera.camera2.pipe.ImageSourceConfig
 import androidx.camera.camera2.pipe.MemoryEstimator
@@ -411,46 +410,74 @@ class MemoryEstimationTest {
 
     @Test
     fun exceedingCapacityHandlesAllocationCorrectly() = testScope.runTest {
-        // Restrict the global capacity to exactly ONE large image
-        val tightEstimator = MemoryEstimator.create(largeImageSize)
+        // Read the margin dynamically
+        val marginCount = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
+        val totalCapacityFrames = marginCount + 1
+
+        // Restrict the global capacity to exactly (margin + 1) large images.
+        val tightEstimator = MemoryEstimator.create(largeImageSize * totalCapacityFrames)
         val tightSimulator = createSimulator(tightEstimator)
         val tightGraph = createAndStartFrameGraph(tightSimulator)
 
         val streamId = tightGraph.streams[streamConfigLarge]!!.id
         val frameBuffer = tightGraph.captureWith(setOf(streamId), capacity = 5)
+        advanceUntilIdle()
 
         // 1. Simulate the first frame (Should succeed)
         val frame1 = tightGraph.simulateNextFrame()
+        advanceUntilIdle()
         frame1.simulateImage(streamId)
+        advanceUntilIdle()
 
-        assertThat(frameBuffer.size.value).isEqualTo(1)
-        assertThat(tightEstimator.memoryUsage.value).isEqualTo(largeImageSize) // Completely full
-
-        // 2. Simulate a second frame when memory is full
-        val frame2 = tightGraph.simulateNextFrame()
-        frame2.simulateImage(streamId)
-
-        // Assert the expected behavior when memory is exhausted:
-        // Both frames enter the buffer...
-        assertThat(frameBuffer.size.value).isEqualTo(2)
-
-        // ...The first frame successfully acquired the image.
-        val acquiredFrame1 = frameBuffer.tryPeekFirst()
+        // Acquire the frame and REMOVE it from the buffer.
+        val acquiredFrame1 = frameBuffer.removeFirst()
         assertThat(acquiredFrame1).isNotNull()
         assertThat(acquiredFrame1!!.getImage(streamId)).isNotNull()
 
-        // ...The second frame was created, but its image was dropped (set to null)
-        // because the estimator denied the allocation.
-        val acquiredFrame2 = frameBuffer.tryPeekLast()
-        assertThat(acquiredFrame2).isNotNull()
-        assertThat(acquiredFrame2!!.getImage(streamId)).isNull()
+        // Exhaust the remaining capacity (marginCount) via explicit captures.
+        val fillerCaptures =
+            List(marginCount) { tightGraph.capture(Request(streams = listOf(streamId))) }
+        val fillerFrames = mutableListOf<Frame>()
+        for (capture in fillerCaptures) {
+            val f = tightGraph.simulateNextFrame()
+            advanceUntilIdle()
+            f.simulateImage(streamId)
+            advanceUntilIdle()
 
-        // The estimator usage should remain at exactly largeImageSize
-        assertThat(tightEstimator.memoryUsage.value).isEqualTo(largeImageSize)
+            val captured = capture.awaitFrame()
+            assertThat(captured).isNotNull()
+            assertThat(captured!!.getImage(streamId)).isNotNull()
+            fillerFrames.add(captured)
+        }
+
+        // The buffer is now empty, but memory is completely full
+        assertThat(frameBuffer.size.value).isEqualTo(0)
+        assertThat(tightEstimator.memoryUsage.value).isEqualTo(largeImageSize * totalCapacityFrames)
+        assertThat(tightEstimator.evictableMemory.value).isEqualTo(0L)
+
+        // 2. Simulate a final frame when memory is full.
+        val capture = tightGraph.capture(Request(streams = listOf(streamId)))
+        advanceUntilIdle()
+
+        val frameFail = tightGraph.simulateNextFrame()
+        advanceUntilIdle() // Trimmer runs, but buffer is empty so it frees nothing
+        frameFail.simulateImage(streamId) // Tries to allocate, gets denied
+        advanceUntilIdle()
+
+        // Assert the expected behavior when memory is exhausted:
+        val capturedFrame = capture.awaitFrame()
+        assertThat(capturedFrame).isNotNull()
+        assertThat(capturedFrame!!.getImage(streamId)).isNull() // Image dropped
+
+        // The estimator usage should remain at exactly largeImageSize * totalCapacityFrames
+        assertThat(tightEstimator.memoryUsage.value).isEqualTo(largeImageSize * totalCapacityFrames)
 
         // Clean up resources
+        capturedFrame.close()
+        capture.close()
+        fillerFrames.forEach { it.close() }
+        fillerCaptures.forEach { it.close() }
         acquiredFrame1.close()
-        acquiredFrame2.close()
         frameBuffer.close()
         tightGraph.close()
         tightSimulator.close()
