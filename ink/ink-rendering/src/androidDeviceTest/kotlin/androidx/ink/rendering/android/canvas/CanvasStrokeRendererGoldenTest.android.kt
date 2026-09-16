@@ -43,15 +43,19 @@ class CanvasStrokeRendererGoldenTest : AbstractStrokeRendererTest() {
 
     override fun loadCursiveHelloInputs(): ImmutableStrokeInputBatch {
         val appContext = ApplicationProvider.getApplicationContext<Context>()
-        return appContext.resources.openRawResource(R.raw.cursive_stylus_inputbatch).use {
-            StrokeInputBatch.decode(it)
-        }
+        val resId =
+            appContext.resources.getIdentifier(
+                "cursive_stylus_inputbatch",
+                "raw",
+                appContext.packageName,
+            )
+        return appContext.resources.openRawResource(resId).use { StrokeInputBatch.decode(it) }
     }
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val textureStore = TextureBitmapStore { id ->
         when (id) {
-            "checkerboard" -> R.drawable.checkerboard
+            "checkerboard" -> R.drawable.checkerboard_black_and_transparent
             else -> null
         }?.let { BitmapFactory.decodeResource(context.resources, it) }
     }
