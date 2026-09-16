@@ -39,6 +39,7 @@ import androidx.annotation.RestrictTo
 import androidx.pdf.RenderParams
 import androidx.pdf.utils.getTransformationMatrix
 import androidx.pdf.utils.toAndroidClass
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * A [PdfPage] implementation that uses the [PdfRendererPreV.Page] class for rendering.
@@ -55,7 +56,9 @@ internal class PdfPagePreVAdapter(private val page: PdfRendererPreV.Page) : PdfP
     override val height = page.height
     override val width = page.width
 
-    override var isClosed = false
+    private val _isClosed = AtomicBoolean(false)
+    override val isClosed: Boolean
+        get() = _isClosed.get()
 
     override fun renderPage(bitmap: Bitmap, renderParams: RenderParams) {
         if (isClosed) {
@@ -134,8 +137,9 @@ internal class PdfPagePreVAdapter(private val page: PdfRendererPreV.Page) : PdfP
     }
 
     override fun close() {
-        isClosed = true
-        page.close()
+        if (_isClosed.compareAndSet(false, true)) {
+            page.close()
+        }
     }
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
