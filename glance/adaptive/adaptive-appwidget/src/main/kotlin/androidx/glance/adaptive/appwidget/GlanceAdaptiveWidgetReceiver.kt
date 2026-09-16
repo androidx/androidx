@@ -182,6 +182,30 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
         }
     }
 
+    @CallSuper
+    override fun onRestored(
+        @Suppress("InvalidNullabilityOverride") context: Context,
+        @Suppress("InvalidNullabilityOverride") oldWidgetIds: IntArray,
+        @Suppress("InvalidNullabilityOverride") newWidgetIds: IntArray,
+    ) {
+        runAndLogExceptions {
+            super.onRestored(context, oldWidgetIds, newWidgetIds)
+            val count = minOf(oldWidgetIds.size, newWidgetIds.size)
+            synchronized(lock) {
+                val states = arrayOfNulls<WidgetOptionsState>(count)
+                for (i in 0 until count) {
+                    states[i] = lastOptionsCache.remove(oldWidgetIds[i])
+                }
+                for (i in 0 until count) {
+                    val cachedState = states[i]
+                    if (cachedState != null) {
+                        lastOptionsCache[newWidgetIds[i]] = cachedState
+                    }
+                }
+            }
+        }
+    }
+
     override fun onReceive(context: Context, intent: Intent) {
         runAndLogExceptions {
             when (intent.action) {
