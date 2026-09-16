@@ -419,6 +419,7 @@ public class Operations {
     static UniqueIntMap<CompanionOperation> sMapV7Widgets;
     static UniqueIntMap<CompanionOperation> sMapV7WidgetsExperimental;
     static UniqueIntMap<CompanionOperation> sMapV7WidgetsDeprecated;
+    static UniqueIntMap<CompanionOperation> sAllOperationsV7;
 
     private static final Object sLock = new Object();
 
@@ -445,24 +446,108 @@ public class Operations {
         }
     }
 
+    /** Returns the companion operation reader for a given operation ID and API level. */
+    public static @Nullable CompanionOperation getOperation(int apiLevel, int opId) {
+        UniqueIntMap<CompanionOperation> map = getAllKnownOperations(apiLevel);
+        return map != null ? map.get(opId) : null;
+    }
+
+    /** Returns a map of all known operations across all profiles for the given api level */
+    public static @Nullable UniqueIntMap<CompanionOperation> getAllKnownOperations(int apiLevel) {
+        synchronized (sLock) {
+            if (apiLevel <= 6) {
+                if (sMapV6 == null) {
+                    sMapV6 = createMapV6();
+                }
+                return sMapV6;
+            }
+            // API level 7 and above
+            if (sAllOperationsV7 == null) {
+                sAllOperationsV7 = new UniqueIntMap<>();
+                fillDefaultVersionMap(sAllOperationsV7);
+
+                sAllOperationsV7.put(REM, Rem::read);
+                sAllOperationsV7.put(MATRIX_CONSTANT, MatrixConstant::read);
+                sAllOperationsV7.put(MATRIX_EXPRESSION, MatrixExpression::read);
+                sAllOperationsV7.put(MATRIX_VECTOR_MATH, MatrixVectorMath::read);
+
+                sAllOperationsV7.put(MATRIX_FROM_PATH, MatrixFromPath::read);
+                sAllOperationsV7.put(TEXT_SUBTEXT, TextSubtext::read);
+                sAllOperationsV7.put(BITMAP_TEXT_MEASURE, BitmapTextMeasure::read);
+                sAllOperationsV7.put(
+                        DRAW_BITMAP_FONT_TEXT_RUN_ON_PATH, DrawBitmapFontTextOnPath::read);
+                sAllOperationsV7.put(DRAW_BITMAP_TEXT_ANCHORED, DrawBitmapTextAnchored::read);
+                sAllOperationsV7.put(DATA_SHADER, ShaderData::read);
+                sAllOperationsV7.put(DATA_FONT, FontData::read);
+                sAllOperationsV7.put(DRAW_TO_BITMAP, DrawToBitmap::read);
+                sAllOperationsV7.put(WAKE_IN, WakeIn::read);
+                sAllOperationsV7.put(ID_LOOKUP, IdLookup::read);
+                sAllOperationsV7.put(PATH_EXPRESSION, PathExpression::read);
+                sAllOperationsV7.put(PARTICLE_COMPARE, ParticlesCompare::read);
+                sAllOperationsV7.put(DYNAMIC_FLOAT_LIST, DataDynamicListFloat::read);
+                sAllOperationsV7.put(UPDATE_DYNAMIC_FLOAT_LIST, UpdateDynamicFloatList::read);
+                sAllOperationsV7.put(SKIP, Skip::read);
+                sAllOperationsV7.put(CORE_TEXT, CoreText::read);
+                sAllOperationsV7.put(TEXT_STYLE, TextStyle::read);
+                sAllOperationsV7.put(TEXT_TRANSFORM, TextTransform::read);
+                sAllOperationsV7.put(COLOR_THEME, ColorTheme::read);
+
+                sAllOperationsV7.put(MODIFIER_ALIGN_BY, AlignByModifierOperation::read);
+                sAllOperationsV7.put(LAYOUT_COMPUTE, LayoutComputeOperation::read);
+                sAllOperationsV7.put(LAYOUT_FLOW, FlowLayout::read);
+                sAllOperationsV7.put(MODIFIER_MULTI_CLICK, MultiClickModifier::read);
+                sAllOperationsV7.put(
+                        MODIFIER_DIMENSION_CONSTRAINTS,
+                        DimensionConstraintsModifierOperation::read);
+                sAllOperationsV7.put(REFERENCED_OPERATIONS, ReferencedOperations::read);
+                sAllOperationsV7.put(
+                        INCLUDE_REFERENCED_OPERATIONS, IncludeReferencedOperations::read);
+
+                sAllOperationsV7.put(MACRO_DEFINE, PatternDefine::read);
+                sAllOperationsV7.put(MACRO_CALL, PatternInflation::read);
+                sAllOperationsV7.put(MACRO_ARGUMENT, PatternArgument::read);
+                sAllOperationsV7.put(MACRO_BLOCK, PatternBlock::read);
+                sAllOperationsV7.put(MACRO_FOR_EACH, PatternForEach::read);
+                sAllOperationsV7.put(LAYOUT_CUSTOM, Custom::read);
+                sAllOperationsV7.put(DATA_SOUND, SoundData::read);
+                sAllOperationsV7.put(SOUND_EXPRESSION, SoundExpression::read);
+                sAllOperationsV7.put(PLAY_SOUND, PlaySound::read);
+                sAllOperationsV7.put(EVENT_ACTION, EventActionOperation::read);
+
+                sAllOperationsV7.put(ROOT_CONTENT_BEHAVIOR, RootContentBehavior::read);
+            }
+            return sAllOperationsV7;
+        }
+    }
+
     /** Returns a map of operations for the given api level */
     public static @Nullable UniqueIntMap<CompanionOperation> getOperations(
             int apiLevel, int profiles) {
-        if (apiLevel < 6) {
-            return createMapV6();
-        }
         synchronized (sLock) {
-            switch (apiLevel) {
-                case 6:
-                    if (sMapV6 == null) {
-                        sMapV6 = createMapV6();
-                    }
-                    return sMapV6;
-                default: // 7 and above
-                    if (sMapV7 == null || !sMapV7.containsKey(profiles)) {
-                        sMapV7 = createMapV7(sMapV7, profiles);
-                    }
-                    return sMapV7.get(profiles);
+            if (apiLevel <= 6) {
+                if (sMapV6 == null) {
+                    sMapV6 = createMapV6();
+                }
+                return sMapV6;
+            }
+            // API level 7 and above
+            if (sMapV7 == null || !sMapV7.containsKey(profiles)) {
+                sMapV7 = createMapV7(sMapV7, profiles);
+            }
+            return sMapV7.get(profiles);
+        }
+    }
+
+    private static void populateMapFromAll(
+            UniqueIntMap<CompanionOperation> targetMap, int apiLevel, int... opIds) {
+        UniqueIntMap<CompanionOperation> allOps = getAllKnownOperations(apiLevel);
+        if (allOps == null) {
+            return;
+        }
+        for (int opId : opIds) {
+            CompanionOperation companion = allOps.get(opId);
+            if (companion != null) {
+                targetMap.put(opId, companion);
             }
         }
     }
@@ -478,25 +563,28 @@ public class Operations {
     private static UniqueIntMap<CompanionOperation> createMapV7_Androidx() {
         if (sMapV7AndroidX == null) {
             sMapV7AndroidX = new UniqueIntMap<>();
-            sMapV7AndroidX.put(MATRIX_FROM_PATH, MatrixFromPath::read);
-            sMapV7AndroidX.put(TEXT_SUBTEXT, TextSubtext::read);
-            sMapV7AndroidX.put(BITMAP_TEXT_MEASURE, BitmapTextMeasure::read);
-            sMapV7AndroidX.put(DRAW_BITMAP_FONT_TEXT_RUN_ON_PATH, DrawBitmapFontTextOnPath::read);
-            sMapV7AndroidX.put(DRAW_BITMAP_TEXT_ANCHORED, DrawBitmapTextAnchored::read);
-            sMapV7AndroidX.put(DATA_SHADER, ShaderData::read);
-            sMapV7AndroidX.put(DATA_FONT, FontData::read);
-            sMapV7AndroidX.put(DRAW_TO_BITMAP, DrawToBitmap::read);
-            sMapV7AndroidX.put(WAKE_IN, WakeIn::read);
-            sMapV7AndroidX.put(ID_LOOKUP, IdLookup::read);
-            sMapV7AndroidX.put(PATH_EXPRESSION, PathExpression::read);
-            sMapV7AndroidX.put(PARTICLE_COMPARE, ParticlesCompare::read);
-            sMapV7AndroidX.put(DYNAMIC_FLOAT_LIST, DataDynamicListFloat::read);
-            sMapV7AndroidX.put(UPDATE_DYNAMIC_FLOAT_LIST, UpdateDynamicFloatList::read);
-            sMapV7AndroidX.put(SKIP, Skip::read);
-            sMapV7AndroidX.put(CORE_TEXT, CoreText::read);
-            sMapV7AndroidX.put(TEXT_STYLE, TextStyle::read);
-            sMapV7AndroidX.put(TEXT_TRANSFORM, TextTransform::read);
-            sMapV7AndroidX.put(COLOR_THEME, ColorTheme::read);
+            populateMapFromAll(
+                    sMapV7AndroidX,
+                    7,
+                    MATRIX_FROM_PATH,
+                    TEXT_SUBTEXT,
+                    BITMAP_TEXT_MEASURE,
+                    DRAW_BITMAP_FONT_TEXT_RUN_ON_PATH,
+                    DRAW_BITMAP_TEXT_ANCHORED,
+                    DATA_SHADER,
+                    DATA_FONT,
+                    DRAW_TO_BITMAP,
+                    WAKE_IN,
+                    ID_LOOKUP,
+                    PATH_EXPRESSION,
+                    PARTICLE_COMPARE,
+                    DYNAMIC_FLOAT_LIST,
+                    UPDATE_DYNAMIC_FLOAT_LIST,
+                    SKIP,
+                    CORE_TEXT,
+                    TEXT_STYLE,
+                    TEXT_TRANSFORM,
+                    COLOR_THEME);
         }
         return sMapV7AndroidX;
     }
@@ -504,29 +592,26 @@ public class Operations {
     private static UniqueIntMap<CompanionOperation> createMapV7_Androidx_Experimental() {
         if (sMapV7AndroidXExperimental == null) {
             sMapV7AndroidXExperimental = new UniqueIntMap<>();
-            // add experimental operations for this profile here
-            sMapV7AndroidXExperimental.put(MODIFIER_ALIGN_BY, AlignByModifierOperation::read);
-            sMapV7AndroidXExperimental.put(LAYOUT_COMPUTE, LayoutComputeOperation::read);
-            sMapV7AndroidXExperimental.put(LAYOUT_FLOW, FlowLayout::read);
-            sMapV7AndroidXExperimental.put(MODIFIER_MULTI_CLICK, MultiClickModifier::read);
-            sMapV7AndroidXExperimental.put(
-                    MODIFIER_DIMENSION_CONSTRAINTS, DimensionConstraintsModifierOperation::read);
-
-            sMapV7AndroidXExperimental.put(REFERENCED_OPERATIONS, ReferencedOperations::read);
-            sMapV7AndroidXExperimental.put(
-                    INCLUDE_REFERENCED_OPERATIONS, IncludeReferencedOperations::read);
-
-            sMapV7AndroidXExperimental.put(MACRO_DEFINE, PatternDefine::read);
-            sMapV7AndroidXExperimental.put(MACRO_CALL, PatternInflation::read);
-            sMapV7AndroidXExperimental.put(MACRO_ARGUMENT, PatternArgument::read);
-            sMapV7AndroidXExperimental.put(MACRO_BLOCK, PatternBlock::read);
-            sMapV7AndroidXExperimental.put(MACRO_FOR_EACH, PatternForEach::read);
-            sMapV7AndroidXExperimental.put(LAYOUT_CUSTOM, Custom::read);
-            sMapV7AndroidXExperimental.put(DATA_SOUND, SoundData::read);
-            sMapV7AndroidXExperimental.put(SOUND_EXPRESSION, SoundExpression::read);
-            sMapV7AndroidXExperimental.put(PLAY_SOUND, PlaySound::read);
-
-            sMapV7AndroidXExperimental.put(EVENT_ACTION, EventActionOperation::read);
+            populateMapFromAll(
+                    sMapV7AndroidXExperimental,
+                    7,
+                    MODIFIER_ALIGN_BY,
+                    LAYOUT_COMPUTE,
+                    LAYOUT_FLOW,
+                    MODIFIER_MULTI_CLICK,
+                    MODIFIER_DIMENSION_CONSTRAINTS,
+                    REFERENCED_OPERATIONS,
+                    INCLUDE_REFERENCED_OPERATIONS,
+                    MACRO_DEFINE,
+                    MACRO_CALL,
+                    MACRO_ARGUMENT,
+                    MACRO_BLOCK,
+                    MACRO_FOR_EACH,
+                    LAYOUT_CUSTOM,
+                    DATA_SOUND,
+                    SOUND_EXPRESSION,
+                    PLAY_SOUND,
+                    EVENT_ACTION);
         }
         return sMapV7AndroidXExperimental;
     }
@@ -542,23 +627,26 @@ public class Operations {
     private static UniqueIntMap<CompanionOperation> createMapV7_Widgets() {
         if (sMapV7Widgets == null) {
             sMapV7Widgets = new UniqueIntMap<>();
-            sMapV7Widgets.put(MATRIX_FROM_PATH, MatrixFromPath::read);
-            sMapV7Widgets.put(TEXT_SUBTEXT, TextSubtext::read);
-            sMapV7Widgets.put(BITMAP_TEXT_MEASURE, BitmapTextMeasure::read);
-            sMapV7Widgets.put(DRAW_BITMAP_FONT_TEXT_RUN_ON_PATH, DrawBitmapFontTextOnPath::read);
-            sMapV7Widgets.put(DRAW_BITMAP_TEXT_ANCHORED, DrawBitmapTextAnchored::read);
-            sMapV7Widgets.put(DRAW_TO_BITMAP, DrawToBitmap::read);
-            sMapV7Widgets.put(WAKE_IN, WakeIn::read);
-            sMapV7Widgets.put(ID_LOOKUP, IdLookup::read);
-            sMapV7Widgets.put(PATH_EXPRESSION, PathExpression::read);
-            sMapV7Widgets.put(PARTICLE_COMPARE, ParticlesCompare::read);
-            sMapV7Widgets.put(DYNAMIC_FLOAT_LIST, DataDynamicListFloat::read);
-            sMapV7Widgets.put(UPDATE_DYNAMIC_FLOAT_LIST, UpdateDynamicFloatList::read);
-            sMapV7Widgets.put(SKIP, Skip::read);
-            sMapV7Widgets.put(CORE_TEXT, CoreText::read);
-            sMapV7Widgets.put(TEXT_STYLE, TextStyle::read);
-            sMapV7Widgets.put(TEXT_TRANSFORM, TextTransform::read);
-            sMapV7Widgets.put(COLOR_THEME, ColorTheme::read);
+            populateMapFromAll(
+                    sMapV7Widgets,
+                    7,
+                    MATRIX_FROM_PATH,
+                    TEXT_SUBTEXT,
+                    BITMAP_TEXT_MEASURE,
+                    DRAW_BITMAP_FONT_TEXT_RUN_ON_PATH,
+                    DRAW_BITMAP_TEXT_ANCHORED,
+                    DRAW_TO_BITMAP,
+                    WAKE_IN,
+                    ID_LOOKUP,
+                    PATH_EXPRESSION,
+                    PARTICLE_COMPARE,
+                    DYNAMIC_FLOAT_LIST,
+                    UPDATE_DYNAMIC_FLOAT_LIST,
+                    SKIP,
+                    CORE_TEXT,
+                    TEXT_STYLE,
+                    TEXT_TRANSFORM,
+                    COLOR_THEME);
         }
         return sMapV7Widgets;
     }
@@ -566,26 +654,24 @@ public class Operations {
     private static UniqueIntMap<CompanionOperation> createMapV7_Widgets_Experimental() {
         if (sMapV7WidgetsExperimental == null) {
             sMapV7WidgetsExperimental = new UniqueIntMap<>();
-            // add experimental operations for this profile here
-            sMapV7WidgetsExperimental.put(MODIFIER_ALIGN_BY, AlignByModifierOperation::read);
-            sMapV7WidgetsExperimental.put(LAYOUT_COMPUTE, LayoutComputeOperation::read);
-            sMapV7WidgetsExperimental.put(LAYOUT_FLOW, FlowLayout::read);
-            sMapV7WidgetsExperimental.put(MODIFIER_MULTI_CLICK, MultiClickModifier::read);
-            sMapV7WidgetsExperimental.put(
-                    MODIFIER_DIMENSION_CONSTRAINTS, DimensionConstraintsModifierOperation::read);
-
-            sMapV7WidgetsExperimental.put(REFERENCED_OPERATIONS, ReferencedOperations::read);
-            sMapV7WidgetsExperimental.put(
-                    INCLUDE_REFERENCED_OPERATIONS, IncludeReferencedOperations::read);
-
-            sMapV7WidgetsExperimental.put(MACRO_DEFINE, PatternDefine::read);
-            sMapV7WidgetsExperimental.put(MACRO_CALL, PatternInflation::read);
-            sMapV7WidgetsExperimental.put(MACRO_ARGUMENT, PatternArgument::read);
-            sMapV7WidgetsExperimental.put(MACRO_BLOCK, PatternBlock::read);
-            sMapV7WidgetsExperimental.put(MACRO_FOR_EACH, PatternForEach::read);
-            sMapV7WidgetsExperimental.put(DATA_SOUND, SoundData::read);
-            sMapV7WidgetsExperimental.put(SOUND_EXPRESSION, SoundExpression::read);
-            sMapV7WidgetsExperimental.put(PLAY_SOUND, PlaySound::read);
+            populateMapFromAll(
+                    sMapV7WidgetsExperimental,
+                    7,
+                    MODIFIER_ALIGN_BY,
+                    LAYOUT_COMPUTE,
+                    LAYOUT_FLOW,
+                    MODIFIER_MULTI_CLICK,
+                    MODIFIER_DIMENSION_CONSTRAINTS,
+                    REFERENCED_OPERATIONS,
+                    INCLUDE_REFERENCED_OPERATIONS,
+                    MACRO_DEFINE,
+                    MACRO_CALL,
+                    MACRO_ARGUMENT,
+                    MACRO_BLOCK,
+                    MACRO_FOR_EACH,
+                    DATA_SOUND,
+                    SOUND_EXPRESSION,
+                    PLAY_SOUND);
         }
         return sMapV7WidgetsExperimental;
     }
