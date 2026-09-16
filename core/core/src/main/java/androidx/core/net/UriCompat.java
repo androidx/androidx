@@ -17,6 +17,9 @@
 package androidx.core.net;
 
 import android.net.Uri;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
 
 import org.jspecify.annotations.NonNull;
 
@@ -37,6 +40,10 @@ public final class UriCompat {
      * @return Return a string representation of this URI that has common forms of PII redacted.
      */
     public static @NonNull String toSafeString(@NonNull Uri uri) {
+        if (Build.VERSION.SDK_INT >= 28) {
+            return Api28Impl.toSafeString(uri);
+        }
+
         String scheme = uri.getScheme();
         String ssp = uri.getSchemeSpecificPart();
         if (scheme != null) {
@@ -76,5 +83,16 @@ public final class UriCompat {
             builder.append(ssp);
         }
         return builder.toString();
+    }
+
+    @RequiresApi(28)
+    static class Api28Impl {
+        private Api28Impl() {
+            // This class is non-instantiable.
+        }
+
+        static String toSafeString(Uri uri) {
+            return uri.toSafeString();
+        }
     }
 }
