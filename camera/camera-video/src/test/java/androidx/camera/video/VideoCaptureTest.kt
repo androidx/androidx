@@ -1445,6 +1445,14 @@ class VideoCaptureTest {
     }
 
     @Test
+    fun suggestedStreamSpecHlgSmpte209450_isPropagatedToSurfaceRequest() {
+        testSurfaceRequestContainsExpected(
+            requestedDynamicRange = DynamicRange.HLG_10_BIT_SMPTE_2094_50,
+            expectedDynamicRange = DynamicRange.HLG_10_BIT_SMPTE_2094_50,
+        )
+    }
+
+    @Test
     fun suggestedStreamSpecSessionType_isPropagatedToSurfaceRequest() {
         testSurfaceRequestContainsExpected(
             sessionType = SESSION_TYPE_HIGH_SPEED,

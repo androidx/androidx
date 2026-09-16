@@ -19,6 +19,7 @@ package androidx.camera.core.streamsharing;
 import static androidx.camera.core.DynamicRange.BIT_DEPTH_UNSPECIFIED;
 import static androidx.camera.core.DynamicRange.ENCODING_HDR_UNSPECIFIED;
 import static androidx.camera.core.DynamicRange.ENCODING_SDR;
+import static androidx.camera.core.DynamicRange.ENCODING_SDR_SMPTE_2094_50;
 import static androidx.camera.core.DynamicRange.ENCODING_UNSPECIFIED;
 
 import androidx.camera.core.DynamicRange;
@@ -94,10 +95,12 @@ public class DynamicRangeUtils {
         }
 
         // Handle HDR unspecified.
-        if (encoding1.equals(ENCODING_HDR_UNSPECIFIED) && !encoding2.equals(ENCODING_SDR)) {
+        if (encoding1.equals(ENCODING_HDR_UNSPECIFIED) && !encoding2.equals(ENCODING_SDR)
+                && !encoding2.equals(ENCODING_SDR_SMPTE_2094_50)) {
             return encoding2;
         }
-        if (encoding2.equals(ENCODING_HDR_UNSPECIFIED) && !encoding1.equals(ENCODING_SDR)) {
+        if (encoding2.equals(ENCODING_HDR_UNSPECIFIED) && !encoding1.equals(ENCODING_SDR)
+                && !encoding1.equals(ENCODING_SDR_SMPTE_2094_50)) {
             return encoding1;
         }
 

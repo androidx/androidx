@@ -163,4 +163,29 @@ class EncoderProfilesProviderResolverTest {
             )
             .isTrue()
     }
+
+    @Test
+    fun resolve_hlg10Smpte209450Supported_usesBackupHdrProvider() {
+        val cameraInfo =
+            FakeCameraInfoInternal().apply {
+                encoderProfilesProvider =
+                    FakeEncoderProfilesProvider.Builder().add(QUALITY_1080P, PROFILES_1080P).build()
+                supportedDynamicRanges = setOf(DynamicRange.HLG_10_BIT_SMPTE_2094_50)
+            }
+
+        val provider =
+            EncoderProfilesProviderResolver.resolve(
+                cameraInfo,
+                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE,
+                QUALITY_SOURCE_REGULAR,
+                videoEncoderInfoFinder,
+            )
+
+        assertThat(
+                provider.getAll(QUALITY_1080P)!!.videoProfiles.any {
+                    it.hdrFormat == VideoProfile.HDR_HLG
+                }
+            )
+            .isTrue()
+    }
 }
