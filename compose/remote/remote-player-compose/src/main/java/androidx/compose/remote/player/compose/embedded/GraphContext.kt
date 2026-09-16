@@ -165,13 +165,31 @@ internal class GraphContext(
     }
 
     override fun getInteger(id: Int): Int =
-        if (isComputed(id)) (computedValue(id) as? Number)?.toInt() ?: 0 else super.getInteger(id)
+        if (realState.isIntegerOverridden(id)) {
+            super.getInteger(id)
+        } else if (isComputed(id)) {
+            (computedValue(id) as? Number)?.toInt() ?: 0
+        } else {
+            super.getInteger(id)
+        }
 
     override fun getColor(id: Int): Int =
-        if (isComputed(id)) (computedValue(id) as? Number)?.toInt() ?: 0 else super.getColor(id)
+        if (realState.isColorOverridden(id)) {
+            super.getColor(id)
+        } else if (isComputed(id)) {
+            (computedValue(id) as? Number)?.toInt() ?: 0
+        } else {
+            super.getColor(id)
+        }
 
     override fun getText(id: Int): String? =
-        if (isComputed(id)) computedValue(id) as? String else super.getText(id)
+        if (realState.isDataOverridden(id)) {
+            super.getText(id)
+        } else if (isComputed(id)) {
+            computedValue(id) as? String
+        } else {
+            super.getText(id)
+        }
 
     // GraphContext is a read-only-store *evaluation* context: a computed op's apply must not mutate
     // the shared store (that would be a snapshot write during a derivedStateOf read, and would let

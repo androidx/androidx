@@ -41,6 +41,7 @@ import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
+import androidx.compose.remote.creation.compose.state.RemoteFloatArray.Companion.createNamedRemoteFloatArray
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
@@ -60,18 +61,18 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 /** Pixel verification tests for the embedded player. */
-@MediumTest
-@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@RunWith(AndroidJUnit4::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35])
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
 class RcPlayerPixelTest {
 
     @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
@@ -407,6 +408,97 @@ class RcPlayerPixelTest {
             "After updating radius to 40f, corner (3,3) should be empty (clipped)"
         }
         assert(isRed(50, 3)) { "But the top-center (50,3) should still be red" }
+    }
+
+    @Test
+    fun chartWithNamedFloatArrayUpdatesReactively() {
+        val d = rule.density.density
+        val initialData = floatArrayOf(20f, 60f, 90f)
+        val document = runBlocking {
+            captureRule.captureDocument(context = rule.activity) {
+                val chartData = remember {
+                    createNamedRemoteFloatArray(
+                        name = "chartData",
+                        defaultValue = initialData,
+                    )
+                }
+                RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                    val paintRed = RemotePaint().apply { color = RemoteColor(Color.Red) }
+                    val paintGreen = RemotePaint().apply { color = RemoteColor(Color.Green) }
+                    val paintBlue = RemotePaint().apply { color = RemoteColor(Color.Blue) }
+                    drawRect(
+                        paint = paintRed,
+                        topLeft = RemoteOffset(10f.rf, 100f.rf - chartData[0]),
+                        size = RemoteSize(20f.rf, chartData[0]),
+                    )
+                    drawRect(
+                        paint = paintGreen,
+                        topLeft = RemoteOffset(40f.rf, 100f.rf - chartData[1]),
+                        size = RemoteSize(20f.rf, chartData[1]),
+                    )
+                    drawRect(
+                        paint = paintBlue,
+                        topLeft = RemoteOffset(70f.rf, 100f.rf - chartData[2]),
+                        size = RemoteSize(20f.rf, chartData[2]),
+                    )
+                }
+            }
+        }
+
+        val playerState = RcPlayerState(document)
+        rule.setContent {
+            Box(modifier = Modifier.size(100.dp).testTag("player")) {
+                RcPlayer(state = playerState)
+            }
+        }
+        rule.waitForIdle()
+
+        fun isColorAt(x: Int, y: Int, check: (Int) -> Boolean): Boolean {
+            val bmp = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+            val px = bmp.getPixel((x * d).toInt(), (y * d).toInt())
+            return check(px)
+        }
+
+        fun isRed(px: Int) =
+            AndroidColor.red(px) > 200 && AndroidColor.green(px) < 60 && AndroidColor.blue(px) < 60
+        fun isGreen(px: Int) =
+            AndroidColor.green(px) > 200 && AndroidColor.red(px) < 60 && AndroidColor.blue(px) < 60
+        fun isBlue(px: Int) =
+            AndroidColor.blue(px) > 200 && AndroidColor.red(px) < 60 && AndroidColor.green(px) < 60
+
+        // Bar 1 (x: 10..30): initial height = 20, so y in 80..100 is red, y=70 is not red.
+        assert(!isColorAt(20, 70, ::isRed)) { "Bar 1 at y=70 should not be red initially" }
+        assert(isColorAt(20, 90, ::isRed)) { "Bar 1 at y=90 should be red initially" }
+
+        // Bar 2 (x: 40..60): initial height = 60, so y in 40..100 is green, y=30 is not green.
+        assert(!isColorAt(50, 30, ::isGreen)) { "Bar 2 at y=30 should not be green initially" }
+        assert(isColorAt(50, 50, ::isGreen)) { "Bar 2 at y=50 should be green initially" }
+
+        // Bar 3 (x: 70..90): initial height = 90, so y in 10..100 is blue.
+        assert(isColorAt(80, 20, ::isBlue)) { "Bar 3 at y=20 should be blue initially" }
+
+        // Update the named float array state via State
+        val updatedData = floatArrayOf(80f, 20f, 40f)
+        playerState.floatArrayState("chartData").value = updatedData
+        rule.waitForIdle()
+
+        // After update:
+        // Bar 1 now height = 80: y in 20..100 is red! So y=70 is now red.
+        assert(isColorAt(20, 70, ::isRed)) {
+            "Bar 1 at y=70 should be red after update to height 80"
+        }
+
+        // Bar 2 now height = 20: y in 80..100 is green. y=50 is NO LONGER green!
+        assert(!isColorAt(50, 50, ::isGreen)) {
+            "Bar 2 at y=50 should no longer be green after update to height 20"
+        }
+        assert(isColorAt(50, 90, ::isGreen)) { "Bar 2 at y=90 should be green after update" }
+
+        // Bar 3 now height = 40: y in 60..100 is blue. y=20 is NO LONGER blue!
+        assert(!isColorAt(80, 20, ::isBlue)) {
+            "Bar 3 at y=20 should no longer be blue after update to height 40"
+        }
+        assert(isColorAt(80, 70, ::isBlue)) { "Bar 3 at y=70 should be blue after update" }
     }
 
     private fun findVariableId(ops: List<Operation>, name: String): Int? {
