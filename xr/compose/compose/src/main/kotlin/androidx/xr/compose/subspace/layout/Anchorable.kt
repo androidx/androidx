@@ -46,17 +46,17 @@ import androidx.xr.scenecore.scene
  * [SpatialPanels][androidx.xr.compose.subspace.SpatialPanel] at the moment. This modifier allows
  * the element to be anchored to a plane in the real world.
  *
- * This modifier requires requires [androidx.xr.runtime.Session.configure] to be called with
+ * This modifier requires [androidx.xr.runtime.Session.configure] to be called with
  * [androidx.xr.runtime.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL]. This configuration requires that
  * the `SCENE_UNDERSTANDING_COARSE` Android permission is granted. If not granted, the `anchorable`
  * functionality will be disabled, and the element will behave as if the anchorable modifier was not
  * applied.
  *
  * @param enabled true if this composable should be anchorable.
- * @param stickyPose if enabled, the user specified position will be retained when the modifier is
+ * @param stickyPose if enabled, the user-specified position will be retained when the modifier is
  *   disabled or removed.
- * @param anchorPlaneOrientations when supplied, this movable entity can be anchored to Horizontal
- *   or Vertical planes or both (ANY). Can be used without anchorPlaneSemantics being supplied.
+ * @param anchorPlaneOrientations when supplied, this movable entity can be anchored to horizontal
+ *   or vertical planes or both (ANY). Can be used without anchorPlaneSemantics being supplied.
  * @param anchorPlaneSemantics when supplied, this movable entity can be anchored to planes which
  *   match one of the supplied list of semantic interpretations, such as a "table" or "floor". Can
  *   be used without anchorPlaneOrientations being supplied.
@@ -256,7 +256,7 @@ internal class AnchorableNode(
     }
 }
 
-/** Type of plane based on orientation i.e. Horizontal or Vertical. */
+/** Type of plane based on orientation, i.e., horizontal or vertical. */
 @JvmInline
 @ExperimentalMoveAnchorPolicy
 public value class PlaneOrientation

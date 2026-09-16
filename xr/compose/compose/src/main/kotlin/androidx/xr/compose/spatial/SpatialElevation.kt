@@ -95,14 +95,14 @@ private fun LayoutSpatialElevation(elevation: Dp, content: @Composable () -> Uni
     val localId = currentCompositeKeyHashCode
 
     /**
-     * Determine the reference panel size for the SpatialElevation positioning.
-     * 1. If parent entity is present, [SpatialElevation] is nested within a specific
+     * Determine the reference panel size for [SpatialElevation] positioning.
+     * 1. If the parent entity is present, [SpatialElevation] is nested within a specific
      *    [androidx.xr.compose.subspace.SpatialPanel] and uses its size.
      * 2. Otherwise, [SpatialElevation] is not explicitly parented within a Subspace()'s spatial
      *    entity. This occurs if [SpatialElevation] is used directly in `setContent {
      *    SpatialElevation(...) }`.
      *
-     * Unlike [Orbiter], [SpatialElevation] may only be used in a 2D context (i.e. in a
+     * Unlike [Orbiter], [SpatialElevation] may only be used in a 2D context (i.e., in a
      * [androidx.xr.compose.subspace.SpatialPanel] or in `setContent`).
      */
     val parentView = LocalView.current

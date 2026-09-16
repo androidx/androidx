@@ -81,9 +81,9 @@ public fun SubspaceModifier.size(size: Dp): SubspaceModifier =
     )
 
 /**
- * Declare the preferred size of the content to be exactly [width] dp along the x dimensions,
- * [height] dp along the y dimensions, and [depth] dp along the z dimension, of the Composable's
- * local coordinate space.
+ * Declare the preferred size of the content to be exactly [width] dp along the x dimension,
+ * [height] dp along the y dimension, and [depth] dp along the z dimension of the Composable's local
+ * coordinate space.
  *
  * @param width preferred width in [Dp].
  * @param height preferred height in [Dp].
@@ -127,8 +127,8 @@ public fun SubspaceModifier.size(size: DpVolumeSize): SubspaceModifier =
 
 /**
  * Constrain the size of the content to be between min and max dp as permitted by the incoming
- * measurement constraints. If the incoming constraints are more restrictive the requested size will
- * obey the incoming constraints and attempt to be as close as possible to the preferred size.
+ * measurement constraints. If the incoming constraints are more restrictive, the requested size
+ * will obey the incoming constraints and attempt to be as close as possible to the preferred size.
  *
  * @param minWidth The minimum width.
  * @param maxWidth The maximum width.
@@ -158,9 +158,10 @@ public fun SubspaceModifier.sizeIn(
     )
 
 /**
- * Constrain the width of the content to be between [min]dp and [max]dp as permitted by the incoming
- * measurement constraints. If the incoming constraints are more restrictive the requested size will
- * obey the incoming constraints and attempt to be as close as possible to the preferred size.
+ * Constrain the width of the content to be between [min] dp and [max] dp as permitted by the
+ * incoming measurement constraints. If the incoming constraints are more restrictive, the requested
+ * size will obey the incoming constraints and attempt to be as close as possible to the preferred
+ * size.
  *
  * @param min The minimum width.
  * @param max The maximum width.
@@ -171,8 +172,8 @@ public fun SubspaceModifier.widthIn(
 ): SubspaceModifier = this.then(SizeElement(minWidth = min, maxWidth = max, enforceIncoming = true))
 
 /**
- * Constrain the height of the content to be between [min]dp and [max]dp as permitted by the
- * incoming measurement constraints. If the incoming constraints are more restrictive the requested
+ * Constrain the height of the content to be between [min] dp and [max] dp as permitted by the
+ * incoming measurement constraints. If the incoming constraints are more restrictive, the requested
  * size will obey the incoming constraints and attempt to be as close as possible to the preferred
  * size.
  *
@@ -186,9 +187,10 @@ public fun SubspaceModifier.heightIn(
     this.then(SizeElement(minHeight = min, maxHeight = max, enforceIncoming = true))
 
 /**
- * Constrain the depth of the content to be between [min]dp and [max]dp as permitted by the incoming
- * measurement constraints. If the incoming constraints are more restrictive the requested size will
- * obey the incoming constraints and attempt to be as close as possible to the preferred size.
+ * Constrain the depth of the content to be between [min] dp and [max] dp as permitted by the
+ * incoming measurement constraints. If the incoming constraints are more restrictive, the requested
+ * size will obey the incoming constraints and attempt to be as close as possible to the preferred
+ * size.
  *
  * @param min The minimum depth.
  * @param max The maximum depth.

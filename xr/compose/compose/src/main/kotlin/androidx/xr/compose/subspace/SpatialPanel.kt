@@ -107,7 +107,7 @@ public object SpatialPanelDefaults {
  * to perform one-off initializations and [View] constant properties' setting. The factory inside of
  * the constructor is used to avoid the need to pass the context to the factory. There is one [View]
  * for every [SpatialAndroidViewPanel] instance and it is reused across recompositions. This [View]
- * is shown effectively in isolation and does not interact directly with the other composable's that
+ * is shown effectively in isolation and does not interact directly with the other composables that
  * surround it. The [update] block can run multiple times (on the UI thread as well) due to
  * recomposition, and it is the right place to set the new properties. Note that the block will also
  * run once right after the [factory] block completes. [SpatialAndroidViewPanel] will clip the view
@@ -171,7 +171,7 @@ public fun <T : View> SpatialAndroidViewPanel(
 }
 
 /**
- * Private [AndroidViewPanel] implementation that reports its created PanelEntity. ComposeNode is
+ * Private [AndroidViewPanel] implementation that reports its created [PanelEntity]. ComposeNode is
  * used directly for better timing when it comes to Update invocations.
  *
  * @param factory A lambda that creates an instance of the Android View [T].
@@ -310,12 +310,12 @@ public fun SpatialPanel(
  * For the main window to be visible when [androidx.xr.compose.spatial.Subspace] is present in the
  * UI hierarchy, a [SpatialMainPanel] *must* be included in the Subspace composition. If it is not
  * composed, the underlying main panel entity is disabled by default. When [SpatialMainPanel] is
- * removed from the composition, it will again be disable (hidden).
+ * removed from the composition, it will again be disabled (hidden).
  *
  * ### How It Works
- * [SpatialMainPanel] is backed by a single shared instance that will move to the main content to
- * its active usage. When the main content panel moves inside the composition, its state moves with
- * it regardless of whether it is in a [androidx.compose.runtime.MovableContent] block or not.
+ * [SpatialMainPanel] is backed by a single shared instance that will move the main content to its
+ * active usage. When the main content panel moves inside the composition, its state moves with it
+ * regardless of whether it is in a [androidx.compose.runtime.MovableContent] block or not.
  * Components that depend on the main panel's state (such as [androidx.xr.compose.spatial.Orbiter]),
  * will always access a single deterministic instance of the panel.
  *
@@ -328,7 +328,7 @@ public fun SpatialPanel(
  * The size of the panel in the Subspace is controlled by the standard Compose layout system, driven
  * by the SubspaceModifier applied to it. Modifiers like SubspaceModifier.width directly dictate the
  * panel's dimensions, following the same measurement and layout rules as other
- * [SubspaceComposable]. To ensure stability, if the panel's layout size results in a width or
+ * [SubspaceComposable]s. To ensure stability, if the panel's layout size results in a width or
  * height of zero, it will be automatically disabled to prevent crashes.
  *
  * ### Manifest Configuration

@@ -141,7 +141,7 @@ private class SpatialGltfModelStateHolder(val state: SpatialGltfModelState) : Re
  * `SpatialGltfModel`.
  *
  * To create and remember a `SpatialGltfModelState`, use [rememberSpatialGltfModelState]. If a
- * `SpatialGltfModelState` instance is manually created using the constructor then the caller needs
+ * `SpatialGltfModelState` instance is manually created using the constructor, then the caller needs
  * to call [close] to free its resources when it is no longer needed.
  *
  * @param source The [SpatialGltfModelSource] that defines where to load the 3D model from.

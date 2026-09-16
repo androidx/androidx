@@ -69,11 +69,11 @@ public fun SubspaceModifier.padding(
 
 /**
  * Apply [horizontal] dp space along the left and right edges of the content, [vertical] dp space
- * along the top and bottom edges, and [depth] dp space along front and back edged. Padding is
+ * along the top and bottom edges, and [depth] dp space along front and back edges. Padding is
  * applied before content measurement and takes precedence; content may only be as large as the
  * remaining space.
  *
- * Negative padding is not permitted — it will cause [IllegalArgumentException]. See [padding]
+ * Negative padding is not permitted — it will cause [IllegalArgumentException]. See [padding].
  *
  * @param horizontal The amount of space at the left and right edges of the content.
  * @param vertical The amount of space at the top and bottom edges of the content.
@@ -100,7 +100,7 @@ public fun SubspaceModifier.padding(
  * front, and back. Padding is applied before content measurement and takes precedence; content may
  * only be as large as the remaining space.
  *
- * Negative padding is not permitted — it will cause [IllegalArgumentException]. See [padding]
+ * Negative padding is not permitted — it will cause [IllegalArgumentException]. See [padding].
  *
  * @param all The amount of space at each edge of the content.
  */

@@ -286,9 +286,9 @@ internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DUR
         private const val ANIMATION_END_VALUE: Float = 1f
 
         /**
-         * Applies Smoothstep function (a specific implementation of a Cubic Hermite interpolation
-         * curve). to a linear value. This creates a smooth S-curve effect that goes through
-         * "ease-in, accelerate, then ease-out" effect for animations.
+         * Applies the Smoothstep function (a specific implementation of a Cubic Hermite
+         * interpolation curve) to a linear value. This creates a smooth S-curve effect that
+         * provides an "ease-in, accelerate, then ease-out" transition for animations.
          *
          * The function uses the formula `f(t) = 3t² - 2t³`. The coefficients 3 and 2 are
          * mathematically derived to be the simplest polynomial that satisfies four essential
