@@ -2699,6 +2699,68 @@ class StatusBarTest {
         Assert.assertTrue(testView.testController.showCount > 0)
     }
 
+    @Test
+    fun screenScaffold_transitionFromDisabledToInherit_doesNotRenderComposeTimeText() {
+        var screenTimeText by mutableStateOf<(@Composable () -> Unit)?>({ Text("ScreenDisabled") })
+        var scaffoldState: ScaffoldState? = null
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold(timeText = screenTimeText) {
+                        Box(modifier = Modifier.fillMaxSize())
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+
+        // On screenTimeText != null, status bar is disabled for the screen, local screen timeText
+        // is shown
+        Assert.assertFalse(state.screenContent.shouldAppWindowShowStatusBar.value)
+        composeTestRule.onNodeWithText("ScreenDisabled").assertIsDisplayed()
+
+        // Transition to Inherit (timeText = null)
+        composeTestRule.runOnUiThread { screenTimeText = null }
+        composeTestRule.waitForIdle()
+
+        // GSB is re-enabled for this screen
+        Assert.assertTrue(state.screenContent.shouldAppWindowShowStatusBar.value)
+        // ScreenDisabled is gone
+        composeTestRule.onNodeWithText("ScreenDisabled").assertDoesNotExist()
+    }
+
+    @Test
+    fun screenScaffold_transitionFromEmptyToInherit_doesNotRenderComposeTimeText() {
+        var screenTimeText by mutableStateOf<(@Composable () -> Unit)?>({})
+        var scaffoldState: ScaffoldState? = null
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold {
+                    scaffoldState = LocalScaffoldState.current
+                    ScreenScaffold(timeText = screenTimeText) {
+                        Box(modifier = Modifier.fillMaxSize())
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+
+        // Empty lambda ({}) disables status bar, but renders no visible content
+        Assert.assertFalse(state.screenContent.shouldAppWindowShowStatusBar.value)
+
+        // Transition to Inherit (timeText = null)
+        composeTestRule.runOnUiThread { screenTimeText = null }
+        composeTestRule.waitForIdle()
+
+        // GSB is re-enabled for this screen
+        Assert.assertTrue(state.screenContent.shouldAppWindowShowStatusBar.value)
+    }
+
     private class TestWindowInsetsController : WindowInsetsController {
         var showCount = 0
         var hideCount = 0
