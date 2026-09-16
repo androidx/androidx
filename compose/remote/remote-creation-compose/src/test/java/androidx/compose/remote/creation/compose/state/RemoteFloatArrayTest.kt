@@ -79,9 +79,31 @@ class RemoteFloatArrayTest {
     }
 
     @Test
+    fun namedArrayDeref_fetchesValueFromArray() {
+        val namedArray =
+            RemoteFloatArray.createNamedRemoteFloatArray("data", floatArrayOf(10f, 20f, 30f))
+        val result = namedArray[1.rf]
+        val resultId = result.getIdForCreationState(creationState)
+
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getFloat(resultId)).isEqualTo(20f)
+    }
+
+    @Test
     fun toDebugString_creation() {
         val remoteFloatArray = RemoteFloatArray(listOf(1.rf, 2.rf, 3.rf))
         assertThat(remoteFloatArray.toDebugString()).isEqualTo("arrayOf(1.0, 2.0, 3.0)")
+    }
+
+    @Test
+    fun toDebugString_named() {
+        val namedArray =
+            RemoteFloatArray.createNamedRemoteFloatArray("data", floatArrayOf(10f, 20f))
+        assertThat(namedArray.toDebugString()).isEqualTo("user:data")
+
+        val result = namedArray[0]
+        assertThat(result.toDebugString()).isEqualTo("user:data[0.0]")
     }
 
     @Test
