@@ -227,7 +227,7 @@ class RemotePaintTest {
                 blendMode = android.graphics.BlendMode.CLEAR
                 isFilterBitmap = false
             }
-        val remotePaint = compatPaint.remotePaint
+        val remotePaint = compatPaint.asRemotePaint()
 
         assertThat(remotePaint.isAntiAlias).isFalse()
         assertThat(remotePaint.style).isEqualTo(PaintingStyle.Stroke)
@@ -244,7 +244,7 @@ class RemotePaintTest {
                 strokeCap = android.graphics.Paint.Cap.ROUND
                 strokeJoin = android.graphics.Paint.Join.BEVEL
             }
-        val remotePaint = compatPaint.remotePaint
+        val remotePaint = compatPaint.asRemotePaint()
 
         assertThat(remotePaint.strokeWidth.constantValue).isEqualTo(15f)
         assertThat(remotePaint.strokeCap).isEqualTo(StrokeCap.Round)
@@ -258,7 +258,7 @@ class RemotePaintTest {
                 remoteColor = Color.Green.rc
                 remoteColorFilter = RemoteBlendModeColorFilter(Color.Red.rc, BlendMode.SrcIn)
             }
-        val remotePaint = compatPaint.remotePaint
+        val remotePaint = compatPaint.asRemotePaint()
 
         assertThat(remotePaint.color.constantValue).isEqualTo(Color.Green)
         val colorFilter = remotePaint.colorFilter as RemoteBlendModeColorFilter
@@ -284,7 +284,7 @@ class RemotePaintTest {
                 this.remoteShader = shader
                 this.pathEffect = pathEffect.asAndroidPathEffect()
             }
-        val remotePaint = compatPaint.remotePaint
+        val remotePaint = compatPaint.asRemotePaint()
 
         assertThat(remotePaint.shader).isEqualTo(shader)
         assertThat(remotePaint.pathEffect).isNotNull()
@@ -297,7 +297,7 @@ class RemotePaintTest {
                 textSize = 22f
                 typeface = android.graphics.Typeface.SERIF
             }
-        val remotePaint = compatPaint.remotePaint
+        val remotePaint = compatPaint.asRemotePaint()
 
         assertThat(remotePaint.textSize.constantValue).isEqualTo(22f)
         assertThat(remotePaint.typeface).isEqualTo(RemoteTypeface.Serif)
