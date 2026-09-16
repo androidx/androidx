@@ -720,10 +720,6 @@ private fun compositeComponent(
     return isZero.select(ifTrue = 0.rf, ifFalse = numerator / a)
 }
 
-/** Extension function to pack a [Color] into a Long for protocol use. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun Color.pack(): Long = android.graphics.Color.pack(toArgb())
-
 private fun constantColorOrNull(
     alpha: RemoteFloat,
     red: RemoteFloat,
