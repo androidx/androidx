@@ -128,11 +128,6 @@ public class ArCoreTestRule : ExternalResource(), PendingTrackablesProvider {
      */
     public val deviceTester: ArDeviceTester = ArDeviceTester(this)
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Deprecated("Use deviceTester instead.", ReplaceWith("deviceTester"))
-    public val device: ArDeviceTester
-        get() = deviceTester
-
     /**
      * The object representing the user's face. [Config.faceTracking] must be set to
      * [androidx.xr.runtime.FaceTrackingMode.BLEND_SHAPES] for it to be integrated by the runtime.
@@ -143,11 +138,6 @@ public class ArCoreTestRule : ExternalResource(), PendingTrackablesProvider {
         FaceTester(this, runtime.perceptionManager.userFace as FakeRuntimeFace)
     }
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Deprecated("Use faceTester instead.", ReplaceWith("faceTester"))
-    public val face: FaceTester
-        get() = faceTester
-
     /**
      * The object representing the user's left hand in the environment.
      * [androidx.xr.runtime.HandTrackingMode.BOTH] must be configured for it to be ingested by the
@@ -157,11 +147,6 @@ public class ArCoreTestRule : ExternalResource(), PendingTrackablesProvider {
         HandTester(this, runtime.perceptionManager.leftHand as FakeRuntimeHand)
     }
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Deprecated("Use leftHandTester instead.", ReplaceWith("leftHandTester"))
-    public val leftHand: HandTester
-        get() = leftHandTester
-
     /**
      * The object representing the user's right hand in the environment.
      * [androidx.xr.runtime.HandTrackingMode.BOTH] must be configured for it to be ingested by the
@@ -170,11 +155,6 @@ public class ArCoreTestRule : ExternalResource(), PendingTrackablesProvider {
     public val rightHandTester: HandTester by lazy {
         HandTester(this, runtime.perceptionManager.rightHand as FakeRuntimeHand)
     }
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Deprecated("Use rightHandTester instead.", ReplaceWith("rightHandTester"))
-    public val rightHand: HandTester
-        get() = rightHandTester
 
     /**
      * The object representing the user's left eye in the environment.
@@ -187,11 +167,6 @@ public class ArCoreTestRule : ExternalResource(), PendingTrackablesProvider {
         EyeTester(this, runtime.perceptionManager.leftEye as FakeRuntimeEye)
     }
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Deprecated("Use leftEyeTester instead.", ReplaceWith("leftEyeTester"))
-    public val leftEye: EyeTester
-        get() = leftEyeTester
-
     /**
      * The object representing the user's right eye in the environment.
      * [androidx.xr.runtime.EyeTrackingMode.COARSE_TRACKING] or
@@ -203,18 +178,8 @@ public class ArCoreTestRule : ExternalResource(), PendingTrackablesProvider {
         EyeTester(this, runtime.perceptionManager.rightEye as FakeRuntimeEye)
     }
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Deprecated("Use rightEyeTester instead.", ReplaceWith("rightEyeTester"))
-    public val rightEye: EyeTester
-        get() = rightEyeTester
-
     /** A test representation of the device's [androidx.xr.arcore.Geospatial] status. */
     public val geospatialTester: GeospatialTester = GeospatialTester(this)
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Deprecated("Use geospatialTester instead.", ReplaceWith("geospatialTester"))
-    public val geospatial: GeospatialTester
-        get() = geospatialTester
 
     /** A test representation of the device's left [androidx.xr.arcore.RenderViewpoint]. */
     public val leftRenderViewpointTester: RenderViewpointTester by lazy {
@@ -224,11 +189,6 @@ public class ArCoreTestRule : ExternalResource(), PendingTrackablesProvider {
         )
     }
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Deprecated("Use leftRenderViewpointTester instead.", ReplaceWith("leftRenderViewpointTester"))
-    public val leftRenderViewpoint: RenderViewpointTester
-        get() = leftRenderViewpointTester
-
     /** A test representation of the device's right [androidx.xr.arcore.RenderViewpoint]. */
     public val rightRenderViewpointTester: RenderViewpointTester by lazy {
         RenderViewpointTester(
@@ -236,14 +196,6 @@ public class ArCoreTestRule : ExternalResource(), PendingTrackablesProvider {
             runtime.perceptionManager.rightRenderViewpoint as FakeRuntimeRenderViewpoint,
         )
     }
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Deprecated(
-        "Use rightRenderViewpointTester instead.",
-        ReplaceWith("rightRenderViewpointTester"),
-    )
-    public val rightRenderViewpoint: RenderViewpointTester
-        get() = rightRenderViewpointTester
 
     /** A test representation of the device's mono [androidx.xr.arcore.RenderViewpoint]. */
     public val monoRenderViewpointTester: RenderViewpointTester by lazy {
@@ -253,40 +205,20 @@ public class ArCoreTestRule : ExternalResource(), PendingTrackablesProvider {
         )
     }
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Deprecated("Use monoRenderViewpointTester instead.", ReplaceWith("monoRenderViewpointTester"))
-    public val monoRenderViewpoint: RenderViewpointTester
-        get() = monoRenderViewpointTester
-
     /** A test representation of the device's left [androidx.xr.arcore.Depth] data. */
     public val leftDepthTester: DepthTester by lazy {
         DepthTester(this, runtime.perceptionManager.leftDepth as FakeRuntimeDepth)
     }
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Deprecated("Use leftDepthTester instead.", ReplaceWith("leftDepthTester"))
-    public val leftDepth: DepthTester
-        get() = leftDepthTester
 
     /** A test representation of the device's right [androidx.xr.arcore.Depth] data. */
     public val rightDepthTester: DepthTester by lazy {
         DepthTester(this, runtime.perceptionManager.rightDepth as FakeRuntimeDepth)
     }
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Deprecated("Use rightDepthTester instead.", ReplaceWith("rightDepthTester"))
-    public val rightDepth: DepthTester
-        get() = rightDepthTester
-
     /** A test representation of the device's mono [androidx.xr.arcore.Depth] data. */
     public val monoDepthTester: DepthTester by lazy {
         DepthTester(this, runtime.perceptionManager.monoDepth as FakeRuntimeDepth)
     }
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Deprecated("Use monoDepthTester instead.", ReplaceWith("monoDepthTester"))
-    public val monoDepth: DepthTester
-        get() = monoDepthTester
 
     /** A test representation of the device's Conversation Scene Signal. */
     @get:android.annotation.SuppressLint("ExperimentalPropertyAnnotation")
