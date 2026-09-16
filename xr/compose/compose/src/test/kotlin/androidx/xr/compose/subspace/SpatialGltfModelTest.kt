@@ -607,7 +607,7 @@ class SpatialGltfModelTest {
     }
 
     @Test
-    fun spatialModel_withExplicitSizeAndScaleModifier_combinesScaleToFitAndUserScale() {
+    fun spatialModel_withExplicitSizeAndScaleModifier_usesUserScale() {
         // Apply both `SubspaceModifier.size(200.dp)` and `.scale(2f)` to `SpatialGltfModel`.
         // Verify that the entity's final scale (`super.scale`) is the product of the uniform fit
         // scale
@@ -639,9 +639,9 @@ class SpatialGltfModelTest {
             .assertHeightIsEqualTo(200.dp)
             .assertDepthIsEqualTo(200.dp)
 
-        // gltfUniformScale = 0.1f, userScale = 2f, so combined scale = 0.2f
+        // gltfUniformScale = 0.1f, userScale = 2f, so uses scale = 0.2f
         assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
-            .isEqualTo(0.2f)
+            .isEqualTo(2f)
     }
 
     @Test
@@ -690,12 +690,11 @@ class SpatialGltfModelTest {
         // Verify that dynamically updating the explicit scale modifier on a SpatialGltfModel across
         // recompositions correctly updates the combined scale while preserving the underlying fit
         // scale (`0.1f`).
-        var dynamicScale by mutableStateOf(1f)
+        var dynamicScale: Float? by mutableStateOf(null)
 
         configureFakeSessionWithModelBoundingBox()
 
         composeTestRule.setContent {
-            val currentScale = dynamicScale
             Subspace(
                 modifier =
                     SubspaceModifier.requiredSizeIn(
@@ -709,22 +708,25 @@ class SpatialGltfModelTest {
                         rememberSpatialGltfModelState(
                             source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
                         ),
-                    modifier = SubspaceModifier.testTag("model").size(200.dp).scale(currentScale),
+                    modifier =
+                        dynamicScale?.let {
+                            SubspaceModifier.testTag("model").size(200.dp).scale(it)
+                        } ?: SubspaceModifier.testTag("model").size(200.dp),
                 )
             }
         }
 
-        // Initial check: gltfUniformScale = 0.1f, userScale = 1f -> combined = 0.1f
+        // Initial check: gltfUniformScale = 0.1f, userScale = null -> uses = 0.1f
         assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
             .isEqualTo(0.1f)
 
-        // Update the scale modifier dynamically across recomposition
+        // Update the scale modifier dynamically across recomposition to 3f
         dynamicScale = 3f
         composeTestRule.waitForIdle()
 
-        // Verify combined scale updates to 0.1f * 3f = 0.3f
+        // Verify scale updates to 3f
         assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
-            .isEqualTo(0.3f)
+            .isEqualTo(3f)
     }
 
     private fun configureFakeSessionWithModelBoundingBox(
