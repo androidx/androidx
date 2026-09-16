@@ -398,6 +398,47 @@ class A2uiBasicCatalogV1Test {
         assertThat(catalog.toString()).contains("functions=[]")
     }
 
+    @Test
+    fun toA2uiCatalog_createsCatalogSuccessfully() {
+        val testFunction = A2uiFormatStringFunction.INSTANCE
+        val basicCatalog = createTestBasicCatalog(functions = listOf(testFunction))
+
+        val catalog = basicCatalog.toA2uiCatalog()
+
+        assertThat(catalog.id).isEqualTo(A2uiBasicCatalogV1.CatalogId)
+        assertThat(catalog.themeSchema).isEqualTo(A2uiBasicCatalogV1.ThemeSchema)
+        assertThat(catalog.components["Text"]).isSameInstanceAs(basicCatalog.text)
+        assertThat(catalog.components["Image"]).isSameInstanceAs(basicCatalog.image)
+        assertThat(catalog.components["Icon"]).isSameInstanceAs(basicCatalog.icon)
+        assertThat(catalog.components["Video"]).isSameInstanceAs(basicCatalog.video)
+        assertThat(catalog.components["AudioPlayer"]).isSameInstanceAs(basicCatalog.audioPlayer)
+        assertThat(catalog.components["Card"]).isSameInstanceAs(basicCatalog.card)
+        assertThat(catalog.components["Row"]).isSameInstanceAs(basicCatalog.row)
+        assertThat(catalog.components["Column"]).isSameInstanceAs(basicCatalog.column)
+        assertThat(catalog.components["List"]).isSameInstanceAs(basicCatalog.list)
+        assertThat(catalog.components["Tabs"]).isSameInstanceAs(basicCatalog.tabs)
+        assertThat(catalog.components["Modal"]).isSameInstanceAs(basicCatalog.modal)
+        assertThat(catalog.components["Divider"]).isSameInstanceAs(basicCatalog.divider)
+        assertThat(catalog.components["Button"]).isSameInstanceAs(basicCatalog.button)
+        assertThat(catalog.components["TextField"]).isSameInstanceAs(basicCatalog.textField)
+        assertThat(catalog.components["CheckBox"]).isSameInstanceAs(basicCatalog.checkBox)
+        assertThat(catalog.components["ChoicePicker"]).isSameInstanceAs(basicCatalog.choicePicker)
+        assertThat(catalog.components["Slider"]).isSameInstanceAs(basicCatalog.slider)
+        assertThat(catalog.components["DateTimeInput"]).isSameInstanceAs(basicCatalog.dateTimeInput)
+        assertThat(catalog.functions[testFunction.definition.name]).isSameInstanceAs(testFunction)
+        assertThat(catalog.isInline).isFalse()
+    }
+
+    @Test
+    fun toA2uiCatalog_withIsInlineTrue_createsInlineCatalog() {
+        val basicCatalog = createTestBasicCatalog()
+
+        val catalog = basicCatalog.toA2uiCatalog(isInline = true)
+
+        assertThat(catalog.id).isEqualTo(A2uiBasicCatalogV1.CatalogId)
+        assertThat(catalog.isInline).isTrue()
+    }
+
     private fun createTestBasicCatalog(
         text: A2uiBasicCatalogV1.Text = TestTextComponent(),
         image: A2uiBasicCatalogV1.Image = TestImageComponent(),
