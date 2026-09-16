@@ -91,9 +91,6 @@ class Media3EffectFragmentDeviceTest(
         cameraProvider =
             ProcessCameraProvider.getInstance(ApplicationProvider.getApplicationContext())[
                     10000, TimeUnit.MILLISECONDS]
-        fragmentScenario = createFragmentScenario()
-        fragment = fragmentScenario.getFragment()
-
         requireForegroundRule.deferCleanup {
             try {
                 if (::fragmentScenario.isInitialized) {
@@ -105,6 +102,8 @@ class Media3EffectFragmentDeviceTest(
                 }
             }
         }
+        fragmentScenario = createFragmentScenario()
+        fragment = fragmentScenario.getFragment()
     }
 
     @Test

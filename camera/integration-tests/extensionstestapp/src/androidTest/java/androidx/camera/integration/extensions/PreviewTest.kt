@@ -82,15 +82,17 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
 
         extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
-        assumeExtensionModeSupported(extensionsManager, cameraId, extensionMode)
-
         requireForegroundRule.deferCleanup {
             if (::cameraProvider.isInitialized) {
                 cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
-                val extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
+            }
+
+            if (::extensionsManager.isInitialized) {
                 extensionsManager.shutdown()
             }
         }
+
+        assumeExtensionModeSupported(extensionsManager, cameraId, extensionMode)
     }
 
     /**

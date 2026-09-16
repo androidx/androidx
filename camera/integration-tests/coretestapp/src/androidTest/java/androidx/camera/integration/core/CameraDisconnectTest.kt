@@ -118,7 +118,6 @@ class CameraDisconnectTest(
     fun setUp() {
         ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
-        cameraId = CameraUtil.getCameraIdWithLensFacing(lensFacing)!!
         requireForegroundRule.deferCleanup {
             if (::cameraProvider.isInitialized) {
                 cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
@@ -128,6 +127,7 @@ class CameraDisconnectTest(
                 backgroundCameraHandlerThread.quitSafely()
             }
         }
+        cameraId = CameraUtil.getCameraIdWithLensFacing(lensFacing)!!
     }
 
     @After
