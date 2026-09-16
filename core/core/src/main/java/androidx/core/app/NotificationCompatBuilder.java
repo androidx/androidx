@@ -326,6 +326,10 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
     }
 
     private void addAction(NotificationCompat.Action action) {
+        mBuilder.addAction(getActionFromActionCompat(action));
+    }
+
+    static Notification.Action getActionFromActionCompat(NotificationCompat.Action action) {
         IconCompat iconCompat = action.getIconCompat();
         Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
                 iconCompat != null ? iconCompat.toIcon() : null, action.getTitle(),
@@ -371,7 +375,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
         actionExtras.putBoolean(NotificationCompat.Action.EXTRA_SHOWS_USER_INTERFACE,
                 action.getShowsUserInterface());
         actionBuilder.addExtras(actionExtras);
-        mBuilder.addAction(actionBuilder.build());
+        return actionBuilder.build();
     }
 
     @SuppressWarnings("deprecation")

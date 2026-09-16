@@ -979,7 +979,11 @@ package androidx.core.app {
   public static final class NotificationCompat.ProjectedExtender implements androidx.core.app.NotificationCompat.Extender {
     ctor public NotificationCompat.ProjectedExtender();
     ctor public NotificationCompat.ProjectedExtender(android.app.Notification);
+    method public androidx.core.app.NotificationCompat.ProjectedExtender addAction(androidx.core.app.NotificationCompat.Action);
+    method public androidx.core.app.NotificationCompat.ProjectedExtender addActions(java.util.List<androidx.core.app.NotificationCompat.Action!>);
+    method public androidx.core.app.NotificationCompat.ProjectedExtender clearActions();
     method public androidx.core.app.NotificationCompat.Builder extend(androidx.core.app.NotificationCompat.Builder);
+    method public java.util.List<androidx.core.app.NotificationCompat.Action!> getActions();
     method public android.app.PendingIntent? getContentIntent();
     method public androidx.core.app.NotificationCompat.ProjectedExtender setContentIntent(android.app.PendingIntent?);
   }

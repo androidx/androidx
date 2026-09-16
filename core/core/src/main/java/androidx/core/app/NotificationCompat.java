@@ -10431,8 +10431,8 @@ public class NotificationCompat {
      * <p>To create a notification with Projected extensions:
      * <ol>
      * <li>Create a {@link NotificationCompat.Builder} for the notification.
-     * <li>Create an {@code ProjectedExtender}.
-     * <li>Set projection-specific properties using the {@code set} methods on the
+     * <li>Create a {@code ProjectedExtender}.
+     * <li>Set projection-specific properties using the {@code add} and {@code set} methods on the
      * {@code ProjectedExtender}.
      * <li>Call {@link NotificationCompat.Builder#extend} to apply the extensions to
      * the notification.
@@ -10445,17 +10445,30 @@ public class NotificationCompat {
      *     .setSmallIcon(R.drawable.ic_notification);
      *
      * ProjectedExtender projectedExtender = new ProjectedExtender()
-     *     .setContentIntent(projectedTapIntent);
+     *     .setContentIntent(projectedTapIntent)
+     *     .addAction(projectedAction);
      *
      * builder.extend(projectedExtender);
      * notificationManager.notify(NOTIFICATION_ID, builder.build());
+     * </pre>
+     *
+     * <p>Projected extensions can be accessed on an existing notification by using the
+     * {@code ProjectedExtender(Notification)} constructor, and then using the {@code get} methods
+     * to access values.
+     *
+     * <pre class="prettyprint">
+     * NotificationCompat.ProjectedExtender projectedExtender =
+     *     new NotificationCompat.ProjectedExtender(notification);
+     * List&lt;NotificationCompat.Action&gt; actions = projectedExtender.getActions();
      * </pre>
      */
     public static final class ProjectedExtender implements Extender {
         static final String EXTRA_PROJECTED_EXTENDER = "android.projected.EXTENSIONS";
         static final String KEY_CONTENT_INTENT = "content_intent";
+        static final String KEY_ACTIONS = "actions";
 
         private PendingIntent mContentIntent;
+        private ArrayList<Action> mActions = new ArrayList<>();
 
         /**
          * Create a {@link ProjectedExtender} with default options.
@@ -10476,6 +10489,15 @@ public class NotificationCompat {
             if (projectedBundle != null) {
                 mContentIntent = BundleCompat.getParcelable(projectedBundle, KEY_CONTENT_INTENT,
                         PendingIntent.class);
+                ArrayList<Notification.Action> actions = BundleCompat.getParcelableArrayList(
+                        projectedBundle, KEY_ACTIONS, Notification.Action.class);
+                if (actions != null) {
+                    for (Notification.Action action : actions) {
+                        if (action != null) {
+                            mActions.add(getActionCompatFromAction(action));
+                        }
+                    }
+                }
             }
         }
 
@@ -10505,7 +10527,54 @@ public class NotificationCompat {
         }
 
         /**
-         * Applies the Project extensions to the notification builder. This method is
+         * Add an action to this notification on projected devices.
+         *
+         * <p>Projected actions are displayed instead of main notification actions
+         * when the notification is presented on a projected device.
+         *
+         * @param action The action to add.
+         * @return This {@code ProjectedExtender} object for chaining.
+         * @see NotificationCompat.Action
+         */
+        public @NonNull ProjectedExtender addAction(@NonNull Action action) {
+            mActions.add(action);
+            return this;
+        }
+
+        /**
+         * Adds multiple actions to this notification on projected devices.
+         *
+         * @param actions The list of actions to add.
+         * @return This {@code ProjectedExtender} object for chaining.
+         * @see NotificationCompat.Action
+         */
+        public @NonNull ProjectedExtender addActions(@NonNull List<Action> actions) {
+            mActions.addAll(actions);
+            return this;
+        }
+
+        /**
+         * Clear all projected actions from this extender.
+         *
+         * @return This {@code ProjectedExtender} object for chaining.
+         * @see #addAction
+         */
+        public @NonNull ProjectedExtender clearActions() {
+            mActions.clear();
+            return this;
+        }
+
+        /**
+         * Get the projected actions present on this notification.
+         *
+         * @return List of projected actions.
+         */
+        public @NonNull List<Action> getActions() {
+            return mActions;
+        }
+
+        /**
+         * Applies the Projected extensions to the notification builder. This method is
          * called by the {@link NotificationCompat.Builder#extend} method and should not
          * be called directly.
          *
@@ -10518,6 +10587,16 @@ public class NotificationCompat {
             Bundle projectedBundle = new Bundle();
             if (mContentIntent != null) {
                 projectedBundle.putParcelable(KEY_CONTENT_INTENT, mContentIntent);
+            }
+            if (!mActions.isEmpty()) {
+                ArrayList<Parcelable> parcelables = new ArrayList<>(mActions.size());
+                for (Action action : mActions) {
+                    if (action != null) {
+                        parcelables.add(
+                                NotificationCompatBuilder.getActionFromActionCompat(action));
+                    }
+                }
+                projectedBundle.putParcelableArrayList(KEY_ACTIONS, parcelables);
             }
             builder.getExtras().putBundle(EXTRA_PROJECTED_EXTENDER, projectedBundle);
             return builder;
