@@ -27,6 +27,7 @@ import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.util.fastForEach
 
 /** Create an instance of the platform-specific velocity tracker. */
 @OptIn(ExperimentalComposeUiApi::class)
@@ -50,7 +51,22 @@ internal class FrameworkVelocityTracker : PlatformVelocityTracker {
             )
         } else if (!event.changedToUpIgnoreConsumed()) {
             // TODO(b/359962905): Ignore resampled events.
-            if (event.historical.isNotEmpty()) {
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+                // On Android P, send each historical event separately (see the corresponding block
+                // in consumeMotionEvent).
+                event.historical.fastForEach {
+                    addMovement(
+                        it.uptimeMillis,
+                        MotionEvent.ACTION_MOVE,
+                        it.originalEventPosition + offset,
+                    )
+                }
+                addMovement(
+                    event.uptimeMillis,
+                    MotionEvent.ACTION_MOVE,
+                    event.originalEventPosition + offset,
+                )
+            } else if (event.historical.isNotEmpty()) {
                 // Create a MotionEvent containing the historical events.
                 val oldestEvent = event.historical.first()
                 val motionEvent =
@@ -127,6 +143,16 @@ internal class FrameworkVelocityTracker : PlatformVelocityTracker {
         if (!this::velocityTracker.isInitialized) {
             velocityTracker = VelocityTracker.obtain()
         }
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+            // Android P does not correctly coalesce events with duplicate timestamps.
+            if (
+                motionEvent.action != MotionEvent.ACTION_DOWN &&
+                    motionEvent.eventTime == lastEventTimeMillis
+            ) {
+                motionEvent.recycle()
+                return
+            }
+        }
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU) {
             // On older versions of Android, this test exists in VelocityTracker, but is not
             // implemented consistently.
@@ -134,9 +160,9 @@ internal class FrameworkVelocityTracker : PlatformVelocityTracker {
             if (intervalMillis > 40L) { // ASSUME_POINTER_STOPPED_TIME from VelocityTracker.cpp
                 resetTracking()
             }
-            lastEventTimeMillis = motionEvent.eventTime
         }
         velocityTracker.addMovement(motionEvent)
+        lastEventTimeMillis = motionEvent.eventTime
         motionEvent.recycle()
     }
 
