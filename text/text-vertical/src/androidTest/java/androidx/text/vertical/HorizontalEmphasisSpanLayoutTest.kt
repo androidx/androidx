@@ -44,14 +44,14 @@ class HorizontalEmphasisSpanLayoutTest {
     }
 
     @Test
-    fun getSpanWidth_basic_calculation() {
+    fun getSpanWidth_basicCalculation() {
         val layout = HorizontalEmphasisSpanLayout(text, 0, text.length, emphasisMark, paint, 1.0f)
         val expectedWidth = ceil(paint.measureText(text, 0, text.length)).toInt()
         assertThat(layout.spanWidth).isEqualTo(expectedWidth)
     }
 
     @Test
-    fun getSpanWidth_with_styled_text() {
+    fun getSpanWidth_withStyledText() {
         val spannable = SpannableString(text)
         spannable.setSpan(RelativeSizeSpan(2.0f), 0, text.length, 0)
 
@@ -64,7 +64,7 @@ class HorizontalEmphasisSpanLayoutTest {
     }
 
     @Test
-    fun fillFontMetrics_metrics_expansion() {
+    fun fillFontMetrics_metricsExpansion() {
         val layout = HorizontalEmphasisSpanLayout(text, 0, text.length, emphasisMark, paint, 1.0f)
         val bodyLayout =
             StaticLayout.Builder.obtain(text, 0, text.length, paint, Integer.MAX_VALUE).build()
@@ -88,5 +88,53 @@ class HorizontalEmphasisSpanLayoutTest {
         assertThat(fm.descent).isEqualTo(bodyDescent)
         assertThat(fm.top).isEqualTo(bodyAscent - emLineHeight)
         assertThat(fm.bottom).isEqualTo(bodyDescent)
+    }
+
+    // A relative size of 1.0f cannot show a scaling defect, because scaled and unscaled
+    // measurements are equal. These two tests use 0.5f.
+
+    @Test
+    fun constructor_doesNotChangeTheCallerTextSize() {
+        val callerPaint = TextPaint().apply { textSize = 100f }
+
+        HorizontalEmphasisSpanLayout(text, 0, text.length, emphasisMark, callerPaint, 0.5f)
+
+        assertThat(callerPaint.textSize).isEqualTo(100f)
+    }
+
+    @Test
+    fun fillFontMetrics_reservesSpaceForTheScaledMark() {
+        val relSize = 0.5f
+        val basePaint = TextPaint().apply { textSize = 100f }
+        val layout =
+            HorizontalEmphasisSpanLayout(
+                text,
+                0,
+                text.length,
+                emphasisMark,
+                TextPaint(basePaint),
+                relSize,
+            )
+        val bodyLayout =
+            StaticLayout.Builder.obtain(text, 0, text.length, basePaint, Integer.MAX_VALUE).build()
+        val scaledPaint = TextPaint(basePaint).apply { textSize = basePaint.textSize * relSize }
+        val markLayout =
+            StaticLayout.Builder.obtain(
+                    emphasisMark,
+                    0,
+                    emphasisMark.length,
+                    scaledPaint,
+                    Integer.MAX_VALUE,
+                )
+                .build()
+        val markLineHeight = markLayout.getLineDescent(0) - markLayout.getLineAscent(0)
+
+        val fm = Paint.FontMetricsInt()
+        layout.fillFontMetrics(fm)
+
+        assertThat(fm.ascent).isEqualTo(bodyLayout.getLineAscent(0) - markLineHeight)
+        assertThat(fm.descent).isEqualTo(bodyLayout.getLineDescent(0))
+        assertThat(fm.top).isEqualTo(bodyLayout.getLineAscent(0) - markLineHeight)
+        assertThat(fm.bottom).isEqualTo(bodyLayout.getLineDescent(0))
     }
 }
