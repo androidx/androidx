@@ -22,4 +22,4 @@ package androidx.emoji2.emojipicker
  * @param emoji Used to represent the displayed emoji of the [EmojiViewItem].
  * @param variants Used to represent the corresponding emoji variants of this base emoji.
  */
-class EmojiViewItem(val emoji: String, val variants: List<String>)
+public class EmojiViewItem(public val emoji: String, public val variants: List<String>)

@@ -39,7 +39,7 @@ import kotlinx.coroutines.withContext
  * The emoji picker view that provides up-to-date emojis in a vertical scrollable view with a
  * clickable horizontal header.
  */
-class EmojiPickerView
+public class EmojiPickerView
 @JvmOverloads
 constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     FrameLayout(context, attrs, defStyleAttr) {
@@ -58,7 +58,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      *
      * @attr ref androidx.emoji2.emojipicker.R.styleable.EmojiPickerView_emojiGridRows
      */
-    var emojiGridRows: Float
+    public var emojiGridRows: Float
         get() = _emojiGridRows ?: -1F
         set(value) {
             _emojiGridRows = value.takeIf { it > 0 }
@@ -76,7 +76,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      *
      * @attr ref androidx.emoji2.emojipicker.R.styleable.EmojiPickerView_emojiGridColumns
      */
-    var emojiGridColumns: Int = EmojiPickerConstants.DEFAULT_BODY_COLUMNS
+    public var emojiGridColumns: Int = EmojiPickerConstants.DEFAULT_BODY_COLUMNS
         set(value) {
             field = value.takeIf { it > 0 } ?: EmojiPickerConstants.DEFAULT_BODY_COLUMNS
             // Refresh when emojiGridColumns is reset
@@ -329,11 +329,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      * This function is used to set the custom behavior after clicking on an emoji icon. Clients
      * could specify their own behavior inside this function.
      */
-    fun setOnEmojiPickedListener(onEmojiPickedListener: Consumer<EmojiViewItem>?) {
+    public fun setOnEmojiPickedListener(onEmojiPickedListener: Consumer<EmojiViewItem>?) {
         this.onEmojiPickedListener = onEmojiPickedListener
     }
 
-    fun setRecentEmojiProvider(recentEmojiProvider: RecentEmojiProvider) {
+    public fun setRecentEmojiProvider(recentEmojiProvider: RecentEmojiProvider) {
         this.recentEmojiProvider = recentEmojiProvider
         scope.launch {
             recentNeedsRefreshing = true

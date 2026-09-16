@@ -42,7 +42,7 @@ import kotlinx.coroutines.flow.Flow
  *
  * @param T Type of the item in the list.
  */
-class PagingDataAdapter<T : Any> : ObjectAdapter {
+public class PagingDataAdapter<T : Any> : ObjectAdapter {
 
     private val diffCallback: DiffUtil.ItemCallback<T>
     private val mainDispatcher: CoroutineDispatcher
@@ -75,7 +75,7 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      * @param workerDispatcher The [CoroutineDispatcher] to be used for computing diff
      */
     @JvmOverloads
-    constructor(
+    public constructor(
         diffCallback: DiffUtil.ItemCallback<T>,
         mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
         workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
@@ -102,7 +102,7 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      * @param workerDispatcher The [CoroutineDispatcher] to be used for computing diff
      */
     @JvmOverloads
-    constructor(
+    public constructor(
         presenter: Presenter,
         diffCallback: DiffUtil.ItemCallback<T>,
         mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
@@ -130,7 +130,7 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      * @param workerDispatcher The [CoroutineDispatcher] to be used for computing diff
      */
     @JvmOverloads
-    constructor(
+    public constructor(
         presenterSelector: PresenterSelector,
         diffCallback: DiffUtil.ItemCallback<T>,
         mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
@@ -165,7 +165,7 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      *
      * @see [Pager]
      */
-    suspend fun submitData(pagingData: PagingData<T>) {
+    public suspend fun submitData(pagingData: PagingData<T>) {
         differ.submitData(pagingData)
     }
 
@@ -180,7 +180,7 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      * @see submitData
      * @see [Pager]
      */
-    fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {
+    public fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {
         differ.submitData(lifecycle, pagingData)
     }
 
@@ -193,7 +193,7 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      * returning [PagingSource.LoadResult.Error] [RemoteMediator.load] returning
      * [RemoteMediator.MediatorResult.Error]
      */
-    fun retry() {
+    public fun retry() {
         differ.retry()
     }
 
@@ -211,7 +211,7 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      *
      * @see PagingSource.invalidate
      */
-    fun refresh() {
+    public fun refresh() {
         differ.refresh()
     }
 
@@ -222,13 +222,13 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      * @param index Index of the presented item to return, including placeholders.
      * @return The presented item at position [index], `null` if it is a placeholder.
      */
-    fun peek(@IntRange(from = 0) index: Int) = differ.peek(index)
+    public fun peek(@IntRange(from = 0) index: Int): T? = differ.peek(index)
 
     /**
      * Returns a new [ItemSnapshotList] representing the currently presented items, including any
      * placeholders if they are enabled.
      */
-    fun snapshot(): ItemSnapshotList<T> = differ.snapshot()
+    public fun snapshot(): ItemSnapshotList<T> = differ.snapshot()
 
     /**
      * A hot [Flow] of [CombinedLoadStates] that emits a snapshot whenever the loading state of the
@@ -237,7 +237,7 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      * This flow is conflated, so it buffers the last update to [CombinedLoadStates] and immediately
      * delivers the current load states on collection.
      */
-    val loadStateFlow: Flow<CombinedLoadStates>
+    public val loadStateFlow: Flow<CombinedLoadStates>
         get() = differ.loadStateFlow
 
     /**
@@ -249,7 +249,7 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      * @param listener [CombinedLoadStates] listener to receive updates.
      * @see removeLoadStateListener
      */
-    fun addLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
+    public fun addLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         differ.addLoadStateListener(listener)
     }
 
@@ -259,7 +259,7 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      * @param listener Previously registered listener.
      * @see addLoadStateListener
      */
-    fun removeLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
+    public fun removeLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         differ.removeLoadStateListener(listener)
     }
 
