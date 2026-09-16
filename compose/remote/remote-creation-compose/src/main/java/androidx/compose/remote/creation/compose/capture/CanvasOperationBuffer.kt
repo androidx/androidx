@@ -266,7 +266,7 @@ internal sealed class CanvasOp {
         // Emits a matrix transformation wire command (`writer.buffer.addXxx()`) to the document.
         override fun emitsWireCommands(): Boolean = true
 
-        override fun toString(): String = "Transform(${op.javaClass.simpleName})"
+        override fun toString(): String = "Transform(${op::class.simpleName})"
     }
 
     /**
