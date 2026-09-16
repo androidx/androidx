@@ -287,6 +287,42 @@ class GlanceAdaptiveWidgetReceiverTest {
     }
 
     @Test
+    fun onRestored_migratesWidgetOptionsInCache() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val receiver = TestCountingReceiver()
+        val oldAppWidgetId1 = 48
+        val oldAppWidgetId2 = 49
+        val newAppWidgetId1 = 49
+        val newAppWidgetId2 = 50
+        val options1 = Bundle().apply { putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 100) }
+        val options2 = Bundle().apply { putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 200) }
+
+        receiver.onAppWidgetOptionsChanged(context, appWidgetManager, oldAppWidgetId1, options1)
+        receiver.onAppWidgetOptionsChanged(context, appWidgetManager, oldAppWidgetId2, options2)
+        assertThat(receiver.updateCallCount).isEqualTo(2)
+
+        // Perform restore with overlapping IDs (48 -> 49, 49 -> 50)
+        receiver.onRestored(
+            context,
+            intArrayOf(oldAppWidgetId1, oldAppWidgetId2),
+            intArrayOf(newAppWidgetId1, newAppWidgetId2),
+        )
+
+        // Options match what was migrated: newId1 (49) has options1, newId2 (50) has options2 ->
+        // deduplicated
+        receiver.onAppWidgetOptionsChanged(context, appWidgetManager, newAppWidgetId1, options1)
+        assertThat(receiver.updateCallCount).isEqualTo(2)
+
+        receiver.onAppWidgetOptionsChanged(context, appWidgetManager, newAppWidgetId2, options2)
+        assertThat(receiver.updateCallCount).isEqualTo(2)
+
+        // Old ID 48 was removed from cache, so changing its options triggers update
+        receiver.onAppWidgetOptionsChanged(context, appWidgetManager, oldAppWidgetId1, options1)
+        assertThat(receiver.updateCallCount).isEqualTo(3)
+    }
+
+    @Test
     fun onReceive_invokesSuspendOnUpdateWhenLocaleChangedReceived() = runTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         setupBoundWidget(context, 101, TestReceiver::class.java.name)
