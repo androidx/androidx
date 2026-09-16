@@ -23,19 +23,20 @@ import kotlinx.coroutines.guava.await
  * A interface equivalent to [RecentEmojiProvider] that allows java clients to override the
  * [ListenableFuture] based function [getRecentEmojiListAsync] in order to provide recent emojis.
  */
-interface RecentEmojiAsyncProvider {
-    fun recordSelection(emoji: String)
+public interface RecentEmojiAsyncProvider {
+    public fun recordSelection(emoji: String)
 
-    fun getRecentEmojiListAsync(): ListenableFuture<List<String>>
+    public fun getRecentEmojiListAsync(): ListenableFuture<List<String>>
 }
 
 /** An adapter for the [RecentEmojiAsyncProvider]. */
-class RecentEmojiProviderAdapter(private val recentEmojiAsyncProvider: RecentEmojiAsyncProvider) :
-    RecentEmojiProvider {
+public class RecentEmojiProviderAdapter(
+    private val recentEmojiAsyncProvider: RecentEmojiAsyncProvider
+) : RecentEmojiProvider {
     override fun recordSelection(emoji: String) {
         recentEmojiAsyncProvider.recordSelection(emoji)
     }
 
-    override suspend fun getRecentEmojiList() =
+    override suspend fun getRecentEmojiList(): List<String> =
         recentEmojiAsyncProvider.getRecentEmojiListAsync().await()
 }

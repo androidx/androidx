@@ -58,5 +58,4 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2015"
     description = "AndroidX Preference"
-    legacyDisableKotlinStrictApiMode = true
 }

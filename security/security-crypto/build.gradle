@@ -52,5 +52,4 @@ androidx {
     mavenVersion = LibraryVersions.SECURITY
     inceptionYear = "2019"
     description = "AndroidX Security"
-    legacyDisableKotlinStrictApiMode = true
 }

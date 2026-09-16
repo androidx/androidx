@@ -57,7 +57,7 @@ import androidx.slidingpanelayout.widget.SlidingPaneLayout
  * override [onCreateInitialDetailFragment] to provide the custom empty state fragment for the
  * detail pane.
  */
-abstract class PreferenceHeaderFragmentCompat :
+public abstract class PreferenceHeaderFragmentCompat :
     Fragment(), PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
     private var onBackPressedCallback: OnBackPressedCallback? = null
 
@@ -66,7 +66,7 @@ abstract class PreferenceHeaderFragmentCompat :
      *
      * @throws IllegalStateException if the SlidingPaneLayout has not been created by [onCreateView]
      */
-    val slidingPaneLayout: SlidingPaneLayout
+    public val slidingPaneLayout: SlidingPaneLayout
         get() = requireView() as SlidingPaneLayout
 
     @CallSuper
@@ -190,7 +190,7 @@ abstract class PreferenceHeaderFragmentCompat :
      * [setPreferenceScreen(PreferenceScreen)] either directly or via helper methods such as
      * [setPreferenceFromResource(int)] to set headers.
      */
-    abstract fun onCreatePreferenceHeader(): PreferenceFragmentCompat
+    public abstract fun onCreatePreferenceHeader(): PreferenceFragmentCompat
 
     @CallSuper
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -227,7 +227,7 @@ abstract class PreferenceHeaderFragmentCompat :
      *
      * @return Fragment The first fragment that found in the list of preference headers.
      */
-    open fun onCreateInitialDetailFragment(): Fragment? {
+    public open fun onCreateInitialDetailFragment(): Fragment? {
         val headerFragment =
             childFragmentManager.findFragmentById(R.id.preferences_header)
                 as PreferenceFragmentCompat

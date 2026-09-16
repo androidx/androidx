@@ -60,7 +60,6 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "AndroidX Widget ViewPager2"
-    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

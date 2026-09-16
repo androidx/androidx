@@ -27,7 +27,7 @@ import androidx.car.app.utils.RemoteUtils
 @CarProtocol
 @KeepFields
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class ListDelegateImpl<T> : ListDelegate<T> {
+public class ListDelegateImpl<T> : ListDelegate<T> {
     private var _size: Int = -1
 
     /**
@@ -40,7 +40,7 @@ class ListDelegateImpl<T> : ListDelegate<T> {
 
     private lateinit var mStub: IRemoteList
 
-    constructor(content: List<T>) {
+    public constructor(content: List<T>) {
         _size = content.size
         listHashCode = content.hashCode()
         mStub = RemoteListStub<T>(content)
@@ -49,7 +49,7 @@ class ListDelegateImpl<T> : ListDelegate<T> {
     /** For Serialization */
     @Suppress("unused") private constructor()
 
-    override val size
+    override val size: Int
         get() = _size
 
     override fun requestItemRange(startIndex: Int, endIndex: Int, callback: OnDoneCallback) {
@@ -68,7 +68,7 @@ class ListDelegateImpl<T> : ListDelegate<T> {
         }
     }
 
-    override fun equals(other: Any?) =
+    override fun equals(other: Any?): Boolean =
         other is ListDelegateImpl<*> && other.listHashCode == listHashCode
 
     override fun hashCode(): Int = listHashCode
