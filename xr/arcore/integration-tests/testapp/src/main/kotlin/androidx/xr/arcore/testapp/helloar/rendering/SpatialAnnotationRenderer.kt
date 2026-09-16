@@ -29,6 +29,8 @@ import androidx.xr.runtime.ExperimentalSpatialAnnotationsApi
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.IntSize2d
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
 import androidx.xr.scenecore.ExperimentalSurfaceEntityPixelDimensionsApi
 import androidx.xr.scenecore.InputEvent
 import androidx.xr.scenecore.InteractableComponent
@@ -184,9 +186,14 @@ internal class SpatialAnnotationRenderer(
                                 .roundToInt()
                                 .coerceAtLeast(QuadOverlayRenderer.MIN_TRACKING_SIZE_PIXELS)
 
-                        val newPose =
+                        val annotationInPerception = state.pose
+                        val panelInPerception =
+                            annotationInPerception.compose(
+                                Pose(rotation = ANNOTATION_FROM_PANEL_ROTATION)
+                            )
+                        val panelInActivity =
                             _session.scene.perceptionSpace.transformPoseTo(
-                                state.pose,
+                                panelInPerception,
                                 _session.scene.activitySpace,
                             )
 
@@ -199,7 +206,7 @@ internal class SpatialAnnotationRenderer(
                                             SurfaceEntity.Shape.Quad(
                                                 FloatSize2d(coercedW, coercedH)
                                             ),
-                                        pose = newPose,
+                                        pose = panelInActivity,
                                         parent = _session.scene.activitySpace,
                                     )
                                     .apply { setSurfacePixelDimensions(IntSize2d(pixelW, pixelH)) }
@@ -254,7 +261,7 @@ internal class SpatialAnnotationRenderer(
                             lastHeightMeters = coercedH
                         } else {
                             currentSurfaceEntity = surfaceEntity!!
-                            currentSurfaceEntity.setPose(newPose)
+                            currentSurfaceEntity.setPose(panelInActivity)
                             val sizeChanged =
                                 abs(lastWidthMeters - coercedW) > DIMENSION_EPSILON_METERS ||
                                     abs(lastHeightMeters - coercedH) > DIMENSION_EPSILON_METERS
@@ -352,5 +359,9 @@ internal class SpatialAnnotationRenderer(
         private const val MIN_SIZE_METERS = 0.01f
         private const val MAX_SIZE_METERS = 10.0f
         private const val DIMENSION_EPSILON_METERS = 0.005f
+
+        // Rotates from SceneCore Panel local frame (+Y up) into OpenXR Annotation local frame (+Y
+        // down).
+        private val ANNOTATION_FROM_PANEL_ROTATION = Quaternion(1f, 0f, 0f, 0f)
     }
 }
