@@ -38,7 +38,17 @@ internal fun Paint.getFontMetricsIntCompat(
     }
 }
 
-/** Backport of [Paint.getRunCharacterAdvance]. */
+/**
+ * Backport of [Paint.getRunCharacterAdvance].
+ *
+ * If the API level is less than [Build.VERSION_CODES.UPSIDE_DOWN_CAKE], this function uses
+ * [Paint.getTextRunAdvances] or [Paint.getTextWidths] for the advances. These two functions do not
+ * give the advance of a prefix of the run. As a result, this function adds the values in [out].
+ *
+ * If the API level is less than [Build.VERSION_CODES.Q], this function measures each character
+ * alone. As a result, it ignores [contextStart], [contextEnd] and [isRtl]. It does not apply the
+ * shaping that depends on the adjacent text or on the paragraph direction.
+ */
 internal fun Paint.getRunCharacterAdvanceCompat(
     text: CharSequence,
     start: Int,
@@ -65,7 +75,7 @@ internal fun Paint.getRunCharacterAdvanceCompat(
     } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val tmp = CharArray(contextEnd - contextStart)
         TextUtils.getChars(text, contextStart, contextEnd, tmp, 0)
-        return getTextRunAdvances(
+        getTextRunAdvances(
             tmp,
             start - contextStart,
             end - start,
@@ -75,8 +85,8 @@ internal fun Paint.getRunCharacterAdvanceCompat(
             out,
             outOffset,
         )
+        return out.sumAdvances(outOffset, offset - start)
     } else {
-        // Very basic fallback for API < 29.
         if (outOffset == 0) {
             getTextWidths(text, start, end, out)
         } else {
@@ -84,12 +94,17 @@ internal fun Paint.getRunCharacterAdvanceCompat(
             getTextWidths(text, start, end, tmp)
             System.arraycopy(tmp, 0, out, outOffset, end - start)
         }
-        var totalAdvance = 0f
-        for (i in 0 until (end - start)) {
-            totalAdvance += out[i + outOffset]
-        }
-        return totalAdvance
+        return out.sumAdvances(outOffset, offset - start)
     }
+}
+
+/** Adds [count] advances from [this]. The first advance has the index [from]. */
+private fun FloatArray.sumAdvances(from: Int, count: Int): Float {
+    var total = 0f
+    for (i in 0 until count) {
+        total += this[from + i]
+    }
+    return total
 }
 
 internal fun Paint.measureTextVertical(text: CharSequence): Float =
@@ -100,8 +115,8 @@ internal fun Paint.measureTextVertical(text: CharSequence, start: Int, end: Int)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
         withVerticalFlag { measureText(text, start, end) }
     } else {
-        // In backport, we assume each character takes 1em height.
-        // This is correct for most CJK and "Upright" mode characters.
+        // The backport assumes that the advance of each character is 1em.
+        // This assumption is correct for most CJK characters and for Upright mode.
         val widths = FloatArray(end - start)
         getTextWidths(text, start, end, widths)
         val nonZeroCount = widths.count { it > 0f }
@@ -135,8 +150,8 @@ internal fun Paint.getRunCharacterAdvanceVertical(
             )
         }
     } else {
-        // For backport, vertical advances are simply assumed to be 1em per character.
-        // We still need to fill the 'out' array.
+        // The backport assumes that the advance of each character is 1em.
+        // This branch must also fill the `out` array.
         val count = end - start
         val widths = FloatArray(count)
         getTextWidths(text, start, end, widths)
