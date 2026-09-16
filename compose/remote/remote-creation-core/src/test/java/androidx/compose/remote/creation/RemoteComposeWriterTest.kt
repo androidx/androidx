@@ -21,45 +21,26 @@ import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.SystemInfo
+import androidx.compose.remote.core.operations.EventActionOperation
 import androidx.compose.remote.core.operations.Header
+import androidx.compose.remote.core.operations.layout.modifiers.ValueFloatChangeActionOperation
 import androidx.compose.remote.core.operations.utilities.IntMap
+import androidx.compose.remote.creation.actions.Action
 import androidx.compose.remote.creation.profile.Profile
+import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class RemoteComposeWriterTest {
-    private lateinit var rcPlatform: RcPlatformServices
-    private lateinit var writer: RemoteComposeWriter
-    private lateinit var profile: Profile
-
-    val creationDisplayInfo = CreationDisplayInfo(450, 450, (2f * 160).toInt())
-
-    @Before
-    fun setUp() {
-        rcPlatform = RcPlatformServices.None
-        profile =
-            Profile(CoreDocument.DOCUMENT_API_LEVEL, RcProfiles.PROFILE_ANDROIDX, rcPlatform) {
-                creationDisplayInfo,
-                profile,
-                _ ->
-                RemoteComposeWriter(
-                    profile,
-                    RemoteComposeBuffer(),
-                    RemoteComposeWriter.hTag(Header.DOC_WIDTH, creationDisplayInfo.width),
-                    RemoteComposeWriter.hTag(Header.DOC_HEIGHT, creationDisplayInfo.height),
-                    RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX),
-                )
-            }
-
-        writer = profile.create(creationDisplayInfo, "test")
-    }
+    private val rcPlatform = RcPlatformServices.None
+    private val creationDisplayInfo = CreationDisplayInfo(450, 450, (2f * 160).toInt())
 
     @Test
     fun createTextFromFloat_deduplicates_calls() {
+        val writer = createProfile().create(creationDisplayInfo, "test")
         val initialBufferSize = writer.bufferSize()
         val id1 = writer.createTextFromFloat(1.0f, 2, 2, 0)
         val sizeAfterFirstCall = writer.bufferSize()
@@ -74,22 +55,29 @@ class RemoteComposeWriterTest {
 
     @Test
     fun testConstructorWithTagsSetsFields() {
+        val profile = createProfile()
+        val writer = profile.create(creationDisplayInfo, "test")
+
         assertThat(writer.mPlatform).isEqualTo(profile.platform)
         assertThat(writer.mApiLevel).isEqualTo(profile.apiLevel)
     }
 
     @Test
     fun testConstructorWithoutTagsSetsFields() {
-        writer = RemoteComposeWriter(creationDisplayInfo, null, profile)
+        val profile = createProfile()
+        val writer = RemoteComposeWriter(creationDisplayInfo, null, profile)
 
         assertThat(writer.mPlatform).isEqualTo(profile.platform)
         assertThat(writer.mApiLevel).isEqualTo(profile.apiLevel)
     }
 
-    private fun parseDocument(writer: RemoteComposeWriter): CoreDocument {
+    private fun parseDocument(
+        writer: RemoteComposeWriter,
+        profileMask: Int = CoreDocument.PROFILE,
+    ): CoreDocument {
         val bytes = writer.encodeToByteArray()
         val readBuffer = RemoteComposeBuffer()
-        readBuffer.buffer.setSystemInfo(SystemInfo(writer.apiLevel, CoreDocument.PROFILE))
+        readBuffer.buffer.setSystemInfo(SystemInfo(writer.apiLevel, profileMask))
         readBuffer.buffer.reset(bytes.size)
         for (b in bytes) {
             readBuffer.buffer.writeByte(b.toInt())
@@ -111,20 +99,19 @@ class RemoteComposeWriterTest {
         return propertiesField.get(header) as IntMap<Any>?
     }
 
-    private fun createProfile(apiLevel: Int): Profile {
-        return Profile(apiLevel, RcProfiles.PROFILE_ANDROIDX, rcPlatform) {
-            creationDisplayInfo,
-            profile,
-            _ ->
+    private fun createProfile(
+        apiLevel: Int = CoreDocument.DOCUMENT_API_LEVEL,
+        profileMask: Int = RcProfiles.PROFILE_ANDROIDX,
+    ): Profile =
+        Profile(apiLevel, profileMask, rcPlatform) { creationDisplayInfo, profile, _ ->
             RemoteComposeWriter(
                 profile,
                 RemoteComposeBuffer(),
                 RemoteComposeWriter.hTag(Header.DOC_WIDTH, creationDisplayInfo.width),
                 RemoteComposeWriter.hTag(Header.DOC_HEIGHT, creationDisplayInfo.height),
-                RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX),
+                RemoteComposeWriter.hTag(Header.DOC_PROFILES, profileMask),
             )
         }
-    }
 
     @Test
     fun testDensityBehavior_v8_supportsAnyBehavior() {
@@ -247,5 +234,40 @@ class RemoteComposeWriterTest {
 
         // Assert that the profile is correctly restored (not defaulted to 0)
         assertThat(decodedDoc.profileMask).isEqualTo(RcProfiles.PROFILE_ANDROIDX)
+    }
+
+    @Test
+    fun onEvent_serializesEventActionContainerAndNestedActionChildren() {
+        // Arrange.
+        val expWriter =
+            createProfile(
+                    profileMask = RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL
+                )
+                .create(creationDisplayInfo, "test")
+        val action1 = Action { w -> w.addValueFloatChangeActionOperation(5001, 15.5f) }
+        val action2 = Action { w -> w.addValueFloatChangeActionOperation(5002, 20.0f) }
+        val stringValueMatcher =
+            Correspondence.from<ValueFloatChangeActionOperation, ValueFloatChangeActionOperation>(
+                { actual, expected -> actual.toString() == expected.toString() },
+                "matches serialization of",
+            )
+        expWriter.onEvent(0, 0, 0, null, null, action1, action2)
+
+        // Act.
+        val doc =
+            parseDocument(
+                expWriter,
+                profileMask = RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            )
+        val eventAction = doc.operations.filterIsInstance<EventActionOperation>().first()
+
+        // Assert - Verify nesting of written child actions inside the container.
+        assertThat(eventAction.list)
+            .comparingElementsUsing(stringValueMatcher)
+            .containsExactly(
+                ValueFloatChangeActionOperation(5001, 15.5f),
+                ValueFloatChangeActionOperation(5002, 20.0f),
+            )
+            .inOrder()
     }
 }
