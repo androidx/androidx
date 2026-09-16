@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.testutils.ComposeExecutionControl
 import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
@@ -175,6 +176,10 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkRecompose(
 /**
  * Measures measure time of the hierarchy after changing a state.
  *
+ * @param toggleCausesRecompose whether the benchmark will fail if there are no pending
+ *   recompositions after the state toggle. By default, this is true to enforce correctness in the
+ *   benchmark, but for components where the state toggle might not always cause a recomposition
+ *   this can be turned off.
  * @param assertOneRecomposition whether the benchmark will fail if there are pending recompositions
  *   after the first recomposition. By default this is true to enforce correctness in the benchmark,
  *   but for components that have animations after being recomposed this can be turned off to
@@ -192,6 +197,9 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasure(
                 getTestCase().toggleState()
                 if (toggleCausesRecompose) {
                     recomposeAssertHadChanges()
+                } else {
+                    // Send state updates without recomposing, but still triggering other listeners
+                    Snapshot.sendApplyNotifications()
                 }
                 requestLayout()
                 if (assertOneRecomposition) {
@@ -209,6 +217,10 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasure(
 /**
  * Measures layout time of the hierarchy after changing a state.
  *
+ * @param toggleCausesRecompose whether the benchmark will fail if there are no pending
+ *   recompositions after the state toggle. By default, this is true to enforce correctness in the
+ *   benchmark, but for components where the state toggle might not always cause a recomposition
+ *   this can be turned off.
  * @param assertOneRecomposition whether the benchmark will fail if there are pending recompositions
  *   after the first recomposition. By default this is true to enforce correctness in the benchmark,
  *   but for components that have animations after being recomposed this can be turned off to
@@ -227,6 +239,9 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkLayout(
                 getTestCase().toggleState()
                 if (toggleCausesRecompose) {
                     recomposeAssertHadChanges()
+                } else {
+                    // Send state updates without recomposing, but still triggering other listeners
+                    Snapshot.sendApplyNotifications()
                 }
                 requestLayout()
                 measure()
@@ -245,6 +260,10 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkLayout(
 /**
  * Measures draw time of the hierarchy after changing a state.
  *
+ * @param toggleCausesRecompose whether the benchmark will fail if there are no pending
+ *   recompositions after the state toggle. By default, this is true to enforce correctness in the
+ *   benchmark, but for components where the state toggle might not always cause a recomposition
+ *   this can be turned off.
  * @param assertOneRecomposition whether the benchmark will fail if there are pending recompositions
  *   after the first recomposition. By default this is true to enforce correctness in the benchmark,
  *   but for components that have animations after being recomposed this can be turned off to
@@ -263,6 +282,9 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkDraw(
                 getTestCase().toggleState()
                 if (toggleCausesRecompose) {
                     recomposeAssertHadChanges()
+                } else {
+                    // Send state updates without recomposing, but still triggering other listeners
+                    Snapshot.sendApplyNotifications()
                 }
                 if (assertOneRecomposition) {
                     assertNoPendingChanges()
@@ -282,9 +304,8 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkDraw(
  * Measures the time for semantics update after changing a state.
  *
  * @param toggleCausesRecompose whether the benchmark is expecting recomposition after the toggle.
- *   By default, this is true to enforce correctness in the benchmark, but for components that have
- *   animations after being recomposed this can be turned off to benchmark just the first redraw
- *   without any pending animations.
+ *   By default, this is true to enforce correctness in the benchmark, but for components where the
+ *   state toggle might not always cause a recomposition this can be turned off.
  * @param assertOneRecomposition whether the benchmark will fail if there are pending recompositions
  *   after the first recomposition.
  */
@@ -303,6 +324,9 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkSemantics(
                 getTestCase().toggleState()
                 if (toggleCausesRecompose) {
                     recomposeAssertHadChanges()
+                } else {
+                    // Send state updates without recomposing, but still triggering other listeners
+                    Snapshot.sendApplyNotifications()
                 }
                 if (assertOneRecomposition) {
                     assertNoPendingChanges()
