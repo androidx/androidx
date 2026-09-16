@@ -45,6 +45,28 @@ sealed interface Screen : NavKey {
     @Serializable data object VerticalPager : Screen
 
     @Serializable data object SelfRenderedSandbox : Screen
+
+    @Serializable data object StepperInScaffold : Screen
+
+    @Serializable data object StepperOutOfScaffold : Screen
+
+    @Serializable data object TimePickerInScaffold : Screen
+
+    @Serializable data object TimePickerOutOfScaffold : Screen
+
+    @Serializable data object DatePickerInScaffold : Screen
+
+    @Serializable data object DatePickerOutOfScaffold : Screen
+
+    @Serializable data object DialogInScaffold : Screen
+
+    @Serializable data object DialogOutOfScaffold : Screen
+
+    @Serializable data object CustomSuppressStatusBarInScaffold : Screen
+
+    @Serializable data object CustomSuppressStatusBarOutOfScaffold : Screen
+
+    @Serializable data object PagerWithSuppression : Screen
 }
 
 val Screen.title: String
@@ -56,6 +78,17 @@ val Screen.title: String
             Screen.HorizontalPager -> "Horizontal Pager"
             Screen.VerticalPager -> "Vertical Pager"
             Screen.SelfRenderedSandbox -> "Self Rendered Sandbox"
+            Screen.StepperInScaffold -> "Stepper (In Scaffold)"
+            Screen.StepperOutOfScaffold -> "Stepper (Out of Scaffold)"
+            Screen.TimePickerInScaffold -> "TimePicker (In Scaffold)"
+            Screen.TimePickerOutOfScaffold -> "TimePicker (Out of Scaffold)"
+            Screen.DatePickerInScaffold -> "DatePicker (In Scaffold)"
+            Screen.DatePickerOutOfScaffold -> "DatePicker (Out of Scaffold)"
+            Screen.DialogInScaffold -> "Dialog (In Scaffold)"
+            Screen.DialogOutOfScaffold -> "Dialog (Out of Scaffold)"
+            Screen.CustomSuppressStatusBarInScaffold -> "SuppressStatusBar (In Scaffold)"
+            Screen.CustomSuppressStatusBarOutOfScaffold -> "SuppressStatusBar (Out of Scaffold)"
+            Screen.PagerWithSuppression -> "Pager With Suppression"
         }
 
 class RecentsHandler(context: Context) {
@@ -136,6 +169,58 @@ fun WindowInsetsApp() {
 
                 entry<Screen.SelfRenderedSandbox> {
                     SelfRenderedSandboxScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
+                }
+
+                entry<Screen.StepperInScaffold> {
+                    StepperInScaffoldScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
+                }
+
+                entry<Screen.StepperOutOfScaffold> {
+                    StepperOutOfScaffoldScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
+                }
+
+                entry<Screen.TimePickerInScaffold> {
+                    TimePickerInScaffoldScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
+                }
+
+                entry<Screen.TimePickerOutOfScaffold> {
+                    TimePickerOutOfScaffoldScreen(
+                        onBack = { backStack.removeAt(backStack.lastIndex) }
+                    )
+                }
+
+                entry<Screen.DatePickerInScaffold> {
+                    DatePickerInScaffoldScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
+                }
+
+                entry<Screen.DatePickerOutOfScaffold> {
+                    DatePickerOutOfScaffoldScreen(
+                        onBack = { backStack.removeAt(backStack.lastIndex) }
+                    )
+                }
+
+                entry<Screen.DialogInScaffold> {
+                    DialogInScaffoldScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
+                }
+
+                entry<Screen.DialogOutOfScaffold> {
+                    DialogOutOfScaffoldScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
+                }
+
+                entry<Screen.CustomSuppressStatusBarInScaffold> {
+                    CustomSuppressStatusBarInScaffoldScreen(
+                        onBack = { backStack.removeAt(backStack.lastIndex) }
+                    )
+                }
+
+                entry<Screen.CustomSuppressStatusBarOutOfScaffold> {
+                    CustomSuppressStatusBarOutOfScaffoldScreen(
+                        onBack = { backStack.removeAt(backStack.lastIndex) }
+                    )
+                }
+
+                entry<Screen.PagerWithSuppression> {
+                    PagerWithSuppressionScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
                 }
             },
     )
