@@ -31,12 +31,12 @@ import java.util.concurrent.Future
  * @author Chris Povirk
  * @since 11.0
  */
-fun interface AsyncFunction<I, O> {
+public fun interface AsyncFunction<I, O> {
     /**
      * Returns an output `Future` to use in place of the given `input`. The output `Future` need not
      * be [done][Future.isDone], making `AsyncFunction` suitable for asynchronous derivations.
      *
      * Throwing an exception from this method is equivalent to returning a failing `Future`.
      */
-    @Throws(Exception::class) fun apply(input: I?): ListenableFuture<O>
+    @Throws(Exception::class) public fun apply(input: I?): ListenableFuture<O>
 }

@@ -30,7 +30,7 @@ private const val TAG = "C2TransformationInfo"
  * Utilities for generating [TransformationInfo] for use with
  * [Camera2]({@docRoot]media/camera/camera2)
  */
-object Camera2TransformationInfo {
+public object Camera2TransformationInfo {
 
     @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
     @IntDef(
@@ -44,7 +44,7 @@ object Camera2TransformationInfo {
     )
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    annotation class OutputConfigurationMirrorMode
+    public annotation class OutputConfigurationMirrorMode
 
     /**
      * Creates [TransformationInfo] from the provided [CameraCharacteristics] and crop rect.
@@ -67,7 +67,7 @@ object Camera2TransformationInfo {
      */
     @JvmStatic
     @JvmOverloads
-    fun createFromCharacteristics(
+    public fun createFromCharacteristics(
         cameraCharacteristics: CameraCharacteristics,
         cropRectLeft: Float = TransformationInfo.CROP_NONE,
         cropRectTop: Float = TransformationInfo.CROP_NONE,
@@ -112,7 +112,7 @@ object Camera2TransformationInfo {
     @JvmStatic
     @JvmOverloads
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    fun createFromCharacteristics(
+    public fun createFromCharacteristics(
         cameraCharacteristics: CameraCharacteristics,
         @OutputConfigurationMirrorMode mirrorMode: Int,
         cropRectLeft: Float = TransformationInfo.CROP_NONE,

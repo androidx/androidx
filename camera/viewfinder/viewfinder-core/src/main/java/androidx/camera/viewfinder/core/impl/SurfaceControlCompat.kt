@@ -27,19 +27,19 @@ import androidx.annotation.RequiresApi
  *
  * This wraps [SurfaceControl] on API >= 29 and is a no-op stub on API < 29.
  */
-sealed interface SurfaceControlCompat {
+public sealed interface SurfaceControlCompat {
 
     /** Create a new Surface from this SurfaceControl, or return null if this is a stub. */
-    fun newSurface(): Surface?
+    public fun newSurface(): Surface?
 
     /** Sets the buffer size of this surface control. */
-    fun setBufferSize(width: Int, height: Int)
+    public fun setBufferSize(width: Int, height: Int)
 
     /** Release this surface control. */
-    fun release()
+    public fun release()
 
     /** Reparent the surface control to null. */
-    fun detach()
+    public fun detach()
 
     /**
      * Reparents this surface control to a new parent [SurfaceControlCompat].
@@ -49,9 +49,9 @@ sealed interface SurfaceControlCompat {
      * @param newParent The new parent [SurfaceControlCompat].
      * @return `true` if the reparent operation was performed, `false` otherwise.
      */
-    fun reparent(newParent: SurfaceControlCompat): Boolean
+    public fun reparent(newParent: SurfaceControlCompat): Boolean
 
-    companion object {
+    public companion object {
         /**
          * Creates a SurfaceControl or a stub implementation.
          *
@@ -66,7 +66,7 @@ sealed interface SurfaceControlCompat {
          * @return a compat implementation of [SurfaceControlCompat].
          */
         @JvmStatic
-        fun create(
+        public fun create(
             parent: SurfaceView,
             format: Int,
             width: Int,
@@ -92,7 +92,7 @@ sealed interface SurfaceControlCompat {
          * @return a compat implementation of [SurfaceControlCompat].
          */
         @JvmStatic
-        fun create(
+        public fun create(
             parent: SurfaceControlCompat,
             width: Int,
             height: Int,
@@ -115,7 +115,7 @@ sealed interface SurfaceControlCompat {
          *   does not have a SurfaceControl.
          */
         @JvmStatic
-        fun wrap(surfaceView: SurfaceView): SurfaceControlCompat =
+        public fun wrap(surfaceView: SurfaceView): SurfaceControlCompat =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 SurfaceControlApi29Impl(surfaceControl = surfaceView.surfaceControl)
             } else {

@@ -21,7 +21,7 @@ import androidx.camera.viewfinder.core.ViewfinderSurfaceRequest
 import androidx.camera.viewfinder.core.ViewfinderSurfaceSession
 import kotlinx.atomicfu.atomic
 
-class ViewfinderSurfaceSessionImpl(
+public class ViewfinderSurfaceSessionImpl(
     override val surface: Surface,
     override val request: ViewfinderSurfaceRequest,
     private val onClose: () -> Unit,

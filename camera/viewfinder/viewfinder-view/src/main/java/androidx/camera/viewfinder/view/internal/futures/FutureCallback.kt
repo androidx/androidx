@@ -32,9 +32,9 @@ import java.util.concurrent.Future
  * @author Anthony Zana
  * @since 10.0
  */
-interface FutureCallback<V> {
+public interface FutureCallback<V> {
     /** Invoked with the result of the `Future` computation when it is successful. */
-    fun onSuccess(result: V?)
+    public fun onSuccess(result: V?)
 
     /**
      * Invoked when a `Future` computation fails or is canceled.
@@ -42,5 +42,5 @@ interface FutureCallback<V> {
      * If the future's [get][Future.get] method throws an [ExecutionException], then the cause is
      * passed to this method. Any other thrown object is passed unaltered.
      */
-    fun onFailure(t: Throwable)
+    public fun onFailure(t: Throwable)
 }
