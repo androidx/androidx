@@ -59,7 +59,7 @@ internal fun rememberCalculatePose(
  * Calculates the 3D pose of a composable within its parent layout.
  *
  * This function handles the conversion from Compose's 2D pixel-based coordinate system (Y-axis
- * points down) to the Spatial Scene Graphs's meter-based coordinate system (Y-axis points up).
+ * points down) to the Spatial Scene Graph's meter-based coordinate system (Y-axis points up).
  *
  * @param contentOffset The top-left (x, y) position of the content in pixels.
  * @param parentViewSize The width and height of the parent container in pixels.

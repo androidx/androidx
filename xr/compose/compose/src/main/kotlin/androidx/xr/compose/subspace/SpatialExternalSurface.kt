@@ -168,9 +168,9 @@ private constructor(internal val value: SurfaceEntity.SurfaceProtection) {
 /**
  * A Composable that creates and owns an Android Surface into which the application can render
  * stereo image content. This can be thought of as the spatial equivalent of AndroidExternalSurface.
- * This Surface is texture mapped to the canvas, and if a stereoscopic StereoMode is specified, then
- * the User will see left and right eye content mapped to the appropriate display. Width and height
- * will default to 400 pixels if it is not specified using size modifiers. This surface currently
+ * This Surface is texture-mapped to the canvas, and if a stereoscopic StereoMode is specified, then
+ * the user will see left and right eye content mapped to the appropriate display. Width and height
+ * will default to 400 pixels if they are not specified using size modifiers. This surface currently
  * cannot be used for rendering still images.
  *
  * It is not currently possible to synchronize StereoMode changes with application rendering or
@@ -254,8 +254,8 @@ public fun SpatialExternalSurface(
 
 /**
  * A Composable that creates and owns an Android Surface into which the application can render
- * stereo image content inside a 180 degree hemisphere dome. This Surface is texture mapped to the
- * canvas, and if a stereoscopic StereoMode is specified, then the User will see left and right eye
+ * stereo image content inside a 180-degree hemisphere dome. This Surface is texture-mapped to the
+ * canvas, and if a stereoscopic StereoMode is specified, then the user will see left and right eye
  * content mapped to the appropriate display. This surface currently cannot be used for rendering
  * still images.
  *
@@ -322,8 +322,8 @@ public fun SpatialExternalSurfaceHemisphere(
 
 /**
  * A Composable that creates and owns an Android Surface into which the application can render
- * stereo image content inside a 360 degree sphere dome. This Surface is then texture mapped to the
- * canvas, and if a stereoscopic StereoMode is specified, then the User will see left and right eye
+ * stereo image content inside a 360-degree sphere dome. This Surface is then texture-mapped to the
+ * canvas, and if a stereoscopic StereoMode is specified, then the user will see left and right eye
  * content mapped to the appropriate display. This surface currently cannot be used for rendering
  * still images.
  *
