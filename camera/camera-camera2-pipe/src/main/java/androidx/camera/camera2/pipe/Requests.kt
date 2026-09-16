@@ -102,7 +102,7 @@ public class Request(
          * @param requestMetadata the data about the camera2 request that was sent to the camera.
          * @param frameNumber the android frame number for this exposure
          * @param captureResult the current android capture result for this exposure
-         * @see android.hardware.camera2.CameraCaptureSession.CaptureCallback.onCaptureStarted
+         * @see android.hardware.camera2.CameraCaptureSession.CaptureCallback.onCaptureProgressed
          */
         public fun onPartialCaptureResult(
             requestMetadata: RequestMetadata,
@@ -233,7 +233,7 @@ public class Request(
 
         /**
          * This is an artificial callback that will be invoked if a specific request was pending or
-         * had already been submitted to when an abort was requested. The behavior of the request is
+         * had already been submitted when an abort was requested. The behavior of the request is
          * undefined if this method is invoked and images or metadata may or may not be produced for
          * this request. Repeating requests will not receive onAborted. Failed reprocessing requests
          * will be aborted and removed from the queue.
@@ -422,8 +422,8 @@ public interface RequestMetadata : Metadata, UnsafeWrapper {
 public value class CameraTimestamp(public val value: Long)
 
 /**
- * This is a timestamp happen at start of readout for a regular request, or the timestamp at the
- * input image's start of readout for a reprocess request, in nanoseconds.
+ * This is a timestamp happening at the start of readout for a regular request, or the timestamp at
+ * the input image's start of readout for a reprocess request, in nanoseconds.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline

@@ -382,10 +382,9 @@ internal class CameraPipeImpl(private val component: CameraPipeComponent) : Came
 
     /**
      * Performs a one-time, potentially slow initialization to fetch and cache
-     * CameraDeviceSetupCompat.
+     * [CameraDeviceSetupCompat].
      *
-     * @param graphConfig The camera graph configuration to prepare for a query.
-     * @return A [CameraDeviceSetupCompat] if the prewarm was successful, otherwise null.
+     * @param graphConfig the camera graph configuration to prepare for a query
      */
     override fun prewarmIsConfigSupported(graphConfig: CameraGraph.Config) {
         val backend = getBackend(graphConfig)

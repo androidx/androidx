@@ -30,7 +30,7 @@ import javax.inject.Provider
 /**
  * A SurfaceGraph tracks the current stream-to-surface mapping state for a [CameraGraph] instance.
  *
- * It's primary responsibility is aggregating the current stream-to-surface mapping and passing the
+ * Its primary responsibility is aggregating the current stream-to-surface mapping and passing the
  * most up to date version to the [CameraController] instance.
  */
 internal class SurfaceGraph(

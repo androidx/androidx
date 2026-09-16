@@ -367,7 +367,7 @@ internal class GraphLoop(
         command: GraphCommand.Trigger,
     ) {
         // Trigger commands take an existing repeating request, add some one-time parameters to it,
-        // and the submit it exactly once.
+        // and then submit it exactly once.
         val repeatingRequest = currentRepeatingRequest
         if (repeatingRequest == null && idx == 0) {
             commands.removeAt(idx)
@@ -688,8 +688,8 @@ internal class GraphLoop(
          * Utility function to remove items by index from a `MutableList` up-to (but not including)
          * the provided index without creating an iterator.
          *
-         * For example, in a list of [1, 2, 3, 4, 5], calling removeUpTo(3) { it % 2 = 1 } will test
-         * [1, 2, 3], and remove "1" and "3", modifying the list to have [2, 4, 5]
+         * For example, in a list of [1, 2, 3, 4, 5], calling removeUpTo(3) { it % 2 == 1 } will
+         * test [1, 2, 3], and remove "1" and "3", modifying the list to have [2, 4, 5]
          */
         private inline fun <T> MutableList<T>.removeUpTo(idx: Int, predicate: (T) -> Boolean) {
             var a = 0

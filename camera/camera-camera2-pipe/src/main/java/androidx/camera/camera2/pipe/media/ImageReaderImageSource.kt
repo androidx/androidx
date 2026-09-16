@@ -302,7 +302,7 @@ public class ImageReaderImageSource(
         val isOverCapacity = currentImageCount > maxImages
         val isLowMemory = !memoryEstimator.canAllocateNow(image.estimatedBytes)
         // If there are too many images that are currently being held or the ImageSource is in
-        // a CLOSING or CLOSED state, or we are low of memory budget: close the image, decrement the
+        // a CLOSING or CLOSED state, or we are low on memory budget: close the image, decrement the
         // imageCount, and let the outputListener know that an image was received but that it was
         // dropped (by passing null for the image).
         if (isOverCapacity || isInactive || isLowMemory) {

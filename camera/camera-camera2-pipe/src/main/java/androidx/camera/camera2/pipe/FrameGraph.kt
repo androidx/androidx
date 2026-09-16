@@ -66,7 +66,7 @@ public interface FrameGraph : CameraGraphBase<FrameGraph.Session>, CameraControl
 
     /**
      * Add the set of [streamIds] and [parameters] to the current repeating request, updating and
-     * submitting a new repeating repeating request as needed.
+     * submitting a new repeating request as needed.
      *
      * Returns a buffer with [capacity] that will accumulate and cycle Frames that are produced by
      * the FrameGraph that have the attached [streamIds] and [parameters] until closed.
@@ -94,7 +94,7 @@ public interface FrameGraph : CameraGraphBase<FrameGraph.Session>, CameraControl
      * short-lived state updates, or for interactive capture sequences that must not be altered.
      * (Flash photo sequences, for example).
      *
-     * While this object is thread-safe, it should not shared or held for long periods of time.
+     * While this object is thread-safe, it should not be shared or held for long periods of time.
      * Example: A [Session] should *not* be held during video recording.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
