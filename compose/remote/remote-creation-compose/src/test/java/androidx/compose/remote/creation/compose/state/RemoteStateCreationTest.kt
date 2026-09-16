@@ -33,6 +33,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.cr
 import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createNamedRemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteFloatArray.Companion.createNamedRemoteFloatArray
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
@@ -526,5 +527,39 @@ class RemoteStateCreationTest {
             }
         val intVars = coreDoc.getNamedVariables(NamedVariable.INT_TYPE).toList()
         assertThat(intVars.filter { it == "${RemoteDomains.USER}:cachedInt" }).hasSize(1)
+    }
+
+    @Test
+    fun rememberCreateNamedRemoteFloatArray_sameName_isDeduplicated() = runTest {
+        val defaultData1 = floatArrayOf(10f, 20f, 30f)
+        val defaultData2 = floatArrayOf(40f, 50f, 60f)
+        var id1 = -1
+        var id2 = -1
+        var id3 = -1
+        val coreDoc =
+            remoteCaptureRule.captureDocument(context) {
+                val creationState = LocalRemoteComposeCreationState.current
+                val array1 = remember {
+                    createNamedRemoteFloatArray("sharedArray", defaultData1)
+                }
+                val array2 = remember {
+                    createNamedRemoteFloatArray("sharedArray", defaultData2)
+                }
+                val array3 = remember {
+                    createNamedRemoteFloatArray("otherArray", defaultData1)
+                }
+
+                id1 = array1.getIdForCreationState(creationState)
+                id2 = array2.getIdForCreationState(creationState)
+                id3 = array3.getIdForCreationState(creationState)
+            }
+
+        assertThat(id1).isNotEqualTo(-1)
+        assertThat(id1).isEqualTo(id2)
+        assertThat(id1).isNotEqualTo(id3)
+
+        val namedArrayVars = coreDoc.getNamedVariables(NamedVariable.FLOAT_ARRAY_TYPE).toList()
+        assertThat(namedArrayVars.filter { it == "${RemoteDomains.USER}:sharedArray" }).hasSize(1)
+        assertThat(namedArrayVars.filter { it == "${RemoteDomains.USER}:otherArray" }).hasSize(1)
     }
 }
