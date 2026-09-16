@@ -63,6 +63,7 @@ dependencies {
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":compose:ui:ui-text-google-fonts"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":test:uiautomator:uiautomator"))
     androidTestImplementation("androidx.activity:activity:1.7.2")

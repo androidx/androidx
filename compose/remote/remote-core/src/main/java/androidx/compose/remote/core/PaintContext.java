@@ -254,6 +254,37 @@ public abstract class PaintContext {
     public abstract void drawTextOnPath(int textId, int pathId, float hOffset, float vOffset);
 
     /**
+     * Draws text along a circular arc.
+     *
+     * <p>Calculates text width with current paint metrics, determines the arc sweep angle based
+     * on the final radius ({@code radius + warpRadiusOffset}), and lays out text along an arc
+     * centered at ({@code centerX}, {@code centerY}).
+     *
+     * <p>Angles use standard degrees (0&deg; at 3 o'clock, 90&deg; at 6 o'clock, 180&deg;
+     * at 9 o'clock, 270&deg; at 12 o'clock).
+     *
+     * @param textId id of the text resource to draw
+     * @param centerX x-coordinate of the circle center in pixels
+     * @param centerY y-coordinate of the circle center in pixels
+     * @param radius base radius of the circle in pixels
+     * @param startAngle reference angle in degrees for text alignment
+     * @param warpRadiusOffset offset added to {@code radius} to adjust the final path radius
+     * @param alignment text alignment relative to {@code startAngle}: 0 (START), 1 (CENTER),
+     *     2 (END)
+     * @param placement arc direction and placement: 0 (OUTSIDE, clockwise), 1 (INSIDE,
+     *     counter-clockwise)
+     */
+    public void drawTextOnCircle(
+            int textId,
+            float centerX,
+            float centerY,
+            float radius,
+            float startAngle,
+            float warpRadiusOffset,
+            int alignment,
+            int placement) {}
+
+    /**
      * Return the dimensions (left, top, right, bottom). Relative to a drawTextRun x=0, y=0;
      *
      * @param textId

@@ -61,6 +61,7 @@ import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.ClipPath;
+import androidx.compose.remote.core.operations.DrawTextOnCircle;
 import androidx.compose.remote.core.operations.ShaderData;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.managers.CoreText;
@@ -501,6 +502,68 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
     @Override
     public void drawTextOnPath(int textId, int pathId, float hOffset, float vOffset) {
         mCanvas.drawTextOnPath(getText(textId), getPath(pathId, 0, 1), hOffset, vOffset, mPaint);
+    }
+
+    /**
+     * Draws text along a circular arc using Android {@link Path} and {@link Canvas#drawTextOnPath}.
+     *
+     * <p>Measures text width with the current {@link Paint}, calculates the arc sweep angle based
+     * on the final radius ({@code radius + warpRadiusOffset}), adjusts the starting angle for text
+     * alignment (START, CENTER, or END), and constructs an arc path using {@link Path#addArc}.
+     *
+     * <p>Placement specifies the drawing direction: {@code OUTSIDE} places text clockwise along the
+     * top of the arc, while {@code INSIDE} places text counter-clockwise along the bottom.
+     */
+    @Override
+    public void drawTextOnCircle(
+            int textId,
+            float centerX,
+            float centerY,
+            float radius,
+            float startAngle,
+            float warpRadiusOffset,
+            int alignment,
+            int placement) {
+        String textToDraw = getText(textId);
+        if (textToDraw == null) {
+            return;
+        }
+        float textWidth = mPaint.measureText(textToDraw);
+        float finalRadius = radius + warpRadiusOffset;
+        if (finalRadius <= 0f) {
+            return;
+        }
+        // OUTSIDE placement draws text clockwise on top of the arc;
+        // INSIDE placement draws counterclockwise.
+        boolean clockwise = placement == DrawTextOnCircle.Placement.OUTSIDE.ordinal();
+        float sweepDegrees = (float) Math.toDegrees(textWidth / finalRadius);
+        float finalStartAngle = startAngle;
+        if (!clockwise) {
+            sweepDegrees = -sweepDegrees;
+            if (alignment == DrawTextOnCircle.Alignment.CENTER.ordinal()) {
+                finalStartAngle = startAngle + Math.abs(sweepDegrees) / 2f;
+            } else if (alignment == DrawTextOnCircle.Alignment.END.ordinal()) {
+                finalStartAngle = startAngle + Math.abs(sweepDegrees);
+            }
+        } else {
+            if (alignment == DrawTextOnCircle.Alignment.CENTER.ordinal()) {
+                finalStartAngle = startAngle - sweepDegrees / 2f;
+            } else if (alignment == DrawTextOnCircle.Alignment.END.ordinal()) {
+                finalStartAngle = startAngle - sweepDegrees;
+            }
+        }
+
+        Path path = new Path();
+        path.addArc(
+                centerX - finalRadius,
+                centerY - finalRadius,
+                centerX + finalRadius,
+                centerY + finalRadius,
+                finalStartAngle,
+                sweepDegrees);
+
+        mPaint.setTextAlign(Paint.Align.LEFT);
+        mCanvas.drawTextOnPath(textToDraw, path, 0f, 0f, mPaint);
     }
 
     private Paint.FontMetrics mCachedFontMetrics;
