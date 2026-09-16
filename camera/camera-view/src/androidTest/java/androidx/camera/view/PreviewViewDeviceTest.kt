@@ -98,7 +98,6 @@ class PreviewViewDeviceTest(private val implName: String, private val cameraConf
 
     @Before
     fun setUp() {
-        activityScenario = ActivityScenario.launch(FakeActivity::class.java)
         ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
 
@@ -108,10 +107,13 @@ class PreviewViewDeviceTest(private val implName: String, private val cameraConf
                 // Ensure all successful requests have their returned future finish.
                 surfaceRequest.deferrableSurface.close()
             }
+            activityScenario?.close()
             if (cameraProvider != null) {
                 cameraProvider!!.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
             }
         }
+
+        activityScenario = ActivityScenario.launch(FakeActivity::class.java)
     }
 
     @Test

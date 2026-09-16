@@ -172,8 +172,8 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
                             backToHome(instrumentation)
                             device.unfreezeRotation()
                             device.waitForIdle(UI_STABILIZATION_TIMEOUT_MS)
-                        } catch (e: Exception) {
-                            Log.w(TAG, "Failed to gracefully clean up device state", e)
+                        } catch (t: Throwable) {
+                            Log.w(TAG, "Failed to gracefully clean up device state", t)
                         }
                     }
                 } catch (t: Throwable) {

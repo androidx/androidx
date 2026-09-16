@@ -77,12 +77,11 @@ class PreviewViewFragmentTest(
     @Before
     fun setup() {
         ProcessCameraProvider.configureInstance(cameraConfig)
-        scenario = createScenario()
-
         requireForegroundRule.deferCleanup {
             val provider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
             provider.shutdownAsync()[10, TimeUnit.SECONDS]
         }
+        scenario = createScenario()
     }
 
     @After

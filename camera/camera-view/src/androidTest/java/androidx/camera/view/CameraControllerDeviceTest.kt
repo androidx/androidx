@@ -107,15 +107,16 @@ class CameraControllerDeviceTest(
         ProcessCameraProvider.configureInstance(cameraConfig)
         defaultCameraSelector = CameraUtil.assumeFirstAvailableCameraSelector()
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+        requireForegroundRule.deferCleanup {
+            controller?.shutDownForTests()
+            activityScenario?.close()
+            cameraProvider?.shutdownAsync()?.get(10, TimeUnit.SECONDS)
+            cameraProvider = null
+        }
         activityScenario = ActivityScenario.launch(FakeActivity::class.java)
         controller = LifecycleCameraController(context)
         instrumentation.runOnMainSync { controller!!.cameraSelector = defaultCameraSelector }
         controller!!.initializationFuture.get()
-        requireForegroundRule.deferCleanup {
-            controller?.shutDownForTests()
-            cameraProvider?.shutdownAsync()?.get(10, TimeUnit.SECONDS)
-            cameraProvider = null
-        }
     }
 
     @Test(expected = IllegalArgumentException::class)

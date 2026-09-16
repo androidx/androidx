@@ -118,14 +118,14 @@ class CameraControllerFragmentTest(
         cameraProvider =
             ProcessCameraProvider.getInstance(ApplicationProvider.getApplicationContext())[
                     10000, TimeUnit.MILLISECONDS]
-        fragmentScenario = createFragmentScenario()
-        fragment = fragmentScenario.getFragment()
-        uiDevice = UiDevice.getInstance(instrumentation)
         requireForegroundRule.deferCleanup {
             if (::cameraProvider.isInitialized) {
                 cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
             }
         }
+        fragmentScenario = createFragmentScenario()
+        fragment = fragmentScenario.getFragment()
+        uiDevice = UiDevice.getInstance(instrumentation)
     }
 
     @After
