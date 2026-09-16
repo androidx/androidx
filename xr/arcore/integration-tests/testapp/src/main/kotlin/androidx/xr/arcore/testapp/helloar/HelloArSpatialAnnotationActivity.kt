@@ -154,7 +154,9 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        lifecycleScope.launch { bindCameraUseCases() }
+        if (!isTrackingStarted) {
+            lifecycleScope.launch { bindCameraUseCases() }
+        }
     }
 
     override fun onDestroy() {
@@ -165,6 +167,7 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
                 SpatialAnnotation.stopTrackingAllAnnotations(s)
             } catch (e: Exception) {}
         }
+        unbindCameraUseCases()
         spatialAnnotationRenderer.stopRendering()
         cameraExecutor.shutdown()
         lastSnapshot = null
@@ -178,6 +181,10 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
             val provider = ProcessCameraProvider.getInstance(this).await()
             cameraProvider = provider
 
+            if (provider.isBound(cameraPreviewUseCase)) {
+                return
+            }
+
             val imageAnalysis =
                 ImageAnalysis.Builder()
                     .setResolutionSelector(resolutionSelector)
@@ -187,7 +194,6 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
 
             imageAnalysis.setAnalyzer(cameraExecutor, cameraFrameAnalyzer)
 
-            // TODO(b/561608250): Unbind the camera use cases when tracking starts.
             provider.unbindAll()
             provider.bindToLifecycle(
                 this,
@@ -195,59 +201,80 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
                 cameraPreviewUseCase,
                 imageAnalysis,
             )
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e("HelloAr", "Failed to bind camera", e)
+        }
+    }
+
+    private fun unbindCameraUseCases() {
+        try {
+            cameraProvider?.unbindAll()
+        } catch (e: Exception) {
+            Log.e("HelloAr", "Failed to unbind camera", e)
         }
     }
 
     private fun onStartTrackingClicked(config: ViewfinderTrackingConfig) {
         val currentSession = session ?: return
 
-        spatialAnnotationRenderer.isDotCenter = config.isDotCenter
-        spatialAnnotationRenderer.isDotTop = config.isDotTop
-
-        val snapshot = cameraFrameAnalyzer.copyLatestFrame()
-        if (snapshot == null) {
-            Toast.makeText(this, "Waiting for camera frame...", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        lastSnapshot = snapshot // Prevent GC of native memory while C++ processes asynchronously!
-        val effectiveWidth =
-            if (snapshot.isRotated) config.boxHeight.toFloat() else config.boxWidth.toFloat()
-        val effectiveHeight =
-            if (snapshot.isRotated) config.boxWidth.toFloat() else config.boxHeight.toFloat()
-        val coercedWidth = effectiveWidth.coerceIn(50f, snapshot.width.toFloat())
-        val coercedHeight = effectiveHeight.coerceIn(50f, snapshot.height.toFloat())
-        val w2 = coercedWidth / 2f
-        val h2 = coercedHeight / 2f
-        val centerX = snapshot.width.toFloat() / 2f
-        val centerY = snapshot.height.toFloat() / 2f
-
-        val quad =
-            // TODO(b/561608415): Investigate possible misalignment on rotation.
-            Quad.fromCorners(
-                upperLeft = Vector2(centerX - w2, centerY - h2),
-                upperRight = Vector2(centerX + w2, centerY - h2),
-                lowerRight = Vector2(centerX + w2, centerY + h2),
-                lowerLeft = Vector2(centerX - w2, centerY + h2),
-            )
-
-        if (isSnapshotSaveEnabled()) {
-            lifecycleScope.launch(Dispatchers.IO) { saveSnapshotWithQuad(snapshot, quad) }
-        }
-
         lifecycleScope.launch {
             try {
-                if (isTrackingStarted) {
-                    try {
-                        // TODO(b/561608917): Stop previous tracking before capturing new snapshot.
-                        SpatialAnnotation.stopTrackingAllAnnotations(currentSession)
-                    } catch (e: Exception) {
-                        Log.w("HelloAr", "Error stopping previous tracking before starting new", e)
-                    }
-                    isTrackingStarted = false
+                try {
+                    SpatialAnnotation.stopTrackingAllAnnotations(currentSession)
+                } catch (e: Exception) {
+                    Log.w("HelloAr", "Error stopping previous tracking before starting new", e)
                 }
+                isTrackingStarted = false
+
+                spatialAnnotationRenderer.isDotCenter = config.isDotCenter
+                spatialAnnotationRenderer.isDotTop = config.isDotTop
+
+                val snapshot = cameraFrameAnalyzer.copyLatestFrame()
+                if (snapshot == null) {
+                    Toast.makeText(
+                            this@HelloArSpatialAnnotationActivity,
+                            "Waiting for camera frame...",
+                            Toast.LENGTH_SHORT,
+                        )
+                        .show()
+                    return@launch
+                }
+
+                lastSnapshot =
+                    snapshot // Prevent GC of native memory while C++ processes asynchronously!
+                val maxScreenWidth =
+                    if (snapshot.isRotated) snapshot.height.toFloat() else snapshot.width.toFloat()
+                val maxScreenHeight =
+                    if (snapshot.isRotated) snapshot.width.toFloat() else snapshot.height.toFloat()
+                val coercedScreenWidth = config.boxWidth.toFloat().coerceIn(50f, maxScreenWidth)
+                val coercedScreenHeight = config.boxHeight.toFloat().coerceIn(50f, maxScreenHeight)
+                val hw = coercedScreenWidth / 2f
+                val hh = coercedScreenHeight / 2f
+                val centerX = snapshot.width.toFloat() / 2f
+                val centerY = snapshot.height.toFloat() / 2f
+
+                fun mapScreenOffsetToBuffer(xs: Float, ys: Float): Vector2 =
+                    when ((snapshot.rotationDegrees % 360 + 360) % 360) {
+                        90 -> Vector2(centerX + ys, centerY - xs)
+                        180 -> Vector2(centerX - xs, centerY - ys)
+                        270 -> Vector2(centerX - ys, centerY + xs)
+                        else -> Vector2(centerX + xs, centerY + ys)
+                    }
+
+                val quad =
+                    Quad.fromCorners(
+                        upperLeft = mapScreenOffsetToBuffer(-hw, -hh),
+                        upperRight = mapScreenOffsetToBuffer(hw, -hh),
+                        lowerRight = mapScreenOffsetToBuffer(hw, hh),
+                        lowerLeft = mapScreenOffsetToBuffer(-hw, hh),
+                    )
+
+                if (isSnapshotSaveEnabled()) {
+                    launch(Dispatchers.IO) { saveSnapshotWithQuad(snapshot, quad) }
+                }
+
                 Log.d(
                     "XR_TESTAPP",
                     "TimestampNs: ${snapshot.timestampNs}\nNanoTime: ${System.nanoTime()}\nElapsed: ${SystemClock.elapsedRealtimeNanos()}",
@@ -263,8 +290,10 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
                         .setQuads(mapOf(SpatialAnnotationId.fromString("target-1") to quad))
                         .build()
 
-                SpatialAnnotation.startTracking(currentSession, trackingOptions)
+                unbindCameraUseCases()
                 isTrackingStarted = true
+
+                SpatialAnnotation.startTracking(currentSession, trackingOptions)
                 Toast.makeText(
                         this@HelloArSpatialAnnotationActivity,
                         "Tracking started!",
@@ -300,6 +329,7 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
             if (::cameraFrameAnalyzer.isInitialized) {
                 cameraFrameAnalyzer.clearBuffers()
             }
+            bindCameraUseCases()
         }
     }
 
