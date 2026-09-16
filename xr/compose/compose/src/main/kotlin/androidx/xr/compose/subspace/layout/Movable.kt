@@ -256,14 +256,17 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
     /** The previous scale of this entity from the last MoveEvent. */
     private var previousScale: Float = 1.0F
 
-    /** The scale of this entity when it is moved. */
-    private var scaleFromMovement: Float = 1.0F
+    /**
+     * The scale of this entity when it is moved. This is initially set to null to indicate that the
+     * entity has not yet been moved.
+     */
+    private var scaleFromMovement: Float? = null
 
     /** Pose based on user adjustments from MoveEvents from SceneCore. */
     private var layoutNodeFromDraggedNodePixels: Pose = Pose.Identity
 
     override fun CoreEntityScope.modifyCoreEntity() {
-        setOrAppendScale(scaleFromMovement)
+        scaleFromMovement?.let { setOrAppendScale(it) }
     }
 
     override fun SubspaceMeasureScope.measure(

@@ -613,8 +613,11 @@ internal class CoreModelEntity(pixelDensity: PixelDensity) : CoreEntity(pixelDen
     /** Scale factor calculated to uniformly fit the [GltfModelEntity] within container bounds. */
     private var gltfUniformScale = 1f
 
-    /** Explicit scale factor applied by modifiers such as [SubspaceModifier.movable]. */
-    private var userScale = 1f
+    /**
+     * Explicit scale factor applied by modifiers such as [SubspaceModifier.movable]. This is null
+     * until a scale has been explicitly set.
+     */
+    private var userScale: Float? = null
 
     /** Sets the user-defined scale factor and applies it to the [GltfModelEntity]. */
     override var scale: Float
@@ -661,11 +664,12 @@ internal class CoreModelEntity(pixelDensity: PixelDensity) : CoreEntity(pixelDen
         @RequiresApi(Build.VERSION_CODES.O) get() = (entity as? GltfModelEntity)?.getAnimations()
 
     /**
-     * Combines [gltfUniformScale] and [userScale] to update [CoreEntity.scale], delegating to
-     * [CoreEntity]'s setter which updates [GltfModelEntity] scale in SceneCore.
+     * Sets [gltfUniformScale] or [userScale] for the value of [CoreEntity.scale]. Depending on
+     * whether the scale has been manually modified. Then calls [CoreEntity]'s setter which updates
+     * [GltfModelEntity] scale in SceneCore.
      */
     private fun syncCoreEntityCombinedScale() {
-        super.scale = gltfUniformScale * userScale
+        super.scale = userScale ?: gltfUniformScale
     }
 
     private fun onEntity(action: GltfModelEntity.() -> Unit) {
