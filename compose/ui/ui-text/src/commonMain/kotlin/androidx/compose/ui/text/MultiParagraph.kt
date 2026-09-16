@@ -708,6 +708,12 @@ public class MultiParagraph(
     public fun getBoundingBox(offset: Int): Rect {
         requireIndexInRange(offset)
 
+        if (offset >= paragraphInfoList.last().endIndex) {
+            return with(paragraphInfoList.last()) {
+                paragraph.getCursorRect(length).toGlobal()
+            }
+        }
+
         val paragraphIndex = findParagraphByIndex(paragraphInfoList, offset)
         return with(paragraphInfoList[paragraphIndex]) {
             paragraph.getBoundingBox(offset.toLocalIndex()).toGlobal()
@@ -1083,6 +1089,9 @@ internal fun findParagraphByIndex(paragraphInfoList: List<ParagraphInfo>, index:
     val lastLineEnd = paragraphInfoList.last().endIndex
     requirePrecondition(index <= paragraphInfoList.last().endIndex) {
         "Index $index should be less or equal than last line's end $lastLineEnd"
+    }
+    if (index == paragraphInfoList.last().endIndex) {
+        return paragraphInfoList.lastIndex
     }
     val paragraphIndex = paragraphInfoList.fastBinarySearch { paragraphInfo ->
         when {

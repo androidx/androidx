@@ -594,6 +594,29 @@ class MultiParagraphIntegrationTest {
     }
 
     @Test
+    fun getBoundingBox_multiParagraph_truncatedByMaxLines() {
+        val text = buildAnnotatedString {
+            withStyle(ParagraphStyle()) { append("one") }
+            withStyle(ParagraphStyle()) { append("two") }
+            withStyle(ParagraphStyle()) { append("three") }
+            withStyle(ParagraphStyle()) { append("four") }
+        }
+        val paragraph =
+            simpleMultiParagraph(
+                text = text,
+                maxLines = 2,
+            )
+        val lastVisibleCharBox = paragraph.getBoundingBox(5)
+        for (i in 6 until text.length) {
+            val box = paragraph.getBoundingBox(i)
+            assertThat(box.left).isEqualTo(lastVisibleCharBox.right)
+            assertThat(box.right).isEqualTo(lastVisibleCharBox.right)
+            assertThat(box.top).isEqualTo(lastVisibleCharBox.top)
+            assertThat(box.bottom).isEqualTo(lastVisibleCharBox.bottom)
+        }
+    }
+
+    @Test
     fun getHorizontalPosition() {
         with(defaultDensity) {
             val paragraphCount = 3
