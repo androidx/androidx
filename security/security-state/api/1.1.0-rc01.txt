@@ -53,7 +53,7 @@ package androidx.security.state {
     property public static long UPDATE_INFO_SERVICE_BINDING_TIMEOUT_MS;
   }
 
-  @StringDef(open=true, value={androidx.security.state.SecurityPatchState.COMPONENT_SYSTEM, androidx.security.state.SecurityPatchState.COMPONENT_SYSTEM_MODULES, androidx.security.state.SecurityPatchState.COMPONENT_KERNEL, androidx.security.state.SecurityPatchState.COMPONENT_VENDOR}) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) public static @interface SecurityPatchState.Component {
+  @StringDef(open=true, value={androidx.security.state.SecurityPatchState.COMPONENT_SYSTEM, androidx.security.state.SecurityPatchState.COMPONENT_SYSTEM_MODULES, androidx.security.state.SecurityPatchState.COMPONENT_KERNEL, "VENDOR"}) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) public static @interface SecurityPatchState.Component {
   }
 
   public static final class SecurityPatchState.DateBasedSecurityPatchLevel extends androidx.security.state.SecurityPatchState.SecurityPatchLevel {
