@@ -17,6 +17,7 @@
 package androidx.tv.material3
 
 import androidx.annotation.FloatRange
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Indication
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
@@ -25,7 +26,7 @@ import androidx.compose.ui.graphics.Shape
 /** Defines [Shape] for all TV [Indication] states of [ClickableChip]. */
 @ExperimentalTvMaterial3Api
 @Immutable
-class ClickableChipShape
+public class ClickableChipShape
 internal constructor(
     internal val shape: Shape,
     internal val focusedShape: Shape,
@@ -77,7 +78,7 @@ internal constructor(
 /** Defines [Shape] for all TV [Indication] states of [SelectableChip]. */
 @ExperimentalTvMaterial3Api
 @Immutable
-class SelectableChipShape
+public class SelectableChipShape
 internal constructor(
     internal val shape: Shape,
     internal val focusedShape: Shape,
@@ -153,7 +154,7 @@ internal constructor(
 /** Defines [Color] for all TV [Indication] states of [ClickableChip]. */
 @ExperimentalTvMaterial3Api
 @Immutable
-class ClickableChipColors
+public class ClickableChipColors
 internal constructor(
     internal val containerColor: Color,
     internal val contentColor: Color,
@@ -218,7 +219,7 @@ internal constructor(
 /** Defines [Color] for all TV [Indication] states of [SelectableChip]. */
 @ExperimentalTvMaterial3Api
 @Immutable
-class SelectableChipColors
+public class SelectableChipColors
 internal constructor(
     internal val containerColor: Color,
     internal val contentColor: Color,
@@ -318,7 +319,7 @@ internal constructor(
  */
 @ExperimentalTvMaterial3Api
 @Immutable
-class ClickableChipScale
+public class ClickableChipScale
 internal constructor(
     @FloatRange(from = 0.0) internal val scale: Float,
     @FloatRange(from = 0.0) internal val focusedScale: Float,
@@ -357,9 +358,9 @@ internal constructor(
             "focusedDisabledScale=$focusedDisabledScale)"
     }
 
-    companion object {
+    public companion object {
         /** Signifies the absence of a [ScaleIndication] in ClickableChip component. */
-        val None =
+        public val None: ClickableChipScale =
             ClickableChipScale(
                 scale = 1f,
                 focusedScale = 1f,
@@ -385,7 +386,7 @@ internal constructor(
  */
 @ExperimentalTvMaterial3Api
 @Immutable
-class SelectableChipScale
+public class SelectableChipScale
 internal constructor(
     @FloatRange(from = 0.0) internal val scale: Float,
     @FloatRange(from = 0.0) internal val focusedScale: Float,
@@ -443,9 +444,9 @@ internal constructor(
             "focusedSelectedDisabledScale=$focusedSelectedDisabledScale)"
     }
 
-    companion object {
+    public companion object {
         /** Signifies the absence of a [ScaleIndication] in SelectableChip component. */
-        val None =
+        public val None: SelectableChipScale =
             SelectableChipScale(
                 scale = 1f,
                 focusedScale = 1f,
@@ -478,7 +479,7 @@ internal constructor(
 /** Defines [Border] for all TV [Indication] states of [ClickableChip]. */
 @ExperimentalTvMaterial3Api
 @Immutable
-class ClickableChipBorder
+public class ClickableChipBorder
 internal constructor(
     internal val border: Border,
     internal val focusedBorder: Border,
@@ -527,10 +528,10 @@ internal constructor(
         )
 }
 
-/** Defines [Border] for all TV [Indication] states of [SelectableChip]. */
+/** Defines [BorderStroke] for all TV [Indication] states of [SelectableChip]. */
 @ExperimentalTvMaterial3Api
 @Immutable
-class SelectableChipBorder
+public class SelectableChipBorder
 internal constructor(
     internal val border: Border,
     internal val focusedBorder: Border,
@@ -606,7 +607,7 @@ internal constructor(
 /** Defines [Glow] for all TV [Indication] states of [ClickableChip]. */
 @ExperimentalTvMaterial3Api
 @Immutable
-class ClickableChipGlow
+public class ClickableChipGlow
 internal constructor(
     internal val glow: Glow,
     internal val focusedGlow: Glow,
@@ -644,7 +645,7 @@ internal constructor(
 /** Defines [Glow] for all TV [Indication] states of [SelectableChip]. */
 @ExperimentalTvMaterial3Api
 @Immutable
-class SelectableChipGlow
+public class SelectableChipGlow
 internal constructor(
     internal val glow: Glow,
     internal val focusedGlow: Glow,

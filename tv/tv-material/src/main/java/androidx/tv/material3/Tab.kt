@@ -56,7 +56,7 @@ import androidx.compose.ui.semantics.semantics
  * @param content content of the [Tab]
  */
 @Composable
-fun TabRowScope.Tab(
+public fun TabRowScope.Tab(
     selected: Boolean,
     onFocus: () -> Unit,
     modifier: Modifier = Modifier,
@@ -102,7 +102,7 @@ fun TabRowScope.Tab(
  * - See [TabDefaults.underlinedIndicatorTabColors] for the default colors used in a [Tab] when
  *   using an Underlined indicator
  */
-class TabColors
+public class TabColors
 internal constructor(
     internal val contentColor: Color,
     internal val inactiveContentColor: Color = contentColor.copy(alpha = 0.4f),
@@ -142,7 +142,7 @@ internal constructor(
     }
 }
 
-object TabDefaults {
+public object TabDefaults {
     /**
      * [Tab]'s content colors to in conjunction with underlined indicator
      *
@@ -159,7 +159,7 @@ object TabDefaults {
      * @param disabledSelectedContentColor applied when the current tab is disabled and selected
      */
     @Composable
-    fun underlinedIndicatorTabColors(
+    public fun underlinedIndicatorTabColors(
         contentColor: Color = LocalContentColor.current,
         inactiveContentColor: Color = contentColor.copy(alpha = 0.4f),
         selectedContentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -196,7 +196,7 @@ object TabDefaults {
      * @param disabledSelectedContentColor applied when the current tab is disabled and selected
      */
     @Composable
-    fun pillIndicatorTabColors(
+    public fun pillIndicatorTabColors(
         contentColor: Color = LocalContentColor.current,
         inactiveContentColor: Color = contentColor.copy(alpha = 0.4f),
         selectedContentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,

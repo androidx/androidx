@@ -70,7 +70,7 @@ import androidx.compose.ui.unit.dp
  * @param content defines the [Composable] content inside the Card.
  */
 @Composable
-fun Card(
+public fun Card(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
@@ -138,7 +138,7 @@ fun Card(
  *   happen internally.
  */
 @Composable
-fun ClassicCard(
+public fun ClassicCard(
     onClick: () -> Unit,
     image: @Composable BoxScope.() -> Unit,
     title: @Composable () -> Unit,
@@ -215,7 +215,7 @@ fun ClassicCard(
  *   happen internally.
  */
 @Composable
-fun CompactCard(
+public fun CompactCard(
     onClick: () -> Unit,
     image: @Composable BoxScope.() -> Unit,
     title: @Composable () -> Unit,
@@ -300,7 +300,7 @@ fun CompactCard(
  *   happen internally.
  */
 @Composable
-fun WideClassicCard(
+public fun WideClassicCard(
     onClick: () -> Unit,
     image: @Composable BoxScope.() -> Unit,
     title: @Composable () -> Unit,
@@ -350,7 +350,7 @@ internal fun CardContent(
 }
 
 /** Contains the default values used by all card types. */
-object CardDefaults {
+public object CardDefaults {
     internal val ContentImageAlignment = Alignment.Center
 
     /** The default [Shape] used by Cards. */
@@ -360,25 +360,25 @@ object CardDefaults {
      * Recommended aspect ratio [Float] to get square images, can be applied using the modifier
      * [androidx.compose.foundation.layout.aspectRatio].
      */
-    const val SquareImageAspectRatio = 1f
+    public const val SquareImageAspectRatio: Float = 1f
 
     /**
      * Recommended aspect ratio [Float] for vertical images, can be applied using the modifier
      * [androidx.compose.foundation.layout.aspectRatio].
      */
-    const val VerticalImageAspectRatio = 2f / 3
+    public const val VerticalImageAspectRatio: Float = 2f / 3
 
     /**
      * Recommended aspect ratio [Float] for horizontal images, can be applied using the modifier
      * [androidx.compose.foundation.layout.aspectRatio].
      */
-    const val HorizontalImageAspectRatio = 16f / 9
+    public const val HorizontalImageAspectRatio: Float = 16f / 9
 
     /**
      * Gradient used in cards to give more emphasis to the textual content that is generally
      * displayed above an image.
      */
-    val ScrimBrush =
+    public val ScrimBrush: Brush =
         Brush.verticalGradient(
             listOf(
                 Color(red = 28, green = 27, blue = 31, alpha = 0),
@@ -393,11 +393,12 @@ object CardDefaults {
      * @param focusedShape the shape used when the Card is focused.
      * @param pressedShape the shape used when the Card is pressed.
      */
-    fun shape(
+    public fun shape(
         shape: Shape = ContainerShape,
         focusedShape: Shape = shape,
         pressedShape: Shape = shape,
-    ) = CardShape(shape = shape, focusedShape = focusedShape, pressedShape = pressedShape)
+    ): CardShape =
+        CardShape(shape = shape, focusedShape = focusedShape, pressedShape = pressedShape)
 
     /**
      * Creates [CardColors] that represents the default container & content colors used in a Card.
@@ -411,14 +412,14 @@ object CardDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun colors(
+    public fun colors(
         containerColor: Color = MaterialTheme.colorScheme.surfaceVariant,
         contentColor: Color = contentColorFor(containerColor),
         focusedContainerColor: Color = containerColor,
         focusedContentColor: Color = contentColorFor(focusedContainerColor),
         pressedContainerColor: Color = focusedContainerColor,
         pressedContentColor: Color = contentColorFor(pressedContainerColor),
-    ) =
+    ): CardColors =
         CardColors(
             containerColor = containerColor,
             contentColor = contentColor,
@@ -440,14 +441,14 @@ object CardDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun compactCardColors(
+    public fun compactCardColors(
         containerColor: Color = MaterialTheme.colorScheme.surfaceVariant,
         contentColor: Color = Color.White,
         focusedContainerColor: Color = containerColor,
         focusedContentColor: Color = contentColor,
         pressedContainerColor: Color = focusedContainerColor,
         pressedContentColor: Color = focusedContentColor,
-    ) =
+    ): CardColors =
         CardColors(
             containerColor = containerColor,
             contentColor = contentColor,
@@ -466,11 +467,12 @@ object CardDefaults {
      * @param focusedScale the scale to be used for this Card when focused.
      * @param pressedScale the scale to be used for this Card when pressed.
      */
-    fun scale(
+    public fun scale(
         @FloatRange(from = 0.0) scale: Float = 1f,
         @FloatRange(from = 0.0) focusedScale: Float = 1.1f,
         @FloatRange(from = 0.0) pressedScale: Float = scale,
-    ) = CardScale(scale = scale, focusedScale = focusedScale, pressedScale = pressedScale)
+    ): CardScale =
+        CardScale(scale = scale, focusedScale = focusedScale, pressedScale = pressedScale)
 
     /**
      * Creates a [CardBorder] that represents the border [Border]s applied on a Card in different
@@ -482,7 +484,7 @@ object CardDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun border(
+    public fun border(
         border: Border = Border.None,
         focusedBorder: Border =
             Border(
@@ -490,7 +492,8 @@ object CardDefaults {
                 shape = ContainerShape,
             ),
         pressedBorder: Border = focusedBorder,
-    ) = CardBorder(border = border, focusedBorder = focusedBorder, pressedBorder = pressedBorder)
+    ): CardBorder =
+        CardBorder(border = border, focusedBorder = focusedBorder, pressedBorder = pressedBorder)
 
     /**
      * Creates a [CardGlow] that represents the default [Glow]s used in a card.
@@ -499,8 +502,11 @@ object CardDefaults {
      * @param focusedGlow the [Glow] behind this Card when focused.
      * @param pressedGlow the [Glow] behind this Card when pressed.
      */
-    fun glow(glow: Glow = Glow.None, focusedGlow: Glow = glow, pressedGlow: Glow = glow) =
-        CardGlow(glow = glow, focusedGlow = focusedGlow, pressedGlow = pressedGlow)
+    public fun glow(
+        glow: Glow = Glow.None,
+        focusedGlow: Glow = glow,
+        pressedGlow: Glow = glow,
+    ): CardGlow = CardGlow(glow = glow, focusedGlow = focusedGlow, pressedGlow = pressedGlow)
 }
 
 private const val SubtitleAlpha = 0.6f

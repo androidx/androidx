@@ -24,7 +24,7 @@ import androidx.compose.ui.graphics.Shape
 
 /** Defines [Shape] for all TV [Interaction] states of Button. */
 @Immutable
-class ButtonShape
+public class ButtonShape
 internal constructor(
     internal val shape: Shape,
     internal val focusedShape: Shape,
@@ -65,7 +65,7 @@ internal constructor(
 
 /** Defines [Color]s for all TV [Interaction] states of Button. */
 @Immutable
-class ButtonColors
+public class ButtonColors
 internal constructor(
     internal val containerColor: Color,
     internal val contentColor: Color,
@@ -103,6 +103,7 @@ internal constructor(
         result = 31 * result + pressedContentColor.hashCode()
         result = 31 * result + disabledContainerColor.hashCode()
         result = 31 * result + disabledContentColor.hashCode()
+
         return result
     }
 
@@ -119,7 +120,7 @@ internal constructor(
 
 /** Defines [Color]s for all TV [Interaction] states of a WideButton */
 @Immutable
-class WideButtonContentColor
+public class WideButtonContentColor
 internal constructor(
     internal val contentColor: Color,
     internal val focusedContentColor: Color,
@@ -158,7 +159,7 @@ internal constructor(
 
 /** Defines the scale for all TV [Interaction] states of Button. */
 @Immutable
-class ButtonScale
+public class ButtonScale
 internal constructor(
     @FloatRange(from = 0.0) internal val scale: Float,
     @FloatRange(from = 0.0) internal val focusedScale: Float,
@@ -196,9 +197,9 @@ internal constructor(
             " disabledScale=$disabledScale, focusedDisabledScale=$focusedDisabledScale)"
     }
 
-    companion object {
+    public companion object {
         /** Signifies the absence of a [ScaleIndication] in Button component. */
-        val None =
+        public val None: ButtonScale =
             ButtonScale(
                 scale = 1f,
                 focusedScale = 1f,
@@ -211,7 +212,7 @@ internal constructor(
 
 /** Defines [Border] for all TV [Interaction] states of Button. */
 @Immutable
-class ButtonBorder
+public class ButtonBorder
 internal constructor(
     internal val border: Border,
     internal val focusedBorder: Border,
@@ -253,7 +254,7 @@ internal constructor(
 
 /** Defines [Glow] for all TV [Interaction] states of Button. */
 @Immutable
-class ButtonGlow
+public class ButtonGlow
 internal constructor(
     internal val glow: Glow,
     internal val focusedGlow: Glow,

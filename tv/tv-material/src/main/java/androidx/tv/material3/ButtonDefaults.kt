@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 internal object BaseButtonDefaults {
@@ -32,13 +33,13 @@ internal object BaseButtonDefaults {
     val MinHeight = 40.dp
 }
 
-object ButtonDefaults {
+public object ButtonDefaults {
     private val ContainerShape = CircleShape
     private val ButtonHorizontalPadding = 16.dp
     private val ButtonVerticalPadding = 10.dp
     private val ButtonWithIconHorizontalStartPadding = 12.dp
 
-    val ContentPadding =
+    public val ContentPadding: PaddingValues =
         PaddingValues(
             start = ButtonHorizontalPadding,
             top = ButtonVerticalPadding,
@@ -46,7 +47,7 @@ object ButtonDefaults {
             bottom = ButtonVerticalPadding,
         )
 
-    val ButtonWithIconContentPadding =
+    public val ButtonWithIconContentPadding: PaddingValues =
         PaddingValues(
             start = ButtonWithIconHorizontalStartPadding,
             top = ButtonVerticalPadding,
@@ -55,12 +56,12 @@ object ButtonDefaults {
         )
 
     /** The default size of the icon when used inside any button. */
-    val IconSize = 20.dp
+    public val IconSize: Dp = 20.dp
 
     /**
      * The default size of the spacing between an icon and a text when they used inside any button.
      */
-    val IconSpacing = 8.dp
+    public val IconSpacing: Dp = 8.dp
 
     /**
      * Creates a [ButtonShape] that represents the default container shapes used in a FilledButton.
@@ -71,13 +72,13 @@ object ButtonDefaults {
      * @param disabledShape the shape used when the Button is not enabled.
      * @param focusedDisabledShape the shape used when the Button is not enabled and focused.
      */
-    fun shape(
+    public fun shape(
         shape: Shape = ContainerShape,
         focusedShape: Shape = shape,
         pressedShape: Shape = shape,
         disabledShape: Shape = shape,
         focusedDisabledShape: Shape = disabledShape,
-    ) =
+    ): ButtonShape =
         ButtonShape(
             shape = shape,
             focusedShape = focusedShape,
@@ -100,7 +101,7 @@ object ButtonDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun colors(
+    public fun colors(
         containerColor: Color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
         contentColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
         focusedContainerColor: Color = MaterialTheme.colorScheme.onSurface,
@@ -109,7 +110,7 @@ object ButtonDefaults {
         pressedContentColor: Color = focusedContentColor,
         disabledContainerColor: Color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
         disabledContentColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
-    ) =
+    ): ButtonColors =
         ButtonColors(
             containerColor = containerColor,
             contentColor = contentColor,
@@ -133,13 +134,13 @@ object ButtonDefaults {
      * @param disabledScale the scale to be used for this Button when disabled
      * @param focusedDisabledScale the scale to be used for this Button when disabled and focused
      */
-    fun scale(
+    public fun scale(
         @FloatRange(from = 0.0) scale: Float = 1f,
         @FloatRange(from = 0.0) focusedScale: Float = 1.1f,
         @FloatRange(from = 0.0) pressedScale: Float = scale,
         @FloatRange(from = 0.0) disabledScale: Float = scale,
         @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale,
-    ) =
+    ): ButtonScale =
         ButtonScale(
             scale = scale,
             focusedScale = focusedScale,
@@ -161,7 +162,7 @@ object ButtonDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun border(
+    public fun border(
         border: Border = Border.None,
         focusedBorder: Border = border,
         pressedBorder: Border = focusedBorder,
@@ -175,7 +176,7 @@ object ButtonDefaults {
                     ),
                 shape = ContainerShape,
             ),
-    ) =
+    ): ButtonBorder =
         ButtonBorder(
             border = border,
             focusedBorder = focusedBorder,
@@ -191,17 +192,20 @@ object ButtonDefaults {
      * @param focusedGlow the Glow behind this Button when focused
      * @param pressedGlow the Glow behind this Button when pressed
      */
-    fun glow(glow: Glow = Glow.None, focusedGlow: Glow = glow, pressedGlow: Glow = glow) =
-        ButtonGlow(glow = glow, focusedGlow = focusedGlow, pressedGlow = pressedGlow)
+    public fun glow(
+        glow: Glow = Glow.None,
+        focusedGlow: Glow = glow,
+        pressedGlow: Glow = glow,
+    ): ButtonGlow = ButtonGlow(glow = glow, focusedGlow = focusedGlow, pressedGlow = pressedGlow)
 }
 
-object OutlinedButtonDefaults {
+public object OutlinedButtonDefaults {
     private val ContainerShape = CircleShape
     private val ButtonHorizontalPadding = 16.dp
     private val ButtonVerticalPadding = 10.dp
     private val ButtonWithIconHorizontalStartPadding = 12.dp
 
-    val ContentPadding =
+    public val ContentPadding: PaddingValues =
         PaddingValues(
             start = ButtonHorizontalPadding,
             top = ButtonVerticalPadding,
@@ -210,15 +214,15 @@ object OutlinedButtonDefaults {
         )
 
     /** The default size of the icon when used inside any button. */
-    val IconSize = 20.dp
+    public val IconSize: Dp = 20.dp
 
     /**
      * The default size of the spacing between an icon and a text when they used inside any button.
      */
-    val IconSpacing = 8.dp
+    public val IconSpacing: Dp = 8.dp
 
     /** The default content padding used by [OutlinedButton] that contains an [Icon]. */
-    val ButtonWithIconContentPadding =
+    public val ButtonWithIconContentPadding: PaddingValues =
         PaddingValues(
             start = ButtonWithIconHorizontalStartPadding,
             top = ButtonVerticalPadding,
@@ -236,13 +240,13 @@ object OutlinedButtonDefaults {
      * @param disabledShape the shape used when the Button is not enabled.
      * @param focusedDisabledShape the shape used when the Button is not enabled and focused.
      */
-    fun shape(
+    public fun shape(
         shape: Shape = ContainerShape,
         focusedShape: Shape = shape,
         pressedShape: Shape = shape,
         disabledShape: Shape = shape,
         focusedDisabledShape: Shape = disabledShape,
-    ) =
+    ): ButtonShape =
         ButtonShape(
             shape = shape,
             focusedShape = focusedShape,
@@ -265,7 +269,7 @@ object OutlinedButtonDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun colors(
+    public fun colors(
         containerColor: Color = Color.Transparent,
         contentColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
         focusedContainerColor: Color = MaterialTheme.colorScheme.onSurface,
@@ -274,7 +278,7 @@ object OutlinedButtonDefaults {
         pressedContentColor: Color = focusedContentColor,
         disabledContainerColor: Color = containerColor,
         disabledContentColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
-    ) =
+    ): ButtonColors =
         ButtonColors(
             containerColor = containerColor,
             contentColor = contentColor,
@@ -298,13 +302,13 @@ object OutlinedButtonDefaults {
      * @param disabledScale the scale to be used for this Button when disabled
      * @param focusedDisabledScale the scale to be used for this Button when disabled and focused
      */
-    fun scale(
+    public fun scale(
         @FloatRange(from = 0.0) scale: Float = 1f,
         @FloatRange(from = 0.0) focusedScale: Float = 1.1f,
         @FloatRange(from = 0.0) pressedScale: Float = scale,
         @FloatRange(from = 0.0) disabledScale: Float = scale,
         @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale,
-    ) =
+    ): ButtonScale =
         ButtonScale(
             scale = scale,
             focusedScale = focusedScale,
@@ -326,7 +330,7 @@ object OutlinedButtonDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun border(
+    public fun border(
         border: Border =
             Border(
                 border =
@@ -364,7 +368,7 @@ object OutlinedButtonDefaults {
                 shape = ContainerShape,
             ),
         focusedDisabledBorder: Border = disabledBorder,
-    ) =
+    ): ButtonBorder =
         ButtonBorder(
             border = border,
             focusedBorder = focusedBorder,
@@ -380,6 +384,9 @@ object OutlinedButtonDefaults {
      * @param focusedGlow the Glow behind this Button when focused
      * @param pressedGlow the Glow behind this Button when pressed
      */
-    fun glow(glow: Glow = Glow.None, focusedGlow: Glow = glow, pressedGlow: Glow = glow) =
-        ButtonGlow(glow = glow, focusedGlow = focusedGlow, pressedGlow = pressedGlow)
+    public fun glow(
+        glow: Glow = Glow.None,
+        focusedGlow: Glow = glow,
+        pressedGlow: Glow = glow,
+    ): ButtonGlow = ButtonGlow(glow = glow, focusedGlow = focusedGlow, pressedGlow = pressedGlow)
 }

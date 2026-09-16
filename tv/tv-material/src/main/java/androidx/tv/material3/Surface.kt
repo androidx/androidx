@@ -54,7 +54,7 @@ import androidx.tv.material3.tokens.Elevation
  */
 @NonRestartableComposable
 @Composable
-fun Surface(
+public fun Surface(
     modifier: Modifier = Modifier,
     tonalElevation: Dp = 0.dp,
     shape: Shape = SurfaceDefaults.shape,
@@ -119,7 +119,7 @@ fun Surface(
  * @param content defines the [Composable] content inside the surface
  */
 @Composable
-fun Surface(
+public fun Surface(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
@@ -198,7 +198,7 @@ fun Surface(
  * @param content defines the [Composable] content inside the surface
  */
 @Composable
-fun Surface(
+public fun Surface(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
