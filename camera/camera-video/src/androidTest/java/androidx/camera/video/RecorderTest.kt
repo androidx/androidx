@@ -93,6 +93,7 @@ import androidx.camera.video.internal.compat.quirk.ExtraSupportedResolutionQuirk
 import androidx.camera.video.internal.compat.quirk.MediaStoreVideoCannotWrite
 import androidx.camera.video.internal.encoder.EncoderFactory
 import androidx.camera.video.internal.encoder.InvalidConfigException
+import androidx.camera.video.internal.muxer.MediaMuxerImpl
 import androidx.camera.video.internal.muxer.MuxerException
 import androidx.camera.video.internal.muxer.MuxerFactory
 import androidx.camera.video.internal.utils.StorageUtil.NO_SPACE_LEFT_MESSAGE
@@ -406,7 +407,18 @@ class RecorderTest(private val implName: String, private val cameraConfig: Camer
     }
 
     @Test
-    fun muxer_failedToSetOutput_receiveError() {
+    fun muxerFactory_mediaMuxerImpl_recordsSuccessfully() {
+        // Arrange.
+        val muxerFactory = MuxerFactory { MediaMuxerImpl() }
+        val recorder = createRecorder(muxerFactory = muxerFactory)
+        val recording = recordingSession.createRecording(recorder = recorder)
+
+        // Act & Assert.
+        recording.recordAndVerify()
+    }
+
+    @Test
+    fun muxerFactory_failedToSetOutput_receiveError() {
         val muxerFactory = MuxerFactory {
             object : NoOpMuxer() {
                 override fun setOutput(path: String, format: Int) {
