@@ -282,26 +282,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"लांब टॅब शीर्षक असलेला ग्रिड टॅब"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"शोध टॅब"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"टॅब लोड करत आहे"</string>
-    <!-- no translation found for tab_title_template_style_1 (2975307122280161449) -->
-    <skip />
-    <!-- no translation found for tab_title_template_style_2 (7803400629501965995) -->
-    <skip />
-    <!-- no translation found for tab_title_overridden_style (3140303976251439964) -->
-    <skip />
-    <!-- no translation found for tab_title_failing_style (745811892650973560) -->
-    <skip />
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"टेंप्लेट शैली १"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"टेंप्लेट शैली २"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"ओव्हरराइड केल्याची शैली"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"अयशस्वी झाल्याची शैली"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"टॅब टेंप्लेट लोड होत आहे डेमो"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"टॅब टेंप्लेट टॅब नाही डेमो"</string>
-    <!-- no translation found for tab_template_style_demo_title (3986454672226386561) -->
-    <skip />
-    <!-- no translation found for msg_tab_template_style_1_text (6874362443887944175) -->
-    <skip />
-    <!-- no translation found for msg_tab_template_style_2_text (7244377408142388066) -->
-    <skip />
-    <!-- no translation found for msg_tab_overridden_style_text (7242618513807844655) -->
-    <skip />
-    <!-- no translation found for msg_tab_failing_style_text (4357682634226036060) -->
-    <skip />
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"टॅब टेंप्लेट शैली डेमो"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"टॅब टेंप्लेट शैली (टॅब १)\nटेंप्लेट पातळीवरील शैली स्वीकारली जाते"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"टॅब टेंप्लेट शैली (टॅब २)\nटेंप्लेट पातळीवरील शैली स्वीकारली जाते"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"टॅब ओव्हरराइड केल्याची शैली\nटेंप्लेट शैली कस्टम निळ्या रंगांसह ओव्हरराइड केली जाते"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"टॅब अयशस्वी झाल्याची शैली\nलाल बॅकग्राउंडवर लाल आयकन"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"अज्ञात होस्टला इमेज दाखवल्या जाऊ शकत नाहीत"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"आयकन"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"आशय पुरवठादार आयकनचा डेमो"</string>
