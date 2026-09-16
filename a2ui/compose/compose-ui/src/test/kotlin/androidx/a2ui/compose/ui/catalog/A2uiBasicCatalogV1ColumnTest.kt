@@ -18,10 +18,13 @@ package androidx.a2ui.compose.ui.catalog
 
 import androidx.a2ui.compose.runtime.A2uiComponentReference
 import androidx.a2ui.compose.runtime.A2uiComponentScope
+import androidx.a2ui.model.schema.A2uiSchemaKeyword
+import androidx.a2ui.model.schema.A2uiStringSchema
 import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertIs
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -62,6 +65,10 @@ class A2uiBasicCatalogV1ColumnTest {
 
     @Test
     fun companionProperties_haveExpectedSchema() {
+        val justifySchema =
+            assertIs<A2uiStringSchema>(A2uiBasicCatalogV1.Row.JustifyProperty.schema)
+        val alignSchema = assertIs<A2uiStringSchema>(A2uiBasicCatalogV1.Row.AlignProperty.schema)
+
         assertThat(A2uiBasicCatalogV1.Column.AccessibilityProperty.key).isEqualTo("accessibility")
         assertThat(A2uiBasicCatalogV1.Column.AccessibilityProperty.isRequired).isFalse()
         assertThat(A2uiBasicCatalogV1.Column.AccessibilityProperty.schema)
@@ -69,7 +76,9 @@ class A2uiBasicCatalogV1ColumnTest {
 
         assertThat(A2uiBasicCatalogV1.Column.ChildrenProperty.key).isEqualTo("children")
         assertThat(A2uiBasicCatalogV1.Column.JustifyProperty.key).isEqualTo("justify")
+        assertThat(justifySchema.keywords).contains(A2uiSchemaKeyword.Default("start"))
         assertThat(A2uiBasicCatalogV1.Column.AlignProperty.key).isEqualTo("align")
+        assertThat(alignSchema.keywords).contains(A2uiSchemaKeyword.Default("start"))
     }
 
     @Test
@@ -111,10 +120,10 @@ class A2uiBasicCatalogV1ColumnTest {
     }
 
     @Test
-    fun align_fromValue_invalidOrEmptyString_fallsBackToStretch() {
+    fun align_fromValue_invalidOrEmptyString_fallsBackToStart() {
         assertThat(A2uiBasicCatalogV1.Column.Align.fromValue("invalid_align"))
-            .isEqualTo(A2uiBasicCatalogV1.Column.Align.Stretch)
+            .isEqualTo(A2uiBasicCatalogV1.Column.Align.Start)
         assertThat(A2uiBasicCatalogV1.Column.Align.fromValue(""))
-            .isEqualTo(A2uiBasicCatalogV1.Column.Align.Stretch)
+            .isEqualTo(A2uiBasicCatalogV1.Column.Align.Start)
     }
 }
