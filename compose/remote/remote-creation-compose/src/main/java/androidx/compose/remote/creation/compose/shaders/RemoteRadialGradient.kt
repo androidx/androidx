@@ -20,6 +20,7 @@ import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.remote.creation.compose.layout.toTileModeInt
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
@@ -27,7 +28,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.TileMode as ComposeTileMode
-import androidx.compose.ui.graphics.toAndroidTileMode
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.util.fastMap
 
@@ -171,7 +171,7 @@ public class RemoteRadialShader(
             centerX.getFloatIdForCreationState(creationState),
             centerY.getFloatIdForCreationState(creationState),
             radius.getFloatIdForCreationState(creationState),
-            tileMode.toAndroidTileMode().ordinal,
+            tileMode.toTileModeInt(),
         )
     }
 }
