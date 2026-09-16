@@ -23,6 +23,7 @@ import androidx.a2ui.compose.runtime.A2uiProperty
 import androidx.a2ui.compose.runtime.ChildListA2uiProperty
 import androidx.a2ui.compose.runtime.DynamicA2uiProperty
 import androidx.a2ui.compose.runtime.StaticA2uiProperty
+import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.A2uiComponent
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.protocol.A2uiException
@@ -3119,6 +3120,22 @@ public class A2uiBasicCatalogV1(
             ")"
     }
 }
+
+/**
+ * Converts this basic catalog into an [A2uiCatalog] holding the catalog definitions.
+ *
+ * @param isInline whether this catalog's schema should be serialized inline as part of the
+ *   capabilities advertisement sent to the agent
+ * @return a fully initialized [A2uiCatalog]
+ */
+public fun A2uiBasicCatalogV1.toA2uiCatalog(isInline: Boolean = false): A2uiCatalog =
+    A2uiCatalog(
+        catalogId = catalogId,
+        components = components,
+        functions = functions,
+        themeSchema = themeSchema,
+        isInline = isInline,
+    )
 
 private val dateTimePatterns =
     arrayOf(

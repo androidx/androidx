@@ -18,6 +18,7 @@ package androidx.compose.material3.a2ui.catalog
 
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
+import androidx.a2ui.compose.ui.catalog.toA2uiCatalog
 import androidx.a2ui.model.catalog.basiccatalog.createBasicCatalogFunctions
 import androidx.a2ui.model.catalog.functions.A2uiLocaleProvider
 import androidx.a2ui.model.catalog.functions.A2uiMessageFormatter
@@ -99,8 +100,7 @@ public fun materialA2uiBasicCatalogV1(
     dateTimeInput: A2uiBasicCatalogV1.DateTimeInput =
         MaterialA2uiBasicCatalogV1Defaults.dateTimeInput,
 ): A2uiCatalog =
-    A2uiCatalog(
-        A2uiBasicCatalogV1(
+    A2uiBasicCatalogV1(
             text = text,
             image = image,
             icon = icon,
@@ -121,7 +121,7 @@ public fun materialA2uiBasicCatalogV1(
             dateTimeInput = dateTimeInput,
             functions = createBasicCatalogFunctions(urlOpener, messageFormatter, localeProvider),
         )
-    )
+        .toA2uiCatalog()
 
 /** Default component implementations for [materialA2uiBasicCatalogV1]. */
 public object MaterialA2uiBasicCatalogV1Defaults {
