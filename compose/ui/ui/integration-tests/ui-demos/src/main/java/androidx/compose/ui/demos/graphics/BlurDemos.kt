@@ -261,7 +261,11 @@ private fun InteractiveLinearBlurDemo() {
                 )
             }
 
-            Slider(state = sliderState, modifier = Modifier.fillMaxWidth())
+            Slider(
+                state = sliderState,
+                onValueChange = { sliderState.value = it },
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 }

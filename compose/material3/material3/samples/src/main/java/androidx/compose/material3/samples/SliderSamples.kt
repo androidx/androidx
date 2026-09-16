@@ -82,7 +82,7 @@ fun SliderSample() {
     val sliderState = rememberSliderState()
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         Text(text = "%.2f".format(sliderState.value))
-        Slider(state = sliderState)
+        Slider(state = sliderState, onValueChange = { sliderState.value = it })
     }
 }
 
@@ -97,6 +97,7 @@ fun LegacySliderSample() {
         Text(text = "%.2f".format(sliderState.value))
         Slider(
             state = sliderState,
+            onValueChange = { sliderState.value = it },
             interactionSource = interactionSource,
             modifier = Modifier.requiredSizeIn(minWidth = thumbSize.width, minHeight = trackHeight),
             thumb = {
@@ -138,6 +139,7 @@ fun StepsSliderSample() {
         Text(text = "%.2f".format(sliderState.value))
         Slider(
             state = sliderState,
+            onValueChange = { sliderState.value = it },
             onValueChangeFinished = {
                 // launch some business logic update with the state you hold
                 // viewModel.updateSelectedSliderValue(sliderPosition)
@@ -156,6 +158,7 @@ fun SliderWithCustomThumbSample() {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         Slider(
             state = sliderState,
+            onValueChange = { sliderState.value = it },
             interactionSource = interactionSource,
             onValueChangeFinished = {
                 // launch some business logic update with the state you hold
@@ -193,6 +196,7 @@ fun SliderWithCustomTrackAndThumbSample() {
         Text(text = "%.2f".format(sliderState.value))
         Slider(
             state = sliderState,
+            onValueChange = { sliderState.value = it },
             interactionSource = interactionSource,
             onValueChangeFinished = {
                 // launch some business logic update with the state you hold
@@ -218,6 +222,7 @@ fun SliderWithTrackIconsSample() {
         Text(text = "%.2f".format(sliderState.value))
         Slider(
             state = sliderState,
+            onValueChange = { sliderState.value = it },
             interactionSource = interactionSource,
             onValueChangeFinished = {
                 // launch some business logic update with the state you hold
@@ -295,6 +300,7 @@ fun CenteredSliderSample() {
         Text(text = "%.2f".format(sliderState.value))
         Slider(
             state = sliderState,
+            onValueChange = { sliderState.value = it },
             interactionSource = interactionSource,
             onValueChangeFinished = {
                 // launch some business logic update with the state you hold
@@ -441,6 +447,10 @@ fun RangeSliderSample() {
         Text(text = "$rangeStart .. $rangeEnd")
         RangeSlider(
             state = rangeSliderState,
+            onValueChange = {
+                rangeSliderState.startValue = it.start
+                rangeSliderState.endValue = it.endInclusive
+            },
             onValueChangeFinished = {
                 // launch some business logic update with the state you hold
                 // viewModel.updateSelectedSliderValue(sliderPosition)
@@ -463,6 +473,10 @@ fun LegacyRangeSliderSample() {
         Text(text = "$rangeStart .. $rangeEnd")
         RangeSlider(
             state = rangeSliderState,
+            onValueChange = {
+                rangeSliderState.startValue = it.start
+                rangeSliderState.endValue = it.endInclusive
+            },
             startThumbInteractionSource = startInteractionSource,
             endThumbInteractionSource = endInteractionSource,
             onValueChangeFinished = {
@@ -526,6 +540,10 @@ fun StepRangeSliderSample() {
         Text(text = "$rangeStart .. $rangeEnd")
         RangeSlider(
             state = rangeSliderState,
+            onValueChange = {
+                rangeSliderState.startValue = it.start
+                rangeSliderState.endValue = it.endInclusive
+            },
             onValueChangeFinished = {
                 // launch some business logic update with the state you hold
                 // viewModel.updateSelectedSliderValue(sliderPosition)
@@ -548,6 +566,10 @@ fun RangeSliderWithCustomComponents() {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         RangeSlider(
             state = rangeSliderState,
+            onValueChange = {
+                rangeSliderState.startValue = it.start
+                rangeSliderState.endValue = it.endInclusive
+            },
             startThumbInteractionSource = startInteractionSource,
             endThumbInteractionSource = endInteractionSource,
             onValueChangeFinished = {
