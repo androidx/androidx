@@ -98,6 +98,14 @@ androidXMultiplatform {
     }
 }
 
+dependencies {
+    constraints {
+        jvmStubsMainImplementation(libs.guavaAndroid) {
+            because("b/559860438 - upgrade to remedy CVEs")
+        }
+    }
+}
+
 androidx {
     name = "Compose Testing for JUnit4"
     type = SoftwareType.PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY
