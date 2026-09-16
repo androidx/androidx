@@ -190,7 +190,8 @@ class A2uiBasicCatalogV1ButtonUiTest {
         setContent { A2uiTestSurface(surface) }
 
         onNodeWithText("Button: btn_text").assertIsDisplayed()
-        assertThat(testButton.capturedVariant).isEqualTo(A2uiBasicCatalogV1.Button.Variant.Default)
+        assertThat(testButton.capturedVariant)
+            .isEqualTo(A2uiBasicCatalogV1.Button.Variant.Secondary)
     }
 
     @Test
@@ -218,7 +219,8 @@ class A2uiBasicCatalogV1ButtonUiTest {
         setContent { A2uiTestSurface(surface) }
         waitForIdle()
 
-        assertThat(testButton.capturedVariant).isEqualTo(A2uiBasicCatalogV1.Button.Variant.Default)
+        assertThat(testButton.capturedVariant)
+            .isEqualTo(A2uiBasicCatalogV1.Button.Variant.Secondary)
 
         controller.updateComponent(
             id = "root",
@@ -265,7 +267,8 @@ class A2uiBasicCatalogV1ButtonUiTest {
         setContent { A2uiTestSurface(surface) }
 
         onNodeWithText("Button: child_1").assertIsDisplayed()
-        assertThat(testButton.capturedVariant).isEqualTo(A2uiBasicCatalogV1.Button.Variant.Default)
+        assertThat(testButton.capturedVariant)
+            .isEqualTo(A2uiBasicCatalogV1.Button.Variant.Secondary)
 
         controller.updateComponent(
             id = "root",

@@ -76,9 +76,38 @@ class A2uiBasicCatalogV1RowTest {
 
         assertThat(A2uiBasicCatalogV1.Row.ChildrenProperty.key).isEqualTo("children")
         assertThat(A2uiBasicCatalogV1.Row.JustifyProperty.key).isEqualTo("justify")
-        assertThat(justifySchema.keywords).contains(A2uiSchemaKeyword.Default("start"))
+        assertThat(justifySchema.keywords)
+            .contains(
+                A2uiSchemaKeyword.Enum(
+                    listOf(
+                        "center",
+                        "end",
+                        "spaceAround",
+                        "spaceBetween",
+                        "spaceEvenly",
+                        "start",
+                        "stretch",
+                    )
+                )
+            )
+        assertThat(justifySchema.keywords)
+            .contains(A2uiSchemaKeyword.Default(A2uiBasicCatalogV1.Row.Justify.Start.value))
         assertThat(A2uiBasicCatalogV1.Row.AlignProperty.key).isEqualTo("align")
-        assertThat(alignSchema.keywords).contains(A2uiSchemaKeyword.Default("start"))
+        assertThat(alignSchema.keywords)
+            .contains(A2uiSchemaKeyword.Enum(listOf("start", "center", "end", "stretch")))
+        assertThat(alignSchema.keywords)
+            .contains(A2uiSchemaKeyword.Default(A2uiBasicCatalogV1.Row.Align.Start.value))
+    }
+
+    @Test
+    fun justify_values_matchSpecificationStrings() {
+        assertThat(A2uiBasicCatalogV1.Row.Justify.Center.value).isEqualTo("center")
+        assertThat(A2uiBasicCatalogV1.Row.Justify.End.value).isEqualTo("end")
+        assertThat(A2uiBasicCatalogV1.Row.Justify.SpaceAround.value).isEqualTo("spaceAround")
+        assertThat(A2uiBasicCatalogV1.Row.Justify.SpaceBetween.value).isEqualTo("spaceBetween")
+        assertThat(A2uiBasicCatalogV1.Row.Justify.SpaceEvenly.value).isEqualTo("spaceEvenly")
+        assertThat(A2uiBasicCatalogV1.Row.Justify.Start.value).isEqualTo("start")
+        assertThat(A2uiBasicCatalogV1.Row.Justify.Stretch.value).isEqualTo("stretch")
     }
 
     @Test
@@ -100,11 +129,25 @@ class A2uiBasicCatalogV1RowTest {
     }
 
     @Test
-    fun justify_fromValue_invalidOrEmptyString_fallsBackToStart() {
+    fun justify_default_isStart() {
+        assertThat(A2uiBasicCatalogV1.Row.Justify.Default)
+            .isEqualTo(A2uiBasicCatalogV1.Row.Justify.Start)
+    }
+
+    @Test
+    fun justify_fromValue_invalidOrEmptyString_fallsBackToDefault() {
         assertThat(A2uiBasicCatalogV1.Row.Justify.fromValue("invalid_justify"))
-            .isEqualTo(A2uiBasicCatalogV1.Row.Justify.Start)
+            .isEqualTo(A2uiBasicCatalogV1.Row.Justify.Default)
         assertThat(A2uiBasicCatalogV1.Row.Justify.fromValue(""))
-            .isEqualTo(A2uiBasicCatalogV1.Row.Justify.Start)
+            .isEqualTo(A2uiBasicCatalogV1.Row.Justify.Default)
+    }
+
+    @Test
+    fun align_values_matchSpecificationStrings() {
+        assertThat(A2uiBasicCatalogV1.Row.Align.Start.value).isEqualTo("start")
+        assertThat(A2uiBasicCatalogV1.Row.Align.Center.value).isEqualTo("center")
+        assertThat(A2uiBasicCatalogV1.Row.Align.End.value).isEqualTo("end")
+        assertThat(A2uiBasicCatalogV1.Row.Align.Stretch.value).isEqualTo("stretch")
     }
 
     @Test
@@ -120,10 +163,16 @@ class A2uiBasicCatalogV1RowTest {
     }
 
     @Test
-    fun align_fromValue_invalidOrEmptyString_fallsBackToStart() {
+    fun align_default_isStart() {
+        assertThat(A2uiBasicCatalogV1.Row.Align.Default)
+            .isEqualTo(A2uiBasicCatalogV1.Row.Align.Start)
+    }
+
+    @Test
+    fun align_fromValue_invalidOrEmptyString_fallsBackToDefault() {
         assertThat(A2uiBasicCatalogV1.Row.Align.fromValue("invalid_align"))
-            .isEqualTo(A2uiBasicCatalogV1.Row.Align.Start)
+            .isEqualTo(A2uiBasicCatalogV1.Row.Align.Default)
         assertThat(A2uiBasicCatalogV1.Row.Align.fromValue(""))
-            .isEqualTo(A2uiBasicCatalogV1.Row.Align.Start)
+            .isEqualTo(A2uiBasicCatalogV1.Row.Align.Default)
     }
 }
