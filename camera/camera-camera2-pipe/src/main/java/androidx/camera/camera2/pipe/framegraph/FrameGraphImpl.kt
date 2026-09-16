@@ -43,6 +43,7 @@ import androidx.camera.camera2.pipe.config.FrameGraphScope
 import androidx.camera.camera2.pipe.graph.Controller3A
 import androidx.camera.camera2.pipe.internal.FrameCaptureQueue
 import androidx.camera.camera2.pipe.internal.FrameDistributor
+import androidx.camera.camera2.pipe.internal.FrameGraphResourceTrimmer
 import java.lang.Class
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -62,10 +63,14 @@ constructor(
     private val controller3A: Controller3A,
     private val frameGraphFrameCaptureQueue: FrameGraphFrameCaptureQueue,
     private val frameCaptureQueue: FrameCaptureQueue,
+    private val frameGraphResourceTrimmer: FrameGraphResourceTrimmer,
 ) : FrameGraph, CameraControls3A by cameraGraph {
     init {
         // Wire up the frameStartedListener.
         frameDistributor.frameStartedListener = frameGraphBuffers
+
+        // Update the trigger that the corresponding graph has been created.
+        frameGraphResourceTrimmer.onGraphCreated()
     }
 
     override val streams = cameraGraph.streams
@@ -140,6 +145,7 @@ constructor(
 
     override fun start() {
         cameraGraph.start()
+        frameGraphResourceTrimmer.onGraphStarted()
     }
 
     override fun stop() {
@@ -202,6 +208,7 @@ constructor(
     override fun close() {
         frameGraphFrameCaptureQueue.close()
         cameraGraph.close()
+        frameGraphResourceTrimmer.onGraphClosed()
         frameGraphCoroutineScope.cancel()
     }
 
@@ -213,6 +220,7 @@ constructor(
             frameGraphBuffers,
             controller3A,
             frameCaptureQueue,
+            frameGraphResourceTrimmer,
         )
     }
 }

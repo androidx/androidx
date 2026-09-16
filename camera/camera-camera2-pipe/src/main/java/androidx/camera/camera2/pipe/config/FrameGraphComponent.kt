@@ -24,6 +24,7 @@ import androidx.camera.camera2.pipe.graph.Controller3A
 import androidx.camera.camera2.pipe.graph.GraphProcessor
 import androidx.camera.camera2.pipe.internal.FrameCaptureQueue
 import androidx.camera.camera2.pipe.internal.FrameDistributor
+import androidx.camera.camera2.pipe.internal.FrameGraphResourceTrimmer
 import androidx.camera.camera2.pipe.internal.GraphSessionLock
 import dagger.Binds
 import dagger.Module
@@ -75,6 +76,9 @@ internal class FrameGraphConfigModule(
     fun provideFrameDistributor(): FrameDistributor = cameraGraphComponent.frameDistributor()
 
     @Provides fun provideController3A(): Controller3A = cameraGraphComponent.controller3A()
+
+    @Provides
+    fun provideResourceTrimmer(): FrameGraphResourceTrimmer = cameraGraphComponent.resourceTrimmer()
 }
 
 @Module

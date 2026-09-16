@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.internal.FrameImpl
 import androidx.camera.camera2.pipe.internal.FrameState
+import androidx.camera.camera2.pipe.internal.NoOpFrameGraphResourceTrimmer
 import androidx.camera.camera2.pipe.testing.CameraGraphSimulator
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeMetadata.Companion.TEST_KEY
@@ -63,7 +64,8 @@ class FrameGraphBuffersTest {
     private val graphConfig =
         CameraGraph.Config(camera = metadata.camera, streams = listOf(stream1Config, stream2Config))
     private val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
-    private val frameGraphBuffers = FrameGraphBuffers(simulator, testScope)
+    private val frameGraphBuffers =
+        FrameGraphBuffers(simulator, testScope, NoOpFrameGraphResourceTrimmer)
     private val streamIdList = simulator.streams.streamIds.toList()
     private val streamId1 = streamIdList[0]
     private val streamId2 = streamIdList[1]
