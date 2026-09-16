@@ -200,42 +200,142 @@ class PickVisualMediaRequestTest {
     @Test
     fun testPickVisualMedia_createIntent_locationMetadataAccess() {
         val context = InstrumentationRegistry.getInstrumentation().context
-        val request =
-            PickVisualMediaRequest.Builder().setLocationMetadataAccessRequested(true).build()
-        val intent = PickVisualMedia().createIntent(context, request)
+
+        // 1. Test default: neither extra should be present
+        var request = PickVisualMediaRequest.Builder().build()
+        var intent = PickVisualMedia().createIntent(context, request)
+        assertThat(intent.hasExtra(MediaStore.EXTRA_REQUEST_LOCATION_METADATA_ACCESS)).isFalse()
+        assertThat(
+                intent.hasExtra(
+                    PickVisualMedia
+                        .EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS
+                )
+            )
+            .isFalse()
+
+        // 2. Test when location metadata access is requested
+        request = PickVisualMediaRequest.Builder().setLocationMetadataAccessRequested(true).build()
+        intent = PickVisualMedia().createIntent(context, request)
 
         val isExt23 =
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
                 SdkExtensions.getExtensionVersion(Build.VERSION_CODES.TIRAMISU) >= 23
 
-        if (isExt23) {
+        if (PickVisualMedia.isSystemPickerAvailable()) {
+            if (isExt23) {
+                assertThat(
+                        intent.getBooleanExtra(
+                            MediaStore.EXTRA_REQUEST_LOCATION_METADATA_ACCESS,
+                            false,
+                        )
+                    )
+                    .isTrue()
+            } else {
+                assertThat(intent.hasExtra(MediaStore.EXTRA_REQUEST_LOCATION_METADATA_ACCESS))
+                    .isFalse()
+            }
             assertThat(
-                    intent.getBooleanExtra(MediaStore.EXTRA_REQUEST_LOCATION_METADATA_ACCESS, false)
+                    intent.hasExtra(
+                        PickVisualMedia
+                            .EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS
+                    )
+                )
+                .isFalse()
+        } else if (PickVisualMedia.isSystemFallbackPickerAvailable(context)) {
+            assertThat(
+                    intent.getBooleanExtra(
+                        PickVisualMedia
+                            .EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS,
+                        false,
+                    )
                 )
                 .isTrue()
+            assertThat(intent.hasExtra(MediaStore.EXTRA_REQUEST_LOCATION_METADATA_ACCESS)).isFalse()
         } else {
             assertThat(intent.hasExtra(MediaStore.EXTRA_REQUEST_LOCATION_METADATA_ACCESS)).isFalse()
+            assertThat(
+                    intent.hasExtra(
+                        PickVisualMedia
+                            .EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS
+                    )
+                )
+                .isFalse()
         }
     }
 
     @Test
     fun testPickMultipleVisualMedia_createIntent_locationMetadataAccess() {
         val context = InstrumentationRegistry.getInstrumentation().context
-        val request =
-            PickVisualMediaRequest.Builder().setLocationMetadataAccessRequested(true).build()
-        val intent = PickMultipleVisualMedia().createIntent(context, request)
+
+        // 1. Test default: neither extra should be present
+        var request = PickVisualMediaRequest.Builder().build()
+        var intent = PickMultipleVisualMedia().createIntent(context, request)
+        assertThat(intent.hasExtra(MediaStore.EXTRA_REQUEST_LOCATION_METADATA_ACCESS)).isFalse()
+        assertThat(
+                intent.hasExtra(
+                    PickVisualMedia
+                        .EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS
+                )
+            )
+            .isFalse()
+
+        // 2. Test when location metadata access is requested
+        request = PickVisualMediaRequest.Builder().setLocationMetadataAccessRequested(true).build()
+        intent = PickMultipleVisualMedia().createIntent(context, request)
 
         val isExt23 =
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
                 SdkExtensions.getExtensionVersion(Build.VERSION_CODES.TIRAMISU) >= 23
 
-        if (isExt23) {
+        if (PickVisualMedia.isSystemPickerAvailable()) {
+            if (isExt23) {
+                assertThat(
+                        intent.getBooleanExtra(
+                            MediaStore.EXTRA_REQUEST_LOCATION_METADATA_ACCESS,
+                            false,
+                        )
+                    )
+                    .isTrue()
+            } else {
+                assertThat(intent.hasExtra(MediaStore.EXTRA_REQUEST_LOCATION_METADATA_ACCESS))
+                    .isFalse()
+            }
             assertThat(
-                    intent.getBooleanExtra(MediaStore.EXTRA_REQUEST_LOCATION_METADATA_ACCESS, false)
+                    intent.hasExtra(
+                        PickVisualMedia
+                            .EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS
+                    )
+                )
+                .isFalse()
+        } else if (PickVisualMedia.isSystemFallbackPickerAvailable(context)) {
+            assertThat(
+                    intent.getBooleanExtra(
+                        PickVisualMedia
+                            .EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS,
+                        false,
+                    )
                 )
                 .isTrue()
+            assertThat(intent.hasExtra(MediaStore.EXTRA_REQUEST_LOCATION_METADATA_ACCESS)).isFalse()
         } else {
             assertThat(intent.hasExtra(MediaStore.EXTRA_REQUEST_LOCATION_METADATA_ACCESS)).isFalse()
+            assertThat(
+                    intent.hasExtra(
+                        PickVisualMedia
+                            .EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS
+                    )
+                )
+                .isFalse()
         }
+    }
+
+    @Test
+    fun testPickVisualMedia_extraSystemFallbackRequestLocationMetadataAccess() {
+        assertThat(
+                PickVisualMedia.EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS
+            )
+            .isEqualTo(
+                "androidx.activity.result.contract.extra.PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS"
+            )
     }
 }

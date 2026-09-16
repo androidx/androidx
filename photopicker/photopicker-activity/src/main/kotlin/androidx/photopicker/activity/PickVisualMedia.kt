@@ -148,6 +148,19 @@ public open class PickVisualMedia : ActivityResultContract<PickVisualMediaReques
             "androidx.activity.result.contract.extra.PICK_IMAGES_ACCENT_COLOR"
 
         /**
+         * Extra that will be sent by [PickVisualMedia] and [PickMultipleVisualMedia] to an Activity
+         * that handles [ACTION_SYSTEM_FALLBACK_PICK_IMAGES] that indicates whether to request
+         * location metadata access from the picker.
+         *
+         * If this extra is not present, location metadata should be redacted by default.
+         */
+        @field:Suppress("ActionValue")
+        /* Don't include SYSTEM_FALLBACK in the extra */
+        public const val EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS:
+            String =
+            "androidx.activity.result.contract.extra.PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS"
+
+        /**
          * Check if the current device has support for the photo picker by checking the running
          * Android version, the SDK extension version or the picker provided by a system app
          * implementing [ACTION_SYSTEM_FALLBACK_PICK_IMAGES].
@@ -362,6 +375,13 @@ public open class PickVisualMedia : ActivityResultContract<PickVisualMediaReques
 
                 if (input.isCustomAccentColorApplied) {
                     putExtra(EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_ACCENT_COLOR, input.accentColor)
+                }
+
+                if (input.isLocationMetadataAccessRequested) {
+                    putExtra(
+                        EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS,
+                        true,
+                    )
                 }
             }
         } else {

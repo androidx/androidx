@@ -131,6 +131,14 @@ public open class PickMultipleVisualMedia(private val maxItems: Int = getMaxItem
                         input.accentColor,
                     )
                 }
+
+                if (input.isLocationMetadataAccessRequested) {
+                    putExtra(
+                        PickVisualMedia
+                            .EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS,
+                        true,
+                    )
+                }
             }
         } else {
             // For older devices running KitKat and higher and devices running Android 12
