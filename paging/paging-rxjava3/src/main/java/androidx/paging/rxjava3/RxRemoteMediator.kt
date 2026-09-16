@@ -30,7 +30,7 @@ import kotlinx.coroutines.rx3.await
 
 /** RxJava3 compatibility wrapper around [RemoteMediator]'s suspending APIs. */
 @ExperimentalPagingApi
-abstract class RxRemoteMediator<Key : Any, Value : Any> : RemoteMediator<Key, Value>() {
+public abstract class RxRemoteMediator<Key : Any, Value : Any> : RemoteMediator<Key, Value>() {
     /**
      * Implement this method to load additional remote data, which will then be stored for the
      * [PagingSource] to access. These loads take one of two forms:
@@ -60,7 +60,7 @@ abstract class RxRemoteMediator<Key : Any, Value : Any> : RemoteMediator<Key, Va
      * @return [MediatorResult] signifying what [LoadState] to be passed to the UI, and whether
      *   there's more data available.
      */
-    abstract fun loadSingle(
+    public abstract fun loadSingle(
         loadType: LoadType,
         state: PagingState<Key, Value>,
     ): Single<MediatorResult>
@@ -78,7 +78,8 @@ abstract class RxRemoteMediator<Key : Any, Value : Any> : RemoteMediator<Key, Va
      *     * [SKIP_INITIAL_REFRESH][InitializeAction.SKIP_INITIAL_REFRESH] to wait for a refresh
      *       request from the UI before dispatching a [load] with load type [LoadType.REFRESH].
      */
-    open fun initializeSingle(): Single<InitializeAction> = Single.just(LAUNCH_INITIAL_REFRESH)
+    public open fun initializeSingle(): Single<InitializeAction> =
+        Single.just(LAUNCH_INITIAL_REFRESH)
 
     final override suspend fun load(
         loadType: LoadType,

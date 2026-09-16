@@ -110,12 +110,13 @@ public class CombinedLoadStates(
     }
 
     /** Returns true when [source] and [mediator] is in [NotLoading] for all [LoadType] */
-    public val isIdle = source.isIdle && mediator?.isIdle ?: true
+    public val isIdle: Boolean = source.isIdle && mediator?.isIdle ?: true
 
     /**
      * Returns true if either [source] or [mediator] has a [LoadType] that is in [LoadState.Error]
      */
-    @get:JvmName("hasError") public val hasError = source.hasError || mediator?.hasError ?: false
+    @get:JvmName("hasError")
+    public val hasError: Boolean = source.hasError || mediator?.hasError ?: false
 }
 
 /**

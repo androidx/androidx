@@ -60,7 +60,7 @@ import kotlinx.coroutines.flow.Flow
  *
  * @sample androidx.paging.samples.pagingDataAdapterSample
  */
-abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>
+public abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>
 /**
  * Construct a [PagingDataAdapter].
  *
@@ -96,7 +96,7 @@ constructor(
     // Only for binary compatibility; cannot apply @JvmOverloads as the function signature would
     // conflict with the primary constructor.
     @Suppress("MissingJvmstatic")
-    constructor(
+    public constructor(
         diffCallback: DiffUtil.ItemCallback<T>,
         mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
     ) : this(
@@ -124,7 +124,7 @@ constructor(
     // Only for binary compatibility; cannot apply @JvmOverloads as the function signature would
     // conflict with the primary constructor.
     @Suppress("MissingJvmstatic")
-    constructor(
+    public constructor(
         diffCallback: DiffUtil.ItemCallback<T>,
         mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
         workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
@@ -237,7 +237,7 @@ constructor(
      * @sample androidx.paging.samples.submitDataFlowSample
      * @see [Pager]
      */
-    suspend fun submitData(pagingData: PagingData<T>) {
+    public suspend fun submitData(pagingData: PagingData<T>) {
         differ.submitData(pagingData)
     }
 
@@ -254,7 +254,7 @@ constructor(
      * @see submitData
      * @see [Pager]
      */
-    fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {
+    public fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {
         differ.submitData(lifecycle, pagingData)
     }
 
@@ -269,7 +269,7 @@ constructor(
      * * [PagingSource.load] returning [PagingSource.LoadResult.Error]
      * * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
      */
-    fun retry() {
+    public fun retry() {
         differ.retry()
     }
 
@@ -288,7 +288,7 @@ constructor(
      * @sample androidx.paging.samples.refreshSample
      * @see PagingSource.invalidate
      */
-    fun refresh() {
+    public fun refresh() {
         differ.refresh()
     }
 
@@ -299,7 +299,8 @@ constructor(
      * @param position Index of the presented item to return, including placeholders.
      * @return The presented item at [position], `null` if it is a placeholder
      */
-    @MainThread protected fun getItem(@IntRange(from = 0) position: Int) = differ.getItem(position)
+    @MainThread
+    protected fun getItem(@IntRange(from = 0) position: Int): T? = differ.getItem(position)
 
     /**
      * Returns the presented item at the specified position, without notifying Paging of the item
@@ -308,15 +309,15 @@ constructor(
      * @param index Index of the presented item to return, including placeholders.
      * @return The presented item at position [index], `null` if it is a placeholder.
      */
-    @MainThread fun peek(@IntRange(from = 0) index: Int) = differ.peek(index)
+    @MainThread public fun peek(@IntRange(from = 0) index: Int): T? = differ.peek(index)
 
     /**
      * Returns a new [ItemSnapshotList] representing the currently presented items, including any
      * placeholders if they are enabled.
      */
-    fun snapshot(): ItemSnapshotList<T> = differ.snapshot()
+    public fun snapshot(): ItemSnapshotList<T> = differ.snapshot()
 
-    override fun getItemCount() = differ.itemCount
+    override fun getItemCount(): Int = differ.itemCount
 
     /**
      * A hot [Flow] of [CombinedLoadStates] that emits a snapshot whenever the loading state of the
@@ -325,7 +326,7 @@ constructor(
      * This flow is conflated, so it buffers the last update to [CombinedLoadStates] and immediately
      * delivers the current load states on collection.
      */
-    val loadStateFlow: Flow<CombinedLoadStates> = differ.loadStateFlow
+    public val loadStateFlow: Flow<CombinedLoadStates> = differ.loadStateFlow
 
     /**
      * A hot [Flow] that emits after the pages presented to the UI are updated, even if the actual
@@ -344,7 +345,7 @@ constructor(
      * that you only receive the latest update, which is useful in cases where you are simply
      * updating UI and don't care about tracking the exact number of page updates.
      */
-    val onPagesUpdatedFlow: Flow<Unit> = differ.onPagesUpdatedFlow
+    public val onPagesUpdatedFlow: Flow<Unit> = differ.onPagesUpdatedFlow
 
     /**
      * Add a [CombinedLoadStates] listener to observe the loading state of the current [PagingData].
@@ -356,7 +357,7 @@ constructor(
      * @sample androidx.paging.samples.addLoadStateListenerSample
      * @see removeLoadStateListener
      */
-    fun addLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
+    public fun addLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         differ.addLoadStateListener(listener)
     }
 
@@ -366,7 +367,7 @@ constructor(
      * @param listener Previously registered listener.
      * @see addLoadStateListener
      */
-    fun removeLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
+    public fun removeLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         differ.removeLoadStateListener(listener)
     }
 
@@ -383,7 +384,7 @@ constructor(
      * @param listener called after pages presented are updated.
      * @see removeOnPagesUpdatedListener
      */
-    fun addOnPagesUpdatedListener(listener: () -> Unit) {
+    public fun addOnPagesUpdatedListener(listener: () -> Unit) {
         differ.addOnPagesUpdatedListener(listener)
     }
 
@@ -394,7 +395,7 @@ constructor(
      * @param listener Previously registered listener.
      * @see addOnPagesUpdatedListener
      */
-    fun removeOnPagesUpdatedListener(listener: () -> Unit) {
+    public fun removeOnPagesUpdatedListener(listener: () -> Unit) {
         differ.removeOnPagesUpdatedListener(listener)
     }
 
@@ -406,7 +407,7 @@ constructor(
      * @see withLoadStateHeaderAndFooter
      * @see withLoadStateFooter
      */
-    fun withLoadStateHeader(header: LoadStateAdapter<*>): ConcatAdapter {
+    public fun withLoadStateHeader(header: LoadStateAdapter<*>): ConcatAdapter {
         addLoadStateListener { loadStates -> header.loadState = loadStates.prepend }
         return ConcatAdapter(header, this)
     }
@@ -419,7 +420,7 @@ constructor(
      * @see withLoadStateHeaderAndFooter
      * @see withLoadStateHeader
      */
-    fun withLoadStateFooter(footer: LoadStateAdapter<*>): ConcatAdapter {
+    public fun withLoadStateFooter(footer: LoadStateAdapter<*>): ConcatAdapter {
         addLoadStateListener { loadStates -> footer.loadState = loadStates.append }
         return ConcatAdapter(this, footer)
     }
@@ -433,7 +434,7 @@ constructor(
      * @see withLoadStateHeader
      * @see withLoadStateFooter
      */
-    fun withLoadStateHeaderAndFooter(
+    public fun withLoadStateHeaderAndFooter(
         header: LoadStateAdapter<*>,
         footer: LoadStateAdapter<*>,
     ): ConcatAdapter {
