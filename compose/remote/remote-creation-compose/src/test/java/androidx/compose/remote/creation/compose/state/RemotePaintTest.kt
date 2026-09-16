@@ -16,12 +16,15 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.asAndroidPathEffect
 import androidx.compose.ui.graphics.toArgb
 import androidx.test.filters.SdkSuppress
@@ -266,15 +269,19 @@ class RemotePaintTest {
     @Test
     fun compatAndroidRemotePaintEffectPropertiesTest() {
         val shader =
-            androidx.compose.ui.graphics.LinearGradientShader(
-                from = androidx.compose.ui.geometry.Offset.Zero,
-                to = androidx.compose.ui.geometry.Offset(10f, 10f),
-                colors = listOf(Color.Red, Color.Blue),
+            RemoteLinearShader(
+                x0 = 0f.rf,
+                y0 = 0f.rf,
+                x1 = 10f.rf,
+                y1 = 10f.rf,
+                colors = listOf(Color.Red.rc, Color.Blue.rc),
+                positions = null,
+                tileMode = TileMode.Clamp,
             )
-        val pathEffect = androidx.compose.ui.graphics.PathEffect.cornerPathEffect(5f)
+        val pathEffect = PathEffect.cornerPathEffect(5f)
         val compatPaint =
             CompatAndroidRemotePaint().apply {
-                this.shader = shader
+                this.remoteShader = shader
                 this.pathEffect = pathEffect.asAndroidPathEffect()
             }
         val remotePaint = compatPaint.remotePaint

@@ -250,32 +250,24 @@ internal class PaintTracker {
 
         val targetShader = newPaint.shader
         if (force || this.shader != targetShader) {
-            this.shader = targetShader as? RemoteShader
-            when (targetShader) {
-                is RemoteShader -> {
-                    targetShader.apply(creationState, paintBundle)
-                    val remoteMatrix3x3 = targetShader.remoteMatrix3x3
-                    when {
-                        !remoteMatrix3x3.isIdentity -> {
-                            paintBundle.setShaderMatrix(
-                                remoteMatrix3x3.getFloatIdForCreationState(creationState)
-                            )
-                            usingShaderMatrix = true
-                        }
-                        usingShaderMatrix -> {
-                            paintBundle.setShaderMatrix(0f)
-                            usingShaderMatrix = false
-                        }
+            this.shader = targetShader
+            if (targetShader != null) {
+                targetShader.apply(creationState, paintBundle)
+                val remoteMatrix3x3 = targetShader.remoteMatrix3x3
+                when {
+                    !remoteMatrix3x3.isIdentity -> {
+                        paintBundle.setShaderMatrix(
+                            remoteMatrix3x3.getFloatIdForCreationState(creationState)
+                        )
+                        usingShaderMatrix = true
+                    }
+                    usingShaderMatrix -> {
+                        paintBundle.setShaderMatrix(0f)
+                        usingShaderMatrix = false
                     }
                 }
-
-                null -> {
-                    paintBundle.setShader(0)
-                }
-
-                else -> {
-                    TODO("Support shader $targetShader")
-                }
+            } else {
+                paintBundle.setShader(0)
             }
             isChanged = true
         }

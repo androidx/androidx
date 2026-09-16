@@ -38,7 +38,6 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.Shader
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.asAndroidColorFilter
@@ -93,10 +92,10 @@ public sealed interface RemotePaint {
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var filterQuality: FilterQuality
 
-    /** The [Shader] to use for drawing gradients or other patterns. */
+    /** The [RemoteShader] to use for drawing gradients or other patterns. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var shader: Shader?
+    public var shader: RemoteShader?
 
     /** The [PathEffect] to apply to the stroke. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -136,7 +135,7 @@ public class StandardRemotePaint() : RemotePaint {
     public override var strokeCap: StrokeCap = StrokeCap.Butt
     public override var strokeJoin: StrokeJoin = StrokeJoin.Miter
     public override var filterQuality: FilterQuality = FilterQuality.Low
-    public override var shader: Shader? = null
+    public override var shader: RemoteShader? = null
     public override var pathEffect: PathEffect? = null
     public override var textSize: RemoteFloat = 12f.rf
     public override var typeface: RemoteTypeface? = RemoteTypeface.Default
@@ -173,6 +172,24 @@ public class StandardRemotePaint() : RemotePaint {
             "textSize=$textSize, typeface=$typeface, remoteColor=$color, " +
             "colorFilter=$colorFilter, fontVariationSettings=$fontVariationSettings)"
 }
+
+@Suppress("deprecation")
+private class AndroidRemoteShaderWrapper(val remoteShader: RemoteShader) :
+    android.graphics.Shader() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AndroidRemoteShaderWrapper) return false
+        return remoteShader == other.remoteShader
+    }
+
+    override fun hashCode(): Int = remoteShader.hashCode()
+}
+
+private fun android.graphics.Shader?.toRemoteShader(): RemoteShader? =
+    (this as? AndroidRemoteShaderWrapper)?.remoteShader
+
+private fun RemoteShader?.toAndroidShader(): android.graphics.Shader? =
+    this?.let { AndroidRemoteShaderWrapper(it) }
 
 /**
  * An implementation of [android.graphics.Paint] that supports [RemoteColor] and [RemoteShader].
@@ -259,9 +276,9 @@ public open class CompatAndroidRemotePaint : AndroidPaint, RemotePaintConvertibl
      * This is a convenience property that aliases [android.graphics.Paint.setShader].
      */
     public var remoteShader: RemoteShader?
-        get() = shader as? RemoteShader
+        get() = shader.toRemoteShader()
         set(value) {
-            shader = value
+            shader = value.toAndroidShader()
         }
 
     private inner class CompatRemotePaint : RemotePaint {
@@ -314,10 +331,10 @@ public open class CompatAndroidRemotePaint : AndroidPaint, RemotePaintConvertibl
                 isFilterBitmap = value != FilterQuality.None
             }
 
-        override var shader: Shader?
-            get() = this@CompatAndroidRemotePaint.shader
+        override var shader: RemoteShader?
+            get() = remoteShader
             set(value) {
-                this@CompatAndroidRemotePaint.shader = value
+                remoteShader = value
             }
 
         override var pathEffect: PathEffect?
@@ -417,10 +434,10 @@ public class AndroidRemotePaint(internal val frameworkPaint: android.graphics.Pa
             frameworkPaint.isFilterBitmap = value != FilterQuality.None
         }
 
-    override var shader: Shader?
-        get() = frameworkPaint.shader
+    override var shader: RemoteShader?
+        get() = frameworkPaint.shader.toRemoteShader()
         set(value) {
-            frameworkPaint.shader = value
+            frameworkPaint.shader = value.toAndroidShader()
         }
 
     override var pathEffect: PathEffect?
@@ -533,10 +550,10 @@ public class ComposeRemotePaint(internal val composePaint: Paint) : RemotePaint 
             composePaint.filterQuality = value
         }
 
-    override var shader: Shader?
-        get() = composePaint.shader
+    override var shader: RemoteShader?
+        get() = composePaint.shader.toRemoteShader()
         set(value) {
-            composePaint.shader = value
+            composePaint.shader = value.toAndroidShader()
         }
 
     override var pathEffect: PathEffect?

@@ -16,12 +16,9 @@
 package androidx.compose.remote.creation.compose.shaders
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.paint.PaintBundle
-import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
-import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createIdentity
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rc
@@ -112,16 +109,4 @@ public abstract class RemoteShaderBrush internal constructor() : RemoteBrush() {
         paint.shader = shader
         paint.color = Color.Black.rc
     }
-}
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Suppress("DEPRECATION")
-public abstract class RemoteShader : android.graphics.Shader() {
-    public abstract fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle)
-
-    /**
-     * The [RemoteMatrix3x3] to apply to the shader. Note not all profiles will support shader
-     * rotation.
-     */
-    public open var remoteMatrix3x3: RemoteMatrix3x3 = createIdentity()
 }
