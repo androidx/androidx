@@ -35,6 +35,7 @@ class PublicWebFeaturesSupportedTest {
         private val publicFeatures =
             mapOf<String, String>(
                 // Example: "NEW_FEATURE" to "https://crrev.com/c/1234abcd"
+                "WEB_CONTENT" to "https://crrev.com/c/8256481"
             )
 
         private val FieldDescription.InDefinedShape.isPublicStaticFinalString: Boolean
