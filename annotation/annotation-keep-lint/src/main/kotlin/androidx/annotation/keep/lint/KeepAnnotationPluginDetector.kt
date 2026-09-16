@@ -181,6 +181,19 @@ class KeepAnnotationPluginDetector : Detector(), GradleScanner, TomlScanner {
             }
         }
 
+        if (statement == "project") {
+            val path =
+                namedArguments["path"]?.let { unquoteStringLiteral(it) }
+                    ?: unnamedArguments.firstOrNull()?.let { unquoteStringLiteral(it) }
+            if (path == KEEP_PROJECT_PATH) {
+                fileState.hasKeepDependency = true
+                if (fileState.keepDependencyCookie == null) {
+                    fileState.keepDependencyCookie = cookie
+                    fileState.keepDependencyLocation = context.getLocation(cookie)
+                }
+            }
+        }
+
         if (isDependencyBlock(parent, parentParent)) {
             val group = namedArguments["group"]?.let { unquoteStringLiteral(it) }
             val name = namedArguments["name"]?.let { unquoteStringLiteral(it) }
@@ -207,21 +220,95 @@ class KeepAnnotationPluginDetector : Detector(), GradleScanner, TomlScanner {
 
     override fun afterCheckFile(context: Context) {
         if (context !is GradleContext) return
+
+        val isKts = context.file.name.endsWith(".kts")
+
+        // Groovy build scripts with buildSrc imports (such as in AndroidX) fail AST compilation
+        // inside Lint's GroovyGradleVisitor, which silently catches the error and skips AST visits.
+        // Kotlin DSL (.kts) uses UastGradleVisitor which parses UAST syntactically without
+        // requiring class resolution of imports, so it never fails AST traversal.
+        // As a fallback specifically for Groovy files, perform a text scan if the AST visitor
+        // did not detect any keep dependency or plugin.
+        if (!isKts && !fileState.hasKeepDependency && !fileState.hasKeepPlugin) {
+            checkGroovyFileContentsFallback(context)
+        }
+
         if (fileState.hasKeepDependency && !fileState.hasKeepPlugin) {
-            val cookie = fileState.keepDependencyCookie ?: return
-            val location = fileState.keepDependencyLocation ?: context.getLocation(cookie)
-            val isKts = context.file.name.endsWith(".kts")
+            val cookie = fileState.keepDependencyCookie
+            val location =
+                fileState.keepDependencyLocation
+                    ?: cookie?.let { context.getLocation(it) }
+                    ?: return
             val fix = createQuickFix(context, isKts)
             val incident =
-                Incident(
-                    ISSUE,
-                    cookie,
-                    location,
-                    "The `$KEEP_LIBRARY_COORDINATE` dependency requires the `$KEEP_PLUGIN_ID` plugin to be applied in this build file",
-                    fix,
-                )
+                if (cookie != null) {
+                    Incident(
+                        ISSUE,
+                        cookie,
+                        location,
+                        "The `$KEEP_LIBRARY_COORDINATE` dependency requires the `$KEEP_PLUGIN_ID` plugin to be applied in this build file",
+                        fix,
+                    )
+                } else {
+                    Incident(
+                        ISSUE,
+                        location,
+                        "The `$KEEP_LIBRARY_COORDINATE` dependency requires the `$KEEP_PLUGIN_ID` plugin to be applied in this build file",
+                        fix,
+                    )
+                }
             context.report(incident)
         }
+    }
+
+    /**
+     * Fallback scanner for Groovy build scripts where Lint's GroovyGradleVisitor failed to compile
+     * the Groovy AST (typically due to `buildSrc` imports like `import androidx.build.*`).
+     *
+     * Performs a fast-exit check for library signifiers before checking plugin application.
+     *
+     * If successful, will set up [fileState] in same way as [GradleScanner] API impl.
+     */
+    private fun checkGroovyFileContentsFallback(context: GradleContext) {
+        val contents = context.getContents()?.toString() ?: return
+
+        // 1. Fast early exit: if the library signifier is absent, do nothing.
+        if (
+            !contents.contains(KEEP_LIBRARY_NAME) &&
+                catalogState.matchingLibraryAliases.none { alias -> contents.contains(alias) }
+        ) {
+            return
+        }
+
+        // 2. Check for library dependency (project path, Maven coordinate, or TOML catalog alias)
+        val depMatch =
+            LibraryDependencyLocator.locate(contents, catalogState.matchingLibraryAliases) ?: return
+
+        if (depMatch.text.contains('.')) {
+            val prefix = depMatch.text.substringBefore('.')
+            if (prefix.isNotEmpty() && !prefix.contains('.')) {
+                fileState.catalogAccessorPrefix = prefix
+            }
+        }
+
+        // 3. Quick check for plugin: quoted plugin ID or known catalog plugin alias
+        val hasPluginLiteral =
+            contents.contains("'$KEEP_PLUGIN_ID'") || contents.contains("\"$KEEP_PLUGIN_ID\"")
+        val hasPluginAlias =
+            catalogState.matchingPluginAliases.any { alias -> contents.contains(alias) }
+        if (hasPluginLiteral || hasPluginAlias) {
+            fileState.hasKeepPlugin = true
+            return
+        }
+
+        // 4. Full computation: dependency exists and plugin is missing
+        fileState.hasKeepDependency = true
+        fileState.hasPluginsBlock =
+            contents.contains("plugins {") || contents.contains("plugins\n{")
+        val start = depMatch.range.first
+        val end = depMatch.range.last + 1
+        fileState.keepDependencyLocation = Location.create(context.file, contents, start, end)
+        fileState.keepDependencyCookie = null
     }
 
     private fun createQuickFix(context: GradleContext, isKts: Boolean): LintFix {
@@ -242,11 +329,15 @@ class KeepAnnotationPluginDetector : Detector(), GradleScanner, TomlScanner {
         val indent = analysis.indent
         val quote = analysis.quote
 
-        val catalogPrefix = fileState.catalogAccessorPrefix ?: "libs" // fall back to a guess
         val pluginStatement =
             when {
-                pluginToml != null -> "alias($catalogPrefix.plugins.$pluginToml)"
-                isKts -> "id(\"$KEEP_PLUGIN_ID\")"
+                pluginToml != null -> {
+                    val catalogPrefix =
+                        fileState.catalogAccessorPrefix ?: "libs" // fall back to a guess
+                    if (analysis.usesParentheses) "alias($catalogPrefix.plugins.$pluginToml)"
+                    else "alias $catalogPrefix.plugins.$pluginToml"
+                }
+                analysis.usesParentheses -> "id($quote$KEEP_PLUGIN_ID$quote)"
                 else -> "id $quote$KEEP_PLUGIN_ID$quote"
             }
 
@@ -262,18 +353,23 @@ class KeepAnnotationPluginDetector : Detector(), GradleScanner, TomlScanner {
             fixBuilder.beginning().with("plugins {\n$indent$pluginStatement\n}\n\n")
         }
 
-        return fixBuilder.build()
+        return fixBuilder.autoFix().build()
     }
 
     private fun isDependencyBlock(parent: String?, parentParent: String?): Boolean {
         if (parent == "dependencies" || parentParent == "dependencies") return true
-        if (parent?.endsWith("dependencies", ignoreCase = true) == true) return true
+        if (parent?.contains("dependencies", ignoreCase = true) == true) return true
+        if (parentParent?.contains("dependencies", ignoreCase = true) == true) return true
         return false
     }
 
     private fun isKeepLibraryDependency(rawExpression: String, context: GradleContext): Boolean {
         val expression = unquoteStringLiteral(rawExpression)
         if (expression.startsWith(KEEP_LIBRARY_COORDINATE)) {
+            return true
+        }
+
+        if (isKeepProjectDependency(expression)) {
             return true
         }
 
@@ -421,12 +517,35 @@ class KeepAnnotationPluginDetector : Detector(), GradleScanner, TomlScanner {
         return unquoteStringLiteral(value).takeIf { it.isNotEmpty() }
     }
 
+    /**
+     * Checks if [rawExpression] is an inter-project dependency on `:annotation:annotation-keep`.
+     *
+     * This is expected to execute only internally within the AndroidX repository where modules
+     * depend on each other via project paths rather than published Maven coordinates.
+     */
+    private fun isKeepProjectDependency(rawExpression: String): Boolean {
+        val expression = rawExpression.trim()
+        if (expression.startsWith("project(") || expression.startsWith("project ")) {
+            val inner = expression.removePrefix("project").trim().removeSurrounding("(", ")").trim()
+            val path = extractNamedArgument(inner, "path") ?: unquoteStringLiteral(inner)
+            return path == KEEP_PROJECT_PATH
+        }
+        return false
+    }
+
     companion object {
         const val KEEP_LIBRARY_GROUP = "androidx.annotation"
         const val KEEP_LIBRARY_NAME = "annotation-keep"
         const val KEEP_LIBRARY_COORDINATE = "$KEEP_LIBRARY_GROUP:$KEEP_LIBRARY_NAME"
 
         const val KEEP_PLUGIN_ID = "androidx.annotation.keep"
+
+        /**
+         * Project path for internal AndroidX dependencies (e.g.
+         * `project(":annotation:annotation-keep")`). Expected to execute only internally within the
+         * AndroidX codebase.
+         */
+        const val KEEP_PROJECT_PATH = ":annotation:annotation-keep"
 
         private const val TOML_LIBRARIES = "libraries"
         private const val TOML_PLUGINS = "plugins"
@@ -450,8 +569,8 @@ class KeepAnnotationPluginDetector : Detector(), GradleScanner, TomlScanner {
                     Implementation(
                         KeepAnnotationPluginDetector::class.java,
                         Scope.GRADLE_AND_TOML_SCOPE,
+                        Scope.GRADLE_SCOPE,
                     ),
-                androidSpecific = false,
             )
     }
 }
