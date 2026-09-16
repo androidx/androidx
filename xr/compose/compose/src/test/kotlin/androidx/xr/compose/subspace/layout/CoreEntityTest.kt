@@ -54,7 +54,9 @@ import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.scene
+import androidx.xr.scenecore.testing.MemoryUtils
 import com.google.common.truth.Truth.assertThat
+import java.lang.ref.WeakReference
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -230,6 +232,58 @@ class CoreEntityTest {
     }
 
     @Test
+    fun corePanelEntity_removedFromScene_freesUnderlyingEntity() {
+        var showPanel by mutableStateOf(true)
+        composeTestRule.setContent {
+            Subspace {
+                if (showPanel) {
+                    SpatialPanel(SubspaceModifier.testTag("panel")) {}
+                }
+            }
+        }
+
+        // Get a weak reference to the Entity so that we can verify that it's garbage collected.
+        val entityRef =
+            WeakReference(
+                composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+            )
+        assertThat(entityRef.get()).isNotNull()
+        showPanel = false
+
+        composeTestRule.waitForIdle()
+        MemoryUtils.assertGarbageCollected(entityRef)
+    }
+
+    @Test
+    fun coreActivityPanelEntity_removedFromScene_freesUnderlyingEntity() {
+        var showPanel by mutableStateOf(true)
+        composeTestRule.setContent {
+            Subspace {
+                if (showPanel) {
+                    SpatialActivityPanel(
+                        controller =
+                            rememberSpatialActivityPanelController(
+                                Intent(composeTestRule.activity, SpatialPanelActivity::class.java)
+                            ),
+                        SubspaceModifier.testTag("panel"),
+                    )
+                }
+            }
+        }
+
+        // Get a weak reference to the Entity so that we can verify that it's garbage collected.
+        val entityRef =
+            WeakReference(
+                composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+            )
+        assertThat(entityRef.get()).isNotNull()
+        showPanel = false
+
+        composeTestRule.waitForIdle()
+        MemoryUtils.assertGarbageCollected(entityRef)
+    }
+
+    @Test
     fun attachEntity_onExistingCoreEntity_replacesAndDisposesOldEntity() {
         val session = composeTestRule.configureFakeSession()
         val initialEntity = Entity.create(session = session, name = "Initial")
@@ -241,6 +295,24 @@ class CoreEntityTest {
         assertThat(coreEntity.semanticsEntity).isEqualTo(newEntity)
         // SceneCore entities are not truly "disposed" in a way we can easily assert, but we can
         // verify the new entity is the one being used.
+    }
+
+    @Test
+    fun coreEntity_dispose_freesUnderlyingEntity() {
+        val session = composeTestRule.configureFakeSession()
+        var coreEntity: CoreGroupEntity? = null
+        fun setInitialEntity() {
+            val initialEntity = Entity.create(session = session, name = "Entity")
+            coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, initialEntity)
+        }
+        setInitialEntity()
+        // Get a weak reference to the Entity so that we can verify that it's garbage collected.
+        val entityRef = WeakReference(coreEntity!!.semanticsEntity)
+        assertThat(entityRef.get()).isNotNull()
+
+        coreEntity.dispose()
+
+        MemoryUtils.assertGarbageCollected(entityRef)
     }
 
     @Test
