@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.camera.video.internal.encoder
+package androidx.camera.testing.impl.fakes
 
+import androidx.camera.video.internal.encoder.InputBuffer
 import androidx.concurrent.futures.ResolvableFuture
 import com.google.common.util.concurrent.ListenableFuture
 import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicBoolean
 
-class FakeInputBuffer(capacity: Int = 16) : InputBuffer {
+public class FakeInputBuffer(capacity: Int = 16) : InputBuffer {
     private val byteBuffer = ByteBuffer.allocate(capacity)
     private val terminationFuture = ResolvableFuture.create<Void>()
     private val isTerminated: AtomicBoolean = AtomicBoolean(false)
     private var presentationTimeUs = 0L
     private var isEndOfStream = false
-    var isCanceled = false
+    public var isCanceled: Boolean = false
         private set
 
-    var isSubmitted = false
+    public var isSubmitted: Boolean = false
         private set
 
     override fun getByteBuffer(): ByteBuffer {
@@ -42,14 +43,14 @@ class FakeInputBuffer(capacity: Int = 16) : InputBuffer {
         this.presentationTimeUs = presentationTimeUs
     }
 
-    fun getPresentationTimeUs() = presentationTimeUs
+    public fun getPresentationTimeUs(): Long = presentationTimeUs
 
     override fun setEndOfStream(isEndOfStream: Boolean) {
         throwIfTerminated()
         this.isEndOfStream = isEndOfStream
     }
 
-    fun isEndOfStream() = isEndOfStream
+    public fun isEndOfStream(): Boolean = isEndOfStream
 
     override fun submit(): Boolean {
         if (!isTerminated.getAndSet(true)) {

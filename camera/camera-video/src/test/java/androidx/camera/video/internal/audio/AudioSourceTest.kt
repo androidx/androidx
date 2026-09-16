@@ -21,13 +21,13 @@ import android.media.MediaRecorder
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.ioExecutor
 import androidx.camera.core.impl.utils.futures.Futures.immediateFailedFuture
 import androidx.camera.core.impl.utils.futures.Futures.immediateFuture
+import androidx.camera.testing.impl.fakes.FakeBufferProvider
+import androidx.camera.testing.impl.fakes.FakeInputBuffer
 import androidx.camera.testing.impl.mocks.helpers.CallTimes
 import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast
 import androidx.camera.video.AudioProcessor
 import androidx.camera.video.PassthroughAudioProcessor
 import androidx.camera.video.internal.BufferProvider
-import androidx.camera.video.internal.FakeBufferProvider
-import androidx.camera.video.internal.encoder.FakeInputBuffer
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import java.nio.ByteBuffer

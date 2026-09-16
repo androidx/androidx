@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.video.internal
+package androidx.camera.testing.impl.fakes
 
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
@@ -23,14 +23,16 @@ import androidx.camera.core.impl.utils.futures.Futures.immediateFuture
 import androidx.camera.testing.impl.mocks.MockConsumer
 import androidx.camera.testing.impl.mocks.helpers.CallTimes
 import androidx.camera.testing.impl.mocks.verifyAcceptCallExt
-import androidx.camera.video.internal.encoder.FakeInputBuffer
+import androidx.camera.video.internal.BufferProvider
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 
-class FakeBufferProvider(
+public class FakeBufferProvider(
     private var state: BufferProvider.State = BufferProvider.State.ACTIVE,
-    private val bufferFactory: (Int) -> ListenableFuture<FakeInputBuffer>,
+    private val bufferFactory: (Int) -> ListenableFuture<FakeInputBuffer> = {
+        immediateFuture(FakeInputBuffer())
+    },
 ) : BufferProvider<FakeInputBuffer> {
     private val submittedBufferCalls = MockConsumer<FakeInputBuffer>()
     private var acquiredBufferNum = 0
@@ -51,13 +53,13 @@ class FakeBufferProvider(
                             },
                             directExecutor(),
                         )
-                    } catch (e: ExecutionException) {
+                    } catch (_: ExecutionException) {
                         // Ignored.
                     }
                 },
                 directExecutor(),
             )
-            return bufferFuture
+            bufferFuture
         } else {
             immediateFailedFuture(IllegalStateException("Not in ACTIVE state"))
         }
@@ -79,12 +81,12 @@ class FakeBufferProvider(
         observers.remove(observer)
     }
 
-    fun verifySubmittedBufferCall(
+    public fun verifySubmittedBufferCall(
         callTimes: CallTimes,
         timeoutMs: Long = MockConsumer.NO_TIMEOUT,
         inOder: Boolean = false,
         onCompleteBuffers: ((List<FakeInputBuffer>) -> Unit)? = null,
-    ) =
+    ): Unit =
         submittedBufferCalls.verifyAcceptCallExt(
             FakeInputBuffer::class.java,
             inOder,
@@ -93,7 +95,7 @@ class FakeBufferProvider(
             onCompleteBuffers,
         )
 
-    fun setState(newState: BufferProvider.State) {
+    public fun setState(newState: BufferProvider.State) {
         if (state == newState) {
             return
         }

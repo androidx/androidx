@@ -22,7 +22,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** Factory class to create {@link AudioStream}. */
-interface AudioStreamFactory {
+public interface AudioStreamFactory {
 
     /**
      * Factory method to create the AudioStream.

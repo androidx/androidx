@@ -16,12 +16,10 @@
 
 package androidx.camera.testing.impl.fakes
 
-import android.graphics.SurfaceTexture
 import android.view.Surface
 import androidx.camera.video.internal.encoder.Encoder
 
-public class FakeEncoderSurfaceInput(private val surface: Surface = Surface(SurfaceTexture(0))) :
-    Encoder.SurfaceInput {
+public class FakeEncoderSurfaceInput(private val surface: Surface) : Encoder.SurfaceInput {
 
     override fun getSurface(): Surface {
         return surface

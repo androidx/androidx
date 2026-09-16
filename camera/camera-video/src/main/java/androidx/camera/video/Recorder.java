@@ -109,6 +109,8 @@ import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.camera.video.internal.audio.AudioSettings;
 import androidx.camera.video.internal.audio.AudioSource;
 import androidx.camera.video.internal.audio.AudioSourceAccessException;
+import androidx.camera.video.internal.audio.AudioStreamFactory;
+import androidx.camera.video.internal.audio.AudioStreamImpl;
 import androidx.camera.video.internal.config.AudioMimeInfo;
 import androidx.camera.video.internal.config.MediaConfigUtil;
 import androidx.camera.video.internal.config.MediaInfo;
@@ -424,6 +426,7 @@ public final class Recorder implements VideoOutput {
     static final EncoderFactory DEFAULT_ENCODER_FACTORY = EncoderImpl::new;
     private static final VideoEncoderInfo.Finder DEFAULT_VIDEO_ENCODER_INFO_FINDER =
             VideoEncoderInfoImpl.FINDER;
+    private static final AudioStreamFactory DEFAULT_AUDIO_STREAM_FACTORY = AudioStreamImpl::new;
     private static final MuxerFactory DEFAULT_MUXER_FACTORY = outputFormat -> {
         switch (outputFormat) {
             case Muxer.MUXER_FORMAT_MPEG_4:
@@ -439,7 +442,7 @@ public final class Recorder implements VideoOutput {
     };
     private static final OutputStorage.Factory OUTPUT_STORAGE_FACTORY_DEFAULT =
             OutputStorageImpl::new;
-    private static final Executor AUDIO_EXECUTOR =
+    static final Executor AUDIO_EXECUTOR =
             CameraXExecutors.newSequentialExecutor(CameraXExecutors.ioExecutor());
     private static final long REQUIRED_FREE_STORAGE_UNSET = -1L;
     private static final long REQUIRED_FREE_STORAGE_DEFAULT_BYTES =
@@ -468,6 +471,7 @@ public final class Recorder implements VideoOutput {
     private final EncoderFactory mAudioEncoderFactory;
     private final MuxerFactory mMuxerFactory;
     private final OutputStorage.Factory mOutputStorageFactory;
+    private final AudioStreamFactory mAudioStreamFactory;
     private final Object mLock = new Object();
     private final @VideoCapabilitiesSource int mVideoCapabilitiesSource;
     private final long mRequiredFreeStorageBytes;
@@ -606,6 +610,7 @@ public final class Recorder implements VideoOutput {
             @NonNull EncoderFactory audioEncoderFactory,
             @NonNull MuxerFactory muxerFactory,
             OutputStorage.@NonNull Factory outputStorageFactory,
+            @NonNull AudioStreamFactory audioStreamFactory,
             long requiredFreeStorageBytes,
             @NonNull List<AudioProcessor> audioProcessors) {
         mUserProvidedExecutor = executor;
@@ -621,6 +626,7 @@ public final class Recorder implements VideoOutput {
         mAudioEncoderFactory = audioEncoderFactory;
         mMuxerFactory = muxerFactory;
         mOutputStorageFactory = outputStorageFactory;
+        mAudioStreamFactory = audioStreamFactory;
         mVideoEncoderSession =
                 new VideoEncoderSession(mVideoEncoderFactory, mSequentialExecutor, mExecutor);
         mRequiredFreeStorageBytes =
@@ -1074,7 +1080,8 @@ public final class Recorder implements VideoOutput {
                         RecordingRecord recordingRecord = RecordingRecord.from(pendingRecording,
                                 recordingId);
                         recordingRecord.initializeRecording(
-                                pendingRecording.getApplicationContext(), mMuxerFactory);
+                                pendingRecording.getApplicationContext(), mMuxerFactory,
+                                mAudioStreamFactory);
                         mPendingRecordingRecord = recordingRecord;
                         if (mState == State.IDLING) {
                             setState(State.PENDING_RECORDING);
@@ -3528,7 +3535,8 @@ public final class Recorder implements VideoOutput {
          * @throws IOException if it fails to duplicate the file descriptor when the
          * {@link #getOutputOptions() OutputOptions} is {@link FileDescriptorOutputOptions}.
          */
-        void initializeRecording(@NonNull Context context, @NonNull MuxerFactory muxerFactory)
+        void initializeRecording(@NonNull Context context, @NonNull MuxerFactory muxerFactory,
+                @NonNull AudioStreamFactory audioStreamFactory)
                 throws IOException {
             if (mInitialized.getAndSet(true)) {
                 throw new AssertionError("Recording " + this + " has already been initialized");
@@ -3626,7 +3634,7 @@ public final class Recorder implements VideoOutput {
 
             Consumer<Uri> recordingFinalizer = null;
             if (hasAudioEnabled()) {
-                mAudioSourceSupplier.set(getAudioSourceSupplier(context));
+                mAudioSourceSupplier.set(getAudioSourceSupplier(context, audioStreamFactory));
             }
 
             if (outputOptions instanceof MediaStoreOutputOptions) {
@@ -3699,7 +3707,8 @@ public final class Recorder implements VideoOutput {
         }
 
         @NonNull
-        private static AudioSourceSupplier getAudioSourceSupplier(@NonNull Context context) {
+        private static AudioSourceSupplier getAudioSourceSupplier(@NonNull Context context,
+                @NonNull AudioStreamFactory audioStreamFactory) {
             Context attributionContext;
             if (Build.VERSION.SDK_INT >= 31) {
                 // Context will only be held in local scope of the supplier so it will
@@ -3720,7 +3729,8 @@ public final class Recorder implements VideoOutput {
                         @NonNull Executor executor,
                         @NonNull List<AudioProcessor> audioProcessors)
                         throws AudioSourceAccessException {
-                    return new AudioSource(settings, executor, attributionContext, audioProcessors);
+                    return new AudioSource(settings, executor, attributionContext, audioProcessors,
+                            audioStreamFactory);
                 }
             };
 
@@ -3938,6 +3948,7 @@ public final class Recorder implements VideoOutput {
         private EncoderFactory mAudioEncoderFactory = DEFAULT_ENCODER_FACTORY;
         private MuxerFactory mMuxerFactory = DEFAULT_MUXER_FACTORY;
         private OutputStorage.Factory mOutputStorageFactory = OUTPUT_STORAGE_FACTORY_DEFAULT;
+        private AudioStreamFactory mAudioStreamFactory = DEFAULT_AUDIO_STREAM_FACTORY;
         private long mRequiredFreeStorageBytes = REQUIRED_FREE_STORAGE_UNSET;
         private List<AudioProcessor> mAudioProcessors = Collections.emptyList();
 
@@ -4331,6 +4342,12 @@ public final class Recorder implements VideoOutput {
             return this;
         }
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @NonNull Builder setAudioStreamFactory(@NonNull AudioStreamFactory audioStreamFactory) {
+            mAudioStreamFactory = audioStreamFactory;
+            return this;
+        }
+
         /**
          * Builds the {@link Recorder} instance.
          *
@@ -4341,7 +4358,8 @@ public final class Recorder implements VideoOutput {
         public @NonNull Recorder build() {
             return new Recorder(mExecutor, mMediaSpecBuilder.build(), mVideoCapabilitiesSource,
                     mVideoEncoderFactory, mAudioEncoderFactory, mMuxerFactory,
-                    mOutputStorageFactory, mRequiredFreeStorageBytes, mAudioProcessors);
+                    mOutputStorageFactory, mAudioStreamFactory, mRequiredFreeStorageBytes,
+                    mAudioProcessors);
         }
     }
 }
