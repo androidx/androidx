@@ -107,7 +107,7 @@ internal constructor(
                 // When ImageSource is closed, the underlying ImageReader is not immediately closed,
                 // because there may be outstanding images. At that point,  whenever an image is
                 // closed, the wrapped image calls discardFreeBuffers under the hood to immediately
-                // deallocate memory. Hence, it's reasonable for discardFreeBuffes or flush to
+                // deallocate memory. Hence, it's reasonable for discardFreeBuffers or flush to
                 // still be callable even after close.
                 Log.debug {
                     "Failed to discardFreeBuffers on $this. Expected if invoked after close()."
@@ -208,7 +208,7 @@ internal constructor(
                     ImageReader.newInstance(width, height, format, capacity)
                 }
 
-            // Create the ImageSource and wire it up the onImageAvailableListener
+            // Create the ImageSource and wire it up to the onImageAvailableListener
             val androidImageReader =
                 AndroidImageReader(imageReader, capacity, usageFlags, streamId, outputId)
             imageReader.setOnImageAvailableListener(androidImageReader, handler)
@@ -272,7 +272,7 @@ public class AndroidMultiResolutionImageReader(
             expectedOutputsListener.onExpectedOutputs(timestamp, setOf(outputId))
         }
 
-        // Note: During camera switches, MultiResolutionImageReaders does not guarantee that
+        // Note: During camera switches, MultiResolutionImageReader does not guarantee that
         // images will always be in monotonically increasing order. The primary reason for this
         // is when a camera switches from one lens to another, which can cause the camera
         // to produce overlapping images from each sensor and can be delivered out of order.
@@ -359,11 +359,11 @@ public class AndroidMultiResolutionImageReader(
             executor: Executor,
             usageFlags: Long?,
             enableConcurrentOutputs: Boolean,
-            plaformApiCompat: PlatformApiCompat?,
+            platformApiCompat: PlatformApiCompat?,
         ): ImageReaderWrapper {
             require(capacity > 0) { "Capacity ($capacity) must be > 0" }
             if (enableConcurrentOutputs) {
-                require(plaformApiCompat?.isMultiResolutionConcurrentReadersEnabled() == true) {
+                require(platformApiCompat?.isMultiResolutionConcurrentReadersEnabled() == true) {
                     "Concurrent MultiResolutionImageReaders are not supported on this device"
                 }
             }
@@ -381,8 +381,8 @@ public class AndroidMultiResolutionImageReader(
             val streamInfos = streamInfoToOutputIdMap.keys
 
             val multiResolutionImageReader =
-                if (plaformApiCompat?.isMultiResolutionConcurrentReadersEnabled() == true) {
-                    plaformApiCompat.buildMultiResolutionImageReader(
+                if (platformApiCompat?.isMultiResolutionConcurrentReadersEnabled() == true) {
+                    platformApiCompat.buildMultiResolutionImageReader(
                         streamInfos,
                         outputFormat,
                         capacity,
@@ -423,10 +423,10 @@ public class AndroidMultiResolutionImageReader(
                     enableConcurrentOutputs,
                 )
             if (
-                plaformApiCompat?.isMultiResolutionConcurrentReadersEnabled() == true &&
+                platformApiCompat?.isMultiResolutionConcurrentReadersEnabled() == true &&
                     enableConcurrentOutputs
             ) {
-                plaformApiCompat.setOnActiveOutputSurfacesListener(
+                platformApiCompat.setOnActiveOutputSurfacesListener(
                     multiResolutionImageReader,
                     executor,
                     androidMultiResolutionImageReader,

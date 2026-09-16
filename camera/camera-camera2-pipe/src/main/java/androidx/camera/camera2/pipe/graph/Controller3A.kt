@@ -199,7 +199,7 @@ constructor(
         retainLocks: Boolean = false,
     ): Deferred<Result3A> {
         // If the GraphProcessor does not have a repeating request we should update the current
-        // parameters, but should not invalidate or trigger set a new listener.
+        // parameters, but should not invalidate or set a new listener.
         if (graphProcessor.repeatingRequest == null) {
             graphState3A.update(
                 aeMode,
@@ -226,7 +226,7 @@ constructor(
         val aeLock: Boolean? = if (retainLocks && currentState3A.aeLock == true) true else null
         val awbLock: Boolean? = if (retainLocks && currentState3A.awbLock == true) true else null
 
-        // Update the 3A state of the graph. This will make sure then when GraphProcessor builds
+        // Update the 3A state of the graph. This will make sure that when GraphProcessor builds
         // the next request it will apply the 3A parameters corresponding to the updated 3A state
         // to the request.
         graphState3A.update(

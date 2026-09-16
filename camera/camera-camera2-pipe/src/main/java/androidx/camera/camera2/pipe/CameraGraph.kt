@@ -197,7 +197,7 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
          * request has started yet.
          *
          * The value represents how many repeating request captures need to be completed before a
-         * non-repeating capture. Note that CameraPipe may have its own logic to. When null,
+         * non-repeating capture. Note that CameraPipe may have its own logic too. When null,
          * CameraPipe will use its own logic to decide whether such a workaround is required. When
          * zero or negative, CameraPipe will disable such behavior.
          *
@@ -237,10 +237,10 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
 
         /**
          * Flag to close the camera capture session when the CameraGraph is stopped or closed. This
-         * is needed in cases where the app that do not wish to receive further frames, or in cases
+         * is needed in cases where the app does not wish to receive further frames, or in cases
          * where not closing the capture session before closing the camera device might cause the
          * camera close call itself to hang indefinitely.
-         * - Bug(s): b/277310425, b/277310425
+         * - Bug(s): b/277310425
          * - Device(s): Depends on the situation and the use case.
          * - API levels: All
          */
@@ -431,8 +431,8 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
          * TODO(sushilnath@): Add support for specifying the AE, AF and AWB modes as well. The
          *   update of modes require special care if the desired lock behavior is immediate. In that
          *   case we have to submit a combination of repeating and single requests so that the AF
-         *   skips the initial state of the new mode's state machine and stays locks in the new mode
-         *   as well.
+         *   skips the initial state of the new mode's state machine and stays locked in the new
+         *   mode as well.
          */
         public suspend fun lock3A(
             aeMode: AeMode? = null,
@@ -468,7 +468,7 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
          *   [timeLimitNs] is reached.
          * @param frameLimit the maximum number of frames to wait before we give up waiting for this
          *   operation to complete.
-         * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
+         * @param timeLimitNs the maximum time limit in ns we wait before we give up waiting for
          *   this operation to complete.
          * @return [Result3A], which will contain the latest frame number at which the auto-focus,
          *   auto-exposure, auto-white balance were unlocked as per the method arguments.
@@ -483,7 +483,7 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
         ): Deferred<Result3A>
 
         /**
-         * This methods does pre-capture metering sequence and locks auto-focus. Once the operation
+         * This method does pre-capture metering sequence and locks auto-focus. Once the operation
          * completes, we can proceed to take high-quality pictures.
          *
          * Note: Flash will be used during pre-capture metering and during image capture if the AE
@@ -496,7 +496,7 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
          *   or [timeLimitNs] is reached.
          * @param frameLimit the maximum number of frames to wait before we give up waiting for this
          *   operation to complete.
-         * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
+         * @param timeLimitNs the maximum time limit in ns we wait before we give up waiting for
          *   this operation to complete.
          * @return [Result3A], which will contain the latest frame number at which the locks were
          *   applied or the frame number at which the method returned early because either frame
@@ -509,7 +509,7 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
         ): Deferred<Result3A>
 
         /**
-         * This methods does pre-capture metering sequence and locks auto-focus. Once the operation
+         * This method does pre-capture metering sequence and locks auto-focus. Once the operation
          * completes, we can proceed to take high-quality pictures.
          *
          * Note: Flash will be used during pre-capture metering and during image capture if the AE
@@ -520,7 +520,7 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
          * @param waitForAwb Whether to wait for AWB to converge/lock, disabled by default.
          * @param frameLimit the maximum number of frames to wait before we give up waiting for this
          *   operation to complete.
-         * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
+         * @param timeLimitNs the maximum time limit in ns we wait before we give up waiting for
          *   this operation to complete.
          * @return [Result3A], which will contain the latest frame number at which the locks were
          *   applied or the frame number at which the method returned early because either frame
@@ -536,8 +536,8 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
         /**
          * After submitting pre-capture metering sequence needed by [lock3AForCapture] method, the
          * camera system can internally lock the auto-exposure routine for subsequent still image
-         * capture, and if not image capture request is submitted the auto-exposure may not resume
-         * it's normal scan. This method brings focus and exposure back to normal after high quality
+         * capture, and if no image capture request is submitted the auto-exposure may not resume
+         * its normal scan. This method brings focus and exposure back to normal after high quality
          * image captures using [lock3AForCapture] method.
          *
          * @param cancelAf Whether to trigger AF cancel, enabled by default.
@@ -580,8 +580,9 @@ public interface CameraGraphBase<TSession : Session> : AutoCloseable {
      */
     public val parameters: Parameters
 
-    /*
-     * This enables setting listeners directly. The listeners would receive callbacks similar to ones added in a [Request]. For detailed usage see [Listeners].
+    /**
+     * This enables setting listeners directly. The listeners would receive callbacks similar to
+     * ones added in a [Request]. For detailed usage see [RequestListeners].
      */
     public val listeners: RequestListeners
 
@@ -653,7 +654,7 @@ public interface CameraGraphBase<TSession : Session> : AutoCloseable {
      * TODO(sushilnath@): Add support for specifying the AE, AF and AWB modes as well. The update of
      *   modes require special care if the desired lock behavior is immediate. In that case we have
      *   to submit a combination of repeating and single requests so that the AF skips the initial
-     *   state of the new mode's state machine and stays locks in the new mode as well.
+     *   state of the new mode's state machine and stays locked in the new mode as well.
      */
     public fun lock3A(
         aeMode: AeMode? = null,
@@ -689,7 +690,7 @@ public interface CameraGraphBase<TSession : Session> : AutoCloseable {
      *   [timeLimitNs] is reached.
      * @param frameLimit the maximum number of frames to wait before we give up waiting for this
      *   operation to complete.
-     * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for this
+     * @param timeLimitNs the maximum time limit in ns we wait before we give up waiting for this
      *   operation to complete.
      * @return [Result3A], which will contain the latest frame number at which the auto-focus,
      *   auto-exposure, auto-white balance were unlocked as per the method arguments.
@@ -884,7 +885,7 @@ public interface CameraGraphBase<TSession : Session> : AutoCloseable {
 }
 
 /**
- * GraphState represents public the public facing state of a [CameraGraph] instance. When created, a
+ * GraphState represents the public-facing state of a [CameraGraph] instance. When created, a
  * [CameraGraph] starts in [GraphStateStopped]. Calling [CameraGraph.start] puts the graph into
  * [GraphStateStarting], and [CameraGraph.stop] puts the graph into [GraphStateStopping]. Remaining
  * states are produced by the underlying camera as a result of these start/stop calls.
