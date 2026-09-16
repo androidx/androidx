@@ -36,6 +36,8 @@ import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.unit.LayoutDirection
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -58,6 +60,11 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         MutableObjectIntMap()
     internal val floatArrayCache: HashMap<RemoteStateCacheKey, FloatArray> = HashMap()
     internal val longArrayCache: HashMap<RemoteStateCacheKey, LongArray> = HashMap()
+
+    public fun addBitmap(image: ImageBitmap): Int = document.addBitmap(image.asAndroidBitmap())
+
+    public fun addNamedBitmap(name: String, image: ImageBitmap): Int =
+        document.addNamedBitmap(name, image.asAndroidBitmap())
 
     internal inline fun getOrPutFloatArray(
         key: RemoteStateCacheKey,
@@ -98,9 +105,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
     ) {
         this.creationDisplayInfo = creationDisplayInfo
         this.profile = profile
-        document =
-            profile.create(creationDisplayInfo.toCreationDisplayInfo(), writerEvents)
-                as RemoteComposeWriterAndroid
+        document = profile.create(creationDisplayInfo.toCreationDisplayInfo(), writerEvents)
         this.remoteDensity = remoteDensity
         this.layoutDirection = layoutDirection
         this.densityBehavior = creationDisplayInfo.densityBehavior
@@ -113,9 +118,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
     ) {
         this.creationDisplayInfo = creationDisplayInfo
         this.profile = profile
-        document =
-            profile.create(creationDisplayInfo.toCreationDisplayInfo(), null)
-                as RemoteComposeWriterAndroid
+        document = profile.create(creationDisplayInfo.toCreationDisplayInfo(), null)
         this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
         this.layoutDirection = LayoutDirection.Ltr
         this.densityBehavior = creationDisplayInfo.densityBehavior

@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 
 /**
  * Abstract base class for all remote bitmap representations in Compose Remote, this class extends
@@ -87,7 +86,7 @@ internal constructor(
         public operator fun invoke(value: ImageBitmap): RemoteImageBitmap {
             return MutableRemoteImageBitmap(value, cacheKey = RemoteConstantCacheKey(value)) {
                 creationState ->
-                creationState.document.addBitmap(value.asAndroidBitmap())
+                creationState.addBitmap(value)
             }
         }
 
@@ -137,9 +136,9 @@ internal constructor(
                 constantValueOrNull = null,
                 cacheKey = RemoteNamedCacheKey(domain, name),
             ) { creationState ->
-                creationState.document.addNamedBitmap(
+                creationState.addNamedBitmap(
                     domain.prefixed(name),
-                    defaultValue.asAndroidBitmap(),
+                    defaultValue,
                 )
             }
 
@@ -155,9 +154,9 @@ internal constructor(
                 constantValueOrNull = null,
                 cacheKey = RemoteNamedCacheKey(domain, name),
             ) { creationState ->
-                creationState.document.addNamedBitmap(
+                creationState.addNamedBitmap(
                     domain.prefixed(name),
-                    bitmap.asAndroidBitmap(),
+                    bitmap,
                 )
             }
         }
@@ -222,7 +221,7 @@ internal constructor(
         constantValueOrNull = initialValue,
         cacheKey = RemoteStateInstanceKey(),
         idProvider = { creationState ->
-            creationState.document.addBitmap(initialValue.asAndroidBitmap())
+            creationState.addBitmap(initialValue)
         },
     )
 
@@ -310,6 +309,6 @@ public val ImageBitmap.rb: RemoteImageBitmap
             constantValueOrNull = this,
             cacheKey = RemoteConstantCacheKey(this),
         ) { creationState ->
-            creationState.document.addBitmap(this.asAndroidBitmap())
+            creationState.addBitmap(this)
         }
     }
