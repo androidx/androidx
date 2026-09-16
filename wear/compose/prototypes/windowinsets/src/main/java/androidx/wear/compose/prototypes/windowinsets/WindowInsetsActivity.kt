@@ -17,6 +17,8 @@
 package androidx.wear.compose.prototypes.windowinsets
 
 import android.os.Bundle
+import android.util.Log
+import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.wear.compose.material3.MaterialTheme
@@ -24,6 +26,20 @@ import androidx.wear.compose.material3.MaterialTheme
 class WindowInsetsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Diagnostic: monitor DecorView mutation of mContentRoot LayoutParams topMargin
+        window.decorView.post {
+            (window.decorView as? ViewGroup)?.getChildAt(0)?.let { contentRoot ->
+                contentRoot.addOnLayoutChangeListener { v, _, top, _, _, _, oldTop, _, _ ->
+                    val lp = v.layoutParams as? ViewGroup.MarginLayoutParams
+                    Log.d(
+                        "WearInsetsDebug",
+                        "DecorView mContentRoot topMargin=${lp?.topMargin} | viewTop=$top (was $oldTop)",
+                    )
+                }
+            }
+        }
+
         setContent { MaterialTheme { WindowInsetsApp() } }
     }
 }
