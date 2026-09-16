@@ -51,6 +51,7 @@ class WordIteratorMultiLanguageTest {
             val config =
                 @Suppress("DEPRECATION")
                 BundledEmojiCompatConfig(context)
+                    .setUseAfterUpdatableSystemFonts(true)
                     .setReplaceAll(true)
                     .registerInitCallback(
                         object : EmojiCompat.InitCallback() {

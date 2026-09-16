@@ -146,6 +146,7 @@ class EmojiCompatStatusTest {
         }
         val config = object : EmojiCompat.Config(loader) {}
         config.setMetadataLoadStrategy(LOAD_STRATEGY_MANUAL)
+        config.setUseAfterUpdatableSystemFonts(true)
         return config to deferred
     }
 }
