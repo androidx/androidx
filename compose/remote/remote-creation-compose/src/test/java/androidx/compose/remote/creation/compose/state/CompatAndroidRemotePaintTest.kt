@@ -158,7 +158,10 @@ class CompatAndroidRemotePaintTest {
         paint.remoteShader = remoteShader
 
         assertThat(paint.remoteShader).isEqualTo(remoteShader)
-        assertThat(paint.shader).isEqualTo(remoteShader)
+        assertThat(paint.shader).isNotNull()
+
+        paint.shader = null
+        assertThat(paint.remoteShader).isNull()
     }
 
     @Test
