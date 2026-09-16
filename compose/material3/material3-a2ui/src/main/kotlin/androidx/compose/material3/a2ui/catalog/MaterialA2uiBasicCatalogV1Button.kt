@@ -159,7 +159,7 @@ internal object MaterialA2uiBasicCatalogV1Button : A2uiBasicCatalogV1.Button {
             )
 
         when (variant) {
-            A2uiBasicCatalogV1.Button.Variant.Default -> {
+            A2uiBasicCatalogV1.Button.Variant.Secondary -> {
                 OutlinedButton(
                     onClick = onClick,
                     enabled = enabled,

@@ -399,9 +399,12 @@ public class A2uiBasicCatalogV1(
             Body("body");
 
             public companion object {
-                /** Returns the [Variant] matching [value], or [Body] if unknown. */
+                /** The default [Variant] when unspecified in the component payload. */
+                public val Default: Variant = Body
+
+                /** Returns the [Variant] matching [value], or [Default] if unknown. */
                 public fun fromValue(value: String): Variant =
-                    entries.fastFirstOrNull { it.value == value } ?: Body
+                    entries.fastFirstOrNull { it.value == value } ?: Default
             }
         }
 
@@ -429,6 +432,7 @@ public class A2uiBasicCatalogV1(
                     enumValues = Variant.entries,
                     mapToString = { it.value },
                     convertFromString = Variant::fromValue,
+                    defaultValue = Variant.Default,
                     description = "A hint for the base text style.",
                 )
 
@@ -452,7 +456,7 @@ public class A2uiBasicCatalogV1(
                 checkNotNull(properties.bind(TextProperty)) {
                     "Required property '${TextProperty.key}' is missing."
                 }
-            val variant = properties[VariantProperty] ?: Variant.Body
+            val variant = properties[VariantProperty] ?: Variant.Default
             val accessibility = properties.bind(AccessibilityProperty)
             TypedContent(
                 text = textValue,
@@ -512,9 +516,12 @@ public class A2uiBasicCatalogV1(
             ScaleDown("scaleDown");
 
             public companion object {
-                /** Returns the [Fit] matching [value], or [Fill] if unknown. */
+                /** The default [Fit] when unspecified in the component payload. */
+                public val Default: Fit = Fill
+
+                /** Returns the [Fit] matching [value], or [Default] if unknown. */
                 public fun fromValue(value: String): Fit =
-                    entries.fastFirstOrNull { it.value == value } ?: Fill
+                    entries.fastFirstOrNull { it.value == value } ?: Default
             }
         }
 
@@ -528,9 +535,12 @@ public class A2uiBasicCatalogV1(
             Header("header");
 
             public companion object {
-                /** Returns the [Variant] matching [value], or [MediumFeature] if unknown. */
+                /** The default [Variant] when unspecified in the component payload. */
+                public val Default: Variant = MediumFeature
+
+                /** Returns the [Variant] matching [value], or [Default] if unknown. */
                 public fun fromValue(value: String): Variant =
-                    entries.fastFirstOrNull { it.value == value } ?: MediumFeature
+                    entries.fastFirstOrNull { it.value == value } ?: Default
             }
         }
 
@@ -562,7 +572,7 @@ public class A2uiBasicCatalogV1(
                     enumValues = Fit.entries,
                     mapToString = { it.value },
                     convertFromString = Fit::fromValue,
-                    defaultValue = Fit.Fill,
+                    defaultValue = Fit.Default,
                     description =
                         "Specifies how the image should be resized to fit its container. " +
                             "This corresponds to the CSS 'object-fit' property.",
@@ -575,7 +585,7 @@ public class A2uiBasicCatalogV1(
                     enumValues = Variant.entries,
                     mapToString = { it.value },
                     convertFromString = Variant::fromValue,
-                    defaultValue = Variant.MediumFeature,
+                    defaultValue = Variant.Default,
                     description = "A hint for the image size and style.",
                 )
 
@@ -607,8 +617,8 @@ public class A2uiBasicCatalogV1(
                     "Required property '${UrlProperty.key}' is missing."
                 }
             val description = properties.bind(DescriptionProperty)
-            val fit = properties[FitProperty] ?: Fit.Fill
-            val variant = properties[VariantProperty] ?: Variant.MediumFeature
+            val fit = properties[FitProperty] ?: Fit.Default
+            val variant = properties[VariantProperty] ?: Variant.Default
             val accessibility = properties.bind(AccessibilityProperty)
 
             TypedContent(
@@ -1051,9 +1061,12 @@ public class A2uiBasicCatalogV1(
             Stretch("stretch");
 
             public companion object {
-                /** Returns the [Justify] matching [value], or [Start] if unknown. */
+                /** The default [Justify] when unspecified in the component payload. */
+                public val Default: Justify = Start
+
+                /** Returns the [Justify] matching [value], or [Default] if unknown. */
                 public fun fromValue(value: String): Justify =
-                    entries.fastFirstOrNull { it.value == value } ?: Start
+                    entries.fastFirstOrNull { it.value == value } ?: Default
             }
         }
 
@@ -1065,9 +1078,12 @@ public class A2uiBasicCatalogV1(
             Stretch("stretch");
 
             public companion object {
-                /** Returns the [Align] matching [value], or [Start] if unknown. */
+                /** The default [Align] when unspecified in the component payload. */
+                public val Default: Align = Start
+
+                /** Returns the [Align] matching [value], or [Default] if unknown. */
                 public fun fromValue(value: String): Align =
-                    entries.fastFirstOrNull { it.value == value } ?: Start
+                    entries.fastFirstOrNull { it.value == value } ?: Default
             }
         }
 
@@ -1095,7 +1111,7 @@ public class A2uiBasicCatalogV1(
                     enumValues = Justify.entries,
                     mapToString = { it.value },
                     convertFromString = Justify::fromValue,
-                    defaultValue = Justify.Start,
+                    defaultValue = Justify.Default,
                     description =
                         "Defines the arrangement of children along the main axis (horizontally). " +
                             "Use 'spaceBetween' to push items to the edges, or " +
@@ -1109,7 +1125,7 @@ public class A2uiBasicCatalogV1(
                     enumValues = Align.entries,
                     mapToString = { it.value },
                     convertFromString = Align::fromValue,
-                    defaultValue = Align.Start,
+                    defaultValue = Align.Default,
                     description =
                         "Defines the alignment of children along the cross axis (vertically). " +
                             "This is similar to the CSS 'align-items' property, but uses " +
@@ -1143,8 +1159,8 @@ public class A2uiBasicCatalogV1(
                     "Required property '${ChildrenProperty.key}' is missing or could not be " +
                         "resolved."
                 }
-            val justify = properties[JustifyProperty] ?: Justify.Start
-            val align = properties[AlignProperty] ?: Align.Start
+            val justify = properties[JustifyProperty] ?: Justify.Default
+            val align = properties[AlignProperty] ?: Align.Default
             val accessibility = properties.bind(AccessibilityProperty)
 
             TypedContent(
@@ -1213,9 +1229,12 @@ public class A2uiBasicCatalogV1(
             Stretch("stretch");
 
             public companion object {
-                /** Returns the [Justify] matching [value], or [Start] if unknown. */
+                /** The default [Justify] when unspecified in the component payload. */
+                public val Default: Justify = Start
+
+                /** Returns the [Justify] matching [value], or [Default] if unknown. */
                 public fun fromValue(value: String): Justify =
-                    entries.fastFirstOrNull { it.value == value } ?: Start
+                    entries.fastFirstOrNull { it.value == value } ?: Default
             }
         }
 
@@ -1227,9 +1246,12 @@ public class A2uiBasicCatalogV1(
             Stretch("stretch");
 
             public companion object {
-                /** Returns the [Align] matching [value], or [Start] if unknown. */
+                /** The default [Align] when unspecified in the component payload. */
+                public val Default: Align = Start
+
+                /** Returns the [Align] matching [value], or [Default] if unknown. */
                 public fun fromValue(value: String): Align =
-                    entries.fastFirstOrNull { it.value == value } ?: Start
+                    entries.fastFirstOrNull { it.value == value } ?: Default
             }
         }
 
@@ -1257,7 +1279,7 @@ public class A2uiBasicCatalogV1(
                     enumValues = Justify.entries,
                     mapToString = { it.value },
                     convertFromString = Justify::fromValue,
-                    defaultValue = Justify.Start,
+                    defaultValue = Justify.Default,
                     description =
                         "Defines the arrangement of children along the main axis (vertically). " +
                             "Use 'spaceBetween' to push items to the edges (e.g. header at top, " +
@@ -1271,7 +1293,7 @@ public class A2uiBasicCatalogV1(
                     enumValues = Align.entries,
                     mapToString = { it.value },
                     convertFromString = Align::fromValue,
-                    defaultValue = Align.Start,
+                    defaultValue = Align.Default,
                     description =
                         "Defines the alignment of children along the cross axis (horizontally). " +
                             "This is similar to the CSS 'align-items' property.",
@@ -1304,8 +1326,8 @@ public class A2uiBasicCatalogV1(
                     "Required property '${ChildrenProperty.key}' is missing or could not be " +
                         "resolved."
                 }
-            val justify = properties[JustifyProperty] ?: Justify.Start
-            val align = properties[AlignProperty] ?: Align.Start
+            val justify = properties[JustifyProperty] ?: Justify.Default
+            val align = properties[AlignProperty] ?: Align.Default
             val accessibility = properties.bind(AccessibilityProperty)
 
             TypedContent(
@@ -1900,11 +1922,14 @@ public class A2uiBasicCatalogV1(
 
         /** Visual style variant for a [Button]. */
         public enum class Variant(public val value: String) {
-            Default("default"),
+            Secondary("default"),
             Primary("primary"),
             Borderless("borderless");
 
             public companion object {
+                /** The default [Variant] when unspecified in the component payload. */
+                public val Default: Variant = Secondary
+
                 /** Returns the [Variant] matching [value], or [Default] if unknown. */
                 public fun fromValue(value: String): Variant =
                     entries.fastFirstOrNull { it.value == value } ?: Default

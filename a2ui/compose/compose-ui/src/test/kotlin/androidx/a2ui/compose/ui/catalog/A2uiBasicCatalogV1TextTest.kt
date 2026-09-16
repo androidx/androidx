@@ -17,10 +17,13 @@
 package androidx.a2ui.compose.ui.catalog
 
 import androidx.a2ui.compose.runtime.A2uiComponentScope
+import androidx.a2ui.model.schema.A2uiSchemaKeyword
+import androidx.a2ui.model.schema.A2uiStringSchema
 import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertIs
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -62,6 +65,32 @@ class A2uiBasicCatalogV1TextTest {
 
         assertThat(A2uiBasicCatalogV1.Text.TextProperty.key).isEqualTo("text")
         assertThat(A2uiBasicCatalogV1.Text.VariantProperty.key).isEqualTo("variant")
+        val variantSchema =
+            assertIs<A2uiStringSchema>(A2uiBasicCatalogV1.Text.VariantProperty.schema)
+        assertThat(variantSchema.description).isEqualTo("A hint for the base text style.")
+        assertThat(variantSchema.keywords)
+            .contains(
+                A2uiSchemaKeyword.Enum(listOf("h1", "h2", "h3", "h4", "h5", "caption", "body"))
+            )
+        assertThat(variantSchema.keywords)
+            .contains(A2uiSchemaKeyword.Default(A2uiBasicCatalogV1.Text.Variant.Body.value))
+    }
+
+    @Test
+    fun variant_values_matchSpecificationStrings() {
+        assertThat(A2uiBasicCatalogV1.Text.Variant.H1.value).isEqualTo("h1")
+        assertThat(A2uiBasicCatalogV1.Text.Variant.H2.value).isEqualTo("h2")
+        assertThat(A2uiBasicCatalogV1.Text.Variant.H3.value).isEqualTo("h3")
+        assertThat(A2uiBasicCatalogV1.Text.Variant.H4.value).isEqualTo("h4")
+        assertThat(A2uiBasicCatalogV1.Text.Variant.H5.value).isEqualTo("h5")
+        assertThat(A2uiBasicCatalogV1.Text.Variant.Caption.value).isEqualTo("caption")
+        assertThat(A2uiBasicCatalogV1.Text.Variant.Body.value).isEqualTo("body")
+    }
+
+    @Test
+    fun variant_default_isBody() {
+        assertThat(A2uiBasicCatalogV1.Text.Variant.Default)
+            .isEqualTo(A2uiBasicCatalogV1.Text.Variant.Body)
     }
 
     @Test
@@ -83,10 +112,10 @@ class A2uiBasicCatalogV1TextTest {
     }
 
     @Test
-    fun variant_fromValue_invalidOrEmptyString_fallsBackToBody() {
+    fun variant_fromValue_invalidOrEmptyString_fallsBackToDefault() {
         assertThat(A2uiBasicCatalogV1.Text.Variant.fromValue("invalid_variant"))
-            .isEqualTo(A2uiBasicCatalogV1.Text.Variant.Body)
+            .isEqualTo(A2uiBasicCatalogV1.Text.Variant.Default)
         assertThat(A2uiBasicCatalogV1.Text.Variant.fromValue(""))
-            .isEqualTo(A2uiBasicCatalogV1.Text.Variant.Body)
+            .isEqualTo(A2uiBasicCatalogV1.Text.Variant.Default)
     }
 }

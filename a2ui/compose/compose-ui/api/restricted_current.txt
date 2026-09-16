@@ -175,13 +175,15 @@ package androidx.a2ui.compose.ui.catalog {
     method @InaccessibleFromKotlin public String getValue();
     property public String value;
     enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button.Variant Borderless;
-    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button.Variant Default;
     enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button.Variant Primary;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button.Variant Secondary;
     field public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button.Variant.Companion Companion;
   }
 
   public static final class A2uiBasicCatalogV1.Button.Variant.Companion {
     method public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button.Variant fromValue(String value);
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button.Variant getDefault();
+    property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button.Variant Default;
   }
 
   public static interface A2uiBasicCatalogV1.Card extends androidx.a2ui.compose.ui.A2uiComponent {
@@ -333,6 +335,8 @@ package androidx.a2ui.compose.ui.catalog {
 
   public static final class A2uiBasicCatalogV1.Column.Align.Companion {
     method public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column.Align fromValue(String value);
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column.Align getDefault();
+    property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column.Align Default;
   }
 
   public static final class A2uiBasicCatalogV1.Column.Companion {
@@ -361,6 +365,8 @@ package androidx.a2ui.compose.ui.catalog {
 
   public static final class A2uiBasicCatalogV1.Column.Justify.Companion {
     method public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column.Justify fromValue(String value);
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column.Justify getDefault();
+    property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column.Justify Default;
   }
 
   public static final class A2uiBasicCatalogV1.Companion {
@@ -584,6 +590,8 @@ package androidx.a2ui.compose.ui.catalog {
 
   public static final class A2uiBasicCatalogV1.Image.Fit.Companion {
     method public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image.Fit fromValue(String value);
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image.Fit getDefault();
+    property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image.Fit Default;
   }
 
   public enum A2uiBasicCatalogV1.Image.Variant {
@@ -600,6 +608,8 @@ package androidx.a2ui.compose.ui.catalog {
 
   public static final class A2uiBasicCatalogV1.Image.Variant.Companion {
     method public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image.Variant fromValue(String value);
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image.Variant getDefault();
+    property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image.Variant Default;
   }
 
   public static interface A2uiBasicCatalogV1.List extends androidx.a2ui.compose.ui.A2uiComponent {
@@ -706,6 +716,8 @@ package androidx.a2ui.compose.ui.catalog {
 
   public static final class A2uiBasicCatalogV1.Row.Align.Companion {
     method public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row.Align fromValue(String value);
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row.Align getDefault();
+    property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row.Align Default;
   }
 
   public static final class A2uiBasicCatalogV1.Row.Companion {
@@ -734,6 +746,8 @@ package androidx.a2ui.compose.ui.catalog {
 
   public static final class A2uiBasicCatalogV1.Row.Justify.Companion {
     method public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row.Justify fromValue(String value);
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row.Justify getDefault();
+    property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row.Justify Default;
   }
 
   public static interface A2uiBasicCatalogV1.Slider extends androidx.a2ui.compose.ui.A2uiComponent {
@@ -836,6 +850,8 @@ package androidx.a2ui.compose.ui.catalog {
 
   public static final class A2uiBasicCatalogV1.Text.Variant.Companion {
     method public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text.Variant fromValue(String value);
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text.Variant getDefault();
+    property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text.Variant Default;
   }
 
   public static interface A2uiBasicCatalogV1.TextField extends androidx.a2ui.compose.ui.A2uiComponent {

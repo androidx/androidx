@@ -201,22 +201,61 @@ class A2uiBasicCatalogV1ChoicePickerTest {
     }
 
     @Test
-    fun variant_fromValue_returnsExpectedEnum() {
+    fun variant_default_isMutuallyExclusive() {
+        assertThat(A2uiBasicCatalogV1.ChoicePicker.Variant.Default)
+            .isEqualTo(A2uiBasicCatalogV1.ChoicePicker.Variant.MutuallyExclusive)
+    }
+
+    @Test
+    fun variant_values_matchSpecificationStrings() {
+        assertThat(A2uiBasicCatalogV1.ChoicePicker.Variant.MutuallyExclusive.value)
+            .isEqualTo("mutuallyExclusive")
+        assertThat(A2uiBasicCatalogV1.ChoicePicker.Variant.MultipleSelection.value)
+            .isEqualTo("multipleSelection")
+    }
+
+    @Test
+    fun variant_fromValue_validStrings_returnsCorrespondingVariant() {
         assertThat(A2uiBasicCatalogV1.ChoicePicker.Variant.fromValue("mutuallyExclusive"))
             .isEqualTo(A2uiBasicCatalogV1.ChoicePicker.Variant.MutuallyExclusive)
         assertThat(A2uiBasicCatalogV1.ChoicePicker.Variant.fromValue("multipleSelection"))
             .isEqualTo(A2uiBasicCatalogV1.ChoicePicker.Variant.MultipleSelection)
+    }
+
+    @Test
+    fun variant_fromValue_invalidOrEmptyString_fallsBackToDefault() {
         assertThat(A2uiBasicCatalogV1.ChoicePicker.Variant.fromValue("unknown"))
+            .isEqualTo(A2uiBasicCatalogV1.ChoicePicker.Variant.Default)
+        assertThat(A2uiBasicCatalogV1.ChoicePicker.Variant.fromValue(""))
             .isEqualTo(A2uiBasicCatalogV1.ChoicePicker.Variant.Default)
     }
 
     @Test
-    fun displayStyle_fromValue_returnsExpectedEnum() {
+    fun displayStyle_default_isCheckbox() {
+        assertThat(A2uiBasicCatalogV1.ChoicePicker.DisplayStyle.Default)
+            .isEqualTo(A2uiBasicCatalogV1.ChoicePicker.DisplayStyle.Checkbox)
+    }
+
+    @Test
+    fun displayStyle_values_matchSpecificationStrings() {
+        assertThat(A2uiBasicCatalogV1.ChoicePicker.DisplayStyle.Checkbox.value)
+            .isEqualTo("checkbox")
+        assertThat(A2uiBasicCatalogV1.ChoicePicker.DisplayStyle.Chips.value).isEqualTo("chips")
+    }
+
+    @Test
+    fun displayStyle_fromValue_validStrings_returnsCorrespondingDisplayStyle() {
         assertThat(A2uiBasicCatalogV1.ChoicePicker.DisplayStyle.fromValue("checkbox"))
             .isEqualTo(A2uiBasicCatalogV1.ChoicePicker.DisplayStyle.Checkbox)
         assertThat(A2uiBasicCatalogV1.ChoicePicker.DisplayStyle.fromValue("chips"))
             .isEqualTo(A2uiBasicCatalogV1.ChoicePicker.DisplayStyle.Chips)
+    }
+
+    @Test
+    fun displayStyle_fromValue_invalidOrEmptyString_fallsBackToDefault() {
         assertThat(A2uiBasicCatalogV1.ChoicePicker.DisplayStyle.fromValue("unknown"))
+            .isEqualTo(A2uiBasicCatalogV1.ChoicePicker.DisplayStyle.Default)
+        assertThat(A2uiBasicCatalogV1.ChoicePicker.DisplayStyle.fromValue(""))
             .isEqualTo(A2uiBasicCatalogV1.ChoicePicker.DisplayStyle.Default)
     }
 }

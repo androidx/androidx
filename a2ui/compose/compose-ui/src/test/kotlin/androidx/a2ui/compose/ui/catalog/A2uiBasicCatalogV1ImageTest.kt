@@ -143,11 +143,17 @@ class A2uiBasicCatalogV1ImageTest {
     }
 
     @Test
-    fun fit_fromValue_invalidOrEmptyString_fallsBackToFill() {
+    fun fit_default_isFill() {
+        assertThat(A2uiBasicCatalogV1.Image.Fit.Default)
+            .isEqualTo(A2uiBasicCatalogV1.Image.Fit.Fill)
+    }
+
+    @Test
+    fun fit_fromValue_invalidOrEmptyString_fallsBackToDefault() {
         assertThat(A2uiBasicCatalogV1.Image.Fit.fromValue("invalid_fit"))
-            .isEqualTo(A2uiBasicCatalogV1.Image.Fit.Fill)
+            .isEqualTo(A2uiBasicCatalogV1.Image.Fit.Default)
         assertThat(A2uiBasicCatalogV1.Image.Fit.fromValue(""))
-            .isEqualTo(A2uiBasicCatalogV1.Image.Fit.Fill)
+            .isEqualTo(A2uiBasicCatalogV1.Image.Fit.Default)
     }
 
     @Test
@@ -177,10 +183,16 @@ class A2uiBasicCatalogV1ImageTest {
     }
 
     @Test
-    fun variant_fromValue_invalidOrEmptyString_fallsBackToMediumFeature() {
+    fun variant_default_isMediumFeature() {
+        assertThat(A2uiBasicCatalogV1.Image.Variant.Default)
+            .isEqualTo(A2uiBasicCatalogV1.Image.Variant.MediumFeature)
+    }
+
+    @Test
+    fun variant_fromValue_invalidOrEmptyString_fallsBackToDefault() {
         assertThat(A2uiBasicCatalogV1.Image.Variant.fromValue("invalid_variant"))
-            .isEqualTo(A2uiBasicCatalogV1.Image.Variant.MediumFeature)
+            .isEqualTo(A2uiBasicCatalogV1.Image.Variant.Default)
         assertThat(A2uiBasicCatalogV1.Image.Variant.fromValue(""))
-            .isEqualTo(A2uiBasicCatalogV1.Image.Variant.MediumFeature)
+            .isEqualTo(A2uiBasicCatalogV1.Image.Variant.Default)
     }
 }

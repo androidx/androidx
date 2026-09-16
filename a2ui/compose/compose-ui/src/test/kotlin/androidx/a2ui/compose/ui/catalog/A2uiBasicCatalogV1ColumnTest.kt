@@ -66,8 +66,8 @@ class A2uiBasicCatalogV1ColumnTest {
     @Test
     fun companionProperties_haveExpectedSchema() {
         val justifySchema =
-            assertIs<A2uiStringSchema>(A2uiBasicCatalogV1.Row.JustifyProperty.schema)
-        val alignSchema = assertIs<A2uiStringSchema>(A2uiBasicCatalogV1.Row.AlignProperty.schema)
+            assertIs<A2uiStringSchema>(A2uiBasicCatalogV1.Column.JustifyProperty.schema)
+        val alignSchema = assertIs<A2uiStringSchema>(A2uiBasicCatalogV1.Column.AlignProperty.schema)
 
         assertThat(A2uiBasicCatalogV1.Column.AccessibilityProperty.key).isEqualTo("accessibility")
         assertThat(A2uiBasicCatalogV1.Column.AccessibilityProperty.isRequired).isFalse()
@@ -76,9 +76,38 @@ class A2uiBasicCatalogV1ColumnTest {
 
         assertThat(A2uiBasicCatalogV1.Column.ChildrenProperty.key).isEqualTo("children")
         assertThat(A2uiBasicCatalogV1.Column.JustifyProperty.key).isEqualTo("justify")
-        assertThat(justifySchema.keywords).contains(A2uiSchemaKeyword.Default("start"))
+        assertThat(justifySchema.keywords)
+            .contains(
+                A2uiSchemaKeyword.Enum(
+                    listOf(
+                        "start",
+                        "center",
+                        "end",
+                        "spaceBetween",
+                        "spaceAround",
+                        "spaceEvenly",
+                        "stretch",
+                    )
+                )
+            )
+        assertThat(justifySchema.keywords)
+            .contains(A2uiSchemaKeyword.Default(A2uiBasicCatalogV1.Column.Justify.Start.value))
         assertThat(A2uiBasicCatalogV1.Column.AlignProperty.key).isEqualTo("align")
-        assertThat(alignSchema.keywords).contains(A2uiSchemaKeyword.Default("start"))
+        assertThat(alignSchema.keywords)
+            .contains(A2uiSchemaKeyword.Enum(listOf("center", "end", "start", "stretch")))
+        assertThat(alignSchema.keywords)
+            .contains(A2uiSchemaKeyword.Default(A2uiBasicCatalogV1.Column.Align.Start.value))
+    }
+
+    @Test
+    fun justify_values_matchSpecificationStrings() {
+        assertThat(A2uiBasicCatalogV1.Column.Justify.Start.value).isEqualTo("start")
+        assertThat(A2uiBasicCatalogV1.Column.Justify.Center.value).isEqualTo("center")
+        assertThat(A2uiBasicCatalogV1.Column.Justify.End.value).isEqualTo("end")
+        assertThat(A2uiBasicCatalogV1.Column.Justify.SpaceBetween.value).isEqualTo("spaceBetween")
+        assertThat(A2uiBasicCatalogV1.Column.Justify.SpaceAround.value).isEqualTo("spaceAround")
+        assertThat(A2uiBasicCatalogV1.Column.Justify.SpaceEvenly.value).isEqualTo("spaceEvenly")
+        assertThat(A2uiBasicCatalogV1.Column.Justify.Stretch.value).isEqualTo("stretch")
     }
 
     @Test
@@ -100,11 +129,25 @@ class A2uiBasicCatalogV1ColumnTest {
     }
 
     @Test
-    fun justify_fromValue_invalidOrEmptyString_fallsBackToStart() {
+    fun justify_default_isStart() {
+        assertThat(A2uiBasicCatalogV1.Column.Justify.Default)
+            .isEqualTo(A2uiBasicCatalogV1.Column.Justify.Start)
+    }
+
+    @Test
+    fun justify_fromValue_invalidOrEmptyString_fallsBackToDefault() {
         assertThat(A2uiBasicCatalogV1.Column.Justify.fromValue("invalid_justify"))
-            .isEqualTo(A2uiBasicCatalogV1.Column.Justify.Start)
+            .isEqualTo(A2uiBasicCatalogV1.Column.Justify.Default)
         assertThat(A2uiBasicCatalogV1.Column.Justify.fromValue(""))
-            .isEqualTo(A2uiBasicCatalogV1.Column.Justify.Start)
+            .isEqualTo(A2uiBasicCatalogV1.Column.Justify.Default)
+    }
+
+    @Test
+    fun align_values_matchSpecificationStrings() {
+        assertThat(A2uiBasicCatalogV1.Column.Align.Center.value).isEqualTo("center")
+        assertThat(A2uiBasicCatalogV1.Column.Align.End.value).isEqualTo("end")
+        assertThat(A2uiBasicCatalogV1.Column.Align.Start.value).isEqualTo("start")
+        assertThat(A2uiBasicCatalogV1.Column.Align.Stretch.value).isEqualTo("stretch")
     }
 
     @Test
@@ -120,10 +163,16 @@ class A2uiBasicCatalogV1ColumnTest {
     }
 
     @Test
-    fun align_fromValue_invalidOrEmptyString_fallsBackToStart() {
+    fun align_default_isStart() {
+        assertThat(A2uiBasicCatalogV1.Column.Align.Default)
+            .isEqualTo(A2uiBasicCatalogV1.Column.Align.Start)
+    }
+
+    @Test
+    fun align_fromValue_invalidOrEmptyString_fallsBackToDefault() {
         assertThat(A2uiBasicCatalogV1.Column.Align.fromValue("invalid_align"))
-            .isEqualTo(A2uiBasicCatalogV1.Column.Align.Start)
+            .isEqualTo(A2uiBasicCatalogV1.Column.Align.Default)
         assertThat(A2uiBasicCatalogV1.Column.Align.fromValue(""))
-            .isEqualTo(A2uiBasicCatalogV1.Column.Align.Start)
+            .isEqualTo(A2uiBasicCatalogV1.Column.Align.Default)
     }
 }
