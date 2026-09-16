@@ -73,7 +73,7 @@ import androidx.tv.material3.tokens.Elevation
  */
 @NonRestartableComposable
 @Composable
-fun Button(
+public fun Button(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
@@ -145,7 +145,7 @@ fun Button(
  */
 @NonRestartableComposable
 @Composable
-fun OutlinedButton(
+public fun OutlinedButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,

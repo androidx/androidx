@@ -28,7 +28,7 @@ import androidx.tv.foundation.ExperimentalTvFoundationApi
  *   keyboard.
  */
 @ExperimentalTvFoundationApi
-fun PlatformImeOptions(horizontalAlignment: TvKeyboardAlignment) =
+public fun PlatformImeOptions(horizontalAlignment: TvKeyboardAlignment): PlatformImeOptions =
     PlatformImeOptions(horizontalAlignment.option)
 
 /**
@@ -40,7 +40,7 @@ fun PlatformImeOptions(horizontalAlignment: TvKeyboardAlignment) =
  *   keyboard.
  */
 @ExperimentalTvFoundationApi
-fun PlatformImeOptions.keyboardAlignment(
+public fun PlatformImeOptions.keyboardAlignment(
     horizontalAlignment: TvKeyboardAlignment
 ): PlatformImeOptions {
     val privateImeOptions =
@@ -54,7 +54,7 @@ fun PlatformImeOptions.keyboardAlignment(
  * It is not guaranteed if IME will comply with the options provided here.
  */
 @ExperimentalTvFoundationApi
-enum class TvKeyboardAlignment(val option: String? = null) {
+public enum class TvKeyboardAlignment(public val option: String? = null) {
     Left("horizontalAlignment=left"),
     Right("horizontalAlignment=right"),
     Center("horizontalAlignment=center"),

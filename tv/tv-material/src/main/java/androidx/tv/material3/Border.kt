@@ -33,10 +33,10 @@ import androidx.tv.material3.tokens.ShapeTokens
  * @param shape defines the [Shape] of the border
  */
 @Immutable
-class Border(
-    val border: BorderStroke,
-    val inset: Dp = 0.dp,
-    val shape: Shape = ShapeTokens.BorderDefaultShape,
+public class Border(
+    public val border: BorderStroke,
+    public val inset: Dp = 0.dp,
+    public val shape: Shape = ShapeTokens.BorderDefaultShape,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -62,19 +62,19 @@ class Border(
         return "Border(border=$border, inset=$inset, shape=$shape)"
     }
 
-    fun copy(border: BorderStroke? = null, inset: Dp? = null, shape: Shape? = null): Border =
+    public fun copy(border: BorderStroke? = null, inset: Dp? = null, shape: Shape? = null): Border =
         Border(
             border = border ?: this.border,
             inset = inset ?: this.inset,
             shape = shape ?: this.shape,
         )
 
-    companion object {
+    public companion object {
         /**
          * Signifies the absence of a border. Use this if you do not want to display a border
          * indication in any of the TV Components.
          */
-        val None =
+        public val None: Border =
             Border(
                 border = BorderStroke(width = 0.dp, color = Color.Transparent),
                 inset = 0.dp,

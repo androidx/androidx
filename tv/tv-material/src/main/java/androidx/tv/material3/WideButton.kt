@@ -73,7 +73,7 @@ import androidx.tv.material3.tokens.Elevation
  */
 @NonRestartableComposable
 @Composable
-fun WideButton(
+public fun WideButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
@@ -142,7 +142,7 @@ fun WideButton(
  */
 @NonRestartableComposable
 @Composable
-fun WideButton(
+public fun WideButton(
     onClick: () -> Unit,
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,

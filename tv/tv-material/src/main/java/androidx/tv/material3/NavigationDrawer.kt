@@ -76,7 +76,7 @@ import androidx.compose.ui.zIndex
  *   state.
  */
 @Composable
-fun ModalNavigationDrawer(
+public fun ModalNavigationDrawer(
     drawerContent: @Composable NavigationDrawerScope.(DrawerValue) -> Unit,
     modifier: Modifier = Modifier,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
@@ -139,7 +139,7 @@ fun ModalNavigationDrawer(
  * @param content content of the rest of the UI
  */
 @Composable
-fun NavigationDrawer(
+public fun NavigationDrawer(
     drawerContent: @Composable NavigationDrawerScope.(DrawerValue) -> Unit,
     modifier: Modifier = Modifier,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
@@ -152,7 +152,7 @@ fun NavigationDrawer(
 }
 
 /** States that the drawer can exist in. */
-enum class DrawerValue {
+public enum class DrawerValue {
     /** The state of the drawer when it is closed. */
     Closed,
 
@@ -165,8 +165,8 @@ enum class DrawerValue {
  *
  * @param initialValue the initial value ([DrawerValue.Closed] or [DrawerValue.Open]) of the drawer.
  */
-class DrawerState(initialValue: DrawerValue = DrawerValue.Closed) {
-    var currentValue by mutableStateOf(initialValue)
+public class DrawerState(initialValue: DrawerValue = DrawerValue.Closed) {
+    public var currentValue: DrawerValue by mutableStateOf(initialValue)
         private set
 
     /**
@@ -174,16 +174,16 @@ class DrawerState(initialValue: DrawerValue = DrawerValue.Closed) {
      *
      * @param drawerValue the value the state of the drawer should be set to.
      */
-    fun setValue(drawerValue: DrawerValue) {
+    public fun setValue(drawerValue: DrawerValue) {
         currentValue = drawerValue
     }
 
-    companion object {
+    public companion object {
         /**
          * The [Saver] used by [rememberDrawerState] to record and restore [DrawerState] across
          * activity or process recreation.
          */
-        val Saver =
+        public val Saver: Saver<DrawerState, DrawerValue> =
             Saver<DrawerState, DrawerValue>(
                 save = { it.currentValue },
                 restore = { DrawerState(it) },
@@ -197,7 +197,7 @@ class DrawerState(initialValue: DrawerValue = DrawerValue.Closed) {
  * @param initialValue The initial value of the state.
  */
 @Composable
-fun rememberDrawerState(initialValue: DrawerValue): DrawerState {
+public fun rememberDrawerState(initialValue: DrawerValue): DrawerState {
     return rememberSaveable(saver = DrawerState.Saver) { DrawerState(initialValue) }
 }
 

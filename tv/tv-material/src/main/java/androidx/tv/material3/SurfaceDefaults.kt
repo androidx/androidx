@@ -27,9 +27,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 /** Contains the default values used by a non-interactive [Surface] */
-object SurfaceDefaults {
+public object SurfaceDefaults {
     /** Represents the default shape used by a non-interactive [Surface] */
-    val shape: Shape
+    public val shape: Shape
         @ReadOnlyComposable @Composable get() = RectangleShape
 
     /**
@@ -41,10 +41,10 @@ object SurfaceDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun colors(
+    public fun colors(
         containerColor: Color = MaterialTheme.colorScheme.surface,
         contentColor: Color = contentColorFor(containerColor),
-    ) = SurfaceColors(containerColor = containerColor, contentColor = contentColor)
+    ): SurfaceColors = SurfaceColors(containerColor = containerColor, contentColor = contentColor)
 
     /** Represents the default border used by a non-interactive [Surface] */
     internal val border: Border = Border.None
@@ -54,7 +54,7 @@ object SurfaceDefaults {
 }
 
 /** Contains the default values used by clickable Surface. */
-object ClickableSurfaceDefaults {
+public object ClickableSurfaceDefaults {
     /**
      * Creates a [ClickableSurfaceShape] that represents the default container shapes used in a
      * Surface.
@@ -67,13 +67,13 @@ object ClickableSurfaceDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun shape(
+    public fun shape(
         shape: Shape = MaterialTheme.shapes.medium,
         focusedShape: Shape = shape,
         pressedShape: Shape = shape,
         disabledShape: Shape = shape,
         focusedDisabledShape: Shape = disabledShape,
-    ) =
+    ): ClickableSurfaceShape =
         ClickableSurfaceShape(
             shape = shape,
             focusedShape = focusedShape,
@@ -97,7 +97,7 @@ object ClickableSurfaceDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun colors(
+    public fun colors(
         containerColor: Color = MaterialTheme.colorScheme.surface,
         contentColor: Color = contentColorFor(containerColor),
         focusedContainerColor: Color = MaterialTheme.colorScheme.inverseSurface,
@@ -107,7 +107,7 @@ object ClickableSurfaceDefaults {
         disabledContainerColor: Color =
             MaterialTheme.colorScheme.surfaceVariant.copy(alpha = DisabledContainerAlpha),
         disabledContentColor: Color = MaterialTheme.colorScheme.onSurface,
-    ) =
+    ): ClickableSurfaceColors =
         ClickableSurfaceColors(
             containerColor = containerColor,
             contentColor = contentColor,
@@ -131,13 +131,13 @@ object ClickableSurfaceDefaults {
      * @param disabledScale the scale to be used for this Surface when disabled
      * @param focusedDisabledScale the scale to be used for this Surface when disabled and focused
      */
-    fun scale(
+    public fun scale(
         @FloatRange(from = 0.0) scale: Float = 1f,
         @FloatRange(from = 0.0) focusedScale: Float = 1.1f,
         @FloatRange(from = 0.0) pressedScale: Float = scale,
         @FloatRange(from = 0.0) disabledScale: Float = scale,
         @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale,
-    ) =
+    ): ClickableSurfaceScale =
         ClickableSurfaceScale(
             scale = scale,
             focusedScale = focusedScale,
@@ -159,7 +159,7 @@ object ClickableSurfaceDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun border(
+    public fun border(
         border: Border = Border.None,
         focusedBorder: Border = border,
         pressedBorder: Border = focusedBorder,
@@ -170,7 +170,7 @@ object ClickableSurfaceDefaults {
                 inset = 0.dp,
                 shape = ShapeDefaults.Small,
             ),
-    ) =
+    ): ClickableSurfaceBorder =
         ClickableSurfaceBorder(
             border = border,
             focusedBorder = focusedBorder,
@@ -186,12 +186,16 @@ object ClickableSurfaceDefaults {
      * @param focusedGlow the Glow behind this Surface when focused
      * @param pressedGlow the Glow behind this Surface when pressed
      */
-    fun glow(glow: Glow = Glow.None, focusedGlow: Glow = glow, pressedGlow: Glow = glow) =
+    public fun glow(
+        glow: Glow = Glow.None,
+        focusedGlow: Glow = glow,
+        pressedGlow: Glow = glow,
+    ): ClickableSurfaceGlow =
         ClickableSurfaceGlow(glow = glow, focusedGlow = focusedGlow, pressedGlow = pressedGlow)
 }
 
 /** Contains the default values used by Selectable Surface. */
-object SelectableSurfaceDefaults {
+public object SelectableSurfaceDefaults {
     /**
      * Creates a [SelectableSurfaceShape] that represents the default container shapes used in a
      * selectable Surface.
@@ -210,7 +214,7 @@ object SelectableSurfaceDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun shape(
+    public fun shape(
         shape: Shape = MaterialTheme.shapes.medium,
         focusedShape: Shape = shape,
         pressedShape: Shape = shape,
@@ -221,7 +225,7 @@ object SelectableSurfaceDefaults {
         pressedSelectedShape: Shape = shape,
         selectedDisabledShape: Shape = disabledShape,
         focusedSelectedDisabledShape: Shape = disabledShape,
-    ) =
+    ): SelectableSurfaceShape =
         SelectableSurfaceShape(
             shape = shape,
             focusedShape = focusedShape,
@@ -265,7 +269,7 @@ object SelectableSurfaceDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun colors(
+    public fun colors(
         containerColor: Color = MaterialTheme.colorScheme.surface,
         contentColor: Color = contentColorFor(containerColor),
         focusedContainerColor: Color = MaterialTheme.colorScheme.inverseSurface,
@@ -283,7 +287,7 @@ object SelectableSurfaceDefaults {
         focusedSelectedContentColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
         pressedSelectedContainerColor: Color = focusedSelectedContainerColor,
         pressedSelectedContentColor: Color = focusedSelectedContentColor,
-    ) =
+    ): SelectableSurfaceColors =
         SelectableSurfaceColors(
             containerColor = containerColor,
             contentColor = contentColor,
@@ -319,7 +323,7 @@ object SelectableSurfaceDefaults {
      * @param focusedSelectedDisabledScale the scale used when the Surface is not enabled, focused
      *   and selected.
      */
-    fun scale(
+    public fun scale(
         scale: Float = 1f,
         focusedScale: Float = 1.1f,
         pressedScale: Float = scale,
@@ -330,7 +334,7 @@ object SelectableSurfaceDefaults {
         pressedSelectedScale: Float = scale,
         selectedDisabledScale: Float = disabledScale,
         focusedSelectedDisabledScale: Float = disabledScale,
-    ) =
+    ): SelectableSurfaceScale =
         SelectableSurfaceScale(
             scale = scale,
             focusedScale = focusedScale,
@@ -362,7 +366,7 @@ object SelectableSurfaceDefaults {
      * @param focusedSelectedDisabledBorder the [Border] used when the Surface is not enabled,
      *   focused and selected.
      */
-    fun border(
+    public fun border(
         border: Border = Border.None,
         focusedBorder: Border = border,
         pressedBorder: Border = focusedBorder,
@@ -373,7 +377,7 @@ object SelectableSurfaceDefaults {
         pressedSelectedBorder: Border = border,
         selectedDisabledBorder: Border = disabledBorder,
         focusedSelectedDisabledBorder: Border = disabledBorder,
-    ) =
+    ): SelectableSurfaceBorder =
         SelectableSurfaceBorder(
             border = border,
             focusedBorder = focusedBorder,
@@ -398,14 +402,14 @@ object SelectableSurfaceDefaults {
      * @param focusedSelectedGlow the [Glow] used when the Surface is enabled, focused and selected.
      * @param pressedSelectedGlow the [Glow] used when the Surface is enabled, pressed and selected.
      */
-    fun glow(
+    public fun glow(
         glow: Glow = Glow.None,
         focusedGlow: Glow = glow,
         pressedGlow: Glow = glow,
         selectedGlow: Glow = glow,
         focusedSelectedGlow: Glow = focusedGlow,
         pressedSelectedGlow: Glow = glow,
-    ) =
+    ): SelectableSurfaceGlow =
         SelectableSurfaceGlow(
             glow = glow,
             focusedGlow = focusedGlow,

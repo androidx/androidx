@@ -102,7 +102,7 @@ import kotlinx.coroutines.yield
  */
 @ExperimentalTvMaterial3Api
 @Composable
-fun Carousel(
+public fun Carousel(
     itemCount: Int,
     modifier: Modifier = Modifier,
     carouselState: CarouselState = rememberCarouselState(),
@@ -361,7 +361,7 @@ private fun CarouselStateUpdater(carouselState: CarouselState, itemCount: Int) {
  */
 @ExperimentalTvMaterial3Api
 @Composable
-fun rememberCarouselState(initialActiveItemIndex: Int = 0): CarouselState {
+public fun rememberCarouselState(initialActiveItemIndex: Int = 0): CarouselState {
     return rememberSaveable(saver = CarouselState.Saver) { CarouselState(initialActiveItemIndex) }
 }
 
@@ -376,11 +376,11 @@ fun rememberCarouselState(initialActiveItemIndex: Int = 0): CarouselState {
  */
 @Stable
 @ExperimentalTvMaterial3Api
-class CarouselState(initialActiveItemIndex: Int = 0) {
+public class CarouselState(initialActiveItemIndex: Int = 0) {
     internal var activePauseHandlesCount by mutableIntStateOf(0)
 
     /** The index of the item that is currently displayed by the carousel */
-    var activeItemIndex by mutableIntStateOf(initialActiveItemIndex)
+    public var activeItemIndex: Int by mutableIntStateOf(initialActiveItemIndex)
         internal set
 
     /**
@@ -395,7 +395,7 @@ class CarouselState(initialActiveItemIndex: Int = 0) {
      * is not the current item that is visible. Returns a [ScrollPauseHandle] that can be used to
      * resume
      */
-    fun pauseAutoScroll(itemIndex: Int): ScrollPauseHandle {
+    public fun pauseAutoScroll(itemIndex: Int): ScrollPauseHandle {
         if (this.activeItemIndex != itemIndex) {
             return NoOpScrollPauseHandle
         }
@@ -426,18 +426,18 @@ class CarouselState(initialActiveItemIndex: Int = 0) {
         activeItemIndex = floorMod(activeItemIndex + 1, itemCount)
     }
 
-    companion object {
+    public companion object {
         /** The default [Saver] implementation for [CarouselState]. */
-        val Saver: Saver<CarouselState, *> =
+        public val Saver: Saver<CarouselState, *> =
             Saver(save = { it.activeItemIndex }, restore = { CarouselState(it) })
     }
 }
 
 @ExperimentalTvMaterial3Api
 /** Handle returned by [CarouselState.pauseAutoScroll] that can be used to resume auto-scroll. */
-sealed interface ScrollPauseHandle {
+public sealed interface ScrollPauseHandle {
     /** Resumes the auto-scroll behaviour if there are no other active [ScrollPauseHandle]s. */
-    fun resumeAutoScroll()
+    public fun resumeAutoScroll()
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -464,12 +464,12 @@ internal class ScrollPauseHandleImpl(private val carouselState: CarouselState) :
 }
 
 @ExperimentalTvMaterial3Api
-object CarouselDefaults {
+public object CarouselDefaults {
     /** Default time for which the item is visible to the user. */
-    const val TimeToDisplayItemMillis: Long = 5000
+    public const val TimeToDisplayItemMillis: Long = 5000
 
     /** Transition applied when bringing it into view and removing it from the view */
-    val contentTransform: ContentTransform
+    public val contentTransform: ContentTransform
         @Composable
         get() = fadeIn(animationSpec = tween(100)).togetherWith(fadeOut(animationSpec = tween(100)))
 
@@ -483,7 +483,7 @@ object CarouselDefaults {
      * @param indicator indicator dot representing each item in the carousel
      */
     @Composable
-    fun IndicatorRow(
+    public fun IndicatorRow(
         itemCount: Int,
         activeItemIndex: Int,
         modifier: Modifier = Modifier,

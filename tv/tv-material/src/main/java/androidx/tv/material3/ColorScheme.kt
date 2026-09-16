@@ -35,7 +35,7 @@ import androidx.tv.material3.tokens.ColorSchemeKeyTokens
 import kotlin.math.ln
 
 /** Returns a light Material color scheme. */
-fun lightColorScheme(
+public fun lightColorScheme(
     primary: Color = ColorLightTokens.Primary,
     onPrimary: Color = ColorLightTokens.OnPrimary,
     primaryContainer: Color = ColorLightTokens.PrimaryContainer,
@@ -163,7 +163,7 @@ fun lightColorScheme(
  * @property scrim Color of a scrim that obscures content.
  */
 @Stable
-class ColorScheme(
+public class ColorScheme(
     primary: Color,
     onPrimary: Color,
     primaryContainer: Color,
@@ -194,97 +194,106 @@ class ColorScheme(
     borderVariant: Color,
     scrim: Color,
 ) {
-    var primary by mutableStateOf(primary, structuralEqualityPolicy())
+    public var primary: Color by mutableStateOf(primary, structuralEqualityPolicy())
         internal set
 
-    var onPrimary by mutableStateOf(onPrimary, structuralEqualityPolicy())
+    public var onPrimary: Color by mutableStateOf(onPrimary, structuralEqualityPolicy())
         internal set
 
-    var primaryContainer by mutableStateOf(primaryContainer, structuralEqualityPolicy())
+    public var primaryContainer: Color by
+        mutableStateOf(primaryContainer, structuralEqualityPolicy())
         internal set
 
-    var onPrimaryContainer by mutableStateOf(onPrimaryContainer, structuralEqualityPolicy())
+    public var onPrimaryContainer: Color by
+        mutableStateOf(onPrimaryContainer, structuralEqualityPolicy())
         internal set
 
-    var inversePrimary by mutableStateOf(inversePrimary, structuralEqualityPolicy())
+    public var inversePrimary: Color by mutableStateOf(inversePrimary, structuralEqualityPolicy())
         internal set
 
-    var secondary by mutableStateOf(secondary, structuralEqualityPolicy())
+    public var secondary: Color by mutableStateOf(secondary, structuralEqualityPolicy())
         internal set
 
-    var onSecondary by mutableStateOf(onSecondary, structuralEqualityPolicy())
+    public var onSecondary: Color by mutableStateOf(onSecondary, structuralEqualityPolicy())
         internal set
 
-    var secondaryContainer by mutableStateOf(secondaryContainer, structuralEqualityPolicy())
+    public var secondaryContainer: Color by
+        mutableStateOf(secondaryContainer, structuralEqualityPolicy())
         internal set
 
-    var onSecondaryContainer by mutableStateOf(onSecondaryContainer, structuralEqualityPolicy())
+    public var onSecondaryContainer: Color by
+        mutableStateOf(onSecondaryContainer, structuralEqualityPolicy())
         internal set
 
-    var tertiary by mutableStateOf(tertiary, structuralEqualityPolicy())
+    public var tertiary: Color by mutableStateOf(tertiary, structuralEqualityPolicy())
         internal set
 
-    var onTertiary by mutableStateOf(onTertiary, structuralEqualityPolicy())
+    public var onTertiary: Color by mutableStateOf(onTertiary, structuralEqualityPolicy())
         internal set
 
-    var tertiaryContainer by mutableStateOf(tertiaryContainer, structuralEqualityPolicy())
+    public var tertiaryContainer: Color by
+        mutableStateOf(tertiaryContainer, structuralEqualityPolicy())
         internal set
 
-    var onTertiaryContainer by mutableStateOf(onTertiaryContainer, structuralEqualityPolicy())
+    public var onTertiaryContainer: Color by
+        mutableStateOf(onTertiaryContainer, structuralEqualityPolicy())
         internal set
 
-    var background by mutableStateOf(background, structuralEqualityPolicy())
+    public var background: Color by mutableStateOf(background, structuralEqualityPolicy())
         internal set
 
-    var onBackground by mutableStateOf(onBackground, structuralEqualityPolicy())
+    public var onBackground: Color by mutableStateOf(onBackground, structuralEqualityPolicy())
         internal set
 
-    var surface by mutableStateOf(surface, structuralEqualityPolicy())
+    public var surface: Color by mutableStateOf(surface, structuralEqualityPolicy())
         internal set
 
-    var onSurface by mutableStateOf(onSurface, structuralEqualityPolicy())
+    public var onSurface: Color by mutableStateOf(onSurface, structuralEqualityPolicy())
         internal set
 
-    var surfaceVariant by mutableStateOf(surfaceVariant, structuralEqualityPolicy())
+    public var surfaceVariant: Color by mutableStateOf(surfaceVariant, structuralEqualityPolicy())
         internal set
 
-    var onSurfaceVariant by mutableStateOf(onSurfaceVariant, structuralEqualityPolicy())
+    public var onSurfaceVariant: Color by
+        mutableStateOf(onSurfaceVariant, structuralEqualityPolicy())
         internal set
 
-    var surfaceTint by mutableStateOf(surfaceTint, structuralEqualityPolicy())
+    public var surfaceTint: Color by mutableStateOf(surfaceTint, structuralEqualityPolicy())
         internal set
 
-    var inverseSurface by mutableStateOf(inverseSurface, structuralEqualityPolicy())
+    public var inverseSurface: Color by mutableStateOf(inverseSurface, structuralEqualityPolicy())
         internal set
 
-    var inverseOnSurface by mutableStateOf(inverseOnSurface, structuralEqualityPolicy())
+    public var inverseOnSurface: Color by
+        mutableStateOf(inverseOnSurface, structuralEqualityPolicy())
         internal set
 
-    var error by mutableStateOf(error, structuralEqualityPolicy())
+    public var error: Color by mutableStateOf(error, structuralEqualityPolicy())
         internal set
 
-    var onError by mutableStateOf(onError, structuralEqualityPolicy())
+    public var onError: Color by mutableStateOf(onError, structuralEqualityPolicy())
         internal set
 
-    var errorContainer by mutableStateOf(errorContainer, structuralEqualityPolicy())
+    public var errorContainer: Color by mutableStateOf(errorContainer, structuralEqualityPolicy())
         internal set
 
-    var onErrorContainer by mutableStateOf(onErrorContainer, structuralEqualityPolicy())
+    public var onErrorContainer: Color by
+        mutableStateOf(onErrorContainer, structuralEqualityPolicy())
         internal set
 
-    var border by mutableStateOf(border, structuralEqualityPolicy())
+    public var border: Color by mutableStateOf(border, structuralEqualityPolicy())
         internal set
 
-    var borderVariant by mutableStateOf(borderVariant, structuralEqualityPolicy())
+    public var borderVariant: Color by mutableStateOf(borderVariant, structuralEqualityPolicy())
         internal set
 
-    var scrim by mutableStateOf(scrim, structuralEqualityPolicy())
+    public var scrim: Color by mutableStateOf(scrim, structuralEqualityPolicy())
         internal set
 
     internal var defaultCheckboxColorsCached: CheckboxColors? = null
 
     /** Returns a copy of this ColorScheme, optionally overriding some of the values. */
-    fun copy(
+    public fun copy(
         primary: Color = this.primary,
         onPrimary: Color = this.onPrimary,
         primaryContainer: Color = this.primaryContainer,
@@ -386,7 +395,7 @@ class ColorScheme(
 }
 
 /** Returns a dark Material color scheme. */
-fun darkColorScheme(
+public fun darkColorScheme(
     primary: Color = ColorDarkTokens.Primary,
     onPrimary: Color = ColorDarkTokens.OnPrimary,
     primaryContainer: Color = ColorDarkTokens.PrimaryContainer,
@@ -465,7 +474,7 @@ fun darkColorScheme(
  *   the theme's [ColorScheme], then returns [Color.Unspecified].
  * @see contentColorFor
  */
-fun ColorScheme.contentColorFor(backgroundColor: Color): Color =
+public fun ColorScheme.contentColorFor(backgroundColor: Color): Color =
     when (backgroundColor) {
         primary -> onPrimary
         secondary -> onSecondary
@@ -500,7 +509,7 @@ fun ColorScheme.contentColorFor(backgroundColor: Color): Color =
  */
 @Composable
 @ReadOnlyComposable
-fun contentColorFor(backgroundColor: Color) =
+public fun contentColorFor(backgroundColor: Color): Color =
     MaterialTheme.colorScheme.contentColorFor(backgroundColor).takeOrElse {
         LocalContentColor.current
     }
@@ -525,7 +534,7 @@ internal fun ColorScheme.applyTonalElevation(backgroundColor: Color, elevation: 
  * @return the [ColorScheme.surface] color with an alpha of the [ColorScheme.surfaceTint] color
  *   overlaid on top of it.
  */
-fun ColorScheme.surfaceColorAtElevation(elevation: Dp): Color {
+public fun ColorScheme.surfaceColorAtElevation(elevation: Dp): Color {
     if (elevation == 0.dp) return surface
     val alpha = ((4.5f * ln(elevation.value + 1)) + 2f) / 100f
     return surfaceTint.copy(alpha = alpha).compositeOver(surface)

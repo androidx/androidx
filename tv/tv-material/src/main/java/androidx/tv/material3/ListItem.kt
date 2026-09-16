@@ -75,7 +75,7 @@ import androidx.compose.ui.unit.Dp
  *   interactions will still happen internally.
  */
 @Composable
-fun ListItem(
+public fun ListItem(
     selected: Boolean,
     onClick: () -> Unit,
     headlineContent: @Composable () -> Unit,
@@ -167,7 +167,7 @@ fun ListItem(
  *   interactions will still happen internally.
  */
 @Composable
-fun DenseListItem(
+public fun DenseListItem(
     selected: Boolean,
     onClick: () -> Unit,
     headlineContent: @Composable () -> Unit,
