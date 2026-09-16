@@ -1,0 +1,359 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@file:OptIn(ExperimentalSpatialAnnotationsApi::class)
+
+package androidx.xr.arcore.testapp.helloar.rendering
+
+import android.app.Activity
+import android.content.Context
+import android.util.Log
+import android.view.View
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import androidx.xr.arcore.SpatialAnnotation
+import androidx.xr.arcore.TrackingState
+import androidx.xr.arcore.testapp.helloar.ui.DotPlacement
+import androidx.xr.arcore.testapp.helloar.ui.InteractionState
+import androidx.xr.arcore.testapp.helloar.ui.QuadOverlayRenderer
+import androidx.xr.runtime.ExperimentalSpatialAnnotationsApi
+import androidx.xr.runtime.Session
+import androidx.xr.runtime.math.FloatSize2d
+import androidx.xr.runtime.math.IntSize2d
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.ExperimentalSurfaceEntityPixelDimensionsApi
+import androidx.xr.scenecore.PanelEntity
+import androidx.xr.scenecore.SurfaceEntity
+import androidx.xr.scenecore.scene
+import java.util.Collections
+import kotlin.math.abs
+import kotlin.math.hypot
+import kotlin.math.roundToInt
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+internal class SpatialAnnotationRenderer(
+    private val context: Context,
+    private val onTrackingStopped: (String?) -> Unit = {},
+) {
+
+    @Volatile var isDotCenter: Boolean = false
+    @Volatile var isDotTop: Boolean = false
+
+    private val overlayRenderer = QuadOverlayRenderer()
+
+    private val _renderedSpatialAnnotations: MutableStateFlow<List<SpatialAnnotation>> =
+        MutableStateFlow(mutableListOf<SpatialAnnotation>())
+    // TODO(b/561609019): Use a ConcurrentHashMap.
+    private val _runningJobs = Collections.synchronizedMap(HashMap<SpatialAnnotation, Job>())
+
+    private lateinit var _coroutineScope: CoroutineScope
+    private lateinit var _session: Session
+    private lateinit var _supervisorJob: Job
+
+    val renderedSpatialAnnotations: StateFlow<Collection<SpatialAnnotation>> =
+        _renderedSpatialAnnotations.asStateFlow()
+
+    fun startRendering(session: Session, coroutineScope: CoroutineScope) {
+        _session = session
+        _supervisorJob = SupervisorJob()
+        _coroutineScope = CoroutineScope(coroutineScope.coroutineContext + _supervisorJob)
+
+        _coroutineScope.launch {
+            try {
+                SpatialAnnotation.subscribe(_session).collect {
+                    Log.d(TAG, "Received SpatialAnnotation update! Count: ${it.size}")
+                    updateSpatialAnnotationModels(it)
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG, "Exception in subscribe flow: $e", e)
+            }
+        }
+    }
+
+    fun stopRendering() {
+        if (!::_session.isInitialized || !::_supervisorJob.isInitialized) return
+        synchronized(_runningJobs) {
+            _runningJobs.values.forEach { it.cancel() }
+            _runningJobs.clear()
+        }
+        _supervisorJob.cancel()
+        _renderedSpatialAnnotations.value = emptyList()
+    }
+
+    private suspend fun updateSpatialAnnotationModels(spatialAnnotations: List<SpatialAnnotation>) {
+        val spatialAnnotationsToRender = mutableListOf<SpatialAnnotation>()
+        for (spatialAnnotation in spatialAnnotations) {
+            if (!_runningJobs.containsKey(spatialAnnotation)) {
+                addSpatialAnnotationModel(spatialAnnotation, spatialAnnotationsToRender)
+            } else {
+                spatialAnnotationsToRender.add(spatialAnnotation)
+            }
+        }
+        synchronized(_runningJobs) {
+            val iterator = _runningJobs.iterator()
+            while (iterator.hasNext()) {
+                val (spatialAnnotation, job) = iterator.next()
+                if (!spatialAnnotationsToRender.contains(spatialAnnotation)) {
+                    job.cancel()
+                    iterator.remove()
+                }
+            }
+        }
+        _renderedSpatialAnnotations.value = spatialAnnotationsToRender
+    }
+
+    private fun addSpatialAnnotationModel(
+        spatialAnnotation: SpatialAnnotation,
+        spatialAnnotationsToRender: MutableList<SpatialAnnotation>,
+    ) {
+        _runningJobs[spatialAnnotation] = _coroutineScope.launch {
+            updateAndRenderSpatialAnnotation(spatialAnnotation)
+        }
+        spatialAnnotationsToRender.add(spatialAnnotation)
+    }
+
+    @OptIn(ExperimentalSurfaceEntityPixelDimensionsApi::class)
+    private suspend fun updateAndRenderSpatialAnnotation(spatialAnnotation: SpatialAnnotation) {
+        var surfaceEntity: SurfaceEntity? = null
+        var stopPanel: PanelEntity? = null
+        var lastWidthMeters = 0f
+        var lastHeightMeters = 0f
+
+        try {
+            spatialAnnotation.state.collect { state ->
+                Log.d(
+                    TAG,
+                    "State updated: ${state.trackingState}, Quad: ${state.quad}",
+                )
+                when (state.trackingState) {
+                    TrackingState.TRACKING -> {
+                        val quad = state.quad
+                        val w =
+                            if (quad != null) {
+                                val dxW = quad.upperRight.x - quad.upperLeft.x
+                                val dyW = quad.upperRight.y - quad.upperLeft.y
+                                hypot(dxW, dyW)
+                            } else {
+                                0f
+                            }
+                        val h =
+                            if (quad != null) {
+                                val dxH = quad.lowerLeft.x - quad.upperLeft.x
+                                val dyH = quad.lowerLeft.y - quad.upperLeft.y
+                                hypot(dxH, dyH)
+                            } else {
+                                0f
+                            }
+                        val coercedW = w.coerceIn(MIN_SIZE_METERS, MAX_SIZE_METERS)
+                        val coercedH = h.coerceIn(MIN_SIZE_METERS, MAX_SIZE_METERS)
+
+                        val pixelW =
+                            (coercedW * BASE_PIXELS_PER_METER)
+                                .roundToInt()
+                                .coerceAtLeast(QuadOverlayRenderer.MIN_TRACKING_SIZE_PIXELS)
+                        val pixelH =
+                            (coercedH * BASE_PIXELS_PER_METER)
+                                .roundToInt()
+                                .coerceAtLeast(QuadOverlayRenderer.MIN_TRACKING_SIZE_PIXELS)
+
+                        val newPose =
+                            _session.scene.perceptionSpace.transformPoseTo(
+                                state.centerPose,
+                                _session.scene.activitySpace,
+                            )
+
+                        val currentSurfaceEntity: SurfaceEntity
+                        if (surfaceEntity == null) {
+                            currentSurfaceEntity =
+                                SurfaceEntity.create(
+                                        session = _session,
+                                        shape =
+                                            SurfaceEntity.Shape.Quad(
+                                                FloatSize2d(coercedW, coercedH)
+                                            ),
+                                        pose = newPose,
+                                        parent = _session.scene.activitySpace,
+                                    )
+                                    .apply { setSurfacePixelDimensions(IntSize2d(pixelW, pixelH)) }
+                            surfaceEntity = currentSurfaceEntity
+                            lastWidthMeters = coercedW
+                            lastHeightMeters = coercedH
+                        } else {
+                            currentSurfaceEntity = surfaceEntity!!
+                            currentSurfaceEntity.setPose(newPose)
+                            val sizeChanged =
+                                abs(lastWidthMeters - coercedW) > DIMENSION_EPSILON_METERS ||
+                                    abs(lastHeightMeters - coercedH) > DIMENSION_EPSILON_METERS
+                            if (sizeChanged) {
+                                lastWidthMeters = coercedW
+                                lastHeightMeters = coercedH
+                                currentSurfaceEntity.shape =
+                                    SurfaceEntity.Shape.Quad(FloatSize2d(coercedW, coercedH))
+                                currentSurfaceEntity.setSurfacePixelDimensions(
+                                    IntSize2d(pixelW, pixelH)
+                                )
+                                stopPanel?.setPose(Pose(Vector3(0f, (coercedH / 2f) + 0.15f, 0f)))
+                            }
+                        }
+
+                        val dotPlacement =
+                            when {
+                                isDotCenter && isDotTop -> DotPlacement.BOTH
+                                isDotCenter -> DotPlacement.CENTER
+                                isDotTop -> DotPlacement.TOP
+                                else -> DotPlacement.NONE
+                            }
+
+                        val surface = currentSurfaceEntity.getSurface()
+                        withContext(Dispatchers.Default) {
+                            overlayRenderer.drawQuadOverlay(
+                                surface = surface,
+                                width = pixelW,
+                                height = pixelH,
+                                interactionState = InteractionState.NORMAL,
+                                trackingState = state.trackingState,
+                                distance = 1.0f,
+                                dotPlacement = dotPlacement,
+                            )
+                        }
+
+                        if (stopPanel == null) {
+                            val composeView = ComposeView(context)
+                            (context as? Activity)?.let { configureComposeView(composeView, it) }
+                            composeView.setContent {
+                                Button(
+                                    onClick = {
+                                        onTrackingStopped(
+                                            "Tracking stopped. Ready to track new object."
+                                        )
+                                    }
+                                ) {
+                                    Text("Stop Tracking")
+                                }
+                            }
+                            val panelY = (coercedH / 2f) + 0.15f
+                            stopPanel =
+                                PanelEntity.create(
+                                    session = _session,
+                                    view = composeView,
+                                    pixelDimensions = IntSize2d(400, 150),
+                                    name = "StopTracking",
+                                    pose = Pose(Vector3(0f, panelY, 0f)),
+                                    parent = currentSurfaceEntity,
+                                )
+                        }
+                    }
+                    TrackingState.PAUSED -> {
+                        surfaceEntity?.let { entity ->
+                            val pixelW =
+                                (lastWidthMeters * BASE_PIXELS_PER_METER)
+                                    .roundToInt()
+                                    .coerceAtLeast(QuadOverlayRenderer.MIN_TRACKING_SIZE_PIXELS)
+                            val pixelH =
+                                (lastHeightMeters * BASE_PIXELS_PER_METER)
+                                    .roundToInt()
+                                    .coerceAtLeast(QuadOverlayRenderer.MIN_TRACKING_SIZE_PIXELS)
+                            val surface = entity.getSurface()
+                            withContext(Dispatchers.Default) {
+                                overlayRenderer.drawQuadOverlay(
+                                    surface = surface,
+                                    width = pixelW,
+                                    height = pixelH,
+                                    interactionState = InteractionState.NORMAL,
+                                    trackingState = state.trackingState,
+                                    distance = 1.0f,
+                                    dotPlacement = DotPlacement.NONE,
+                                )
+                            }
+                        }
+                    }
+                    TrackingState.STOPPED -> {
+                        surfaceEntity?.let { entity ->
+                            val pixelW =
+                                (lastWidthMeters * BASE_PIXELS_PER_METER)
+                                    .roundToInt()
+                                    .coerceAtLeast(QuadOverlayRenderer.MIN_TRACKING_SIZE_PIXELS)
+                            val pixelH =
+                                (lastHeightMeters * BASE_PIXELS_PER_METER)
+                                    .roundToInt()
+                                    .coerceAtLeast(QuadOverlayRenderer.MIN_TRACKING_SIZE_PIXELS)
+                            val surface = entity.getSurface()
+                            withContext(Dispatchers.Default) {
+                                overlayRenderer.drawQuadOverlay(
+                                    surface = surface,
+                                    width = pixelW,
+                                    height = pixelH,
+                                    interactionState = InteractionState.NORMAL,
+                                    trackingState = state.trackingState,
+                                    distance = 1.0f,
+                                    dotPlacement = DotPlacement.NONE,
+                                )
+                            }
+                        }
+                        onTrackingStopped("Tracking stopped. Ready to track new object.")
+                    }
+                }
+            }
+        } finally {
+            stopPanel?.parent = null
+            // TODO(b/561609282): Dispose is never called when parents set to null.
+            surfaceEntity?.parent = null
+        }
+    }
+
+    private fun configureComposeView(composeView: ComposeView, activity: Activity) {
+        composeView.setViewCompositionStrategy(
+            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+        )
+        val parentView: View =
+            if (composeView.parent != null && composeView.parent is View) composeView.parent as View
+            else composeView
+
+        (activity as? LifecycleOwner)?.let { parentView.setViewTreeLifecycleOwner(it) }
+        (activity as? ViewModelStoreOwner)?.let { parentView.setViewTreeViewModelStoreOwner(it) }
+        (activity as? SavedStateRegistryOwner)?.let {
+            parentView.setViewTreeSavedStateRegistryOwner(it)
+        }
+    }
+
+    private companion object {
+        private const val TAG = "SpatialAnnotationRenderer"
+        private const val BASE_PIXELS_PER_METER = 1000f
+        private const val MIN_SIZE_METERS = 0.01f
+        private const val MAX_SIZE_METERS = 10.0f
+        private const val DIMENSION_EPSILON_METERS = 0.005f
+    }
+}
