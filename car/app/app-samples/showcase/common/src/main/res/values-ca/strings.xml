@@ -282,26 +282,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"Pestanya de quadrícula amb títol llarg"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Pestanya de cerca"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"S\'està carregant la pestanya"</string>
-    <!-- no translation found for tab_title_template_style_1 (2975307122280161449) -->
-    <skip />
-    <!-- no translation found for tab_title_template_style_2 (7803400629501965995) -->
-    <skip />
-    <!-- no translation found for tab_title_overridden_style (3140303976251439964) -->
-    <skip />
-    <!-- no translation found for tab_title_failing_style (745811892650973560) -->
-    <skip />
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"Estil de plantilla 1"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"Estil de plantilla 2"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"Estil anul·lat"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"Estil amb errors"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demostració de càrrega d\'una plantilla de pestanya"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demostració d\'una plantilla de pestanya sense pestanyes"</string>
-    <!-- no translation found for tab_template_style_demo_title (3986454672226386561) -->
-    <skip />
-    <!-- no translation found for msg_tab_template_style_1_text (6874362443887944175) -->
-    <skip />
-    <!-- no translation found for msg_tab_template_style_2_text (7244377408142388066) -->
-    <skip />
-    <!-- no translation found for msg_tab_overridden_style_text (7242618513807844655) -->
-    <skip />
-    <!-- no translation found for msg_tab_failing_style_text (4357682634226036060) -->
-    <skip />
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"Demostració d\'un estil de plantilla de pestanya"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"Estil de la plantilla de pestanya (Pestanya 1)\nHereta l\'estil del nivell de plantilla"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"Estil de la plantilla de pestanya (Pestanya 2)\nHereta l\'estil del nivell de plantilla"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"Estil de pestanya anul·lat\nAnul·la l\'estil de la plantilla amb colors blaus personalitzats"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"Estil de pestanya amb errors\nIcona vermella sobre un fons vermell"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"No es poden mostrar les imatges per a un amfitrió desconegut"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Icona"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Demostració d\'icones del proveïdor de contingut"</string>
