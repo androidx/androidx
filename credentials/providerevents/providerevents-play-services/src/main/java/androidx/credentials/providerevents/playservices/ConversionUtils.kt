@@ -117,7 +117,10 @@ public class ConversionUtils {
             } catch (e: IllegalArgumentException) {
                 Log.e(TAG, e.message ?: "Signal request conversion failed")
             }
-            return ProviderSignalCredentialStateRequest(signalRequest!!, callingAppInfo)
+            if (signalRequest == null) {
+                return null
+            }
+            return ProviderSignalCredentialStateRequest(signalRequest, callingAppInfo)
         }
 
         @Suppress("RestrictedApiAndroidX")
