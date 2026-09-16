@@ -88,6 +88,14 @@ interface HealthConnectFeatures {
         /** Feature constant for Matchmaking APIs. */
         @ExperimentalMatchmakingApi const val FEATURE_MATCHMAKING = 10
 
+        /**
+         * Feature constant for on-device step tracking.
+         *
+         * On-device step tracking refers to step counts recorded directly by the on-device hardware
+         * pedometer or sensor, distinct from steps synced or contributed by external applications.
+         */
+        const val FEATURE_ON_DEVICE_STEP_TRACKING = 11
+
         @OptIn(ExperimentalPersonalHealthRecordApi::class, ExperimentalMatchmakingApi::class)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(
@@ -103,6 +111,7 @@ interface HealthConnectFeatures {
                     FEATURE_EXTENDED_DEVICE_TYPES,
                     FEATURE_EXERCISE_SESSION_IMPROVEMENTS,
                     FEATURE_MATCHMAKING,
+                    FEATURE_ON_DEVICE_STEP_TRACKING,
                 ]
         )
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -132,6 +141,8 @@ interface HealthConnectFeatures {
             HealthConnectPlatformVersion(buildVersionCode = 34, sdkExtensionVersion = 16)
         private val SDK_EXT_19_PLATFORM_VERSION: HealthConnectPlatformVersion =
             HealthConnectPlatformVersion(buildVersionCode = 34, sdkExtensionVersion = 19)
+        private val SDK_EXT_20_PLATFORM_VERSION: HealthConnectPlatformVersion =
+            HealthConnectPlatformVersion(buildVersionCode = 34, sdkExtensionVersion = 20)
         private val SDK_EXT_21_PLATFORM_VERSION: HealthConnectPlatformVersion =
             HealthConnectPlatformVersion(buildVersionCode = 34, sdkExtensionVersion = 21)
         private val SDK_EXT_22_PLATFORM_VERSION: HealthConnectPlatformVersion =
@@ -171,6 +182,8 @@ interface HealthConnectFeatures {
                     ),
                 FEATURE_EXTENDED_DEVICE_TYPES to
                     HealthConnectVersionInfo(platformVersion = SDK_EXT_19_PLATFORM_VERSION),
+                FEATURE_ON_DEVICE_STEP_TRACKING to
+                    HealthConnectVersionInfo(platformVersion = SDK_EXT_20_PLATFORM_VERSION),
                 FEATURE_EXERCISE_SESSION_IMPROVEMENTS to
                     HealthConnectVersionInfo(platformVersion = SDK_EXT_21_PLATFORM_VERSION),
                 FEATURE_MATCHMAKING to
