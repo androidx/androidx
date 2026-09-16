@@ -311,7 +311,7 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
                     mNode.setPivotX((Float) value * mNode.getWidth());
                     break;
                 case GraphicsLayerModifierOperation.TRANSFORM_ORIGIN_Y:
-                    mNode.setPivotY((Float) value * mNode.getWidth());
+                    mNode.setPivotY((Float) value * mNode.getHeight());
                     break;
                 case GraphicsLayerModifierOperation.TRANSLATION_X:
                     mNode.setTranslationX((Float) value);
