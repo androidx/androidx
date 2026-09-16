@@ -435,7 +435,7 @@ class A2uiBasicCatalogV1ColumnUiTest {
         onNodeWithText("Column Children: child_1").assertIsDisplayed()
         assertThat(testColumn.capturedChildren?.map { it.id }).containsExactly("child_1")
         assertThat(testColumn.capturedJustify).isEqualTo(A2uiBasicCatalogV1.Column.Justify.Start)
-        assertThat(testColumn.capturedAlign).isEqualTo(A2uiBasicCatalogV1.Column.Align.Stretch)
+        assertThat(testColumn.capturedAlign).isEqualTo(A2uiBasicCatalogV1.Column.Align.Start)
     }
 
     @Test

@@ -1150,6 +1150,51 @@ class MaterialA2uiBasicCatalogV1ColumnTest {
     }
 
     @Test
+    fun align_default_alignsChildrenAtStart() = runComposeUiTest {
+        val childWidth = 50.dp
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Column",
+                            properties = mapOf("children" to listOf("child1")),
+                        ),
+                        A2uiComponentPayload(id = "child1"),
+                    ),
+                componentStubs =
+                    listOf(
+                        A2uiComponentStub.withId("child1") { _, modifier ->
+                            Box(
+                                modifier =
+                                    modifier
+                                        .testTag("child1")
+                                        .sizeIn(minWidth = childWidth, minHeight = 40.dp)
+                            )
+                        }
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent {
+            MaterialTheme {
+                A2uiTestSurface(
+                    surface = surface,
+                    modifier = Modifier.testTag("column_tag").width(200.dp).height(100.dp),
+                )
+            }
+        }
+
+        val columnBounds = onNodeWithTag("column_tag").getUnclippedBoundsInRoot()
+        val child1Bounds = onNodeWithTag("child1").getUnclippedBoundsInRoot()
+
+        assertThat(child1Bounds.left.value).isWithin(0.5f).of(columnBounds.left.value)
+        assertThat(child1Bounds.width.value).isWithin(0.5f).of(childWidth.value)
+    }
+
+    @Test
     fun align_start_alignsChildrenAtStart() = runComposeUiTest {
         val childWidth = 50.dp
         val controller =
