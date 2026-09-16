@@ -42,18 +42,29 @@ import static androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT;
 import static androidx.camera.core.DynamicRange.BIT_DEPTH_8_BIT;
 import static androidx.camera.core.DynamicRange.BIT_DEPTH_UNSPECIFIED;
 import static androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT;
+import static androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT_SMPTE_2094_50;
 import static androidx.camera.core.DynamicRange.DOLBY_VISION_8_BIT;
+import static androidx.camera.core.DynamicRange.DOLBY_VISION_8_BIT_SMPTE_2094_50;
 import static androidx.camera.core.DynamicRange.ENCODING_DOLBY_VISION;
+import static androidx.camera.core.DynamicRange.ENCODING_DOLBY_VISION_SMPTE_2094_50;
 import static androidx.camera.core.DynamicRange.ENCODING_HDR10;
 import static androidx.camera.core.DynamicRange.ENCODING_HDR10_PLUS;
+import static androidx.camera.core.DynamicRange.ENCODING_HDR10_PLUS_SMPTE_2094_50;
+import static androidx.camera.core.DynamicRange.ENCODING_HDR10_SMPTE_2094_50;
 import static androidx.camera.core.DynamicRange.ENCODING_HDR_UNSPECIFIED;
 import static androidx.camera.core.DynamicRange.ENCODING_HLG;
+import static androidx.camera.core.DynamicRange.ENCODING_HLG_SMPTE_2094_50;
 import static androidx.camera.core.DynamicRange.ENCODING_SDR;
+import static androidx.camera.core.DynamicRange.ENCODING_SDR_SMPTE_2094_50;
 import static androidx.camera.core.DynamicRange.ENCODING_UNSPECIFIED;
 import static androidx.camera.core.DynamicRange.HDR10_10_BIT;
+import static androidx.camera.core.DynamicRange.HDR10_10_BIT_SMPTE_2094_50;
 import static androidx.camera.core.DynamicRange.HDR10_PLUS_10_BIT;
+import static androidx.camera.core.DynamicRange.HDR10_PLUS_10_BIT_SMPTE_2094_50;
 import static androidx.camera.core.DynamicRange.HLG_10_BIT;
+import static androidx.camera.core.DynamicRange.HLG_10_BIT_SMPTE_2094_50;
 import static androidx.camera.core.DynamicRange.SDR;
+import static androidx.camera.core.DynamicRange.SDR_SMPTE_2094_50;
 import static androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_10;
 import static androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_8;
 import static androidx.core.util.Preconditions.checkArgument;
@@ -100,12 +111,20 @@ public class DynamicRangeUtil {
         DR_TO_VP_FORMAT_MAP.put(ENCODING_UNSPECIFIED, new HashSet<>(asList(HDR_NONE, HDR_HLG,
                 HDR_HDR10, HDR_HDR10PLUS, HDR_DOLBY_VISION)));
         DR_TO_VP_FORMAT_MAP.put(ENCODING_SDR, new HashSet<>(singletonList(HDR_NONE)));
+        DR_TO_VP_FORMAT_MAP.put(ENCODING_SDR_SMPTE_2094_50, new HashSet<>(singletonList(HDR_NONE)));
         DR_TO_VP_FORMAT_MAP.put(ENCODING_HDR_UNSPECIFIED,
                 new HashSet<>(asList(HDR_HLG, HDR_HDR10, HDR_HDR10PLUS, HDR_DOLBY_VISION)));
         DR_TO_VP_FORMAT_MAP.put(ENCODING_HLG, new HashSet<>(singletonList(HDR_HLG)));
+        DR_TO_VP_FORMAT_MAP.put(ENCODING_HLG_SMPTE_2094_50, new HashSet<>(singletonList(HDR_HLG)));
         DR_TO_VP_FORMAT_MAP.put(ENCODING_HDR10, new HashSet<>(singletonList(HDR_HDR10)));
+        DR_TO_VP_FORMAT_MAP.put(ENCODING_HDR10_SMPTE_2094_50,
+                new HashSet<>(singletonList(HDR_HDR10)));
         DR_TO_VP_FORMAT_MAP.put(ENCODING_HDR10_PLUS, new HashSet<>(singletonList(HDR_HDR10PLUS)));
+        DR_TO_VP_FORMAT_MAP.put(ENCODING_HDR10_PLUS_SMPTE_2094_50,
+                new HashSet<>(singletonList(HDR_HDR10PLUS)));
         DR_TO_VP_FORMAT_MAP.put(ENCODING_DOLBY_VISION,
+                new HashSet<>(singletonList(HDR_DOLBY_VISION)));
+        DR_TO_VP_FORMAT_MAP.put(ENCODING_DOLBY_VISION_SMPTE_2094_50,
                 new HashSet<>(singletonList(HDR_DOLBY_VISION)));
 
         // VideoProfile bit depth to DynamicRange bit depth.
@@ -128,36 +147,52 @@ public class DynamicRangeUtil {
         // Do not set SDR to HEVCProfileMain, as it causes codec configuration errors on several
         // devices (b/489316153).
         hevcMap.put(HLG_10_BIT, HEVCProfileMain10);
+        hevcMap.put(HLG_10_BIT_SMPTE_2094_50, HEVCProfileMain10);
         hevcMap.put(HDR10_10_BIT, HEVCProfileMain10HDR10);
+        hevcMap.put(HDR10_10_BIT_SMPTE_2094_50, HEVCProfileMain10HDR10);
         hevcMap.put(HDR10_PLUS_10_BIT, HEVCProfileMain10HDR10Plus);
+        hevcMap.put(HDR10_PLUS_10_BIT_SMPTE_2094_50, HEVCProfileMain10HDR10Plus);
 
         // DynamicRange encodings to AV1 profiles for YUV 4:2:0 chroma subsampling
         Map<DynamicRange, Integer> av1420Map = new HashMap<>();
         av1420Map.put(SDR, AV1ProfileMain8);
+        av1420Map.put(SDR_SMPTE_2094_50, AV1ProfileMain8);
         av1420Map.put(HLG_10_BIT, AV1ProfileMain10);
+        av1420Map.put(HLG_10_BIT_SMPTE_2094_50, AV1ProfileMain10);
         av1420Map.put(HDR10_10_BIT, AV1ProfileMain10HDR10);
+        av1420Map.put(HDR10_10_BIT_SMPTE_2094_50, AV1ProfileMain10HDR10);
         av1420Map.put(HDR10_PLUS_10_BIT, AV1ProfileMain10HDR10Plus);
+        av1420Map.put(HDR10_PLUS_10_BIT_SMPTE_2094_50, AV1ProfileMain10HDR10Plus);
 
         // DynamicRange encodings to VP9 profile for YUV 4:2:0 chroma subsampling
         Map<DynamicRange, Integer> vp9420Map = new HashMap<>();
         vp9420Map.put(SDR, VP9Profile0);
+        vp9420Map.put(SDR_SMPTE_2094_50, VP9Profile0);
         vp9420Map.put(HLG_10_BIT, VP9Profile2);
+        vp9420Map.put(HLG_10_BIT_SMPTE_2094_50, VP9Profile2);
         vp9420Map.put(HDR10_10_BIT, VP9Profile2HDR);
+        vp9420Map.put(HDR10_10_BIT_SMPTE_2094_50, VP9Profile2HDR);
         vp9420Map.put(HDR10_PLUS_10_BIT, VP9Profile2HDR10Plus);
+        vp9420Map.put(HDR10_PLUS_10_BIT_SMPTE_2094_50, VP9Profile2HDR10Plus);
 
         // Dolby vision encodings to dolby vision profiles
         Map<DynamicRange, Integer> dvMap = new HashMap<>();
         // Taken from the (now deprecated) Dolby Vision Profile Specification 1.3.3
         // DV Profile 8 (10-bit HEVC)
         dvMap.put(DOLBY_VISION_10_BIT, DolbyVisionProfileDvheSt);
+        dvMap.put(DOLBY_VISION_10_BIT_SMPTE_2094_50, DolbyVisionProfileDvheSt);
         // DV Profile 9 (8-bit AVC)
         dvMap.put(DOLBY_VISION_8_BIT, DolbyVisionProfileDvavSe);
+        dvMap.put(DOLBY_VISION_8_BIT_SMPTE_2094_50, DolbyVisionProfileDvavSe);
 
         // APV encodings to APV profiles for YUV 4:2:2 chroma subsampling
         Map<DynamicRange, Integer> apv422Map = new HashMap<>();
         apv422Map.put(HLG_10_BIT, APVProfile422_10);
+        apv422Map.put(HLG_10_BIT_SMPTE_2094_50, APVProfile422_10);
         apv422Map.put(HDR10_10_BIT, APVProfile422_10HDR10);
+        apv422Map.put(HDR10_10_BIT_SMPTE_2094_50, APVProfile422_10HDR10);
         apv422Map.put(HDR10_PLUS_10_BIT, APVProfile422_10HDR10Plus);
+        apv422Map.put(HDR10_PLUS_10_BIT_SMPTE_2094_50, APVProfile422_10HDR10Plus);
 
         // Combine all mime type maps
         MIME_TO_DEFAULT_PROFILE_LEVEL_MAP.put(MediaFormat.MIMETYPE_VIDEO_HEVC, hevcMap);
