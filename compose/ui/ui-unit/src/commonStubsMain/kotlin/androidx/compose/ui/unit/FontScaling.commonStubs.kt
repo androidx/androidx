@@ -17,5 +17,5 @@
 package androidx.compose.ui.unit
 
 /** Converts [TextUnit] to [Dp] and vice-versa. */
-@Suppress("TypealiasDefinition")
+@Suppress("TypealiasDefinition", "HiddenTypeParameter") // b/557321734
 public actual typealias FontScaling = FontScalingLinear

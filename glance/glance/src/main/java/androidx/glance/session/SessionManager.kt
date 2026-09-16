@@ -87,9 +87,10 @@ public interface SessionManagerScope {
 @get:RestrictTo(LIBRARY_GROUP)
 public val GlanceSessionManager: SessionManager = SessionManagerImpl(SessionWorker::class.java)
 
-@Suppress("TypealiasDefinition")
+@Suppress("TypealiasDefinition", "HiddenTypeParameter", "ReferencesHidden") // b/562498575
 public typealias InputDataFactory = SessionManagerImpl.(Session) -> Data
 
+@Suppress("HiddenSuperclass") // b/562498575
 @RestrictTo(LIBRARY_GROUP)
 public open class SessionManagerImpl(
     private val workerClass: Class<out ListenableWorker>,
