@@ -1316,8 +1316,18 @@ class KeepRuleDetectorTest {
         1 error
         """
             )
-            // No fix since we don't know specific method
-            .expectFixDiffs("")
+            .expectFixDiffs(
+                """
+                Autofix for src/test/pkg/ErrorCode.kt line 17: Annotate with @UsesReflectionToAccessField:
+                @@ -2,0 +3 @@
+                +import androidx.annotation.keep.UsesReflectionToAccessField
+                @@ -12,0 +14,4 @@
+                +@UsesReflectionToAccessField(
+                +    classConstant = ErrorCode::class,
+                +    fieldName = "*"
+                +)
+                """
+            )
     }
 
     @Test
@@ -3654,6 +3664,169 @@ class KeepRuleDetectorTest {
             )
             // No fix since we don't know specific method
             .expectFixDiffs("")
+    }
+
+    @Test
+    fun testParameterizedTypeJavaClassConstant() {
+        lint()
+            .issues(KeepRuleDetector.ISSUE)
+            .files(
+                java(
+                        """
+                    package test.pkg;
+
+                    public class ParameterizedTest {
+                        public interface Initializer<T> {}
+
+                        public <T> T doInitialize(Class<? extends Initializer<?>> component) throws Exception {
+                            return (T) component.getDeclaredConstructor().newInstance();
+                        }
+                    }
+                    """
+                    )
+                    .indented(),
+                *usesReflectionStubs,
+            )
+            .run()
+            .expect(
+                """
+                src/test/pkg/ParameterizedTest.java:7: Error: This method calls test.pkg.ParameterizedTest.Initializer.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
+                        return (T) component.getDeclaredConstructor().newInstance();
+                                                                      ~~~~~~~~~~~
+                1 error
+                """
+            )
+            .expectFixDiffs(
+                """
+                Autofix for src/test/pkg/ParameterizedTest.java line 7: Annotate with @UsesReflectionToConstruct:
+                @@ -1,0 +2 @@
+                +import androidx.annotation.keep.UsesReflectionToConstruct;
+                @@ -5,0 +7,4 @@
+                +    @UsesReflectionToConstruct(
+                +        classConstant = ParameterizedTest.Initializer.class,
+                +        parameterTypes = {}
+                +    )
+                """
+            )
+    }
+
+    @Test
+    fun testGenericTypeParameterUpperBound() {
+        lint()
+            .issues(KeepRuleDetector.ISSUE)
+            .files(
+                kotlin(
+                        """
+                    package test.pkg
+
+                    open class ViewModel
+
+                    class GenericFactory {
+                        fun <T : ViewModel> create(modelClass: Class<T>): T {
+                            return modelClass.getDeclaredConstructor().newInstance()
+                        }
+                    }
+                    """
+                    )
+                    .indented(),
+                *usesReflectionStubs,
+            )
+            .run()
+            .expect(
+                """
+                src/test/pkg/ViewModel.kt:7: Error: This method calls test.pkg.ViewModel.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
+                        return modelClass.getDeclaredConstructor().newInstance()
+                                                                   ~~~~~~~~~~~
+                1 error
+                """
+            )
+            .expectFixDiffs(
+                """
+                Autofix for src/test/pkg/ViewModel.kt line 7: Annotate with @UsesReflectionToConstruct:
+                @@ -1,0 +2 @@
+                +import androidx.annotation.keep.UsesReflectionToConstruct
+                @@ -5,0 +7,4 @@
+                +    @UsesReflectionToConstruct(
+                +        classConstant = ViewModel::class,
+                +        parameterTypes = []
+                +    )
+                """
+            )
+    }
+
+    @Test
+    fun testPlatformClassesIgnored() {
+        lint()
+            .issues(KeepRuleDetector.ISSUE)
+            .files(
+                kotlin(
+                        """
+                    package test.pkg
+
+                    import android.graphics.drawable.Icon
+
+                    class PlatformReflectionTest {
+                        fun accessPlatformHiddenApis(icon: Icon) {
+                            Class.forName("android.view.GhostView")
+                            Class.forName("android.os.SystemProperties")
+                            Class.forName("libcore.icu.ICU")
+                            icon.javaClass.getDeclaredMethod("getBitmap")
+                        }
+                    }
+                    """
+                    )
+                    .indented(),
+                *usesReflectionStubs,
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun testDeclaredFieldsWildcardQuickfix() {
+        lint()
+            .issues(KeepRuleDetector.ISSUE)
+            .files(
+                kotlin(
+                        """
+                    package test.pkg
+
+                    class WildcardFieldTest {
+                        fun inspectFields(target: TargetClass) {
+                            val fields = target.javaClass.declaredFields
+                        }
+                    }
+
+                    class TargetClass {
+                        val id: Int = 0
+                        val name: String = ""
+                    }
+                    """
+                    )
+                    .indented(),
+                *usesReflectionStubs,
+            )
+            .run()
+            .expect(
+                """
+                src/test/pkg/WildcardFieldTest.kt:5: Error: This method references test.pkg.TargetClass.* reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionWithoutKeepAnnotations]
+                        val fields = target.javaClass.declaredFields
+                                                      ~~~~~~~~~~~~~~
+                1 error
+                """
+            )
+            .expectFixDiffs(
+                """
+                Autofix for src/test/pkg/WildcardFieldTest.kt line 5: Annotate with @UsesReflectionToAccessField:
+                @@ -1,0 +2 @@
+                +import androidx.annotation.keep.UsesReflectionToAccessField
+                @@ -3,0 +5,4 @@
+                +    @UsesReflectionToAccessField(
+                +        classConstant = TargetClass::class,
+                +        fieldName = "*"
+                +    )
+                """
+            )
     }
 }
 
