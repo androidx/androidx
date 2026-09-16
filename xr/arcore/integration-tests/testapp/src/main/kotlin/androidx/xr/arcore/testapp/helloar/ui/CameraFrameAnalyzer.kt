@@ -34,7 +34,8 @@ internal data class FrameSnapshot(
     val width: Int,
     val height: Int,
     val timestampNs: Long,
-    val isRotated: Boolean,
+    val rotationDegrees: Int = 0,
+    val isRotated: Boolean = false,
 )
 
 /**
@@ -61,6 +62,7 @@ internal class CameraFrameAnalyzer(
     private var latestFrameTimestampNs = 0L
     private var latestFrameWidth = 0
     private var latestFrameHeight = 0
+    private var latestFrameRotationDegrees = 0
     private var latestFrameIsRotated = false
 
     private fun ensureBufferCapacityLocked(width: Int, height: Int) {
@@ -78,6 +80,7 @@ internal class CameraFrameAnalyzer(
             latestFrameTimestampNs = 0L
             latestFrameWidth = 0
             latestFrameHeight = 0
+            latestFrameRotationDegrees = 0
             latestFrameIsRotated = false
         }
     }
@@ -118,6 +121,7 @@ internal class CameraFrameAnalyzer(
                 width = dimensions.width,
                 height = dimensions.height,
                 timestampNs = latestFrameTimestampNs,
+                rotationDegrees = latestFrameRotationDegrees,
                 isRotated = latestFrameIsRotated,
             )
         }
@@ -178,6 +182,7 @@ internal class CameraFrameAnalyzer(
                     latestFrameTimestampNs = captureTimestampNs
                     latestFrameWidth = width
                     latestFrameHeight = height
+                    latestFrameRotationDegrees = proxy.imageInfo.rotationDegrees
                     latestFrameIsRotated = isRotated
                 }
             } catch (e: RuntimeException) {
@@ -185,6 +190,7 @@ internal class CameraFrameAnalyzer(
                 synchronized(bufferLock) {
                     latestFrameWidth = 0
                     latestFrameHeight = 0
+                    latestFrameRotationDegrees = 0
                     latestFrameTimestampNs = 0L
                 }
             }
