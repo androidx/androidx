@@ -2332,6 +2332,10 @@ sealed class androidx.compose.material3/ExposedDropdownMenuBoxScope { // android
 }
 
 final object androidx.compose.material3.carousel/CarouselDefaults { // androidx.compose.material3.carousel/CarouselDefaults|null[0]
+    final val ContentPadding // androidx.compose.material3.carousel/CarouselDefaults.ContentPadding|{}ContentPadding[0]
+        final fun <get-ContentPadding>(): androidx.compose.foundation.layout/PaddingValues // androidx.compose.material3.carousel/CarouselDefaults.ContentPadding.<get-ContentPadding>|<get-ContentPadding>(){}[0]
+    final val ItemSpacing // androidx.compose.material3.carousel/CarouselDefaults.ItemSpacing|{}ItemSpacing[0]
+        final fun <get-ItemSpacing>(): androidx.compose.ui.unit/Dp // androidx.compose.material3.carousel/CarouselDefaults.ItemSpacing.<get-ItemSpacing>|<get-ItemSpacing>(){}[0]
     final val MaxSmallItemSize // androidx.compose.material3.carousel/CarouselDefaults.MaxSmallItemSize|{}MaxSmallItemSize[0]
         final fun <get-MaxSmallItemSize>(): androidx.compose.ui.unit/Dp // androidx.compose.material3.carousel/CarouselDefaults.MaxSmallItemSize.<get-MaxSmallItemSize>|<get-MaxSmallItemSize>(){}[0]
     final val MinSmallItemSize // androidx.compose.material3.carousel/CarouselDefaults.MinSmallItemSize|{}MinSmallItemSize[0]

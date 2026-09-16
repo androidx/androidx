@@ -5227,6 +5227,8 @@ package androidx.compose.material3 {
 package androidx.compose.material3.carousel {
 
   public final class CarouselDefaults {
+    method @InaccessibleFromKotlin public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method @BytecodeOnly public float getItemSpacing-D9Ej5fM();
     method @BytecodeOnly public float getMaxSmallItemSize-D9Ej5fM();
     method @BytecodeOnly public float getMinSmallItemSize-D9Ej5fM();
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.TargetedFlingBehavior multiBrowseFlingBehavior(androidx.compose.material3.carousel.CarouselState state, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decayAnimationSpec, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec);
@@ -5235,6 +5237,8 @@ package androidx.compose.material3.carousel {
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.TargetedFlingBehavior noSnapFlingBehavior(androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.TargetedFlingBehavior singleAdvanceFlingBehavior(androidx.compose.material3.carousel.CarouselState state, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.TargetedFlingBehavior singleAdvanceFlingBehavior(androidx.compose.material3.carousel.CarouselState, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.runtime.Composer?, int, int);
+    property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    property public androidx.compose.ui.unit.Dp ItemSpacing;
     property public androidx.compose.ui.unit.Dp MaxSmallItemSize;
     property public androidx.compose.ui.unit.Dp MinSmallItemSize;
     field public static final androidx.compose.material3.carousel.CarouselDefaults INSTANCE;
