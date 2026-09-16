@@ -76,10 +76,9 @@ class MetalRendererTest : AbstractStrokeRendererTest() {
     private fun findPathForResource(name: String, extension: String): String =
         checkNotNull(
             // Resources are packed into bundles differently across different build systems, so look
-            // at
-            // all bundles and use the first one that has the file being looked up. This looks for
-            // the
-            // file in the root directory of each bundle.
+            // at all bundles and use the first one that has the file being looked up. This looks
+            // for
+            // the file in the root directory of each bundle.
             @Suppress("UNCHECKED_CAST") // Kotlin doesn't understand the type of NSBundle.allBundles
             (NSBundle.allBundles as List<NSBundle>).firstNotNullOfOrNull {
                 it.pathForResource(name, ofType = extension)
@@ -92,12 +91,12 @@ class MetalRendererTest : AbstractStrokeRendererTest() {
         checkNotNull(MTLCreateSystemDefaultDevice()) { "Could not create Metal device." }
     private val commandQueue =
         checkNotNull(device.newCommandQueue()) { "Could not create Metal command queue." }
-    private val checkerboardUIImage: UIImage by lazy {
-        UIImage(contentsOfFile = findPathForResource("checkerboard", "png"))
+    private val checkerboardUIImage: UIImage? by lazy {
+        findPathForResource("checkerboard", "png")?.let { UIImage(contentsOfFile = it) }
     }
     private val textureStore = TextureImageStore { id ->
         when (id) {
-            "checkerboard" -> checkerboardUIImage.CGImage
+            "checkerboard" -> checkerboardUIImage
             else -> null
         }
     }

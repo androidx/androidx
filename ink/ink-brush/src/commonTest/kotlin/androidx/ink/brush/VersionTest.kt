@@ -41,7 +41,8 @@ class VersionTest {
 
     @Test
     fun toString_isCorrect() {
-        assertThat(Version.V0.toString()).isEqualTo("v0")
-        assertThat(Version.DEVELOPMENT.toString()).isEqualTo("experimental")
+        assertThat(Version.V0.toString()).isEqualTo("V0")
+        assertThat(Version.V1.toString()).isEqualTo("V1")
+        assertThat(Version.DEVELOPMENT.toString()).isEqualTo("DEVELOPMENT")
     }
 }
