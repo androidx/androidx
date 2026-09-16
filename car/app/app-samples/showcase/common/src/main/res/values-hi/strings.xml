@@ -282,26 +282,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"लंबे टैब टाइटल वाले ग्रिड टैब"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"खोज टैब"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"टैब लोड हो रहा है"</string>
-    <!-- no translation found for tab_title_template_style_1 (2975307122280161449) -->
-    <skip />
-    <!-- no translation found for tab_title_template_style_2 (7803400629501965995) -->
-    <skip />
-    <!-- no translation found for tab_title_overridden_style (3140303976251439964) -->
-    <skip />
-    <!-- no translation found for tab_title_failing_style (745811892650973560) -->
-    <skip />
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"टेंप्लेट स्टाइल 1"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"टेंप्लेट स्टाइल 2"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"कॉन्फ़िगरेशन बदलने पर दिखने वाली स्टाइल"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"कॉन्फ़िगरेशन फ़ेल होने पर दिखने वाली स्टाइल"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"टैब टेंप्लेट लोड करने का डेमो"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"बिना किसी टैब वाले टैब टेंप्लेट का डेमो"</string>
-    <!-- no translation found for tab_template_style_demo_title (3986454672226386561) -->
-    <skip />
-    <!-- no translation found for msg_tab_template_style_1_text (6874362443887944175) -->
-    <skip />
-    <!-- no translation found for msg_tab_template_style_2_text (7244377408142388066) -->
-    <skip />
-    <!-- no translation found for msg_tab_overridden_style_text (7242618513807844655) -->
-    <skip />
-    <!-- no translation found for msg_tab_failing_style_text (4357682634226036060) -->
-    <skip />
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"टैब के लिए टेंप्लेट स्टाइल का डेमो"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"टैब के लिए टेंप्लेट स्टाइल (टैब 1)\nटेंप्लेट-लेवल की स्टाइलिंग को इनहेरिट किया जाता है"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"टैब के लिए टेंप्लेट स्टाइल (टैब 2)\nटेंप्लेट-लेवल की स्टाइलिंग को इनहेरिट किया जाता है"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"कॉन्फ़िगरेशन बदलने पर दिखने वाली टैब स्टाइल\nटेंप्लेट स्टाइल की जगह आपकी पसंद के मुताबिक नीले रंगों का इस्तेमाल किया जाता है"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"कॉन्फ़िगरेशन फ़ेल होने पर दिखने वाली टैब स्टाइल\nलाल बैकग्राउंड पर लाल आइकॉन"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"अनजान होस्ट के लिए इमेज नहीं दिखाई जा सकतीं"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"आइकॉन"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"कॉन्टेंट देने वालों के आइकॉन का डेमो"</string>

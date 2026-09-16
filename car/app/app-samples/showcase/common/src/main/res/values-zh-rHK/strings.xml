@@ -282,26 +282,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"有長分頁標題的格線分頁"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"搜尋分頁"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"正在載入分頁"</string>
-    <!-- no translation found for tab_title_template_style_1 (2975307122280161449) -->
-    <skip />
-    <!-- no translation found for tab_title_template_style_2 (7803400629501965995) -->
-    <skip />
-    <!-- no translation found for tab_title_overridden_style (3140303976251439964) -->
-    <skip />
-    <!-- no translation found for tab_title_failing_style (745811892650973560) -->
-    <skip />
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"範本樣式 1"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"範本樣式 2"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"覆寫樣式"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"錯誤樣式"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"分頁範本載入示範"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"分頁範本無分頁示範"</string>
-    <!-- no translation found for tab_template_style_demo_title (3986454672226386561) -->
-    <skip />
-    <!-- no translation found for msg_tab_template_style_1_text (6874362443887944175) -->
-    <skip />
-    <!-- no translation found for msg_tab_template_style_2_text (7244377408142388066) -->
-    <skip />
-    <!-- no translation found for msg_tab_overridden_style_text (7242618513807844655) -->
-    <skip />
-    <!-- no translation found for msg_tab_failing_style_text (4357682634226036060) -->
-    <skip />
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"分頁範本樣式示範"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"分頁範本樣式 (分頁 1)\n沿用範本級別樣式"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"分頁範本樣式 (分頁 2)\n沿用範本級別樣式"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"分頁覆寫樣式\n以自訂藍色覆寫範本樣式"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"分頁錯誤樣式\n紅色背景上的紅色圖示"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"無法顯示不明主機的圖片"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"圖示"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"「內容供應者圖示」示範"</string>

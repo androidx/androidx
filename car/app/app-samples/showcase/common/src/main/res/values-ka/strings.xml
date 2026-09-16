@@ -292,7 +292,7 @@
     <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"ჩანართის შაბლონის სტილი (ჩანართი 1)\nმემკვიდრეობით იღებს შაბლონის დონის სტილს"</string>
     <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"ჩანართის შაბლონის სტილი (ჩანართი 2)\nმემკვიდრეობით იღებს შაბლონის დონის სტილს"</string>
     <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"ჩანართის უგულებელყოფილი სტილი\nუგულებელყოფს შაბლონის სტილს მორგებული ლურჯი ფერებით"</string>
-    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"ჩანართის წარუმატებელი სტილი\nწითელი ხატულა წითელ ფონზე"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"წარუმატებელი სტილის ჩანართი\nწითელი ხატულა წითელ ფონზე"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"სურათების უცნობის მასპინძლისთვის ჩვენება შეუძლებელია"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"ხატულა"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"კონტენტის მომწოდებლის ხატულის დემო"</string>
