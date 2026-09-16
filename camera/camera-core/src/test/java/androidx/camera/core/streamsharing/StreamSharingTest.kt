@@ -474,6 +474,75 @@ class StreamSharingTest {
         )
     }
 
+    @Test(expected = IllegalArgumentException::class)
+    fun getParentDynamicRange_exception_whenHdrUnspecifiedAndSdrSmpte209450Conflict() {
+        val sdrSmpteChild =
+            FakeUseCase(
+                FakeUseCaseConfig.Builder()
+                    .setSurfaceOccupancyPriority(1)
+                    .setDynamicRange(DynamicRange.SDR_SMPTE_2094_50)
+                    .useCaseConfig
+            )
+        val hdrChild =
+            FakeUseCase(
+                FakeUseCaseConfig.Builder()
+                    .setSurfaceOccupancyPriority(2)
+                    .setDynamicRange(DynamicRange.HDR_UNSPECIFIED_10_BIT)
+                    .useCaseConfig
+            )
+        streamSharing =
+            StreamSharing(
+                camera,
+                secondaryCamera,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                setOf(sdrSmpteChild, hdrChild),
+                useCaseConfigFactory,
+            )
+        streamSharing.mergeConfigs(
+            camera.cameraInfoInternal, /*extendedConfig*/
+            null, /*cameraDefaultConfig*/
+            null,
+        )
+    }
+
+    @Test
+    fun getParentDynamicRange_resolvesHdrUnspecifiedWithHlg10BitSmpte209450() {
+        val unspecifiedChild =
+            FakeUseCase(
+                FakeUseCaseConfig.Builder()
+                    .setSurfaceOccupancyPriority(1)
+                    .setDynamicRange(DynamicRange.HDR_UNSPECIFIED_10_BIT)
+                    .useCaseConfig
+            )
+        val hdrChild =
+            FakeUseCase(
+                FakeUseCaseConfig.Builder()
+                    .setSurfaceOccupancyPriority(2)
+                    .setDynamicRange(DynamicRange.HLG_10_BIT_SMPTE_2094_50)
+                    .useCaseConfig
+            )
+        streamSharing =
+            StreamSharing(
+                camera,
+                secondaryCamera,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                setOf(unspecifiedChild, hdrChild),
+                useCaseConfigFactory,
+            )
+        assertThat(
+                streamSharing
+                    .mergeConfigs(
+                        camera.cameraInfoInternal, /*extendedConfig*/
+                        null, /*cameraDefaultConfig*/
+                        null,
+                    )
+                    .dynamicRange
+            )
+            .isEqualTo(DynamicRange.HLG_10_BIT_SMPTE_2094_50)
+    }
+
     @Test
     fun verifySupportedEffects() {
         assertThat(streamSharing.isEffectTargetsSupported(PREVIEW or VIDEO_CAPTURE)).isTrue()

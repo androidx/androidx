@@ -119,7 +119,8 @@ public object DynamicRanges {
         val fullySpecifiedEncoding = fullySpecifiedDynamicRange.encoding
         return if (
             encodingToTest == DynamicRange.ENCODING_HDR_UNSPECIFIED &&
-                fullySpecifiedEncoding != DynamicRange.ENCODING_SDR
+                fullySpecifiedEncoding != DynamicRange.ENCODING_SDR &&
+                fullySpecifiedEncoding != DynamicRange.ENCODING_SDR_SMPTE_2094_50
         ) {
             true
         } else {
