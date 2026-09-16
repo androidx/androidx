@@ -65,6 +65,10 @@ internal class RangeSliderTestCase : LayeredComposeTestCase(), ToggleableTestCas
 
         RangeSlider(
             state = state,
+            onValueChange = {
+                state.startValue = it.start
+                state.endValue = it.endInclusive
+            },
             startThumb = {
                 Spacer(
                     Modifier.size(48.dp)
