@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.layout
 
 import android.content.res.Configuration
-import android.graphics.fonts.FontStyle as AndroidFontStyle
 import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
@@ -269,10 +268,7 @@ internal class RemoteTextNode : RemoteComposeNode() {
             } else {
                 unadjustedFontWeight
                     .plus(fontWeightAdjustment)
-                    .coerceIn(
-                        AndroidFontStyle.FONT_WEIGHT_MIN.toFloat(),
-                        AndroidFontStyle.FONT_WEIGHT_MAX.toFloat(),
-                    )
+                    .coerceIn(FONT_WEIGHT_MIN, FONT_WEIGHT_MAX)
             }
 
         val scope = overriddenScope(creationState)
@@ -307,3 +303,21 @@ internal class RemoteTextNode : RemoteComposeNode() {
         creationState.document.endTextComponent()
     }
 }
+
+/**
+ * The minimum allowable font weight value (1.0f).
+ *
+ * Conforms to [androidx.compose.ui.text.font.FontWeight] which enforces `weight in 1..1000`.
+ * Replaces [android.graphics.fonts.FontStyle.FONT_WEIGHT_MIN] to avoid coupling layout nodes to
+ * Android framework classes.
+ */
+private const val FONT_WEIGHT_MIN: Float = 1f
+
+/**
+ * The maximum allowable font weight value (1000.0f).
+ *
+ * Conforms to [androidx.compose.ui.text.font.FontWeight] which enforces `weight in 1..1000`.
+ * Replaces [android.graphics.fonts.FontStyle.FONT_WEIGHT_MAX] to avoid coupling layout nodes to
+ * Android framework classes.
+ */
+private const val FONT_WEIGHT_MAX: Float = 1000f
