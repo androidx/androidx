@@ -25,7 +25,6 @@ import android.text.TextPaint
 import kotlin.concurrent.getOrSet
 import kotlin.math.ceil
 import kotlin.math.max
-import kotlin.math.min
 
 /**
  * A helper class that handles the layout logic, measurement, and drawing for [RubySpan].
@@ -118,7 +117,7 @@ internal class HorizontalRubySpanLayout(
      * Reserving it on the wrong side would leave the annotation to collide with the adjacent line,
      * so the position has to move the reservation and not just the drawing.
      *
-     * @param fm the font metrics to expand in place
+     * @param fm the font metrics to overwrite in place
      */
     override fun fillFontMetrics(fm: Paint.FontMetricsInt) {
         if (isRubyOver) {
@@ -128,8 +127,8 @@ internal class HorizontalRubySpanLayout(
             fm.ascent = bodyAscent
             fm.descent = bodyDescent + rubyLineHeight
         }
-        fm.top = min(fm.ascent, fm.top)
-        fm.bottom = max(fm.descent, fm.bottom)
+        fm.top = fm.ascent
+        fm.bottom = fm.descent
     }
 
     /**
