@@ -87,7 +87,9 @@ class A2uiBasicCatalogV1ButtonTest {
         val variantSchema =
             assertIs<A2uiStringSchema>(A2uiBasicCatalogV1.Button.VariantProperty.schema)
         assertThat(variantSchema.keywords)
-            .contains(A2uiSchemaKeyword.Default(A2uiBasicCatalogV1.Button.Variant.Default.value))
+            .contains(A2uiSchemaKeyword.Enum(listOf("default", "primary", "borderless")))
+        assertThat(variantSchema.keywords)
+            .contains(A2uiSchemaKeyword.Default(A2uiBasicCatalogV1.Button.Variant.Secondary.value))
 
         assertThat(A2uiBasicCatalogV1.Button.ActionProperty.key).isEqualTo("action")
         assertThat(A2uiBasicCatalogV1.Button.ActionProperty.isRequired).isTrue()
@@ -95,8 +97,14 @@ class A2uiBasicCatalogV1ButtonTest {
     }
 
     @Test
+    fun variant_default_isSecondary() {
+        assertThat(A2uiBasicCatalogV1.Button.Variant.Default)
+            .isEqualTo(A2uiBasicCatalogV1.Button.Variant.Secondary)
+    }
+
+    @Test
     fun variant_values_matchSpecificationStrings() {
-        assertThat(A2uiBasicCatalogV1.Button.Variant.Default.value).isEqualTo("default")
+        assertThat(A2uiBasicCatalogV1.Button.Variant.Secondary.value).isEqualTo("default")
         assertThat(A2uiBasicCatalogV1.Button.Variant.Primary.value).isEqualTo("primary")
         assertThat(A2uiBasicCatalogV1.Button.Variant.Borderless.value).isEqualTo("borderless")
     }
@@ -104,7 +112,7 @@ class A2uiBasicCatalogV1ButtonTest {
     @Test
     fun variant_fromValue_validStrings_returnsCorrespondingVariant() {
         assertThat(A2uiBasicCatalogV1.Button.Variant.fromValue("default"))
-            .isEqualTo(A2uiBasicCatalogV1.Button.Variant.Default)
+            .isEqualTo(A2uiBasicCatalogV1.Button.Variant.Secondary)
         assertThat(A2uiBasicCatalogV1.Button.Variant.fromValue("primary"))
             .isEqualTo(A2uiBasicCatalogV1.Button.Variant.Primary)
         assertThat(A2uiBasicCatalogV1.Button.Variant.fromValue("borderless"))

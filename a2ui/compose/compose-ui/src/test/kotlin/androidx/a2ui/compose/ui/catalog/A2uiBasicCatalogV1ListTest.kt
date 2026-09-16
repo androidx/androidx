@@ -87,7 +87,7 @@ class A2uiBasicCatalogV1ListTest {
         assertThat(directionSchema.keywords)
             .contains(A2uiSchemaKeyword.Enum(listOf("vertical", "horizontal")))
         assertThat(directionSchema.keywords)
-            .contains(A2uiSchemaKeyword.Default(A2uiBasicCatalogV1.List.Direction.Default.value))
+            .contains(A2uiSchemaKeyword.Default(A2uiBasicCatalogV1.List.Direction.Vertical.value))
 
         assertThat(A2uiBasicCatalogV1.List.AlignProperty.key).isEqualTo("align")
         assertThat(A2uiBasicCatalogV1.List.AlignProperty.isRequired).isFalse()
@@ -97,7 +97,7 @@ class A2uiBasicCatalogV1ListTest {
         assertThat(alignSchema.keywords)
             .contains(A2uiSchemaKeyword.Enum(listOf("start", "center", "end", "stretch")))
         assertThat(alignSchema.keywords)
-            .contains(A2uiSchemaKeyword.Default(A2uiBasicCatalogV1.List.Align.Default.value))
+            .contains(A2uiSchemaKeyword.Default(A2uiBasicCatalogV1.List.Align.Stretch.value))
     }
 
     @Test
