@@ -16,8 +16,11 @@
 
 package androidx.credentials.agesignals
 
+import android.os.Bundle
+import android.util.Log
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 
 /**
  * Contains the age range signal for the user.
@@ -111,5 +114,72 @@ public class GetAgeRangeResponse(
          * Digital ID.
          */
         public const val ASSURANCE_TIER_D: Int = 4
+
+        private const val TAG = "GetAgeRangeResponse"
+
+        @VisibleForTesting
+        internal const val EXTRA_AGE_LOWER_BOUND =
+            "androidx.credentials.agesignals.extra.AGE_LOWER_BOUND"
+
+        @VisibleForTesting
+        internal const val EXTRA_AGE_UPPER_BOUND =
+            "androidx.credentials.agesignals.extra.AGE_UPPER_BOUND"
+
+        @VisibleForTesting
+        internal const val EXTRA_AGE_ASSURANCE_TIER =
+            "androidx.credentials.agesignals.extra.AGE_ASSURANCE_TIER"
+
+        /**
+         * Helper method to convert the given [response] to a parcelable [Bundle], in case the
+         * instance needs to be sent across a process. Consumers of this method should use
+         * [fromBundle] to reconstruct the class instance back from the bundle returned here.
+         */
+        internal fun asBundle(response: GetAgeRangeResponse): Bundle {
+            val bundle = Bundle()
+            bundle.putInt(EXTRA_AGE_LOWER_BOUND, response.lowerAgeBound)
+            response.upperAgeBound?.let { bundle.putInt(EXTRA_AGE_UPPER_BOUND, it) }
+            bundle.putInt(EXTRA_AGE_ASSURANCE_TIER, response.assuranceTier)
+            return bundle
+        }
+
+        /**
+         * Helper method to convert a [Bundle] retrieved through [asBundle] back to an instance of
+         * [GetAgeRangeResponse], or `null` if the bundle is missing required entries or holds
+         * values that violate the [GetAgeRangeResponse] invariants.
+         *
+         * An [AgeAssuranceTier] this version of the library does not recognize is passed through
+         * as-is rather than rejected, so that a newer tier introduced by a provider does not cause
+         * an otherwise valid response to be dropped. This matches the [GetAgeRangeResponse]
+         * constructor, which likewise does not constrain the assurance tier.
+         *
+         * The bundle should be constructed and retrieved from [asBundle] itself and never be
+         * created from scratch to avoid the failure.
+         */
+        internal fun fromBundle(bundle: Bundle): GetAgeRangeResponse? {
+            if (!bundle.containsKey(EXTRA_AGE_LOWER_BOUND)) {
+                Log.w(TAG, "Dropping response bundle: missing $EXTRA_AGE_LOWER_BOUND.")
+                return null
+            }
+            if (!bundle.containsKey(EXTRA_AGE_ASSURANCE_TIER)) {
+                Log.w(TAG, "Dropping response bundle: missing $EXTRA_AGE_ASSURANCE_TIER.")
+                return null
+            }
+
+            val assuranceTier = bundle.getInt(EXTRA_AGE_ASSURANCE_TIER)
+            val lowerAgeBound = bundle.getInt(EXTRA_AGE_LOWER_BOUND)
+            val upperAgeBound =
+                if (bundle.containsKey(EXTRA_AGE_UPPER_BOUND)) {
+                    bundle.getInt(EXTRA_AGE_UPPER_BOUND)
+                } else {
+                    null
+                }
+
+            return try {
+                GetAgeRangeResponse(lowerAgeBound, upperAgeBound, assuranceTier)
+            } catch (e: IllegalArgumentException) {
+                Log.w(TAG, "Dropping response bundle: it does not describe a valid age range.", e)
+                null
+            }
+        }
     }
 }
