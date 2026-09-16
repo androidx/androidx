@@ -1562,7 +1562,7 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
     public void setVersion(
             int documentApiLevel,
             int operationsProfiles,
-            @Nullable Set<Integer> supportedOperations) {
+            @Nullable Set<@NonNull Integer> supportedOperations) {
         super.setVersion(documentApiLevel, operationsProfiles, supportedOperations);
     }
 
