@@ -101,13 +101,13 @@ private object SubspaceConstants {
  * Create a 3D area that the app can render spatial content into.
  *
  * Subspace creates a Compose for XR Spatial UI hierarchy (3D Scene Graph) in your application's
- * regular Compose UI tree. In this Subspace, You can use a `@SubspaceComposable` annotated
- * composable functions to create 3D UI elements.
+ * regular Compose UI tree. In this Subspace, you can use `@SubspaceComposable`-annotated composable
+ * functions to create 3D UI elements.
  *
  * Each call to Subspace creates a new, independent Spatial UI hierarchy. It does **not** inherit
  * the spatial position, orientation, or scale of any parent Subspace it is nested within. Its
  * position and scale are solely decided by the system's recommended position and scale. To create
- * an embedded Subspace within a SpatialPanel, Orbiter, SpatialPopup and etc, use the
+ * an embedded Subspace within a SpatialPanel, Orbiter, SpatialPopup, etc., use the
  * [PlanarEmbeddedSubspace] instead.
  *
  * By default, this Subspace is automatically bounded by the system's recommended content box. The
@@ -434,22 +434,23 @@ public annotation class ExperimentalFollowingSubspaceApi
  * system's recommended content box, similar to [Subspace].
  *
  * When the target parameter is specified to be
- * [androidx.xr.compose.subspace.FollowTarget.ArDevice], the content will be positioned relative the
- * view of the AR device. This is sometimes referred to as head-locked content. For this API, it is
- * required for device tracking to not be disabled in the session configuration. If it is disabled,
- * this API will not return anything. The session configuration should resemble `session.configure(
- * config = Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build() )`
- * The [androidx.xr.compose.subspace.FollowTarget.ArDevice] is not compatible with
+ * [androidx.xr.compose.subspace.FollowTarget.ArDevice], the content will be positioned relative to
+ * the view of the AR device. This is sometimes referred to as head-locked content. For this API, it
+ * is required for device tracking to not be disabled in the session configuration. If it is
+ * disabled, this API will not return anything. The session configuration should resemble
+ * `session.configure( config =
+ * Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build() )` The
+ * [androidx.xr.compose.subspace.FollowTarget.ArDevice] is not compatible with
  * [androidx.xr.compose.subspace.FollowBehavior.Tight]. Combining these together will cause this
- * composable to not be displayed. For a near tight experience, use
+ * composable to not be displayed. For a near-tight experience, use
  * [androidx.xr.compose.subspace.FollowBehavior.Soft] with a low duration value.
  *
  * When the target parameter is specified to be [androidx.xr.compose.subspace.FollowTarget.Anchor],
  * the content will be positioned around an anchor. This is useful for placing UI elements on
  * real-world surfaces or at specific spatial locations. The visual stability of the anchored
  * content depends on the underlying system's ability to track the
- * [androidx.xr.scenecore.AnchorSpace]. For Creating, loading, and persisting anchors, please check
- * [androidx.xr.scenecore.AnchorSpace] for more information
+ * [androidx.xr.scenecore.AnchorSpace]. For creating, loading, and persisting anchors, please check
+ * [androidx.xr.scenecore.AnchorSpace] for more information.
  *
  * This composable is a no-op in non-XR environments (i.e., Phone and Tablet).
  *
@@ -468,21 +469,21 @@ public annotation class ExperimentalFollowingSubspaceApi
  *    smaller, manageable content areas that are less likely to collide.
  * 2. **Use Strategic Offsets**: Use `SubspaceModifier.offset` to position a Subspace. For example,
  *    a head-locked menu can be offset to appear in the user's peripheral vision, reducing the
- *    chance it will collide with central content.Also, consider placing different Subspace
+ *    chance it will collide with central content. Also, consider placing different Subspace
  *    instances at different depths. This ensures that if they overlap, their z-depth ordering will
  *    be clear and predictable. Note, however, that while the visual ordering may be clear, Jetpack
  *    XR doesn't guarantee predictable interaction behaviors between UI elements in separate,
  *    overlapping Subspaces.
  *
  * @param target Specifies an area which the Subspace will move towards.
- * @param behavior determines how the FollowingSubspace follows the target. It can be made to move
+ * @param behavior Determines how the FollowingSubspace follows the target. It can be made to move
  *   faster and be more responsive. The default is FollowBehavior.Soft().
  * @param modifier The [SubspaceModifier] to be applied to the content of this Subspace.
  * @param dimensions A set of boolean flags to determine the dimensions of movement that are
  *   tracked. Possible tracking dimensions are: translationX, translationY, translationZ, rotationX,
  *   rotationY, and rotationZ. By default, all dimensions are tracked. Any dimensions not listed
- *   will not be tracked. For example if translationY is not listed, this means the content will not
- *   move as the user moves vertically up and down.
+ *   will not be tracked. For example, if translationY is not listed, this means the content will
+ *   not move as the user moves vertically up and down.
  * @param content The 3D content to render within this Subspace.
  * @deprecated Use [Subspace] with the follow parameter instead.
  */
@@ -586,21 +587,21 @@ public fun FollowingSubspace(
  * system's recommended content box, similar to [Subspace].
  *
  * When the `follow` parameter is specified to be [FollowTarget.view], the content will be
- * positioned relative the view of the AR device. This is sometimes referred to as head-locked
+ * positioned relative to the view of the AR device. This is sometimes referred to as head-locked
  * content. For this API, it is required for device tracking to not be disabled in the session
  * configuration. If it is disabled, this API will not return anything. The session configuration
  * should resemble `session.configure( config =
  * Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build() )` The
  * [FollowTarget.view] is not compatible with [FollowMode.tight]. Combining these together will
- * cause this composable to not be displayed. For a near tight experience, use [FollowMode.soft]
+ * cause this composable to not be displayed. For a near-tight experience, use [FollowMode.soft]
  * with a low duration value.
  *
  * When the `follow` parameter is specified to be [FollowTarget.anchor], the content will be
  * positioned around an anchor. This is useful for placing UI elements on real-world surfaces or at
  * specific spatial locations. The visual stability of the anchored content depends on the
- * underlying system's ability to track the [androidx.xr.scenecore.AnchorSpace]. For Creating,
+ * underlying system's ability to track the [androidx.xr.scenecore.AnchorSpace]. For creating,
  * loading, and persisting anchors, please check [androidx.xr.scenecore.AnchorSpace] for more
- * information
+ * information.
  *
  * This composable is a no-op in non-XR environments (i.e., Phone and Tablet).
  *
@@ -619,14 +620,14 @@ public fun FollowingSubspace(
  *    smaller, manageable content areas that are less likely to collide.
  * 2. **Use Strategic Offsets**: Use `SubspaceModifier.offset` to position a Subspace. For example,
  *    a head-locked menu can be offset to appear in the user's peripheral vision, reducing the
- *    chance it will collide with central content.Also, consider placing different Subspace
+ *    chance it will collide with central content. Also, consider placing different Subspace
  *    instances at different depths. This ensures that if they overlap, their z-depth ordering will
  *    be clear and predictable. Note, however, that while the visual ordering may be clear, Jetpack
  *    XR doesn't guarantee predictable interaction behaviors between UI elements in separate,
  *    overlapping Subspaces.
  *
  * @sample androidx.xr.compose.samples.FollowingSubspaceSample
- * @param follow Specifies an entity which the Subspace will move towards.
+ * @param follow Specifies an entity towards which the Subspace will move.
  * @param modifier The [SubspaceModifier] to be applied to the content of this Subspace.
  * @param content The 3D content to render within this Subspace.
  */

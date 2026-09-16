@@ -26,8 +26,8 @@ internal class SubspaceMeasureAndLayoutDelegate(private val root: SubspaceLayout
     val snapshotStateObserver: SnapshotStateObserver = SnapshotStateObserver(::run)
 
     /**
-     * Set of nodes that have invalidated measurement and need to to call "remeasure()".
-     * Automatically sorted by depth (parents first)
+     * Set of nodes that have invalidated measurement and need to call "remeasure()". Automatically
+     * sorted by depth (parents first).
      */
     private val nodesPendingMeasure = SubspaceDepthSortedSet(extraAssertions = false)
 
@@ -39,7 +39,7 @@ internal class SubspaceMeasureAndLayoutDelegate(private val root: SubspaceLayout
 
     /**
      * Set of nodes that have invalidated Core Entities and need to be updated. Automatically sorted
-     * by depth "
+     * by depth.
      */
     private val nodesPendingEntityUpdate = SubspaceDepthSortedSet(extraAssertions = false)
 

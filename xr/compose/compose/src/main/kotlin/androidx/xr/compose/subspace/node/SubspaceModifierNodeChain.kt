@@ -333,12 +333,12 @@ internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: Subspac
     }
 
     /**
-     * This method utilizes a modified Myers Diff Algorithm which will diff the two modifier chains
-     * and execute a minimal number of insertions/deletions. We make no attempt to execute "moves"
-     * as part of this diff. If a modifier moves that is no different than it being inserted in the
-     * new location and removed in the old location.
+     * Uses a modified Myers Diff Algorithm to diff the two modifier chains and run a minimal number
+     * of insertions/deletions. We make no attempt to execute "moves" as part of this diff. If a
+     * modifier moves, that is no different than it being inserted in the new location and removed
+     * from the old location.
      *
-     * @param tail - The Node that corresponds to the _end_ of the [before] list.
+     * @param tail The Node that corresponds to the _end_ of the [before] list.
      */
     private fun structuralUpdate(
         offset: Int,

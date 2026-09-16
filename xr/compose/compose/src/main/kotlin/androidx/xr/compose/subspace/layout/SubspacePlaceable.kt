@@ -137,8 +137,9 @@ public abstract class SubspacePlaceable {
         }
 
         /**
-         * Place a [SubspacePlaceable] at the [Pose] in its parent's coordinate system with auto
-         * mirrored position along YZ plane if parent layout direction is [LayoutDirection.Rtl].
+         * Place a [SubspacePlaceable] at the [Pose] in its parent's coordinate system with an
+         * auto-mirrored position along the YZ plane if the parent layout direction is
+         * [LayoutDirection.Rtl].
          *
          * If the [parentLayoutDirection] is [LayoutDirection.Rtl], this function calculates a new
          * pose by mirroring the original [pose] across the YZ plane. This ensures that layouts
