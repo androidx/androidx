@@ -79,6 +79,7 @@ package androidx.health.connect.client {
     field public static final int FEATURE_EXTENDED_DEVICE_TYPES = 8; // 0x8
     field @SuppressCompatibility @androidx.health.connect.client.ExperimentalMatchmakingApi public static final int FEATURE_MATCHMAKING = 10; // 0xa
     field public static final int FEATURE_MINDFULNESS_SESSION = 5; // 0x5
+    field public static final int FEATURE_ON_DEVICE_STEP_TRACKING = 11; // 0xb
     field @SuppressCompatibility @androidx.health.connect.client.feature.ExperimentalPersonalHealthRecordApi public static final int FEATURE_PERSONAL_HEALTH_RECORD = 6; // 0x6
     field public static final int FEATURE_PLANNED_EXERCISE = 3; // 0x3
     field public static final int FEATURE_READ_HEALTH_DATA_HISTORY = 4; // 0x4
@@ -94,6 +95,7 @@ package androidx.health.connect.client {
     property public static int FEATURE_EXTENDED_DEVICE_TYPES;
     property @SuppressCompatibility @androidx.health.connect.client.ExperimentalMatchmakingApi public static int FEATURE_MATCHMAKING;
     property public static int FEATURE_MINDFULNESS_SESSION;
+    property public static int FEATURE_ON_DEVICE_STEP_TRACKING;
     property @SuppressCompatibility @androidx.health.connect.client.feature.ExperimentalPersonalHealthRecordApi public static int FEATURE_PERSONAL_HEALTH_RECORD;
     property public static int FEATURE_PLANNED_EXERCISE;
     property public static int FEATURE_READ_HEALTH_DATA_HISTORY;
@@ -106,6 +108,7 @@ package androidx.health.connect.client {
     field public static final int FEATURE_EXTENDED_DEVICE_TYPES = 8; // 0x8
     field public static final int FEATURE_MATCHMAKING = 10; // 0xa
     field public static final int FEATURE_MINDFULNESS_SESSION = 5; // 0x5
+    field public static final int FEATURE_ON_DEVICE_STEP_TRACKING = 11; // 0xb
     field public static final int FEATURE_PERSONAL_HEALTH_RECORD = 6; // 0x6
     field public static final int FEATURE_PLANNED_EXERCISE = 3; // 0x3
     field public static final int FEATURE_READ_HEALTH_DATA_HISTORY = 4; // 0x4
