@@ -442,19 +442,28 @@ class AccessibilityActivity : ComponentActivity() {
                 enabled = isTracking,
                 onClick = {
                     scope.launch {
-                        val anchorPose = Pose(Vector3(0f, -0.5f, -0.5f))
+                        val anchorPose = Pose(Vector3(0.2f, -0.5f, -1.2f))
                         val anchorResult = Anchor.create(session, anchorPose)
                         when (anchorResult) {
                             is AnchorCreateSuccess -> {
                                 val model =
                                     GltfModel.create(session, Paths.get("models", "xyzArrows.glb"))
-                                gltfEntity.value =
-                                    createModelEntity(model, "", anchorPose.translation)
-                                anchorSpace.value =
+                                val space =
                                     AnchorSpace.create(session, anchor = anchorResult.anchor)
-                                gltfEntity.value?.parent = anchorSpace.value
-                                anchorSpace.value?.contentDescription =
+                                anchorSpace.value = space
+                                space.contentDescription =
                                     "Anchor Space at ${anchorPose.translation}"
+
+                                val entity =
+                                    createModelEntity(model, "", Vector3.Zero).apply {
+                                        // Set enabled to false until AnchorSpace is ready to avoid
+                                        // a flash effect.
+                                        setEnabled(false)
+                                        parent = space
+                                    }
+                                gltfEntity.value = entity
+
+                                space.addOriginChangedListener { entity.setEnabled(true) }
                             }
 
                             is AnchorCreateResourcesExhausted -> {
