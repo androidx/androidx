@@ -18,6 +18,8 @@ package androidx.xr.compose.subspace
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -85,7 +87,7 @@ import androidx.xr.scenecore.scene
 import com.android.extensions.xr.ShadowXrExtensions
 import com.android.extensions.xr.space.ShadowActivityPanel
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert.assertNotNull
+import kotlin.test.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Ignore
 import org.junit.Rule
@@ -542,6 +544,44 @@ class SpatialPanelTest {
             composeTestRule.onSubspaceNodeWithTag(panelTag).fetchSemanticsNode()
         val panelEntityAfterShow = panelNodeAfterShow.semanticsEntity as? PanelEntity
         assertThat(checkNotNull(panelEntityAfterShow).isEnabled()).isTrue()
+    }
+
+    @Test
+    fun spatialPanel_scrimAddsWhenDialogActive() {
+        val dialogManager = DefaultDialogManager()
+        var internalView: View? = null
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalDialogManager provides dialogManager,
+                content = {
+                    Subspace {
+                        SpatialPanel(SubspaceModifier.testTag("spatialPanel").size(100.dp)) {
+                            internalView = LocalView.current
+                            Box(Modifier.size(100.dp))
+                        }
+                    }
+                },
+            )
+        }
+
+        composeTestRule.waitForIdle()
+        val composeView = assertNotNull(internalView?.parent as? ComposeView)
+
+        val initialScrim = assertNotNull(composeView.foreground as? ColorDrawable)
+        assertThat(initialScrim.color).isEqualTo(Color.TRANSPARENT)
+
+        dialogManager.isSpatialDialogActive.value = true
+        composeTestRule.waitForIdle()
+
+        val activeScrim = assertNotNull(composeView.foreground as? ColorDrawable)
+        assertThat(activeScrim.color).isEqualTo(DEFAULT_SCRIM_ALPHA)
+
+        dialogManager.isSpatialDialogActive.value = false
+        composeTestRule.waitForIdle()
+
+        val dismissedScrim = assertNotNull(composeView.foreground as? ColorDrawable)
+        assertThat(dismissedScrim.color).isEqualTo(Color.TRANSPARENT)
     }
 
     @Test
