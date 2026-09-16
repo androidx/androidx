@@ -273,8 +273,6 @@ package androidx.xr.glimmer {
   public final class IconMarkerDefaults {
     method @KotlinOnly @androidx.compose.runtime.Composable public void DotIcon(optional androidx.compose.ui.Modifier modifier);
     method @BytecodeOnly @androidx.compose.runtime.Composable public void DotIcon(androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color color(optional androidx.compose.ui.graphics.Color color);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public long color-eb82Cgs(long, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color contentColor(optional androidx.compose.ui.graphics.Color color);
     method @BytecodeOnly @androidx.compose.runtime.Composable public long contentColor-eb82Cgs(long, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding(androidx.xr.glimmer.IconMarkerSize size);
@@ -410,8 +408,6 @@ package androidx.xr.glimmer {
   }
 
   public final class SurfaceDefaults {
-    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color color(optional androidx.compose.ui.graphics.Color baseColor);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public long color-eb82Cgs(long, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color focusedColor(optional androidx.compose.ui.graphics.Color baseColor);
     method @BytecodeOnly @androidx.compose.runtime.Composable public long focusedColor-eb82Cgs(long, androidx.compose.runtime.Composer?, int, int);
     field public static final androidx.xr.glimmer.SurfaceDefaults INSTANCE;
