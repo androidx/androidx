@@ -61,7 +61,7 @@ import androidx.compose.ui.semantics.semantics
  */
 @NonRestartableComposable
 @Composable
-fun IconButton(
+public fun IconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
@@ -127,7 +127,7 @@ fun IconButton(
  */
 @NonRestartableComposable
 @Composable
-fun OutlinedIconButton(
+public fun OutlinedIconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,

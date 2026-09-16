@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.Shape
 
 /** Represents the [Color] of Card in different interaction states. */
 @Immutable
-class CardColors
+public class CardColors
 internal constructor(
     internal val containerColor: Color,
     internal val contentColor: Color,
@@ -72,7 +72,7 @@ internal constructor(
 
 /** Represents the [Shape] of Card in different interaction states. */
 @Immutable
-class CardShape
+public class CardShape
 internal constructor(
     internal val shape: Shape,
     internal val focusedShape: Shape,
@@ -109,7 +109,7 @@ internal constructor(
  * always be a non-negative float.
  */
 @Immutable
-class CardScale
+public class CardScale
 internal constructor(
     @FloatRange(from = 0.0) internal val scale: Float,
     @FloatRange(from = 0.0) internal val focusedScale: Float,
@@ -140,15 +140,15 @@ internal constructor(
         return "CardScale(scale=$scale, focusedScale=$focusedScale, pressedScale=$pressedScale)"
     }
 
-    companion object {
+    public companion object {
         /** Signifies the absence of a [ScaleIndication] in Card component. */
-        val None = CardScale(scale = 1f, focusedScale = 1f, pressedScale = 1f)
+        public val None: CardScale = CardScale(scale = 1f, focusedScale = 1f, pressedScale = 1f)
     }
 }
 
 /** Represents the [Border] of Card in different interaction states. */
 @Immutable
-class CardBorder
+public class CardBorder
 internal constructor(
     internal val border: Border,
     internal val focusedBorder: Border,
@@ -183,7 +183,7 @@ internal constructor(
 
 /** Represents the [Glow] of Card in different interaction states. */
 @Immutable
-class CardGlow
+public class CardGlow
 internal constructor(
     internal val glow: Glow,
     internal val focusedGlow: Glow,

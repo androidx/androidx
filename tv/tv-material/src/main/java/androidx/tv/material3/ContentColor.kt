@@ -30,4 +30,7 @@ import androidx.compose.ui.graphics.Color
  *
  * Defaults to [Color.Black] if no color has been explicitly set.
  */
-val LocalContentColor = compositionLocalOf { Color.Black }
+public val LocalContentColor: androidx.compose.runtime.ProvidableCompositionLocal<Color> =
+    compositionLocalOf {
+        Color.Black
+    }

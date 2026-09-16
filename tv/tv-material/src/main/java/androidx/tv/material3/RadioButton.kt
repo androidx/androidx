@@ -66,7 +66,7 @@ import androidx.tv.material3.tokens.RadioButtonTokens
  *   interactions will still happen internally.
  */
 @Composable
-fun RadioButton(
+public fun RadioButton(
     selected: Boolean,
     onClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
@@ -116,13 +116,14 @@ fun RadioButton(
 }
 
 /** Defaults used in [RadioButton]. */
-object RadioButtonDefaults {
+public object RadioButtonDefaults {
 
     /**
      * Creates a [RadioButtonColors] that will animate between the provided colors according to the
      * Material specification.
      */
-    @Composable fun colors() = MaterialTheme.colorScheme.defaultRadioButtonColors
+    @Composable
+    public fun colors(): RadioButtonColors = MaterialTheme.colorScheme.defaultRadioButtonColors
 
     /**
      * Creates a [RadioButtonColors] that will animate between the provided colors according to the
@@ -136,7 +137,7 @@ object RadioButtonDefaults {
      * @return the resulting [RadioButtonColors] used for the RadioButton
      */
     @Composable
-    fun colors(
+    public fun colors(
         selectedColor: Color = Color.Unspecified,
         unselectedColor: Color = Color.Unspecified,
         disabledSelectedColor: Color = Color.Unspecified,
@@ -180,22 +181,22 @@ object RadioButtonDefaults {
  * @constructor create an instance with arbitrary colors.
  */
 @Immutable
-class RadioButtonColors(
-    val selectedColor: Color,
-    val unselectedColor: Color,
-    val disabledSelectedColor: Color,
-    val disabledUnselectedColor: Color,
+public class RadioButtonColors(
+    public val selectedColor: Color,
+    public val unselectedColor: Color,
+    public val disabledSelectedColor: Color,
+    public val disabledUnselectedColor: Color,
 ) {
     /**
      * Returns a copy of this SelectableChipColors, optionally overriding some of the values. This
      * uses the Color.Unspecified to mean “use the value from the source”
      */
-    fun copy(
+    public fun copy(
         selectedColor: Color = this.selectedColor,
         unselectedColor: Color = this.unselectedColor,
         disabledSelectedColor: Color = this.disabledSelectedColor,
         disabledUnselectedColor: Color = this.disabledUnselectedColor,
-    ) =
+    ): RadioButtonColors =
         RadioButtonColors(
             selectedColor.takeOrElse { this.selectedColor },
             unselectedColor.takeOrElse { this.unselectedColor },

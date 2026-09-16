@@ -43,7 +43,7 @@ internal object BaseWideButtonDefaults {
     val VerticalContentGap = 4.dp
 }
 
-object WideButtonDefaults {
+public object WideButtonDefaults {
     private val HorizontalPadding = 16.dp
     private val VerticalPadding = 10.dp
 
@@ -60,7 +60,7 @@ object WideButtonDefaults {
 
     /** Default background for a [WideButton] */
     @Composable
-    fun Background(enabled: Boolean, interactionSource: MutableInteractionSource) {
+    public fun Background(enabled: Boolean, interactionSource: MutableInteractionSource) {
         val isFocused = interactionSource.collectIsFocusedAsState().value
         val isPressed = interactionSource.collectIsPressedAsState().value
 
@@ -84,13 +84,13 @@ object WideButtonDefaults {
      * @param disabledShape the shape used when the Button is not enabled
      * @param focusedDisabledShape the shape used when the Button is not enabled and focused
      */
-    fun shape(
+    public fun shape(
         shape: Shape = ContainerShape,
         focusedShape: Shape = shape,
         pressedShape: Shape = shape,
         disabledShape: Shape = shape,
         focusedDisabledShape: Shape = disabledShape,
-    ) =
+    ): ButtonShape =
         ButtonShape(
             shape = shape,
             focusedShape = focusedShape,
@@ -110,12 +110,12 @@ object WideButtonDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun contentColor(
+    public fun contentColor(
         color: Color = MaterialTheme.colorScheme.onSurface,
         focusedColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
         pressedColor: Color = focusedColor,
         disabledColor: Color = color,
-    ) =
+    ): WideButtonContentColor =
         WideButtonContentColor(
             contentColor = color,
             focusedContentColor = focusedColor,
@@ -135,13 +135,13 @@ object WideButtonDefaults {
      * @param disabledScale the scale to be used for this Button when disabled
      * @param focusedDisabledScale the scale to be used for this Button when disabled and focused
      */
-    fun scale(
+    public fun scale(
         @FloatRange(from = 0.0) scale: Float = 1f,
         @FloatRange(from = 0.0) focusedScale: Float = 1.1f,
         @FloatRange(from = 0.0) pressedScale: Float = scale,
         @FloatRange(from = 0.0) disabledScale: Float = scale,
         @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale,
-    ) =
+    ): ButtonScale =
         ButtonScale(
             scale = scale,
             focusedScale = focusedScale,
@@ -163,7 +163,7 @@ object WideButtonDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun border(
+    public fun border(
         border: Border = Border.None,
         focusedBorder: Border = border,
         pressedBorder: Border = focusedBorder,
@@ -174,7 +174,7 @@ object WideButtonDefaults {
                 inset = 0.dp,
                 shape = ContainerShape,
             ),
-    ) =
+    ): ButtonBorder =
         ButtonBorder(
             border = border,
             focusedBorder = focusedBorder,
@@ -190,6 +190,9 @@ object WideButtonDefaults {
      * @param focusedGlow the Glow behind this Button when focused
      * @param pressedGlow the Glow behind this Button when pressed
      */
-    fun glow(glow: Glow = Glow.None, focusedGlow: Glow = glow, pressedGlow: Glow = glow) =
-        ButtonGlow(glow = glow, focusedGlow = focusedGlow, pressedGlow = pressedGlow)
+    public fun glow(
+        glow: Glow = Glow.None,
+        focusedGlow: Glow = glow,
+        pressedGlow: Glow = glow,
+    ): ButtonGlow = ButtonGlow(glow = glow, focusedGlow = focusedGlow, pressedGlow = pressedGlow)
 }

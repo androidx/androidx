@@ -25,19 +25,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.tokens.Elevation
 
 /** Contains the default values used by list items. */
-object ListItemDefaults {
+public object ListItemDefaults {
     /** The default Icon size used by [ListItem]. */
-    val IconSize = 32.dp
+    public val IconSize: Dp = 32.dp
 
     /** The Icon size used by [DenseListItem]. */
-    val IconSizeDense = 20.dp
+    public val IconSizeDense: Dp = 20.dp
 
     /** The default elevation used by [ListItem]. */
-    val TonalElevation = Elevation.Level0
+    public val TonalElevation: Dp = Elevation.Level0
 
     /** The default shape for a [ListItem]. */
     private val ListItemShape = RoundedCornerShape(8.dp)
@@ -91,7 +92,7 @@ object ListItemDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun shape(
+    public fun shape(
         shape: Shape = ListItemShape,
         focusedShape: Shape = shape,
         pressedShape: Shape = shape,
@@ -100,7 +101,7 @@ object ListItemDefaults {
         focusedSelectedShape: Shape = shape,
         focusedDisabledShape: Shape = disabledShape,
         pressedSelectedShape: Shape = shape,
-    ) =
+    ): ListItemShape =
         ListItemShape(
             shape = shape,
             focusedShape = focusedShape,
@@ -140,7 +141,7 @@ object ListItemDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun colors(
+    public fun colors(
         containerColor: Color = Color.Transparent,
         contentColor: Color = MaterialTheme.colorScheme.onSurface,
         focusedContainerColor: Color = MaterialTheme.colorScheme.inverseSurface,
@@ -158,7 +159,7 @@ object ListItemDefaults {
         focusedSelectedContentColor: Color = focusedContentColor,
         pressedSelectedContainerColor: Color = pressedContainerColor,
         pressedSelectedContentColor: Color = pressedContentColor,
-    ) =
+    ): ListItemColors =
         ListItemColors(
             containerColor = containerColor,
             contentColor = contentColor,
@@ -193,7 +194,7 @@ object ListItemDefaults {
      * @param pressedSelectedScale the scale used when the ListItem is enabled, pressed and
      *   selected.
      */
-    fun scale(
+    public fun scale(
         @FloatRange(from = 0.0) scale: Float = 1f,
         @FloatRange(from = 0.0) focusedScale: Float = 1.05f,
         @FloatRange(from = 0.0) pressedScale: Float = scale,
@@ -202,7 +203,7 @@ object ListItemDefaults {
         @FloatRange(from = 0.0) focusedSelectedScale: Float = focusedScale,
         @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale,
         @FloatRange(from = 0.0) pressedSelectedScale: Float = scale,
-    ) =
+    ): ListItemScale =
         ListItemScale(
             scale = scale,
             focusedScale = focusedScale,
@@ -231,7 +232,7 @@ object ListItemDefaults {
      */
     @ReadOnlyComposable
     @Composable
-    fun border(
+    public fun border(
         border: Border = Border.None,
         focusedBorder: Border = border,
         pressedBorder: Border = focusedBorder,
@@ -240,7 +241,7 @@ object ListItemDefaults {
         focusedSelectedBorder: Border = focusedBorder,
         focusedDisabledBorder: Border = FocusedDisabledBorder,
         pressedSelectedBorder: Border = border,
-    ) =
+    ): ListItemBorder =
         ListItemBorder(
             border = border,
             focusedBorder = focusedBorder,
@@ -264,14 +265,14 @@ object ListItemDefaults {
      * @param pressedSelectedGlow the [Glow] used when the ListItem is enabled, pressed and
      *   selected.
      */
-    fun glow(
+    public fun glow(
         glow: Glow = Glow.None,
         focusedGlow: Glow = glow,
         pressedGlow: Glow = glow,
         selectedGlow: Glow = glow,
         focusedSelectedGlow: Glow = focusedGlow,
         pressedSelectedGlow: Glow = glow,
-    ) =
+    ): ListItemGlow =
         ListItemGlow(
             glow = glow,
             focusedGlow = focusedGlow,

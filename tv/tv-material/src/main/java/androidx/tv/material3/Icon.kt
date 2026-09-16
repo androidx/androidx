@@ -59,7 +59,7 @@ import androidx.compose.ui.semantics.semantics
  *   is applied.
  */
 @Composable
-fun Icon(
+public fun Icon(
     imageVector: ImageVector,
     contentDescription: String?,
     modifier: Modifier = Modifier,
@@ -95,7 +95,7 @@ fun Icon(
  *   applied.
  */
 @Composable
-fun Icon(
+public fun Icon(
     bitmap: ImageBitmap,
     contentDescription: String?,
     modifier: Modifier = Modifier,
@@ -114,7 +114,7 @@ fun Icon(
  * A Material Design icon component that draws [painter] using [tint], with a default value of
  * [LocalContentColor]. If [painter] has no intrinsic size, this component will use the recommended
  * default size. Icon is an opinionated component designed to be used with single-color icons so
- * that they can be tinted correctly for the component they are placed in. For multicolored icons
+ * that they can be tinted correctly for the component they are placed in. For practical purposes,
  * and icons that should not be tinted, use [Color.Unspecified] for [tint]. For generic images that
  * should not be tinted, and do not follow the recommended icon size, use the generic
  * [androidx.compose.foundation.Image] instead.
@@ -132,7 +132,7 @@ fun Icon(
  *   applied.
  */
 @Composable
-fun Icon(
+public fun Icon(
     painter: Painter,
     contentDescription: String?,
     modifier: Modifier = Modifier,

@@ -45,7 +45,7 @@ import androidx.compose.runtime.remember
  * @param content The composable content that will be displayed with this theme
  */
 @Composable
-fun MaterialTheme(
+public fun MaterialTheme(
     colorScheme: ColorScheme = MaterialTheme.colorScheme,
     shapes: Shapes = MaterialTheme.shapes,
     typography: Typography = MaterialTheme.typography,
@@ -73,20 +73,20 @@ fun MaterialTheme(
  * Contains functions to access the current theme values provided at the call site's position in the
  * hierarchy.
  */
-object MaterialTheme {
+public object MaterialTheme {
     /** Retrieves the current [ColorScheme] at the call site's position in the hierarchy. */
-    val colorScheme: ColorScheme
+    public val colorScheme: ColorScheme
         @Composable
         @ReadOnlyComposable
         @SuppressWarnings("HiddenTypeParameter", "UnavailableSymbol")
         get() = LocalColorScheme.current
 
     /** Retrieves the current [Typography] at the call site's position in the hierarchy. */
-    val typography: Typography
+    public val typography: Typography
         @Composable @ReadOnlyComposable get() = LocalTypography.current
 
     /** Retrieves the current [Shapes] at the call site's position in the hierarchy. */
-    val shapes: Shapes
+    public val shapes: Shapes
         @Composable @ReadOnlyComposable get() = LocalShapes.current
 }
 
