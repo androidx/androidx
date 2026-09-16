@@ -56,10 +56,10 @@ public class TestSpatialAnnotation(public val id: SpatialAnnotationId) : TestTra
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
-    public var centerPose: Pose
-        get() = fakeRuntimeTrackable.centerPose
+    public var pose: Pose
+        get() = fakeRuntimeTrackable.pose
         set(value) {
-            fakeRuntimeTrackable.centerPose = value
+            fakeRuntimeTrackable.pose = value
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 

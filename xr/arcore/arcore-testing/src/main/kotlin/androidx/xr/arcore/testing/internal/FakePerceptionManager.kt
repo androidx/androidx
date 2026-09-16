@@ -263,7 +263,7 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
                     id = id,
                     trackingState = TrackingState.TRACKING,
                     alignment = alignment,
-                    centerPose = Pose(),
+                    pose = Pose(),
                     quad = quad,
                 )
             )

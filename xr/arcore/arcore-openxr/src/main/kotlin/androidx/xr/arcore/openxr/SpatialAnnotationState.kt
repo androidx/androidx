@@ -26,7 +26,7 @@ import androidx.xr.runtime.math.Vector2
  *
  * @property trackingState the [TrackingState] value describing if the spatial annotation is being
  *   updated
- * @property pose the pose of the detected spatial annotation
+ * @property pose the pose of the 2D plane origin where the spatial annotation quad is rooted
  * @property upperLeft the upper left physical boundary of the tracked spatial quad
  * @property upperRight the upper right physical boundary of the tracked spatial quad
  * @property lowerRight the lower right physical boundary of the tracked spatial quad

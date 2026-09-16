@@ -39,7 +39,7 @@ class OpenXrSpatialAnnotationTest {
         assertThat(underTest.id).isEqualTo(id)
         assertThat(underTest.alignment).isNull()
         assertThat(underTest.trackingState).isEqualTo(TrackingState.PAUSED)
-        assertThat(underTest.centerPose).isEqualTo(Pose())
+        assertThat(underTest.pose).isEqualTo(Pose())
         assertThat(underTest.quad).isNull()
     }
 

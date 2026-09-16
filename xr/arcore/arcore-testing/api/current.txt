@@ -224,18 +224,18 @@ package androidx.xr.arcore.testing {
   @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public final class TestSpatialAnnotation extends androidx.xr.arcore.testing.TestTrackable {
     ctor public TestSpatialAnnotation(androidx.xr.arcore.SpatialAnnotationId id);
     method @InaccessibleFromKotlin public androidx.xr.arcore.SpatialAnnotationQuadAlignment? getAlignment();
-    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getCenterPose();
     method @InaccessibleFromKotlin public androidx.xr.arcore.SpatialAnnotationId getId();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Quad? getQuad();
     method @InaccessibleFromKotlin public boolean isVisible();
     method @InaccessibleFromKotlin public void setAlignment(androidx.xr.arcore.SpatialAnnotationQuadAlignment?);
-    method @InaccessibleFromKotlin public void setCenterPose(androidx.xr.runtime.math.Pose);
+    method @InaccessibleFromKotlin public void setPose(androidx.xr.runtime.math.Pose);
     method @InaccessibleFromKotlin public void setQuad(androidx.xr.runtime.math.Quad?);
     method @InaccessibleFromKotlin public void setVisible(boolean);
     property public androidx.xr.arcore.SpatialAnnotationQuadAlignment? alignment;
-    property public androidx.xr.runtime.math.Pose centerPose;
     property public androidx.xr.arcore.SpatialAnnotationId id;
     property public boolean isVisible;
+    property public androidx.xr.runtime.math.Pose pose;
     property public androidx.xr.runtime.math.Quad? quad;
   }
 

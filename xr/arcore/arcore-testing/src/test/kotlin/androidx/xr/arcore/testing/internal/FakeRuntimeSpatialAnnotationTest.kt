@@ -42,7 +42,7 @@ class FakeRuntimeSpatialAnnotationTest {
     fun constructor_withDefaultArguments_hasDefaultPoses() {
         val underTest = FakeRuntimeSpatialAnnotation(id = TEST_ANNOTATION_ID)
 
-        assertThat(underTest.centerPose).isEqualTo(Pose())
+        assertThat(underTest.pose).isEqualTo(Pose())
         assertThat(underTest.alignment).isNull()
         assertThat(underTest.quad).isNotNull()
         assertThat(underTest.quad!!.upperLeft).isEqualTo(Vector2(0f, 0f))
