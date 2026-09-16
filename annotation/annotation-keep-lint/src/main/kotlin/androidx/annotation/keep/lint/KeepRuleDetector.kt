@@ -39,8 +39,10 @@ import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiElementFactory
 import com.intellij.psi.PsiMethod
+import com.intellij.psi.PsiModifier
 import com.intellij.psi.PsiPrimitiveType
 import com.intellij.psi.PsiType
+import com.intellij.psi.PsiTypeParameter
 import com.intellij.psi.PsiVariable
 import com.intellij.psi.PsiWildcardType
 import org.jetbrains.kotlin.analysis.api.analyze
@@ -658,11 +660,14 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
         }
 
         private fun isApplicableClassName(context: Context, className: String): Boolean {
+            // Platform classes (Android SDK, Java standard library, Dalvik, Libcore) are
+            // provided by the runtime environment and are not subject to R8 shrinking.
             if (
                 className.startsWith("android.") ||
                     className.startsWith("java.") ||
                     className.startsWith("javax.") ||
-                    className.startsWith("dalvik.")
+                    className.startsWith("dalvik.") ||
+                    className.startsWith("libcore.")
             ) {
                 return false
             } else if (className.startsWith("androidx.")) {
@@ -741,11 +746,20 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
             targetMethod: UAnnotated,
             keepTarget: Reflection,
         ): LintFix? {
-            val autoFix = keepTarget.canAutoFix()
-            if (keepTarget.memberName == "*" || keepTarget.memberName == null) {
+            if (keepTarget.memberName == null) {
+                return null
+            }
+            // For wildcard member references ("*"), only offer a fix if the target class is known
+            // and the target is a method. If the class is unknown, a fix with both an unknown class
+            // (TODO) and a wildcard member is unhelpful.
+            if (
+                keepTarget.memberName == "*" &&
+                    (!keepTarget.isClassKnown || targetMethod !is UMethod)
+            ) {
                 return null
             }
 
+            val autoFix = keepTarget.canAutoFix()
             val annotationSource = keepTarget.generateCode(isKotlin, true)
             val psi = targetMethod.sourcePsi ?: targetMethod.javaPsi
             val fix =
@@ -824,7 +838,14 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
         abstract val simpleName: String
         abstract val fullName: String
 
-        open fun canAutoFix(): Boolean = className.isNotEmpty()
+        val isClassKnown: Boolean
+            get() = className.isNotEmpty()
+
+        /**
+         * Whether this fix can be applied automatically without user interaction. Returns false if
+         * any required attribute is missing and must be filled in with a TODO.
+         */
+        open fun canAutoFix(): Boolean = isClassKnown
 
         abstract fun generateAttributes(
             isKotlin: Boolean,
@@ -883,6 +904,17 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
         var node: UExpression? = null
     }
 
+    /**
+     * Models reflective field accesses for `@UsesReflectionToAccessField`.
+     *
+     * Supported coverage:
+     * - Specific field of a known class: generates full annotation with `canAutoFix() = true`.
+     * - All fields of a known class (`fieldName = "*"`): generates wildcard annotation with
+     *   `canAutoFix() = true`.
+     * - Specific field of an unknown class: generates interactive quickfix with `className =
+     *   "TODO"` placeholder requiring user input (`canAutoFix() = false`).
+     * - All fields of an unknown class: fix is suppressed, as both class and field are unknown.
+     */
     private class FieldReflection(
         className: String = "",
         classNameIsConstant: Boolean = false,
@@ -897,7 +929,7 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
             get() = fieldName.ifEmpty { null }
 
         override fun canAutoFix(): Boolean {
-            return super.canAutoFix() && fieldName.isNotEmpty()
+            return isClassKnown && fieldName.isNotEmpty()
         }
 
         override fun generateAttributes(
@@ -977,7 +1009,7 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
             get() = methodName == CONSTRUCTOR_NAME
 
         override fun canAutoFix(): Boolean {
-            return super.canAutoFix() && methodName.isNotEmpty()
+            return isClassKnown && methodName.isNotEmpty()
         }
 
         override fun contains(other: Reflection): Boolean {
@@ -1155,28 +1187,23 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
             if (element is UQualifiedReferenceExpression) {
                 val selector = element.selector
                 if (selector.isJavaClassAccess()) {
-                    // We're looking up the dynamic type; we can't compute that here.
-                    // Counterpoint: In something like this:
-                    //    public void printFieldValues(PrintableFieldInterface objectWithFields)
-                    // throws
-                    // Exception {
-                    //      for (Field field : objectWithFields.getClass().getDeclaredFields()) {
-                    // we don't know which potential subclass of PrintableFieldInterface we're going
-                    // to get
-                    // from getClass,
-                    // but it looks like the R8 annotation documentation suggests annotating it with
-                    // the interface.
-
+                    // For dynamic "obj.getClass()" or "obj.javaClass", if the receiver's type is
+                    // final (e.g. non-open Kotlin classes, Java final classes), the runtime class
+                    // is statically known.
+                    //
+                    // TODO: When keep annotations support subtyping hierarchies (where targeting
+                    // an interface/base class A ensures R8 also retains the corresponding members
+                    // on any subclass B at runtime), we can relax this check to also return
+                    // non-final types (`receiverType`) as long as `receiverType != Object`.
+                    // Until then, for non-final classes or interfaces, the runtime class could be
+                    // any arbitrary subclass, so we cannot statically assume the concrete type.
                     val receiverType = element.receiver.getExpressionType()
                     if (receiverType is PsiClassType) {
-                        if (element.selector.skipParenthesizedExprDown().isJavaClassAccess()) {
-                            // Dynamic getClass() call, such as "myObject.getClass()";
-                            // we can't just conclude that it's the type of myObject.
-                            return null
+                        val psiClass = receiverType.resolve()
+                        if (psiClass?.hasModifierProperty(PsiModifier.FINAL) == true) {
+                            return context.evaluator.erasure(receiverType)?.let { Pair(it, true) }
                         }
-
-                        return if (receiverType.canonicalText == JAVA_LANG_OBJECT) null
-                        else context.evaluator.erasure(receiverType)?.let { Pair(it, true) }
+                        return null
                     }
 
                     return null
@@ -1195,17 +1222,32 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                 var clazz = type.parameters[0]
                 if (clazz is PsiClassType) {
                     val resolved = clazz.resolve()
-                    if (resolved == null) {
-                        // probably a type parameter; don't use the actual type parameter name.
-                        // We should attempt to find the bounds of the type parameter and use
-                        // that here (some simple attempts didn't work.)
+                    if (resolved is PsiTypeParameter) {
+                        // For a bounded type parameter (e.g. <T : ViewModel>), use its upper bound.
+                        val bound =
+                            resolved.extendsListTypes.firstOrNull {
+                                it.canonicalText != JAVA_LANG_OBJECT
+                            }
+                                ?: resolved.superTypes.firstOrNull {
+                                    it.canonicalText != JAVA_LANG_OBJECT
+                                }
+                        if (bound != null) {
+                            val erased = context.evaluator.erasure(bound) ?: bound
+                            return Pair(erased, true)
+                        }
+                        return null
+                    } else if (resolved == null) {
                         return null
                     }
                 }
 
                 val nested = getNestedClassType(clazz)
                 if (nested != null) {
-                    return nested to true
+                    // Erase generic type arguments from wildcard bounds (e.g. <? extends
+                    // Initializer<?>> -> Initializer)
+                    // to produce valid class literals like Initializer.class.
+                    val erased = context.evaluator.erasure(nested) ?: nested
+                    return Pair(erased, true)
                 }
 
                 if (clazz is PsiClassType) {
@@ -1230,7 +1272,7 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                     }
 
                     return Pair(
-                        clazz,
+                        context.evaluator.erasure(clazz) ?: clazz,
                         element is UClassLiteralExpression ||
                             element is UQualifiedReferenceExpression &&
                                 element.resolvedName == "getJavaClass" &&
