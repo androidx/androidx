@@ -154,7 +154,9 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        lifecycleScope.launch { bindCameraUseCases() }
+        if (!isTrackingStarted) {
+            lifecycleScope.launch { bindCameraUseCases() }
+        }
     }
 
     override fun onDestroy() {
@@ -165,6 +167,7 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
                 SpatialAnnotation.stopTrackingAllAnnotations(s)
             } catch (e: Exception) {}
         }
+        unbindCameraUseCases()
         spatialAnnotationRenderer.stopRendering()
         cameraExecutor.shutdown()
         lastSnapshot = null
@@ -178,6 +181,10 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
             val provider = ProcessCameraProvider.getInstance(this).await()
             cameraProvider = provider
 
+            if (provider.isBound(cameraPreviewUseCase)) {
+                return
+            }
+
             val imageAnalysis =
                 ImageAnalysis.Builder()
                     .setResolutionSelector(resolutionSelector)
@@ -187,7 +194,6 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
 
             imageAnalysis.setAnalyzer(cameraExecutor, cameraFrameAnalyzer)
 
-            // TODO(b/561608250): Unbind the camera use cases when tracking starts.
             provider.unbindAll()
             provider.bindToLifecycle(
                 this,
@@ -195,8 +201,18 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
                 cameraPreviewUseCase,
                 imageAnalysis,
             )
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e("HelloAr", "Failed to bind camera", e)
+        }
+    }
+
+    private fun unbindCameraUseCases() {
+        try {
+            cameraProvider?.unbindAll()
+        } catch (e: Exception) {
+            Log.e("HelloAr", "Failed to unbind camera", e)
         }
     }
 
@@ -263,8 +279,10 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
                         .setQuads(mapOf(SpatialAnnotationId.fromString("target-1") to quad))
                         .build()
 
-                SpatialAnnotation.startTracking(currentSession, trackingOptions)
+                unbindCameraUseCases()
                 isTrackingStarted = true
+
+                SpatialAnnotation.startTracking(currentSession, trackingOptions)
                 Toast.makeText(
                         this@HelloArSpatialAnnotationActivity,
                         "Tracking started!",
@@ -300,6 +318,7 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
             if (::cameraFrameAnalyzer.isInitialized) {
                 cameraFrameAnalyzer.clearBuffers()
             }
+            bindCameraUseCases()
         }
     }
 
