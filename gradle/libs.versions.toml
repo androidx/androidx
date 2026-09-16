@@ -11,7 +11,7 @@ androidLint = "32.5.0-alpha05"
 androidStudioIj = "2026.2.1.5"
 androidStudioName = "rabbit1-canary5"
 # For IntelliJ download via intellij gradle task
-intelliJVersion = "2026.1"
+intelliJVersion = "2026.2"
 # -----------------------------------------------------------------------------
 
 androidLintMin = "31.1.1"
