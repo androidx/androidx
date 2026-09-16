@@ -34,6 +34,7 @@ import androidx.car.app.model.CondensedItem
 import androidx.car.app.model.CondensedItemStyle
 import androidx.car.app.model.CondensedSection
 import androidx.car.app.model.Header
+import androidx.car.app.model.SectionHeader
 import androidx.car.app.model.SectionedItemTemplate
 import androidx.car.app.model.Shape
 import androidx.car.app.model.Template
@@ -65,7 +66,11 @@ class CondensedItemDemoScreen(carContext: CarContext) : Screen(carContext) {
             Background.Builder().setColor(CarColor.createCustom(grayColor, grayColor)).build()
 
         // 1. Road Trip Section
-        val roadTripSectionBuilder = CondensedSection.Builder().setTitle("Road Trip")
+        val roadTripSectionBuilder =
+            CondensedSection.Builder()
+                .setSectionHeader(
+                    SectionHeader.Builder("Road Trip").setHeadline("Made for You").build()
+                )
         for (i in 1..6) {
             roadTripSectionBuilder.addItem(
                 CondensedItem.Builder()
