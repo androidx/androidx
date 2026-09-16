@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.glance.wear.GlanceWearProfiles
 import androidx.glance.wear.GlanceWearWidget
 import androidx.glance.wear.WearWidgetBrush
 import androidx.glance.wear.WearWidgetData
@@ -54,16 +55,14 @@ import kotlinx.coroutines.runBlocking
  * @param useSafeFallbackRendererVersion Whether to render using a safe fallback renderer version
  *   (e.g., a conservative baseline version representing older hosts). This allows developers to
  *   test widget compatibility against older versions of the Wear OS host. If false, the preview
- *   renders using the latest renderer version. Defaults to true.
+ *   renders using the latest renderer version. Defaults to false.
  */
 @Composable
 public fun WearWidgetPreview(
     widget: GlanceWearWidget,
     params: WearWidgetParams,
     modifier: Modifier = Modifier,
-    // TODO: b/553471238 - Set default value back to false once java player handles CORE_TEXT for
-    //    Wear Widgets
-    useSafeFallbackRendererVersion: Boolean = true,
+    useSafeFallbackRendererVersion: Boolean = false,
 ) {
     val context = LocalContext.current
     val activeRendererVersion =
@@ -72,12 +71,9 @@ public fun WearWidgetPreview(
         } else {
             RendererVersion.MAX_RENDERER_VERSION
         }
-    val updatedParams =
-        remember(params, useSafeFallbackRendererVersion) {
-            params.copy(rendererVersion = activeRendererVersion)
-        }
-    val document =
-        remember(widget, updatedParams, context) {
+    val rcBytes =
+        remember(widget, params, activeRendererVersion, context) {
+            val updatedParams = params.copy(rendererVersion = activeRendererVersion)
             runBlocking {
                 val widgetData = widget.provideWidgetData(context, updatedParams)
                 widgetData
@@ -85,9 +81,14 @@ public fun WearWidgetPreview(
                     .rcDocument
             }
         }
+    val profile =
+        remember(activeRendererVersion) {
+            GlanceWearProfiles.wearWidgets(activeRendererVersion.supportedOperations)
+        }
 
     RemoteDocumentPreview(
-        document,
+        document = rcBytes,
+        profile = profile,
         modifier =
             modifier
                 .width((params.widthDp + 2f * params.horizontalPaddingDp).dp)
@@ -115,7 +116,7 @@ public fun WearWidgetPreview(
  * @param useSafeFallbackRendererVersion Whether to render using a safe fallback renderer version
  *   (e.g., a conservative baseline version representing older hosts). This allows developers to
  *   test widget compatibility against older versions of the Wear OS host. If false, the preview
- *   renders using the latest renderer version. Defaults to true.
+ *   renders using the latest renderer version. Defaults to false.
  * @param content The [Composable] content of the widget to be previewed.
  */
 @Composable
@@ -123,9 +124,7 @@ public fun WearWidgetPreview(
     params: WearWidgetParams,
     modifier: Modifier = Modifier,
     background: WearWidgetBrush = WearWidgetBrush.color(Color.Transparent.rc),
-    // TODO: b/553471238 - Set default value back to false once java player handles CORE_TEXT for
-    //    Wear Widgets
-    useSafeFallbackRendererVersion: Boolean = true,
+    useSafeFallbackRendererVersion: Boolean = false,
     content: @RemoteComposable @Composable () -> Unit,
 ) {
     val widget =
@@ -148,13 +147,17 @@ public fun WearWidgetPreview(
 private fun WearWidgetParams.copy(
     rendererVersion: RendererVersion = this.rendererVersion
 ): WearWidgetParams =
-    WearWidgetParams(
-        instanceId = instanceId,
-        containerType = containerType,
-        widthDp = widthDp,
-        heightDp = heightDp,
-        horizontalPaddingDp = horizontalPaddingDp,
-        verticalPaddingDp = verticalPaddingDp,
-        cornerRadiusDp = cornerRadiusDp,
-        rendererVersion = rendererVersion,
-    )
+    if (this.rendererVersion == rendererVersion) {
+        this
+    } else {
+        WearWidgetParams(
+            instanceId = instanceId,
+            containerType = containerType,
+            widthDp = widthDp,
+            heightDp = heightDp,
+            horizontalPaddingDp = horizontalPaddingDp,
+            verticalPaddingDp = verticalPaddingDp,
+            cornerRadiusDp = cornerRadiusDp,
+            rendererVersion = rendererVersion,
+        )
+    }
