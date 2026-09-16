@@ -33,6 +33,7 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.profile.Profile
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -304,7 +305,7 @@ class RemoteComposeBufferTest {
         // no crash; can read correct api level from buffer and init the core doc.
         val coreDoc = CoreDocument().apply { initFromBuffer(writer.buffer) }
 
-        val components = coreDoc.mRootLayoutComponent!!.mList
+        val components = requireNotNull(coreDoc.mRootLayoutComponent).mList
         assertThat(components).hasSize(2)
 
         val bitmapId = (components[0] as BitmapData).mImageId
@@ -382,14 +383,81 @@ class RemoteComposeBufferTest {
     @Test
     fun setVersion_explicitSupportedOperations() {
         val buffer = RemoteComposeBuffer(7)
-        val myOps = setOf(Operations.DRAW_RECT, Operations.DRAW_LINE)
+        val myOps = setOf(Operations.CORE_TEXT, Operations.DRAW_RECT, Operations.DRAW_LINE)
 
-        buffer.setVersion(7, RcProfiles.PROFILE_BASELINE, myOps)
+        buffer.setVersion(7, RcProfiles.PROFILE_WEAR_WIDGETS, myOps)
 
         assertThat(buffer.getBuffer().mValidOperations[Operations.DRAW_RECT]).isTrue()
         assertThat(buffer.getBuffer().mValidOperations[Operations.DRAW_LINE]).isTrue()
+        assertThat(buffer.mMap.get(Operations.CORE_TEXT)).isNotNull()
+        assertThat(buffer.mMap.get(Operations.DRAW_RECT)).isNotNull()
 
-        // DRAW_OVAL should be false even if baseline supports it, because we provided explicit list
+        // DRAW_OVAL should be false because it is not in explicit supported operations
         assertThat(buffer.getBuffer().mValidOperations[Operations.DRAW_OVAL]).isFalse()
+        assertThat(buffer.mMap.get(Operations.DRAW_OVAL)).isNull()
+        assertThat(buffer.mIsCustomMap).isTrue()
+    }
+
+    @Test
+    fun getAllKnownOperations_containsAllProfileOpcodes() {
+        val baseProfiles =
+            listOf(
+                RcProfiles.PROFILE_BASELINE,
+                RcProfiles.PROFILE_ANDROIDX,
+                RcProfiles.PROFILE_WIDGETS,
+                RcProfiles.PROFILE_ANDROID_NATIVE,
+                RcProfiles.PROFILE_WEAR_WIDGETS,
+            )
+        val modifiers = listOf(0, RcProfiles.PROFILE_EXPERIMENTAL, RcProfiles.PROFILE_DEPRECATED)
+        val validProfilesToTest =
+            baseProfiles.flatMap { base -> modifiers.map { mod -> base or mod } }.distinct()
+
+        for (apiLevel in listOf(6, 7)) {
+            val allKnownOps =
+                requireNotNull(Operations.getAllKnownOperations(apiLevel)) {
+                    "getAllKnownOperations($apiLevel) returned null"
+                }
+
+            for (profile in validProfilesToTest) {
+                val profileOps = Operations.getOperations(apiLevel, profile) ?: continue
+                for (opCode in profileOps.keySet()) {
+                    assertWithMessage(
+                            "Opcode $opCode in profile $profile for API level $apiLevel must exist in allKnownOps"
+                        )
+                        .that(allKnownOps.get(opCode))
+                        .isNotNull()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun v7Profiles_keyOperationsPresence() {
+        val androidxV7 =
+            requireNotNull(Operations.getOperations(7, RcProfiles.PROFILE_ANDROIDX)) {
+                "AndroidX V7 operations map is null"
+            }
+        val widgetsV7 =
+            requireNotNull(Operations.getOperations(7, RcProfiles.PROFILE_WIDGETS)) {
+                "Widgets V7 operations map is null"
+            }
+
+        // DATA_SHADER and DATA_FONT are present in AndroidX V7
+        assertThat(androidxV7.get(Operations.DATA_SHADER)).isNotNull()
+        assertThat(androidxV7.get(Operations.DATA_FONT)).isNotNull()
+
+        // DATA_SHADER and DATA_FONT are NOT present in Widgets V7
+        assertThat(widgetsV7.get(Operations.DATA_SHADER)).isNull()
+        assertThat(widgetsV7.get(Operations.DATA_FONT)).isNull()
+
+        // Both contain common V7 operations
+        assertThat(androidxV7.get(Operations.CORE_TEXT)).isNotNull()
+        assertThat(widgetsV7.get(Operations.CORE_TEXT)).isNotNull()
+        assertThat(androidxV7.get(Operations.TEXT_STYLE)).isNotNull()
+        assertThat(widgetsV7.get(Operations.TEXT_STYLE)).isNotNull()
+        assertThat(androidxV7.get(Operations.DRAW_TO_BITMAP)).isNotNull()
+        assertThat(widgetsV7.get(Operations.DRAW_TO_BITMAP)).isNotNull()
+        assertThat(androidxV7.get(Operations.MATRIX_FROM_PATH)).isNotNull()
+        assertThat(widgetsV7.get(Operations.MATRIX_FROM_PATH)).isNotNull()
     }
 }
