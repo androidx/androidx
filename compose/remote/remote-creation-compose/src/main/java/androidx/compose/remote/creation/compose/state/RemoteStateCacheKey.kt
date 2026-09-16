@@ -249,7 +249,7 @@ internal class RemoteConstantCacheKey(internal val value: Any?) : BaseRemoteStat
         when (value) {
             null -> "null"
             is String -> "\"$value\""
-            is Enum<*> -> "${value.javaClass.simpleName}.${value.name}"
+            is Enum<*> -> "${value::class.simpleName}.${value.name}"
             else -> value.toString()
         }
 }
@@ -479,7 +479,7 @@ internal fun toCacheKeyList(args: Array<out Any?>): List<RemoteStateCacheKey> {
             is Enum<*> -> RemoteConstantCacheKey(it)
             else ->
                 throw IllegalArgumentException(
-                    "Unsupported cache key type: ${it.javaClass}. " +
+                    "Unsupported cache key type: ${it::class}. " +
                         "Only primitives, Strings, Enums and RemoteStates are supported."
                 )
         }
