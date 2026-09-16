@@ -794,6 +794,13 @@ public class RemoteComposeView extends FrameLayout
 
     private VelocityTracker mVelocityTracker = null;
 
+    private boolean useDisallowInterceptTouch() {
+        if (mDocument != null) {
+            return mDocument.useFeature(Header.FEATURE_DISALLOW_INTERCEPT_TOUCH);
+        }
+        return true;
+    }
+
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
         int index = event.getActionIndex();
@@ -845,7 +852,7 @@ public class RemoteComposeView extends FrameLayout
                                 mVelocityTracker.clear();
                             }
                             mVelocityTracker.addMovement(event);
-                            if (doc.hasAppliedTouchOperations()) {
+                            if (useDisallowInterceptTouch() && doc.hasAppliedTouchOperations()) {
                                 requestDisallowInterceptTouchEvent(true);
                             }
                             invalidate();
@@ -857,7 +864,9 @@ public class RemoteComposeView extends FrameLayout
 
                 case MotionEvent.ACTION_CANCEL:
                     mInActionDown = false;
-                    requestDisallowInterceptTouchEvent(false);
+                    if (useDisallowInterceptTouch()) {
+                        requestDisallowInterceptTouchEvent(false);
+                    }
                     if (doc.hasTouchListener()) {
                         mVelocityTracker.computeCurrentVelocity(1000);
                         float dx = mVelocityTracker.getXVelocity(pointerId);
@@ -871,14 +880,16 @@ public class RemoteComposeView extends FrameLayout
                 case MotionEvent.ACTION_UP:
                     mLimiter.touchBoost();
                     mInActionDown = false;
-                    requestDisallowInterceptTouchEvent(false);
+                    if (useDisallowInterceptTouch()) {
+                        requestDisallowInterceptTouchEvent(false);
+                    }
                     mActionCurrentPoint.x = (int) x;
                     mActionCurrentPoint.y = (int) y;
                     boolean handled = false;
                     if (!mHasMoved) {
                         if (mIsDoubleTap) {
                             boolean handledDouble = doc.onDoubleClick(mARContext, x, y);
-                            if (!handledDouble) {
+                            if (useDisallowInterceptTouch() && !handledDouble) {
                                 performClick();
                             }
                             mLastUpTime = 0;
@@ -921,7 +932,7 @@ public class RemoteComposeView extends FrameLayout
                         }
                     }
                     if (mInActionDown) {
-                        if (mHasMoved) {
+                        if (useDisallowInterceptTouch() && mHasMoved) {
                             boolean isHorizontalDrag = Math.abs(dx) > Math.abs(dy);
                             boolean isVerticalDrag = Math.abs(dy) > Math.abs(dx);
 
@@ -980,13 +991,15 @@ public class RemoteComposeView extends FrameLayout
             mErrorMessage = e.getMessage();
             mDisable = true;
         }
-        if (!handled) {
-            ViewParent parent = getParent();
-            if (parent instanceof View) {
-                ((View) parent).performClick();
+        if (useDisallowInterceptTouch()) {
+            if (!handled) {
+                ViewParent parent = getParent();
+                if (parent instanceof View) {
+                    ((View) parent).performClick();
+                }
             }
+            requestDisallowInterceptTouchEvent(false);
         }
-        requestDisallowInterceptTouchEvent(false);
         super.performClick();
         invalidate();
         return true;
@@ -994,6 +1007,9 @@ public class RemoteComposeView extends FrameLayout
 
     @Override
     public boolean performLongClick() {
+        if (!useDisallowInterceptTouch()) {
+            return super.performLongClick();
+        }
         if (USE_VIEW_AREA_CLICK && mHasClickAreas) {
             return super.performLongClick();
         }
@@ -1219,9 +1235,13 @@ public class RemoteComposeView extends FrameLayout
                         mIsLongPressPerformed = true;
                         mActionCurrentPoint.x = (int) mDownX;
                         mActionCurrentPoint.y = (int) mDownY;
-                        // b/546006609: it needs to be deferred as otherwise it causes
-                        // IllegalStateException in ShortcutAndWidgetContainer.
-                        post(this::performLongClick);
+                        if (useDisallowInterceptTouch()) {
+                            // b/546006609: it needs to be deferred as otherwise it causes
+                            // IllegalStateException in ShortcutAndWidgetContainer.
+                            post(this::performLongClick);
+                        } else {
+                            mDocument.getDocument().onLongPress(mARContext, mDownX, mDownY);
+                        }
                         nextFrame = 1;
                     } else {
                         int remaining = (int) (mLongPressTimeout - elapsed);

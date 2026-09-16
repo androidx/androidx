@@ -534,6 +534,7 @@ public class RemoteComposeJsonParser {
             case "ltResize": return Header.FEATURE_LT_RESIZE;
             case "densityBehavior": return Header.DOC_DENSITY_BEHAVIOR;
             case "featurePaintMeasure": return Header.FEATURE_PAINT_MEASURE;
+            case "disallowInterceptTouch": return Header.FEATURE_DISALLOW_INTERCEPT_TOUCH;
             case "debug": return Header.DEBUG;
             default:
                 throw new JSONException("Unknown header tag: " + name);
