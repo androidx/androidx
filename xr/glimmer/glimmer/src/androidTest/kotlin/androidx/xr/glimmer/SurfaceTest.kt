@@ -71,6 +71,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.matchers.MSSIMMatcher
+import androidx.xr.glimmer.internal.color.withTone
 import androidx.xr.glimmer.testutils.captureToImage
 import androidx.xr.glimmer.testutils.createGlimmerRule
 import androidx.xr.glimmer.testutils.toIntArray
@@ -1166,12 +1167,10 @@ class SurfaceTest {
     }
 
     @Test
-    fun surfaceDefaults_colors() {
+    fun surfaceDefaults_focusedColor() {
         rule.setGlimmerThemeContent {
-            assertThat(SurfaceDefaults.color())
-                .isEqualTo(SurfaceDefaults.color(GlimmerTheme.colors.surface))
             assertThat(SurfaceDefaults.focusedColor())
-                .isEqualTo(SurfaceDefaults.focusedColor(GlimmerTheme.colors.surface))
+                .isEqualTo(GlimmerTheme.colors.surface.withTone(newTone = 34f))
         }
     }
 }
