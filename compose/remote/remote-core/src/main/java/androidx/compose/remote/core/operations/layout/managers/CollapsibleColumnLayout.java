@@ -164,6 +164,9 @@ public class CollapsibleColumnLayout extends ColumnLayout {
     @Override
     public float minIntrinsicHeight(@NonNull RemoteContext context) {
         float height = computeModifierDefinedHeight(context, true);
+        if (mHeightModifier != null && mHeightModifier.isExact()) {
+            return height;
+        }
         if (!mChildrenComponents.isEmpty()) {
             Component c;
             if (context.useFeature(Header.FEATURE_PRIORITY_FIX)) {
@@ -183,6 +186,9 @@ public class CollapsibleColumnLayout extends ColumnLayout {
     @Override
     public float minIntrinsicWidth(@NonNull RemoteContext context) {
         float width = computeModifierDefinedWidth(context, true);
+        if (mWidthModifier != null && mWidthModifier.isExact()) {
+            return width;
+        }
         if (!mChildrenComponents.isEmpty()) {
             Component c;
             if (context.useFeature(Header.FEATURE_PRIORITY_FIX)) {
