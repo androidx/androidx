@@ -417,9 +417,11 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             return platformKlibDir.map {
                 val klibDir = it.dir(target.konanTarget.name)
                 listOf(
-                    klibDir.dir("org.jetbrains.kotlin.native.platform.posix"),
-                    klibDir.dir("org.jetbrains.kotlin.native.platform.Metal"),
+                    klibDir.dir("org.jetbrains.kotlin.native.platform.CoreFoundation"),
                     klibDir.dir("org.jetbrains.kotlin.native.platform.CoreGraphics"),
+                    klibDir.dir("org.jetbrains.kotlin.native.platform.Metal"),
+                    klibDir.dir("org.jetbrains.kotlin.native.platform.posix"),
+                    klibDir.dir("org.jetbrains.kotlin.native.platform.UIKit"),
                 )
             }
         }

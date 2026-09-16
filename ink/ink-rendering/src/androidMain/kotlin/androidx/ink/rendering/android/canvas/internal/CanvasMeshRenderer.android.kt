@@ -160,7 +160,7 @@ internal class CanvasMeshRenderer(
     @Size(4) private val objectToCanvasLinearComponentScratch = FloatArray(4)
 
     /** Allocated once and reused for performance, passed to [AndroidMesh.setFloatUniform]. */
-    private val colorRgbaScratchArray = FloatArray(4)
+    private val brushColorScratchArray = FloatArray(4)
 
     // First and last inputs for the stroke being rendered, reused so that we don't need to allocate
     // new ones for every stroke.
@@ -472,7 +472,7 @@ internal class CanvasMeshRenderer(
         animationRepeatModeInt: Int,
     ) {
         val isPacked = attributeUnpackingParams != null
-        var colorUniformName = INVALID_NAME
+        var brushColorOklabUniformName = INVALID_NAME
         var positionUnpackingParamsUniformName = INVALID_NAME
         var positionAttributeIndex = INVALID_ATTRIBUTE_INDEX
         var sideDerivativeUnpackingParamsUniformName = INVALID_NAME
@@ -491,7 +491,7 @@ internal class CanvasMeshRenderer(
             when (metadata.id) {
                 UniformId.OBJECT_TO_CANVAS_LINEAR_COMPONENT ->
                     objectToCanvasLinearComponentUniformName = metadata.name
-                UniformId.BRUSH_COLOR -> colorUniformName = metadata.name
+                UniformId.BRUSH_COLOR_OKLAB -> brushColorOklabUniformName = metadata.name
                 UniformId.POSITION_UNPACKING_TRANSFORM -> {
                     check(isPacked) {
                         "Unpacking transform uniform is only supported for packed meshes."
@@ -525,7 +525,7 @@ internal class CanvasMeshRenderer(
         }
         // Color and object-to-canvas uniforms are required for all meshes.
         check(objectToCanvasLinearComponentUniformName != INVALID_NAME)
-        check(colorUniformName != INVALID_NAME)
+        check(brushColorOklabUniformName != INVALID_NAME)
         // Unpacking transform uniforms are required for and only for packed meshes.
         check(
             !isPacked ||
@@ -543,18 +543,13 @@ internal class CanvasMeshRenderer(
         )
 
         // Don't use setColorUniform because it does some color space conversion that we don't want.
-        // Instead, set the uniform as an array of 4 floats, but ensure that the color is in the
-        // same
-        // color space that the MeshSpecification is configured to operate in. In
-        // LinearExtendedSrgb,
-        // "linear" means the values are not gamma-encoded, "extended" means they are not clamped to
-        // [0, 1], and "sRGB" means that we use the same color primaries as in ordinary sRGB.
+        // Instead, set the uniform as an array of 4 floats (L, a, b, alpha), representing the color
+        // in
+        // Oklab space.
         androidMesh.setFloatUniform(
-            colorUniformName,
-            colorRgbaScratchArray.also {
-                brushColor
-                    .convert(ComposeColorSpaces.LinearExtendedSrgb)
-                    .fillFloatArray(colorRgbaScratchArray)
+            brushColorOklabUniformName,
+            brushColorScratchArray.also {
+                brushColor.convert(ComposeColorSpaces.Oklab).fillFloatArray(brushColorScratchArray)
             },
         )
 
@@ -924,11 +919,11 @@ internal class CanvasMeshRenderer(
             OBJECT_TO_CANVAS_LINEAR_COMPONENT(0),
 
             /**
-             * The [android.graphics.Color] of the Stroke's brush, which will be combined with
-             * per-vertex color shifts in the shaders. Set it with [AndroidMesh.setColorUniform].
-             * Must be specified for every format.
+             * The base color of the Stroke's brush, in (unpremultiplied) Oklab space, which will be
+             * combined with per-vertex color shifts in the shaders. Must be specified for every
+             * format.
              */
-            BRUSH_COLOR(1),
+            BRUSH_COLOR_OKLAB(1),
 
             /**
              * The transform parameters to convert packed [InkMesh] coordinates into actual

@@ -16,28 +16,29 @@
 
 package androidx.ink.brush
 
-import kotlinx.cinterop.ExperimentalForeignApi
-import platform.CoreGraphics.CGImageRef
+import platform.UIKit.UIImage
 
 /**
- * Interface for a callback to allow the caller to provide a particular [CGImageRef] corresponding
- * to a client-provided texture ID.
+ * Interface for a callback to allow the caller to provide a particular [UIImage] corresponding to a
+ * client-provided texture ID.
  */
-@OptIn(ExperimentalForeignApi::class)
 @ExperimentalInkCrossPlatformRenderingApi
 public fun interface TextureImageStore {
     /**
-     * Retrieve a [CGImageRef] for the given texture ID. This may be called synchronously during
-     * drawing, so loading of texture files from disk and decoding them into [CGImageRef] objects
-     * should be done on initialization. The result may be cached by consumers, so this should
-     * return a deterministic result for a given input.
+     * Retrieve a [UIImage] for the given texture ID. This may be called synchronously during
+     * drawing, so loading of texture files from disk and decoding them into [UIImage] objects
+     * should be done on initialization. The result is expected to be cached by consumers, so this
+     * should return a deterministic result for a given input.
      *
-     * Textures can be disabled by having this function always return null. null should also be
-     * returned when a texture can not be loaded. If null is returned, the texture layer in question
-     * should be ignored, allowing for graceful fallback. It's recommended that implementations log
-     * when a texture can not be loaded.
+     * For rendering, this currently must return a [UIImage] wrapping a `CGImage`, that is, one
+     * where the underlying bitmap is pre-loaded.
+     *
+     * Textures can be disabled by having this function always return `null`. `null` should also be
+     * returned when a texture can not be loaded. If `null` is returned, the texture layer in
+     * question should be ignored, allowing for graceful fallback. It's recommended that
+     * implementations log when a texture can not be loaded.
      *
      * @return The texture image, if any, associated with the given ID.
      */
-    public operator fun get(clientTextureId: String): CGImageRef?
+    public operator fun get(clientTextureId: String): UIImage?
 }
