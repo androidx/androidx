@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.text
 import android.text.format.DateFormat
 import androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_HR
 import androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_MIN
+import androidx.compose.remote.core.operations.TextFromFloat.PAD_PRE_ZERO
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
@@ -26,7 +27,6 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import java.text.DecimalFormat
 
 /**
  * Contains default values and helper methods for displaying time-related text in a remote context.
@@ -41,8 +41,6 @@ public object RemoteTimeDefaults {
     public fun is24HourFormat(): RemoteBoolean =
         RemoteBoolean(DateFormat.is24HourFormat(LocalContext.current))
 
-    internal val twoDigits = DecimalFormat("00")
-
     /**
      * Creates a [RemoteString] representing the current time in either 12-hour or 24-hour format.
      *
@@ -55,12 +53,13 @@ public object RemoteTimeDefaults {
      */
     @Composable
     public fun defaultTimeString(is24HourFormat: RemoteBoolean = is24HourFormat()): RemoteString {
-        val mins = (RemoteFloat(FLOAT_TIME_IN_MIN) % 60f).toRemoteString(twoDigits)
-        val hours24String: RemoteString = RemoteFloat(FLOAT_TIME_IN_HR).toRemoteString(twoDigits)
+        val mins = (RemoteFloat(FLOAT_TIME_IN_MIN) % 60f).toRemoteStringOptions(2, 0, PAD_PRE_ZERO)
+        val hours24String: RemoteString =
+            RemoteFloat(FLOAT_TIME_IN_HR).toRemoteStringOptions(2, 0, PAD_PRE_ZERO)
         val currentHour = RemoteFloat(FLOAT_TIME_IN_HR)
         val hour12: RemoteFloat =
             ((currentHour % 12f).isEqualTo(0.rf)).select(RemoteFloat(12f), currentHour % 12f)
-        val hours12String: RemoteString = hour12.toRemoteString(twoDigits)
+        val hours12String: RemoteString = hour12.toRemoteStringOptions(2, 0, PAD_PRE_ZERO)
         val amPm: RemoteString = (currentHour.isLessThan(12.rf)).select(" AM".rs, " PM".rs)
 
         val time24 = hours24String + ":" + mins
