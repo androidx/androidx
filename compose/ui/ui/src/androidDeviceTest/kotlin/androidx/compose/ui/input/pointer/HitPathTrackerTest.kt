@@ -3518,8 +3518,51 @@ class HitPathTrackerTest {
 
         hitPathTracker.dispatchChanges(internalPanEvent)
 
-        // Assert child node received Hover Exit event because it scrolled out of bounds!
-        assertHoverEvent(log, childNode to PointerEventType.Exit)
+        // Assert child node received both Hover Exit and the original Move/Pan events because it
+        // scrolled out of bounds.
+        assertThat(log).hasSize(6)
+        assertOnPointerEventEntry(
+            log[0],
+            "LogEntry[0]",
+            PointerEventPass.Initial,
+            PointerEventType.Exit,
+            childNode,
+        )
+        assertOnPointerEventEntry(
+            log[1],
+            "LogEntry[1]",
+            PointerEventPass.Main,
+            PointerEventType.Exit,
+            childNode,
+        )
+        assertOnPointerEventEntry(
+            log[2],
+            "LogEntry[2]",
+            PointerEventPass.Final,
+            PointerEventType.Exit,
+            childNode,
+        )
+        assertOnPointerEventEntry(
+            log[3],
+            "LogEntry[3]",
+            PointerEventPass.Initial,
+            PointerEventType.Move,
+            childNode,
+        )
+        assertOnPointerEventEntry(
+            log[4],
+            "LogEntry[4]",
+            PointerEventPass.Main,
+            PointerEventType.Move,
+            childNode,
+        )
+        assertOnPointerEventEntry(
+            log[5],
+            "LogEntry[5]",
+            PointerEventPass.Final,
+            PointerEventType.Move,
+            childNode,
+        )
 
         // Assert child node is now pruned from the tree because it went out of bounds during a Pan
         // gesture!
@@ -3609,8 +3652,50 @@ class HitPathTrackerTest {
         val internalPanEvent = InternalPointerEvent(changes, panEvent)
         hitPathTracker.dispatchChanges(internalPanEvent)
 
-        // Assert child 1 received Hover Exit and is pruned
-        assertHoverEvent(log, childNode1 to PointerEventType.Exit)
+        // Assert child 1 received Hover Exit and the original Move/Pan event, and is pruned
+        assertThat(log).hasSize(6)
+        assertOnPointerEventEntry(
+            log[0],
+            "LogEntry[0]",
+            PointerEventPass.Initial,
+            PointerEventType.Exit,
+            childNode1,
+        )
+        assertOnPointerEventEntry(
+            log[1],
+            "LogEntry[1]",
+            PointerEventPass.Main,
+            PointerEventType.Exit,
+            childNode1,
+        )
+        assertOnPointerEventEntry(
+            log[2],
+            "LogEntry[2]",
+            PointerEventPass.Final,
+            PointerEventType.Exit,
+            childNode1,
+        )
+        assertOnPointerEventEntry(
+            log[3],
+            "LogEntry[3]",
+            PointerEventPass.Initial,
+            PointerEventType.Move,
+            childNode1,
+        )
+        assertOnPointerEventEntry(
+            log[4],
+            "LogEntry[4]",
+            PointerEventPass.Main,
+            PointerEventType.Move,
+            childNode1,
+        )
+        assertOnPointerEventEntry(
+            log[5],
+            "LogEntry[5]",
+            PointerEventPass.Final,
+            PointerEventType.Move,
+            childNode1,
+        )
         assertThat(hitPathTracker.root.children.size).isEqualTo(0)
         log.clear()
 
@@ -3963,6 +4048,135 @@ class HitPathTrackerTest {
 
     @Test
     @OptIn(ExperimentalComposeUiApi::class)
+    fun trackpadPan_preservesPanEvents_whenNodeExitsBounds() {
+        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
+        val log = mutableListOf<LogEntry>()
+        val parentLayoutNode = LayoutNode(0, 0, 100, 100).also { it.attach(MockOwner()) }
+
+        val childCoordinates = LayoutCoordinatesStub(true, IntSize(50, 50))
+        childCoordinates.setPosition(0, 0)
+        childCoordinates.layoutNode.measurePolicy =
+            object : LayoutNode.NoIntrinsicsMeasurePolicy("stub") {
+                override fun androidx.compose.ui.layout.MeasureScope.measure(
+                    measurables: List<androidx.compose.ui.layout.Measurable>,
+                    constraints: Constraints,
+                ): androidx.compose.ui.layout.MeasureResult =
+                    layout(50, 50) { measurables.forEach { it.measure(constraints).place(0, 0) } }
+            }
+        childCoordinates.layoutNode.attach(parentLayoutNode.owner!!)
+        parentLayoutNode.owner!!.measureAndLayout(
+            childCoordinates.layoutNode,
+            Constraints.fixed(50, 50),
+        )
+
+        val childNode = PointerInputNodeMock(log = log, coordinator = childCoordinates)
+        val pointerId = PointerId(0)
+
+        // 1. Initial hit path setup
+        hitPathTracker.addHitPath(pointerId, listOf(childNode))
+
+        // 2. Dispatch hover enter event (pointer at 10, 10)
+        hitPathTracker.dispatchChanges(hoverInternalPointerEvent(ACTION_HOVER_ENTER, 10f, 10f))
+        assertHoverEvent(log, childNode to PointerEventType.Enter)
+        log.clear()
+
+        // 3. Move child out of bounds to (60, 60) and dispatch PanMove event at (10, 10)
+        childCoordinates.setPosition(60, 60)
+        val panMoveEvent =
+            PointerInputEvent(
+                uptime = 10L,
+                pointers =
+                    listOf(
+                        PointerInputEventData(
+                            id = pointerId,
+                            uptime = 10L,
+                            positionOnScreen = Offset(10f, 10f),
+                            position = Offset(10f, 10f),
+                            down = false,
+                            pressure = 0f,
+                            type = PointerType.Mouse,
+                            activeHover = false,
+                            historical = emptyList(),
+                            scaleGestureFactor = 0f,
+                            panGestureOffset = Offset(0f, 10f),
+                        )
+                    ),
+                motionEvent = createPanMotionEvent(android.view.MotionEvent.ACTION_MOVE, 10f, 10f),
+                activeGesture = PointerClassification.Pan,
+            )
+        val moveChanges =
+            androidx.collection.LongSparseArray<PointerInputChange>(1).apply {
+                put(
+                    pointerId.value,
+                    PointerInputChange(
+                        id = pointerId,
+                        uptimeMillis = 10L,
+                        position = Offset(10f, 10f),
+                        pressed = false,
+                        previousUptimeMillis = 0L,
+                        previousPosition = Offset(10f, 10f),
+                        previousPressed = false,
+                        isInitiallyConsumed = false,
+                        type = PointerType.Mouse,
+                        scrollDelta = Offset.Zero,
+                        panOffset = Offset(0f, 10f),
+                    ),
+                )
+            }
+        val internalPanMoveEvent = InternalPointerEvent(moveChanges, panMoveEvent)
+        hitPathTracker.dispatchChanges(internalPanMoveEvent)
+
+        // Assert child node received both Exit and PanMove events
+        assertThat(log).hasSize(6)
+        assertOnPointerEventEntry(
+            log[0],
+            "LogEntry[0]",
+            PointerEventPass.Initial,
+            PointerEventType.Exit,
+            childNode,
+        )
+        assertOnPointerEventEntry(
+            log[1],
+            "LogEntry[1]",
+            PointerEventPass.Main,
+            PointerEventType.Exit,
+            childNode,
+        )
+        assertOnPointerEventEntry(
+            log[2],
+            "LogEntry[2]",
+            PointerEventPass.Final,
+            PointerEventType.Exit,
+            childNode,
+        )
+        assertOnPointerEventEntry(
+            log[3],
+            "LogEntry[3]",
+            PointerEventPass.Initial,
+            PointerEventType.PanMove,
+            childNode,
+        )
+        assertOnPointerEventEntry(
+            log[4],
+            "LogEntry[4]",
+            PointerEventPass.Main,
+            PointerEventType.PanMove,
+            childNode,
+        )
+        assertOnPointerEventEntry(
+            log[5],
+            "LogEntry[5]",
+            PointerEventPass.Final,
+            PointerEventType.PanMove,
+            childNode,
+        )
+        // Assert child node is pruned from HitPathTracker now that it has exited bounds during the
+        // gesture (no remaining active nodes in the hit path)
+        assertThat(hitPathTracker.root.children.size).isEqualTo(0)
+    }
+
+    @Test
+    @OptIn(ExperimentalComposeUiApi::class)
     fun trackpadPan_doesNotDispatchEnter_whenFlagDisabled() {
         val originalFlag = ComposeUiFlags.isTrackpadPanHoverFixEnabled
         try {
@@ -4038,6 +4252,9 @@ class HitPathTrackerTest {
                 }
             val internalPanStartEvent = InternalPointerEvent(startChanges, panStartEvent)
             hitPathTracker.dispatchChanges(internalPanStartEvent)
+
+            // Assert child node received only Press event (no synthetic Enter)
+            assertHoverEvent(log, childNode to PointerEventType.Press)
         } finally {
             ComposeUiFlags.isTrackpadPanHoverFixEnabled = originalFlag
         }
