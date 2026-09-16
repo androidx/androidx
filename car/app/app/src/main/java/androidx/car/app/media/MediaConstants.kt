@@ -16,7 +16,7 @@
 
 package androidx.car.app.media
 
-object MediaConstants {
+public object MediaConstants {
     /**
      * Intent Action sent to an application indicating that the playback screen should be opened if
      * they have one, or the most relevant screen otherwise.
@@ -25,5 +25,6 @@ object MediaConstants {
      * handling) to route the user to their playback view. For more details, see
      * [androidx.car.app.media.model.MediaPlaybackTemplate].
      */
-    const val ACTION_SHOW_MEDIA_PLAYBACK = "androidx.car.app.media.action.SHOW_MEDIA_PLAYBACK"
+    public const val ACTION_SHOW_MEDIA_PLAYBACK: String =
+        "androidx.car.app.media.action.SHOW_MEDIA_PLAYBACK"
 }

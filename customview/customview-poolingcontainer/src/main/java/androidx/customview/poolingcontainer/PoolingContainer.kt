@@ -35,7 +35,7 @@ import androidx.core.view.children
  * expensive resources that need to be cached across data items, but need a signal to be disposed
  * of.
  */
-fun interface PoolingContainerListener {
+public fun interface PoolingContainerListener {
     /**
      * Signals that this view should dispose any resources it may be holding onto, because its
      * container is either discarding the View or has been removed from the hierarchy itself.
@@ -43,7 +43,7 @@ fun interface PoolingContainerListener {
      * Note: This may be called multiple times. A call to this method does *not* mean the View will
      * not later be reattached.
      */
-    @UiThread fun onRelease()
+    @UiThread public fun onRelease()
 }
 
 /**
@@ -53,13 +53,13 @@ fun interface PoolingContainerListener {
  * @receiver the child view to receive callbacks regarding
  */
 @SuppressLint("ExecutorRegistration") // This is a UI thread callback
-fun View.addPoolingContainerListener(listener: PoolingContainerListener) {
+public fun View.addPoolingContainerListener(listener: PoolingContainerListener) {
     this.poolingContainerListenerHolder.addListener(listener)
 }
 
 /** Remove a callback that was previously added by [addPoolingContainerListener] */
 @SuppressLint("ExecutorRegistration") // This is a UI thread callback
-fun View.removePoolingContainerListener(listener: PoolingContainerListener) {
+public fun View.removePoolingContainerListener(listener: PoolingContainerListener) {
     this.poolingContainerListenerHolder.removeListener(listener)
 }
 
@@ -74,14 +74,14 @@ fun View.removePoolingContainerListener(listener: PoolingContainerListener) {
  * **Warning: Failure to call [callPoolingContainerOnRelease] when a View is removed from the
  * hierarchy and discarded is likely to result in memory leaks!**
  */
-var View.isPoolingContainer: Boolean
+public var View.isPoolingContainer: Boolean
     get() = getTag(IsPoolingContainerTag) as? Boolean ?: false
     set(value) {
         setTag(IsPoolingContainerTag, value)
     }
 
 /** Whether one of this View's ancestors has `isPoolingContainer` set to `true` */
-val View.isWithinPoolingContainer: Boolean
+public val View.isWithinPoolingContainer: Boolean
     get() {
         ancestors.forEach {
             if (it is View && it.isPoolingContainer) {
@@ -97,7 +97,7 @@ val View.isWithinPoolingContainer: Boolean
  *
  * At the point when this is called, the View should be detached from the window.
  */
-fun View.callPoolingContainerOnRelease() {
+public fun View.callPoolingContainerOnRelease() {
     this.allViews.forEach { child -> child.poolingContainerListenerHolder.onRelease() }
 }
 
@@ -107,7 +107,7 @@ fun View.callPoolingContainerOnRelease() {
  *
  * At the point when this is called, the View should be detached from the window.
  */
-fun ViewGroup.callPoolingContainerOnReleaseForChildren() {
+public fun ViewGroup.callPoolingContainerOnReleaseForChildren() {
     this.children.forEach { child -> child.poolingContainerListenerHolder.onRelease() }
 }
 
