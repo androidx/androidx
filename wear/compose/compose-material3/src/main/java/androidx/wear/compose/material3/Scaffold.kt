@@ -171,11 +171,15 @@ internal class ScreenContent(
 
     /**
      * Evaluates the active time text composable from the screen stack, falling back to
-     * [appTimeText] if none provided.
+     * [appTimeText] if none provided and the system status bar overlay is not enabled.
      */
     val currentTimeText: State<@Composable () -> Unit> = derivedStateOf {
         screenItems.toList().fastLastOrNull { it.timeText.value != null }?.timeText?.value
-            ?: appTimeText.value
+            ?: if (shouldAppWindowShowStatusBar.value) {
+                {}
+            } else {
+                appTimeText.value
+            }
     }
 
     /**
@@ -184,15 +188,17 @@ internal class ScreenContent(
      */
     val timeText: @Composable (() -> Unit)
         get() = {
-            val timeText = currentTimeText.value
-            val scrollInfoProvider = currentScrollInfoProvider.value
-            Box(
-                modifier =
-                    scrollInfoProvider?.let {
-                        Modifier.fillMaxSize().scrollAway(it) { screenStage.value }
-                    } ?: Modifier
-            ) {
-                timeText()
+            if (!shouldAppWindowShowStatusBar.value) {
+                val timeText = currentTimeText.value
+                val scrollInfoProvider = currentScrollInfoProvider.value
+                Box(
+                    modifier =
+                        scrollInfoProvider?.let {
+                            Modifier.fillMaxSize().scrollAway(it) { screenStage.value }
+                        } ?: Modifier
+                ) {
+                    timeText()
+                }
             }
         }
 
