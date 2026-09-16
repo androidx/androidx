@@ -80,9 +80,9 @@ class OpenXrSpatialAnnotationTest {
     }
 
     @Test
-    fun update_updatesCenterPose() = initOpenXrRuntimeAndRunTest {
+    fun update_updatesPose() = initOpenXrRuntimeAndRunTest {
         val xrTime = 50L * 1_000_000
-        check(underTest.centerPose == Pose())
+        check(underTest.pose == Pose())
 
         underTest.update(xrTime)
 

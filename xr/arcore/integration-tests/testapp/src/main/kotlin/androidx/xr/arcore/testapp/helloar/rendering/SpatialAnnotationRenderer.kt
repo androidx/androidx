@@ -191,7 +191,7 @@ internal class SpatialAnnotationRenderer(
 
                         val newPose =
                             _session.scene.perceptionSpace.transformPoseTo(
-                                state.centerPose,
+                                state.pose,
                                 _session.scene.activitySpace,
                             )
 
