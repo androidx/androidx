@@ -72,7 +72,7 @@ internal class HorizontalEmphasisSpanLayout(
 
         // Create Emphasis Layout
         val originalSize = wPaint.textSize
-        paint.textSize *= relSize
+        wPaint.textSize *= relSize
         emphasisWidth = ceil(Layout.getDesiredWidth(emphasis, 0, emphasis.length, wPaint)).toInt()
         val emLayout =
             StaticLayout.Builder.obtain(emphasis, 0, emphasis.length, wPaint, emphasisWidth).build()
@@ -117,12 +117,11 @@ internal class HorizontalEmphasisSpanLayout(
 
         // Draw Emphasis Text
         val emphasisDrawY = y + bodyAscent - emphasisDescent
-        val originalSize = paint.textSize
-        paint.textSize *= relSize
-        positions.forEach { pos ->
-            if (pos.isNaN()) return@forEach
-            canvas.drawText(emphasis, x + pos, emphasisDrawY, paint)
+        paint.withTextScale(relSize) {
+            positions.forEach { pos ->
+                if (pos.isNaN()) return@forEach
+                canvas.drawText(emphasis, x + pos, emphasisDrawY, this)
+            }
         }
-        paint.textSize = originalSize
     }
 }
