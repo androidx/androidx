@@ -22,4 +22,10 @@
     <string name="error" msgid="6647806155663918015">"خطا"</string>
     <string name="select_date" msgid="3625754389149364766">"انتخاب تاریخ"</string>
     <string name="select_time" msgid="3530281639148646682">"انتخاب زمان"</string>
+    <string name="choice_picker_placeholder_select_options" msgid="1896315524474297041">"انتخاب کردن گزینه‌ها"</string>
+    <string name="choice_picker_placeholder_show_options" msgid="5266971913395406612">"نشان دادن گزینه‌ها"</string>
+    <string name="choice_picker_placeholder_filter" msgid="485814500374016612">"برای فیلتر کردن، شروع به تایپ کنید…"</string>
+    <string name="choice_picker_no_matching_options" msgid="8908388495425719920">"گزینه منطبقی وجود ندارد"</string>
+    <string name="choice_picker_remove_option" msgid="6344576400474543129">"‏برداشتن %1$s"</string>
+    <string name="choice_picker_clear_search" msgid="804053747390949932">"پاک کردن فیلتر جستجو"</string>
 </resources>
