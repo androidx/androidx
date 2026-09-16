@@ -1,2 +1,4 @@
 # Bug component: 1437331
 nkovacevic@google.com
+
+include /compose/PERF_OWNERS
