@@ -382,16 +382,6 @@ public final class SearchSpecToProtoConverter {
             protoBuilder.setJoinSpec(joinSpecProto);
         }
 
-        if (mSearchSpec.isListFilterHasPropertyFunctionEnabled()
-                && !mIcingOptionsConfig.getBuildPropertyExistenceMetadataHits()) {
-            // This condition should never be reached as long as Features.isFeatureSupported() is
-            // consistent with IcingOptionsConfig.
-            throw new UnsupportedOperationException(
-                    FeatureConstants.LIST_FILTER_HAS_PROPERTY_FUNCTION
-                            + " is currently not operational because the building process for the "
-                            + "associated metadata has not yet been turned on.");
-        }
-
         // Set enabled search features.
         protoBuilder.addAllEnabledFeatures(toIcingSearchFeatures(
                 extractEnabledSearchFeatures(mSearchSpec.getEnabledFeatures())));
