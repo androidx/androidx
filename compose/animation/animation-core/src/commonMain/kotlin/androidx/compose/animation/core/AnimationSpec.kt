@@ -130,6 +130,48 @@ public interface DurationBasedAnimationSpec<T> : FiniteAnimationSpec<T> {
 }
 
 /**
+ * A [FiniteAnimationSpec] that uses [animationSpec] for uninterrupted animations and switches to
+ * [interruptionSpec] when a [Transition], [animateValueAsState], or [Animatable.animateTo]
+ * animation is interrupted mid-flight.
+ *
+ * When a [Transition] is interrupted mid-flight, most [FiniteAnimationSpec] implementations (such
+ * as [TweenSpec] or [KeyframesSpec], which ignore initial velocity) fall back to a default
+ * [SpringSpec] to avoid abrupt velocity discontinuities. Wrapping a spec in
+ * [InterruptionAwareAnimationSpec] overrides this fallback so [Transition] instead uses
+ * [interruptionSpec] (which defaults to [animationSpec]) and passes the current in-flight value and
+ * velocity to it. Similarly, when used with [Animatable.animateTo] or `animate*AsState` APIs (such
+ * as [animateFloatAsState] or [animateValueAsState]), [animationSpec] is used when starting from
+ * rest and [interruptionSpec] is used when the target value changes while an animation is already
+ * in-flight.
+ *
+ * @sample androidx.compose.animation.core.samples.InterruptionAwareAnimationSpecSample
+ * @property animationSpec the [FiniteAnimationSpec] used when starting an animation from rest.
+ * @property interruptionSpec the [FiniteAnimationSpec] used when an animation is interrupted
+ *   mid-flight. Defaults to [animationSpec].
+ * @see SpringSpec
+ * @see FiniteAnimationSpec
+ * @see Transition
+ * @see animateValueAsState
+ * @see Animatable.animateTo
+ */
+@Immutable
+public class InterruptionAwareAnimationSpec<T>(
+    public val animationSpec: FiniteAnimationSpec<T>,
+    public val interruptionSpec: FiniteAnimationSpec<T> = animationSpec,
+) : FiniteAnimationSpec<T> {
+    override fun <V : AnimationVector> vectorize(
+        converter: TwoWayConverter<T, V>
+    ): VectorizedFiniteAnimationSpec<V> = animationSpec.vectorize(converter)
+
+    override fun equals(other: Any?): Boolean =
+        other is InterruptionAwareAnimationSpec<*> &&
+            other.animationSpec == animationSpec &&
+            other.interruptionSpec == interruptionSpec
+
+    override fun hashCode(): Int = animationSpec.hashCode() * 31 + interruptionSpec.hashCode()
+}
+
+/**
  * Creates a [SpringSpec] that uses the given spring constants (i.e. [dampingRatio] and [stiffness].
  * The optional [visibilityThreshold] defines when the animation should be considered to be visually
  * close enough to round off to its target.
