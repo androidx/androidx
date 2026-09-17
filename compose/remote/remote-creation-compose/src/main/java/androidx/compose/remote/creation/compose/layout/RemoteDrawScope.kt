@@ -349,8 +349,10 @@ internal constructor(
      * @param centerY The y-coordinate of the circle's center.
      * @param radius The radius of the circle.
      * @param startAngle The starting angle for the text.
-     * @param warpRadiusOffset the offset of the text from the circle.
-     * @param paint paint of the text
+     * @param warpRadiusOffset The offset of the text from the circle.
+     * @param paint Paint of the text.
+     * @param alignment The alignment of the text relative to start.
+     * @param placement The placement inside or outside the circle.
      */
     public fun drawTextOnCircle(
         text: RemoteString,
@@ -360,6 +362,8 @@ internal constructor(
         startAngle: RemoteFloat,
         warpRadiusOffset: RemoteFloat,
         paint: RemotePaint? = null,
+        alignment: CircularAlignment = CircularAlignment.Center,
+        placement: CircularPlacement = CircularPlacement.Outside,
     ) {
         remoteCanvas.drawTextOnCircle(
             text,
@@ -368,10 +372,36 @@ internal constructor(
             radius,
             startAngle,
             warpRadiusOffset,
-            DrawTextOnCircle.Alignment.CENTER,
-            DrawTextOnCircle.Placement.OUTSIDE,
+            alignment.toCore(),
+            placement.toCore(),
             paint,
         )
+    }
+
+    /** Alignment of text along a circular path. */
+    public enum class CircularAlignment {
+        Start,
+        Center,
+        End;
+
+        internal fun toCore(): DrawTextOnCircle.Alignment =
+            when (this) {
+                Start -> DrawTextOnCircle.Alignment.START
+                Center -> DrawTextOnCircle.Alignment.CENTER
+                End -> DrawTextOnCircle.Alignment.END
+            }
+    }
+
+    /** Placement of text relative to the circular path. */
+    public enum class CircularPlacement {
+        Outside,
+        Inside;
+
+        internal fun toCore(): DrawTextOnCircle.Placement =
+            when (this) {
+                Outside -> DrawTextOnCircle.Placement.OUTSIDE
+                Inside -> DrawTextOnCircle.Placement.INSIDE
+            }
     }
 
     /** Clips the drawing area to the specified rectangle and executes [block] within it. */

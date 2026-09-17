@@ -803,7 +803,6 @@ public class Operations {
         map.put(DRAW_RECT, DrawRect::read);
         map.put(DRAW_ROUND_RECT, DrawRoundRect::read);
         map.put(DRAW_TEXT_ON_PATH, DrawTextOnPath::read);
-        // map.put(DRAW_TEXT_ON_CIRCLE, DrawTextOnCircle::read);
         map.put(DRAW_TEXT_RUN, DrawText::read);
         map.put(DRAW_BITMAP_FONT_TEXT_RUN, DrawBitmapFontText::read);
         map.put(DRAW_TWEEN_PATH, DrawTweenPath::read);
