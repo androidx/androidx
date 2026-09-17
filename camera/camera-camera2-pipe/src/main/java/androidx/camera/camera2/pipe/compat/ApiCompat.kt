@@ -446,6 +446,15 @@ internal object Api33Compat {
 @RequiresApi(34)
 internal object Api34Compat {
     @JvmStatic
+    fun setReadoutTimestampEnabled(outputConfiguration: OutputConfiguration, enabled: Boolean) {
+        outputConfiguration.setReadoutTimestampEnabled(enabled)
+    }
+
+    @JvmStatic
+    fun isReadoutTimestampEnabled(outputConfiguration: OutputConfiguration): Boolean =
+        outputConfiguration.isReadoutTimestampEnabled
+
+    @JvmStatic
     fun isPostviewAvailable(
         extensionCharacteristics: CameraExtensionCharacteristics,
         extension: Int,
