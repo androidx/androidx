@@ -34,9 +34,9 @@ import kotlinx.coroutines.CoroutineScope
  *   surface is no longer in use.
  * @property request The [ViewfinderSurfaceRequest] responsible for this session.
  */
-interface ViewfinderSurfaceSession : AutoCloseable {
-    val surface: Surface
-    val request: ViewfinderSurfaceRequest
+public interface ViewfinderSurfaceSession : AutoCloseable {
+    public val surface: Surface
+    public val request: ViewfinderSurfaceRequest
 }
 
 /**
@@ -45,13 +45,13 @@ interface ViewfinderSurfaceSession : AutoCloseable {
  * @see ViewfinderSurfaceSessionScope.addFrameRenderedListener
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun interface FrameRenderedListener {
+public fun interface FrameRenderedListener {
     /**
      * Invoked when a new frame is available.
      *
      * @param timestampNanos The timestamp of the frame in nanoseconds.
      */
-    fun onFrameRendered(timestampNanos: Long)
+    public fun onFrameRendered(timestampNanos: Long)
 }
 
 /**
@@ -65,9 +65,9 @@ fun interface FrameRenderedListener {
  *   scope has exited.
  * @property request The [ViewfinderSurfaceRequest] responsible for this session.
  */
-interface ViewfinderSurfaceSessionScope : CoroutineScope {
-    val surface: Surface
-    val request: ViewfinderSurfaceRequest
+public interface ViewfinderSurfaceSessionScope : CoroutineScope {
+    public val surface: Surface
+    public val request: ViewfinderSurfaceRequest
 
     /**
      * Registers a listener to be invoked when the underlying surface content has been updated.
@@ -75,13 +75,13 @@ interface ViewfinderSurfaceSessionScope : CoroutineScope {
      * This is only supported when the viewfinder is in [ImplementationMode.EMBEDDED] mode.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    fun addFrameRenderedListener(executor: Executor, listener: FrameRenderedListener) {
+    public fun addFrameRenderedListener(executor: Executor, listener: FrameRenderedListener) {
         // Default no-op
     }
 
     /** Unregisters a listener that was previously registered with [addFrameRenderedListener]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    fun removeFrameRenderedListener(listener: FrameRenderedListener) {
+    public fun removeFrameRenderedListener(listener: FrameRenderedListener) {
         // Default no-op
     }
 }

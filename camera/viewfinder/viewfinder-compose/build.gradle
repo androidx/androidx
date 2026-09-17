@@ -72,6 +72,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2023"
     description = "Standalone Composable Viewfinder for Camera"
-    legacyDisableKotlinStrictApiMode = true
     addGoldenImageAssets()
 }

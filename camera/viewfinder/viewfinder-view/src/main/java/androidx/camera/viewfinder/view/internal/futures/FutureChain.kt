@@ -34,7 +34,7 @@ import java.util.concurrent.TimeoutException
  *
  * @param <V> </V>
  */
-open class FutureChain<V> : ListenableFuture<V> {
+public open class FutureChain<V> : ListenableFuture<V> {
     private val mDelegate: ListenableFuture<V>
     private var mCompleter: CallbackToFutureAdapter.Completer<V>? = null
 
@@ -76,19 +76,19 @@ open class FutureChain<V> : ListenableFuture<V> {
         return mDelegate[timeout, unit]
     }
 
-    fun set(value: V?): Boolean {
+    public fun set(value: V?): Boolean {
         return if (mCompleter != null) {
             mCompleter!!.set(value)
         } else false
     }
 
-    fun setException(throwable: Throwable): Boolean {
+    public fun setException(throwable: Throwable): Boolean {
         return if (mCompleter != null) {
             mCompleter!!.setException(throwable)
         } else false
     }
 
-    companion object {
+    public companion object {
         /**
          * Converts the given `ListenableFuture` to an equivalent `FutureChain`.
          *
@@ -98,7 +98,7 @@ open class FutureChain<V> : ListenableFuture<V> {
          *
          * @return directly if input a FutureChain or a ListenableFuture wrapped by FutureChain.
          */
-        fun <V> from(future: ListenableFuture<V>): FutureChain<V> {
+        public fun <V> from(future: ListenableFuture<V>): FutureChain<V> {
             return if (future is FutureChain<*>) future as FutureChain<V> else FutureChain(future)
         }
     }

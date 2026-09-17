@@ -26,8 +26,8 @@ import androidx.camera.viewfinder.core.impl.quirk.SurfaceViewStretchedQuirk
  * Provides utility methods for selecting an appropriate [ImplementationMode] based on device
  * capabilities and API levels to work around compatibility issues.
  */
-class ImplementationModeCompat {
-    companion object {
+public class ImplementationModeCompat {
+    public companion object {
         /**
          * Chooses a compatible [ImplementationMode] for the viewfinder.
          *
@@ -42,7 +42,7 @@ class ImplementationModeCompat {
          * @return The chosen [ImplementationMode].
          */
         @JvmStatic
-        fun chooseCompatibleMode(): ImplementationMode =
+        public fun chooseCompatibleMode(): ImplementationMode =
             if (
                 Build.VERSION.SDK_INT <= Build.VERSION_CODES.N ||
                     DeviceQuirks.contains<SurfaceViewStretchedQuirk>() ||

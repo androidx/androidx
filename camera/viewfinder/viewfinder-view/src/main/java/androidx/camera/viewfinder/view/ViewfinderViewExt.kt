@@ -24,6 +24,6 @@ import androidx.concurrent.futures.await
  * Provides a suspending function of [ViewfinderView.requestSurfaceSessionAsync] to request a
  * [ViewfinderSurfaceSession] by sending a [ViewfinderSurfaceRequest].
  */
-suspend fun ViewfinderView.requestSurfaceSession(
+public suspend fun ViewfinderView.requestSurfaceSession(
     viewfinderSurfaceRequest: ViewfinderSurfaceRequest
 ): ViewfinderSurfaceSession = requestSurfaceSessionAsync(viewfinderSurfaceRequest).await()

@@ -31,13 +31,13 @@ package androidx.camera.viewfinder.core
  * @constructor Creates a new surface request with given resolution, and optional implementation
  *   mode request ID.
  */
-class ViewfinderSurfaceRequest
+public class ViewfinderSurfaceRequest
 @JvmOverloads
 constructor(
-    val width: Int,
-    val height: Int,
-    val implementationMode: ImplementationMode? = null,
-    val requestId: String? = null,
+    public val width: Int,
+    public val height: Int,
+    public val implementationMode: ImplementationMode? = null,
+    public val requestId: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -74,7 +74,7 @@ constructor(
      * while keeping the rest unchanged.
      */
     @JvmSynthetic
-    fun copy(
+    public fun copy(
         width: Int = this.width,
         height: Int = this.height,
         implementationMode: ImplementationMode? = this.implementationMode,
