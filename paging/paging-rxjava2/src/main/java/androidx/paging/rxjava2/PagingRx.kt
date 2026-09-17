@@ -42,7 +42,7 @@ import kotlinx.coroutines.rx2.asObservable
  * observer, you should use the [cachedIn] operator which multicasts the [Observable] in a way that
  * returns a new instance of [PagingData] with cached data pre-loaded.
  */
-val <Key : Any, Value : Any> Pager<Key, Value>.observable: Observable<PagingData<Value>>
+public val <Key : Any, Value : Any> Pager<Key, Value>.observable: Observable<PagingData<Value>>
     get() = flow.conflate().asObservable()
 
 /**
@@ -55,7 +55,7 @@ val <Key : Any, Value : Any> Pager<Key, Value>.observable: Observable<PagingData
  * observer, you should use the [cachedIn] operator which multicasts the [Flowable] in a way that
  * returns a new instance of [PagingData] with cached data pre-loaded.
  */
-val <Key : Any, Value : Any> Pager<Key, Value>.flowable: Flowable<PagingData<Value>>
+public val <Key : Any, Value : Any> Pager<Key, Value>.flowable: Flowable<PagingData<Value>>
     get() = flow.conflate().asFlowable()
 
 /**
@@ -76,7 +76,9 @@ val <Key : Any, Value : Any> Pager<Key, Value>.flowable: Flowable<PagingData<Val
  *   manually cancelled to avoid memory leaks.
  */
 @ExperimentalCoroutinesApi
-fun <T : Any> Observable<PagingData<T>>.cachedIn(scope: CoroutineScope): Observable<PagingData<T>> {
+public fun <T : Any> Observable<PagingData<T>>.cachedIn(
+    scope: CoroutineScope
+): Observable<PagingData<T>> {
     return toFlowable(BackpressureStrategy.LATEST).asFlow().cachedIn(scope).asObservable()
 }
 
@@ -98,6 +100,8 @@ fun <T : Any> Observable<PagingData<T>>.cachedIn(scope: CoroutineScope): Observa
  *   manually cancelled to avoid memory leaks.
  */
 @ExperimentalCoroutinesApi
-fun <T : Any> Flowable<PagingData<T>>.cachedIn(scope: CoroutineScope): Flowable<PagingData<T>> {
+public fun <T : Any> Flowable<PagingData<T>>.cachedIn(
+    scope: CoroutineScope
+): Flowable<PagingData<T>> {
     return asFlow().cachedIn(scope).asFlowable()
 }

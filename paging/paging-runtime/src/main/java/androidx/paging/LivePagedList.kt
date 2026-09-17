@@ -157,7 +157,7 @@ internal class LivePagedList<Key : Any, Value : Any>(
             "kotlinx.coroutines.asCoroutineDispatcher",
         ),
 )
-fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
+public fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
@@ -199,7 +199,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
             "kotlinx.coroutines.asCoroutineDispatcher",
         ),
 )
-fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
+public fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
     pageSize: Int,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
@@ -253,7 +253,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
             "androidx.paging.liveData",
         ),
 )
-fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
+public fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
@@ -307,7 +307,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
             "androidx.paging.liveData",
         ),
 )
-fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
+public fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
     pageSize: Int,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,

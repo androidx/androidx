@@ -52,7 +52,7 @@ import kotlinx.coroutines.yield
  * [AsyncPagingDataDiffer] is exposed for complex cases, and where overriding [PagingDataAdapter] to
  * support paging isn't convenient.
  */
-class AsyncPagingDataDiffer<T : Any>
+public class AsyncPagingDataDiffer<T : Any>
 /**
  * Construct an [AsyncPagingDataDiffer].
  *
@@ -95,7 +95,7 @@ constructor(
     // Only for binary compatibility; cannot apply @JvmOverloads as the function signature would
     // conflict with the primary constructor.
     @Suppress("MissingJvmstatic")
-    constructor(
+    public constructor(
         diffCallback: DiffUtil.ItemCallback<T>,
         @Suppress("ListenerLast") // have to suppress for each, due to optional args
         updateCallback: ListUpdateCallback,
@@ -129,7 +129,7 @@ constructor(
     // Only for binary compatibility; cannot apply @JvmOverloads as the function signature would
     // conflict with the primary constructor.
     @Suppress("MissingJvmstatic")
-    constructor(
+    public constructor(
         diffCallback: DiffUtil.ItemCallback<T>,
         @Suppress("ListenerLast") // have to suppress for each, due to optional args
         updateCallback: ListUpdateCallback,
@@ -391,7 +391,7 @@ constructor(
      *
      * @see [Pager]
      */
-    suspend fun submitData(pagingData: PagingData<T>) {
+    public suspend fun submitData(pagingData: PagingData<T>) {
         submitDataId.incrementAndGet()
         presenter.collectFrom(pagingData)
     }
@@ -408,7 +408,7 @@ constructor(
      * @see submitData
      * @see [Pager]
      */
-    fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {
+    public fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {
         val id = submitDataId.incrementAndGet()
         lifecycle.coroutineScope.launch {
             // Check id when this job runs to ensure the last synchronous call submitData always
@@ -430,7 +430,7 @@ constructor(
      * * [PagingSource.load] returning [PagingSource.LoadResult.Error]
      * * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
      */
-    fun retry() {
+    public fun retry() {
         presenter.retry()
     }
 
@@ -449,7 +449,7 @@ constructor(
      * @sample androidx.paging.samples.refreshSample
      * @see PagingSource.invalidate
      */
-    fun refresh() {
+    public fun refresh() {
         presenter.refresh()
     }
 
@@ -462,7 +462,7 @@ constructor(
      * @return The item, or `null`, if a `null` placeholder is at the specified position.
      */
     @MainThread
-    fun getItem(@IntRange(from = 0) index: Int): T? {
+    public fun getItem(@IntRange(from = 0) index: Int): T? {
         try {
             inGetItem.update { true }
             lastAccessedIndex = index
@@ -481,7 +481,7 @@ constructor(
      * @return The presented item at position [index], `null` if it is a placeholder
      */
     @MainThread
-    fun peek(@IntRange(from = 0) index: Int): T? {
+    public fun peek(@IntRange(from = 0) index: Int): T? {
         val tempList = previousPresenter.get()
         return if (tempList != null) tempList.peek(index) else presenter.peek(index)
     }
@@ -490,7 +490,7 @@ constructor(
      * Returns a new [ItemSnapshotList] representing the currently presented items, including any
      * placeholders if they are enabled.
      */
-    fun snapshot(): ItemSnapshotList<T> =
+    public fun snapshot(): ItemSnapshotList<T> =
         previousPresenter.get()?.snapshot() ?: presenter.snapshot()
 
     /**
@@ -499,7 +499,7 @@ constructor(
      *
      * @return Number of items being presented, including placeholders.
      */
-    val itemCount: Int
+    public val itemCount: Int
         get() = previousPresenter.get()?.size ?: presenter.size
 
     /**
@@ -511,7 +511,7 @@ constructor(
      *
      * @sample androidx.paging.samples.loadStateFlowSample
      */
-    val loadStateFlow: Flow<CombinedLoadStates> =
+    public val loadStateFlow: Flow<CombinedLoadStates> =
         presenter.loadStateFlow
             .filterNotNull()
             .buffer(CONFLATED)
@@ -541,7 +541,7 @@ constructor(
      * that you only receive the latest update, which is useful in cases where you are simply
      * updating UI and don't care about tracking the exact number of page updates.
      */
-    val onPagesUpdatedFlow: Flow<Unit> = presenter.onPagesUpdatedFlow
+    public val onPagesUpdatedFlow: Flow<Unit> = presenter.onPagesUpdatedFlow
 
     /**
      * Add a listener which triggers after the pages presented to the UI are updated, even if the
@@ -556,7 +556,7 @@ constructor(
      * @param listener called after pages presented are updated.
      * @see removeOnPagesUpdatedListener
      */
-    fun addOnPagesUpdatedListener(listener: () -> Unit) {
+    public fun addOnPagesUpdatedListener(listener: () -> Unit) {
         presenter.addOnPagesUpdatedListener(listener)
     }
 
@@ -567,7 +567,7 @@ constructor(
      * @param listener Previously registered listener.
      * @see addOnPagesUpdatedListener
      */
-    fun removeOnPagesUpdatedListener(listener: () -> Unit) {
+    public fun removeOnPagesUpdatedListener(listener: () -> Unit) {
         presenter.removeOnPagesUpdatedListener(listener)
     }
 
@@ -597,7 +597,7 @@ constructor(
      * @sample androidx.paging.samples.addLoadStateListenerSample
      * @see removeLoadStateListener
      */
-    fun addLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
+    public fun addLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         if (parentLoadStateListener.get() == null) {
             addLoadStateListenerInternal(internalLoadStateListener)
         }
@@ -610,7 +610,7 @@ constructor(
      * @param listener Previously registered listener.
      * @see addLoadStateListener
      */
-    fun removeLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
+    public fun removeLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         childLoadStateListeners.remove(listener)
         if (childLoadStateListeners.isEmpty()) {
             val parent = parentLoadStateListener.get()

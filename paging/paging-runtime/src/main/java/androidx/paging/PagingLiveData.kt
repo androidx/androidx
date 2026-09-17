@@ -37,7 +37,7 @@ import kotlinx.coroutines.CoroutineScope
  * you should use the [cachedIn] operator which multicasts the [LiveData] in a way that returns a
  * new instance of [PagingData] with cached data pre-loaded.
  */
-val <Key : Any, Value : Any> Pager<Key, Value>.liveData: LiveData<PagingData<Value>>
+public val <Key : Any, Value : Any> Pager<Key, Value>.liveData: LiveData<PagingData<Value>>
     get() = flow.asLiveData()
 
 /**
@@ -54,8 +54,9 @@ val <Key : Any, Value : Any> Pager<Key, Value>.liveData: LiveData<PagingData<Val
  *
  * @param lifecycle The [Lifecycle] where the page cache will be kept alive.
  */
-fun <T : Any> LiveData<PagingData<T>>.cachedIn(lifecycle: Lifecycle) =
-    asFlow().cachedIn(lifecycle.coroutineScope).asLiveData()
+public fun <T : Any> LiveData<PagingData<T>>.cachedIn(
+    lifecycle: Lifecycle
+): LiveData<PagingData<T>> = asFlow().cachedIn(lifecycle.coroutineScope).asLiveData()
 
 /**
  * Operator which caches a [LiveData] of [PagingData] within the scope of a [ViewModel].
@@ -72,8 +73,9 @@ fun <T : Any> LiveData<PagingData<T>>.cachedIn(lifecycle: Lifecycle) =
  * @param viewModel The [ViewModel] whose [viewModelScope] will dictate how long the page cache will
  *   be kept alive.
  */
-fun <T : Any> LiveData<PagingData<T>>.cachedIn(viewModel: ViewModel) =
-    asFlow().cachedIn(viewModel.viewModelScope).asLiveData()
+public fun <T : Any> LiveData<PagingData<T>>.cachedIn(
+    viewModel: ViewModel
+): LiveData<PagingData<T>> = asFlow().cachedIn(viewModel.viewModelScope).asLiveData()
 
 /**
  * Operator which caches a [LiveData] of [PagingData] within a [CoroutineScope].
@@ -92,5 +94,6 @@ fun <T : Any> LiveData<PagingData<T>>.cachedIn(viewModel: ViewModel) =
  *   [PagingData] stream is no longer needed. Otherwise, the provided [CoroutineScope] must be
  *   manually cancelled to avoid memory leaks.
  */
-fun <T : Any> LiveData<PagingData<T>>.cachedIn(scope: CoroutineScope) =
-    asFlow().cachedIn(scope).asLiveData()
+public fun <T : Any> LiveData<PagingData<T>>.cachedIn(
+    scope: CoroutineScope
+): LiveData<PagingData<T>> = asFlow().cachedIn(scope).asLiveData()
