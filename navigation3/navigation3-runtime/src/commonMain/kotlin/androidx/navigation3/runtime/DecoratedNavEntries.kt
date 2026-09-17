@@ -18,6 +18,7 @@ package androidx.navigation3.runtime
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
@@ -120,9 +121,11 @@ public fun <T : Any> rememberDecoratedNavEntries(
     entryDecorators: List<@JvmSuppressWildcards NavEntryDecorator<T>> = listOf(),
     entryProvider: (key: T) -> NavEntry<T>,
 ): List<NavEntry<T>> {
-    @Suppress("ListIterator")
-    val entries =
-        remember(backStack.toList()) { backStack.fastMapOrMap { key -> entryProvider.invoke(key) } }
+    @Suppress("ListIterator") val keys = backStack.toList()
+    val entries by
+        remember(keys) {
+            derivedStateOf { keys.fastMapOrMap { key -> entryProvider.invoke(key) } }
+        }
 
     return rememberDecoratedNavEntries(entries, entryDecorators)
 }
