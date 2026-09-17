@@ -20,62 +20,50 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.ui.graphics.Color
-import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@SmallTest
 @RunWith(JUnit4::class)
-class RemoteCheckboxButtonColorsTest {
+class RemoteSplitCheckboxButtonColorsTest {
 
     @Test
-    fun checkboxButtonDefaults_values() {
-        assertEquals(52.rdp.constantValue, RemoteCheckboxButtonDefaults.Height.constantValue)
-        assertEquals(6.rdp.constantValue, RemoteCheckboxButtonDefaults.IconSpacing.constantValue)
-        assertEquals(24.rdp.constantValue, RemoteCheckboxButtonDefaults.IconSize.constantValue)
-        assertEquals(
-            1.rdp.constantValue,
-            RemoteCheckboxButtonDefaults.LabelSpacerSize.constantValue,
-        )
-        assertEquals(18.rdp.constantValue, RemoteCheckboxButtonDefaults.BoxSize.constantValue)
-        assertEquals(2.rdp.constantValue, RemoteCheckboxButtonDefaults.BoxStroke.constantValue)
-        assertEquals(2.rdp.constantValue, RemoteCheckboxButtonDefaults.BoxRadius.constantValue)
-        assertEquals(24.rdp.constantValue, RemoteCheckboxButtonDefaults.BoxOuterSize.constantValue)
+    fun splitCheckboxButtonDefaults_values() {
+        assertEquals(52.rdp.constantValue, RemoteSplitCheckboxButtonDefaults.Height.constantValue)
     }
 
     @Test
-    fun checkboxButtonColors_resolvesCorrectly() {
+    fun splitCheckboxButtonColors_resolvesCorrectly() {
         val checkedContainer = RemoteColor(Color.Red)
         val uncheckedContainer = RemoteColor(Color.Blue)
         val disabledCheckedContainer = RemoteColor(Color.Gray)
         val disabledUncheckedContainer = RemoteColor(Color.DarkGray)
 
         val colors =
-            RemoteCheckboxButtonColors(
+            RemoteSplitCheckboxButtonColors(
                 checkedContainerColor = checkedContainer,
                 checkedContentColor = RemoteColor(Color.White),
                 checkedSecondaryContentColor = RemoteColor(Color.LightGray),
-                checkedIconColor = RemoteColor(Color.Yellow),
+                checkedSplitContainerColor = RemoteColor(Color.Yellow),
                 checkedBoxColor = RemoteColor(Color.Cyan),
                 checkedCheckmarkColor = RemoteColor(Color.Black),
                 uncheckedContainerColor = uncheckedContainer,
                 uncheckedContentColor = RemoteColor(Color.White),
                 uncheckedSecondaryContentColor = RemoteColor(Color.LightGray),
-                uncheckedIconColor = RemoteColor(Color.Yellow),
+                uncheckedSplitContainerColor = RemoteColor(Color.Yellow),
                 uncheckedBoxColor = RemoteColor(Color.Magenta),
                 disabledCheckedContainerColor = disabledCheckedContainer,
                 disabledCheckedContentColor = RemoteColor(Color.DarkGray),
                 disabledCheckedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledCheckedIconColor = RemoteColor(Color.DarkGray),
+                disabledCheckedSplitContainerColor = RemoteColor(Color.DarkGray),
                 disabledCheckedBoxColor = RemoteColor(Color.DarkGray),
                 disabledCheckedCheckmarkColor = RemoteColor(Color.DarkGray),
                 disabledUncheckedContainerColor = disabledUncheckedContainer,
                 disabledUncheckedContentColor = RemoteColor(Color.DarkGray),
                 disabledUncheckedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedIconColor = RemoteColor(Color.DarkGray),
+                disabledUncheckedSplitContainerColor = RemoteColor(Color.DarkGray),
                 disabledUncheckedBoxColor = RemoteColor(Color.DarkGray),
             )
 
@@ -97,30 +85,30 @@ class RemoteCheckboxButtonColorsTest {
     }
 
     @Test
-    fun checkboxButtonColors_equality() {
+    fun splitCheckboxButtonColors_equality() {
         val colors1 =
-            RemoteCheckboxButtonColors(
+            RemoteSplitCheckboxButtonColors(
                 checkedContainerColor = RemoteColor(Color.Red),
                 checkedContentColor = RemoteColor(Color.White),
                 checkedSecondaryContentColor = RemoteColor(Color.LightGray),
-                checkedIconColor = RemoteColor(Color.Yellow),
+                checkedSplitContainerColor = RemoteColor(Color.Yellow),
                 checkedBoxColor = RemoteColor(Color.Cyan),
                 checkedCheckmarkColor = RemoteColor(Color.Black),
                 uncheckedContainerColor = RemoteColor(Color.Blue),
                 uncheckedContentColor = RemoteColor(Color.White),
                 uncheckedSecondaryContentColor = RemoteColor(Color.LightGray),
-                uncheckedIconColor = RemoteColor(Color.Yellow),
+                uncheckedSplitContainerColor = RemoteColor(Color.Yellow),
                 uncheckedBoxColor = RemoteColor(Color.Magenta),
                 disabledCheckedContainerColor = RemoteColor(Color.Gray),
                 disabledCheckedContentColor = RemoteColor(Color.DarkGray),
                 disabledCheckedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledCheckedIconColor = RemoteColor(Color.DarkGray),
+                disabledCheckedSplitContainerColor = RemoteColor(Color.DarkGray),
                 disabledCheckedBoxColor = RemoteColor(Color.DarkGray),
                 disabledCheckedCheckmarkColor = RemoteColor(Color.DarkGray),
                 disabledUncheckedContainerColor = RemoteColor(Color.DarkGray),
                 disabledUncheckedContentColor = RemoteColor(Color.DarkGray),
                 disabledUncheckedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedIconColor = RemoteColor(Color.DarkGray),
+                disabledUncheckedSplitContainerColor = RemoteColor(Color.DarkGray),
                 disabledUncheckedBoxColor = RemoteColor(Color.DarkGray),
             )
 

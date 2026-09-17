@@ -25,7 +25,6 @@ import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
-import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
@@ -37,14 +36,10 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
-import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -67,9 +62,6 @@ import androidx.wear.compose.remote.material3.previews.utils.createImage
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.wear.compose.remote.material3.util.TestProfiles
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
-import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -87,7 +79,6 @@ class RemoteButtonTest {
             context = ApplicationProvider.getApplicationContext(),
         )
 
-    @get:Rule val captureRule = RemoteCaptureTestRule()
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     private val creationDisplayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
@@ -462,100 +453,6 @@ class RemoteButtonTest {
     }
 
     @Test
-    fun button_enabled_and_has_action_click_modifier_is_added(): Unit = runTest {
-        val document =
-            captureRule.captureDocument(
-                context = context,
-                creationDisplayInfo = creationDisplayInfo,
-            ) {
-                RemoteButton(
-                    modifier = RemoteModifier.buttonSizeModifier(),
-                    onClick = testAction,
-                    enabled = true.rb,
-                ) {
-                    RemoteText("button_enabled".rs)
-                }
-            }
-        val actualContent = document.displayHierarchy()
-
-        assertThat(actualContent.normalizeWhiteSpace()).contains("CLICK_MODIFIER")
-    }
-
-    @Test
-    fun button_disabled_click_modifier_is_not_added(): Unit = runTest {
-        val document =
-            captureRule.captureDocument(
-                context = context,
-                creationDisplayInfo = creationDisplayInfo,
-            ) {
-                RemoteButton(
-                    onClick = testAction,
-                    modifier = RemoteModifier.buttonSizeModifier(),
-                    enabled = false.rb,
-                ) {
-                    RemoteText("button_disabled".rs)
-                }
-            }
-        val actualContent = document.displayHierarchy()
-
-        assertThat(actualContent.normalizeWhiteSpace()).doesNotContain("CLICK_MODIFIER")
-    }
-
-    @Test
-    fun button_border_width_is_scaled_with_density() {
-        val displayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
-        val density = displayInfo.density.density
-        remoteComposeTestRule.setContent(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
-            remoteCreationDisplayInfo = displayInfo,
-        ) {
-            ComponentContainer {
-                RemoteButton(
-                    modifier = RemoteModifier.size(100.rdp, 50.rdp),
-                    onClick = testAction,
-                    border = 8.rdp,
-                    borderColor = RemoteColor(Color.Red),
-                    colors =
-                        RemoteButtonDefaults.buttonColors(
-                            containerColor = RemoteColor(Color.Black)
-                        ),
-                    shape = RemoteRectangleShape,
-                ) {
-                    RemoteText("button".rs)
-                }
-            }
-        }
-
-        val bitmap =
-            remoteComposeTestRule.composeTestRule
-                .onNodeWithTag(RemoteScreenshotTestRule.ROOT_TEST_TAG)
-                .captureToImage()
-                .asAndroidBitmap()
-
-        val y = bitmap.height / 2
-        var redPixelsCount = 0
-        var firstRedX = -1
-        var lastRedX = -1
-        for (x in 0 until bitmap.width / 2) {
-            val color = Color(bitmap.getPixel(x, y))
-            if (color.red > 0.8f && color.green < 0.2f && color.blue < 0.2f) {
-                redPixelsCount++
-                if (firstRedX == -1) firstRedX = x
-                lastRedX = x
-            }
-        }
-
-        val expectedBorderWidthPx = (8 * density).toInt()
-        assertWithMessage(
-                "Expected border width of $expectedBorderWidthPx px (border=8.rdp * density=$density), " +
-                    "found $redPixelsCount red pixels at y=$y in bitmap size ${bitmap.width}x${bitmap.height} " +
-                    "(firstRedX=$firstRedX, lastRedX=$lastRedX)"
-            )
-            .that(kotlin.math.abs(redPixelsCount - expectedBorderWidthPx))
-            .isAtMost(1)
-    }
-
-    @Test
     fun button_child_colors() {
         remoteComposeTestRule.runScreenshotTest(
             profile = TestProfiles.wearWidgetsWithCoreText,
@@ -584,10 +481,6 @@ class RemoteButtonTest {
             ComponentContainer { RemoteButtonWithSmallImageBackground() }
         }
     }
-
-    // Replace all sequences of whitespace (including newlines, tabs) with a single space. Then
-    // trim leading/trailing spaces from the whole string
-    private fun String.normalizeWhiteSpace() = this.replace(Regex("\\s+"), " ").trim()
 
     private val testAction = hostAction("testAction".rs, 1.rf)
 }

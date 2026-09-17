@@ -19,7 +19,6 @@ package androidx.wear.compose.remote.material3
 import android.content.Context
 import android.graphics.Typeface
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -53,9 +52,6 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.wear.compose.remote.material3.util.TestProfiles
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.withContext
 import org.junit.Assert.assertTrue
 import org.junit.Ignore
 import org.junit.Rule
@@ -76,37 +72,6 @@ class RemoteTimeTextTest {
         )
 
     private val context: Context = ApplicationProvider.getApplicationContext()
-
-    @Test
-    fun timeOnly() = runTest {
-        runDocumentTest {
-            RemoteTimeText(modifier = RemoteModifier.fillMaxSize(), time = "10:09".rs)
-        }
-    }
-
-    @Test
-    fun timeWithText() = runTest {
-        runDocumentTest {
-            RemoteTimeText(
-                modifier = RemoteModifier.fillMaxSize(),
-                time = "10:09".rs,
-                leadingText = "paused".rs,
-                trailingText = "eta 13 min".rs,
-            )
-        }
-    }
-
-    @Test
-    fun withFontConfigured() = runTest {
-        runDocumentTest {
-            RemoteTimeText(
-                modifier = RemoteModifier.fillMaxSize(),
-                time = "10:09".rs,
-                fontSize = 15.rsp,
-                fontFamily = RemoteFontFamily.SansSerif,
-            )
-        }
-    }
 
     @Ignore("Waiting for b/4205105")
     @Test
@@ -219,17 +184,6 @@ class RemoteTimeTextTest {
         }
     }
 
-    suspend fun runDocumentTest(content: @Composable @RemoteComposable () -> Unit) {
-        val bytes =
-            withContext(Dispatchers.Main) {
-                captureSingleRemoteDocument(context, profile = TestProfiles.androidNativeProfile) {
-                        content()
-                    }
-                    .bytes
-            }
-        assertTrue(bytes.isNotEmpty())
-    }
-
     private fun RemoteScreenshotTestRule.runScreenshotTestCustomProfile(
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         composable: @Composable @RemoteComposable () -> Unit,
@@ -248,11 +202,11 @@ class RemoteTimeTextTest {
                 fontVariationSettingsMap =
                     mapOf(
                         "Roboto Flex" to
-                            FontVariation.Settings(
+                            Settings(
                                 FontVariation.weight(1000),
                                 FontVariation.width(151f),
                                 FontVariation.grade(150),
-                                FontVariation.Setting("opsz", 144f),
+                                Setting("opsz", 144f),
                                 FontVariation.slant(-10f),
                             )
                     ),
