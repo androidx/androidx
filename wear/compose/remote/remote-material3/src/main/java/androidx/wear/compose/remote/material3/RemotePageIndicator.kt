@@ -32,6 +32,7 @@ import androidx.compose.remote.creation.compose.state.abs
 import androidx.compose.remote.creation.compose.state.cos
 import androidx.compose.remote.creation.compose.state.floor
 import androidx.compose.remote.creation.compose.state.lerp
+import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
@@ -241,7 +242,7 @@ private fun RemoteDrawScope.drawPageIndicators(
     if (pageCount <= 0) return
 
     val screenRadius = width / 2f.rf
-    val bigRadius = screenRadius - padding
+    val bigRadius = max(screenRadius - padding, 1f.rf)
 
     if (pageCount == 1) {
         val paint = RemotePaint {
@@ -452,15 +453,16 @@ private fun RemoteDrawScope.drawPageIndicators(
 private fun calculateShrinkThresholdStart(
     spacingPx: RemoteFloat,
     indicatorSizePx: RemoteFloat,
-): RemoteFloat = spacingPx / (spacingPx + indicatorSizePx) / 4f.rf
+): RemoteFloat = spacingPx / max(0.001f.rf, spacingPx + indicatorSizePx) / 4f.rf
 
 private fun calculateShrinkThresholdEnd(
     spacingPx: RemoteFloat,
     indicatorSizePx: RemoteFloat,
-): RemoteFloat = (spacingPx / 2f.rf + indicatorSizePx) / (spacingPx + indicatorSizePx) / 2f.rf
+): RemoteFloat =
+    (spacingPx / 2f.rf + indicatorSizePx) / max(0.001f.rf, spacingPx + indicatorSizePx) / 2f.rf
 
 private fun inverseLerp(start: RemoteFloat, stop: RemoteFloat, value: RemoteFloat): RemoteFloat {
-    return ((value - start) / (stop - start)).coerceIn(0f.rf, 1f.rf)
+    return ((value - start) / max(0.001f.rf, stop - start)).coerceIn(0f.rf, 1f.rf)
 }
 
 private fun calculateAdjacentShrinkRatio(
