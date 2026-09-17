@@ -2308,6 +2308,12 @@ package androidx.compose.material3 {
     field public static final androidx.compose.material3.MaterialTransitions INSTANCE;
   }
 
+  public static final class MaterialTransitions.FadeThrough {
+    method public androidx.compose.animation.MutableContentTransform predictiveBackTransform(kotlin.jvm.functions.Function0<androidx.navigationevent.NavigationEvent> backEvent, androidx.compose.ui.unit.Density density);
+    method public androidx.compose.animation.ContentTransform transform();
+    field public static final androidx.compose.material3.MaterialTransitions.FadeThrough INSTANCE;
+  }
+
   public static final class MaterialTransitions.HorizontalSharedAxis {
     method public androidx.compose.animation.ContentTransform backwardTransform();
     method public androidx.compose.animation.ContentTransform forwardTransform();

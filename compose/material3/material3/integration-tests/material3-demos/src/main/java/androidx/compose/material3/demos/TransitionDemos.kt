@@ -33,6 +33,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -40,6 +45,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTransitions
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -54,6 +61,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
@@ -64,7 +72,7 @@ import androidx.navigationevent.compose.NavigationEventHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
 
 @Composable
-fun TransitionDemo() {
+fun HorizontalSharedAxisTransitionDemo() {
     var currentScreen by remember { mutableIntStateOf(1) }
     val navState = rememberNavigationEventState(currentInfo = NavigationEventInfo.None)
 
@@ -140,6 +148,148 @@ fun TransitionDemo() {
                     else -> DetailScreen(onBack = { currentScreen = 1 })
                 }
             }
+        }
+    }
+}
+
+private enum class DemoTab(val label: String, val icon: ImageVector) {
+    Home("Home", Icons.Filled.Home),
+    Search("Search", Icons.Filled.Search),
+    Library("Library", Icons.Filled.VideoLibrary),
+    Favorites("Favorites", Icons.Filled.Favorite),
+    Profile("Profile", Icons.Filled.Person),
+}
+
+@Composable
+fun FadeThroughTransitionDemo() {
+    var currentTab by remember { mutableStateOf(DemoTab.Home) }
+    val navState = rememberNavigationEventState(currentInfo = NavigationEventInfo.None)
+
+    val deviceCornerShape = rememberDeviceCornerShape()
+
+    // TODO(b/561731740): Replace this manual navigation setup with NavDisplay once it adopts
+    //  MutableContentTransform, which provides built-in transition and back gesture handling.
+    val state = remember { DeferredTransitionState(currentTab) }
+    val transition = rememberDeferredTransition(state)
+    var backEvent by remember { mutableStateOf(NavigationEvent()) }
+    val transitionState = navState.transitionState
+    if (transitionState is NavigationEventTransitionState.InProgress) {
+        backEvent = transitionState.latestEvent
+        if (state.pendingTargetState == null) {
+            state.defer(DemoTab.Home)
+        }
+    }
+    NavigationEventHandler(
+        state = navState,
+        isBackEnabled = currentTab != DemoTab.Home,
+        onBackCompleted = {
+            currentTab = DemoTab.Home
+            state.animateTo(DemoTab.Home)
+        },
+        onBackCancelled = { state.animateTo(currentTab) },
+    )
+    LaunchedEffect(currentTab) {
+        if (state.targetState != currentTab) {
+            state.animateTo(currentTab)
+        }
+    }
+
+    val density = LocalDensity.current
+
+    Box(
+        modifier =
+            Modifier.fillMaxSize()
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                .padding(16.dp)
+    ) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize().clip(deviceCornerShape),
+            containerColor = MaterialTheme.colorScheme.surface,
+            bottomBar = {
+                NavigationBar {
+                    DemoTab.entries.forEach { tab ->
+                        NavigationBarItem(
+                            selected = currentTab == tab,
+                            onClick = { currentTab = tab },
+                            icon = { Icon(tab.icon, contentDescription = tab.label) },
+                            label = { Text(tab.label) },
+                        )
+                    }
+                }
+            },
+        ) { innerPadding ->
+            transition.DeferredAnimatedContent(
+                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                transitionSpec = { MaterialTransitions.FadeThrough.transform() },
+                mutableTransformSpec = {
+                    if (targetState == DemoTab.Home && initialState != DemoTab.Home) {
+                        MaterialTransitions.FadeThrough.predictiveBackTransform(
+                            backEvent = { backEvent },
+                            density = density,
+                        )
+                    } else {
+                        null
+                    }
+                },
+            ) { tab ->
+                TabRootContent(tab = tab)
+            }
+        }
+    }
+}
+
+@Composable
+private fun TabRootContent(tab: DemoTab) {
+    Scaffold(
+        modifier = Modifier.fillMaxSize().clip(rememberDeviceCornerShape()),
+        containerColor = MaterialTheme.colorScheme.surface,
+        topBar = {
+            TopAppBar(
+                title = { Text("${tab.label} Tab") },
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    ),
+            )
+        },
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier.fillMaxSize().padding(innerPadding).padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth().height(180.dp),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                    ),
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    Icon(
+                        imageVector = tab.icon,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "${tab.label} (Fade Through)",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text =
+                    "Switch tabs in the bottom bar or swipe back to Home to see the Material 3 FadeThrough transition.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
     }
 }

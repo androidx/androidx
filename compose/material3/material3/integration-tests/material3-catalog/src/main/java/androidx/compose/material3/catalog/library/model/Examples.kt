@@ -119,6 +119,7 @@ import androidx.compose.material3.samples.ExtendedFloatingActionButtonSample
 import androidx.compose.material3.samples.ExtendedFloatingActionButtonTextSample
 import androidx.compose.material3.samples.ExtraLargeFilledSplitButtonSample
 import androidx.compose.material3.samples.ExtraSmallNarrowSquareIconButtonsSample
+import androidx.compose.material3.samples.FadeThroughTransitionSample
 import androidx.compose.material3.samples.FadingHorizontalMultiBrowseCarouselSample
 import androidx.compose.material3.samples.FancyIndicatorContainerTabs
 import androidx.compose.material3.samples.FancyIndicatorTabs
@@ -1236,7 +1237,15 @@ val TransitionExamples =
             isExpressive = false,
         ) {
             HorizontalSharedAxisTransitionSample()
-        }
+        },
+        Example(
+            name = "FadeThroughTransitionSample",
+            description = TransitionsExampleDescription,
+            sourceUrl = TransitionsExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            FadeThroughTransitionSample()
+        },
     )
 
 private const val TypographyExampleDescription = "Typography examples"

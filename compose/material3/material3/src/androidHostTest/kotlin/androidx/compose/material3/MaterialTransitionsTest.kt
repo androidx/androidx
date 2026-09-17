@@ -124,4 +124,32 @@ class MaterialTransitionsTest {
             )
         assertThat(mutableTransform).isNotNull()
     }
+
+    @Test
+    fun fadeThroughTransform_returnsNonNullSpec() {
+        val spec = MaterialTransitions.FadeThrough.transform()
+        assertThat(spec).isNotNull()
+        assertThat(spec.targetContentEnter.config.scale?.scale).isEqualTo(0.8f)
+        assertThat(spec.initialContentExit.config.scale?.scale).isEqualTo(1.05f)
+    }
+
+    @Test
+    fun fadeThroughPredictiveBackTransform_createsValidMutableTransform() {
+        val backEventState =
+            mutableStateOf(
+                NavigationEvent(
+                    swipeEdge = NavigationEvent.EDGE_LEFT,
+                    progress = 0.5f,
+                    touchX = 100f,
+                    touchY = 300f,
+                )
+            )
+
+        val mutableTransform =
+            MaterialTransitions.FadeThrough.predictiveBackTransform(
+                backEvent = { backEventState.value },
+                density = Density(1f),
+            )
+        assertThat(mutableTransform).isNotNull()
+    }
 }
