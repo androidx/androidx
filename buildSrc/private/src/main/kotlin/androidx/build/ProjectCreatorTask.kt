@@ -104,7 +104,7 @@ abstract class ProjectCreatorTask : DefaultTask() {
                     cliProjectType.orNull,
                     cliGroupId.orNull,
                     cliArtifactId.orNull,
-                    cliProjectDescription.orNull != null,
+                    cliProjectDescription.orNull,
                 )
                 .any { it != null }
         ) {
@@ -113,7 +113,7 @@ abstract class ProjectCreatorTask : DefaultTask() {
                         cliProjectType.orNull,
                         cliGroupId.orNull,
                         cliArtifactId.orNull,
-                        cliProjectDescription.orNull != null,
+                        cliProjectDescription.orNull,
                     )
                     .all { it != null }
             ) {
@@ -185,11 +185,9 @@ abstract class ProjectCreatorTask : DefaultTask() {
                 userInput
                     .askUser { interaction: UserQuestions ->
                         interaction.askQuestion(
-                            """Enter artifact id (e.g. ${if (projectType != ProjectType.TEST_APP) "core-telecom" else "testapp"})
-                                This should be a new artifact/library that doesn't already exist in the group you specified above.
-                                Artifact id:
-                            """
-                                .trimMargin(),
+                            "Enter artifact id (e.g. ${if (projectType != ProjectType.TEST_APP) "core-telecom" else "testapp"})\n" +
+                                "This should be a new artifact/library that doesn't already exist in the group you specified above.\n" +
+                                "Artifact id:",
                             if (projectType != ProjectType.TEST_APP) "none" else "testapp",
                         )
                     }
