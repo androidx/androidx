@@ -53,6 +53,15 @@ dependencies {
     implementation("androidx.compose.runtime:runtime:1.11.0")
     implementation("androidx.compose.foundation:foundation-layout:1.11.0")
 
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.testCoreKtx)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.robolectric)
+    testImplementation(project(":compose:remote:remote-core"))
+    testImplementation(project(":compose:remote:remote-creation"))
+    testImplementation(project(":compose:remote:remote-player-core"))
+    testImplementation(project(":wear:compose:remote:remote-material3-samples"))
 
     androidTestImplementation(project(":wear:compose:remote:remote-material3-samples"))
     androidTestImplementation(project(":compose:remote:remote-creation"))

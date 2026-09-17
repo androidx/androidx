@@ -71,10 +71,12 @@ public abstract class RemoteCornerBasedShape(
         var bottomStart = bottomStart.toPx(size, density)
 
         val minDimension = size.minDimension
+        val startSum = max(topStart + bottomStart, 0.0001f.rf)
+        val endSum = max(topEnd + bottomEnd, 0.0001f.rf)
         val shouldScaleStart = (topStart + bottomStart).isGreaterThan(minDimension)
         val shouldScaleEnd = (topEnd + bottomEnd).isGreaterThan(minDimension)
-        val scaleStart = minDimension / (topStart + bottomStart)
-        val scaleEnd = minDimension / (topEnd + bottomEnd)
+        val scaleStart = minDimension / startSum
+        val scaleEnd = minDimension / endSum
 
         topStart = shouldScaleStart.select(ifTrue = topStart * scaleStart, ifFalse = topStart)
         bottomStart =

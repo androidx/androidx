@@ -16,7 +16,9 @@
 
 package androidx.compose.remote.creation.compose.shapes
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteComposeBuffer
@@ -27,20 +29,34 @@ import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
+import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.background
+import androidx.compose.remote.creation.compose.modifier.clip
+import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.remotePath
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.util.TestRemoteComposeBuffer
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.io.ByteArrayInputStream
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -279,6 +295,34 @@ class RemoteRoundedCornerShapeTest {
         assertThat(fakeBuffer.calls)
             .containsExactly("addPaint", "addPathData(42)", "addDrawPath(42)")
     }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun zeroCornerRadii_initializeContext_doesNotCrashDuringDataPass() =
+        runTest(UnconfinedTestDispatcher()) {
+            val context: Context = ApplicationProvider.getApplicationContext()
+            val documentBytes =
+                captureSingleRemoteDocument(context) {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.fillMaxSize()
+                                    .clip(RemoteRoundedCornerShape(0.rdp))
+                                    .background(Color.Red.rc)
+                        )
+                    }
+                    .bytes
+
+            val doc =
+                CoreDocument().apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                    }
+                }
+            val remoteContext = AndroidRemoteContext()
+            remoteContext.useCanvas(Canvas(Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)))
+            doc.initializeContext(remoteContext)
+            assertTrue(doc.docInfo.mNumberOfOps > 0)
+        }
 
     private fun haveSameInstances(
         shape1: RemoteCornerBasedShape,
