@@ -38,8 +38,6 @@ public interface IcingOptionsConfig {
 
     int DEFAULT_INDEX_MERGE_SIZE = 1048576; // 1 MiB
 
-    boolean DEFAULT_DOCUMENT_STORE_NAMESPACE_ID_FINGERPRINT = false;
-
     float DEFAULT_OPTIMIZE_REBUILD_INDEX_THRESHOLD = 0.9f;
 
     /**
@@ -55,8 +53,6 @@ public interface IcingOptionsConfig {
     int DEFAULT_COMPRESSION_MEM_LEVEL = 1;
 
     boolean DEFAULT_USE_PREMAPPING_WITH_FILE_BACKED_VECTOR = false;
-
-    boolean DEFAULT_USE_PERSISTENT_HASH_MAP = false;
 
     int DEFAULT_MAX_PAGE_BYTES_LIMIT = Integer.MAX_VALUE;
 
@@ -114,12 +110,6 @@ public interface IcingOptionsConfig {
      * index_merge_size leads to larger resource usage and higher query latency.
      */
     int getIndexMergeSize();
-
-    /**
-     * Whether to use namespace id or namespace name to build up fingerprint for
-     * document_key_mapper_ and corpus_mapper_ in document store.
-     */
-    boolean getDocumentStoreNamespaceIdFingerprint();
 
     /**
      * The threshold of the percentage of invalid documents at which to rebuild index
@@ -180,14 +170,6 @@ public interface IcingOptionsConfig {
     boolean getUsePreMappingWithFileBackedVector();
 
     /**
-     * Flag for {@link com.google.android.icing.proto.IcingSearchEngineOptions}.
-     *
-     * <p>Whether or not to use the PersistentHashMap in the QualifiedIdTypeJoinableIndex. If false,
-     * we will use the old IcingDynamicTrie to store key value pairs.
-     */
-    boolean getUsePersistentHashMap();
-
-    /**
      * Flag for {@link com.google.android.icing.proto.ResultSpecProto}.
      *
      * <p>The maximum byte size to allow in a single page. This limit is only loosely binding.
@@ -232,14 +214,6 @@ public interface IcingOptionsConfig {
      * <p>Setting a lower sort size reduces querying latency at the expense of indexing latency.
      */
     int getLiteIndexSortSize();
-
-    /**
-     * Flag for {@link com.google.android.icing.proto.IcingSearchEngineOptions}.
-     *
-     * <p>Whether to build the metadata hits used for property existence check, which is required
-     * to support the hasProperty function in advanced query.
-     */
-    boolean getBuildPropertyExistenceMetadataHits();
 
     /**
      * Config for {@link com.google.android.icing.proto.IcingSearchEngineOptions}.
@@ -319,20 +293,15 @@ public interface IcingOptionsConfig {
                 .setBaseDir(baseDir)
                 .setMaxTokenLength(getMaxTokenLength())
                 .setIndexMergeSize(getIndexMergeSize())
-                .setDocumentStoreNamespaceIdFingerprint(
-                        getDocumentStoreNamespaceIdFingerprint())
                 .setOptimizeRebuildIndexThreshold(
                         getOptimizeRebuildIndexThreshold())
                 .setCompressionLevel(getCompressionLevel())
                 .setAllowCircularSchemaDefinitions(
                         getAllowCircularSchemaDefinitions())
                 .setPreMappingFbv(getUsePreMappingWithFileBackedVector())
-                .setUsePersistentHashMap(getUsePersistentHashMap())
                 .setIntegerIndexBucketSplitThreshold(
                         getIntegerIndexBucketSplitThreshold())
                 .setLiteIndexSortSize(getLiteIndexSortSize())
-                .setBuildPropertyExistenceMetadataHits(
-                        getBuildPropertyExistenceMetadataHits())
                 .setOrphanBlobTimeToLiveMs(getOrphanBlobTimeToLiveMs())
                 .setEnableScorableProperties(Flags.enableScorableProperty())
                 .setIcuDataFileAbsolutePath(getIcuDataFileAbsolutePath())

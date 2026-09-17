@@ -37,11 +37,6 @@ public class LocalStorageIcingOptionsConfig implements IcingOptionsConfig {
     }
 
     @Override
-    public boolean getDocumentStoreNamespaceIdFingerprint() {
-        return true;
-    }
-
-    @Override
     public float getOptimizeRebuildIndexThreshold() {
         return 0.9f;
     }
@@ -72,11 +67,6 @@ public class LocalStorageIcingOptionsConfig implements IcingOptionsConfig {
     }
 
     @Override
-    public boolean getUsePersistentHashMap() {
-        return true;
-    }
-
-    @Override
     public int getMaxPageBytesLimit() {
         return DEFAULT_MAX_PAGE_BYTES_LIMIT;
     }
@@ -93,11 +83,6 @@ public class LocalStorageIcingOptionsConfig implements IcingOptionsConfig {
     @Override
     public int getLiteIndexSortSize() {
         return DEFAULT_LITE_INDEX_SORT_SIZE;
-    }
-
-    @Override
-    public boolean getBuildPropertyExistenceMetadataHits() {
-        return true;
     }
 
     @Override
