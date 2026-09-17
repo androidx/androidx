@@ -17,6 +17,7 @@
 package androidx.testutils
 
 import android.content.Intent
+import android.os.Build
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
 import androidx.benchmark.ExperimentalConfig
 import androidx.benchmark.StartupInsightsConfig
@@ -69,19 +70,29 @@ val COMPILATION_MODES =
 val STARTUP_MODES = listOf(StartupMode.WARM, StartupMode.COLD)
 
 @OptIn(ExperimentalMetricApi::class)
-fun defaultMemoryMetrics(): List<Metric> =
-    listOf(
+fun defaultMemoryMetrics(): List<Metric> {
+    val subMetrics = buildList {
+        add(MemoryUsageMetric.SubMetric.HeapSize)
+        add(MemoryUsageMetric.SubMetric.RssAnon)
+        add(MemoryUsageMetric.SubMetric.RssFile)
+        if (Build.VERSION.SDK_INT >= 33) {
+            add(MemoryUsageMetric.SubMetric.Swap)
+        }
+        if (Build.VERSION.SDK_INT >= 36) {
+            add(MemoryUsageMetric.SubMetric.BitmapMemory)
+        }
+    }
+    return listOf(
         MemoryUsageMetric(
             mode = MemoryUsageMetric.Mode.Last,
-            subMetrics =
-                listOf(MemoryUsageMetric.SubMetric.HeapSize, MemoryUsageMetric.SubMetric.RssAnon),
+            subMetrics = subMetrics,
         ),
         MemoryUsageMetric(
             mode = MemoryUsageMetric.Mode.Max,
-            subMetrics =
-                listOf(MemoryUsageMetric.SubMetric.HeapSize, MemoryUsageMetric.SubMetric.RssAnon),
+            subMetrics = subMetrics,
         ),
     )
+}
 
 /** Temporary, while transitioning to new metrics */
 @OptIn(ExperimentalMetricApi::class)
