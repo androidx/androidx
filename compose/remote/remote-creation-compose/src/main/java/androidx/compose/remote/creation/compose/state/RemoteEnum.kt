@@ -21,6 +21,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.remember
 import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastForEach
@@ -221,6 +222,7 @@ public constructor(internal val intValue: RemoteInt, internal val enumEntries: E
  */
 public class MutableRemoteEnum<T : Enum<T>>
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RememberInComposition
 public constructor(public val remoteInt: MutableRemoteInt, enumEntries: EnumEntries<T>) :
     RemoteEnum<T>(remoteInt, enumEntries), MutableRemoteState<T> {
 
@@ -250,10 +252,11 @@ public constructor(public val remoteInt: MutableRemoteInt, enumEntries: EnumEntr
          * @param initialValue The initial value for this mutable enum.
          * @return A [MutableRemoteEnum] instance.
          */
+        @RememberInComposition
         public inline operator fun <reified T : Enum<T>> invoke(
             initialValue: T
         ): MutableRemoteEnum<T> =
-            MutableRemoteEnum(MutableRemoteInt.invoke(initialValue.ordinal), enumEntries())
+            MutableRemoteEnum(MutableRemoteInt(initialValue.ordinal), enumEntries())
     }
 }
 

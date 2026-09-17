@@ -1064,7 +1064,6 @@ internal constructor(
      *
      * @param value The initial [String] value.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RememberInComposition
     public constructor(
         value: String
@@ -1098,6 +1097,7 @@ internal constructor(
          * @param initialValue The initial value for the state.
          * @return A new [MutableRemoteString] instance.
          */
+        @RememberInComposition
         public operator fun invoke(initialValue: String): MutableRemoteString =
             MutableRemoteString(initialValue)
 
