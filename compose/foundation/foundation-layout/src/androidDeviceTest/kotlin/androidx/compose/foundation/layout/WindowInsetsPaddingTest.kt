@@ -29,7 +29,6 @@ import android.view.animation.LinearInterpolator
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
@@ -1263,7 +1262,7 @@ class WindowInsetsPaddingTest {
         lateinit var coordinates: LayoutCoordinates
         lateinit var insideCoordinates: LayoutCoordinates
         rule.runOnUiThread {
-            activity.enableEdgeToEdge()
+            WindowCompat.enableEdgeToEdge(activity.window)
             activity.setContent {
                 val modifier =
                     if (useModifier) Modifier.statusBarsPadding() else Modifier.fillMaxSize()

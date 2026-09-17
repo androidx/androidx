@@ -17,7 +17,6 @@
 package androidx.compose.ui.window
 
 import android.content.pm.ActivityInfo
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -211,7 +210,7 @@ class DialogWithNoStatusBarTest {
         var mainContentHeight = 0
         var dialogWidth = 0
         var dialogHeight = 0
-        rule.runOnUiThread { rule.activity.enableEdgeToEdge() }
+        rule.runOnUiThread { WindowCompat.enableEdgeToEdge(rule.activity.window) }
         rule.activityRule.scenario.onActivity {
             WindowCompat.setDecorFitsSystemWindows(it.window, false)
         }
@@ -255,7 +254,7 @@ class DialogWithNoStatusBarTest {
         var mainContentHeight = 0
         var dialogWidth = 0
         var dialogHeight = 0
-        rule.runOnUiThread { rule.activity.enableEdgeToEdge() }
+        rule.runOnUiThread { WindowCompat.enableEdgeToEdge(rule.activity.window) }
         rule.activityRule.scenario.onActivity {
             WindowCompat.setDecorFitsSystemWindows(it.window, false)
         }
