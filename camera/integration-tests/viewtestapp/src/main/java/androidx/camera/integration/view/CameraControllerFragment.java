@@ -22,12 +22,14 @@ import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -107,8 +109,8 @@ public class CameraControllerFragment extends Fragment {
     private ImageView mFocusOnTapCircle;
     private boolean mIsAnalyzerSet = true;
     // Listen to accelerometer rotation change and pass it to tests.
-    private RotationProvider mRotationProvider;
-    private int mRotation;
+    private @Nullable RotationProvider mRotationProvider;
+    private volatile int mRotation = Surface.ROTATION_0;
     private final RotationProvider.Listener mRotationListener = rotation -> mRotation = rotation;
     private @Nullable Recording mActiveRecording = null;
     private final Consumer<VideoRecordEvent> mVideoRecordEventListener = videoRecordEvent -> {
@@ -167,16 +169,9 @@ public class CameraControllerFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         mExecutorService = Executors.newSingleThreadExecutor();
-        mRotationProvider = new RotationProvider(requireContext());
-        boolean canDetectRotation = mRotationProvider.addListener(
-                mainThreadExecutor(), mRotationListener);
-        if (!canDetectRotation) {
-            Logger.e(TAG, "The device cannot detect rotation with motion sensor.");
-        }
         mCameraController = new LifecycleCameraController(requireContext());
         checkFailedFuture(mCameraController.getInitializationFuture());
         runSafely(() -> mCameraController.bindToLifecycle(getViewLifecycleOwner()));
-
 
         View view = inflater.inflate(R.layout.camera_controller_view, container, false);
         mPreviewView = view.findViewById(R.id.preview_view);
@@ -341,6 +336,19 @@ public class CameraControllerFragment extends Fragment {
         mCameraController.getTorchState().observe(getViewLifecycleOwner(),
                 this::updateTorchStateText);
 
+        // Defer sensor startup until after window layout & focus transitions complete.
+        view.post(() -> {
+            Context context = getContext();
+            if (context != null && getView() != null && mRotationProvider == null) {
+                mRotationProvider = new RotationProvider(context);
+                boolean canDetectRotation =
+                        mRotationProvider.addListener(Runnable::run, mRotationListener);
+                if (!canDetectRotation) {
+                    Logger.e(TAG, "The device cannot detect rotation with motion sensor.");
+                }
+            }
+        });
+
         updateUiText();
         return view;
     }
@@ -358,7 +366,10 @@ public class CameraControllerFragment extends Fragment {
                 mExecutorService.shutdownNow();
             }
         }
-        mRotationProvider.removeListener(mRotationListener);
+        if (mRotationProvider != null) {
+            mRotationProvider.removeListener(mRotationListener);
+            mRotationProvider = null;
+        }
     }
 
     void checkFailedFuture(ListenableFuture<Void> voidFuture) {
@@ -576,6 +587,7 @@ public class CameraControllerFragment extends Fragment {
     }
 
     /**
+     * Returns the physical sensor rotation (one of Surface.ROTATION_0, 90, 180, 270).
      */
     @VisibleForTesting
     int getSensorRotation() {
