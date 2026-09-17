@@ -554,5 +554,5 @@ public fun rememberNamedRemoteBoolean(
     initialValue: Boolean,
     domain: RemoteState.Domain = RemoteState.Domain.User,
 ): RemoteBoolean {
-    return rememberNamedState(name, domain) { createNamedRemoteBoolean(name, initialValue, domain) }
+    return remember(name, domain) { createNamedRemoteBoolean(name, initialValue, domain) }
 }

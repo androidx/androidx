@@ -19,7 +19,6 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -238,35 +237,6 @@ public interface MutableRemoteState<T> : RemoteState<T> {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val asEncodedMutable: MutableRemoteState<*>
         get() = this
-}
-
-/**
- * Remembers a named state value.
- *
- * This function retrieves a named state from the current [RemoteComposeCreationState]. If the state
- * does not already exist, it is created using the provided `function`. This ensures that the same
- * named state instance is reused across all compositions of the document, identified by its `name`
- * and `domain`.
- *
- * This method only caches the instance of the [RemoteState]. Avoiding writing the same value to the
- * document multiple times is handled by [BaseRemoteState.getIdForCreationState].
- *
- * @param T The type of the state object, which must extend [BaseRemoteState].
- * @param name A unique name to identify this state object within its domain.
- * @param domain The domain to which this named state belongs. Defaults to
- *   [RemoteState.Domain.User].
- * @param function A lambda that creates the state object if it doesn't already exist.
- * @return The existing or newly created state object of type [T].
- */
-@RemoteComposable
-@Composable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun <T : RemoteState<*>> rememberNamedState(
-    name: String,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
-    function: () -> T,
-): T {
-    return LocalRemoteComposeCreationState.current.getOrCreateNamedState(name, domain, function)
 }
 
 internal class RemoteHoistNode : RemoteComposeNode() {

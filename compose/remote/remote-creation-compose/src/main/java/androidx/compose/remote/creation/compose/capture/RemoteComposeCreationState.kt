@@ -26,7 +26,6 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
-import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.profile.Profile
@@ -81,8 +80,6 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         }
         return id
     }
-
-    public val namedState: HashMap<String, RemoteState<*>> = HashMap()
 
     public val time: MutableState<Long> = mutableLongStateOf(0L)
 
@@ -192,15 +189,6 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         this.layoutDirection = LayoutDirection.Ltr
         this.densityBehavior = creationDisplayInfo.densityBehavior
     }
-
-    internal open fun <T : RemoteState<*>> getOrCreateNamedState(
-        name: String,
-        domain: RemoteState.Domain,
-        function: () -> T,
-    ): T {
-        @Suppress("UNCHECKED_CAST")
-        return namedState.getOrPut(domain.prefixed(name), function) as T
-    }
 }
 
 // Density and Size should be taken from Compose in this mode
@@ -210,16 +198,7 @@ public class NoRemoteCompose :
         RemoteCreationDisplayInfo(1, 1, 160, 1.0f),
         null,
         RcPlatformProfiles.ANDROIDX,
-    ) {
-    override fun <T : RemoteState<*>> getOrCreateNamedState(
-        name: String,
-        domain: RemoteState.Domain,
-        function: () -> T,
-    ): T {
-        // no need to cache here
-        return function()
-    }
-}
+    )
 
 public val LocalRemoteComposeCreationState: ProvidableCompositionLocal<RemoteComposeCreationState> =
     compositionLocalOf {
