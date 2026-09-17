@@ -57,7 +57,7 @@ public class CredentialTransferCapabilitiesRequest(
                 val credentialTypes = getCredentialTypes(json)
                 val knownExtensions = getKnownExtensions(json)
                 return CredentialTransferCapabilitiesRequest(credentialTypes, knownExtensions)
-            } catch (e: JSONException) {}
+            } catch (e: JSONException) {} catch (e: IllegalArgumentException) {}
             return null
         }
     }

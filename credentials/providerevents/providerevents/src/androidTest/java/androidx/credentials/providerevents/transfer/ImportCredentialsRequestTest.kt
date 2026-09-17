@@ -134,4 +134,17 @@ class ImportCredentialsRequestTest {
         assertThat(reconstructed.knownExtensions).isEqualTo(original.knownExtensions)
         assertThat(reconstructed.requestJson).isEqualTo(original.requestJson)
     }
+
+    @Test
+    fun testCreateFrom_invalidJson_returnsNull() {
+        val result = ImportCredentialsRequest.createFrom("{ invalid json")
+        assertThat(result).isNull()
+    }
+
+    @Test
+    fun testCreateFrom_emptyTypesJson_returnsNull() {
+        // credentialTypes cannot be empty per constructor validation
+        val result = ImportCredentialsRequest.createFrom("{\"credentialTypes\":[]}")
+        assertThat(result).isNull()
+    }
 }
