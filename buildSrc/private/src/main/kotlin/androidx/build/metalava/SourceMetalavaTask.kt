@@ -24,7 +24,6 @@ import androidx.build.logging.TERMINAL_RESET
 import java.io.File
 import kotlin.collections.isNotEmpty
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -38,7 +37,6 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.workers.WorkerExecutor
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 /** A metalava task that takes source code as input (other tasks take signature files). */
 @CacheableTask
@@ -106,8 +104,7 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
      *
      * This should only be called during task execution.
      */
-    protected fun createProjectXmlFile(): File {
-        val sourceSets = sourceSets.get()
+    protected fun createProjectXmlFile(sourceSets: List<SourceSetInputs>): File {
         check(sourceSets.isNotEmpty()) { "Project must have at least one source set." }
         val outputFile = File(temporaryDir, "project.xml")
         ProjectXml.create(
@@ -119,7 +116,7 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
         return outputFile
     }
 
-    fun getApiLintArgs(targetsJavaConsumers: Boolean): List<String> {
+    protected fun getApiLintArgs(targetsJavaConsumers: Boolean): List<String> {
         val args =
             mutableListOf(
                 "--api-lint",
@@ -224,112 +221,10 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
     }
 
     /**
-     * Generates all of the specified api files, as well as a version history JSON for the public
-     * API.
-     */
-    internal fun generateApi(
-        metalavaClasspath: FileCollection,
-        projectXml: File,
-        sourcePaths: Collection<File>,
-        compiledSources: File?,
-        apiLocation: ApiLocation,
-        apiLintMode: ApiLintMode,
-        includeRestrictToLibraryGroupApis: Boolean,
-        apiLevelsArgs: List<String>,
-        kotlinSourceLevel: KotlinVersion,
-        workerExecutor: WorkerExecutor,
-        pathToManifest: String? = null,
-        multiplatform: Boolean,
-        hasJvmOrAndroidTarget: Boolean,
-        configFile: File? = null,
-    ) {
-        val generateApiConfigs: MutableList<Pair<GenerateApiMode, ApiLintMode>> =
-            mutableListOf(GenerateApiMode.PublicApi to apiLintMode)
-
-        // Generate `RestrictTo` APIs as a separate API surface. This does not make sense to do for
-        // projects without a jvm/android target, because the purpose of tracking `RestrictTo` is
-        // for
-        // maintaining binary compatibility, but metalava can only enforce binary compatibility for
-        // jvm
-        // based projects.
-        @Suppress("LiftReturnOrAssignment")
-        if (hasJvmOrAndroidTarget) {
-            if (includeRestrictToLibraryGroupApis) {
-                generateApiConfigs += GenerateApiMode.AllRestrictedApis to ApiLintMode.Skip
-            } else {
-                generateApiConfigs +=
-                    GenerateApiMode.RestrictToLibraryGroupPrefixApis to ApiLintMode.Skip
-            }
-        }
-
-        generateApiConfigs.forEach { (generateApiMode, apiLintMode) ->
-            generateApi(
-                metalavaClasspath,
-                projectXml,
-                sourcePaths,
-                compiledSources,
-                apiLocation,
-                generateApiMode,
-                apiLintMode,
-                apiLevelsArgs,
-                kotlinSourceLevel,
-                workerExecutor,
-                pathToManifest,
-                multiplatform,
-                hasJvmOrAndroidTarget,
-                configFile,
-            )
-        }
-    }
-
-    /**
-     * Gets arguments for generating the specified api file (and a version history JSON if the
-     * [generateApiMode] is [GenerateApiMode.PublicApi].
-     */
-    private fun generateApi(
-        metalavaClasspath: FileCollection,
-        projectXml: File,
-        sourcePaths: Collection<File>,
-        compiledSources: File?,
-        outputLocation: ApiLocation,
-        generateApiMode: GenerateApiMode,
-        apiLintMode: ApiLintMode,
-        apiLevelsArgs: List<String>,
-        kotlinSourceLevel: KotlinVersion,
-        workerExecutor: WorkerExecutor,
-        pathToManifest: String? = null,
-        multiplatform: Boolean,
-        hasJvmOrAndroidTarget: Boolean,
-        configFile: File? = null,
-    ) {
-        val args =
-            getGenerateApiArgs(
-                projectXml,
-                sourcePaths,
-                compiledSources,
-                outputLocation,
-                generateApiMode,
-                apiLintMode,
-                apiLevelsArgs,
-                pathToManifest,
-                multiplatform,
-                hasJvmOrAndroidTarget,
-            )
-        val allArgs = buildList {
-            addAll(args)
-            if (configFile != null) {
-                add("--config-file")
-                add(configFile.absolutePath)
-            }
-        }
-        runMetalavaWithArgs(metalavaClasspath, allArgs, kotlinSourceLevel, workerExecutor)
-    }
-
-    /**
      * Generates the specified api file, and a version history JSON if the [generateApiMode] is
      * [GenerateApiMode.PublicApi].
      */
-    fun getGenerateApiArgs(
+    protected fun getGenerateApiArgs(
         projectXml: File,
         sourcePaths: Collection<File>,
         compiledSources: File?,

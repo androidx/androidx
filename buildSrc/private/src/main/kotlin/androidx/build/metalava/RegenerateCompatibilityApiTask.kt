@@ -38,12 +38,8 @@ import org.gradle.api.attributes.java.TargetJvmEnvironment
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.FileCollection
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
@@ -65,38 +61,22 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 internal abstract class RegenerateCompatibilityApiTask
 @Inject
 constructor(workerExecutor: WorkerExecutor, private val objectFactory: ObjectFactory) :
-    SourceMetalavaTask(workerExecutor) {
-
-    @get:Input abstract val generateRestrictToLibraryGroupAPIs: Property<Boolean>
-
-    // Represented as output through getTaskOutputs
-    @get:Internal abstract val outputApiLocation: Property<ApiLocation>
-
-    @OutputFiles
-    fun getTaskOutputs(): List<File> {
-        val api = outputApiLocation.get()
-        return listOf(api.publicApiFile, api.restrictedApiFile)
-    }
+    GenerateApiTask(workerExecutor) {
 
     @TaskAction
-    fun regenerate() {
-        // Some projects have a repackaged jar, but metalava should use the source packages
-        val compiledSources = compiledSources.files.single { it.name != "repackaged.jar" }
+    override fun exec() {
         val sourceSets =
             if (multiplatform.get()) {
                 getMultiplatformSourceSets()
             } else {
                 getSingleSourceSet()
             }
-        val projectXml = File(temporaryDir, "project.xml")
-        ProjectXml.create(sourceSets, bootClasspath.files, compiledSources, projectXml)
-
         generateApi(
             metalavaClasspath = metalavaClasspath,
-            projectXml = projectXml,
+            projectXml = createProjectXmlFile(sourceSets),
             sourcePaths = sourceSets.flatMap { it.sourcePaths.files },
-            compiledSources = compiledSources,
-            apiLocation = outputApiLocation.get(),
+            compiledSources = compiledSources.single(),
+            apiLocation = apiLocation.get(),
             apiLintMode = ApiLintMode.Skip,
             includeRestrictToLibraryGroupApis = generateRestrictToLibraryGroupAPIs.get(),
             // Don't generate an API version history file
@@ -249,8 +229,11 @@ constructor(workerExecutor: WorkerExecutor, private val objectFactory: ObjectFac
                         "corresponding prebuilt and the latest Metalava"
                 task.kotlinSourceLevel.set(kotlinSourceLevel)
                 task.generateRestrictToLibraryGroupAPIs.set(generateRestrictToLibraryGroupAPIs)
-                task.outputApiLocation.set(apiLocation)
-                task.compiledSources.from(project.files(compiledSources))
+                task.apiLocation.set(apiLocation)
+                // Some projects have a repackaged jar, but metalava should use the source packages
+                task.compiledSources.from(
+                    project.files(compiledSources).filter { it.name != "repackaged.jar" }
+                )
                 task.dependencyClasspath.from(classpath)
                 task.sourcePaths.from(sourcePaths)
                 task.bootClasspath.from(bootClasspath)

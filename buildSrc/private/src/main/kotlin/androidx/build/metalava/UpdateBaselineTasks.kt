@@ -49,7 +49,7 @@ constructor(workerExecutor: WorkerExecutor) : SourceMetalavaTask(workerExecutor)
         val baselineFile = baselines.get().apiLintFile
         val checkArgs =
             getGenerateApiArgs(
-                createProjectXmlFile(),
+                createProjectXmlFile(sourceSets.get()),
                 sourcePaths.files.filter { it.exists() },
                 // API lint is not run on bytecode-only APIs, so don't bother processing the jar
                 // when generating a baseline.
