@@ -101,7 +101,7 @@ internal class AndroidParagraphIntrinsics(
     internal val textDirectionHeuristic =
         resolveTextDirectionHeuristics(
             style.textDirection,
-            style.localeList?.firstOrNull() ?: defaultLocaleList.first(),
+            style.localeList?.let { if (it.isEmpty()) null else it[0] } ?: defaultLocaleList[0],
         )
 
     /**
