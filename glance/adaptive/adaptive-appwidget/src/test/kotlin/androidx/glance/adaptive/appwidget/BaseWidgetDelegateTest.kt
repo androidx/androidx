@@ -24,6 +24,7 @@ import android.content.IntentFilter
 import android.os.Bundle
 import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
+import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 import androidx.test.core.app.ApplicationProvider
@@ -55,9 +56,8 @@ class BaseWidgetDelegateTest {
         AppWidgetTemplateRegistry.resetForTesting()
         AppWidgetTemplateRegistry.register(
             TestTemplate::class.java,
-            selectArchetype = { _, surface, _ -> surface },
-            renderArchetype = { template, surface ->
-                mockRenderer(template, surface as GlanceSurface)
+            TemplateRenderer { template, constraints ->
+                { mockRenderer(template, constraints.surface) }
             },
         )
     }

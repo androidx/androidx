@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2026 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!--
+  Placeholder glyph for the Track progress ring, from the xFF Widget design.
+
+  TrackTemplate carries no icon, so the renderer draws this fixed one — the same reason the chart
+  series and the badge are hardcoded. It is tinted at the call site, so the fill here is white.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="26dp"
+    android:height="26dp"
+    android:viewportWidth="26"
+    android:viewportHeight="26"
+    android:tint="#FFFFFFFF">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M4.51824,9.83183H0.0636898C0.16975,9.47122 0.297023,9.13183 0.445508,8.81364C0.593993,8.49546 0.784902,8.19849 1.01824,7.92274L5.91824,1.36819C6.32127,0.795462 6.86217,0.42425 7.54096,0.254553C8.24096,0.0848564 8.89854,0.159099 9.51369,0.477281L10.4046,0.922736C10.8925,1.19849 11.2743,1.5697 11.5501,2.03637C11.847,2.48183 11.9955,2.98031 11.9955,3.53183V5.7591L13.9364,5.28183C14.6576,5.09092 15.347,5.18637 16.0046,5.56819C16.6622,5.9288 17.1182,6.4591 17.3728,7.1591L19.4091,13.3318L24.7546,18.6773C25.2213,19.1227 25.5394,19.6212 25.7091,20.1727C25.9001,20.703 25.9955,21.2546 25.9955,21.8273C25.9955,22.6758 25.7622,23.4394 25.2955,24.1182C24.8501,24.7758 24.2667,25.2636 23.5455,25.5818L8.84551,11.55C8.25157,10.9773 7.58339,10.553 6.84096,10.2773C6.09854,9.98031 5.3243,9.83183 4.51824,9.83183ZM15.6546,25.9955C14.9758,25.9955 14.3288,25.8682 13.7137,25.6136C13.0985,25.3591 12.5364,25.0091 12.0273,24.5636L1.68642,15.1773C1.24096,14.7743 0.86975,14.3182 0.572781,13.8091C0.297023,13.3 0.106114,12.7591 0.0000532573,12.1864H4.51824C5.02733,12.1864 5.5152,12.2818 5.98187,12.4727C6.44854,12.6424 6.86217,12.9076 7.22278,13.2682L20.491,25.9955H15.6546Z" />
+</vector>

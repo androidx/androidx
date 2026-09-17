@@ -81,19 +81,31 @@ class SizeTiersTest {
 
     @Test
     fun widthTier_fromDp_baselineResolution() {
-        assertThat(WidthTier.fromDp(100)).isEqualTo(WidthTier.W1)
-        assertThat(WidthTier.fromDp(130)).isEqualTo(WidthTier.W2)
+        // The design's columns: 88, 176, 264, 352 dp, split at the midpoints between them.
+        assertThat(WidthTier.fromDp(88)).isEqualTo(WidthTier.W1)
+        assertThat(WidthTier.fromDp(131)).isEqualTo(WidthTier.W1)
+        assertThat(WidthTier.fromDp(132)).isEqualTo(WidthTier.W2)
+        assertThat(WidthTier.fromDp(176)).isEqualTo(WidthTier.W2)
         assertThat(WidthTier.fromDp(220)).isEqualTo(WidthTier.W3)
-        assertThat(WidthTier.fromDp(310)).isEqualTo(WidthTier.W4)
+        assertThat(WidthTier.fromDp(264)).isEqualTo(WidthTier.W3)
+        assertThat(WidthTier.fromDp(307)).isEqualTo(WidthTier.W3)
+        assertThat(WidthTier.fromDp(308)).isEqualTo(WidthTier.W4)
+        assertThat(WidthTier.fromDp(352)).isEqualTo(WidthTier.W4)
     }
 
     @Test
     fun heightTier_fromDp_baselineResolution() {
-        assertThat(HeightTier.fromDp(50)).isEqualTo(HeightTier.H0)
-        assertThat(HeightTier.fromDp(60)).isEqualTo(HeightTier.H1)
-        assertThat(HeightTier.fromDp(120)).isEqualTo(HeightTier.H2)
-        assertThat(HeightTier.fromDp(200)).isEqualTo(HeightTier.H3)
-        assertThat(HeightTier.fromDp(290)).isEqualTo(HeightTier.H4)
+        // The design's rows: 56, 88, 132, 176, 264 dp, split at the midpoints between them.
+        assertThat(HeightTier.fromDp(56)).isEqualTo(HeightTier.H0)
+        assertThat(HeightTier.fromDp(71)).isEqualTo(HeightTier.H0)
+        assertThat(HeightTier.fromDp(72)).isEqualTo(HeightTier.H1)
+        assertThat(HeightTier.fromDp(88)).isEqualTo(HeightTier.H1)
+        assertThat(HeightTier.fromDp(110)).isEqualTo(HeightTier.H2)
+        assertThat(HeightTier.fromDp(132)).isEqualTo(HeightTier.H2)
+        assertThat(HeightTier.fromDp(154)).isEqualTo(HeightTier.H3)
+        assertThat(HeightTier.fromDp(176)).isEqualTo(HeightTier.H3)
+        assertThat(HeightTier.fromDp(220)).isEqualTo(HeightTier.H4)
+        assertThat(HeightTier.fromDp(264)).isEqualTo(HeightTier.H4)
     }
 
     @Test

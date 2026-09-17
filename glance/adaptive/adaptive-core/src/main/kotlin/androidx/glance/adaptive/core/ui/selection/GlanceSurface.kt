@@ -41,25 +41,3 @@ public interface GlanceSurface {
 }
 
 private data class NamedGlanceSurface(override val tag: String) : GlanceSurface
-
-/**
- * Host placement constraints capturing the physical container size and target display surface.
- *
- * @param dimensions Bounding size in DP.
- * @param surface Host target surface, or `null` if unspecified.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class HostConstraints(
-    public val dimensions: Dimensions,
-    public val surface: GlanceSurface? = null,
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is HostConstraints) return false
-        return dimensions == other.dimensions && surface == other.surface
-    }
-
-    override fun hashCode(): Int = 31 * dimensions.hashCode() + (surface?.hashCode() ?: 0)
-
-    override fun toString(): String = "HostConstraints(dimensions=$dimensions, surface=$surface)"
-}
