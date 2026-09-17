@@ -25,10 +25,10 @@ import androidx.annotation.IntDef
     value = [Surface.ROTATION_0, Surface.ROTATION_90, Surface.ROTATION_180, Surface.ROTATION_270]
 )
 @Retention(AnnotationRetention.SOURCE)
-annotation class RotationValue
+public annotation class RotationValue
 
 /** Valid integer rotation degrees values. */
 @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
 @IntDef(value = [0, 90, 180, 270])
 @Retention(AnnotationRetention.SOURCE)
-annotation class RotationDegreesValue
+public annotation class RotationDegreesValue

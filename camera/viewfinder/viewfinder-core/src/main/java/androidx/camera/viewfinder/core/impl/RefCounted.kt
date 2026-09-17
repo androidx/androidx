@@ -28,7 +28,7 @@ import kotlinx.atomicfu.loop
  * @param[debugRefCounts] whether to print debug log statements.
  * @param[onRelease] a block that will be invoked once when the ref-count reaches 0.
  */
-class RefCounted<T : Any>(
+public class RefCounted<T : Any>(
     private val debugRefCounts: Boolean = false,
     private val onRelease: (T) -> Unit,
 ) {
@@ -42,7 +42,7 @@ class RefCounted<T : Any>(
      * All calls to this function must be paired with [release] to ensure the initial implicit ref
      * count is decremented and the `onRelease` callback can be called.
      */
-    fun initialize(newValue: T) {
+    public fun initialize(newValue: T) {
         val initialVal = Pair(newValue, 1)
         check(refCounted.compareAndSet(uninitialized(), initialVal)) {
             "Ref-count managed object has already been initialized."
@@ -66,7 +66,7 @@ class RefCounted<T : Any>(
      *
      * All calls to this function must be paired with [release], unless `null` is returned.
      */
-    fun acquire(): T? {
+    public fun acquire(): T? {
         check(refCounted.value != uninitialized<T>()) {
             "Ref-count managed object has not yet been initialized. Unable to acquire."
         }
@@ -106,7 +106,7 @@ class RefCounted<T : Any>(
      * This should always be called once for each [initialize] call and once for each [acquire] call
      * that does not return `null`.
      */
-    fun release() {
+    public fun release() {
         check(refCounted.value != uninitialized<T>()) {
             "Ref-count managed object has not yet been initialized. Unable to release."
         }
@@ -142,7 +142,7 @@ class RefCounted<T : Any>(
         }
     }
 
-    companion object {
+    public companion object {
         private const val TAG = "RefCounted"
         private val UNINITIALIZED = Pair(Unit, -1)
         private val RELEASED = Pair(Unit, 0)
