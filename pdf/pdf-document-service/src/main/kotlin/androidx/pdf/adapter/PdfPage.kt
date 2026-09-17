@@ -50,7 +50,7 @@ public interface PdfPage : AutoCloseable {
     public val width: Int
 
     /** Represents state of the page */
-    public var isClosed: Boolean
+    public val isClosed: Boolean
 
     /**
      * Renders the entire page onto the provided [Bitmap].

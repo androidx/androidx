@@ -59,8 +59,7 @@ internal class PdfPageCache {
 
     /** Clears all cached pages and closes them. */
     fun clearAll() {
-        for (pdfPage in cachedPageMap.values) {
-            pdfPage.close()
-        }
+        cachedPageMap.values.forEach { it.close() }
+        cachedPageMap.clear()
     }
 }

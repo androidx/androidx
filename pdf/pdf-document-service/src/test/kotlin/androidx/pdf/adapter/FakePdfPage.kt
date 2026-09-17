@@ -150,7 +150,11 @@ class FakePdfPage(private val pageNum: Int, override val height: Int, override v
         removedAnnotationIds.add(annotationId)
     }
 
+    var closeCount = 0
+
     override fun close() {
-        TODO("Not yet implemented")
+        if (isClosed) return
+        isClosed = true
+        closeCount++
     }
 }

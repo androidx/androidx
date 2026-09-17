@@ -25,24 +25,50 @@ class FakePdfDocumentRenderer(
     override val formType: Int = 0,
 ) : PdfDocumentRenderer {
     val fakePagesMap = mutableMapOf<Int, FakePdfPage>()
+    private val pageCache = PdfPageCache()
+    private val lock = Any()
 
     var isClosed = false
 
     init {
-        for (pageNum in 0 until pageCount) fakePagesMap[pageNum] = FakePdfPage(pageNum, 100, 100)
+        for (pageNum in 0 until pageCount) {
+            fakePagesMap[pageNum] = FakePdfPage(pageNum, 100, 100)
+        }
     }
 
     override fun openPage(pageNum: Int, useCache: Boolean): PdfPage {
-        return fakePagesMap[pageNum] ?: throw IndexOutOfBoundsException()
+        synchronized(lock) {
+            if (isClosed) throw RendererClosedException()
+            return pageCache.getOrUpdate(pageNum, useCache) {
+                fakePagesMap[pageNum] ?: throw IndexOutOfBoundsException()
+            }
+        }
     }
 
-    override fun releasePage(page: PdfPage?, pageNum: Int) {}
+    override fun releasePage(page: PdfPage?, pageNum: Int) {
+        synchronized(lock) {
+            if (isClosed) return
+            val removedPage = pageCache.remove(pageNum)
+            if (removedPage == null) {
+                page?.close()
+            } else {
+                removedPage.close()
+                if (page != removedPage) {
+                    page?.close()
+                }
+            }
+        }
+    }
 
     override fun write(destination: ParcelFileDescriptor, removePasswordProtection: Boolean) {
         TODO("Not yet implemented")
     }
 
     override fun close() {
-        isClosed = true
+        synchronized(lock) {
+            if (isClosed) return
+            isClosed = true
+            pageCache.clearAll()
+        }
     }
 }

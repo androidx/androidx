@@ -41,6 +41,8 @@ internal class PdfDocumentRendererPreVAdapter(pfd: ParcelFileDescriptor, passwor
     private val pdfRendererPreV =
         PdfRendererPreV(pfd, /* params= */ LoadParams.Builder().setPassword(password).build())
     private val pageCache: PdfPageCache = PdfPageCache()
+    private val lock = Any()
+    private var isClosed = false
 
     override val linearizationStatus: Int
         get() = pdfRendererPreV.documentLinearizationType
@@ -53,27 +55,37 @@ internal class PdfDocumentRendererPreVAdapter(pfd: ParcelFileDescriptor, passwor
 
     /** Caller should use [releasePage] to close the page resource reliably after usage. */
     override fun openPage(pageNum: Int, useCache: Boolean): PdfPage {
-        return pageCache.getOrUpdate(pageNum, useCache) {
-            PdfPagePreVAdapter(pdfRendererPreV.openPage(pageNum))
+        synchronized(lock) {
+            if (isClosed) throw RendererClosedException()
+            return pageCache.getOrUpdate(pageNum, useCache) {
+                PdfPagePreVAdapter(pdfRendererPreV.openPage(pageNum))
+            }
         }
     }
 
     /** Closes the page. Also removes and clears the cached instance, if held. */
     override fun releasePage(page: PdfPage?, pageNum: Int) {
-        val removedPage = pageCache.remove(pageNum)
-        if (removedPage == null) {
-            page?.close()
-        } else {
-            removedPage.close()
-            if (page != removedPage) {
+        synchronized(lock) {
+            if (isClosed) return
+            val removedPage = pageCache.remove(pageNum)
+            if (removedPage == null) {
                 page?.close()
+            } else {
+                removedPage.close()
+                if (page != removedPage) {
+                    page?.close()
+                }
             }
         }
     }
 
     override fun close() {
-        pageCache.clearAll()
-        pdfRendererPreV.close()
+        synchronized(lock) {
+            if (isClosed) return
+            isClosed = true
+            pageCache.clearAll()
+            pdfRendererPreV.close()
+        }
     }
 
     override fun write(destination: ParcelFileDescriptor, removePasswordProtection: Boolean) {
