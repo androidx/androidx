@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedPackage: androidx.fragment.app:
-    Binary breaking change: Removed package androidx.fragment.app

@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-AddedMethod: androidx.wear.compose.material.Colors#Colors():
-    Added constructor androidx.wear.compose.material.Colors()

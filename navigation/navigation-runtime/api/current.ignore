@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedMethod: androidx.navigation.NavController#popBackStack(boolean):
-    Binary breaking change: Removed method androidx.navigation.NavController.popBackStack(boolean)

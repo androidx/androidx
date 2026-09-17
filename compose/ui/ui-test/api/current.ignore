@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-AddedMethod: androidx.compose.ui.test.ComposeUiTestConfig#ComposeUiTestConfig():
-    Added constructor androidx.compose.ui.test.ComposeUiTestConfig()
-AddedMethod: androidx.compose.ui.test.TestFailurePolicy#TestFailurePolicy():
-    Added constructor androidx.compose.ui.test.TestFailurePolicy()
