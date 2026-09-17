@@ -567,6 +567,14 @@ public val Boolean.rb: RemoteBoolean
  * @param initialValue The initial [Boolean] value.
  * @return A [MutableRemoteBoolean] instance that will be remembered across recompositions.
  */
+@Deprecated(
+    message = "Use remember { MutableRemoteBoolean(initialValue) } instead.",
+    replaceWith =
+        ReplaceWith(
+            "remember { MutableRemoteBoolean(initialValue) }",
+            "androidx.compose.runtime.remember",
+        ),
+)
 @Composable
 @RemoteComposable
 public fun rememberMutableRemoteBoolean(initialValue: Boolean): MutableRemoteBoolean {

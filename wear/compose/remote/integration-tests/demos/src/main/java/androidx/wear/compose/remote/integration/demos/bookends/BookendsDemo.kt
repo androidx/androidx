@@ -26,10 +26,10 @@ import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -64,9 +64,9 @@ import androidx.wear.compose.remote.integration.demos.bookends.player.WearMateri
 @RemoteComposable
 @Composable
 fun BookendsDemoContent() {
-    val clicks = rememberMutableRemoteInt(0)
+    val clicks = remember { MutableRemoteInt(0) }
     val increment = valueChange(clicks, clicks + 1)
-    val checked = rememberMutableRemoteBoolean(false)
+    val checked = remember { MutableRemoteBoolean(false) }
     val toggle = valueChange(checked, !checked)
     val icon = remember { RemoteImageBitmap(bookendsIconBitmap()) }
 

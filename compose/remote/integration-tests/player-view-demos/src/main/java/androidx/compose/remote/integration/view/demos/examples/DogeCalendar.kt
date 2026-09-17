@@ -47,13 +47,13 @@ import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollSta
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
@@ -256,7 +256,7 @@ fun DogeCalendar(initialSelectedIndex: Int = -1) {
     // 20 entries * 74.rdp + 4 * 74.rdp bottom spacer = 24 * 74.rdp total content height,
     // so notches = 24 snaps every scroll gesture onto an exact 74.rdp pill slot (0, 74, ..., 1406).
     val scrollState = rememberRemoteScrollState(notches = 24)
-    val isExpanded = rememberMutableRemoteInt(if (initialSelectedIndex >= 0) 1 else 0)
+    val isExpanded = remember { MutableRemoteInt(if (initialSelectedIndex >= 0) 1 else 0) }
     val nextExpanded = isExpanded.isEqualTo(0.ri).select(1.ri, 0.ri)
     val toggleDetailAction = valueChange(isExpanded, nextExpanded)
 

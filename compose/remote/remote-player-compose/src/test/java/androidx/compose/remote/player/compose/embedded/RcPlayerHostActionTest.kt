@@ -36,9 +36,9 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
@@ -47,6 +47,7 @@ import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.performClick
@@ -203,7 +204,7 @@ class RcPlayerHostActionTest {
     @Test
     fun idAction_withDynamicMetadata() {
         val fired = clickAndCapture {
-            val index = rememberMutableRemoteInt(2)
+            val index = remember { MutableRemoteInt(2) }
             hostAction(id = 42, metadata = "screen=home&index=".rs + index.toRemoteString())
         }
         assertThat(fired).isEqualTo(Fired(id = 42, value = "screen=home&index=2"))
@@ -219,7 +220,7 @@ class RcPlayerHostActionTest {
                 PendingIntent.FLAG_MUTABLE,
             )
         val fired = clickAndCapture {
-            val index = rememberMutableRemoteInt(2)
+            val index = remember { MutableRemoteInt(2) }
             pendingIntentAction("index" to index.toRemoteString()) { pendingIntent }
         }
         assertThat(fired).isNull()
