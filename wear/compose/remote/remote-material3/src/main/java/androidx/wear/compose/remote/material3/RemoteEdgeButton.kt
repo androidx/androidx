@@ -44,6 +44,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.asRemoteDp
+import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rb
@@ -452,11 +453,13 @@ public class RemoteEdgeButtonShape(
         val extraSmallEllipsisHeightPx = ExtraSmallEllipsisHeight.toPx(density)
         val buttonToEllipsisRatio = ButtonToEllipsisRatio
 
+        val finalFadeProgress = clamp(1f.rf - h / extraSmallHeightPx, 0f.rf, 1f.rf)
         val ellipsisHeight =
-            extraSmallEllipsisHeightPx + (h - extraSmallHeightPx) * buttonToEllipsisRatio
+            (extraSmallEllipsisHeightPx + (h - extraSmallHeightPx) * buttonToEllipsisRatio) *
+                (1f.rf - finalFadeProgress) + h * finalFadeProgress
         val screenRadius = max(w / 2f.rf - bottomPaddingPx, 1f.rf)
-        val ellipsisRadiusY = ellipsisHeight / 2f.rf
-        val ellipsisRadiusX = min(sqrt(ellipsisRadiusY * screenRadius), screenRadius)
+        val ellipsisRadiusY = max(ellipsisHeight / 2f.rf, 0f.rf)
+        val ellipsisRadiusX = min(sqrt(max(ellipsisRadiusY * screenRadius, 0f.rf)), screenRadius)
         val circleRadius = max(h - ellipsisRadiusY, 0f.rf)
 
         val halfStroke = strokeWidth / 2f.rf
@@ -538,7 +541,7 @@ internal fun calculateEdgeButtonContentWidth(
     val h = buttonHeight.value
     val w = actualButtonWidth.value
 
-    val finalFadeProgress = max(1f.rf - h / extraSmallHeight, 0f.rf)
+    val finalFadeProgress = clamp(1f.rf - h / extraSmallHeight, 0f.rf, 1f.rf)
     val ellipsisHeight =
         (extraSmallEllipsisHeight + (h - extraSmallHeight) * buttonToEllipsisRatio) *
             (1f.rf - finalFadeProgress) + h * finalFadeProgress
