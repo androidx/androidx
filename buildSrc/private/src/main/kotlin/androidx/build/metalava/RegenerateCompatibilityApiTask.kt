@@ -72,7 +72,6 @@ constructor(workerExecutor: WorkerExecutor, private val objectFactory: ObjectFac
                 getSingleSourceSet()
             }
         generateApi(
-            metalavaClasspath = metalavaClasspath,
             projectXml = createProjectXmlFile(sourceSets),
             sourcePaths = sourceSets.flatMap { it.sourcePaths.files },
             compiledSources = compiledSources.single(),
@@ -81,12 +80,10 @@ constructor(workerExecutor: WorkerExecutor, private val objectFactory: ObjectFac
             includeRestrictToLibraryGroupApis = generateRestrictToLibraryGroupAPIs.get(),
             // Don't generate an API version history file
             apiLevelsArgs = emptyList(),
-            workerExecutor = workerExecutor,
             // Even if this is a KMP project, don't run multiplatform checks on it
             multiplatform = false,
             pathToManifest = null,
             hasJvmOrAndroidTarget = hasJvmOrAndroidTarget.get(),
-            configFile = configFile.get().asFile,
         )
     }
 

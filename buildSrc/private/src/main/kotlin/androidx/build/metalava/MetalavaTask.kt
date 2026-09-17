@@ -22,7 +22,6 @@ import java.io.File
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -67,20 +66,12 @@ constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTas
             File(project.getSupportRootFolder(), "buildSrc/metalava-config.xml")
         }
 
-    fun runWithArgs(args: List<String>) {
-        val allArgs = buildList {
-            addAll(args)
-            add("--config-file")
-            add(configFile.get().asFile.absolutePath)
-        }
-        runMetalavaWithArgs(metalavaClasspath, allArgs, workerExecutor)
+    @Internal
+    protected fun getConfigFileArgs(): List<String> {
+        return listOf("--config-file", configFile.get().asFile.absolutePath)
     }
 
-    fun runMetalavaWithArgs(
-        metalavaClasspath: FileCollection,
-        args: List<String>,
-        workerExecutor: WorkerExecutor,
-    ) {
+    fun runWithArgs(args: List<String>) {
         val workQueue = workerExecutor.processIsolation()
         workQueue.submit(MetalavaWorkAction::class.java) { parameters ->
             parameters.args.set(args)

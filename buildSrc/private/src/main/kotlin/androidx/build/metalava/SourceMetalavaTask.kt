@@ -354,6 +354,7 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
             }
         }
 
+        args += getConfigFileArgs()
         args +=
             listOf(
                 "--kotlin-source",

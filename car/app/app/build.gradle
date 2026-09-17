@@ -130,11 +130,7 @@ abstract class ProtocolApiTask extends MetalavaTask {
         ]
         standardArgs.addAll(additionalArgs)
 
-        runMetalavaWithArgs(
-                metalavaClasspath,
-                standardArgs,
-                workerExecutor,
-        )
+        runWithArgs(standardArgs)
     }
 }
 

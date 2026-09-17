@@ -103,6 +103,7 @@ internal abstract class CompatibilityMetalavaTask(workerExecutor: WorkerExecutor
             }
 
         return buildList {
+            addAll(getConfigFileArgs())
             val classpath = bootClasspath + dependencyClasspath.files
             if (classpath.isNotEmpty()) {
                 add("--classpath")

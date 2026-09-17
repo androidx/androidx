@@ -21,7 +21,6 @@ import androidx.build.checkapi.ApiLocation
 import java.io.File
 import javax.inject.Inject
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.FileCollection
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
@@ -102,7 +101,6 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
             )
 
         generateApi(
-            metalavaClasspath,
             createProjectXmlFile(sourceSets.get()),
             sourcePaths.files,
             compiledSources.files.singleOrNull(),
@@ -110,11 +108,9 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
             ApiLintMode.CheckBaseline(baselines.get().apiLintFile, targetsJavaConsumers.get()),
             generateRestrictToLibraryGroupAPIs.get(),
             levelsArgs,
-            workerExecutor,
             manifestPath.orNull?.asFile?.absolutePath,
             multiplatform.get(),
             hasJvmOrAndroidTarget.get(),
-            configFile = configFile.get().asFile,
         )
     }
 
@@ -123,7 +119,6 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
      * API.
      */
     protected fun generateApi(
-        metalavaClasspath: FileCollection,
         projectXml: File,
         sourcePaths: Collection<File>,
         compiledSources: File?,
@@ -131,11 +126,9 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
         apiLintMode: ApiLintMode,
         includeRestrictToLibraryGroupApis: Boolean,
         apiLevelsArgs: List<String>,
-        workerExecutor: WorkerExecutor,
         pathToManifest: String? = null,
         multiplatform: Boolean,
         hasJvmOrAndroidTarget: Boolean,
-        configFile: File? = null,
     ) {
         val generateApiConfigs: MutableList<Pair<GenerateApiMode, ApiLintMode>> =
             mutableListOf(GenerateApiMode.PublicApi to apiLintMode)
@@ -158,7 +151,6 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
 
         generateApiConfigs.forEach { (generateApiMode, apiLintMode) ->
             generateApi(
-                metalavaClasspath,
                 projectXml,
                 sourcePaths,
                 compiledSources,
@@ -166,11 +158,9 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
                 generateApiMode,
                 apiLintMode,
                 apiLevelsArgs,
-                workerExecutor,
                 pathToManifest,
                 multiplatform,
                 hasJvmOrAndroidTarget,
-                configFile,
             )
         }
     }
@@ -180,7 +170,6 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
      * [generateApiMode] is [GenerateApiMode.PublicApi].
      */
     private fun generateApi(
-        metalavaClasspath: FileCollection,
         projectXml: File,
         sourcePaths: Collection<File>,
         compiledSources: File?,
@@ -188,11 +177,9 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
         generateApiMode: GenerateApiMode,
         apiLintMode: ApiLintMode,
         apiLevelsArgs: List<String>,
-        workerExecutor: WorkerExecutor,
         pathToManifest: String? = null,
         multiplatform: Boolean,
         hasJvmOrAndroidTarget: Boolean,
-        configFile: File? = null,
     ) {
         val args =
             getGenerateApiArgs(
@@ -207,13 +194,6 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
                 multiplatform,
                 hasJvmOrAndroidTarget,
             )
-        val allArgs = buildList {
-            addAll(args)
-            if (configFile != null) {
-                add("--config-file")
-                add(configFile.absolutePath)
-            }
-        }
-        runMetalavaWithArgs(metalavaClasspath, allArgs, workerExecutor)
+        runWithArgs(args)
     }
 }
