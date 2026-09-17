@@ -12,4 +12,8 @@ Provides AppWidget template registry and Compose UI orchestration.
 
 Provides AppWidget-specific surfaces, detectors, and size tiers.
 
+# Package androidx.glance.adaptive.appwidget.ui.templates
+
+Provides AppWidget layout archetypes, size selectors, and Glance renderers for standard templates.
+
 

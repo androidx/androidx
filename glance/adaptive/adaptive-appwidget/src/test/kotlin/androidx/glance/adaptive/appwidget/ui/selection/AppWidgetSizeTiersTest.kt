@@ -29,12 +29,12 @@ class AppWidgetSizeTiersTest {
     fun widthTier_fromDp_homeScreenBreakpoints() {
         val surface = AppWidgetGlanceSurface.MOBILE_HOME_SCREEN
         assertThat(AppWidgetSizeTiers.resolveWidthTier(50, surface)).isEqualTo(WidthTier.W1)
-        assertThat(AppWidgetSizeTiers.resolveWidthTier(129, surface)).isEqualTo(WidthTier.W1)
-        assertThat(AppWidgetSizeTiers.resolveWidthTier(130, surface)).isEqualTo(WidthTier.W2)
+        assertThat(AppWidgetSizeTiers.resolveWidthTier(131, surface)).isEqualTo(WidthTier.W1)
+        assertThat(AppWidgetSizeTiers.resolveWidthTier(132, surface)).isEqualTo(WidthTier.W2)
         assertThat(AppWidgetSizeTiers.resolveWidthTier(219, surface)).isEqualTo(WidthTier.W2)
         assertThat(AppWidgetSizeTiers.resolveWidthTier(220, surface)).isEqualTo(WidthTier.W3)
-        assertThat(AppWidgetSizeTiers.resolveWidthTier(309, surface)).isEqualTo(WidthTier.W3)
-        assertThat(AppWidgetSizeTiers.resolveWidthTier(310, surface)).isEqualTo(WidthTier.W4)
+        assertThat(AppWidgetSizeTiers.resolveWidthTier(307, surface)).isEqualTo(WidthTier.W3)
+        assertThat(AppWidgetSizeTiers.resolveWidthTier(308, surface)).isEqualTo(WidthTier.W4)
         assertThat(AppWidgetSizeTiers.resolveWidthTier(600, surface)).isEqualTo(WidthTier.W4)
     }
 
@@ -82,14 +82,14 @@ class AppWidgetSizeTiersTest {
     fun heightTier_fromDp_homeScreenBreakpoints() {
         val surface = AppWidgetGlanceSurface.MOBILE_HOME_SCREEN
         assertThat(AppWidgetSizeTiers.resolveHeightTier(40, surface)).isEqualTo(HeightTier.H0)
-        assertThat(AppWidgetSizeTiers.resolveHeightTier(59, surface)).isEqualTo(HeightTier.H0)
-        assertThat(AppWidgetSizeTiers.resolveHeightTier(60, surface)).isEqualTo(HeightTier.H1)
-        assertThat(AppWidgetSizeTiers.resolveHeightTier(119, surface)).isEqualTo(HeightTier.H1)
-        assertThat(AppWidgetSizeTiers.resolveHeightTier(120, surface)).isEqualTo(HeightTier.H2)
-        assertThat(AppWidgetSizeTiers.resolveHeightTier(199, surface)).isEqualTo(HeightTier.H2)
-        assertThat(AppWidgetSizeTiers.resolveHeightTier(200, surface)).isEqualTo(HeightTier.H3)
-        assertThat(AppWidgetSizeTiers.resolveHeightTier(289, surface)).isEqualTo(HeightTier.H3)
-        assertThat(AppWidgetSizeTiers.resolveHeightTier(290, surface)).isEqualTo(HeightTier.H4)
+        assertThat(AppWidgetSizeTiers.resolveHeightTier(71, surface)).isEqualTo(HeightTier.H0)
+        assertThat(AppWidgetSizeTiers.resolveHeightTier(72, surface)).isEqualTo(HeightTier.H1)
+        assertThat(AppWidgetSizeTiers.resolveHeightTier(109, surface)).isEqualTo(HeightTier.H1)
+        assertThat(AppWidgetSizeTiers.resolveHeightTier(110, surface)).isEqualTo(HeightTier.H2)
+        assertThat(AppWidgetSizeTiers.resolveHeightTier(153, surface)).isEqualTo(HeightTier.H2)
+        assertThat(AppWidgetSizeTiers.resolveHeightTier(154, surface)).isEqualTo(HeightTier.H3)
+        assertThat(AppWidgetSizeTiers.resolveHeightTier(219, surface)).isEqualTo(HeightTier.H3)
+        assertThat(AppWidgetSizeTiers.resolveHeightTier(220, surface)).isEqualTo(HeightTier.H4)
         assertThat(AppWidgetSizeTiers.resolveHeightTier(500, surface)).isEqualTo(HeightTier.H4)
     }
 

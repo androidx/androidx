@@ -19,27 +19,29 @@ package androidx.glance.adaptive.appwidget.ui
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
 import androidx.glance.adaptive.appwidget.ui.selection.LocalContainerDimensions
-import androidx.glance.adaptive.core.ui.selection.Dimensions
-import androidx.glance.adaptive.core.ui.selection.GlanceSurface
+import androidx.glance.adaptive.appwidget.ui.templates.TrackTemplateRenderer
+import androidx.glance.adaptive.core.ui.TemplateRenderer
+import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.TrackTemplate
 
 /**
- * Registry that holds the mapping between [AdaptiveGlanceTemplate] and their corresponding layout
- * selector and archetype renderer for platform AppWidgets.
+ * Registry mapping each [AdaptiveGlanceTemplate] to the [TemplateRenderer] that turns it into
+ * Glance content for platform AppWidgets.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object AppWidgetTemplateRegistry {
     private val lock = Any()
 
-    @VisibleForTesting
-    internal data class Entry<T : AdaptiveGlanceTemplate, A : Any>(
-        val selectArchetype: (data: T, surface: GlanceSurface, dimensions: Dimensions) -> A,
-        val renderArchetype: @Composable (data: T, archetype: A) -> Unit,
-    )
-
     @get:VisibleForTesting
-    internal val registryMap: MutableMap<Class<out AdaptiveGlanceTemplate>, Entry<*, *>> =
+    internal val registryMap:
+        MutableMap<
+            Class<out AdaptiveGlanceTemplate>,
+            TemplateRenderer<*, AppWidgetGlanceSurface, @Composable () -> Unit>,
+        > =
         mutableMapOf()
 
     init {
@@ -47,7 +49,7 @@ public object AppWidgetTemplateRegistry {
     }
 
     internal fun registerDefaultTemplates() {
-        // Default templates registered by feature modules or templates
+        register(TrackTemplate::class.java, TrackTemplateRenderer)
     }
 
     @VisibleForTesting
@@ -59,33 +61,49 @@ public object AppWidgetTemplateRegistry {
         }
     }
 
+    /**
+     * Registers [renderer] as the renderer for [templateClass], replacing any previous
+     * registration.
+     *
+     * @param templateClass The template type to render.
+     * @param renderer Produces Glance content for that template on AppWidget surfaces.
+     */
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun <T : AdaptiveGlanceTemplate, A : Any> register(
+    public fun <T : AdaptiveGlanceTemplate> register(
         templateClass: Class<T>,
-        selectArchetype: (data: T, surface: GlanceSurface, dimensions: Dimensions) -> A,
-        renderArchetype: @Composable (data: T, archetype: A) -> Unit,
+        renderer: TemplateRenderer<T, AppWidgetGlanceSurface, @Composable () -> Unit>,
     ) {
-        synchronized(lock) { registryMap[templateClass] = Entry(selectArchetype, renderArchetype) }
+        synchronized(lock) { registryMap[templateClass] = renderer }
     }
 
     /**
      * Central rendering entry-point for Glance Adaptive widgets.
      *
-     * Inspects active [LocalContainerDimensions], resolves the optimal archetype via the registered
-     * selector, and invokes the archetype renderer.
+     * Combines the active [LocalContainerDimensions] with [surface] into [HostConstraints], asks
+     * the registered renderer for content, and emits it.
+     *
+     * @param data Declarative template data payload.
+     * @param surface Target AppWidget surface.
+     * @throws IllegalArgumentException if no renderer is registered for the type of [data].
      */
     @Composable
     @Suppress("UNCHECKED_CAST", "ComposableNaming")
-    public fun <T : AdaptiveGlanceTemplate> render(data: T, surface: GlanceSurface) {
-        val entry =
+    public fun <T : AdaptiveGlanceTemplate> render(data: T, surface: AppWidgetGlanceSurface) {
+        val renderer =
             synchronized(lock) {
-                requireNotNull(registryMap[data.javaClass] as? Entry<T, Any>) {
+                requireNotNull(
+                    registryMap[data.javaClass]
+                        as? TemplateRenderer<T, AppWidgetGlanceSurface, @Composable () -> Unit>
+                ) {
                     "No renderer registered for template: ${data.javaClass.name}"
                 }
             }
-        val dimensions = LocalContainerDimensions.current
-        val archetype = entry.selectArchetype(data, surface, dimensions)
-        entry.renderArchetype(data, archetype)
+        val constraints =
+            HostConstraints(dimensions = LocalContainerDimensions.current, surface = surface)
+        // render() allocates a fresh lambda per call, which would invalidate the subtree on every
+        // recomposition; key it on the inputs that actually decide the content instead.
+        val content = remember(renderer, data, constraints) { renderer.render(data, constraints) }
+        content()
     }
 }

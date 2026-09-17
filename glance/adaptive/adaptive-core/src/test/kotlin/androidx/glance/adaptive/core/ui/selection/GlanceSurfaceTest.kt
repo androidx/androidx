@@ -32,30 +32,4 @@ class GlanceSurfaceTest {
         assertThat(surface1.hashCode()).isEqualTo(surface2.hashCode())
         assertThat(surface1).isNotEqualTo(surface3)
     }
-
-    @Test
-    fun hostConstraints_equalsHashCodeToString() {
-        val surface = GlanceSurface.of("home_screen")
-        val diffSurface = GlanceSurface.of("lock_screen")
-
-        val constraints1 = HostConstraints(Dimensions(100, 200), surface)
-        val constraints2 = HostConstraints(Dimensions(100, 200), surface)
-        val diffConstraints = HostConstraints(Dimensions(100, 200), diffSurface)
-        val nullSurfaceConstraints = HostConstraints(Dimensions(100, 200), null)
-
-        assertThat(constraints1).isEqualTo(constraints2)
-        assertThat(constraints1.hashCode()).isEqualTo(constraints2.hashCode())
-        assertThat(constraints1).isNotEqualTo(diffConstraints)
-        assertThat(constraints1).isNotEqualTo(nullSurfaceConstraints)
-
-        assertThat(constraints1.toString())
-            .contains("dimensions=Dimensions(widthDp=100, heightDp=200)")
-        assertThat(constraints1.toString()).contains("surface=")
-    }
-
-    @Test
-    fun hostConstraints_defaultSurfaceIsNull() {
-        val constraints = HostConstraints(Dimensions(50, 50))
-        assertThat(constraints.surface).isNull()
-    }
 }

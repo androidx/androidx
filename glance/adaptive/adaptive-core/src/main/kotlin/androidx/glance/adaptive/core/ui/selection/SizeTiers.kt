@@ -64,14 +64,18 @@ public enum class WidthTier {
         /**
          * Resolves the canonical baseline [WidthTier] for a given [widthDp] dimension.
          *
+         * The design's size matrix draws its columns at 88, 176, 264 and 352 dp — two, four, six
+         * and eight cells of its 44 dp grid. A container is given the column it sits nearest, so
+         * the splits below fall at the midpoints between them.
+         *
          * @param widthDp Container width in DP.
          * @return Resolved [WidthTier].
          */
         public fun fromDp(widthDp: Float): WidthTier {
             return when {
-                widthDp < 130f -> W1
+                widthDp < 132f -> W1
                 widthDp < 220f -> W2
-                widthDp < 310f -> W3
+                widthDp < 308f -> W3
                 else -> W4
             }
         }
@@ -108,15 +112,19 @@ public enum class HeightTier {
         /**
          * Resolves the canonical baseline [HeightTier] for a given [heightDp] dimension.
          *
+         * The design's size matrix draws its rows at 56, 88, 132, 176 and 264 dp. As with
+         * [WidthTier.fromDp], a container is given the row it sits nearest, so the splits below
+         * fall at the midpoints between them.
+         *
          * @param heightDp Container height in DP.
          * @return Resolved [HeightTier].
          */
         public fun fromDp(heightDp: Float): HeightTier {
             return when {
-                heightDp < 60f -> H0
-                heightDp < 120f -> H1
-                heightDp < 200f -> H2
-                heightDp < 290f -> H3
+                heightDp < 72f -> H0
+                heightDp < 110f -> H1
+                heightDp < 154f -> H2
+                heightDp < 220f -> H3
                 else -> H4
             }
         }
