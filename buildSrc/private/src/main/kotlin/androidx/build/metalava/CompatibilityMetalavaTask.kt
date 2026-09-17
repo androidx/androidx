@@ -103,6 +103,7 @@ internal abstract class CompatibilityMetalavaTask(workerExecutor: WorkerExecutor
             }
 
         return buildList {
+            addAll(getConfigFileArgs())
             val classpath = bootClasspath + dependencyClasspath.files
             if (classpath.isNotEmpty()) {
                 add("--classpath")
@@ -137,6 +138,12 @@ internal abstract class CompatibilityMetalavaTask(workerExecutor: WorkerExecutor
                 add("--hide")
                 add("RemovedFromJava")
             }
+
+            // Removing final from a method does not cause compatibility issues for AndroidX.
+            add("--hide")
+            add("RemovedFinalStrict")
+
+            addAll(suppressCompatibilityAnnotationArgs)
         }
     }
 }

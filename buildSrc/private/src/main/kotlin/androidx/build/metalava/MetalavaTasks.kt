@@ -74,7 +74,7 @@ internal object MetalavaTasks {
                 task.description = "Generates API files from source"
                 task.apiLocation.set(builtApiLocation)
                 task.metalavaClasspath.from(metalavaClasspath)
-                task.generateRestrictToLibraryGroupAPIs = generateRestrictToLibraryGroupAPIs
+                task.generateRestrictToLibraryGroupAPIs.set(generateRestrictToLibraryGroupAPIs)
                 task.baselines.set(baselinesApiLocation)
                 task.targetsJavaConsumers.set(targetsJavaConsumers)
                 task.kotlinSourceLevel.set(kotlinSourceLevel)
@@ -82,7 +82,7 @@ internal object MetalavaTasks {
                 task.hasJvmOrAndroidTarget.set(hasJvmOrAndroidTarget)
 
                 // Arguments needed for generating the API levels JSON
-                task.projectApiDirectory = project.layout.projectDirectory.dir("api")
+                task.projectApiDirectory.set(project.layout.projectDirectory.dir("api"))
                 task.currentVersion.set(version)
 
                 applyInputs(compilationInputs, task, generateApiDependencies, androidManifest)
