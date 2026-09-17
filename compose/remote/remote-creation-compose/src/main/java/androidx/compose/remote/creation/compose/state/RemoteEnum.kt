@@ -297,7 +297,7 @@ public fun <T : Enum<T>> rememberNamedRemoteEnum(
     enumEntries: EnumEntries<T>,
     domain: RemoteState.Domain = RemoteState.Domain.User,
 ): RemoteEnum<T> {
-    return rememberNamedState(name, domain) {
+    return remember(name, domain) {
         RemoteEnum(createNamedRemoteInt(name, initialValue.ordinal, domain), enumEntries)
     }
 }

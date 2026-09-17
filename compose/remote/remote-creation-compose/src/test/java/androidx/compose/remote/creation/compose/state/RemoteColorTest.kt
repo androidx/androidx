@@ -481,21 +481,16 @@ class RemoteColorTest {
 
     @Test
     fun remoteColorIsCached() {
-        val red =
-            creationState.getOrCreateNamedState("red", RemoteState.Domain.User) {
-                RemoteColor(Color(AndroidColor.RED))
-            }
-        val red2 =
-            creationState.getOrCreateNamedState("red", RemoteState.Domain.User) {
-                RemoteColor(Color(AndroidColor.RED))
-            }
-        val green =
-            creationState.getOrCreateNamedState("green", RemoteState.Domain.User) {
-                RemoteColor(Color(AndroidColor.GREEN))
-            }
+        val red = createNamedRemoteColor("red", Color.Red)
+        val red2 = createNamedRemoteColor("red", Color.Red)
+        val green = createNamedRemoteColor("green", Color.Green)
 
-        assertThat(red).isSameInstanceAs(red2)
-        assertThat(red).isNotSameInstanceAs(green)
+        val redId = red.getIdForCreationState(creationState)
+        val red2Id = red2.getIdForCreationState(creationState)
+        val greenId = green.getIdForCreationState(creationState)
+
+        assertThat(redId).isEqualTo(red2Id)
+        assertThat(redId).isNotEqualTo(greenId)
     }
 
     @Test

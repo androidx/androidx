@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.crea
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
@@ -268,7 +269,7 @@ public fun rememberNamedRemoteDp(
     domain: RemoteState.Domain = RemoteState.Domain.User,
     value: () -> RemoteDp,
 ): RemoteDp {
-    return rememberNamedState(name, domain) { createNamedRemoteDp(name, domain, value) }
+    return remember(name, domain) { createNamedRemoteDp(name, domain, value) }
 }
 
 /** Returns the smaller of two [RemoteDp] values. */

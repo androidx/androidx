@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.crea
 import androidx.compose.remote.creation.compose.state.RemoteColor.OperationKey
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.toArgb
@@ -579,7 +580,7 @@ public fun rememberNamedRemoteColor(
     initialValue: Color,
     domain: RemoteState.Domain = RemoteState.Domain.User,
 ): RemoteColor {
-    return rememberNamedState(name, domain) { createNamedRemoteColor(name, initialValue, domain) }
+    return remember(name, domain) { createNamedRemoteColor(name, initialValue, domain) }
 }
 
 /**

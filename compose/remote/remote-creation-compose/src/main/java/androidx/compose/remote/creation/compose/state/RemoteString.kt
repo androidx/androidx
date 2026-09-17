@@ -1136,7 +1136,7 @@ public fun rememberNamedRemoteString(
     defaultValue: String,
     domain: RemoteState.Domain = RemoteState.Domain.User,
 ): RemoteString {
-    return rememberNamedState(name, domain) { createNamedRemoteString(name, defaultValue, domain) }
+    return remember(name, domain) { createNamedRemoteString(name, defaultValue, domain) }
 }
 
 /** Extension property to convert a [String] to a [RemoteString]. */

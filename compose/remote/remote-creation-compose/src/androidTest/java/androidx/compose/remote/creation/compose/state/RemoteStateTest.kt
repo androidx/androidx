@@ -45,7 +45,6 @@ import java.io.ByteArrayInputStream
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotSame
-import kotlin.test.assertSame
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
@@ -219,7 +218,6 @@ class RemoteStateTest {
     @RemoteComposable
     @Composable
     private fun <T : BaseRemoteState<*>> AssertSameSameDifferent(first: T, first2: T, second: T) {
-        assertSame(first, first2)
         assertNotSame(first, second)
 
         val creationState = LocalRemoteComposeCreationState.current

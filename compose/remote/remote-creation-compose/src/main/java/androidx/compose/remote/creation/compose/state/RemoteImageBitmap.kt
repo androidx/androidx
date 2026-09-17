@@ -290,7 +290,7 @@ public fun rememberNamedRemoteImageBitmap(
     domain: RemoteState.Domain = RemoteState.Domain.User,
     value: () -> ImageBitmap,
 ): RemoteImageBitmap {
-    return rememberNamedState(name, domain) { createNamedRemoteImageBitmap(name, domain, value) }
+    return remember(name, domain) { createNamedRemoteImageBitmap(name, domain, value) }
 }
 
 /** A Composable function to remember and provide a **named** remote bitmap from a URL. */
@@ -300,7 +300,7 @@ public fun rememberNamedRemoteImageBitmap(
     url: String,
     domain: RemoteState.Domain = RemoteState.Domain.User,
 ): RemoteImageBitmap {
-    return rememberNamedState(name, domain) { createNamedRemoteImageBitmap(name, url, domain) }
+    return remember(name, domain) { createNamedRemoteImageBitmap(name, url, domain) }
 }
 
 /** Extension property to convert a [ImageBitmap] to a [RemoteImageBitmap]. */
