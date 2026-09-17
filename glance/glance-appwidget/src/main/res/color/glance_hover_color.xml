@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  Copyright (C) 2022 The Android Open Source Project
+  Copyright 2026 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -12,19 +12,13 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
--->
+  -->
 
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="?android:attr/selectableItemBackground"/>
-    <item>
-        <selector>
-            <item android:state_hovered="true">
-                <shape android:shape="rectangle">
-                    <solid android:color="@color/glance_hover_color"/>
-                </shape>
-            </item>
-
-            <item android:drawable="@android:color/transparent"/>
-        </selector>
-    </item>
-</layer-list>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
+    This colorControlHighlight is matching the original color used in glance_button_ripple.xml,
+    also it is the color used in the underlay implementation of android:attr/selectableItemBackground
+    -->
+    <item android:color="?android:attr/colorControlHighlight"
+        android:alpha="0.3"/>
+</selector>
