@@ -179,9 +179,15 @@ public interface CameraControl {
     /**
      * Sets current zoom by ratio.
      *
-     * <p>It modifies both current zoomRatio and linearZoom so if apps are observing
-     * zoomRatio or linearZoom, they will get the update as well. If the ratio is
-     * smaller than {@link ZoomState#getMinZoomRatio()} or larger than
+     * <p>It modifies both current {@code zoomRatio} and {@code linearZoom} in
+     * {@link CameraInfo#getZoomState()}, so if apps are observing {@code zoomRatio} or
+     * {@code linearZoom}, they will get the update as well. When a valid ratio is provided, the
+     * {@link ZoomState} in {@link CameraInfo#getZoomState()} is updated immediately without
+     * waiting for the camera to apply the zoom, while the actual camera zoom adjustment is
+     * performed asynchronously and the returned {@link ListenableFuture} completes when the
+     * repeating request result contains the requested zoom ratio.
+     *
+     * <p>If the ratio is smaller than {@link ZoomState#getMinZoomRatio()} or larger than
      * {@link ZoomState#getMaxZoomRatio()}, the returned {@link ListenableFuture} will fail with
      * {@link IllegalArgumentException} and it won't modify current zoom ratio. It is the
      * applications' duty to clamp the ratio.
@@ -201,11 +207,17 @@ public interface CameraControl {
      * value, for use with slider UI elements (while {@link #setZoomRatio(float)} works well
      * for pinch-zoom gestures).
      *
-     * <p>It modifies both current zoomRatio and linearZoom so if apps are observing
-     * zoomRatio or linearZoom, they will get the update as well. If the linearZoom is not in
-     * the range [0..1], the returned {@link ListenableFuture} will fail with
-     * {@link IllegalArgumentException} and it won't modify current linearZoom and zoomRatio. It is
-     * application's duty to clamp the linearZoom within [0..1].
+     * <p>It modifies both current {@code zoomRatio} and {@code linearZoom} in
+     * {@link CameraInfo#getZoomState()}, so if apps are observing {@code zoomRatio} or
+     * {@code linearZoom}, they will get the update as well. When a valid {@code linearZoom} is
+     * provided, the {@link ZoomState} in {@link CameraInfo#getZoomState()} is updated immediately
+     * without waiting for the camera to apply the zoom, while the actual camera zoom adjustment is
+     * performed asynchronously and the returned {@link ListenableFuture} completes when the
+     * repeating request result contains the requested zoom ratio.
+     *
+     * <p>If the linearZoom is not in the range [0..1], the returned {@link ListenableFuture} will
+     * fail with {@link IllegalArgumentException} and it won't modify current linearZoom and
+     * zoomRatio. It is application's duty to clamp the linearZoom within [0..1].
      *
      * @return a {@link ListenableFuture} which is finished when current repeating request
      * result contains the requested linearZoom. It fails with
