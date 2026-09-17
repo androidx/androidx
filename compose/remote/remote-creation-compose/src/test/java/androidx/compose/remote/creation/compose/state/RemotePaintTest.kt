@@ -237,6 +237,22 @@ class RemotePaintTest {
     }
 
     @Test
+    fun compatAndroidRemotePaintBlendModeTest() {
+        val compatPaint = CompatAndroidRemotePaint()
+
+        assertThat(compatPaint.remotePaint.blendMode).isEqualTo(BlendMode.SrcOver)
+
+        compatPaint.blendMode = android.graphics.BlendMode.CLEAR
+        assertThat(compatPaint.remotePaint.blendMode).isEqualTo(BlendMode.Clear)
+
+        compatPaint.blendMode = android.graphics.BlendMode.SRC_IN
+        assertThat(compatPaint.remotePaint.blendMode).isEqualTo(BlendMode.SrcIn)
+
+        compatPaint.blendMode = android.graphics.BlendMode.SRC_OUT
+        assertThat(compatPaint.remotePaint.blendMode).isEqualTo(BlendMode.SrcOut)
+    }
+
+    @Test
     fun compatAndroidRemotePaintStrokePropertiesTest() {
         val compatPaint =
             CompatAndroidRemotePaint().apply {
