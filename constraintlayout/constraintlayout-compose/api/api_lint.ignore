@@ -5,3 +5,7 @@ ConcreteCollection: androidx.constraintlayout.compose.DesignElements#getMap():
     Return type is concrete collection (`java.util.HashMap`); must be higher-level interface
 ConcreteCollection: androidx.constraintlayout.compose.DesignElements#setMap(java.util.HashMap<java.lang.String,kotlin.jvm.functions.Function2<java.lang.String,java.util.HashMap<java.lang.String,java.lang.String>,kotlin.Unit>>) parameter #0:
     Parameter type is concrete collection (`java.util.HashMap`); must be higher-level interface
+
+
+ReferencesHidden: androidx.constraintlayout.compose.BaseKeyFrameScope#addNameOnPropertyChange(E, String):
+    Class androidx.constraintlayout.compose.NamedPropertyOrValue is not public but was referenced (as type parameter) from public method androidx.constraintlayout.compose.BaseKeyFrameScope.addNameOnPropertyChange(E,String)
