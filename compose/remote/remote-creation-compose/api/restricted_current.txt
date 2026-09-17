@@ -317,8 +317,8 @@ package androidx.compose.remote.creation.compose.layout {
     method @BytecodeOnly public static void drawRect$default(androidx.compose.remote.creation.compose.layout.RemoteDrawScope!, androidx.compose.remote.creation.compose.state.RemotePaint!, androidx.compose.remote.creation.compose.layout.RemoteOffset!, androidx.compose.remote.creation.compose.layout.RemoteSize!, int, Object!);
     method public final void drawRoundRect(androidx.compose.remote.creation.compose.state.RemotePaint? paint, optional androidx.compose.remote.creation.compose.layout.RemoteOffset topLeft, optional androidx.compose.remote.creation.compose.layout.RemoteSize size, optional androidx.compose.remote.creation.compose.layout.RemoteOffset cornerRadius);
     method @BytecodeOnly public static void drawRoundRect$default(androidx.compose.remote.creation.compose.layout.RemoteDrawScope!, androidx.compose.remote.creation.compose.state.RemotePaint!, androidx.compose.remote.creation.compose.layout.RemoteOffset!, androidx.compose.remote.creation.compose.layout.RemoteSize!, androidx.compose.remote.creation.compose.layout.RemoteOffset!, int, Object!);
-    method public final void drawTextOnCircle(androidx.compose.remote.creation.compose.state.RemoteString text, androidx.compose.remote.creation.compose.state.RemoteFloat centerX, androidx.compose.remote.creation.compose.state.RemoteFloat centerY, androidx.compose.remote.creation.compose.state.RemoteFloat radius, androidx.compose.remote.creation.compose.state.RemoteFloat startAngle, androidx.compose.remote.creation.compose.state.RemoteFloat warpRadiusOffset, optional androidx.compose.remote.creation.compose.state.RemotePaint? paint);
-    method @BytecodeOnly public static void drawTextOnCircle$default(androidx.compose.remote.creation.compose.layout.RemoteDrawScope!, androidx.compose.remote.creation.compose.state.RemoteString!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemotePaint!, int, Object!);
+    method public final void drawTextOnCircle(androidx.compose.remote.creation.compose.state.RemoteString text, androidx.compose.remote.creation.compose.state.RemoteFloat centerX, androidx.compose.remote.creation.compose.state.RemoteFloat centerY, androidx.compose.remote.creation.compose.state.RemoteFloat radius, androidx.compose.remote.creation.compose.state.RemoteFloat startAngle, androidx.compose.remote.creation.compose.state.RemoteFloat warpRadiusOffset, optional androidx.compose.remote.creation.compose.state.RemotePaint? paint, optional androidx.compose.remote.creation.compose.layout.RemoteDrawScope.CircularAlignment alignment, optional androidx.compose.remote.creation.compose.layout.RemoteDrawScope.CircularPlacement placement);
+    method @BytecodeOnly public static void drawTextOnCircle$default(androidx.compose.remote.creation.compose.layout.RemoteDrawScope!, androidx.compose.remote.creation.compose.state.RemoteString!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemotePaint!, androidx.compose.remote.creation.compose.layout.RemoteDrawScope.CircularAlignment!, androidx.compose.remote.creation.compose.layout.RemoteDrawScope.CircularPlacement!, int, Object!);
     method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.layout.RemoteOffset getCenter();
     method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getHeight();
     method @BytecodeOnly public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
@@ -332,6 +332,17 @@ package androidx.compose.remote.creation.compose.layout {
     property public androidx.compose.remote.creation.compose.capture.RemoteDensity remoteDensity;
     property public final androidx.compose.remote.creation.compose.layout.RemoteSize size;
     property public final androidx.compose.remote.creation.compose.state.RemoteFloat width;
+  }
+
+  public enum RemoteDrawScope.CircularAlignment {
+    enum_constant public static final androidx.compose.remote.creation.compose.layout.RemoteDrawScope.CircularAlignment Center;
+    enum_constant public static final androidx.compose.remote.creation.compose.layout.RemoteDrawScope.CircularAlignment End;
+    enum_constant public static final androidx.compose.remote.creation.compose.layout.RemoteDrawScope.CircularAlignment Start;
+  }
+
+  public enum RemoteDrawScope.CircularPlacement {
+    enum_constant public static final androidx.compose.remote.creation.compose.layout.RemoteDrawScope.CircularPlacement Inside;
+    enum_constant public static final androidx.compose.remote.creation.compose.layout.RemoteDrawScope.CircularPlacement Outside;
   }
 
   public final class RemoteFitBoxKt {

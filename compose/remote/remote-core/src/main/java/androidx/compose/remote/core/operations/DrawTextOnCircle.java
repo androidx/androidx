@@ -222,7 +222,15 @@ public class DrawTextOnCircle extends PaintOperation implements VariableSupport,
 
     @Override
     public void paint(@NonNull PaintContext context) {
-        throw new UnsupportedOperationException("DrawTextOnCircle is not supported");
+        context.drawTextOnCircle(
+                mTextId,
+                mCenterX,
+                mCenterY,
+                mRadius,
+                mStartAngle,
+                mWarpRadiusOffset,
+                mAlignment.ordinal(),
+                mPlacement.ordinal());
     }
 
     @Override
