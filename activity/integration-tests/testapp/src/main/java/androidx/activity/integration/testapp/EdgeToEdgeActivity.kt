@@ -13,27 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION")
-
 package androidx.activity.integration.testapp
 
 import android.app.Dialog
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.DialogFragment
 
 class EdgeToEdgeActivity : AppCompatActivity(R.layout.edge_to_edge_activity) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
-        enableEdgeToEdge()
+        WindowCompat.enableEdgeToEdge(window)
         super.onCreate(savedInstanceState)
         findViewById<View>(R.id.default_config).setOnClickListener {
             // The default style.
@@ -41,52 +37,34 @@ class EdgeToEdgeActivity : AppCompatActivity(R.layout.edge_to_edge_activity) {
             // API 26-28: Transparent status. Light or dark scrim on nav.
             // API 23-25: Transparent status. Dark scrim on nav.
             // API 21,22: Dark scrim (system default).
-            enableEdgeToEdge()
+            WindowCompat.enableEdgeToEdge(window)
         }
         findViewById<View>(R.id.auto_config).setOnClickListener {
             // API 29+: Transparent on gesture nav, Auto scrim on 3-button nav (same as default).
             // API 23-28: Yellow bars.
             // API 21,22: Dark scrim (system default).
-            val style =
-                SystemBarStyle.auto(
-                    lightScrim = Color.argb(0x64, 0xff, 0xeb, 0x3b),
-                    darkScrim = Color.argb(0x64, 0x4a, 0x14, 0x8c),
-                )
-            enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+            WindowCompat.enableEdgeToEdge(window)
         }
         findViewById<View>(R.id.custom_config).setOnClickListener {
             // API 29+: Transparent on gesture nav, Auto scrim on 3-button nav (same as default).
             // API 23-28: Yellow bars.
             // API 21,22: Dark scrim (system default).
-            val style =
-                SystemBarStyle.auto(
-                    lightScrim = Color.argb(0x64, 0xff, 0xeb, 0x3b),
-                    darkScrim = Color.argb(0x64, 0x4a, 0x14, 0x8c),
-                    detectDarkMode = { false },
-                )
-            enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+            WindowCompat.enableEdgeToEdge(window)
         }
         findViewById<View>(R.id.transparent_config).setOnClickListener {
             // API 23+: Transparent regardless of the nav mode.
             // API 21,22: Dark scrim (system default).
-            val style = SystemBarStyle.dark(Color.TRANSPARENT)
-            enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+            WindowCompat.enableEdgeToEdge(window)
         }
         findViewById<View>(R.id.purple_config).setOnClickListener {
             // API 23+: Purple.
             // API 21,22: Dark scrim (system default).
-            val style = SystemBarStyle.dark(scrim = Color.argb(0x64, 0x4a, 0x14, 0x8c))
-            enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+            WindowCompat.enableEdgeToEdge(window)
         }
         findViewById<View>(R.id.yellow_config).setOnClickListener {
             // API 23+: Yellow.
             // API 21,22: Dark scrim (system default).
-            val style =
-                SystemBarStyle.light(
-                    scrim = Color.argb(0x64, 0xff, 0xeb, 0x3b),
-                    darkScrim = Color.rgb(0xf5, 0x7f, 0x17),
-                )
-            enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+            WindowCompat.enableEdgeToEdge(window)
         }
         findViewById<View>(R.id.light_mode).setOnClickListener { setDarkMode(false) }
         findViewById<View>(R.id.dark_mode).setOnClickListener { setDarkMode(true) }

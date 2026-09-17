@@ -24,7 +24,6 @@ import android.view.Gravity
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -55,6 +54,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.xr.compose.spatial.Orbiter
 import androidx.xr.compose.spatial.OrbiterPosition
 import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
@@ -84,7 +84,7 @@ import androidx.xr.compose.unit.DpVolumeOffset
 class CurvedLayout : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        WindowCompat.enableEdgeToEdge(window)
         setContent { IntegrationTestsAppTheme { CurvedLayoutApp() } }
     }
 

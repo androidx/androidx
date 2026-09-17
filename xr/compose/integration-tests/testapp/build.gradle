@@ -72,7 +72,7 @@ dependencies {
     implementation("androidx.annotation:annotation:1.9.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
-    implementation("androidx.core:core-ktx:1.15.0")
+    implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.fragment:fragment-ktx:1.8.1")
     implementation("androidx.media3:media3-exoplayer:1.6.0")
     implementation("androidx.media3:media3-ui:1.5.0")

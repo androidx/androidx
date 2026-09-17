@@ -17,7 +17,6 @@ package androidx.compose.foundation.layout
 
 import android.view.View
 import androidx.activity.ComponentActivity
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -35,6 +34,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.round
 import androidx.core.graphics.Insets
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type
 import androidx.test.filters.MediumTest
@@ -55,7 +55,7 @@ class FitOutsideTest {
 
     @Before
     fun setup() {
-        rule.runOnUiThread { rule.activity.enableEdgeToEdge() }
+        rule.runOnUiThread { WindowCompat.enableEdgeToEdge(rule.activity.window) }
     }
 
     @Test

@@ -16,14 +16,12 @@
 
 package androidx.xr.glimmer.demos
 
-import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ComposeView
+import androidx.core.view.WindowCompat
 
 /** The base activity containing all Jetpack Compose Glimmer related demos. */
 open class BaseDemoActivity : ComponentActivity() {
@@ -35,10 +33,7 @@ open class BaseDemoActivity : ComponentActivity() {
         @OptIn(ExperimentalComposeUiApi::class)
         ComposeUiFlags.isInitialFocusOnFocusableAvailable = true
 
-        enableEdgeToEdge(
-            SystemBarStyle.dark(Color.TRANSPARENT),
-            SystemBarStyle.dark(Color.TRANSPARENT),
-        )
+        WindowCompat.enableEdgeToEdge(window)
 
         ComposeView(this)
             .also { setContentView(it) }

@@ -20,7 +20,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -42,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.xr.compose.spatial.Orbiter
 import androidx.xr.compose.spatial.OrbiterPosition
 import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
@@ -68,7 +68,7 @@ import kotlinx.coroutines.launch
 class Animation : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        WindowCompat.enableEdgeToEdge(window)
         setContent { IntegrationTestsAppTheme { ValueBasedAnimationsApp() } }
     }
 

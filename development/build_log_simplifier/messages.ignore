@@ -42,6 +42,7 @@ Calculating task graph as configuration cache cannot be reused because Gradle pr
 Calculating task graph as configuration cache cannot be reused because an input to unknown location has changed.*
 Calculating task graph as configuration cache cannot be reused because the set of Gradle properties prefixed by 'androidx.' has changed.*
 Calculating task graph as configuration cache cannot be reused because a build logic input of type 'NonGitHeadShaSource' has changed.
+Calculating task graph as configuration cache cannot be reused because a build logic input of type 'IsTerminalSmartValueSource' has changed.
 Calculating task graph as configuration cache cannot be reused because system property 'os\.version' has changed\.
 See the profiling report at\: file\:\/\/\$OUT_DIR\/androidx\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 # > Task :lifecycle:lifecycle-common:compileJava
@@ -727,9 +728,6 @@ w: .*\/compose\/remote\/.*.kt:[0-9]+:[0-9]+ This 'var' property is not written t
 w: .*\/compose\/remote\/.*.kt:[0-9]+:[0-9]+ Redundant string template\.
 w: .*\/compose\/remote\/.*.kt:[0-9]+:[0-9]+ Parameter '.*' is never used, consider renaming it to '_'\.
 w: .*\/compose\/remote\/.*.kt:[0-9]+:[0-9]+ Variable is never read\.
-# Deprecation of ComponentActivity.enableEdgeToEdge (b/462798144)
-w: file://(\$SUPPORT|\$CHECKOUT)/.+:[0-9]+:[0-9]+ '(fun ComponentActivity\.enableEdgeToEdge.*|class SystemBarStyle.*)' is deprecated\..*
-^(To adjust|(or )?background protection|(in your )?view hierarchy|hierarchy\.|\{@link (WindowCompat#(getInsetsController|enableEdgeToEdge)|WindowInsetsControllerCompat|ProtectionLayout)).*
 # > Task :wear:watchface:watchface-complications-data:compileReleaseKotlin b/559189770
 w: file://\$SUPPORT/wear/watchface/watchface\-complications\-data/src/main/java/androidx/wear/watchface/complications/data/ComplicationDataEvaluator\.kt:[0-9]+:[0-9]+ Suppression of error 'MISSING_DEPENDENCY_CLASS' might compile and work, but the compiler behavior is UNSPECIFIED and WILL NOT BE PRESERVED\. Please report your use case to the Kotlin issue tracker instead: https://kotl\.in/issue
 w: file://\$SUPPORT/wear/watchface/watchface\-complications\-data/src/test/java/androidx/wear/watchface/complications/data/ComplicationDataEvaluatorTest\.kt:[0-9]+:[0-9]+ Suppression of error 'MISSING_DEPENDENCY_CLASS' might compile and work, but the compiler behavior is UNSPECIFIED and WILL NOT BE PRESERVED\. Please report your use case to the Kotlin issue tracker instead: https://kotl\.in/issue

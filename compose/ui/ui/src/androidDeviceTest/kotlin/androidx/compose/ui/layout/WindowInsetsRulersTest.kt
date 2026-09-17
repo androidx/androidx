@@ -17,7 +17,6 @@ package androidx.compose.ui.layout
 
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
-import androidx.activity.enableEdgeToEdge
 import androidx.collection.mutableObjectListOf
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -59,6 +58,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.graphics.Insets
 import androidx.core.view.DisplayCutoutCompat
 import androidx.core.view.OnApplyWindowInsetsListener
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsAnimationCompat.BoundsCompat
 import androidx.core.view.WindowInsetsCompat
@@ -100,7 +100,7 @@ class WindowInsetsRulersTest(private val isDelayedWindowInsetsRulersEnabled: Boo
         previousDelayedRulersFlag = AndroidComposeUiFlags.isDelayedWindowInsetsRulersEnabled
         AndroidComposeUiFlags.isDelayedWindowInsetsRulersEnabled =
             isDelayedWindowInsetsRulersEnabled
-        rule.runOnUiThread { rule.activity.enableEdgeToEdge() }
+        rule.runOnUiThread { WindowCompat.enableEdgeToEdge(rule.activity.window) }
         // Don't let the normal rulers through. We only want the sendOnApplyWindowInsets() to have
         // an effect.
         val contentView = rule.activity.findViewById<View>(android.R.id.content)

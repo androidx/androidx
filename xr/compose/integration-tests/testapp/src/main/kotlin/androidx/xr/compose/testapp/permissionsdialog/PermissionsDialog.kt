@@ -20,7 +20,6 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +34,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.testapp.R
@@ -58,7 +58,7 @@ class PermissionsDialog : ComponentActivity() {
                     finish()
                 }
             }
-        enableEdgeToEdge()
+        WindowCompat.enableEdgeToEdge(window)
         // Launch the permission request dialog. The result will be handled in the callback above.
         permissionsLauncher.launch(
             arrayOf(
