@@ -66,6 +66,12 @@ public object AndroidComposeUiFlags {
     @JvmField
     public var isFrameworkVelocityTrackerEnabled: Boolean = false
 
+    /** Guard for Hardware Navigation system default behavior in Compose. */
+    // TODO(b/520209822): Cleanup once proven stable.
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isHardwareNavigationHandlingEnabled: Boolean = false
+
     /**
      * If enabled, the creation of the container for AndroidViews is delayed until an AndroidView is
      * added.
