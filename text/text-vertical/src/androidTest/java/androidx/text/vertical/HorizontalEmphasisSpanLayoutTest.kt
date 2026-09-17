@@ -45,7 +45,16 @@ class HorizontalEmphasisSpanLayoutTest {
 
     @Test
     fun getSpanWidth_basicCalculation() {
-        val layout = HorizontalEmphasisSpanLayout(text, 0, text.length, emphasisMark, paint, 1.0f)
+        val layout =
+            HorizontalEmphasisSpanLayout(
+                text,
+                0,
+                text.length,
+                emphasisMark,
+                AnnotationPosition.Before,
+                paint,
+                1.0f,
+            )
         val expectedWidth = ceil(paint.measureText(text, 0, text.length)).toInt()
         assertThat(layout.spanWidth).isEqualTo(expectedWidth)
     }
@@ -56,7 +65,15 @@ class HorizontalEmphasisSpanLayoutTest {
         spannable.setSpan(RelativeSizeSpan(2.0f), 0, text.length, 0)
 
         val layout =
-            HorizontalEmphasisSpanLayout(spannable, 0, text.length, emphasisMark, paint, 1.0f)
+            HorizontalEmphasisSpanLayout(
+                spannable,
+                0,
+                text.length,
+                emphasisMark,
+                AnnotationPosition.Before,
+                paint,
+                1.0f,
+            )
         val expectedWidth =
             ceil(Layout.getDesiredWidth(spannable, 0, spannable.length, paint)).toInt()
 
@@ -65,7 +82,16 @@ class HorizontalEmphasisSpanLayoutTest {
 
     @Test
     fun fillFontMetrics_metricsExpansion() {
-        val layout = HorizontalEmphasisSpanLayout(text, 0, text.length, emphasisMark, paint, 1.0f)
+        val layout =
+            HorizontalEmphasisSpanLayout(
+                text,
+                0,
+                text.length,
+                emphasisMark,
+                AnnotationPosition.Before,
+                paint,
+                1.0f,
+            )
         val bodyLayout =
             StaticLayout.Builder.obtain(text, 0, text.length, paint, Integer.MAX_VALUE).build()
         val emLayout =
@@ -97,7 +123,15 @@ class HorizontalEmphasisSpanLayoutTest {
     fun constructor_doesNotChangeTheCallerTextSize() {
         val callerPaint = TextPaint().apply { textSize = 100f }
 
-        HorizontalEmphasisSpanLayout(text, 0, text.length, emphasisMark, callerPaint, 0.5f)
+        HorizontalEmphasisSpanLayout(
+            text,
+            0,
+            text.length,
+            emphasisMark,
+            AnnotationPosition.Before,
+            callerPaint,
+            0.5f,
+        )
 
         assertThat(callerPaint.textSize).isEqualTo(100f)
     }
@@ -112,6 +146,7 @@ class HorizontalEmphasisSpanLayoutTest {
                 0,
                 text.length,
                 emphasisMark,
+                AnnotationPosition.Before,
                 TextPaint(basePaint),
                 relSize,
             )
