@@ -37,7 +37,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
  * @see toLiveData
  */
 @Deprecated("PagedList is deprecated and has been replaced by PagingData")
-class LivePagedListBuilder<Key : Any, Value : Any> {
+public class LivePagedListBuilder<Key : Any, Value : Any> {
     private val pagingSourceFactory: (() -> PagingSource<Key, Value>)?
     private val dataSourceFactory: DataSource.Factory<Key, Value>?
 
@@ -75,7 +75,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
                 "kotlinx.coroutines.Dispatchers",
             ),
     )
-    constructor(
+    public constructor(
         dataSourceFactory: DataSource.Factory<Key, Value>,
         @Suppress("DEPRECATION") config: PagedList.Config,
     ) {
@@ -112,7 +112,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
                 "kotlinx.coroutines.Dispatchers",
             ),
     )
-    constructor(
+    public constructor(
         dataSourceFactory: DataSource.Factory<Key, Value>,
         pageSize: Int,
     ) : this(dataSourceFactory, PagedList.Config.Builder().setPageSize(pageSize).build())
@@ -152,7 +152,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
                 "androidx.paging.liveData",
             ),
     )
-    constructor(
+    public constructor(
         pagingSourceFactory: () -> PagingSource<Key, Value>,
         @Suppress("DEPRECATION") config: PagedList.Config,
     ) {
@@ -197,7 +197,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
                 "androidx.paging.liveData",
             ),
     )
-    constructor(
+    public constructor(
         pagingSourceFactory: () -> PagingSource<Key, Value>,
         pageSize: Int,
     ) : this(pagingSourceFactory, PagedList.Config.Builder().setPageSize(pageSize).build())
@@ -212,8 +212,8 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      * @param coroutineScope
      * @return this
      */
-    @Suppress("unused") // Public API
-    fun setCoroutineScope(coroutineScope: CoroutineScope) =
+    @Suppress("unused", "DEPRECATION") // Public API
+    public fun setCoroutineScope(coroutineScope: CoroutineScope): LivePagedListBuilder<Key, Value> =
         this.apply { this.coroutineScope = coroutineScope }
 
     /**
@@ -225,7 +225,9 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      * @param key Initial load key passed to the first PagedList/DataSource.
      * @return this
      */
-    fun setInitialLoadKey(key: Key?) = this.apply { initialLoadKey = key }
+    @Suppress("DEPRECATION")
+    public fun setInitialLoadKey(key: Key?): LivePagedListBuilder<Key, Value> =
+        this.apply { initialLoadKey = key }
 
     /**
      * Sets a [androidx.paging.PagedList.BoundaryCallback] on each PagedList created, typically used
@@ -247,9 +249,10 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      * @param boundaryCallback The boundary callback for listening to PagedList load state.
      * @return this
      */
-    fun setBoundaryCallback(
+    @Suppress("DEPRECATION")
+    public fun setBoundaryCallback(
         @Suppress("DEPRECATION") boundaryCallback: PagedList.BoundaryCallback<Value>?
-    ) = this.apply { this.boundaryCallback = boundaryCallback }
+    ): LivePagedListBuilder<Key, Value> = this.apply { this.boundaryCallback = boundaryCallback }
 
     /**
      * Sets [Executor] used for background fetching of [PagedList]s, and the pages within.
@@ -263,7 +266,8 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      * @param fetchExecutor [Executor] for fetching data from [PagingSource]s.
      * @return this
      */
-    fun setFetchExecutor(fetchExecutor: Executor) =
+    @Suppress("DEPRECATION")
+    public fun setFetchExecutor(fetchExecutor: Executor): LivePagedListBuilder<Key, Value> =
         this.apply { this.fetchDispatcher = fetchExecutor.asCoroutineDispatcher() }
 
     /**
@@ -275,7 +279,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      * @return The [LiveData] of [PagedList]s
      */
     @Suppress("DEPRECATION")
-    fun build(): LiveData<PagedList<Value>> {
+    public fun build(): LiveData<PagedList<Value>> {
         val pagingSourceFactory =
             pagingSourceFactory ?: dataSourceFactory?.asPagingSourceFactory(fetchDispatcher)
 

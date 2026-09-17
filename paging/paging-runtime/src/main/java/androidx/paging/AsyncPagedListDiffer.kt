@@ -118,7 +118,7 @@ import java.util.concurrent.CopyOnWriteArrayList
     message = "AsyncPagedListDiffer is deprecated and has been replaced by AsyncPagingDataDiffer",
     replaceWith = ReplaceWith("AsyncPagingDataDiffer<T>", "androidx.paging.AsyncPagingDataDiffer"),
 )
-open class AsyncPagedListDiffer<T : Any> {
+public open class AsyncPagedListDiffer<T : Any> {
     /**
      * updateCallback notifications must only be notified *after* new data and item count are stored
      * this ensures Adapter#notifyItemRangeInserted etc are accessing the new data
@@ -177,7 +177,7 @@ open class AsyncPagedListDiffer<T : Any> {
      *
      * @return Number of items being presented.
      */
-    open val itemCount: Int
+    public open val itemCount: Int
         get() = currentList?.size ?: 0
 
     /**
@@ -190,7 +190,7 @@ open class AsyncPagedListDiffer<T : Any> {
      * @return The list currently being displayed, may be `null`.
      */
     @Suppress("DEPRECATION")
-    open val currentList: PagedList<T>?
+    public open val currentList: PagedList<T>?
         get() = snapshot ?: pagedList
 
     /**
@@ -199,14 +199,14 @@ open class AsyncPagedListDiffer<T : Any> {
      * @param T Type of items in [PagedList]
      */
     @Deprecated("PagedList is deprecated and has been replaced by PagingData")
-    interface PagedListListener<T : Any> {
+    public interface PagedListListener<T : Any> {
         /**
          * Called after the current PagedList has been updated.
          *
          * @param previousList The previous list, may be null.
          * @param currentList The new current list, may be null.
          */
-        fun onCurrentListChanged(
+        public fun onCurrentListChanged(
             @Suppress("DEPRECATION") previousList: PagedList<T>?,
             @Suppress("DEPRECATION") currentList: PagedList<T>?,
         )
@@ -253,7 +253,7 @@ open class AsyncPagedListDiffer<T : Any> {
                 "kotlinx.coroutines.Dispatchers",
             ),
     )
-    constructor(adapter: RecyclerView.Adapter<*>, diffCallback: DiffUtil.ItemCallback<T>) {
+    public constructor(adapter: RecyclerView.Adapter<*>, diffCallback: DiffUtil.ItemCallback<T>) {
         updateCallback = AdapterListUpdateCallback(adapter)
         config = AsyncDifferConfig.Builder(diffCallback).build()
     }
@@ -272,7 +272,7 @@ open class AsyncPagedListDiffer<T : Any> {
                 "kotlinx.coroutines.Dispatchers",
             ),
     )
-    constructor(
+    public constructor(
         listUpdateCallback: ListUpdateCallback,
         @Suppress("ListenerLast") config: AsyncDifferConfig<T>,
     ) {
@@ -289,7 +289,7 @@ open class AsyncPagedListDiffer<T : Any> {
      * @return The item, or null, if a null placeholder is at the specified position.
      * @throws IndexOutOfBoundsException if [itemCount] is 0.
      */
-    open fun getItem(index: Int): T? {
+    public open fun getItem(index: Int): T? {
         val snapshot = this.snapshot
         val pagedList = this.pagedList
 
@@ -312,7 +312,7 @@ open class AsyncPagedListDiffer<T : Any> {
      *
      * @param pagedList The new PagedList.
      */
-    open fun submitList(@Suppress("DEPRECATION") pagedList: PagedList<T>?) =
+    public open fun submitList(@Suppress("DEPRECATION") pagedList: PagedList<T>?): Unit =
         submitList(pagedList, null)
 
     /**
@@ -332,7 +332,7 @@ open class AsyncPagedListDiffer<T : Any> {
      *   it is committed.
      * @throws IllegalStateException if previous PagedList wasn't snapshotted correctly.
      */
-    open fun submitList(
+    public open fun submitList(
         @Suppress("DEPRECATION") pagedList: PagedList<T>?,
         commitCallback: Runnable?,
     ) {
@@ -510,7 +510,7 @@ open class AsyncPagedListDiffer<T : Any> {
      * @see currentList
      * @see removePagedListListener
      */
-    open fun addPagedListListener(@Suppress("DEPRECATION") listener: PagedListListener<T>) {
+    public open fun addPagedListListener(@Suppress("DEPRECATION") listener: PagedListListener<T>) {
         listeners.add(listener)
     }
 
@@ -521,7 +521,7 @@ open class AsyncPagedListDiffer<T : Any> {
      * @see currentList
      * @see removePagedListListener
      */
-    fun addPagedListListener(
+    public fun addPagedListListener(
         @Suppress("DEPRECATION") callback: (PagedList<T>?, PagedList<T>?) -> Unit
     ) {
         listeners.add(OnCurrentListChangedWrapper(callback))
@@ -534,7 +534,9 @@ open class AsyncPagedListDiffer<T : Any> {
      * @see currentList
      * @see addPagedListListener
      */
-    open fun removePagedListListener(@Suppress("DEPRECATION") listener: PagedListListener<T>) {
+    public open fun removePagedListListener(
+        @Suppress("DEPRECATION") listener: PagedListListener<T>
+    ) {
         listeners.remove(listener)
     }
 
@@ -545,7 +547,7 @@ open class AsyncPagedListDiffer<T : Any> {
      * @see currentList
      * @see addPagedListListener
      */
-    fun removePagedListListener(
+    public fun removePagedListListener(
         @Suppress("DEPRECATION") callback: (PagedList<T>?, PagedList<T>?) -> Unit
     ) {
         listeners.removeAll { it is OnCurrentListChangedWrapper<T> && it.callback === callback }
@@ -560,7 +562,7 @@ open class AsyncPagedListDiffer<T : Any> {
      * @param listener [LoadState] listener to receive updates.
      * @see removeLoadStateListener
      */
-    open fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+    public open fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
         val pagedList = this.pagedList
         if (pagedList != null) {
             pagedList.addWeakLoadStateListener(listener)
@@ -577,7 +579,7 @@ open class AsyncPagedListDiffer<T : Any> {
      * @see currentList
      * @see addPagedListListener
      */
-    open fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+    public open fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
         loadStateListeners.remove(listener)
         pagedList?.removeWeakLoadStateListener(listener)
     }

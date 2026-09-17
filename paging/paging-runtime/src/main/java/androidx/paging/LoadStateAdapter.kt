@@ -37,14 +37,14 @@ import androidx.recyclerview.widget.RecyclerView
  * @see PagingDataAdapter.withLoadStateHeader
  * @see PagingDataAdapter.withLoadStateFooter
  */
-abstract class LoadStateAdapter<VH : RecyclerView.ViewHolder> : RecyclerView.Adapter<VH>() {
+public abstract class LoadStateAdapter<VH : RecyclerView.ViewHolder> : RecyclerView.Adapter<VH>() {
     /**
      * LoadState to present in the adapter.
      *
      * Changing this property will immediately notify the Adapter to change the item it's
      * presenting.
      */
-    var loadState: LoadState = LoadState.NotLoading(endOfPaginationReached = false)
+    public var loadState: LoadState = LoadState.NotLoading(endOfPaginationReached = false)
         set(loadState) {
             if (field != loadState) {
                 val oldItem = displayLoadStateAsItem(field)
@@ -82,7 +82,7 @@ abstract class LoadStateAdapter<VH : RecyclerView.ViewHolder> : RecyclerView.Ada
      * @see [getItemViewType]
      * @see [displayLoadStateAsItem]
      */
-    abstract fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState): VH
+    public abstract fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState): VH
 
     /**
      * Called to bind the passed LoadState to the ViewHolder.
@@ -92,21 +92,21 @@ abstract class LoadStateAdapter<VH : RecyclerView.ViewHolder> : RecyclerView.Ada
      * @see [getItemViewType]
      * @see [displayLoadStateAsItem]
      */
-    abstract fun onBindViewHolder(holder: VH, loadState: LoadState)
+    public abstract fun onBindViewHolder(holder: VH, loadState: LoadState)
 
     /**
      * Override this method to use different view types per LoadState.
      *
      * By default, this LoadStateAdapter only uses a single view type.
      */
-    open fun getStateViewType(loadState: LoadState): Int = 0
+    public open fun getStateViewType(loadState: LoadState): Int = 0
 
     /**
      * Returns true if the LoadState should be displayed as a list item when active.
      *
      * By default, [LoadState.Loading] and [LoadState.Error] present as list items, others do not.
      */
-    open fun displayLoadStateAsItem(loadState: LoadState): Boolean {
+    public open fun displayLoadStateAsItem(loadState: LoadState): Boolean {
         return loadState is LoadState.Loading || loadState is LoadState.Error
     }
 }

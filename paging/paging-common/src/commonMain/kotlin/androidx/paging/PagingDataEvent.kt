@@ -33,9 +33,9 @@ public sealed class PagingDataEvent<T : Any> {
     public class Prepend<T : Any>
     @RestrictTo(LIBRARY_GROUP)
     constructor(
-        val inserted: List<T>,
-        val newPlaceholdersBefore: Int,
-        val oldPlaceholdersBefore: Int,
+        public val inserted: List<T>,
+        public val newPlaceholdersBefore: Int,
+        public val oldPlaceholdersBefore: Int,
     ) : PagingDataEvent<T>() {
 
         override fun equals(other: Any?): Boolean {
@@ -78,10 +78,10 @@ public sealed class PagingDataEvent<T : Any> {
     public class Append<T : Any>
     @RestrictTo(LIBRARY_GROUP)
     constructor(
-        val startIndex: Int,
-        val inserted: List<T>,
-        val newPlaceholdersAfter: Int,
-        val oldPlaceholdersAfter: Int,
+        public val startIndex: Int,
+        public val inserted: List<T>,
+        public val newPlaceholdersAfter: Int,
+        public val oldPlaceholdersAfter: Int,
     ) : PagingDataEvent<T>() {
         override fun equals(other: Any?): Boolean {
             return other is Append<*> &&
@@ -121,8 +121,10 @@ public sealed class PagingDataEvent<T : Any> {
      */
     public class Refresh<T : Any>
     @RestrictTo(LIBRARY_GROUP)
-    constructor(val newList: PlaceholderPaddedList<T>, val previousList: PlaceholderPaddedList<T>) :
-        PagingDataEvent<T>() {
+    constructor(
+        public val newList: PlaceholderPaddedList<T>,
+        public val previousList: PlaceholderPaddedList<T>,
+    ) : PagingDataEvent<T>() {
         override fun equals(other: Any?): Boolean {
             return other is Refresh<*> &&
                 newList.placeholdersBefore == other.newList.placeholdersBefore &&
@@ -170,9 +172,9 @@ public sealed class PagingDataEvent<T : Any> {
     public class DropPrepend<T : Any>
     @RestrictTo(LIBRARY_GROUP)
     constructor(
-        val dropCount: Int,
-        val newPlaceholdersBefore: Int,
-        val oldPlaceholdersBefore: Int,
+        public val dropCount: Int,
+        public val newPlaceholdersBefore: Int,
+        public val oldPlaceholdersBefore: Int,
     ) : PagingDataEvent<T>() {
 
         override fun equals(other: Any?): Boolean {
@@ -214,10 +216,10 @@ public sealed class PagingDataEvent<T : Any> {
     public class DropAppend<T : Any>
     @RestrictTo(LIBRARY_GROUP)
     constructor(
-        val startIndex: Int,
-        val dropCount: Int,
-        val newPlaceholdersAfter: Int,
-        val oldPlaceholdersAfter: Int,
+        public val startIndex: Int,
+        public val dropCount: Int,
+        public val newPlaceholdersAfter: Int,
+        public val oldPlaceholdersAfter: Int,
     ) : PagingDataEvent<T>() {
 
         override fun equals(other: Any?): Boolean {

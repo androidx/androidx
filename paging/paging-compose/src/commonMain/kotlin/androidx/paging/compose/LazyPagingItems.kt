@@ -81,11 +81,12 @@ internal constructor(
      * placeholders if they are enabled. Note that similarly to [peek] accessing the items in a list
      * will not trigger any loads. Use [get] to achieve such behavior.
      */
-    var itemSnapshotList by mutableStateOf(pagingDataPresenter.snapshot())
+    public var itemSnapshotList: ItemSnapshotList<T> by
+        mutableStateOf(pagingDataPresenter.snapshot())
         private set
 
     /** The number of items which can be accessed. */
-    val itemCount: Int
+    public val itemCount: Int
         get() = itemSnapshotList.size
 
     private fun updateItemSnapshotList() {
@@ -98,7 +99,7 @@ internal constructor(
      *
      * @see peek
      */
-    operator fun get(index: Int): T? {
+    public operator fun get(index: Int): T? {
         pagingDataPresenter[index] // this registers the value load
         return itemSnapshotList[index]
     }
@@ -110,7 +111,7 @@ internal constructor(
      * @param index Index of the presented item to return, including placeholders.
      * @return The presented item at position [index], `null` if it is a placeholder
      */
-    fun peek(index: Int): T? {
+    public fun peek(index: Int): T? {
         return itemSnapshotList[index]
     }
 
@@ -125,7 +126,7 @@ internal constructor(
      * * [PagingSource.load] returning [PagingSource.LoadResult.Error]
      * * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
      */
-    fun retry() {
+    public fun retry() {
         pagingDataPresenter.retry()
     }
 
@@ -144,7 +145,7 @@ internal constructor(
      *
      * @see PagingSource.invalidate
      */
-    fun refresh() {
+    public fun refresh() {
         pagingDataPresenter.refresh()
     }
 

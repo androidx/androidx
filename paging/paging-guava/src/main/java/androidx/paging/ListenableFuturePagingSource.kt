@@ -24,13 +24,16 @@ import kotlinx.coroutines.guava.await
  *
  * @sample androidx.paging.samples.listenableFuturePagingSourceSample
  */
-abstract class ListenableFuturePagingSource<Key : Any, Value : Any> : PagingSource<Key, Value>() {
+public abstract class ListenableFuturePagingSource<Key : Any, Value : Any> :
+    PagingSource<Key, Value>() {
     /**
      * Loading API for [PagingSource].
      *
      * Implement this method to trigger your async load (e.g. from database or network).
      */
-    abstract fun loadFuture(params: LoadParams<Key>): ListenableFuture<LoadResult<Key, Value>>
+    public abstract fun loadFuture(
+        params: LoadParams<Key>
+    ): ListenableFuture<LoadResult<Key, Value>>
 
     override suspend fun load(params: LoadParams<Key>): LoadResult<Key, Value> {
         return loadFuture(params).await()

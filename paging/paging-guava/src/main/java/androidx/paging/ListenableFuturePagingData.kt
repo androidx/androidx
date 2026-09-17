@@ -34,7 +34,7 @@ import kotlinx.coroutines.withContext
  */
 @JvmName("map")
 @CheckResult
-fun <T : Any, R : Any> PagingData<T>.mapAsync(
+public fun <T : Any, R : Any> PagingData<T>.mapAsync(
     transform: AsyncFunction<T, R>,
     executor: Executor,
 ): PagingData<R> = map {
@@ -50,7 +50,7 @@ fun <T : Any, R : Any> PagingData<T>.mapAsync(
  */
 @JvmName("flatMap")
 @CheckResult
-fun <T : Any, R : Any> PagingData<T>.flatMapAsync(
+public fun <T : Any, R : Any> PagingData<T>.flatMapAsync(
     transform: AsyncFunction<T, Iterable<R>>,
     executor: Executor,
 ): PagingData<R> = flatMap {
@@ -65,7 +65,7 @@ fun <T : Any, R : Any> PagingData<T>.flatMapAsync(
  */
 @JvmName("filter")
 @CheckResult
-fun <T : Any> PagingData<T>.filterAsync(
+public fun <T : Any> PagingData<T>.filterAsync(
     predicate: AsyncFunction<T, Boolean>,
     executor: Executor,
 ): PagingData<T> = filter {
@@ -87,7 +87,7 @@ fun <T : Any> PagingData<T>.filterAsync(
  */
 @JvmName("insertSeparators")
 @CheckResult
-fun <T : R, R : Any> PagingData<T>.insertSeparatorsAsync(
+public fun <T : R, R : Any> PagingData<T>.insertSeparatorsAsync(
     generator: AsyncFunction<AdjacentItems<T>, R?>,
     executor: Executor,
 ): PagingData<R> = insertSeparators { before, after ->
@@ -97,4 +97,4 @@ fun <T : R, R : Any> PagingData<T>.insertSeparatorsAsync(
 }
 
 /** Represents a pair of adjacent items, null values are used to signal boundary conditions. */
-@Suppress("DataClassDefinition") data class AdjacentItems<T>(val before: T?, val after: T?)
+@Suppress("DataClassDefinition") public data class AdjacentItems<T>(val before: T?, val after: T?)
