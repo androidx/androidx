@@ -101,7 +101,6 @@ class MemoryEstimationTest {
     fun internalFramesAreTrackedAsEvictable() = testScope.runTest {
         val streamId = frameGraph.streams[streamConfigLarge]!!.id
         val frameBuffer = frameGraph.captureWith(setOf(streamId), capacity = 5)
-        advanceUntilIdle()
 
         // Simulate 1 frame entering the buffer
         val frame = frameGraph.simulateNextFrame()
@@ -193,7 +192,6 @@ class MemoryEstimationTest {
     fun memoryAccountingHandlesMultipleFramesCorrectly() = testScope.runTest {
         val streamId = frameGraph.streams[streamConfigLarge]!!.id
         val frameBuffer = frameGraph.captureWith(setOf(streamId), capacity = 5)
-        advanceUntilIdle()
 
         // Feed 3 frames into the pipeline
         repeat(3) {
@@ -421,11 +419,9 @@ class MemoryEstimationTest {
 
         val streamId = tightGraph.streams[streamConfigLarge]!!.id
         val frameBuffer = tightGraph.captureWith(setOf(streamId), capacity = 10)
-        advanceUntilIdle()
 
         // 1. Simulate the first frame (Should succeed)
         val frame1 = tightGraph.simulateNextFrame()
-        advanceUntilIdle()
         frame1.simulateImage(streamId)
         advanceUntilIdle()
 
@@ -440,7 +436,6 @@ class MemoryEstimationTest {
         val fillerFrames = mutableListOf<Frame>()
         for (capture in fillerCaptures) {
             val f = tightGraph.simulateNextFrame()
-            advanceUntilIdle()
             f.simulateImage(streamId)
             advanceUntilIdle()
 
@@ -457,10 +452,8 @@ class MemoryEstimationTest {
 
         // 2. Simulate a final frame when memory is full.
         val capture = tightGraph.capture(Request(streams = listOf(streamId)))
-        advanceUntilIdle()
 
         val frameFail = tightGraph.simulateNextFrame()
-        advanceUntilIdle() // Trimmer runs, but buffer is empty so it frees nothing
         frameFail.simulateImage(streamId) // Tries to allocate, gets denied
         advanceUntilIdle()
 

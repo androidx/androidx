@@ -119,10 +119,8 @@ class FrameGraphImplTest {
         val stream = frameGraph.streams[streamConfig1]!!.id
 
         frameGraph.captureWith(setOf(stream))
-        advanceUntilIdle()
 
         val frame = frameGraph.simulateNextFrame()
-        advanceUntilIdle()
         assertThat(frame.request.streams).isEqualTo(listOf(stream))
     }
 
@@ -133,10 +131,8 @@ class FrameGraphImplTest {
         val stream2 = frameGraph.streams[streamConfig2]!!.id
 
         frameGraph.captureWith(setOf(stream1, stream2))
-        advanceUntilIdle()
 
         val frame = frameGraph.simulateNextFrame()
-        advanceUntilIdle()
         assertThat(frame.request.streams).isEqualTo(listOf(stream1, stream2))
     }
 
@@ -150,10 +146,8 @@ class FrameGraphImplTest {
             setOf(stream1, stream2),
             mapOf(CAPTURE_REQUEST_KEY to 2, TEST_NULLABLE_KEY to null, TEST_KEY to 5),
         )
-        advanceUntilIdle()
 
         val frame = frameGraph.simulateNextFrame()
-        advanceUntilIdle()
         assertThat(frame.request.streams).isEqualTo(listOf(stream1, stream2))
         val parameters: Map<CaptureRequest.Key<*>, Any?> =
             mapOf(CAPTURE_REQUEST_KEY to 2, TEST_NULLABLE_KEY to null)
@@ -180,13 +174,11 @@ class FrameGraphImplTest {
         val stream = frameGraph.streams[streamConfig1]!!.id
 
         val buffer1 = frameGraph.captureWith(setOf(stream), mapOf(TEST_NULLABLE_KEY to 42))
-        advanceUntilIdle()
         assertThat(frameGraph.simulateNextFrame().request.parameters)
             .containsEntry(TEST_NULLABLE_KEY, 42)
         buffer1.close()
 
         val buffer2 = frameGraph.captureWith(setOf(stream), mapOf(TEST_NULLABLE_KEY to null))
-        advanceUntilIdle()
         assertThat(frameGraph.simulateNextFrame().request.parameters)
             .containsEntry(TEST_NULLABLE_KEY, null)
 
@@ -199,21 +191,18 @@ class FrameGraphImplTest {
         val stream = frameGraph.streams[streamConfig1]!!.id
 
         val buffer1 = frameGraph.captureWith(setOf(stream), mapOf(TEST_NULLABLE_KEY to null))
-        advanceUntilIdle()
         assertThat(frameGraph.simulateNextFrame().request.parameters)
             .containsEntry(TEST_NULLABLE_KEY, null)
         buffer1.close()
         advanceUntilIdle()
 
         val buffer2 = frameGraph.captureWith(setOf(stream), mapOf(TEST_NULLABLE_KEY to 42))
-        advanceUntilIdle()
         assertThat(frameGraph.simulateNextFrame().request.parameters)
             .containsEntry(TEST_NULLABLE_KEY, 42)
         buffer2.close()
         advanceUntilIdle()
 
         val buffer3 = frameGraph.captureWith(setOf(stream), mapOf(TEST_NULLABLE_KEY to null))
-        advanceUntilIdle()
         assertThat(frameGraph.simulateNextFrame().request.parameters)
             .containsEntry(TEST_NULLABLE_KEY, null)
         buffer3.close()
@@ -227,12 +216,10 @@ class FrameGraphImplTest {
 
         val buffer =
             frameGraph.captureWith(setOf(stream1, stream2), mapOf(CAPTURE_REQUEST_KEY to 2))
-        advanceUntilIdle()
         assertThat(frameGraph.simulateNextFrame().request.streams)
             .isEqualTo(listOf(stream1, stream2))
 
         buffer.close()
-        advanceUntilIdle()
         assertThrows<IllegalStateException> { frameGraph.simulateNextFrame() }
     }
 
@@ -297,16 +284,13 @@ class FrameGraphImplTest {
         val repeatingRequestStreams = listOf(stream2)
 
         frameGraph.captureWith(initialStreams.toSet())
-        advanceUntilIdle()
 
         assertThat(frameGraph.simulateNextFrame().request.streams).isEqualTo(initialStreams)
         frameGraph.useSession {
             it.startRepeating(Request(streams = repeatingRequestStreams))
-            advanceUntilIdle()
             assertThat(frameGraph.simulateNextFrame().request.streams)
                 .isEqualTo(repeatingRequestStreams)
         }
-        advanceUntilIdle()
 
         assertThat(frameGraph.simulateNextFrame().request.streams).isEqualTo(initialStreams)
     }
@@ -320,7 +304,6 @@ class FrameGraphImplTest {
 
         frameGraph.start()
         frameGraph.captureWith(streamIds = setOf(stream))
-        advanceUntilIdle()
         assertThat(frameGraph.simulateNextFrame().request.parameters)
             .isEqualTo(emptyMap<CaptureRequest.Key<*>, Any>())
 
@@ -328,11 +311,9 @@ class FrameGraphImplTest {
             it.startRepeating(
                 Request(streams = listOf(stream), parameters = repeatingRequestParameters)
             )
-            advanceUntilIdle()
             assertThat(frameGraph.simulateNextFrame().request.parameters)
                 .isEqualTo(repeatingRequestParameters)
         }
-        advanceUntilIdle()
 
         assertThat(frameGraph.simulateNextFrame().request.parameters)
             .isEqualTo(emptyMap<CaptureRequest.Key<*>, Any>())
@@ -351,7 +332,6 @@ class FrameGraphImplTest {
                 mapOf<CaptureRequest.Key<*>, Any>(CaptureRequest.SCALER_CROP_REGION to Rect())
 
             frameGraph.captureWith(initialStreams.toSet(), initialParameters.toMap())
-            advanceUntilIdle()
             assertThat(frameGraph.simulateNextFrame().request.streams).isEqualTo(initialStreams)
             assertThat(frameGraph.simulateNextFrame().request.parameters)
                 .isEqualTo(initialParameters)
@@ -362,13 +342,11 @@ class FrameGraphImplTest {
                         parameters = repeatingRequestParameters,
                     )
                 )
-                advanceUntilIdle()
                 assertThat(frameGraph.simulateNextFrame().request.streams)
                     .isEqualTo(repeatingRequestStreams)
                 assertThat(frameGraph.simulateNextFrame().request.parameters)
                     .isEqualTo(repeatingRequestParameters)
             }
-            advanceUntilIdle()
 
             assertThat(frameGraph.simulateNextFrame().request.streams).isEqualTo(initialStreams)
             assertThat(frameGraph.simulateNextFrame().request.parameters)
@@ -388,20 +366,17 @@ class FrameGraphImplTest {
         advanceUntilIdle()
 
         frameGraph.lock3A(aeLockBehavior = Lock3ABehavior.IMMEDIATE)
-        advanceUntilIdle()
         frameGraph.simulateNextFrame()
         assertThat(frameGraph.simulateNextFrame().requestSequence.requiredParameters)
             .isEqualTo(frameGraph3AParameters)
 
         frameGraph.useSession {
             it.unlock3A(ae = true)
-            advanceUntilIdle()
             assertThat(frameGraph.simulateNextFrame().requestSequence.requiredParameters)
                 .isEqualTo(
                     mapOf<CaptureRequest.Key<*>, Any>(CaptureRequest.CONTROL_AE_LOCK to false)
                 )
         }
-        advanceUntilIdle()
 
         assertThat(frameGraph.simulateNextFrame().requestSequence.requiredParameters)
             .isEqualTo(frameGraph3AParameters)
@@ -424,13 +399,11 @@ class FrameGraphImplTest {
                 )
 
             frameGraph.captureWith(initialStreams.toSet(), initialParameters.toMap())
-            advanceUntilIdle()
             assertThat(frameGraph.simulateNextFrame().request.streams).isEqualTo(initialStreams)
             assertThat(frameGraph.simulateNextFrame().request.parameters)
                 .isEqualTo(initialParameters)
 
             frameGraph.update3A(afMode = AfMode.AUTO)
-            advanceUntilIdle()
             assertThat(frameGraph.simulateNextFrame().requestSequence.requiredParameters)
                 .isEqualTo(frameGraph3AParameters)
 
@@ -441,14 +414,12 @@ class FrameGraphImplTest {
                         parameters = repeatingRequestParameters,
                     )
                 )
-                advanceUntilIdle()
                 assertThat(frameGraph.simulateNextFrame().request.streams)
                     .isEqualTo(repeatingRequestStreams)
                 assertThat(frameGraph.simulateNextFrame().request.parameters)
                     .isEqualTo(repeatingRequestParameters)
 
                 it.update3A(afMode = AfMode.MACRO)
-                advanceUntilIdle()
                 assertThat(frameGraph.simulateNextFrame().requestSequence.requiredParameters)
                     .isEqualTo(
                         mapOf<CaptureRequest.Key<*>, Any>(
@@ -456,7 +427,6 @@ class FrameGraphImplTest {
                         )
                     )
             }
-            advanceUntilIdle()
 
             // Simulate a few requests to invalidate the FrameBuffer(s) when session closes.
             frameGraph.simulateNextFrame()
@@ -492,7 +462,6 @@ class FrameGraphImplTest {
         assertThat(frameCapture.status).isEqualTo(OutputStatus.PENDING)
 
         session.close()
-        advanceUntilIdle()
 
         val frame = frameGraph.simulateNextFrame()
         assertThat(frame.request.streams).isEqualTo(listOf(streamId))
@@ -513,7 +482,6 @@ class FrameGraphImplTest {
         frameCaptures.forEach { assertThat(it.status).isEqualTo(OutputStatus.PENDING) }
 
         session.close()
-        advanceUntilIdle()
 
         frameGraph.simulateNextFrame()
         frameGraph.simulateNextFrame()
@@ -590,7 +558,6 @@ class FrameGraphImplTest {
         val streamId = frameGraph.streams[streamConfig2]!!.id
 
         val frameCapture = frameGraph.capture(Request(streams = listOf(streamId)))
-        advanceUntilIdle()
 
         val imagesAvailable = atomic(false)
         val completed = atomic(false)
@@ -651,7 +618,6 @@ class FrameGraphImplTest {
         assertThat(frameGraphCapture.status).isEqualTo(OutputStatus.PENDING)
 
         session.close()
-        advanceUntilIdle()
 
         val firstSimulatedFrame = frameGraph.simulateNextFrame()
         val secondSimulatedFrame = frameGraph.simulateNextFrame()
@@ -687,7 +653,6 @@ class FrameGraphImplTest {
         assertThat(frameGraphCapture.status).isEqualTo(OutputStatus.PENDING)
 
         session.close()
-        advanceUntilIdle()
 
         val firstSimulatedFrame = frameGraph.simulateNextFrame()
         val secondSimulatedFrame = frameGraph.simulateNextFrame()
@@ -723,7 +688,6 @@ class FrameGraphImplTest {
         assertThat(capture3.status).isEqualTo(OutputStatus.PENDING)
 
         session.close()
-        advanceUntilIdle()
 
         frameGraph.simulateNextFrame()
         frameGraph.simulateNextFrame()
@@ -741,9 +705,7 @@ class FrameGraphImplTest {
         val stream2 = frameGraph.streams[streamConfig2]!!.id
         val buffer1 = frameGraph.captureWith(setOf(stream1), capacity = 10)
         val buffer2 = frameGraph.captureWith(setOf(stream2), capacity = 10)
-        advanceUntilIdle()
         repeat(5) { frameGraph.simulateNextFrame() }
-        advanceUntilIdle()
         assertThat(buffer1.size.value).isEqualTo(5)
         assertThat(buffer2.size.value).isEqualTo(5)
 
@@ -789,7 +751,6 @@ class FrameGraphImplTest {
 
         // Request a buffer to hold our 2 images
         val buffer = frameGraph.captureWith(setOf(streamId), capacity = 2)
-        advanceUntilIdle()
 
         // Simulate the first frame and its image
         val frame1 = frameGraph.simulateNextFrame()
@@ -822,7 +783,6 @@ class FrameGraphImplTest {
 
         val buffer1 = frameGraph.captureWith(setOf(streamId1), capacity = 10)
         val buffer3 = frameGraph.captureWith(setOf(streamId3), capacity = 2)
-        advanceUntilIdle()
 
         // Buffer1 has size=10, and it contains stream1 which has size 10. Buffer3 has size=2,
         // and it contains stream3, which has size=2.
@@ -835,7 +795,6 @@ class FrameGraphImplTest {
         // If that's not the case then this loop should run without any error.
         repeat(8) {
             val simulatedFrame = frameGraph.simulateNextFrame()
-            advanceUntilIdle()
             simulatedFrame.simulateImages()
             advanceUntilIdle()
 
@@ -845,7 +804,6 @@ class FrameGraphImplTest {
 
             image.close()
             frame.close()
-            advanceUntilIdle()
         }
 
         buffer1.close()
