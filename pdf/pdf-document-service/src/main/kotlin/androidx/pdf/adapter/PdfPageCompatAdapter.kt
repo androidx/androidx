@@ -30,15 +30,21 @@ import android.os.Build
 import android.util.Pair
 import androidx.annotation.RequiresApi
 import androidx.pdf.RenderParams
+import java.util.concurrent.atomic.AtomicBoolean
 
 @SuppressLint("ObsoleteSdkInt")
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 internal class PdfPageCompatAdapter(private val page: PdfRenderer.Page) : PdfPage {
     override val height = page.height
     override val width = page.width
-    override var isClosed = false
+    private val _isClosed = AtomicBoolean(false)
+    override val isClosed: Boolean
+        get() = _isClosed.get()
 
     override fun renderPage(bitmap: Bitmap, renderParams: RenderParams) {
+        if (isClosed) {
+            throw IllegalStateException("Page is closed")
+        }
         page.render(
             /* destination = */ bitmap,
             /* destClip = */ null,
@@ -55,6 +61,9 @@ internal class PdfPageCompatAdapter(private val page: PdfRenderer.Page) : PdfPag
         scaledPageHeight: Int,
         renderParams: RenderParams,
     ) {
+        if (isClosed) {
+            throw IllegalStateException("Page is closed")
+        }
         val matrix =
             androidx.pdf.utils.getTransformationMatrix(
                 left = left,
@@ -68,7 +77,9 @@ internal class PdfPageCompatAdapter(private val page: PdfRenderer.Page) : PdfPag
     }
 
     override fun close() {
-        page.close()
+        if (_isClosed.compareAndSet(false, true)) {
+            page.close()
+        }
     }
 
     // All methods below are unsupported pre-S

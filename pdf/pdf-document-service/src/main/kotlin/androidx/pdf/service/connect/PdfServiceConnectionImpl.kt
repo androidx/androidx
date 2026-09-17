@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.IBinder
+import android.os.RemoteException
 import androidx.pdf.PdfDocumentRemote
 import androidx.pdf.service.PdfDocumentServiceImpl
 import java.util.Queue
@@ -101,7 +102,7 @@ internal class PdfServiceConnectionImpl(override val context: Context) : PdfServ
 
             try {
                 binder?.closePdfDocument()
-            } catch (e: android.os.RemoteException) {
+            } catch (_: RemoteException) {
                 // Service is already dead, OS will clean up server resources.
             }
         }
@@ -109,7 +110,7 @@ internal class PdfServiceConnectionImpl(override val context: Context) : PdfServ
         if (isBound.getAndSet(false)) {
             try {
                 context.unbindService(this)
-            } catch (e: IllegalArgumentException) {
+            } catch (_: IllegalArgumentException) {
                 // Ignored: Service was not registered or already unbound
             }
         }
