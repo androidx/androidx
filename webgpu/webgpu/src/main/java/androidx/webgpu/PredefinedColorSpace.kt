@@ -38,15 +38,33 @@ public class PredefinedColorSpace private constructor() {
 
         /** The Display-P3 color space. */
         public const val DisplayP3: Int = 0x00000002
+        public const val SRGBLinear: Int = 0x00050003
+        public const val DisplayP3Linear: Int = 0x00050004
+        public const val Rec2020Linear: Int = 0x00050005
         internal val names: Map<Int, String> =
-            mapOf(0x00000001 to "SRGB", 0x00000002 to "DisplayP3")
+            mapOf(
+                0x00000001 to "SRGB",
+                0x00000002 to "DisplayP3",
+                0x00050003 to "SRGBLinear",
+                0x00050004 to "DisplayP3Linear",
+                0x00050005 to "Rec2020Linear",
+            )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [SRGB, DisplayP3])
+    @IntDef(
+        value =
+            [
+                SRGB,
+                DisplayP3,
+                SRGBLinear,
+                DisplayP3Linear,
+                Rec2020Linear,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

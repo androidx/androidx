@@ -63,7 +63,16 @@ public class StorageTextureAccess private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [BindingNotUsed, Undefined, WriteOnly, ReadOnly, ReadWrite])
+    @IntDef(
+        value =
+            [
+                BindingNotUsed,
+                Undefined,
+                WriteOnly,
+                ReadOnly,
+                ReadWrite,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

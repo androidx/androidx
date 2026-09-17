@@ -24,9 +24,19 @@
 package androidx.webgpu
 
 /** Describes a queue. */
-public class GPUQueueDescriptor
-@JvmOverloads
-constructor(
+public class GPUQueueDescriptor(
     /** A human-readable label for debugging. */
     public var label: String? = null
-)
+) {
+    /** Builder for [GPUQueueDescriptor]. */
+    public class Builder() {
+        private var label: String? = null
+
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
+
+        /** Builds the [GPUQueueDescriptor]. */
+        public fun build(): GPUQueueDescriptor = GPUQueueDescriptor(label = label)
+    }
+}

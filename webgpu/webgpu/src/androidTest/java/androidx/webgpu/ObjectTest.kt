@@ -18,7 +18,7 @@ package androidx.webgpu
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.webgpu.GPU.createInstance
-import androidx.webgpu.helper.Util
+import androidx.webgpu.helper.initLibrary
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -26,7 +26,7 @@ import org.junit.runner.RunWith
 @SmallTest
 class ObjectTest {
     init {
-        @Suppress("UNUSED_EXPRESSION") Util // Hack to force library initialization.
+        initLibrary()
     }
 
     @Test

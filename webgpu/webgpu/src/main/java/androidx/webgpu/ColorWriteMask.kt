@@ -67,7 +67,18 @@ public class ColorWriteMask private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(flag = true, value = [None, Red, Green, Blue, Alpha, All])
+    @IntDef(
+        flag = true,
+        value =
+            [
+                None,
+                Red,
+                Green,
+                Blue,
+                Alpha,
+                All,
+            ],
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

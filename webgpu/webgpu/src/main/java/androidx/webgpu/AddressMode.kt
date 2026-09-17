@@ -59,7 +59,15 @@ public class AddressMode private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Undefined, ClampToEdge, Repeat, MirrorRepeat])
+    @IntDef(
+        value =
+            [
+                Undefined,
+                ClampToEdge,
+                Repeat,
+                MirrorRepeat,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

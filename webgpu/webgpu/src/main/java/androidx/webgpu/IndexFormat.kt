@@ -44,14 +44,25 @@ public class IndexFormat private constructor() {
         /** 32-bit unsigned integer indices. */
         public const val Uint32: Int = 0x00000002
         internal val names: Map<Int, String> =
-            mapOf(0x00000000 to "Undefined", 0x00000001 to "Uint16", 0x00000002 to "Uint32")
+            mapOf(
+                0x00000000 to "Undefined",
+                0x00000001 to "Uint16",
+                0x00000002 to "Uint32",
+            )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Undefined, Uint16, Uint32])
+    @IntDef(
+        value =
+            [
+                Undefined,
+                Uint16,
+                Uint32,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

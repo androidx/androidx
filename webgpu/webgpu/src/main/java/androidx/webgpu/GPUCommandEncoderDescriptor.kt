@@ -24,9 +24,19 @@
 package androidx.webgpu
 
 /** Describes a command encoder. */
-public class GPUCommandEncoderDescriptor
-@JvmOverloads
-constructor(
+public class GPUCommandEncoderDescriptor(
     /** A human-readable label for debugging. */
     public var label: String? = null
-)
+) {
+    /** Builder for [GPUCommandEncoderDescriptor]. */
+    public class Builder() {
+        private var label: String? = null
+
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
+
+        /** Builds the [GPUCommandEncoderDescriptor]. */
+        public fun build(): GPUCommandEncoderDescriptor = GPUCommandEncoderDescriptor(label = label)
+    }
+}

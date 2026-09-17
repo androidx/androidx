@@ -63,7 +63,16 @@ public class CompositeAlphaMode private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Auto, Opaque, Premultiplied, Unpremultiplied, Inherit])
+    @IntDef(
+        value =
+            [
+                Auto,
+                Opaque,
+                Premultiplied,
+                Unpremultiplied,
+                Inherit,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

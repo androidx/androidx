@@ -23,9 +23,25 @@
  */
 package androidx.webgpu
 
-public class GPUTextureBindingViewDimension
-@JvmOverloads
-constructor(
+public class GPUTextureBindingViewDimension(
     @TextureViewDimension.Type
     public var textureBindingViewDimension: Int = TextureViewDimension.Undefined
-)
+) {
+    /** Builder for [GPUTextureBindingViewDimension]. */
+    public class Builder() {
+        @TextureViewDimension.Type
+        private var textureBindingViewDimension: Int = TextureViewDimension.Undefined
+
+        public fun setTextureBindingViewDimension(
+            @TextureViewDimension.Type textureBindingViewDimension: Int
+        ): Builder = apply {
+            this.textureBindingViewDimension = textureBindingViewDimension
+        }
+
+        /** Builds the [GPUTextureBindingViewDimension]. */
+        public fun build(): GPUTextureBindingViewDimension =
+            GPUTextureBindingViewDimension(
+                textureBindingViewDimension = textureBindingViewDimension
+            )
+    }
+}

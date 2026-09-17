@@ -24,9 +24,19 @@
 package androidx.webgpu
 
 /** A list of supported optional features. */
-public class GPUSupportedFeatures
-@JvmOverloads
-constructor(
+public class GPUSupportedFeatures(
     /** An array of supported feature names. */
     @FeatureName.Type public var features: IntArray = intArrayOf()
-)
+) {
+    /** Builder for [GPUSupportedFeatures]. */
+    public class Builder() {
+        @FeatureName.Type private var features: IntArray = intArrayOf()
+
+        public fun setFeatures(@FeatureName.Type features: IntArray): Builder = apply {
+            this.features = features
+        }
+
+        /** Builds the [GPUSupportedFeatures]. */
+        public fun build(): GPUSupportedFeatures = GPUSupportedFeatures(features = features)
+    }
+}

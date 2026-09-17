@@ -24,9 +24,20 @@
 package androidx.webgpu
 
 /** A list of supported optional WGSL language features. */
-public class GPUSupportedWGSLLanguageFeatures
-@JvmOverloads
-constructor(
+public class GPUSupportedWGSLLanguageFeatures(
     /** An array of supported WGSL language feature names. */
     @WGSLLanguageFeatureName.Type public var features: IntArray = intArrayOf()
-)
+) {
+    /** Builder for [GPUSupportedWGSLLanguageFeatures]. */
+    public class Builder() {
+        @WGSLLanguageFeatureName.Type private var features: IntArray = intArrayOf()
+
+        public fun setFeatures(@WGSLLanguageFeatureName.Type features: IntArray): Builder = apply {
+            this.features = features
+        }
+
+        /** Builds the [GPUSupportedWGSLLanguageFeatures]. */
+        public fun build(): GPUSupportedWGSLLanguageFeatures =
+            GPUSupportedWGSLLanguageFeatures(features = features)
+    }
+}

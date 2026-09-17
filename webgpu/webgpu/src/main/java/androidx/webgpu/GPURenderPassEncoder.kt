@@ -24,6 +24,7 @@
 package androidx.webgpu
 
 import dalvik.annotation.optimization.FastNative
+import java.nio.ByteBuffer
 
 /** An object used to record commands for a render pass. */
 public class GPURenderPassEncoder private constructor(public val handle: Long) : AutoCloseable {
@@ -155,6 +156,10 @@ public class GPURenderPassEncoder private constructor(public val handle: Long) :
     @FastNative
     @JvmName("setBlendConstant")
     public external fun setBlendConstant(color: GPUColor): Unit
+
+    @FastNative
+    @JvmName("setImmediates")
+    public external fun setImmediates(offset: Int, data: java.nio.ByteBuffer): Unit
 
     /**
      * Sets the index buffer.

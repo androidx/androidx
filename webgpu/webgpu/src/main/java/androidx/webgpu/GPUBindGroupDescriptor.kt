@@ -24,13 +24,33 @@
 package androidx.webgpu
 
 /** Describes a bind group, which is a collection of resources to be bound to a pipeline. */
-public class GPUBindGroupDescriptor
-@JvmOverloads
-constructor(
+public class GPUBindGroupDescriptor(
     /** The layout of the bind group. */
     public var layout: GPUBindGroupLayout,
     /** A human-readable label for debugging. */
     public var label: String? = null,
     /** An array of entries describing the resources in the bind group. */
     public var entries: Array<GPUBindGroupEntry> = arrayOf(),
-)
+) {
+    /** Builder for [GPUBindGroupDescriptor]. */
+    public class Builder(private val layout: GPUBindGroupLayout) {
+        private var label: String? = null
+        private var entries: Array<GPUBindGroupEntry> = arrayOf()
+
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
+
+        public fun setEntries(entries: Array<GPUBindGroupEntry>): Builder = apply {
+            this.entries = entries
+        }
+
+        /** Builds the [GPUBindGroupDescriptor]. */
+        public fun build(): GPUBindGroupDescriptor =
+            GPUBindGroupDescriptor(
+                layout = layout,
+                label = label,
+                entries = entries,
+            )
+    }
+}

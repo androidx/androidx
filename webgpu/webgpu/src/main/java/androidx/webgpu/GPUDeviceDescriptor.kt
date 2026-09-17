@@ -24,17 +24,66 @@
 package androidx.webgpu
 
 /** Describes a device to be created. */
-public class GPUDeviceDescriptor(
-    public var deviceLostCallbackExecutor: java.util.concurrent.Executor,
-    public var uncapturedErrorCallbackExecutor: java.util.concurrent.Executor,
+public class GPUDeviceDescriptor {
+    public var deviceLostCallbackExecutor: java.util.concurrent.Executor
+    public var uncapturedErrorCallbackExecutor: java.util.concurrent.Executor
     /** A human-readable label for debugging. */
-    public var label: String? = null,
-    @FeatureName.Type public var requiredFeatures: IntArray = intArrayOf(),
-    public var requiredLimits: GPULimits? = null,
-    public var defaultQueue: GPUQueueDescriptor = GPUQueueDescriptor(),
-    public var deviceLostCallback: DeviceLostCallback?,
-    public var uncapturedErrorCallback: UncapturedErrorCallback?,
-) {
+    public var label: String?
+    @FeatureName.Type public var requiredFeatures: IntArray
+    public var requiredLimits: GPULimits?
+    public var defaultQueue: GPUQueueDescriptor
+    public var deviceLostCallback: DeviceLostCallback?
+    public var uncapturedErrorCallback: UncapturedErrorCallback?
+    @android.annotation.SuppressLint("ExperimentalPropertyAnnotation")
+    @ExperimentalWebGpuApi
+    public var dawnTogglesDescriptor: GPUDawnTogglesDescriptor? = null
+
+    public constructor(
+        deviceLostCallbackExecutor: java.util.concurrent.Executor,
+        uncapturedErrorCallbackExecutor: java.util.concurrent.Executor,
+        label: String? = null,
+        @FeatureName.Type requiredFeatures: IntArray = intArrayOf(),
+        requiredLimits: GPULimits? = null,
+        defaultQueue: GPUQueueDescriptor = GPUQueueDescriptor(),
+        deviceLostCallback: DeviceLostCallback?,
+        uncapturedErrorCallback: UncapturedErrorCallback?,
+    ) {
+        this.deviceLostCallbackExecutor = deviceLostCallbackExecutor
+        this.uncapturedErrorCallbackExecutor = uncapturedErrorCallbackExecutor
+        this.label = label
+        this.requiredFeatures = requiredFeatures
+        this.requiredLimits = requiredLimits
+        this.defaultQueue = defaultQueue
+        this.deviceLostCallback = deviceLostCallback
+        this.uncapturedErrorCallback = uncapturedErrorCallback
+    }
+
+    // TODO: When stabilizing, fold the experimental parameters into the stable constructor. The
+    // previous stable constructor should be marked with @Deprecated(level =
+    // DeprecationLevel.HIDDEN) to maintain backward compatibility.
+    @ExperimentalWebGpuApi
+    public constructor(
+        deviceLostCallbackExecutor: java.util.concurrent.Executor,
+        uncapturedErrorCallbackExecutor: java.util.concurrent.Executor,
+        label: String? = null,
+        @FeatureName.Type requiredFeatures: IntArray = intArrayOf(),
+        requiredLimits: GPULimits? = null,
+        defaultQueue: GPUQueueDescriptor = GPUQueueDescriptor(),
+        deviceLostCallback: DeviceLostCallback?,
+        uncapturedErrorCallback: UncapturedErrorCallback?,
+        dawnTogglesDescriptor: GPUDawnTogglesDescriptor?,
+    ) {
+        this.deviceLostCallbackExecutor = deviceLostCallbackExecutor
+        this.uncapturedErrorCallbackExecutor = uncapturedErrorCallbackExecutor
+        this.label = label
+        this.requiredFeatures = requiredFeatures
+        this.requiredLimits = requiredLimits
+        this.defaultQueue = defaultQueue
+        this.deviceLostCallback = deviceLostCallback
+        this.uncapturedErrorCallback = uncapturedErrorCallback
+        this.dawnTogglesDescriptor = dawnTogglesDescriptor
+    }
+
     public fun setDeviceLostCallback(
         deviceLostCallbackExecutor: java.util.concurrent.Executor,
         deviceLostCallback: DeviceLostCallback?,
@@ -62,8 +111,11 @@ public class GPUDeviceDescriptor(
         @FeatureName.Type private var requiredFeatures: IntArray = intArrayOf()
         private var requiredLimits: GPULimits? = null
         private var defaultQueue: GPUQueueDescriptor = GPUQueueDescriptor()
+        @ExperimentalWebGpuApi private var dawnTogglesDescriptor: GPUDawnTogglesDescriptor? = null
 
-        public fun setLabel(label: String?): Builder = apply { this.label = label }
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
 
         public fun setRequiredFeatures(@FeatureName.Type requiredFeatures: IntArray): Builder =
             apply {
@@ -78,7 +130,15 @@ public class GPUDeviceDescriptor(
             this.defaultQueue = defaultQueue
         }
 
+        @ExperimentalWebGpuApi
+        public fun setDawnTogglesDescriptor(
+            dawnTogglesDescriptor: GPUDawnTogglesDescriptor?
+        ): Builder = apply {
+            this.dawnTogglesDescriptor = dawnTogglesDescriptor
+        }
+
         /** Builds the [GPUDeviceDescriptor]. */
+        @OptIn(ExperimentalWebGpuApi::class)
         public fun build(): GPUDeviceDescriptor =
             GPUDeviceDescriptor(
                 deviceLostCallbackExecutor = deviceLostCallbackExecutor,
@@ -89,6 +149,7 @@ public class GPUDeviceDescriptor(
                 defaultQueue = defaultQueue,
                 deviceLostCallback = deviceLostCallback,
                 uncapturedErrorCallback = uncapturedErrorCallback,
+                dawnTogglesDescriptor = dawnTogglesDescriptor,
             )
     }
 }

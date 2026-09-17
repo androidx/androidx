@@ -31,7 +31,6 @@ public class GPUStencilFaceState(
     @StencilOperation.Type public var depthFailOp: Int = StencilOperation.Keep,
     @StencilOperation.Type public var passOp: Int = StencilOperation.Keep,
 ) {
-
     /** Builder for [GPUStencilFaceState]. */
     public class Builder() {
         @CompareFunction.Type private var compare: Int = CompareFunction.Always

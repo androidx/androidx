@@ -38,7 +38,6 @@ public class GPUBindGroupEntry(
     public var textureView: GPUTextureView? = null,
     public var externalTextureBindingEntry: GPUExternalTextureBindingEntry? = null,
 ) {
-
     /** Builder for [GPUBindGroupEntry]. */
     public class Builder(private val binding: Int) {
         private var buffer: GPUBuffer? = null
@@ -48,13 +47,21 @@ public class GPUBindGroupEntry(
         private var textureView: GPUTextureView? = null
         private var externalTextureBindingEntry: GPUExternalTextureBindingEntry? = null
 
-        public fun setBuffer(buffer: GPUBuffer?): Builder = apply { this.buffer = buffer }
+        public fun setBuffer(buffer: GPUBuffer?): Builder = apply {
+            this.buffer = buffer
+        }
 
-        public fun setOffset(offset: Long): Builder = apply { this.offset = offset }
+        public fun setOffset(offset: Long): Builder = apply {
+            this.offset = offset
+        }
 
-        public fun setSize(size: Long): Builder = apply { this.size = size }
+        public fun setSize(size: Long): Builder = apply {
+            this.size = size
+        }
 
-        public fun setSampler(sampler: GPUSampler?): Builder = apply { this.sampler = sampler }
+        public fun setSampler(sampler: GPUSampler?): Builder = apply {
+            this.sampler = sampler
+        }
 
         public fun setTextureView(textureView: GPUTextureView?): Builder = apply {
             this.textureView = textureView
@@ -62,7 +69,9 @@ public class GPUBindGroupEntry(
 
         public fun setExternalTextureBindingEntry(
             externalTextureBindingEntry: GPUExternalTextureBindingEntry?
-        ): Builder = apply { this.externalTextureBindingEntry = externalTextureBindingEntry }
+        ): Builder = apply {
+            this.externalTextureBindingEntry = externalTextureBindingEntry
+        }
 
         /** Builds the [GPUBindGroupEntry]. */
         public fun build(): GPUBindGroupEntry =

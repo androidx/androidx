@@ -39,7 +39,6 @@ public class GPUSamplerDescriptor(
     @CompareFunction.Type public var compare: Int = CompareFunction.Undefined,
     public var maxAnisotropy: Short = 1,
 ) {
-
     /** Builder for [GPUSamplerDescriptor]. */
     public class Builder() {
         private var label: String? = null
@@ -54,7 +53,9 @@ public class GPUSamplerDescriptor(
         @CompareFunction.Type private var compare: Int = CompareFunction.Undefined
         private var maxAnisotropy: Short = 1
 
-        public fun setLabel(label: String?): Builder = apply { this.label = label }
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
 
         public fun setAddressModeU(@AddressMode.Type addressModeU: Int): Builder = apply {
             this.addressModeU = addressModeU

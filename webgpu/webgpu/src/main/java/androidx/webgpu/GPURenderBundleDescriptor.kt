@@ -24,9 +24,19 @@
 package androidx.webgpu
 
 /** Describes a render bundle. */
-public class GPURenderBundleDescriptor
-@JvmOverloads
-constructor(
+public class GPURenderBundleDescriptor(
     /** A human-readable label for debugging. */
     public var label: String? = null
-)
+) {
+    /** Builder for [GPURenderBundleDescriptor]. */
+    public class Builder() {
+        private var label: String? = null
+
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
+
+        /** Builds the [GPURenderBundleDescriptor]. */
+        public fun build(): GPURenderBundleDescriptor = GPURenderBundleDescriptor(label = label)
+    }
+}

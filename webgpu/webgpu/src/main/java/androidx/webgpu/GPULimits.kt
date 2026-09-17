@@ -59,7 +59,6 @@ public class GPULimits(
     public var maxImmediateSize: Int = Constants.LIMIT_U32_UNDEFINED,
     public var compatibilityModeLimits: GPUCompatibilityModeLimits? = null,
 ) {
-
     /** Builder for [GPULimits]. */
     public class Builder() {
         private var maxTextureDimension1D: Int = Constants.LIMIT_U32_UNDEFINED
@@ -255,7 +254,9 @@ public class GPULimits(
 
         public fun setCompatibilityModeLimits(
             compatibilityModeLimits: GPUCompatibilityModeLimits?
-        ): Builder = apply { this.compatibilityModeLimits = compatibilityModeLimits }
+        ): Builder = apply {
+            this.compatibilityModeLimits = compatibilityModeLimits
+        }
 
         /** Builds the [GPULimits]. */
         public fun build(): GPULimits =

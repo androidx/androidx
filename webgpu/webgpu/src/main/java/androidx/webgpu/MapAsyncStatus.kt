@@ -62,7 +62,15 @@ public class MapAsyncStatus private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Success, CallbackCancelled, Error, Aborted])
+    @IntDef(
+        value =
+            [
+                Success,
+                CallbackCancelled,
+                Error,
+                Aborted,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

@@ -33,4 +33,4 @@ public class GPUColor(
     public var b: Double,
     /** The alpha component. */
     public var a: Double,
-)
+) {}

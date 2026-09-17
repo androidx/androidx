@@ -44,14 +44,26 @@ public class MapMode private constructor() {
         /** Write-only access. */
         public const val Write: Int = 0x00000002
         internal val names: Map<Int, String> =
-            mapOf(0x00000000 to "None", 0x00000001 to "Read", 0x00000002 to "Write")
+            mapOf(
+                0x00000000 to "None",
+                0x00000001 to "Read",
+                0x00000002 to "Write",
+            )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(flag = true, value = [None, Read, Write])
+    @IntDef(
+        flag = true,
+        value =
+            [
+                None,
+                Read,
+                Write,
+            ],
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

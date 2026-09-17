@@ -18,7 +18,9 @@ package androidx.webgpu
 import android.os.Build
 
 object EmulatorUtils {
-    val isEmulator: Boolean by lazy { checkIsEmulator() }
+    val isEmulator: Boolean by lazy {
+        checkIsEmulator()
+    }
 
     /**
      * Checks if the current Android environment is running on a probable emulator. This method is

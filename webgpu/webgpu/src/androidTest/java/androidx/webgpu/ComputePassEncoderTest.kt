@@ -20,57 +20,73 @@ import androidx.webgpu.helper.WebGpu
 import androidx.webgpu.helper.createWebGpu
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.concurrent.Executors
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 
 @Suppress("UNUSED_VARIABLE")
 @SmallTest
 class ComputePassEncoderTest {
+    private val dispatcher: CoroutineDispatcher =
+        Executors.newSingleThreadExecutor { runnable ->
+                Thread(runnable, "Test-WebGPU-Thread")
+            }
+            .asCoroutineDispatcher()
+    private val testScope = CoroutineScope(dispatcher)
     private var webGpu: WebGpu? = null
     private lateinit var device: GPUDevice
     private lateinit var pipeline: GPUComputePipeline
 
     @Before
-    fun setup() = runBlocking {
-        val gpu = createWebGpu()
+    fun setup(): Unit = runBlocking {
+        val gpu = createWebGpu(dispatcher)
         webGpu = gpu
         device = gpu.device
+        testScope.launch {
+            gpu.processEventsLoop()
+        }
 
-        // Create a minimal compute pipeline to be used by all tests
-        val shaderModule =
-            device.createShaderModule(
-                GPUShaderModuleDescriptor(
-                    shaderSourceWGSL =
-                        GPUShaderSourceWGSL(
-                            """
-                            @compute @workgroup_size(1) fn main() {}
-                            """
-                                .trimIndent()
-                        )
+        gpu.execute {
+            // Create a minimal compute pipeline to be used by all tests
+            val shaderModule =
+                device.createShaderModule(
+                    GPUShaderModuleDescriptor(
+                        shaderSourceWGSL =
+                            GPUShaderSourceWGSL(
+                                """
+                                @compute @workgroup_size(1) fn main() {}
+                                """
+                                    .trimIndent()
+                            )
+                    )
                 )
-            )
 
-        val layout = device.createPipelineLayout(GPUPipelineLayoutDescriptor())
+            val layout = device.createPipelineLayout(GPUPipelineLayoutDescriptor())
 
-        pipeline =
-            device.createComputePipelineAndAwait(
-                GPUComputePipelineDescriptor(
-                    layout = layout,
-                    compute = GPUComputeState(module = shaderModule, entryPoint = "main"),
+            pipeline =
+                device.createComputePipelineAndAwait(
+                    GPUComputePipelineDescriptor(
+                        layout = layout,
+                        compute = GPUComputeState(module = shaderModule, entryPoint = "main"),
+                    )
                 )
-            )
+        }
     }
 
     @After
     fun teardown() {
-        pipeline.close()
-        runCatching { device.destroy() }
         webGpu?.close()
-        webGpu = null
+        testScope.cancel()
+        (dispatcher as? ExecutorCoroutineDispatcher)?.close()
     }
 
     /** Converts an IntArray into a direct ByteBuffer. */
@@ -84,15 +100,19 @@ class ComputePassEncoderTest {
     /** Verifies that `insertDebugMarker` can be called without error. This is a "smoke test". */
     @Test
     fun testInsertDebugMarker() {
-        val encoder = device.createCommandEncoder()
-        val passEncoder = encoder.beginComputePass()
-        device.pushErrorScope(ErrorFilter.Validation)
-        passEncoder.insertDebugMarker("My Marker")
+        runBlocking {
+            webGpu!!.execute {
+                val encoder = device.createCommandEncoder()
+                val passEncoder = encoder.beginComputePass()
+                device.pushErrorScope(ErrorFilter.Validation)
+                passEncoder.insertDebugMarker("My Marker")
 
-        passEncoder.end()
-        val unusedCommandBuffer = encoder.finish()
-        val error = runBlocking { device.popErrorScope() }
-        assertEquals(ErrorType.NoError, error)
+                passEncoder.end()
+                val unusedCommandBuffer = encoder.finish()
+                val error = device.popErrorScope()
+                assertEquals(ErrorType.NoError, error)
+            }
+        }
     }
 
     /**
@@ -101,14 +121,22 @@ class ComputePassEncoderTest {
      */
     @Test
     fun testPopDebugGroupWithoutPushFails() {
-        val encoder = device.createCommandEncoder()
-        val passEncoder = encoder.beginComputePass()
-        passEncoder.popDebugGroup() // Invalid call
-        passEncoder.end()
+        runBlocking {
+            val unusedExec =
+                webGpu!!.execute {
+                    val encoder = device.createCommandEncoder()
+                    val passEncoder = encoder.beginComputePass()
+                    passEncoder.popDebugGroup() // Invalid call
+                    passEncoder.end()
 
-        device.pushErrorScope(ErrorFilter.Validation)
-        val unusedCommandBuffer = encoder.finish()
-        assertThrows(ValidationException::class.java) { runBlocking { device.popErrorScope() } }
+                    device.pushErrorScope(ErrorFilter.Validation)
+                    val unusedCommandBuffer = encoder.finish()
+                    val unusedException =
+                        assertThrowsSuspend(ValidationException::class.java) {
+                            val unusedError = device.popErrorScope()
+                        }
+                }
+        }
     }
 
     /**
@@ -117,17 +145,21 @@ class ComputePassEncoderTest {
      */
     @Test
     fun testPushAndPopDebugGroupSucceeds() {
-        val encoder = device.createCommandEncoder()
-        val passEncoder = encoder.beginComputePass()
-        passEncoder.pushDebugGroup("MyDebugGroup") // Valid push.
-        passEncoder.popDebugGroup() // Valid pop.
-        passEncoder.end()
+        runBlocking {
+            webGpu!!.execute {
+                val encoder = device.createCommandEncoder()
+                val passEncoder = encoder.beginComputePass()
+                passEncoder.pushDebugGroup("MyDebugGroup") // Valid push.
+                passEncoder.popDebugGroup() // Valid pop.
+                passEncoder.end()
 
-        device.pushErrorScope(ErrorFilter.Validation)
-        val unusedCommandBuffer = encoder.finish()
-        val error = runBlocking { device.popErrorScope() }
+                device.pushErrorScope(ErrorFilter.Validation)
+                val unusedCommandBuffer = encoder.finish()
+                val error = device.popErrorScope()
 
-        assertEquals(ErrorType.NoError, error)
+                assertEquals(ErrorType.NoError, error)
+            }
+        }
     }
 
     /**
@@ -136,19 +168,23 @@ class ComputePassEncoderTest {
      */
     @Test
     fun testDispatchWorkgroupsValid() {
-        val encoder = device.createCommandEncoder()
-        val passEncoder = encoder.beginComputePass()
+        runBlocking {
+            webGpu!!.execute {
+                val encoder = device.createCommandEncoder()
+                val passEncoder = encoder.beginComputePass()
 
-        passEncoder.setPipeline(pipeline) // Set the valid pipeline.
-        passEncoder.dispatchWorkgroups(1, 1, 1) // Valid dispatch.
+                passEncoder.setPipeline(pipeline) // Set the valid pipeline.
+                passEncoder.dispatchWorkgroups(1, 1, 1) // Valid dispatch.
 
-        passEncoder.end()
+                passEncoder.end()
 
-        device.pushErrorScope(ErrorFilter.Validation)
-        val unusedCommandBuffer = encoder.finish()
-        val error = runBlocking { device.popErrorScope() }
+                device.pushErrorScope(ErrorFilter.Validation)
+                val unusedCommandBuffer = encoder.finish()
+                val error = device.popErrorScope()
 
-        assertEquals(ErrorType.NoError, error)
+                assertEquals(ErrorType.NoError, error)
+            }
+        }
     }
 
     /**
@@ -157,24 +193,31 @@ class ComputePassEncoderTest {
      */
     @Test
     fun testDispatchWorkgroupsIndirectWithInvalidBuffer() {
-        val invalidBuffer =
-            device.createBuffer(
-                GPUBufferDescriptor(
-                    size = 12, // 3 * Int
-                    usage = BufferUsage.CopyDst, // Note: Missing BufferUsage.Indirect.
-                )
-            )
+        runBlocking {
+            webGpu!!.execute {
+                val invalidBuffer =
+                    device.createBuffer(
+                        GPUBufferDescriptor(
+                            size = 12, // 3 * Int
+                            usage = BufferUsage.CopyDst, // Note: Missing BufferUsage.Indirect.
+                        )
+                    )
 
-        val encoder = device.createCommandEncoder()
-        val passEncoder = encoder.beginComputePass()
-        passEncoder.setPipeline(pipeline)
-        passEncoder.dispatchWorkgroupsIndirect(invalidBuffer, 0)
-        passEncoder.end()
+                val encoder = device.createCommandEncoder()
+                val passEncoder = encoder.beginComputePass()
+                passEncoder.setPipeline(pipeline)
+                passEncoder.dispatchWorkgroupsIndirect(invalidBuffer, 0)
+                passEncoder.end()
 
-        device.pushErrorScope(ErrorFilter.Validation)
-        val unusedCommandBuffer = encoder.finish()
-        assertThrows(ValidationException::class.java) { runBlocking { device.popErrorScope() } }
-        invalidBuffer.destroy()
+                device.pushErrorScope(ErrorFilter.Validation)
+                val unusedCommandBuffer = encoder.finish()
+                val unusedException =
+                    assertThrowsSuspend(ValidationException::class.java) {
+                        val unusedError = device.popErrorScope()
+                    }
+                invalidBuffer.destroy()
+            }
+        }
     }
 
     /**
@@ -183,28 +226,32 @@ class ComputePassEncoderTest {
      */
     @Test
     fun testDispatchWorkgroupsIndirectWithValidBuffer() {
-        val validBuffer =
-            device.createBuffer(
-                GPUBufferDescriptor(
-                    size = 12, // 3 * Int for X, Y, Z counts.
-                    usage = BufferUsage.Indirect or BufferUsage.CopyDst,
-                )
-            )
-        val dispatchData = createIntBuffer(intArrayOf(1, 1, 1))
-        device.queue.writeBuffer(validBuffer, 0, dispatchData)
+        runBlocking {
+            webGpu!!.execute {
+                val validBuffer =
+                    device.createBuffer(
+                        GPUBufferDescriptor(
+                            size = 12, // 3 * Int for X, Y, Z counts.
+                            usage = BufferUsage.Indirect or BufferUsage.CopyDst,
+                        )
+                    )
+                val dispatchData = createIntBuffer(intArrayOf(1, 1, 1))
+                device.queue.writeBuffer(validBuffer, 0, dispatchData)
 
-        val encoder = device.createCommandEncoder()
-        val passEncoder = encoder.beginComputePass()
-        passEncoder.setPipeline(pipeline)
-        passEncoder.dispatchWorkgroupsIndirect(validBuffer, 0)
-        passEncoder.end()
+                val encoder = device.createCommandEncoder()
+                val passEncoder = encoder.beginComputePass()
+                passEncoder.setPipeline(pipeline)
+                passEncoder.dispatchWorkgroupsIndirect(validBuffer, 0)
+                passEncoder.end()
 
-        device.pushErrorScope(ErrorFilter.Validation)
-        val unusedCommandBuffer = encoder.finish()
-        val error = runBlocking { device.popErrorScope() }
+                device.pushErrorScope(ErrorFilter.Validation)
+                val unusedCommandBuffer = encoder.finish()
+                val error = device.popErrorScope()
 
-        assertEquals(ErrorType.NoError, error)
-        validBuffer.destroy()
+                assertEquals(ErrorType.NoError, error)
+                validBuffer.destroy()
+            }
+        }
     }
 
     /**
@@ -213,29 +260,45 @@ class ComputePassEncoderTest {
      */
     @Test
     fun testDispatchAfterEndFails() {
-        val encoder = device.createCommandEncoder()
-        val passEncoder = encoder.beginComputePass()
-        passEncoder.setPipeline(pipeline)
-        passEncoder.end() // Pass has ended.
+        runBlocking {
+            val unusedExec =
+                webGpu!!.execute {
+                    val encoder = device.createCommandEncoder()
+                    val passEncoder = encoder.beginComputePass()
+                    passEncoder.setPipeline(pipeline)
+                    passEncoder.end() // Pass has ended.
 
-        passEncoder.dispatchWorkgroups(1) // Invalid call after end.
+                    passEncoder.dispatchWorkgroups(1) // Invalid call after end.
 
-        device.pushErrorScope(ErrorFilter.Validation)
-        val unusedCommandBuffer = encoder.finish()
-        assertThrows(ValidationException::class.java) { runBlocking { device.popErrorScope() } }
+                    device.pushErrorScope(ErrorFilter.Validation)
+                    val unusedCommandBuffer = encoder.finish()
+                    val unusedException =
+                        assertThrowsSuspend(ValidationException::class.java) {
+                            val unusedError = device.popErrorScope()
+                        }
+                }
+        }
     }
 
     /** Tests that calling `end()` twice on the same pass encoder results in a validation error. */
     @Test
     fun testEndCalledTwiceFails() {
-        val encoder = device.createCommandEncoder()
-        val passEncoder = encoder.beginComputePass()
+        runBlocking {
+            val unusedExec =
+                webGpu!!.execute {
+                    val encoder = device.createCommandEncoder()
+                    val passEncoder = encoder.beginComputePass()
 
-        passEncoder.end() // First call (valid).
+                    passEncoder.end() // First call (valid).
 
-        device.pushErrorScope(ErrorFilter.Validation)
-        passEncoder.end() // Second call (invalid).
-        val unusedCommandBuffer = encoder.finish()
-        assertThrows(ValidationException::class.java) { runBlocking { device.popErrorScope() } }
+                    device.pushErrorScope(ErrorFilter.Validation)
+                    passEncoder.end() // Second call (invalid).
+                    val unusedCommandBuffer = encoder.finish()
+                    val unusedException =
+                        assertThrowsSuspend(ValidationException::class.java) {
+                            val unusedError = device.popErrorScope()
+                        }
+                }
+        }
     }
 }

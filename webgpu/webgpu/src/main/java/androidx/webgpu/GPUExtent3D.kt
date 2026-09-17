@@ -24,12 +24,32 @@
 package androidx.webgpu
 
 /** Defines a three-dimensional extent (width, height, depth/layers). */
-public class GPUExtent3D
-@JvmOverloads
-constructor(
+public class GPUExtent3D(
     /** The width of the extent. */
     public var width: Int,
     /** The height of the extent. */
     public var height: Int = 1,
     public var depthOrArrayLayers: Int = 1,
-)
+) {
+    /** Builder for [GPUExtent3D]. */
+    public class Builder(private val width: Int) {
+        private var height: Int = 1
+        private var depthOrArrayLayers: Int = 1
+
+        public fun setHeight(height: Int): Builder = apply {
+            this.height = height
+        }
+
+        public fun setDepthOrArrayLayers(depthOrArrayLayers: Int): Builder = apply {
+            this.depthOrArrayLayers = depthOrArrayLayers
+        }
+
+        /** Builds the [GPUExtent3D]. */
+        public fun build(): GPUExtent3D =
+            GPUExtent3D(
+                width = width,
+                height = height,
+                depthOrArrayLayers = depthOrArrayLayers,
+            )
+    }
+}

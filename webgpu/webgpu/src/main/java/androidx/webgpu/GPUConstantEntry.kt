@@ -29,4 +29,4 @@ public class GPUConstantEntry(
     public var key: String,
     /** The value to override the constant with. */
     public var value: Double,
-)
+) {}

@@ -29,4 +29,4 @@ public class GPUSurfaceTexture(
     public var texture: GPUTexture,
     /** The status of the texture acquisition. */
     @SurfaceGetCurrentTextureStatus.Type public var status: Int,
-)
+) {}

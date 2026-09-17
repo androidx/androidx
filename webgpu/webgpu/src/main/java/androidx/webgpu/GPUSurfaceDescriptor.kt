@@ -24,13 +24,42 @@
 package androidx.webgpu
 
 /** Describes a surface to be created. */
-public class GPUSurfaceDescriptor
-@JvmOverloads
-constructor(
+public class GPUSurfaceDescriptor(
     /** A human-readable label for debugging. */
     public var label: String? = null,
     /** Extension for configuring color space and tone mapping for a surface. */
     public var surfaceColorManagement: GPUSurfaceColorManagement? = null,
     /** Extension for creating a surface from an Android ANativeWindow. */
     public var surfaceSourceAndroidNativeWindow: GPUSurfaceSourceAndroidNativeWindow? = null,
-)
+) {
+    /** Builder for [GPUSurfaceDescriptor]. */
+    public class Builder() {
+        private var label: String? = null
+        private var surfaceColorManagement: GPUSurfaceColorManagement? = null
+        private var surfaceSourceAndroidNativeWindow: GPUSurfaceSourceAndroidNativeWindow? = null
+
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
+
+        public fun setSurfaceColorManagement(
+            surfaceColorManagement: GPUSurfaceColorManagement?
+        ): Builder = apply {
+            this.surfaceColorManagement = surfaceColorManagement
+        }
+
+        public fun setSurfaceSourceAndroidNativeWindow(
+            surfaceSourceAndroidNativeWindow: GPUSurfaceSourceAndroidNativeWindow?
+        ): Builder = apply {
+            this.surfaceSourceAndroidNativeWindow = surfaceSourceAndroidNativeWindow
+        }
+
+        /** Builds the [GPUSurfaceDescriptor]. */
+        public fun build(): GPUSurfaceDescriptor =
+            GPUSurfaceDescriptor(
+                label = label,
+                surfaceColorManagement = surfaceColorManagement,
+                surfaceSourceAndroidNativeWindow = surfaceSourceAndroidNativeWindow,
+            )
+    }
+}

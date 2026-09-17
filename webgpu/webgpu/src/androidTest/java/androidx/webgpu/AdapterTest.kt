@@ -156,9 +156,7 @@ class AdapterTest {
             "Adapter should be consumed after one device request",
             WebGpuException::class.java,
         ) {
-            runBlocking {
-                val secondDeviceStatus = adapter.requestDevice()
-            }
+            runBlocking { adapter.requestDevice() }
         }
     }
 
@@ -179,7 +177,9 @@ class AdapterTest {
         assert(deviceFeatures.features.contains(featureToTest)) {
             "Device should have the requested feature: $featureToTest"
         }
-        runCatching { device.destroy() }
+        runCatching {
+            device.destroy()
+        }
     }
 
     /**
@@ -196,7 +196,9 @@ class AdapterTest {
         val adapterLimits = adapter.getLimits()
         val betterLimit = adapterLimits.maxBindGroups + 1
         assertThrows("Requesting a better limit should fail", DeviceLostException::class.java) {
-            runBlocking { requestTestDevice(limits = GPULimits(maxBindGroups = betterLimit)) }
+            runBlocking {
+                requestTestDevice(limits = GPULimits(maxBindGroups = betterLimit))
+            }
         }
     }
 

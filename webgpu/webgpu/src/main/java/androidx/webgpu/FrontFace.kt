@@ -44,14 +44,25 @@ public class FrontFace private constructor() {
         /** Clockwise winding order. */
         public const val CW: Int = 0x00000002
         internal val names: Map<Int, String> =
-            mapOf(0x00000000 to "Undefined", 0x00000001 to "CCW", 0x00000002 to "CW")
+            mapOf(
+                0x00000000 to "Undefined",
+                0x00000001 to "CCW",
+                0x00000002 to "CW",
+            )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Undefined, CCW, CW])
+    @IntDef(
+        value =
+            [
+                Undefined,
+                CCW,
+                CW,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

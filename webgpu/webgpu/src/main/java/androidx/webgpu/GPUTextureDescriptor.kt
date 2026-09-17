@@ -40,9 +40,11 @@ public class GPUTextureDescriptor(
     @TextureFormat.Type public var viewFormats: IntArray = intArrayOf(),
     public var textureBindingViewDimension: GPUTextureBindingViewDimension? = null,
 ) {
-
     /** Builder for [GPUTextureDescriptor]. */
-    public class Builder(@TextureUsage.Type private val usage: Int, private val size: GPUExtent3D) {
+    public class Builder(
+        @TextureUsage.Type private val usage: Int,
+        private val size: GPUExtent3D,
+    ) {
         private var label: String? = null
         @TextureDimension.Type private var dimension: Int = TextureDimension._2D
         @TextureFormat.Type private var format: Int = TextureFormat.Undefined
@@ -51,7 +53,9 @@ public class GPUTextureDescriptor(
         @TextureFormat.Type private var viewFormats: IntArray = intArrayOf()
         private var textureBindingViewDimension: GPUTextureBindingViewDimension? = null
 
-        public fun setLabel(label: String?): Builder = apply { this.label = label }
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
 
         public fun setDimension(@TextureDimension.Type dimension: Int): Builder = apply {
             this.dimension = dimension
@@ -75,7 +79,9 @@ public class GPUTextureDescriptor(
 
         public fun setTextureBindingViewDimension(
             textureBindingViewDimension: GPUTextureBindingViewDimension?
-        ): Builder = apply { this.textureBindingViewDimension = textureBindingViewDimension }
+        ): Builder = apply {
+            this.textureBindingViewDimension = textureBindingViewDimension
+        }
 
         /** Builds the [GPUTextureDescriptor]. */
         public fun build(): GPUTextureDescriptor =

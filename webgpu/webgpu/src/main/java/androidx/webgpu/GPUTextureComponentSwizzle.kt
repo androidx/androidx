@@ -41,7 +41,6 @@ public class GPUTextureComponentSwizzle(
      */
     @ComponentSwizzle.Type public var a: Int = ComponentSwizzle.A,
 ) {
-
     /** Builder for [GPUTextureComponentSwizzle]. */
     public class Builder() {
         @ComponentSwizzle.Type private var r: Int = ComponentSwizzle.R
@@ -49,16 +48,29 @@ public class GPUTextureComponentSwizzle(
         @ComponentSwizzle.Type private var b: Int = ComponentSwizzle.B
         @ComponentSwizzle.Type private var a: Int = ComponentSwizzle.A
 
-        public fun setR(@ComponentSwizzle.Type r: Int): Builder = apply { this.r = r }
+        public fun setR(@ComponentSwizzle.Type r: Int): Builder = apply {
+            this.r = r
+        }
 
-        public fun setG(@ComponentSwizzle.Type g: Int): Builder = apply { this.g = g }
+        public fun setG(@ComponentSwizzle.Type g: Int): Builder = apply {
+            this.g = g
+        }
 
-        public fun setB(@ComponentSwizzle.Type b: Int): Builder = apply { this.b = b }
+        public fun setB(@ComponentSwizzle.Type b: Int): Builder = apply {
+            this.b = b
+        }
 
-        public fun setA(@ComponentSwizzle.Type a: Int): Builder = apply { this.a = a }
+        public fun setA(@ComponentSwizzle.Type a: Int): Builder = apply {
+            this.a = a
+        }
 
         /** Builds the [GPUTextureComponentSwizzle]. */
         public fun build(): GPUTextureComponentSwizzle =
-            GPUTextureComponentSwizzle(r = r, g = g, b = b, a = a)
+            GPUTextureComponentSwizzle(
+                r = r,
+                g = g,
+                b = b,
+                a = a,
+            )
     }
 }

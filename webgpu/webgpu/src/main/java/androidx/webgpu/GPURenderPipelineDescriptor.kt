@@ -39,7 +39,6 @@ public class GPURenderPipelineDescriptor(
     /** The fragment shader stage configuration. */
     public var fragment: GPUFragmentState? = null,
 ) {
-
     /** Builder for [GPURenderPipelineDescriptor]. */
     public class Builder(private val vertex: GPUVertexState) {
         private var label: String? = null
@@ -49,9 +48,13 @@ public class GPURenderPipelineDescriptor(
         private var multisample: GPUMultisampleState = GPUMultisampleState()
         private var fragment: GPUFragmentState? = null
 
-        public fun setLabel(label: String?): Builder = apply { this.label = label }
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
 
-        public fun setLayout(layout: GPUPipelineLayout?): Builder = apply { this.layout = layout }
+        public fun setLayout(layout: GPUPipelineLayout?): Builder = apply {
+            this.layout = layout
+        }
 
         public fun setPrimitive(primitive: GPUPrimitiveState): Builder = apply {
             this.primitive = primitive

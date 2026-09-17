@@ -59,7 +59,15 @@ public class TextureDimension private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Undefined, _1D, _2D, _3D])
+    @IntDef(
+        value =
+            [
+                Undefined,
+                _1D,
+                _2D,
+                _3D,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

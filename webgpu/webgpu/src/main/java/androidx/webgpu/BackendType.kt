@@ -79,7 +79,20 @@ public class BackendType private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Undefined, Null, WebGPU, D3D11, D3D12, Metal, Vulkan, OpenGL, OpenGLES])
+    @IntDef(
+        value =
+            [
+                Undefined,
+                Null,
+                WebGPU,
+                D3D11,
+                D3D12,
+                Metal,
+                Vulkan,
+                OpenGL,
+                OpenGLES,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

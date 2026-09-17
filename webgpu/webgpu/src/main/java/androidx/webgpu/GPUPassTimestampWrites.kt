@@ -24,10 +24,30 @@
 package androidx.webgpu
 
 /** Describes the timestamp queries to be written during a pass. */
-public class GPUPassTimestampWrites
-@JvmOverloads
-constructor(
+public class GPUPassTimestampWrites(
     public var querySet: GPUQuerySet,
     public var beginningOfPassWriteIndex: Int = Constants.QUERY_SET_INDEX_UNDEFINED,
     public var endOfPassWriteIndex: Int = Constants.QUERY_SET_INDEX_UNDEFINED,
-)
+) {
+    /** Builder for [GPUPassTimestampWrites]. */
+    public class Builder(private val querySet: GPUQuerySet) {
+        private var beginningOfPassWriteIndex: Int = Constants.QUERY_SET_INDEX_UNDEFINED
+        private var endOfPassWriteIndex: Int = Constants.QUERY_SET_INDEX_UNDEFINED
+
+        public fun setBeginningOfPassWriteIndex(beginningOfPassWriteIndex: Int): Builder = apply {
+            this.beginningOfPassWriteIndex = beginningOfPassWriteIndex
+        }
+
+        public fun setEndOfPassWriteIndex(endOfPassWriteIndex: Int): Builder = apply {
+            this.endOfPassWriteIndex = endOfPassWriteIndex
+        }
+
+        /** Builds the [GPUPassTimestampWrites]. */
+        public fun build(): GPUPassTimestampWrites =
+            GPUPassTimestampWrites(
+                querySet = querySet,
+                beginningOfPassWriteIndex = beginningOfPassWriteIndex,
+                endOfPassWriteIndex = endOfPassWriteIndex,
+            )
+    }
+}

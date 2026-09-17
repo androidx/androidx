@@ -44,14 +44,25 @@ public class VertexStepMode private constructor() {
         /** The vertex buffer is advanced for each instance. */
         public const val Instance: Int = 0x00000002
         internal val names: Map<Int, String> =
-            mapOf(0x00000000 to "Undefined", 0x00000001 to "Vertex", 0x00000002 to "Instance")
+            mapOf(
+                0x00000000 to "Undefined",
+                0x00000001 to "Vertex",
+                0x00000002 to "Instance",
+            )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Undefined, Vertex, Instance])
+    @IntDef(
+        value =
+            [
+                Undefined,
+                Vertex,
+                Instance,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

@@ -41,14 +41,23 @@ public class QueryType private constructor() {
         /** A timestamp query, which records GPU timestamps. */
         public const val Timestamp: Int = 0x00000002
         internal val names: Map<Int, String> =
-            mapOf(0x00000001 to "Occlusion", 0x00000002 to "Timestamp")
+            mapOf(
+                0x00000001 to "Occlusion",
+                0x00000002 to "Timestamp",
+            )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Occlusion, Timestamp])
+    @IntDef(
+        value =
+            [
+                Occlusion,
+                Timestamp,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,
