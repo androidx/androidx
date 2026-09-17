@@ -17,6 +17,7 @@
 package androidx.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -26,11 +27,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme.LocalMaterialTheme
+import androidx.compose.material3.tokens.ElevatedCardTokens
+import androidx.compose.material3.tokens.FilledCardTokens
+import androidx.compose.material3.tokens.OutlinedCardTokens
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.semantics
@@ -45,6 +52,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -275,5 +283,234 @@ class CardTest {
         rule.onNodeWithTag("clickable").assertHasClickAction().performClick()
         // still 0
         Truth.assertThat(state.value).isEqualTo(0)
+    }
+
+    @Test
+    fun cardStyle_default_tokensResolved() {
+        var scope: CardStyleScope? = null
+        var colorScheme: ColorScheme? = null
+        var shapes: Shapes? = null
+        rule.setContent {
+            val theme = LocalMaterialTheme.current
+            colorScheme = theme.colorScheme
+            shapes = theme.shapes
+            scope = CardStyleScope(theme = theme).resolve(CardStyle.Default)
+        }
+        rule.runOnIdle {
+            Truth.assertThat(scope!!.shadowElevation).isEqualTo(FilledCardTokens.ContainerElevation)
+            Truth.assertThat(scope!!.containerColor)
+                .isEqualTo(colorScheme!!.fromToken(FilledCardTokens.ContainerColor))
+            Truth.assertThat(scope!!.contentColor)
+                .isEqualTo(
+                    colorScheme!!.contentColorFor(
+                        colorScheme!!.fromToken(FilledCardTokens.ContainerColor)
+                    )
+                )
+            Truth.assertThat(scope!!.shape)
+                .isEqualTo(shapes!!.fromToken(FilledCardTokens.ContainerShape))
+            Truth.assertThat(scope!!.border).isNull()
+        }
+    }
+
+    @Test
+    fun cardStyle_default_interactionElevations() {
+        val elevations = mutableMapOf<Int, Dp>()
+        rule.setContent {
+            val theme = LocalMaterialTheme.current
+            for (state in
+                listOf(
+                    ComponentState.HOVERED,
+                    ComponentState.FOCUSED,
+                    ComponentState.PRESSED,
+                    ComponentState.DRAGGED,
+                )) {
+                elevations[state] =
+                    CardStyleScope(theme = theme, state = ComponentState.Default.set(state, true))
+                        .resolve(CardStyle.Default)
+                        .shadowElevation
+            }
+        }
+        rule.runOnIdle {
+            Truth.assertThat(elevations[ComponentState.HOVERED])
+                .isEqualTo(FilledCardTokens.HoverContainerElevation)
+            Truth.assertThat(elevations[ComponentState.FOCUSED])
+                .isEqualTo(FilledCardTokens.FocusContainerElevation)
+            Truth.assertThat(elevations[ComponentState.PRESSED])
+                .isEqualTo(FilledCardTokens.PressedContainerElevation)
+            Truth.assertThat(elevations[ComponentState.DRAGGED])
+                .isEqualTo(FilledCardTokens.DraggedContainerElevation)
+        }
+    }
+
+    @Test
+    fun cardStyle_default_disabledState() {
+        var scope: CardStyleScope? = null
+        var colorScheme: ColorScheme? = null
+        rule.setContent {
+            val theme = LocalMaterialTheme.current
+            colorScheme = theme.colorScheme
+            scope =
+                CardStyleScope(theme = theme, state = ComponentState.Default.enabled(false))
+                    .resolve(CardStyle.Default)
+        }
+        rule.runOnIdle {
+            Truth.assertThat(scope!!.shadowElevation)
+                .isEqualTo(FilledCardTokens.DisabledContainerElevation)
+            // Matches CardDefaults.cardColors(): the disabled container color is composited over
+            // the enabled container color so that the card stays opaque.
+            Truth.assertThat(scope!!.containerColor)
+                .isEqualTo(
+                    colorScheme!!
+                        .fromToken(FilledCardTokens.DisabledContainerColor)
+                        .copy(alpha = FilledCardTokens.DisabledContainerOpacity)
+                        .compositeOver(colorScheme!!.fromToken(FilledCardTokens.ContainerColor))
+                )
+            Truth.assertThat(scope!!.contentColor)
+                .isEqualTo(
+                    colorScheme!!
+                        .contentColorFor(colorScheme!!.fromToken(FilledCardTokens.ContainerColor))
+                        .copy(alpha = DisabledAlpha)
+                )
+        }
+    }
+
+    @Test
+    fun cardStyle_elevated_tokensResolved() {
+        var scope: CardStyleScope? = null
+        var colorScheme: ColorScheme? = null
+        rule.setContent {
+            val theme = LocalMaterialTheme.current
+            colorScheme = theme.colorScheme
+            scope = CardStyleScope(theme = theme).resolve(CardStyle.Elevated)
+        }
+        rule.runOnIdle {
+            Truth.assertThat(scope!!.shadowElevation)
+                .isEqualTo(ElevatedCardTokens.ContainerElevation)
+            Truth.assertThat(scope!!.containerColor)
+                .isEqualTo(colorScheme!!.fromToken(ElevatedCardTokens.ContainerColor))
+        }
+    }
+
+    @Test
+    fun cardStyle_outlined_tokensResolved() {
+        var scope: CardStyleScope? = null
+        var colorScheme: ColorScheme? = null
+        rule.setContent {
+            val theme = LocalMaterialTheme.current
+            colorScheme = theme.colorScheme
+            scope = CardStyleScope(theme = theme).resolve(CardStyle.Outlined)
+        }
+        rule.runOnIdle {
+            Truth.assertThat(scope!!.border)
+                .isEqualTo(
+                    BorderStroke(
+                        OutlinedCardTokens.OutlineWidth,
+                        colorScheme!!.fromToken(OutlinedCardTokens.OutlineColor),
+                    )
+                )
+        }
+    }
+
+    @Test
+    fun cardStyle_chaining_bfsStatefulPriority() {
+        // Verifies CL 4269323: Deeper stateful conditions (disabled) take priority
+        // over chained shallower/unconditional base values even when chained via `then`.
+        var disabledScope: CardStyleScope? = null
+        var enabledScope: CardStyleScope? = null
+        rule.setContent {
+            val theme = LocalMaterialTheme.current
+            val baseStyle = CardStyle { disabled { containerColor(Color.Red) } }
+            val chainedStyle = baseStyle then CardStyle { containerColor(Color.Green) }
+
+            disabledScope =
+                CardStyleScope(theme = theme, state = ComponentState.Default.enabled(false))
+                    .resolve(chainedStyle)
+
+            enabledScope =
+                CardStyleScope(theme = theme, state = ComponentState.Default.enabled(true))
+                    .resolve(chainedStyle)
+        }
+        rule.runOnIdle {
+            Truth.assertThat(disabledScope!!.containerColor).isEqualTo(Color.Red)
+            Truth.assertThat(enabledScope!!.containerColor).isEqualTo(Color.Green)
+        }
+    }
+
+    @Test
+    fun styleableCard_rendersContent() {
+        rule.setMaterialContent(lightColorScheme()) {
+            StyleableCard(
+                modifier = Modifier.testTag("styleable_card"),
+                style =
+                    CardStyle {
+                        containerColor(Color.Magenta)
+                        shape(RoundedCornerShape(20.dp))
+                        shadowElevation(6.dp)
+                    },
+            ) {
+                Text("Styleable Content", modifier = Modifier.testTag("card_text"))
+            }
+        }
+
+        rule.onNodeWithTag("styleable_card").assertExists()
+        rule.onNodeWithTag("card_text").assertTextEquals("Styleable Content")
+    }
+
+    @Test
+    fun styleableCard_clickableAndInteraction() {
+        val count = mutableStateOf(0)
+        rule.setMaterialContent(lightColorScheme()) {
+            StyleableCard(
+                onClick = { count.value++ },
+                modifier = Modifier.testTag("clickable_styleable_card"),
+                style = CardStyle.Default,
+            ) {
+                Text("Clickable Card")
+            }
+        }
+
+        rule.onNodeWithTag("clickable_styleable_card").assertHasClickAction().performClick()
+        Truth.assertThat(count.value).isEqualTo(1)
+    }
+
+    @Test
+    fun componentProperties_cardProperties_default() {
+        val properties = ComponentProperties.Default
+        Truth.assertThat(properties.cardProperties.style).isEqualTo(CardStyle.Default)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun styleableCard_customShapeAndColor_pixelVerified() {
+        val shape = CutCornerShape(8.dp)
+        val background = Color.Yellow
+        val cardColor = Color.Magenta
+        rule.setMaterialContent(lightColorScheme()) {
+            Surface(color = background) {
+                Box {
+                    StyleableCard(
+                        modifier = Modifier.testTag("styleable_shape_card"),
+                        style =
+                            CardStyle {
+                                containerColor(cardColor)
+                                shape(shape)
+                            },
+                    ) {
+                        Box(Modifier.size(50.dp, 50.dp))
+                    }
+                }
+            }
+        }
+
+        rule
+            .onNodeWithTag("styleable_shape_card")
+            .captureToImage()
+            .assertShape(
+                density = rule.density,
+                shape = shape,
+                shapeColor = cardColor,
+                backgroundColor = background,
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() },
+            )
     }
 }
