@@ -16,7 +16,9 @@
 
 package androidx.benchmark.macro
 
+import android.content.Intent
 import android.os.Build
+import androidx.benchmark.Shell
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -97,13 +99,44 @@ class ProfileInstallBroadcastTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     @Test
     fun saveProfilesForAllProcesses_target() {
-        // first command just used to wake target - otherwise we'd get 0
-        ProfileInstallBroadcast.dropShaderCache(Packages.TARGET)
+        val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
+        try {
+            scope.killProcess()
+            // first command just used to wake target - otherwise we'd get 0
+            ProfileInstallBroadcast.dropShaderCache(Packages.TARGET)
 
-        assertEquals(
-            ProfileInstallBroadcast.SaveProfileResult(1, null),
-            ProfileInstallBroadcast.saveProfilesForAllProcesses(Packages.TARGET),
-        )
+            assertEquals(
+                ProfileInstallBroadcast.SaveProfileResult(1, null),
+                ProfileInstallBroadcast.saveProfilesForAllProcesses(Packages.TARGET),
+            )
+        } finally {
+            scope.killProcess()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    @Test
+    fun saveProfilesForAllProcesses_dotProcess() {
+        val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
+        try {
+            scope.killProcess()
+            scope.pressHome()
+            // Wake main process
+            ProfileInstallBroadcast.dropShaderCache(Packages.TARGET)
+            // Start dot-separated subprocess activity
+            scope.startActivityAndWait(Intent("${Packages.TARGET}.DOT_PROCESS_ACTIVITY"))
+
+            assertEquals(
+                listOf(Packages.TARGET, "${Packages.TARGET}.dotprocess"),
+                Shell.getRunningProcessesForPackage(Packages.TARGET).sorted(),
+            )
+            assertEquals(
+                ProfileInstallBroadcast.SaveProfileResult(2, null),
+                ProfileInstallBroadcast.saveProfilesForAllProcesses(Packages.TARGET),
+            )
+        } finally {
+            scope.killProcess()
+        }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
