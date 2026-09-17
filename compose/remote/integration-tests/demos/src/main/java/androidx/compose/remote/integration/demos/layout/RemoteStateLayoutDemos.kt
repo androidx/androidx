@@ -62,13 +62,12 @@ import androidx.compose.remote.creation.compose.modifier.rotate
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
+import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
@@ -155,7 +154,7 @@ fun RemoteStateLayoutSimpleDemo() {
 @Composable
 @RemoteComposable
 private fun RemoteStateLayoutCardExpansion() {
-    val isExpanded = rememberMutableRemoteBoolean(false)
+    val isExpanded = remember { MutableRemoteBoolean(false) }
 
     RemoteBox(
         modifier =
@@ -347,7 +346,7 @@ private fun RemoteStateLayoutCardExpansion() {
 @Composable
 @RemoteComposable
 private fun RemoteStateLayoutMediaPlayer() {
-    val isFullScreen = rememberMutableRemoteBoolean(false)
+    val isFullScreen = remember { MutableRemoteBoolean(false) }
 
     RemoteBox(
         modifier =
@@ -546,7 +545,7 @@ private fun RemoteStateLayoutMediaPlayer() {
 @Composable
 @RemoteComposable
 private fun RemoteStateLayoutMorphGrid() {
-    val morphState = rememberMutableRemoteInt(0)
+    val morphState = remember { MutableRemoteInt(0) }
 
     RemoteColumn(
         horizontalAlignment = RemoteAlignment.CenterHorizontally,
@@ -766,7 +765,7 @@ private fun TilePreview() {
 @Composable
 @RemoteComposable
 private fun RemoteStateLayoutModifierTransitions() {
-    val styleState = rememberMutableRemoteInt(0)
+    val styleState = remember { MutableRemoteInt(0) }
 
     RemoteColumn(
         horizontalAlignment = RemoteAlignment.CenterHorizontally,
@@ -1083,7 +1082,7 @@ private fun RemoteStateLayoutModifierTransitions() {
 @Composable
 @RemoteComposable
 private fun RemoteStateLayoutTabContent() {
-    val activeTab = rememberMutableRemoteInt(0)
+    val activeTab = remember { MutableRemoteInt(0) }
 
     RemoteColumn(
         modifier =
@@ -1331,7 +1330,7 @@ private fun MetricBar(label: String, percent: Int, barWidth: Int) {
 @Composable
 @RemoteComposable
 private fun RemoteStateLayoutStepperInterruption() {
-    val step = rememberMutableRemoteInt(0)
+    val step = remember { MutableRemoteInt(0) }
 
     RemoteColumn(
         modifier =
@@ -1483,8 +1482,8 @@ private fun RemoteStateLayoutStepperInterruption() {
 @Composable
 @RemoteComposable
 private fun RemoteStateLayoutNestedDashboard() {
-    val outerExpanded = rememberMutableRemoteBoolean(false)
-    val innerStatus = rememberMutableRemoteInt(0)
+    val outerExpanded = remember { MutableRemoteBoolean(false) }
+    val innerStatus = remember { MutableRemoteInt(0) }
 
     RemoteColumn(
         modifier =

@@ -35,8 +35,8 @@ import androidx.compose.remote.creation.compose.modifier.contentDescription
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.semantics
+import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteString
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -138,7 +138,9 @@ class RemotePlayerStateUpdateActivity : ComponentActivity() {
                         profile = RcPlatformProfiles.ANDROIDX,
                         context = context,
                     ) {
-                        val counterText = rememberNamedRemoteString("counterText", "Count: 0")
+                        val counterText = remember {
+                            createNamedRemoteString("counterText", "Count: 0")
+                        }
                         RemoteColumn(
                             horizontalAlignment = RemoteAlignment.CenterHorizontally,
                             verticalArrangement = RemoteArrangement.Center,

@@ -59,12 +59,12 @@ import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.padding
-import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -647,7 +647,7 @@ private fun HostPageCard(
 @Composable
 @RemoteComposable
 private fun VerticalScrollDemoContent() {
-    val scrollState = rememberRemoteScrollState()
+    val scrollState = remember { RemoteScrollState() }
     RemoteColumn(
         modifier = RemoteModifier.fillMaxSize().verticalScroll(scrollState).padding(8.rdp)
     ) {

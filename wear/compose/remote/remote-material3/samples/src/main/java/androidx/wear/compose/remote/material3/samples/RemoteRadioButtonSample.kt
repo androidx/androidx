@@ -20,10 +20,11 @@ import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.wear.compose.remote.material3.RemoteRadioButton
 import androidx.wear.compose.remote.material3.RemoteText
@@ -36,7 +37,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 public fun RemoteRadioButtonSample(modifier: RemoteModifier = RemoteModifier) {
-    val selected = rememberMutableRemoteBoolean(true)
+    val selected = remember { MutableRemoteBoolean(true) }
 
     RemoteRadioButton(
         selected = selected,

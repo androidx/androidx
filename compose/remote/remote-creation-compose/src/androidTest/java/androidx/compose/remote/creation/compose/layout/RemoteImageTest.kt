@@ -24,11 +24,11 @@ import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.MutableRemoteImageBitmap
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteImageBitmap
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteImageBitmap
-import androidx.compose.remote.creation.compose.state.rememberRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.test.R
@@ -36,6 +36,7 @@ import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.remote.player.core.platform.BitmapLoader
 import androidx.compose.remote.testing.LimitsRule
+import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.asImageBitmap
@@ -82,10 +83,11 @@ class RemoteImageTest {
             bitmapLoader = bitmapLoader,
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
-            val avatarImage =
-                rememberNamedRemoteImageBitmap(name = "avatarImage") {
+            val avatarImage = remember {
+                createNamedRemoteImageBitmap(name = "avatarImage") {
                     createImage(size, size).asImageBitmap()
                 }
+            }
             RemoteImage(
                 avatarImage,
                 contentDescription = "background".rs,
@@ -105,10 +107,11 @@ class RemoteImageTest {
             bitmapLoader = bitmapLoader,
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
-            val backgroundImage =
-                rememberNamedRemoteImageBitmap(name = "backgroundImage") {
+            val backgroundImage = remember {
+                createNamedRemoteImageBitmap(name = "backgroundImage") {
                     createImage(size, size).asImageBitmap()
                 }
+            }
             RemoteImage(
                 remoteBitmap = backgroundImage,
                 contentDescription = "background".rs,
@@ -128,11 +131,12 @@ class RemoteImageTest {
                 createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat())),
             bitmapLoader = bitmapLoader,
         ) {
-            val dummyImage =
-                rememberNamedRemoteImageBitmap(
+            val dummyImage = remember {
+                createNamedRemoteImageBitmap(
                     name = "dummy",
                     url = "android.resource://androidx.compose.remote.foundation/drawable/dummy",
                 )
+            }
             RemoteImage(
                 dummyImage,
                 contentDescription = "background".rs,
@@ -174,12 +178,13 @@ class RemoteImageTest {
                     createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat())),
                 bitmapLoader = bitmapLoader,
             ) {
-                val dummyImage =
-                    rememberNamedRemoteImageBitmap(
+                val dummyImage = remember {
+                    createNamedRemoteImageBitmap(
                         name = "dummy",
                         url =
                             "android.resource://androidx.compose.remote.foundation/drawable/dummy",
                     )
+                }
                 RemoteImage(
                     dummyImage,
                     contentDescription = "background".rs,
@@ -200,10 +205,11 @@ class RemoteImageTest {
                 createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat())),
             bitmapLoader = bitmapLoader,
         ) {
-            val dummyImage =
-                rememberRemoteImageBitmap(
+            val dummyImage = remember {
+                RemoteImageBitmap(
                     url = "android.resource://androidx.compose.remote.foundation/drawable/dummy"
                 )
+            }
             RemoteImage(
                 dummyImage,
                 contentDescription = "background".rs,
@@ -223,7 +229,7 @@ class RemoteImageTest {
             bitmapLoader = bitmapLoader,
         ) {
             val backgroundImage = createImage(size, size).asImageBitmap()
-            val bitmap = rememberMutableRemoteImageBitmap(backgroundImage)
+            val bitmap = remember { MutableRemoteImageBitmap(backgroundImage) }
             RemoteImage(
                 remoteBitmap = bitmap,
                 contentDescription = "background".rs,

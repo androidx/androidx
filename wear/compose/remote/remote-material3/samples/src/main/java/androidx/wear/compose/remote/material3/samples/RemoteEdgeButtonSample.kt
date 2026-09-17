@@ -22,9 +22,10 @@ import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.wear.compose.remote.material3.RemoteEdgeButton
 import androidx.wear.compose.remote.material3.RemoteEdgeButtonDefaults
@@ -40,7 +41,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteEdgeButtonSample(modifier: RemoteModifier = RemoteModifier) {
-    val tapCount = rememberMutableRemoteInt(0)
+    val tapCount = remember { MutableRemoteInt(0) }
     val countSuffix = " (".rs + tapCount.toRemoteString() + " taps)"
 
     RemoteEdgeButton(
@@ -57,7 +58,7 @@ fun RemoteEdgeButtonSample(modifier: RemoteModifier = RemoteModifier) {
 @WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteEdgeButtonIconSample(modifier: RemoteModifier = RemoteModifier) {
-    val tapCount = rememberMutableRemoteInt(0)
+    val tapCount = remember { MutableRemoteInt(0) }
 
     RemoteEdgeButton(
         onClick = valueChange(tapCount, tapCount + 1),
@@ -80,7 +81,7 @@ fun RemoteEdgeButtonIconSample(modifier: RemoteModifier = RemoteModifier) {
 @WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteEdgeButtonFilledTonalSample(modifier: RemoteModifier = RemoteModifier) {
-    val tapCount = rememberMutableRemoteInt(0)
+    val tapCount = remember { MutableRemoteInt(0) }
 
     RemoteEdgeButton(
         onClick = valueChange(tapCount, tapCount + 1),
@@ -97,7 +98,7 @@ fun RemoteEdgeButtonFilledTonalSample(modifier: RemoteModifier = RemoteModifier)
 @WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteEdgeButtonMultiLineSample(modifier: RemoteModifier = RemoteModifier) {
-    val tapCount = rememberMutableRemoteInt(0)
+    val tapCount = remember { MutableRemoteInt(0) }
 
     RemoteEdgeButton(
         onClick = valueChange(tapCount, tapCount + 1),

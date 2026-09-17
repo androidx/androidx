@@ -33,6 +33,7 @@ import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -40,6 +41,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.alignByBaseline
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.basicMarquee
@@ -56,7 +58,6 @@ import androidx.compose.remote.creation.compose.modifier.onTouchCancel
 import androidx.compose.remote.creation.compose.modifier.onTouchDown
 import androidx.compose.remote.creation.compose.modifier.onTouchUp
 import androidx.compose.remote.creation.compose.modifier.padding
-import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.rippleEffect
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
@@ -67,9 +68,12 @@ import androidx.compose.remote.creation.compose.modifier.zIndex
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
 import androidx.compose.remote.creation.compose.shaders.image
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloatArray.Companion.createNamedRemoteFloatArray
+import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createRotate
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
@@ -77,9 +81,6 @@ import androidx.compose.remote.creation.compose.state.deltaFromReferenceInSecond
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteColor
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteLong
 import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
@@ -107,6 +108,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.RemoteButton
+import androidx.wear.compose.remote.material3.RemoteIcon
 import java.io.ByteArrayInputStream
 import kotlin.OptIn
 import kotlin.test.assertFailsWith
@@ -2655,7 +2657,7 @@ class RcPlayerPrimitivesTest {
                     .captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val scrollState = rememberRemoteScrollState()
+                            val scrollState = remember { RemoteScrollState() }
                             androidx.compose.remote.creation.compose.layout.RemoteBox(
                                 modifier = RemoteModifier.size(100.rdp).verticalScroll(scrollState)
                             ) {
@@ -2966,7 +2968,7 @@ class RcPlayerPrimitivesTest {
                     .captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val mutableInt = rememberMutableRemoteInt(1)
+                            val mutableInt = remember { MutableRemoteInt(1) }
                             // shl returns RemoteIntExpression if one of the operands is not
                             // constant
                             val expression = mutableInt shl 2.ri
@@ -3014,7 +3016,7 @@ class RcPlayerPrimitivesTest {
                     .captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val longState = rememberNamedRemoteLong("myLong", 0L)
+                            val longState = remember { createNamedRemoteLong("myLong", 0L) }
                             val floatExpr = deltaFromReferenceInSeconds(longState)
                             androidx.compose.remote.creation.compose.layout.RemoteBox(
                                 modifier =
@@ -3279,19 +3281,17 @@ class RcPlayerPrimitivesTest {
             val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
-                androidx.compose.remote.creation.compose.capture
-                    .captureSingleRemoteDocument(
+                captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val tintVar =
-                                androidx.compose.remote.creation.compose.state
-                                    .rememberNamedRemoteColor(
-                                        "tint",
-                                        androidx.compose.ui.graphics.Color(0xFFFF0000),
-                                    )
+                            val tintVar = remember {
+                                createNamedRemoteColor(
+                                    "tint",
+                                    Color(0xFFFF0000),
+                                )
+                            }
                             val imageVector =
-                                androidx.compose.remote.creation.compose.capture.RemoteImageVector
-                                    .Builder(
+                                RemoteImageVector.Builder(
                                         viewportWidth = 24f.rf,
                                         viewportHeight = 24f.rf,
                                         tintColor = tintVar,
@@ -3299,7 +3299,7 @@ class RcPlayerPrimitivesTest {
                                     )
                                     .build()
 
-                            androidx.wear.compose.remote.material3.RemoteIcon(
+                            RemoteIcon(
                                 imageVector = imageVector,
                                 contentDescription = null,
                                 tint = tintVar,
@@ -3961,11 +3961,12 @@ class RcPlayerPrimitivesTest {
                     .captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val namedColor =
-                                rememberNamedRemoteColor(
+                            val namedColor = remember {
+                                createNamedRemoteColor(
                                     "myColor",
                                     androidx.compose.ui.graphics.Color.Red,
                                 )
+                            }
                             androidx.compose.remote.creation.compose.layout.RemoteCanvas(
                                 modifier = RemoteModifier.size(100.rdp)
                             ) {
@@ -4021,7 +4022,9 @@ class RcPlayerPrimitivesTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val namedColor = rememberNamedRemoteColor("myColor", Color.Red)
+                            val namedColor = remember {
+                                createNamedRemoteColor("myColor", Color.Red)
+                            }
                             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                                 val paint = RemotePaint().apply { color = namedColor }
                                 drawRect(
@@ -4089,11 +4092,12 @@ class RcPlayerPrimitivesTest {
                     .captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val namedColor =
-                                rememberNamedRemoteColor(
+                            val namedColor = remember {
+                                createNamedRemoteColor(
                                     "myColor",
                                     androidx.compose.ui.graphics.Color.Red,
                                 )
+                            }
                             val colorFilter =
                                 RemoteBlendModeColorFilter(namedColor, BlendMode.SrcOver)
                             androidx.compose.remote.creation.compose.layout.RemoteCanvas(

@@ -29,7 +29,12 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
+import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
@@ -82,7 +87,7 @@ class RemoteStateOverrideTest {
                 creationDisplayInfo = displayInfo,
                 context = applicationContext,
             ) {
-                val myFloat = rememberNamedRemoteFloat("myFloat") { 5f.rf }
+                val myFloat = remember { createNamedRemoteFloatExpression("myFloat") { 5f.rf } }
                 RemoteBox(modifier = RemoteModifier.size(RemoteDp(myFloat)))
             }
 
@@ -103,7 +108,7 @@ class RemoteStateOverrideTest {
                 creationDisplayInfo = displayInfo,
                 context = applicationContext,
             ) {
-                val myColor = rememberNamedRemoteColor("myColor", Color.Red)
+                val myColor = remember { createNamedRemoteColor("myColor", Color.Red) }
                 RemoteBox(modifier = RemoteModifier.size(10.rdp).background(myColor))
             }
 
@@ -124,7 +129,7 @@ class RemoteStateOverrideTest {
                 creationDisplayInfo = displayInfo,
                 context = applicationContext,
             ) {
-                val myInt = rememberNamedRemoteInt("myInt", 42)
+                val myInt = remember { createNamedRemoteInt("myInt", 42) }
                 RemoteBox(modifier = RemoteModifier.size(RemoteDp(myInt.toRemoteFloat())))
             }
 
@@ -144,7 +149,7 @@ class RemoteStateOverrideTest {
                 creationDisplayInfo = displayInfo,
                 context = applicationContext,
             ) {
-                val myString = rememberNamedRemoteString("myString", "hello")
+                val myString = remember { createNamedRemoteString("myString", "hello") }
                 RemoteText(myString)
             }
 

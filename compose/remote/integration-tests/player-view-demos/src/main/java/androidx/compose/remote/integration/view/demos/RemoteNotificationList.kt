@@ -18,9 +18,9 @@
 package androidx.compose.remote.integration.view.demos.examples
 
 import androidx.compose.remote.creation.compose.state.RemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteString
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteInt
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteString
+import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
@@ -34,11 +34,15 @@ fun rememberRemoteNotificationList(
     maxSize: Int,
     initialSize: Int = 3,
 ): RemoteNotificationList {
-    val size = rememberNamedRemoteInt("${name}.size", initialSize)
+    val size = remember { createNamedRemoteInt("${name}.size", initialSize) }
     val items =
         List(maxSize) { index ->
-            val title = rememberNamedRemoteString("${name}.${index}.title", "Default Title $index")
-            val text = rememberNamedRemoteString("${name}.${index}.text", "Default Text $index")
+            val title = remember {
+                createNamedRemoteString("${name}.${index}.title", "Default Title $index")
+            }
+            val text = remember {
+                createNamedRemoteString("${name}.${index}.text", "Default Text $index")
+            }
             NotificationItem(title, text)
         }
     return remember(size, items) { RemoteNotificationList(size, items) }

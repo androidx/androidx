@@ -36,12 +36,12 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.contentDescription
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.padding
-import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
@@ -49,6 +49,8 @@ import androidx.compose.remote.creation.compose.modifier.visibility
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.modifier.widthIn
 import androidx.compose.remote.creation.compose.state.Hoist
+import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteEasing
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.abs
@@ -73,8 +75,6 @@ import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.pow
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteFloat
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.round
@@ -148,8 +148,9 @@ class RcPlayerInteractivityTest {
                         content = {
                             // RemoteCompose visibility constants are GONE=0, VISIBLE=1 (not the
                             // Android View 0/4/8 values).
-                            val visibilityState =
-                                rememberMutableRemoteInt(Component.Visibility.VISIBLE)
+                            val visibilityState = remember {
+                                MutableRemoteInt(Component.Visibility.VISIBLE)
+                            }
 
                             androidx.compose.remote.creation.compose.layout.RemoteColumn(
                                 modifier = RemoteModifier.size(100.rdp)
@@ -227,8 +228,9 @@ class RcPlayerInteractivityTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val visibilityState =
-                                rememberMutableRemoteInt(Component.Visibility.VISIBLE)
+                            val visibilityState = remember {
+                                MutableRemoteInt(Component.Visibility.VISIBLE)
+                            }
                             // One operand is a (non-constant) variable, so this authors an
                             // IntegerExpression rather than folding to a constant.
                             val visibilityExpr = visibilityState * 1.ri
@@ -304,7 +306,7 @@ class RcPlayerInteractivityTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val n = rememberMutableRemoteInt(0)
+                            val n = remember { MutableRemoteInt(0) }
                             val label = n.toRemoteString()
                             androidx.compose.remote.creation.compose.layout.RemoteColumn(
                                 modifier = RemoteModifier.size(100.rdp)
@@ -359,7 +361,7 @@ class RcPlayerInteractivityTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val n = rememberMutableRemoteInt(0)
+                            val n = remember { MutableRemoteInt(0) }
                             val doubled = n * 2.ri // intermediate IntegerExpression, not displayed
                             val label = doubled.toRemoteString()
                             androidx.compose.remote.creation.compose.layout.RemoteColumn(
@@ -420,7 +422,7 @@ class RcPlayerInteractivityTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val target = rememberMutableRemoteFloat(123.45f)
+                            val target = remember { MutableRemoteFloat(123.45f) }
                             // Animate from 0 to `target` over 1s, linearly.
                             val animatedSize =
                                 animateRemoteFloatAsState(
@@ -731,10 +733,10 @@ class RcPlayerInteractivityTest {
                         content = {
                             // Variable inputs (defeat constant folding); all resolve so each
                             // expression equals 60.
-                            val v = rememberMutableRemoteFloat(60f)
-                            val half = rememberMutableRemoteFloat(0.5f)
-                            val one = rememberMutableRemoteFloat(1f)
-                            val thousand = rememberMutableRemoteFloat(1000f)
+                            val v = remember { MutableRemoteFloat(60f) }
+                            val half = remember { MutableRemoteFloat(0.5f) }
+                            val one = remember { MutableRemoteFloat(1f) }
+                            val thousand = remember { MutableRemoteFloat(1000f) }
                             val a = v * 0.6f // 36
                             val b = v * 0.8f // 48
 
@@ -1142,7 +1144,7 @@ class RcPlayerInteractivityTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val scrollState = rememberRemoteScrollState()
+                            val scrollState = remember { RemoteScrollState() }
                             androidx.compose.remote.creation.compose.layout.RemoteColumn(
                                 modifier = RemoteModifier.size(200.rdp)
                             ) {
@@ -1269,8 +1271,8 @@ class RcPlayerInteractivityTest {
             var uploadedScore = -1
 
             val content: @Composable @RemoteComposable () -> Unit = {
-                val currentPage = rememberMutableRemoteInt(0)
-                val choices = (0..2).map { rememberMutableRemoteInt(-1) }
+                val currentPage = remember { MutableRemoteInt(0) }
+                val choices = (0..2).map { remember { MutableRemoteInt(-1) } }
                 val answers = listOf(1, 2, 0)
                 val scores = (0..2).map { i -> choices[i].isEqualTo(answers[i].ri).toRemoteInt() }
                 val totalScore = remember { scores.reduce { acc, s -> acc + s } }

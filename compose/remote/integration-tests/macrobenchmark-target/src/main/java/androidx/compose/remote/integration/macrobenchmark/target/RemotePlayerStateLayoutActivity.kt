@@ -40,9 +40,9 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.semantics
+import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -146,7 +146,7 @@ class RemotePlayerStateLayoutActivity : ComponentActivity() {
                         profile = RcPlatformProfiles.ANDROIDX,
                         context = context,
                     ) {
-                        val stateIndex = rememberNamedRemoteInt("stateIndex", 0)
+                        val stateIndex = remember { createNamedRemoteInt("stateIndex", 0) }
                         RemoteColumn(
                             horizontalAlignment = RemoteAlignment.CenterHorizontally,
                             verticalArrangement = RemoteArrangement.Center,

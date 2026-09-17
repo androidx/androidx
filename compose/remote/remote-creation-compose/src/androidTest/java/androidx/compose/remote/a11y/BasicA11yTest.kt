@@ -31,9 +31,9 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.text
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
+import androidx.compose.remote.creation.compose.state.MutableRemoteString
 import androidx.compose.remote.creation.compose.state.rc
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteString
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.test.utils.RemoteInteractionTestRule
@@ -121,7 +121,7 @@ class BasicA11yTest {
     @Test
     fun textValueChange() {
         remoteComposeTestRule.setContent {
-            val text = rememberMutableRemoteString("Initial")
+            val text = remember { MutableRemoteString("Initial") }
             RemoteBox(
                 modifier =
                     RemoteModifier.fillMaxSize()
@@ -146,7 +146,7 @@ class BasicA11yTest {
     fun intValueChange() {
         remoteComposeTestRule.setContent {
             val decimalFormat = remember { DecimalFormat("##0") }
-            val remoteInt = rememberMutableRemoteInt(0)
+            val remoteInt = remember { MutableRemoteInt(0) }
             RemoteBox(
                 modifier =
                     RemoteModifier.fillMaxSize()

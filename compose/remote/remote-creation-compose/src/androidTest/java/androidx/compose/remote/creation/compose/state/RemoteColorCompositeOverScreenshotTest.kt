@@ -31,8 +31,10 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.test.core.app.ApplicationProvider
@@ -76,7 +78,9 @@ class RemoteColorCompositeOverScreenshotTest {
                 RemoteBox(modifier = RemoteModifier.height(6.rdp))
 
                 // Case 2: Opaque Background: Blue + Dynamic 40% Magenta
-                val dynamicAlpha40 = rememberNamedRemoteFloat("alpha_40") { 0.4f.rf }
+                val dynamicAlpha40 = remember {
+                    createNamedRemoteFloatExpression("alpha_40") { 0.4f.rf }
+                }
                 ComparisonRow(
                     title = "2. Opaque BG: Blue + Dynamic 40% Magenta",
                     bg = Color.Blue.rc,
@@ -89,7 +93,9 @@ class RemoteColorCompositeOverScreenshotTest {
                 RemoteBox(modifier = RemoteModifier.height(6.rdp))
 
                 // Case 3: Both Alphas Constant: Dynamic 50% Red + Dynamic 60% Blue
-                val dynamicRedComponent = rememberNamedRemoteFloat("red_comp") { 0.8f.rf }
+                val dynamicRedComponent = remember {
+                    createNamedRemoteFloatExpression("red_comp") { 0.8f.rf }
+                }
                 val bgConstAlpha =
                     RemoteColor.rgb(
                         red = dynamicRedComponent,
@@ -97,7 +103,9 @@ class RemoteColorCompositeOverScreenshotTest {
                         blue = 0.rf,
                         alpha = 0.5f.rf,
                     )
-                val dynamicBlueComponent = rememberNamedRemoteFloat("blue_comp") { 0.9f.rf }
+                val dynamicBlueComponent = remember {
+                    createNamedRemoteFloatExpression("blue_comp") { 0.9f.rf }
+                }
                 val fgConstAlpha =
                     RemoteColor.rgb(
                         red = 0.rf,
@@ -119,9 +127,13 @@ class RemoteColorCompositeOverScreenshotTest {
                 RemoteBox(modifier = RemoteModifier.height(6.rdp))
 
                 // Case 4: Fully Dynamic: 80% Cyan + 30% Yellow
-                val dynamicAlpha80 = rememberNamedRemoteFloat("alpha_80") { 0.8f.rf }
+                val dynamicAlpha80 = remember {
+                    createNamedRemoteFloatExpression("alpha_80") { 0.8f.rf }
+                }
                 val dynamicBgCyan = Color.Cyan.rc.copy(alpha = dynamicAlpha80)
-                val dynamicAlpha30 = rememberNamedRemoteFloat("alpha_30") { 0.3f.rf }
+                val dynamicAlpha30 = remember {
+                    createNamedRemoteFloatExpression("alpha_30") { 0.3f.rf }
+                }
                 val dynamicFgYellow = Color.Yellow.rc.copy(alpha = dynamicAlpha30)
                 ComparisonRow(
                     title = "4. Fully Dynamic: 80% Cyan + 30% Yellow",
