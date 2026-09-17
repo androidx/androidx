@@ -1,7 +1,0 @@
-// Baseline format: 1.0
-AddedMethod: androidx.compose.ui.graphics.LayerOutsets#LayerOutsets():
-    Added constructor androidx.compose.ui.graphics.LayerOutsets()
-AddedMethod: androidx.compose.ui.graphics.Shadow#Shadow():
-    Added constructor androidx.compose.ui.graphics.Shadow()
-AddedMethod: androidx.compose.ui.graphics.drawscope.Stroke#Stroke():
-    Added constructor androidx.compose.ui.graphics.drawscope.Stroke()
