@@ -44,14 +44,23 @@ public class CompilationInfoRequestStatus private constructor() {
          */
         public const val CallbackCancelled: Int = 0x00000002
         internal val names: Map<Int, String> =
-            mapOf(0x00000001 to "Success", 0x00000002 to "CallbackCancelled")
+            mapOf(
+                0x00000001 to "Success",
+                0x00000002 to "CallbackCancelled",
+            )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Success, CallbackCancelled])
+    @IntDef(
+        value =
+            [
+                Success,
+                CallbackCancelled,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

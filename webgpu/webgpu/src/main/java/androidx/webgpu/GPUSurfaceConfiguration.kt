@@ -39,7 +39,6 @@ public class GPUSurfaceConfiguration(
     @CompositeAlphaMode.Type public var alphaMode: Int = CompositeAlphaMode.Auto,
     @PresentMode.Type public var presentMode: Int = PresentMode.Fifo,
 ) {
-
     /** Builder for [GPUSurfaceConfiguration]. */
     public class Builder(
         private val device: GPUDevice,
@@ -56,7 +55,9 @@ public class GPUSurfaceConfiguration(
             this.format = format
         }
 
-        public fun setUsage(@TextureUsage.Type usage: Int): Builder = apply { this.usage = usage }
+        public fun setUsage(@TextureUsage.Type usage: Int): Builder = apply {
+            this.usage = usage
+        }
 
         public fun setViewFormats(@TextureFormat.Type viewFormats: IntArray): Builder = apply {
             this.viewFormats = viewFormats

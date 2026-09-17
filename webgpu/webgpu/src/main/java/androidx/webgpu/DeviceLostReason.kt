@@ -62,7 +62,15 @@ public class DeviceLostReason private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Unknown, Destroyed, CallbackCancelled, FailedCreation])
+    @IntDef(
+        value =
+            [
+                Unknown,
+                Destroyed,
+                CallbackCancelled,
+                FailedCreation,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

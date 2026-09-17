@@ -63,7 +63,16 @@ public class SamplerBindingType private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [BindingNotUsed, Undefined, Filtering, NonFiltering, Comparison])
+    @IntDef(
+        value =
+            [
+                BindingNotUsed,
+                Undefined,
+                Filtering,
+                NonFiltering,
+                Comparison,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

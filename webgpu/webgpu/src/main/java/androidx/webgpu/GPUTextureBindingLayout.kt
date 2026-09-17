@@ -24,11 +24,37 @@
 package androidx.webgpu
 
 /** Describes the layout of a texture binding. */
-public class GPUTextureBindingLayout
-@JvmOverloads
-constructor(
+public class GPUTextureBindingLayout(
     @TextureSampleType.Type public var sampleType: Int = TextureSampleType.Float,
     @TextureViewDimension.Type public var viewDimension: Int = TextureViewDimension._2D,
     /** Specifies if the texture is multisampled. */
     @get:JvmName("isMultisampled") public var multisampled: Boolean = false,
-)
+) {
+    /** Builder for [GPUTextureBindingLayout]. */
+    public class Builder() {
+        @TextureSampleType.Type private var sampleType: Int = TextureSampleType.Float
+        @TextureViewDimension.Type private var viewDimension: Int = TextureViewDimension._2D
+        private var multisampled: Boolean = false
+
+        public fun setSampleType(@TextureSampleType.Type sampleType: Int): Builder = apply {
+            this.sampleType = sampleType
+        }
+
+        public fun setViewDimension(@TextureViewDimension.Type viewDimension: Int): Builder =
+            apply {
+                this.viewDimension = viewDimension
+            }
+
+        public fun setMultisampled(multisampled: Boolean): Builder = apply {
+            this.multisampled = multisampled
+        }
+
+        /** Builds the [GPUTextureBindingLayout]. */
+        public fun build(): GPUTextureBindingLayout =
+            GPUTextureBindingLayout(
+                sampleType = sampleType,
+                viewDimension = viewDimension,
+                multisampled = multisampled,
+            )
+    }
+}

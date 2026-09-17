@@ -44,14 +44,25 @@ public class OptionalBool private constructor() {
         /** No boolean value is specified. */
         public const val Undefined: Int = 0x00000002
         internal val names: Map<Int, String> =
-            mapOf(0x00000000 to "False", 0x00000001 to "True", 0x00000002 to "Undefined")
+            mapOf(
+                0x00000000 to "False",
+                0x00000001 to "True",
+                0x00000002 to "Undefined",
+            )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [False, True, Undefined])
+    @IntDef(
+        value =
+            [
+                False,
+                True,
+                Undefined,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

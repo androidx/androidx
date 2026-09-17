@@ -70,7 +70,17 @@ public class SurfaceGetCurrentTextureStatus private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [SuccessOptimal, SuccessSuboptimal, Timeout, Outdated, Lost, Error])
+    @IntDef(
+        value =
+            [
+                SuccessOptimal,
+                SuccessSuboptimal,
+                Timeout,
+                Outdated,
+                Lost,
+                Error,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

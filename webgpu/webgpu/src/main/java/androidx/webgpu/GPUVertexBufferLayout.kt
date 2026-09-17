@@ -24,11 +24,31 @@
 package androidx.webgpu
 
 /** Describes the layout of a single vertex buffer. */
-public class GPUVertexBufferLayout
-@JvmOverloads
-constructor(
+public class GPUVertexBufferLayout(
     public var arrayStride: Long,
     @VertexStepMode.Type public var stepMode: Int = VertexStepMode.Undefined,
     /** An array of vertex attributes sourced from this buffer. */
     public var attributes: Array<GPUVertexAttribute> = arrayOf(),
-)
+) {
+    /** Builder for [GPUVertexBufferLayout]. */
+    public class Builder(private val arrayStride: Long) {
+        @VertexStepMode.Type private var stepMode: Int = VertexStepMode.Undefined
+        private var attributes: Array<GPUVertexAttribute> = arrayOf()
+
+        public fun setStepMode(@VertexStepMode.Type stepMode: Int): Builder = apply {
+            this.stepMode = stepMode
+        }
+
+        public fun setAttributes(attributes: Array<GPUVertexAttribute>): Builder = apply {
+            this.attributes = attributes
+        }
+
+        /** Builds the [GPUVertexBufferLayout]. */
+        public fun build(): GPUVertexBufferLayout =
+            GPUVertexBufferLayout(
+                arrayStride = arrayStride,
+                stepMode = stepMode,
+                attributes = attributes,
+            )
+    }
+}

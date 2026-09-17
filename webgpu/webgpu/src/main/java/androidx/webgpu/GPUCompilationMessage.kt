@@ -35,4 +35,4 @@ public class GPUCompilationMessage(
     public var offset: Long,
     /** The length in bytes of the source code related to the message. */
     public var length: Long,
-)
+) {}

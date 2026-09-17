@@ -153,6 +153,7 @@ public class VertexFormat private constructor() {
         public const val Sint32x4: Int = 0x00000027
         public const val Unorm10_10_10_2: Int = 0x00000028
         public const val Unorm8x4BGRA: Int = 0x00000029
+        public const val Snorm10_10_10_2: Int = 0x0000002a
         internal val names: Map<Int, String> =
             mapOf(
                 0x00000001 to "Uint8",
@@ -196,6 +197,7 @@ public class VertexFormat private constructor() {
                 0x00000027 to "Sint32x4",
                 0x00000028 to "Unorm10_10_10_2",
                 0x00000029 to "Unorm8x4BGRA",
+                0x0000002a to "Snorm10_10_10_2",
             )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
@@ -247,6 +249,7 @@ public class VertexFormat private constructor() {
                 Sint32x4,
                 Unorm10_10_10_2,
                 Unorm8x4BGRA,
+                Snorm10_10_10_2,
             ]
     )
     @Target(

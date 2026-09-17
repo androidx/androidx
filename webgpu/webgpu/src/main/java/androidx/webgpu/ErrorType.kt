@@ -63,7 +63,16 @@ public class ErrorType private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [NoError, Validation, OutOfMemory, Internal, Unknown])
+    @IntDef(
+        value =
+            [
+                NoError,
+                Validation,
+                OutOfMemory,
+                Internal,
+                Unknown,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

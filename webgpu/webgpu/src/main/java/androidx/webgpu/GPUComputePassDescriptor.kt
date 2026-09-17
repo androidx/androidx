@@ -24,10 +24,29 @@
 package androidx.webgpu
 
 /** Describes a compute pass. */
-public class GPUComputePassDescriptor
-@JvmOverloads
-constructor(
+public class GPUComputePassDescriptor(
     /** A human-readable label for debugging. */
     public var label: String? = null,
     public var timestampWrites: GPUPassTimestampWrites? = null,
-)
+) {
+    /** Builder for [GPUComputePassDescriptor]. */
+    public class Builder() {
+        private var label: String? = null
+        private var timestampWrites: GPUPassTimestampWrites? = null
+
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
+
+        public fun setTimestampWrites(timestampWrites: GPUPassTimestampWrites?): Builder = apply {
+            this.timestampWrites = timestampWrites
+        }
+
+        /** Builds the [GPUComputePassDescriptor]. */
+        public fun build(): GPUComputePassDescriptor =
+            GPUComputePassDescriptor(
+                label = label,
+                timestampWrites = timestampWrites,
+            )
+    }
+}

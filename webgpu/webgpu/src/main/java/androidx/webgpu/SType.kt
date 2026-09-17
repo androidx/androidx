@@ -72,6 +72,7 @@ public class SType private constructor() {
         public const val ExternalTextureBindingEntry: Int = 0x0000000e
         public const val CompatibilityModeLimits: Int = 0x0000000f
         public const val TextureBindingViewDimension: Int = 0x00000010
+        @ExperimentalWebGpuApi public const val DawnTogglesDescriptor: Int = 0x0005000a
         internal val names: Map<Int, String> =
             mapOf(
                 0x00000001 to "ShaderSourceSPIRV",
@@ -90,6 +91,7 @@ public class SType private constructor() {
                 0x0000000e to "ExternalTextureBindingEntry",
                 0x0000000f to "CompatibilityModeLimits",
                 0x00000010 to "TextureBindingViewDimension",
+                0x0005000a to "DawnTogglesDescriptor",
             )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
@@ -97,6 +99,7 @@ public class SType private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @OptIn(ExperimentalWebGpuApi::class)
     @IntDef(
         value =
             [
@@ -116,6 +119,7 @@ public class SType private constructor() {
                 ExternalTextureBindingEntry,
                 CompatibilityModeLimits,
                 TextureBindingViewDimension,
+                DawnTogglesDescriptor,
             ]
     )
     @Target(

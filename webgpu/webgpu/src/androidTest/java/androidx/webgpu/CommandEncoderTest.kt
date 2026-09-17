@@ -21,7 +21,14 @@ import androidx.webgpu.WebGpuTestConstants.EMULATOR_TESTS_MIN_API_LEVEL
 import androidx.webgpu.helper.WebGpu
 import androidx.webgpu.helper.createWebGpu
 import java.nio.ByteBuffer
+import java.util.concurrent.Executors
 import junit.framework.TestCase
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
@@ -35,37 +42,54 @@ import org.junit.Test
 @SmallTest
 class CommandEncoderTest {
 
+    private val dispatcher: CoroutineDispatcher =
+        Executors.newSingleThreadExecutor { runnable ->
+                Thread(runnable, "Test-WebGPU-Thread")
+            }
+            .asCoroutineDispatcher()
+    private val testScope = CoroutineScope(dispatcher)
     private lateinit var device: GPUDevice
     private lateinit var webGpu: WebGpu
+
     @get:Rule val apiSkipRule = ApiLevelSkipRule()
 
     @Before
-    fun setup() = runBlocking {
-        webGpu = createWebGpu()
+    fun setup(): Unit = runBlocking {
+        webGpu = createWebGpu(dispatcher)
         device = webGpu.device
+        testScope.launch {
+            webGpu.processEventsLoop()
+        }
     }
 
     @After
     fun teardown() {
-        runCatching { device.destroy() }
-        webGpu.close()
+        if (::webGpu.isInitialized) {
+            webGpu.close()
+        }
+        testScope.cancel()
+        (dispatcher as? ExecutorCoroutineDispatcher)?.close()
     }
 
     /** Verifies that a command encoder cannot be used after `finish()` has been called. */
     @Test
     fun testFinish() {
-        val encoder = device.createCommandEncoder()
-        val unusedCommandBuffer = encoder.finish()
+        runBlocking {
+            val unused = webGpu.execute {
+                val encoder = device.createCommandEncoder()
+                val unusedCommandBuffer = encoder.finish()
 
-        val dummyBuffer =
-            device.createBuffer(GPUBufferDescriptor(size = 4, usage = BufferUsage.CopySrc))
-        assertThrows(
-            "Using a finished encoder should throw an error",
-            ValidationException::class.java,
-        ) {
-            encoder.copyBufferToBuffer(dummyBuffer, 0, dummyBuffer, 0, 4)
+                val dummyBuffer =
+                    device.createBuffer(GPUBufferDescriptor(size = 4, usage = BufferUsage.CopySrc))
+                assertThrows(
+                    "Using a finished encoder should throw an error",
+                    ValidationException::class.java,
+                ) {
+                    encoder.copyBufferToBuffer(dummyBuffer, 0, dummyBuffer, 0, 4)
+                }
+                dummyBuffer.destroy()
+            }
         }
-        dummyBuffer.destroy()
     }
 
     /**
@@ -76,19 +100,23 @@ class CommandEncoderTest {
      */
     @Test
     fun testDebugGroups() {
-        val encoder = device.createCommandEncoder()
+        runBlocking {
+            val unused = webGpu.execute {
+                val encoder = device.createCommandEncoder()
 
-        device.pushErrorScope(ErrorFilter.Validation)
-        encoder.pushDebugGroup("MyDebugGroup")
-        encoder.popDebugGroup()
-        val error = runBlocking { device.popErrorScope() }
+                device.pushErrorScope(ErrorFilter.Validation)
+                encoder.pushDebugGroup("MyDebugGroup")
+                encoder.popDebugGroup()
+                val error = device.popErrorScope()
 
-        TestCase.assertEquals(
-            "Expected no error for balanced push/pop debug group",
-            ErrorType.NoError,
-            error,
-        )
-        val unusedCommandBuffer = encoder.finish()
+                TestCase.assertEquals(
+                    "Expected no error for balanced push/pop debug group",
+                    ErrorType.NoError,
+                    error,
+                )
+                val unusedCommandBuffer = encoder.finish()
+            }
+        }
     }
 
     /**
@@ -99,20 +127,24 @@ class CommandEncoderTest {
      */
     @Test
     fun finish_failsWhenNestedPassWasAttempted() {
-        val encoder = device.createCommandEncoder()
-        val activePassEncoder = encoder.beginComputePass()
+        runBlocking {
+            val unused = webGpu.execute {
+                val encoder = device.createCommandEncoder()
+                val activePassEncoder = encoder.beginComputePass()
 
-        val unusedComputePassEncoder = encoder.beginComputePass()
+                val unusedComputePassEncoder = encoder.beginComputePass()
 
-        activePassEncoder.end()
+                activePassEncoder.end()
 
-        device.pushErrorScope(ErrorFilter.Validation)
-        val unusedCommandBuffer = encoder.finish()
-        assertThrows(
-            "Expected a validation error on .finish() due to an earlier nested pass attempt",
-            ValidationException::class.java,
-        ) {
-            runBlocking { device.popErrorScope() }
+                device.pushErrorScope(ErrorFilter.Validation)
+                val unusedCommandBuffer = encoder.finish()
+                assertThrowsSuspend(
+                    "Expected a validation error on .finish() due to an earlier nested pass attempt",
+                    ValidationException::class.java,
+                ) {
+                    val unusedPop = device.popErrorScope()
+                }
+            }
         }
     }
 
@@ -124,36 +156,40 @@ class CommandEncoderTest {
      */
     @Test
     fun testBeginRenderPass() {
-        device.pushErrorScope(ErrorFilter.Validation)
-        val texture =
-            device.createTexture(
-                GPUTextureDescriptor(
-                    size = GPUExtent3D(1, 1, 1),
-                    format = TextureFormat.RGBA8Unorm,
-                    usage = TextureUsage.RenderAttachment,
-                )
-            )
-        val textureView = texture.createView()
-
-        val encoder = device.createCommandEncoder()
-        val passEncoder =
-            encoder.beginRenderPass(
-                GPURenderPassDescriptor(
-                    colorAttachments =
-                        arrayOf(
-                            GPURenderPassColorAttachment(
-                                view = textureView,
-                                loadOp = LoadOp.Clear,
-                                storeOp = StoreOp.Store,
-                                clearValue = GPUColor(0.0, 0.0, 0.0, 1.0),
-                            )
+        runBlocking {
+            val unused = webGpu.execute {
+                device.pushErrorScope(ErrorFilter.Validation)
+                val texture =
+                    device.createTexture(
+                        GPUTextureDescriptor(
+                            size = GPUExtent3D(1, 1, 1),
+                            format = TextureFormat.RGBA8Unorm,
+                            usage = TextureUsage.RenderAttachment,
                         )
-                )
-            )
-        TestCase.assertNotNull(passEncoder)
-        passEncoder.end()
-        val unusedCommandBuffer = encoder.finish()
-        assertEquals(ErrorType.NoError, runBlocking { device.popErrorScope() })
+                    )
+                val textureView = texture.createView()
+
+                val encoder = device.createCommandEncoder()
+                val passEncoder =
+                    encoder.beginRenderPass(
+                        GPURenderPassDescriptor(
+                            colorAttachments =
+                                arrayOf(
+                                    GPURenderPassColorAttachment(
+                                        view = textureView,
+                                        loadOp = LoadOp.Clear,
+                                        storeOp = StoreOp.Store,
+                                        clearValue = GPUColor(0.0, 0.0, 0.0, 1.0),
+                                    )
+                                )
+                        )
+                    )
+                TestCase.assertNotNull(passEncoder)
+                passEncoder.end()
+                val unusedCommandBuffer = encoder.finish()
+                assertEquals(ErrorType.NoError, device.popErrorScope())
+            }
+        }
     }
 
     /**
@@ -164,92 +200,96 @@ class CommandEncoderTest {
     @SdkSuppress(maxSdkVersion = 36) // b/537525245
     @ApiRequirement(minApi = EMULATOR_TESTS_MIN_API_LEVEL, onlySkipOnEmulator = true)
     fun testBeginRenderPass_clearsTextureCorrectly() {
-        val queue = device.getQueue()
+        runBlocking {
+            val unused = webGpu.execute {
+                val queue = device.getQueue()
 
-        val textureWidth = 1
-        val textureHeight = 1
-        val textureFormat = TextureFormat.RGBA8Unorm
+                val textureWidth = 1
+                val textureHeight = 1
+                val textureFormat = TextureFormat.RGBA8Unorm
 
-        val bytesPerPixel = 4
-        val bufferSize = (textureWidth * textureHeight * bytesPerPixel).toLong()
+                val bytesPerPixel = 4
+                val bufferSize = (textureWidth * textureHeight * bytesPerPixel).toLong()
 
-        val renderTexture =
-            device.createTexture(
-                GPUTextureDescriptor(
-                    size = GPUExtent3D(textureWidth, textureHeight, 1),
-                    format = textureFormat,
-                    usage = TextureUsage.RenderAttachment or TextureUsage.CopySrc,
-                )
-            )
-        val textureView = renderTexture.createView()
-
-        val readbackBuffer =
-            device.createBuffer(
-                GPUBufferDescriptor(
-                    size = bufferSize,
-                    usage = BufferUsage.CopyDst or BufferUsage.MapRead,
-                )
-            )
-
-        val clearColor = GPUColor(0.2, 0.8, 0.6, 1.0)
-
-        val encoder = device.createCommandEncoder()
-
-        // This is the operation we are testing.
-        val passEncoder =
-            encoder.beginRenderPass(
-                GPURenderPassDescriptor(
-                    colorAttachments =
-                        arrayOf(
-                            GPURenderPassColorAttachment(
-                                view = textureView,
-                                loadOp = LoadOp.Clear,
-                                storeOp = StoreOp.Store,
-                                clearValue = clearColor,
-                            )
+                val renderTexture =
+                    device.createTexture(
+                        GPUTextureDescriptor(
+                            size = GPUExtent3D(textureWidth, textureHeight, 1),
+                            format = textureFormat,
+                            usage = TextureUsage.RenderAttachment or TextureUsage.CopySrc,
                         )
+                    )
+                val textureView = renderTexture.createView()
+
+                val readbackBuffer =
+                    device.createBuffer(
+                        GPUBufferDescriptor(
+                            size = bufferSize,
+                            usage = BufferUsage.CopyDst or BufferUsage.MapRead,
+                        )
+                    )
+
+                val clearColor = GPUColor(0.2, 0.8, 0.6, 1.0)
+
+                val encoder = device.createCommandEncoder()
+
+                // This is the operation we are testing.
+                val passEncoder =
+                    encoder.beginRenderPass(
+                        GPURenderPassDescriptor(
+                            colorAttachments =
+                                arrayOf(
+                                    GPURenderPassColorAttachment(
+                                        view = textureView,
+                                        loadOp = LoadOp.Clear,
+                                        storeOp = StoreOp.Store,
+                                        clearValue = clearColor,
+                                    )
+                                )
+                        )
+                    )
+                passEncoder.end()
+
+                encoder.copyTextureToBuffer(
+                    source = GPUTexelCopyTextureInfo(texture = renderTexture),
+                    destination =
+                        GPUTexelCopyBufferInfo(
+                            buffer = readbackBuffer,
+                            layout = GPUTexelCopyBufferLayout(),
+                        ),
+                    copySize = GPUExtent3D(textureWidth, textureHeight, 1),
                 )
-            )
-        passEncoder.end()
 
-        encoder.copyTextureToBuffer(
-            source = GPUTexelCopyTextureInfo(texture = renderTexture),
-            destination =
-                GPUTexelCopyBufferInfo(
-                    buffer = readbackBuffer,
-                    layout = GPUTexelCopyBufferLayout(),
-                ),
-            copySize = GPUExtent3D(textureWidth, textureHeight, 1),
-        )
+                val commandBuffer = encoder.finish()
 
-        val commandBuffer = encoder.finish()
+                queue.submit(arrayOf(commandBuffer))
 
-        queue.submit(arrayOf(commandBuffer))
+                readbackBuffer.mapAndAwait(MapMode.Read, 0, bufferSize)
 
-        runBlocking { readbackBuffer.mapAndAwait(MapMode.Read, 0, bufferSize) }
+                val mappedData: ByteBuffer = readbackBuffer.getConstMappedRange(0, bufferSize)
 
-        val mappedData: ByteBuffer = readbackBuffer.getConstMappedRange(0, bufferSize)
+                val expectedBytes =
+                    byteArrayOf(
+                        (clearColor.r * 255).toInt().toByte(),
+                        (clearColor.g * 255).toInt().toByte(),
+                        (clearColor.b * 255).toInt().toByte(),
+                        (clearColor.a * 255).toInt().toByte(),
+                    )
 
-        val expectedBytes =
-            byteArrayOf(
-                (clearColor.r * 255).toInt().toByte(),
-                (clearColor.g * 255).toInt().toByte(),
-                (clearColor.b * 255).toInt().toByte(),
-                (clearColor.a * 255).toInt().toByte(),
-            )
+                val actualBytes = ByteArray(bytesPerPixel)
+                mappedData.get(actualBytes)
 
-        val actualBytes = ByteArray(bytesPerPixel)
-        mappedData.get(actualBytes)
+                assertArrayEquals(
+                    "The bytes read back from the texture do not match the expected clear color.",
+                    expectedBytes,
+                    actualBytes,
+                )
 
-        assertArrayEquals(
-            "The bytes read back from the texture do not match the expected clear color.",
-            expectedBytes,
-            actualBytes,
-        )
-
-        readbackBuffer.unmap()
-        readbackBuffer.destroy()
-        renderTexture.destroy()
+                readbackBuffer.unmap()
+                readbackBuffer.destroy()
+                renderTexture.destroy()
+            }
+        }
     }
 
     /**
@@ -261,16 +301,29 @@ class CommandEncoderTest {
      */
     @Test
     fun testClearBuffer() {
-        val buffer =
-            device.createBuffer(GPUBufferDescriptor(size = 16, usage = BufferUsage.CopyDst))
+        runBlocking {
+            val unused = webGpu.execute {
+                val buffer =
+                    device.createBuffer(
+                        GPUBufferDescriptor(
+                            size = 16,
+                            usage = BufferUsage.CopyDst,
+                        )
+                    )
 
-        val encoder = device.createCommandEncoder()
-        device.pushErrorScope(ErrorFilter.Validation)
-        encoder.clearBuffer(buffer, 0, 16)
-        val error = runBlocking { device.popErrorScope() }
+                val encoder = device.createCommandEncoder()
+                device.pushErrorScope(ErrorFilter.Validation)
+                encoder.clearBuffer(buffer, 0, 16)
+                val error = device.popErrorScope()
 
-        assertEquals("Expected clearBuffer to succeed", ErrorType.NoError, error)
-        val unusedCommandBuffer = encoder.finish()
+                assertEquals(
+                    "Expected clearBuffer to succeed",
+                    ErrorType.NoError,
+                    error,
+                )
+                val unusedCommandBuffer = encoder.finish()
+            }
+        }
     }
 
     /**
@@ -282,24 +335,37 @@ class CommandEncoderTest {
      */
     @Test
     fun testResolveQuerySet() {
-        val querySet =
-            device.createQuerySet(GPUQuerySetDescriptor(type = QueryType.Occlusion, count = 1))
+        runBlocking {
+            val unused = webGpu.execute {
+                val querySet =
+                    device.createQuerySet(
+                        GPUQuerySetDescriptor(
+                            type = QueryType.Occlusion,
+                            count = 1,
+                        )
+                    )
 
-        val destination =
-            device.createBuffer(
-                GPUBufferDescriptor(
-                    size = 8, // Occlusion queries are 64-bit (8 bytes)
-                    usage = BufferUsage.QueryResolve,
+                val destination =
+                    device.createBuffer(
+                        GPUBufferDescriptor(
+                            size = 8, // Occlusion queries are 64-bit (8 bytes)
+                            usage = BufferUsage.QueryResolve,
+                        )
+                    )
+
+                val encoder = device.createCommandEncoder()
+                device.pushErrorScope(ErrorFilter.Validation)
+                encoder.resolveQuerySet(querySet, 0, 1, destination, 0)
+                val error = device.popErrorScope()
+
+                assertEquals(
+                    "Expected resolveQuerySet to succeed",
+                    ErrorType.NoError,
+                    error,
                 )
-            )
-
-        val encoder = device.createCommandEncoder()
-        device.pushErrorScope(ErrorFilter.Validation)
-        encoder.resolveQuerySet(querySet, 0, 1, destination, 0)
-        val error = runBlocking { device.popErrorScope() }
-
-        assertEquals("Expected resolveQuerySet to succeed", ErrorType.NoError, error)
-        val unusedCommandBuffer = encoder.finish()
+                val unusedCommandBuffer = encoder.finish()
+            }
+        }
     }
 
     /**
@@ -311,13 +377,21 @@ class CommandEncoderTest {
      */
     @Test
     fun testInsertDebugMarker() {
-        val encoder = device.createCommandEncoder()
+        runBlocking {
+            val unused = webGpu.execute {
+                val encoder = device.createCommandEncoder()
 
-        device.pushErrorScope(ErrorFilter.Validation)
-        encoder.insertDebugMarker("MyDebugMarker")
-        val error = runBlocking { device.popErrorScope() }
+                device.pushErrorScope(ErrorFilter.Validation)
+                encoder.insertDebugMarker("MyDebugMarker")
+                val error = device.popErrorScope()
 
-        assertEquals("Expected insertDebugMarker to succeed", ErrorType.NoError, error)
-        val unusedCommandBuffer = encoder.finish()
+                assertEquals(
+                    "Expected insertDebugMarker to succeed",
+                    ErrorType.NoError,
+                    error,
+                )
+                val unusedCommandBuffer = encoder.finish()
+            }
+        }
     }
 }

@@ -18,6 +18,13 @@ package androidx.webgpu
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.webgpu.helper.createWebGpu
+import java.util.concurrent.Executors
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -26,6 +33,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class ErrorTest {
+    private val dispatcher: CoroutineDispatcher =
+        Executors.newSingleThreadExecutor { runnable ->
+                Thread(runnable, "Test-WebGPU-Thread")
+            }
+            .asCoroutineDispatcher()
+    private val testScope = CoroutineScope(dispatcher)
+
     @Test
     /**
      * Test that an invalid parameter raises an error that is converted to a Kotlin exception by the
@@ -33,12 +47,65 @@ class ErrorTest {
      */
     fun errorTest() {
         runBlocking {
-            val webGpu = createWebGpu()
+            val webGpu = createWebGpu(dispatcher)
             val device = webGpu.device
-            assertThrows(ValidationException::class.java) {
-                device.createTexture(
-                    GPUTextureDescriptor(usage = TextureUsage.None, size = GPUExtent3D(0))
-                )
+            testScope.launch {
+                webGpu.processEventsLoop()
+            }
+            try {
+                val unused = webGpu.execute {
+                    assertThrows(ValidationException::class.java) {
+                        device.createTexture(
+                            GPUTextureDescriptor(
+                                usage = TextureUsage.None,
+                                size = GPUExtent3D(0),
+                            )
+                        )
+                    }
+                }
+            } finally {
+                webGpu.close()
+                testScope.cancel()
+                (dispatcher as? ExecutorCoroutineDispatcher)?.close()
+            }
+        }
+    }
+
+    @Test
+    fun testRecurringUncapturedErrorCallbackDoesNotDoubleFree() {
+        runBlocking {
+            val webGpu = createWebGpu(dispatcher)
+            val device = webGpu.device
+            testScope.launch {
+                webGpu.processEventsLoop()
+            }
+            try {
+                val unused = webGpu.execute {
+                    // 1st uncaptured error -> invokes uncapturedErrorCallback (without fix, deletes
+                    // userData1)
+                    assertThrows(ValidationException::class.java) {
+                        device.createTexture(
+                            GPUTextureDescriptor(
+                                usage = TextureUsage.None,
+                                size = GPUExtent3D(0),
+                            )
+                        )
+                    }
+
+                    // 2nd uncaptured error -> invokes uncapturedErrorCallback again.
+                    assertThrows(ValidationException::class.java) {
+                        device.createTexture(
+                            GPUTextureDescriptor(
+                                usage = TextureUsage.None,
+                                size = GPUExtent3D(0),
+                            )
+                        )
+                    }
+                }
+            } finally {
+                webGpu.close()
+                testScope.cancel()
+                (dispatcher as? ExecutorCoroutineDispatcher)?.close()
             }
         }
     }

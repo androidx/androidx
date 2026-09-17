@@ -29,7 +29,6 @@ public class GPUCompatibilityModeLimits(
     public var maxStorageBuffersInFragmentStage: Int = Constants.LIMIT_U32_UNDEFINED,
     public var maxStorageTexturesInFragmentStage: Int = Constants.LIMIT_U32_UNDEFINED,
 ) {
-
     /** Builder for [GPUCompatibilityModeLimits]. */
     public class Builder() {
         private var maxStorageBuffersInVertexStage: Int = Constants.LIMIT_U32_UNDEFINED

@@ -28,12 +28,23 @@ package androidx.webgpu
  * allows remapping or forcing specific values for the R, G, B, and A channels when accessing the
  * texture view.
  */
-public class GPUTextureComponentSwizzleDescriptor
-@JvmOverloads
-constructor(
+public class GPUTextureComponentSwizzleDescriptor(
     /**
      * The swizzle configuration specifying the source component or constant value for each channel
      * of the texture view.
      */
     public var swizzle: GPUTextureComponentSwizzle = GPUTextureComponentSwizzle()
-)
+) {
+    /** Builder for [GPUTextureComponentSwizzleDescriptor]. */
+    public class Builder() {
+        private var swizzle: GPUTextureComponentSwizzle = GPUTextureComponentSwizzle()
+
+        public fun setSwizzle(swizzle: GPUTextureComponentSwizzle): Builder = apply {
+            this.swizzle = swizzle
+        }
+
+        /** Builds the [GPUTextureComponentSwizzleDescriptor]. */
+        public fun build(): GPUTextureComponentSwizzleDescriptor =
+            GPUTextureComponentSwizzleDescriptor(swizzle = swizzle)
+    }
+}

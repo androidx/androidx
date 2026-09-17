@@ -63,7 +63,16 @@ public class BufferBindingType private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [BindingNotUsed, Undefined, Uniform, Storage, ReadOnlyStorage])
+    @IntDef(
+        value =
+            [
+                BindingNotUsed,
+                Undefined,
+                Uniform,
+                Storage,
+                ReadOnlyStorage,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

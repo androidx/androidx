@@ -59,7 +59,16 @@ public class ShaderStage private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(flag = true, value = [None, Vertex, Fragment, Compute])
+    @IntDef(
+        flag = true,
+        value =
+            [
+                None,
+                Vertex,
+                Fragment,
+                Compute,
+            ],
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

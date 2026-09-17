@@ -30,6 +30,7 @@ plugins {
 
 dependencies {
     api(libs.androidx.annotation)
+    api(project(":annotation:annotation-experimental"))
     // Add dependencies here
     api(libs.kotlinCoroutinesCore)
 
@@ -57,10 +58,14 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2025"
     description = "WebGPU Android apps."
+    deviceTests.minSdkForFtlOverride = 35 // b/550426660
 }
 
 android {
     namespace = "androidx.webgpu"
+    defaultConfig {
+        minSdk { version = release(26) }
+    }
 }
 
 

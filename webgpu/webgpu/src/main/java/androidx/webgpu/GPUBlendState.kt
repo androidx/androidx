@@ -24,11 +24,30 @@
 package androidx.webgpu
 
 /** Defines the blending configuration for a color attachment. */
-public class GPUBlendState
-@JvmOverloads
-constructor(
+public class GPUBlendState(
     /** The blend component for the RGB channels. */
     public var color: GPUBlendComponent = GPUBlendComponent(),
     /** The blend component for the alpha channel. */
     public var alpha: GPUBlendComponent = GPUBlendComponent(),
-)
+) {
+    /** Builder for [GPUBlendState]. */
+    public class Builder() {
+        private var color: GPUBlendComponent = GPUBlendComponent()
+        private var alpha: GPUBlendComponent = GPUBlendComponent()
+
+        public fun setColor(color: GPUBlendComponent): Builder = apply {
+            this.color = color
+        }
+
+        public fun setAlpha(alpha: GPUBlendComponent): Builder = apply {
+            this.alpha = alpha
+        }
+
+        /** Builds the [GPUBlendState]. */
+        public fun build(): GPUBlendState =
+            GPUBlendState(
+                color = color,
+                alpha = alpha,
+            )
+    }
+}

@@ -32,7 +32,6 @@ public class GPUPrimitiveState(
     @CullMode.Type public var cullMode: Int = CullMode.None,
     @get:JvmName("isUnclippedDepth") public var unclippedDepth: Boolean = false,
 ) {
-
     /** Builder for [GPUPrimitiveState]. */
     public class Builder() {
         @PrimitiveTopology.Type private var topology: Int = PrimitiveTopology.TriangleList

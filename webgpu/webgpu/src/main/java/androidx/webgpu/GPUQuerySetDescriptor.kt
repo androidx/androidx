@@ -24,13 +24,31 @@
 package androidx.webgpu
 
 /** Describes a query set. */
-public class GPUQuerySetDescriptor
-@JvmOverloads
-constructor(
+public class GPUQuerySetDescriptor(
     /** The type of queries in the set. */
     @QueryType.Type public var type: Int,
     /** The number of queries in the set. */
     public var count: Int,
     /** A human-readable label for debugging. */
     public var label: String? = null,
-)
+) {
+    /** Builder for [GPUQuerySetDescriptor]. */
+    public class Builder(
+        @QueryType.Type private val type: Int,
+        private val count: Int,
+    ) {
+        private var label: String? = null
+
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
+
+        /** Builds the [GPUQuerySetDescriptor]. */
+        public fun build(): GPUQuerySetDescriptor =
+            GPUQuerySetDescriptor(
+                type = type,
+                count = count,
+                label = label,
+            )
+    }
+}

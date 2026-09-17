@@ -24,13 +24,38 @@
 package androidx.webgpu
 
 /** Defines a three-dimensional origin point (x, y, z). */
-public class GPUOrigin3D
-@JvmOverloads
-constructor(
+public class GPUOrigin3D(
     /** The x-coordinate of the origin. */
     public var x: Int = 0,
     /** The y-coordinate of the origin. */
     public var y: Int = 0,
     /** The z-coordinate of the origin. */
     public var z: Int = 0,
-)
+) {
+    /** Builder for [GPUOrigin3D]. */
+    public class Builder() {
+        private var x: Int = 0
+        private var y: Int = 0
+        private var z: Int = 0
+
+        public fun setX(x: Int): Builder = apply {
+            this.x = x
+        }
+
+        public fun setY(y: Int): Builder = apply {
+            this.y = y
+        }
+
+        public fun setZ(z: Int): Builder = apply {
+            this.z = z
+        }
+
+        /** Builds the [GPUOrigin3D]. */
+        public fun build(): GPUOrigin3D =
+            GPUOrigin3D(
+                x = x,
+                y = y,
+                z = z,
+            )
+    }
+}

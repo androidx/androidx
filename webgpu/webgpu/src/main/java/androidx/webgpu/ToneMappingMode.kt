@@ -41,14 +41,23 @@ public class ToneMappingMode private constructor() {
         /** Extended range tone mapping for HDR. */
         public const val Extended: Int = 0x00000002
         internal val names: Map<Int, String> =
-            mapOf(0x00000001 to "Standard", 0x00000002 to "Extended")
+            mapOf(
+                0x00000001 to "Standard",
+                0x00000002 to "Extended",
+            )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Standard, Extended])
+    @IntDef(
+        value =
+            [
+                Standard,
+                Extended,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

@@ -67,7 +67,17 @@ public class PrimitiveTopology private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Undefined, PointList, LineList, LineStrip, TriangleList, TriangleStrip])
+    @IntDef(
+        value =
+            [
+                Undefined,
+                PointList,
+                LineList,
+                LineStrip,
+                TriangleList,
+                TriangleStrip,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

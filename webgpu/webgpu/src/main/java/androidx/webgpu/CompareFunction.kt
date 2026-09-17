@@ -82,7 +82,18 @@ public class CompareFunction private constructor() {
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @IntDef(
-        value = [Undefined, Never, Less, Equal, LessEqual, Greater, NotEqual, GreaterEqual, Always]
+        value =
+            [
+                Undefined,
+                Never,
+                Less,
+                Equal,
+                LessEqual,
+                Greater,
+                NotEqual,
+                GreaterEqual,
+                Always,
+            ]
     )
     @Target(
         AnnotationTarget.FUNCTION,

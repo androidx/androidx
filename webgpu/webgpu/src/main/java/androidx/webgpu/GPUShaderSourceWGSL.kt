@@ -27,4 +27,4 @@ package androidx.webgpu
 public class GPUShaderSourceWGSL(
     /** A string containing the WGSL code. */
     public var code: String
-)
+) {}
