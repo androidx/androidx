@@ -96,6 +96,17 @@ internal constructor(
 
     internal lateinit var root: RemoteVectorGroup
 
+    /**
+     * Indicates whether this [RemoteImageVector] contains any clip paths.
+     *
+     * Traverses the root and any nested groups in the vector hierarchy to check if any group
+     * specifies non-empty clip path data. This can be used to verify compatibility with player
+     * profiles that may not support clipping operations.
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:JvmName("hasClipPath")
+    public val hasClipPath: Boolean by lazy(LazyThreadSafetyMode.NONE) { root.hasClipPath }
+
     public companion object
 
     /**
@@ -409,6 +420,21 @@ internal constructor(
     /** Child Vector nodes that are part of this group, this can contain paths or other groups */
     private val children: List<RemoteVectorNode> = emptyList(),
 ) : RemoteVectorNode(), Iterable<RemoteVectorNode> {
+
+    /** Whether this group or any of its child groups contain clip path data. */
+    val hasClipPath: Boolean
+        get() {
+            if (clipPathData.isNotEmpty()) {
+                return true
+            }
+            for (i in 0 until children.size) {
+                val child = children[i]
+                if (child is RemoteVectorGroup && child.hasClipPath) {
+                    return true
+                }
+            }
+            return false
+        }
 
     val size: Int
         get() = children.size
