@@ -19,17 +19,24 @@ package androidx.glance.wear
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.compose.action.pendingIntentAction
 import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.glance.wear.core.ContainerInfo
+import androidx.glance.wear.core.RendererVersion
 import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.core.WidgetInstanceId
 import androidx.glance.wear.parcel.WearWidgetCapture
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import java.io.ByteArrayInputStream
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -111,5 +118,40 @@ class WearWidgetDocumentTest {
         val pendingIntentsBundle = rawContent.extras.getBundle(WearWidgetCapture.PENDING_INTENT_KEY)
         assertThat(pendingIntentsBundle).isNotNull()
         assertThat(pendingIntentsBundle!!.isEmpty).isFalse()
+    }
+
+    @Test
+    fun captureRawContent_withMaxRendererVersion_inflatesWithoutError() = runTest {
+        val context = getApplicationContext<Context>()
+        val params =
+            WearWidgetParams(
+                WidgetInstanceId("ns", 1),
+                ContainerInfo.CONTAINER_TYPE_SMALL,
+                widthDp = 100f,
+                heightDp = 100f,
+                horizontalPaddingDp = 0f,
+                verticalPaddingDp = 0f,
+                cornerRadiusDp = 0f,
+                rendererVersion = RendererVersion.MAX_RENDERER_VERSION,
+            )
+        val document =
+            WearWidgetDocument(background = WearWidgetBrush) {
+                RemoteBox { RemoteText(text = "Hello Wear Widget".rs) }
+            }
+
+        val rawContent = document.captureRawContent(context, params, isInspectionMode = true)
+        val profile = GlanceWearProfiles.wearWidgets(params.rendererVersion.supportedOperations)
+        val coreDoc =
+            CoreDocument().apply {
+                val buffer =
+                    RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(rawContent.rcDocument))
+                buffer.setVersion(
+                    profile.apiLevel,
+                    profile.operationsProfiles,
+                    profile.supportedOperations,
+                )
+                initFromBuffer(buffer)
+            }
+        assertThat(coreDoc.getProfileMask()).isEqualTo(RcProfiles.PROFILE_WEAR_WIDGETS)
     }
 }
