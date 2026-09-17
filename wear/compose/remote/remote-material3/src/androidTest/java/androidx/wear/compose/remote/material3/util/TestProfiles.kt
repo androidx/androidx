@@ -50,10 +50,10 @@ object TestProfiles {
             {
                 Operations.getOperations(
                         CoreDocument.DOCUMENT_API_LEVEL,
-                        RcProfiles.PROFILE_ANDROIDX,
+                        RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
                     )
                     ?.keySet()
-                    .orEmpty() + setOf(Operations.CORE_TEXT)
+                    .orEmpty() + setOf(Operations.CORE_TEXT, Operations.DRAW_TEXT_ON_CIRCLE)
             },
         ) { creationDisplayInfo, profile, callback ->
             RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)

@@ -107,6 +107,10 @@ public fun RemoteDocumentPlayer(
         factory = {
             RemoteComposePlayer(it).apply {
                 doOnPreDraw { fullyDrawnReporter?.removeReporter() }
+                // See CL 4198105
+                // (https://android-review.git.corp.google.com/c/platform/frameworks/support/+/4198105):
+                // set bitmapLoader and typefaceResolver before init(this) so the player uses them
+                // during initial setup.
                 bitmapLoader?.let(::setBitmapLoader)
                 typefaceResolver?.let(::setTypefaceResolver)
                 customSupport?.let(::setCustomSupport)
