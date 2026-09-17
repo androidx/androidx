@@ -16,6 +16,8 @@
 
 package androidx.appfunctions.compiler.core.metadata
 
+import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAccessLevelClass
+
 internal const val APP_FUNCTION_NAMESPACE = "appfunctions"
 internal const val APP_FUNCTION_ID_EMPTY = "unused"
 
@@ -29,6 +31,8 @@ data class CompileTimeAppFunctionMetadata(
     val description: String = "",
     val deprecation: AppFunctionDeprecationMetadata? = null,
     val scope: String? = null,
+    val accessLevel: Int? = null,
+    val isCompatEnforcementEnabled: Boolean? = null,
 ) {
     fun toAppFunctionMetadataDocument(): AppFunctionMetadataDocument {
         return AppFunctionMetadataDocument(
@@ -42,7 +46,19 @@ data class CompileTimeAppFunctionMetadata(
             description = description,
             deprecation = deprecation?.toAppFunctionDeprecationMetadataDocument(),
             scope = scope,
+            accessLevel = accessLevelToXmlValue(accessLevel),
+            isCompatEnforcementEnabled = isCompatEnforcementEnabled,
         )
+    }
+
+    private fun accessLevelToXmlValue(accessLevel: Int?): String? {
+        return when (accessLevel) {
+            null -> null
+            AppFunctionAccessLevelClass.SELF -> "self"
+            AppFunctionAccessLevelClass.SYSTEM -> "system"
+            AppFunctionAccessLevelClass.ANDROID_TRUSTED -> "androidTrusted"
+            else -> throw IllegalStateException("Unexpected accessLevel: $accessLevel")
+        }
     }
 }
 
@@ -58,4 +74,6 @@ data class AppFunctionMetadataDocument(
     val description: String = "",
     val deprecation: AppFunctionDeprecationMetadataDocument? = null,
     val scope: String? = null,
+    val accessLevel: String? = null,
+    val isCompatEnforcementEnabled: Boolean? = null,
 )

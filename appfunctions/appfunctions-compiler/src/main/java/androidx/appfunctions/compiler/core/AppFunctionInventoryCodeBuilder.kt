@@ -44,6 +44,7 @@ import androidx.appfunctions.compiler.processors.AppFunctionInventoryProcessor.C
 import androidx.appfunctions.compiler.processors.AppFunctionInventoryProcessor.Companion.PARAMETER_METADATA_LIST_PROPERTY_NAME
 import androidx.appfunctions.compiler.processors.AppFunctionInventoryProcessor.Companion.RESPONSE_METADATA_PROPERTY_NAME
 import androidx.appfunctions.compiler.processors.AppFunctionInventoryProcessor.Companion.SCHEMA_METADATA_PROPERTY_NAME
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
@@ -63,6 +64,16 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
     fun addFunctionMetadataProperties(
         appFunctionMetadataList: List<CompileTimeAppFunctionMetadata>
     ) {
+        if (appFunctionMetadataList.any { it.accessLevel != null }) {
+            inventoryClassBuilder.addAnnotation(
+                AnnotationSpec.builder(IntrospectionHelper.OptInAnnotation.CLASS_NAME)
+                    .addMember(
+                        "%T::class",
+                        IntrospectionHelper.ExperimentalAppFunctionsApiAnnotation.CLASS_NAME,
+                    )
+                    .build()
+            )
+        }
         for (functionMetadata in appFunctionMetadataList) {
             val functionMetadataObjectClassBuilder =
                 TypeSpec.objectBuilder(getFunctionMetadataObjectClassName(functionMetadata.id))
@@ -120,6 +131,18 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                         add("response = %L,\n", RESPONSE_METADATA_PROPERTY_NAME)
                         if (functionMetadata.deprecation != null) {
                             add("deprecation = %L,\n", DEPRECATION_METADATA_PROPERTY_NAME)
+                        }
+                        if (functionMetadata.accessLevel != null) {
+                            add(
+                                "accessLevel = %L,\n",
+                                functionMetadata.accessLevel,
+                            )
+                        }
+                        if (functionMetadata.isCompatEnforcementEnabled != null) {
+                            add(
+                                "isCompatEnforcementEnabled = %L,\n",
+                                functionMetadata.isCompatEnforcementEnabled,
+                            )
                         }
                         unindent()
                         unindent()

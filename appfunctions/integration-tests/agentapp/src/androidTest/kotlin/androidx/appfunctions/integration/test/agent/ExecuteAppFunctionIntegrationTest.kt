@@ -36,6 +36,7 @@ import androidx.appfunction.integration.test.sharedschema.ProxyTypesWrapper
 import androidx.appfunction.integration.test.sharedschema.SetField
 import androidx.appfunction.integration.test.sharedschema.UpdateNoteParams
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDeniedException
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
 import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.AppFunctionManager
@@ -83,6 +84,7 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.async
 import org.junit.After
 import org.junit.Assert.assertThrows
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
@@ -1678,6 +1680,114 @@ class ExecuteAppFunctionIntegrationTest {
         return resolveObjectType(targetParameterMetadata.dataType)
     }
 
+    @Test
+    fun executeAppFunction_selfAccess_deniedForForeignApp() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(targetContext))
+        val response =
+            appFunctionManager.executeAppFunction(
+                request =
+                    ExecuteAppFunctionRequest(
+                        TARGET_APP_PACKAGE,
+                        SELF_ACCESS_FUNCTION_ID,
+                        AppFunctionData.EMPTY,
+                    )
+            )
+
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Error::class.java)
+        val errorResponse = response as ExecuteAppFunctionResponse.Error
+        assertThat(errorResponse.error).isInstanceOf(AppFunctionDeniedException::class.java)
+    }
+
+    @Test
+    fun executeAppFunction_systemAccess_withoutSystemPermission_denied() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(targetContext))
+        val response =
+            appFunctionManager.executeAppFunction(
+                request =
+                    ExecuteAppFunctionRequest(
+                        TARGET_APP_PACKAGE,
+                        SYSTEM_ACCESS_FUNCTION_ID,
+                        AppFunctionData.EMPTY,
+                    )
+            )
+
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Error::class.java)
+        val errorResponse = response as ExecuteAppFunctionResponse.Error
+        assertThat(errorResponse.error).isInstanceOf(AppFunctionDeniedException::class.java)
+    }
+
+    @Test
+    fun executeAppFunction_systemAccess_withAdoptedShellIdentity_success() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(targetContext))
+        uiAutomation.dropShellPermissionIdentity()
+        uiAutomation.adoptShellPermissionIdentity("android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM")
+        try {
+            val metadata = searchAppFunction(SYSTEM_ACCESS_FUNCTION_ID)
+
+            val response =
+                appFunctionManager.executeAppFunction(
+                    request =
+                        ExecuteAppFunctionRequest(
+                            metadata.packageName,
+                            metadata.id,
+                            AppFunctionData.EMPTY,
+                        )
+                )
+
+            assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+            val successResponse = response as ExecuteAppFunctionResponse.Success
+            assertThat(successResponse.returnValue.getString(PROPERTY_RETURN_VALUE))
+                .isEqualTo("system_success")
+        } finally {
+            uiAutomation.dropShellPermissionIdentity()
+        }
+    }
+
+    @Test
+    fun executeAppFunction_selfAccess_disabledCompat_enforcedOnPlatform_deniedForForeignApp() =
+        doBlocking {
+            assumeTrue(isDynamicIndexerAvailable(targetContext))
+            assumeTrue(isPlatformAccessEnforcementEnabled())
+            val response =
+                appFunctionManager.executeAppFunction(
+                    request =
+                        ExecuteAppFunctionRequest(
+                            TARGET_APP_PACKAGE,
+                            SELF_ACCESS_DISABLED_COMPAT_FUNCTION_ID,
+                            AppFunctionData.EMPTY,
+                        )
+                )
+            assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Error::class.java)
+            val errorResponse = response as ExecuteAppFunctionResponse.Error
+            assertThat(errorResponse.error).isInstanceOf(AppFunctionDeniedException::class.java)
+        }
+
+    @Test
+    fun executeAppFunction_selfAccess_disabledCompat_notEnforcedOnPlatform_successForForeignApp() =
+        doBlocking {
+            assumeTrue(isDynamicIndexerAvailable(targetContext))
+            assumeFalse(isPlatformAccessEnforcementEnabled())
+            val response =
+                appFunctionManager.executeAppFunction(
+                    request =
+                        ExecuteAppFunctionRequest(
+                            TARGET_APP_PACKAGE,
+                            SELF_ACCESS_DISABLED_COMPAT_FUNCTION_ID,
+                            AppFunctionData.EMPTY,
+                        )
+                )
+            assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+            val successResponse = response as ExecuteAppFunctionResponse.Success
+            assertThat(successResponse.returnValue.getString(PROPERTY_RETURN_VALUE))
+                .isEqualTo("self_disabled_compat_success")
+        }
+
+    private fun isPlatformAccessEnforcementEnabled(): Boolean {
+        // Platform natively enforces access restrictions only starting in Android 17.2
+        // (CINNAMON_BUN_2).
+        return Build.VERSION.SDK_INT_FULL >= 3700002
+    }
+
     private suspend fun searchAppFunction(id: String): AppFunctionMetadata {
         return appFunctionManager
             .searchAppFunctions(
@@ -1721,5 +1831,14 @@ class ExecuteAppFunctionIntegrationTest {
 
         const val ECHO_STRING_WITH_CONSTRAINT_FUNCTION_ID =
             "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#echoStringWithConstraint"
+
+        const val SELF_ACCESS_FUNCTION_ID =
+            "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#selfAccessFunction"
+
+        const val SYSTEM_ACCESS_FUNCTION_ID =
+            "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#systemAccessFunction"
+
+        const val SELF_ACCESS_DISABLED_COMPAT_FUNCTION_ID =
+            "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#selfAccessDisabledCompatFunction"
     }
 }

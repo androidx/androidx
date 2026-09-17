@@ -66,6 +66,19 @@ internal fun AppFunctionMetadataDocument.toXmlElement(doc: Document, elementName
         if (deprecation != null) {
             appendChild(deprecation.toXmlElement(doc, "deprecation"))
         }
+
+        if (accessLevel != null) {
+            appendChild(doc.createElementWithTextNode("accessLevel", accessLevel))
+        }
+
+        if (isCompatEnforcementEnabled != null) {
+            appendChild(
+                doc.createElementWithTextNode(
+                    "isCompatEnforcementEnabled",
+                    isCompatEnforcementEnabled.toString(),
+                )
+            )
+        }
     }
 
 internal fun AppFunctionComponentsMetadataDocument.toXmlElement(

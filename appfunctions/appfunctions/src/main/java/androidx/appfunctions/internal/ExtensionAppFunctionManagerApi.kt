@@ -44,6 +44,7 @@ import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /** Provides the AppFunctionManager backend through the sidecar extension. */
+@OptIn(ExperimentalAppFunctionsApi::class)
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 internal class ExtensionAppFunctionManagerApi(private val context: Context) :
     AppFunctionManagerApi {
@@ -56,6 +57,12 @@ internal class ExtensionAppFunctionManagerApi(private val context: Context) :
         request: ExecuteAppFunctionRequest,
         functionMetadata: AppFunctionMetadata,
     ): ExecuteAppFunctionResponse {
+        val platformExtensionRequest = request.toPlatformExtensionClass()
+        CallerAccessVerifier.attachCallerVerificationTokens(
+            context,
+            functionMetadata.accessLevel,
+            platformExtensionRequest.extras,
+        )
         return suspendCancellableCoroutine { cont ->
             val cancellationSignal = CancellationSignal()
             // Wrapped in an AtomicReference so we can explicitly null it out. This protects the
@@ -69,7 +76,7 @@ internal class ExtensionAppFunctionManagerApi(private val context: Context) :
                 activeCont.set(null)
             }
             appFunctionManager.executeAppFunction(
-                request.toPlatformExtensionClass(),
+                platformExtensionRequest,
                 Runnable::run,
                 cancellationSignal,
                 object :

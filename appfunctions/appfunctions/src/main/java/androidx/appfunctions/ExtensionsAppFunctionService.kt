@@ -24,6 +24,7 @@ import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.internal.AppFunctionInventoryProvider
 import androidx.appfunctions.internal.AppFunctionMetadataUtils.getAppFunctionMetadata
+import androidx.appfunctions.internal.CallerAccessVerifier
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import com.android.extensions.appfunctions.AppFunctionException as ExtensionAppFunctionException
 import com.android.extensions.appfunctions.AppFunctionService
@@ -136,6 +137,16 @@ public abstract class ExtensionsAppFunctionService :
                         )
                         .toPlatformExtensionsClass()
                 )
+                return@launch
+            }
+            try {
+                CallerAccessVerifier.verifyCallerAccess(
+                    context = this@ExtensionsAppFunctionService,
+                    metadata = appFunctionMetadata,
+                    extras = request.extras,
+                )
+            } catch (e: AppFunctionDeniedException) {
+                callback.onError(e.toPlatformExtensionsClass())
                 return@launch
             }
             this@ExtensionsAppFunctionService.mainExecutor.execute {

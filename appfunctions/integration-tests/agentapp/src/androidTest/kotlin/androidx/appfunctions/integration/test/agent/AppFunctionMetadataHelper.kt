@@ -66,6 +66,12 @@ internal object AppFunctionMetadataHelper {
             "$TARGET_APP_PACKAGE.DynamicActivityScopeSignature#processVoid"
         const val GLOBAL_SCOPE_DYNAMIC_FUNCTION_ID =
             "$TARGET_APP_PACKAGE.DynamicVoidReturnSignature#processVoid"
+        const val SELF_ACCESS_FUNCTION_ID =
+            "$TARGET_APP_PACKAGE.BaseTestAppFunctionService#selfAccessFunction"
+        const val SYSTEM_ACCESS_FUNCTION_ID =
+            "$TARGET_APP_PACKAGE.BaseTestAppFunctionService#systemAccessFunction"
+        const val SELF_ACCESS_DISABLED_COMPAT_FUNCTION_ID =
+            "$TARGET_APP_PACKAGE.BaseTestAppFunctionService#selfAccessDisabledCompatFunction"
     }
 
     object Components {

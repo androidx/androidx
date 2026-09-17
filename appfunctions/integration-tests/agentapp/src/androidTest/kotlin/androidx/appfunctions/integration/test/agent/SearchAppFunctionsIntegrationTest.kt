@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalAppFunctionsApi::class)
 
 package androidx.appfunctions.integration.test.agent
 
@@ -20,6 +21,7 @@ import android.Manifest
 import android.os.Build
 import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionSearchSpec
+import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ADD_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.CREATE_NOTE_DISABLED_BY_DEFAULT_FUNCTION_ID
@@ -28,7 +30,10 @@ import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.Fu
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.DISABLED_BY_DEFAULT_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ENABLED_BY_DEFAULT_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.GLOBAL_SCOPE_DYNAMIC_FUNCTION_ID
+import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.SELF_ACCESS_DISABLED_COMPAT_FUNCTION_ID
+import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.SELF_ACCESS_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.SENTINEL_FUNCTION_ID
+import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.SYSTEM_ACCESS_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.TARGET_APP_PACKAGE
 import androidx.appfunctions.integration.test.agent.AppSearchMetadataHelper.isDynamicIndexerAvailable
 import androidx.appfunctions.integration.test.agent.TestUtil.awaitAppFunctionsIndexed
@@ -200,9 +205,187 @@ class SearchAppFunctionsIntegrationTest {
             .isEqualTo(AppFunctionMetadataHelper.FunctionMetadata.GLOBAL_SCOPE_DYNAMIC_FUNCTION)
     }
 
+    @Test
+    fun searchAppFunctions_selfAccess_visibleForForeignApp() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(targetContext))
+        val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
+
+        val appFunctions = appFunctionManager.searchAppFunctions(searchFunctionSpec)
+
+        val selfMetadata = appFunctions.find { it.id == SELF_ACCESS_FUNCTION_ID }
+        assertThat(selfMetadata).isNotNull()
+        assertThat(selfMetadata!!.accessLevel).isEqualTo(AppFunctionMetadata.ACCESS_LEVEL_SELF)
+
+        val disabledCompatMetadata = appFunctions.find {
+            it.id == SELF_ACCESS_DISABLED_COMPAT_FUNCTION_ID
+        }
+        assertThat(disabledCompatMetadata).isNotNull()
+        assertThat(disabledCompatMetadata!!.accessLevel)
+            .isEqualTo(AppFunctionMetadata.ACCESS_LEVEL_SELF)
+    }
+
+    @Test
+    fun searchAppFunctions_systemAccess_visibleWithoutSystemPermission() = doBlocking {
+        // Platform searchAppFunctions does not filter app functions by access level even when
+        // access enforcement is enabled; access restrictions are only enforced during execution
+        // and in getAppFunctionStates. Therefore, this test is expected to pass regardless of the
+        // state of access enforcement.
+        assumeTrue(isDynamicIndexerAvailable(targetContext))
+        val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
+
+        val appFunctions = appFunctionManager.searchAppFunctions(searchFunctionSpec)
+
+        val systemMetadata = appFunctions.find { it.id == SYSTEM_ACCESS_FUNCTION_ID }
+        assertThat(systemMetadata).isNotNull()
+        assertThat(systemMetadata!!.accessLevel).isEqualTo(AppFunctionMetadata.ACCESS_LEVEL_SYSTEM)
+    }
+
+    @Test
+    fun searchAppFunctions_systemAccess_visibleWithAdoptedShellIdentity() = doBlocking {
+        uiAutomation.dropShellPermissionIdentity()
+        uiAutomation.adoptShellPermissionIdentity("android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM")
+        try {
+            assumeTrue(isDynamicIndexerAvailable(targetContext))
+            val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
+
+            val appFunctions = appFunctionManager.searchAppFunctions(searchFunctionSpec)
+
+            val systemMetadata = appFunctions.find { it.id == SYSTEM_ACCESS_FUNCTION_ID }
+            assertThat(systemMetadata).isNotNull()
+            assertThat(systemMetadata!!.accessLevel)
+                .isEqualTo(AppFunctionMetadata.ACCESS_LEVEL_SYSTEM)
+        } finally {
+            uiAutomation.dropShellPermissionIdentity()
+        }
+    }
+
+    @Test
+    fun getAppFunctionStates_selfAccess_omittedWhenAccessEnforced() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(targetContext))
+        assumeTrue(isPlatformAccessEnforcementEnabled())
+
+        val states =
+            appFunctionManager.getAppFunctionStates(
+                listOf(
+                    AppFunctionName(TARGET_APP_PACKAGE, SELF_ACCESS_FUNCTION_ID),
+                    AppFunctionName(TARGET_APP_PACKAGE, ENABLED_BY_DEFAULT_FUNCTION_ID),
+                )
+            )
+
+        assertThat(states.none { it.functionName.functionIdentifier == SELF_ACCESS_FUNCTION_ID })
+            .isTrue()
+        assertThat(
+                states.any { it.functionName.functionIdentifier == ENABLED_BY_DEFAULT_FUNCTION_ID }
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun getAppFunctionStates_selfAccess_disabledCompat_enforcedOnPlatform_omitted() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(targetContext))
+        assumeTrue(isPlatformAccessEnforcementEnabled())
+
+        val states =
+            appFunctionManager.getAppFunctionStates(
+                listOf(
+                    AppFunctionName(TARGET_APP_PACKAGE, SELF_ACCESS_DISABLED_COMPAT_FUNCTION_ID),
+                    AppFunctionName(TARGET_APP_PACKAGE, ENABLED_BY_DEFAULT_FUNCTION_ID),
+                )
+            )
+
+        assertThat(
+                states.none {
+                    it.functionName.functionIdentifier == SELF_ACCESS_DISABLED_COMPAT_FUNCTION_ID
+                }
+            )
+            .isTrue()
+        assertThat(
+                states.any { it.functionName.functionIdentifier == ENABLED_BY_DEFAULT_FUNCTION_ID }
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun getAppFunctionStates_selfAccess_disabledCompat_notEnforcedOnPlatform_included() =
+        doBlocking {
+            assumeTrue(isDynamicIndexerAvailable(targetContext))
+            assumeFalse(isPlatformAccessEnforcementEnabled())
+
+            val states =
+                appFunctionManager.getAppFunctionStates(
+                    listOf(
+                        AppFunctionName(
+                            TARGET_APP_PACKAGE,
+                            SELF_ACCESS_DISABLED_COMPAT_FUNCTION_ID,
+                        ),
+                        AppFunctionName(TARGET_APP_PACKAGE, ENABLED_BY_DEFAULT_FUNCTION_ID),
+                    )
+                )
+
+            assertThat(
+                    states.any {
+                        it.functionName.functionIdentifier ==
+                            SELF_ACCESS_DISABLED_COMPAT_FUNCTION_ID
+                    }
+                )
+                .isTrue()
+            assertThat(
+                    states.any {
+                        it.functionName.functionIdentifier == ENABLED_BY_DEFAULT_FUNCTION_ID
+                    }
+                )
+                .isTrue()
+        }
+
+    @Test
+    fun getAppFunctionStates_systemAccess_withoutSystemPermission_omittedWhenAccessEnforced() =
+        doBlocking {
+            assumeTrue(isDynamicIndexerAvailable(targetContext))
+            assumeTrue(isPlatformAccessEnforcementEnabled())
+
+            val states =
+                appFunctionManager.getAppFunctionStates(
+                    listOf(
+                        AppFunctionName(TARGET_APP_PACKAGE, SYSTEM_ACCESS_FUNCTION_ID),
+                        AppFunctionName(TARGET_APP_PACKAGE, ENABLED_BY_DEFAULT_FUNCTION_ID),
+                    )
+                )
+
+            assertThat(
+                    states.none { it.functionName.functionIdentifier == SYSTEM_ACCESS_FUNCTION_ID }
+                )
+                .isTrue()
+            assertThat(
+                    states.any {
+                        it.functionName.functionIdentifier == ENABLED_BY_DEFAULT_FUNCTION_ID
+                    }
+                )
+                .isTrue()
+        }
+
+    @Test
+    fun getAppFunctionStates_systemAccess_withAdoptedShellIdentity_included() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(targetContext))
+        uiAutomation.dropShellPermissionIdentity()
+        uiAutomation.adoptShellPermissionIdentity("android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM")
+        try {
+            val states =
+                appFunctionManager.getAppFunctionStates(
+                    listOf(AppFunctionName(TARGET_APP_PACKAGE, SYSTEM_ACCESS_FUNCTION_ID))
+                )
+
+            assertThat(
+                    states.any { it.functionName.functionIdentifier == SYSTEM_ACCESS_FUNCTION_ID }
+                )
+                .isTrue()
+        } finally {
+            uiAutomation.dropShellPermissionIdentity()
+        }
+    }
+
     private suspend fun getTotalFunctionCountInPackage(): Int {
         return if (isDynamicIndexerAvailable(targetContext)) {
-            val baseFunctionCount = 21
+            val baseFunctionCount = 24
             val multiServiceFunctionCount = 6
             val dynamicFunctionsCount = 6
             if (Build.VERSION.SDK_INT >= 37) {
@@ -213,5 +396,9 @@ class SearchAppFunctionsIntegrationTest {
         } else {
             1
         }
+    }
+
+    private fun isPlatformAccessEnforcementEnabled(): Boolean {
+        return Build.VERSION.SDK_INT_FULL >= 3700002
     }
 }
