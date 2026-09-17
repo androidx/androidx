@@ -1,9 +1,0 @@
-// Baseline format: 1.0
-RemovedFromKotlin: androidx.window.core.layout.WindowSizeClass#getMinHeightDp():
-    Source breaking change: method androidx.window.core.layout.WindowSizeClass.getMinHeightDp() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.window.core.layout.WindowSizeClass#getMinWidthDp():
-    Source breaking change: method androidx.window.core.layout.WindowSizeClass.getMinWidthDp() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.window.core.layout.WindowSizeClass#getWindowHeightSizeClass():
-    Source breaking change: method androidx.window.core.layout.WindowSizeClass.getWindowHeightSizeClass() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.window.core.layout.WindowSizeClass#getWindowWidthSizeClass():
-    Source breaking change: method androidx.window.core.layout.WindowSizeClass.getWindowWidthSizeClass() can no longer be resolved from Kotlin source

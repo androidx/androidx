@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-AddedMethod: androidx.compose.foundation.layout.PaddingValues.Absolute#Absolute():
-    Added constructor androidx.compose.foundation.layout.PaddingValues.Absolute()

@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-AddedMethod: androidx.compose.material.RippleConfiguration#RippleConfiguration():
-    Added constructor androidx.compose.material.RippleConfiguration()

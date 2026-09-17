@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedProperty: androidx.ink.brush.Brush#internalColor:
-    Source breaking change: Removed property androidx.ink.brush.Brush#internalColor
