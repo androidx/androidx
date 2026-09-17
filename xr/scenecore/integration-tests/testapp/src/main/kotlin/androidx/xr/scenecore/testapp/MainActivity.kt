@@ -22,7 +22,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.ViewGroup
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
@@ -65,6 +64,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize2d
@@ -113,7 +113,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        WindowCompat.enableEdgeToEdge(window)
         setContent {
             IntegrationTestsAppTheme {
                 Scaffold(

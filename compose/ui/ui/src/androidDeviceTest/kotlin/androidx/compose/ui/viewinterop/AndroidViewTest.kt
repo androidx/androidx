@@ -36,7 +36,6 @@ import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -116,6 +115,7 @@ import androidx.compose.ui.viewinterop.AndroidViewTest.AndroidViewLifecycleEvent
 import androidx.compose.ui.viewinterop.AndroidViewTest.AndroidViewLifecycleEvent.ViewLifecycleEvent
 import androidx.core.view.SoftwareKeyboardControllerCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsAnimationCompat.BoundsCompat
 import androidx.core.view.WindowInsetsAnimationCompat.Callback
@@ -189,7 +189,7 @@ class AndroidViewTest {
 
     @Before
     fun edgeToEdge() {
-        rule.runOnUiThread { rule.activity.enableEdgeToEdge() }
+        rule.runOnUiThread { WindowCompat.enableEdgeToEdge(rule.activity.window) }
     }
 
     @Before

@@ -23,10 +23,10 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
+import androidx.core.view.WindowCompat
 import androidx.xr.scenecore.testapp.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
@@ -34,7 +34,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 class SceneViewerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        WindowCompat.enableEdgeToEdge(window)
         setContentView(R.layout.common_test_panel)
         Log.i("CREATE_ACTIVITY", "created")
 

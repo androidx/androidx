@@ -21,7 +21,6 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -65,6 +64,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
@@ -122,7 +122,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        WindowCompat.enableEdgeToEdge(window)
         obtainUserPermissions()
         setContent {
             Subspace {
