@@ -901,6 +901,122 @@ Before finalizing changes to shared infrastructure (e.g. `UseCase`,
    (`LIBRARY_GROUP`) API contracts and binary signatures remain fully backward
    compatible.
 
+#### 8. Capability & Hardware Abstraction Problem-Solving Framework
+
+When resolving hardware capability, format negotiation, or platform abstraction
+issues (e.g. video/audio codecs, dynamic ranges, stream combinations, or
+physical camera sensors), agents and developers MUST follow this 5-phase
+pathway to engineer robust, architecturally sound solutions:
+
+1. **Deconstruct Operational Asymmetries (Real-Time Surface vs. Byte-Buffer)**:
+   - Framework metadata (e.g. `CodecCapabilities.profileLevels` or
+     `StreamConfigurationMap`) often reflects offline, CPU-mediated, or
+     byte-buffer processing capabilities.
+   - Real-time camera feeds (`COLOR_FormatSurface`, zero-copy buffer queues,
+     hardware HAL pipelines) have fundamentally different constraints. A codec
+     or configuration that works for offline file processing may deadlock or
+     trigger fatal IPC disconnects (`DEAD_OBJECT` in `mediaswcodec`) when fed
+     real-time camera surfaces.
+   - Software fallbacks are rarely designed to sustain real-time camera
+     capture. Confirm whether real-time execution requires hardware
+     acceleration silicon (VPU/ISP).
+
+2. **Triangulate Ground Truth Across Three Ecosystem Pillars**:
+   - **Pillar 1: Authoritative Specifications**: Consult the Android CDD (e.g.
+     §5.12 for video encoders, §5.4.1 for audio capture guarantees, §7.5 for
+     camera specifications) and underlying standards (3GPP, RFCs). What does
+     the platform strictly guarantee or mandate across all compliant devices?
+   - **Pillar 2: First-Party Ecosystem Precedent**: Inspect how first-party
+     Android libraries handle the same ambiguity (e.g. Media3 Transformer's
+     `EncoderUtil`, CTS verifiers, `frameworks/av` source). Match platform
+     design patterns (e.g. handling `FEATURE_HlgEditing` alongside
+     `FEATURE_HdrEditing`).
+   - **Pillar 3: Silicon & HAL Reality**: Determine whether a failure is an
+     unrecoverable vendor driver defect or an architectural constraint that
+     CameraX can safely avoid through proper capability negotiation.
+
+3. **Calibrate Capability Gating (Avoid Both False Positives and Negatives)**:
+   - **The Permissive Trap (False Positives)**: Declaring support based solely
+     on advertised profile levels causes native crashes on unsupported
+     software emulations.
+   - **The Overly Strict Trap (False Negatives)**: Enforcing newly introduced
+     platform feature flags (e.g. API 33+ or API 35+ features) indiscriminately
+     across all formats breaks functional legacy hardware that works reliably
+     on older OS versions (e.g. Android 10–12 devices lacking
+     `FEATURE_HdrEditing`).
+   - **Surgical Scoping**: Scope new constraints strictly to the modalities
+     that require them (e.g. gating hardware editing checks with
+     `dynamicRange.is10BitHdr` so SDR variants are never blocked).
+
+4. **Architect Context-Aware Fallbacks (No Blind Constants)**:
+   - When device metadata (e.g. `CamcorderProfile`) lacks an entry for a
+     requested format, NEVER fall back to a hardcoded generic constant (e.g.
+     blindly applying 44.1 kHz / 156 kbps to speech or VoIP codecs).
+   - Resolve fallbacks based on target format characteristics (e.g. AMR-NB
+     8 kHz, AMR-WB 16 kHz, Opus 48 kHz).
+   - Ensure fallback configurations strictly align with platform-guaranteed
+     hardware baselines (e.g. CDD §5.4.1 mandatory capture sample rates).
+
+5. **Permutation Testing & Regression Immunity**:
+   - Test happy paths (compliant hardware acceleration).
+   - Test negative paths (software emulators cleanly filtered out).
+   - Test edge-case encodings (e.g. SDR variants, partial feature support).
+   - Verify that dominant baseline configurations (AVC/HEVC SDR/HDR, AAC)
+     maintain 100% behavioral backward compatibility.
+
+#### 9. Solution Engineering & Test Pyramid Modernization Protocol
+
+When evolving CameraX architecture, refactoring legacy components, or optimizing
+test execution across the development lifecycle, apply this 4-step protocol to
+engineer robust, maintainable solutions while preserving hardware testability:
+
+1. **Deconstruct Algorithmic Logic from Hardware Platform Dependencies**:
+   - Complex configuration pipelines (e.g. video/audio profile resolvers, stream
+     combination sort algorithms, dynamic range mapping, format selection)
+     often entangle pure algorithmic calculations with physical HAL queries.
+   - Separate pure deterministic calculations (resolving bitrates, sample rates,
+     clamping ranges, sorting candidate resolutions) from hardware state
+     accessors (`CamcorderProfile`, `CameraCharacteristics`, `MediaCodecList`).
+   - Pure algorithmic and resolver logic can be tested deterministically across
+     dozens of permutations on the host JVM without device flakiness, while
+     hardware interaction is cleanly isolated behind minimal interfaces.
+
+2. **Review-Driven Refactoring & Domain Boundary Hygiene**:
+   - Maintain strict domain boundaries: constants and domain semantics belonging
+     to one media format (e.g. video profile bitrates vs. audio bitrates, or
+     camera sensor properties vs. encoder profiles) must never leak across
+     format boundaries.
+   - Heed reviewer signals: when code reviews reveal out-of-place constants,
+     leaky abstractions, or misplaced defaults, resist applying ad-hoc patches
+     or local suppressions. Instead, treat reviewer feedback as a prompt for
+     structural refactoring that places domain knowledge in its rightful owner.
+
+3. **Two-Tier Test Modernization & The Single Smoke Test Guardrail**:
+   - To optimize CI lab resources and accelerate local developer velocity, apply
+     the test pyramid:
+     a. **Host-Side Migration (Robolectric / JVM)**: Migrate pure calculation,
+        data specification (`MediaSpec`, `OutputOptions`), buffer manipulations
+        (`SharedByteBuffer`), and profile resolver permutation suites from
+        `androidTest/` to `test/`.
+     b. **The Single Smoke Test Guardrail**: When migrating resolver or config
+        test suites from `androidTest` to `test` (Robolectric), NEVER completely
+        eliminate device-level testing if the component interfaces with real OEM
+        framework profiles (`CamcorderProfile`, `MediaCodecList`). Always retain
+        at least **one end-to-end smoke test on real devices** in `androidTest/`
+        (e.g. verifying that resolving profiles against real device hardware
+        produces valid, non-crashing configurations). This ensures real OEM
+        hardware idiosyncrasies remain guarded while offloading combinatorial
+        testing to fast host unit tests.
+
+4. **Cross-Repository Downstream CI Synchronization**:
+   - Maintain lifecycle awareness across repository boundaries. When migrating,
+     renaming, or deleting test classes in `androidTest/`, downstream continuous
+     testing suites may depend on these target mappings.
+   - When operating in Google-internal environments, refer to
+     `AGENTS_INTERNAL.md` (Section 4.5) to audit and synchronize downstream
+     test target definitions simultaneously to prevent broken references in
+     daily CI pipelines.
+
 ---
 
 ## Skill: CameraX Agent Guidelines & Experience Capture
