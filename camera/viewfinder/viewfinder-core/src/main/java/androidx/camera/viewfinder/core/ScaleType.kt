@@ -26,8 +26,8 @@ import kotlin.math.max
 import kotlin.math.min
 
 /** Options for scaling the input frames vis-à-vis its container viewfinder. */
-enum class ScaleType(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val id: Int,
+public enum class ScaleType(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val id: Int,
     internal val contentScale: ContentScale,
     internal val alignment: Alignment,
 ) {
@@ -94,10 +94,10 @@ enum class ScaleType(
      */
     FIT_END(id = 5, contentScale = Fit, alignment = End);
 
-    companion object {
+    public companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
-        fun fromId(id: Int): ScaleType {
+        public fun fromId(id: Int): ScaleType {
             for (scaleType in values()) {
                 if (scaleType.id == id) {
                     return scaleType

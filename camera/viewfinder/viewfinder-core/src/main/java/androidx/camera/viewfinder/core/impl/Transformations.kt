@@ -28,14 +28,14 @@ import androidx.camera.viewfinder.core.TransformationInfo
 // Normalized space (-1, -1) - (1, 1).
 private val NORMALIZED_RECT = RectF(-1f, -1f, 1f, 1f)
 
-object Transformations {
+public object Transformations {
     /**
      * Creates a matrix that makes [TextureView]'s rotation matches the display rotation.
      *
      * The value should be applied by calling [TextureView.setTransform].
      */
     @JvmStatic
-    fun getTextureViewCorrectionMatrix(
+    public fun getTextureViewCorrectionMatrix(
         displayRotationDegrees: Int,
         width: Int,
         height: Int,
@@ -46,7 +46,7 @@ object Transformations {
 
     /** Converts [Surface] rotation to rotation degrees: 90, 180, 270 or 0. */
     @JvmStatic
-    fun surfaceRotationToRotationDegrees(@RotationValue rotationValue: Int): Int =
+    public fun surfaceRotationToRotationDegrees(@RotationValue rotationValue: Int): Int =
         when (rotationValue) {
             Surface.ROTATION_0 -> 0
             Surface.ROTATION_90 -> 90
@@ -57,13 +57,13 @@ object Transformations {
         }
 
     @JvmStatic
-    fun getSurfaceToViewfinderMatrix(
+    public fun getSurfaceToViewfinderMatrix(
         viewfinderSize: Size,
         surfaceResolution: Size,
         transformationInfo: TransformationInfo,
         layoutDirection: Int,
         scaleType: ScaleType,
-    ) =
+    ): Matrix =
         getSurfaceToViewfinderMatrix(
             viewfinderSize = viewfinderSize,
             surfaceResolution = surfaceResolution,
@@ -74,7 +74,7 @@ object Transformations {
         )
 
     @JvmStatic
-    fun getSurfaceToViewfinderMatrix(
+    public fun getSurfaceToViewfinderMatrix(
         viewfinderSize: Size,
         surfaceResolution: Size,
         transformationInfo: TransformationInfo,
@@ -287,8 +287,8 @@ object Transformations {
  * Modeled after Compose's `ContentScale` class, but using Android classes since this module does
  * not depend on Compose.
  */
-interface ContentScale {
-    fun computeScaleFactor(srcSize: SizeF, dstSize: SizeF): ScaleFactorF
+public interface ContentScale {
+    public fun computeScaleFactor(srcSize: SizeF, dstSize: SizeF): ScaleFactorF
 }
 
 /**
@@ -298,29 +298,30 @@ interface ContentScale {
  * depend on Compose. This also uses float types rather than integer types in order to allow for
  * sub-pixel placement.
  */
-interface Alignment {
-    fun align(size: SizeF, space: SizeF, layoutDirection: Int): OffsetF
+public interface Alignment {
+    public fun align(size: SizeF, space: SizeF, layoutDirection: Int): OffsetF
 }
 
-fun ScaleFactorF(scaleX: Float, scaleY: Float) = ScaleFactorF(packFloats(scaleX, scaleY))
+public fun ScaleFactorF(scaleX: Float, scaleY: Float): ScaleFactorF =
+    ScaleFactorF(packFloats(scaleX, scaleY))
 
 @JvmInline
-value class ScaleFactorF(private val packedScales: Long) {
-    val scaleX: Float
+public value class ScaleFactorF(private val packedScales: Long) {
+    public val scaleX: Float
         get() = unpackFloat1(packedScales)
 
-    val scaleY: Float
+    public val scaleY: Float
         get() = unpackFloat2(packedScales)
 }
 
-fun OffsetF(x: Float, y: Float) = OffsetF(packFloats(x, y))
+public fun OffsetF(x: Float, y: Float): OffsetF = OffsetF(packFloats(x, y))
 
 @JvmInline
-value class OffsetF(private val packedOffsets: Long) {
-    val x: Float
+public value class OffsetF(private val packedOffsets: Long) {
+    public val x: Float
         get() = unpackFloat1(packedOffsets)
 
-    val y: Float
+    public val y: Float
         get() = unpackFloat2(packedOffsets)
 }
 

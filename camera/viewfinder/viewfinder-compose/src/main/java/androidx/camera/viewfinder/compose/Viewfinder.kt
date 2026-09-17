@@ -100,7 +100,7 @@ import kotlinx.coroutines.coroutineScope
  * TODO(b/322420487): Add a sample with `@sample`
  */
 @Composable
-fun Viewfinder(
+public fun Viewfinder(
     surfaceRequest: ViewfinderSurfaceRequest,
     modifier: Modifier = Modifier,
     transformationInfo: TransformationInfo = DEFAULT,
@@ -293,7 +293,7 @@ private fun ContentScale.toInternalContentScale():
  * The environment can be used to register a lambda to invoke when a new
  * [ViewfinderSurfaceSessionScope] is available.
  */
-interface ViewfinderInitScope {
+public interface ViewfinderInitScope {
     /**
      * Registers a callback to be invoked when a new [ViewfinderSurfaceSessionScope] is created.
      *
@@ -303,7 +303,7 @@ interface ViewfinderInitScope {
      *
      * The provided callback will always be invoked from the main thread.
      */
-    fun onSurfaceSession(block: suspend ViewfinderSurfaceSessionScope.() -> Unit)
+    public fun onSurfaceSession(block: suspend ViewfinderSurfaceSessionScope.() -> Unit)
 }
 
 private class ViewfinderInitScopeImpl(val viewfinderSurfaceRequest: ViewfinderSurfaceRequest) :

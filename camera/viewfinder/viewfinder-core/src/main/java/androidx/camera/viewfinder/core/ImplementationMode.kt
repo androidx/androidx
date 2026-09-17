@@ -33,7 +33,7 @@ import androidx.camera.viewfinder.core.ImplementationMode.EXTERNAL
  * The option is used to decide what is the best internal implementation given the device
  * capabilities and user configurations.
  */
-enum class ImplementationMode(private val id: Int) {
+public enum class ImplementationMode(private val id: Int) {
     /**
      * Use a SurfaceView/AndroidExternalSurface for the Viewfinder when possible. It has somewhat
      * lower latency and less performance and power overhead. It offers more control on a single
@@ -45,11 +45,11 @@ enum class ImplementationMode(private val id: Int) {
     EMBEDDED(1);
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun getId(): Int {
+    public fun getId(): Int {
         return id
     }
 
-    companion object {
+    public companion object {
         /**
          * Convert an Int id to ImplementationMode
          *
@@ -57,7 +57,7 @@ enum class ImplementationMode(private val id: Int) {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
-        fun fromId(id: Int): ImplementationMode {
+        public fun fromId(id: Int): ImplementationMode {
             for (implementationMode in ImplementationMode.values()) {
                 if (implementationMode.id == id) {
                     return implementationMode

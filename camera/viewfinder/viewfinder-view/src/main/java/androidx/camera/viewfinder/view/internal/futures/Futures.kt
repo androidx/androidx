@@ -24,7 +24,7 @@ import java.util.concurrent.Executor
 import java.util.concurrent.Future
 
 /** Utility class for generating specific implementations of [ListenableFuture]. */
-object Futures {
+public object Futures {
     /**
      * Returns an implementation of [ListenableFuture] which immediately contains a result.
      *
@@ -73,7 +73,7 @@ object Futures {
      * @return A future that holds result of the transformation.
      */
     @JvmStatic
-    fun <I, O> transform(
+    public fun <I, O> transform(
         input: ListenableFuture<I>,
         function: (I?) -> O,
         executor: Executor,
@@ -91,7 +91,7 @@ object Futures {
      * @param executor The executor to run `callback` when the future completes.
      */
     @JvmStatic
-    fun <V> addCallback(
+    public fun <V> addCallback(
         future: ListenableFuture<V>,
         callback: FutureCallback<in V>,
         executor: Executor,

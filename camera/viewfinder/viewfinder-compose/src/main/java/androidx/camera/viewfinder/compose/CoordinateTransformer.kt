@@ -29,21 +29,21 @@ import androidx.compose.ui.graphics.Matrix
  * will be used for the coordinate transformations. When used in a [Viewfinder], the viewfinder will
  * set this transform matrix.
  */
-interface CoordinateTransformer {
+public interface CoordinateTransformer {
     /** Matrix that's used for coordinate transformations. */
-    val transformMatrix: Matrix
+    public val transformMatrix: Matrix
 
     /** Returns the [Offset] in the transformed space. */
-    fun Offset.transform() = transformMatrix.map(this)
+    public fun Offset.transform(): Offset = transformMatrix.map(this)
 }
 
 /** CoordinateTransformer where the transformMatrix is mutable. */
-interface MutableCoordinateTransformer : CoordinateTransformer {
+public interface MutableCoordinateTransformer : CoordinateTransformer {
     override var transformMatrix: Matrix
 }
 
 /** Creates a [MutableCoordinateTransformer] with the given matrix as the transformMatrix. */
-fun MutableCoordinateTransformer(matrix: Matrix = Matrix()): MutableCoordinateTransformer =
+public fun MutableCoordinateTransformer(matrix: Matrix = Matrix()): MutableCoordinateTransformer =
     MutableCoordinateTransformerImpl(matrix)
 
 private class MutableCoordinateTransformerImpl(initialMatrix: Matrix) :
@@ -52,8 +52,8 @@ private class MutableCoordinateTransformerImpl(initialMatrix: Matrix) :
 }
 
 /** [CoordinateTransformer] where the transformMatrix is the identity matrix. */
-object IdentityCoordinateTransformer : CoordinateTransformer {
-    override val transformMatrix = Matrix()
+public object IdentityCoordinateTransformer : CoordinateTransformer {
+    override val transformMatrix: Matrix = Matrix()
 
-    override fun Offset.transform() = this
+    override fun Offset.transform(): Offset = this
 }
