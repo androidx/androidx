@@ -22,7 +22,6 @@ import java.io.File
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -67,64 +66,15 @@ constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTas
             File(project.getSupportRootFolder(), "buildSrc/metalava-config.xml")
         }
 
-    fun runWithArgs(args: List<String>) {
-        val allArgs = buildList {
-            addAll(args)
-            add("--config-file")
-            add(configFile.get().asFile.absolutePath)
-        }
-        runMetalavaWithArgs(metalavaClasspath, allArgs, kotlinSourceLevel.get(), workerExecutor)
+    @Internal
+    protected fun getConfigFileArgs(): List<String> {
+        return listOf("--config-file", configFile.get().asFile.absolutePath)
     }
 
-    fun runMetalavaWithArgs(
-        metalavaClasspath: FileCollection,
-        args: List<String>,
-        kotlinSourceLevel: KotlinVersion,
-        workerExecutor: WorkerExecutor,
-    ) {
-        val allArgs =
-            args +
-                listOf(
-                    "--hide",
-                    // Removing final from a method does not cause compatibility issues for
-                    // AndroidX.
-                    "RemovedFinalStrict",
-                    "--warning",
-                    "UnresolvedImport",
-                    "--kotlin-source",
-                    kotlinSourceLevel.version,
-
-                    // Metalava arguments to suppress compatibility checks for experimental API
-                    // surfaces.
-                    "--suppress-compatibility-meta-annotation",
-                    "androidx.annotation.RequiresOptIn",
-                    "--suppress-compatibility-meta-annotation",
-                    "kotlin.RequiresOptIn",
-
-                    // Skip reading comments in Metalava for two reasons:
-                    // - We prefer for developers to specify api information via annotations instead
-                    //   of just javadoc comments (like @hide)
-                    // - This allows us to improve cacheability of Metalava tasks
-                    "--ignore-comments",
-
-                    // Don't track annotations that aren't needed for review or checking compat.
-                    "--exclude-annotation",
-                    "androidx.annotation.ReplaceWith",
-                    "--exclude-annotation",
-                    "androidx.compose.runtime.ComposableInferredTarget",
-                    "--exclude-annotation",
-                    "androidx.compose.runtime.ComposableTarget",
-                    // internal annotation, includes debug information and values are not constant
-                    "--exclude-annotation",
-                    "androidx.compose.runtime.internal.FunctionKeyMeta",
-
-                    // This issue is important for stubs generation, which we don't do here.
-                    "--hide",
-                    "InheritChangesSignature",
-                )
+    fun runWithArgs(args: List<String>) {
         val workQueue = workerExecutor.processIsolation()
         workQueue.submit(MetalavaWorkAction::class.java) { parameters ->
-            parameters.args.set(allArgs)
+            parameters.args.set(args)
             parameters.metalavaClasspath.set(metalavaClasspath.files)
         }
     }
@@ -158,5 +108,16 @@ constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTas
                 }
             }
         }
+    }
+
+    companion object {
+        internal val suppressCompatibilityAnnotationArgs =
+            listOf(
+                // Metalava arguments to suppress compatibility checks for experimental API surfaces
+                "--suppress-compatibility-meta-annotation",
+                "androidx.annotation.RequiresOptIn",
+                "--suppress-compatibility-meta-annotation",
+                "kotlin.RequiresOptIn",
+            )
     }
 }
