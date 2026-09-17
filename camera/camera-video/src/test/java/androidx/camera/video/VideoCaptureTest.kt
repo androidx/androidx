@@ -68,6 +68,7 @@ import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.UseCase
 import androidx.camera.core.featuregroup.impl.ResolvedFeatureGroup
+import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.EncoderProfilesProxy
@@ -2527,6 +2528,80 @@ class VideoCaptureTest {
         assertThat(exception.cause).isInstanceOf(IllegalArgumentException::class.java)
     }
 
+    @Test
+    fun updateVideoUsage_whenRecordingStartedPausedResumedStopped() {
+        setupCamera()
+        createCameraUseCaseAdapter()
+        val videoOutput = createVideoOutput()
+        val videoCapture = createVideoCapture(videoOutput)
+        addAndAttachUseCases(videoCapture)
+        val cameraControl = cameraUseCaseAdapter.cameraControl as CameraControlInternal
+
+        // Act 1 - isRecording is true after start.
+        videoOutput.updateIsSourceStreamRequired(true)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertThat(cameraControl.isInVideoUsage).isTrue()
+
+        // Act 2 - isRecording is false after pause.
+        videoOutput.updateIsSourceStreamRequired(false)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertThat(cameraControl.isInVideoUsage).isFalse()
+
+        // Act 3 - isRecording is true after resume.
+        videoOutput.updateIsSourceStreamRequired(true)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertThat(cameraControl.isInVideoUsage).isTrue()
+
+        // Act 4 - isRecording is false after stop.
+        videoOutput.updateIsSourceStreamRequired(false)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertThat(cameraControl.isInVideoUsage).isFalse()
+    }
+
+    @Test
+    fun updateVideoUsage_whenUnboundBeforeCompletingAndStartNewAfterRebind() {
+        setupCamera()
+        createCameraUseCaseAdapter()
+        val videoOutput = createVideoOutput()
+        val videoCapture = createVideoCapture(videoOutput)
+        addAndAttachUseCases(videoCapture)
+        val cameraControl = cameraUseCaseAdapter.cameraControl as CameraControlInternal
+
+        videoOutput.updateIsSourceStreamRequired(true)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertThat(cameraControl.isInVideoUsage).isTrue()
+
+        // Act 1 - unbind before recording completes and check if isRecording is false.
+        detachAndRemoveUseCases(videoCapture)
+        assertThat(cameraControl.isInVideoUsage).isFalse()
+
+        // Act 2 - rebind and start new recording, check if isRecording is true now.
+        videoOutput.updateIsSourceStreamRequired(false)
+        addAndAttachUseCases(videoCapture)
+        videoOutput.updateIsSourceStreamRequired(true)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertThat(cameraControl.isInVideoUsage).isTrue()
+    }
+
+    @Test
+    fun updateVideoUsage_whenLifecycleStoppedBeforeCompletingRecording() {
+        setupCamera()
+        createCameraUseCaseAdapter()
+        val videoOutput = createVideoOutput()
+        val videoCapture = createVideoCapture(videoOutput)
+        addAndAttachUseCases(videoCapture)
+        val cameraControl = cameraUseCaseAdapter.cameraControl as CameraControlInternal
+
+        videoOutput.updateIsSourceStreamRequired(true)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertThat(cameraControl.isInVideoUsage).isTrue()
+
+        // Act - lifecycle stopped (detachUseCases).
+        cameraUseCaseAdapter.detachUseCases()
+        shadowOf(Looper.getMainLooper()).idle()
+        assertThat(cameraControl.isInVideoUsage).isFalse()
+    }
+
     private fun assertCustomOrderedResolutions(
         videoCapture: VideoCapture<out VideoOutput>,
         vararg expectedResolutions: Size,
@@ -2629,6 +2704,9 @@ class VideoCaptureTest {
         private val mediaSpecObservable: MutableStateObservable<MediaSpec> =
             MutableStateObservable.withInitialState(mediaSpec)
 
+        private val isSourceStreamRequiredObservable: MutableStateObservable<Boolean> =
+            MutableStateObservable.withInitialState(false)
+
         override fun onValidateConfig() {
             onVerifyConfigException?.let { throw it }
         }
@@ -2648,6 +2726,13 @@ class VideoCaptureTest {
         override fun getStreamInfo(): Observable<StreamInfo> = streamInfoObservable
 
         override fun getMediaSpec(): Observable<MediaSpec> = mediaSpecObservable
+
+        override fun isSourceStreamRequired(): Observable<Boolean> =
+            isSourceStreamRequiredObservable
+
+        fun updateIsSourceStreamRequired(isRequired: Boolean) {
+            isSourceStreamRequiredObservable.setState(isRequired)
+        }
 
         override fun getMediaCapabilities(
             cameraInfo: CameraInfo,

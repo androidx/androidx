@@ -17,18 +17,27 @@
 package androidx.camera.video
 
 import android.Manifest
+import android.app.AppOpsManager
+import android.app.AppOpsManager.OnOpNotedCallback
+import android.app.AsyncNotedAppOp
+import android.app.SyncNotedAppOp
+import android.content.ContentResolver
+import android.content.ContentValues
 import android.content.Context
 import android.graphics.Rect
+import android.location.Location
+import android.media.MediaFormat.MIMETYPE_VIDEO_AVC
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
+import android.os.ParcelFileDescriptor
+import android.provider.MediaStore
 import android.util.Rational
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.AspectRatio.RATIO_16_9
 import androidx.camera.core.AspectRatio.RATIO_4_3
 import androidx.camera.core.Camera
-import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -36,7 +45,6 @@ import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
-import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_16_9
 import androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_3_4
@@ -53,23 +61,36 @@ import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.getLocation
+import androidx.camera.testing.impl.getMimeType
 import androidx.camera.testing.impl.getRotatedAspectRatio
 import androidx.camera.testing.impl.getRotation
 import androidx.camera.testing.impl.useAndRelease
 import androidx.camera.testing.impl.video.AudioChecker
 import androidx.camera.testing.impl.video.Recording
 import androidx.camera.testing.impl.video.RecordingSession
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INVALID_OUTPUT_OPTIONS
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
+import androidx.camera.video.internal.compat.quirk.DeviceQuirks
+import androidx.camera.video.internal.compat.quirk.MediaStoreVideoCannotWrite
+import androidx.camera.video.internal.muxer.MediaMuxerImpl
+import androidx.camera.video.internal.muxer.MuxerFactory
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import androidx.testutils.fail
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.common.util.concurrent.ListenableFuture
 import java.io.File
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
@@ -80,6 +101,32 @@ import org.junit.rules.RuleChain
 import org.junit.rules.TemporaryFolder
 import org.junit.rules.TestRule
 import org.junit.runners.Parameterized
+import org.junit.runners.model.Statement
+
+private const val TEST_ATTRIBUTION_TAG = "testAttribution"
+
+/**
+ * Annotates a test to run only on the first available camera (skipping secondary cameras).
+ *
+ * Use this annotation for camera-agnostic tests whose behavior does not depend on specific camera
+ * lens characteristics (such as sensor orientation, aspect ratio, crop rect, mirror mode, or
+ * per-camera capabilities), or tests that already switch between cameras internally.
+ */
+@Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.FUNCTION)
+annotation class FirstAvailableCameraOnly
+
+/**
+ * Annotates a test to be skipped when StreamSharing is enabled (e.g., in
+ * [VideoRecordingStreamSharingTest]).
+ *
+ * Use this annotation for tests where StreamSharing is unsupported (e.g., custom viewport crop
+ * rect) or irrelevant (e.g., pure [Recorder] output options, muxer configuration, audio recording,
+ * or camera capability queries).
+ */
+@Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.FUNCTION)
+annotation class IgnoreStreamSharing
 
 abstract class VideoRecordingTestBase(
     private val implName: String,
@@ -99,12 +146,37 @@ abstract class VideoRecordingTestBase(
 
     @get:Rule
     val permissionRule: GrantPermissionRule =
-        GrantPermissionRule.grant(Manifest.permission.RECORD_AUDIO)
+        GrantPermissionRule.grant(
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.RECORD_AUDIO,
+        )
+
+    private val filterRule = TestRule { base, description ->
+        object : Statement() {
+            override fun evaluate() {
+                if (description.getAnnotation(IgnoreStreamSharing::class.java) != null) {
+                    assumeFalse(
+                        "Skipped when StreamSharing is enabled",
+                        enableStreamSharing,
+                    )
+                }
+                if (description.getAnnotation(FirstAvailableCameraOnly::class.java) != null) {
+                    assumeTrue(
+                        "Skipped for non-primary camera",
+                        cameraSelector.lensFacing ==
+                            CameraUtil.assumeFirstAvailableCameraSelector().lensFacing,
+                    )
+                }
+                base.evaluate()
+            }
+        }
+    }
 
     // Chain rule to not run WakelockEmptyActivityRule when the test is ignored.
     @get:Rule
     val skipAndWakelockRule: TestRule =
         RuleChain.outerRule(IgnoreVideoRecordingProblematicDeviceRule())
+            .around(filterRule)
             .around(WakelockEmptyActivityRule())
 
     companion object {
@@ -112,27 +184,21 @@ abstract class VideoRecordingTestBase(
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data(): Collection<Array<Any>> {
-            return listOf(
+        fun data(): Collection<Array<Any>> =
+            CameraUtil.getAvailableCameraSelectors().map { selector ->
+                val lensName =
+                    when (selector.lensFacing) {
+                        CameraSelector.LENS_FACING_BACK -> "back"
+                        CameraSelector.LENS_FACING_FRONT -> "front"
+                        CameraSelector.LENS_FACING_EXTERNAL -> "external"
+                        else -> "unknown"
+                    }
                 arrayOf(
-                    "back+" + Camera2Config::class.simpleName,
-                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    "$lensName+${Camera2Config::class.simpleName}",
+                    selector,
                     Camera2Config.defaultConfig(),
-                ),
-                arrayOf(
-                    "front+" + Camera2Config::class.simpleName,
-                    CameraSelector.DEFAULT_FRONT_CAMERA,
-                    Camera2Config.defaultConfig(),
-                ),
-                arrayOf(
-                    "external+" + Camera2Config::class.simpleName,
-                    CameraSelector.Builder()
-                        .requireLensFacing(CameraSelector.LENS_FACING_EXTERNAL)
-                        .build(),
-                    Camera2Config.defaultConfig(),
-                ),
-            )
-        }
+                )
+            }
     }
 
     protected abstract val testTag: String
@@ -209,9 +275,7 @@ abstract class VideoRecordingTestBase(
                 RecordingSession.Defaults(
                     context = context,
                     recorder = videoCapture.output,
-                    outputOptionsProvider = {
-                        FileOutputOptions.Builder(temporaryFolder.newFile()).build()
-                    },
+                    outputOptionsProvider = { createFileOutputOptions() },
                     withAudio = audioStreamAvailable,
                 )
             )
@@ -294,12 +358,9 @@ abstract class VideoRecordingTestBase(
         )
     }
 
+    @IgnoreStreamSharing
     @Test
     fun getCorrectResolution_when_setCropRect() {
-        // In stream sharing (VirtualCameraAdapter), children's ViewPortCropRect is ignored and
-        // override to the parent size, the cropRect is also rotated. Skip the test.
-        assumeFalse(enableStreamSharing)
-
         assumeSuccessfulSurfaceProcessing()
         assumeExtraCroppingQuirk()
 
@@ -348,6 +409,7 @@ abstract class VideoRecordingTestBase(
         verifyVideoResolution(context, result.file, expectedResolution)
     }
 
+    @FirstAvailableCameraOnly
     @Test
     fun stopRecording_when_useCaseUnbind() {
         assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
@@ -363,6 +425,7 @@ abstract class VideoRecordingTestBase(
         recording.verifyFinalize(error = ERROR_SOURCE_INACTIVE)
     }
 
+    @FirstAvailableCameraOnly
     @Test
     fun stopRecording_when_lifecycleStops() {
         assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
@@ -378,6 +441,7 @@ abstract class VideoRecordingTestBase(
         recording.verifyFinalize(error = ERROR_SOURCE_INACTIVE)
     }
 
+    @FirstAvailableCameraOnly
     @Test
     fun start_finalizeImmediatelyWhenSourceInactive() {
         assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
@@ -400,6 +464,7 @@ abstract class VideoRecordingTestBase(
         recording.verifyFinalize(error = ERROR_SOURCE_INACTIVE)
     }
 
+    @FirstAvailableCameraOnly
     @Test
     fun recordingWithPreview_boundSeparately() {
         assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture))
@@ -414,6 +479,7 @@ abstract class VideoRecordingTestBase(
         recordingSession.createRecording().recordAndVerify()
     }
 
+    @FirstAvailableCameraOnly
     @Test
     fun recordingWhenSessionErrorListenerReceivesError() {
         checkAndBindUseCases(preview, videoCapture)
@@ -461,6 +527,7 @@ abstract class VideoRecordingTestBase(
         recordingSession.createRecording().recordAndVerify()
     }
 
+    @FirstAvailableCameraOnly
     @Test
     fun canRecordMultipleFilesInARow() {
         checkAndBindUseCases(preview, videoCapture)
@@ -469,6 +536,7 @@ abstract class VideoRecordingTestBase(
         recordingSession.createRecording().recordAndVerify()
     }
 
+    @FirstAvailableCameraOnly
     @SdkSuppress(minSdkVersion = 33)
     @Test
     fun canRecordMultipleFilesInARow_whenHdr() {
@@ -487,61 +555,7 @@ abstract class VideoRecordingTestBase(
         }
     }
 
-    @Test
-    fun canRecordMultipleFilesWithThenWithoutAudio() {
-        // This test requires that audio is available
-        assumeTrue("Audio stream is not available", audioStreamAvailable)
-        checkAndBindUseCases(preview, videoCapture)
-
-        recordingSession.createRecording(withAudio = true).recordAndVerify()
-        recordingSession.createRecording(withAudio = false).recordAndVerify()
-    }
-
-    @Test
-    fun canRecordMultipleFilesWithoutThenWithAudio() {
-        // This test requires that audio is available
-        assumeTrue(audioStreamAvailable)
-        checkAndBindUseCases(preview, videoCapture)
-
-        recordingSession.createRecording(withAudio = false).recordAndVerify()
-        recordingSession.createRecording(withAudio = true).recordAndVerify()
-    }
-
-    @Test
-    fun canStartNextRecordingPausedAfterFirstRecordingFinalized() {
-        checkAndBindUseCases(preview, videoCapture)
-
-        // Start and stop a recording to ensure recorder is idling
-        recordingSession.createRecording().recordAndVerify()
-
-        // First recording is now finalized. Try starting second recording paused.
-        recordingSession
-            .createRecording()
-            .start()
-            .pauseAndVerify()
-            // Immediate pause may cause no frame received, ignore the result code.
-            .stopAndVerify(error = null)
-    }
-
-    @Test
-    fun canSwitchAudioOnOff() {
-        assumeTrue("Audio stream is not available", audioStreamAvailable)
-        checkAndBindUseCases(preview, videoCapture)
-
-        // Record the first video with audio enabled.
-        recordingSession.createRecording(withAudio = true).recordAndVerify()
-
-        // Record the second video with audio disabled.
-        val recording = recordingSession.createRecording(withAudio = false).startAndVerify()
-        val status = recording.getStatusEvents().first()
-        assertThat(status.recordingStats.audioStats.audioState)
-            .isEqualTo(AudioStats.AUDIO_STATE_DISABLED)
-        recording.stopAndVerify()
-
-        // Record the third video with audio enabled.
-        recordingSession.createRecording(withAudio = true).recordAndVerify()
-    }
-
+    @FirstAvailableCameraOnly
     @Test
     fun canReuseRecorder_explicitlyStop() {
         val recorder = Recorder.Builder().build()
@@ -558,6 +572,7 @@ abstract class VideoRecordingTestBase(
         recordingSession.createRecording(recorder = recorder).recordAndVerify()
     }
 
+    @FirstAvailableCameraOnly
     @Test
     fun canReuseRecorder_sourceInactive() {
         assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
@@ -584,30 +599,7 @@ abstract class VideoRecordingTestBase(
         recordingSession.createRecording(recorder = recorder).recordAndVerify()
     }
 
-    @Test
-    fun mute_defaultToNotMuted() {
-        assumeTrue("Audio stream is not available", audioStreamAvailable)
-
-        // Arrange.
-        checkAndBindUseCases(preview, videoCapture)
-
-        recordingSession
-            .createRecording(withAudio = true)
-            .startAndVerify()
-            // Keep the first recording muted.
-            .mute(true)
-            .stopAndVerify()
-
-        val recording = recordingSession.createRecording(withAudio = true).startAndVerify()
-        val status = recording.getStatusEvents().first()
-
-        // Assert: The second recording should not be muted.
-        assertThat(status.recordingStats.audioStats.audioState)
-            .isEqualTo(AudioStats.AUDIO_STATE_ACTIVE)
-
-        recording.stopAndVerify()
-    }
-
+    @FirstAvailableCameraOnly
     @Test
     fun canRecordWithCorrectTransformation() {
         assumeTrue(
@@ -675,84 +667,286 @@ abstract class VideoRecordingTestBase(
         recording.verifyStatus(statusCount = 15)
     }
 
+    @FirstAvailableCameraOnly
+    @IgnoreStreamSharing
     @Test
-    fun updateVideoUsage_whenRecordingStartedPausedResumedStopped(): Unit = runBlocking {
-        checkAndBindUseCases(videoCapture, preview)
+    fun canRecordToFile() {
+        // Arrange.
+        checkAndBindUseCases(preview, videoCapture)
+        val outputOptions = createFileOutputOptions()
 
-        // Act 1 - isRecording is true after start.
-        val recording = recordingSession.createRecording().startAndVerify()
-        camera.cameraControl.verifyIfInVideoUsage(
-            true,
-            "Video started but camera still not in video usage",
-        )
-
-        // Act 2 - isRecording is false after pause.
-        recording.pauseAndVerify()
-        camera.cameraControl.verifyIfInVideoUsage(
-            false,
-            "Video paused but camera still in video usage",
-        )
-
-        // Act 3 - isRecording is true after resume.
-        recording.resumeAndVerify()
-        camera.cameraControl.verifyIfInVideoUsage(
-            true,
-            "Video resumed but camera still not in video usage",
-        )
-
-        // Act 4 - isRecording is false after stop.
-        recording.stopAndVerify()
-        camera.cameraControl.verifyIfInVideoUsage(
-            false,
-            "Video stopped but camera still in video usage",
-        )
+        // Act & Assert.
+        recordingSession.createRecording(outputOptions = outputOptions).recordAndVerify()
     }
 
+    @FirstAvailableCameraOnly
+    @IgnoreStreamSharing
     @Test
-    fun updateVideoUsage_whenUnboundBeforeCompletingAndStartNewAfterRebind(): Unit = runBlocking {
-        assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
-
+    fun canRecordToNonExistFile() {
+        // Arrange.
         checkAndBindUseCases(preview, videoCapture)
-        val recording1 = recordingSession.createRecording().startAndVerify()
+        val outputOptions = createFileOutputOptions(createTempFile().apply { delete() })
 
-        // Act 1 - unbind before recording completes and check if isRecording is false.
-        instrumentation.runOnMainSync { cameraProvider.unbind(videoCapture) }
-
-        camera.cameraControl.verifyIfInVideoUsage(
-            false,
-            "Video stopped but camera still in video usage",
-        )
-
-        // Cleanup.
-        recording1.verifyFinalize(error = ERROR_SOURCE_INACTIVE)
-
-        // Act 2 - rebind and start new recording, check if isRecording is true now.
-        checkAndBindUseCases(preview, videoCapture)
-
-        recordingSession.createRecording().startAndVerify()
-        camera.cameraControl.verifyIfInVideoUsage(
-            true,
-            "Video started but camera still not in video usage",
-        )
+        // Act & Assert.
+        recordingSession.createRecording(outputOptions = outputOptions).recordAndVerify()
     }
 
+    @FirstAvailableCameraOnly
+    @IgnoreStreamSharing
     @Test
-    fun updateVideoUsage_whenLifecycleStoppedBeforeCompletingRecording(): Unit = runBlocking {
-        assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
-
+    fun canRecordToMediaStore() {
+        assumeTrue(
+            "Ignore the test since the MediaStore.Video has compatibility issues.",
+            DeviceQuirks.get(MediaStoreVideoCannotWrite::class.java) == null,
+        )
         checkAndBindUseCases(preview, videoCapture)
-        recordingSession.createRecording().startAndVerify()
+
+        // Arrange.
+        val contentResolver: ContentResolver = context.contentResolver
+        val contentValues =
+            ContentValues().apply { put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4") }
+        val outputOptions =
+            MediaStoreOutputOptions.Builder(
+                    contentResolver,
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                )
+                .setContentValues(contentValues)
+                .build()
+
+        // Act & Assert.
+        val result =
+            recordingSession.createRecording(outputOptions = outputOptions).recordAndVerify()
+
+        // Clean-up.
+        contentResolver.delete(result.uri, null, null)
+    }
+
+    @FirstAvailableCameraOnly
+    @IgnoreStreamSharing
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun canRecordToFileDescriptor() {
+        // Arrange.
+        checkAndBindUseCases(preview, videoCapture)
+        val file = createTempFile()
+        val pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE)
+        val outputOptions = FileDescriptorOutputOptions.Builder(pfd).build()
+        val recording = recordingSession.createRecording(outputOptions = outputOptions)
 
         // Act.
-        instrumentation.runOnMainSync { lifecycleOwner.pauseAndStop() }
+        recording.startAndVerify()
+        // ParcelFileDescriptor should be safe to close after PendingRecording#start.
+        pfd.close()
 
-        camera.cameraControl.verifyIfInVideoUsage(
-            false,
-            "Lifecycle stopped but camera still in video usage",
-        )
+        // Assert.
+        recording.stopAndVerify()
     }
 
-    // TODO: b/341691683 - Add tests for multiple VideoCapture bound and recording concurrently
+    @FirstAvailableCameraOnly
+    @IgnoreStreamSharing
+    @Test
+    fun muxerFactory_mediaMuxerImpl_recordsSuccessfully() {
+        // Arrange.
+        val muxerFactory = MuxerFactory { MediaMuxerImpl() }
+        val recorder = Recorder.Builder().setMuxerFactory(muxerFactory).build()
+        val videoCapture = VideoCapture.withOutput(recorder)
+        checkAndBindUseCases(preview, videoCapture)
+
+        // Act & Assert.
+        recordingSession.createRecording(recorder = recorder).recordAndVerify()
+    }
+
+    @FirstAvailableCameraOnly
+    @IgnoreStreamSharing
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun recordToFileDescriptor_withClosedFileDescriptor_receiveError() {
+        // Arrange.
+        checkAndBindUseCases(preview, videoCapture)
+        val file = createTempFile()
+        val pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE)
+        pfd.close()
+        val outputOptions = FileDescriptorOutputOptions.Builder(pfd).build()
+        val recording = recordingSession.createRecording(outputOptions = outputOptions)
+
+        // Act.
+        recording.start()
+
+        // Assert.
+        recording.stopAndVerify(error = ERROR_INVALID_OUTPUT_OPTIONS)
+    }
+
+    @FirstAvailableCameraOnly
+    @IgnoreStreamSharing
+    @Test
+    fun setLocation() {
+        checkAndBindUseCases(preview, videoCapture)
+        runLocationTest(createLocation(25.033267462243586, 121.56454121737946))
+
+        // set negative location
+        runLocationTest(createLocation(-27.14394722411734, -109.33053675296067))
+    }
+
+    @FirstAvailableCameraOnly
+    @IgnoreStreamSharing
+    @Test
+    fun mute_outputWithAudioTrack() {
+        assumeTrue("Audio stream is not available", audioStreamAvailable)
+        checkAndBindUseCases(preview, videoCapture)
+
+        // Arrange.
+        val outputOptions = createFileOutputOptions()
+        val recording =
+            recordingSession.createRecording(
+                outputOptions = outputOptions,
+                initialAudioMuted = true,
+            )
+
+        // The output file should contain audio track even it's muted at the beginning.
+        recording.recordAndVerify()
+    }
+
+    @FirstAvailableCameraOnly
+    @IgnoreStreamSharing
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    fun audioRecordIsAttributed() = runBlocking {
+        assumeTrue("Audio stream is not available", audioStreamAvailable)
+        checkAndBindUseCases(preview, videoCapture)
+
+        // Arrange.
+        val notedTag = CompletableDeferred<String>()
+        val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+        appOps.setOnOpNotedCallback(
+            Dispatchers.Main.asExecutor(),
+            object : OnOpNotedCallback() {
+                override fun onNoted(p0: SyncNotedAppOp) {
+                    // no-op. record_audio should be async.
+                }
+
+                override fun onSelfNoted(p0: SyncNotedAppOp) {
+                    // no-op. record_audio should be async.
+                }
+
+                override fun onAsyncNoted(noted: AsyncNotedAppOp) {
+                    if (
+                        AppOpsManager.OPSTR_RECORD_AUDIO == noted.op &&
+                            TEST_ATTRIBUTION_TAG == noted.attributionTag
+                    ) {
+                        notedTag.complete(noted.attributionTag!!)
+                    }
+                }
+            },
+        )
+        val attributionContext = context.createAttributionContext(TEST_ATTRIBUTION_TAG)
+        val recording = recordingSession.createRecording(context = attributionContext)
+
+        // Act.
+        recording.start()
+        try {
+            val timeoutDuration = 5.seconds
+            withTimeoutOrNull(timeoutDuration) {
+                // Assert.
+                assertThat(notedTag.await()).isEqualTo(TEST_ATTRIBUTION_TAG)
+            } ?: fail("Timed out waiting for attribution tag. Waited $timeoutDuration.")
+        } finally {
+            appOps.setOnOpNotedCallback(null, null)
+            recording.stop()
+        }
+    }
+
+    @IgnoreStreamSharing
+    @Test
+    fun getVideoCapabilities_supportStandardDynamicRange() {
+        assumeFalse(isDeviceWithCamcorderProfileResolutionMismatch())
+
+        assertThat(videoCapabilities.supportedDynamicRanges).contains(SDR)
+    }
+
+    @IgnoreStreamSharing
+    @Test
+    fun getVideoCapabilities_supportedQualitiesOfSdrIsNotEmpty() {
+        assumeFalse(isDeviceWithCamcorderProfileResolutionMismatch())
+
+        assertThat(videoCapabilities.getSupportedQualities(SDR)).isNotEmpty()
+    }
+
+    @IgnoreStreamSharing
+    @Test
+    fun getVideoCapabilities_withMimeType_returnsCapabilities() {
+        val capabilities = Recorder.getVideoCapabilities(camera.cameraInfo, MIMETYPE_VIDEO_AVC)
+
+        assertThat(capabilities).isNotNull()
+        // We expect at least SDR to be supported for AVC
+        assertThat(capabilities!!.supportedDynamicRanges).contains(SDR)
+    }
+
+    private fun isDeviceWithCamcorderProfileResolutionMismatch(): Boolean {
+        val isNokia2Point1 =
+            "nokia".equals(Build.BRAND, true) && "nokia 2.1".equals(Build.MODEL, true)
+        val isMotoE5Play =
+            "motorola".equals(Build.BRAND, true) && "moto e5 play".equals(Build.MODEL, true)
+
+        return isNokia2Point1 || isMotoE5Play
+    }
+
+    private fun createTempFile() = temporaryFolder.newFile()
+
+    private fun createFileOutputOptions(
+        file: File = createTempFile(),
+        location: Location? = null,
+    ): FileOutputOptions =
+        FileOutputOptions.Builder(file).apply { location?.let { setLocation(it) } }.build()
+
+    @Suppress("SameParameterValue")
+    private fun checkLocation(uri: Uri, location: Location) {
+        MediaMetadataRetriever().useAndRelease {
+            it.setDataSource(context, uri)
+            // Only test on mp4 output format, others will be ignored.
+            val mime = it.getMimeType()
+            assumeTrue("Unsupported mime = $mime", "video/mp4".equals(mime, ignoreCase = true))
+            val value = it.getLocation()
+            // ex: (90, 180) => "+90.0000+180.0000/" (ISO-6709 standard)
+            val matchGroup =
+                "([+-]?[0-9]+(\\.[0-9]+)?)([+-]?[0-9]+(\\.[0-9]+)?)".toRegex().find(value)
+                    ?: fail("Fail on checking location metadata: $value")
+            val lat = matchGroup.groupValues[1].toDouble()
+            val lon = matchGroup.groupValues[3].toDouble()
+
+            // MediaMuxer.setLocation rounds the value to 4 decimal places
+            val tolerance = 0.0001
+            assertWithMessage("Fail on latitude. $lat($value) vs ${location.latitude}")
+                .that(lat)
+                .isWithin(tolerance)
+                .of(location.latitude)
+            assertWithMessage("Fail on longitude. $lon($value) vs ${location.longitude}")
+                .that(lon)
+                .isWithin(tolerance)
+                .of(location.longitude)
+        }
+    }
+
+    private fun runLocationTest(location: Location) {
+        // Arrange.
+        val outputOptions = createFileOutputOptions(location = location)
+
+        // Act.
+        val result =
+            recordingSession.createRecording(outputOptions = outputOptions).recordAndVerify()
+
+        // Assert.
+        checkLocation(result.uri, location)
+    }
+
+    private fun createLocation(
+        latitude: Double,
+        longitude: Double,
+        provider: String = "FakeProvider",
+    ): Location =
+        Location(provider).apply {
+            this.latitude = latitude
+            this.longitude = longitude
+        }
 
     private fun getCameraSelector(useOppositeCamera: Boolean): CameraSelector =
         if (!useOppositeCamera) cameraSelector else oppositeCameraSelector
@@ -846,23 +1040,6 @@ abstract class VideoRecordingTestBase(
 
     private fun assumeExtraCroppingQuirk() {
         assumeExtraCroppingQuirk(implName)
-    }
-
-    private suspend fun CameraControl.verifyIfInVideoUsage(
-        expected: Boolean,
-        message: String = "",
-    ) {
-        instrumentation.waitForIdleSync() // VideoCapture observes Recorder in main thread
-        // VideoUsage is updated in camera thread. So, we should ensure all tasks already submitted
-        // to camera thread are completed before checking isInVideoUsage
-        cameraExecutor.awaitIdle()
-        assertWithMessage(message).that((this as CameraControlInternal).isInVideoUsage).apply {
-            if (expected) {
-                isTrue()
-            } else {
-                isFalse()
-            }
-        }
     }
 
     /**
