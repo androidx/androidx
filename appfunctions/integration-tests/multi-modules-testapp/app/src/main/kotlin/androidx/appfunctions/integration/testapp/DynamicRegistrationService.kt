@@ -23,11 +23,11 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import androidx.annotation.RequiresApi
+import androidx.appfunctions.AppFunction
 import androidx.appfunctions.AppFunctionCancelledException
 import androidx.appfunctions.AppFunctionData
 import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.AppFunctionManager
-import androidx.appfunctions.CallbackAppFunction
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.HandleAppFunctionRequest
@@ -70,7 +70,7 @@ class DynamicRegistrationService : Service() {
         val action = intent?.action
         when (action) {
             ACTION_REGISTER -> {
-                val appFunction = CallbackAppFunction { request, _, callback ->
+                val appFunction = AppFunction { request, _, callback ->
                     val a = request.functionParameters.getInt("a")
                     val b = request.functionParameters.getString("b")
                     callback.accept(buildSuccessResponse("callback_result_${a}_${b}"))
@@ -83,7 +83,7 @@ class DynamicRegistrationService : Service() {
                     )
             }
             ACTION_REGISTER_CALLBACK_THROWS -> {
-                val appFunction = CallbackAppFunction { _, _, _ ->
+                val appFunction = AppFunction { _, _, _ ->
                     throw RuntimeException("Simulated error in callback execution")
                 }
                 registration =
@@ -94,7 +94,7 @@ class DynamicRegistrationService : Service() {
                     )
             }
             ACTION_REGISTER_CALLBACK_THROWS_APP_FUNCTION_EXCEPTION -> {
-                val appFunction = CallbackAppFunction { _, _, _ ->
+                val appFunction = AppFunction { _, _, _ ->
                     throw AppFunctionInvalidArgumentException("Simulated AppFunctionException")
                 }
                 registration =
@@ -106,7 +106,7 @@ class DynamicRegistrationService : Service() {
             }
 
             ACTION_REGISTER_LONG_RUNNING -> {
-                val appFunction = CallbackAppFunction { _, cancellationSignal, callback ->
+                val appFunction = AppFunction { _, cancellationSignal, callback ->
                     val job = scope.launch {
                         try {
                             delay(5000)
