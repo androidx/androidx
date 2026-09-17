@@ -134,6 +134,22 @@ class FrameworkVelocityTrackerTest {
     }
 
     @Test
+    fun duplicateEventTimes_stationaryPointer_calculatesZeroVelocity() {
+        val tracker = FrameworkVelocityTracker()
+
+        val offset = Offset(1000f, 1000f)
+        tracker.addPointerInputChange(createDownEvent(0L, Offset.Zero), offset)
+
+        // Add an event with no movement that contains a historical event with the same timestamp
+        // as the last event.
+        val history = listOf(HistoricalChange(0L, Offset.Zero))
+        tracker.addPointerInputChange(createMoveEvent(8L, Offset.Zero, history), offset)
+
+        val velocity = tracker.calculateVelocity(MaximumVelocity)
+        assertThat(velocity).isEqualTo(Velocity.Zero)
+    }
+
+    @Test
     fun calculateVelocity_maximumApplied() {
         val tracker = FrameworkVelocityTracker()
         addStroke(tracker)
