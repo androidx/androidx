@@ -19,7 +19,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.annotation.RestrictTo
 import androidx.room3.autoclose.AutoCloserConfig
-import androidx.room3.coroutines.DEFAULT_CONNECTION_POOL_TIMEOUT
 import androidx.room3.migration.AutoMigrationSpec
 import androidx.room3.prepackage.PrePackagedCopyConfig
 import androidx.sqlite.SQLiteDriver
@@ -91,6 +90,12 @@ constructor(
 
     /* The connection pool configuration. */
     public actual val connectionPoolConfiguration: ConnectionPoolConfiguration,
+
+    /* The connection pool timeout. */
+    public actual val connectionPoolTimeout: Duration,
+
+    /* Whether Room is allowed to delete and recreate the database file on corruption. */
+    public actual val allowDataLossOnRecovery: Boolean,
 ) {
     /* Whether the invalidation tracker will use temp or real tables for invalidation tracking. */
     internal var useTempTrackingTable = true
@@ -106,9 +111,6 @@ constructor(
      * If 0 then cache is to be unused.
      */
     internal var preparedStatementCacheSize = 25
-
-    /* The connection pool timeout. */
-    internal actual var connectionPoolTimeout: Duration = DEFAULT_CONNECTION_POOL_TIMEOUT
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun copy(
@@ -132,6 +134,8 @@ constructor(
         sqliteDriver: SQLiteDriver = this.sqliteDriver,
         queryCoroutineContext: CoroutineContext = this.queryCoroutineContext,
         connectionPoolConfiguration: ConnectionPoolConfiguration = this.connectionPoolConfiguration,
+        connectionPoolTimeout: Duration = this.connectionPoolTimeout,
+        allowDataLossOnRecovery: Boolean = this.allowDataLossOnRecovery,
     ): DatabaseConfiguration =
         DatabaseConfiguration(
                 context,
@@ -152,6 +156,8 @@ constructor(
                 sqliteDriver,
                 queryCoroutineContext,
                 connectionPoolConfiguration,
+                connectionPoolTimeout,
+                allowDataLossOnRecovery,
             )
             .also {
                 it.useTempTrackingTable = this.useTempTrackingTable

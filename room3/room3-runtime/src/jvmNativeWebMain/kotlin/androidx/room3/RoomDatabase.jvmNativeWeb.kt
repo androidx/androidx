@@ -363,6 +363,7 @@ public actual abstract class RoomDatabase actual constructor() {
         private var queryCoroutineContext: CoroutineContext? = null
         private var connectionPoolConfiguration: ConnectionPoolConfiguration? = null
         private var connectionPoolTimeout: Duration = DEFAULT_CONNECTION_POOL_TIMEOUT
+        private var allowDataLossOnRecovery: Boolean = false
 
         /** Migrations, mapped by from-to pairs. */
         private val migrationContainer: MigrationContainer = MigrationContainer()
@@ -660,6 +661,21 @@ public actual abstract class RoomDatabase actual constructor() {
         }
 
         /**
+         * Sets whether Room is allowed to delete and recreate the database file in situations where
+         * the database cannot be opened or is corrupted, thus allowing for its data to be lost.
+         *
+         * @param allowDataLossOnRecovery If `true` the database file might be deleted and recreated
+         *   in the case that it cannot be opened.
+         * @return This builder instance.
+         */
+        @JvmOverloads
+        @Suppress("MissingGetterMatchingBuilder")
+        public actual fun allowDataLossOnRecovery(allowDataLossOnRecovery: Boolean): Builder<T> =
+            apply {
+                this.allowDataLossOnRecovery = allowDataLossOnRecovery
+            }
+
+        /**
          * Creates the database and initializes it.
          *
          * @return A new database instance.
@@ -691,23 +707,23 @@ public actual abstract class RoomDatabase actual constructor() {
 
             val configuration =
                 DatabaseConfiguration(
-                        name = name,
-                        migrationContainer = migrationContainer,
-                        callbacks = callbacks,
-                        journalMode = journalMode,
-                        isMigrationRequired = requireMigration,
-                        allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade,
-                        migrationNotRequiredFrom = migrationsNotRequiredFrom,
-                        columnTypeConverters = columnTypeConverters,
-                        daoReturnTypeConverters = daoReturnTypeConverters,
-                        autoMigrationSpecs = autoMigrationSpecs,
-                        allowDestructiveMigrationForAllTables =
-                            allowDestructiveMigrationForAllTables,
-                        sqliteDriver = driver,
-                        queryCoroutineContext = queryCoroutineContext ?: defaultQueryDispatcher,
-                        connectionPoolConfiguration = poolConfig,
-                    )
-                    .apply { this.connectionPoolTimeout = this@Builder.connectionPoolTimeout }
+                    name = name,
+                    migrationContainer = migrationContainer,
+                    callbacks = callbacks,
+                    journalMode = journalMode,
+                    isMigrationRequired = requireMigration,
+                    allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade,
+                    migrationNotRequiredFrom = migrationsNotRequiredFrom,
+                    columnTypeConverters = columnTypeConverters,
+                    daoReturnTypeConverters = daoReturnTypeConverters,
+                    autoMigrationSpecs = autoMigrationSpecs,
+                    allowDestructiveMigrationForAllTables = allowDestructiveMigrationForAllTables,
+                    sqliteDriver = driver,
+                    queryCoroutineContext = queryCoroutineContext ?: defaultQueryDispatcher,
+                    connectionPoolConfiguration = poolConfig,
+                    connectionPoolTimeout = connectionPoolTimeout,
+                    allowDataLossOnRecovery = allowDataLossOnRecovery,
+                )
             val db = factory.invoke()
             db.init(configuration)
             return db

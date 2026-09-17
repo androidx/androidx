@@ -22,6 +22,7 @@ import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.test.platform.app.InstrumentationRegistry
+import java.io.File
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -33,12 +34,48 @@ class BuilderTest : BaseNonWebBuilderTest() {
     private val file = instrumentation.targetContext.getDatabasePath("test.db")
 
     override fun getRoomDatabaseBuilder(): RoomDatabase.Builder<SampleDatabase> {
+        return getRoomDatabaseBuilder(file.path)
+    }
+
+    override fun getRoomDatabaseBuilder(fileName: String): RoomDatabase.Builder<SampleDatabase> {
         return Room.databaseBuilder<SampleDatabase>(
                 context = instrumentation.targetContext,
-                name = file.path,
+                name = fileName,
                 factory = SampleDatabaseConstructor::initialize,
             )
             .setDriver(BundledSQLiteDriver())
+    }
+
+    override fun getInMemoryDatabaseBuilder(): RoomDatabase.Builder<SampleDatabase> {
+        return Room.inMemoryDatabaseBuilder<SampleDatabase>(
+                context = instrumentation.targetContext,
+                factory = SampleDatabaseConstructor::initialize,
+            )
+            .setDriver(BundledSQLiteDriver())
+    }
+
+    override fun getDatabasePath(name: String): String {
+        return instrumentation.targetContext.getDatabasePath("$name.db").path
+    }
+
+    override fun createCorruptedFile(path: String) {
+        val f = File(path)
+        f.parentFile?.mkdirs()
+        f.writeText("corrupted sqlite header")
+    }
+
+    override fun deleteFile(path: String) {
+        val f = File(path)
+        instrumentation.targetContext.deleteDatabase(f.name)
+        f.delete()
+    }
+
+    override fun fileExists(path: String): Boolean {
+        return File(path).exists()
+    }
+
+    override fun readFileContent(path: String): String {
+        return File(path).readText()
     }
 
     @BeforeTest

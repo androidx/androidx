@@ -575,6 +575,7 @@ public actual abstract class RoomDatabase actual constructor() {
         private var queryCoroutineContext: CoroutineContext? = null
         private var connectionPoolConfiguration: ConnectionPoolConfiguration? = null
         private var connectionPoolTimeout: Duration = DEFAULT_CONNECTION_POOL_TIMEOUT
+        private var allowDataLossOnRecovery: Boolean = false
 
         private var inMemoryTrackingTableMode = true
 
@@ -1184,6 +1185,21 @@ public actual abstract class RoomDatabase actual constructor() {
         }
 
         /**
+         * Sets whether Room is allowed to delete and recreate the database file in situations where
+         * the database cannot be opened or is corrupted, thus allowing for its data to be lost.
+         *
+         * @param allowDataLossOnRecovery If `true` the database file might be deleted and recreated
+         *   in the case that it cannot be opened.
+         * @return This builder instance.
+         */
+        @JvmOverloads
+        @Suppress("BuilderSetStyle")
+        public actual fun allowDataLossOnRecovery(allowDataLossOnRecovery: Boolean): Builder<T> =
+            apply {
+                this.allowDataLossOnRecovery = allowDataLossOnRecovery
+            }
+
+        /**
          * Creates the databases and initializes it.
          *
          * By default, all RoomDatabases use in memory storage for TEMP tables and enables recursive
@@ -1268,12 +1284,13 @@ public actual abstract class RoomDatabase actual constructor() {
                         sqliteDriver = requireNotNull(driver),
                         queryCoroutineContext = queryCoroutineContext ?: Dispatchers.IO,
                         connectionPoolConfiguration = poolConfig,
+                        connectionPoolTimeout = connectionPoolTimeout,
+                        allowDataLossOnRecovery = allowDataLossOnRecovery,
                     )
                     .apply {
                         this.useTempTrackingTable = inMemoryTrackingTableMode
                         this.copyFromConfig = copyFromConfig
                         this.autoCloseConfig = autoCloseConfig
-                        this.connectionPoolTimeout = this@Builder.connectionPoolTimeout
                     }
             val db = factory?.invoke() ?: findAndInstantiateDatabaseImpl(klass.java)
             db.init(configuration)

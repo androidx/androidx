@@ -19,15 +19,52 @@ package androidx.room3.integration.multiplatformtestapp.test
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import java.io.File
+import kotlin.io.path.createTempDirectory
 import kotlin.io.path.createTempFile
 
 class BuilderTest : BaseNonWebBuilderTest() {
+    private val tempDir = createTempDirectory().toFile().also { it.deleteOnExit() }
+
     override fun getRoomDatabaseBuilder(): RoomDatabase.Builder<SampleDatabase> {
         val tempFile = createTempFile("test.db").also { it.toFile().deleteOnExit() }
+        return getRoomDatabaseBuilder(tempFile.toString())
+    }
+
+    override fun getRoomDatabaseBuilder(fileName: String): RoomDatabase.Builder<SampleDatabase> {
         return Room.databaseBuilder<SampleDatabase>(
-                name = tempFile.toString(),
+                name = fileName,
                 factory = SampleDatabaseConstructor::initialize,
             )
             .setDriver(BundledSQLiteDriver())
+    }
+
+    override fun getInMemoryDatabaseBuilder(): RoomDatabase.Builder<SampleDatabase> {
+        return Room.inMemoryDatabaseBuilder<SampleDatabase>(
+                factory = SampleDatabaseConstructor::initialize
+            )
+            .setDriver(BundledSQLiteDriver())
+    }
+
+    override fun getDatabasePath(name: String): String {
+        return File(tempDir, "$name.db").absolutePath
+    }
+
+    override fun createCorruptedFile(path: String) {
+        val file = File(path)
+        file.parentFile?.mkdirs()
+        file.writeText("corrupted sqlite header")
+    }
+
+    override fun deleteFile(path: String) {
+        File(path).delete()
+    }
+
+    override fun fileExists(path: String): Boolean {
+        return File(path).exists()
+    }
+
+    override fun readFileContent(path: String): String {
+        return File(path).readText()
     }
 }
