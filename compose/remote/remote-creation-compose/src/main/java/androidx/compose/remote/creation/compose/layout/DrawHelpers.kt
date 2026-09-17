@@ -152,7 +152,7 @@ internal fun AndroidBlendMode.toComposeBlendMode(): BlendMode {
         AndroidBlendMode.DST_OVER -> BlendMode.DstOver
         AndroidBlendMode.SRC_IN -> BlendMode.SrcIn
         AndroidBlendMode.DST_IN -> BlendMode.DstIn
-        AndroidBlendMode.SRC_OUT -> BlendMode.SrcIn
+        AndroidBlendMode.SRC_OUT -> BlendMode.SrcOut
         AndroidBlendMode.DST_OUT -> BlendMode.DstOut
         AndroidBlendMode.SRC_ATOP -> BlendMode.SrcAtop
         AndroidBlendMode.DST_ATOP -> BlendMode.DstAtop
