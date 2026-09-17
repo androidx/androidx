@@ -30,4 +30,4 @@ public class GPUVertexAttribute(
     /** The offset in bytes from the beginning of the vertex. */
     public var offset: Long,
     public var shaderLocation: Int,
-)
+) {}

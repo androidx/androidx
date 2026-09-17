@@ -71,7 +71,18 @@ public class TextureSampleType private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [BindingNotUsed, Undefined, Float, UnfilterableFloat, Depth, Sint, Uint])
+    @IntDef(
+        value =
+            [
+                BindingNotUsed,
+                Undefined,
+                Float,
+                UnfilterableFloat,
+                Depth,
+                Sint,
+                Uint,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

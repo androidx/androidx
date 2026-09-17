@@ -26,4 +26,4 @@ package androidx.webgpu
 /** Extension for WebXR interop options when requesting an adapter. */
 public class GPURequestAdapterWebXROptions(
     @get:JvmName("isXrCompatible") public var xrCompatible: Boolean
-)
+) {}

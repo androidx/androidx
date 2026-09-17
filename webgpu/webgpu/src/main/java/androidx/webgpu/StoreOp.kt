@@ -44,14 +44,25 @@ public class StoreOp private constructor() {
         /** Discards the contents of the attachment. */
         public const val Discard: Int = 0x00000002
         internal val names: Map<Int, String> =
-            mapOf(0x00000000 to "Undefined", 0x00000001 to "Store", 0x00000002 to "Discard")
+            mapOf(
+                0x00000000 to "Undefined",
+                0x00000001 to "Store",
+                0x00000002 to "Discard",
+            )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Undefined, Store, Discard])
+    @IntDef(
+        value =
+            [
+                Undefined,
+                Store,
+                Discard,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

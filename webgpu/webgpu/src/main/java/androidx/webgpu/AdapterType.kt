@@ -59,7 +59,15 @@ public class AdapterType private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [DiscreteGPU, IntegratedGPU, CPU, Unknown])
+    @IntDef(
+        value =
+            [
+                DiscreteGPU,
+                IntegratedGPU,
+                CPU,
+                Unknown,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

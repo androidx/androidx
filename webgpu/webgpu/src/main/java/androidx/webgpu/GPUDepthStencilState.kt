@@ -37,7 +37,6 @@ public class GPUDepthStencilState(
     public var depthBiasSlopeScale: Float = 0.0f,
     public var depthBiasClamp: Float = 0.0f,
 ) {
-
     /** Builder for [GPUDepthStencilState]. */
     public class Builder() {
         @TextureFormat.Type private var format: Int = TextureFormat.Undefined
@@ -80,7 +79,9 @@ public class GPUDepthStencilState(
             this.stencilWriteMask = stencilWriteMask
         }
 
-        public fun setDepthBias(depthBias: Int): Builder = apply { this.depthBias = depthBias }
+        public fun setDepthBias(depthBias: Int): Builder = apply {
+            this.depthBias = depthBias
+        }
 
         public fun setDepthBiasSlopeScale(depthBiasSlopeScale: Float): Builder = apply {
             this.depthBiasSlopeScale = depthBiasSlopeScale

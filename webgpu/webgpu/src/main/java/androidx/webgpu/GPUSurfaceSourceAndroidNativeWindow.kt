@@ -27,4 +27,4 @@ package androidx.webgpu
 public class GPUSurfaceSourceAndroidNativeWindow(
     /** A pointer to the ANativeWindow. */
     public var window: Long
-)
+) {}

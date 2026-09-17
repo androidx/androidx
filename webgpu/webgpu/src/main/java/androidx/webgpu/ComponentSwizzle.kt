@@ -71,7 +71,18 @@ public class ComponentSwizzle private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Undefined, Zero, One, R, G, B, A])
+    @IntDef(
+        value =
+            [
+                Undefined,
+                Zero,
+                One,
+                R,
+                G,
+                B,
+                A,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

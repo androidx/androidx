@@ -62,7 +62,15 @@ public class CreatePipelineAsyncStatus private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Success, CallbackCancelled, ValidationError, InternalError])
+    @IntDef(
+        value =
+            [
+                Success,
+                CallbackCancelled,
+                ValidationError,
+                InternalError,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

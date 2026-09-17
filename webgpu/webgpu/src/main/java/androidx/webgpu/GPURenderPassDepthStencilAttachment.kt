@@ -36,7 +36,6 @@ public class GPURenderPassDepthStencilAttachment(
     public var stencilClearValue: Int = 0,
     @get:JvmName("isStencilReadOnly") public var stencilReadOnly: Boolean = false,
 ) {
-
     /** Builder for [GPURenderPassDepthStencilAttachment]. */
     public class Builder(private val view: GPUTextureView) {
         @LoadOp.Type private var depthLoadOp: Int = LoadOp.Undefined

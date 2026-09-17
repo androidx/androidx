@@ -33,7 +33,6 @@ public class GPURenderPassColorAttachment(
     @LoadOp.Type public var loadOp: Int = LoadOp.Undefined,
     @StoreOp.Type public var storeOp: Int = StoreOp.Undefined,
 ) {
-
     /** Builder for [GPURenderPassColorAttachment]. */
     public class Builder(private val clearValue: GPUColor) {
         private var view: GPUTextureView? = null
@@ -42,15 +41,21 @@ public class GPURenderPassColorAttachment(
         @LoadOp.Type private var loadOp: Int = LoadOp.Undefined
         @StoreOp.Type private var storeOp: Int = StoreOp.Undefined
 
-        public fun setView(view: GPUTextureView?): Builder = apply { this.view = view }
+        public fun setView(view: GPUTextureView?): Builder = apply {
+            this.view = view
+        }
 
-        public fun setDepthSlice(depthSlice: Int): Builder = apply { this.depthSlice = depthSlice }
+        public fun setDepthSlice(depthSlice: Int): Builder = apply {
+            this.depthSlice = depthSlice
+        }
 
         public fun setResolveTarget(resolveTarget: GPUTextureView?): Builder = apply {
             this.resolveTarget = resolveTarget
         }
 
-        public fun setLoadOp(@LoadOp.Type loadOp: Int): Builder = apply { this.loadOp = loadOp }
+        public fun setLoadOp(@LoadOp.Type loadOp: Int): Builder = apply {
+            this.loadOp = loadOp
+        }
 
         public fun setStoreOp(@StoreOp.Type storeOp: Int): Builder = apply {
             this.storeOp = storeOp

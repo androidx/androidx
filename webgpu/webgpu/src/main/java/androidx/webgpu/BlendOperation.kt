@@ -67,7 +67,17 @@ public class BlendOperation private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Undefined, Add, Subtract, ReverseSubtract, Min, Max])
+    @IntDef(
+        value =
+            [
+                Undefined,
+                Add,
+                Subtract,
+                ReverseSubtract,
+                Min,
+                Max,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

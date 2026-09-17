@@ -24,9 +24,19 @@
 package androidx.webgpu
 
 /** Describes a command buffer. */
-public class GPUCommandBufferDescriptor
-@JvmOverloads
-constructor(
+public class GPUCommandBufferDescriptor(
     /** A human-readable label for debugging. */
     public var label: String? = null
-)
+) {
+    /** Builder for [GPUCommandBufferDescriptor]. */
+    public class Builder() {
+        private var label: String? = null
+
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
+
+        /** Builds the [GPUCommandBufferDescriptor]. */
+        public fun build(): GPUCommandBufferDescriptor = GPUCommandBufferDescriptor(label = label)
+    }
+}

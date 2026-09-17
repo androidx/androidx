@@ -63,7 +63,16 @@ public class PresentMode private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Undefined, Fifo, FifoRelaxed, Immediate, Mailbox])
+    @IntDef(
+        value =
+            [
+                Undefined,
+                Fifo,
+                FifoRelaxed,
+                Immediate,
+                Mailbox,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

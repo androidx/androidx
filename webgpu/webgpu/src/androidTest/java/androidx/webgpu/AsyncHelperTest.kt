@@ -19,11 +19,17 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.webgpu.helper.WebGpu
 import androidx.webgpu.helper.createWebGpu
+import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Test
@@ -33,8 +39,14 @@ import org.junit.runner.RunWith
 @SmallTest
 class AsyncHelperTest {
 
-    private lateinit var webGpu: WebGpu
+    private val dispatcher: CoroutineDispatcher =
+        Executors.newSingleThreadExecutor { runnable ->
+                Thread(runnable, "Test-WebGPU-Thread")
+            }
+            .asCoroutineDispatcher()
+    private val testScope = CoroutineScope(dispatcher)
     private lateinit var device: GPUDevice
+    private lateinit var webGpu: WebGpu
 
     private val BASIC_SHADER =
         """
@@ -47,82 +59,69 @@ class AsyncHelperTest {
         } """
 
     @Before
-    fun setup() {
-        runBlocking {
-            webGpu = createWebGpu()
-            device = webGpu.device
+    fun setup(): Unit = runBlocking {
+        webGpu = createWebGpu(dispatcher)
+        device = webGpu.device
+        testScope.launch {
+            webGpu.processEventsLoop()
         }
+    }
+
+    @After
+    fun teardown() {
+        if (::webGpu.isInitialized) {
+            webGpu.close()
+        }
+        testScope.cancel()
+        (dispatcher as? ExecutorCoroutineDispatcher)?.close()
     }
 
     @Test
     fun asyncMethodTest() {
         runBlocking {
-            /* Set up a shader module to support the async call. */
-            val shaderModule =
-                device.createShaderModule(
-                    GPUShaderModuleDescriptor(shaderSourceWGSL = GPUShaderSourceWGSL(""))
-                )
+            webGpu.execute {
+                /* Set up a shader module to support the async call. */
+                val shaderModule =
+                    device.createShaderModule(
+                        GPUShaderModuleDescriptor(shaderSourceWGSL = GPUShaderSourceWGSL(""))
+                    )
 
-            val exception =
-                assertThrows(WebGpuException::class.java) {
-                    runBlocking {
+                val exception =
+                    assertThrowsSuspend(WebGpuException::class.java) {
                         /* Call an asynchronous method, converted from a callback pattern by a helper. */
-                        device.createRenderPipelineAndAwait(
-                            GPURenderPipelineDescriptor(
-                                vertex = GPUVertexState(module = shaderModule)
+                        val unused =
+                            device.createRenderPipelineAndAwait(
+                                GPURenderPipelineDescriptor(
+                                    vertex = GPUVertexState(module = shaderModule)
+                                )
                             )
-                        )
                     }
-                }
 
-            assertEquals(
-                """Create render pipeline (async) should fail when no shader entry point exists.
-                   The result was: ${exception.status}""",
-                CreatePipelineAsyncStatus.ValidationError,
-                exception.status,
-            )
+                assertEquals(
+                    """Create render pipeline (async) should fail when no shader entry point exists.
+                       The result was: ${exception.status}""",
+                    CreatePipelineAsyncStatus.ValidationError,
+                    exception.status,
+                )
+            }
         }
     }
 
     @Test
     fun asyncMethodTestValidationPasses() {
         runBlocking {
-            /* Set up a valid shader module and descriptor */
-            val shaderModule =
-                device.createShaderModule(
-                    GPUShaderModuleDescriptor(shaderSourceWGSL = GPUShaderSourceWGSL(BASIC_SHADER))
-                )
-
-            /* Call an asynchronous method, converted from a callback pattern by a helper. */
-            val unused =
-                device.createRenderPipelineAndAwait(
-                    GPURenderPipelineDescriptor(
-                        vertex = GPUVertexState(module = shaderModule),
-                        fragment =
-                            GPUFragmentState(
-                                module = shaderModule,
-                                targets =
-                                    arrayOf(GPUColorTargetState(format = TextureFormat.RGBA8Unorm)),
-                            ),
+            webGpu.execute {
+                /* Set up a valid shader module and descriptor */
+                val shaderModule =
+                    device.createShaderModule(
+                        GPUShaderModuleDescriptor(
+                            shaderSourceWGSL = GPUShaderSourceWGSL(BASIC_SHADER)
+                        )
                     )
-                )
 
-            /* Create render pipeline (async) should pass with a simple shader.. */
-        }
-    }
-
-    private fun baseCancellationTest(doCancel: Boolean): Boolean {
-        val hasReturned = AtomicBoolean(false)
-
-        runBlocking {
-            val shaderModule =
-                device.createShaderModule(
-                    GPUShaderModuleDescriptor(shaderSourceWGSL = GPUShaderSourceWGSL(BASIC_SHADER))
-                )
-
-            /* Launch the function in a new coroutine, giving us a job handle we can cancel. */
-            val job = launch {
-                var unused =
+                /* Call an asynchronous method, converted from a callback pattern by a helper. */
+                @Suppress("UNUSED_VARIABLE")
+                val unused =
                     device.createRenderPipelineAndAwait(
                         GPURenderPipelineDescriptor(
                             vertex = GPUVertexState(module = shaderModule),
@@ -136,14 +135,52 @@ class AsyncHelperTest {
                                 ),
                         )
                     )
-                hasReturned.set(true)
-            }
-            assumeFalse("The job completed before we could test it", hasReturned.get())
 
-            if (doCancel) {
-                job.cancel()
+                /* Create render pipeline (async) should pass with a simple shader.. */
             }
-            job.join()
+        }
+    }
+
+    private fun baseCancellationTest(doCancel: Boolean): Boolean {
+        val hasReturned = AtomicBoolean(false)
+
+        runBlocking {
+            webGpu.execute {
+                val shaderModule =
+                    device.createShaderModule(
+                        GPUShaderModuleDescriptor(
+                            shaderSourceWGSL = GPUShaderSourceWGSL(BASIC_SHADER)
+                        )
+                    )
+
+                /* Launch the function in a new coroutine, giving us a job handle we can cancel. */
+                val job = launch {
+                    @Suppress("UNUSED_VARIABLE")
+                    val unused =
+                        device.createRenderPipelineAndAwait(
+                            GPURenderPipelineDescriptor(
+                                vertex = GPUVertexState(module = shaderModule),
+                                fragment =
+                                    GPUFragmentState(
+                                        module = shaderModule,
+                                        targets =
+                                            arrayOf(
+                                                GPUColorTargetState(
+                                                    format = TextureFormat.RGBA8Unorm
+                                                )
+                                            ),
+                                    ),
+                            )
+                        )
+                    hasReturned.set(true)
+                }
+                assumeFalse("The job completed before we could test it", hasReturned.get())
+
+                if (doCancel) {
+                    job.cancel()
+                }
+                job.join()
+            }
         }
         return hasReturned.get()
     }

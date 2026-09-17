@@ -34,7 +34,6 @@ public class GPURenderPassDescriptor(
     /** An extension for specifying the maximum draw count in a render pass. */
     public var renderPassMaxDrawCount: GPURenderPassMaxDrawCount? = null,
 ) {
-
     /** Builder for [GPURenderPassDescriptor]. */
     public class Builder() {
         private var label: String? = null
@@ -44,15 +43,21 @@ public class GPURenderPassDescriptor(
         private var timestampWrites: GPUPassTimestampWrites? = null
         private var renderPassMaxDrawCount: GPURenderPassMaxDrawCount? = null
 
-        public fun setLabel(label: String?): Builder = apply { this.label = label }
+        public fun setLabel(label: String?): Builder = apply {
+            this.label = label
+        }
 
         public fun setColorAttachments(
             colorAttachments: Array<GPURenderPassColorAttachment>
-        ): Builder = apply { this.colorAttachments = colorAttachments }
+        ): Builder = apply {
+            this.colorAttachments = colorAttachments
+        }
 
         public fun setDepthStencilAttachment(
             depthStencilAttachment: GPURenderPassDepthStencilAttachment?
-        ): Builder = apply { this.depthStencilAttachment = depthStencilAttachment }
+        ): Builder = apply {
+            this.depthStencilAttachment = depthStencilAttachment
+        }
 
         public fun setOcclusionQuerySet(occlusionQuerySet: GPUQuerySet?): Builder = apply {
             this.occlusionQuerySet = occlusionQuerySet
@@ -64,7 +69,9 @@ public class GPURenderPassDescriptor(
 
         public fun setRenderPassMaxDrawCount(
             renderPassMaxDrawCount: GPURenderPassMaxDrawCount?
-        ): Builder = apply { this.renderPassMaxDrawCount = renderPassMaxDrawCount }
+        ): Builder = apply {
+            this.renderPassMaxDrawCount = renderPassMaxDrawCount
+        }
 
         /** Builds the [GPURenderPassDescriptor]. */
         public fun build(): GPURenderPassDescriptor =

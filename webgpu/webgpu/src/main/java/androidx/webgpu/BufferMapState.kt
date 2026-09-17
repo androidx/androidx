@@ -44,14 +44,25 @@ public class BufferMapState private constructor() {
         /** The buffer is mapped and its contents are accessible. */
         public const val Mapped: Int = 0x00000003
         internal val names: Map<Int, String> =
-            mapOf(0x00000001 to "Unmapped", 0x00000002 to "Pending", 0x00000003 to "Mapped")
+            mapOf(
+                0x00000001 to "Unmapped",
+                0x00000002 to "Pending",
+                0x00000003 to "Mapped",
+            )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Unmapped, Pending, Mapped])
+    @IntDef(
+        value =
+            [
+                Unmapped,
+                Pending,
+                Mapped,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

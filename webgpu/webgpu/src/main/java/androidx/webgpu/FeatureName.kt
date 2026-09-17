@@ -102,6 +102,12 @@ public class FeatureName private constructor() {
          * remapping of the R, G, B, and A components during sampling.
          */
         public const val TextureComponentSwizzle: Int = 0x00000016
+        public const val SubgroupSizeControl: Int = 0x00000017
+        @ExperimentalWebGpuApi public const val SharedTextureMemoryAHardwareBuffer: Int = 0x0005001e
+        @ExperimentalWebGpuApi public const val SharedFenceSyncFD: Int = 0x00050027
+        @ExperimentalWebGpuApi public const val YCbCrVulkanSamplers: Int = 0x0005002d
+        @ExperimentalWebGpuApi
+        public const val OpaqueYCbCrAndroidForExternalTexture: Int = 0x0005003d
         internal val names: Map<Int, String> =
             mapOf(
                 0x00000001 to "CoreFeaturesAndLimits",
@@ -126,6 +132,11 @@ public class FeatureName private constructor() {
                 0x00000014 to "TextureFormatsTier2",
                 0x00000015 to "PrimitiveIndex",
                 0x00000016 to "TextureComponentSwizzle",
+                0x00000017 to "SubgroupSizeControl",
+                0x0005001e to "SharedTextureMemoryAHardwareBuffer",
+                0x00050027 to "SharedFenceSyncFD",
+                0x0005002d to "YCbCrVulkanSamplers",
+                0x0005003d to "OpaqueYCbCrAndroidForExternalTexture",
             )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
@@ -133,6 +144,7 @@ public class FeatureName private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @OptIn(ExperimentalWebGpuApi::class)
     @IntDef(
         value =
             [
@@ -158,6 +170,11 @@ public class FeatureName private constructor() {
                 TextureFormatsTier2,
                 PrimitiveIndex,
                 TextureComponentSwizzle,
+                SubgroupSizeControl,
+                SharedTextureMemoryAHardwareBuffer,
+                SharedFenceSyncFD,
+                YCbCrVulkanSamplers,
+                OpaqueYCbCrAndroidForExternalTexture,
             ]
     )
     @Target(

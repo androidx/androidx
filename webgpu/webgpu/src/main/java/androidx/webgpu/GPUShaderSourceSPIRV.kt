@@ -24,9 +24,19 @@
 package androidx.webgpu
 
 /** Extension for providing SPIR-V shader source code. */
-public class GPUShaderSourceSPIRV
-@JvmOverloads
-constructor(
+public class GPUShaderSourceSPIRV(
     /** A pointer to the SPIR-V code. */
     public var code: IntArray = intArrayOf()
-)
+) {
+    /** Builder for [GPUShaderSourceSPIRV]. */
+    public class Builder() {
+        private var code: IntArray = intArrayOf()
+
+        public fun setCode(code: IntArray): Builder = apply {
+            this.code = code
+        }
+
+        /** Builds the [GPUShaderSourceSPIRV]. */
+        public fun build(): GPUShaderSourceSPIRV = GPUShaderSourceSPIRV(code = code)
+    }
+}

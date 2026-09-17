@@ -24,9 +24,7 @@
 package androidx.webgpu
 
 /** Provides detailed information about a graphics adapter. */
-public class GPUAdapterInfo
-@JvmOverloads
-constructor(
+public class GPUAdapterInfo(
     /** The name of the adapter vendor. */
     public var vendor: String,
     /** The name of the adapter architecture. */
@@ -41,4 +39,38 @@ constructor(
     public var subgroupMinSize: Int,
     public var subgroupMaxSize: Int,
     @BackendType.Type public var backendType: Int = BackendType.Undefined,
-)
+) {
+    /** Builder for [GPUAdapterInfo]. */
+    public class Builder(
+        private val vendor: String,
+        private val architecture: String,
+        private val device: String,
+        private val description: String,
+        @AdapterType.Type private val adapterType: Int,
+        private val vendorID: Int,
+        private val deviceID: Int,
+        private val subgroupMinSize: Int,
+        private val subgroupMaxSize: Int,
+    ) {
+        @BackendType.Type private var backendType: Int = BackendType.Undefined
+
+        public fun setBackendType(@BackendType.Type backendType: Int): Builder = apply {
+            this.backendType = backendType
+        }
+
+        /** Builds the [GPUAdapterInfo]. */
+        public fun build(): GPUAdapterInfo =
+            GPUAdapterInfo(
+                vendor = vendor,
+                architecture = architecture,
+                device = device,
+                description = description,
+                adapterType = adapterType,
+                vendorID = vendorID,
+                deviceID = deviceID,
+                subgroupMinSize = subgroupMinSize,
+                subgroupMaxSize = subgroupMaxSize,
+                backendType = backendType,
+            )
+    }
+}

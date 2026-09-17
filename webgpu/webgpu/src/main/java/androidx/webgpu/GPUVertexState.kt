@@ -24,9 +24,7 @@
 package androidx.webgpu
 
 /** Describes the vertex shader stage of a render pipeline. */
-public class GPUVertexState
-@JvmOverloads
-constructor(
+public class GPUVertexState(
     /** The shader module containing the vertex shader. */
     public var module: GPUShaderModule,
     public var entryPoint: String? = null,
@@ -34,4 +32,32 @@ constructor(
     public var constants: Array<GPUConstantEntry> = arrayOf(),
     /** An array of vertex buffer layouts. */
     public var buffers: Array<GPUVertexBufferLayout> = arrayOf(),
-)
+) {
+    /** Builder for [GPUVertexState]. */
+    public class Builder(private val module: GPUShaderModule) {
+        private var entryPoint: String? = null
+        private var constants: Array<GPUConstantEntry> = arrayOf()
+        private var buffers: Array<GPUVertexBufferLayout> = arrayOf()
+
+        public fun setEntryPoint(entryPoint: String?): Builder = apply {
+            this.entryPoint = entryPoint
+        }
+
+        public fun setConstants(constants: Array<GPUConstantEntry>): Builder = apply {
+            this.constants = constants
+        }
+
+        public fun setBuffers(buffers: Array<GPUVertexBufferLayout>): Builder = apply {
+            this.buffers = buffers
+        }
+
+        /** Builds the [GPUVertexState]. */
+        public fun build(): GPUVertexState =
+            GPUVertexState(
+                module = module,
+                entryPoint = entryPoint,
+                constants = constants,
+                buffers = buffers,
+            )
+    }
+}

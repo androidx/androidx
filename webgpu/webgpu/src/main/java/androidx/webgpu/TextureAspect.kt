@@ -59,7 +59,15 @@ public class TextureAspect private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Undefined, All, StencilOnly, DepthOnly])
+    @IntDef(
+        value =
+            [
+                Undefined,
+                All,
+                StencilOnly,
+                DepthOnly,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

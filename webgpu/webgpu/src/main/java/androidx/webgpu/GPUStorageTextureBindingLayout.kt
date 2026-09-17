@@ -24,9 +24,7 @@
 package androidx.webgpu
 
 /** Describes the layout of a storage texture binding. */
-public class GPUStorageTextureBindingLayout
-@JvmOverloads
-constructor(
+public class GPUStorageTextureBindingLayout(
     /**
      * The access mode for the storage texture. Defaults to @see [StorageTextureAccess.WriteOnly].
      */
@@ -34,4 +32,32 @@ constructor(
     /** The format of the storage texture. */
     @TextureFormat.Type public var format: Int = TextureFormat.Undefined,
     @TextureViewDimension.Type public var viewDimension: Int = TextureViewDimension._2D,
-)
+) {
+    /** Builder for [GPUStorageTextureBindingLayout]. */
+    public class Builder() {
+        @StorageTextureAccess.Type private var access: Int = StorageTextureAccess.WriteOnly
+        @TextureFormat.Type private var format: Int = TextureFormat.Undefined
+        @TextureViewDimension.Type private var viewDimension: Int = TextureViewDimension._2D
+
+        public fun setAccess(@StorageTextureAccess.Type access: Int): Builder = apply {
+            this.access = access
+        }
+
+        public fun setFormat(@TextureFormat.Type format: Int): Builder = apply {
+            this.format = format
+        }
+
+        public fun setViewDimension(@TextureViewDimension.Type viewDimension: Int): Builder =
+            apply {
+                this.viewDimension = viewDimension
+            }
+
+        /** Builds the [GPUStorageTextureBindingLayout]. */
+        public fun build(): GPUStorageTextureBindingLayout =
+            GPUStorageTextureBindingLayout(
+                access = access,
+                format = format,
+                viewDimension = viewDimension,
+            )
+    }
+}

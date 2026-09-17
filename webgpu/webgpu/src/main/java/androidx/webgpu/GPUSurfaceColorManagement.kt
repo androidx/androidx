@@ -27,4 +27,4 @@ package androidx.webgpu
 public class GPUSurfaceColorManagement(
     @PredefinedColorSpace.Type public var colorSpace: Int,
     @ToneMappingMode.Type public var toneMappingMode: Int,
-)
+) {}

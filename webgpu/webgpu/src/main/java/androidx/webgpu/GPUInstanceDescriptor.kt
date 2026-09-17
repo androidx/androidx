@@ -24,9 +24,70 @@
 package androidx.webgpu
 
 /** Describes an instance to be created. */
-public class GPUInstanceDescriptor
-@JvmOverloads
-constructor(
-    @InstanceFeatureName.Type public var requiredFeatures: IntArray = intArrayOf(),
-    public var requiredLimits: GPUInstanceLimits? = null,
-)
+public class GPUInstanceDescriptor {
+    @InstanceFeatureName.Type public var requiredFeatures: IntArray
+    public var requiredLimits: GPUInstanceLimits?
+    @android.annotation.SuppressLint("ExperimentalPropertyAnnotation")
+    @ExperimentalWebGpuApi
+    public var dawnTogglesDescriptor: GPUDawnTogglesDescriptor? = null
+
+    public constructor() {
+        this.requiredFeatures = intArrayOf()
+        this.requiredLimits = null
+    }
+
+    public constructor(
+        @InstanceFeatureName.Type requiredFeatures: IntArray = intArrayOf(),
+        requiredLimits: GPUInstanceLimits? = null,
+    ) {
+        this.requiredFeatures = requiredFeatures
+        this.requiredLimits = requiredLimits
+    }
+
+    // TODO: When stabilizing, fold the experimental parameters into the stable constructor. The
+    // previous stable constructor should be marked with @Deprecated(level =
+    // DeprecationLevel.HIDDEN) to maintain backward compatibility.
+    @ExperimentalWebGpuApi
+    public constructor(
+        @InstanceFeatureName.Type requiredFeatures: IntArray = intArrayOf(),
+        requiredLimits: GPUInstanceLimits? = null,
+        dawnTogglesDescriptor: GPUDawnTogglesDescriptor?,
+    ) {
+        this.requiredFeatures = requiredFeatures
+        this.requiredLimits = requiredLimits
+        this.dawnTogglesDescriptor = dawnTogglesDescriptor
+    }
+
+    /** Builder for [GPUInstanceDescriptor]. */
+    public class Builder() {
+        @InstanceFeatureName.Type private var requiredFeatures: IntArray = intArrayOf()
+        private var requiredLimits: GPUInstanceLimits? = null
+        @ExperimentalWebGpuApi private var dawnTogglesDescriptor: GPUDawnTogglesDescriptor? = null
+
+        public fun setRequiredFeatures(
+            @InstanceFeatureName.Type requiredFeatures: IntArray
+        ): Builder = apply {
+            this.requiredFeatures = requiredFeatures
+        }
+
+        public fun setRequiredLimits(requiredLimits: GPUInstanceLimits?): Builder = apply {
+            this.requiredLimits = requiredLimits
+        }
+
+        @ExperimentalWebGpuApi
+        public fun setDawnTogglesDescriptor(
+            dawnTogglesDescriptor: GPUDawnTogglesDescriptor?
+        ): Builder = apply {
+            this.dawnTogglesDescriptor = dawnTogglesDescriptor
+        }
+
+        /** Builds the [GPUInstanceDescriptor]. */
+        @OptIn(ExperimentalWebGpuApi::class)
+        public fun build(): GPUInstanceDescriptor =
+            GPUInstanceDescriptor(
+                requiredFeatures = requiredFeatures,
+                requiredLimits = requiredLimits,
+                dawnTogglesDescriptor = dawnTogglesDescriptor,
+            )
+    }
+}

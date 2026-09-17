@@ -58,7 +58,14 @@ public class InstanceFeatureName private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [TimedWaitAny, ShaderSourceSPIRV, MultipleDevicesPerAdapter])
+    @IntDef(
+        value =
+            [
+                TimedWaitAny,
+                ShaderSourceSPIRV,
+                MultipleDevicesPerAdapter,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

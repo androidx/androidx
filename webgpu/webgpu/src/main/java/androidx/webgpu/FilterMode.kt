@@ -44,14 +44,25 @@ public class FilterMode private constructor() {
         /** Linear filtering. */
         public const val Linear: Int = 0x00000002
         internal val names: Map<Int, String> =
-            mapOf(0x00000000 to "Undefined", 0x00000001 to "Nearest", 0x00000002 to "Linear")
+            mapOf(
+                0x00000000 to "Undefined",
+                0x00000001 to "Nearest",
+                0x00000002 to "Linear",
+            )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
     }
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Undefined, Nearest, Linear])
+    @IntDef(
+        value =
+            [
+                Undefined,
+                Nearest,
+                Linear,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

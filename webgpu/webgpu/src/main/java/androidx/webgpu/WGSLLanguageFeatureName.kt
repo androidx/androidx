@@ -62,6 +62,11 @@ public class WGSLLanguageFeatureName private constructor() {
         public const val TextureAndSamplerLet: Int = 0x00000007
         public const val SubgroupUniformity: Int = 0x00000008
         public const val TextureFormatsTier1: Int = 0x00000009
+        public const val LinearIndexing: Int = 0x0000000a
+        public const val ImmediateAddressSpace: Int = 0x0000000b
+        public const val BufferView: Int = 0x0000000c
+        public const val SwizzleAssignment: Int = 0x0000000d
+        public const val FragmentDepth: Int = 0x0000000e
         internal val names: Map<Int, String> =
             mapOf(
                 0x00000001 to "ReadonlyAndReadwriteStorageTextures",
@@ -73,6 +78,11 @@ public class WGSLLanguageFeatureName private constructor() {
                 0x00000007 to "TextureAndSamplerLet",
                 0x00000008 to "SubgroupUniformity",
                 0x00000009 to "TextureFormatsTier1",
+                0x0000000a to "LinearIndexing",
+                0x0000000b to "ImmediateAddressSpace",
+                0x0000000c to "BufferView",
+                0x0000000d to "SwizzleAssignment",
+                0x0000000e to "FragmentDepth",
             )
 
         @JvmStatic public fun toString(@Type value: Int): String = names[value] ?: value.toString()
@@ -92,6 +102,11 @@ public class WGSLLanguageFeatureName private constructor() {
                 TextureAndSamplerLet,
                 SubgroupUniformity,
                 TextureFormatsTier1,
+                LinearIndexing,
+                ImmediateAddressSpace,
+                BufferView,
+                SwizzleAssignment,
+                FragmentDepth,
             ]
     )
     @Target(

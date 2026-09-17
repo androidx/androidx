@@ -24,9 +24,7 @@
 package androidx.webgpu
 
 /** Describes the fragment shader stage of a render pipeline. */
-public class GPUFragmentState
-@JvmOverloads
-constructor(
+public class GPUFragmentState(
     /** The shader module containing the fragment shader. */
     public var module: GPUShaderModule,
     public var entryPoint: String? = null,
@@ -34,4 +32,32 @@ constructor(
     public var constants: Array<GPUConstantEntry> = arrayOf(),
     /** An array of color target states. */
     public var targets: Array<GPUColorTargetState> = arrayOf(),
-)
+) {
+    /** Builder for [GPUFragmentState]. */
+    public class Builder(private val module: GPUShaderModule) {
+        private var entryPoint: String? = null
+        private var constants: Array<GPUConstantEntry> = arrayOf()
+        private var targets: Array<GPUColorTargetState> = arrayOf()
+
+        public fun setEntryPoint(entryPoint: String?): Builder = apply {
+            this.entryPoint = entryPoint
+        }
+
+        public fun setConstants(constants: Array<GPUConstantEntry>): Builder = apply {
+            this.constants = constants
+        }
+
+        public fun setTargets(targets: Array<GPUColorTargetState>): Builder = apply {
+            this.targets = targets
+        }
+
+        /** Builds the [GPUFragmentState]. */
+        public fun build(): GPUFragmentState =
+            GPUFragmentState(
+                module = module,
+                entryPoint = entryPoint,
+                constants = constants,
+                targets = targets,
+            )
+    }
+}

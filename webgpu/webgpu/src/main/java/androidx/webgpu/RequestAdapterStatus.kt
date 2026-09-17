@@ -62,7 +62,15 @@ public class RequestAdapterStatus private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Success, CallbackCancelled, Unavailable, Error])
+    @IntDef(
+        value =
+            [
+                Success,
+                CallbackCancelled,
+                Unavailable,
+                Error,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

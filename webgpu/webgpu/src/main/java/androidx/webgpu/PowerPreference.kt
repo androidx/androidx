@@ -55,7 +55,14 @@ public class PowerPreference private constructor() {
 
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = [Undefined, LowPower, HighPerformance])
+    @IntDef(
+        value =
+            [
+                Undefined,
+                LowPower,
+                HighPerformance,
+            ]
+    )
     @Target(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.TYPE,

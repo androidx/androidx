@@ -23,4 +23,4 @@
  */
 package androidx.webgpu
 
-public class GPUExternalTextureBindingEntry(public var externalTexture: GPUExternalTexture)
+public class GPUExternalTextureBindingEntry(public var externalTexture: GPUExternalTexture) {}

@@ -24,11 +24,36 @@
 package androidx.webgpu
 
 /** Describes the layout of texel data within a buffer. */
-public class GPUTexelCopyBufferLayout
-@JvmOverloads
-constructor(
+public class GPUTexelCopyBufferLayout(
     /** The offset in bytes from the beginning of the buffer. */
     public var offset: Long = 0,
     public var bytesPerRow: Int = Constants.COPY_STRIDE_UNDEFINED,
     public var rowsPerImage: Int = Constants.COPY_STRIDE_UNDEFINED,
-)
+) {
+    /** Builder for [GPUTexelCopyBufferLayout]. */
+    public class Builder() {
+        private var offset: Long = 0
+        private var bytesPerRow: Int = Constants.COPY_STRIDE_UNDEFINED
+        private var rowsPerImage: Int = Constants.COPY_STRIDE_UNDEFINED
+
+        public fun setOffset(offset: Long): Builder = apply {
+            this.offset = offset
+        }
+
+        public fun setBytesPerRow(bytesPerRow: Int): Builder = apply {
+            this.bytesPerRow = bytesPerRow
+        }
+
+        public fun setRowsPerImage(rowsPerImage: Int): Builder = apply {
+            this.rowsPerImage = rowsPerImage
+        }
+
+        /** Builds the [GPUTexelCopyBufferLayout]. */
+        public fun build(): GPUTexelCopyBufferLayout =
+            GPUTexelCopyBufferLayout(
+                offset = offset,
+                bytesPerRow = bytesPerRow,
+                rowsPerImage = rowsPerImage,
+            )
+    }
+}

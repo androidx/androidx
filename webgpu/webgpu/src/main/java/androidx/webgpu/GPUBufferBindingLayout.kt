@@ -24,13 +24,38 @@
 package androidx.webgpu
 
 /** Describes the layout of a buffer binding. */
-public class GPUBufferBindingLayout
-@JvmOverloads
-constructor(
+public class GPUBufferBindingLayout(
     /**
      * The type of the buffer binding. Defaults to @see [BufferBindingType.Uniform] if `undefined`.
      */
     @BufferBindingType.Type public var type: Int = BufferBindingType.Uniform,
     @get:JvmName("isHasDynamicOffset") public var hasDynamicOffset: Boolean = false,
     public var minBindingSize: Long = 0,
-)
+) {
+    /** Builder for [GPUBufferBindingLayout]. */
+    public class Builder() {
+        @BufferBindingType.Type private var type: Int = BufferBindingType.Uniform
+        private var hasDynamicOffset: Boolean = false
+        private var minBindingSize: Long = 0
+
+        public fun setType(@BufferBindingType.Type type: Int): Builder = apply {
+            this.type = type
+        }
+
+        public fun setHasDynamicOffset(hasDynamicOffset: Boolean): Builder = apply {
+            this.hasDynamicOffset = hasDynamicOffset
+        }
+
+        public fun setMinBindingSize(minBindingSize: Long): Builder = apply {
+            this.minBindingSize = minBindingSize
+        }
+
+        /** Builds the [GPUBufferBindingLayout]. */
+        public fun build(): GPUBufferBindingLayout =
+            GPUBufferBindingLayout(
+                type = type,
+                hasDynamicOffset = hasDynamicOffset,
+                minBindingSize = minBindingSize,
+            )
+    }
+}

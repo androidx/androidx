@@ -50,9 +50,11 @@ public class GPUBindGroupLayoutEntry(
         ),
     public var externalTextureBindingLayout: GPUExternalTextureBindingLayout? = null,
 ) {
-
     /** Builder for [GPUBindGroupLayoutEntry]. */
-    public class Builder(private val binding: Int, @ShaderStage.Type private val visibility: Int) {
+    public class Builder(
+        private val binding: Int,
+        @ShaderStage.Type private val visibility: Int,
+    ) {
         private var bindingArraySize: Int = 0
         private var buffer: GPUBufferBindingLayout =
             GPUBufferBindingLayout(type = BufferBindingType.BindingNotUsed)
@@ -94,7 +96,9 @@ public class GPUBindGroupLayoutEntry(
 
         public fun setExternalTextureBindingLayout(
             externalTextureBindingLayout: GPUExternalTextureBindingLayout?
-        ): Builder = apply { this.externalTextureBindingLayout = externalTextureBindingLayout }
+        ): Builder = apply {
+            this.externalTextureBindingLayout = externalTextureBindingLayout
+        }
 
         /** Builds the [GPUBindGroupLayoutEntry]. */
         public fun build(): GPUBindGroupLayoutEntry =

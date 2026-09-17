@@ -24,9 +24,19 @@
 package androidx.webgpu
 
 /** Contains information about a shader compilation, including messages. */
-public class GPUCompilationInfo
-@JvmOverloads
-constructor(
+public class GPUCompilationInfo(
     /** An array of compilation messages. */
     public var messages: Array<GPUCompilationMessage> = arrayOf()
-)
+) {
+    /** Builder for [GPUCompilationInfo]. */
+    public class Builder() {
+        private var messages: Array<GPUCompilationMessage> = arrayOf()
+
+        public fun setMessages(messages: Array<GPUCompilationMessage>): Builder = apply {
+            this.messages = messages
+        }
+
+        /** Builds the [GPUCompilationInfo]. */
+        public fun build(): GPUCompilationInfo = GPUCompilationInfo(messages = messages)
+    }
+}
