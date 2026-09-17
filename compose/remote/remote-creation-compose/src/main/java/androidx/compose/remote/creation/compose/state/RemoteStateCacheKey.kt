@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.state
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.graphics.Color
 
 /**
  * Represents a key used for caching [BaseRemoteState] instances or expressions in
@@ -284,6 +285,52 @@ internal class RemoteNamedCacheKey(
     override fun toString(): String = "RemoteNamedCacheKey(domain=$domain, name=$name)"
 
     override fun toDebugString(): String = "${domain.prefix.lowercase()}$name"
+}
+
+/**
+ * A cache key for themed colors, identified by their [group], [lightModeIndex], [darkModeIndex],
+ * [lightFallback], and [darkFallback].
+ */
+internal class RemoteStateThemeColorKey(
+    internal val group: String,
+    internal val lightModeIndex: Short,
+    internal val darkModeIndex: Short,
+    internal val lightFallback: Color,
+    internal val darkFallback: Color,
+) : BaseRemoteStateCacheKey() {
+    private var state: BaseRemoteState<*>? = null
+
+    override fun getState(): BaseRemoteState<*>? = state
+
+    override fun setState(state: BaseRemoteState<*>?) {
+        this.state = state
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RemoteStateThemeColorKey) return false
+        if (group != other.group) return false
+        if (lightModeIndex != other.lightModeIndex) return false
+        if (darkModeIndex != other.darkModeIndex) return false
+        if (lightFallback != other.lightFallback) return false
+        if (darkFallback != other.darkFallback) return false
+        return true
+    }
+
+    override fun hashCodeImpl(): Int {
+        var result = group.hashCode()
+        result = 31 * result + lightModeIndex.hashCode()
+        result = 31 * result + darkModeIndex.hashCode()
+        result = 31 * result + lightFallback.hashCode()
+        result = 31 * result + darkFallback.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "RemoteStateThemeColorKey(group=$group, lightModeIndex=$lightModeIndex, darkModeIndex=$darkModeIndex, lightFallback=$lightFallback, darkFallback=$darkFallback)"
+
+    override fun toDebugString(): String =
+        "themeColor($group, light=$lightModeIndex, dark=$darkModeIndex)"
 }
 
 /** A cache key for variable by id. */
