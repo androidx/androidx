@@ -42,6 +42,7 @@ public open class HiddenActivity : Activity() {
             intent.getParcelableExtra(ProviderEventsBaseController.Companion.EXTRA_RESULT_RECEIVER)
         if (resultReceiver == null) {
             finish()
+            return
         }
 
         restoreState(savedInstanceState)
