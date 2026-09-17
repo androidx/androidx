@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.appwidget.ui.components
+package androidx.glance.adaptive.appwidget.ui.templates.track
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.FloatRange
@@ -32,6 +32,7 @@ import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
+import androidx.glance.adaptive.appwidget.ui.components.createProgressRingBitmap
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
 import androidx.glance.layout.Alignment

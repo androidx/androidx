@@ -22,7 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
 import androidx.glance.adaptive.appwidget.ui.selection.LocalContainerDimensions
-import androidx.glance.adaptive.appwidget.ui.templates.TrackTemplateRenderer
+import androidx.glance.adaptive.appwidget.ui.templates.track.TrackTemplateRenderer
 import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
