@@ -174,6 +174,27 @@ class MacrobenchmarkScopeTest {
 
     @SdkSuppress(minSdkVersion = 24)
     @Test
+    fun killProcessAndFlushArtProfiles_dotProcess_noBroadcast() {
+        assumeTrue(DeviceInfo.isRooted)
+        val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
+        try {
+            scope.killProcess()
+            scope.pressHome()
+            scope.startActivityAndWait(Intent("${Packages.TARGET}.DOT_PROCESS_ACTIVITY"))
+            assertEquals(
+                listOf("${Packages.TARGET}.dotprocess"),
+                Shell.getRunningProcessesForPackage(Packages.TARGET),
+            )
+            scope.killProcessAndFlushArtProfiles(allowFlushWithBroadcast = false)
+            assertTrue(scope.hasFlushedArtProfiles)
+            assertFalse(Shell.isPackageAlive(Packages.TARGET))
+        } finally {
+            scope.killProcess()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
     fun compile_speedProfile_noLaunch() {
         // Emulator api 30 does not have dex2oat (b/264938965)
         assumeTrue(Build.VERSION.SDK_INT != Build.VERSION_CODES.R)

@@ -333,6 +333,62 @@ class ShellTest {
     }
 
     @Test
+    fun isSubpackageInstalled() {
+        val installedPackages =
+            setOf(
+                "com.example.app",
+                "com.example.app.plugin",
+                "com.example.app.feature.history",
+                "com.example.app.test",
+            )
+        val isInstalled: (String) -> Boolean = { it in installedPackages }
+
+        // Dot-separated subprocesses of an app are NOT separate installed packages
+        assertFalse(
+            Shell.isSubpackageInstalled(
+                "com.example.app",
+                "com.example.app.persistent",
+                isInstalled,
+            )
+        )
+        assertFalse(
+            Shell.isSubpackageInstalled("com.example.app", "com.example.app.ui", isInstalled)
+        )
+        assertFalse(
+            Shell.isSubpackageInstalled("com.example.app", "com.example.app.unstable", isInstalled)
+        )
+
+        // Separate installed packages sharing the prefix ARE identified as subpackages
+        assertTrue(
+            Shell.isSubpackageInstalled("com.example.app", "com.example.app.plugin", isInstalled)
+        )
+        assertTrue(
+            Shell.isSubpackageInstalled(
+                "com.example.app",
+                "com.example.app.feature.history",
+                isInstalled,
+            )
+        )
+        assertTrue(
+            Shell.isSubpackageInstalled(
+                "com.example.app",
+                "com.example.app.feature.history:bg",
+                isInstalled,
+            )
+        )
+        assertTrue(
+            Shell.isSubpackageInstalled(
+                "com.example.app",
+                "com.example.app.feature.history.sub",
+                isInstalled,
+            )
+        )
+        assertTrue(
+            Shell.isSubpackageInstalled("com.example.app", "com.example.app.test", isInstalled)
+        )
+    }
+
+    @Test
     fun checkRootStatus() {
         if (Shell.isSessionRooted()) {
             assertContains(Shell.executeScriptCaptureStdout("id"), "uid=0(root)")
