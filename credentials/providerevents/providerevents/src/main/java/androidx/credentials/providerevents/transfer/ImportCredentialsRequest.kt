@@ -100,7 +100,7 @@ public class ImportCredentialsRequest(
                 val credentialTypes = getCredentialTypes(json)
                 val knownExtensions = getKnownExtensions(json)
                 return ImportCredentialsRequest(credentialTypes, knownExtensions)
-            } catch (e: JSONException) {}
+            } catch (e: JSONException) {} catch (e: IllegalArgumentException) {}
             return null
         }
     }
