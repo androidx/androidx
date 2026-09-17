@@ -105,7 +105,6 @@ package androidx.a2ui.compose.ui.catalog {
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField textField;
     property public androidx.a2ui.model.schema.A2uiSchema themeSchema;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Video video;
-    field public static final String CatalogId = "https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json";
     field public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Companion Companion;
   }
 
@@ -368,9 +367,10 @@ package androidx.a2ui.compose.ui.catalog {
   }
 
   public static final class A2uiBasicCatalogV1.Companion {
+    method @InaccessibleFromKotlin public String getCatalogId();
     method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema getThemeSchema();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Number> getWeightProperty();
-    property public static String CatalogId;
+    property public String CatalogId;
     property public androidx.a2ui.model.schema.A2uiSchema ThemeSchema;
     property public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Number> WeightProperty;
   }
