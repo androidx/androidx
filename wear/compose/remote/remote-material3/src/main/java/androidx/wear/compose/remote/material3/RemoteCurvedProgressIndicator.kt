@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
+import kotlin.math.PI
 
 private const val INTRO_DURATION_SEC = 0.85f
 private const val OUTRO_DURATION_SEC = 0.85f
@@ -48,7 +49,7 @@ private const val MAX_OUTRO_START_FRACTION = 0.999f
 private const val INTRO_SWEEP_OVERLAP_MULTIPLIER = 0.5f
 private val MIN_SWEEP_ANGLE = 0.05f.rf
 private val EPSILON = 0.001f.rf
-private val RADIANS_TO_DEGREES = (180f / Math.PI.toFloat()).rf
+private val RADIANS_TO_DEGREES = (180f / PI.toFloat()).rf
 
 /**
  * A generalized progress arc component for display on Wear OS.
@@ -213,11 +214,11 @@ private fun RemoteCurvedProgressIndicatorImpl(
         val left = (width / 2f.rf) - arcRadius
         val top = (height / 2f.rf) - arcRadius
 
-        val thicknessDegrees = (strokePx / arcRadius) * RADIANS_TO_DEGREES
+        val thicknessDegrees = (strokePx / max(EPSILON, arcRadius)) * RADIANS_TO_DEGREES
         val halfThicknessDegrees = thicknessDegrees / 2f.rf
         val totalTravel = gapAngleDegrees + thicknessDegrees
-        val minProgress = totalTravel / sweepAngle
-        val maxProgress = 1.0f.rf - totalTravel / sweepAngle
+        val minProgress = max(EPSILON, totalTravel / max(EPSILON, sweepAngle))
+        val maxProgress = 1.0f.rf - totalTravel / max(EPSILON, sweepAngle)
         val drawActiveStartBase = startAngle + halfThicknessDegrees
         val totalOutroTravel = totalTravel
 
@@ -305,7 +306,7 @@ private fun calculateCollapsibleArcParams(
 
     // Intro calculations (2-phase: track slides back, then active dot grows)
     val introProgress = clamp(animatedProgress / minProgress, 0f.rf, 1f.rf)
-    val trackSlideProgress = clamp(introProgress / slideFraction, 0f.rf, 1f.rf)
+    val trackSlideProgress = clamp(introProgress / max(EPSILON, slideFraction), 0f.rf, 1f.rf)
     val activeScaleUnclamped = clamp((introProgress - slideFraction) / growthFraction, 0f.rf, 1f.rf)
     val activeScale = lerp(dotCollapseFreezeFraction, 1f.rf, activeScaleUnclamped)
 
@@ -313,11 +314,17 @@ private fun calculateCollapsibleArcParams(
     val outroProgress =
         clamp((animatedProgress - maxProgress) / max(EPSILON, 1.0f.rf - maxProgress), 0f.rf, 1f.rf)
     val collapseFraction = growthFraction
-    val remainingScaleUnclamped = clamp(1.0f.rf - outroProgress / collapseFraction, 0f.rf, 1f.rf)
+    val remainingScaleUnclamped =
+        clamp(1.0f.rf - outroProgress / max(EPSILON, collapseFraction), 0f.rf, 1f.rf)
     val remainingScale = lerp(dotCollapseFreezeFraction, 1f.rf, remainingScaleUnclamped)
     val outroSlideProgress =
         dotCollapsible.select(
-            ifTrue = clamp((outroProgress - collapseFraction) / slideFraction, 0f.rf, 1f.rf),
+            ifTrue =
+                clamp(
+                    (outroProgress - collapseFraction) / max(EPSILON, slideFraction),
+                    0f.rf,
+                    1f.rf,
+                ),
             ifFalse = 0f.rf,
         )
 
@@ -476,7 +483,8 @@ private fun RemoteDrawScope.calculateTimerArcParams(
             1f.rf,
         )
 
-    val collapsedScale = clamp(1.0f.rf - outroProgress / collapseFraction, 0f.rf, 1f.rf)
+    val collapsedScale =
+        clamp(1.0f.rf - outroProgress / max(EPSILON, collapseFraction), 0f.rf, 1f.rf)
 
     val activeScale = countDown.select(ifTrue = collapsedScale, ifFalse = dynamicScale)
     val remainingScale = countDown.select(ifTrue = dynamicScale, ifFalse = collapsedScale)
