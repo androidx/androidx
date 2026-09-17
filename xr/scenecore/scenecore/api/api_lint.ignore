@@ -12,5 +12,6 @@ MissingJvmstatic: androidx.xr.scenecore.SpaceEntity#setPose(androidx.xr.runtime.
 MissingJvmstatic: androidx.xr.scenecore.SpaceEntity#setScale(float, androidx.xr.scenecore.Space):
     A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
 
+
 TypeParameterName: androidx.xr.scenecore.BaseScenePose:
     Invalid type parameter name "RtScenePoseType". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
