@@ -1316,7 +1316,7 @@ package androidx.collection {
   }
 
   public class LruCache<K, V> {
-    ctor public LruCache(@IntRange(from=1L, to=androidx.collection.LruCacheKt.MAX_SIZE) int maxSize);
+    ctor public LruCache(@IntRange(from=1L, to=2147483647L) int maxSize);
     method protected V? create(K key);
     method public final int createCount();
     method protected void entryRemoved(boolean evicted, K key, V oldValue, V? newValue);
@@ -1329,7 +1329,7 @@ package androidx.collection {
     method public final V? put(K key, V value);
     method public final int putCount();
     method public final V? remove(K key);
-    method public void resize(@IntRange(from=1L, to=androidx.collection.LruCacheKt.MAX_SIZE) int maxSize);
+    method public void resize(@IntRange(from=1L, to=2147483647L) int maxSize);
     method public final int size();
     method protected int sizeOf(K key, V value);
     method public final java.util.Map<K,V> snapshot();
@@ -2428,7 +2428,7 @@ package androidx.collection {
 
   public final class SieveCache<K, V> {
     ctor @BytecodeOnly public SieveCache(int, int, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function4!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public SieveCache(@IntRange(from=1L, to=androidx.collection.SieveCacheKt.MaxSize) int maxSize, optional @IntRange(from=0L, to=androidx.collection.SieveCacheKt.MaxSize) int initialCapacity, optional kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf, optional kotlin.jvm.functions.Function1<? super K,? extends V?> createValueFromKey, optional kotlin.jvm.functions.Function4<? super K,? super V,? super V?,? super java.lang.Boolean,kotlin.Unit> onEntryRemoved);
+    ctor public SieveCache(@IntRange(from=1L, to=2147483646L) int maxSize, optional @IntRange(from=0L, to=2147483646L) int initialCapacity, optional kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf, optional kotlin.jvm.functions.Function1<? super K,? extends V?> createValueFromKey, optional kotlin.jvm.functions.Function4<? super K,? super V,? super V?,? super java.lang.Boolean,kotlin.Unit> onEntryRemoved);
     method public inline boolean all(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
     method public boolean any();
     method public inline boolean any(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
@@ -2472,7 +2472,7 @@ package androidx.collection {
     method public V? remove(K key);
     method public boolean remove(K key, V value);
     method public void removeIf(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
-    method public void resize(@IntRange(from=1L, to=androidx.collection.SieveCacheKt.MaxSize) int maxSize);
+    method public void resize(@IntRange(from=1L, to=2147483646L) int maxSize);
     method public inline operator void set(K key, V value);
     method public void trimToSize(int maxSize);
     property public int capacity;
