@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalAppFunctionsApi::class)
 
 package androidx.appfunctions.integration.testapp
 
@@ -34,6 +35,7 @@ import androidx.appfunction.integration.test.sharedschema.Owner
 import androidx.appfunction.integration.test.sharedschema.ProxyTypesWrapper
 import androidx.appfunction.integration.test.sharedschema.ResourceFunctionResponse
 import androidx.appfunction.integration.test.sharedschema.UpdateNoteParams
+import androidx.appfunctions.AppFunctionAccessLevel
 import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionIntValueConstraint
 import androidx.appfunctions.AppFunctionInvalidArgumentException
@@ -43,6 +45,8 @@ import androidx.appfunctions.AppFunctionStringValueConstraint
 import androidx.appfunctions.AppFunctionTextResource
 import androidx.appfunctions.AppFunctionUriGrant
 import androidx.appfunctions.AppFunctionUriValueConstraint
+import androidx.appfunctions.ExperimentalAppFunctionsApi
+import androidx.appfunctions.metadata.AppFunctionMetadata
 import java.time.LocalDateTime
 import kotlinx.coroutines.delay
 
@@ -322,4 +326,25 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
             stringValue = text,
             resources = listOf(AppFunctionTextResource(mimeType = "text/plain", content = text)),
         )
+
+    @AppFunctionDeclaration
+    @AppFunctionAccessLevel(
+        level = AppFunctionMetadata.ACCESS_LEVEL_SELF,
+        isCompatEnforcementEnabled = true,
+    )
+    internal fun selfAccessFunction(): String = "self_success"
+
+    @AppFunctionDeclaration
+    @AppFunctionAccessLevel(
+        level = AppFunctionMetadata.ACCESS_LEVEL_SYSTEM,
+        isCompatEnforcementEnabled = true,
+    )
+    internal fun systemAccessFunction(): String = "system_success"
+
+    @AppFunctionDeclaration
+    @AppFunctionAccessLevel(
+        AppFunctionMetadata.ACCESS_LEVEL_SELF,
+        isCompatEnforcementEnabled = false,
+    )
+    internal fun selfAccessDisabledCompatFunction(): String = "self_disabled_compat_success"
 }

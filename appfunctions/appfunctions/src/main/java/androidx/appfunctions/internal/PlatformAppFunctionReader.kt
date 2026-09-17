@@ -26,6 +26,7 @@ import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.AppFunctionState
 import androidx.appfunctions.AppFunctionsChangeEvent
+import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
 import kotlin.coroutines.resume
@@ -39,6 +40,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /** Reads AppFunction metadata from the platform AppFunctionManager. */
+@OptIn(ExperimentalAppFunctionsApi::class)
 @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
 internal class PlatformAppFunctionReader(
     private val context: Context,
@@ -90,10 +92,11 @@ internal class PlatformAppFunctionReader(
         packageName: String,
     ): AppFunctionMetadata? {
         return searchAppFunctionsMetadata(
-                AppFunctionSearchSpec(
-                    packageNames = setOf(packageName),
-                    functionNames = setOf(AppFunctionName(packageName, functionId)),
-                )
+                searchFunctionSpec =
+                    AppFunctionSearchSpec(
+                        packageNames = setOf(packageName),
+                        functionNames = setOf(AppFunctionName(packageName, functionId)),
+                    )
             )
             .firstOrNull()
     }

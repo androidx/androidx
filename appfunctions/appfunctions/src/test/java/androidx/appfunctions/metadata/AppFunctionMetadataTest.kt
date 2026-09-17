@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalAppFunctionsApi::class)
+
 package androidx.appfunctions.metadata
 
 import android.app.appfunctions.AppFunctionMetadata.PROPERTY_VALUE_SCOPE_GLOBAL
+import androidx.appfunctions.ExperimentalAppFunctionsApi
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -203,7 +206,139 @@ class AppFunctionMetadataTest {
                 description = description,
                 deprecation = deprecation.toAppFunctionDeprecationMetadataDocument(),
                 scope = PROPERTY_VALUE_SCOPE_GLOBAL,
+                accessLevel = PROPERTY_VALUE_ACCESS_LEVEL_ANDROID_TRUSTED,
+                isCompatEnforcementEnabled = true,
             )
         assertThat(actualAppFunctionMetadataDocument).isEqualTo(expectedAppFunctionMetadataDocument)
+    }
+
+    @Test
+    fun appFunctionMetadata_accessLevel_equalsAndHashCode() {
+        val name = AppFunctionName(packageName = "testPackage", functionIdentifier = "id")
+        val response =
+            AppFunctionResponseMetadata(
+                valueType = AppFunctionStringTypeMetadata(false),
+                description = "The response description",
+            )
+        val packageMetadata =
+            AppFunctionPackageMetadata(
+                packageName = "testPackage",
+                components = AppFunctionComponentsMetadata(),
+            )
+
+        val metadata1 =
+            AppFunctionMetadata(
+                name = name,
+                schema = null,
+                parameters = emptyList(),
+                response = response,
+                packageMetadata = packageMetadata,
+                accessLevel = AppFunctionMetadata.ACCESS_LEVEL_SELF,
+                isCompatEnforcementEnabled = true,
+            )
+        val metadata2 =
+            AppFunctionMetadata(
+                name = name,
+                schema = null,
+                parameters = emptyList(),
+                response = response,
+                packageMetadata = packageMetadata,
+                accessLevel = AppFunctionMetadata.ACCESS_LEVEL_SELF,
+                isCompatEnforcementEnabled = true,
+            )
+        val metadataDifferentLevel =
+            AppFunctionMetadata(
+                name = name,
+                schema = null,
+                parameters = emptyList(),
+                response = response,
+                packageMetadata = packageMetadata,
+                accessLevel = AppFunctionMetadata.ACCESS_LEVEL_SYSTEM,
+                isCompatEnforcementEnabled = true,
+            )
+        val metadataDifferentCompat =
+            AppFunctionMetadata(
+                name = name,
+                schema = null,
+                parameters = emptyList(),
+                response = response,
+                packageMetadata = packageMetadata,
+                accessLevel = AppFunctionMetadata.ACCESS_LEVEL_SELF,
+                isCompatEnforcementEnabled = false,
+            )
+
+        assertThat(metadata1).isEqualTo(metadata2)
+        assertThat(metadata1.hashCode()).isEqualTo(metadata2.hashCode())
+        assertThat(metadata1).isNotEqualTo(metadataDifferentLevel)
+        assertThat(metadata1).isNotEqualTo(metadataDifferentCompat)
+    }
+
+    @Test
+    fun appFunctionMetadata_toAppFunctionMetadataDocument_customAccessLevel() {
+        val id = "selfFunction"
+        val isEnabledByDefault = true
+        val response =
+            AppFunctionResponseMetadata(
+                valueType = AppFunctionStringTypeMetadata(false),
+                description = "The response description",
+            )
+        val appFunctionMetadata =
+            CompileTimeAppFunctionMetadata(
+                id = id,
+                isEnabledByDefault = isEnabledByDefault,
+                schema = null,
+                parameters = emptyList(),
+                response = response,
+                accessLevel = AppFunctionMetadata.ACCESS_LEVEL_SELF,
+                isCompatEnforcementEnabled = true,
+            )
+
+        val actualDocument = appFunctionMetadata.toAppFunctionMetadataDocument()
+
+        assertThat(actualDocument.accessLevel).isEqualTo(PROPERTY_VALUE_ACCESS_LEVEL_SELF)
+        assertThat(actualDocument.isCompatEnforcementEnabled).isTrue()
+    }
+
+    @Test
+    fun appFunctionMetadata_constructors_defaultAccessLevelAndCompat() {
+        val name = AppFunctionName(packageName = "testPackage", functionIdentifier = "id")
+        val response =
+            AppFunctionResponseMetadata(
+                valueType = AppFunctionStringTypeMetadata(false),
+                description = "The response description",
+            )
+        val packageMetadata =
+            AppFunctionPackageMetadata(
+                packageName = "testPackage",
+                components = AppFunctionComponentsMetadata(),
+            )
+
+        // Stable secondary constructor
+        val stableMetadata =
+            AppFunctionMetadata(
+                name = name,
+                schema = null,
+                parameters = emptyList(),
+                response = response,
+                packageMetadata = packageMetadata,
+            )
+        assertThat(stableMetadata.accessLevel)
+            .isEqualTo(AppFunctionMetadata.ACCESS_LEVEL_ANDROID_TRUSTED)
+        assertThat(stableMetadata.isCompatEnforcementEnabled).isTrue()
+
+        // Experimental secondary constructor
+        val experimentalMetadata =
+            AppFunctionMetadata(
+                name = name,
+                schema = null,
+                parameters = emptyList(),
+                response = response,
+                packageMetadata = packageMetadata,
+                accessLevel = AppFunctionMetadata.ACCESS_LEVEL_SELF,
+                isCompatEnforcementEnabled = false,
+            )
+        assertThat(experimentalMetadata.accessLevel)
+            .isEqualTo(AppFunctionMetadata.ACCESS_LEVEL_SELF)
+        assertThat(experimentalMetadata.isCompatEnforcementEnabled).isFalse()
     }
 }

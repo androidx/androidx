@@ -31,6 +31,8 @@ import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionS
 import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionSupportedTypeCategory.URI_LIST
 import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionSupportedTypeCategory.URI_SINGULAR
 import androidx.appfunctions.compiler.core.AppFunctionTypeReference.Companion.toAppFunctionDatatype
+import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAccessLevelAnnotation
+import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAccessLevelClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionContextClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSchemaDefinitionAnnotation
@@ -79,6 +81,7 @@ class AppFunctionMetadataCreatorHelper(
     fun computeAppFunctionAnnotationProperties(
         appFunctionAnnotation: KSAnnotation? = null,
         schemaDefinitionAnnotation: KSAnnotation? = null,
+        accessLevelAnnotation: KSAnnotation? = null,
     ): AppFunctionAnnotationProperties {
         val enabled =
             appFunctionAnnotation?.requirePropertyValueOfType(
@@ -107,6 +110,28 @@ class AppFunctionMetadataCreatorHelper(
                     Int::class,
                 )
                 ?.toLong()
+        val accessLevelInt =
+            accessLevelAnnotation?.requirePropertyValueOfType(
+                AppFunctionAccessLevelAnnotation.PROPERTY_LEVEL,
+                Int::class,
+            )
+        val accessLevel =
+            when (accessLevelInt) {
+                null -> null
+                AppFunctionAccessLevelClass.SELF,
+                AppFunctionAccessLevelClass.SYSTEM,
+                AppFunctionAccessLevelClass.ANDROID_TRUSTED -> accessLevelInt
+                else ->
+                    throw ProcessingException(
+                        "Unsupported access level: $accessLevelInt",
+                        accessLevelAnnotation,
+                    )
+            }
+        val isCompatEnforcementEnabled =
+            accessLevelAnnotation?.requirePropertyValueOfType(
+                AppFunctionAccessLevelAnnotation.PROPERTY_IS_COMPAT_ENFORCEMENT_ENABLED,
+                Boolean::class,
+            )
 
         return AppFunctionAnnotationProperties(
             enabled,
@@ -114,6 +139,8 @@ class AppFunctionMetadataCreatorHelper(
             schemaName,
             schemaVersion,
             schemaCategory,
+            accessLevel,
+            isCompatEnforcementEnabled,
         )
     }
 
@@ -931,6 +958,8 @@ class AppFunctionMetadataCreatorHelper(
         val schemaName: String?,
         val schemaVersion: Long?,
         val schemaCategory: String?,
+        val accessLevel: Int? = null,
+        val isCompatEnforcementEnabled: Boolean? = null,
     ) {
         /** Gets [AppFunctionSchemaMetadata] from [AppFunctionAnnotationProperties]. */
         fun getAppFunctionSchemaMetadata(): AppFunctionSchemaMetadata? {

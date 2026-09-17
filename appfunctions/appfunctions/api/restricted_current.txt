@@ -1,6 +1,14 @@
 // Signature format: 4.0
 package androidx.appfunctions {
 
+  @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface AppFunctionAccessLevel {
+    ctor @KotlinOnly public AppFunctionAccessLevel(int level, boolean isCompatEnforcementEnabled);
+    method @InaccessibleFromKotlin public abstract boolean isCompatEnforcementEnabled();
+    method @InaccessibleFromKotlin public abstract int level();
+    property public abstract boolean isCompatEnforcementEnabled;
+    property public abstract int level;
+  }
+
   @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public final class AppFunctionActivityState {
     method @InaccessibleFromKotlin public android.app.appfunctions.AppFunctionActivityId getActivityId();
     method @InaccessibleFromKotlin public android.util.ArraySet<androidx.appfunctions.metadata.AppFunctionName> getFunctionNames();
@@ -528,11 +536,14 @@ package androidx.appfunctions.metadata {
   }
 
   public final class AppFunctionMetadata {
+    ctor @BytecodeOnly @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public AppFunctionMetadata(androidx.appfunctions.metadata.AppFunctionName!, androidx.appfunctions.metadata.AppFunctionSchemaMetadata!, java.util.List!, androidx.appfunctions.metadata.AppFunctionResponseMetadata!, androidx.appfunctions.metadata.AppFunctionPackageMetadata!, String!, androidx.appfunctions.metadata.AppFunctionDeprecationMetadata!, int, int, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public AppFunctionMetadata(androidx.appfunctions.metadata.AppFunctionName!, androidx.appfunctions.metadata.AppFunctionSchemaMetadata!, java.util.List!, androidx.appfunctions.metadata.AppFunctionResponseMetadata!, androidx.appfunctions.metadata.AppFunctionPackageMetadata!, String!, androidx.appfunctions.metadata.AppFunctionDeprecationMetadata!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public AppFunctionMetadata(androidx.appfunctions.metadata.AppFunctionName name, androidx.appfunctions.metadata.AppFunctionSchemaMetadata? schema, java.util.List<androidx.appfunctions.metadata.AppFunctionParameterMetadata> parameters, androidx.appfunctions.metadata.AppFunctionResponseMetadata response, androidx.appfunctions.metadata.AppFunctionPackageMetadata packageMetadata);
     ctor public AppFunctionMetadata(androidx.appfunctions.metadata.AppFunctionName name, androidx.appfunctions.metadata.AppFunctionSchemaMetadata? schema, java.util.List<androidx.appfunctions.metadata.AppFunctionParameterMetadata> parameters, androidx.appfunctions.metadata.AppFunctionResponseMetadata response, androidx.appfunctions.metadata.AppFunctionPackageMetadata packageMetadata, optional String description);
     ctor public AppFunctionMetadata(androidx.appfunctions.metadata.AppFunctionName name, androidx.appfunctions.metadata.AppFunctionSchemaMetadata? schema, java.util.List<androidx.appfunctions.metadata.AppFunctionParameterMetadata> parameters, androidx.appfunctions.metadata.AppFunctionResponseMetadata response, androidx.appfunctions.metadata.AppFunctionPackageMetadata packageMetadata, optional String description, optional androidx.appfunctions.metadata.AppFunctionDeprecationMetadata? deprecation);
     ctor public AppFunctionMetadata(androidx.appfunctions.metadata.AppFunctionName name, androidx.appfunctions.metadata.AppFunctionSchemaMetadata? schema, java.util.List<androidx.appfunctions.metadata.AppFunctionParameterMetadata> parameters, androidx.appfunctions.metadata.AppFunctionResponseMetadata response, androidx.appfunctions.metadata.AppFunctionPackageMetadata packageMetadata, optional String description, optional androidx.appfunctions.metadata.AppFunctionDeprecationMetadata? deprecation, optional int scope);
+    ctor @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public AppFunctionMetadata(androidx.appfunctions.metadata.AppFunctionName name, androidx.appfunctions.metadata.AppFunctionSchemaMetadata? schema, java.util.List<androidx.appfunctions.metadata.AppFunctionParameterMetadata> parameters, androidx.appfunctions.metadata.AppFunctionResponseMetadata response, androidx.appfunctions.metadata.AppFunctionPackageMetadata packageMetadata, optional String description, optional androidx.appfunctions.metadata.AppFunctionDeprecationMetadata? deprecation, optional int scope, optional int accessLevel, optional boolean isCompatEnforcementEnabled);
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public int getAccessLevel();
     method @InaccessibleFromKotlin public androidx.appfunctions.metadata.AppFunctionDeprecationMetadata? getDeprecation();
     method @InaccessibleFromKotlin public String getDescription();
     method @InaccessibleFromKotlin public String getId();
@@ -543,9 +554,12 @@ package androidx.appfunctions.metadata {
     method @InaccessibleFromKotlin public androidx.appfunctions.metadata.AppFunctionResponseMetadata getResponse();
     method @InaccessibleFromKotlin public androidx.appfunctions.metadata.AppFunctionSchemaMetadata? getSchema();
     method @InaccessibleFromKotlin public int getScope();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public boolean isCompatEnforcementEnabled();
+    property @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public int accessLevel;
     property public androidx.appfunctions.metadata.AppFunctionDeprecationMetadata? deprecation;
     property public String description;
     property public String id;
+    property @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public boolean isCompatEnforcementEnabled;
     property public androidx.appfunctions.metadata.AppFunctionName name;
     property public androidx.appfunctions.metadata.AppFunctionPackageMetadata packageMetadata;
     property public String packageName;
@@ -553,12 +567,18 @@ package androidx.appfunctions.metadata {
     property public androidx.appfunctions.metadata.AppFunctionResponseMetadata response;
     property public androidx.appfunctions.metadata.AppFunctionSchemaMetadata? schema;
     property public int scope;
+    field @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public static final int ACCESS_LEVEL_ANDROID_TRUSTED = 300; // 0x12c
+    field @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public static final int ACCESS_LEVEL_SELF = 100; // 0x64
+    field @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public static final int ACCESS_LEVEL_SYSTEM = 200; // 0xc8
     field public static final androidx.appfunctions.metadata.AppFunctionMetadata.Companion Companion;
     field public static final int SCOPE_ACTIVITY = 1; // 0x1
     field public static final int SCOPE_GLOBAL = 0; // 0x0
   }
 
   public static final class AppFunctionMetadata.Companion {
+    property @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public static int ACCESS_LEVEL_ANDROID_TRUSTED;
+    property @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public static int ACCESS_LEVEL_SELF;
+    property @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public static int ACCESS_LEVEL_SYSTEM;
     property public static int SCOPE_ACTIVITY;
     property public static int SCOPE_GLOBAL;
   }

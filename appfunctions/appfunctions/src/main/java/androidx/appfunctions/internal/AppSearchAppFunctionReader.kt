@@ -35,6 +35,8 @@ import androidx.appfunctions.metadata.AppFunctionName
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import androidx.appfunctions.metadata.AppFunctionRuntimeMetadata
 import androidx.appfunctions.metadata.AppFunctionSchemaMetadata
+import androidx.appfunctions.metadata.PROPERTY_ACCESS_LEVEL
+import androidx.appfunctions.metadata.PROPERTY_ENABLE_COMPAT_ENFORCEMENT
 import androidx.appsearch.app.GenericDocument
 import androidx.appsearch.app.GetByDocumentIdRequest
 import androidx.appsearch.app.GlobalSearchSession
@@ -159,7 +161,11 @@ internal class AppSearchAppFunctionReader(
                 .addFilterPackageNames(SYSTEM_PACKAGE_NAME)
                 .addProjectionPaths(
                     SearchSpec.SCHEMA_TYPE_WILDCARD,
-                    listOf(PropertyPath(PROPERTY_ENABLED_BY_DEFAULT)),
+                    listOf(
+                        PropertyPath(PROPERTY_ENABLED_BY_DEFAULT),
+                        PropertyPath(PROPERTY_ACCESS_LEVEL),
+                        PropertyPath(PROPERTY_ENABLE_COMPAT_ENFORCEMENT),
+                    ),
                 )
                 .setJoinSpec(JOIN_SPEC)
                 .setVerbatimSearchEnabled(true)
@@ -336,6 +342,19 @@ internal class AppSearchAppFunctionReader(
         val staticMetadataDocument =
             safeCastToDocumentClass<AppFunctionMetadataDocument>(searchResult.genericDocument)
                 ?: return null
+
+        val accessLevel =
+            AppFunctionMetadata.accessLevelXmlValueToAccessLevel(staticMetadataDocument.accessLevel)
+        if (
+            !CallerAccessVerifier.canCallerDiscoverFunction(
+                context,
+                appFunctionName.packageName,
+                accessLevel,
+                staticMetadataDocument.isCompatEnforcementEnabled ?: true,
+            )
+        ) {
+            return null
+        }
 
         val runtimeMetadataDocument =
             getRuntimeMetadataFromSearchResult(appFunctionName, searchResult) ?: return null

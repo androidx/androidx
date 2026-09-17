@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<appfunctions>
+    <appfunction>
+        <id>com.testdata.AccessLevelEntryPoint#selfFunction</id>
+        <enabledByDefault>true</enabledByDefault>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>0</type>
+            </valueType>
+        </response>
+        <accessLevel>self</accessLevel>
+        <isCompatEnforcementEnabled>false</isCompatEnforcementEnabled>
+        <functionId>com.testdata.AccessLevelEntryPoint#selfFunction</functionId>
+    </appfunction>
+    <appfunction>
+        <id>com.testdata.AccessLevelEntryPoint#systemFunction</id>
+        <enabledByDefault>true</enabledByDefault>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>0</type>
+            </valueType>
+        </response>
+        <accessLevel>system</accessLevel>
+        <isCompatEnforcementEnabled>true</isCompatEnforcementEnabled>
+        <functionId>com.testdata.AccessLevelEntryPoint#systemFunction</functionId>
+    </appfunction>
+</appfunctions>

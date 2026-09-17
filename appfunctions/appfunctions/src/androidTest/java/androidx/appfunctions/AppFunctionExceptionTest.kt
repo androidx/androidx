@@ -199,10 +199,9 @@ class AppFunctionExceptionTest {
         assertThat(exception.extras.getString("testKey")).isEqualTo("testValue")
     }
 
-    private fun assumeAppFunctionExtensionLibraryAvailable(): Boolean {
+    private fun assumeAppFunctionExtensionLibraryAvailable() {
         try {
             Class.forName("com.android.extensions.appfunctions.AppFunctionManager")
-            return true
         } catch (e: ClassNotFoundException) {
             throw AssumptionViolatedException("Unable to find AppFunction extension library", e)
         }
