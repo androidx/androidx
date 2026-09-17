@@ -2352,7 +2352,7 @@ public class A2uiBasicCatalogV1(
      *   picker. See [CheckRule].
      * * `label` (Dynamic String, optional): The label for the group of options.
      * * `variant` (String Enum, optional): A hint for how the choice picker should be displayed and
-     *   behave. Valid options: `"mutuallyExclusive"`, `"multipleSelection"`. Defaults to
+     *   behave. Valid options: `"multipleSelection"`, `"mutuallyExclusive"`. Defaults to
      *   `"mutuallyExclusive"`.
      * * `options` (NestedList, required): The list of available options to choose from. Each item
      *   defines `label` (Dynamic String, required) and `value` (String, required).
@@ -2372,8 +2372,8 @@ public class A2uiBasicCatalogV1(
 
         /** Selection behavior variant for a [ChoicePicker]. */
         public enum class Variant(public val value: String) {
-            MutuallyExclusive("mutuallyExclusive"),
-            MultipleSelection("multipleSelection");
+            MultipleSelection("multipleSelection"),
+            MutuallyExclusive("mutuallyExclusive");
 
             public companion object {
                 /** The default [Variant] when unspecified in the component payload. */
