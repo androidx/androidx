@@ -2216,7 +2216,7 @@ public fun rememberNamedRemoteFloat(
     domain: RemoteState.Domain = RemoteState.Domain.User,
     value: RemoteFloatContext.() -> RemoteFloat,
 ): RemoteFloat {
-    return rememberNamedState(name, domain) {
+    return remember(name, domain) {
         createNamedRemoteFloatExpression(name, domain, expression = value)
     }
 }
