@@ -35,7 +35,6 @@ import androidx.compose.ui.graphics.toArgb
  *   resolved.
  * @return A [RemoteColor] representing the themed color.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteColor.Companion.createThemedRemoteColor(
     @ColorRes lightMode: Int,
     @ColorRes darkMode: Int,
