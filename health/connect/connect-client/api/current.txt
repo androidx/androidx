@@ -1,6 +1,9 @@
 // Signature format: 4.0
 package androidx.health.connect.client {
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental Device Data Source API and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalDeviceDataSourceApi {
+  }
+
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental Matchmaking API and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMatchmakingApi {
   }
 
@@ -19,6 +22,9 @@ package androidx.health.connect.client {
     method public suspend Object? getChanges(String changesToken, @IntRange(from=1L, to=5000L) int pageSize, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ChangesResponse>);
     method public suspend Object? getChanges(String changesToken, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ChangesResponse>);
     method public suspend Object? getChangesToken(androidx.health.connect.client.request.ChangesTokenRequest request, kotlin.coroutines.Continuation<? super java.lang.String>);
+    method @SuppressCompatibility @androidx.health.connect.client.ExperimentalDeviceDataSourceApi public default suspend Object? getCurrentDeviceDataSource(kotlin.coroutines.Continuation<? super androidx.health.connect.client.devicedatasource.DeviceDataSource>);
+    method @SuppressCompatibility @androidx.health.connect.client.ExperimentalDeviceDataSourceApi public default suspend Object? getDeviceDataSourceCapabilities(kotlin.coroutines.Continuation<? super androidx.health.connect.client.devicedatasource.DeviceDataSourceCapabilities>);
+    method @SuppressCompatibility @androidx.health.connect.client.ExperimentalDeviceDataSourceApi public default suspend Object? getDeviceDataSources(kotlin.coroutines.Continuation<? super androidx.health.connect.client.devicedatasource.GetDeviceDataSourcesResponse>);
     method @InaccessibleFromKotlin public default androidx.health.connect.client.HealthConnectFeatures getFeatures();
     method public static android.content.Intent getHealthConnectManageDataIntent(android.content.Context context);
     method public static android.content.Intent getHealthConnectManageDataIntent(android.content.Context context, optional String providerPackageName);
@@ -75,6 +81,7 @@ package androidx.health.connect.client {
     method public int getFeatureStatus(int feature);
     field public static final androidx.health.connect.client.HealthConnectFeatures.Companion Companion;
     field public static final int FEATURE_ACTIVITY_INTENSITY = 7; // 0x7
+    field @SuppressCompatibility @androidx.health.connect.client.ExperimentalDeviceDataSourceApi public static final int FEATURE_DEVICE_DATA_PROVIDERS = 12; // 0xc
     field public static final int FEATURE_EXERCISE_SESSION_IMPROVEMENTS = 9; // 0x9
     field public static final int FEATURE_EXTENDED_DEVICE_TYPES = 8; // 0x8
     field @SuppressCompatibility @androidx.health.connect.client.ExperimentalMatchmakingApi public static final int FEATURE_MATCHMAKING = 10; // 0xa
@@ -91,6 +98,7 @@ package androidx.health.connect.client {
 
   public static final class HealthConnectFeatures.Companion {
     property public static int FEATURE_ACTIVITY_INTENSITY;
+    property @SuppressCompatibility @androidx.health.connect.client.ExperimentalDeviceDataSourceApi public static int FEATURE_DEVICE_DATA_PROVIDERS;
     property public static int FEATURE_EXERCISE_SESSION_IMPROVEMENTS;
     property public static int FEATURE_EXTENDED_DEVICE_TYPES;
     property @SuppressCompatibility @androidx.health.connect.client.ExperimentalMatchmakingApi public static int FEATURE_MATCHMAKING;
@@ -104,6 +112,7 @@ package androidx.health.connect.client {
     property public static int FEATURE_STATUS_AVAILABLE;
     property public static int FEATURE_STATUS_UNAVAILABLE;
     field public static final int FEATURE_ACTIVITY_INTENSITY = 7; // 0x7
+    field public static final int FEATURE_DEVICE_DATA_PROVIDERS = 12; // 0xc
     field public static final int FEATURE_EXERCISE_SESSION_IMPROVEMENTS = 9; // 0x9
     field public static final int FEATURE_EXTENDED_DEVICE_TYPES = 8; // 0x8
     field public static final int FEATURE_MATCHMAKING = 10; // 0xa
@@ -199,6 +208,42 @@ package androidx.health.connect.client.contracts {
     ctor @BytecodeOnly public HealthPermissionsRequestContract(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public android.content.Intent createIntent(android.content.Context context, java.util.Set<java.lang.String> input);
     method public java.util.Set<java.lang.String> parseResult(int resultCode, android.content.Intent? intent);
+  }
+
+}
+
+package @SuppressCompatibility androidx.health.connect.client.devicedatasource {
+
+  @SuppressCompatibility @androidx.health.connect.client.ExperimentalDeviceDataSourceApi public final class DeviceDataSource {
+    ctor public DeviceDataSource(androidx.health.connect.client.records.metadata.DataOrigin deviceDataOrigin, androidx.health.connect.client.records.metadata.Device device, java.util.Set<androidx.health.connect.client.devicedatasource.DeviceDataTypeSource> deviceDataTypeSources);
+    method @InaccessibleFromKotlin public androidx.health.connect.client.records.metadata.Device getDevice();
+    method @InaccessibleFromKotlin public androidx.health.connect.client.records.metadata.DataOrigin getDeviceDataOrigin();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.connect.client.devicedatasource.DeviceDataTypeSource> getDeviceDataTypeSources();
+    property public androidx.health.connect.client.records.metadata.Device device;
+    property public androidx.health.connect.client.records.metadata.DataOrigin deviceDataOrigin;
+    property public java.util.Set<androidx.health.connect.client.devicedatasource.DeviceDataTypeSource> deviceDataTypeSources;
+  }
+
+  @SuppressCompatibility @androidx.health.connect.client.ExperimentalDeviceDataSourceApi public final class DeviceDataSourceCapabilities {
+    ctor public DeviceDataSourceCapabilities(java.util.Set<? extends kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record>> recordTypes);
+    method @InaccessibleFromKotlin public java.util.Set<kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record>> getRecordTypes();
+    property public java.util.Set<kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record>> recordTypes;
+  }
+
+  @SuppressCompatibility @androidx.health.connect.client.ExperimentalDeviceDataSourceApi public final class DeviceDataTypeSource {
+    ctor public DeviceDataTypeSource(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> dataType, boolean isAvailable, boolean isUserEnabled);
+    method @InaccessibleFromKotlin public kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> getDataType();
+    method @InaccessibleFromKotlin public boolean isAvailable();
+    method @InaccessibleFromKotlin public boolean isUserEnabled();
+    property public kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> dataType;
+    property public boolean isAvailable;
+    property public boolean isUserEnabled;
+  }
+
+  @SuppressCompatibility @androidx.health.connect.client.ExperimentalDeviceDataSourceApi public final class GetDeviceDataSourcesResponse {
+    ctor public GetDeviceDataSourcesResponse(java.util.List<androidx.health.connect.client.devicedatasource.DeviceDataSource> deviceDataSources);
+    method @InaccessibleFromKotlin public java.util.List<androidx.health.connect.client.devicedatasource.DeviceDataSource> getDeviceDataSources();
+    property public java.util.List<androidx.health.connect.client.devicedatasource.DeviceDataSource> deviceDataSources;
   }
 
 }

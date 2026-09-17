@@ -20,6 +20,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.ext.SdkExtensions
+import androidx.health.connect.client.ExperimentalDeviceDataSourceApi
 import androidx.health.connect.client.ExperimentalMatchmakingApi
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.HealthConnectFeatures
@@ -87,7 +88,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalPersonalHealthRecordApi::class, ExperimentalMatchmakingApi::class)
+@OptIn(
+    ExperimentalPersonalHealthRecordApi::class,
+    ExperimentalMatchmakingApi::class,
+    ExperimentalDeviceDataSourceApi::class,
+)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
@@ -309,6 +314,30 @@ class HealthConnectClientUpsideDownImplTest {
         assertThat(
                 healthConnectClient.features.getFeatureStatus(
                     HealthConnectFeatures.FEATURE_MATCHMAKING
+                )
+            )
+            .isEqualTo(HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE)
+    }
+
+    @Test
+    fun getFeatureStatus_deviceDataProviders_available() {
+        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 22)
+
+        assertThat(
+                healthConnectClient.features.getFeatureStatus(
+                    HealthConnectFeatures.FEATURE_DEVICE_DATA_PROVIDERS
+                )
+            )
+            .isEqualTo(HealthConnectFeatures.FEATURE_STATUS_AVAILABLE)
+    }
+
+    @Test
+    fun getFeatureStatus_deviceDataProviders_unavailable() {
+        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) < 22)
+
+        assertThat(
+                healthConnectClient.features.getFeatureStatus(
+                    HealthConnectFeatures.FEATURE_DEVICE_DATA_PROVIDERS
                 )
             )
             .isEqualTo(HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE)
@@ -1441,6 +1470,32 @@ class HealthConnectClientUpsideDownImplTest {
             )
         assertThat(intent).isNotNull()
         assertThat(intent.action).isEqualTo(HealthConnectClient.ACTION_HEALTH_CONNECT_MATCHMAKING)
+    }
+
+    @Test
+    fun getDeviceDataSources_returnsResult() = runTest {
+        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 22)
+
+        val response = healthConnectClient.getDeviceDataSources()
+        assertThat(response).isNotNull()
+        assertThat(response.deviceDataSources).isNotNull()
+    }
+
+    @Test
+    fun getCurrentDeviceDataSource_returnsResult() = runTest {
+        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 22)
+
+        val deviceDataSource = healthConnectClient.getCurrentDeviceDataSource()
+        assertThat(deviceDataSource).isNotNull()
+    }
+
+    @Test
+    fun getDeviceDataSourceCapabilities_returnsResult() = runTest {
+        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 22)
+
+        val capabilities = healthConnectClient.getDeviceDataSourceCapabilities()
+        assertThat(capabilities).isNotNull()
+        assertThat(capabilities.recordTypes).isNotNull()
     }
 
     private val Int.seconds: Duration
