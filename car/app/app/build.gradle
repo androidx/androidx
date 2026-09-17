@@ -125,14 +125,14 @@ abstract class ProtocolApiTask extends MetalavaTask {
                 "--source-path",
                 sourceDirs.filter { it.exists() }.join(File.pathSeparator),
                 "--format=4.0",
-                "--quiet"
+                "--quiet",
+                "--ignore-comments",
         ]
         standardArgs.addAll(additionalArgs)
 
         runMetalavaWithArgs(
                 metalavaClasspath,
                 standardArgs,
-                kotlinSourceLevel.get(),
                 workerExecutor,
         )
     }

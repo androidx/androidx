@@ -137,6 +137,12 @@ internal abstract class CompatibilityMetalavaTask(workerExecutor: WorkerExecutor
                 add("--hide")
                 add("RemovedFromJava")
             }
+
+            // Removing final from a method does not cause compatibility issues for AndroidX.
+            add("--hide")
+            add("RemovedFinalStrict")
+
+            addAll(suppressCompatibilityAnnotationArgs)
         }
     }
 }

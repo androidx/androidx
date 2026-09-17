@@ -33,7 +33,6 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.workers.WorkerExecutor
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 /**
  * Generate API signature text files from a set of source files, and an API version history JSON
@@ -111,7 +110,6 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
             ApiLintMode.CheckBaseline(baselines.get().apiLintFile, targetsJavaConsumers.get()),
             generateRestrictToLibraryGroupAPIs.get(),
             levelsArgs,
-            kotlinSourceLevel.get(),
             workerExecutor,
             manifestPath.orNull?.asFile?.absolutePath,
             multiplatform.get(),
@@ -133,7 +131,6 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
         apiLintMode: ApiLintMode,
         includeRestrictToLibraryGroupApis: Boolean,
         apiLevelsArgs: List<String>,
-        kotlinSourceLevel: KotlinVersion,
         workerExecutor: WorkerExecutor,
         pathToManifest: String? = null,
         multiplatform: Boolean,
@@ -169,7 +166,6 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
                 generateApiMode,
                 apiLintMode,
                 apiLevelsArgs,
-                kotlinSourceLevel,
                 workerExecutor,
                 pathToManifest,
                 multiplatform,
@@ -192,7 +188,6 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
         generateApiMode: GenerateApiMode,
         apiLintMode: ApiLintMode,
         apiLevelsArgs: List<String>,
-        kotlinSourceLevel: KotlinVersion,
         workerExecutor: WorkerExecutor,
         pathToManifest: String? = null,
         multiplatform: Boolean,
@@ -219,6 +214,6 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
                 add(configFile.absolutePath)
             }
         }
-        runMetalavaWithArgs(metalavaClasspath, allArgs, kotlinSourceLevel, workerExecutor)
+        runMetalavaWithArgs(metalavaClasspath, allArgs, workerExecutor)
     }
 }

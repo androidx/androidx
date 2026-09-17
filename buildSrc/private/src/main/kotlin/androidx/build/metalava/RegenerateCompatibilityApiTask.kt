@@ -81,7 +81,6 @@ constructor(workerExecutor: WorkerExecutor, private val objectFactory: ObjectFac
             includeRestrictToLibraryGroupApis = generateRestrictToLibraryGroupAPIs.get(),
             // Don't generate an API version history file
             apiLevelsArgs = emptyList(),
-            kotlinSourceLevel = kotlinSourceLevel.get(),
             workerExecutor = workerExecutor,
             // Even if this is a KMP project, don't run multiplatform checks on it
             multiplatform = false,

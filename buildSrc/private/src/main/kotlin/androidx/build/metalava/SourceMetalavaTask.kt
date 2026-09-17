@@ -354,6 +354,20 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
             }
         }
 
+        args +=
+            listOf(
+                "--kotlin-source",
+                kotlinSourceLevel.get().version,
+                // Skip reading comments in Metalava for two reasons:
+                // - We prefer for developers to specify api information via annotations instead
+                //   of just javadoc comments (like @hide)
+                // - This allows us to improve cacheability of Metalava tasks
+                "--ignore-comments",
+            )
+        args += commonIssueArgs
+        args += excludeAnnotationArgs
+        args += suppressCompatibilityAnnotationArgs
+
         return args
     }
 
@@ -364,5 +378,30 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
         } else {
             file.extension == "kt"
         }
+    }
+
+    companion object {
+        private val commonIssueArgs =
+            listOf(
+                "--warning",
+                "UnresolvedImport",
+                // This issue is important for stubs generation, which we don't do here.
+                "--hide",
+                "InheritChangesSignature",
+            )
+
+        private val excludeAnnotationArgs =
+            listOf(
+                // Don't track annotations that aren't needed for review or checking compat.
+                "--exclude-annotation",
+                "androidx.annotation.ReplaceWith",
+                "--exclude-annotation",
+                "androidx.compose.runtime.ComposableInferredTarget",
+                "--exclude-annotation",
+                "androidx.compose.runtime.ComposableTarget",
+                // internal annotation, includes debug information and values are not constant
+                "--exclude-annotation",
+                "androidx.compose.runtime.internal.FunctionKeyMeta",
+            )
     }
 }
