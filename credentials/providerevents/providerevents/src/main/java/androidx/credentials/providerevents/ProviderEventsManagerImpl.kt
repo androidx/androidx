@@ -49,12 +49,14 @@ internal class ProviderEventsManagerImpl(private val context: Context) : Provide
         val provider: ProviderEventsApiProvider? =
             ProviderEventsApiProviderFactory().getBestAvailableProvider(this.context)
         if (provider == null) {
-            callback.onError(
-                ImportCredentialsProviderConfigurationException(
-                    "importCredentialsAsync no provider dependencies found - please ensure " +
-                        "the desired provider dependencies are added"
+            executor.execute {
+                callback.onError(
+                    ImportCredentialsProviderConfigurationException(
+                        "importCredentialsAsync no provider dependencies found - please ensure " +
+                            "the desired provider dependencies are added"
+                    )
                 )
-            )
+            }
             return
         }
         provider.onImportCredentials(context, request, cancellationSignal, executor, callback)
@@ -68,12 +70,14 @@ internal class ProviderEventsManagerImpl(private val context: Context) : Provide
         val provider: ProviderEventsApiProvider? =
             ProviderEventsApiProviderFactory().getBestAvailableProvider(context)
         if (provider == null) {
-            callback.onError(
-                RegisterExportProviderConfigurationException(
-                    "registerCredentials: no provider dependencies found - please ensure " +
-                        "the desired provider dependencies are added"
+            executor.execute {
+                callback.onError(
+                    RegisterExportProviderConfigurationException(
+                        "registerCredentials: no provider dependencies found - please ensure " +
+                            "the desired provider dependencies are added"
+                    )
                 )
-            )
+            }
             return
         }
         provider.onRegisterExport(request, executor, callback)
@@ -87,12 +91,14 @@ internal class ProviderEventsManagerImpl(private val context: Context) : Provide
         val provider: ProviderEventsApiProvider? =
             ProviderEventsApiProviderFactory().getBestAvailableProvider(context)
         if (provider == null) {
-            callback.onError(
-                ClearExportProviderConfigurationException(
-                    "clearExport: no provider dependencies found - please ensure " +
-                        "the desired provider dependencies are added"
+            executor.execute {
+                callback.onError(
+                    ClearExportProviderConfigurationException(
+                        "clearExport: no provider dependencies found - please ensure " +
+                            "the desired provider dependencies are added"
+                    )
                 )
-            )
+            }
             return
         }
         provider.onClearExport(request, executor, callback)
