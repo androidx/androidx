@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedFromKotlin: androidx.tracing.perfetto.PerfettoSdkTrace#isEnabled():
-    Source breaking change: method androidx.tracing.perfetto.PerfettoSdkTrace.isEnabled() can no longer be resolved from Kotlin source

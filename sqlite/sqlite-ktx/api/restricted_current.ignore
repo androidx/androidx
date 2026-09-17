@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedPackage: androidx.sqlite.db:
-    Binary breaking change: Removed package androidx.sqlite.db

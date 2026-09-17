@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedMethod: androidx.navigation.NavOptions.Builder#setPopUpTo(boolean):
-    Binary breaking change: Removed method androidx.navigation.NavOptions.Builder.setPopUpTo(boolean)

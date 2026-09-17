@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-AddedMethod: androidx.wear.compose.foundation.CurvedTextStyle#CurvedTextStyle():
-    Added constructor androidx.wear.compose.foundation.CurvedTextStyle()
