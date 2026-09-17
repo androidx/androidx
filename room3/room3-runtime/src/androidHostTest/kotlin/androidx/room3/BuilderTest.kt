@@ -539,6 +539,20 @@ class BuilderTest {
             .isEqualTo("Timeout must be positive")
     }
 
+    @Test
+    fun allowDataLossOnRecovery_default() {
+        val myDb = databaseBuilder<TestDatabase>("test.db").build()
+        assertThat(myDb.getConfiguration().allowDataLossOnRecovery).isEqualTo(false)
+        myDb.close()
+    }
+
+    @Test
+    fun allowDataLossOnRecovery_enabled() {
+        val myDb = databaseBuilder<TestDatabase>("test.db").allowDataLossOnRecovery(true).build()
+        assertThat(myDb.getConfiguration().allowDataLossOnRecovery).isEqualTo(true)
+        myDb.close()
+    }
+
     internal abstract class TestDatabase : RoomDatabase()
 
     internal class EmptyMigration(start: Int, end: Int) : Migration(start, end) {

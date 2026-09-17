@@ -22,18 +22,76 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
+import kotlinx.cinterop.ExperimentalForeignApi
+import platform.posix.EOF
+import platform.posix.F_OK
+import platform.posix.access
+import platform.posix.fclose
+import platform.posix.fgetc
+import platform.posix.fopen
+import platform.posix.fputs
 import platform.posix.remove
 
+@OptIn(ExperimentalForeignApi::class)
 class BuilderTest : BaseNonWebBuilderTest() {
 
     private val filename = "/tmp/test-${Random.nextInt()}.db"
 
     override fun getRoomDatabaseBuilder(): RoomDatabase.Builder<SampleDatabase> {
+        return getRoomDatabaseBuilder(filename)
+    }
+
+    override fun getRoomDatabaseBuilder(fileName: String): RoomDatabase.Builder<SampleDatabase> {
         return Room.databaseBuilder<SampleDatabase>(
-                name = filename,
+                name = fileName,
                 factory = SampleDatabaseConstructor::initialize,
             )
             .setDriver(BundledSQLiteDriver())
+    }
+
+    override fun getInMemoryDatabaseBuilder(): RoomDatabase.Builder<SampleDatabase> {
+        return Room.inMemoryDatabaseBuilder<SampleDatabase>(
+                factory = SampleDatabaseConstructor::initialize
+            )
+            .setDriver(BundledSQLiteDriver())
+    }
+
+    override fun getDatabasePath(name: String): String {
+        return "/tmp/$name-${Random.nextInt()}.db"
+    }
+
+    override fun createCorruptedFile(path: String) {
+        val file = fopen(path, "w") ?: error("Failed to open $path")
+        try {
+            fputs("corrupted sqlite header", file)
+        } finally {
+            fclose(file)
+        }
+    }
+
+    override fun deleteFile(path: String) {
+        remove(path)
+        remove("$path-wal")
+        remove("$path-shm")
+    }
+
+    override fun fileExists(path: String): Boolean {
+        return access(path, F_OK) == 0
+    }
+
+    override fun readFileContent(path: String): String {
+        val file = fopen(path, "r") ?: error("Failed to open $path")
+        val sb = StringBuilder()
+        try {
+            while (true) {
+                val c = fgetc(file)
+                if (c == EOF) break
+                sb.append(c.toChar())
+            }
+        } finally {
+            fclose(file)
+        }
+        return sb.toString()
     }
 
     @BeforeTest
@@ -47,8 +105,6 @@ class BuilderTest : BaseNonWebBuilderTest() {
     }
 
     private fun deleteDatabaseFile() {
-        remove(filename)
-        remove("$filename-wal")
-        remove("$filename-shm")
+        deleteFile(filename)
     }
 }

@@ -20,13 +20,19 @@ import androidx.annotation.RestrictTo
 import androidx.room3.RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING
 import androidx.room3.coroutines.ConnectionFactory
 import androidx.room3.coroutines.ExclusiveMutex
+import androidx.room3.util.deleteDatabaseFiles
+import androidx.room3.util.ensureParentDirectoryExists
 import androidx.room3.util.isMigrationRequired
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
+import androidx.sqlite.SQLiteException
 import androidx.sqlite.async.executeSQL
 import androidx.sqlite.async.open
 import androidx.sqlite.async.prepare
 import androidx.sqlite.async.step
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 
 /** Expect implementation declaration of Room's connection manager. */
 internal expect class RoomConnectionManager
@@ -67,6 +73,9 @@ public abstract class BaseRoomConnectionManager {
     /* Open and configure a connection. Called from the connection factory. */
     private suspend fun openLocked(delegate: SQLiteDriver, filename: String): SQLiteConnection {
         val resolvedFileName = resolveFileName(filename)
+        if (!isConfigured && resolvedFileName != ":memory:") {
+            ensureParentDirectoryExists(resolvedFileName)
+        }
         return ExclusiveMutex(
                 filename = resolvedFileName,
                 useFileLock = !isConfigured && !isInitializing && resolvedFileName != ":memory:",
@@ -78,7 +87,13 @@ public abstract class BaseRoomConnectionManager {
                             "database instance during initialization? Maybe in one of the " +
                             "callbacks?"
                     }
-                    val connection = delegate.open(resolvedFileName)
+
+                    val connection =
+                        if (!isConfigured) {
+                            tryOpenInitialConnection(delegate, resolvedFileName)
+                        } else {
+                            delegate.open(resolvedFileName)
+                        }
                     try {
                         if (!isConfigured) {
                             // Perform initial connection configuration
@@ -110,10 +125,62 @@ public abstract class BaseRoomConnectionManager {
     }
 
     /**
+     * Attempts to open and verify the database connection with retries on transient errors and
+     * corruption recovery if [DatabaseConfiguration.allowDataLossOnRecovery] is enabled.
+     */
+    private suspend fun tryOpenInitialConnection(
+        driver: SQLiteDriver,
+        fileName: String,
+    ): SQLiteConnection {
+        // First attempt to open the connection
+        try {
+            return openAndVerify(driver, fileName)
+        } catch (t: CancellationException) {
+            throw t
+        } catch (_: Throwable) {
+            // ignore errors to retry
+        }
+
+        // A small backoff before retrying
+        delay(500.milliseconds)
+        val openRetryError: Throwable =
+            try {
+                return openAndVerify(driver, fileName)
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Throwable) {
+                t
+            }
+
+        // Checking if the error is recoverable via deletion
+        if (
+            openRetryError !is SQLiteException ||
+                fileName == ":memory:" ||
+                !configuration.allowDataLossOnRecovery
+        ) {
+            throw openRetryError
+        }
+
+        // Deleting the database and trying one last time
+        deleteDatabaseFiles(fileName)
+        return openAndVerify(driver, fileName)
+    }
+
+    private suspend fun openAndVerify(driver: SQLiteDriver, fileName: String): SQLiteConnection {
+        val connection = driver.open(fileName)
+        return runCatching {
+            // This is just for checking corruptions
+            connection.prepare("PRAGMA schema_version").use { it.step() }
+            connection
+        }
+            .onFailure { connection.close() }
+            .getOrThrow()
+    }
+
+    /**
      * Performs initial database connection configuration and opening procedure, such as running
      * migrations if necessary, validating schema and invoking configured callbacks if any.
      */
-    // TODO(b/316944352): Retry mechanism
     private suspend fun configureDatabase(connection: SQLiteConnection) {
         configureBusyTimeout(connection)
         configureJournalMode(connection)

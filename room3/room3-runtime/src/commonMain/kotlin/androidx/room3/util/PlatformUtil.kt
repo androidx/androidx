@@ -24,3 +24,13 @@ internal enum class PlatformType {
 }
 
 internal expect val platform: PlatformType
+
+/** Ensures that the parent directory of the given [fileName] exists. */
+internal expect fun ensureParentDirectoryExists(fileName: String)
+
+/**
+ * Deletes database files for the given [fileName], including secondary files.
+ *
+ * Returns `true` if any file was deleted, or `false` otherwise.
+ */
+internal expect fun deleteDatabaseFiles(fileName: String): Boolean

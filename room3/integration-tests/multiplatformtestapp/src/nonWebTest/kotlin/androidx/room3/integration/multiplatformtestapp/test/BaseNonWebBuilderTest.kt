@@ -17,16 +17,33 @@
 package androidx.room3.integration.multiplatformtestapp.test
 
 import androidx.kruth.assertThat
+import androidx.kruth.assertThrows
 import androidx.room3.RoomDatabase
 import androidx.room3.useReaderConnection
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
+import androidx.sqlite.SQLiteException
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 
 abstract class BaseNonWebBuilderTest : BaseBuilderTest() {
+
+    abstract fun getRoomDatabaseBuilder(fileName: String): RoomDatabase.Builder<SampleDatabase>
+
+    abstract fun getInMemoryDatabaseBuilder(): RoomDatabase.Builder<SampleDatabase>
+
+    abstract fun getDatabasePath(name: String): String
+
+    abstract fun createCorruptedFile(path: String)
+
+    abstract fun deleteFile(path: String)
+
+    abstract fun fileExists(path: String): Boolean
+
+    abstract fun readFileContent(path: String): String
+
     @Test
     fun setCustomBusyTimeout() = runTest {
         val tempDatabase = getRoomDatabaseBuilder().build()
@@ -90,5 +107,47 @@ abstract class BaseNonWebBuilderTest : BaseBuilderTest() {
                 .build()
         db.dao().insertItem(1)
         db.close()
+    }
+
+    @Test
+    fun corruptedFile_dataLossOnRecoveryAllowed_recreatesDatabase() = runTest {
+        val path = getDatabasePath("corrupted_recovery")
+        try {
+            createCorruptedFile(path)
+            assertThat(fileExists(path)).isTrue()
+
+            val db = getRoomDatabaseBuilder(path).allowDataLossOnRecovery(true).build()
+            try {
+                db.dao().insertItem(1)
+                val items = db.dao().getItemList()
+                assertThat(items).hasSize(1)
+                assertThat(items.first().pk).isEqualTo(1)
+            } finally {
+                db.close()
+            }
+        } finally {
+            deleteFile(path)
+        }
+    }
+
+    @Test
+    fun corruptedFile_dataLossOnRecoveryNotAllowed_throwsSQLiteException() = runTest {
+        val path = getDatabasePath("corrupted_no_recovery")
+        try {
+            createCorruptedFile(path)
+            assertThat(fileExists(path)).isTrue()
+            val initialContent = readFileContent(path)
+
+            val db = getRoomDatabaseBuilder(path).allowDataLossOnRecovery(false).build()
+            try {
+                assertThrows<SQLiteException> { db.dao().insertItem(1) }
+                assertThat(fileExists(path)).isTrue()
+                assertThat(readFileContent(path)).isEqualTo(initialContent)
+            } finally {
+                db.close()
+            }
+        } finally {
+            deleteFile(path)
+        }
     }
 }
