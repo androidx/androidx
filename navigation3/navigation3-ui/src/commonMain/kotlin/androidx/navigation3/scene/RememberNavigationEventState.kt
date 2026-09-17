@@ -18,6 +18,7 @@ package androidx.navigation3.scene
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.util.fastMap
+import androidx.navigation3.runtime.get
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.NavigationEventHandler
 import androidx.navigationevent.compose.NavigationEventState
@@ -41,8 +42,30 @@ import androidx.navigationevent.compose.rememberNavigationEventState
 public fun <T : Any> rememberNavigationEventState(
     sceneState: SceneState<T>
 ): NavigationEventState<SceneInfo<T>> {
+    val currentScene = sceneState.currentScene
+    val currentTitle = currentScene.metadata[TitleMetadataKey]?.invoke()
+    val currentUrl = currentScene.metadata[UrlMetadataKey]?.invoke()
+
+    val currentInfo =
+        SceneInfo(
+            scene = currentScene,
+            title = currentTitle,
+            url = currentUrl,
+        )
+
+    val backInfo =
+        sceneState.previousScenes.fastMap { scene ->
+            val title = scene.metadata[TitleMetadataKey]?.invoke()
+            val url = scene.metadata[UrlMetadataKey]?.invoke()
+            SceneInfo(
+                scene = scene,
+                title = title,
+                url = url,
+            )
+        }
+
     return rememberNavigationEventState(
-        currentInfo = SceneInfo(sceneState.currentScene),
-        backInfo = sceneState.previousScenes.fastMap { SceneInfo(it) },
+        currentInfo = currentInfo,
+        backInfo = backInfo,
     )
 }
