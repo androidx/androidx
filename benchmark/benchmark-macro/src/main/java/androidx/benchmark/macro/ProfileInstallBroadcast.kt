@@ -269,7 +269,7 @@ object ProfileInstallBroadcast {
             .sortedBy { it.processName }
             .forEach { runningProcess ->
                 Log.d(TAG, "Saving profiles for process $runningProcess")
-                if (runningProcess.processName.contains(":")) {
+                if (runningProcess.processName != packageName) {
                     // Only attempt the new broadcast on processes that require it -
                     // processes that aren't the main registered process
                     // this lets single process apps run with profileinstaller 1.3/1.4

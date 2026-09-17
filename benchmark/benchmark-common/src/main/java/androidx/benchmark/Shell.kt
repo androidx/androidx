@@ -17,6 +17,7 @@
 package androidx.benchmark
 
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Looper
 import android.os.ParcelFileDescriptor
@@ -417,7 +418,7 @@ public object Shell {
     }
 
     public fun isPackageAlive(packageName: String): Boolean {
-        return getPidsForProcess(packageName).isNotEmpty()
+        return getRunningPidsAndProcessesForPackage(packageName).isNotEmpty()
     }
 
     public fun getPidsForProcess(processName: String): List<Int> {
@@ -462,8 +463,43 @@ public object Shell {
     public fun getRunningPidsAndProcessesForPackage(packageName: String): List<ProcessPid> {
         require(!packageName.contains(":")) { "Package $packageName must not contain ':'" }
         return pgrepLF(pattern = packageName.replace(".", "\\.")).filter {
-            it.processName == packageName || it.processName.startsWith("$packageName:")
+            it.processName == packageName ||
+                it.processName.startsWith("$packageName:") ||
+                (it.processName.startsWith("$packageName.") &&
+                    !isSubpackageInstalled(packageName, it.processName))
         }
+    }
+
+    /**
+     * Checks if a process name (e.g. `com.example.foo`), which shares a prefix with the target
+     * [packageName] (e.g. `com.example`), actually belongs to a different, separately installed
+     * package on the device (like `com.example.foo`), rather than being a custom-named process
+     * belonging to [packageName].
+     */
+    internal fun isSubpackageInstalled(
+        packageName: String,
+        processName: String,
+        isPackageInstalled: (String) -> Boolean = { pkg ->
+            try {
+                InstrumentationRegistry.getInstrumentation()
+                    .context
+                    .packageManager
+                    .getApplicationInfo(pkg, 0)
+                true
+            } catch (_: PackageManager.NameNotFoundException) {
+                false
+            }
+        },
+    ): Boolean {
+        val baseProcessName = processName.substringBefore(':')
+        if (!baseProcessName.startsWith("$packageName.")) return false
+        var dotIndex = baseProcessName.indexOf('.', packageName.length + 1)
+        while (dotIndex != -1) {
+            val candidatePkg = baseProcessName.substring(0, dotIndex)
+            if (isPackageInstalled(candidatePkg)) return true
+            dotIndex = baseProcessName.indexOf('.', dotIndex + 1)
+        }
+        return isPackageInstalled(baseProcessName)
     }
 
     public fun getRunningProcessesForPackage(packageName: String): List<String> {

@@ -127,6 +127,16 @@
         </activity>
 
         <activity
+            android:name=".DotProcessActivity"
+            android:process="androidx.benchmark.integration.macrobenchmark.target.dotprocess"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.benchmark.integration.macrobenchmark.target.DOT_PROCESS_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".GridRecyclerActivity"
             android:exported="true">
             <intent-filter>

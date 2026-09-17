@@ -485,13 +485,19 @@ public class MacrobenchmarkScope(
                         TAG,
                         "Unable to saveProfile with profileinstaller ($saveResult), trying kill",
                     )
-                    val response =
-                        Shell.executeScriptCaptureStdoutStderr("killall -s SIGUSR1 $packageName")
-                    check(response.isBlank()) {
-                        "Failed to dump profile for $packageName ($response),\n" +
-                            " and failed to save profile with broadcast: ${saveResult.error}"
+                    Shell.getRunningPidsAndProcessesForPackage(packageName).forEach { runningProcess
+                        ->
+                        val response =
+                            Shell.executeScriptCaptureStdoutStderr(
+                                "kill -s SIGUSR1 ${runningProcess.pid}"
+                            )
+                        check(response.isBlank()) {
+                            "Failed to dump profile for $runningProcess ($response),\n" +
+                                " and failed to save profile with broadcast: ${saveResult.error}"
+                        }
+                        @SuppressLint("BanThreadSleep")
+                        Thread.sleep(Arguments.saveProfileWaitMillis)
                     }
-                    @SuppressLint("BanThreadSleep") Thread.sleep(Arguments.saveProfileWaitMillis)
                 } else {
                     // unable to flush profiles, throw
                     throw RuntimeException(saveResult.error)
@@ -513,12 +519,18 @@ public class MacrobenchmarkScope(
                 throw IllegalStateException(errorMessage)
             }
         }
-        Shell.killProcessesAndWait(packageName, onFailure = onFailure) {
-            Log.d(TAG, "Force-stopping process $packageName")
-            Shell.executeScriptSilent("am force-stop $packageName")
+        val processes = Shell.getRunningPidsAndProcessesForPackage(packageName)
+        if (processes.isNotEmpty()) {
+            Shell.killProcessesAndWait(processes, onFailure = onFailure) {
+                Log.d(TAG, "Force-stopping process $packageName")
+                Shell.executeScriptSilent("am force-stop $packageName")
 
-            // System Apps need an additional Thread.sleep() to ensure that the process is killed.
-            @Suppress("BanThreadSleep") Thread.sleep(Arguments.killProcessDelayMillis)
+                // System Apps need an additional Thread.sleep() to ensure that the process is
+                // killed.
+                @Suppress("BanThreadSleep") Thread.sleep(Arguments.killProcessDelayMillis)
+            }
+        } else {
+            Log.d(TAG, "No processes for package $packageName, skipping kill")
         }
     }
 
