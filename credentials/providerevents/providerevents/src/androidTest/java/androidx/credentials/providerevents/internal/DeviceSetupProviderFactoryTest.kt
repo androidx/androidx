@@ -24,12 +24,18 @@ import androidx.credentials.providerevents.service.DeviceSetupService
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class DeviceSetupProviderFactoryTest {
+
+    @Before
+    fun setUp() {
+        NonDeviceSetupProviderClass.instantiated = false
+    }
 
     @Test
     fun getBestAvailableProvider_validClassName_returnsProvider() {
@@ -45,6 +51,23 @@ class DeviceSetupProviderFactoryTest {
         val provider = factory.getBestAvailableProvider(intent)
 
         assertThat(provider).isInstanceOf(DummyDeviceSetupProvider::class.java)
+    }
+
+    @Test
+    fun getBestAvailableProvider_nonProviderClass_doesNotInstantiateAndReturnsNull() {
+        val factory = DeviceSetupProviderFactory()
+        val intent =
+            Intent().apply {
+                putExtra(
+                    DeviceSetupProvider.DEVICE_SETUP_PROVIDER_KEY,
+                    NonDeviceSetupProviderClass::class.java.name,
+                )
+            }
+
+        val provider = factory.getBestAvailableProvider(intent)
+
+        assertThat(provider).isNull()
+        assertThat(NonDeviceSetupProviderClass.instantiated).isFalse()
     }
 
     @Test
@@ -78,5 +101,15 @@ class DeviceSetupProviderFactoryTest {
 class DummyDeviceSetupProvider : DeviceSetupProvider {
     override fun getStubImplementation(service: DeviceSetupService): IBinder? {
         return Binder()
+    }
+}
+
+class NonDeviceSetupProviderClass {
+    init {
+        instantiated = true
+    }
+
+    companion object {
+        var instantiated: Boolean = false
     }
 }

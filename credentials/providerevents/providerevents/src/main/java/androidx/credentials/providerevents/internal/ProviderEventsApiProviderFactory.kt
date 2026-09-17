@@ -19,9 +19,13 @@ package androidx.credentials.providerevents.internal
 import android.content.Context
 import androidx.credentials.providerevents.ProviderEventsApiProvider
 
-internal class ProviderEventsApiProviderFactory : ProviderFactory {
+internal class ProviderEventsApiProviderFactory(
+    private val classLoader: ClassLoader =
+        ProviderEventsApiProviderFactory::class.java.classLoader
+            ?: ClassLoader.getSystemClassLoader()
+) : ProviderFactory {
     fun getBestAvailableProvider(context: Context): ProviderEventsApiProvider? {
-        return getBestAvailableProvider(context, PROVIDER_KEY)
+        return getBestAvailableProvider(context, PROVIDER_KEY, classLoader)
     }
 
     companion object {
