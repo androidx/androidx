@@ -51,7 +51,6 @@ import org.jspecify.annotations.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -171,6 +170,8 @@ public final class AudioSource {
      *                           attribution source, setting this context will have no effect.
      *                           This context will not be retained beyond the scope of the
      *                           constructor.
+     * @param audioProcessors    The ordered list of audio processors.
+     * @param audioStreamFactory The audio stream factory.
      * @throws UnsupportedOperationException if the combination of sample rate, channel count,
      *                                       and audio format in the provided settings is
      *                                       unsupported.
@@ -179,26 +180,9 @@ public final class AudioSource {
      */
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     public AudioSource(@NonNull AudioSettings settings, @NonNull Executor executor,
-            @Nullable Context attributionContext) throws AudioSourceAccessException {
-        this(settings, executor, attributionContext, Collections.emptyList());
-    }
-
-    /**
-     * Creates an AudioSource with a list of {@link AudioProcessor}s.
-     *
-     * @param settings           The settings that will be used to configure the audio source.
-     * @param executor           An executor that will be used to read audio samples in the
-     *                           background.
-     * @param attributionContext A {@link Context} object used for audio attribution.
-     * @param audioProcessors    The ordered list of audio processors.
-     * @throws AudioSourceAccessException if the audio device is not available or processors
-     *                                    failed to configure.
-     */
-    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-    public AudioSource(@NonNull AudioSettings settings, @NonNull Executor executor,
-            @Nullable Context attributionContext, @NonNull List<AudioProcessor> audioProcessors)
-            throws AudioSourceAccessException {
-        this(settings, executor, attributionContext, audioProcessors, AudioStreamImpl::new,
+            @Nullable Context attributionContext, @NonNull List<AudioProcessor> audioProcessors,
+            @NonNull AudioStreamFactory audioStreamFactory) throws AudioSourceAccessException {
+        this(settings, executor, attributionContext, audioProcessors, audioStreamFactory,
                 DEFAULT_START_RETRY_INTERVAL_MS);
     }
 
@@ -234,6 +218,11 @@ public final class AudioSource {
      */
     public @NonNull AudioSettings getOutputAudioSettings() {
         return mOutputAudioSettings;
+    }
+
+    @VisibleForTesting
+    public @NonNull Executor getExecutor() {
+        return mExecutor;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -365,7 +354,7 @@ public final class AudioSource {
     /**
      * Releases the AudioSource.
      *
-     * <p>Once the AudioSource is released, it can not be used any more.
+     * <p>Once the AudioSource is released, it can not be used anymore.
      */
     public @NonNull ListenableFuture<Void> release() {
         return CallbackToFutureAdapter.getFuture(completer -> {
@@ -421,7 +410,7 @@ public final class AudioSource {
         });
     }
 
-    /** Mutes or un-mutes the audio source. */
+    /** Mutes or unmutes the audio source. */
     public void mute(boolean muted) {
         mExecutor.execute(() -> muteInternal(muted));
     }
@@ -458,7 +447,7 @@ public final class AudioSource {
         }
         if (bufferProvider != null) {
             mBufferProvider = bufferProvider;
-            mStateObserver = new Observable.Observer<BufferProvider.State>() {
+            mStateObserver = new Observable.Observer<>() {
                 @ExecutedBy("mExecutor")
                 @Override
                 public void onNewData(BufferProvider.@Nullable State state) {
@@ -482,7 +471,7 @@ public final class AudioSource {
                 }
             };
 
-            mAcquireBufferCallback = new FutureCallback<InputBuffer>() {
+            mAcquireBufferCallback = new FutureCallback<>() {
                 @ExecutedBy("mExecutor")
                 @Override
                 public void onSuccess(InputBuffer inputBuffer) {
