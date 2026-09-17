@@ -29,6 +29,7 @@ androidx {
     description = "Provides a set of Remote Compose Material3 components for Wear, built on top of Remote Compose Foundation components."
     samples(project(":wear:compose:remote:remote-material3-samples"))
     addGoldenImageAssets()
+    enableRobolectric()
 }
 
 android {
@@ -86,4 +87,15 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.testParameterInjector)
+
+    testImplementation(project(":compose:remote:remote-player-compose"))
+    testImplementation(project(":compose:remote:remote-player-compose-testutils"))
+    testImplementation(project(":compose:remote:remote-testing"))
+    testImplementation(project(":compose:remote:remote-creation"))
+    testImplementation(project(":wear:compose:remote:remote-material3-samples"))
+    testImplementation("androidx.compose.ui:ui-test:1.11.0")
+    testImplementation("androidx.compose.ui:ui-test-junit4:1.11.0")
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.testCore)
 }

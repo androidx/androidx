@@ -103,6 +103,12 @@ public object RemotePageIndicatorDefaults {
     public val unselectedColor: RemoteColor
         @Composable @RemoteComposable get() = RemoteMaterialTheme.colorScheme.onSurfaceVariant
 
+    /** Default color of the indicator background. */
+    public val backgroundColor: RemoteColor
+        @Composable
+        @RemoteComposable
+        get() = RemoteMaterialTheme.colorScheme.background.copy(alpha = 0.85f.rf)
+
     /** Default radius of each indicator dot. */
     public val indicatorRadius: RemoteDp = 3.rdp
 
@@ -123,6 +129,7 @@ public object RemotePageIndicatorDefaults {
  * @param unselectedColor The color of unselected page indicators.
  * @param indicatorRadius The base radius of each indicator dot.
  * @param padding The padding of the indicator from the bottom edge of the screen.
+ * @param backgroundColor The color of the page indicator background.
  */
 @RemoteComposable
 @Composable
@@ -133,6 +140,7 @@ public fun RemoteHorizontalPageIndicator(
     unselectedColor: RemoteColor = RemotePageIndicatorDefaults.unselectedColor,
     indicatorRadius: RemoteDp = RemotePageIndicatorDefaults.indicatorRadius,
     padding: RemoteDp = RemotePageIndicatorDefaults.pageIndicatorPadding,
+    backgroundColor: RemoteColor = RemotePageIndicatorDefaults.backgroundColor,
 ) {
     RemotePageIndicatorImpl(
         state = state,
@@ -140,6 +148,7 @@ public fun RemoteHorizontalPageIndicator(
         modifier = modifier,
         selectedColor = selectedColor,
         unselectedColor = unselectedColor,
+        backgroundColor = backgroundColor,
         indicatorRadius = indicatorRadius,
         padding = padding,
     )
@@ -155,6 +164,7 @@ public fun RemoteHorizontalPageIndicator(
  * @param unselectedColor The color of unselected page indicators.
  * @param indicatorRadius The base radius of each indicator dot.
  * @param padding The padding of the indicator from the right edge of the screen.
+ * @param backgroundColor The color of the page indicator background.
  */
 @RemoteComposable
 @Composable
@@ -165,6 +175,7 @@ public fun RemoteVerticalPageIndicator(
     unselectedColor: RemoteColor = RemotePageIndicatorDefaults.unselectedColor,
     indicatorRadius: RemoteDp = RemotePageIndicatorDefaults.indicatorRadius,
     padding: RemoteDp = RemotePageIndicatorDefaults.pageIndicatorPadding,
+    backgroundColor: RemoteColor = RemotePageIndicatorDefaults.backgroundColor,
 ) {
     RemotePageIndicatorImpl(
         state = state,
@@ -172,6 +183,7 @@ public fun RemoteVerticalPageIndicator(
         modifier = modifier,
         selectedColor = selectedColor,
         unselectedColor = unselectedColor,
+        backgroundColor = backgroundColor,
         indicatorRadius = indicatorRadius,
         padding = padding,
     )
@@ -185,6 +197,7 @@ private fun RemotePageIndicatorImpl(
     modifier: RemoteModifier = RemoteModifier,
     selectedColor: RemoteColor,
     unselectedColor: RemoteColor,
+    backgroundColor: RemoteColor,
     indicatorRadius: RemoteDp,
     padding: RemoteDp,
 ) {
@@ -196,6 +209,7 @@ private fun RemotePageIndicatorImpl(
             currentPage = rawPage,
             selectedColor = selectedColor,
             unselectedColor = unselectedColor,
+            backgroundColor = backgroundColor,
             radius = indicatorRadius.toPx(),
             padding = padding.toPx(),
             spacingPx = spacingPx,
@@ -205,6 +219,7 @@ private fun RemotePageIndicatorImpl(
 }
 
 private const val PI_FLOAT = 3.1415927f
+private const val MAX_PAGES_ON_SCREEN = 6
 
 private fun RemoteFloat.coerceIn(min: RemoteFloat, max: RemoteFloat): RemoteFloat {
     val temp = this.isLessThan(min).select(min, this)
@@ -234,6 +249,7 @@ private fun RemoteDrawScope.drawPageIndicators(
     currentPage: RemoteFloat,
     selectedColor: RemoteColor,
     unselectedColor: RemoteColor,
+    backgroundColor: RemoteColor,
     radius: RemoteFloat,
     padding: RemoteFloat,
     spacingPx: RemoteFloat,
@@ -243,15 +259,22 @@ private fun RemoteDrawScope.drawPageIndicators(
 
     val screenRadius = width / 2f.rf
     val bigRadius = max(screenRadius - padding, 1f.rf)
+    val backgroundPaddingPx = 3.rdp.toPx()
+    val backgroundStrokeWidthPx = backgroundPaddingPx * 2f.rf + radius * 2f.rf
 
     if (pageCount == 1) {
+        val centerAngleRad = (if (isHorizontal) 90f else 0f) * (PI_FLOAT / 180f)
+        val x = width / 2f.rf + bigRadius * cos(centerAngleRad.rf)
+        val y = height / 2f.rf + bigRadius * sin(centerAngleRad.rf)
+        val bgPaint = RemotePaint {
+            this.color = backgroundColor
+            style = PaintingStyle.Fill
+        }
+        drawCircleIndicator(bgPaint, RemoteOffset(x, y), backgroundStrokeWidthPx / 2f.rf)
         val paint = RemotePaint {
             this.color = selectedColor
             style = PaintingStyle.Fill
         }
-        val centerAngleRad = (if (isHorizontal) 90f else 0f) * (PI_FLOAT / 180f)
-        val x = width / 2f.rf + bigRadius * cos(centerAngleRad.rf)
-        val y = height / 2f.rf + bigRadius * sin(centerAngleRad.rf)
         drawCircleIndicator(paint, RemoteOffset(x, y), radius)
         return
     }
@@ -266,11 +289,30 @@ private fun RemoteDrawScope.drawPageIndicators(
     val shrinkThresholdStart = calculateShrinkThresholdStart(spacingPx, radius * 2f.rf)
     val shrinkThresholdEnd = calculateShrinkThresholdEnd(spacingPx, radius * 2f.rf)
 
+    val pagesOnScreen = if (pageCount < MAX_PAGES_ON_SCREEN) pageCount else MAX_PAGES_ON_SCREEN
+    val bgSpanDegrees = spacerAngleDegrees * (pagesOnScreen - 1).toFloat().rf
+    val bgStartAngle =
+        if (isHorizontal) 90f.rf - bgSpanDegrees / 2f.rf else 0f.rf - bgSpanDegrees / 2f.rf
+    val bgPaint = RemotePaint {
+        this.color = backgroundColor
+        style = PaintingStyle.Stroke
+        strokeWidth = backgroundStrokeWidthPx
+        strokeCap = StrokeCap.Round
+    }
+    drawArc(
+        paint = bgPaint,
+        startAngle = bgStartAngle,
+        sweepAngle = bgSpanDegrees,
+        useCenter = false,
+        topLeft = offset,
+        size = arcSize,
+    )
+
     val windowActivePage: RemoteFloat
     val shift: RemoteFloat
     val startAngle: RemoteFloat
 
-    if (pageCount <= 6) {
+    if (pageCount <= MAX_PAGES_ON_SCREEN) {
         val spanDegrees = spacerAngleDegrees * (pageCount - 1).toFloat().rf
         startAngle = if (isHorizontal) 90f.rf + spanDegrees / 2f.rf else 0f.rf - spanDegrees / 2f.rf
         windowActivePage = currentPage
@@ -312,7 +354,7 @@ private fun RemoteDrawScope.drawPageIndicators(
         }
     } else {
         val totalPages = pageCount
-        val maxHidden = (totalPages - 6).toFloat()
+        val maxHidden = (totalPages - MAX_PAGES_ON_SCREEN).toFloat()
         val continuousHidden = (currentPage - 4f.rf).coerceIn(0f.rf, maxHidden.rf)
         val floorHidden = floor(continuousHidden)
         shift = continuousHidden - floorHidden
@@ -324,14 +366,14 @@ private fun RemoteDrawScope.drawPageIndicators(
         val floorPage = floor(windowActivePage)
         val progression = windowActivePage - floorPage
         val inactivePaint = RemotePaint { style = PaintingStyle.Fill }
-        for (i in 0..6) {
+        for (i in 0..MAX_PAGES_ON_SCREEN) {
             val pageIndex = floorHidden + i.toFloat().rf
             val isValidPage = pageIndex.isLessThan(totalPages.toFloat().rf)
 
             val slotAlpha =
                 when (i) {
                     0 -> 1f.rf - shift
-                    6 -> shift
+                    MAX_PAGES_ON_SCREEN -> shift
                     else -> 1f.rf
                 }
 
@@ -347,15 +389,19 @@ private fun RemoteDrawScope.drawPageIndicators(
                     3,
                     4 -> 1f.rf
                     5 ->
-                        (floorHidden.isLessThan((totalPages - 6).toFloat().rf)).select(
-                            lerp(0.66f.rf, 1f.rf, shift),
-                            1f.rf,
-                        )
-                    6 ->
-                        (floorHidden.isLessThan((totalPages - 7).toFloat().rf)).select(
-                            0.66f.rf * shift,
-                            shift,
-                        )
+                        (floorHidden.isLessThan((totalPages - MAX_PAGES_ON_SCREEN).toFloat().rf))
+                            .select(
+                                lerp(0.66f.rf, 1f.rf, shift),
+                                1f.rf,
+                            )
+                    MAX_PAGES_ON_SCREEN ->
+                        (floorHidden.isLessThan(
+                                (totalPages - (MAX_PAGES_ON_SCREEN + 1)).toFloat().rf
+                            ))
+                            .select(
+                                0.66f.rf * shift,
+                                shift,
+                            )
                     else -> 1f.rf
                 }
 
