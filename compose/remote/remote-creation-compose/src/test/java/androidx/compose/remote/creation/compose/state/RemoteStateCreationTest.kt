@@ -133,6 +133,28 @@ class RemoteStateCreationTest {
     }
 
     @Test
+    fun rememberNamedRemoteBoolean_sharedNameWithOtherTypes_doesNotThrowClassCastException() =
+        runTest {
+            val coreDoc =
+                remoteCaptureRule.captureDocument(context) {
+                    val namedFloat = rememberNamedRemoteFloat("shared") { 10f.rf }
+                    val namedInt = rememberNamedRemoteInt("shared", 5)
+                    val namedBoolean = rememberNamedRemoteBoolean("shared", true)
+
+                    val selectedFloat = namedBoolean.select(namedFloat, 0f.rf)
+                    val selectedInt = namedBoolean.select(namedInt, 0.ri)
+                    selectedFloat.writeToDocument(LocalRemoteComposeCreationState.current)
+                    selectedInt.writeToDocument(LocalRemoteComposeCreationState.current)
+                }
+            assertThat(coreDoc.getNamedVariables(NamedVariable.FLOAT_TYPE))
+                .asList()
+                .contains("${RemoteDomains.USER}:shared")
+            assertThat(coreDoc.getNamedVariables(NamedVariable.INT_TYPE))
+                .asList()
+                .contains("${RemoteDomains.USER}:shared")
+        }
+
+    @Test
     fun rememberNamedRemoteString_isTracked() = runTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
