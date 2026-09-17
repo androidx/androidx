@@ -1,8 +1,4 @@
 // Baseline format: 1.0
-TypeParameterName: androidx.compose.material3.adaptive.layout.AnimatedPaneOverride#AnimatedPane(androidx.compose.material3.adaptive.layout.AnimatedPaneOverrideScope<Role,ScaffoldValue>):
-    Invalid type parameter names "Role", "ScaffoldValue". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
-TypeParameterName: androidx.compose.material3.adaptive.layout.AnimatedPaneOverrideScope:
-    Invalid type parameter names "Role", "ScaffoldValue". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
 TypeParameterName: androidx.compose.material3.adaptive.layout.ExtendedPaneScaffoldPaneScope:
     Invalid type parameter names "Role", "ScaffoldValue". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
 TypeParameterName: androidx.compose.material3.adaptive.layout.ExtendedPaneScaffoldScope:

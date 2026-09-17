@@ -15,9 +15,3 @@ SingletonConstructor: androidx.loader.app.LoaderManager#LoaderManager():
 
 SingularCallback: androidx.loader.app.LoaderManager.LoaderCallbacks:
     Callback class names should be singular: LoaderCallbacks
-
-
-VisiblySynchronized: androidx.loader.content.CursorLoader#cancelLoadInBackground():
-    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.loader.content.CursorLoader.cancelLoadInBackground()
-VisiblySynchronized: androidx.loader.content.CursorLoader#loadInBackground():
-    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.loader.content.CursorLoader.loadInBackground()

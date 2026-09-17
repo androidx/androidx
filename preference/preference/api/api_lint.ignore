@@ -177,9 +177,3 @@ ParcelCreator: androidx.preference.Preference.BaseSavedState:
 
 ParcelNotFinal: androidx.preference.Preference.BaseSavedState:
     Parcelable classes must be final: androidx.preference.Preference.BaseSavedState is not final
-
-
-VisiblySynchronized: androidx.preference.PreferenceGroup#addPreference(androidx.preference.Preference):
-    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.preference.PreferenceGroup.addPreference(androidx.preference.Preference)
-VisiblySynchronized: androidx.preference.PreferenceGroup#removeAll():
-    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.preference.PreferenceGroup.removeAll()
