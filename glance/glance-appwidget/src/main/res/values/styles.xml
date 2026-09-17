@@ -15,7 +15,13 @@
   -->
 
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Glance.AppWidget.Box" parent=""/>
+    <style name="Glance.AppWidget.Box" parent="">
+        <!--
+        By default, a Box with a custom ripple shows a gray highlight square when focused via keyboard.
+        Disabling defaultFocusHighlightEnabled removes this square.
+        -->
+        <item name="android:defaultFocusHighlightEnabled" tools:targetApi="o">false</item>
+    </style>
 
     <style name="Glance.AppWidget.Button" parent=""/>
     <style name="Glance.AppWidget.CheckBox" parent=""/>
