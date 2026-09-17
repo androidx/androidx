@@ -302,4 +302,43 @@ class AppFunctionServiceEntryPointCompilerTest {
             goldenFileName = "entrypoints/valid_uri_service.xml",
         )
     }
+
+    @Test
+    fun testAppFunctionAccessLevel_valid_success() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("entrypoints/valid/AccessLevelEntryPoint.KT"),
+                processorOptions = emptyMap(),
+            )
+
+        compilationTestHelper.assertSuccessWithSourceContent(
+            report = report,
+            expectGeneratedSourceFileName = "MyAccessLevelService.kt",
+            goldenFileName = "entrypoints/MyAccessLevelService.KT",
+        )
+        compilationTestHelper.assertSuccessWithSourceContent(
+            report = report,
+            expectGeneratedSourceFileName = "\$AccessLevelEntryPoint_AppFunctionInventory.kt",
+            goldenFileName = "inventory/\$AccessLevelEntryPoint_AppFunctionInventory.KT",
+        )
+        compilationTestHelper.assertSuccessWithResourceContent(
+            report = report,
+            expectGeneratedResourceFileName = "my_access_level_service.xml",
+            goldenFileName = "entrypoints/my_access_level_service.xml",
+        )
+    }
+
+    @Test
+    fun testAppFunctionAccessLevel_invalid_hasCompileError() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("entrypoints/invalid/InvalidAccessLevelEntryPoint.KT"),
+                processorOptions = emptyMap(),
+            )
+
+        compilationTestHelper.assertErrorWithMessage(
+            report = report,
+            expectedErrorMessage = "Unsupported access level: 999",
+        )
+    }
 }

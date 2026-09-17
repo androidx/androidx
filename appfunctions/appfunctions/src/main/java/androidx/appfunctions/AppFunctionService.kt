@@ -30,6 +30,7 @@ import androidx.annotation.RequiresApi
 import androidx.appfunctions.ExecuteAppFunctionRequest.Companion.toCompatExecuteAppFunctionRequest
 import androidx.appfunctions.internal.AppFunctionInventoryProvider
 import androidx.appfunctions.internal.AppFunctionMetadataUtils.getAppFunctionMetadata
+import androidx.appfunctions.internal.CallerAccessVerifier
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -107,6 +108,16 @@ public abstract class AppFunctionService :
                         )
                         .toPlatformClass()
                 )
+                return@launch
+            }
+            try {
+                CallerAccessVerifier.verifyCallerAccess(
+                    context = this@AppFunctionService,
+                    metadata = appFunctionMetadata,
+                    extras = request.extras,
+                )
+            } catch (e: AppFunctionDeniedException) {
+                callback.onError(e.toPlatformClass())
                 return@launch
             }
             this@AppFunctionService.mainExecutor.execute {

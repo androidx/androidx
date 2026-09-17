@@ -117,5 +117,7 @@
             type="appfn:AppFunctionResponseMetadataDocument" />
         <xs:element name="deprecation" cardinality="2"
             type="appfn:AppFunctionDeprecationMetadataDocument" />
+        <xs:element name="accessLevel" cardinality="2" indexingType="1" tokenizerType="2"
+            type="xs:string" />
     </xs:documentType>
 </xs:schema>
