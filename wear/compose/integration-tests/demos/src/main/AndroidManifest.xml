@@ -88,6 +88,12 @@
             android:label="OneHandedGestureSwipeDismissableNavHostDemoActivity">
         </activity>
 
+        <activity
+            android:name=".HorizontalPagerNavDisplaySampleActivity"
+            android:theme="@android:style/Theme.DeviceDefault"
+            android:label="HorizontalPagerNavDisplaySampleActivity">
+        </activity>
+
     </application>
 
     <uses-feature android:name="android.hardware.type.watch"/>
