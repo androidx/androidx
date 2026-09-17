@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+HiddenSuperclass: androidx.wear.protolayout.DimensionBuilders.HorizontalLayoutConstraint.Builder:
+    Public class androidx.wear.protolayout.DimensionBuilders.HorizontalLayoutConstraint.Builder stripped of unavailable superclass androidx.wear.protolayout.DimensionBuilders.DpPropLayoutConstraint.Builder
+HiddenSuperclass: androidx.wear.protolayout.DimensionBuilders.VerticalLayoutConstraint.Builder:
+    Public class androidx.wear.protolayout.DimensionBuilders.VerticalLayoutConstraint.Builder stripped of unavailable superclass androidx.wear.protolayout.DimensionBuilders.DpPropLayoutConstraint.Builder
