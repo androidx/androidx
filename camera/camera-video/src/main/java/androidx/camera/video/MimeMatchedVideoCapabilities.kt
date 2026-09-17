@@ -46,11 +46,11 @@ internal class MimeMatchedVideoCapabilities(
     private val validatedData: ValidatedData by lazy {
         val encoderInfo = videoEncoderInfoFinder.find(mime) ?: return@lazy ValidatedData()
 
-        // 1. Resolve DynamicRanges: Intersection of Camera and MIME support
+        // 1. Resolve DynamicRanges: Validate MIME format support and verify hardware throughput.
         val cameraDynamicRanges = cameraInfo.supportedDynamicRanges
         if (cameraDynamicRanges.isEmpty()) return@lazy ValidatedData()
 
-        val mimeDynamicRanges = VideoConfigUtil.getDynamicRangesForMime(mime)
+        val mimeDynamicRanges = VideoConfigUtil.getSupportedDynamicRanges(mime, encoderInfo)
         val finalDynamicRanges = cameraDynamicRanges.intersect(mimeDynamicRanges)
         if (finalDynamicRanges.isEmpty()) return@lazy ValidatedData()
 
