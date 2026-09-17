@@ -188,7 +188,8 @@ public class A2uiBasicCatalogV1(
             A2uiProperty.number(
                 key = "weight",
                 description =
-                    "The relative weight of the component within a Row or Column. " +
+                    "The relative weight of this component within a Row or Column. " +
+                        "This is similar to the CSS 'flex-grow' property. " +
                         "Note: this may ONLY be set when the component is a direct descendant of a " +
                         "Row or Column.",
             )
@@ -373,9 +374,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the text.
-     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
-     *   May only be set when the component is a direct descendant of a Row or Column. See
-     *   [WeightProperty].
+     * * `weight` (Number, optional): The relative weight of this component within a Row or Column.
+     *   This is similar to the CSS 'flex-grow' property. May only be set when the component is a
+     *   direct descendant of a Row or Column. See [WeightProperty].
      * * `text` (Dynamic String, required): The text content to display. Accepts either a static
      *   string literal or a dynamic data binding.
      * * `variant` (String Enum, optional): A hint for the base text style. This is a static
@@ -489,9 +490,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the image.
-     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
-     *   May only be set when the component is a direct descendant of a Row or Column. See
-     *   [WeightProperty].
+     * * `weight` (Number, optional): The relative weight of this component within a Row or Column.
+     *   This is similar to the CSS 'flex-grow' property. May only be set when the component is a
+     *   direct descendant of a Row or Column. See [WeightProperty].
      * * `url` (Dynamic String, required): The URL of the image to display.
      * * `description` (Dynamic String, optional): Accessibility text for the image.
      * * `fit` (String Enum, optional): Specifies how the image should be resized to fit its
@@ -658,9 +659,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the icon.
-     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
-     *   May only be set when the component is a direct descendant of a Row or Column. See
-     *   [WeightProperty].
+     * * `weight` (Number, optional): The relative weight of this component within a Row or Column.
+     *   This is similar to the CSS 'flex-grow' property. May only be set when the component is a
+     *   direct descendant of a Row or Column. See [WeightProperty].
      * * `name` (Dynamic Custom, required): The name of the icon to display. Accepts either a static
      *   string literal from the predefined list, an object with an `svgPath` string, or a dynamic
      *   data binding.
@@ -871,9 +872,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the video.
-     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
-     *   May only be set when the component is a direct descendant of a Row or Column. See
-     *   [WeightProperty].
+     * * `weight` (Number, optional): The relative weight of this component within a Row or Column.
+     *   This is similar to the CSS 'flex-grow' property. May only be set when the component is a
+     *   direct descendant of a Row or Column. See [WeightProperty].
      * * `url` (Dynamic String, required): The URL of the video to display.
      */
     public interface Video : A2uiComponent {
@@ -941,9 +942,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the audio player.
-     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
-     *   May only be set when the component is a direct descendant of a Row or Column. See
-     *   [WeightProperty].
+     * * `weight` (Number, optional): The relative weight of this component within a Row or Column.
+     *   This is similar to the CSS 'flex-grow' property. May only be set when the component is a
+     *   direct descendant of a Row or Column. See [WeightProperty].
      * * `url` (Dynamic String, required): The URL of the audio to be played.
      * * `description` (Dynamic String, optional): A description of the audio, such as a title or
      *   summary.
@@ -1029,9 +1030,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the row.
-     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
-     *   May only be set when the component is a direct descendant of a Row or Column. See
-     *   [WeightProperty].
+     * * `weight` (Number, optional): The relative weight of this component within a Row or Column.
+     *   This is similar to the CSS 'flex-grow' property. May only be set when the component is a
+     *   direct descendant of a Row or Column. See [WeightProperty].
      * * `children` (ChildList, required): Defines the children, accepting either an array of
      *   strings for a fixed set of children, or a template object to generate children from a data
      *   list.
@@ -1197,9 +1198,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the column.
-     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
-     *   May only be set when the component is a direct descendant of a Row or Column. See
-     *   [WeightProperty].
+     * * `weight` (Number, optional): The relative weight of this component within a Row or Column.
+     *   This is similar to the CSS 'flex-grow' property. May only be set when the component is a
+     *   direct descendant of a Row or Column. See [WeightProperty].
      * * `children` (ChildList, required): Defines the children, accepting either an array of
      *   strings for a fixed set of children, or a template object to generate children from a data
      *   list.
@@ -1364,9 +1365,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the list.
-     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
-     *   May only be set when the component is a direct descendant of a Row or Column. See
-     *   [WeightProperty].
+     * * `weight` (Number, optional): The relative weight of this component within a Row or Column.
+     *   This is similar to the CSS 'flex-grow' property. May only be set when the component is a
+     *   direct descendant of a Row or Column. See [WeightProperty].
      * * `children` (ChildList, required): Defines the children. Use an array of strings for a fixed
      *   set of children, or a template object to generate children from a data list.
      * * `direction` (String Enum, optional): The direction in which the list items are laid out.
@@ -1514,9 +1515,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the card.
-     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
-     *   May only be set when the component is a direct descendant of a Row or Column. See
-     *   [WeightProperty].
+     * * `weight` (Number, optional): The relative weight of this component within a Row or Column.
+     *   This is similar to the CSS 'flex-grow' property. May only be set when the component is a
+     *   direct descendant of a Row or Column. See [WeightProperty].
      * * `child` (Component ID String, required): The ID of the child component to be rendered
      *   inside the card. Multiple elements must be wrapped in a layout container (e.g. Row or
      *   Column).
@@ -1585,9 +1586,9 @@ public class A2uiBasicCatalogV1(
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the tabs
      *   container.
-     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
-     *   May only be set when the component is a direct descendant of a Row or Column. See
-     *   [WeightProperty].
+     * * `weight` (Number, optional): The relative weight of this component within a Row or Column.
+     *   This is similar to the CSS 'flex-grow' property. May only be set when the component is a
+     *   direct descendant of a Row or Column. See [WeightProperty].
      * * `tabs` (NestedList, required): An array of objects, where each object defines a tab with a
      *   `title` (Dynamic String) and a `child` (ComponentId) component ID.
      */
@@ -1724,9 +1725,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the modal.
-     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
-     *   May only be set when the component is a direct descendant of a Row or Column. See
-     *   [WeightProperty].
+     * * `weight` (Number, optional): The relative weight of this component within a Row or Column.
+     *   This is similar to the CSS 'flex-grow' property. May only be set when the component is a
+     *   direct descendant of a Row or Column. See [WeightProperty].
      * * `trigger` (Component ID String, required): The ID of the component that opens the modal
      *   when interacted with.
      * * `content` (Component ID String, required): The ID of the component to be displayed inside
@@ -1817,9 +1818,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the divider.
-     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
-     *   May only be set when the component is a direct descendant of a Row or Column. See
-     *   [WeightProperty].
+     * * `weight` (Number, optional): The relative weight of this component within a Row or Column.
+     *   This is similar to the CSS 'flex-grow' property. May only be set when the component is a
+     *   direct descendant of a Row or Column. See [WeightProperty].
      * * `axis` (String Enum, optional): The orientation of the divider. Valid options:
      *   `"horizontal"`, `"vertical"`. Defaults to `"horizontal"`.
      */
@@ -1901,9 +1902,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the button.
-     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
-     *   May only be set when the component is a direct descendant of a Row or Column. See
-     *   [WeightProperty].
+     * * `weight` (Number, optional): The relative weight of this component within a Row or Column.
+     *   This is similar to the CSS 'flex-grow' property. May only be set when the component is a
+     *   direct descendant of a Row or Column. See [WeightProperty].
      * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the button. See
      *   [CheckRule].
      * * `child` (Component ID String, required): The ID of the child component inside the button
@@ -2052,9 +2053,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the text field.
-     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
-     *   May only be set when the component is a direct descendant of a Row or Column. See
-     *   [WeightProperty].
+     * * `weight` (Number, optional): The relative weight of this component within a Row or Column.
+     *   This is similar to the CSS 'flex-grow' property. May only be set when the component is a
+     *   direct descendant of a Row or Column. See [WeightProperty].
      * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the text field.
      *   See [CheckRule].
      * * `label` (Dynamic String, required): The text label for the input field.
@@ -2221,9 +2222,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the checkbox.
-     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
-     *   May only be set when the component is a direct descendant of a Row or Column. See
-     *   [WeightProperty].
+     * * `weight` (Number, optional): The relative weight of this component within a Row or Column.
+     *   This is similar to the CSS 'flex-grow' property. May only be set when the component is a
+     *   direct descendant of a Row or Column. See [WeightProperty].
      * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the checkbox.
      *   See [CheckRule].
      * * `label` (Dynamic String, required): The text to display next to the checkbox.
@@ -2344,9 +2345,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the choice picker.
-     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
-     *   May only be set when the component is a direct descendant of a Row or Column. See
-     *   [WeightProperty].
+     * * `weight` (Number, optional): The relative weight of this component within a Row or Column.
+     *   This is similar to the CSS 'flex-grow' property. May only be set when the component is a
+     *   direct descendant of a Row or Column. See [WeightProperty].
      * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the choice
      *   picker. See [CheckRule].
      * * `label` (Dynamic String, optional): The label for the group of options.
@@ -2675,9 +2676,9 @@ public class A2uiBasicCatalogV1(
      *
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the slider.
-     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
-     *   May only be set when the component is a direct descendant of a Row or Column. See
-     *   [WeightProperty].
+     * * `weight` (Number, optional): The relative weight of this component within a Row or Column.
+     *   This is similar to the CSS 'flex-grow' property. May only be set when the component is a
+     *   direct descendant of a Row or Column. See [WeightProperty].
      * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the slider. See
      *   [CheckRule].
      * * `label` (Dynamic String, optional): The label for the slider.
@@ -2823,9 +2824,9 @@ public class A2uiBasicCatalogV1(
      * **Schema Properties:**
      * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the date/time
      *   input.
-     * * `weight` (Number, optional): The relative weight of the component within a Row or Column.
-     *   May only be set when the component is a direct descendant of a Row or Column. See
-     *   [WeightProperty].
+     * * `weight` (Number, optional): The relative weight of this component within a Row or Column.
+     *   This is similar to the CSS 'flex-grow' property. May only be set when the component is a
+     *   direct descendant of a Row or Column. See [WeightProperty].
      * * `checks` (Dynamic Custom, optional): Client-side check validation rules for the date/time
      *   input. See [CheckRule].
      * * `value` (Dynamic String, required): The selected date and/or time value in ISO 8601 format.
@@ -2836,7 +2837,7 @@ public class A2uiBasicCatalogV1(
      *   `false`.
      * * `min` (Dynamic String, optional): The minimum allowed date/time in ISO 8601 format.
      * * `max` (Dynamic String, optional): The maximum allowed date/time in ISO 8601 format.
-     * * `label` (Dynamic String, optional): The text label for the component.
+     * * `label` (Dynamic String, optional): The text label for the input field.
      */
     public interface DateTimeInput : A2uiComponent {
         override val name: String
@@ -2969,7 +2970,7 @@ public class A2uiBasicCatalogV1(
                 A2uiProperty.dynamicString(
                     key = "label",
                     required = false,
-                    description = "The text label for the component.",
+                    description = "The text label for the input field.",
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
