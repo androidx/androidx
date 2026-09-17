@@ -230,6 +230,46 @@ class PdfDocumentRemoteImplTest {
         assertThat(fakeRenderer.isClosed).isTrue()
     }
 
+    @Test
+    fun releasePage_afterClosePdfDocument_isNoOp() {
+        val fakeRenderer = FakePdfDocumentRenderer()
+        val remote = createRemoteWithRenderer(fakeRenderer)
+
+        remote.closePdfDocument()
+        // Should not throw or invoke releasePage on closed renderer
+        remote.releasePage(0)
+    }
+
+    @Test
+    fun getPageDimensions_afterClosePdfDocument_returnsNull() {
+        val fakeRenderer = FakePdfDocumentRenderer()
+        val remote = createRemoteWithRenderer(fakeRenderer)
+
+        remote.closePdfDocument()
+        val dims = remote.getPageDimensions(0)
+        assertThat(dims).isNull()
+    }
+
+    @Test
+    fun getPageText_afterClosePdfDocument_returnsNull() {
+        val fakeRenderer = FakePdfDocumentRenderer()
+        val remote = createRemoteWithRenderer(fakeRenderer)
+
+        remote.closePdfDocument()
+        val text = remote.getPageText(0)
+        assertThat(text).isNull()
+    }
+
+    @Test
+    fun closePdfDocument_calledMultipleTimes_isIdempotent() {
+        val fakeRenderer = FakePdfDocumentRenderer()
+        val remote = createRemoteWithRenderer(fakeRenderer)
+
+        remote.closePdfDocument()
+        remote.closePdfDocument()
+        assertThat(fakeRenderer.isClosed).isTrue()
+    }
+
     // --- Helper to setup initialized remote ---
     private fun createRemoteWithRenderer(renderer: FakePdfDocumentRenderer): PdfDocumentRemoteImpl {
         val factory = FakePdfDocumentRendererFactory(rendererToReturn = renderer)

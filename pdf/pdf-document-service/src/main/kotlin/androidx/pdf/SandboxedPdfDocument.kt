@@ -67,6 +67,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
@@ -433,6 +434,10 @@ public class SandboxedPdfDocument(
         if (refCount.decrementAndGet() > 0) return
 
         isDocumentClosedExplicitly.set(true)
+
+        closeScope.cancel()
+        connection.pendingJobs.forEach { it.cancel() }
+        connection.pendingJobs.clear()
 
         connection.disconnect()
 

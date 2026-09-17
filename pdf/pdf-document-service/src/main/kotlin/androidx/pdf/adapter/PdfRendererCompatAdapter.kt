@@ -37,6 +37,8 @@ internal class PdfRendererCompatAdapter(pfd: ParcelFileDescriptor) : PdfDocument
 
     private val pageCache: PdfPageCache = PdfPageCache()
     private val pdfRenderer = PdfRenderer(pfd)
+    private val lock = Any()
+    private var isClosed = false
 
     override val linearizationStatus: Int
         get() =
@@ -50,18 +52,24 @@ internal class PdfRendererCompatAdapter(pfd: ParcelFileDescriptor) : PdfDocument
             throw UnsupportedOperationException("Operation supported above S + SDK extension >= 13")
 
     override fun openPage(pageNum: Int, useCache: Boolean): PdfPage {
-        return pageCache.getOrUpdate(pageNum, useCache) {
-            PdfPageCompatAdapter(pdfRenderer.openPage(pageNum))
+        synchronized(lock) {
+            if (isClosed) throw RendererClosedException()
+            return pageCache.getOrUpdate(pageNum, useCache) {
+                PdfPageCompatAdapter(pdfRenderer.openPage(pageNum))
+            }
         }
     }
 
     override fun releasePage(page: PdfPage?, pageNum: Int) {
-        val removedPage = pageCache.remove(pageNum)
-        if (removedPage == null) {
-            page?.close()
-        } else {
-            removedPage.close()
-            if (page != removedPage) page?.close()
+        synchronized(lock) {
+            if (isClosed) return
+            val removedPage = pageCache.remove(pageNum)
+            if (removedPage == null) {
+                page?.close()
+            } else {
+                removedPage.close()
+                if (page != removedPage) page?.close()
+            }
         }
     }
 
@@ -70,7 +78,11 @@ internal class PdfRendererCompatAdapter(pfd: ParcelFileDescriptor) : PdfDocument
     }
 
     override fun close() {
-        pageCache.clearAll()
-        pdfRenderer.close()
+        synchronized(lock) {
+            if (isClosed) return
+            isClosed = true
+            pageCache.clearAll()
+            pdfRenderer.close()
+        }
     }
 }
