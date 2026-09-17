@@ -964,6 +964,59 @@ pathway to engineer robust, architecturally sound solutions:
    - Verify that dominant baseline configurations (AVC/HEVC SDR/HDR, AAC)
      maintain 100% behavioral backward compatibility.
 
+#### 9. Solution Engineering & Test Pyramid Modernization Protocol
+
+When evolving CameraX architecture, refactoring legacy components, or optimizing
+test execution across the development lifecycle, apply this 4-step protocol to
+engineer robust, maintainable solutions while preserving hardware testability:
+
+1. **Deconstruct Algorithmic Logic from Hardware Platform Dependencies**:
+   - Complex configuration pipelines (e.g. video/audio profile resolvers, stream
+     combination sort algorithms, dynamic range mapping, format selection)
+     often entangle pure algorithmic calculations with physical HAL queries.
+   - Separate pure deterministic calculations (resolving bitrates, sample rates,
+     clamping ranges, sorting candidate resolutions) from hardware state
+     accessors (`CamcorderProfile`, `CameraCharacteristics`, `MediaCodecList`).
+   - Pure algorithmic and resolver logic can be tested deterministically across
+     dozens of permutations on the host JVM without device flakiness, while
+     hardware interaction is cleanly isolated behind minimal interfaces.
+
+2. **Review-Driven Refactoring & Domain Boundary Hygiene**:
+   - Maintain strict domain boundaries: constants and domain semantics belonging
+     to one media format (e.g. video profile bitrates vs. audio bitrates, or
+     camera sensor properties vs. encoder profiles) must never leak across
+     format boundaries.
+   - Heed reviewer signals: when code reviews reveal out-of-place constants,
+     leaky abstractions, or misplaced defaults, resist applying ad-hoc patches
+     or local suppressions. Instead, treat reviewer feedback as a prompt for
+     structural refactoring that places domain knowledge in its rightful owner.
+
+3. **Two-Tier Test Modernization & The Single Smoke Test Guardrail**:
+   - To optimize CI lab resources and accelerate local developer velocity, apply
+     the test pyramid:
+     a. **Host-Side Migration (Robolectric / JVM)**: Migrate pure calculation,
+        data specification (`MediaSpec`, `OutputOptions`), buffer manipulations
+        (`SharedByteBuffer`), and profile resolver permutation suites from
+        `androidTest/` to `test/`.
+     b. **The Single Smoke Test Guardrail**: When migrating resolver or config
+        test suites from `androidTest` to `test` (Robolectric), NEVER completely
+        eliminate device-level testing if the component interfaces with real OEM
+        framework profiles (`CamcorderProfile`, `MediaCodecList`). Always retain
+        at least **one end-to-end smoke test on real devices** in `androidTest/`
+        (e.g. verifying that resolving profiles against real device hardware
+        produces valid, non-crashing configurations). This ensures real OEM
+        hardware idiosyncrasies remain guarded while offloading combinatorial
+        testing to fast host unit tests.
+
+4. **Cross-Repository Downstream CI Synchronization**:
+   - Maintain lifecycle awareness across repository boundaries. When migrating,
+     renaming, or deleting test classes in `androidTest/`, downstream continuous
+     testing suites may depend on these target mappings.
+   - When operating in Google-internal environments, refer to
+     `AGENTS_INTERNAL.md` (Section 4.5) to audit and synchronize downstream
+     test target definitions simultaneously to prevent broken references in
+     daily CI pipelines.
+
 ---
 
 ## Skill: CameraX Agent Guidelines & Experience Capture
