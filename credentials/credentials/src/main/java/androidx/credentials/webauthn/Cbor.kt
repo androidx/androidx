@@ -20,26 +20,26 @@ import androidx.annotation.RestrictTo
 import java.lang.IllegalArgumentException
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class Cbor {
-    data class Item(val item: Any, val len: Int)
+public class Cbor {
+    public data class Item(val item: Any, val len: Int)
 
-    data class Arg(val arg: Long, val len: Int)
+    public data class Arg(val arg: Long, val len: Int)
 
-    val TYPE_UNSIGNED_INT = 0x00
-    val TYPE_NEGATIVE_INT = 0x01
-    val TYPE_BYTE_STRING = 0x02
-    val TYPE_TEXT_STRING = 0x03
-    val TYPE_ARRAY = 0x04
-    val TYPE_MAP = 0x05
-    val TYPE_TAG = 0x06
-    val TYPE_FLOAT = 0x07
+    public val TYPE_UNSIGNED_INT: Int = 0x00
+    public val TYPE_NEGATIVE_INT: Int = 0x01
+    public val TYPE_BYTE_STRING: Int = 0x02
+    public val TYPE_TEXT_STRING: Int = 0x03
+    public val TYPE_ARRAY: Int = 0x04
+    public val TYPE_MAP: Int = 0x05
+    public val TYPE_TAG: Int = 0x06
+    public val TYPE_FLOAT: Int = 0x07
 
-    fun decode(data: ByteArray): Any {
+    public fun decode(data: ByteArray): Any {
         val ret = parseItem(data, 0)
         return ret.item
     }
 
-    fun encode(data: Any): ByteArray {
+    public fun encode(data: Any): ByteArray {
         if (data is Number) {
             if (data is Double) {
                 throw IllegalArgumentException("Don't support doubles yet")

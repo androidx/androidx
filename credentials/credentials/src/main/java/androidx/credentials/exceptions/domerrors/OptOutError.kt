@@ -23,7 +23,7 @@ package androidx.credentials.exceptions.domerrors
  * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
  */
 @Suppress("ExtendsError") // This is not a real java `Error`
-class OptOutError : DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_OPT_OUT_ERROR) {
+public class OptOutError : DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_OPT_OUT_ERROR) {
     internal companion object {
         internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_OPT_OUT_ERROR: String =
             "androidx.credentials.TYPE_OPT_OUT_ERROR"

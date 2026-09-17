@@ -44,9 +44,9 @@ import org.json.JSONObject
  *   it doesn't have a valid `user.id` defined according to the [webauthn spec]
  *   (https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson)
  */
-class CreateRestoreCredentialRequest
+public class CreateRestoreCredentialRequest
 @JvmOverloads
-constructor(val requestJson: String, val isCloudBackupEnabled: Boolean = true) :
+constructor(public val requestJson: String, public val isCloudBackupEnabled: Boolean = true) :
     CreateCredentialRequest(
         type = RestoreCredential.TYPE_RESTORE_CREDENTIAL,
         credentialData = toCredentialDataBundle(requestJson, isCloudBackupEnabled),
@@ -57,7 +57,7 @@ constructor(val requestJson: String, val isCloudBackupEnabled: Boolean = true) :
         isAutoSelectAllowed = false,
         candidateQueryData = Bundle(),
     ) {
-    companion object {
+    public companion object {
         private const val BUNDLE_KEY_CREATE_RESTORE_CREDENTIAL_REQUEST =
             "androidx.credentials.BUNDLE_KEY_CREATE_RESTORE_CREDENTIAL_REQUEST"
         private const val BUNDLE_KEY_SHOULD_BACKUP_TO_CLOUD =

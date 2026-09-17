@@ -23,7 +23,8 @@ package androidx.credentials.exceptions.domerrors
  * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
  */
 @Suppress("ExtendsError") // This is not a real java `Error`
-class InUseAttributeError : DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_IN_USE_ATTRIBUTE_ERROR) {
+public class InUseAttributeError :
+    DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_IN_USE_ATTRIBUTE_ERROR) {
     internal companion object {
         internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_IN_USE_ATTRIBUTE_ERROR: String =
             "androidx.credentials.TYPE_IN_USE_ATTRIBUTE_ERROR"

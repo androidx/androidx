@@ -24,7 +24,7 @@ package androidx.credentials.exceptions
  *
  * @see GetCredentialException
  */
-class GetCredentialUnsupportedException
+public class GetCredentialUnsupportedException
 @JvmOverloads
 constructor(errorMessage: CharSequence? = null) :
     GetCredentialException(TYPE_GET_CREDENTIAL_UNSUPPORTED_EXCEPTION, errorMessage) {

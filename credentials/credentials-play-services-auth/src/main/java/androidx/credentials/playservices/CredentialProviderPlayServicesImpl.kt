@@ -17,10 +17,8 @@
 package androidx.credentials.playservices
 
 import android.content.Context
-import android.os.Build
 import android.os.CancellationSignal
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.ClearCredentialStateRequest
@@ -77,11 +75,11 @@ import java.util.concurrent.Executor
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @Suppress("deprecation")
 @OptIn(ExperimentalDigitalCredentialApi::class)
-class CredentialProviderPlayServicesImpl(private val context: Context) : CredentialProvider {
+public class CredentialProviderPlayServicesImpl(private val context: Context) : CredentialProvider {
 
-    @VisibleForTesting var googleApiAvailability = GoogleApiAvailability.getInstance()
+    @VisibleForTesting
+    public var googleApiAvailability: GoogleApiAvailability = GoogleApiAvailability.getInstance()
 
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun onGetCredential(
         context: Context,
         request: GetCredentialRequest,
@@ -136,7 +134,6 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     @SuppressWarnings("deprecated")
     override fun onCreateCredential(
         context: Context,
@@ -221,7 +218,7 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         return isAvailableOnDevice(MIN_GMS_APK_VERSION)
     }
 
-    fun isAvailableOnDevice(minApkVersion: Int): Boolean {
+    public fun isAvailableOnDevice(minApkVersion: Int): Boolean {
         val resultCode = isGooglePlayServicesAvailable(context, minApkVersion)
         val isSuccessful = resultCode == ConnectionResult.SUCCESS
         if (!isSuccessful) {
@@ -378,21 +375,23 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
             }
     }
 
-    companion object {
+    public companion object {
         private const val TAG = "PlayServicesImpl"
 
         // This points to the min APK version of GMS that contains required changes
         // to make passkeys work well
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const val MIN_GMS_APK_VERSION = 230815045
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const val PRE_U_MIN_GMS_APK_VERSION = 252400000
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        const val MIN_GMS_APK_VERSION_RESTORE_CRED = 242200000
+        public const val MIN_GMS_APK_VERSION: Int = 230815045
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        const val MIN_GMS_APK_VERSION_DIGITAL_CRED = 243100000
+        public const val PRE_U_MIN_GMS_APK_VERSION: Int = 252400000
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        const val MIN_GMS_APK_VERSION_SIGNAL_API = 254625000
+        public const val MIN_GMS_APK_VERSION_RESTORE_CRED: Int = 242200000
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        const val MIN_GMS_APK_VERSION_CONDITIONAL_CREATE_PASSKEY = 251300000
+        public const val MIN_GMS_APK_VERSION_DIGITAL_CRED: Int = 243100000
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public const val MIN_GMS_APK_VERSION_SIGNAL_API: Int = 254625000
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public const val MIN_GMS_APK_VERSION_CONDITIONAL_CREATE_PASSKEY: Int = 251300000
 
         internal fun cancellationReviewerWithCallback(
             cancellationSignal: CancellationSignal?,

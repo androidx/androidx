@@ -59,14 +59,14 @@ import androidx.credentials.provider.PublicKeyCredentialEntry.Companion.marshall
  *   flow that directly handles the biometric verification and presents back the response; set to
  *   null by default, so if not opted in, the embedded biometric prompt flow will not show
  */
-abstract class CredentialEntry
+public abstract class CredentialEntry
 internal constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) open val type: String,
-    val beginGetCredentialOption: BeginGetCredentialOption,
-    val entryGroupId: CharSequence,
-    val isDefaultIconPreferredAsSingleProvider: Boolean,
-    val affiliatedDomain: CharSequence? = null,
-    val biometricPromptData: BiometricPromptData? = null,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public open val type: String,
+    public val beginGetCredentialOption: BeginGetCredentialOption,
+    public val entryGroupId: CharSequence,
+    public val isDefaultIconPreferredAsSingleProvider: Boolean,
+    public val affiliatedDomain: CharSequence? = null,
+    public val biometricPromptData: BiometricPromptData? = null,
 ) {
     @RequiresApi(34)
     private object Api34Impl {
@@ -139,7 +139,7 @@ internal constructor(
         }
     }
 
-    companion object {
+    public companion object {
         internal const val TRUE_STRING = "true"
         internal const val FALSE_STRING = "false"
         internal const val REVISION_ID = 1
@@ -187,7 +187,7 @@ internal constructor(
          * @param credentialEntry the instance of framework class to be converted
          */
         @JvmStatic
-        fun fromCredentialEntry(
+        public fun fromCredentialEntry(
             credentialEntry: android.service.credentials.CredentialEntry
         ): CredentialEntry? {
             if (Build.VERSION.SDK_INT >= 34) {
@@ -256,7 +256,7 @@ internal constructor(
         /** Marshall a list of credential entries through an intent. */
         @RequiresApi(23)
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun List<CredentialEntry>.marshall(bundle: Bundle) {
+        public fun List<CredentialEntry>.marshall(bundle: Bundle) {
             bundle.putInt(EXTRA_CREDENTIAL_ENTRY_SIZE, this.size)
             for (i in indices) {
                 when (val entry = this[i]) {
@@ -296,7 +296,7 @@ internal constructor(
 
         @RequiresApi(23)
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun Bundle.unmarshallCredentialEntries(): List<CredentialEntry> {
+        public fun Bundle.unmarshallCredentialEntries(): List<CredentialEntry> {
             val entries = mutableListOf<CredentialEntry>()
             val size = this.getInt(EXTRA_CREDENTIAL_ENTRY_SIZE, 0)
             for (index in 0 until size) {

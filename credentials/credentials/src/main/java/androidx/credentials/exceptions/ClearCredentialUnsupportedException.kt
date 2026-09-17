@@ -24,7 +24,7 @@ package androidx.credentials.exceptions
  *
  * @see ClearCredentialException
  */
-class ClearCredentialUnsupportedException
+public class ClearCredentialUnsupportedException
 @JvmOverloads
 constructor(errorMessage: CharSequence? = null) :
     ClearCredentialException(TYPE_CLEAR_CREDENTIAL_UNSUPPORTED_EXCEPTION, errorMessage) {

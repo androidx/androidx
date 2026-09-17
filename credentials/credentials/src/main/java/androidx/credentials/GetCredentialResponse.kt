@@ -34,7 +34,7 @@ import androidx.annotation.RestrictTo
  * @throws NullPointerException If [credentials] or [credential] is null
  * @throws IllegalArgumentException If [credentials] is empty
  */
-class GetCredentialResponse(val credentials: List<Credential>) {
+public class GetCredentialResponse(public val credentials: List<Credential>) {
 
     init {
         require(credentials.isNotEmpty()) { "credentials must not be empty" }
@@ -50,7 +50,7 @@ class GetCredentialResponse(val credentials: List<Credential>) {
         "Use the constructor that takes a list of credentials instead.",
         ReplaceWith("GetCredentialResponse(listOf(credential))"),
     )
-    constructor(credential: Credential) : this(listOf(credential))
+    public constructor(credential: Credential) : this(listOf(credential))
 
     /**
      * The user credential that can be used to authenticate to your app.
@@ -58,7 +58,7 @@ class GetCredentialResponse(val credentials: List<Credential>) {
      * When multiple credentials are returned in [credentials], this returns the first credential.
      */
     @Deprecated("Use credentials instead.", ReplaceWith("credentials.first()"))
-    val credential: Credential
+    public val credential: Credential
         get() = credentials.first()
 
     internal companion object {

@@ -51,17 +51,17 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *   immediately when there is no available passkey registration offering instead of falling back to
  *   discovering remote options, and false (preferred by default) otherwise
  */
-abstract class CreateCredentialRequest
+public abstract class CreateCredentialRequest
 internal constructor(
-    val type: String,
-    val credentialData: Bundle,
-    val candidateQueryData: Bundle,
-    val isSystemProviderRequired: Boolean,
-    val isAutoSelectAllowed: Boolean,
-    val displayInfo: DisplayInfo,
-    val origin: String?,
+    public val type: String,
+    public val credentialData: Bundle,
+    public val candidateQueryData: Bundle,
+    public val isSystemProviderRequired: Boolean,
+    public val isAutoSelectAllowed: Boolean,
+    public val displayInfo: DisplayInfo,
+    public val origin: String?,
     @get:JvmName("preferImmediatelyAvailableCredentials")
-    val preferImmediatelyAvailableCredentials: Boolean,
+    public val preferImmediatelyAvailableCredentials: Boolean,
 ) {
     init {
         credentialData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, isAutoSelectAllowed)
@@ -81,14 +81,14 @@ internal constructor(
      *   displayed next to the `userId` during the user consent to help your user better understand
      *   the credential being created
      */
-    class DisplayInfo
+    public class DisplayInfo
     internal constructor(
-        val userId: CharSequence,
-        val userDisplayName: CharSequence?,
+        public val userId: CharSequence,
+        public val userDisplayName: CharSequence?,
         @get:RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
-        val credentialTypeIcon: Icon?,
+        public val credentialTypeIcon: Icon?,
         @get:RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
-        val preferDefaultProvider: String?,
+        public val preferDefaultProvider: String?,
     ) {
 
         /**
@@ -101,7 +101,7 @@ internal constructor(
          * @throws IllegalArgumentException If [userId] is empty
          */
         @JvmOverloads
-        constructor(
+        public constructor(
             userId: CharSequence,
             userDisplayName: CharSequence? = null,
         ) : this(userId, userDisplayName, null, null)
@@ -120,7 +120,7 @@ internal constructor(
          *   below, depending on the pre-34 provider(s) you have chosen.
          * @throws IllegalArgumentException If [userId] is empty
          */
-        constructor(
+        public constructor(
             userId: CharSequence,
             userDisplayName: CharSequence?,
             preferDefaultProvider: String?,
@@ -132,7 +132,7 @@ internal constructor(
 
         @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
         @RequiresApi(23)
-        fun toBundle(): Bundle {
+        public fun toBundle(): Bundle {
             val bundle = Bundle()
             bundle.putCharSequence(BUNDLE_KEY_USER_ID, userId)
             if (!TextUtils.isEmpty(userDisplayName)) {
@@ -147,17 +147,17 @@ internal constructor(
             return bundle
         }
 
-        companion object {
+        public companion object {
             @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
-            const val BUNDLE_KEY_REQUEST_DISPLAY_INFO =
+            public const val BUNDLE_KEY_REQUEST_DISPLAY_INFO: String =
                 "androidx.credentials.BUNDLE_KEY_REQUEST_DISPLAY_INFO"
             @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
-            const val BUNDLE_KEY_USER_ID = "androidx.credentials.BUNDLE_KEY_USER_ID"
+            public const val BUNDLE_KEY_USER_ID: String = "androidx.credentials.BUNDLE_KEY_USER_ID"
 
             internal const val BUNDLE_KEY_USER_DISPLAY_NAME =
                 "androidx.credentials.BUNDLE_KEY_USER_DISPLAY_NAME"
             @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
-            const val BUNDLE_KEY_CREDENTIAL_TYPE_ICON =
+            public const val BUNDLE_KEY_CREDENTIAL_TYPE_ICON: String =
                 "androidx.credentials.BUNDLE_KEY_CREDENTIAL_TYPE_ICON"
 
             internal const val BUNDLE_KEY_DEFAULT_PROVIDER =
@@ -175,7 +175,7 @@ internal constructor(
              */
             @JvmStatic
             @RequiresApi(23) // Icon dependency
-            fun createFrom(from: Bundle): DisplayInfo {
+            public fun createFrom(from: Bundle): DisplayInfo {
                 return try {
                     val displayInfoBundle = from.getBundle(BUNDLE_KEY_REQUEST_DISPLAY_INFO)!!
                     val userId = displayInfoBundle.getCharSequence(BUNDLE_KEY_USER_ID)
@@ -194,12 +194,12 @@ internal constructor(
         }
     }
 
-    companion object {
+    public companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
-        const val BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS =
+        public const val BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS: String =
             "androidx.credentials.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS"
         @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
-        const val BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED =
+        public const val BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED: String =
             "androidx.credentials.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED"
 
         /**
@@ -214,7 +214,7 @@ internal constructor(
          */
         @JvmStatic
         @RequiresApi(34)
-        fun createFrom(
+        public fun createFrom(
             request: android.credentials.CreateCredentialRequest
         ): CreateCredentialRequest {
             return createFrom(
@@ -252,7 +252,7 @@ internal constructor(
         @JvmStatic
         @JvmOverloads
         @RequiresApi(23)
-        fun createFrom(
+        public fun createFrom(
             type: String,
             credentialData: Bundle,
             candidateQueryData: Bundle,

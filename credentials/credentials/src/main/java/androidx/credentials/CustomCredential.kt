@@ -37,7 +37,7 @@ import android.os.Bundle
  * @throws IllegalArgumentException If [type] is empty
  * @throws NullPointerException If [data] or [type] is null
  */
-open class CustomCredential(type: String, data: Bundle) : Credential(type, data) {
+public open class CustomCredential(type: String, data: Bundle) : Credential(type, data) {
 
     init {
         require(type.isNotEmpty()) { "type should not be empty" }

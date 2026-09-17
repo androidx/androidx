@@ -27,10 +27,11 @@ import java.io.FileOutputStream
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 /** LargePayloadSupport to support large payload over IPC. */
-object LargePayloadSupport {
+public object LargePayloadSupport {
     /** Key for the large payload stored as a [ParcelFileDescriptor] in a [Bundle]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    const val EXTRA_LARGE_PAYLOAD = "androidx.credentials.provider.extra.LARGE_PAYLOAD"
+    public const val EXTRA_LARGE_PAYLOAD: String =
+        "androidx.credentials.provider.extra.LARGE_PAYLOAD"
 
     /** Key for the size of the large payload stored in a [Bundle]. */
     private const val EXTRA_LARGE_PAYLOAD_SIZE =
@@ -44,7 +45,7 @@ object LargePayloadSupport {
      */
     @JvmStatic
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun encodeBundleToPfd(bundle: Bundle): Bundle? =
+    public fun encodeBundleToPfd(bundle: Bundle): Bundle? =
         Parcel.obtain().use { parcel ->
             parcel.writeBundle(bundle)
             val payload = parcel.marshall()
@@ -64,7 +65,7 @@ object LargePayloadSupport {
     /** Decodes a [Bundle] from a [ParcelFileDescriptor] stored in the given [bundle]. */
     @JvmStatic
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun decodeBundleFromPfd(bundle: Bundle): Bundle? {
+    public fun decodeBundleFromPfd(bundle: Bundle): Bundle? {
         val pfd =
             BundleCompat.getParcelable(
                 bundle,

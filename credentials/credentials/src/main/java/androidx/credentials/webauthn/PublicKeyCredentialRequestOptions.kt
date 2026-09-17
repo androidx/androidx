@@ -20,13 +20,13 @@ import androidx.annotation.RestrictTo
 import org.json.JSONObject
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class PublicKeyCredentialRequestOptions(requestJson: String) {
-    val json: JSONObject
+public class PublicKeyCredentialRequestOptions(requestJson: String) {
+    public val json: JSONObject
 
-    val challenge: ByteArray
-    val timeout: Long
-    val rpId: String
-    val userVerification: String
+    public val challenge: ByteArray
+    public val timeout: Long
+    public val rpId: String
+    public val userVerification: String
 
     init {
         json = JSONObject(requestJson)

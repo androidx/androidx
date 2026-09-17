@@ -27,8 +27,8 @@ import androidx.credentials.internal.RequestValidationHelper
  *   format that follows the standard webauthn json format shown at
  *   [this w3c link](https://w3c.github.io/webauthn/#dictdef-authenticationresponsejson)
  */
-class PublicKeyCredential
-private constructor(val authenticationResponseJson: String, data: Bundle) :
+public class PublicKeyCredential
+private constructor(public val authenticationResponseJson: String, data: Bundle) :
     Credential(TYPE_PUBLIC_KEY_CREDENTIAL, data) {
 
     /**
@@ -41,7 +41,7 @@ private constructor(val authenticationResponseJson: String, data: Bundle) :
      * @throws IllegalArgumentException If [authenticationResponseJson] is empty, or if it is not a
      *   valid JSON
      */
-    constructor(
+    public constructor(
         authenticationResponseJson: String
     ) : this(authenticationResponseJson, toBundle(authenticationResponseJson))
 
@@ -52,9 +52,9 @@ private constructor(val authenticationResponseJson: String, data: Bundle) :
     }
 
     /** Companion constants / helpers for [PublicKeyCredential]. */
-    companion object {
+    public companion object {
         /** The type value for public key credential related operations. */
-        const val TYPE_PUBLIC_KEY_CREDENTIAL: String =
+        public const val TYPE_PUBLIC_KEY_CREDENTIAL: String =
             "androidx.credentials.TYPE_PUBLIC_KEY_CREDENTIAL"
 
         /** The Bundle key value for the public key credential subtype (privileged or regular). */

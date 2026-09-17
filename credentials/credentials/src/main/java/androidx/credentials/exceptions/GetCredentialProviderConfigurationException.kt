@@ -23,7 +23,7 @@ package androidx.credentials.exceptions
  *
  * @see GetCredentialException
  */
-class GetCredentialProviderConfigurationException
+public class GetCredentialProviderConfigurationException
 @JvmOverloads
 constructor(errorMessage: CharSequence? = null) :
     GetCredentialException(TYPE_GET_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION, errorMessage) {

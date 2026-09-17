@@ -19,27 +19,27 @@ package androidx.credentials.webauthn
 import androidx.annotation.RestrictTo
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-data class PublicKeyCredentialRpEntity(val name: String, val id: String)
+public data class PublicKeyCredentialRpEntity(val name: String, val id: String)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-data class PublicKeyCredentialUserEntity(
+public data class PublicKeyCredentialUserEntity(
     val name: String,
     val id: ByteArray,
     val displayName: String,
 )
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-data class PublicKeyCredentialParameters(val type: String, val alg: Long)
+public data class PublicKeyCredentialParameters(val type: String, val alg: Long)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-data class PublicKeyCredentialDescriptor(
+public data class PublicKeyCredentialDescriptor(
     val type: String,
     val id: ByteArray,
     val transports: List<String>,
 )
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-data class AuthenticatorSelectionCriteria(
+public data class AuthenticatorSelectionCriteria(
     val authenticatorAttachment: String,
     val residentKey: String,
     val requireResidentKey: Boolean = false,

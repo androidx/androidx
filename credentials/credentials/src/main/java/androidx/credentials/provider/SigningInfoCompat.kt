@@ -45,16 +45,16 @@ import java.security.PublicKey
  * @property hasMultipleSigners for API 28 and above, this is the same as the app's
  *   [SigningInfo.hasMultipleSigners]; for before API 28, this is false
  */
-class SigningInfoCompat
+public class SigningInfoCompat
 internal constructor(
-    val signingCertificateHistory: List<Signature>,
-    @RequiresApi(28) val apkContentsSigners: List<Signature>,
-    @RequiresApi(35) val publicKeys: Collection<PublicKey>,
-    @RequiresApi(35) val schemeVersion: Int,
+    public val signingCertificateHistory: List<Signature>,
+    @RequiresApi(28) public val apkContentsSigners: List<Signature>,
+    @RequiresApi(35) public val publicKeys: Collection<PublicKey>,
+    @RequiresApi(35) public val schemeVersion: Int,
     @RequiresApi(28)
     @get:JvmName("hasPastSigningCertificates")
-    val hasPastSigningCertificates: Boolean,
-    @RequiresApi(28) @get:JvmName("hasMultipleSigners") val hasMultipleSigners: Boolean,
+    public val hasPastSigningCertificates: Boolean,
+    @RequiresApi(28) @get:JvmName("hasMultipleSigners") public val hasMultipleSigners: Boolean,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -81,7 +81,7 @@ internal constructor(
         return result
     }
 
-    companion object {
+    public companion object {
         /**
          * Creates a [SigningInfoCompat] from [SigningInfo].
          *
@@ -89,7 +89,7 @@ internal constructor(
          */
         @JvmStatic
         @RequiresApi(28)
-        fun fromSigningInfo(signingInfo: SigningInfo): SigningInfoCompat =
+        public fun fromSigningInfo(signingInfo: SigningInfo): SigningInfoCompat =
             SigningInfoCompat(
                 apkContentsSigners = signingInfo.apkContentsSigners?.filterNotNull() ?: emptyList(),
                 publicKeys =
@@ -114,7 +114,7 @@ internal constructor(
          */
         @JvmStatic
         @DeprecatedSinceApi(28, "Use SigningInfoCompat.fromSigningInfo(SigningInfo) instead")
-        fun fromSignatures(signatures: List<Signature>): SigningInfoCompat {
+        public fun fromSignatures(signatures: List<Signature>): SigningInfoCompat {
             if (Build.VERSION.SDK_INT >= 28) {
                 throw IllegalArgumentException(
                     "Use SigningInfoCompat.fromSigningInfo(SigningInfo) instead"

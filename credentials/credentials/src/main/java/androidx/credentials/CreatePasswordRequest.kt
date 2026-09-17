@@ -35,10 +35,10 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * @property id the user id associated with the password
  * @property password the password
  */
-class CreatePasswordRequest
+public class CreatePasswordRequest
 private constructor(
-    val id: String,
-    val password: String,
+    public val id: String,
+    public val password: String,
     isAutoSelectAllowed: Boolean,
     displayInfo: DisplayInfo,
     origin: String? = null,
@@ -82,7 +82,7 @@ private constructor(
      *   android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present
      */
     @JvmOverloads
-    constructor(
+    public constructor(
         id: String,
         password: String,
         origin: String? = null,
@@ -126,7 +126,7 @@ private constructor(
      * @throws SecurityException if [origin] is set but
      *   android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present
      */
-    constructor(
+    public constructor(
         id: String,
         password: String,
         origin: String?,

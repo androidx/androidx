@@ -26,8 +26,8 @@ package androidx.credentials
  * @param R the type of the result that's being sent
  * @param E the type of the exception being returned
  */
-interface CredentialManagerCallback<R : Any?, E : Any> {
-    fun onResult(result: R)
+public interface CredentialManagerCallback<R : Any?, E : Any> {
+    public fun onResult(result: R)
 
-    fun onError(e: E)
+    public fun onError(e: E)
 }

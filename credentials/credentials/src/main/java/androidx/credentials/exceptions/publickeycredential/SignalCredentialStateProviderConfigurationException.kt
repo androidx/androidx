@@ -25,7 +25,7 @@ import androidx.credentials.CredentialManager
  *
  * @see CredentialManager
  */
-class SignalCredentialStateProviderConfigurationException
+public class SignalCredentialStateProviderConfigurationException
 @JvmOverloads
 constructor(errorMessage: CharSequence? = null) :
     SignalCredentialStateException(

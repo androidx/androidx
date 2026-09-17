@@ -22,9 +22,9 @@ package androidx.credentials.exceptions.publickeycredential
  *
  * @property retryMillis the recommended time in milliseconds to wait before retrying the operation
  */
-class SignalCredentialRateLimitExceededException
+public class SignalCredentialRateLimitExceededException
 @JvmOverloads
-constructor(val retryMillis: Long, errorMessage: CharSequence? = null) :
+constructor(public val retryMillis: Long, errorMessage: CharSequence? = null) :
     SignalCredentialStateException(
         TYPE_SIGNAL_CREDENTIAL_STATE_RATE_LIMIT_EXCEEDED_EXCEPTION,
         errorMessage,

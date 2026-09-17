@@ -30,7 +30,7 @@ import androidx.credentials.CredentialManager
  * @throws IllegalArgumentException If [type] is empty
  * @throws NullPointerException If [type] is null
  */
-class GetCredentialCustomException
+public class GetCredentialCustomException
 @JvmOverloads
 constructor(override val type: String, errorMessage: CharSequence? = null) :
     GetCredentialException(type, errorMessage) {

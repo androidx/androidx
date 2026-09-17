@@ -17,10 +17,8 @@
 package androidx.credentials.playservices.controllers
 
 import android.content.Intent
-import android.os.Build
 import android.os.CancellationSignal
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
@@ -31,7 +29,6 @@ import androidx.credentials.playservices.controllers.CredentialProviderControlle
 import androidx.credentials.provider.PendingIntentHandler
 import java.util.concurrent.Executor
 
-@RequiresApi(Build.VERSION_CODES.M)
 internal class ResponseUtils {
     companion object {
         private const val TAG = "GetCredentialController"

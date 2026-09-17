@@ -24,8 +24,8 @@ import androidx.credentials.provider.ProviderClearCredentialStateRequest
 
 @RequiresApi(34)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class ClearCredentialUtil {
-    companion object {
+public class ClearCredentialUtil {
+    public companion object {
         @JvmStatic
         internal fun convertToJetpackRequest(
             request: ClearCredentialStateRequest

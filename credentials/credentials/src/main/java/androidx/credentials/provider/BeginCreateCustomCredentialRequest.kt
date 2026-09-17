@@ -42,7 +42,7 @@ import android.os.Bundle
  * @throws IllegalArgumentException If [type] is empty
  * @throws NullPointerException If [type], or [candidateQueryData] is null
  */
-open class BeginCreateCustomCredentialRequest
+public open class BeginCreateCustomCredentialRequest
 constructor(type: String, candidateQueryData: Bundle, callingAppInfo: CallingAppInfo?) :
     BeginCreateCredentialRequest(type, candidateQueryData, callingAppInfo) {
     init {

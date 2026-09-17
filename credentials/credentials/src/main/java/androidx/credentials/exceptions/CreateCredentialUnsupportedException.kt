@@ -24,7 +24,7 @@ package androidx.credentials.exceptions
  *
  * @see CreateCredentialException
  */
-class CreateCredentialUnsupportedException
+public class CreateCredentialUnsupportedException
 @JvmOverloads
 constructor(errorMessage: CharSequence? = null) :
     CreateCredentialException(TYPE_CREATE_CREDENTIAL_UNSUPPORTED_EXCEPTION, errorMessage) {

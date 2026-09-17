@@ -33,7 +33,7 @@ import android.os.Bundle
  *   information
  * @throws IllegalArgumentException If [type] is null or, empty
  */
-open class BeginGetCustomCredentialOption
+public open class BeginGetCustomCredentialOption
 constructor(id: String, type: String, candidateQueryData: Bundle) :
     BeginGetCredentialOption(id, type, candidateQueryData) {
     init {

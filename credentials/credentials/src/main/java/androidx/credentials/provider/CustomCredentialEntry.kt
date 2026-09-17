@@ -80,16 +80,16 @@ import java.util.Collections
  * @see CredentialEntry
  */
 @RequiresApi(23)
-class CustomCredentialEntry
+public class CustomCredentialEntry
 internal constructor(
     override val type: String,
-    val title: CharSequence,
-    val pendingIntent: PendingIntent,
-    @get:Suppress("AutoBoxing") val isAutoSelectAllowed: Boolean,
-    val subtitle: CharSequence?,
-    val typeDisplayName: CharSequence?,
-    val icon: Icon,
-    val lastUsedTime: Instant?,
+    public val title: CharSequence,
+    public val pendingIntent: PendingIntent,
+    @get:Suppress("AutoBoxing") public val isAutoSelectAllowed: Boolean,
+    public val subtitle: CharSequence?,
+    public val typeDisplayName: CharSequence?,
+    public val icon: Icon,
+    public val lastUsedTime: Instant?,
     beginGetCredentialOption: BeginGetCredentialOption,
     isDefaultIconPreferredAsSingleProvider: Boolean,
     entryGroupId: CharSequence? = title,
@@ -108,9 +108,9 @@ internal constructor(
         affiliatedDomain = affiliatedDomain,
         biometricPromptData = biometricPromptData,
     ) {
-    val isAutoSelectAllowedFromOption = autoSelectAllowedFromOption
+    public val isAutoSelectAllowedFromOption: Boolean = autoSelectAllowedFromOption
     @get:JvmName("hasDefaultIcon")
-    val hasDefaultIcon: Boolean
+    public val hasDefaultIcon: Boolean
         get() {
             if (Build.VERSION.SDK_INT >= 28) {
                 return Api28Impl.isDefaultIcon(this)
@@ -161,7 +161,7 @@ internal constructor(
             ),
         level = DeprecationLevel.HIDDEN,
     )
-    constructor(
+    public constructor(
         context: Context,
         title: CharSequence,
         pendingIntent: PendingIntent,
@@ -220,7 +220,7 @@ internal constructor(
      * @throws IllegalArgumentException If [type] or [title] are empty
      */
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    constructor(
+    public constructor(
         context: Context,
         title: CharSequence,
         pendingIntent: PendingIntent,
@@ -280,7 +280,7 @@ internal constructor(
      * @constructor constructs an instance of [CustomCredentialEntry]
      * @throws IllegalArgumentException If [type] or [title] are empty
      */
-    constructor(
+    public constructor(
         context: Context,
         title: CharSequence,
         pendingIntent: PendingIntent,
@@ -593,7 +593,7 @@ internal constructor(
         }
     }
 
-    companion object {
+    public companion object {
         private const val TAG = "CredentialEntry"
 
         /**
@@ -604,7 +604,7 @@ internal constructor(
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
-        fun toSlice(entry: CustomCredentialEntry): Slice? {
+        public fun toSlice(entry: CustomCredentialEntry): Slice? {
             if (Build.VERSION.SDK_INT >= 35) {
                 return Api35Impl.toSlice(entry)
             } else if (Build.VERSION.SDK_INT >= 28) {
@@ -621,7 +621,7 @@ internal constructor(
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun fromSlice(slice: Slice): CustomCredentialEntry? {
+        public fun fromSlice(slice: Slice): CustomCredentialEntry? {
             if (Build.VERSION.SDK_INT >= 35) {
                 return Api35Impl.fromSlice(slice)
             } else if (Build.VERSION.SDK_INT >= 28) {
@@ -637,7 +637,7 @@ internal constructor(
          * @param credentialEntry the instance of framework class to be converted
          */
         @JvmStatic
-        fun fromCredentialEntry(
+        public fun fromCredentialEntry(
             credentialEntry: android.service.credentials.CredentialEntry
         ): CustomCredentialEntry? {
             if (Build.VERSION.SDK_INT >= 34) {
@@ -808,7 +808,7 @@ internal constructor(
      * @throws NullPointerException If [context], [type], [title], [pendingIntent], or
      *   [beginGetCredentialOption] is null
      */
-    class Builder(
+    public class Builder(
         private val context: Context,
         private val type: String,
         private val title: CharSequence,
@@ -825,13 +825,13 @@ internal constructor(
         private var biometricPromptData: BiometricPromptData? = null
 
         /** Sets a displayName to be shown on the UI with this entry. */
-        fun setSubtitle(subtitle: CharSequence?): Builder {
+        public fun setSubtitle(subtitle: CharSequence?): Builder {
             this.subtitle = subtitle
             return this
         }
 
         /** Sets the display name of this credential type, to be shown on the UI with this entry. */
-        fun setTypeDisplayName(typeDisplayName: CharSequence?): Builder {
+        public fun setTypeDisplayName(typeDisplayName: CharSequence?): Builder {
             this.typeDisplayName = typeDisplayName
             return this
         }
@@ -840,7 +840,7 @@ internal constructor(
          * Sets the icon to be show on the UI. If no icon is set, a default icon representing a
          * custom credential will be set.
          */
-        fun setIcon(icon: Icon): Builder {
+        public fun setIcon(icon: Icon): Builder {
             this.icon = icon
             return this
         }
@@ -852,14 +852,14 @@ internal constructor(
          * biometric prompt flow.
          */
         @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-        fun setBiometricPromptData(biometricPromptData: BiometricPromptData?): Builder {
+        public fun setBiometricPromptData(biometricPromptData: BiometricPromptData?): Builder {
             this.biometricPromptData = biometricPromptData
             return this
         }
 
         /** Sets whether the entry should be auto-selected. The value is false by default. */
         @Suppress("MissingGetterMatchingBuilder")
-        fun setAutoSelectAllowed(autoSelectAllowed: Boolean): Builder {
+        public fun setAutoSelectAllowed(autoSelectAllowed: Boolean): Builder {
             this.autoSelectAllowed = autoSelectAllowed
             return this
         }
@@ -870,7 +870,7 @@ internal constructor(
          *
          * @throws IllegalArgumentException If the entryGroupId is empty
          */
-        fun setEntryGroupId(entryGroupId: CharSequence): Builder {
+        public fun setEntryGroupId(entryGroupId: CharSequence): Builder {
             require(entryGroupId.isNotEmpty()) { "entryGroupId must not be empty" }
             this.entryGroupId = entryGroupId
             return this
@@ -880,7 +880,7 @@ internal constructor(
          * Sets the last used time of this account. This information will be used to sort the
          * entries on the selector.
          */
-        fun setLastUsedTime(lastUsedTime: Instant?): Builder {
+        public fun setLastUsedTime(lastUsedTime: Instant?): Builder {
             this.lastUsedTime = lastUsedTime
             return this
         }
@@ -889,7 +889,7 @@ internal constructor(
          * When set to true, the UI prefers to render the default credential type icon when you are
          * the single available provider; false by default.
          */
-        fun setDefaultIconPreferredAsSingleProvider(
+        public fun setDefaultIconPreferredAsSingleProvider(
             isDefaultIconPreferredAsSingleProvider: Boolean
         ): Builder {
             this.isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider
@@ -897,7 +897,7 @@ internal constructor(
         }
 
         /** Builds an instance of [CustomCredentialEntry] */
-        fun build(): CustomCredentialEntry {
+        public fun build(): CustomCredentialEntry {
             if (icon == null && Build.VERSION.SDK_INT >= 23) {
                 icon = Icon.createWithResource(context, R.drawable.adx_ic_other_sign_in)
             }
