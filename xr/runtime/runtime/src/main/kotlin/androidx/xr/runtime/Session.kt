@@ -622,7 +622,18 @@ public constructor(
         }
     }
 
-    /** Produces the latest [CoreState] so it can be emitted downstream. */
+    /**
+     * Produces the latest [CoreState] so it can be emitted downstream.
+     *
+     * This method has no rate control. Instead, it relies on intentional delay in the [update]
+     * calls from the [JxrRuntime]s in [runtimes] to control how quickly [updateLoop] iterates. Some
+     * examples of these [JxrRuntime.update] delays:
+     * - [androidx.xr.arcore.openxr.OpenXrRuntime.update]: Delays for a fixed frame interval.
+     * - [androidx.xr.arcore.playservices.ArCoreRuntime.update]: Delays based on the camera config's
+     *   average FPS.
+     * - [androidx.xr.arcore.testing.FakePerceptionRuntime.update]: Suspends on a semaphore until
+     *   triggered by tests.
+     */
     @GuardedBy("configurationMutex")
     private suspend fun update() {
         if (isDestroyed) return
