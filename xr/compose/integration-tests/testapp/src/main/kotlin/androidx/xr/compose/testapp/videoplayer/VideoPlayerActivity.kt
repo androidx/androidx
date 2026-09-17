@@ -152,9 +152,20 @@ class VideoPlayerActivity : ComponentActivity() {
 
                     checkExternalStoragePermission()
 
-                    // Load texture
-                    alphaMaskTexture =
-                        Texture.create(session, Paths.get("textures", "alpha_mask.png"))
+                    // Load texture if available
+                    val texturePath = Paths.get("textures", "alpha_mask.png")
+                    val assetExists = runCatching {
+                        assets.open(texturePath.toString()).close()
+                    }
+                        .isSuccess
+
+                    if (assetExists) {
+                        try {
+                            alphaMaskTexture = Texture.create(session, texturePath)
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Failed to load alpha mask texture: $texturePath", e)
+                        }
+                    }
 
                     sessionCreated = true
                 } else {
