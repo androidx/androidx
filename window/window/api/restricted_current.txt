@@ -156,7 +156,7 @@ package androidx.window.embedding {
 
   public final class ActivityEmbeddingOptions {
     method @androidx.window.RequiresWindowSdkExtension(version=5) public static android.os.Bundle setLaunchingActivityStack(android.os.Bundle, android.content.Context context, androidx.window.embedding.ActivityStack activityStack);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.window.RequiresWindowSdkExtension(version=androidx.window.embedding.OverlayController.OVERLAY_FEATURE_VERSION) public static android.os.Bundle setOverlayCreateParams(android.os.Bundle, android.app.Activity activity, androidx.window.embedding.OverlayCreateParams overlayCreateParams);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.window.RequiresWindowSdkExtension(version=0x8) public static android.os.Bundle setOverlayCreateParams(android.os.Bundle, android.app.Activity activity, androidx.window.embedding.OverlayCreateParams overlayCreateParams);
   }
 
   public final class ActivityFilter {
@@ -432,11 +432,11 @@ package androidx.window.embedding {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OverlayController {
-    method @androidx.window.RequiresWindowSdkExtension(version=androidx.window.embedding.OverlayController.OVERLAY_FEATURE_VERSION) public void clearOverlayAttributesCalculator();
+    method @androidx.window.RequiresWindowSdkExtension(version=0x8) public void clearOverlayAttributesCalculator();
     method public static androidx.window.embedding.OverlayController getInstance(android.content.Context context);
-    method @androidx.window.RequiresWindowSdkExtension(version=androidx.window.embedding.OverlayController.OVERLAY_FEATURE_VERSION) public kotlinx.coroutines.flow.Flow<androidx.window.embedding.OverlayInfo> overlayInfo(String overlayTag);
-    method @androidx.window.RequiresWindowSdkExtension(version=androidx.window.embedding.OverlayController.OVERLAY_FEATURE_VERSION) public void setOverlayAttributesCalculator(kotlin.jvm.functions.Function1<? super androidx.window.embedding.OverlayAttributesCalculatorParams,androidx.window.embedding.OverlayAttributes> calculator);
-    method @androidx.window.RequiresWindowSdkExtension(version=androidx.window.embedding.OverlayController.OVERLAY_FEATURE_VERSION) public void updateOverlayAttributes(String overlayTag, androidx.window.embedding.OverlayAttributes overlayAttributes);
+    method @androidx.window.RequiresWindowSdkExtension(version=0x8) public kotlinx.coroutines.flow.Flow<androidx.window.embedding.OverlayInfo> overlayInfo(String overlayTag);
+    method @androidx.window.RequiresWindowSdkExtension(version=0x8) public void setOverlayAttributesCalculator(kotlin.jvm.functions.Function1<? super androidx.window.embedding.OverlayAttributesCalculatorParams,androidx.window.embedding.OverlayAttributes> calculator);
+    method @androidx.window.RequiresWindowSdkExtension(version=0x8) public void updateOverlayAttributes(String overlayTag, androidx.window.embedding.OverlayAttributes overlayAttributes);
     field public static final androidx.window.embedding.OverlayController.Companion Companion;
   }
 
