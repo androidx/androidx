@@ -50,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInParent
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
@@ -59,6 +60,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsEqualTo
@@ -1894,6 +1897,105 @@ class SliderTest {
             Truth.assertThat(valueChanges.size).isGreaterThan(0)
             Truth.assertThat(valueChangeFinishedCount).isEqualTo(1)
         }
+    }
+
+    @Test
+    fun slider_valueChange_doesNotRecomposeOrRemeasure() {
+        val state = SliderState(0f)
+        var sliderMeasureCount = 0
+        var thumbRecompositionCount = 0
+        var trackRecompositionCount = 0
+
+        rule.setMaterialContent(lightColorScheme()) {
+            Slider(
+                state = state,
+                onValueChange = { state.value = it },
+                modifier =
+                    Modifier.testTag(tag).layout { measurable, constraints ->
+                        sliderMeasureCount++
+                        val placeable = measurable.measure(constraints)
+                        layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                    },
+                thumb = {
+                    SideEffect { thumbRecompositionCount++ }
+                    SliderDefaults.Thumb(
+                        interactionSource = remember { MutableInteractionSource() }
+                    )
+                },
+                track = { sliderState ->
+                    SideEffect { trackRecompositionCount++ }
+                    SliderDefaults.Track(sliderState = sliderState)
+                },
+            )
+        }
+
+        var initialMeasureCount = 0
+        rule.runOnIdle {
+            initialMeasureCount = sliderMeasureCount
+            Truth.assertThat(initialMeasureCount).isGreaterThan(0)
+            Truth.assertThat(thumbRecompositionCount).isEqualTo(1)
+            Truth.assertThat(trackRecompositionCount).isEqualTo(1)
+        }
+
+        // Simulate video playback updating slider value across multiple frames (b/472965313)
+        rule.runOnIdle { state.value = 0.25f }
+        rule.runOnIdle { state.value = 0.50f }
+        rule.runOnIdle { state.value = 0.75f }
+
+        rule.runOnIdle {
+            Truth.assertThat(sliderMeasureCount).isEqualTo(initialMeasureCount)
+            Truth.assertThat(thumbRecompositionCount).isEqualTo(1)
+            Truth.assertThat(trackRecompositionCount).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun slider_semantics_stateDescription_onlySetForCenteredSlider() {
+        val standardTag = "standard"
+        val customTag = "custom"
+        val centeredTag = "centered"
+
+        rule.setMaterialContent(lightColorScheme()) {
+            Column {
+                Slider(
+                    state = remember { SliderState(0.5f) },
+                    onValueChange = {},
+                    modifier = Modifier.testTag(standardTag),
+                )
+                Slider(
+                    state = remember { SliderState(0.5f) },
+                    onValueChange = {},
+                    modifier =
+                        Modifier.semantics { stateDescription = "0:13 of 0:18" }.testTag(customTag),
+                )
+                Slider(
+                    state = remember { SliderState(0f, trackRange = -50f..50f) },
+                    onValueChange = {},
+                    modifier = Modifier.testTag(centeredTag),
+                )
+            }
+        }
+
+        // Standard slider should not set StateDescription so ProgressBarRangeInfo provides
+        // percentage
+        rule
+            .onNodeWithTag(standardTag)
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.StateDescription))
+            .assertRangeInfoEquals(ProgressBarRangeInfo(0.5f, 0f..1f, 0))
+
+        // Custom StateDescription passed via modifier must be preserved
+        rule
+            .onNodeWithTag(customTag)
+            .assert(
+                SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "0:13 of 0:18")
+            )
+            .assertRangeInfoEquals(ProgressBarRangeInfo(0.5f, 0f..1f, 0))
+
+        // Centered slider sets StateDescription to the formatted value
+        rule
+            .onNodeWithTag(centeredTag)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "0.0"))
+            .assertRangeInfoEquals(ProgressBarRangeInfo(0f, -50f..50f, 0))
     }
 }
 
