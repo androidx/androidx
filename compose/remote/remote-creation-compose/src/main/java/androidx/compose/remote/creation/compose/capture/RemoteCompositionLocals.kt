@@ -26,3 +26,8 @@ public val LocalRemoteDensity: ProvidableCompositionLocal<RemoteDensity> =
     staticCompositionLocalOf {
         RemoteDensity.Host
     }
+
+/** Composition local for font weight adjustment (e.g. system bold text setting). */
+internal val LocalFontWeightAdjustment: ProvidableCompositionLocal<Int> = staticCompositionLocalOf {
+    0
+}

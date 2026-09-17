@@ -22,6 +22,8 @@
 package androidx.compose.remote.creation.compose.capture
 
 import android.content.Context
+import android.content.res.Configuration
+import android.os.Build
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
@@ -134,6 +136,8 @@ public suspend fun captureSingleRemoteDocument(
                 LocalContext provides context,
                 LocalConfiguration provides context.resources.configuration,
                 LocalLayoutDirection provides layoutDirection,
+                LocalFontWeightAdjustment provides
+                    platformFontWeightAdjustment(context.resources.configuration),
                 content = content,
             )
         }
@@ -276,6 +280,8 @@ public fun captureRemoteDocument(
                 LocalContext provides context,
                 LocalConfiguration provides context.resources.configuration,
                 LocalLayoutDirection provides layoutDirection,
+                LocalFontWeightAdjustment provides
+                    platformFontWeightAdjustment(context.resources.configuration),
                 content = content,
             )
         }
@@ -339,3 +345,14 @@ private fun CreationDisplayInfo.toRemote(
         fontScale = fontScale,
         isInspectionMode = isInspectionMode,
     )
+
+private fun platformFontWeightAdjustment(configuration: Configuration): Int =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (configuration.fontWeightAdjustment != Configuration.FONT_WEIGHT_ADJUSTMENT_UNDEFINED) {
+            configuration.fontWeightAdjustment
+        } else {
+            0
+        }
+    } else {
+        0
+    }

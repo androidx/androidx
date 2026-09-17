@@ -16,9 +16,8 @@
 
 package androidx.compose.remote.creation.compose.layout
 
-import android.content.res.Configuration
-import android.os.Build
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.capture.LocalFontWeightAdjustment
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -35,7 +34,6 @@ import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
@@ -157,20 +155,7 @@ public fun RemoteText(
     textDecoration: TextDecoration? = null,
     fontVariationSettings: FontVariation.Settings? = null,
 ) {
-    val localConfiguration = LocalConfiguration.current
-    val fontWeightAdjustment =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (
-                localConfiguration.fontWeightAdjustment !=
-                    Configuration.FONT_WEIGHT_ADJUSTMENT_UNDEFINED
-            ) {
-                localConfiguration.fontWeightAdjustment
-            } else {
-                0
-            }
-        } else {
-            0
-        }
+    val fontWeightAdjustment = LocalFontWeightAdjustment.current
 
     RemoteComposeNode(
         factory = ::RemoteTextNode,
