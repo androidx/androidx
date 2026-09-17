@@ -54,14 +54,15 @@ public data class LoadStates(
 
     /** Returns true if either one of [refresh], [append], or [prepend] is in [Error] state. */
     @get:JvmName("hasError")
-    public val hasError =
+    public val hasError: Boolean =
         refresh is LoadState.Error || append is LoadState.Error || prepend is LoadState.Error
 
     /**
      * Returns true if all three LoadState [refresh], [append], and [prepend] are in [NotLoading]
      * state.
      */
-    public val isIdle = refresh is NotLoading && append is NotLoading && prepend is NotLoading
+    public val isIdle: Boolean =
+        refresh is NotLoading && append is NotLoading && prepend is NotLoading
 
     internal companion object {
         val IDLE =

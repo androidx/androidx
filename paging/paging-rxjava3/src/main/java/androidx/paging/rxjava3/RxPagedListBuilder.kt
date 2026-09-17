@@ -59,7 +59,7 @@ import kotlinx.coroutines.withContext
  * @param Value Item type being presented.
  */
 @Deprecated("PagedList is deprecated and has been replaced by PagingData")
-class RxPagedListBuilder<Key : Any, Value : Any> {
+public class RxPagedListBuilder<Key : Any, Value : Any> {
     private val pagingSourceFactory: (() -> PagingSource<Key, Value>)?
     private val dataSourceFactory: DataSource.Factory<Key, Value>?
 
@@ -99,7 +99,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                 "androidx.paging.rxjava3.flowable",
             ),
     )
-    constructor(
+    public constructor(
         pagingSourceFactory: () -> PagingSource<Key, Value>,
         @Suppress("DEPRECATION") config: PagedList.Config,
     ) {
@@ -137,7 +137,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                 "androidx.paging.rxjava3.flowable",
             ),
     )
-    constructor(
+    public constructor(
         pagingSourceFactory: () -> PagingSource<Key, Value>,
         pageSize: Int,
     ) : this(pagingSourceFactory, PagedList.Config.Builder().setPageSize(pageSize).build())
@@ -169,7 +169,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                 "kotlinx.coroutines.Dispatchers",
             ),
     )
-    constructor(
+    public constructor(
         dataSourceFactory: DataSource.Factory<Key, Value>,
         @Suppress("DEPRECATION") config: PagedList.Config,
     ) {
@@ -208,7 +208,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                 "kotlinx.coroutines.Dispatchers",
             ),
     )
-    constructor(
+    public constructor(
         dataSourceFactory: DataSource.Factory<Key, Value>,
         pageSize: Int,
     ) : this(dataSourceFactory, PagedList.Config.Builder().setPageSize(pageSize).build())
@@ -222,7 +222,9 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      * @param key Initial load key passed to the first PagedList/DataSource.
      * @return this
      */
-    fun setInitialLoadKey(key: Key?) = apply { initialLoadKey = key }
+    public fun setInitialLoadKey(key: Key?): RxPagedListBuilder<Key, Value> = apply {
+        initialLoadKey = key
+    }
 
     /**
      * Sets a [androidx.paging.PagedList.BoundaryCallback] on each PagedList created, typically used
@@ -244,9 +246,9 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      * @param boundaryCallback The boundary callback for listening to PagedList load state.
      * @return this
      */
-    fun setBoundaryCallback(
+    public fun setBoundaryCallback(
         @Suppress("DEPRECATION") boundaryCallback: PagedList.BoundaryCallback<Value>?
-    ) = apply { this.boundaryCallback = boundaryCallback }
+    ): RxPagedListBuilder<Key, Value> = apply { this.boundaryCallback = boundaryCallback }
 
     /**
      * Sets scheduler which will be used for observing new PagedLists, as well as loading updates
@@ -261,7 +263,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      *   calls are dispatched. Generally, this is the UI/main thread.
      * @return this
      */
-    fun setNotifyScheduler(scheduler: Scheduler) = apply {
+    public fun setNotifyScheduler(scheduler: Scheduler): RxPagedListBuilder<Key, Value> = apply {
         notifyScheduler = scheduler
         notifyDispatcher = scheduler.asCoroutineDispatcher()
     }
@@ -278,7 +280,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      *   pool for e.g. I/O or network loading.
      * @return this
      */
-    fun setFetchScheduler(scheduler: Scheduler) = apply {
+    public fun setFetchScheduler(scheduler: Scheduler): RxPagedListBuilder<Key, Value> = apply {
         fetchScheduler = scheduler
         fetchDispatcher = scheduler.asCoroutineDispatcher()
     }
@@ -292,7 +294,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      * @return The [Observable] of PagedLists
      */
     @Suppress("BuilderSetStyle", "DEPRECATION")
-    fun buildObservable(): Observable<PagedList<Value>> {
+    public fun buildObservable(): Observable<PagedList<Value>> {
         val notifyScheduler =
             notifyScheduler ?: ScheduledExecutor(ArchTaskExecutor.getMainThreadExecutor())
         val notifyDispatcher = notifyDispatcher ?: notifyScheduler.asCoroutineDispatcher()
@@ -332,7 +334,9 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      * @return The [Flowable] of PagedLists
      */
     @Suppress("BuilderSetStyle", "DEPRECATION")
-    fun buildFlowable(backpressureStrategy: BackpressureStrategy): Flowable<PagedList<Value>> {
+    public fun buildFlowable(
+        backpressureStrategy: BackpressureStrategy
+    ): Flowable<PagedList<Value>> {
         return buildObservable().toFlowable(backpressureStrategy)
     }
 

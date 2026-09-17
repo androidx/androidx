@@ -23,7 +23,7 @@ import kotlinx.coroutines.guava.await
 
 /** [ListenableFuture]-based compatibility wrapper around [RemoteMediator]'s suspending APIs. */
 @ExperimentalPagingApi
-abstract class ListenableFutureRemoteMediator<Key : Any, Value : Any> :
+public abstract class ListenableFutureRemoteMediator<Key : Any, Value : Any> :
     RemoteMediator<Key, Value>() {
     /**
      * Implement this method to load additional remote data, which will then be stored for the
@@ -55,7 +55,7 @@ abstract class ListenableFutureRemoteMediator<Key : Any, Value : Any> :
      *   there's more data available.
      */
     @Suppress("AsyncSuffixFuture")
-    abstract fun loadFuture(
+    public abstract fun loadFuture(
         loadType: LoadType,
         state: PagingState<Key, Value>,
     ): ListenableFuture<MediatorResult>
@@ -74,7 +74,7 @@ abstract class ListenableFutureRemoteMediator<Key : Any, Value : Any> :
      *       request from the UI before dispatching a [load] with load type [LoadType.REFRESH].
      */
     @Suppress("AsyncSuffixFuture")
-    open fun initializeFuture(): ListenableFuture<InitializeAction> {
+    public open fun initializeFuture(): ListenableFuture<InitializeAction> {
         return Futures.immediateFuture(LAUNCH_INITIAL_REFRESH)
     }
 

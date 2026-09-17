@@ -16,7 +16,8 @@
 
 package androidx.paging
 
-actual fun interface PagingSourceFactory<Key : Any, Value : Any> : () -> PagingSource<Key, Value> {
+public actual fun interface PagingSourceFactory<Key : Any, Value : Any> :
+    () -> PagingSource<Key, Value> {
     /**
      * Returns a new PagingSource instance.
      *

@@ -25,13 +25,13 @@ import kotlinx.coroutines.rx3.await
  *
  * @sample androidx.paging.samples.rxPagingSourceSample
  */
-abstract class RxPagingSource<Key : Any, Value : Any> : PagingSource<Key, Value>() {
+public abstract class RxPagingSource<Key : Any, Value : Any> : PagingSource<Key, Value>() {
     /**
      * Loading API for [PagingSource].
      *
      * Implement this method to trigger your async load (e.g. from database or network).
      */
-    abstract fun loadSingle(params: LoadParams<Key>): Single<LoadResult<Key, Value>>
+    public abstract fun loadSingle(params: LoadParams<Key>): Single<LoadResult<Key, Value>>
 
     final override suspend fun load(params: LoadParams<Key>): LoadResult<Key, Value> {
         return loadSingle(params).await()

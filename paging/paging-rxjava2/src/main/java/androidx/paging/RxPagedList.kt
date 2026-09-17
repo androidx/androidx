@@ -100,7 +100,7 @@ private fun <Key : Any, Value : Any> createRxPagedListBuilder(
             "kotlinx.coroutines.Dispatchers",
         ),
 )
-fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
+public fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
@@ -153,7 +153,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
             "kotlinx.coroutines.Dispatchers",
         ),
 )
-fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
+public fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
     pageSize: Int,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
@@ -213,7 +213,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
             "kotlinx.coroutines.Dispatchers",
         ),
 )
-fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
+public fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
@@ -268,7 +268,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
             "kotlinx.coroutines.Dispatchers",
         ),
 )
-fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
+public fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
     pageSize: Int,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
@@ -328,7 +328,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
             "kotlinx.coroutines.Dispatchers",
         ),
 )
-fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
+public fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
@@ -379,7 +379,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
             "androidx.paging.rxjava2.getObservable",
         ),
 )
-fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
+public fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
     pageSize: Int,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
@@ -437,7 +437,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
             "androidx.paging.rxjava2.getFlowable",
         ),
 )
-fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toFlowable(
+public fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toFlowable(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
@@ -490,7 +490,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toFlowable(
             "androidx.paging.rxjava2.getFlowable",
         ),
 )
-fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toFlowable(
+public fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toFlowable(
     pageSize: Int,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,

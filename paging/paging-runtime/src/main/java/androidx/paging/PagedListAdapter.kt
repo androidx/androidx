@@ -109,7 +109,8 @@ import androidx.recyclerview.widget.RecyclerView
     message = "PagedListAdapter is deprecated and has been replaced by PagingDataAdapter",
     replaceWith = ReplaceWith("PagingDataAdapter<T, VH>", "androidx.paging.PagingDataAdapter"),
 )
-abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : RecyclerView.Adapter<VH> {
+public abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> :
+    RecyclerView.Adapter<VH> {
     @Suppress("DEPRECATION") internal val differ: AsyncPagedListDiffer<T>
     @Suppress("DEPRECATION")
     private val listener = { previousList: PagedList<T>?, currentList: PagedList<T>? ->
@@ -128,7 +129,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * @see onCurrentListChanged
      */
     @Suppress("DEPRECATION")
-    open val currentList: PagedList<T>?
+    public open val currentList: PagedList<T>?
         get() = differ.currentList
 
     /**
@@ -159,7 +160,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      *
      * @param pagedList The new list to be displayed.
      */
-    open fun submitList(@Suppress("DEPRECATION") pagedList: PagedList<T>?) =
+    public open fun submitList(@Suppress("DEPRECATION") pagedList: PagedList<T>?): Unit =
         differ.submitList(pagedList)
 
     /**
@@ -176,14 +177,14 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * @param commitCallback Optional runnable that is executed when the PagedList is committed, if
      *   it is committed.
      */
-    open fun submitList(
+    public open fun submitList(
         @Suppress("DEPRECATION") pagedList: PagedList<T>?,
         commitCallback: Runnable?,
-    ) = differ.submitList(pagedList, commitCallback)
+    ): Unit = differ.submitList(pagedList, commitCallback)
 
-    protected open fun getItem(position: Int) = differ.getItem(position)
+    protected open fun getItem(position: Int): T? = differ.getItem(position)
 
-    override fun getItemCount() = differ.itemCount
+    override fun getItemCount(): Int = differ.itemCount
 
     /**
      * Called when the current PagedList is updated.
@@ -203,7 +204,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
         "Use the two argument variant instead.",
         ReplaceWith("onCurrentListChanged(previousList, currentList)"),
     )
-    open fun onCurrentListChanged(@Suppress("DEPRECATION") currentList: PagedList<T>?) {}
+    public open fun onCurrentListChanged(@Suppress("DEPRECATION") currentList: PagedList<T>?) {}
 
     /**
      * Called when the current PagedList is updated.
@@ -220,7 +221,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * @param currentList new [PagedList] being displayed, may be null.
      * @see currentList
      */
-    open fun onCurrentListChanged(
+    public open fun onCurrentListChanged(
         @Suppress("DEPRECATION") previousList: PagedList<T>?,
         @Suppress("DEPRECATION") currentList: PagedList<T>?,
     ) {}
@@ -234,7 +235,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * @param listener Listener to receive [LoadState] updates.
      * @see removeLoadStateListener
      */
-    open fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+    public open fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
         differ.addLoadStateListener(listener)
     }
 
@@ -244,7 +245,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * @param listener Previously registered listener.
      * @see addLoadStateListener
      */
-    open fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+    public open fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
         differ.removeLoadStateListener(listener)
     }
 
@@ -252,7 +253,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * Create a [ConcatAdapter] with the provided [LoadStateAdapter]s displaying the
      * [LoadType.PREPEND] [LoadState] as a list item at the end of the presented list.
      */
-    fun withLoadStateHeader(header: LoadStateAdapter<*>): ConcatAdapter {
+    public fun withLoadStateHeader(header: LoadStateAdapter<*>): ConcatAdapter {
         addLoadStateListener { loadType, loadState ->
             if (loadType == LoadType.PREPEND) {
                 header.loadState = loadState
@@ -265,7 +266,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * Create a [ConcatAdapter] with the provided [LoadStateAdapter]s displaying the
      * [LoadType.APPEND] [LoadState] as a list item at the start of the presented list.
      */
-    fun withLoadStateFooter(footer: LoadStateAdapter<*>): ConcatAdapter {
+    public fun withLoadStateFooter(footer: LoadStateAdapter<*>): ConcatAdapter {
         addLoadStateListener { loadType, loadState ->
             if (loadType == LoadType.APPEND) {
                 footer.loadState = loadState
@@ -279,7 +280,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * [LoadType.PREPEND] and [LoadType.APPEND] [LoadState]s as list items at the start and end
      * respectively.
      */
-    fun withLoadStateHeaderAndFooter(
+    public fun withLoadStateHeaderAndFooter(
         header: LoadStateAdapter<*>,
         footer: LoadStateAdapter<*>,
     ): ConcatAdapter {
