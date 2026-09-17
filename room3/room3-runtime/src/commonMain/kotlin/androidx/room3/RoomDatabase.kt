@@ -493,6 +493,18 @@ public expect abstract class RoomDatabase() {
         public fun setConnectionPoolTimeout(timeout: Duration): Builder<T>
 
         /**
+         * Sets whether Room is allowed to delete and recreate the database file in situations where
+         * the database cannot be opened or is corrupted, thus allowing for its data to be lost.
+         *
+         * @param allowDataLossOnRecovery If `true` the database file might be deleted and recreated
+         *   in the case that it cannot be opened.
+         * @return This builder instance.
+         */
+        @JvmOverloads
+        @Suppress("MissingGetterMatchingBuilder")
+        public fun allowDataLossOnRecovery(allowDataLossOnRecovery: Boolean = true): Builder<T>
+
+        /**
          * Creates the database and initializes it.
          *
          * @return A new database instance.

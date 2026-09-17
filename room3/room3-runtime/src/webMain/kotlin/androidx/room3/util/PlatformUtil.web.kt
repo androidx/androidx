@@ -22,3 +22,7 @@ import kotlinx.coroutines.Dispatchers
 internal actual val platform = PlatformType.WEB
 
 internal actual val defaultQueryDispatcher: CoroutineDispatcher = Dispatchers.Main
+
+internal actual fun ensureParentDirectoryExists(fileName: String) {}
+
+internal actual fun deleteDatabaseFiles(fileName: String): Boolean = false

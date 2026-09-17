@@ -17,7 +17,6 @@
 package androidx.room3
 
 import androidx.annotation.RestrictTo
-import androidx.room3.coroutines.DEFAULT_CONNECTION_POOL_TIMEOUT
 import androidx.room3.migration.AutoMigrationSpec
 import androidx.sqlite.SQLiteDriver
 import kotlin.coroutines.CoroutineContext
@@ -53,7 +52,8 @@ public actual class DatabaseConfiguration(
     public actual val queryCoroutineContext: CoroutineContext,
     /* The connection pool configuration. */
     public actual val connectionPoolConfiguration: ConnectionPoolConfiguration,
-) {
     /* The connection pool timeout. */
-    internal actual var connectionPoolTimeout: Duration = DEFAULT_CONNECTION_POOL_TIMEOUT
-}
+    public actual val connectionPoolTimeout: Duration,
+    /* Whether Room is allowed to delete and recreate the database file on corruption. */
+    public actual val allowDataLossOnRecovery: Boolean,
+)

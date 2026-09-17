@@ -17,6 +17,7 @@
 package androidx.room3.integration.multiplatformtestapp.test
 
 import androidx.kruth.assertThat
+import androidx.kruth.assertThrows
 import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
@@ -58,5 +59,30 @@ abstract class BaseNonWebMigrationTest : BaseMigrationTest() {
                 .build()
         dbVersion2.dao().getSingleItem(1)
         dbVersion2.close()
+    }
+
+    @Test
+    fun missingMigration_dataLossOnRecoveryAllowed_doesNotDeleteDatabase() = runTest {
+        val migrationTestHelper = getTestHelper()
+        val connection = migrationTestHelper.createDatabase(1)
+        connection.prepare("INSERT INTO MigrationEntity (pk) VALUES (?)").use {
+            it.bindLong(1, 42)
+            assertThat(it.step()).isFalse()
+        }
+        connection.close()
+
+        val dbVersion2 = getDatabaseBuilder().allowDataLossOnRecovery(true).build()
+        assertThrows<IllegalStateException> { dbVersion2.dao().getSingleItem(42) }
+            .hasMessageThat()
+            .contains("A migration from 1 to 2 was required but not found")
+        dbVersion2.close()
+
+        val checkConnection = migrationTestHelper.runMigrationsAndValidate(1, emptyList())
+        checkConnection.prepare("SELECT pk FROM MigrationEntity WHERE pk = ?").use {
+            it.bindLong(1, 42)
+            assertThat(it.step()).isTrue()
+            assertThat(it.getLong(0)).isEqualTo(42L)
+        }
+        checkConnection.close()
     }
 }
