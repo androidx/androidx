@@ -122,6 +122,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
+import kotlinx.coroutines.delay
 
 /**
  * A player of a [CoreDocument].
@@ -188,6 +189,10 @@ public fun RcPlayer(
             ctx.paintTheme = resolvedTheme
             ctx.setTheme(resolvedTheme)
             AndroidColorThemeResolver.mapColors(androidContext, document)
+            document.themedColors?.fastForEach { themeColor ->
+                themeColor.setTheme(ctx, resolvedTheme)
+                themeColor.apply(ctx)
+            }
             document.checkShaders(
                 ctx,
                 CoreDocument.ShaderControl { source -> isShaderValid(source) },
@@ -245,18 +250,20 @@ public fun RcPlayer(
 
             val delayNs = limiter.computeDelay(0L, frameMillis * 1_000_000L)
             if (delayNs > limiter.minIntervalNs) {
-                kotlinx.coroutines.delay((delayNs - limiter.minIntervalNs) / 1_000_000L)
+                delay((delayNs - limiter.minIntervalNs) / 1_000_000L)
             }
         }
     }
 
     // React to dynamic theme changes (e.g. host night mode changes), updating context paint/theme
     // state and applying the updated theme to document ColorTheme operations.
-    LaunchedEffect(resolvedTheme) {
+    LaunchedEffect(resolvedTheme, androidContext) {
         remoteContext.paintTheme = resolvedTheme
         remoteContext.setTheme(resolvedTheme)
+        AndroidColorThemeResolver.mapColors(androidContext, document)
         document.themedColors?.fastForEach { themeColor ->
             themeColor.setTheme(remoteContext, resolvedTheme)
+            themeColor.apply(remoteContext)
         }
     }
 
