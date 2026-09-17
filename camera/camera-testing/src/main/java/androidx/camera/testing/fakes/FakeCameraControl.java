@@ -830,4 +830,26 @@ public final class FakeCameraControl implements CameraControlInternal {
         /** Called when a submitted capture request has been completed successfully. */
         void onCompleted(@NonNull CameraCaptureResult result);
     }
+
+    private int mVideoUsageCount = 0;
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    public void incrementVideoUsage() {
+        mVideoUsageCount++;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    public void decrementVideoUsage() {
+        if (mVideoUsageCount > 0) {
+            mVideoUsageCount--;
+        }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    public boolean isInVideoUsage() {
+        return mVideoUsageCount > 0;
+    }
 }

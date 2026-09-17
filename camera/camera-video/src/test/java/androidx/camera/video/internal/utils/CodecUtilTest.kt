@@ -87,6 +87,32 @@ class CodecUtilTest {
         assertThat(videoTypes).containsExactly(MIMETYPE_AUDIO_AAC)
     }
 
+    @Config(minSdk = 29)
+    @Test
+    fun getVideoEncoderMimeTypes_shouldBeLowerCase() {
+        // Arrange.
+        addVideoCodecInfo(mimeType = "video/AVC", isEncoder = true)
+
+        // Act.
+        val videoTypes = CodecUtil.getVideoEncoderMimeTypes()
+
+        // Assert.
+        assertThat(videoTypes).containsExactly(MIMETYPE_VIDEO_AVC.lowercase())
+    }
+
+    @Config(minSdk = 29)
+    @Test
+    fun getAudioEncoderMimeTypes_shouldBeLowerCase() {
+        // Arrange.
+        addAudioCodecInfo(mimeType = "audio/MP4A-LATM", isEncoder = true)
+
+        // Act.
+        val audioTypes = CodecUtil.getAudioEncoderMimeTypes()
+
+        // Assert.
+        assertThat(audioTypes).containsExactly(MIMETYPE_AUDIO_AAC.lowercase())
+    }
+
     @RequiresApi(29) // ShadowMediaCodecList#addCodec requires API 29
     private fun addVideoCodecInfo(
         mimeType: String = MIMETYPE_VIDEO_AVC,
