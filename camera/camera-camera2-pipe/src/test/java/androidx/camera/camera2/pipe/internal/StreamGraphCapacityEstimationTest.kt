@@ -93,13 +93,11 @@ class StreamGraphCapacityEstimationTest {
     fun streamGraphCapacityDecreasesWhenFramesAcquiredExternally() = testScope.runTest {
         val streamId = frameGraph.streams[streamConfigLarge]!!.id
         val frameBuffer = frameGraph.captureWith(setOf(streamId), capacity = 5)
-        advanceUntilIdle()
 
         // Initial availability should be 5, limited by ImageSourceConfig(capacity = 5)
         assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
 
         val frame = frameGraph.simulateNextFrame()
-        advanceUntilIdle()
         frame.simulateImage(streamId)
         advanceUntilIdle()
 
@@ -156,7 +154,6 @@ class StreamGraphCapacityEstimationTest {
         assertThat(tightGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
 
         val frameBuffer = tightGraph.captureWith(setOf(streamId), capacity = 10)
-        advanceUntilIdle()
 
         val frame = tightGraph.simulateNextFrame()
         advanceUntilIdle()
@@ -195,10 +192,8 @@ class StreamGraphCapacityEstimationTest {
             .isEqualTo(5)
 
         val bufferLarge = frameGraph.captureWith(setOf(streamLarge), capacity = 5)
-        advanceUntilIdle()
 
         val frame = frameGraph.simulateNextFrame()
-        advanceUntilIdle()
         frame.simulateImage(streamLarge)
         advanceUntilIdle()
 
@@ -231,10 +226,8 @@ class StreamGraphCapacityEstimationTest {
         assertThat(unboundedGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
 
         val frameBuffer = unboundedGraph.captureWith(setOf(streamId), capacity = 5)
-        advanceUntilIdle()
 
         val frame = unboundedGraph.simulateNextFrame()
-        advanceUntilIdle()
         frame.simulateImage(streamId)
         advanceUntilIdle()
 

@@ -543,7 +543,6 @@ class LatestFrameMetadataAggregatorTest {
         frame2.simulatePartialCaptureResult(
             mapOf<CaptureResult.Key<*>, Any>(keyX to 20L, keyY to 200)
         )
-        advanceUntilIdle()
 
         // Frame 3 Partial with A
         val frame3 = sim.simulateNextFrame()
@@ -647,7 +646,6 @@ class LatestFrameMetadataAggregatorTest {
             }
         sim.listeners.add(listener)
 
-        advanceUntilIdle()
         sim.simulateNextFrame() // Drain initial repeating request (without listener)
 
         // 1. Simulate frame with targetRequest (repeating)
@@ -659,7 +657,6 @@ class LatestFrameMetadataAggregatorTest {
 
         // 2. Submit single request to exclude and simulate it
         sim.acquireSession().use { it.submit(excludeRequest) }
-        advanceUntilIdle() // Wait for request to be processed
         val frame2 = sim.simulateNextFrame()
         frame2.simulatePartialCaptureResult(mapOf(keyX to 20L))
         frame2.simulateTotalCaptureResult(emptyMap())

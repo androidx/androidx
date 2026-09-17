@@ -97,7 +97,6 @@ class CameraGraphCameraControls3ATest {
                     CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED
                 )
             )
-        advanceUntilIdle()
 
         cameraGraph
             .simulateNextFrame()
