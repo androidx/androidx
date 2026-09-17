@@ -829,7 +829,12 @@ class CameraControllerFragmentTest(
 
         @JvmField val testCameraRule = CameraUtil.PreTestCamera()
 
-        const val TIMEOUT_SECONDS = 10L
+        // In fragment tests, waiting for preview streaming involves the entire end-to-end flow:
+        // fragment launch, window transition, view layout traversal, auto-attachment of
+        // PreviewView to CameraController, Camera HAL opening, and first frame streaming.
+        // On low-end devices (e.g. Redmi 8), this composite flow requires additional headroom
+        // beyond camera open alone.
+        const val TIMEOUT_SECONDS = 15L
         const val RECORDING_COUNT = 5
 
         @JvmStatic
