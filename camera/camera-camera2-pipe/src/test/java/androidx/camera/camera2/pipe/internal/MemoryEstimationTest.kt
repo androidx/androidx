@@ -60,7 +60,7 @@ class MemoryEstimationTest {
         CameraStream.Config.create(
             Size(1280, 720),
             StreamFormat.YUV_420_888,
-            imageSourceConfig = ImageSourceConfig(capacity = 5),
+            imageSourceConfig = ImageSourceConfig(capacity = 10),
         )
     val streamConfigSmall =
         CameraStream.Config.create(
@@ -410,8 +410,8 @@ class MemoryEstimationTest {
 
     @Test
     fun exceedingCapacityHandlesAllocationCorrectly() = testScope.runTest {
-        // Read the margin dynamically
-        val marginCount = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
+        // Read the margin dynamically, plus 2 for the default HAL pipeline depth
+        val marginCount = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT + 2
         val totalCapacityFrames = marginCount + 1
 
         // Restrict the global capacity to exactly (margin + 1) large images.
@@ -420,7 +420,7 @@ class MemoryEstimationTest {
         val tightGraph = createAndStartFrameGraph(tightSimulator)
 
         val streamId = tightGraph.streams[streamConfigLarge]!!.id
-        val frameBuffer = tightGraph.captureWith(setOf(streamId), capacity = 5)
+        val frameBuffer = tightGraph.captureWith(setOf(streamId), capacity = 10)
         advanceUntilIdle()
 
         // 1. Simulate the first frame (Should succeed)
@@ -434,7 +434,7 @@ class MemoryEstimationTest {
         assertThat(acquiredFrame1).isNotNull()
         assertThat(acquiredFrame1!!.getImage(streamId)).isNotNull()
 
-        // Exhaust the remaining capacity (marginCount) via explicit captures.
+        // Exhaust the remaining capacity via explicit captures.
         val fillerCaptures =
             List(marginCount) { tightGraph.capture(Request(streams = listOf(streamId))) }
         val fillerFrames = mutableListOf<Frame>()
