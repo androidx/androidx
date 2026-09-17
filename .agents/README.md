@@ -17,6 +17,7 @@ task. For the repo-wide build/test/commit/upload workflow, start from the root
 | [`ktdoc_quality`](skills/ktdoc_quality/SKILL.md) | Improving Kotlin KDoc so it is concise, active, and linked to API elements. |
 | [`find-my-flags`](skills/find-my-flags/SKILL.md) | Finding Compose feature flags introduced by an author and mapping them to a library version. |
 | [`remove-feature-flag`](skills/remove-feature-flag/SKILL.md) | Removing an obsolete feature flag and its dead code without behavior changes. |
+| [`compose-catalog`](skills/compose-catalog/SKILL.md) | Building, installing, and running the Compose Material Catalog app on devices or emulators. |
 | [`health-connect`](skills/health-connect/SKILL.md) | Adding or modifying any Health Connect APIs (under `health/connect/`). |
 | [`webkit-api-development`](skills/webkit-api-development/SKILL.md) | Adding or modifying WebKit APIs, feature flags, boundary interface plumbing, and testing in `webkit/`. |
 
