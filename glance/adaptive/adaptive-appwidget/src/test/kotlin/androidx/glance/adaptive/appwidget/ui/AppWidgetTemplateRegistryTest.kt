@@ -21,9 +21,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Recomposer
+import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
 import androidx.glance.adaptive.appwidget.ui.selection.LocalContainerDimensions
+import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.Dimensions
-import androidx.glance.adaptive.core.ui.selection.GlanceSurface
+import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
@@ -39,11 +41,7 @@ class AppWidgetTemplateRegistryTest {
 
     private data class DummyTemplate(val title: String) : AdaptiveGlanceTemplate
 
-    private enum class DummyArchetype {
-        CARD
-    }
-
-    private val testSurface = GlanceSurface.of("test_surface")
+    private val surface = AppWidgetGlanceSurface.MOBILE_HOME_SCREEN
 
     @Before
     fun setUp() {
@@ -51,20 +49,17 @@ class AppWidgetTemplateRegistryTest {
     }
 
     @Test
-    fun register_and_render_dispatchesCorrectArchetype() {
-        var observedData: DummyTemplate? = null
-        var observedArchetype: DummyArchetype? = null
+    fun register_and_render_invokesRegisteredRenderer() {
+        var observedTemplate: DummyTemplate? = null
+        var observedConstraints: HostConstraints<AppWidgetGlanceSurface>? = null
+        var rendered = false
 
         AppWidgetTemplateRegistry.register(
             DummyTemplate::class.java,
-            selectArchetype = { _, surface, dimensions ->
-                assertThat(surface).isEqualTo(testSurface)
-                assertThat(dimensions).isEqualTo(Dimensions(200, 100))
-                DummyArchetype.CARD
-            },
-            renderArchetype = { data, archetype ->
-                observedData = data
-                observedArchetype = archetype
+            TemplateRenderer { template, constraints ->
+                observedTemplate = template
+                observedConstraints = constraints
+                { rendered = true }
             },
         )
 
@@ -72,18 +67,69 @@ class AppWidgetTemplateRegistryTest {
 
         runComposition {
             CompositionLocalProvider(LocalContainerDimensions provides Dimensions(200, 100)) {
-                AppWidgetTemplateRegistry.render(dummy, testSurface)
+                AppWidgetTemplateRegistry.render(dummy, surface)
             }
         }
 
-        assertThat(observedData).isEqualTo(dummy)
-        assertThat(observedArchetype).isEqualTo(DummyArchetype.CARD)
+        assertThat(observedTemplate).isSameInstanceAs(dummy)
+        assertThat(observedConstraints).isEqualTo(HostConstraints(Dimensions(200, 100), surface))
+        assertThat(rendered).isTrue()
+    }
+
+    @Test
+    fun render_resolvesConstraintsFromLocalContainerDimensions() {
+        var observedWidth = -1
+
+        AppWidgetTemplateRegistry.register(
+            DummyTemplate::class.java,
+            TemplateRenderer { _, constraints ->
+                observedWidth = constraints.dimensions.widthDp
+                {}
+            },
+        )
+
+        runComposition {
+            CompositionLocalProvider(LocalContainerDimensions provides Dimensions(321, 100)) {
+                AppWidgetTemplateRegistry.render(DummyTemplate("Test"), surface)
+            }
+        }
+
+        assertThat(observedWidth).isEqualTo(321)
+    }
+
+    @Test
+    fun register_replacesPreviousRenderer() {
+        var firstCalls = 0
+        var secondCalls = 0
+
+        AppWidgetTemplateRegistry.register(
+            DummyTemplate::class.java,
+            TemplateRenderer { _, _ ->
+                firstCalls++
+                {}
+            },
+        )
+        AppWidgetTemplateRegistry.register(
+            DummyTemplate::class.java,
+            TemplateRenderer { _, _ ->
+                secondCalls++
+                {}
+            },
+        )
+
+        runComposition {
+            CompositionLocalProvider(LocalContainerDimensions provides Dimensions(200, 100)) {
+                AppWidgetTemplateRegistry.render(DummyTemplate("Test"), surface)
+            }
+        }
+
+        assertThat(firstCalls).isEqualTo(0)
+        assertThat(secondCalls).isEqualTo(1)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun render_unregistered_throwsException() {
-        val dummy = DummyTemplate("Unregistered")
-        runComposition { AppWidgetTemplateRegistry.render(dummy, testSurface) }
+        runComposition { AppWidgetTemplateRegistry.render(DummyTemplate("Unregistered"), surface) }
     }
 
     private fun runComposition(content: @Composable () -> Unit) {

@@ -18,25 +18,37 @@ package androidx.glance.adaptive.core.ui
 
 import androidx.annotation.RestrictTo
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
+import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 
 /**
- * Interface defining the rendering contract for a template of type [T] on a surface of type [S].
+ * Rendering contract turning a template of type [T], placed under [HostConstraints] of surface type
+ * [S], into host content of type [R].
  *
- * Platform host modules (e.g. adaptive-appwidget) provide concrete rendering mechanisms (such as
- * RemoteViews and Compose) implementing or adapting this contract.
+ * The output type is a parameter because this module deliberately carries no UI dependency: it
+ * cannot name `@Composable`, `RemoteViews`, or any other host effect type. Leaving [R] open lets
+ * each host substitute its own, so the contract stays shared while the rendering mechanism stays
+ * host-specific:
+ * - Glance AppWidget hosts substitute `@Composable () -> Unit`.
+ * - Plain `RemoteViews` hosts substitute `RemoteViews`.
+ * - Tests substitute a value they can assert on.
+ *
+ * Implementations must be pure: [render] is expected to *produce* content rather than emit it, so
+ * that resolution can be exercised in a plain unit test, outside of any host runtime.
  *
  * @param T The template type implementing [AdaptiveGlanceTemplate].
  * @param S The surface type implementing [GlanceSurface].
+ * @param R The host content type produced by [render].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface TemplateRenderer<in T : AdaptiveGlanceTemplate, in S : GlanceSurface> {
+public fun interface TemplateRenderer<in T : AdaptiveGlanceTemplate, in S : GlanceSurface, out R> {
 
     /**
-     * Renders [template] for the given [surface].
+     * Produces host content for [template] under [constraints].
      *
      * @param template Declarative template data payload.
-     * @param surface Target host placement surface.
+     * @param constraints Target host placement: container size plus surface.
+     * @return Host content of type [R].
      */
-    public fun render(template: T, surface: S)
+    public fun render(template: T, constraints: HostConstraints<S>): R
 }

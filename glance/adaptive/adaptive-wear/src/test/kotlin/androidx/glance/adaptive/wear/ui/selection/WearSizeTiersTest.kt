@@ -56,20 +56,22 @@ class WearSizeTiersTest {
 
     @Test
     fun sizeTiers_from_matchesExpectedTiersAndDestructuring() {
-        val (w, h) = WearSizeTiers.from(130, 160, WearGlanceSurface.TILE)
+        val (w, h) = WearSizeTiers.from(135, 160, WearGlanceSurface.TILE)
         assertThat(w).isEqualTo(WidthTier.W1)
         assertThat(h).isEqualTo(HeightTier.H2)
 
-        val sizeTiers = WearSizeTiers.from(Dimensions(130, 160), WearGlanceSurface.TILE)
+        val sizeTiers = WearSizeTiers.from(Dimensions(135, 160), WearGlanceSurface.TILE)
         assertThat(sizeTiers.width).isEqualTo(WidthTier.W1)
         assertThat(sizeTiers.height).isEqualTo(HeightTier.H2)
 
-        val sizeTiersExt = SizeTiers.from(Dimensions(130, 160), WearGlanceSurface.TILE)
+        val sizeTiersExt = SizeTiers.from(Dimensions(135, 160), WearGlanceSurface.TILE)
         assertThat(sizeTiersExt).isEqualTo(sizeTiers)
 
-        // Verifies baseline (mobile) resolution differs at 130dp (W2 on mobile, W1 on Wear)
-        val baselineTiers = SizeTiers.from(Dimensions(130, 160))
+        // Wear runs its own, tighter scale, so the same container resolves differently against the
+        // baseline: 135dp is W2 on mobile but still W1 on Wear, and 160dp is H3 on mobile but H2
+        // on Wear.
+        val baselineTiers = SizeTiers.from(Dimensions(135, 160))
         assertThat(baselineTiers.width).isEqualTo(WidthTier.W2)
-        assertThat(baselineTiers.height).isEqualTo(HeightTier.H2)
+        assertThat(baselineTiers.height).isEqualTo(HeightTier.H3)
     }
 }
