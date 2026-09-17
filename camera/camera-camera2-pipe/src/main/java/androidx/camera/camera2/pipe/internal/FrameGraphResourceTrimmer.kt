@@ -16,7 +16,9 @@
 
 package androidx.camera.camera2.pipe.internal
 
+import android.hardware.camera2.CameraCharacteristics
 import androidx.annotation.GuardedBy
+import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.MemoryEstimator
@@ -163,6 +165,7 @@ constructor(
     private val frameCaptureQueue: FrameCaptureQueue,
     private val memoryEstimator: MemoryEstimator,
     private val cameraPipeResourceTrimmer: CameraPipeResourceTrimmer,
+    private val cameraMetadata: CameraMetadata,
 ) : FrameGraphResourceTrimmer {
 
     private val lock = Any()
@@ -195,15 +198,30 @@ constructor(
      */
     private val streamTrimCounter = atomic(0)
 
+    // Pipeline depth of the camera HAL. Default to 2 and clamp between 2 and 8.
+    private val pipelineDepth =
+        cameraMetadata[CameraCharacteristics.REQUEST_PIPELINE_MAX_DEPTH]?.toInt()?.coerceIn(2, 8)
+            ?: 2
+
     override val repeatingFrameSizeBytes: Long
         get() = _repeatingFrameSizeBytes.value
 
     override val currentMemoryRequirement: Long
         get() {
             val burstMemoryNeeded = calculateByteSize(frameCaptureQueue.pendingRequests)
+            if (repeatingFrameSizeBytes <= 0L) {
+                return burstMemoryNeeded
+            }
+
+            // Application headroom to process repeating frames without starving.
             val repeatingMargin =
                 repeatingFrameSizeBytes * CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
-            return burstMemoryNeeded + repeatingMargin
+
+            // Memory implicitly held by the camera HAL's internal pipeline.
+            val clampedPipelineDepth = getClampedPipelineDepth(repeatingFrameSizeBytes)
+            val pipelineMargin = repeatingFrameSizeBytes * clampedPipelineDepth
+
+            return burstMemoryNeeded + repeatingMargin + pipelineMargin
         }
 
     override fun onStarted(
@@ -320,6 +338,21 @@ constructor(
 
         // Default to the first output if no primary output is set or found.
         return stream.outputs.first()
+    }
+
+    /**
+     * Calculates the effective HAL pipeline depth to reserve, ensuring it never consumes more than
+     * half of the total available memory budget.
+     */
+    private fun getClampedPipelineDepth(repeatingSize: Long): Int {
+        check(repeatingSize > 0)
+
+        // Do not reserve more than half of the available memory.
+        val maxMemory = memoryEstimator.maxCapacity / 2
+        val maxDepth = (maxMemory / repeatingSize).toInt()
+
+        // Reserve at least 2 and not exceed the pipelineDepth.
+        return maxDepth.coerceIn(2, pipelineDepth)
     }
 
     override fun onGraphCreated() {

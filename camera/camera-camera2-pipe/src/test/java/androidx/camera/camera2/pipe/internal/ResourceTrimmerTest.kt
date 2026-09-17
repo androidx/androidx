@@ -82,7 +82,7 @@ class ResourceTrimmerTest {
     @Test
     fun trimmingIsSkippedIfSufficientMemoryExists() = testScope.runTest {
         // Give plenty of capacity
-        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
+        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT + 2
         setupSimulators(largeImageSize * (margin + 10))
         val streamId = frameGraph.streams[streamConfigLarge]!!.id
 
@@ -109,7 +109,7 @@ class ResourceTrimmerTest {
     @Test
     fun trimmingEvictsOldestFrameWhenMemoryIsFull() = testScope.runTest {
         // Restrict capacity to exactly 1 frame + margin
-        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
+        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT + 2
         setupSimulators(largeImageSize * (margin + 1))
         val streamId = frameGraph.streams[streamConfigLarge]!!.id
 
@@ -139,7 +139,7 @@ class ResourceTrimmerTest {
 
     @Test
     fun trimmingRoundRobinsAcrossMultipleBuffers() = testScope.runTest {
-        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
+        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT + 2
         setupSimulators(largeImageSize * (margin + 1))
         val streamId = frameGraph.streams[streamConfigLarge]!!.id
 
@@ -178,7 +178,7 @@ class ResourceTrimmerTest {
 
     @Test
     fun trimmingFailsToFreeMemoryIfFramesAreAcquiredExternally() = testScope.runTest {
-        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
+        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT + 2
         setupSimulators(largeImageSize * (margin + 2))
         val streamId = frameGraph.streams[streamConfigLarge]!!.id
 
@@ -216,7 +216,7 @@ class ResourceTrimmerTest {
 
     @Test
     fun trimmingDeprioritizesRecentlyActiveGraphAndTrimsFromOlderGraphsFirst() = testScope.runTest {
-        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT.toLong()
+        val margin = (CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT + 2).toLong()
         // Set capacity to exactly 2 frames + margin of 2 graphs
         estimator = MemoryEstimator.create(largeImageSize * (margin * 2 + 2))
 
@@ -284,7 +284,7 @@ class ResourceTrimmerTest {
 
     @Test
     fun trimmingFallsBackToNextGraphIfFirstCannotFreeEnoughMemory() = testScope.runTest {
-        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
+        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT + 2
         estimator = MemoryEstimator.create(largeImageSize * (margin * 2 + 2))
 
         val metadata2 = FakeCameraMetadata(cameraId = CameraId("2"))
@@ -347,7 +347,8 @@ class ResourceTrimmerTest {
 
     @Test
     fun trimmerRemainsRegisteredAfterGraphClosesIfBuffersAreActive() = testScope.runTest {
-        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
+        // Set capacity for EXACTLY 1 graph's margin + 2 extra frames
+        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT + 2
         estimator = MemoryEstimator.create(largeImageSize * (margin + 2))
 
         val metadata2 = FakeCameraMetadata(cameraId = CameraId("2"))
@@ -419,9 +420,8 @@ class ResourceTrimmerTest {
             )
         val smallImageSize = StreamFormat.bytesPerImage(StreamFormat.YUV_420_888, 640, 480)
 
-        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
-        // Set capacity exactly enough for the repeating margin (3 large images) + 2 large
-        // images
+        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT + 2
+        // Set capacity exactly enough for the repeating margin + 2 large images
         estimator = MemoryEstimator.create(largeImageSize * (margin + 2))
 
         val mixedGraphConfig =
@@ -439,8 +439,7 @@ class ResourceTrimmerTest {
         val largeStreamId = fg.streams[streamConfigLarge]!!.id
         val smallStreamId = fg.streams[streamConfigSmall]!!.id
 
-        // The repeating request only contains the large stream, so the margin is 3 *
-        // largeImageSize
+        // The repeating request only contains the large stream
         val largeBuffer = fg.captureWith(setOf(largeStreamId), capacity = 5)
 
         // Fill buffer with 2 large images.
@@ -477,7 +476,7 @@ class ResourceTrimmerTest {
 
     @Test
     fun trimmingIsSkippedForRequestsWithZeroBytesNeeded() = testScope.runTest {
-        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
+        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT + 2
         setupSimulators(largeImageSize * (margin + 2))
         val streamId = frameGraph.streams[streamConfigLarge]!!.id
 
@@ -505,7 +504,7 @@ class ResourceTrimmerTest {
     @Test
     fun trimmingDropsNewImageWhenImageReaderSlotsAreFull() = testScope.runTest {
         // Memory is practically unbounded
-        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
+        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT + 2
         setupSimulators(largeImageSize * (margin + 10))
         val streamId = frameGraph.streams[streamConfigLarge]!!.id
 
@@ -539,7 +538,7 @@ class ResourceTrimmerTest {
 
     @Test
     fun trimmingDropsNewImageIfSlotsAreFullAndFramesAreAcquiredExternally() = testScope.runTest {
-        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
+        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT + 2
         setupSimulators(largeImageSize * (margin + 10))
         val streamId = frameGraph.streams[streamConfigLarge]!!.id
 
@@ -582,6 +581,7 @@ class ResourceTrimmerTest {
                 StreamFormat.YUV_420_888,
                 imageSourceConfig = ImageSourceConfig(capacity = 5),
             )
+        val smallImageSize = StreamFormat.bytesPerImage(StreamFormat.YUV_420_888, 640, 480)
 
         val mixedGraphConfig =
             CameraGraph.Config(
@@ -589,10 +589,13 @@ class ResourceTrimmerTest {
                 streams = listOf(streamConfigLarge, streamConfigSmall),
             )
 
-        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
+        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT + 2
 
-        // Set capacity exactly enough for the LARGE margin + 2 large images
-        val capacityBytes = (largeImageSize * margin) + (largeImageSize * 2)
+        // Set capacity exactly enough for the MIXED margin + 1 large image.
+        // When we start with ONLY the large stream, it will comfortably hold 2 large images.
+        // When the small stream is added, the new mixed margin will force 1 eviction.
+        val mixedMarginBytes = (largeImageSize + smallImageSize) * margin
+        val capacityBytes = mixedMarginBytes + largeImageSize
         estimator = MemoryEstimator.create(capacityBytes)
 
         simulator = CameraPipeSimulator.create(testScope, context, listOf(metadata), estimator)
@@ -608,7 +611,7 @@ class ResourceTrimmerTest {
         val largeBuffer = fg.captureWith(setOf(largeStreamId), capacity = 5)
 
         // Fill buffer with 2 large images. The trimmer is happy because remaining
-        // memory equals (margin * largeImageSize).
+        // memory is much larger than (margin * largeImageSize).
         repeat(2) {
             val f = fg.simulateNextFrame()
             f.simulateImage(largeStreamId)
@@ -625,8 +628,8 @@ class ResourceTrimmerTest {
         advanceUntilIdle()
         // Because the required margin just increased, the current free memory is no longer
         // enough!
-        // The trimmer should proactively wake up and evict from `largeBuffer` to satisfy
-        // the new, larger margin requirement—even before any new frames arrive.
+        // The trimmer should proactively wake up and evict EXACTLY 1 frame from `largeBuffer`
+        // to satisfy the new, larger margin requirement.
         assertThat(largeBuffer.size.value).isEqualTo(1)
 
         largeBuffer.close()
@@ -636,8 +639,8 @@ class ResourceTrimmerTest {
 
     @Test
     fun trimmingProactivelyMaintainsRepeatingFrameMargin() = testScope.runTest {
-        // Memory capacity: Exactly enough for the 3-frame margin + 2 extra frames.
-        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
+        // Memory capacity: Exactly enough for the margin + 2 extra frames.
+        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT + 2
         setupSimulators(largeImageSize * (margin + 2))
         val streamId = frameGraph.streams[streamConfigLarge]!!.id
 
@@ -672,16 +675,16 @@ class ResourceTrimmerTest {
 
     @Test
     fun trimmingCombinesBurstAndRepeatingMargin() = testScope.runTest {
-        // Capacity: Exactly enough for the 3-frame margin + 2 extra frames (5 total)
-        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
+        // Capacity: Exactly enough for the margin + 2 extra frames
+        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT + 2
         setupSimulators(largeImageSize * (margin + 2))
         val streamId = frameGraph.streams[streamConfigLarge]!!.id
 
         val frameBuffer = frameGraph.captureWith(setOf(streamId), capacity = 5)
 
         // Step 1: Fill buffer with 2 frames.
-        // Total capacity (5) - Usage (2) = 3 frames of Free Memory.
-        // The trimmer is happy because Free Memory (3) exactly equals the required margin (3).
+        // Total capacity (margin + 2) - Usage (2) = margin frames of Free Memory.
+        // The trimmer is happy because Free Memory exactly equals the required margin.
         repeat(2) {
             val f = frameGraph.simulateNextFrame()
             f.simulateImage(streamId)
@@ -691,8 +694,8 @@ class ResourceTrimmerTest {
         assertThat(frameBuffer.size.value).isEqualTo(2)
 
         // Step 2: Queue a 2-frame burst.
-        // Target = 2 (burst) + 3 (margin) = 5 frames needed!
-        // Free memory is only 3. It MUST evict 2 older frames.
+        // Target = 2 (burst) + margin frames needed!
+        // Free memory is only [margin]. It MUST evict 2 older frames.
         val burstRequest1 = Request(streams = listOf(streamId))
         val burstRequest2 = Request(streams = listOf(streamId))
 
@@ -703,7 +706,7 @@ class ResourceTrimmerTest {
         advanceUntilIdle()
         // Step 3: Assert the buffer was aggressively cleared.
         // Both old frames should be gone, proving the system made room for the upcoming
-        // burst frames WHILE protecting the 3-frame margin.
+        // burst frames WHILE protecting the margin.
         assertThat(frameBuffer.size.value).isEqualTo(0)
 
         capture1.close()
@@ -712,8 +715,8 @@ class ResourceTrimmerTest {
 
     @Test
     fun trimmerUnregistersWhenGraphAndBuffersAreClosed() = testScope.runTest {
-        // Set capacity for EXACTLY 1 graph's margin (3) + 1 extra frame (4 total)
-        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
+        // Set capacity for EXACTLY 1 graph's margin + 1 extra frame
+        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT + 2
         estimator = MemoryEstimator.create(largeImageSize * (margin + 1))
 
         val metadata2 = FakeCameraMetadata(cameraId = CameraId("2"))
@@ -732,7 +735,7 @@ class ResourceTrimmerTest {
         val fg2 = simulator.createFrameGraph(FrameGraph.Config(graphConfig2))
 
         // Start both graphs.
-        // Total margin required by system is now 6 frames!
+        // Total margin required by system is now `margin * 2` frames!
         fg1.start()
         fg1.initializeSurfaces()
         fg1.simulateCameraStarted()
@@ -747,20 +750,23 @@ class ResourceTrimmerTest {
         val buffer1 = fg1.captureWith(setOf(stream1), capacity = 5)
         val buffer2 = fg2.captureWith(setOf(stream2), capacity = 5)
 
-        // At this point, the system needs 6 frames of margin, but only has 4 frames total.
+        // At this point, the system needs margin*2 frames of margin, but only has
+        // margin+1 frames total capacity.
         // If we try to capture anything, the trimmer will aggressively evict it.
 
         // Now, close Graph 1 AND its buffer.
         // Because both the graph and the buffer are closed, it should completely
         // unregister from the global trimmer.
-        // The global margin requirement should drop back down to 3 frames!
+        // The global margin requirement should drop back down to `margin` frames!
         fg1.close()
         buffer1.close()
 
         // Simulate 1 frame arriving in Graph 2.
-        // Usage = 1. Free memory = 3.
-        // If Graph 1 properly unregistered, required margin is 3, so Trimmer does nothing.
-        // If Graph 1 leaked, required margin is 6, and Trimmer will instantly delete this
+        // Usage = 1. Free memory = margin.
+        // If Graph 1 properly unregistered, required margin is `margin`, so Trimmer does
+        // nothing.
+        // If Graph 1 leaked, required margin is `margin*2`, and Trimmer will instantly delete
+        // this
         // frame.
         val f1 = fg2.simulateNextFrame()
         f1.simulateImage(stream2)
@@ -893,8 +899,11 @@ class ResourceTrimmerTest {
 
     @Test
     fun closingAllBuffersClearsRepeatingMarginDynamically() = testScope.runTest {
-        // Capacity: Exactly enough for the 3-frame margin + 2 extra frames (5 total)
-        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
+        // Updated test to also include the + 2 pipeline depth margin to ensure
+        // consistent capacity math with the rest of the file
+        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT + 2
+
+        // Capacity: Exactly enough for the margin + 2 extra frames
         setupSimulators(largeImageSize * (margin + 2))
         val streamId = frameGraph.streams[streamConfigLarge]!!.id
 
@@ -915,15 +924,15 @@ class ResourceTrimmerTest {
         assertThat(acquired2).isNotNull()
 
         // 3. Close the buffer (but leave the graph OPEN)
-        // Because of the new `onRepeatingRequestUpdated(null)` line, the 3-frame margin
+        // Because of the new `onRepeatingRequestUpdated(null)` line, the margin
         // requirement should instantly drop to 0!
         frameBuffer.close()
 
         // 4. Queue a 3-frame burst request
-        // If the 3-frame margin was NOT cleared, this burst would require 8 frames of capacity
-        // (2 acquired + 3 burst + 3 phantom margin) and would fail/trim.
-        // Because the margin WAS cleared, it only requires 5 frames (2 acquired + 3 burst),
-        // which exactly fits our global capacity!
+        // If the margin was NOT cleared, this burst would require capacity for
+        // (2 acquired + 3 burst + phantom margin) and would fail/trim.
+        // Because the margin WAS cleared, it only requires capacity for (2 acquired + 3 burst),
+        // which exactly fits our global capacity limit!
         val burstCaptures = List(3) { frameGraph.capture(Request(streams = listOf(streamId))) }
 
         val burstFrames = mutableListOf<androidx.camera.camera2.pipe.Frame>()
