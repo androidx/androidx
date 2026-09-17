@@ -22,7 +22,6 @@ package androidx.text.vertical
  *
  * @property value The integer representation of this position, used for serialization.
  */
-// TODO(b/559972132): honor EmphasisSpan.position; it is currently ignored in both writing modes.
 public sealed class AnnotationPosition protected constructor(@JvmField public val value: Int) {
     public companion object {
         /** The text annotation position is unknown. */

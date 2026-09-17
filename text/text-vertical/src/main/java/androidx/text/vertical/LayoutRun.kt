@@ -181,13 +181,19 @@ internal class TateChuYokoLayoutRun(text: CharSequence, start: Int, end: Int, pa
         val fontMetrics = FontMetricsInt()
 
         var textWidth = 0f
-        text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, _, _, _, emphasisScale ->
-            val emphasisWidth = rPaint.textSize * emphasisScale
+        text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, _, _, emphasis ->
+            val emphasisWidth = rPaint.textSize * (emphasis?.scale ?: 0f)
 
             val rCount = rEnd - rStart
 
-            leftSide = min(leftSide, -rPaint.textSize * 0.5f)
-            rightSide = max(rightSide, rPaint.textSize * 0.5f + emphasisWidth)
+            // `Unknown` and `Before` both put the mark on the right side, as ruby does.
+            if (emphasis?.position != AnnotationPosition.After) {
+                leftSide = min(leftSide, -rPaint.textSize * 0.5f)
+                rightSide = max(rightSide, rPaint.textSize * 0.5f + emphasisWidth)
+            } else {
+                leftSide = min(leftSide, -rPaint.textSize * 0.5f - emphasisWidth)
+                rightSide = max(rightSide, rPaint.textSize * 0.5f)
+            }
 
             rPaint.getFontMetricsIntCompat(text, rStart, rCount, rStart, rCount, false, fontMetrics)
             maxAscent = min(maxAscent, fontMetrics.ascent)
@@ -224,7 +230,7 @@ internal class TateChuYokoLayoutRun(text: CharSequence, start: Int, end: Int, pa
     override fun draw(canvas: Canvas, originX: Float, originY: Float, paint: TextPaint) {
         var x = originX + leftSideOffset + (width - textWidth) / 2 // centering
         val y = originY - ascent
-        text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, bgColor, fontShear, _, _ ->
+        text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, bgColor, fontShear, _ ->
             rPaint.withTextScaleX(scaleX) {
                 val w = measureText(text, rStart, rEnd)
                 val h = descent - ascent
@@ -250,7 +256,10 @@ internal class TateChuYokoLayoutRun(text: CharSequence, start: Int, end: Int, pa
         val emphasisSpans = text.getSpans<EmphasisSpan>(start, end)
         if (emphasisSpans.isNotEmpty()) {
             val span = emphasisSpans.last() // The last span wins
-            val xOffset = paint.textSize * (1f + span.scale) / 2
+            // `magnitude` is the center of the mark. A sign flip mirrors it onto the reserved
+            // bound on the opposite side.
+            val magnitude = paint.textSize * (1f + span.scale) / 2
+            val xOffset = if (span.position != AnnotationPosition.After) magnitude else -magnitude
             paint.withTextScale(span.scale) {
                 val letterWidth = measureTextVertical(span.letter)
                 val yOffset = (letterWidth - height) / 2f
@@ -292,7 +301,7 @@ internal class RotateLayoutRun(text: CharSequence, start: Int, end: Int, paint: 
         var descent = 0f
 
         val metrics = FontMetrics()
-        text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, _, _, _, _ ->
+        text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, _, _, _ ->
             height += rPaint.measureText(text, rStart, rEnd)
             leftSide = min(leftSide, -rPaint.textSize * 0.5f)
             rightSide = max(rightSide, rPaint.textSize * 0.5f)
@@ -315,7 +324,7 @@ internal class RotateLayoutRun(text: CharSequence, start: Int, end: Int, paint: 
             rotate(90f, 0f, 0f)
 
             var x = 0f
-            text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, bgColor, fontShear, _, _ ->
+            text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, bgColor, fontShear, _ ->
                 val width = rPaint.measureText(text, rStart, rEnd)
                 drawBackground(x, ascent, width, descent - ascent, bgColor)
 
@@ -337,7 +346,7 @@ internal class RotateLayoutRun(text: CharSequence, start: Int, end: Int, paint: 
     }
 
     override fun getCharAdvances(out: FloatArray, paint: TextPaint) {
-        text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, _, _, _, _ ->
+        text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, _, _, _ ->
             rPaint.getRunCharacterAdvanceCompat(
                 text,
                 rStart,
@@ -373,12 +382,18 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
         var left = 0f
         var right = 0f
 
-        text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, _, _, _, emphasisScale ->
-            val emphasisWidth = rPaint.textSize * emphasisScale
+        text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, _, _, emphasis ->
+            val emphasisWidth = rPaint.textSize * (emphasis?.scale ?: 0f)
 
             height += rPaint.measureTextVertical(text, rStart, rEnd)
-            left = min(left, -rPaint.textSize * 0.5f)
-            right = max(right, rPaint.textSize * 0.5f + emphasisWidth)
+            // `Unknown` and `Before` both put the mark on the right side, as ruby does.
+            if (emphasis?.position != AnnotationPosition.After) {
+                left = min(left, -rPaint.textSize * 0.5f)
+                right = max(right, rPaint.textSize * 0.5f + emphasisWidth)
+            } else {
+                left = min(left, -rPaint.textSize * 0.5f - emphasisWidth)
+                right = max(right, rPaint.textSize * 0.5f)
+            }
         }
         this.height = height
         this.leftSideOffset = left
@@ -387,14 +402,7 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
 
     override fun draw(canvas: Canvas, originX: Float, originY: Float, paint: TextPaint) {
         var y = originY
-        text.forStyleRuns(start, end, paint) {
-            rStart,
-            rEnd,
-            rPaint,
-            bgColor,
-            fontShear,
-            emphasisLetter,
-            emphasisScale ->
+        text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, bgColor, fontShear, emphasis ->
             if (bgColor != 0) {
                 tempPaint { bgWorkPaint ->
                     bgWorkPaint.color = bgColor
@@ -418,12 +426,16 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
                 }
             }
 
-            if (emphasisLetter != null) {
+            if (emphasis != null) {
                 var eY = y
-                val xOffset = rPaint.textSize * (1f + emphasisScale) / 2
+                // `magnitude` is the center of the mark. A sign flip mirrors it onto the reserved
+                // bound on the opposite side.
+                val magnitude = rPaint.textSize * (1f + emphasis.scale) / 2
+                val xOffset =
+                    if (emphasis.position != AnnotationPosition.After) magnitude else -magnitude
 
                 val letterWidth =
-                    rPaint.withTextScale(emphasisScale) { measureTextVertical(emphasisLetter) }
+                    rPaint.withTextScale(emphasis.scale) { measureTextVertical(emphasis.letter) }
 
                 text.forEachGrapheme(rStart, rEnd, rPaint.textLocale) { gStart, gEnd ->
                     val positions = FloatArray(gEnd - gStart)
@@ -438,7 +450,7 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
                         positions,
                         0,
                     )
-                    rPaint.withTextScale(emphasisScale) {
+                    rPaint.withTextScale(emphasis.scale) {
                         positions.forEach {
                             if (it == 0f) {
                                 return@forEach // Skip the surrogate pair or combining character.
@@ -446,7 +458,7 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
                             val yOffset = (letterWidth - it) / 2f
                             if (isEmphasisTarget(Character.codePointAt(text, gStart))) {
                                 canvas.drawTextVertical(
-                                    emphasisLetter,
+                                    emphasis.letter,
                                     originX + xOffset,
                                     eY - yOffset,
                                     this,
@@ -463,7 +475,7 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
     }
 
     override fun getCharAdvances(out: FloatArray, paint: TextPaint) {
-        text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, _, _, _, _ ->
+        text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, _, _, _ ->
             rPaint.getRunCharacterAdvanceVertical(
                 text,
                 rStart,
@@ -486,25 +498,20 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
  * @param start The inclusive start index of the range to process.
  * @param end The exclusive end index of the range to process.
  * @param basePaint The base paint to use for drawing.
+ * @param block The callback for one style run. It receives the run start, the run end, the paint of
+ *   the run, the background color, the font shear and the [EmphasisSpan] of the run. The span is
+ *   `null` when the run has no emphasis.
  */
 internal inline fun CharSequence.forStyleRuns(
     start: Int,
     end: Int,
     basePaint: TextPaint,
-    crossinline block: (Int, Int, Paint, Int, Float, String?, Float) -> Unit,
+    crossinline block: (Int, Int, Paint, Int, Float, EmphasisSpan?) -> Unit,
 ) {
     // Easy case: if the text is a non-styled text, just call back entire text with applying
     // vertical flag.
     if (this !is Spanned) {
-        block(
-            start,
-            end,
-            basePaint,
-            0 /* bgColor */,
-            0f /* fontShear */,
-            null /* letter */,
-            0f, /* scale */
-        )
+        block(start, end, basePaint, 0 /* bgColor */, 0f /* fontShear */, null /* emphasis */)
         return
     }
 
@@ -515,27 +522,17 @@ internal inline fun CharSequence.forStyleRuns(
             val styles = getSpans(current, rEnd, CharacterStyle::class.java)
 
             var fontShear = 0f
-            var emphasisLetter: String? = null
-            var emphasisScale = 0f
+            var emphasis: EmphasisSpan? = null
             workPaint.set(basePaint)
             styles.forEach {
                 it.updateDrawState(workPaint)
                 if (it is FontShearSpan) {
                     fontShear = it.fontShear // last wins
                 } else if (it is EmphasisSpan) {
-                    emphasisLetter = it.letter
-                    emphasisScale = it.scale
+                    emphasis = it // last wins
                 }
             }
-            block(
-                current,
-                rEnd,
-                workPaint,
-                workPaint.bgColor,
-                fontShear,
-                emphasisLetter,
-                emphasisScale,
-            )
+            block(current, rEnd, workPaint, workPaint.bgColor, fontShear, emphasis)
             current = rEnd
         }
     }
