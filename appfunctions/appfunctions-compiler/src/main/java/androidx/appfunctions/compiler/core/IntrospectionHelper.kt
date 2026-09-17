@@ -58,6 +58,12 @@ object IntrospectionHelper {
         const val PROPERTY_IS_DESCRIBED_BY_KDOC = "isDescribedByKDoc"
     }
 
+    object AppFunctionAccessLevelAnnotation {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionAccessLevel")
+        const val PROPERTY_LEVEL = "level"
+        const val PROPERTY_IS_COMPAT_ENFORCEMENT_ENABLED = "isCompatEnforcementEnabled"
+    }
+
     object AppFunctionInstructionAnnotation {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionInstruction")
         const val PROPERTY_INSTRUCTION = "instruction"
@@ -154,6 +160,13 @@ object IntrospectionHelper {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "AppFunctionMetadata")
         const val SCOPE_GLOBAL = 0
         const val SCOPE_ACTIVITY = 1
+    }
+
+    object AppFunctionAccessLevelClass {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionAccessLevel")
+        const val SELF = 100
+        const val SYSTEM = 200
+        const val ANDROID_TRUSTED = 300
     }
 
     val APP_FUNCTION_FUNCTION_NOT_FOUND_EXCEPTION_CLASS =

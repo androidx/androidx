@@ -45,6 +45,7 @@ import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /** Provides the AppFunctionManager backend through the platform API. */
+@OptIn(ExperimentalAppFunctionsApi::class)
 @RequiresApi(Build.VERSION_CODES.BAKLAVA)
 internal class PlatformAppFunctionManagerApi(
     private val context: Context,
@@ -146,6 +147,12 @@ internal class PlatformAppFunctionManagerApi(
         request: ExecuteAppFunctionRequest,
         functionMetadata: AppFunctionMetadata,
     ): ExecuteAppFunctionResponse {
+        val platformRequest = request.toPlatformExecuteAppFunctionRequest()
+        CallerAccessVerifier.attachCallerVerificationTokens(
+            context,
+            functionMetadata.accessLevel,
+            platformRequest.extras,
+        )
         return suspendCancellableCoroutine { cont ->
             val cancellationSignal = CancellationSignal()
             // Wrapped in an AtomicReference so we can explicitly null it out. This protects the
@@ -159,7 +166,7 @@ internal class PlatformAppFunctionManagerApi(
                 activeCont.set(null)
             }
             appFunctionManager.executeAppFunction(
-                request.toPlatformExecuteAppFunctionRequest(),
+                platformRequest,
                 Runnable::run,
                 cancellationSignal,
                 object :

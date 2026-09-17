@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalAppFunctionsApi::class)
+
 package androidx.appfunctions.metadata
 
 import android.app.appfunctions.AppFunctionMetadata.PROPERTY_VALUE_SCOPE_ACTIVITY
@@ -21,19 +23,28 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.internal.GenericDocumentUtils
 import androidx.appfunctions.internal.GenericDocumentUtils.safeCastToDocumentClass
 import androidx.appfunctions.internal.SchemaAppFunctionInventory
+import androidx.appfunctions.metadata.AppFunctionMetadata.AccessLevel
 import androidx.appfunctions.metadata.AppFunctionMetadata.AppFunctionScope
+import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.ACCESS_LEVEL_ANDROID_TRUSTED
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_ACTIVITY
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_GLOBAL
+import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.accessLevelToAccessLevelXmlValue
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.scopeToScopeXmlValue
 import androidx.appsearch.annotation.Document
 import java.util.Objects
 
 internal const val APP_FUNCTION_NAMESPACE = "appfunctions"
 internal const val APP_FUNCTION_ID_EMPTY = "unused"
+internal const val PROPERTY_ACCESS_LEVEL: String = "accessLevel"
+internal const val PROPERTY_ENABLE_COMPAT_ENFORCEMENT: String = "isCompatEnforcementEnabled"
+internal const val PROPERTY_VALUE_ACCESS_LEVEL_SELF: String = "self"
+internal const val PROPERTY_VALUE_ACCESS_LEVEL_SYSTEM: String = "system"
+internal const val PROPERTY_VALUE_ACCESS_LEVEL_ANDROID_TRUSTED: String = "androidTrusted"
 
 /**
  * Contains an app function's metadata, essential for its invocation and discovery, retrieved using
@@ -91,6 +102,19 @@ constructor(
      * See [SCOPE_GLOBAL] and [SCOPE_ACTIVITY] for more details on each scope.
      */
     @get:AppFunctionScope public val scope: Int = SCOPE_GLOBAL,
+    /**
+     * The minimum access level required to invoke the app function.
+     *
+     * Platform enforcement of access levels is available starting in Android 17.2 (CINNAMON_BUN_2).
+     */
+    @property:ExperimentalAppFunctionsApi
+    @Suppress("ExperimentalPropertyAnnotation")
+    @get:AccessLevel
+    public val accessLevel: Int = ACCESS_LEVEL_ANDROID_TRUSTED,
+    /** Whether access level enforcement is enabled on older platform versions (pre-17.2). */
+    @property:ExperimentalAppFunctionsApi
+    @Suppress("ExperimentalPropertyAnnotation")
+    public val isCompatEnforcementEnabled: Boolean = true,
 ) {
     @JvmOverloads
     public constructor(
@@ -122,6 +146,52 @@ constructor(
          */
         @AppFunctionScope scope: Int = SCOPE_GLOBAL,
     ) : this(
+        name = name,
+        schema = schema,
+        parameters = parameters,
+        response = response,
+        packageMetadata = packageMetadata,
+        description = description,
+        deprecation = deprecation,
+        scope = scope,
+        accessLevel = ACCESS_LEVEL_ANDROID_TRUSTED,
+        isCompatEnforcementEnabled = true,
+    )
+
+    @ExperimentalAppFunctionsApi
+    public constructor(
+        /** The qualified name of the app function. */
+        name: AppFunctionName,
+        /** The identifying metadata for a pre-defined schema which this app function implements. */
+        schema: AppFunctionSchemaMetadata?,
+        /** The parameters of the app function. */
+        parameters: List<AppFunctionParameterMetadata>,
+        /** The response of the app function. */
+        response: AppFunctionResponseMetadata,
+        /** The [AppFunctionPackageMetadata] of the enclosing package. */
+        packageMetadata: AppFunctionPackageMetadata,
+        /** A description of the app function and its intended use. */
+        description: String = "",
+        /**
+         * Deprecation details about the function, if the app function is deprecated. This will be
+         * `null` if the function is not deprecated.
+         */
+        deprecation: AppFunctionDeprecationMetadata? = null,
+        /**
+         * The scope of the app function.
+         *
+         * The scope determines the function's lifecycle and uniqueness rules. Depending on the
+         * scope, there could be at most one or multiple functions registered in the system with the
+         * same [AppFunctionName].
+         *
+         * See [SCOPE_GLOBAL] and [SCOPE_ACTIVITY] for more details on each scope.
+         */
+        @AppFunctionScope scope: Int = SCOPE_GLOBAL,
+        /** The minimum access level required to invoke the app function. */
+        @AccessLevel accessLevel: Int = ACCESS_LEVEL_ANDROID_TRUSTED,
+        /** Whether access level enforcement is enabled on older platform versions. */
+        isCompatEnforcementEnabled: Boolean = true,
+    ) : this(
         id = name.functionIdentifier,
         packageName = name.packageName,
         // TODO(b/500667251): remove isEnabled property. AppFunctionMetadata should now contain
@@ -137,6 +207,8 @@ constructor(
         packageMetadata = packageMetadata,
         name = name,
         scope = scope,
+        accessLevel = accessLevel,
+        isCompatEnforcementEnabled = isCompatEnforcementEnabled,
     )
 
     override fun equals(other: Any?): Boolean {
@@ -157,6 +229,8 @@ constructor(
         if (name != other.name) return false
         if (packageMetadata != other.packageMetadata) return false
         if (scope != other.scope) return false
+        if (accessLevel != other.accessLevel) return false
+        if (isCompatEnforcementEnabled != other.isCompatEnforcementEnabled) return false
 
         return true
     }
@@ -175,6 +249,8 @@ constructor(
             name,
             packageMetadata,
             scope,
+            accessLevel,
+            isCompatEnforcementEnabled,
         )
     }
 
@@ -190,8 +266,10 @@ constructor(
         append("description='$description', ")
         append("deprecation=$deprecation, ")
         append("packageMetadata=$packageMetadata, ")
-        append("name=$name")
-        append("scope=$scope")
+        append("name=$name, ")
+        append("scope=$scope, ")
+        append("accessLevel=$accessLevel, ")
+        append("isCompatEnforcementEnabled=$isCompatEnforcementEnabled")
         append(")")
     }
 
@@ -208,6 +286,8 @@ constructor(
         name: AppFunctionName = this.name,
         packageMetadata: AppFunctionPackageMetadata = this.packageMetadata,
         scope: Int = this.scope,
+        accessLevel: Int = this.accessLevel,
+        isCompatEnforcementEnabled: Boolean = this.isCompatEnforcementEnabled,
     ): AppFunctionMetadata {
         return AppFunctionMetadata(
             id = id,
@@ -222,6 +302,8 @@ constructor(
             name = name,
             packageMetadata = packageMetadata,
             scope = scope,
+            accessLevel = accessLevel,
+            isCompatEnforcementEnabled = isCompatEnforcementEnabled,
         )
     }
 
@@ -230,6 +312,16 @@ constructor(
     @androidx.annotation.IntDef(SCOPE_GLOBAL, SCOPE_ACTIVITY)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public annotation class AppFunctionScope
+
+    /** Specifies the access level of an app function. */
+    @Retention(AnnotationRetention.SOURCE)
+    @androidx.annotation.IntDef(
+        ACCESS_LEVEL_SELF,
+        ACCESS_LEVEL_SYSTEM,
+        ACCESS_LEVEL_ANDROID_TRUSTED,
+    )
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public annotation class AccessLevel
 
     public companion object {
 
@@ -295,6 +387,26 @@ constructor(
         @Suppress("InlinedApi")
         public const val SCOPE_ACTIVITY: Int =
             android.app.appfunctions.AppFunctionMetadata.SCOPE_ACTIVITY
+
+        /** Strictly restricted to callers with the same UID as the hosting application. */
+        @ExperimentalAppFunctionsApi public const val ACCESS_LEVEL_SELF: Int = 100
+
+        /**
+         * Accessible by holders of the `android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM`
+         * permission.
+         *
+         * Includes access for: [ACCESS_LEVEL_SELF].
+         */
+        @ExperimentalAppFunctionsApi public const val ACCESS_LEVEL_SYSTEM: Int = 200
+
+        /**
+         * Accessible by any caller certified by Android that holds the
+         * `android.permission.EXECUTE_APP_FUNCTIONS` permission.
+         *
+         * This is the broadest access level. It includes access for all narrower levels:
+         * [ACCESS_LEVEL_SYSTEM] and [ACCESS_LEVEL_SELF].
+         */
+        @ExperimentalAppFunctionsApi public const val ACCESS_LEVEL_ANDROID_TRUSTED: Int = 300
 
         /**
          * Converts [android.app.appfunctions.AppFunctionMetadata] to
@@ -394,6 +506,9 @@ constructor(
                 description = staticMetadataDocument.description ?: "",
                 deprecation = deprecationMetadata,
                 scope = scopeXmlValueToScope(staticMetadataDocument.scope),
+                accessLevel = accessLevelXmlValueToAccessLevel(staticMetadataDocument.accessLevel),
+                isCompatEnforcementEnabled =
+                    staticMetadataDocument.isCompatEnforcementEnabled ?: true,
             )
         }
 
@@ -461,6 +576,26 @@ constructor(
                 else -> throw IllegalStateException("Unexpected value: $scope")
             }
         }
+
+        @AccessLevel
+        internal fun accessLevelXmlValueToAccessLevel(xmlValue: String?): Int {
+            return when (xmlValue) {
+                PROPERTY_VALUE_ACCESS_LEVEL_ANDROID_TRUSTED,
+                null -> ACCESS_LEVEL_ANDROID_TRUSTED
+                PROPERTY_VALUE_ACCESS_LEVEL_SELF -> ACCESS_LEVEL_SELF
+                PROPERTY_VALUE_ACCESS_LEVEL_SYSTEM -> ACCESS_LEVEL_SYSTEM
+                else -> throw IllegalStateException("Unexpected value: $xmlValue")
+            }
+        }
+
+        internal fun accessLevelToAccessLevelXmlValue(@AccessLevel accessLevel: Int): String? {
+            return when (accessLevel) {
+                ACCESS_LEVEL_ANDROID_TRUSTED -> PROPERTY_VALUE_ACCESS_LEVEL_ANDROID_TRUSTED
+                ACCESS_LEVEL_SELF -> PROPERTY_VALUE_ACCESS_LEVEL_SELF
+                ACCESS_LEVEL_SYSTEM -> PROPERTY_VALUE_ACCESS_LEVEL_SYSTEM
+                else -> throw IllegalStateException("Unexpected value: $accessLevel")
+            }
+        }
     }
 }
 
@@ -512,6 +647,10 @@ public data class CompileTimeAppFunctionMetadata(
      * [AppFunctionName].
      */
     @get:AppFunctionScope public val scope: Int = SCOPE_GLOBAL,
+    /** The access level of the AppFunction. */
+    @get:AccessLevel public val accessLevel: Int = ACCESS_LEVEL_ANDROID_TRUSTED,
+    /** Whether access level enforcement is enabled on older platform versions. */
+    public val isCompatEnforcementEnabled: Boolean = true,
 ) {
 
     internal fun copy(
@@ -524,6 +663,8 @@ public data class CompileTimeAppFunctionMetadata(
         description: String? = null,
         deprecation: AppFunctionDeprecationMetadata? = null,
         @AppFunctionScope scope: Int? = SCOPE_GLOBAL,
+        @AccessLevel accessLevel: Int? = null,
+        isCompatEnforcementEnabled: Boolean? = null,
     ): CompileTimeAppFunctionMetadata {
         return CompileTimeAppFunctionMetadata(
             id = id ?: this.id,
@@ -535,6 +676,9 @@ public data class CompileTimeAppFunctionMetadata(
             description = description ?: this.description,
             deprecation = deprecation ?: this.deprecation,
             scope = scope ?: this.scope,
+            accessLevel = accessLevel ?: this.accessLevel,
+            isCompatEnforcementEnabled =
+                isCompatEnforcementEnabled ?: this.isCompatEnforcementEnabled,
         )
     }
 
@@ -555,6 +699,8 @@ public data class CompileTimeAppFunctionMetadata(
             description = description,
             deprecation = deprecation?.toAppFunctionDeprecationMetadataDocument(),
             scope = scopeToScopeXmlValue(scope),
+            accessLevel = accessLevelToAccessLevelXmlValue(accessLevel),
+            isCompatEnforcementEnabled = isCompatEnforcementEnabled,
         )
     }
 }
@@ -592,6 +738,11 @@ internal data class AppFunctionMetadataDocument(
     /** The lifecycle scope of the AppFunction. */
     @Document.StringProperty(name = android.app.appfunctions.AppFunctionMetadata.PROPERTY_SCOPE)
     val scope: String? = null,
+    /** The access level of the AppFunction. */
+    @Document.StringProperty(name = PROPERTY_ACCESS_LEVEL) val accessLevel: String? = null,
+    /** Whether access level enforcement is enabled on older platform versions. */
+    @Document.BooleanProperty(name = PROPERTY_ENABLE_COMPAT_ENFORCEMENT)
+    val isCompatEnforcementEnabled: Boolean? = null,
 ) {
     companion object {
         const val SCHEMA_TYPE = "AppFunctionStaticMetadata"

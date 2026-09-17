@@ -20,6 +20,7 @@ import androidx.appfunctions.compiler.core.AnnotatedAppFunctionSerializableProxy
 import androidx.appfunctions.compiler.core.AppFunctionTypeReference.Companion.SUPPORTED_TYPES_STRING
 import androidx.appfunctions.compiler.core.AppFunctionTypeReference.Companion.isAllowToBeOptional
 import androidx.appfunctions.compiler.core.AppFunctionTypeReference.Companion.isSupportedType
+import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAccessLevelAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionContextClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSchemaDefinitionAnnotation
@@ -137,6 +138,8 @@ data class AnnotatedAppFunction(
             components = AppFunctionComponentsMetadata(dataTypes = sharedDataTypeMap),
             description = appFunctionDeclaration.getFunctionDescription(rawKDoc),
             deprecation = appFunctionDeclaration.getDeprecationMetadata(),
+            accessLevel = appFunctionAnnotationProperties.accessLevel,
+            isCompatEnforcementEnabled = appFunctionAnnotationProperties.isCompatEnforcementEnabled,
         )
     }
 
@@ -265,9 +268,14 @@ data class AnnotatedAppFunction(
             rootInterfaceWithAppFunctionSchemaDefinition
                 ?.annotations
                 ?.findAnnotation(AppFunctionSchemaDefinitionAnnotation.CLASS_NAME)
+        val accessLevelAnnotation =
+            functionDeclaration.annotations.findAnnotation(
+                AppFunctionAccessLevelAnnotation.CLASS_NAME
+            )
         return computeAppFunctionAnnotationProperties(
             appFunctionAnnotation = appFunctionAnnotation,
             schemaDefinitionAnnotation = schemaDefinitionAnnotation,
+            accessLevelAnnotation = accessLevelAnnotation,
         )
     }
 
