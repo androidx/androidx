@@ -3562,8 +3562,13 @@ public final class ProtoLayoutInflater {
                     Shadow shadow = strokeCapProp.getShadow();
                     int color =
                             shadow.getColor().hasArgb() ? shadow.getColor().getArgb() : Color.BLACK;
-                    lineView.setStrokeCapShadow(
-                            safeDpToPx(shadow.getBlurRadius().getValue()), color);
+                    int blurRadiusPx =
+                            min(
+                                    safeDpToPx(shadow.getBlurRadius().getValue()),
+                                    (int) WearCurvedLineView.MAX_STROKE_CAP_SHADOW_BLUR_RADIUS_PX);
+                    if (blurRadiusPx > 0) {
+                        lineView.setStrokeCapShadow(blurRadiusPx, color);
+                    }
                 }
             }
 

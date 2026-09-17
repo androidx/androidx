@@ -45,7 +45,6 @@ import static androidx.wear.protolayout.renderer.test.R.drawable.android_animate
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
@@ -191,6 +190,7 @@ import androidx.wear.protolayout.proto.ModifiersProto.Modifiers;
 import androidx.wear.protolayout.proto.ModifiersProto.Padding;
 import androidx.wear.protolayout.proto.ModifiersProto.Semantics;
 import androidx.wear.protolayout.proto.ModifiersProto.SemanticsRole;
+import androidx.wear.protolayout.proto.ModifiersProto.Shadow;
 import androidx.wear.protolayout.proto.ModifiersProto.SlideBound;
 import androidx.wear.protolayout.proto.ModifiersProto.SlideDirection;
 import androidx.wear.protolayout.proto.ModifiersProto.SlideInTransition;
@@ -2527,6 +2527,58 @@ public class ProtoLayoutInflaterTest {
         assertThat(arcLayout.getChildCount()).isEqualTo(1);
         WearCurvedLineView line = (WearCurvedLineView) arcLayout.getChildAt(0);
         assertThat(line.mSweepGradientHelper).isNotNull();
+    }
+
+    @Test
+    public void inflate_arc_withStrokeCapShadow_clampsExcessiveBlurRadius() {
+        LayoutElement root = arcLineWithStrokeCapShadow(1.0e18f);
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        ArcLayout arcLayout = (ArcLayout) rootLayout.getChildAt(0);
+        WearCurvedLineView line = (WearCurvedLineView) arcLayout.getChildAt(0);
+        assertThat(line.getStrokeCapShadowBlurRadius())
+                .isEqualTo(WearCurvedLineView.MAX_STROKE_CAP_SHADOW_BLUR_RADIUS_PX);
+    }
+
+    @Test
+    public void inflate_arc_withStrokeCapShadow_withinLimit_setsBlurRadius() {
+        LayoutElement root = arcLineWithStrokeCapShadow(10f);
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        ArcLayout arcLayout = (ArcLayout) rootLayout.getChildAt(0);
+        WearCurvedLineView line = (WearCurvedLineView) arcLayout.getChildAt(0);
+        assertThat(line.getStrokeCapShadowBlurRadius()).isEqualTo(10f);
+    }
+
+    @Test
+    public void inflate_arc_withStrokeCapShadow_zeroOrNonFinite_doesNotSetShadow() {
+        for (float radius : new float[] {0f, -5f, Float.NaN}) {
+            LayoutElement root = arcLineWithStrokeCapShadow(radius);
+
+            FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+            ArcLayout arcLayout = (ArcLayout) rootLayout.getChildAt(0);
+            WearCurvedLineView line = (WearCurvedLineView) arcLayout.getChildAt(0);
+            assertThat(line.getStrokeCapShadowBlurRadius()).isNull();
+        }
+    }
+
+    private static LayoutElement arcLineWithStrokeCapShadow(float blurRadiusDp) {
+        Shadow shadow = Shadow.newBuilder().setBlurRadius(dp(blurRadiusDp)).build();
+        ArcLine arcLine =
+                ArcLine.newBuilder()
+                        .setLength(degrees(30))
+                        .setThickness(dp(12))
+                        .setStrokeCap(strokeCapButt().setShadow(shadow))
+                        .build();
+        return LayoutElement.newBuilder()
+                .setArc(
+                        Arc.newBuilder()
+                                .setAnchorAngle(degrees(0).build())
+                                .addContents(ArcLayoutElement.newBuilder().setLine(arcLine)))
+                .build();
     }
 
     @Test
