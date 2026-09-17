@@ -3145,14 +3145,24 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/MyFieldValuePrinter.java:9: Error: This method references * reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionWithoutKeepAnnotations]
+        src/test/pkg/MyFieldValuePrinter.java:9: Error: This method references test.pkg.MyFieldValuePrinter.PrintableFieldInterface.* reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionWithoutKeepAnnotations]
                 for (Field field : objectWithFields.getClass().getDeclaredFields()) {
                                                                ~~~~~~~~~~~~~~~~~
         1 error
         """
             )
-            // No fix since we don't know specific method
-            .expectFixDiffs("")
+            .expectFixDiffs(
+                """
+        Autofix for src/test/pkg/MyFieldValuePrinter.java line 9: Annotate with @UsesReflectionToAccessField:
+        @@ -2,0 +3 @@
+        +import androidx.annotation.keep.UsesReflectionToAccessField;
+        @@ -7,0 +9,4 @@
+        +    @UsesReflectionToAccessField(
+        +        classConstant = MyFieldValuePrinter.PrintableFieldInterface.class,
+        +        fieldName = "*"
+        +    )
+        """
+            )
     }
 
     @Test
@@ -3410,7 +3420,7 @@ class KeepRuleDetectorTest {
 
     @Test
     fun testFieldType() {
-        // Make sure we don't assume the class is the type of the holder object
+        // Make sure we target the holder object's base class/interface (SupportMenuItem)
         lint()
             .issues(KeepRuleDetector.ISSUE)
             .files(
@@ -3476,10 +3486,10 @@ class KeepRuleDetectorTest {
             .run()
             .expect(
                 """
-        src/test/pkg/JavaFieldType.java:12: Error: This method calls setExclusiveCheckable() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
+        src/test/pkg/JavaFieldType.java:12: Error: This method calls test.pkg.SupportMenuItem.setExclusiveCheckable() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                                 .getDeclaredMethod("setExclusiveCheckable", Boolean.TYPE);
                                  ~~~~~~~~~~~~~~~~~
-        src/test/pkg/KotlinFieldType.kt:13: Error: This method calls setExclusiveCheckable() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
+        src/test/pkg/KotlinFieldType.kt:13: Error: This method calls test.pkg.SupportMenuItem.setExclusiveCheckable() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
                             .getDeclaredMethod("setExclusiveCheckable", Boolean.TYPE)
                              ~~~~~~~~~~~~~~~~~
         2 errors
@@ -3487,23 +3497,23 @@ class KeepRuleDetectorTest {
             )
             .expectFixDiffs(
                 """
-        Fix for src/test/pkg/JavaFieldType.java line 12: Annotate with @UsesReflectionToAccessMethod:
+        Autofix for src/test/pkg/JavaFieldType.java line 12: Annotate with @UsesReflectionToAccessMethod:
         @@ -2,0 +3 @@
         +import androidx.annotation.keep.UsesReflectionToAccessMethod;
         @@ -7,0 +9,5 @@
         +    @UsesReflectionToAccessMethod(
-        +        className = "[TODO]|",
+        +        classConstant = SupportMenuItem.class,
         +        methodName = "setExclusiveCheckable",
-        +        parameterTypes = {}
+        +        parameterTypes = {boolean.class}
         +    )
-        Fix for src/test/pkg/KotlinFieldType.kt line 13: Annotate with @UsesReflectionToAccessMethod:
+        Autofix for src/test/pkg/KotlinFieldType.kt line 13: Annotate with @UsesReflectionToAccessMethod:
         @@ -2,0 +3 @@
         +import androidx.annotation.keep.UsesReflectionToAccessMethod
         @@ -8,0 +10,5 @@
         +    @UsesReflectionToAccessMethod(
-        +        className = [TODO()]|,
+        +        classConstant = SupportMenuItem::class,
         +        methodName = "setExclusiveCheckable",
-        +        parameterTypes = []
+        +        parameterTypes = [Boolean::class]
         +    )
         """
             )
@@ -3824,6 +3834,74 @@ class KeepRuleDetectorTest {
                 +    @UsesReflectionToAccessField(
                 +        classConstant = TargetClass::class,
                 +        fieldName = "*"
+                +    )
+                """
+            )
+    }
+
+    @Test
+    fun testReflectionOnObjectHasNoAutofix() {
+        lint()
+            .issues(KeepRuleDetector.ISSUE)
+            .files(
+                kotlin(
+                        """
+                    package test.pkg
+
+                    class ReflectionOnObjectTest {
+                        fun testReflectOnAny(target: Any) {
+                            target.javaClass.getDeclaredMethod("toString").invoke(target)
+                        }
+                    }
+                    """
+                    )
+                    .indented(),
+                java(
+                        """
+                    package test.pkg;
+
+                    public class ReflectionOnObjectJavaTest {
+                        public void testReflectOnObject(Object target) throws Exception {
+                            target.getClass().getDeclaredMethod("toString").invoke(target);
+                        }
+                    }
+                    """
+                    )
+                    .indented(),
+                *usesReflectionStubs,
+            )
+            .run()
+            .expect(
+                """
+                src/test/pkg/ReflectionOnObjectJavaTest.java:5: Error: This method calls toString() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
+                        target.getClass().getDeclaredMethod("toString").invoke(target);
+                                                                        ~~~~~~
+                src/test/pkg/ReflectionOnObjectTest.kt:5: Error: This method calls toString() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
+                        target.javaClass.getDeclaredMethod("toString").invoke(target)
+                                                                       ~~~~~~
+                2 errors
+                """
+            )
+            // No autofix, because we don't want to try and generate `-keep * extends Object`
+            .expectFixDiffs(
+                """
+                Fix for src/test/pkg/ReflectionOnObjectJavaTest.java line 5: Annotate with @UsesReflectionToAccessMethod:
+                @@ -1,0 +2 @@
+                +import androidx.annotation.keep.UsesReflectionToAccessMethod;
+                @@ -3,0 +5,5 @@
+                +    @UsesReflectionToAccessMethod(
+                +        className = "[TODO]|",
+                +        methodName = "toString",
+                +        parameterTypes = {}
+                +    )
+                Fix for src/test/pkg/ReflectionOnObjectTest.kt line 5: Annotate with @UsesReflectionToAccessMethod:
+                @@ -1,0 +2 @@
+                +import androidx.annotation.keep.UsesReflectionToAccessMethod
+                @@ -3,0 +5,5 @@
+                +    @UsesReflectionToAccessMethod(
+                +        className = [TODO()]|,
+                +        methodName = "toString",
+                +        parameterTypes = []
                 +    )
                 """
             )

@@ -39,7 +39,6 @@ import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiElementFactory
 import com.intellij.psi.PsiMethod
-import com.intellij.psi.PsiModifier
 import com.intellij.psi.PsiPrimitiveType
 import com.intellij.psi.PsiType
 import com.intellij.psi.PsiTypeParameter
@@ -417,22 +416,79 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
             }
         }
 
+        private val LOW_LEVEL_BASE_TYPES: Set<String> =
+            setOf(
+                JAVA_LANG_OBJECT,
+                "java.lang.Cloneable",
+                "java.lang.Comparable",
+                "java.io.Serializable",
+                "java.lang.Iterable",
+                "java.util.Iterator",
+                "java.util.Collection",
+                "java.util.List",
+                "java.util.Set",
+                "java.util.Map",
+                "java.util.Map.Entry",
+                "java.util.Queue",
+                "java.util.Deque",
+                "java.lang.Throwable",
+                "java.lang.Exception",
+                "java.lang.RuntimeException",
+                "java.lang.Error",
+                "java.lang.CharSequence",
+                "java.lang.Number",
+                "java.lang.AutoCloseable",
+                "java.io.Closeable",
+            )
+
+        /**
+         * Checks whether a base class or interface is too low-level or common to target with keep
+         * rules - this prevents e.g. `-keep * extends Object` or similarly over-broad rules.
+         *
+         * Base classes and interfaces are treated the same since they are identical in the final
+         * keep rule language (extends and implements are treated as synonyms to R8, even though
+         * that's not the case in Java). Types like [Object], [Serializable], collections, etc., are
+         * too broad; targeting them would generate keep rules matching too many classes across the
+         * app.
+         *
+         * Note that Kotlin types (such as `kotlin.Any`, `kotlin.collections.List`) are represented
+         * as their mapped JVM types (`java.lang.Object`, `java.util.List`) in [PsiType].
+         */
+        private fun isTooLowLevelBaseType(type: PsiType?): Boolean {
+            if (type == null) return true
+            if (type is PsiPrimitiveType) return true
+            if (type is PsiArrayType) {
+                return isTooLowLevelBaseType(type.deepComponentType)
+            }
+            val canonical = type.canonicalText
+            if (canonical.isEmpty()) return true
+
+            // Strip generic type arguments, e.g. "java.util.List<java.lang.String>" ->
+            // "java.util.List"
+            val rawName = canonical.substringBefore('<')
+
+            return rawName in LOW_LEVEL_BASE_TYPES
+        }
+
         private fun getNestedClassType(clazz: PsiType): PsiType? {
             if (clazz is PsiCapturedWildcardType) {
                 val bound = clazz.wildcard.bound
-                if (bound is PsiClassType) {
+                if (bound is PsiClassType && !isTooLowLevelBaseType(bound)) {
                     return bound
                 }
             } else if (clazz is PsiWildcardType) {
                 val bound = clazz.bound
-                if (bound is PsiClassType) {
+                if (bound is PsiClassType && !isTooLowLevelBaseType(bound)) {
                     return bound
                 }
             } else if (clazz is PsiClassType) {
                 val parameters = clazz.parameters
                 if (parameters.size == 1) {
                     assert(clazz.className == "Class") { clazz.className }
-                    return parameters[0]
+                    val param = parameters[0]
+                    if (!isTooLowLevelBaseType(param)) {
+                        return param
+                    }
                 }
             }
 
@@ -448,7 +504,10 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                     selector.valueArguments.size == 1
             ) {
                 val argument = selector.valueArguments[0]
-                return getCastType(argument)
+                val castType = getCastType(argument)
+                if (castType != null && !isTooLowLevelBaseType(castType.first)) {
+                    return castType
+                }
             }
             return null
         }
@@ -1187,23 +1246,14 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
             if (element is UQualifiedReferenceExpression) {
                 val selector = element.selector
                 if (selector.isJavaClassAccess()) {
-                    // For dynamic "obj.getClass()" or "obj.javaClass", if the receiver's type is
-                    // final (e.g. non-open Kotlin classes, Java final classes), the runtime class
-                    // is statically known.
-                    //
-                    // TODO: When keep annotations support subtyping hierarchies (where targeting
-                    // an interface/base class A ensures R8 also retains the corresponding members
-                    // on any subclass B at runtime), we can relax this check to also return
-                    // non-final types (`receiverType`) as long as `receiverType != Object`.
-                    // Until then, for non-final classes or interfaces, the runtime class could be
-                    // any arbitrary subclass, so we cannot statically assume the concrete type.
+                    // For dynamic "obj.getClass()" or "obj.javaClass", targeting a base class or
+                    // interface is valid as long as the base type is not too low-level/broad (e.g.
+                    // Object, List).
+                    // Base classes and interfaces are treated the same since the keep rule language
+                    // handles them identically.
                     val receiverType = element.receiver.getExpressionType()
-                    if (receiverType is PsiClassType) {
-                        val psiClass = receiverType.resolve()
-                        if (psiClass?.hasModifierProperty(PsiModifier.FINAL) == true) {
-                            return context.evaluator.erasure(receiverType)?.let { Pair(it, true) }
-                        }
-                        return null
+                    if (receiverType is PsiClassType && !isTooLowLevelBaseType(receiverType)) {
+                        return context.evaluator.erasure(receiverType)?.let { Pair(it, true) }
                     }
 
                     return null
@@ -1223,13 +1273,14 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                 if (clazz is PsiClassType) {
                     val resolved = clazz.resolve()
                     if (resolved is PsiTypeParameter) {
-                        // For a bounded type parameter (e.g. <T : ViewModel>), use its upper bound.
+                        // For a bounded type parameter (e.g. <T : ViewModel>), use its upper bound
+                        // as long as the bound is not too low-level.
                         val bound =
                             resolved.extendsListTypes.firstOrNull {
-                                it.canonicalText != JAVA_LANG_OBJECT
+                                !isTooLowLevelBaseType(it)
                             }
                                 ?: resolved.superTypes.firstOrNull {
-                                    it.canonicalText != JAVA_LANG_OBJECT
+                                    !isTooLowLevelBaseType(it)
                                 }
                         if (bound != null) {
                             val erased = context.evaluator.erasure(bound) ?: bound
@@ -1565,7 +1616,9 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                                         classConstant,
                                         className ?: "",
                                         memberName,
-                                        emptyList(),
+                                        node.valueArguments.let {
+                                            if (it.size > 1) it.subList(1, it.size) else emptyList()
+                                        },
                                     )
                                 } else {
                                     createFieldReflection(
