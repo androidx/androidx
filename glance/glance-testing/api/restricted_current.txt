@@ -44,8 +44,8 @@ package androidx.glance.testing.unit {
 
   public final class GlanceMappedNode extends androidx.glance.testing.GlanceNode<androidx.glance.testing.unit.MappedNode> {
     ctor public GlanceMappedNode(androidx.glance.testing.unit.MappedNode mappedNode);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.List<androidx.glance.testing.GlanceNode<androidx.glance.testing.unit.MappedNode>> children();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public String toDebugString();
+    method public java.util.List<androidx.glance.testing.GlanceNode<androidx.glance.testing.unit.MappedNode>> children();
+    method public String toDebugString();
   }
 
   public final class MappedNode {
