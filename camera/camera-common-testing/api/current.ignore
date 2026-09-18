@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedMethod: androidx.camera.common.testing.FakeCameraCharacteristics#FakeCameraCharacteristics():
+    Added constructor androidx.camera.common.testing.FakeCameraCharacteristics()
