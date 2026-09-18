@@ -257,19 +257,7 @@ internal constructor(
      */
     public fun toRemoteString(
         format: android.icu.text.DecimalFormat = DefaultIntegerFormat
-    ): RemoteString {
-        val (before, after, flags) = format.toTextFromFloatOptions()
-        // If the format doesn't require fractional digits, we force it to 0.
-        // This is typical for integer formatting.
-        val resolvedAfter = if (format.minimumFractionDigits == 0) 0 else after
-
-        // Optimization: We call toRemoteStringWithPadding directly on the float
-        // representation rather than calling toRemoteFloat().toRemoteString(format).
-        // This bypasses the dynamic isInteger check in RemoteFloat.toRemoteString, which is
-        // redundant for RemoteInt and would cause infinite recursion (StackOverflowError)
-        // since RemoteFloat's workaround delegates back to RemoteInt.toRemoteString.
-        return toRemoteFloat().toRemoteStringWithPadding(format, before, resolvedAfter, flags)
-    }
+    ): RemoteString = formatRemoteInt(this, format)
 
     /**
      * Converts this [RemoteInt] to a [RemoteString] using the specified [format].
@@ -281,25 +269,7 @@ internal constructor(
      * @param format The [DecimalFormat] to use for determining separators, grouping, and padding.
      * @return A [RemoteString] representing the formatted integer.
      */
-    public fun toRemoteString(format: DecimalFormat): RemoteString {
-        // We manually convert java.text.DecimalFormat to android.icu.text.DecimalFormat
-        // and delegate to the ICU overload. This ensures we route through the optimized
-        // direct-formatting path (bypassing RemoteFloat.toRemoteString) to avoid the
-        // stack overflow hazard and redundant runtime checks.
-        val icuFormat = android.icu.text.DecimalFormat(format.toPattern())
-        icuFormat.decimalFormatSymbols =
-            android.icu.text.DecimalFormatSymbols.getInstance().apply {
-                decimalSeparator = format.decimalFormatSymbols.decimalSeparator
-                groupingSeparator = format.decimalFormatSymbols.groupingSeparator
-            }
-        icuFormat.minimumIntegerDigits = format.minimumIntegerDigits
-        icuFormat.maximumIntegerDigits = format.maximumIntegerDigits
-        icuFormat.minimumFractionDigits = format.minimumFractionDigits
-        icuFormat.maximumFractionDigits = format.maximumFractionDigits
-        icuFormat.groupingSize = format.groupingSize
-        icuFormat.negativePrefix = format.negativePrefix
-        return toRemoteString(icuFormat)
-    }
+    public fun toRemoteString(format: DecimalFormat): RemoteString = formatRemoteInt(this, format)
 
     /**
      * Returns a [RemoteInt] that is a reference of this RemoteInt.
@@ -447,9 +417,6 @@ internal constructor(
         get() = unaryOp(OperationKey.Abs, OP_ABS) { v -> abs(v) }
 
     public companion object {
-        internal val DefaultIntegerFormat =
-            android.icu.text.DecimalFormat().apply { maximumFractionDigits = 0 }
-
         public operator fun invoke(value: Int): RemoteInt {
             return RemoteIntExpression(
                 value,
