@@ -38,7 +38,9 @@ import androidx.compose.remote.player.compose.embedded.state.MulOp
 import androidx.compose.remote.player.compose.embedded.state.SubOp
 import androidx.compose.remote.player.compose.embedded.state.expressionDependsOnAnimation
 import androidx.compose.remote.player.compose.embedded.state.parseRpn
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.Snapshot
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -430,5 +432,97 @@ class RcPlayerExpressionTest {
         realState.updateFloat(51, 2.75f)
         assertThat(realState.getFloat(51)).isEqualTo(2.75f)
         assertThat(realState.getInteger(51)).isEqualTo(2)
+    }
+
+    @Test(timeout = 5_000L)
+    fun diamondFloatExpressionDag_evaluatesLinearlyAndTracksSnapshotDependencies() {
+        val realState = SnapshotRemoteComposeState()
+        val rootId = 100
+        realState.updateFloat(rootId, 0f)
+
+        val computedOps = mutableIntObjectMapOf<Operation>()
+        var aId = rootId
+        var bId = 101
+        computedOps.put(
+            bId,
+            FloatExpression(
+                bId,
+                floatArrayOf(Utils.asNan(rootId), 1f, AnimatedFloatExpression.ADD),
+                null,
+            ),
+        )
+
+        var nextId = 102
+        repeat(32) {
+            val nextA = nextId++
+            val nextB = nextId++
+            computedOps.put(
+                nextA,
+                FloatExpression(
+                    nextA,
+                    floatArrayOf(
+                        Utils.asNan(aId),
+                        Utils.asNan(bId),
+                        AnimatedFloatExpression.ADD,
+                        0.5f,
+                        AnimatedFloatExpression.MUL,
+                    ),
+                    null,
+                ),
+            )
+            computedOps.put(
+                nextB,
+                FloatExpression(
+                    nextB,
+                    floatArrayOf(
+                        Utils.asNan(aId),
+                        Utils.asNan(bId),
+                        AnimatedFloatExpression.SUB,
+                        0.5f,
+                        AnimatedFloatExpression.MUL,
+                    ),
+                    null,
+                ),
+            )
+            aId = nextA
+            bId = nextB
+        }
+
+        val finalId = nextId
+        computedOps.put(
+            finalId,
+            FloatExpression(
+                finalId,
+                floatArrayOf(Utils.asNan(aId), Utils.asNan(bId), AnimatedFloatExpression.ADD),
+                null,
+            ),
+        )
+
+        val graph =
+            GraphContext(
+                realState = realState,
+                computedOps = computedOps,
+                timeMillis = mutableStateOf(0f),
+                clock = RemoteClock.SYSTEM,
+            )
+
+        // Note: (a + b)*0.5 + (a - b)*0.5 == a at every stage, so finalCoord == a_31.
+        // At root = 0f: a_0 = 0, b_0 = 1 -> a_1 = 0.5, b_1 = -0.5 -> a_2 = 0, b_2 = 0.5 ...
+        val observerA = derivedStateOf { graph.getFloat(finalId) }
+        val observerB = derivedStateOf { graph.getFloat(finalId) }
+
+        val initialA = observerA.value
+        val initialB = observerB.value
+        assertThat(initialA).isEqualTo(initialB)
+
+        // Mutate root in a new snapshot and verify both observers invalidate and recompute in O(D).
+        Snapshot.withMutableSnapshot {
+            realState.updateFloat(rootId, 4f)
+        }
+
+        val updatedA = observerA.value
+        val updatedB = observerB.value
+        assertThat(updatedA).isEqualTo(updatedB)
+        assertThat(updatedA).isNotEqualTo(initialA)
     }
 }

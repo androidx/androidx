@@ -19,6 +19,8 @@
 package androidx.compose.remote.player.compose.embedded
 
 import androidx.collection.IntObjectMap
+import androidx.collection.MutableIntObjectMap
+import androidx.collection.MutableIntSet
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.PaintOperation
 import androidx.compose.remote.core.RemoteClock
@@ -30,27 +32,27 @@ import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
 import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import java.util.concurrent.ConcurrentHashMap
 
 /**
  * A pure-Compose evaluator for *computed* operations (color/text/float/int expressions, attributes,
- * lookups) built out of `derivedStateOf` — no imperative recompute pass, no dirty flags.
+ * lookups) using per-pass DAG memoization over reactive leaf states — no imperative recompute pass,
+ * no dirty flags, and no intermediate `derivedStateOf` nodes.
  *
- * Each computed id resolves to a [derivedStateOf] that runs the op's existing `updateVariables` +
- * `apply` against **this** context. We intercept the two things an op does:
+ * Each computed id evaluates the op's existing `updateVariables` + `apply` against **this**
+ * context, memoized within the active top-level evaluation pass (`withEvalPass` / top-level
+ * `computedValue`). We intercept the two things an op does:
  * - **reads** (`getFloat`/`getInteger`/`getColor`/`getText`) — for a computed input we recurse into
- *   *its* `State` (so chains compose and only what's read recomputes); for a leaf we read the real
- *   snapshot-backed store via `super`, which records the snapshot dependency. So Compose discovers
- *   each op's dependencies automatically — we never enumerate input ids.
+ *   `computedValue(depId)` (memoized in $\Theta(1)$ if already visited in the current pass, so
+ *   reconvergent diamond DAGs evaluate in $\Theta(V + E)$ rather than $\Theta(2^D)$); for a leaf we
+ *   read the real snapshot-backed store via `super`, which records the snapshot dependency directly
+ *   on the caller's active Compose observation scope.
  * - **writes** (`loadFloat`/`loadInteger`/`loadColor`/`loadText`) — captured as the op's result
- *   rather than mutated into the store, which makes the op a pure function for the
- *   `derivedStateOf`.
+ *   rather than mutated into the store, keeping evaluation pure.
  *
  * The operations are used verbatim (no core changes). Non-scalar reads
  * (objects/bitmaps/collections/ paths) fall through to the shared store via `super`. The
- * capture/cycle bookkeeping is single-thread (Compose UI read phases); nested chain evaluation is
- * handled by save/restore.
+ * capture/cycle bookkeeping is per-thread; nested chain evaluation is handled by save/restore.
  *
  * Conceptually this is a `RemoteReadContext` (a value view) that captures the one write an op makes
  * as its result. It extends [StoreBackedRemoteContext] rather than `AndroidRemoteContext`.
@@ -75,8 +77,6 @@ internal class GraphContext(
         mRemoteComposeState = realState
     }
 
-    @Suppress("BanConcurrentHashMap") private val states = ConcurrentHashMap<Int, State<Any?>>()
-
     private val graphPaintContext = GraphPaintContext(this)
 
     /**
@@ -95,50 +95,62 @@ internal class GraphContext(
      */
     internal var imageLoader: RcImageLoader? = null
 
-    // Capture bookkeeping is per-thread: `derivedStateOf` may be evaluated on whichever thread
-    // reads
-    // it (UI phases are main-thread today, but snapshot reads aren't contractually single-thread).
-    // Re-entrancy within a thread (chained ops) is handled by save/restore.
-    private val computing = ThreadLocal.withInitial { HashSet<Int>() }
-    private val captureId = ThreadLocal.withInitial { -1 }
-    private val captured = ThreadLocal<Any?>()
+    private class EvalPassState {
+        var depth: Int = 0
+        val memoPass: MutableIntSet = MutableIntSet()
+        val memoValues: MutableIntObjectMap<Any?> = MutableIntObjectMap()
+        val computing: MutableIntSet = MutableIntSet()
+        var captureId: Int = -1
+        var captured: Any? = null
+    }
+
+    // Per-thread evaluation state: UI phases are main-thread today, but snapshot reads aren't
+    // contractually single-thread. Re-entrancy within a thread is handled by save/restore.
+    private val evalState = ThreadLocal.withInitial { EvalPassState() }
 
     /** True if [id] is produced by a computed op (vs a leaf variable). */
     internal fun isComputed(id: Int): Boolean = computedOps.containsKey(id)
 
     private fun computedValue(id: Int): Any? {
-        if (id in computing.get()!!) return null // cycle: break rather than recurse forever
-        val state =
-            states.getOrPut(id) {
-                derivedStateOf {
-                    val op = computedOps[id] ?: return@derivedStateOf null
-                    // Fetch per-thread bookkeeping on the thread actually evaluating the block.
-                    val active: HashSet<Int> = computing.get()!!
-                    val prevId = captureId.get()
-                    val prevCaptured = captured.get()
-                    captureId.set(id)
-                    captured.set(null)
-                    active += id
-                    try {
-                        if (op is VariableSupport)
-                            op.updateVariables(this) // reads inputs (tracked)
-                        // Value-producing PaintOperations (e.g. ColorAttribute) compute and write
-                        // their outputs during paint(paintContext) rather than
-                        // apply(remoteContext).
-                        if (op is PaintOperation && op !is Component) {
-                            op.paint(graphPaintContext)
-                        } else {
-                            op.apply(this) // writes output -> captured
-                        }
-                        captured.get()
-                    } finally {
-                        captureId.set(prevId)
-                        captured.set(prevCaptured)
-                        active -= id
-                    }
-                }
+        val state = evalState.get()!!
+        if (state.computing.contains(id)) return null // cycle: break rather than recurse forever
+
+        if (state.memoPass.contains(id)) {
+            return state.memoValues[id]
+        }
+
+        val op = computedOps[id] ?: return null
+        state.depth++
+        val prevId = state.captureId
+        val prevCaptured = state.captured
+        state.captureId = id
+        state.captured = null
+        state.computing.add(id)
+        try {
+            if (op is VariableSupport) {
+                op.updateVariables(this) // reads inputs (tracked)
             }
-        return state.value
+            // Value-producing PaintOperations (e.g. ColorAttribute) compute and write
+            // their outputs during paint(paintContext) rather than apply(remoteContext).
+            if (op is PaintOperation && op !is Component) {
+                op.paint(graphPaintContext)
+            } else {
+                op.apply(this) // writes output -> captured
+            }
+            val result = state.captured
+            state.memoPass.add(id)
+            state.memoValues[id] = result
+            return result
+        } finally {
+            state.captureId = prevId
+            state.captured = prevCaptured
+            state.computing.remove(id)
+            state.depth--
+            if (state.depth == 0) {
+                state.memoPass.clear()
+                state.memoValues.clear()
+            }
+        }
     }
 
     override fun getFloat(id: Int): Float {
@@ -192,28 +204,31 @@ internal class GraphContext(
         }
 
     // GraphContext is a read-only-store *evaluation* context: a computed op's apply must not mutate
-    // the shared store (that would be a snapshot write during a derivedStateOf read, and would let
-    // one op clobber another's value). The scalar writes capture the op's own output; every other
-    // write is a no-op. This makes the model robust even for ops that write more than once or via
-    // non-scalar channels (e.g. MatrixExpression does putObject + loadFloat; Path/Shader/collection
-    // ops write paths/shaders/collections) — those ops aren't read through the scalar resolvers,
-    // but
-    // if one ever is, it degrades to a captured scalar / default instead of corrupting the store.
+    // the shared store (that would be a snapshot write during a snapshot read, and would let one op
+    // clobber another's value). The scalar writes capture the op's own output; every other write is
+    // a no-op. This makes the model robust even for ops that write more than once or via non-scalar
+    // channels (e.g. MatrixExpression does putObject + loadFloat; Path/Shader/collection ops write
+    // paths/shaders/collections) — those ops aren't read through the scalar resolvers, but if one
+    // ever is, it degrades to a captured scalar / default instead of corrupting the store.
 
     override fun loadFloat(id: Int, value: Float) {
-        if (id == captureId.get()) captured.set(value)
+        val state = evalState.get()!!
+        if (id == state.captureId) state.captured = value
     }
 
     override fun loadInteger(id: Int, value: Int) {
-        if (id == captureId.get()) captured.set(value)
+        val state = evalState.get()!!
+        if (id == state.captureId) state.captured = value
     }
 
     override fun loadColor(id: Int, color: Int) {
-        if (id == captureId.get()) captured.set(color)
+        val state = evalState.get()!!
+        if (id == state.captureId) state.captured = color
     }
 
     override fun loadText(id: Int, text: String) {
-        if (id == captureId.get()) captured.set(text)
+        val state = evalState.get()!!
+        if (id == state.captureId) state.captured = text
     }
 
     // Non-scalar / multi-writes during evaluation are suppressed (never reach the real store).
