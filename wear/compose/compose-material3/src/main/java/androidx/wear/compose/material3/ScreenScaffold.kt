@@ -89,13 +89,19 @@ import kotlinx.coroutines.launch
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
- * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
- * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
- * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
+ * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
+ * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
+ * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
+ * [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * On devices that support the system status bar, the system status bar overlay replaces
+ * application-rendered [TimeText]. On devices that do not support the system status bar, this
+ * scaffold automatically falls back to inheriting standard in-app [TimeText] from [AppScaffold].
  *
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
- * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
+ * coordinates showing/hiding the system status bar (or [TimeText]) and [ScrollIndicator] according
+ * to [scrollState].
  *
  * This version of [ScreenScaffold] has a special slot for a button at the bottom, that grows and
  * shrinks to take the available space after the scrollable content.
@@ -105,7 +111,7 @@ import kotlinx.coroutines.launch
  * the [EdgeButton].
  *
  * @param scrollState The scroll state for [ScalingLazyColumn], used to drive screen transitions
- *   such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ *   such as system status bar (or [TimeText]) scroll away and showing/hiding [ScrollIndicator].
  * @param edgeButton Slot for an [EdgeButton] that takes the available space below a scrolling list.
  *   It will scale up and fade in when the user scrolls to the end of the list, and scale down and
  *   fade out as the user scrolls up.
@@ -155,13 +161,19 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
- * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
- * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
- * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
+ * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
+ * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
+ * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
+ * [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * This overload supports passing a custom [timeText] or disabling the system status bar overlay for
+ * this screen. For screens that do not require custom time text, use the overload without the
+ * timeText parameter.
  *
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
- * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
+ * coordinates showing/hiding the status bar (or [TimeText]) and [ScrollIndicator] according to
+ * [scrollState].
  *
  * This version of [ScreenScaffold] has a special slot for a button at the bottom, that grows and
  * shrinks to take the available space after the scrollable content.
@@ -171,7 +183,7 @@ public fun ScreenScaffold(
  * the [EdgeButton].
  *
  * @param scrollState The scroll state for [ScalingLazyColumn], used to drive screen transitions
- *   such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ *   such as status bar (or [TimeText]) scroll away and showing/hiding [ScrollIndicator].
  * @param edgeButton Slot for an [EdgeButton] that takes the available space below a scrolling list.
  *   It will scale up and fade in when the user scrolls to the end of the list, and scale down and
  *   fade out as the user scrolls up.
@@ -228,16 +240,22 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
- * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
- * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
- * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
+ * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
+ * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
+ * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
+ * [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * On devices that support the system status bar, the system status bar overlay replaces
+ * application-rendered [TimeText]. On devices that do not support the system status bar, this
+ * scaffold automatically falls back to inheriting standard in-app [TimeText] from [AppScaffold].
  *
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
- * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
+ * coordinates showing/hiding the system status bar (or [TimeText]) and [ScrollIndicator] according
+ * to [scrollState].
  *
  * @param scrollState The scroll state for [ScalingLazyColumn], used to drive screen transitions
- *   such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ *   such as system status bar (or [TimeText]) scroll away and showing/hiding [ScrollIndicator].
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
@@ -277,16 +295,22 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
- * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
- * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
- * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
+ * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
+ * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
+ * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
+ * [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * This overload supports passing a custom [timeText] or disabling the system status bar overlay for
+ * this screen. For screens that do not require custom time text, use the overload without the
+ * timeText parameter.
  *
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
- * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
+ * coordinates showing/hiding the status bar (or [TimeText]) and [ScrollIndicator] according to
+ * [scrollState].
  *
  * @param scrollState The scroll state for [ScalingLazyColumn], used to drive screen transitions
- *   such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ *   such as status bar (or [TimeText]) scroll away and showing/hiding [ScrollIndicator].
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
@@ -333,13 +357,19 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
- * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
- * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
- * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
+ * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
+ * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
+ * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
+ * [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * On devices that support the system status bar, the system status bar overlay replaces
+ * application-rendered [TimeText]. On devices that do not support the system status bar, this
+ * scaffold automatically falls back to inheriting standard in-app [TimeText] from [AppScaffold].
  *
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
- * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
+ * coordinates showing/hiding the system status bar (or [TimeText]) and [ScrollIndicator] according
+ * to [scrollState].
  *
  * This version of [ScreenScaffold] has a special slot for a button at the bottom, that grows and
  * shrinks to take the available space after the scrollable content.
@@ -353,7 +383,8 @@ public fun ScreenScaffold(
  * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * @param scrollState The scroll state for [TransformingLazyColumn], used to drive screen
- *   transitions such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ *   transitions such as system status bar (or [TimeText]) scroll away and showing/hiding
+ *   [ScrollIndicator].
  * @param edgeButton Slot for an [EdgeButton] that takes the available space below a scrolling list.
  *   It will scale up and fade in when the user scrolls to the end of the list, and scale down and
  *   fade out as the user scrolls up.
@@ -403,13 +434,19 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
- * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
- * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
- * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
+ * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
+ * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
+ * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
+ * [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * This overload supports passing a custom [timeText] or disabling the system status bar overlay for
+ * this screen. For screens that do not require custom time text, use the overload without the
+ * timeText parameter.
  *
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
- * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
+ * coordinates showing/hiding the status bar (or [TimeText]) and [ScrollIndicator] according to
+ * [scrollState].
  *
  * This version of [ScreenScaffold] has a special slot for a button at the bottom, that grows and
  * shrinks to take the available space after the scrollable content.
@@ -423,7 +460,8 @@ public fun ScreenScaffold(
  * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * @param scrollState The scroll state for [TransformingLazyColumn], used to drive screen
- *   transitions such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ *   transitions such as status bar (or [TimeText]) scroll away and showing/hiding
+ *   [ScrollIndicator].
  * @param edgeButton Slot for an [EdgeButton] that takes the available space below a scrolling list.
  *   It will scale up and fade in when the user scrolls to the end of the list, and scale down and
  *   fade out as the user scrolls up.
@@ -480,13 +518,19 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
- * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
- * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
- * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
+ * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
+ * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
+ * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
+ * [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * On devices that support the system status bar, the system status bar overlay replaces
+ * application-rendered [TimeText]. On devices that do not support the system status bar, this
+ * scaffold automatically falls back to inheriting standard in-app [TimeText] from [AppScaffold].
  *
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
- * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
+ * coordinates showing/hiding the system status bar (or [TimeText]) and [ScrollIndicator] according
+ * to [scrollState].
  *
  * Example of using AppScaffold and ScreenScaffold:
  *
@@ -496,7 +540,8 @@ public fun ScreenScaffold(
  * Image](https://developer.android.com/wear/images/design/WearComposeM3_ScaffoldSample_CompositeImage.png)
  *
  * @param scrollState The scroll state for [TransformingLazyColumn], used to drive screen
- *   transitions such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ *   transitions such as system status bar (or [TimeText]) scroll away and showing/hiding
+ *   [ScrollIndicator].
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
@@ -536,13 +581,19 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
- * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
- * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
- * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
+ * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
+ * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
+ * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
+ * [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * This overload supports passing a custom [timeText] or disabling the system status bar overlay for
+ * this screen. For screens that do not require custom time text, use the overload without the
+ * timeText parameter.
  *
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
- * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
+ * coordinates showing/hiding the status bar (or [TimeText]) and [ScrollIndicator] according to
+ * [scrollState].
  *
  * Example of using AppScaffold and ScreenScaffold:
  *
@@ -552,7 +603,8 @@ public fun ScreenScaffold(
  * Image](https://developer.android.com/wear/images/design/WearComposeM3_ScaffoldSample_CompositeImage.png)
  *
  * @param scrollState The scroll state for [TransformingLazyColumn], used to drive screen
- *   transitions such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ *   transitions such as status bar (or [TimeText]) scroll away and showing/hiding
+ *   [ScrollIndicator].
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
@@ -599,19 +651,26 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
- * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
- * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
- * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
+ * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
+ * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
+ * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
+ * [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * On devices that support the system status bar, the system status bar overlay replaces
+ * application-rendered [TimeText]. On devices that do not support the system status bar, this
+ * scaffold automatically falls back to inheriting standard in-app [TimeText] from [AppScaffold].
  *
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
- * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
+ * coordinates showing/hiding the system status bar (or [TimeText]) and [ScrollIndicator] according
+ * to [scrollState].
  *
  * This version of [ScreenScaffold] has a special slot for a button at the bottom, that grows and
  * shrinks to take the available space after the scrollable content.
  *
  * @param scrollState The scroll state for [androidx.compose.foundation.lazy.LazyColumn], used to
- *   drive screen transitions such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ *   drive screen transitions such as system status bar (or [TimeText]) scroll away and
+ *   showing/hiding [ScrollIndicator].
  * @param edgeButton Slot for an [EdgeButton] that takes the available space below a scrolling list.
  *   It will scale up and fade in when the user scrolls to the end of the list, and scale down and
  *   fade out as the user scrolls up.
@@ -661,19 +720,26 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
- * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
- * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
- * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
+ * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
+ * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
+ * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
+ * [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * This overload supports passing a custom [timeText] or disabling the system status bar overlay for
+ * this screen. For screens that do not require custom time text, use the overload without the
+ * timeText parameter.
  *
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
- * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
+ * coordinates showing/hiding the status bar (or [TimeText]) and [ScrollIndicator] according to
+ * [scrollState].
  *
  * This version of [ScreenScaffold] has a special slot for a button at the bottom, that grows and
  * shrinks to take the available space after the scrollable content.
  *
  * @param scrollState The scroll state for [androidx.compose.foundation.lazy.LazyColumn], used to
- *   drive screen transitions such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ *   drive screen transitions such as status bar (or [TimeText]) scroll away and showing/hiding
+ *   [ScrollIndicator].
  * @param edgeButton Slot for an [EdgeButton] that takes the available space below a scrolling list.
  *   It will scale up and fade in when the user scrolls to the end of the list, and scale down and
  *   fade out as the user scrolls up.
@@ -730,16 +796,23 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
- * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
- * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
- * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
+ * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
+ * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
+ * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
+ * [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * On devices that support the system status bar, the system status bar overlay replaces
+ * application-rendered [TimeText]. On devices that do not support the system status bar, this
+ * scaffold automatically falls back to inheriting standard in-app [TimeText] from [AppScaffold].
  *
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
- * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
+ * coordinates showing/hiding the system status bar (or [TimeText]) and [ScrollIndicator] according
+ * to [scrollState].
  *
  * @param scrollState The scroll state for [androidx.compose.foundation.lazy.LazyColumn], used to
- *   drive screen transitions such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ *   drive screen transitions such as system status bar (or [TimeText]) scroll away and
+ *   showing/hiding [ScrollIndicator].
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
@@ -779,16 +852,23 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
- * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
- * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
- * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
+ * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
+ * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
+ * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
+ * [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * This overload supports passing a custom [timeText] or disabling the system status bar overlay for
+ * this screen. For screens that do not require custom time text, use the overload without the
+ * timeText parameter.
  *
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
- * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState].
+ * coordinates showing/hiding the status bar (or [TimeText]) and [ScrollIndicator] according to
+ * [scrollState].
  *
  * @param scrollState The scroll state for [androidx.compose.foundation.lazy.LazyColumn], used to
- *   drive screen transitions such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ *   drive screen transitions such as status bar (or [TimeText]) scroll away and showing/hiding
+ *   [ScrollIndicator].
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
@@ -835,15 +915,20 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
- * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
- * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
- * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
+ * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
+ * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
+ * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
+ * [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * On devices that support the system status bar, the system status bar overlay replaces
+ * application-rendered [TimeText]. On devices that do not support the system status bar, this
+ * scaffold automatically falls back to inheriting standard in-app [TimeText] from [AppScaffold].
  *
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
- * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState]. Note that
- * this version doesn't support a bottom button slot, for that use the overload that takes
- * [LazyListState] or the one that takes a [ScalingLazyListState].
+ * coordinates showing/hiding the system status bar (or [TimeText]) and [ScrollIndicator] according
+ * to [scrollState]. Note that this version doesn't support a bottom button slot, for that use the
+ * overload that takes [LazyListState] or the one that takes a [ScalingLazyListState].
  *
  * Example of using AppScaffold and ScreenScaffold:
  *
@@ -852,8 +937,8 @@ public fun ScreenScaffold(
  * ![ScaffoldSample Composite
  * Image](https://developer.android.com/wear/images/design/WearComposeM3_ScaffoldSample_CompositeImage.png)
  *
- * @param scrollState The scroll state for a Column, used to drive screen transitions such as
- *   [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ * @param scrollState The scroll state for a Column, used to drive screen transitions such as system
+ *   status bar (or [TimeText]) scroll away and showing/hiding [ScrollIndicator].
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
@@ -893,15 +978,20 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
- * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
- * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
- * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
+ * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
+ * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
+ * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
+ * [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * This overload supports passing a custom [timeText] or disabling the system status bar overlay for
+ * this screen. For screens that do not require custom time text, use the overload without the
+ * timeText parameter.
  *
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
- * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollState]. Note that
- * this version doesn't support a bottom button slot, for that use the overload that takes
- * [LazyListState] or the one that takes a [ScalingLazyListState].
+ * coordinates showing/hiding the status bar (or [TimeText]) and [ScrollIndicator] according to
+ * [scrollState]. Note that this version doesn't support a bottom button slot, for that use the
+ * overload that takes [LazyListState] or the one that takes a [ScalingLazyListState].
  *
  * Example of using AppScaffold and ScreenScaffold:
  *
@@ -910,8 +1000,8 @@ public fun ScreenScaffold(
  * ![ScaffoldSample Composite
  * Image](https://developer.android.com/wear/images/design/WearComposeM3_ScaffoldSample_CompositeImage.png)
  *
- * @param scrollState The scroll state for a Column, used to drive screen transitions such as
- *   [TimeText] scroll away and showing/hiding [ScrollIndicator].
+ * @param scrollState The scroll state for a Column, used to drive screen transitions such as status
+ *   bar (or [TimeText]) scroll away and showing/hiding [ScrollIndicator].
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
@@ -958,22 +1048,27 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
- * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
- * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
- * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
+ * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
+ * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
+ * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
+ * [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * On devices that support the system status bar, the system status bar overlay replaces
+ * application-rendered [TimeText]. On devices that do not support the system status bar, this
+ * scaffold automatically falls back to inheriting standard in-app [TimeText] from [AppScaffold].
  *
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
- * coordinates showing/hiding [TimeText], [ScrollIndicator] and the bottom button according to a
- * [scrollInfoProvider].
+ * coordinates showing/hiding the system status bar (or [TimeText]), [ScrollIndicator] and the
+ * bottom button according to a [scrollInfoProvider].
  *
  * This version of [ScreenScaffold] has a special slot for a button at the bottom, that grows and
  * shrinks to take the available space after the scrollable content. In this overload, both
  * edgeButton and scrollInfoProvider must be specified.
  *
  * @param scrollInfoProvider Provider for scroll information used to scroll away screen elements
- *   such as [TimeText] and coordinate showing/hiding the [ScrollIndicator], this needs to be a
- *   [ScrollInfoProvider].
+ *   such as the system status bar (or [TimeText]) and coordinate showing/hiding the
+ *   [ScrollIndicator].
  * @param edgeButton slot for a [EdgeButton] that takes the available space below a scrolling list.
  *   It will scale up and fade in when the user scrolls to the end of the list, and scale down and
  *   fade out as the user scrolls up.
@@ -1024,22 +1119,26 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
- * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
- * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
- * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
+ * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
+ * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
+ * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
+ * [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * This overload supports passing a custom [timeText] or disabling the system status bar overlay for
+ * this screen. For screens that do not require custom time text, use the overload without the
+ * timeText parameter.
  *
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
- * coordinates showing/hiding [TimeText], [ScrollIndicator] and the bottom button according to a
- * [scrollInfoProvider].
+ * coordinates showing/hiding the status bar (or [TimeText]), [ScrollIndicator] and the bottom
+ * button according to a [scrollInfoProvider].
  *
  * This version of [ScreenScaffold] has a special slot for a button at the bottom, that grows and
  * shrinks to take the available space after the scrollable content. In this overload, both
  * edgeButton and scrollInfoProvider must be specified.
  *
  * @param scrollInfoProvider Provider for scroll information used to scroll away screen elements
- *   such as [TimeText] and coordinate showing/hiding the [ScrollIndicator], this needs to be a
- *   [ScrollInfoProvider].
+ *   such as the status bar (or [TimeText]) and coordinate showing/hiding the [ScrollIndicator].
  * @param edgeButton slot for a [EdgeButton] that takes the available space below a scrolling list.
  *   It will scale up and fade in when the user scrolls to the end of the list, and scale down and
  *   fade out as the user scrolls up.
@@ -1206,13 +1305,19 @@ private enum class SlotsEnum {
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
- * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
- * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
- * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
+ * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
+ * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
+ * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
+ * [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * On devices that support the system status bar, the system status bar overlay replaces
+ * application-rendered [TimeText]. On devices that do not support the system status bar, this
+ * scaffold automatically falls back to inheriting standard in-app [TimeText] from [AppScaffold].
  *
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
- * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollInfoProvider].
+ * coordinates showing/hiding the system status bar (or [TimeText]) and [ScrollIndicator] according
+ * to [scrollInfoProvider].
  *
  * Example of using AppScaffold and ScreenScaffold:
  *
@@ -1223,7 +1328,8 @@ private enum class SlotsEnum {
  *
  * @param modifier The modifier for the screen scaffold.
  * @param scrollInfoProvider Provider for scroll information used to scroll away screen elements
- *   such as [TimeText] and coordinate showing/hiding the [ScrollIndicator].
+ *   such as the system status bar (or [TimeText]) and coordinate showing/hiding the
+ *   [ScrollIndicator].
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
  *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
@@ -1262,13 +1368,19 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState] and layers [TimeText] on
- * top of all other content) and [ScreenScaffold] should be part of [AppScaffold]'s content. When
- * used in conjunction with SwipeDismissableNavHost, [AppScaffold] remains at the top of the
- * composition, whilst [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
+ * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
+ * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
+ * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
+ * [ScreenScaffold] will be placed for each individual composable route.
+ *
+ * This overload supports passing a custom [timeText] or disabling the system status bar overlay for
+ * this screen. For screens that do not require custom time text, use the overload without the
+ * timeText parameter.
  *
  * [ScreenScaffold] displays the [ScrollIndicator] at the center-end of the screen by default and
- * coordinates showing/hiding [TimeText] and [ScrollIndicator] according to [scrollInfoProvider].
+ * coordinates showing/hiding the status bar (or [TimeText]) and [ScrollIndicator] according to
+ * [scrollInfoProvider].
  *
  * Example of using AppScaffold and ScreenScaffold:
  *
@@ -1279,7 +1391,7 @@ public fun ScreenScaffold(
  *
  * @param modifier The modifier for the screen scaffold.
  * @param scrollInfoProvider Provider for scroll information used to scroll away screen elements
- *   such as [TimeText] and coordinate showing/hiding the [ScrollIndicator].
+ *   such as the status bar (or [TimeText]) and coordinate showing/hiding the [ScrollIndicator].
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
  *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
