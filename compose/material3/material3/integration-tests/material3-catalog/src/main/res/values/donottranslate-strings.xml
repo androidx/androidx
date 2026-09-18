@@ -19,6 +19,8 @@
     <string name="compose_material_3">Compose Material 3</string>
 
     <string name="back_button">Back</string>
+    <string name="search_samples">Search samples</string>
+    <string name="clear_text">Clear text</string>
     <string name="favorite_button">Pin screen</string>
     <string name="change_theme_button">Change theme</string>
     <string name="more_menu_button">External links</string>
