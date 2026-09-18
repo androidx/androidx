@@ -26,8 +26,11 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * A HTTP header name-value pair that will be sent on all requests to origins that match the
+ * An HTTP header name-value pair that will be sent on requests to origins that match the
  * given origin rules.
+ * <p>
+ * For document-initiated requests, custom headers take effect on document load. See
+ * {@link Profile#addCustomHeader(CustomHeader)} for details.
  *
  * @see Profile#addCustomHeader(CustomHeader)
  * @see Profile#getCustomHeaders()
