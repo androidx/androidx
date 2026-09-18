@@ -649,8 +649,8 @@ w: .*\/generated\/ksp\/.*\.kt:[0-9]+:[0-9]+ This 'var' property is never written
 w: .*\/androidx\/room3\/integration-tests\/room-testapp-kotlin\/build\/generated\/ksp\/withKspGenKotlinDebugAndroidTest\/kotlin\/androidx\/room3\/integration\/kotlintestapp\/dao\/SchoolDao_Impl\.kt:[0-9]+:[0-9]+ Variable is never read\.
 w: .*\/androidx\/room3\/integration-tests\/room-testapp-kotlin\/build\/generated\/ksp\/withKspGenKotlinDebugAndroidTest\/kotlin\/androidx\/room3\/integration\/kotlintestapp\/dao\/SchoolDao_Impl\.kt:[0-9]+:[0-9]+ Assigned value is never read\.
 # b/554102868
-w: .*\/ink\/.*\.kt:[0-9]+:[0-9]+ Variable is unused\.
-w: .*\/ink\/.*\.kt:[0-9]+:[0-9]+ This 'var' property is never written to, it can be declared as 'val'\.
+w: .*\/ink\/ink-authoring\/src\/androidDeviceTest\/kotlin\/androidx\/ink\/authoring\/.*\.kt:[0-9]+:[0-9]+ Variable is unused\.
+w: .*\/ink\/ink-authoring\/src\/androidDeviceTest\/kotlin\/androidx\/ink\/authoring\/.*\.kt:[0-9]+:[0-9]+ This 'var' property is never written to, it can be declared as 'val'\.
 # b/552571938
 w: .*\/webgpu\/.*\.kt:[0-9]+:[0-9]+ Variable is unused\.
 w: .*\/webgpu\/.*\.kt:[0-9]+:[0-9]+ This 'var' property is never written to, it can be declared as 'val'\.
