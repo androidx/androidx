@@ -170,15 +170,13 @@ internal fun DrawScope.executeOperations(
     graph: GraphContext? = null,
 ) {
     // Reads route through the GraphContext when present: it resolves time ids from the Compose
-    // frame
-    // clock and computed ids through their derivedStateOf (reactive, chains), and a leaf id falls
-    // through to the same shared snapshot store. So reading a time/variable-driven value here
-    // registers this draw as an observer of the relevant Compose state — the draw re-runs when that
-    // state changes, with no per-frame applyOperations refreshing the store. WRITES (op.apply,
-    // overrideFloat, loadFloat, bitmap decode) must NOT go through the graph — it suppresses writes
-    // during its derived evaluation — so they stay on `remoteContext` (the real store).
-    // GraphContext
-    // shares that store, so leaf reads are identical either way.
+    // frame clock and computed ids via per-pass DAG memoization over reactive leaf states, and a
+    // leaf id falls through to the same shared snapshot store. So reading a time/variable-driven
+    // value here registers this draw as an observer of the relevant Compose state — the draw
+    // re-runs when that state changes, with no per-frame applyOperations refreshing the store.
+    // WRITES (op.apply, overrideFloat, loadFloat, bitmap decode) must NOT go through the graph — it
+    // suppresses writes during evaluation — so they stay on `remoteContext` (the real store).
+    // GraphContext shares that store, so leaf reads are identical either way.
     val read: RemoteContext = graph ?: remoteContext
     var canvasLevel = 0
     // For DRAW_TO_BITMAP: the original on-screen canvas, saved the first time the draw target is
