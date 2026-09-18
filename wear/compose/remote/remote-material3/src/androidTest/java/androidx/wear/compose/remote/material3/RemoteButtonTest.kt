@@ -48,6 +48,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.wear.compose.remote.material3.previews.RemoteButtonChildColors
+import androidx.wear.compose.remote.material3.previews.RemoteButtonChildColorsDisabled
 import androidx.wear.compose.remote.material3.previews.RemoteButtonCustomConfig
 import androidx.wear.compose.remote.material3.previews.RemoteButtonEnabled
 import androidx.wear.compose.remote.material3.previews.RemoteButtonTwoLineText
@@ -60,6 +62,7 @@ import androidx.wear.compose.remote.material3.previews.RemoteButtonWithLabel
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithLongLabel
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithMultilineLabel
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithSecondaryLabel
+import androidx.wear.compose.remote.material3.previews.RemoteButtonWithSmallImageBackground
 import androidx.wear.compose.remote.material3.previews.utils.createImage
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
@@ -550,6 +553,36 @@ class RemoteButtonTest {
             )
             .that(kotlin.math.abs(redPixelsCount - expectedBorderWidthPx))
             .isAtMost(1)
+    }
+
+    @Test
+    fun button_child_colors() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteButtonChildColors() }
+        }
+    }
+
+    @Test
+    fun button_child_colors_disabled() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteButtonChildColorsDisabled() }
+        }
+    }
+
+    @Test
+    fun button_container_background_small_image_with_scrim() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteButtonWithSmallImageBackground() }
+        }
     }
 
     // Replace all sequences of whitespace (including newlines, tabs) with a single space. Then
