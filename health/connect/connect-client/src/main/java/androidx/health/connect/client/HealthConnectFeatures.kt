@@ -96,7 +96,21 @@ interface HealthConnectFeatures {
          */
         const val FEATURE_ON_DEVICE_STEP_TRACKING = 11
 
-        @OptIn(ExperimentalPersonalHealthRecordApi::class, ExperimentalMatchmakingApi::class)
+        /**
+         * Feature constant for Device Data Providers APIs.
+         *
+         * When this feature is available, the following APIs are supported:
+         * - [HealthConnectClient.getDeviceDataSources]
+         * - [HealthConnectClient.getCurrentDeviceDataSource]
+         * - [HealthConnectClient.getDeviceDataSourceCapabilities]
+         */
+        @ExperimentalDeviceDataSourceApi const val FEATURE_DEVICE_DATA_PROVIDERS = 12
+
+        @OptIn(
+            ExperimentalPersonalHealthRecordApi::class,
+            ExperimentalMatchmakingApi::class,
+            ExperimentalDeviceDataSourceApi::class,
+        )
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(
             value =
@@ -112,6 +126,7 @@ interface HealthConnectFeatures {
                     FEATURE_EXERCISE_SESSION_IMPROVEMENTS,
                     FEATURE_MATCHMAKING,
                     FEATURE_ON_DEVICE_STEP_TRACKING,
+                    FEATURE_DEVICE_DATA_PROVIDERS,
                 ]
         )
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -148,7 +163,11 @@ interface HealthConnectFeatures {
         private val SDK_EXT_22_PLATFORM_VERSION: HealthConnectPlatformVersion =
             HealthConnectPlatformVersion(buildVersionCode = 34, sdkExtensionVersion = 22)
 
-        @OptIn(ExperimentalPersonalHealthRecordApi::class, ExperimentalMatchmakingApi::class)
+        @OptIn(
+            ExperimentalPersonalHealthRecordApi::class,
+            ExperimentalMatchmakingApi::class,
+            ExperimentalDeviceDataSourceApi::class,
+        )
         internal val FEATURE_TO_VERSION_INFO_MAP: Map<Int, HealthConnectVersionInfo> =
             mapOf(
                 FEATURE_READ_HEALTH_DATA_IN_BACKGROUND to
@@ -187,6 +206,8 @@ interface HealthConnectFeatures {
                 FEATURE_EXERCISE_SESSION_IMPROVEMENTS to
                     HealthConnectVersionInfo(platformVersion = SDK_EXT_21_PLATFORM_VERSION),
                 FEATURE_MATCHMAKING to
+                    HealthConnectVersionInfo(platformVersion = SDK_EXT_22_PLATFORM_VERSION),
+                FEATURE_DEVICE_DATA_PROVIDERS to
                     HealthConnectVersionInfo(platformVersion = SDK_EXT_22_PLATFORM_VERSION),
             )
     }
