@@ -19,7 +19,7 @@ package androidx.appfunctions
 import java.util.concurrent.Executor
 
 /**
- * A request to register a [CallbackAppFunction] implementation, provided to
+ * A request to register an [AppFunction] implementation, provided to
  * [AppFunctionManager.registerAppFunctions].
  *
  * This encapsulates the information needed to register a single app function, equivalent to the
@@ -32,5 +32,5 @@ public class RegisterAppFunctionRequest(
     /** The [Executor] on which the function will be invoked. */
     public val executor: Executor,
     /** The implementation of the app function. */
-    public val appFunction: CallbackAppFunction,
+    public val appFunction: AppFunction,
 )

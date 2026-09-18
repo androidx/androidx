@@ -20,11 +20,11 @@ import android.os.Build
 import android.os.CancellationSignal
 import android.os.OutcomeReceiver
 import androidx.annotation.RequiresApi
+import androidx.appfunctions.AppFunction
 import androidx.appfunctions.AppFunctionAppUnknownException
 import androidx.appfunctions.AppFunctionCancelledException
 import androidx.appfunctions.AppFunctionException
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
-import androidx.appfunctions.CallbackAppFunction
 import androidx.appfunctions.ExecuteAppFunctionRequest.Companion.toCompatExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ExperimentalAppFunctionsApi
@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
 /** Extension functions to adapt platform AppFunction types. */
 @OptIn(DelicateCoroutinesApi::class, ExperimentalAppFunctionsApi::class)
 @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
-internal fun CallbackAppFunction.toPlatformAppFunction(
+internal fun AppFunction.toPlatformAppFunction(
     appFunctionReader: AppFunctionReader,
     executor: Executor,
 ): android.app.appfunctions.AppFunction {
@@ -56,7 +56,7 @@ internal fun CallbackAppFunction.toPlatformAppFunction(
                 >,
         ) {
             val delegateSignal = CancellationSignal()
-            // We use GlobalScope here because CallbackAppFunction is a callback-based API with no
+            // We use GlobalScope here because AppFunction is a callback-based API with no
             // parent coroutine context or lifecycle scope to bind to. This is safe because the
             // metadata fetch is a short-lived operation.
             //

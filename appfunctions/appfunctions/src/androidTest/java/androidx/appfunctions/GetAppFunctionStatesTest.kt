@@ -170,7 +170,7 @@ class GetAppFunctionStatesTest {
     @Test
     fun getAppFunctionState_dynamicRegistrationAfterRegisterThenUnregister() {
         runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
-            val callbackAppFunction = CallbackAppFunction { _, _, callback ->
+            val appFunction = AppFunction { _, _, callback ->
                 callback.accept(ExecuteAppFunctionResponse.Success(AppFunctionData.EMPTY))
             }
             val functionName =
@@ -186,7 +186,7 @@ class GetAppFunctionStatesTest {
                 activityAppFunctionManager.registerAppFunction(
                     AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS,
                     activity.mainExecutor,
-                    callbackAppFunction,
+                    appFunction,
                 )
             try {
                 val stateAfterRegistering =
@@ -213,7 +213,7 @@ class GetAppFunctionStatesTest {
         val expectedResult = "self_execution_result"
 
         runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
-            val callbackAppFunction = CallbackAppFunction { _, _, callback ->
+            val appFunction = AppFunction { _, _, callback ->
                 callback.accept(createReturnStringResponse(expectedResult))
             }
 
@@ -225,7 +225,7 @@ class GetAppFunctionStatesTest {
                 activityAppFunctionManager.registerAppFunction(
                     functionId,
                     activity.mainExecutor,
-                    callbackAppFunction,
+                    appFunction,
                 )
 
             try {
@@ -248,7 +248,7 @@ class GetAppFunctionStatesTest {
         val expectedResult = "self_execution_result"
 
         runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
-            val callbackAppFunction = CallbackAppFunction { _, _, callback ->
+            val appFunction = AppFunction { _, _, callback ->
                 callback.accept(createReturnStringResponse(expectedResult))
             }
 
@@ -256,7 +256,7 @@ class GetAppFunctionStatesTest {
                 activityAppFunctionManager.registerAppFunction(
                     functionId,
                     activity.mainExecutor,
-                    callbackAppFunction,
+                    appFunction,
                 )
 
             try {
@@ -324,7 +324,7 @@ class GetAppFunctionStatesTest {
         val expectedResult = "self_execution_result"
 
         runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
-            val callbackAppFunction = CallbackAppFunction { _, _, callback ->
+            val appFunction = AppFunction { _, _, callback ->
                 callback.accept(createReturnStringResponse(expectedResult))
             }
 
@@ -332,7 +332,7 @@ class GetAppFunctionStatesTest {
                 activityAppFunctionManager.registerAppFunction(
                     functionId,
                     activity.mainExecutor,
-                    callbackAppFunction,
+                    appFunction,
                 )
 
             try {
