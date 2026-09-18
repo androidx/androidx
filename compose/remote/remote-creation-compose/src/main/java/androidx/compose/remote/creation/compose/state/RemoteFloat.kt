@@ -22,9 +22,6 @@ import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.TextFromFloat.GROUPING_BY3
 import androidx.compose.remote.core.operations.TextFromFloat.GROUPING_BY32
 import androidx.compose.remote.core.operations.TextFromFloat.GROUPING_BY4
-import androidx.compose.remote.core.operations.TextFromFloat.GROUPING_NONE
-import androidx.compose.remote.core.operations.TextFromFloat.OPTIONS_NEGATIVE_PARENTHESES
-import androidx.compose.remote.core.operations.TextFromFloat.OPTIONS_ROUNDING
 import androidx.compose.remote.core.operations.TextFromFloat.PAD_AFTER_NONE
 import androidx.compose.remote.core.operations.TextFromFloat.PAD_AFTER_SPACE
 import androidx.compose.remote.core.operations.TextFromFloat.PAD_AFTER_ZERO
@@ -51,7 +48,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.remember
 import java.text.DecimalFormat
-import kotlin.math.pow
 
 /**
  * Abstract base class for all remote float representations.
@@ -341,59 +337,26 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
      */
     public fun toRemoteString(
         format: android.icu.text.DecimalFormat = DefaultDecimalFormat
-    ): RemoteString {
-        val (before, after, flags) = format.toTextFromFloatOptions()
-
-        // Workaround for the player always keeping at least one trailing zero (e.g.
-        // formatting 5.0 as "5.0" instead of "5") even when minimumFractionDigits is 0.
-        // We only apply this if the format explicitly allows fractional digits (after > 0)
-        // but doesn't require them (minimumFractionDigits == 0).
-        if (format.minimumFractionDigits == 0 && after > 0 && format !== DefaultDecimalFormat) {
-            constantValueOrNull?.let { value ->
-                val resolvedAfter = if (value % 1f == 0f) 0 else after
-                return toRemoteStringWithPadding(format, before, resolvedAfter, flags)
-            }
-
-            // Dynamic path: dynamically check if the value is close to an integer at playback time.
-            // This is a workaround for float precision errors (e.g. 9.000001f should format as
-            // "9").
-            //
-            // We calculate a tolerance (epsilon) based on the requested maximum fraction digits.
-            // The epsilon is capped at a minimum of 1e-5 to ensure that 1 ULP float precision
-            // errors are caught even when high precision (e.g. 6 decimal places) is requested.
-            val epsilonVal = (0.5f * 10f.pow(-after)).coerceAtLeast(0.00001f)
-            val epsilon = epsilonVal.rf
-            val isInteger = abs(this - round(this)).isLessThan(epsilon)
-            return isInteger.select(
-                // If it is close to an integer, we round it first to the nearest integer
-                // (to handle values close to the ceiling like 9.999999f correctly without
-                // truncation) and then delegate to RemoteInt.toRemoteString() for clean formatting.
-                round(this).toRemoteInt().toRemoteString(format),
-                toRemoteStringWithPadding(format, before, after, flags),
-            )
-        }
-
-        // Fallback path (no workaround needed)
-        return toRemoteStringWithPadding(format, before, after, flags)
-    }
+    ): RemoteString = formatRemoteFloat(this, format)
 
     internal fun toRemoteStringWithPadding(
-        format: android.icu.text.DecimalFormat,
         before: Int,
         after: Int,
         flags: Int,
+        minimumIntegerDigits: Int = 0,
+        formatWidth: Int = 0,
+        padCharacter: Char = ' ',
     ): RemoteString {
-        val padPre = format.minimumIntegerDigits > 1 || format.formatWidth > 0
+        val padPre = minimumIntegerDigits > 1 || formatWidth > 0
         if (padPre) {
-            val padWidth =
-                if (format.formatWidth > 0) format.formatWidth else format.minimumIntegerDigits
+            val padWidth = if (formatWidth > 0) formatWidth else minimumIntegerDigits
 
             // Support scenarios where max digits was not restricted (before == 255)
             if (before == 255) {
                 val flagsWithoutPrePadding = flags and PAD_PRE_ZERO.inv()
                 val flagsPreNone = flagsWithoutPrePadding or PAD_PRE_NONE
                 val unpadded = toRemoteStringOptions(before, after, flagsPreNone)
-                val isSpacePadded = format.formatWidth > 0 && format.padCharacter == ' '
+                val isSpacePadded = formatWidth > 0 && padCharacter == ' '
                 val flagsPadded =
                     flagsWithoutPrePadding or if (isSpacePadded) PAD_PRE_SPACE else PAD_PRE_ZERO
 
@@ -478,22 +441,7 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
      * @param format The [DecimalFormat] to use for determining separators, grouping, and padding.
      * @return A [RemoteString] representing the formatted float.
      */
-    public fun toRemoteString(format: DecimalFormat): RemoteString {
-        val icuFormat = android.icu.text.DecimalFormat(format.toPattern())
-        icuFormat.decimalFormatSymbols =
-            android.icu.text.DecimalFormatSymbols.getInstance().apply {
-                decimalSeparator = format.decimalFormatSymbols.decimalSeparator
-                groupingSeparator = format.decimalFormatSymbols.groupingSeparator
-            }
-        icuFormat.minimumIntegerDigits = format.minimumIntegerDigits
-        icuFormat.maximumIntegerDigits = format.maximumIntegerDigits
-        icuFormat.minimumFractionDigits = format.minimumFractionDigits
-        icuFormat.maximumFractionDigits = format.maximumFractionDigits
-        icuFormat.groupingSize = format.groupingSize
-        icuFormat.negativePrefix = format.negativePrefix
-
-        return toRemoteString(icuFormat)
-    }
+    public fun toRemoteString(format: DecimalFormat): RemoteString = formatRemoteFloat(this, format)
 
     /**
      * Boilerplate for implementing an unary operation.
@@ -839,8 +787,6 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
             }
         }
 
-        internal val DefaultDecimalFormat = android.icu.text.DecimalFormat()
-
         private fun isConstant(v: Float): Boolean {
             // Assume all NaNs are variables which are probably non-const.
             return !v.isNaN()
@@ -936,74 +882,6 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
 }
 
 internal data class TextFromFloatOptions(val before: Int, val after: Int, val flags: Int)
-
-internal fun android.icu.text.DecimalFormat.toTextFromFloatOptions(): TextFromFloatOptions {
-    val decimalSeparator = decimalFormatSymbols.decimalSeparator
-    val groupingSeparator = decimalFormatSymbols.groupingSeparator
-
-    val grouping =
-        if (!isGroupingUsed) {
-            GROUPING_NONE
-        } else if (groupingSize == 3) {
-            if (secondaryGroupingSize == 2) {
-                GROUPING_BY32
-            } else {
-                GROUPING_BY3
-            }
-        } else if (groupingSize == 4) {
-            GROUPING_BY4
-        } else {
-            GROUPING_NONE
-        }
-
-    val separator =
-        if (groupingSeparator == ',' && decimalSeparator == '.') {
-            SEPARATOR_COMMA_PERIOD
-        } else if (groupingSeparator == '.' && decimalSeparator == ',') {
-            SEPARATOR_PERIOD_COMMA
-        } else if (groupingSeparator == ' ' && decimalSeparator == ',') {
-            SEPARATOR_SPACE_COMMA
-        } else if (groupingSeparator == '_' && decimalSeparator == '.') {
-            SEPARATOR_UNDER_PERIOD
-        } else {
-            // default
-            SEPARATOR_COMMA_PERIOD
-        }
-
-    val before = maximumIntegerDigits.coerceAtMost(255)
-    val after = maximumFractionDigits.coerceAtMost(255)
-    var options = 0
-    if (negativePrefix == "(") {
-        options = options or OPTIONS_NEGATIVE_PARENTHESES
-    }
-
-    // icu rounding mode
-    @Suppress("DEPRECATION")
-    if (roundingMode != java.math.BigDecimal.ROUND_UNNECESSARY) {
-        options = options or OPTIONS_ROUNDING
-    }
-
-    var flags = separator or grouping or options
-
-    if (minimumFractionDigits > 1) {
-        flags = flags or PAD_AFTER_ZERO
-    } else {
-        flags = flags or PAD_AFTER_NONE
-    }
-
-    val padPre = minimumIntegerDigits > 1 || formatWidth > 0
-    if (padPre) {
-        if (formatWidth > 0 && padCharacter == ' ') {
-            flags = flags or PAD_PRE_SPACE
-        } else {
-            flags = flags or PAD_PRE_ZERO
-        }
-    } else {
-        flags = flags or PAD_PRE_NONE
-    }
-
-    return TextFromFloatOptions(before, after, flags)
-}
 
 internal fun floatToString(v: Float, before: Int, after: Int, flags: Int) =
     StringUtils.floatToString(
