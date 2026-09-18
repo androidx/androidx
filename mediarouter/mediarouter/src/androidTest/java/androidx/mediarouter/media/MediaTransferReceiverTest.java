@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 import android.os.Build;
 
 import androidx.mediarouter.testing.MediaRouterTestHelper;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -52,117 +53,87 @@ public class MediaTransferReceiverTest {
 
     @Test
     @SmallTest
+    @UiThreadTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     public void isMediaTransferEnabled_rOrLaterManifestTrue_returnsTrue() {
-        getInstrumentation()
-                .runOnMainSync(
-                        () -> {
-                            GlobalMediaRouter.sMediaTransferDeclarationChecker = context -> true;
-                            MediaRouter.getInstance(getApplicationContext());
-                            assertTrue(MediaRouter.isMediaTransferEnabled());
-                            assertNotNull(
-                                    MediaRouter.getGlobalRouter()
-                                            .getMediaRoute2ProviderForTesting());
-                        });
+        GlobalMediaRouter.sMediaTransferDeclarationChecker = context -> true;
+
+        MediaRouter.getInstance(getApplicationContext());
+
+        assertTrue(MediaRouter.isMediaTransferEnabled());
+        assertNotNull(MediaRouter.getGlobalRouter().getMediaRoute2ProviderForTesting());
     }
 
     @Test
     @SmallTest
+    @UiThreadTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     public void isMediaTransferEnabled_rOrLaterManifestFalse_returnsFalse() {
-        getInstrumentation()
-                .runOnMainSync(
-                        () -> {
-                            GlobalMediaRouter.sMediaTransferDeclarationChecker = context -> false;
-                            MediaRouter.getInstance(getApplicationContext());
-                            assertFalse(MediaRouter.isMediaTransferEnabled());
-                            assertNull(
-                                    MediaRouter.getGlobalRouter()
-                                            .getMediaRoute2ProviderForTesting());
-                        });
+        GlobalMediaRouter.sMediaTransferDeclarationChecker = context -> false;
+
+        MediaRouter.getInstance(getApplicationContext());
+
+        assertFalse(MediaRouter.isMediaTransferEnabled());
+        assertNull(MediaRouter.getGlobalRouter().getMediaRoute2ProviderForTesting());
     }
 
     @Test
     @SmallTest
+    @UiThreadTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     public void isMediaTransferEnabled_rOrLaterManifestTrueParamsFalse_returnsFalse() {
-        getInstrumentation()
-                .runOnMainSync(
-                        () -> {
-                            GlobalMediaRouter.sMediaTransferDeclarationChecker = context -> true;
-                            MediaRouter router = MediaRouter.getInstance(getApplicationContext());
+        GlobalMediaRouter.sMediaTransferDeclarationChecker = context -> true;
+        MediaRouter router = MediaRouter.getInstance(getApplicationContext());
+        MediaRouterParams params =
+                new MediaRouterParams.Builder().setMediaTransferReceiverEnabled(false).build();
 
-                            MediaRouterParams params =
-                                    new MediaRouterParams.Builder()
-                                            .setMediaTransferReceiverEnabled(false)
-                                            .build();
-                            router.setRouterParams(params);
+        router.setRouterParams(params);
 
-                            assertFalse(MediaRouter.isMediaTransferEnabled());
-                            assertNull(
-                                    MediaRouter.getGlobalRouter()
-                                            .getMediaRoute2ProviderForTesting());
-                        });
+        assertFalse(MediaRouter.isMediaTransferEnabled());
+        assertNull(MediaRouter.getGlobalRouter().getMediaRoute2ProviderForTesting());
     }
 
     @Test
     @SmallTest
+    @UiThreadTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     public void isMediaTransferEnabled_rOrLaterManifestFalseParamsTrue_returnsTrue() {
-        getInstrumentation()
-                .runOnMainSync(
-                        () -> {
-                            GlobalMediaRouter.sMediaTransferDeclarationChecker = context -> false;
-                            MediaRouter router = MediaRouter.getInstance(getApplicationContext());
+        GlobalMediaRouter.sMediaTransferDeclarationChecker = context -> false;
+        MediaRouter router = MediaRouter.getInstance(getApplicationContext());
+        MediaRouterParams params =
+                new MediaRouterParams.Builder().setMediaTransferReceiverEnabled(true).build();
 
-                            MediaRouterParams params =
-                                    new MediaRouterParams.Builder()
-                                            .setMediaTransferReceiverEnabled(true)
-                                            .build();
-                            router.setRouterParams(params);
+        router.setRouterParams(params);
 
-                            assertTrue(MediaRouter.isMediaTransferEnabled());
-                            assertNotNull(
-                                    MediaRouter.getGlobalRouter()
-                                            .getMediaRoute2ProviderForTesting());
-                        });
+        assertTrue(MediaRouter.isMediaTransferEnabled());
+        assertNotNull(MediaRouter.getGlobalRouter().getMediaRoute2ProviderForTesting());
     }
 
     @Test
     @SmallTest
+    @UiThreadTest
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
     public void isMediaTransferEnabled_preRManifestTrue_returnsFalse() {
-        getInstrumentation()
-                .runOnMainSync(
-                        () -> {
-                            GlobalMediaRouter.sMediaTransferDeclarationChecker = context -> true;
-                            MediaRouter.getInstance(getApplicationContext());
-                            assertFalse(MediaRouter.isMediaTransferEnabled());
-                            assertNull(
-                                    MediaRouter.getGlobalRouter()
-                                            .getMediaRoute2ProviderForTesting());
-                        });
+        GlobalMediaRouter.sMediaTransferDeclarationChecker = context -> true;
+
+        MediaRouter.getInstance(getApplicationContext());
+
+        assertFalse(MediaRouter.isMediaTransferEnabled());
+        assertNull(MediaRouter.getGlobalRouter().getMediaRoute2ProviderForTesting());
     }
 
     @Test
     @SmallTest
+    @UiThreadTest
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
     public void isMediaTransferEnabled_preRParamsTrue_returnsFalse() {
-        getInstrumentation()
-                .runOnMainSync(
-                        () -> {
-                            MediaRouter router = MediaRouter.getInstance(getApplicationContext());
+        MediaRouter router = MediaRouter.getInstance(getApplicationContext());
+        MediaRouterParams params =
+                new MediaRouterParams.Builder().setMediaTransferReceiverEnabled(true).build();
 
-                            MediaRouterParams params =
-                                    new MediaRouterParams.Builder()
-                                            .setMediaTransferReceiverEnabled(true)
-                                            .build();
-                            router.setRouterParams(params);
+        router.setRouterParams(params);
 
-                            assertFalse(MediaRouter.isMediaTransferEnabled());
-                            assertNull(
-                                    MediaRouter.getGlobalRouter()
-                                            .getMediaRoute2ProviderForTesting());
-                        });
+        assertFalse(MediaRouter.isMediaTransferEnabled());
+        assertNull(MediaRouter.getGlobalRouter().getMediaRoute2ProviderForTesting());
     }
 }

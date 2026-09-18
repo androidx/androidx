@@ -36,6 +36,7 @@ import android.util.Log;
 
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 import androidx.mediarouter.testing.MediaRouterTestHelper;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -233,32 +234,26 @@ public class MultiProviderTest {
 
     @Test
     @MediumTest
+    @UiThreadTest
     public void addUserRouteFromRegisteredProvider_isSystemRoute_returnsFalse() {
-        getInstrumentation()
-                .runOnMainSync(
-                        () -> {
-                            android.media.MediaRouter platformMediaRouter =
-                                    (android.media.MediaRouter)
-                                            mContext.getSystemService(Context.MEDIA_ROUTER_SERVICE);
+        android.media.MediaRouter platformMediaRouter =
+                (android.media.MediaRouter) mContext.getSystemService(Context.MEDIA_ROUTER_SERVICE);
+        android.media.MediaRouter.RouteCategory sampleRouteCategory =
+                platformMediaRouter.createRouteCategory(
+                        "SAMPLE_ROUTE_CATEGORY", /* isGroupable= */ false);
+        android.media.MediaRouter.UserRouteInfo sampleUserRoute =
+                platformMediaRouter.createUserRoute(sampleRouteCategory);
+        sampleUserRoute.setName("SAMPLE_USER_ROUTE");
 
-                            android.media.MediaRouter.RouteCategory sampleRouteCategory =
-                                    platformMediaRouter.createRouteCategory(
-                                            "SAMPLE_ROUTE_CATEGORY", /* isGroupable= */ false);
+        platformMediaRouter.addUserRoute(sampleUserRoute);
 
-                            android.media.MediaRouter.UserRouteInfo sampleUserRoute =
-                                    platformMediaRouter.createUserRoute(sampleRouteCategory);
-                            sampleUserRoute.setName("SAMPLE_USER_ROUTE");
-
-                            platformMediaRouter.addUserRoute(sampleUserRoute);
-
-                            for (RouteInfo routeInfo : mRouter.getRoutes()) {
-                                // We are checking for this route using getRoutes rather than
-                                // through the onRouteAdded callback because of b/312700919
-                                if (routeInfo.getName().equals("SAMPLE_USER_ROUTE")) {
-                                    assertFalse(routeInfo.isSystemRoute());
-                                }
-                            }
-                        });
+        for (RouteInfo routeInfo : mRouter.getRoutes()) {
+            // We are checking for this route using getRoutes rather than
+            // through the onRouteAdded callback because of b/312700919
+            if (routeInfo.getName().equals("SAMPLE_USER_ROUTE")) {
+                assertFalse(routeInfo.isSystemRoute());
+            }
+        }
     }
 
     @SmallTest
