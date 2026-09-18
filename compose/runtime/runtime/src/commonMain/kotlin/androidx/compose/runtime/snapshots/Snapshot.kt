@@ -32,8 +32,6 @@ import androidx.compose.runtime.platform.SynchronizedObject
 import androidx.compose.runtime.platform.makeSynchronizedObject
 import androidx.compose.runtime.platform.synchronized
 import androidx.compose.runtime.requirePrecondition
-import androidx.compose.runtime.snapshots.Snapshot.Companion.takeMutableSnapshot
-import androidx.compose.runtime.snapshots.Snapshot.Companion.takeSnapshot
 import androidx.compose.runtime.snapshots.tooling.creatingSnapshot
 import androidx.compose.runtime.snapshots.tooling.dispatchObserverOnApplied
 import androidx.compose.runtime.snapshots.tooling.dispatchObserverOnPreDispose
@@ -520,13 +518,25 @@ public sealed class Snapshot(
                 val snapshot =
                     when {
                         previous == null || previous is MutableSnapshot -> {
-                            TransparentObserverMutableSnapshot(
-                                parentSnapshot = previous as? MutableSnapshot,
-                                specifiedReadObserver = readObserver,
-                                specifiedWriteObserver = writeObserver,
-                                mergeParentObservers = true,
-                                ownsParentSnapshot = false,
-                            )
+                            val reusable = reusableTransparentSnapshot.replace(null)
+                            if (reusable != null) {
+                                reusable.reuse(
+                                    parentSnapshot = previous,
+                                    specifiedReadObserver = readObserver,
+                                    specifiedWriteObserver = writeObserver,
+                                    mergeParentObservers = true,
+                                    ownsParentSnapshot = false,
+                                )
+                                reusable
+                            } else {
+                                TransparentObserverMutableSnapshot(
+                                    parentSnapshot = previous,
+                                    specifiedReadObserver = readObserver,
+                                    specifiedWriteObserver = writeObserver,
+                                    mergeParentObservers = true,
+                                    ownsParentSnapshot = false,
+                                )
+                            }
                         }
                         readObserver == null -> {
                             return block()
@@ -1683,27 +1693,29 @@ internal class NestedMutableSnapshot(
 
 /** A pseudo snapshot that doesn't introduce isolation but does introduce observers. */
 internal class TransparentObserverMutableSnapshot(
-    private val parentSnapshot: MutableSnapshot?,
+    private var parentSnapshot: MutableSnapshot?,
     specifiedReadObserver: ((Any) -> Unit)?,
     specifiedWriteObserver: ((Any) -> Unit)?,
-    private val mergeParentObservers: Boolean,
-    private val ownsParentSnapshot: Boolean,
+    private var mergeParentObservers: Boolean,
+    private var ownsParentSnapshot: Boolean,
 ) :
     MutableSnapshot(
         INVALID_SNAPSHOT,
         SnapshotIdSet.EMPTY,
+        null,
+        null,
+    ) {
+    override var readObserver: ((Any) -> Unit)? =
         mergedReadObserver(
             specifiedReadObserver,
             parentSnapshot?.readObserver ?: globalSnapshot.readObserver,
             mergeParentObservers,
-        ),
+        )
+    override var writeObserver: ((Any) -> Unit)? =
         mergedWriteObserver(
             specifiedWriteObserver,
             parentSnapshot?.writeObserver ?: globalSnapshot.writeObserver,
-        ),
-    ) {
-    override var readObserver: ((Any) -> Unit)? = super.readObserver
-    override var writeObserver: ((Any) -> Unit)? = super.writeObserver
+        )
 
     internal val threadId: Long = currentThreadId()
 
@@ -1716,6 +1728,36 @@ internal class TransparentObserverMutableSnapshot(
         if (ownsParentSnapshot) {
             parentSnapshot?.dispose()
         }
+        parentSnapshot = null
+        readObserver = null
+        writeObserver = null
+        if (threadId == currentThreadId()) {
+            reusableTransparentSnapshot.setIfEmpty(this)
+        }
+    }
+
+    internal fun reuse(
+        parentSnapshot: MutableSnapshot?,
+        specifiedReadObserver: ((Any) -> Unit)?,
+        specifiedWriteObserver: ((Any) -> Unit)?,
+        mergeParentObservers: Boolean,
+        ownsParentSnapshot: Boolean,
+    ) {
+        this.parentSnapshot = parentSnapshot
+        this.readObserver =
+            mergedReadObserver(
+                specifiedReadObserver,
+                parentSnapshot?.readObserver ?: globalSnapshot.readObserver,
+                mergeParentObservers,
+            )
+        this.writeObserver =
+            mergedWriteObserver(
+                specifiedWriteObserver,
+                parentSnapshot?.writeObserver ?: globalSnapshot.writeObserver,
+            )
+        this.mergeParentObservers = mergeParentObservers
+        this.ownsParentSnapshot = ownsParentSnapshot
+        this.disposed = false
     }
 
     override var snapshotId: SnapshotId
@@ -1872,13 +1914,26 @@ private fun createTransparentSnapshotWithNoParentReadObserver(
     ownsPreviousSnapshot: Boolean = false,
 ): Snapshot =
     if (previousSnapshot is MutableSnapshot || previousSnapshot == null) {
-        TransparentObserverMutableSnapshot(
-            parentSnapshot = previousSnapshot as? MutableSnapshot,
-            specifiedReadObserver = readObserver,
-            specifiedWriteObserver = null,
-            mergeParentObservers = false,
-            ownsParentSnapshot = ownsPreviousSnapshot,
-        )
+        val reusable =
+            if (!ownsPreviousSnapshot) reusableTransparentSnapshot.replace(null) else null
+        if (reusable != null) {
+            reusable.reuse(
+                parentSnapshot = previousSnapshot as? MutableSnapshot,
+                specifiedReadObserver = readObserver,
+                specifiedWriteObserver = null,
+                mergeParentObservers = false,
+                ownsParentSnapshot = ownsPreviousSnapshot,
+            )
+            reusable
+        } else {
+            TransparentObserverMutableSnapshot(
+                parentSnapshot = previousSnapshot as? MutableSnapshot,
+                specifiedReadObserver = readObserver,
+                specifiedWriteObserver = null,
+                mergeParentObservers = false,
+                ownsParentSnapshot = ownsPreviousSnapshot,
+            )
+        }
     } else {
         TransparentObserverSnapshot(
             parentSnapshot = previousSnapshot,
@@ -1927,6 +1982,9 @@ private val INVALID_SNAPSHOT = SnapshotIdZero
 
 /** Current thread snapshot */
 private val threadSnapshot = SnapshotThreadLocal<Snapshot>()
+
+/** Reusable transparent snapshot, used to avoid allocations on frequent observer transitions */
+private val reusableTransparentSnapshot = SnapshotThreadLocal<TransparentObserverMutableSnapshot>()
 
 /**
  * A global synchronization object. This synchronization object should be taken before modifying any

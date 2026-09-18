@@ -155,4 +155,52 @@ class SnapshotThreadLocalTests {
         local.set(100)
         assertEquals(100, local.get())
     }
+
+    @Test
+    fun canSetIfEmpty() {
+        val local = SnapshotThreadLocal<String>()
+        assertTrue(local.setIfEmpty("first"))
+        assertEquals("first", local.get())
+        assertFalse(local.setIfEmpty("second"))
+        assertEquals("first", local.get())
+    }
+
+    @Test
+    fun canReplace() {
+        val local = SnapshotThreadLocal<String>()
+        assertNull(local.replace("first"))
+        assertEquals("first", local.get())
+        assertEquals("first", local.replace("second"))
+        assertEquals("second", local.get())
+        assertEquals("second", local.replace(null))
+        assertNull(local.get())
+    }
+
+    @Test
+    fun canCompareAndSetOnDifferentThread() {
+        val local = SnapshotThreadLocal<String>()
+        var result = false
+        val thread = Thread {
+            result = local.setIfEmpty("thread_value")
+            assertEquals("thread_value", local.get())
+        }
+        thread.start()
+        thread.join()
+        assertTrue(result)
+        assertNull(local.get())
+    }
+
+    @Test
+    fun canGetAndSetOnDifferentThread() {
+        val local = SnapshotThreadLocal<String>()
+        var old: String? = "unmodified"
+        val thread = Thread {
+            old = local.replace("thread_value")
+            assertEquals("thread_value", local.get())
+        }
+        thread.start()
+        thread.join()
+        assertNull(old)
+        assertNull(local.get())
+    }
 }
