@@ -29,6 +29,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.remote.material3.previews.RemoteTitleCardDefault
+import androidx.wear.compose.remote.material3.previews.RemoteTitleCardWithBorder
 import androidx.wear.compose.remote.material3.previews.RemoteTitleCardWithImage
 import androidx.wear.compose.remote.material3.previews.RemoteTitleCardWithTitleSubtitle
 import androidx.wear.compose.remote.material3.previews.RemoteTitleCardWithTitleTime
@@ -101,6 +102,16 @@ class RemoteTitleCardTest {
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             RemoteTitleCardWithTwoLineTitle()
+        }
+    }
+
+    @Test
+    fun title_card_with_border() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            RemoteTitleCardWithBorder()
         }
     }
 

@@ -20,7 +20,6 @@ import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
-import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -33,7 +32,7 @@ import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.wrapContentHeight
 import androidx.compose.remote.creation.compose.painter.RemotePainter
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
-import androidx.compose.remote.creation.compose.shaders.linearGradient
+import androidx.compose.remote.creation.compose.shaders.solidColor
 import androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.shapes.drawOutline
@@ -67,6 +66,7 @@ import androidx.compose.ui.layout.ContentScale
  * @param shape Defines the card's shape.
  * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card. See
  *   [RemoteCardDefaults.cardColors].
+ * @param border A [RemoteBorderStroke] used for drawing the card's outline border
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
  * @param content The main slot for a content of this card
@@ -79,6 +79,7 @@ public fun RemoteCard(
     enabled: RemoteBoolean = true.rb,
     shape: RemoteShape = RemoteCardDefaults.shape,
     colors: RemoteCardColors = RemoteCardDefaults.cardColors(),
+    border: RemoteBorderStroke? = null,
     contentPadding: RemotePaddingValues = RemoteCardDefaults.ContentPadding,
     content: @Composable @RemoteComposable () -> Unit,
 ) {
@@ -87,6 +88,7 @@ public fun RemoteCard(
         modifier = modifier,
         colors = colors,
         enabled = enabled,
+        border = border,
         contentPadding = contentPadding,
         shape = shape,
     ) {
@@ -115,6 +117,7 @@ public fun RemoteCard(
  * @param shape Defines the card's shape.
  * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card. See
  *   [RemoteCardDefaults.cardWithContainerPainterColors].
+ * @param border A [RemoteBorderStroke] used for drawing the card's outline border
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
  * @param content The main slot for a content of this card
@@ -128,6 +131,7 @@ public fun RemoteCard(
     enabled: RemoteBoolean = true.rb,
     shape: RemoteShape = RemoteCardDefaults.shape,
     colors: RemoteCardColors = RemoteCardDefaults.cardWithContainerPainterColors(),
+    border: RemoteBorderStroke? = null,
     contentPadding: RemotePaddingValues = RemoteCardDefaults.CardWithContainerPainterContentPadding,
     content: @Composable @RemoteComposable () -> Unit,
 ) {
@@ -137,6 +141,7 @@ public fun RemoteCard(
         colors = colors,
         enabled = enabled,
         containerPainter = containerPainter,
+        border = border,
         contentPadding = contentPadding,
         shape = shape,
     ) {
@@ -153,12 +158,11 @@ public fun RemoteCard(
  * @param enabled Controls the enabled state of the card. When false, this component will not
  *   respond to user input
  * @param shape Defines the card's shape.
- * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card. See
- *   [RemoteCardDefaults.outlinedCardColors].
- * @param border The border width for the card
- * @param borderColor The color of the border
+ * @param border A [RemoteBorderStroke] used for drawing the card's outline border
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
+ * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card. See
+ *   [RemoteCardDefaults.outlinedCardColors].
  * @param content The main slot for a content of this card
  */
 @RemoteComposable
@@ -168,10 +172,9 @@ public fun RemoteOutlinedCard(
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
     shape: RemoteShape = RemoteCardDefaults.shape,
-    colors: RemoteCardColors = RemoteCardDefaults.outlinedCardColors(),
-    border: RemoteDp = RemoteCardDefaults.OutlinedBorderSize,
-    borderColor: RemoteColor = RemoteCardDefaults.outlinedCardColors().contentColor,
+    border: RemoteBorderStroke = RemoteCardDefaults.outlinedCardBorder(),
     contentPadding: RemotePaddingValues = RemoteCardDefaults.ContentPadding,
+    colors: RemoteCardColors = RemoteCardDefaults.outlinedCardColors(),
     content: @Composable @RemoteComposable () -> Unit,
 ) {
     RemoteCardImpl(
@@ -180,7 +183,6 @@ public fun RemoteOutlinedCard(
         colors = colors,
         enabled = enabled,
         border = border,
-        borderColor = borderColor,
         contentPadding = contentPadding,
         shape = shape,
     ) {
@@ -269,8 +271,25 @@ public object RemoteCardDefaults {
             subtitleColor = subtitleColor,
         )
 
+    /** The default border color used for outlined cards. */
+    public val outlinedCardBorderColor: RemoteColor
+        @Composable @RemoteComposable get() = outlinedCardColors().contentColor
+
     /** The default size of the border for [RemoteOutlinedCard] */
     public val OutlinedBorderSize: RemoteDp = 1.rdp
+
+    /**
+     * Creates a [RemoteBorderStroke] that represents the default border used in Outlined Cards.
+     *
+     * @param borderColor The color to be used for drawing an outline.
+     * @param borderWidth width of the border in [RemoteDp].
+     */
+    @Composable
+    @RemoteComposable
+    public fun outlinedCardBorder(
+        borderColor: RemoteColor = outlinedCardBorderColor,
+        borderWidth: RemoteDp = OutlinedBorderSize,
+    ): RemoteBorderStroke = RemoteBorderStroke(borderWidth, borderColor)
 
     /** The default content padding used by [RemoteCard] */
     public val ContentPadding: RemotePaddingValues = RemotePaddingValues(12.rdp)
@@ -312,7 +331,7 @@ public object RemoteCardDefaults {
     @RemoteComposable
     public fun containerPainter(
         image: RemoteImageBitmap,
-        scrim: RemoteBrush? = scrimBrush(RemoteSize(image.width, image.height)),
+        scrim: RemoteBrush? = scrimBrush(),
         alpha: RemoteFloat = DefaultAlpha.rf,
         shape: RemoteShape = this.shape,
         contentScale: ContentScale = ContentScale.Crop,
@@ -326,13 +345,9 @@ public object RemoteCardDefaults {
      */
     @Composable
     @RemoteComposable
-    public fun scrimBrush(size: RemoteSize): RemoteBrush {
+    public fun scrimBrush(): RemoteBrush {
         val color = scrimColor
-        return RemoteBrush.linearGradient(
-            colors = listOf(color, color),
-            start = RemoteOffset.Zero,
-            end = RemoteOffset(size.width, size.height),
-        )
+        return RemoteBrush.solidColor(color)
     }
 
     /**
@@ -489,8 +504,7 @@ internal fun RemoteCardImpl(
     enabled: RemoteBoolean,
     contentPadding: RemotePaddingValues,
     shape: RemoteShape,
-    border: RemoteDp? = null,
-    borderColor: RemoteColor? = null,
+    border: RemoteBorderStroke? = null,
     containerPainter: RemotePainter? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ) {
@@ -502,8 +516,7 @@ internal fun RemoteCardImpl(
                     shape = shape,
                     color = colors.containerColor,
                     containerPainter = containerPainter,
-                    borderColor = borderColor,
-                    borderStrokeWidth = border,
+                    border = border,
                 )
                 drawContent()
             }
@@ -533,24 +546,22 @@ private fun RemoteDrawScope.drawShapedBackground(
     shape: RemoteShape,
     color: RemoteColor,
     containerPainter: RemotePainter? = null,
-    borderColor: RemoteColor? = null,
-    borderStrokeWidth: RemoteDp? = null,
+    border: RemoteBorderStroke? = null,
 ) {
     containerPainter?.let { with(it) { onDraw() } }
         ?: drawSolidColorShape(shape, width, height, color)
 
     // Draw border if specified
-    if (borderColor != null && borderStrokeWidth != null) {
-        drawBorder(borderColor, borderStrokeWidth, shape)
+    if (border != null) {
+        drawBorder(border, shape)
     }
 }
 
 private fun RemoteDrawScope.drawBorder(
-    borderColor: RemoteColor,
-    borderStrokeWidth: RemoteDp,
+    border: RemoteBorderStroke,
     shape: RemoteShape,
 ) {
-    val strokeWidthPx = borderStrokeWidth.toPx()
+    val strokeWidthPx = border.width.toPx()
     val outline =
         if (shape is RemoteCornerBasedShape) {
             shape.createOutline(
@@ -562,14 +573,14 @@ private fun RemoteDrawScope.drawBorder(
         } else {
             shape.createOutline(RemoteSize(width, height), remoteDensity, layoutDirection)
         }
-    drawOutline(
-        outline,
-        RemotePaint {
-            color = borderColor
-            strokeWidth = strokeWidthPx
-            style = PaintingStyle.Stroke
-        },
-    )
+    val paint = RemotePaint {
+        strokeWidth = strokeWidthPx
+        style = PaintingStyle.Stroke
+    }
+    with(border.brush) {
+        applyTo(paint, RemoteSize(width, height))
+    }
+    drawOutline(outline, paint)
 }
 
 private fun RemoteDrawScope.drawSolidColorShape(

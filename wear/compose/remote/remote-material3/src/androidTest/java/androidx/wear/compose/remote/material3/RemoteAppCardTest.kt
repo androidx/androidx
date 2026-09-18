@@ -31,6 +31,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.remote.material3.previews.RemoteAppCardDefault
 import androidx.wear.compose.remote.material3.previews.RemoteAppCardWithAppNameTimeTitle
 import androidx.wear.compose.remote.material3.previews.RemoteAppCardWithAppNameTitleSubtitle
+import androidx.wear.compose.remote.material3.previews.RemoteAppCardWithBorder
 import androidx.wear.compose.remote.material3.previews.RemoteAppCardWithTwoLineContent
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import org.junit.Rule
@@ -99,6 +100,16 @@ class RemoteAppCardTest {
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             RemoteAppCardWithTwoLineContent()
+        }
+    }
+
+    @Test
+    fun app_card_with_border() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            RemoteAppCardWithBorder()
         }
     }
 
