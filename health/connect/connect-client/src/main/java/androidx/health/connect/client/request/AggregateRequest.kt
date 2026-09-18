@@ -28,7 +28,7 @@ import androidx.health.connect.client.time.TimeRangeFilter
  * @param dataOriginFilter Set of [DataOrigin]s to read from, or empty for no filter.
  * @see HealthConnectClient.aggregate
  */
-class AggregateRequest(
+public class AggregateRequest(
     internal val metrics: Set<AggregateMetric<*>>,
     internal val timeRangeFilter: TimeRangeFilter,
     internal val dataOriginFilter: Set<DataOrigin> = emptySet(),

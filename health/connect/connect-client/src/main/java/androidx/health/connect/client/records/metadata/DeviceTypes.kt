@@ -21,14 +21,14 @@ import androidx.annotation.RestrictTo
 
 /** List of supported device types on Health Platform. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-object DeviceTypes {
-    const val UNKNOWN = "UNKNOWN"
-    const val WATCH = "WATCH"
-    const val PHONE = "PHONE"
-    const val SCALE = "SCALE"
-    const val RING = "RING"
-    const val HEAD_MOUNTED = "HEAD_MOUNTED"
-    const val FITNESS_BAND = "FITNESS_BAND"
-    const val CHEST_STRAP = "CHEST_STRAP"
-    const val SMART_DISPLAY = "SMART_DISPLAY"
+public object DeviceTypes {
+    public const val UNKNOWN: String = "UNKNOWN"
+    public const val WATCH: String = "WATCH"
+    public const val PHONE: String = "PHONE"
+    public const val SCALE: String = "SCALE"
+    public const val RING: String = "RING"
+    public const val HEAD_MOUNTED: String = "HEAD_MOUNTED"
+    public const val FITNESS_BAND: String = "FITNESS_BAND"
+    public const val CHEST_STRAP: String = "CHEST_STRAP"
+    public const val SMART_DISPLAY: String = "SMART_DISPLAY"
 }

@@ -30,7 +30,7 @@ import java.time.ZoneOffset
  *   handle scenarios involving Day Light Savings, such as "hourly steps on a given date".
  * @see [androidx.health.connect.client.HealthConnectClient.aggregateGroupByDuration]
  */
-class AggregationResultGroupedByDuration
+public class AggregationResultGroupedByDuration
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(
     public val result: AggregationResult,

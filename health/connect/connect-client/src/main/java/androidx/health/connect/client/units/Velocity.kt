@@ -22,22 +22,22 @@ package androidx.health.connect.client.units
  * - kilometersPerHour - see [Velocity.kilometersPerHour], [Double.kilometersPerHour]
  * - milesPerHour - see [Velocity.milesPerHour], [Double.milesPerHour]
  */
-class Velocity private constructor(private val value: Double, private val type: Type) :
+public class Velocity private constructor(private val value: Double, private val type: Type) :
     Comparable<Velocity> {
 
     /** Returns the velocity in meters per second. */
     @get:JvmName("getMetersPerSecond")
-    val inMetersPerSecond: Double
+    public val inMetersPerSecond: Double
         get() = value * type.metersPerSecondPerUnit
 
     /** Returns the velocity in kilometers per hour. */
     @get:JvmName("getKilometersPerHour")
-    val inKilometersPerHour: Double
+    public val inKilometersPerHour: Double
         get() = get(type = Type.KILOMETERS_PER_HOUR)
 
     /** Returns the velocity in miles per hour. */
     @get:JvmName("getMilesPerHour")
-    val inMilesPerHour: Double
+    public val inMilesPerHour: Double
         get() = get(type = Type.MILES_PER_HOUR)
 
     private fun get(type: Type): Double =
@@ -68,19 +68,22 @@ class Velocity private constructor(private val value: Double, private val type: 
 
     override fun toString(): String = "$value ${type.title}"
 
-    companion object {
+    public companion object {
         private val ZEROS = Type.values().associateWith { Velocity(value = 0.0, type = it) }
 
         /** Creates [Velocity] with the specified value in meters per second. */
         @JvmStatic
-        fun metersPerSecond(value: Double): Velocity = Velocity(value, Type.METERS_PER_SECOND)
+        public fun metersPerSecond(value: Double): Velocity =
+            Velocity(value, Type.METERS_PER_SECOND)
 
         /** Creates [Velocity] with the specified value in kilometers per hour. */
         @JvmStatic
-        fun kilometersPerHour(value: Double): Velocity = Velocity(value, Type.KILOMETERS_PER_HOUR)
+        public fun kilometersPerHour(value: Double): Velocity =
+            Velocity(value, Type.KILOMETERS_PER_HOUR)
 
         /** Creates [Velocity] with the specified value in miles per hour. */
-        @JvmStatic fun milesPerHour(value: Double): Velocity = Velocity(value, Type.MILES_PER_HOUR)
+        @JvmStatic
+        public fun milesPerHour(value: Double): Velocity = Velocity(value, Type.MILES_PER_HOUR)
     }
 
     private enum class Type {
@@ -104,60 +107,60 @@ class Velocity private constructor(private val value: Double, private val type: 
 
 /** Creates [Velocity] with the specified value in meters per second. */
 @get:JvmSynthetic
-val Double.metersPerSecond: Velocity
+public val Double.metersPerSecond: Velocity
     get() = Velocity.metersPerSecond(value = this)
 
 /** Creates [Velocity] with the specified value in meters per second. */
 @get:JvmSynthetic
-val Long.metersPerSecond: Velocity
+public val Long.metersPerSecond: Velocity
     get() = toDouble().metersPerSecond
 
 /** Creates [Velocity] with the specified value in meters per second. */
 @get:JvmSynthetic
-val Float.metersPerSecond: Velocity
+public val Float.metersPerSecond: Velocity
     get() = toDouble().metersPerSecond
 
 /** Creates [Velocity] with the specified value in meters per second. */
 @get:JvmSynthetic
-val Int.metersPerSecond: Velocity
+public val Int.metersPerSecond: Velocity
     get() = toDouble().metersPerSecond
 
 /** Creates [Velocity] with the specified value in kilometers per hour. */
 @get:JvmSynthetic
-val Double.kilometersPerHour: Velocity
+public val Double.kilometersPerHour: Velocity
     get() = Velocity.kilometersPerHour(value = this)
 
 /** Creates [Velocity] with the specified value in kilometers per hour. */
 @get:JvmSynthetic
-val Long.kilometersPerHour: Velocity
+public val Long.kilometersPerHour: Velocity
     get() = toDouble().kilometersPerHour
 
 /** Creates [Velocity] with the specified value in kilometers per hour. */
 @get:JvmSynthetic
-val Float.kilometersPerHour: Velocity
+public val Float.kilometersPerHour: Velocity
     get() = toDouble().kilometersPerHour
 
 /** Creates [Velocity] with the specified value in kilometers per hour. */
 @get:JvmSynthetic
-val Int.kilometersPerHour: Velocity
+public val Int.kilometersPerHour: Velocity
     get() = toDouble().kilometersPerHour
 
 /** Creates [Velocity] with the specified value in miles per hour. */
 @get:JvmSynthetic
-val Double.milesPerHour: Velocity
+public val Double.milesPerHour: Velocity
     get() = Velocity.milesPerHour(value = this)
 
 /** Creates [Velocity] with the specified value in miles per hour. */
 @get:JvmSynthetic
-val Long.milesPerHour: Velocity
+public val Long.milesPerHour: Velocity
     get() = toDouble().milesPerHour
 
 /** Creates [Velocity] with the specified value in miles per hour. */
 @get:JvmSynthetic
-val Float.milesPerHour: Velocity
+public val Float.milesPerHour: Velocity
     get() = toDouble().milesPerHour
 
 /** Creates [Velocity] with the specified value in miles per hour. */
 @get:JvmSynthetic
-val Int.milesPerHour: Velocity
+public val Int.milesPerHour: Velocity
     get() = toDouble().milesPerHour

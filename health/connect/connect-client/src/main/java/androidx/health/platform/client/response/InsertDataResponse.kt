@@ -22,7 +22,7 @@ import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.ResponseProto
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class InsertDataResponse(val dataPointUids: List<String>) :
+public class InsertDataResponse(public val dataPointUids: List<String>) :
     ProtoParcelable<ResponseProto.InsertDataResponse>() {
     override val proto: ResponseProto.InsertDataResponse
         get() {
@@ -32,9 +32,9 @@ class InsertDataResponse(val dataPointUids: List<String>) :
                 .build()
         }
 
-    companion object {
+    public companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<InsertDataResponse> = ProtoParcelable.newCreator {
+        public val CREATOR: Parcelable.Creator<InsertDataResponse> = ProtoParcelable.newCreator {
             val proto = ResponseProto.InsertDataResponse.parseFrom(it)
             fromProto(proto)
         }

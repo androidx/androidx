@@ -23,11 +23,11 @@ import androidx.health.platform.client.proto.RequestProto
 
 /** Data object holding context data for IPC calls. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class RequestContext(
-    val callingPackage: String,
-    val sdkVersion: Int,
-    val permissionToken: String?,
-    val isInForeground: Boolean,
+public class RequestContext(
+    public val callingPackage: String,
+    public val sdkVersion: Int,
+    public val permissionToken: String?,
+    public val isInForeground: Boolean,
 ) : ProtoParcelable<RequestProto.RequestContext>() {
 
     @Suppress("CheckResult")
@@ -41,9 +41,9 @@ class RequestContext(
             .build()
     }
 
-    companion object {
+    public companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<RequestContext> = newCreator {
+        public val CREATOR: Parcelable.Creator<RequestContext> = newCreator {
             RequestProto.RequestContext.parseFrom(it).run {
                 RequestContext(callingPackage, sdkVersion, permissionToken, isInForeground)
             }

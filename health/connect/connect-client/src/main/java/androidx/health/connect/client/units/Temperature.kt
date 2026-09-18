@@ -21,12 +21,12 @@ package androidx.health.connect.client.units
  * - Celsius - see [Temperature.celsius], [Double.celsius]
  * - Fahrenheit - see [Temperature.fahrenheit], [Double.fahrenheit]
  */
-class Temperature private constructor(private val value: Double, private val type: Type) :
+public class Temperature private constructor(private val value: Double, private val type: Type) :
     Comparable<Temperature> {
 
     /** Returns the temperature in Celsius degrees. */
     @get:JvmName("getCelsius")
-    val inCelsius: Double
+    public val inCelsius: Double
         get() =
             when (type) {
                 Type.CELSIUS -> value
@@ -35,7 +35,7 @@ class Temperature private constructor(private val value: Double, private val typ
 
     /** Returns the temperature in Fahrenheit degrees. */
     @get:JvmName("getFahrenheit")
-    val inFahrenheit: Double
+    public val inFahrenheit: Double
         get() =
             when (type) {
                 Type.CELSIUS -> value * 1.8 + 32.0
@@ -64,12 +64,13 @@ class Temperature private constructor(private val value: Double, private val typ
 
     override fun toString(): String = "$value ${type.title}"
 
-    companion object {
+    public companion object {
         /** Creates [Temperature] with the specified value in Celsius degrees. */
-        @JvmStatic fun celsius(value: Double): Temperature = Temperature(value, Type.CELSIUS)
+        @JvmStatic public fun celsius(value: Double): Temperature = Temperature(value, Type.CELSIUS)
 
         /** Creates [Temperature] with the specified value in Fahrenheit degrees. */
-        @JvmStatic fun fahrenheit(value: Double): Temperature = Temperature(value, Type.FAHRENHEIT)
+        @JvmStatic
+        public fun fahrenheit(value: Double): Temperature = Temperature(value, Type.FAHRENHEIT)
     }
 
     private enum class Type {
@@ -86,40 +87,40 @@ class Temperature private constructor(private val value: Double, private val typ
 
 /** Creates [Temperature] with the specified value in Celsius degrees. */
 @get:JvmSynthetic
-val Double.celsius: Temperature
+public val Double.celsius: Temperature
     get() = Temperature.celsius(value = this)
 
 /** Creates [Temperature] with the specified value in Celsius degrees. */
 @get:JvmSynthetic
-val Long.celsius: Temperature
+public val Long.celsius: Temperature
     get() = toDouble().celsius
 
 /** Creates [Temperature] with the specified value in Celsius degrees. */
 @get:JvmSynthetic
-val Float.celsius: Temperature
+public val Float.celsius: Temperature
     get() = toDouble().celsius
 
 /** Creates [Temperature] with the specified value in Celsius degrees. */
 @get:JvmSynthetic
-val Int.celsius: Temperature
+public val Int.celsius: Temperature
     get() = toDouble().celsius
 
 /** Creates [Temperature] with the specified value in Fahrenheit degrees. */
 @get:JvmSynthetic
-val Double.fahrenheit: Temperature
+public val Double.fahrenheit: Temperature
     get() = Temperature.fahrenheit(value = this)
 
 /** Creates [Temperature] with the specified value in Fahrenheit degrees. */
 @get:JvmSynthetic
-val Long.fahrenheit: Temperature
+public val Long.fahrenheit: Temperature
     get() = toDouble().fahrenheit
 
 /** Creates [Temperature] with the specified value in Fahrenheit degrees. */
 @get:JvmSynthetic
-val Float.fahrenheit: Temperature
+public val Float.fahrenheit: Temperature
     get() = toDouble().fahrenheit
 
 /** Creates [Temperature] with the specified value in Fahrenheit degrees. */
 @get:JvmSynthetic
-val Int.fahrenheit: Temperature
+public val Int.fahrenheit: Temperature
     get() = toDouble().fahrenheit

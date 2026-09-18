@@ -34,7 +34,7 @@ import java.time.Period
  *   sliced into several equal-sized time buckets (except for the last one).
  * @param dataOriginFilter Set of [DataOrigin]s to read from, or empty for no filter.
  */
-class AggregateGroupByPeriodRequest(
+public class AggregateGroupByPeriodRequest(
     internal val metrics: Set<AggregateMetric<*>>,
     internal val timeRangeFilter: TimeRangeFilter,
     internal val timeRangeSlicer: Period,

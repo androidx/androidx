@@ -24,8 +24,10 @@ import androidx.health.platform.client.proto.RequestProto
 
 /** Internal parcelable for IPC calls. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class UpsertExerciseRouteRequest(val sessionUid: String, val route: DataProto.DataPoint) :
-    ProtoParcelable<RequestProto.UpsertExerciseRouteRequest>() {
+public class UpsertExerciseRouteRequest(
+    public val sessionUid: String,
+    public val route: DataProto.DataPoint,
+) : ProtoParcelable<RequestProto.UpsertExerciseRouteRequest>() {
     override val proto: RequestProto.UpsertExerciseRouteRequest
         get() {
             val obj = this
@@ -35,12 +37,13 @@ class UpsertExerciseRouteRequest(val sessionUid: String, val route: DataProto.Da
                 .build()
         }
 
-    companion object {
+    public companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<UpsertExerciseRouteRequest> = ProtoParcelable.newCreator {
-            val proto = RequestProto.UpsertExerciseRouteRequest.parseFrom(it)
-            fromProto(proto)
-        }
+        public val CREATOR: Parcelable.Creator<UpsertExerciseRouteRequest> =
+            ProtoParcelable.newCreator {
+                val proto = RequestProto.UpsertExerciseRouteRequest.parseFrom(it)
+                fromProto(proto)
+            }
 
         internal fun fromProto(
             proto: RequestProto.UpsertExerciseRouteRequest

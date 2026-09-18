@@ -26,7 +26,7 @@ import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures the user's steps cadence. Each record represents a series of measurements. */
-class StepsCadenceRecord(
+public class StepsCadenceRecord(
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
@@ -73,7 +73,7 @@ class StepsCadenceRecord(
         return "StepsCadenceRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, samples=$samples, metadata=$metadata)"
     }
 
-    companion object {
+    public companion object {
         private const val TYPE = "StepsCadenceSeries"
         private const val RATE_FIELD = "rate"
 
@@ -81,19 +81,22 @@ class StepsCadenceRecord(
          * Metric identifier to retrieve average steps cadence from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
-        @JvmField val RATE_AVG: AggregateMetric<Double> = doubleMetric(TYPE, AVERAGE, RATE_FIELD)
+        @JvmField
+        public val RATE_AVG: AggregateMetric<Double> = doubleMetric(TYPE, AVERAGE, RATE_FIELD)
 
         /**
          * Metric identifier to retrieve minimum steps cadence from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
-        @JvmField val RATE_MIN: AggregateMetric<Double> = doubleMetric(TYPE, MINIMUM, RATE_FIELD)
+        @JvmField
+        public val RATE_MIN: AggregateMetric<Double> = doubleMetric(TYPE, MINIMUM, RATE_FIELD)
 
         /**
          * Metric identifier to retrieve maximum steps cadence from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
-        @JvmField val RATE_MAX: AggregateMetric<Double> = doubleMetric(TYPE, MAXIMUM, RATE_FIELD)
+        @JvmField
+        public val RATE_MAX: AggregateMetric<Double> = doubleMetric(TYPE, MAXIMUM, RATE_FIELD)
     }
 
     /**
@@ -102,7 +105,10 @@ class StepsCadenceRecord(
      * @param time The point in time when the measurement was taken.
      * @param rate Rate in steps per minute. Valid range: 0-10000.
      */
-    class Sample(val time: Instant, @FloatRange(from = 0.0, to = 10_000.0) val rate: Double) {
+    public class Sample(
+        public val time: Instant,
+        @FloatRange(from = 0.0, to = 10_000.0) public val rate: Double,
+    ) {
 
         init {
             requireNonNegative(value = rate, name = "rate")

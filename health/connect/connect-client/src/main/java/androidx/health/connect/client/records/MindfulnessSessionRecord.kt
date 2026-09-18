@@ -38,18 +38,18 @@ import java.time.ZoneOffset
  * installed on the device. To check if available: call [HealthConnectFeatures.getFeatureStatus] and
  * pass [HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION] as an argument.
  */
-class MindfulnessSessionRecord(
+public class MindfulnessSessionRecord(
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
     override val metadata: Metadata,
     /** Type of mindfulness session (e.g. meditation, breathing, including unknown type). */
-    @property:MindfulnessSessionTypes val mindfulnessSessionType: Int,
+    @property:MindfulnessSessionTypes public val mindfulnessSessionType: Int,
     /** Title of the session. */
-    val title: String? = null,
+    public val title: String? = null,
     /** Additional notes for the session. */
-    val notes: String? = null,
+    public val notes: String? = null,
 ) : IntervalRecord {
 
     init {
@@ -94,7 +94,7 @@ class MindfulnessSessionRecord(
         return "MindfulnessSessionRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, mindfulnessSessionType=$mindfulnessSessionType, title=$title, notes=$notes, metadata=$metadata)"
     }
 
-    companion object {
+    public companion object {
         /**
          * Metric identifier to retrieve the total mindfulness session duration from
          * [androidx.health.connect.client.aggregate.AggregationResult]. To check if this metric is
@@ -102,7 +102,7 @@ class MindfulnessSessionRecord(
          * [HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION] as the argument.
          */
         @JvmField
-        val MINDFULNESS_DURATION_TOTAL: AggregateMetric<Duration> =
+        public val MINDFULNESS_DURATION_TOTAL: AggregateMetric<Duration> =
             AggregateMetric.durationMetric("MindfulnessSession")
 
         /**
@@ -112,26 +112,26 @@ class MindfulnessSessionRecord(
          *
          * Use this type if the mindfulness session type is unknown.
          */
-        const val MINDFULNESS_SESSION_TYPE_UNKNOWN = 0
+        public const val MINDFULNESS_SESSION_TYPE_UNKNOWN: Int = 0
 
         /** Meditation mindfulness session. */
-        const val MINDFULNESS_SESSION_TYPE_MEDITATION = 1
+        public const val MINDFULNESS_SESSION_TYPE_MEDITATION: Int = 1
 
         /** Guided breathing mindfulness session. */
-        const val MINDFULNESS_SESSION_TYPE_BREATHING = 2
+        public const val MINDFULNESS_SESSION_TYPE_BREATHING: Int = 2
 
         /** Music/soundscapes mindfulness session. */
-        const val MINDFULNESS_SESSION_TYPE_MUSIC = 3
+        public const val MINDFULNESS_SESSION_TYPE_MUSIC: Int = 3
 
         /** Stretches/movement mindfulness session. */
-        const val MINDFULNESS_SESSION_TYPE_MOVEMENT = 4
+        public const val MINDFULNESS_SESSION_TYPE_MOVEMENT: Int = 4
 
         /** Unguided mindfulness session. */
-        const val MINDFULNESS_SESSION_TYPE_UNGUIDED = 5
+        public const val MINDFULNESS_SESSION_TYPE_UNGUIDED: Int = 5
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val MINDFULNESS_SESSION_TYPE_STRING_TO_INT_MAP =
+        public val MINDFULNESS_SESSION_TYPE_STRING_TO_INT_MAP: Map<String, Int> =
             mapOf(
                 "breathing" to MINDFULNESS_SESSION_TYPE_BREATHING,
                 "meditation" to MINDFULNESS_SESSION_TYPE_MEDITATION,
@@ -143,7 +143,7 @@ class MindfulnessSessionRecord(
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val MINDFULNESS_SESSION_TYPE_INT_TO_STRING_MAP =
+        public val MINDFULNESS_SESSION_TYPE_INT_TO_STRING_MAP: Map<Int, String> =
             MINDFULNESS_SESSION_TYPE_STRING_TO_INT_MAP.reverse()
     }
 
@@ -161,5 +161,5 @@ class MindfulnessSessionRecord(
                 MINDFULNESS_SESSION_TYPE_UNKNOWN,
             ]
     )
-    annotation class MindfulnessSessionTypes
+    public annotation class MindfulnessSessionTypes
 }

@@ -28,6 +28,6 @@ import androidx.health.connect.client.records.Record
  *   more records can be fetched; contains value `null` if no more pages.
  * @see androidx.health.connect.client.HealthConnectClient.readRecords
  */
-class ReadRecordsResponse<T : Record>
+public class ReadRecordsResponse<T : Record>
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-constructor(val records: List<T>, val pageToken: String?)
+constructor(public val records: List<T>, public val pageToken: String?)

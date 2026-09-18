@@ -21,7 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.platform.client.proto.RequestProto
 
-fun AggregateMetric<*>.toProto(): RequestProto.AggregateMetricSpec =
+public fun AggregateMetric<*>.toProto(): RequestProto.AggregateMetricSpec =
     RequestProto.AggregateMetricSpec.newBuilder()
         .setDataTypeName(dataTypeName)
         .setAggregationType(aggregationType.aggregationTypeString)

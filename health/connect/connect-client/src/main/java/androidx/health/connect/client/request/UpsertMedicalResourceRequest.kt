@@ -50,10 +50,10 @@ import androidx.health.connect.client.records.toString
  * @property data The FHIR resource data in JSON representation.
  */
 @ExperimentalPersonalHealthRecordApi
-class UpsertMedicalResourceRequest(
-    val dataSourceId: String,
-    val fhirVersion: FhirVersion,
-    val data: String,
+public class UpsertMedicalResourceRequest(
+    public val dataSourceId: String,
+    public val fhirVersion: FhirVersion,
+    public val data: String,
 ) {
     @SuppressLint("NewApi") // already checked with a feature availability check
     internal val platformUpsertMedicalResourceRequest: PlatformUpsertMedicalResourceRequest =

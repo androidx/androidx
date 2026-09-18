@@ -54,7 +54,7 @@ import androidx.health.connect.client.request.ChangesTokenRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 
-fun ReadRecordsRequest<out Record>.toPlatformRequest():
+public fun ReadRecordsRequest<out Record>.toPlatformRequest():
     ReadRecordsRequestUsingFilters<out PlatformRecord> {
     return ReadRecordsRequestUsingFilters.Builder(recordType.toPlatformRecordClass())
         .setTimeRangeFilter(timeRangeFilter.toPlatformTimeRangeFilter())
@@ -70,21 +70,21 @@ fun ReadRecordsRequest<out Record>.toPlatformRequest():
         .build()
 }
 
-fun TimeRangeFilter.toPlatformTimeRangeFilter(): PlatformTimeRangeFilter {
+public fun TimeRangeFilter.toPlatformTimeRangeFilter(): PlatformTimeRangeFilter {
     return when {
         isBasedOnLocalTime() -> toPlatformLocalTimeRangeFilter()
         else -> TimeInstantRangeFilter.Builder().setStartTime(startTime).setEndTime(endTime).build()
     }
 }
 
-fun TimeRangeFilter.toPlatformLocalTimeRangeFilter(): LocalTimeRangeFilter {
+public fun TimeRangeFilter.toPlatformLocalTimeRangeFilter(): LocalTimeRangeFilter {
     return LocalTimeRangeFilter.Builder()
         .setStartTime(localStartTime)
         .setEndTime(localEndTime)
         .build()
 }
 
-fun ChangesTokenRequest.toPlatformRequest(): ChangeLogTokenRequest {
+public fun ChangesTokenRequest.toPlatformRequest(): ChangeLogTokenRequest {
     return ChangeLogTokenRequest.Builder()
         .apply {
             dataOriginFilters.forEach { addDataOriginFilter(it.toPlatformDataOrigin()) }
@@ -93,7 +93,7 @@ fun ChangesTokenRequest.toPlatformRequest(): ChangeLogTokenRequest {
         .build()
 }
 
-fun AggregateRequest.toPlatformRequest(): AggregateRecordsRequest<Any> {
+public fun AggregateRequest.toPlatformRequest(): AggregateRecordsRequest<Any> {
     return AggregateRecordsRequest.Builder<Any>(timeRangeFilter.toPlatformTimeRangeFilter())
         .apply {
             dataOriginFilter.forEach { addDataOriginsFilter(it.toPlatformDataOrigin()) }
@@ -104,7 +104,7 @@ fun AggregateRequest.toPlatformRequest(): AggregateRecordsRequest<Any> {
         .build()
 }
 
-fun AggregateGroupByDurationRequest.toPlatformRequest(): AggregateRecordsRequest<Any> {
+public fun AggregateGroupByDurationRequest.toPlatformRequest(): AggregateRecordsRequest<Any> {
     return AggregateRecordsRequest.Builder<Any>(timeRangeFilter.toPlatformTimeRangeFilter())
         .apply {
             dataOriginFilter.forEach { addDataOriginsFilter(it.toPlatformDataOrigin()) }
@@ -115,7 +115,7 @@ fun AggregateGroupByDurationRequest.toPlatformRequest(): AggregateRecordsRequest
         .build()
 }
 
-fun AggregateGroupByPeriodRequest.toPlatformRequest(): AggregateRecordsRequest<Any> {
+public fun AggregateGroupByPeriodRequest.toPlatformRequest(): AggregateRecordsRequest<Any> {
     return AggregateRecordsRequest.Builder<Any>(timeRangeFilter.toPlatformLocalTimeRangeFilter())
         .apply {
             dataOriginFilter.forEach { addDataOriginsFilter(it.toPlatformDataOrigin()) }
@@ -127,7 +127,7 @@ fun AggregateGroupByPeriodRequest.toPlatformRequest(): AggregateRecordsRequest<A
 }
 
 @Suppress("UNCHECKED_CAST")
-fun AggregateMetric<Any>.toAggregationType(): AggregationType<Any> {
+public fun AggregateMetric<Any>.toAggregationType(): AggregationType<Any> {
     return DOUBLE_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
         ?: DURATION_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
         ?: DURATION_TO_LONG_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?

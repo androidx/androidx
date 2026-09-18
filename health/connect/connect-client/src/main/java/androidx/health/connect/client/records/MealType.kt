@@ -31,23 +31,23 @@ public object MealType {
     internal const val DINNER = "dinner"
     internal const val SNACK = "snack"
 
-    const val MEAL_TYPE_UNKNOWN = 0
+    public const val MEAL_TYPE_UNKNOWN: Int = 0
 
     /** Use this for the first meal of the day, usually the morning meal. */
-    const val MEAL_TYPE_BREAKFAST = 1
+    public const val MEAL_TYPE_BREAKFAST: Int = 1
 
     /** Use this for the noon meal. */
-    const val MEAL_TYPE_LUNCH = 2
+    public const val MEAL_TYPE_LUNCH: Int = 2
 
     /** Use this for last meal of the day, usually the evening meal. */
-    const val MEAL_TYPE_DINNER = 3
+    public const val MEAL_TYPE_DINNER: Int = 3
 
     /** Any meal outside of the usual three meals per day. */
-    const val MEAL_TYPE_SNACK = 4
+    public const val MEAL_TYPE_SNACK: Int = 4
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @JvmField
-    val MEAL_TYPE_STRING_TO_INT_MAP: Map<String, Int> =
+    public val MEAL_TYPE_STRING_TO_INT_MAP: Map<String, Int> =
         mapOf(
             UNKNOWN to MEAL_TYPE_UNKNOWN,
             BREAKFAST to MEAL_TYPE_BREAKFAST,
@@ -58,7 +58,7 @@ public object MealType {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @JvmField
-    val MEAL_TYPE_INT_TO_STRING_MAP = MEAL_TYPE_STRING_TO_INT_MAP.reverse()
+    public val MEAL_TYPE_INT_TO_STRING_MAP: Map<Int, String> = MEAL_TYPE_STRING_TO_INT_MAP.reverse()
 }
 
 /** Type of meal. */
@@ -68,4 +68,4 @@ public object MealType {
     value =
         [MEAL_TYPE_UNKNOWN, MEAL_TYPE_BREAKFAST, MEAL_TYPE_LUNCH, MEAL_TYPE_DINNER, MEAL_TYPE_SNACK]
 )
-annotation class MealTypes
+public annotation class MealTypes

@@ -49,7 +49,7 @@ import androidx.health.services.client.data.PassiveMonitoringCapabilities
 public suspend fun PassiveMonitoringClient.setPassiveListenerService(
     service: Class<out PassiveListenerService>,
     config: PassiveListenerConfig,
-) = setPassiveListenerServiceAsync(service, config).awaitWithException()
+): Void = setPassiveListenerServiceAsync(service, config).awaitWithException()
 
 /**
  * Unregisters the subscription made by [setPassiveListenerService].
@@ -60,7 +60,7 @@ public suspend fun PassiveMonitoringClient.setPassiveListenerService(
  * @throws HealthServicesException if Health Service fails to process the call
  */
 @kotlin.jvm.Throws(HealthServicesException::class)
-public suspend fun PassiveMonitoringClient.clearPassiveListenerService() =
+public suspend fun PassiveMonitoringClient.clearPassiveListenerService(): Void =
     clearPassiveListenerServiceAsync().awaitWithException()
 
 /**
@@ -72,7 +72,7 @@ public suspend fun PassiveMonitoringClient.clearPassiveListenerService() =
  * @throws HealthServicesException if Health Service fails to process the call
  */
 @kotlin.jvm.Throws(HealthServicesException::class)
-public suspend fun PassiveMonitoringClient.clearPassiveListenerCallback() =
+public suspend fun PassiveMonitoringClient.clearPassiveListenerCallback(): Void =
     clearPassiveListenerCallbackAsync().awaitWithException()
 
 /**
@@ -84,7 +84,7 @@ public suspend fun PassiveMonitoringClient.clearPassiveListenerCallback() =
  * @throws HealthServicesException if Health Service fails to process the call
  */
 @kotlin.jvm.Throws(HealthServicesException::class)
-public suspend fun PassiveMonitoringClient.flush() = flushAsync().awaitWithException()
+public suspend fun PassiveMonitoringClient.flush(): Void = flushAsync().awaitWithException()
 
 /**
  * Returns the [PassiveMonitoringCapabilities] of this client for this device.
@@ -97,5 +97,5 @@ public suspend fun PassiveMonitoringClient.flush() = flushAsync().awaitWithExcep
  * @throws HealthServicesException if Health Service fails to process the call
  */
 @kotlin.jvm.Throws(HealthServicesException::class)
-public suspend fun PassiveMonitoringClient.getCapabilities() =
+public suspend fun PassiveMonitoringClient.getCapabilities(): PassiveMonitoringCapabilities =
     getCapabilitiesAsync().awaitWithException()

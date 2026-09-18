@@ -76,7 +76,7 @@ public class HeightRecord(
         return "HeightRecord(time=$time, zoneOffset=$zoneOffset, height=$height, metadata=$metadata)"
     }
 
-    companion object {
+    public companion object {
         private const val HEIGHT_NAME = "Height"
         private const val HEIGHT_FIELD_NAME = "height"
         private val MAX_HEIGHT = 3.meters
@@ -86,7 +86,7 @@ public class HeightRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val HEIGHT_AVG: AggregateMetric<Length> =
+        public val HEIGHT_AVG: AggregateMetric<Length> =
             AggregateMetric.doubleMetric(
                 dataTypeName = HEIGHT_NAME,
                 aggregationType = AggregateMetric.AggregationType.AVERAGE,
@@ -99,7 +99,7 @@ public class HeightRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val HEIGHT_MIN: AggregateMetric<Length> =
+        public val HEIGHT_MIN: AggregateMetric<Length> =
             AggregateMetric.doubleMetric(
                 dataTypeName = HEIGHT_NAME,
                 aggregationType = AggregateMetric.AggregationType.MINIMUM,
@@ -112,7 +112,7 @@ public class HeightRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val HEIGHT_MAX: AggregateMetric<Length> =
+        public val HEIGHT_MAX: AggregateMetric<Length> =
             AggregateMetric.doubleMetric(
                 dataTypeName = HEIGHT_NAME,
                 aggregationType = AggregateMetric.AggregationType.MAXIMUM,

@@ -64,7 +64,7 @@ public class BasalMetabolicRateRecord(
         return "BasalMetabolicRateRecord(time=$time, zoneOffset=$zoneOffset, basalMetabolicRate=$basalMetabolicRate, metadata=$metadata)"
     }
 
-    companion object {
+    public companion object {
         private const val BASAL_CALORIES_TYPE_NAME = "BasalCaloriesBurned"
         private const val ENERGY_FIELD_NAME = "energy"
         private val MAX_BASAL_METABLOIC_RATE = 10_000.kilocaloriesPerDay
@@ -74,7 +74,7 @@ public class BasalMetabolicRateRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val BASAL_CALORIES_TOTAL: AggregateMetric<Energy> =
+        public val BASAL_CALORIES_TOTAL: AggregateMetric<Energy> =
             AggregateMetric.doubleMetric(
                 dataTypeName = BASAL_CALORIES_TYPE_NAME,
                 aggregationType = AggregateMetric.AggregationType.TOTAL,

@@ -50,13 +50,13 @@ import java.time.Instant
  *   has never happened or no data is linked to this `MedicalDataSource`.
  */
 @ExperimentalPersonalHealthRecordApi
-class MedicalDataSource(
-    val id: String,
-    val packageName: String,
-    val fhirBaseUri: Uri,
-    val displayName: String,
-    val fhirVersion: FhirVersion,
-    val lastDataUpdateTime: Instant?,
+public class MedicalDataSource(
+    public val id: String,
+    public val packageName: String,
+    public val fhirBaseUri: Uri,
+    public val displayName: String,
+    public val fhirVersion: FhirVersion,
+    public val lastDataUpdateTime: Instant?,
 ) {
     @SuppressLint("NewApi") // already checked with a feature availability check
     internal val platformMedicalDataSource: PlatformMedicalDataSource =
@@ -72,7 +72,7 @@ class MedicalDataSource(
                 .build()
         }
 
-    override fun toString() =
+    override fun toString(): String =
         toString(
             this,
             mapOf(

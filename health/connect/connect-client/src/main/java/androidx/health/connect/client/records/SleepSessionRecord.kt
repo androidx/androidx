@@ -36,17 +36,17 @@ import java.time.ZoneOffset
  *
  * @sample androidx.health.connect.client.samples.ReadSleepSessions
  */
-class SleepSessionRecord(
+public class SleepSessionRecord(
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
     override val metadata: Metadata,
     /** Title of the session. Optional field. */
-    val title: String? = null,
+    public val title: String? = null,
     /** Additional notes for the session. Optional field. */
-    val notes: String? = null,
-    val stages: List<Stage> = emptyList(),
+    public val notes: String? = null,
+    public val stages: List<Stage> = emptyList(),
 ) : IntervalRecord {
 
     init {
@@ -104,45 +104,45 @@ class SleepSessionRecord(
         return "SleepSessionRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, title=$title, notes=$notes, stages=$stages, metadata=$metadata)"
     }
 
-    companion object {
+    public companion object {
         /**
          * Metric identifier to retrieve the total sleep session duration from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val SLEEP_DURATION_TOTAL: AggregateMetric<Duration> =
+        public val SLEEP_DURATION_TOTAL: AggregateMetric<Duration> =
             AggregateMetric.durationMetric("SleepSession")
 
         /** Use this type if the stage of sleep is unknown. */
-        const val STAGE_TYPE_UNKNOWN = 0
+        public const val STAGE_TYPE_UNKNOWN: Int = 0
 
         /**
          * The user is awake and either known to be in bed, or it is unknown whether they are in bed
          * or not.
          */
-        const val STAGE_TYPE_AWAKE = 1
+        public const val STAGE_TYPE_AWAKE: Int = 1
 
         /** The user is asleep but the particular stage of sleep (light, deep or REM) is unknown. */
-        const val STAGE_TYPE_SLEEPING = 2
+        public const val STAGE_TYPE_SLEEPING: Int = 2
 
         /** The user is out of bed and assumed to be awake. */
-        const val STAGE_TYPE_OUT_OF_BED = 3
+        public const val STAGE_TYPE_OUT_OF_BED: Int = 3
 
         /** The user is in a light sleep stage. */
-        const val STAGE_TYPE_LIGHT = 4
+        public const val STAGE_TYPE_LIGHT: Int = 4
 
         /** The user is in a deep sleep stage. */
-        const val STAGE_TYPE_DEEP = 5
+        public const val STAGE_TYPE_DEEP: Int = 5
 
         /** The user is in a REM sleep stage. */
-        const val STAGE_TYPE_REM = 6
+        public const val STAGE_TYPE_REM: Int = 6
 
         /** The user is awake and in bed. */
-        const val STAGE_TYPE_AWAKE_IN_BED = 7
+        public const val STAGE_TYPE_AWAKE_IN_BED: Int = 7
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val STAGE_TYPE_STRING_TO_INT_MAP: Map<String, Int> =
+        public val STAGE_TYPE_STRING_TO_INT_MAP: Map<String, Int> =
             mapOf(
                 "awake" to STAGE_TYPE_AWAKE,
                 "sleeping" to STAGE_TYPE_SLEEPING,
@@ -156,7 +156,7 @@ class SleepSessionRecord(
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val STAGE_TYPE_INT_TO_STRING_MAP =
+        public val STAGE_TYPE_INT_TO_STRING_MAP: Map<Int, String> =
             STAGE_TYPE_STRING_TO_INT_MAP.entries.associateBy({ it.value }, { it.key })
     }
 
@@ -176,14 +176,18 @@ class SleepSessionRecord(
             ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    annotation class StageTypes
+    public annotation class StageTypes
 
     /**
      * Captures the sleep stage the user entered during a sleep session.
      *
      * @see SleepSessionRecord
      */
-    class Stage(val startTime: Instant, val endTime: Instant, @property:StageTypes val stage: Int) {
+    public class Stage(
+        public val startTime: Instant,
+        public val endTime: Instant,
+        @property:StageTypes public val stage: Int,
+    ) {
         init {
             require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
         }

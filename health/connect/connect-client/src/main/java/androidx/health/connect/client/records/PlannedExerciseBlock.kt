@@ -15,10 +15,10 @@
  */
 package androidx.health.connect.client.records
 /** Represents a series of [PlannedExerciseStep]s. Part of a [PlannedExerciseSessionRecord]. */
-class PlannedExerciseBlock(
-    val repetitions: Int,
-    val steps: List<PlannedExerciseStep>,
-    val description: String? = null,
+public class PlannedExerciseBlock(
+    public val repetitions: Int,
+    public val steps: List<PlannedExerciseStep>,
+    public val description: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

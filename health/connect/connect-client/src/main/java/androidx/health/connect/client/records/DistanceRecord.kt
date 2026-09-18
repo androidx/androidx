@@ -89,7 +89,7 @@ public class DistanceRecord(
         return "DistanceRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, distance=$distance, metadata=$metadata)"
     }
 
-    companion object {
+    public companion object {
         private val MAX_DISTANCE = 1000_000.meters
 
         /**
@@ -97,7 +97,7 @@ public class DistanceRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val DISTANCE_TOTAL: AggregateMetric<Length> =
+        public val DISTANCE_TOTAL: AggregateMetric<Length> =
             AggregateMetric.doubleMetric(
                 dataTypeName = "Distance",
                 aggregationType = AggregateMetric.AggregationType.TOTAL,

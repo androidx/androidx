@@ -23,7 +23,7 @@ import androidx.health.platform.client.proto.TimeProto
 
 /** Converts public API object into internal proto for ipc. */
 @SuppressWarnings("NewApi") // TODO(b/208786847) figure a way to suppress false positive NewApi
-fun TimeRangeFilter.toProto(): TimeProto.TimeSpec {
+public fun TimeRangeFilter.toProto(): TimeProto.TimeSpec {
     val obj = this
     return TimeProto.TimeSpec.newBuilder()
         .apply {

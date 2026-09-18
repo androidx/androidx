@@ -20,12 +20,13 @@ import androidx.health.connect.client.units.Power
 import androidx.health.connect.client.units.Velocity
 
 /** An ongoing target that should be met during a [PlannedExerciseStep]. */
-abstract class ExercisePerformanceTarget internal constructor() {
+public abstract class ExercisePerformanceTarget internal constructor() {
     /**
      * An [ExercisePerformanceTarget] that requires a target power range to be met during the
      * associated [PlannedExerciseStep].
      */
-    class PowerTarget(val minPower: Power, val maxPower: Power) : ExercisePerformanceTarget() {
+    public class PowerTarget(public val minPower: Power, public val maxPower: Power) :
+        ExercisePerformanceTarget() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is PowerTarget) return false
@@ -51,7 +52,7 @@ abstract class ExercisePerformanceTarget internal constructor() {
      * An [ExercisePerformanceTarget] that requires a target speed range to be met during the
      * associated [PlannedExerciseStep].
      */
-    class SpeedTarget(val minSpeed: Velocity, val maxSpeed: Velocity) :
+    public class SpeedTarget(public val minSpeed: Velocity, public val maxSpeed: Velocity) :
         ExercisePerformanceTarget() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -79,7 +80,7 @@ abstract class ExercisePerformanceTarget internal constructor() {
      * associated [PlannedExerciseStep].The value may be interpreted as RPM for e.g. cycling
      * activities, or as steps per minute for e.g. walking/running activities.
      */
-    class CadenceTarget(val minCadence: Double, val maxCadence: Double) :
+    public class CadenceTarget(public val minCadence: Double, public val maxCadence: Double) :
         ExercisePerformanceTarget() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -106,7 +107,7 @@ abstract class ExercisePerformanceTarget internal constructor() {
      * An [ExercisePerformanceTarget] that requires a target heart rate range, in BPM, to be met
      * during the associated {@link PlannedExerciseStep}.
      */
-    class HeartRateTarget(val minHeartRate: Double, val maxHeartRate: Double) :
+    public class HeartRateTarget(public val minHeartRate: Double, public val maxHeartRate: Double) :
         ExercisePerformanceTarget() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -133,7 +134,7 @@ abstract class ExercisePerformanceTarget internal constructor() {
      * An [ExercisePerformanceTarget] that requires a target weight to be lifted during the
      * associated [PlannedExerciseStep].
      */
-    class WeightTarget(val mass: Mass) : ExercisePerformanceTarget() {
+    public class WeightTarget(public val mass: Mass) : ExercisePerformanceTarget() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is WeightTarget) return false
@@ -158,7 +159,7 @@ abstract class ExercisePerformanceTarget internal constructor() {
      * 0: No exertion (at rest) 1: Very light 2-3: Light 4-5: Moderate 6-7: Hard 8-9: Very hard 10:
      * Maximum effort
      */
-    class RateOfPerceivedExertionTarget(val rpe: Int) : ExercisePerformanceTarget() {
+    public class RateOfPerceivedExertionTarget(public val rpe: Int) : ExercisePerformanceTarget() {
         init {
             require(rpe in 0..10) { "RPE value must be between 0 and 10, inclusive." }
         }
@@ -184,14 +185,14 @@ abstract class ExercisePerformanceTarget internal constructor() {
      * AMRAP (as many reps as possible) sets are often used in conjunction with a duration based
      * completion goal.
      */
-    object AmrapTarget : ExercisePerformanceTarget() {
+    public object AmrapTarget : ExercisePerformanceTarget() {
         override fun toString(): String {
             return "AmrapTarget()"
         }
     }
 
     /** An [ExercisePerformanceTarget] that is unknown. */
-    object UnknownTarget : ExercisePerformanceTarget() {
+    public object UnknownTarget : ExercisePerformanceTarget() {
         override fun toString(): String {
             return "UnknownTarget()"
         }

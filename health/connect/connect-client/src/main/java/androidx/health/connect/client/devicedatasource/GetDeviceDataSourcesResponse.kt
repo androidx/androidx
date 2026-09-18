@@ -26,7 +26,7 @@ import androidx.health.connect.client.ExperimentalDeviceDataSourceApi
  * @see [androidx.health.connect.client.HealthConnectClient.getDeviceDataSources]
  */
 @ExperimentalDeviceDataSourceApi
-class GetDeviceDataSourcesResponse(val deviceDataSources: List<DeviceDataSource>) {
+public class GetDeviceDataSourcesResponse(public val deviceDataSources: List<DeviceDataSource>) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is GetDeviceDataSourcesResponse) return false

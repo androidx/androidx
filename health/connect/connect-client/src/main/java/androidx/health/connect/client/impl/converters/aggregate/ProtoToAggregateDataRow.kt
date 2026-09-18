@@ -31,7 +31,7 @@ import kotlin.math.floor
 
 // ZoneOffset.ofTotalSeconds() has been banned but safe here for serialization.
 @SuppressWarnings("GoodTime")
-fun DataProto.AggregateDataRow.toAggregateDataRowGroupByDuration():
+public fun DataProto.AggregateDataRow.toAggregateDataRowGroupByDuration():
     AggregationResultGroupedByDuration {
     require(hasStartTimeEpochMs()) { "start time must be set" }
     require(hasEndTimeEpochMs()) { "end time must be set" }
@@ -44,7 +44,8 @@ fun DataProto.AggregateDataRow.toAggregateDataRowGroupByDuration():
     )
 }
 
-fun DataProto.AggregateDataRow.toAggregateDataRowGroupByPeriod(): AggregationResultGroupedByPeriod {
+public fun DataProto.AggregateDataRow.toAggregateDataRowGroupByPeriod():
+    AggregationResultGroupedByPeriod {
     require(hasStartLocalDateTime()) { "start time must be set" }
     require(hasEndLocalDateTime()) { "end time must be set" }
 
@@ -55,7 +56,7 @@ fun DataProto.AggregateDataRow.toAggregateDataRowGroupByPeriod(): AggregationRes
     )
 }
 
-fun DataProto.AggregateDataRow.retrieveAggregateDataRow(): AggregationResult {
+public fun DataProto.AggregateDataRow.retrieveAggregateDataRow(): AggregationResult {
     val longValues: MutableMap<String, Long> = longValuesMap.toMutableMap()
     val doubleValues: MutableMap<String, Double> = doubleValuesMap.toMutableMap()
     // ActivityIntensityRecord.INTENSITY_MINUTES_TOTAL is stored in milliseconds in the proto but

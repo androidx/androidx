@@ -34,7 +34,7 @@ import androidx.health.connect.client.records.ExerciseRoute
  */
 // TODO(b/540752486): Allow passing providerPackageName and verify custom provider
 // signatures.
-class ExerciseRouteRequestContract : ActivityResultContract<String, ExerciseRoute?>() {
+public class ExerciseRouteRequestContract : ActivityResultContract<String, ExerciseRoute?>() {
 
     private val delegate: ActivityResultContract<String, ExerciseRoute?> =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {

@@ -29,7 +29,7 @@ import androidx.health.connect.client.records.metadata.Metadata
  *
  * @property recordId [Metadata.id] of deleted [Record].
  */
-class DeletionChange
+public class DeletionChange
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(public val recordId: String) : Change {
 

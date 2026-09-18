@@ -23,7 +23,8 @@ import java.lang.reflect.Field
 
 /** Data object holding error state for IPC method calls. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class ErrorStatus constructor(@ErrorCode val errorCode: Int, val errorMessage: String? = null) :
+public class ErrorStatus
+constructor(@ErrorCode public val errorCode: Int, public val errorMessage: String? = null) :
     ProtoParcelable<ErrorProto.ErrorStatus>() {
 
     override val proto: ErrorProto.ErrorStatus by lazy {
@@ -32,15 +33,15 @@ class ErrorStatus constructor(@ErrorCode val errorCode: Int, val errorMessage: S
         builder.build()
     }
 
-    companion object {
+    public companion object {
         @JvmStatic
         @JvmOverloads
-        fun create(errorCode: Int, errorMessage: String? = null): ErrorStatus {
+        public fun create(errorCode: Int, errorMessage: String? = null): ErrorStatus {
             return ErrorStatus(safeErrorCode(errorCode), errorMessage)
         }
 
         @ErrorCode
-        fun safeErrorCode(errorCode: Int): Int {
+        public fun safeErrorCode(errorCode: Int): Int {
             return ErrorCode::class
                 .java
                 .declaredFields
@@ -56,7 +57,7 @@ class ErrorStatus constructor(@ErrorCode val errorCode: Int, val errorMessage: S
         }
 
         @JvmField
-        val CREATOR: Parcelable.Creator<ErrorStatus> = newCreator {
+        public val CREATOR: Parcelable.Creator<ErrorStatus> = newCreator {
             val proto = ErrorProto.ErrorStatus.parseFrom(it)
             create(proto.code, if (proto.hasMessage()) proto.message else null)
         }

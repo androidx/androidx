@@ -38,28 +38,28 @@ import java.time.ZoneOffset
 
 /** Internal helper functions to convert proto to records. */
 @get:SuppressWarnings("GoodTime") // Safe to use for deserialization
-val DataProto.DataPoint.startTime: Instant
+public val DataProto.DataPoint.startTime: Instant
     get() = Instant.ofEpochMilli(startTimeMillis)
 
 @get:SuppressWarnings("GoodTime") // Safe to use for deserialization
-val DataProto.DataPoint.endTime: Instant
+public val DataProto.DataPoint.endTime: Instant
     get() = Instant.ofEpochMilli(endTimeMillis)
 
 @get:SuppressWarnings("GoodTime") // Safe to use for deserialization
-val DataProto.DataPoint.time: Instant
+public val DataProto.DataPoint.time: Instant
     get() = Instant.ofEpochMilli(instantTimeMillis)
 
 @get:SuppressWarnings("GoodTime") // Safe to use for deserialization
-val DataProto.DataPoint.startZoneOffset: ZoneOffset?
+public val DataProto.DataPoint.startZoneOffset: ZoneOffset?
     get() =
         if (hasStartZoneOffsetSeconds()) ZoneOffset.ofTotalSeconds(startZoneOffsetSeconds) else null
 
 @get:SuppressWarnings("GoodTime") // Safe to use for deserialization
-val DataProto.DataPoint.endZoneOffset: ZoneOffset?
+public val DataProto.DataPoint.endZoneOffset: ZoneOffset?
     get() = if (hasEndZoneOffsetSeconds()) ZoneOffset.ofTotalSeconds(endZoneOffsetSeconds) else null
 
 @get:SuppressWarnings("GoodTime") // HealthDataClientImplSafe to use for deserialization
-val DataProto.DataPoint.zoneOffset: ZoneOffset?
+public val DataProto.DataPoint.zoneOffset: ZoneOffset?
     get() = if (hasZoneOffsetSeconds()) ZoneOffset.ofTotalSeconds(zoneOffsetSeconds) else null
 
 internal fun DataPointOrBuilder.getLong(key: String, defaultVal: Long = 0): Long =
@@ -95,7 +95,7 @@ internal fun SeriesValueOrBuilder.getString(key: String): String? = valuesMap[ke
 internal fun SeriesValueOrBuilder.getEnum(key: String): String? = valuesMap[key]?.enumVal
 
 @get:SuppressWarnings("GoodTime") // Safe to use for deserialization
-val DataProto.DataPoint.metadata: Metadata
+public val DataProto.DataPoint.metadata: Metadata
     get() =
         Metadata(
             id = if (hasUid()) uid else Metadata.EMPTY_ID,

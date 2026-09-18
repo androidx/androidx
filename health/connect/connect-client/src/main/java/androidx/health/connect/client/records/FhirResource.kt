@@ -48,14 +48,19 @@ import androidx.health.connect.client.impl.platform.records.toPlatformFhirResour
  * @property data The FHIR resource data in JSON representation.
  */
 @ExperimentalPersonalHealthRecordApi
-class FhirResource(@FhirResourceType val type: Int, val id: String, val data: String) {
+public class FhirResource(
+    @FhirResourceType public val type: Int,
+    public val id: String,
+    public val data: String,
+) {
     @SuppressLint("NewApi") // already checked with a feature availability check
     internal val platformFhirResource: PlatformFhirResource =
         withPhrFeatureCheck(this::class) {
             PlatformFhirResourceBuilder(type.toPlatformFhirResourceType(), id, data).build()
         }
 
-    override fun toString() = toString(this, mapOf("type" to type, "id" to id, "data" to data))
+    override fun toString(): String =
+        toString(this, mapOf("type" to type, "id" to id, "data" to data))
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -75,66 +80,66 @@ class FhirResource(@FhirResourceType val type: Int, val id: String, val data: St
         return result
     }
 
-    companion object {
+    public companion object {
         /** FHIR resource type for [Immunization](https://www.hl7.org/fhir/immunization.html). */
-        const val FHIR_RESOURCE_TYPE_IMMUNIZATION = 1
+        public const val FHIR_RESOURCE_TYPE_IMMUNIZATION: Int = 1
 
         /**
          * FHIR resource type for
          * [AllergyIntolerance](https://www.hl7.org/fhir/allergyintolerance.html).
          */
-        const val FHIR_RESOURCE_TYPE_ALLERGY_INTOLERANCE = 2
+        public const val FHIR_RESOURCE_TYPE_ALLERGY_INTOLERANCE: Int = 2
 
         /**
          * FHIR resource type for a [FHIR Observation](https://www.hl7.org/fhir/observation.html).
          */
-        const val FHIR_RESOURCE_TYPE_OBSERVATION = 3
+        public const val FHIR_RESOURCE_TYPE_OBSERVATION: Int = 3
 
         /** FHIR resource type for a [FHIR Condition](https://www.hl7.org/fhir/condition.html). */
-        const val FHIR_RESOURCE_TYPE_CONDITION = 4
+        public const val FHIR_RESOURCE_TYPE_CONDITION: Int = 4
 
         /** FHIR resource type for a [FHIR Procedure](https://www.hl7.org/fhir/procedure.html). */
-        const val FHIR_RESOURCE_TYPE_PROCEDURE = 5
+        public const val FHIR_RESOURCE_TYPE_PROCEDURE: Int = 5
 
         /** FHIR resource type for a [FHIR Medication](https://www.hl7.org/fhir/medication.html). */
-        const val FHIR_RESOURCE_TYPE_MEDICATION = 6
+        public const val FHIR_RESOURCE_TYPE_MEDICATION: Int = 6
 
         /**
          * FHIR resource type for a
          * [FHIR MedicationRequest](https://www.hl7.org/fhir/medicationrequest.html).
          */
-        const val FHIR_RESOURCE_TYPE_MEDICATION_REQUEST = 7
+        public const val FHIR_RESOURCE_TYPE_MEDICATION_REQUEST: Int = 7
 
         /**
          * FHIR resource type for a
          * [FHIR MedicationStatement](https://www.hl7.org/fhir/medicationstatement.html).
          */
-        const val FHIR_RESOURCE_TYPE_MEDICATION_STATEMENT = 8
+        public const val FHIR_RESOURCE_TYPE_MEDICATION_STATEMENT: Int = 8
 
         /** FHIR resource type for a [FHIR Patient](https://www.hl7.org/fhir/patient.html). */
-        const val FHIR_RESOURCE_TYPE_PATIENT = 9
+        public const val FHIR_RESOURCE_TYPE_PATIENT: Int = 9
 
         /**
          * FHIR resource type for a [FHIR Practitioner](https://www.hl7.org/fhir/practitioner.html).
          */
-        const val FHIR_RESOURCE_TYPE_PRACTITIONER = 10
+        public const val FHIR_RESOURCE_TYPE_PRACTITIONER: Int = 10
 
         /**
          * FHIR resource type for a
          * [FHIR PractitionerRole](https://www.hl7.org/fhir/practitionerrole.html).
          */
-        const val FHIR_RESOURCE_TYPE_PRACTITIONER_ROLE = 11
+        public const val FHIR_RESOURCE_TYPE_PRACTITIONER_ROLE: Int = 11
 
         /** FHIR resource type for a [FHIR Encounter](https://www.hl7.org/fhir/encounter.html). */
-        const val FHIR_RESOURCE_TYPE_ENCOUNTER = 12
+        public const val FHIR_RESOURCE_TYPE_ENCOUNTER: Int = 12
 
         /** FHIR resource type for a [FHIR Location](https://www.hl7.org/fhir/location.html). */
-        const val FHIR_RESOURCE_TYPE_LOCATION = 13
+        public const val FHIR_RESOURCE_TYPE_LOCATION: Int = 13
 
         /**
          * FHIR resource type for a [FHIR Organization](https://www.hl7.org/fhir/organization.html).
          */
-        const val FHIR_RESOURCE_TYPE_ORGANIZATION = 14
+        public const val FHIR_RESOURCE_TYPE_ORGANIZATION: Int = 14
 
         /** List of possible FHIR resource types. */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -155,6 +160,6 @@ class FhirResource(@FhirResourceType val type: Int, val id: String, val data: St
             FHIR_RESOURCE_TYPE_ORGANIZATION,
         )
         @Retention(AnnotationRetention.SOURCE)
-        annotation class FhirResourceType
+        public annotation class FhirResourceType
     }
 }

@@ -53,9 +53,9 @@ import androidx.health.connect.client.request.ReadMedicalResourcesRequest.Compan
  * @see [HealthConnectClient.readMedicalResources]
  */
 @ExperimentalPersonalHealthRecordApi
-class ReadMedicalResourcesInitialRequest(
-    @MedicalResourceType val medicalResourceType: Int,
-    val medicalDataSourceIds: Set<String>,
+public class ReadMedicalResourcesInitialRequest(
+    @MedicalResourceType public val medicalResourceType: Int,
+    public val medicalDataSourceIds: Set<String>,
     pageSize: Int = DEFAULT_PAGE_SIZE,
 ) : ReadMedicalResourcesRequest(pageSize) {
     @SuppressLint("NewApi") // already checked with a feature availability check
