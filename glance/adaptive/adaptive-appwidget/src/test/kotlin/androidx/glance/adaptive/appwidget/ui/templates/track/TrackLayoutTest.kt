@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.appwidget.ui.templates
+package androidx.glance.adaptive.appwidget.ui.templates.track
 
 import android.content.Context
 import androidx.compose.runtime.Composable

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.appwidget.ui.templates
+package androidx.glance.adaptive.appwidget.ui.templates.track
 
 import androidx.annotation.RestrictTo
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface

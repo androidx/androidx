@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.appwidget.ui.components
+package androidx.glance.adaptive.appwidget.ui.templates.track
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
