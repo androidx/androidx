@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:OptIn(ExperimentalWearComposeMaterial3Api::class)
 
 package androidx.wear.compose.material3
 
@@ -113,7 +112,6 @@ import kotlinx.coroutines.launch
  *   [androidx.wear.compose.foundation.lazy.TransformingLazyColumn] or a layout using
  *   [androidx.compose.foundation.verticalScroll]
  */
-@ExperimentalWearComposeMaterial3Api
 @Composable
 public fun PullToRefreshBox(
     isRefreshing: Boolean,
@@ -148,7 +146,6 @@ public fun PullToRefreshBox(
 }
 
 /** Contains the default values for [PullToRefreshBox] */
-@ExperimentalWearComposeMaterial3Api
 public object PullToRefreshDefaults {
     /** The default shape for [Indicator] */
     public val indicatorShape: Shape = CircleShape
@@ -342,7 +339,6 @@ public object PullToRefreshDefaults {
  *
  * @sample androidx.wear.compose.material3.samples.PullToRefreshCustomIndicatorSample
  */
-@ExperimentalWearComposeMaterial3Api
 @Stable
 public class PullToRefreshState
 internal constructor(private val anim: Animatable<Float, AnimationVector1D>) {
@@ -406,7 +402,6 @@ internal constructor(private val anim: Animatable<Float, AnimationVector1D>) {
  * @param threshold how much distance can be scrolled down before [onRefresh] is invoked
  * @param onRefresh callback that is invoked when the distance pulled is greater than [threshold]
  */
-@ExperimentalWearComposeMaterial3Api
 internal fun Modifier.pullToRefresh(
     isRefreshing: Boolean,
     state: PullToRefreshState,

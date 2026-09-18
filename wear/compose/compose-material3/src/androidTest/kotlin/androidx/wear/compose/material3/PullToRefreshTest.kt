@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:OptIn(ExperimentalWearComposeMaterial3Api::class)
 
 package androidx.wear.compose.material3
 
@@ -63,7 +62,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalWearComposeMaterial3Api::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class PullToRefreshTest {
