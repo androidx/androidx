@@ -82,8 +82,8 @@ internal data class ViewfinderTrackingConfig(
 )
 
 private object ViewfinderDefaults {
-    const val DEFAULT_BOX_WIDTH_PIXELS = 960
-    const val DEFAULT_BOX_HEIGHT_PIXELS = 540
+    const val DEFAULT_BOX_WIDTH_PIXELS = 200
+    const val DEFAULT_BOX_HEIGHT_PIXELS = 200
     const val MAX_TRACKING_SIZE_PIXELS = 1920
     const val MIN_TRACKING_SIZE_PIXELS = 50
     const val SIZE_STEP_PIXELS = 50
