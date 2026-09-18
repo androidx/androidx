@@ -57,7 +57,6 @@ public class GlanceMappedNode(private val mappedNode: MappedNode) :
     @RestrictTo(Scope.LIBRARY_GROUP)
     public constructor(emittable: Emittable) : this(MappedNode(emittable))
 
-    @RestrictTo(Scope.LIBRARY_GROUP)
     override fun children(): List<GlanceNode<MappedNode>> {
         val emittable = mappedNode.emittable
         if (emittable is EmittableWithChildren) {
@@ -78,7 +77,6 @@ public class GlanceMappedNode(private val mappedNode: MappedNode) :
         return mappedNodes.toList()
     }
 
-    @RestrictTo(Scope.LIBRARY_GROUP)
     override fun toDebugString(): String {
         // TODO(b/201779038): map to a more readable format.
         return mappedNode.emittable.toString()
