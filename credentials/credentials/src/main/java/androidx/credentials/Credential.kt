@@ -30,8 +30,9 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * @property data the credential data in the [Bundle] format
  */
 @OptIn(ExperimentalDigitalCredentialApi::class)
-abstract class Credential internal constructor(val type: String, val data: Bundle) {
-    companion object {
+public abstract class Credential
+internal constructor(public val type: String, public val data: Bundle) {
+    public companion object {
         /**
          * Parses the raw data into an instance of [Credential].
          *
@@ -46,7 +47,7 @@ abstract class Credential internal constructor(val type: String, val data: Bundl
          *   created from scratch
          */
         @JvmStatic
-        fun createFrom(type: String, data: Bundle): Credential {
+        public fun createFrom(type: String, data: Bundle): Credential {
             return try {
                 when (type) {
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
@@ -76,7 +77,7 @@ abstract class Credential internal constructor(val type: String, val data: Bundl
          */
         @JvmStatic
         @RequiresApi(34)
-        fun createFrom(credential: android.credentials.Credential): Credential {
+        public fun createFrom(credential: android.credentials.Credential): Credential {
             return createFrom(credential.type, credential.data)
         }
     }

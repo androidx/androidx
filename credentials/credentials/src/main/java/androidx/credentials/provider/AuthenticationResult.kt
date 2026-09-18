@@ -31,7 +31,7 @@ import java.util.Objects
  *   [androidx.biometric.BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC] or
  *   [androidx.biometric.BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL]
  */
-class AuthenticationResult(val authenticationType: @AuthenticationResultTypes Int) {
+public class AuthenticationResult(public val authenticationType: @AuthenticationResultTypes Int) {
     internal companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         const val EXTRA_BIOMETRIC_AUTH_RESULT_TYPE =

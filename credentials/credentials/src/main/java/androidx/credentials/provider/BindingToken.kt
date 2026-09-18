@@ -32,27 +32,28 @@ import androidx.credentials.ExperimentalDigitalCredentialApi
  * @property version the binding token version
  */
 @ExperimentalDigitalCredentialApi
-class BindingToken
+public class BindingToken
 @JvmOverloads
 constructor(
-    val bindingToken: ByteArray,
-    val holderAppId: String,
-    @property:BindingTokenVersion val version: @BindingTokenVersion String = VERSION_PREVIEW,
+    public val bindingToken: ByteArray,
+    public val holderAppId: String,
+    @property:BindingTokenVersion public val version: @BindingTokenVersion String = VERSION_PREVIEW,
 ) {
     /** Supported versions for [BindingToken]. */
     @Target(AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef(VERSION_PREVIEW)
-    annotation class BindingTokenVersion
+    public annotation class BindingTokenVersion
 
-    companion object {
-        const val VERSION_PREVIEW: String = "preview"
+    public companion object {
+        public const val VERSION_PREVIEW: String = "preview"
 
-        const val EXTRA_BINDING_TOKEN: String = "androidx.credentials.provider.extra.BINDING_TOKEN"
-        const val EXTRA_BINDING_TOKEN_HOLDER_APP_ID: String =
+        public const val EXTRA_BINDING_TOKEN: String =
+            "androidx.credentials.provider.extra.BINDING_TOKEN"
+        public const val EXTRA_BINDING_TOKEN_HOLDER_APP_ID: String =
             "androidx.credentials.provider.extra.BINDING_TOKEN_HOLDER_APP_ID"
-        const val EXTRA_BINDING_TOKEN_VERSION: String =
+        public const val EXTRA_BINDING_TOKEN_VERSION: String =
             "androidx.credentials.provider.extra.BINDING_TOKEN_VERSION"
     }
 
@@ -74,7 +75,7 @@ constructor(
 
 /** Returns the [BindingToken] associated with this request, or `null` if none was provided. */
 @ExperimentalDigitalCredentialApi
-fun ProviderCreateCredentialRequest.retrieveBindingToken(): BindingToken? {
+public fun ProviderCreateCredentialRequest.retrieveBindingToken(): BindingToken? {
     val bundle = this.sourceBundle ?: return null
     val tokenBytes = bundle.getByteArray(BindingToken.EXTRA_BINDING_TOKEN) ?: return null
     val holderAppId =

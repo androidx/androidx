@@ -22,7 +22,7 @@ package androidx.credentials.exceptions.publickeycredential
  *
  * @see androidx.credentials.CredentialManager
  */
-class SignalCredentialSecurityException
+public class SignalCredentialSecurityException
 @JvmOverloads
 constructor(errorMessage: CharSequence? = null) :
     SignalCredentialStateException(TYPE_SIGNAL_CREDENTIAL_STATE_SECURITY_EXCEPTION, errorMessage) {

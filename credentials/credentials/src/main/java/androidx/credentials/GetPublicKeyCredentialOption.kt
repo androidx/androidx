@@ -34,10 +34,10 @@ import androidx.credentials.internal.RequestValidationHelper
  *   selector, with less precedence than account ordering but more precedence than last used time;
  *   see [CredentialOption] for more information
  */
-class GetPublicKeyCredentialOption
+public class GetPublicKeyCredentialOption
 private constructor(
-    val requestJson: String,
-    val clientDataHash: ByteArray?,
+    public val requestJson: String,
+    public val clientDataHash: ByteArray?,
     allowedProviders: Set<ComponentName>,
     requestData: Bundle,
     candidateQueryData: Bundle,
@@ -70,7 +70,7 @@ private constructor(
      * @throws IllegalArgumentException If [requestJson] is empty, or if it is not a valid JSON
      */
     @JvmOverloads
-    constructor(
+    public constructor(
         requestJson: String,
         clientDataHash: ByteArray? = null,
         allowedProviders: Set<ComponentName> = emptySet(),

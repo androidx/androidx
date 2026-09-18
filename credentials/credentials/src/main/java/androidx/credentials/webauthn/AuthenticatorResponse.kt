@@ -20,8 +20,8 @@ import androidx.annotation.RestrictTo
 import org.json.JSONObject
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-interface AuthenticatorResponse {
-    var clientJson: JSONObject
+public interface AuthenticatorResponse {
+    public var clientJson: JSONObject
 
-    fun json(): JSONObject
+    public fun json(): JSONObject
 }

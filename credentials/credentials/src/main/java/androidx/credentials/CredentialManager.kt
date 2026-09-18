@@ -83,14 +83,15 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * ```
  */
 @SuppressLint("ObsoleteSdkInt") // Accommodate dependencies with a lower min sdk requirement
-interface CredentialManager {
-    companion object {
+public interface CredentialManager {
+    public companion object {
         /**
          * Creates a [CredentialManager] based on the given [context].
          *
          * @param context the context with which the CredentialManager should be associated
          */
-        @JvmStatic fun create(context: Context): CredentialManager = CredentialManagerImpl(context)
+        @JvmStatic
+        public fun create(context: Context): CredentialManager = CredentialManagerImpl(context)
     }
 
     /**
@@ -106,7 +107,7 @@ interface CredentialManager {
      * @param request the request for getting the credential
      * @throws GetCredentialException If the request fails
      */
-    suspend fun getCredential(
+    public suspend fun getCredential(
         context: Context,
         request: GetCredentialRequest,
     ): GetCredentialResponse = suspendCancellableCoroutine { continuation ->
@@ -160,7 +161,7 @@ interface CredentialManager {
      * @throws GetCredentialException If the request fails
      */
     @RequiresApi(34)
-    suspend fun getCredential(
+    public suspend fun getCredential(
         context: Context,
         pendingGetCredentialHandle: PrepareGetCredentialResponse.PendingGetCredentialHandle,
     ): GetCredentialResponse = suspendCancellableCoroutine { continuation ->
@@ -208,41 +209,42 @@ interface CredentialManager {
      * @throws GetCredentialException If the request fails
      */
     @RequiresApi(34)
-    suspend fun prepareGetCredential(request: GetCredentialRequest): PrepareGetCredentialResponse =
-        suspendCancellableCoroutine { continuation ->
-            // Any Android API that supports cancellation should be configured to propagate
-            // coroutine cancellation as follows:
-            val canceller = CancellationSignal()
-            continuation.invokeOnCancellation { canceller.cancel() }
+    public suspend fun prepareGetCredential(
+        request: GetCredentialRequest
+    ): PrepareGetCredentialResponse = suspendCancellableCoroutine { continuation ->
+        // Any Android API that supports cancellation should be configured to propagate
+        // coroutine cancellation as follows:
+        val canceller = CancellationSignal()
+        continuation.invokeOnCancellation { canceller.cancel() }
 
-            val callback =
-                object :
-                    CredentialManagerCallback<
-                        PrepareGetCredentialResponse,
-                        GetCredentialException,
-                    > {
-                    override fun onResult(result: PrepareGetCredentialResponse) {
-                        if (continuation.isActive) {
-                            continuation.resume(result)
-                        }
-                    }
-
-                    override fun onError(e: GetCredentialException) {
-                        if (continuation.isActive) {
-                            continuation.resumeWithException(e)
-                        }
+        val callback =
+            object :
+                CredentialManagerCallback<
+                    PrepareGetCredentialResponse,
+                    GetCredentialException,
+                > {
+                override fun onResult(result: PrepareGetCredentialResponse) {
+                    if (continuation.isActive) {
+                        continuation.resume(result)
                     }
                 }
 
-            prepareGetCredentialAsync(
-                request,
-                canceller,
-                // Use a direct executor to avoid extra dispatch. Resuming the continuation will
-                // handle getting to the right thread or pool via the ContinuationInterceptor.
-                Runnable::run,
-                callback,
-            )
-        }
+                override fun onError(e: GetCredentialException) {
+                    if (continuation.isActive) {
+                        continuation.resumeWithException(e)
+                    }
+                }
+            }
+
+        prepareGetCredentialAsync(
+            request,
+            canceller,
+            // Use a direct executor to avoid extra dispatch. Resuming the continuation will
+            // handle getting to the right thread or pool via the ContinuationInterceptor.
+            Runnable::run,
+            callback,
+        )
+    }
 
     /**
      * Registers a user credential that can be used to authenticate the user to the app in the
@@ -257,7 +259,7 @@ interface CredentialManager {
      * @param request the request for creating the credential
      * @throws CreateCredentialException If the request fails
      */
-    suspend fun createCredential(
+    public suspend fun createCredential(
         context: Context,
         request: CreateCredentialRequest,
     ): CreateCredentialResponse = suspendCancellableCoroutine { continuation ->
@@ -311,7 +313,7 @@ interface CredentialManager {
      * @param request the request for clearing the app user's credential state
      * @throws ClearCredentialException If the request fails
      */
-    suspend fun clearCredentialState(request: ClearCredentialStateRequest): Unit =
+    public suspend fun clearCredentialState(request: ClearCredentialStateRequest): Unit =
         suspendCancellableCoroutine { continuation ->
             // Any Android API that supports cancellation should be configured to propagate
             // coroutine cancellation as follows:
@@ -357,7 +359,7 @@ interface CredentialManager {
      * @param request the request for signaling the credential state
      * @throws SignalCredentialStateException If the request parsing fails
      */
-    suspend fun signalCredentialState(
+    public suspend fun signalCredentialState(
         request: SignalCredentialStateRequest
     ): SignalCredentialStateResponse = suspendCancellableCoroutine { continuation ->
         val callback =
@@ -404,7 +406,7 @@ interface CredentialManager {
      * @param executor the callback will take place on this executor
      * @param callback the callback invoked when the request succeeds or fails
      */
-    fun getCredentialAsync(
+    public fun getCredentialAsync(
         context: Context,
         request: GetCredentialRequest,
         cancellationSignal: CancellationSignal?,
@@ -435,7 +437,7 @@ interface CredentialManager {
      * @param callback the callback invoked when the request succeeds or fails
      */
     @RequiresApi(34)
-    fun getCredentialAsync(
+    public fun getCredentialAsync(
         context: Context,
         pendingGetCredentialHandle: PrepareGetCredentialResponse.PendingGetCredentialHandle,
         cancellationSignal: CancellationSignal?,
@@ -460,7 +462,7 @@ interface CredentialManager {
      * @param callback the callback invoked when the request succeeds or fails
      */
     @RequiresApi(34)
-    fun prepareGetCredentialAsync(
+    public fun prepareGetCredentialAsync(
         request: GetCredentialRequest,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
@@ -484,7 +486,7 @@ interface CredentialManager {
      * @param executor the callback will take place on this executor
      * @param callback the callback invoked when the request succeeds or fails
      */
-    fun createCredentialAsync(
+    public fun createCredentialAsync(
         context: Context,
         request: CreateCredentialRequest,
         cancellationSignal: CancellationSignal?,
@@ -511,7 +513,7 @@ interface CredentialManager {
      * @param executor the callback will take place on this executor
      * @param callback the callback invoked when the request succeeds or fails
      */
-    fun clearCredentialStateAsync(
+    public fun clearCredentialStateAsync(
         request: ClearCredentialStateRequest,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
@@ -535,7 +537,7 @@ interface CredentialManager {
      * @param executor the callback will take place on this executor
      * @param callback the callback invoked when the request succeeds or fails
      */
-    open fun signalCredentialStateAsync(
+    public open fun signalCredentialStateAsync(
         request: SignalCredentialStateRequest,
         executor: Executor,
         callback:
@@ -551,5 +553,5 @@ interface CredentialManager {
      *
      * @return the pending intent that can be launched
      */
-    @RequiresApi(34) fun createSettingsPendingIntent(): PendingIntent
+    @RequiresApi(34) public fun createSettingsPendingIntent(): PendingIntent
 }

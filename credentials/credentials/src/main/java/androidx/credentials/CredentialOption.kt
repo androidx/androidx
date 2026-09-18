@@ -63,15 +63,15 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *   used time; see [PriorityHints] for more information
  */
 @OptIn(ExperimentalDigitalCredentialApi::class)
-abstract class CredentialOption
+public abstract class CredentialOption
 internal constructor(
-    val type: String,
-    val requestData: Bundle,
-    val candidateQueryData: Bundle,
-    val isSystemProviderRequired: Boolean,
-    val isAutoSelectAllowed: Boolean,
-    val allowedProviders: Set<ComponentName>,
-    val typePriorityHint: @PriorityHints Int,
+    public val type: String,
+    public val requestData: Bundle,
+    public val candidateQueryData: Bundle,
+    public val isSystemProviderRequired: Boolean,
+    public val isAutoSelectAllowed: Boolean,
+    public val allowedProviders: Set<ComponentName>,
+    public val typePriorityHint: @PriorityHints Int,
 ) {
 
     init {
@@ -94,17 +94,17 @@ internal constructor(
                 PRIORITY_DEFAULT,
             ]
     )
-    annotation class PriorityHints
+    public annotation class PriorityHints
 
-    companion object {
+    public companion object {
         /** Value of display priority for passkeys or credentials of similar security level. */
-        const val PRIORITY_PASSKEY_OR_SIMILAR = 100
+        public const val PRIORITY_PASSKEY_OR_SIMILAR: Int = 100
         /** Value of display priority for OpenID credentials or those of similar security level. */
-        const val PRIORITY_OIDC_OR_SIMILAR = 500
+        public const val PRIORITY_OIDC_OR_SIMILAR: Int = 500
         /** Value of display priority for passwords or credentials of similar security level. */
-        const val PRIORITY_PASSWORD_OR_SIMILAR = 1000
+        public const val PRIORITY_PASSWORD_OR_SIMILAR: Int = 1000
         /** Default value of display priority. */
-        const val PRIORITY_DEFAULT = 2000
+        public const val PRIORITY_DEFAULT: Int = 2000
 
         internal const val BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED =
             "androidx.credentials.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED"
@@ -128,7 +128,7 @@ internal constructor(
          */
         @RequiresApi(34)
         @JvmStatic
-        fun createFrom(option: android.credentials.CredentialOption): CredentialOption {
+        public fun createFrom(option: android.credentials.CredentialOption): CredentialOption {
             return createFrom(
                 option.type,
                 option.credentialRetrievalData,
@@ -158,7 +158,7 @@ internal constructor(
          *   provider is eligible
          */
         @JvmStatic
-        fun createFrom(
+        public fun createFrom(
             type: String,
             requestData: Bundle,
             candidateQueryData: Bundle,

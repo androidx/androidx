@@ -29,7 +29,10 @@ import androidx.credentials.exceptions.publickeycredential.DomExceptionUtils.Com
  * @property domError the specific error from the DOMException types defined in the fido spec found
  *   [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names)
  */
-class CreateRestoreCredentialDomException(val domError: DomError, errorMessage: CharSequence) :
+public class CreateRestoreCredentialDomException(
+    public val domError: DomError,
+    errorMessage: CharSequence,
+) :
     CreateCredentialException(
         TYPE_CREATE_RESTORE_CREDENTIAL_DOM_EXCEPTION + SEPARATOR + domError.type,
         errorMessage,

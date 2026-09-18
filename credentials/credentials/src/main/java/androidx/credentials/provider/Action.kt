@@ -68,10 +68,10 @@ import java.util.Collections
  * @throws NullPointerException If [title] or [pendingIntent] is null
  * @see android.service.credentials.BeginGetCredentialResponse for usage.
  */
-class Action(
-    val title: CharSequence,
-    val pendingIntent: PendingIntent,
-    val subtitle: CharSequence? = null,
+public class Action(
+    public val title: CharSequence,
+    public val pendingIntent: PendingIntent,
+    public val subtitle: CharSequence? = null,
 ) {
 
     init {
@@ -87,12 +87,12 @@ class Action(
      *   [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the final request, and
      *   NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple times
      */
-    class Builder
+    public class Builder
     constructor(private val title: CharSequence, private val pendingIntent: PendingIntent) {
         private var subtitle: CharSequence? = null
 
         /** Sets a sub title to be shown on the UI with this entry */
-        fun setSubtitle(subtitle: CharSequence?): Builder {
+        public fun setSubtitle(subtitle: CharSequence?): Builder {
             this.subtitle = subtitle
             return this
         }
@@ -102,7 +102,7 @@ class Action(
          *
          * @throws IllegalArgumentException If [title] is empty
          */
-        fun build(): Action {
+        public fun build(): Action {
             return Action(title, pendingIntent, subtitle)
         }
     }
@@ -116,7 +116,7 @@ class Action(
         }
     }
 
-    companion object {
+    public companion object {
         private const val TAG = "Action"
         private const val SLICE_SPEC_REVISION = 0
         private const val SLICE_SPEC_TYPE = "Action"
@@ -134,7 +134,7 @@ class Action(
         @JvmStatic
         @RequiresApi(28)
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun toSlice(action: Action): Slice {
+        public fun toSlice(action: Action): Slice {
             val title = action.title
             val subtitle = action.subtitle
             val pendingIntent = action.pendingIntent
@@ -161,7 +161,7 @@ class Action(
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
-        fun fromSlice(slice: Slice): Action? {
+        public fun fromSlice(slice: Slice): Action? {
             var title: CharSequence = ""
             var subtitle: CharSequence? = null
             var pendingIntent: PendingIntent? = null
@@ -196,7 +196,7 @@ class Action(
          * @param action the instance of framework action class to be converted
          */
         @JvmStatic
-        fun fromAction(action: android.service.credentials.Action): Action? {
+        public fun fromAction(action: android.service.credentials.Action): Action? {
             if (Build.VERSION.SDK_INT >= 34) {
                 return Api34Impl.fromAction(action)
             }

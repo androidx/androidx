@@ -53,13 +53,13 @@ import androidx.credentials.provider.utils.RequestValidationUtil
  * Note: Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
  */
-class BeginCreatePublicKeyCredentialRequest
+public class BeginCreatePublicKeyCredentialRequest
 @JvmOverloads
 constructor(
-    val requestJson: String,
+    public val requestJson: String,
     callingAppInfo: CallingAppInfo?,
     candidateQueryData: Bundle,
-    val clientDataHash: ByteArray? = null,
+    public val clientDataHash: ByteArray? = null,
 ) :
     BeginCreateCredentialRequest(
         PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,

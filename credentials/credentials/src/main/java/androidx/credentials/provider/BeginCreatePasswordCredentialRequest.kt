@@ -49,7 +49,7 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
  */
-class BeginCreatePasswordCredentialRequest
+public class BeginCreatePasswordCredentialRequest
 constructor(callingAppInfo: CallingAppInfo?, candidateQueryData: Bundle) :
     BeginCreateCredentialRequest(
         PasswordCredential.TYPE_PASSWORD_CREDENTIAL,

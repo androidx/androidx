@@ -21,11 +21,11 @@ import android.content.pm.PackageManager
 import androidx.annotation.RestrictTo
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-object FormFactorHelper {
+public object FormFactorHelper {
     /** Determines whether the device is a TV. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @JvmStatic
-    fun isTV(ctx: Context): Boolean {
+    public fun isTV(ctx: Context): Boolean {
         val pm = ctx.packageManager
         return pm.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
     }
@@ -33,7 +33,7 @@ object FormFactorHelper {
     /** Determines whether the device is a Wearable. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @JvmStatic
-    fun isWear(ctx: Context): Boolean {
+    public fun isWear(ctx: Context): Boolean {
         val pm = ctx.packageManager
         return pm.hasSystemFeature(PackageManager.FEATURE_WATCH)
     }
@@ -41,7 +41,7 @@ object FormFactorHelper {
     /** Determines whether the device is a Auto. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @JvmStatic
-    fun isAuto(ctx: Context): Boolean {
+    public fun isAuto(ctx: Context): Boolean {
         val pm = ctx.packageManager
         return pm.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)
     }

@@ -60,4 +60,4 @@ import androidx.biometric.BiometricPrompt.ERROR_VENDOR
         ]
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-annotation class AuthenticationErrorTypes
+public annotation class AuthenticationErrorTypes

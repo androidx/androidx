@@ -43,14 +43,14 @@ import androidx.credentials.provider.CallingAppInfo.Companion.setCallingAppInfo
  *   propagated to the provider if the provider requested for
  *   [androidx.credentials.CredentialManager] to handle the authentication flow
  */
-class ProviderGetCredentialRequest
+public class ProviderGetCredentialRequest
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 constructor(
-    val credentialOptions: List<CredentialOption>,
-    val callingAppInfo: CallingAppInfo,
-    val biometricPromptResult: BiometricPromptResult?,
+    public val credentialOptions: List<CredentialOption>,
+    public val callingAppInfo: CallingAppInfo,
+    public val biometricPromptResult: BiometricPromptResult?,
     // The source Bundle used to construct this request, if applicable
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) val sourceBundle: Bundle?,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val sourceBundle: Bundle?,
 ) {
 
     /**
@@ -68,13 +68,13 @@ constructor(
      *   [androidx.credentials.CredentialManager] to handle the authentication flow
      */
     @JvmOverloads
-    constructor(
+    public constructor(
         credentialOptions: List<CredentialOption>,
         callingAppInfo: CallingAppInfo,
         biometricPromptResult: BiometricPromptResult? = null,
     ) : this(credentialOptions, callingAppInfo, biometricPromptResult, null)
 
-    companion object {
+    public companion object {
         @JvmStatic
         internal fun createFrom(
             options: List<CredentialOption>,
@@ -109,7 +109,7 @@ constructor(
          * [fromBundle] to reconstruct the class instance back from the bundle returned here.
          */
         @JvmStatic
-        fun asBundle(request: ProviderGetCredentialRequest): Bundle {
+        public fun asBundle(request: ProviderGetCredentialRequest): Bundle {
             val bundle = Bundle()
             val optionSize = request.credentialOptions.size
             bundle.putInt(EXTRA_CREDENTIAL_OPTION_SIZE, optionSize)
@@ -147,7 +147,7 @@ constructor(
          * avoid the failure.
          */
         @JvmStatic
-        fun fromBundle(bundle: Bundle): ProviderGetCredentialRequest {
+        public fun fromBundle(bundle: Bundle): ProviderGetCredentialRequest {
             val callingAppInfo =
                 extractCallingAppInfo(bundle)
                     ?: throw IllegalArgumentException("Bundle was missing CallingAppInfo.")

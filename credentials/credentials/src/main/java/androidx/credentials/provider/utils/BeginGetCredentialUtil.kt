@@ -32,8 +32,8 @@ import java.util.stream.Collectors
 
 @RequiresApi(34)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class BeginGetCredentialUtil {
-    companion object {
+public class BeginGetCredentialUtil {
+    public companion object {
         @JvmStatic
         internal fun convertToJetpackRequest(
             request: android.service.credentials.BeginGetCredentialRequest
@@ -53,7 +53,7 @@ class BeginGetCredentialUtil {
             )
         }
 
-        fun convertToFrameworkResponse(
+        public fun convertToFrameworkResponse(
             response: BeginGetCredentialResponse
         ): android.service.credentials.BeginGetCredentialResponse {
             val frameworkBuilder = android.service.credentials.BeginGetCredentialResponse.Builder()
@@ -119,7 +119,7 @@ class BeginGetCredentialUtil {
             }
         }
 
-        fun convertToFrameworkRequest(
+        public fun convertToFrameworkRequest(
             request: BeginGetCredentialRequest
         ): android.service.credentials.BeginGetCredentialRequest {
             val builder = android.service.credentials.BeginGetCredentialRequest.Builder()
@@ -152,7 +152,7 @@ class BeginGetCredentialUtil {
             )
         }
 
-        fun convertToJetpackResponse(
+        public fun convertToJetpackResponse(
             response: android.service.credentials.BeginGetCredentialResponse
         ): BeginGetCredentialResponse {
             return BeginGetCredentialResponse(

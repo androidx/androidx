@@ -38,8 +38,12 @@ import androidx.credentials.PublicKeyCredential
  *   properties are already parse into the structured subclasses
  * @throws NullPointerException If [id], [type] or [candidateQueryData] is null
  */
-abstract class BeginGetCredentialOption
-internal constructor(val id: String, val type: String, val candidateQueryData: Bundle) {
+public abstract class BeginGetCredentialOption
+internal constructor(
+    public val id: String,
+    public val type: String,
+    public val candidateQueryData: Bundle,
+) {
     internal companion object {
         @JvmStatic
         internal fun createFrom(

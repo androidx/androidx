@@ -30,8 +30,9 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *   [CreatePublicKeyCredentialResponse] is [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL])
  * @property data the response data in the [Bundle] format
  */
-abstract class CreateCredentialResponse internal constructor(val type: String, val data: Bundle) {
-    companion object {
+public abstract class CreateCredentialResponse
+internal constructor(public val type: String, public val data: Bundle) {
+    public companion object {
 
         /**
          * Parses the raw data into an instance of [CreateCredentialResponse].
@@ -47,7 +48,7 @@ abstract class CreateCredentialResponse internal constructor(val type: String, v
          */
         @OptIn(ExperimentalDigitalCredentialApi::class)
         @JvmStatic
-        fun createFrom(type: String, data: Bundle): CreateCredentialResponse {
+        public fun createFrom(type: String, data: Bundle): CreateCredentialResponse {
             return try {
                 when (type) {
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
@@ -72,7 +73,7 @@ abstract class CreateCredentialResponse internal constructor(val type: String, v
 
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun fromBundle(bundle: Bundle): CreateCredentialResponse? {
+        public fun fromBundle(bundle: Bundle): CreateCredentialResponse? {
             val type = bundle.getString(EXTRA_CREATE_CREDENTIAL_RESPONSE_TYPE) ?: return null
             val data = bundle.getBundle(EXTRA_CREATE_CREDENTIAL_RESPONSE_DATA) ?: return null
             return createFrom(type, data)
@@ -80,7 +81,7 @@ abstract class CreateCredentialResponse internal constructor(val type: String, v
 
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun asBundle(response: CreateCredentialResponse): Bundle =
+        public fun asBundle(response: CreateCredentialResponse): Bundle =
             Bundle().apply {
                 this.putString(EXTRA_CREATE_CREDENTIAL_RESPONSE_TYPE, response.type)
                 this.putBundle(EXTRA_CREATE_CREDENTIAL_RESPONSE_DATA, response.data)

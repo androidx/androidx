@@ -83,13 +83,13 @@ import androidx.credentials.provider.utils.ClearCredentialUtil
  *   [CredentialProviderService.SERVICE_META_DATA].
  */
 @RequiresApi(34)
-abstract class CredentialProviderService : CredentialProviderService() {
+public abstract class CredentialProviderService : CredentialProviderService() {
 
     @set:VisibleForTesting
     @get:VisibleForTesting
     @set:RestrictTo(RestrictTo.Scope.LIBRARY)
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    public var isTestMode = false
+    public var isTestMode: Boolean = false
 
     @set:VisibleForTesting
     @get:VisibleForTesting
@@ -214,7 +214,7 @@ abstract class CredentialProviderService : CredentialProviderService() {
      *   order to save your resources
      * @param callback the callback object to be used to notify the response or error
      */
-    abstract fun onClearCredentialStateRequest(
+    public abstract fun onClearCredentialStateRequest(
         request: ProviderClearCredentialStateRequest,
         cancellationSignal: CancellationSignal,
         callback: OutcomeReceiver<Void?, ClearCredentialException>,
@@ -265,7 +265,7 @@ abstract class CredentialProviderService : CredentialProviderService() {
      * @see AuthenticationAction for how an entry that navigates the user to an unlock flow can be
      *   built
      */
-    abstract fun onBeginGetCredentialRequest(
+    public abstract fun onBeginGetCredentialRequest(
         request: BeginGetCredentialRequest,
         cancellationSignal: CancellationSignal,
         callback:
@@ -305,7 +305,7 @@ abstract class CredentialProviderService : CredentialProviderService() {
      *   order to save your resources
      * @param callback the callback object to be used to notify the response or error
      */
-    abstract fun onBeginCreateCredentialRequest(
+    public abstract fun onBeginCreateCredentialRequest(
         request: BeginCreateCredentialRequest,
         cancellationSignal: CancellationSignal,
         callback: OutcomeReceiver<BeginCreateCredentialResponse, CreateCredentialException>,

@@ -33,12 +33,12 @@ import java.util.Objects
  * @property authenticationError error information, non-null if the authentication flow has
  *   failured, meaning that [isSuccessful] will be false in this case
  */
-class BiometricPromptResult
+public class BiometricPromptResult
 internal constructor(
-    val authenticationResult: AuthenticationResult? = null,
-    val authenticationError: AuthenticationError? = null,
+    public val authenticationResult: AuthenticationResult? = null,
+    public val authenticationError: AuthenticationError? = null,
 ) {
-    val isSuccessful: Boolean = authenticationResult != null
+    public val isSuccessful: Boolean = authenticationResult != null
 
     /**
      * An unsuccessful biometric prompt result, denoting that authentication has failed.
@@ -46,7 +46,7 @@ internal constructor(
      * @param authenticationError the error that caused the biometric prompt authentication flow to
      *   fail
      */
-    constructor(
+    public constructor(
         authenticationError: AuthenticationError
     ) : this(authenticationResult = null, authenticationError = authenticationError)
 
@@ -56,7 +56,7 @@ internal constructor(
      * @param authenticationResult the result after a successful biometric prompt authentication
      *   operation
      */
-    constructor(
+    public constructor(
         authenticationResult: AuthenticationResult
     ) : this(authenticationResult = authenticationResult, authenticationError = null)
 

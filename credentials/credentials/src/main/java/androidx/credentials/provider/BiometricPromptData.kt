@@ -62,10 +62,10 @@ import androidx.credentials.provider.utils.CryptoObjectUtils
  *   is not set to [BIOMETRIC_STRONG]
  * @see Authenticators
  */
-class BiometricPromptData
+public class BiometricPromptData
 internal constructor(
-    val cryptoObject: BiometricPrompt.CryptoObject? = null,
-    val allowedAuthenticators: @AuthenticatorTypes Int = BIOMETRIC_WEAK,
+    public val cryptoObject: BiometricPrompt.CryptoObject? = null,
+    public val allowedAuthenticators: @AuthenticatorTypes Int = BIOMETRIC_WEAK,
     private var isCreatedFromBundle: Boolean = false,
 ) {
 
@@ -102,7 +102,7 @@ internal constructor(
      * @see Authenticators
      */
     @JvmOverloads
-    constructor(
+    public constructor(
         cryptoObject: BiometricPrompt.CryptoObject? = null,
         allowedAuthenticators: @AuthenticatorTypes Int = BIOMETRIC_WEAK,
     ) : this(cryptoObject, allowedAuthenticators, isCreatedFromBundle = false)
@@ -189,7 +189,7 @@ internal constructor(
     }
 
     /** Builder for constructing an instance of [BiometricPromptData] */
-    class Builder {
+    public class Builder {
         private var cryptoObject: CryptoObject? = null
         private var allowedAuthenticators: Int? = null
 
@@ -204,7 +204,7 @@ internal constructor(
          * @param cryptoObject the [CryptoObject] to be associated with this biometric
          *   authentication flow
          */
-        fun setCryptoObject(cryptoObject: CryptoObject?): Builder {
+        public fun setCryptoObject(cryptoObject: CryptoObject?): Builder {
             this.cryptoObject = cryptoObject
             return this
         }
@@ -222,7 +222,9 @@ internal constructor(
          * @param allowedAuthenticators A bit field representing all valid authenticator types that
          *   may be invoked by the Credential Manager selector.
          */
-        fun setAllowedAuthenticators(allowedAuthenticators: @AuthenticatorTypes Int): Builder {
+        public fun setAllowedAuthenticators(
+            allowedAuthenticators: @AuthenticatorTypes Int
+        ): Builder {
             this.allowedAuthenticators = allowedAuthenticators
             return this
         }
@@ -233,7 +235,7 @@ internal constructor(
          * @throws IllegalArgumentException If [cryptoObject] is not null, and the
          *   [allowedAuthenticators] is not set to [BIOMETRIC_STRONG]
          */
-        fun build(): BiometricPromptData {
+        public fun build(): BiometricPromptData {
             val allowedAuthenticators = this.allowedAuthenticators ?: BIOMETRIC_WEAK
             return BiometricPromptData(
                 cryptoObject = cryptoObject,

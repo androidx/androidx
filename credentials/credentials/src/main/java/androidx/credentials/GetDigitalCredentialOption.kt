@@ -37,10 +37,10 @@ import androidx.credentials.internal.RequestValidationHelper
  *   sensitive user information so that Android displays additional warnings in the UI
  */
 @ExperimentalDigitalCredentialApi
-class GetDigitalCredentialOption
+public class GetDigitalCredentialOption
 internal constructor(
-    val requestJson: String,
-    val uiWarningLevelHint: @UiWarningLevelHint Int,
+    public val requestJson: String,
+    public val uiWarningLevelHint: @UiWarningLevelHint Int,
     requestData: Bundle,
     candidateQueryData: Bundle,
     isSystemProviderRequired: Boolean,
@@ -79,7 +79,7 @@ internal constructor(
      * @throws IllegalArgumentException if the `credentialJson` is not a valid json
      */
     @JvmOverloads
-    constructor(
+    public constructor(
         requestJson: String,
         uiWarningLevelHint: @UiWarningLevelHint Int = UI_WARNING_LEVEL_HINT_NO_ISSUES,
     ) : this(
@@ -107,19 +107,19 @@ internal constructor(
     internal annotation class UiWarningLevelHint
 
     /** Companion constants / helpers for [GetDigitalCredentialOption]. */
-    companion object {
+    public companion object {
         /**
          * Indicates that the standard Android Credential Selector UI should be displayed with no
          * additional warnings.
          */
-        const val UI_WARNING_LEVEL_HINT_NO_ISSUES = 0
+        public const val UI_WARNING_LEVEL_HINT_NO_ISSUES: Int = 0
         /**
          * Indicates a request is asking for an unusually high amount of sensitive user information,
          * or data that falls outside typical usage patterns.
          *
          * The UI should render additional warnings highlighting the sensitive data being requested.
          */
-        const val UI_WARNING_LEVEL_HINT_CAUTION = 1
+        public const val UI_WARNING_LEVEL_HINT_CAUTION: Int = 1
 
         /**
          * Indicates strong signals that the request may be fraudulent, malicious, or highly
@@ -128,7 +128,7 @@ internal constructor(
          * The UI should present maximum friction, clearly alerting the user of the severe risk. It
          * should strongly discourage the user from proceeding.
          */
-        const val UI_WARNING_LEVEL_HINT_HIGH_RISK = 2
+        public const val UI_WARNING_LEVEL_HINT_HIGH_RISK: Int = 2
 
         internal const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
         internal const val BUNDLE_KEY_UI_WARNING_LEVEL_HINT =

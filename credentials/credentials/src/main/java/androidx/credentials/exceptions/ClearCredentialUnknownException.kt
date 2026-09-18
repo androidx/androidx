@@ -21,7 +21,7 @@ package androidx.credentials.exceptions
  *
  * @see ClearCredentialException
  */
-class ClearCredentialUnknownException
+public class ClearCredentialUnknownException
 @JvmOverloads
 constructor(errorMessage: CharSequence? = null) :
     ClearCredentialException(TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION, errorMessage) {

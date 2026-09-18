@@ -28,7 +28,7 @@ import androidx.credentials.internal.RequestValidationHelper
  *   representing the response.
  */
 @ExperimentalDigitalCredentialApi
-class CreateDigitalCredentialResponse(val responseJson: String) :
+public class CreateDigitalCredentialResponse(public val responseJson: String) :
     CreateCredentialResponse(
         type = DigitalCredential.TYPE_DIGITAL_CREDENTIAL,
         data = toBundle(responseJson),
@@ -39,7 +39,7 @@ class CreateDigitalCredentialResponse(val responseJson: String) :
         }
     }
 
-    companion object {
+    public companion object {
         internal const val BUNDLE_KEY_RESPONSE_JSON =
             "androidx.credentials.BUNDLE_KEY_RESPONSE_JSON"
 

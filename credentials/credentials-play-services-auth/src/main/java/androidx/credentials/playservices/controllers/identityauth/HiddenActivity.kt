@@ -31,7 +31,7 @@ import androidx.credentials.playservices.controllers.CredentialProviderBaseContr
 /** An activity used to ensure all required API versions work as intended. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @Suppress("ForbiddenSuperClass")
-open class HiddenActivity : Activity() {
+public open class HiddenActivity : Activity() {
 
     private var resultReceiver: ResultReceiver? = null
     private var mWaitingForActivityResult = false
@@ -188,7 +188,7 @@ open class HiddenActivity : Activity() {
         finish()
     }
 
-    companion object {
+    public companion object {
         private const val DEFAULT_VALUE: Int = 1
         private const val TAG = "HiddenActivity"
         private const val KEY_AWAITING_RESULT = "androidx.credentials.playservices.AWAITING_RESULT"

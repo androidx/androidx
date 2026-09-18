@@ -31,10 +31,10 @@ import androidx.credentials.internal.RequestValidationHelper
  *   credential provider will never receive this information when they receive the request.
  */
 @ExperimentalDigitalCredentialApi
-class CreateDigitalCredentialRequest
+public class CreateDigitalCredentialRequest
 private constructor(
-    val requestJson: String,
-    val bindingTokenOptions: BindingTokenOptions?,
+    public val requestJson: String,
+    public val bindingTokenOptions: BindingTokenOptions?,
     origin: String?,
     credentialData: Bundle,
     candidateQueryData: Bundle,
@@ -64,7 +64,7 @@ private constructor(
      *   credential provider will never receive this information when they receive the request.
      */
     @JvmOverloads
-    constructor(
+    public constructor(
         requestJson: String,
         origin: String? = null,
         bindingTokenOptions: BindingTokenOptions? = null,

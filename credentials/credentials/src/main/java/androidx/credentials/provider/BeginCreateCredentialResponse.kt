@@ -35,11 +35,14 @@ import androidx.credentials.provider.utils.BeginCreateCredentialUtil
  * the given credential can be stored. A [RemoteEntry] is an entry on the selector, through which
  * user can choose to create the credential on a remote device.
  */
-class BeginCreateCredentialResponse
-constructor(val createEntries: List<CreateEntry> = listOf(), val remoteEntry: RemoteEntry? = null) {
+public class BeginCreateCredentialResponse
+constructor(
+    public val createEntries: List<CreateEntry> = listOf(),
+    public val remoteEntry: RemoteEntry? = null,
+) {
 
     /** Builder for [BeginCreateCredentialResponse]. */
-    class Builder {
+    public class Builder {
         private var createEntries: MutableList<CreateEntry> = mutableListOf()
         private var remoteEntry: RemoteEntry? = null
 
@@ -49,7 +52,7 @@ constructor(val createEntries: List<CreateEntry> = listOf(), val remoteEntry: Re
          * @throws IllegalArgumentException If [createEntries] is empty.
          * @throws NullPointerException If [createEntries] is null, or any of its elements are null.
          */
-        fun setCreateEntries(createEntries: List<CreateEntry>): Builder {
+        public fun setCreateEntries(createEntries: List<CreateEntry>): Builder {
             this.createEntries = createEntries.toMutableList()
             return this
         }
@@ -59,7 +62,7 @@ constructor(val createEntries: List<CreateEntry> = listOf(), val remoteEntry: Re
          *
          * @throws NullPointerException If [createEntry] is null.
          */
-        fun addCreateEntry(createEntry: CreateEntry): Builder {
+        public fun addCreateEntry(createEntry: CreateEntry): Builder {
             createEntries.add(createEntry)
             return this
         }
@@ -87,7 +90,7 @@ constructor(val createEntries: List<CreateEntry> = listOf(), val remoteEntry: Re
          * callback from [CredentialProviderService#onBeginCreateCredential] will throw a
          * [SecurityException].
          */
-        fun setRemoteEntry(remoteEntry: RemoteEntry?): Builder {
+        public fun setRemoteEntry(remoteEntry: RemoteEntry?): Builder {
             this.remoteEntry = remoteEntry
             return this
         }
@@ -97,7 +100,7 @@ constructor(val createEntries: List<CreateEntry> = listOf(), val remoteEntry: Re
          *
          * @throws IllegalArgumentException If [createEntries] is empty
          */
-        fun build(): BeginCreateCredentialResponse {
+        public fun build(): BeginCreateCredentialResponse {
             return BeginCreateCredentialResponse(createEntries.toList(), remoteEntry)
         }
     }
@@ -150,14 +153,14 @@ constructor(val createEntries: List<CreateEntry> = listOf(), val remoteEntry: Re
         }
     }
 
-    companion object {
+    public companion object {
         /**
          * Helper method to convert the class to a parcelable [Bundle], in case the class instance
          * needs to be sent across a process. Consumers of this method should use [fromBundle] to
          * reconstruct the class instance back from the bundle returned here.
          */
         @JvmStatic
-        fun asBundle(response: BeginCreateCredentialResponse): Bundle {
+        public fun asBundle(response: BeginCreateCredentialResponse): Bundle {
             val bundle = Bundle()
             if (Build.VERSION.SDK_INT >= 34) { // Android U
                 Api34Impl.asBundle(bundle, response)
@@ -172,7 +175,7 @@ constructor(val createEntries: List<CreateEntry> = listOf(), val remoteEntry: Re
          * [BeginGetCredentialResponse].
          */
         @JvmStatic
-        fun fromBundle(bundle: Bundle): BeginCreateCredentialResponse? {
+        public fun fromBundle(bundle: Bundle): BeginCreateCredentialResponse? {
             return if (Build.VERSION.SDK_INT >= 34) { // Android U
                 Api34Impl.fromBundle(bundle)
             } else if (Build.VERSION.SDK_INT >= 23) {

@@ -23,7 +23,7 @@ package androidx.credentials.exceptions
  *
  * @see GetCredentialException
  */
-class GetCredentialCancellationException
+public class GetCredentialCancellationException
 @JvmOverloads
 constructor(errorMessage: CharSequence? = null) :
     GetCredentialException(TYPE_GET_CREDENTIAL_CANCELLATION_EXCEPTION, errorMessage) {
