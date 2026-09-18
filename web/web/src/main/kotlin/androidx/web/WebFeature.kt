@@ -34,7 +34,15 @@ public object WebFeature {
     public const val WEB_CONTENT: String = Features.WEB_CONTENT
 
     private val supportedFeatures: Set<String> by lazy {
-        WebGlueCommunicator.factory.supportedFeatures.toSet()
+        try {
+            WebGlueCommunicator.factory.supportedFeatures.toSet()
+        } catch (e: Throwable) {
+            when (e) {
+                is ReflectiveOperationException,
+                is NoSuchMethodError -> emptySet()
+                else -> throw e
+            }
+        }
     }
 
     /**
