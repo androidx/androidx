@@ -33,13 +33,17 @@ import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.TypeEvaluator
 import com.android.tools.lint.detector.api.UastLintUtils
 import com.intellij.psi.CommonClassNames.JAVA_LANG_OBJECT
+import com.intellij.psi.JavaRecursiveElementVisitor
 import com.intellij.psi.PsiArrayType
+import com.intellij.psi.PsiAssignmentExpression
 import com.intellij.psi.PsiCapturedWildcardType
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiElementFactory
+import com.intellij.psi.PsiField
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiPrimitiveType
+import com.intellij.psi.PsiReferenceExpression
 import com.intellij.psi.PsiType
 import com.intellij.psi.PsiTypeParameter
 import com.intellij.psi.PsiVariable
@@ -70,6 +74,7 @@ import org.jetbrains.uast.UReferenceExpression
 import org.jetbrains.uast.UReturnExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.UastBinaryOperator
+import org.jetbrains.uast.UastFacade
 import org.jetbrains.uast.evaluateString
 import org.jetbrains.uast.getParentOfType
 import org.jetbrains.uast.skipParenthesizedExprDown
@@ -483,9 +488,15 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                 }
             } else if (clazz is PsiClassType) {
                 val parameters = clazz.parameters
-                if (parameters.size == 1) {
-                    assert(clazz.className == "Class") { clazz.className }
+                if (parameters.size == 1 && clazz.className == "Class") {
                     val param = parameters[0]
+                    if (param is PsiWildcardType) {
+                        val bound = param.bound
+                        if (bound is PsiClassType && !isTooLowLevelBaseType(bound)) {
+                            return bound
+                        }
+                        return null
+                    }
                     if (!isTooLowLevelBaseType(param)) {
                         return param
                     }
@@ -772,10 +783,12 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
             } else {
                 sb.append("calls")
             }
-            if (className != null || memberName != null) {
+            val hasValidClassName =
+                !className.isNullOrEmpty() && className != "null" && className != "?"
+            if (hasValidClassName || memberName != null) {
                 sb.append(" `")
 
-                if (className != null) {
+                if (hasValidClassName) {
                     sb.append(className)
                     if (memberName != null) {
                         sb.append('.')
@@ -898,7 +911,7 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
         abstract val fullName: String
 
         val isClassKnown: Boolean
-            get() = className.isNotEmpty()
+            get() = className.isNotEmpty() && className != "null" && className != "?"
 
         /**
          * Whether this fix can be applied automatically without user interaction. Returns false if
@@ -914,7 +927,7 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
         abstract fun contains(other: Reflection): Boolean
 
         protected fun getClassAttribute(isKotlin: Boolean): Pair<String, String> {
-            return if (className.isEmpty()) {
+            return if (!isClassKnown) {
                 // Couldn't infer name; ask user to fill it in
                 if (isKotlin) {
                     "className" to "TODO()"
@@ -1231,7 +1244,11 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
     private fun getJavaClassFromMemberLookup(
         context: JavaContext,
         call: UCallExpression,
-    ): Pair<PsiType, Boolean>? = getJavaClassType(context, call.receiver)
+    ): Pair<PsiType, Boolean>? {
+        val receiver =
+            call.receiver ?: (call.uastParent as? UQualifiedReferenceExpression)?.receiver
+        return getJavaClassType(context, receiver)
+    }
 
     /** We know [element] has type java.lang.Class<T> and we try to find out the PsiType for T. */
     private fun getJavaClassType(
@@ -1239,8 +1256,105 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
         element: UElement?,
     ): Pair<PsiType, Boolean>? {
         if (element is UExpression) {
+            // Unwrap parentheses: e.g. (MyClass.class)
             if (element is UParenthesizedExpression) {
                 return getJavaClassType(context, element.expression)
+            }
+
+            // Inspect cast operand first to prefer concrete class over cast interface:
+            // e.g. Class.forName("com.example.TargetImpl") as Class<TargetInterface>
+            if (element is UBinaryExpressionWithType) {
+                getJavaClassType(context, element.operand)?.let {
+                    return it
+                }
+            }
+
+            // Inspect variables, properties, and fields pointing to Class instances
+            if (element is UReferenceExpression) {
+                // Check for local re-assignments within the same function:
+                // e.g. if (systemPropertiesClass == null) { systemPropertiesClass =
+                // Class.forName(...) }
+                // followed by systemPropertiesClass?.getDeclaredMethod(...)
+                val targetName =
+                    (element as? USimpleNameReferenceExpression)?.identifier
+                        ?: ((element as? UQualifiedReferenceExpression)?.selector
+                                as? USimpleNameReferenceExpression)
+                            ?.identifier
+                if (targetName != null) {
+                    var assignmentInFunction: UExpression? = null
+                    element
+                        .getParentOfType<UMethod>()
+                        ?.accept(
+                            object : AbstractUastVisitor() {
+                                override fun visitBinaryExpression(
+                                    node: UBinaryExpression
+                                ): Boolean {
+                                    if (node.operator is UastBinaryOperator.AssignOperator) {
+                                        val left = node.leftOperand
+                                        val leftName =
+                                            (left as? USimpleNameReferenceExpression)?.identifier
+                                                ?: ((left as? UQualifiedReferenceExpression)
+                                                        ?.selector
+                                                        as? USimpleNameReferenceExpression)
+                                                    ?.identifier
+                                        if (leftName == targetName) {
+                                            assignmentInFunction = node.rightOperand
+                                        }
+                                    }
+                                    return super.visitBinaryExpression(node)
+                                }
+                            }
+                        )
+                    if (assignmentInFunction != null) {
+                        getJavaClassType(context, assignmentInFunction)?.let {
+                            return it
+                        }
+                    }
+                }
+
+                val resolved = element.resolve()
+                if (resolved is PsiVariable) {
+                    // Check last assignment to variable: e.g. val clazz =
+                    // Class.forName("com.example.Impl")
+                    UastLintUtils.findLastAssignment(resolved, element)?.let { expression ->
+                        getJavaClassType(context, expression)?.let {
+                            return it
+                        }
+                    }
+                    if (resolved is PsiField) {
+                        // Check field initializer: e.g. static Class<?> sClass = Class.forName(...)
+                        UastFacade.getInitializerBody(resolved)?.let { initExpr ->
+                            getJavaClassType(context, initExpr)?.let {
+                                return it
+                            }
+                        }
+                        // Check assignments in other methods of containing class:
+                        // e.g. fetchClass() { sClass = Class.forName("android.view.GhostView"); }
+                        val containing = resolved.containingClass
+                        if (containing != null) {
+                            var found: Pair<PsiType, Boolean>? = null
+                            containing.accept(
+                                object : JavaRecursiveElementVisitor() {
+                                    override fun visitAssignmentExpression(
+                                        assignment: PsiAssignmentExpression
+                                    ) {
+                                        val l = assignment.lExpression
+                                        if (
+                                            l is PsiReferenceExpression && l.resolve() == resolved
+                                        ) {
+                                            val r = assignment.rExpression?.toUElement()
+                                            getJavaClassType(context, r)?.let {
+                                                found = it
+                                            }
+                                        }
+                                        super.visitAssignmentExpression(assignment)
+                                    }
+                                }
+                            )
+                            if (found != null) return found
+                        }
+                    }
+                }
             }
 
             if (element is UQualifiedReferenceExpression) {
@@ -1258,6 +1372,7 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
 
                     return null
                 } else if (selector is UCallExpression) {
+                    // Handle clazz.asSubclass(BaseClass.class)
                     val subclassType = getAsSubclassType(selector)
                     if (subclassType != null) {
                         return subclassType
@@ -1266,6 +1381,7 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
             }
 
             // First try the type inferred from the Psi, in case it's a known class reference.
+            // e.g. MyViewModel::class.java has type Class<MyViewModel>, where T is MyViewModel
             val type = element.getExpressionType()
 
             if (type is PsiClassType && type.parameterCount == 1) {
@@ -1439,6 +1555,10 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
             }
 
             if (!keepClassAvailable(context, reflection)) {
+                return
+            }
+
+            if (className != null && !isApplicableClassName(context, className)) {
                 return
             }
 
@@ -1698,6 +1818,13 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
 
             if (!keepClassAvailable(context, reflection)) {
                 return
+            }
+
+            if (
+                reflection.className.isNotEmpty() &&
+                    !isApplicableClassName(context, reflection.className)
+            ) {
+                continue
             }
 
             val message =
