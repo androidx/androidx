@@ -24,6 +24,7 @@ import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
 import android.view.MotionEvent.TOOL_TYPE_UNKNOWN
+import androidx.collection.LongSparseArray
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -4171,6 +4172,175 @@ class PointerInteropFilterTest {
         dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter.onCancel()
         assertThat(dispatchedMotionEvents).hasSize(1)
+    }
+
+    @Test
+    fun onPointerEvent_trackpadPanEvents_dispatchedCleanlyAndResetsOnPanEnd() {
+        val pointerId = PointerId(0)
+        val downChange =
+            PointerInputChange(
+                id = pointerId,
+                uptimeMillis = 10L,
+                position = Offset(10f, 10f),
+                pressed = false,
+                previousUptimeMillis = 0L,
+                previousPosition = Offset(10f, 10f),
+                previousPressed = false,
+                isInitiallyConsumed = false,
+                type = PointerType.Mouse,
+                scrollDelta = Offset.Zero,
+            )
+        val moveChange =
+            PointerInputChange(
+                id = pointerId,
+                uptimeMillis = 20L,
+                position = Offset(10f, 10f),
+                pressed = false,
+                previousUptimeMillis = 10L,
+                previousPosition = Offset(10f, 10f),
+                previousPressed = false,
+                isInitiallyConsumed = false,
+                type = PointerType.Mouse,
+                scrollDelta = Offset.Zero,
+                panOffset = Offset(0f, 10f),
+            )
+        val upChange =
+            PointerInputChange(
+                id = pointerId,
+                uptimeMillis = 30L,
+                position = Offset(10f, 10f),
+                pressed = false,
+                previousUptimeMillis = 20L,
+                previousPosition = Offset(10f, 10f),
+                previousPressed = false,
+                isInitiallyConsumed = false,
+                type = PointerType.Mouse,
+                scrollDelta = Offset.Zero,
+            )
+
+        val downMotionEvent = createPanMotionEvent(ACTION_DOWN, 10f, 10f)
+        val moveMotionEvent = createPanMotionEvent(ACTION_MOVE, 10f, 10f)
+        val upMotionEvent = createPanMotionEvent(ACTION_UP, 10f, 10f)
+
+        val panStartEvent =
+            PointerInputEvent(
+                uptime = 10L,
+                pointers =
+                    listOf(
+                        PointerInputEventData(
+                            id = pointerId,
+                            uptime = 10L,
+                            positionOnScreen = Offset(10f, 10f),
+                            position = Offset(10f, 10f),
+                            down = false,
+                            pressure = 0f,
+                            type = PointerType.Mouse,
+                            activeHover = false,
+                            historical = emptyList(),
+                            scaleGestureFactor = 0f,
+                            panGestureOffset = Offset.Zero,
+                        )
+                    ),
+                motionEvent = downMotionEvent,
+                activeGesture = PointerClassification.Pan,
+            )
+        val startChanges =
+            LongSparseArray<PointerInputChange>(1).apply { put(pointerId.value, downChange) }
+        val internalPanStartEvent = InternalPointerEvent(startChanges, panStartEvent)
+
+        // 1. Synthetic Enter event should be ignored
+        val syntheticEnterEvent =
+            PointerEvent(listOf(downChange), internalPanStartEvent).also {
+                it.type = PointerEventType.Enter
+            }
+        pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
+            syntheticEnterEvent
+        )
+        assertThat(dispatchedMotionEvents).isEmpty()
+
+        // 2. Real PanStart event should dispatch ACTION_DOWN
+        val realPanStartEvent =
+            PointerEvent(listOf(downChange), internalPanStartEvent).also {
+                it.type = PointerEventType.PanStart
+            }
+        pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
+            realPanStartEvent
+        )
+        assertThat(dispatchedMotionEvents).hasSize(1)
+        assertThat(dispatchedMotionEvents[0].actionMasked).isEqualTo(ACTION_DOWN)
+
+        // 3. PanMove event should dispatch ACTION_MOVE
+        val panMoveEvent =
+            PointerInputEvent(
+                uptime = 20L,
+                pointers =
+                    listOf(
+                        PointerInputEventData(
+                            id = pointerId,
+                            uptime = 20L,
+                            positionOnScreen = Offset(10f, 10f),
+                            position = Offset(10f, 10f),
+                            down = false,
+                            pressure = 0f,
+                            type = PointerType.Mouse,
+                            activeHover = false,
+                            historical = emptyList(),
+                            scaleGestureFactor = 0f,
+                            panGestureOffset = Offset(0f, 10f),
+                        )
+                    ),
+                motionEvent = moveMotionEvent,
+                activeGesture = PointerClassification.Pan,
+            )
+        val moveChanges =
+            LongSparseArray<PointerInputChange>(1).apply { put(pointerId.value, moveChange) }
+        val internalPanMoveEvent = InternalPointerEvent(moveChanges, panMoveEvent)
+        val realPanMoveEvent =
+            PointerEvent(listOf(moveChange), internalPanMoveEvent).also {
+                it.type = PointerEventType.PanMove
+            }
+        pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
+            realPanMoveEvent
+        )
+        assertThat(dispatchedMotionEvents).hasSize(2)
+        assertThat(dispatchedMotionEvents[1].actionMasked).isEqualTo(ACTION_MOVE)
+
+        // 4. PanEnd event should dispatch ACTION_UP and reset
+        val panEndEvent =
+            PointerInputEvent(
+                uptime = 30L,
+                pointers =
+                    listOf(
+                        PointerInputEventData(
+                            id = pointerId,
+                            uptime = 30L,
+                            positionOnScreen = Offset(10f, 10f),
+                            position = Offset(10f, 10f),
+                            down = false,
+                            pressure = 0f,
+                            type = PointerType.Mouse,
+                            activeHover = false,
+                            historical = emptyList(),
+                            scaleGestureFactor = 0f,
+                            panGestureOffset = Offset.Zero,
+                        )
+                    ),
+                motionEvent = upMotionEvent,
+                activeGesture = PointerClassification.Pan,
+            )
+        val endChanges =
+            LongSparseArray<PointerInputChange>(1).apply { put(pointerId.value, upChange) }
+        val internalPanEndEvent = InternalPointerEvent(endChanges, panEndEvent)
+        val realPanEndEvent =
+            PointerEvent(listOf(upChange), internalPanEndEvent).also {
+                it.type = PointerEventType.PanEnd
+            }
+        pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(realPanEndEvent)
+        assertThat(dispatchedMotionEvents).hasSize(3)
+        assertThat(dispatchedMotionEvents[2].actionMasked).isEqualTo(ACTION_UP)
+
+        // Verify none of the dispatched events were ACTION_CANCEL
+        assertThat(dispatchedMotionEvents.none { it.actionMasked == ACTION_CANCEL }).isTrue()
     }
 
     @Test

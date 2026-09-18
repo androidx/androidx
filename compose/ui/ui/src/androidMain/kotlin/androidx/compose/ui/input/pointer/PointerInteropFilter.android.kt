@@ -241,6 +241,18 @@ internal class PointerInteropFilter : PointerInputModifier {
                 pass: PointerEventPass,
                 bounds: IntSize,
             ) {
+                // Ignore synthetic Enter/Exit events generated during a pan gesture, as the
+                // underlying MotionEvent (ACTION_DOWN/MOVE/UP) will be dispatched by the actual
+                // Pan events and dispatching synthetic hover events would result in duplicate
+                // MotionEvent dispatches and improper state changes.
+                if (
+                    pointerEvent.internalPointerEvent?.activeGesture == PointerClassification.Pan &&
+                        (pointerEvent.type == PointerEventType.Enter ||
+                            pointerEvent.type == PointerEventType.Exit)
+                ) {
+                    return
+                }
+
                 val changes = pointerEvent.changes
 
                 val isMoveEvent = changes.fastAll {
@@ -288,9 +300,18 @@ internal class PointerInteropFilter : PointerInputModifier {
                     }
                 }
                 if (pass == PointerEventPass.Final) {
-                    // If all of the changes were up changes, then the "event stream" has ended
-                    // and we reset.
-                    if (changes.fastAll { it.changedToUpIgnoreConsumed() }) {
+                    // If all of the changes were up changes, or if a trackpad pan gesture has
+                    // ended, then the "event stream" has ended and we reset.
+                    //
+                    // Note: Trackpad pan gestures maintain pressed = false across the entire stream
+                    // in MotionEventAdapter, which prevents changedToUpIgnoreConsumed() from
+                    // returning true on ACTION_UP. Checking for PointerEventType.PanEnd is
+                    // therefore required to properly reset the dispatching state when a pan
+                    // gesture concludes.
+                    if (
+                        changes.fastAll { it.changedToUpIgnoreConsumed() } ||
+                            pointerEvent.type == PointerEventType.PanEnd
+                    ) {
                         reset()
                     }
 
