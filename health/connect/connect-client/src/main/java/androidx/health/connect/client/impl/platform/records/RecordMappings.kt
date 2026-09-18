@@ -147,3 +147,44 @@ internal val SDK_TO_PLATFORM_RECORD_CLASS: Map<KClass<out Record>, Class<out Pla
         WeightRecord::class to PlatformWeightRecord::class.java,
         WheelchairPushesRecord::class to PlatformWheelchairPushesRecord::class.java,
     )
+
+internal val PLATFORM_TO_SDK_RECORD_CLASS: Map<Class<out PlatformRecord>, KClass<out Record>> =
+    SDK_TO_PLATFORM_RECORD_CLASS.entries.associate { (sdkClass, platformClass) ->
+        platformClass to sdkClass
+    }
+
+@SuppressLint("NewApi") // Guarded by sdk extension
+@RequiresExtension(Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 13)
+internal val PLATFORM_TO_SDK_RECORD_CLASS_EXT_13:
+    Map<Class<out PlatformRecord>, KClass<out Record>> =
+    if (isAtLeastSdkExtension13()) {
+        SDK_TO_PLATFORM_RECORD_CLASS_EXT_13.entries.associate { (sdkClass, platformClass) ->
+            platformClass to sdkClass
+        }
+    } else {
+        emptyMap()
+    }
+
+@SuppressLint("NewApi") // Guarded by sdk extension
+@RequiresExtension(Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 15)
+internal val PLATFORM_TO_SDK_RECORD_CLASS_EXT_15:
+    Map<Class<out PlatformRecord>, KClass<out Record>> =
+    if (isAtLeastSdkExtension15()) {
+        SDK_TO_PLATFORM_RECORD_CLASS_EXT_15.entries.associate { (sdkClass, platformClass) ->
+            platformClass to sdkClass
+        }
+    } else {
+        emptyMap()
+    }
+
+@SuppressLint("NewApi") // Guarded by sdk extension
+@RequiresExtension(Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 16)
+internal val PLATFORM_TO_SDK_RECORD_CLASS_EXT_16:
+    Map<Class<out PlatformRecord>, KClass<out Record>> =
+    if (isAtLeastSdkExtension16()) {
+        SDK_TO_PLATFORM_RECORD_CLASS_EXT_16.entries.associate { (sdkClass, platformClass) ->
+            platformClass to sdkClass
+        }
+    } else {
+        emptyMap()
+    }
