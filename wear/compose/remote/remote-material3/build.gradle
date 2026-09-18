@@ -38,6 +38,19 @@ android {
     defaultConfig {
         minSdk { version = release(29) }
     }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+    sourceSets {
+        test {
+            kotlin.srcDirs += [file("src/sharedTest/java")]
+        }
+        androidTest {
+            kotlin.srcDirs += [file("src/sharedTest/java")]
+        }
+    }
 }
 
 dependencies {
@@ -54,14 +67,26 @@ dependencies {
     implementation("androidx.compose.runtime:runtime:1.11.0")
     implementation("androidx.compose.foundation:foundation-layout:1.11.0")
 
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.11.0")
+
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(libs.kotlinTest)
     testImplementation(libs.testCoreKtx)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testRules)
+    testImplementation(libs.testRunner)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.robolectric)
+    testImplementation("androidx.compose.ui:ui-test:1.11.0")
+    testImplementation("androidx.compose.ui:ui-test-junit4:1.11.0")
+    testImplementation(project(":compose:test-utils"))
     testImplementation(project(":compose:remote:remote-core"))
     testImplementation(project(":compose:remote:remote-creation"))
     testImplementation(project(":compose:remote:remote-player-core"))
+    testImplementation(project(":compose:remote:remote-player-compose"))
+    testImplementation(project(":compose:remote:remote-player-compose-testutils"))
+    testImplementation(project(":compose:remote:remote-testing"))
     testImplementation(project(":wear:compose:remote:remote-material3-samples"))
 
     androidTestImplementation(project(":wear:compose:remote:remote-material3-samples"))
@@ -75,7 +100,6 @@ dependencies {
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:ui:ui-text-google-fonts"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
-    androidTestImplementation(project(":test:uiautomator:uiautomator"))
     androidTestImplementation("androidx.activity:activity:1.7.2")
     androidTestImplementation("androidx.compose.material:material-icons-core:1.7.8")
     androidTestImplementation(libs.testExtJunit)
@@ -87,15 +111,4 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.testParameterInjector)
-
-    testImplementation(project(":compose:remote:remote-player-compose"))
-    testImplementation(project(":compose:remote:remote-player-compose-testutils"))
-    testImplementation(project(":compose:remote:remote-testing"))
-    testImplementation(project(":compose:remote:remote-creation"))
-    testImplementation(project(":wear:compose:remote:remote-material3-samples"))
-    testImplementation("androidx.compose.ui:ui-test:1.11.0")
-    testImplementation("androidx.compose.ui:ui-test-junit4:1.11.0")
-    testImplementation(libs.junit)
-    testImplementation(libs.truth)
-    testImplementation(libs.testCore)
 }
