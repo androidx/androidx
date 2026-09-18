@@ -35,6 +35,7 @@ import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.wear.compose.remote.material3.RemoteAppCard
+import androidx.wear.compose.remote.material3.RemoteCardDefaults
 import androidx.wear.compose.remote.material3.RemoteIcon
 import androidx.wear.compose.remote.material3.RemoteText
 import androidx.wear.compose.remote.material3.previews.utils.ProfilePreviewParameterProvider
@@ -60,6 +61,12 @@ fun RemoteAppCardWithAppNameTitleSubtitlePreview(
     RemoteContentPreview(profile = profile) {
         Container { RemoteAppCardWithAppNameTitleSubtitle() }
     }
+
+@WearPreviewDevices
+@Composable
+fun RemoteAppCardWithBorderPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteAppCardWithBorder() } }
 
 @Composable
 @RemoteComposable
@@ -121,6 +128,26 @@ fun RemoteAppCardWithTwoLineContent() {
         title = { RemoteText("Card Title".rs) },
     ) {
         RemoteText("First Line Content\nSecond Line Content".rs)
+    }
+}
+
+@Composable
+@RemoteComposable
+fun RemoteAppCardWithBorder() {
+    RemoteAppCard(
+        onClick = Action.Empty,
+        appName = { RemoteText("App Name".rs) },
+        time = { RemoteText("now".rs) },
+        appImage = {
+            RemoteIcon(
+                imageVector = Icons.Filled.Favorite.toRemoteImageVector(),
+                contentDescription = null,
+            )
+        },
+        title = { RemoteText("Card Title".rs) },
+        border = RemoteCardDefaults.outlinedCardBorder(),
+    ) {
+        RemoteText("Card Content".rs)
     }
 }
 

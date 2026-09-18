@@ -58,6 +58,12 @@ fun RemoteCardWithImagePreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
 ) = RemoteContentPreview(profile = profile) { Container { RemoteCardWithImage() } }
 
+@WearPreviewDevices
+@Composable
+fun RemoteCardWithImageAndBorderPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteCardWithImageAndBorder() } }
+
 @Composable
 @RemoteComposable
 fun RemoteCardDefault() {
@@ -80,6 +86,23 @@ fun RemoteCardWithImage() {
     val containerPainter = RemoteCardDefaults.containerPainter(backgroundImage)
     RemoteCard(onClick = Action.Empty, containerPainter = containerPainter) {
         RemoteText("Card with image".rs)
+    }
+}
+
+@Composable
+@RemoteComposable
+fun RemoteCardWithImageAndBorder() {
+    val backgroundImage =
+        rememberNamedRemoteImageBitmap(name = "backgroundImage") {
+            createImage(200, 200).asImageBitmap()
+        }
+    val containerPainter = RemoteCardDefaults.containerPainter(backgroundImage)
+    RemoteCard(
+        onClick = Action.Empty,
+        containerPainter = containerPainter,
+        border = RemoteCardDefaults.outlinedCardBorder(),
+    ) {
+        RemoteText("Card with image and border".rs)
     }
 }
 
