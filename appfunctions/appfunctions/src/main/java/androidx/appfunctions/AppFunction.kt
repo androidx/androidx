@@ -23,8 +23,8 @@ import java.util.function.Consumer
  * An interface for implementing the logic of an app function registered at runtime using
  * [AppFunctionManager.registerAppFunction].
  */
-@ExperimentalAppFunctionsApi // TODO(b/551918009): Rename to AppFunction once the name is vacant.
-public fun interface CallbackAppFunction {
+@ExperimentalAppFunctionsApi
+public fun interface AppFunction {
     /**
      * Called when the app function is invoked using [AppFunctionManager.executeAppFunction].
      *

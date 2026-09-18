@@ -91,7 +91,7 @@ class AppFunctionRuntimeRegistrationTest {
         val expectedResult = "self_execution_result"
 
         runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
-            val callbackAppFunction = CallbackAppFunction { _, _, callback ->
+            val appFunction = AppFunction { _, _, callback ->
                 callback.accept(createReturnStringResponse(expectedResult))
             }
 
@@ -99,7 +99,7 @@ class AppFunctionRuntimeRegistrationTest {
                 activityAppFunctionManager.registerAppFunction(
                     functionId,
                     activity.mainExecutor,
-                    callbackAppFunction,
+                    appFunction,
                 )
 
             try {
@@ -137,7 +137,7 @@ class AppFunctionRuntimeRegistrationTest {
             androidx.appfunctions.metadata.AppFunctionName(context.packageName, functionId)
 
         runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
-            val callbackAppFunction = CallbackAppFunction { _, _, callback ->
+            val appFunction = AppFunction { _, _, callback ->
                 callback.accept(createReturnStringResponse("result"))
             }
 
@@ -145,7 +145,7 @@ class AppFunctionRuntimeRegistrationTest {
                 activityAppFunctionManager.registerAppFunction(
                     functionId,
                     activity.mainExecutor,
-                    callbackAppFunction,
+                    appFunction,
                 )
 
             try {
@@ -199,17 +199,17 @@ class AppFunctionRuntimeRegistrationTest {
         val expectedResult2 = "self_execution_result_2"
 
         runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
-            val callbackAppFunction1 = CallbackAppFunction { _, _, callback ->
+            val appFunction1 = AppFunction { _, _, callback ->
                 callback.accept(createReturnStringResponse(expectedResult1))
             }
-            val callbackAppFunction2 = CallbackAppFunction { _, _, callback ->
+            val appFunction2 = AppFunction { _, _, callback ->
                 callback.accept(createReturnStringResponse(expectedResult2))
             }
 
             val request1 =
-                RegisterAppFunctionRequest(functionId1, activity.mainExecutor, callbackAppFunction1)
+                RegisterAppFunctionRequest(functionId1, activity.mainExecutor, appFunction1)
             val request2 =
-                RegisterAppFunctionRequest(functionId2, activity.mainExecutor, callbackAppFunction2)
+                RegisterAppFunctionRequest(functionId2, activity.mainExecutor, appFunction2)
 
             val registration =
                 activityAppFunctionManager.registerAppFunctions(listOf(request1, request2))
@@ -347,7 +347,7 @@ class AppFunctionRuntimeRegistrationTest {
             val functionStartedDeferred = CompletableDeferred<Unit>()
             val functionCancelledDeferred = CompletableDeferred<Unit>()
 
-            val callbackAppFunction = CallbackAppFunction { _, cancellationSignal, _ ->
+            val appFunction = AppFunction { _, cancellationSignal, _ ->
                 functionStartedDeferred.complete(Unit)
                 cancellationSignal.setOnCancelListener { functionCancelledDeferred.complete(Unit) }
             }
@@ -356,7 +356,7 @@ class AppFunctionRuntimeRegistrationTest {
                 activityAppFunctionManager.registerAppFunction(
                     functionId,
                     activity.mainExecutor,
-                    callbackAppFunction,
+                    appFunction,
                 )
 
             try {
@@ -402,7 +402,7 @@ class AppFunctionRuntimeRegistrationTest {
 
         runWithActivityAppFunctionManager { _, activityAppFunctionManager ->
             val executionThreadNameDeferred = CompletableDeferred<String>()
-            val callbackAppFunction = CallbackAppFunction { _, _, callback ->
+            val appFunction = AppFunction { _, _, callback ->
                 executionThreadNameDeferred.complete(Thread.currentThread().name)
                 callback.accept(createReturnStringResponse("success"))
             }
@@ -411,7 +411,7 @@ class AppFunctionRuntimeRegistrationTest {
                 activityAppFunctionManager.registerAppFunction(
                     functionId,
                     executor,
-                    callbackAppFunction,
+                    appFunction,
                 )
 
             try {
@@ -851,7 +851,7 @@ class AppFunctionRuntimeRegistrationTest {
         }
 
         runWithActivityAppFunctionManager { _, activityAppFunctionManager ->
-            val callbackAppFunction = CallbackAppFunction { _, _, callback ->
+            val appFunction = AppFunction { _, _, callback ->
                 callback.accept(createReturnStringResponse("success"))
             }
 
@@ -859,7 +859,7 @@ class AppFunctionRuntimeRegistrationTest {
                 activityAppFunctionManager.registerAppFunction(
                     functionId,
                     executor,
-                    callbackAppFunction,
+                    appFunction,
                 )
 
             try {
