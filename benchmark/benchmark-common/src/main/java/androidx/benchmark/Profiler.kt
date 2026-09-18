@@ -24,7 +24,6 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.benchmark.BenchmarkState.Companion.METHOD_TRACING_ESTIMATED_SLOWDOWN_FACTOR
 import androidx.benchmark.BenchmarkState.Companion.METHOD_TRACING_MAX_DURATION_NS
 import androidx.benchmark.BenchmarkState.Companion.TAG
 import androidx.benchmark.Outputs.dateToFileName
@@ -102,13 +101,18 @@ public sealed class Profiler() {
 
     public abstract fun start(traceUniqueName: String): ResultFile?
 
-    /** Start profiling only if expected trace duration is unlikely to trigger an ANR */
+    /**
+     * Start profiling only if the estimated method trace duration on the main thread will not
+     * exceed [METHOD_TRACING_MAX_DURATION_NS] and risk triggering an Android OS ANR.
+     *
+     * When method tracing is skipped, reports an IDE warning and emits a trace section on the
+     * benchmark's Perfetto track so the skip reason is visible in the Perfetto trace.
+     */
     public fun startIfNotRiskingAnrDeadline(
         traceUniqueName: String,
         estimatedDurationNs: Long,
     ): ResultFile? {
-        val estimatedMethodTraceDurNs =
-            estimatedDurationNs * METHOD_TRACING_ESTIMATED_SLOWDOWN_FACTOR
+        val estimatedMethodTraceDurNs = estimatedDurationNs * DeviceInfo.methodTracingSlowdownFactor
         return if (
             this == MethodTracing &&
                 Looper.myLooper() == Looper.getMainLooper() &&
@@ -125,6 +129,10 @@ public sealed class Profiler() {
                     """
                     .trimIndent()
             )
+            InMemoryTracing.beginSection(
+                "Skipping method trace of estimated duration $expectedDurSec sec to avoid ANR"
+            )
+            InMemoryTracing.endSection()
             null
         } else {
             start(traceUniqueName)
@@ -191,6 +199,16 @@ public sealed class Profiler() {
     }
 }
 
+/**
+ * Flag for [Debug.startMethodTracing] that enables low-overhead wall-clock timing when supported by
+ * the ART mainline module (`0x10`, `kTraceClockSourceWallClock`).
+ *
+ * Removes the expensive per-method thread-CPU clock read while keeping wall-clock timestamps.
+ *
+ * TODO: switch to platform-defined constant once available (b/329499422)
+ */
+internal const val TRACE_CLOCK_SOURCE_WALL_CLOCK = 0x10
+
 internal fun startRuntimeMethodTracing(
     traceFileName: String,
     sampled: Boolean,
@@ -221,15 +239,7 @@ internal fun startRuntimeMethodTracing(
                 type = ProfilerOutput.Type.MethodTrace,
                 source = profiler,
             )
-            .also {
-                // NOTE: 0x10 flag enables low-overhead wall clock timing when ART module version
-                // supports
-                // it. Note that this doesn't affect trace parsing, since this doesn't affect wall
-                // clock,
-                // it only removes the expensive thread time clock which our parser doesn't use.
-                // TODO: switch to platform-defined constant once available (b/329499422)
-                Debug.startMethodTracing(path, bufferSize, 0x10)
-            }
+            .also { Debug.startMethodTracing(path, bufferSize, TRACE_CLOCK_SOURCE_WALL_CLOCK) }
     }
 }
 
