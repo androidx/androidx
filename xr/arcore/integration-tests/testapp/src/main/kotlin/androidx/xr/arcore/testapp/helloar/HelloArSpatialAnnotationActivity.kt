@@ -18,7 +18,6 @@ package androidx.xr.arcore.testapp.helloar
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
 import android.os.SystemClock
@@ -34,22 +33,39 @@ import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.arcore.SpatialAnnotation
 import androidx.xr.arcore.SpatialAnnotationId
 import androidx.xr.arcore.SpatialAnnotationImageFormat
 import androidx.xr.arcore.SpatialAnnotationTrackingOptions
+import androidx.xr.arcore.testapp.common.BackToMainActivityButton
 import androidx.xr.arcore.testapp.common.SessionLifecycleHelper
 import androidx.xr.arcore.testapp.helloar.rendering.SpatialAnnotationRenderer
 import androidx.xr.arcore.testapp.helloar.ui.CameraFrameAnalyzer
 import androidx.xr.arcore.testapp.helloar.ui.CameraPreviewScreen
 import androidx.xr.arcore.testapp.helloar.ui.FrameSnapshot
 import androidx.xr.arcore.testapp.helloar.ui.ViewfinderTrackingConfig
+import androidx.xr.arcore.testapp.ui.theme.GoogleYellow
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
@@ -137,12 +153,7 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
                                             .movable()
                                             .resizable()
                                 ) {
-                                    CameraPreviewScreen(
-                                        cameraPreviewUseCase = cameraPreviewUseCase,
-                                        activeFrameWidth = activeFrameWidth,
-                                        activeFrameHeight = activeFrameHeight,
-                                        onStartTrackingClick = ::onStartTrackingClicked,
-                                    )
+                                    HelloSpatialAnnotations()
                                 }
                             }
                         }
@@ -173,6 +184,37 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
         lastSnapshot = null
         if (::cameraFrameAnalyzer.isInitialized) {
             cameraFrameAnalyzer.clearBuffers()
+        }
+    }
+
+    @Composable
+    private fun HelloSpatialAnnotations() {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            topBar = {
+                Row(
+                    modifier = Modifier.fillMaxWidth().background(color = GoogleYellow),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    BackToMainActivityButton()
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        text = "Spatial Annotations test case",
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp,
+                    )
+                }
+            },
+        ) { innerPadding ->
+            CameraPreviewScreen(
+                cameraPreviewUseCase = cameraPreviewUseCase,
+                activeFrameWidth = activeFrameWidth,
+                activeFrameHeight = activeFrameHeight,
+                onStartTrackingClick = ::onStartTrackingClicked,
+                modifier = Modifier.padding(innerPadding),
+            )
         }
     }
 
@@ -357,7 +399,7 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
             val canvas = Canvas(bitmap)
             val paint =
                 Paint().apply {
-                    color = Color.GREEN
+                    color = Color.Green.toArgb()
                     style = Paint.Style.STROKE
                     strokeWidth = 4f
                 }
