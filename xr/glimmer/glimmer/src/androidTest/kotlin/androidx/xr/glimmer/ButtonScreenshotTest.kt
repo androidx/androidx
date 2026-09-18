@@ -31,6 +31,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import androidx.xr.glimmer.samples.CustomFocusedColorButtonSample
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -104,6 +105,78 @@ class ButtonScreenshotTest() {
         // Advance past the animation
         rule.mainClock.advanceTimeBy(10000)
         rule.assertRootAgainstGolden("button_focused", screenshotRule)
+    }
+
+    @Test
+    fun button_customFocusedColor() {
+        rule.setGlimmerThemeContent { CustomFocusedColorButtonSample() }
+        rule.assertRootAgainstGolden("button_customFocusedColor", screenshotRule)
+    }
+
+    @Test
+    fun button_customFocusedColor_focused() {
+        rule.mainClock.autoAdvance = false
+        rule.setGlimmerThemeContent {
+            // Add an extra box with a white background around the button to allow capturing depth
+            Box(
+                Modifier.background(color = Color.White, RectangleShape).padding(20.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Button(
+                    onClick = {},
+                    focusedColor = ButtonDefaults.focusedColor(Color(0xFF34E0A1)),
+                    interactionSource = AlwaysFocusedInteractionSource,
+                ) {
+                    Text("Button with custom colors")
+                }
+            }
+        }
+        // Advance past the animation
+        rule.mainClock.advanceTimeBy(10000)
+        rule.assertRootAgainstGolden("button_customFocusedColor_focused", screenshotRule)
+    }
+
+    @Test
+    fun button_customFocusedColor_focused_and_pressed() {
+        rule.mainClock.autoAdvance = false
+        rule.setGlimmerThemeContent {
+            // Add an extra box with a white background around the button to allow capturing depth
+            Box(
+                Modifier.background(color = Color.White, RectangleShape).padding(20.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Button(
+                    onClick = {},
+                    focusedColor = ButtonDefaults.focusedColor(Color(0xFF34E0A1)),
+                    interactionSource = AlwaysFocusedAndPressedInteractionSource,
+                ) {
+                    Text("Button with custom colors")
+                }
+            }
+        }
+        // Advance past the animation
+        rule.mainClock.advanceTimeBy(10000)
+        rule.assertRootAgainstGolden(
+            "button_customFocusedColor_focused_and_pressed",
+            screenshotRule,
+        )
+    }
+
+    @Test
+    fun button_customFocusedColor_pressed() {
+        rule.mainClock.autoAdvance = false
+        rule.setGlimmerThemeContent {
+            Button(
+                onClick = {},
+                focusedColor = ButtonDefaults.focusedColor(Color(0xFF34E0A1)),
+                interactionSource = AlwaysPressedInteractionSource,
+            ) {
+                Text("Button with custom colors")
+            }
+        }
+        // Skip until after the animation has finished
+        rule.mainClock.advanceTimeBy(5000)
+        rule.assertRootAgainstGolden("button_customFocusedColor_pressed", screenshotRule)
     }
 
     /**
