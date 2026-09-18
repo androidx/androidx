@@ -47,7 +47,6 @@ import androidx.compose.remote.core.Limits
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteContext
-import androidx.compose.remote.core.SystemClock
 import androidx.compose.remote.core.VariableProvider
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.ColorConstant
@@ -59,7 +58,9 @@ import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.ParticlesCompare
 import androidx.compose.remote.core.operations.ParticlesLoop
+import androidx.compose.remote.core.operations.TextFromFloat
 import androidx.compose.remote.core.operations.Theme
+import androidx.compose.remote.core.operations.TimeAttribute
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.WakeIn
 import androidx.compose.remote.core.operations.layout.Component
@@ -158,13 +159,7 @@ public fun RcPlayer(
     }
 
     val document = state.document
-    val clock = remember {
-        if (document.clock is SystemClock) {
-            RemoteClock.SYSTEM
-        } else {
-            document.clock
-        }
-    }
+    val clock = remember(document) { document.clock }
 
     val isDark = isSystemInDarkTheme()
     val resolvedTheme = remember(theme, isDark) { resolveThemeMode(theme, isDark) }
@@ -209,48 +204,77 @@ public fun RcPlayer(
         remoteContext.loadFloat(RemoteContext.ID_DENSITY, density.density)
     }
 
-    // Time and animations are driven on demand. A static document — no declared animations and no
-    // time-driven content — ticks for a frame and then the loop suspends, so the player goes fully
-    // idle, like normal Compose. Documents with animations or time-driven variables
-    // (continuous/seconds/minutes) keep the frame loop running. This replaces the previous
-    // always-on rememberInfiniteTransition + unconditional per-frame full-document re-evaluation,
-    // which never let the runtime go idle even for a wholly static document.
+    // Time is driven on demand:
+    // - Documents with continuous time variables (ID_CONTINUOUS_SEC, ID_ANIMATION_TIME), particles,
+    //   or WakeIn run the per-frame loop via withInfiniteAnimationFrameMillis.
+    // - Documents with only discrete wall-clock/calendar variables (ID_TIME_IN_SEC, ID_TIME_IN_MIN,
+    //   ID_CALENDAR_MONTH, etc.) sleep between whole second boundaries via delay().
+    // - Static documents and documents whose animations are driven by Compose's own animation
+    // clocks
+    //   (FloatAnimation via Animatable, StateLayout via AnimatedContent) initialize t=0 once and
+    //   settle immediately to idle without a background loop.
     val currentTimeMillisState =
         (state as? RcPlayerStateImpl)?.currentTimeMillisState
             ?: remember { mutableFloatStateOf(0f) }
-    val hasAnimations = preprocessed.hasAnimations
-    val isTimeDependent = preprocessed.isTimeDependent
-    val hasParticles = preprocessed.hasParticles
-    val hasWakeIn = preprocessed.hasWakeIn
+    val needsContinuousLoop =
+        preprocessed.hasContinuousTime || preprocessed.hasParticles || preprocessed.hasWakeIn
+    val needsDiscreteLoop = !needsContinuousLoop && preprocessed.hasDiscreteTime
 
+    // Pure-Compose evaluation of *derived/computed* operations (color & text expressions,
+    // attributes,
+    // lookups). Each computed id resolves to a derivedStateOf that runs the op's existing
+    // updateVariables+apply against this GraphContext, which routes the op's reads to the reactive
+    // store / other computed States and captures its write as the result. No imperative recompute
+    // pass, no dirty flags — changing an input invalidates exactly the dependent States, and chains
+    // compose naturally.
+    val graphContext =
+        (state as? RcPlayerStateImpl)?.graphContext
+            ?: remember(document, remoteContext) {
+                (remoteContext.mRemoteComposeState as? SnapshotRemoteComposeState)?.let {
+                    snapshotState ->
+                    GraphContext(
+                            snapshotState,
+                            preprocessed.computedOpIndex,
+                            currentTimeMillisState,
+                            clock,
+                        )
+                        .also { gc -> gc.setTypefaceResolver(remoteContext.typefaceResolver) }
+                }
+            }
+
+    val startClockMillis = remember(document, clock) { clock.millis() }
     val limiter = remember(document) { Limiter() }
-    LaunchedEffect(document, hasAnimations, isTimeDependent, hasParticles, hasWakeIn) {
+    LaunchedEffect(
+        document,
+        graphContext,
+        needsContinuousLoop,
+        needsDiscreteLoop,
+    ) {
         val startMillis = withInfiniteAnimationFrameMillis { it }
         while (true) {
             val frameMillis = withInfiniteAnimationFrameMillis { it } - startMillis
             limiter.recordDrawStart(frameMillis * 1_000_000L)
-            // Pure time ticker. Updating currentTimeMillisState is the *only* per-frame work: every
-            // reactive path keys off it. Expression display flows through the GraphContext
-            // derivedStateOf graph and the float/int/color resolvers (which read this state for
-            // time);
-            // animated floats run on Compose's frame clock via rememberAnimatedRemoteFloat; and the
-            // canvas draw path now reads time/variable values *through* the GraphContext too, so a
-            // time-driven draw observes this state and re-runs when it ticks. No applyOperations,
-            // no
-            // updateVariables(mOperations) — the imperative per-frame recompute is fully gone.
-            // (currentTime is still set for any core code that consults it directly.)
-            currentTimeMillisState.floatValue = frameMillis.toFloat()
-            remoteContext.currentTime = frameMillis
+            val updated =
+                graphContext?.updateTime(
+                    frameMillis = frameMillis.toFloat(),
+                    updateContinuous = needsContinuousLoop,
+                ) ?: true
+            if (needsContinuousLoop || updated) {
+                currentTimeMillisState.floatValue = frameMillis.toFloat()
+            }
+            remoteContext.currentTime = startClockMillis + frameMillis
 
-            // Settle to idle once the document is static: no declared float animation and no
-            // continuously-changing time variable. Animated / time-driven documents keep looping.
-            // TODO: also idle animated documents between animations and re-arm on host-driven
-            // variable writes (see HISTORY.md, "Plan 1").
-            if (!hasAnimations && !isTimeDependent && !hasParticles && !hasWakeIn) break
+            if (!needsContinuousLoop && !needsDiscreteLoop) break
 
-            val delayNs = limiter.computeDelay(0L, frameMillis * 1_000_000L)
-            if (delayNs > limiter.minIntervalNs) {
-                delay((delayNs - limiter.minIntervalNs) / 1_000_000L)
+            if (needsDiscreteLoop) {
+                val currentMillis = startClockMillis + frameMillis
+                val millisToNextSecond = 1000L - Math.floorMod(currentMillis, 1000L)
+                delay(millisToNextSecond)
+            } else {
+                val delayNs = limiter.computeDelay(0L, frameMillis * 1_000_000L)
+                if (delayNs > limiter.minIntervalNs) {
+                    delay((delayNs - limiter.minIntervalNs) / 1_000_000L)
+                }
             }
         }
     }
@@ -266,29 +290,6 @@ public fun RcPlayer(
             themeColor.apply(remoteContext)
         }
     }
-
-    // Pure-Compose evaluation of *derived/computed* operations (color & text expressions,
-    // attributes,
-    // lookups). Each computed id resolves to a derivedStateOf that runs the op's existing
-    // updateVariables+apply against this GraphContext, which routes the op's reads to the reactive
-    // store / other computed States and captures its write as the result. No imperative recompute
-    // pass, no dirty flags — changing an input invalidates exactly the dependent States, and chains
-    // compose naturally. (Frame loop above still drives time/animation; plain/expression float/int
-    // and animated floats keep their dedicated resolvers.)
-    val graphContext =
-        (state as? RcPlayerStateImpl)?.graphContext
-            ?: remember(document, remoteContext) {
-                (remoteContext.mRemoteComposeState as? SnapshotRemoteComposeState)?.let {
-                    snapshotState ->
-                    GraphContext(
-                            snapshotState,
-                            preprocessed.computedOpIndex,
-                            currentTimeMillisState,
-                            clock,
-                        )
-                        .also { gc -> gc.setTypefaceResolver(remoteContext.typefaceResolver) }
-                }
-            }
 
     // The document's root content description (Header DOC_CONTENT_DESCRIPTION /
     // RootContentDescription
@@ -618,8 +619,8 @@ internal class DocumentPreprocessResult(
     val componentValueMap: Map<Int, List<ComponentValue>>,
     val hasParticles: Boolean,
     val hasWakeIn: Boolean,
-    val hasAnimations: Boolean,
-    val isTimeDependent: Boolean,
+    val hasContinuousTime: Boolean,
+    val hasDiscreteTime: Boolean,
 )
 
 internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResult {
@@ -642,8 +643,32 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
     val componentsById = mutableIntObjectMapOf<Component>()
     var hasParticles = false
     var hasWakeIn = false
+    var hasContinuousTime = false
+    var hasDiscreteTime = false
 
     fun visitOp(op: Operation) {
+        if (op is TextFromFloat && Utils.isVariable(op.mValue)) {
+            val id = Utils.idFromNan(op.mValue)
+            if (isContinuousTimeVariable(id)) {
+                hasContinuousTime = true
+            } else if (isDiscreteTimeVariable(id)) {
+                hasDiscreteTime = true
+            }
+        }
+
+        if (op is TimeAttribute) {
+            val type = op.mType.toInt() and 255
+            if (
+                type == TimeAttribute.TIME_FROM_NOW_SEC.toInt() ||
+                    type == TimeAttribute.TIME_FROM_NOW_MIN.toInt() ||
+                    type == TimeAttribute.TIME_FROM_NOW_HR.toInt() ||
+                    type == TimeAttribute.TIME_FROM_LOAD_SEC.toInt()
+            ) {
+                hasContinuousTime = true
+            } else {
+                hasDiscreteTime = true
+            }
+        }
 
         if (
             op is ColorConstant ||
@@ -686,6 +711,7 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
             if (content != null && content.componentId !in componentsById) {
                 componentsById[content.componentId] = content
             }
+            op.componentModifiers?.list?.fastForEach { visitOp(it) }
             val canvasOps = op.getCanvasOperations()
             if (canvasOps != null) {
                 visitOp(canvasOps)
@@ -717,14 +743,12 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
     }
 
     val floatExpressions = document.getFloatExpressionsReflection().values
-    var hasAnimations = false
-    var isTimeDependent = false
     for (expr in floatExpressions) {
-        if (expr.mFloatAnimation != null) {
-            hasAnimations = true
+        if (isExpressionContinuousTimeDependent(expr)) {
+            hasContinuousTime = true
         }
-        if (!isTimeDependent && isExpressionTimeDependent(expr)) {
-            isTimeDependent = true
+        if (isExpressionDiscreteTimeDependent(expr)) {
+            hasDiscreteTime = true
         }
     }
 
@@ -735,31 +759,35 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
         componentValueMap = componentValueMap,
         hasParticles = hasParticles,
         hasWakeIn = hasWakeIn,
-        hasAnimations = hasAnimations,
-        isTimeDependent = isTimeDependent,
+        hasContinuousTime = hasContinuousTime,
+        hasDiscreteTime = hasDiscreteTime,
     )
 }
 
-internal fun isExpressionTimeDependent(expr: FloatExpression): Boolean {
+internal fun isExpressionContinuousTimeDependent(expr: FloatExpression): Boolean {
     val srcValues = expr.mSrcValue
     for (j in 0 until srcValues.size) {
         val v = srcValues[j]
         if (v.isNaN() && !AnimatedFloatExpression.isMathOperator(v) && !NanMap.isDataVariable(v)) {
-            val id = Utils.idFromNan(v)
-            if (
-                id == RemoteContext.ID_CONTINUOUS_SEC ||
-                    id == RemoteContext.ID_TIME_IN_SEC ||
-                    id == RemoteContext.ID_TIME_IN_MIN ||
-                    id == RemoteContext.ID_TIME_IN_HR ||
-                    id == RemoteContext.ID_EPOCH_SECOND ||
-                    id == RemoteContext.ID_ANIMATION_TIME
-            ) {
-                return true
-            }
+            if (isContinuousTimeVariable(Utils.idFromNan(v))) return true
         }
     }
     return false
 }
+
+internal fun isExpressionDiscreteTimeDependent(expr: FloatExpression): Boolean {
+    val srcValues = expr.mSrcValue
+    for (j in 0 until srcValues.size) {
+        val v = srcValues[j]
+        if (v.isNaN() && !AnimatedFloatExpression.isMathOperator(v) && !NanMap.isDataVariable(v)) {
+            if (isDiscreteTimeVariable(Utils.idFromNan(v))) return true
+        }
+    }
+    return false
+}
+
+internal fun isExpressionTimeDependent(expr: FloatExpression): Boolean =
+    isExpressionContinuousTimeDependent(expr) || isExpressionDiscreteTimeDependent(expr)
 
 internal fun mapEasing(type: Int): ComposeEasing {
     return when (type) {

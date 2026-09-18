@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.core.SystemClock
 import androidx.compose.remote.core.operations.DataListFloat
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.creation.compose.capture.CapturedDocument
@@ -146,7 +145,7 @@ internal class RcPlayerStateImpl(
     internal val remoteContext: AndroidRemoteContext =
         initializePlayerRemoteContext(
             document,
-            if (document.clock is SystemClock) RemoteClock.SYSTEM else document.clock,
+            document.clock,
             preprocessed,
         )
 
@@ -156,7 +155,7 @@ internal class RcPlayerStateImpl(
                 realState = remoteContext.mRemoteComposeState as SnapshotRemoteComposeState,
                 computedOps = preprocessed.computedOpIndex,
                 timeMillis = currentTimeMillisState,
-                clock = if (document.clock is SystemClock) RemoteClock.SYSTEM else document.clock,
+                clock = document.clock,
             )
             .also { gc ->
                 gc.setTypefaceResolver(remoteContext.typefaceResolver)
