@@ -23,13 +23,16 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.modifiers.HeightModifier as RecordingHeightModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 
 internal class HeightModifier(val type: Type, val value: RemoteFloat) : RemoteModifier.Element {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
-        return androidx.compose.remote.creation.modifiers.HeightModifier(type, value.floatId)
+        return RecordingHeightModifier(type, value.floatId)
     }
+
+    override fun toString(): String = "HeightModifier(type=$type, value=$value)"
 }
 
 /** Sets the height of the content using [RemoteDp]. */
