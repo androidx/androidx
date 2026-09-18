@@ -242,9 +242,8 @@ public abstract class AppFunctionDataSpec {
                     "Invalid value for \"$targetKey\" got \"$targetValue\", expecting one of $enumValues"
                 }
                 if (pattern != null) {
-                    val patternMatcher = compiledPattern
-                    val isMatching =
-                        patternMatcher == null || patternMatcher.matcher(targetValue).matches()
+                    val regex = compiledPattern
+                    val isMatching = regex == null || regex.matches(targetValue)
                     require(isMatching) {
                         "Invalid value for \"$targetKey\" got \"$targetValue\", expecting match with pattern \"$pattern\""
                     }
