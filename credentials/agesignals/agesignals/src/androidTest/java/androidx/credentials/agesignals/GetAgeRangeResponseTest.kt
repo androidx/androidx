@@ -106,9 +106,23 @@ class GetAgeRangeResponseTest {
     }
 
     @Test
+    fun construct_withUnspecifiedAssuranceTier_succeeds() {
+        val response =
+            GetAgeRangeResponse(
+                lowerAgeBound = 13,
+                upperAgeBound = 17,
+                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_UNSPECIFIED,
+            )
+        assertThat(response.lowerAgeBound).isEqualTo(13)
+        assertThat(response.upperAgeBound).isEqualTo(17)
+        assertThat(response.assuranceTier).isEqualTo(GetAgeRangeResponse.ASSURANCE_TIER_UNSPECIFIED)
+    }
+
+    @Test
     fun construct_validAssuranceTiers_succeeds() {
         val validTiers =
             listOf(
+                GetAgeRangeResponse.ASSURANCE_TIER_UNSPECIFIED,
                 GetAgeRangeResponse.ASSURANCE_TIER_A,
                 GetAgeRangeResponse.ASSURANCE_TIER_B,
                 GetAgeRangeResponse.ASSURANCE_TIER_C,
@@ -194,6 +208,7 @@ class GetAgeRangeResponseTest {
 
     @Test
     fun tierConstants_matchSpecification() {
+        assertThat(GetAgeRangeResponse.ASSURANCE_TIER_UNSPECIFIED).isEqualTo(0)
         assertThat(GetAgeRangeResponse.ASSURANCE_TIER_A).isEqualTo(1)
         assertThat(GetAgeRangeResponse.ASSURANCE_TIER_B).isEqualTo(2)
         assertThat(GetAgeRangeResponse.ASSURANCE_TIER_C).isEqualTo(3)
@@ -202,6 +217,8 @@ class GetAgeRangeResponseTest {
 
     @Test
     fun tierOrdering_escalatesFromLowestToHighestAssurance() {
+        assertThat(GetAgeRangeResponse.ASSURANCE_TIER_UNSPECIFIED)
+            .isLessThan(GetAgeRangeResponse.ASSURANCE_TIER_A)
         assertThat(GetAgeRangeResponse.ASSURANCE_TIER_A)
             .isLessThan(GetAgeRangeResponse.ASSURANCE_TIER_B)
         assertThat(GetAgeRangeResponse.ASSURANCE_TIER_B)

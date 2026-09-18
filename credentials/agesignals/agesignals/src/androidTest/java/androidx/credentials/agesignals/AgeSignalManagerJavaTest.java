@@ -201,6 +201,7 @@ public class AgeSignalManagerJavaTest {
 
     @Test
     public void ageAssuranceTier_constantsAccessibleFromJava() {
+        assertThat(GetAgeRangeResponse.ASSURANCE_TIER_UNSPECIFIED).isEqualTo(0);
         assertThat(GetAgeRangeResponse.ASSURANCE_TIER_A).isEqualTo(1);
         assertThat(GetAgeRangeResponse.ASSURANCE_TIER_B).isEqualTo(2);
         assertThat(GetAgeRangeResponse.ASSURANCE_TIER_C).isEqualTo(3);
