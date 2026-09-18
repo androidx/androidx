@@ -1,6 +1,10 @@
 // Signature format: 4.0
 package androidx.appfunctions {
 
+  @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public fun interface AppFunction {
+    method public void onExecuteAppFunction(androidx.appfunctions.ExecuteAppFunctionRequest request, android.os.CancellationSignal cancellationSignal, java.util.function.Consumer<androidx.appfunctions.ExecuteAppFunctionResponse> callback);
+  }
+
   @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface AppFunctionAccessLevel {
     ctor @KotlinOnly public AppFunctionAccessLevel(int level, boolean isCompatEnforcementEnabled);
     method @InaccessibleFromKotlin public abstract boolean isCompatEnforcementEnabled();
@@ -173,7 +177,7 @@ package androidx.appfunctions {
     method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) @androidx.appfunctions.ExperimentalAppFunctionsApi public suspend Object? handleAppFunction(String functionIdentifier, androidx.appfunctions.SuspendingAppFunction appFunction, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
     method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) @androidx.appfunctions.ExperimentalAppFunctionsApi public suspend Object? handleAppFunctions(java.util.List<androidx.appfunctions.HandleAppFunctionRequest> requests, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
     method @RequiresPermission(anyOf={"android.permission.EXECUTE_APP_FUNCTIONS", "android.permission.DISCOVER_APP_FUNCTIONS", "android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM"}, conditional=true) public kotlinx.coroutines.flow.Flow<androidx.appfunctions.AppFunctionsChangeEvent> observeAppFunctions();
-    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) @androidx.appfunctions.ExperimentalAppFunctionsApi public android.app.appfunctions.AppFunctionRegistration registerAppFunction(String functionIdentifier, java.util.concurrent.Executor executor, androidx.appfunctions.CallbackAppFunction appFunction);
+    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) @androidx.appfunctions.ExperimentalAppFunctionsApi public android.app.appfunctions.AppFunctionRegistration registerAppFunction(String functionIdentifier, java.util.concurrent.Executor executor, androidx.appfunctions.AppFunction appFunction);
     method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) @androidx.appfunctions.ExperimentalAppFunctionsApi public android.app.appfunctions.AppFunctionRegistration registerAppFunctions(java.util.List<androidx.appfunctions.RegisterAppFunctionRequest> requests);
     method @RequiresPermission(anyOf={"android.permission.EXECUTE_APP_FUNCTIONS", "android.permission.DISCOVER_APP_FUNCTIONS", "android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM"}, conditional=true) public suspend Object? searchAppFunctions(androidx.appfunctions.AppFunctionSearchSpec searchSpec, kotlin.coroutines.Continuation<? super java.util.List<androidx.appfunctions.metadata.AppFunctionMetadata>>);
     method public suspend Object? setAppFunctionEnabled(String functionId, int newEnabledState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -342,10 +346,6 @@ package androidx.appfunctions {
     property public java.util.Set<androidx.appfunctions.metadata.AppFunctionName> changedFunctionNames;
   }
 
-  @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public fun interface CallbackAppFunction {
-    method public void onExecuteAppFunction(androidx.appfunctions.ExecuteAppFunctionRequest request, android.os.CancellationSignal cancellationSignal, java.util.function.Consumer<androidx.appfunctions.ExecuteAppFunctionResponse> callback);
-  }
-
   public final class ExecuteAppFunctionRequest {
     ctor public ExecuteAppFunctionRequest(String targetPackageName, String functionIdentifier, androidx.appfunctions.AppFunctionData functionParameters);
     ctor @RequiresApi(37) public ExecuteAppFunctionRequest(String targetPackageName, String functionIdentifier, androidx.appfunctions.AppFunctionData functionParameters, android.app.AppInteractionAttribution attribution, optional android.app.appfunctions.AppFunctionActivityId? activityId);
@@ -418,11 +418,11 @@ package androidx.appfunctions {
   }
 
   @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public final class RegisterAppFunctionRequest {
-    ctor public RegisterAppFunctionRequest(String functionIdentifier, java.util.concurrent.Executor executor, androidx.appfunctions.CallbackAppFunction appFunction);
-    method @InaccessibleFromKotlin public androidx.appfunctions.CallbackAppFunction getAppFunction();
+    ctor public RegisterAppFunctionRequest(String functionIdentifier, java.util.concurrent.Executor executor, androidx.appfunctions.AppFunction appFunction);
+    method @InaccessibleFromKotlin public androidx.appfunctions.AppFunction getAppFunction();
     method @InaccessibleFromKotlin public java.util.concurrent.Executor getExecutor();
     method @InaccessibleFromKotlin public String getFunctionIdentifier();
-    property public androidx.appfunctions.CallbackAppFunction appFunction;
+    property public androidx.appfunctions.AppFunction appFunction;
     property public java.util.concurrent.Executor executor;
     property public String functionIdentifier;
   }

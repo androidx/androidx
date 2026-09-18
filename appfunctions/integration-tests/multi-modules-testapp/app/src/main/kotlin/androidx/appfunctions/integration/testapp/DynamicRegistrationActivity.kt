@@ -22,9 +22,9 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
+import androidx.appfunctions.AppFunction
 import androidx.appfunctions.AppFunctionData
 import androidx.appfunctions.AppFunctionManager
-import androidx.appfunctions.CallbackAppFunction
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ExperimentalAppFunctionsApi
 import kotlinx.coroutines.Dispatchers
@@ -53,7 +53,7 @@ class DynamicRegistrationActivity : Activity() {
 
     private fun handleIntent(intent: Intent?) {
         if (intent?.action == ACTION_REGISTER_ACTIVITY_SCOPED) {
-            val appFunction = CallbackAppFunction { _, _, callback ->
+            val appFunction = AppFunction { _, _, callback ->
                 callback.accept(ExecuteAppFunctionResponse.Success(AppFunctionData.EMPTY))
             }
             registration =

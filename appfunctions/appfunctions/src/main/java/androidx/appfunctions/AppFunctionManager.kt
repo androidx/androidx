@@ -326,9 +326,9 @@ public constructor(
      * [executeAppFunction].
      *
      * [executeAppFunction] targeting an app function provided by this method will trigger the
-     * [CallbackAppFunction.onExecuteAppFunction] method of the provided implementation, as long as
-     * the process registering it is not frozen, and the [android.content.Context] registering it is
-     * not destroyed (at which point the registration will be removed).
+     * [AppFunction.onExecuteAppFunction] method of the provided implementation, as long as the
+     * process registering it is not frozen, and the [android.content.Context] registering it is not
+     * destroyed (at which point the registration will be removed).
      *
      * You must declare the app function in your `AndroidManifest.xml` using an application-level
      * `<property>` named `android.app.appfunctions`. See
@@ -360,19 +360,19 @@ public constructor(
      * To register multiple functions at once, consider using [registerAppFunctions] as a more
      * efficient alternative.
      *
-     * The system holds a strong reference to the provided [CallbackAppFunction] implementation as
-     * long as it is registered. To prevent memory leaks and ensure the system is aware that the
-     * function is no longer available, you must explicitly call
-     * [AppFunctionRegistration.unregister] when the function is no longer relevant (e.g., in
-     * [android.app.Activity.onStop] or before [android.app.Service.stopForeground]).
+     * The system holds a strong reference to the provided [AppFunction] implementation as long as
+     * it is registered. To prevent memory leaks and ensure the system is aware that the function is
+     * no longer available, you must explicitly call [AppFunctionRegistration.unregister] when the
+     * function is no longer relevant (e.g., in [android.app.Activity.onStop] or before
+     * [android.app.Service.stopForeground]).
      *
      * @param functionIdentifier The unique identifier for the function, which must match an entry
      *   in the app's XML resource declarations.
      * @param executor The [Executor] on which the function will be invoked and the incoming
      *   [ExecuteAppFunctionRequest] will be validated (verifying that the incoming platform request
      *   aligns with the declared [androidx.appfunctions.metadata.AppFunctionMetadata]).
-     * @param appFunction The [CallbackAppFunction] implementation to be executed when the function
-     *   is triggered.
+     * @param appFunction The [AppFunction] implementation to be executed when the function is
+     *   triggered.
      * @return A [AppFunctionRegistration] object that can be used to unregister the function.
      * @throws IllegalStateException if a duplicate function is already registered (see
      *   [androidx.appfunctions.metadata.AppFunctionMetadata.scope]) for the same scope, or if not
@@ -386,7 +386,7 @@ public constructor(
     public fun registerAppFunction(
         functionIdentifier: String,
         executor: Executor,
-        appFunction: CallbackAppFunction,
+        appFunction: AppFunction,
     ): AppFunctionRegistration {
         return registerAppFunctions(
             listOf(RegisterAppFunctionRequest(functionIdentifier, executor, appFunction))
@@ -394,7 +394,7 @@ public constructor(
     }
 
     /**
-     * Registers several [CallbackAppFunction] implementations at once, sharing a single lifecycle.
+     * Registers several [AppFunction] implementations at once, sharing a single lifecycle.
      *
      * This is a more efficient alternative to calling [registerAppFunction] multiple times.
      *
@@ -489,17 +489,16 @@ public constructor(
             val executor = dispatcher?.asExecutor() ?: Executor { it.run() }
 
             suspendCancellableCoroutine<Nothing> { cont ->
-                val callbackRequests = requests.map { request ->
-                    val callbackAppFunction =
-                        request.appFunction.toCallbackAppFunction(this@coroutineScope)
+                val registerRequests = requests.map { request ->
+                    val appFunction = request.appFunction.toAppFunction(this@coroutineScope)
                     RegisterAppFunctionRequest(
                         request.functionIdentifier,
                         executor,
-                        callbackAppFunction,
+                        appFunction,
                     )
                 }
 
-                val registration = registerAppFunctions(callbackRequests)
+                val registration = registerAppFunctions(registerRequests)
 
                 cont.invokeOnCancellation { registration.unregister() }
             }
@@ -680,7 +679,7 @@ public constructor(
     }
 
     /**
-     * Wraps this [SuspendingAppFunction] into a [CallbackAppFunction].
+     * Wraps this [SuspendingAppFunction] into an [AppFunction].
      *
      * This bridges the suspending execution model into the callback-based execution model required
      * by the platform API. It handles launching the coroutine, mapping exceptions to the
@@ -692,10 +691,8 @@ public constructor(
      */
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
     @OptIn(DelicateCoroutinesApi::class, ExperimentalAppFunctionsApi::class)
-    private fun SuspendingAppFunction.toCallbackAppFunction(
-        coroutineScope: CoroutineScope
-    ): CallbackAppFunction {
-        return CallbackAppFunction { executeRequest, cancellationSignal, callback ->
+    private fun SuspendingAppFunction.toAppFunction(coroutineScope: CoroutineScope): AppFunction {
+        return AppFunction { executeRequest, cancellationSignal, callback ->
             // ATOMIC guarantees the block executes even if cancelled before dispatch, preventing a
             // hanging callback. Inside, ensureActive() acts as the first suspension point,
             // immediately throwing if cancelled to safely route the error to the catch block.
@@ -703,7 +700,7 @@ public constructor(
                 coroutineScope.launch(start = CoroutineStart.ATOMIC) {
                     try {
                         ensureActive()
-                        val response = this@toCallbackAppFunction.executeAppFunction(executeRequest)
+                        val response = this@toAppFunction.executeAppFunction(executeRequest)
                         callback.accept(response)
                     } catch (t: CancellationSignalTriggeredException) {
                         callback.accept(
