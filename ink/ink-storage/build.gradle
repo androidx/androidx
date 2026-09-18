@@ -63,6 +63,39 @@ androidXMultiplatform {
     }
 }
 
+interface InjectedExecOps {
+    @Inject
+    ExecOperations getExecOps()
+}
+
+// This also needs to avoid standalone mode to support GPU access for rendering
+// brush textures from UIImage wrapping CIImage because CIContext.createCGImage
+// requires GPU by default. It does have a software rendering fallback option,
+// kCIContextUseSoftwareRenderer, but that is documented as, "This option has no
+// effect if the platform does not support OpenCL," which is deprecated
+// starting with iOS 12 and not available in iOS simulator.
+tasks.named("iosSimulatorArm64Test") {
+    // Metal renderer does not work on the simulator if it's started with
+    // --standalone, which is the default. If that is disabled, there needs to
+    // be some setup/teardown to boot and shut down the simulator. That's not
+    // currently handled by the KMP Gradle Plugin, see
+    // https://youtrack.jetbrains.com/issue/KMT-2955.
+    standalone = false
+    def injected = project.objects.newInstance(InjectedExecOps)
+    doFirst {
+        injected.execOps.exec {
+            commandLine "xcrun", "simctl", "boot", device.get()
+            ignoreExitValue = true
+        }
+    }
+    doLast {
+        injected.execOps.exec {
+            commandLine "xcrun", "simctl", "shutdown", device.get()
+            ignoreExitValue = true
+        }
+    }
+}
+
 androidx {
     name = "Ink Storage"
     type = SoftwareType.PUBLISHED_LIBRARY

@@ -419,6 +419,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 listOf(
                     klibDir.dir("org.jetbrains.kotlin.native.platform.CoreFoundation"),
                     klibDir.dir("org.jetbrains.kotlin.native.platform.CoreGraphics"),
+                    klibDir.dir("org.jetbrains.kotlin.native.platform.CoreImage"),
                     klibDir.dir("org.jetbrains.kotlin.native.platform.Metal"),
                     klibDir.dir("org.jetbrains.kotlin.native.platform.posix"),
                     klibDir.dir("org.jetbrains.kotlin.native.platform.UIKit"),
