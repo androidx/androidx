@@ -18,7 +18,6 @@ package androidx.wear.tiles
 
 import android.content.Context
 import androidx.annotation.CallSuper
-import androidx.annotation.RestrictTo
 import androidx.concurrent.futures.SuspendToFutureAdapter
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
 import androidx.wear.protolayout.LayoutElementBuilders.Image
@@ -104,7 +103,6 @@ public constructor(
      * [ProtoLayoutScope] and calls provider's [tileResponse] to get the layout and resources.
      */
     @Suppress("AsyncSuffixFuture") // Overriding existing API
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected final override fun onTileRequest(requestParams: TileRequest): ListenableFuture<Tile> {
         return materialScopeWithResourcesForTile(
             context = this,
@@ -129,7 +127,6 @@ public constructor(
     @Suppress(
         "AsyncSuffixFuture"
     ) // Overriding existing API and ProtoLayout library is in the same ownership
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected final override fun onTileResourcesRequest(
         requestParams: ResourcesRequest
     ): ListenableFuture<Resources> =
@@ -137,12 +134,10 @@ public constructor(
 
     // Restrict overrides so that clients can't override it so it's not misused
     @Deprecated("use #onRecentInteractionEventsAsync(List)")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected final override fun onTileEnterEvent(requestParams: EventBuilders.TileEnterEvent) {}
 
     // Restrict overrides so that clients can't override it so it's not misused
     @Deprecated("use #onRecentInteractionEventsAsync(List)")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected final override fun onTileLeaveEvent(requestParams: EventBuilders.TileLeaveEvent) {}
 }
 
