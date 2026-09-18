@@ -19,7 +19,6 @@ package androidx.xr.compose.testapp.fragments
 import android.os.Bundle
 import android.os.Environment
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,10 +33,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
+import androidx.fragment.compose.content
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -80,20 +78,7 @@ class VideoPlayerFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View {
-        // Create a ComposeView, which is the bridge between the View system and Compose.
-        return ComposeView(requireContext()).apply {
-
-            // This strategy handles disposing the Composition when the Fragment's
-            // View lifecycle is destroyed, preventing memory leaks.
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-
-            // Set the Compose content for this Fragment.
-            setContent {
-                MaterialTheme { Subspace { VideoInSpatialExternalSurface(StereoMode.Mono) } }
-            }
-        }
-    }
+    ) = content { MaterialTheme { Subspace { VideoInSpatialExternalSurface(StereoMode.Mono) } } }
 
     @Composable
     private fun VideoInSpatialExternalSurface(stereoMode: StereoMode) {
