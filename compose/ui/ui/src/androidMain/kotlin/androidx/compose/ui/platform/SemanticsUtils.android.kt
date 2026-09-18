@@ -17,7 +17,6 @@
 package androidx.compose.ui.platform
 
 import android.annotation.SuppressLint
-import android.view.View
 import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntSet
 import androidx.compose.ui.graphics.isSpecified
@@ -123,10 +122,6 @@ internal fun Role.toLegacyClassName(): String? =
         Role.ValuePicker -> "android.widget.NumberPicker"
         else -> null
     }
-
-/** This function retrieves the View corresponding to a semanticsId, if it exists. */
-internal fun AndroidViewsHandler.semanticsIdToView(id: Int): View? =
-    layoutNodeToHolder.entries.firstOrNull { it.key.semanticsId == id }?.value
 
 internal fun SemanticsNode.getPrimaryTextColor(): Int? {
     val textLayoutResult = getTextLayoutResult(unmergedConfig)
