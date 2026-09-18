@@ -13,75 +13,79 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("RestrictedApiAndroidX")
 
 package androidx.wear.compose.remote.material3
 
-import androidx.collection.ObjectIntMap
-import androidx.collection.buildObjectIntMap
-import androidx.collection.mutableObjectIntMapOf
+import android.content.Context
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.compose.action.Action
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.player.compose.RemoteDocumentPlayer
-import androidx.compose.remote.testing.RemoteBaseContentTestRule
-import androidx.compose.remote.testing.RemoteContentTestRule
+import androidx.compose.remote.player.compose.embedded.RcPlayer
+import androidx.compose.remote.player.compose.embedded.RcPlayerState
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.material3.ColorScheme
+import androidx.wear.compose.remote.material3.util.EnableEmbeddedPlayerRule
 import androidx.wear.compose.remote.material3.util.TestImageVectors
+import java.io.ByteArrayInputStream
 import kotlin.test.Ignore
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
-@MediumTest
-@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@RunWith(JUnit4::class)
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(sdk = [35])
 class RemoteMaterialThemeTest {
-    @get:Rule val remoteComposeTestRule = RemoteContentTestRule()
+    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun sets_theme_color() {
         val expectedTint = ColorScheme().onSurface
 
-        remoteComposeTestRule.runTest {
+        runTest {
             RemoteMaterialTheme {
                 val iconTint = RemoteMaterialTheme.colorScheme.onSurface
                 RemoteIcon(TestImageVectors.VolumeUp, contentDescription = null, tint = iconTint)
             }
         }
 
-        remoteComposeTestRule.assertRootNodeContainsColor(expectedTint)
+        assertRootNodeContainsColor(expectedTint)
     }
 
     @Test
     fun named_color_can_be_overridden() {
         val expectedTint = Color.Yellow
 
-        val colorOverrides = buildObjectIntMap { put("WearM3.onSurface", Color.Yellow.toArgb()) }
-        remoteComposeTestRule.runTest(colorOverrides = colorOverrides) {
+        runTest(colorOverrides = mapOf("WearM3.onSurface" to Color.Yellow)) {
             RemoteMaterialTheme {
                 val iconTint = RemoteMaterialTheme.colorScheme.onSurface
                 RemoteIcon(TestImageVectors.VolumeUp, contentDescription = null, tint = iconTint)
             }
         }
 
-        remoteComposeTestRule.assertRootNodeContainsColor(expectedTint)
+        assertRootNodeContainsColor(expectedTint)
     }
 
     @Test
@@ -89,14 +93,13 @@ class RemoteMaterialThemeTest {
     fun button_named_color_can_be_overridden() {
         val expectedTint = Color.Yellow
 
-        val colorOverrides = buildObjectIntMap { put("WearM3.primary", Color.Yellow.toArgb()) }
-        remoteComposeTestRule.runTest(colorOverrides = colorOverrides) {
+        runTest(colorOverrides = mapOf("WearM3.primary" to Color.Yellow)) {
             RemoteMaterialTheme {
                 RemoteButton(onClick = Action.Empty) { RemoteText("button_enabled".rs) }
             }
         }
 
-        remoteComposeTestRule.assertRootNodeContainsColor(expectedTint)
+        assertRootNodeContainsColor(expectedTint)
     }
 
     @Test
@@ -105,7 +108,7 @@ class RemoteMaterialThemeTest {
         val remoteColorScheme =
             RemoteColorScheme(colorScheme = ColorScheme(onSurface = Color.Yellow))
 
-        remoteComposeTestRule.runTest {
+        runTest {
             RemoteMaterialTheme(colorScheme = remoteColorScheme) {
                 RemoteIcon(
                     TestImageVectors.VolumeUp,
@@ -115,7 +118,7 @@ class RemoteMaterialThemeTest {
             }
         }
 
-        remoteComposeTestRule.assertRootNodeContainsColor(expectedTint)
+        assertRootNodeContainsColor(expectedTint)
     }
 
     @Test
@@ -123,7 +126,7 @@ class RemoteMaterialThemeTest {
         val expectedTint = Color.Yellow
         val remoteColorScheme = RemoteColorScheme().copy(onSurface = Color.Yellow.rc)
 
-        remoteComposeTestRule.runTest {
+        runTest {
             RemoteMaterialTheme(colorScheme = remoteColorScheme) {
                 RemoteIcon(
                     TestImageVectors.VolumeUp,
@@ -133,7 +136,7 @@ class RemoteMaterialThemeTest {
             }
         }
 
-        remoteComposeTestRule.assertRootNodeContainsColor(expectedTint)
+        assertRootNodeContainsColor(expectedTint)
     }
 
     @Test
@@ -142,50 +145,43 @@ class RemoteMaterialThemeTest {
         val remoteColorScheme = RemoteColorScheme(customColorScheme)
         val expectedTint = Color.Cyan
 
-        remoteComposeTestRule.runTest {
+        runTest {
             RemoteMaterialTheme(colorScheme = remoteColorScheme) {
                 val iconTint = RemoteMaterialTheme.colorScheme.onSurface
                 RemoteIcon(TestImageVectors.VolumeUp, contentDescription = null, tint = iconTint)
             }
         }
 
-        remoteComposeTestRule.assertRootNodeContainsColor(expectedTint)
+        assertRootNodeContainsColor(expectedTint)
     }
 
-    private fun RemoteContentTestRule.runTest(
-        colorOverrides: ObjectIntMap<String> = mutableObjectIntMapOf(),
+    private fun runTest(
+        colorOverrides: Map<String, Color> = emptyMap(),
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
-        setContent(
-            remoteCreationDisplayInfo =
-                createCreationDisplayInfo(ApplicationProvider.getApplicationContext()),
-            player =
-                object : RemoteBaseContentTestRule.Player {
-                    @Composable
-                    override fun Play(coreDocument: CoreDocument, size: Size) {
-                        Box(modifier = Modifier.testTag(ROOT_TEST_TAG)) {
-                            RemoteDocumentPlayer(
-                                document = coreDocument,
-                                documentWidth = size.width.toInt(),
-                                documentHeight = size.height.toInt(),
-                                update = { player ->
-                                    colorOverrides.forEach { name, colorInt ->
-                                        player.setUserLocalColor(name, colorInt)
-                                    }
-                                },
-                            )
-                        }
-                    }
-                },
-            composable = composable,
-        )
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val document = runBlocking {
+            val bytes = captureSingleRemoteDocument(context = context, content = composable).bytes
+            CoreDocument().apply {
+                ByteArrayInputStream(bytes).use {
+                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                }
+            }
+        }
+        val playerState = RcPlayerState(document)
+        colorOverrides.forEach { (name, color) ->
+            playerState.colorState(name).value = color
+        }
+        rule.setContent {
+            Box(modifier = Modifier.size(100.dp).testTag(ROOT_TEST_TAG)) {
+                RcPlayer(state = playerState)
+            }
+        }
+        rule.waitForIdle()
     }
 
-    private fun RemoteContentTestRule.assertRootNodeContainsColor(expectedColor: Color) {
-        composeTestRule
-            .onNodeWithTag(ROOT_TEST_TAG)
-            .captureToImage()
-            .assertContainsColor(expectedColor)
+    private fun assertRootNodeContainsColor(expectedColor: Color) {
+        rule.onNodeWithTag(ROOT_TEST_TAG).captureToImage().assertContainsColor(expectedColor)
     }
 
     companion object {
