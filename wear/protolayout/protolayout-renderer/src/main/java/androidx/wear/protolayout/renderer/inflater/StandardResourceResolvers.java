@@ -141,12 +141,13 @@ public class StandardResourceResolvers {
 
         if (animationEnabled) {
             DefaultAndroidAnimatedImageResourceByResIdResolver androidAnimatedResourceResolver =
-                    new DefaultAndroidAnimatedImageResourceByResIdResolver(serviceAndroidResources);
+                    new DefaultAndroidAnimatedImageResourceByResIdResolver(
+                            serviceAndroidResources, /* restrictImageSize= */ true);
 
             DefaultAndroidSeekableAnimatedImageResourceByResIdResolver
                     androidSeekableAnimatedResourceResolver =
                             new DefaultAndroidSeekableAnimatedImageResourceByResIdResolver(
-                                    serviceAndroidResources);
+                                    serviceAndroidResources, /* restrictImageSize= */ true);
 
             builder.setAndroidAnimatedImageResourceByResIdResolver(androidAnimatedResourceResolver)
                     .setAndroidSeekableAnimatedImageResourceByResIdResolver(
