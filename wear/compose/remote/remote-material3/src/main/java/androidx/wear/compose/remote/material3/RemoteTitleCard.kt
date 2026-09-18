@@ -49,6 +49,7 @@ import androidx.compose.runtime.CompositionLocalProvider
  * @param subtitle An optional slot for displaying the subtitle of the card
  * @param shape Defines the card's shape.
  * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card.
+ * @param border A [RemoteBorderStroke] used for drawing the card's outline border
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
  * @param content The optional body content of the card.
@@ -64,6 +65,7 @@ public fun RemoteTitleCard(
     subtitle: (@Composable @RemoteComposable () -> Unit)? = null,
     shape: RemoteShape = RemoteCardDefaults.shape,
     colors: RemoteCardColors = RemoteCardDefaults.cardColors(),
+    border: RemoteBorderStroke? = null,
     contentPadding: RemotePaddingValues = RemoteCardDefaults.ContentPadding,
     content: (@Composable @RemoteComposable () -> Unit)? = null,
 ) {
@@ -82,6 +84,7 @@ public fun RemoteTitleCard(
         modifier = modifier,
         colors = colors,
         enabled = enabled,
+        border = border,
         contentPadding = contentPadding,
         shape = shape,
     ) {
@@ -150,6 +153,7 @@ public fun RemoteTitleCard(
  * @param subtitle An optional slot for displaying the subtitle of the card
  * @param shape Defines the card's shape.
  * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card.
+ * @param border A [RemoteBorderStroke] used for drawing the card's outline border
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
  * @param content The optional body content of the card.
@@ -166,6 +170,7 @@ public fun RemoteTitleCard(
     subtitle: (@Composable @RemoteComposable () -> Unit)? = null,
     shape: RemoteShape = RemoteCardDefaults.shape,
     colors: RemoteCardColors = RemoteCardDefaults.cardWithContainerPainterColors(),
+    border: RemoteBorderStroke? = null,
     contentPadding: RemotePaddingValues = RemoteCardDefaults.CardWithContainerPainterContentPadding,
     content: (@Composable @RemoteComposable () -> Unit)? = null,
 ) {
@@ -185,6 +190,7 @@ public fun RemoteTitleCard(
         colors = colors,
         enabled = enabled,
         containerPainter = containerPainter,
+        border = border,
         contentPadding = contentPadding,
         shape = shape,
     ) {

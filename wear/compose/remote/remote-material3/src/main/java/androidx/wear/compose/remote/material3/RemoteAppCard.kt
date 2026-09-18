@@ -48,6 +48,7 @@ import androidx.compose.runtime.CompositionLocalProvider
  *   respond to user input.
  * @param shape Defines the card's shape.
  * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card.
+ * @param border A [RemoteBorderStroke] used for drawing the card's outline border
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
  * @param appImage A slot for a small ([RemoteCardDefaults.AppImageSize]) image associated with the
@@ -65,6 +66,7 @@ public fun RemoteAppCard(
     enabled: RemoteBoolean = true.rb,
     shape: RemoteShape = RemoteCardDefaults.shape,
     colors: RemoteCardColors = RemoteCardDefaults.cardColors(),
+    border: RemoteBorderStroke? = null,
     contentPadding: RemotePaddingValues = RemoteCardDefaults.ContentPadding,
     appImage: (@Composable @RemoteComposable () -> Unit)? = null,
     time: (@Composable @RemoteComposable () -> Unit)? = null,
@@ -75,6 +77,7 @@ public fun RemoteAppCard(
         modifier = modifier,
         colors = colors,
         enabled = enabled,
+        border = border,
         contentPadding = contentPadding,
         shape = shape,
     ) {
