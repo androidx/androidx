@@ -42,6 +42,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Limiter
 import androidx.compose.remote.core.Limits
@@ -96,7 +97,6 @@ import androidx.compose.remote.player.compose.embedded.layout.RcPlayerFlowRow
 import androidx.compose.remote.player.compose.embedded.layout.RcPlayerImageLayout
 import androidx.compose.remote.player.compose.embedded.layout.RcPlayerRow
 import androidx.compose.remote.player.compose.embedded.layout.RcPlayerStateLayout
-import androidx.compose.remote.player.compose.embedded.state.rememberRemoteIntAsState
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.remote.player.core.state.StateUpdater
@@ -110,6 +110,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.onSizeChanged
@@ -518,8 +519,13 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
         val visibilityOp =
             component.componentModifiers.list.fastFirstOrNull { it is ComponentVisibilityOperation }
                 as? ComponentVisibilityOperation
-        if (visibilityOp != null) {
-            val visible by rememberRemoteIntAsState(visibilityOp.getVisibilityIdReflection())
+        // FitBoxLayout and StateLayout unconditionally override the visibility of their direct
+        // candidate/page children (matching FitBoxLayout.addVisibilityOverride and
+        // StateLayout.measure in remote-core).
+        val visibilityDelegatedToParent =
+            component.parent is FitBoxLayout || component.parent is StateLayout
+        if (visibilityOp != null && !visibilityDelegatedToParent) {
+            val visible = rememberComponentVisibility(visibilityOp)
             if (visible == Component.Visibility.GONE) {
                 return
             }
@@ -528,8 +534,18 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
         var modifier =
             Modifier.sharedElementTransition(component)
                 .then(
+                    // Allow StateLayout to adopt its active child's measured dimensions rather than
+                    // expanding to incoming minimum parent constraints.
+                    if (component is StateLayout) {
+                        Modifier.wrapContentSize(Alignment.TopStart)
+                    } else {
+                        Modifier
+                    }
+                )
+                .then(
                     component.componentModifiers.toModifier(
-                        component.getDrawContentOperationsListReflection()
+                        component.getDrawContentOperationsListReflection(),
+                        ignoreVisibility = visibilityDelegatedToParent,
                     )
                 )
                 .then(modifier)
