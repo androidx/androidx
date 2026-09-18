@@ -23,6 +23,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.em
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.text.vertical.EmphasisSpan
 import androidx.text.vertical.EmphasisStyle
 import androidx.text.vertical.FontShearSpan
@@ -31,9 +32,8 @@ import androidx.text.vertical.TextOrientationSpan
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class VerticalTextBuilderTest {
 
     private val density = Density(density = 2f, fontScale = 1f)
