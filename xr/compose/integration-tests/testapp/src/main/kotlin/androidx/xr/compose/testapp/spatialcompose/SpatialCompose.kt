@@ -46,6 +46,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -132,6 +133,8 @@ import kotlinx.coroutines.launch
 
 class SpatialCompose : ComponentActivity() {
 
+    private var cornerRadiusDp by mutableFloatStateOf(32f)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -163,6 +166,7 @@ class SpatialCompose : ComponentActivity() {
         isDebugInspectorInfoEnabled = true
     }
 
+    @Suppress("DEPRECATION")
     @Composable
     fun MainPanelContent() {
         val scope = rememberCoroutineScope()
@@ -181,6 +185,13 @@ class SpatialCompose : ComponentActivity() {
                     verticalArrangement = Arrangement.Center,
                 ) {
                     Text("Panel Center - main task window")
+                    Text("Panel Corner Radius: ${cornerRadiusDp.toInt()} dp")
+                    Slider(
+                        value = cornerRadiusDp,
+                        onValueChange = { cornerRadiusDp = it },
+                        valueRange = 0f..64f,
+                        modifier = Modifier.width(240.dp),
+                    )
                     val isSpatialUiEnabled = LocalSpatialCapabilities.current.isSpatialUiEnabled
 
                     Button(
@@ -236,6 +247,7 @@ class SpatialCompose : ComponentActivity() {
     fun PanelGrid() {
         val sidePanelModifier = SubspaceModifier.fillMaxWidth().height(200.dp)
         val curveRadius = 1025.dp
+        val dynamicShape = SpatialRoundedCornerShape(CornerSize(cornerRadiusDp.dp))
         SpatialColumn(SubspaceModifier.testTag("PanelGridColumn")) {
             SpatialCurvedRow(
                 modifier = SubspaceModifier.width(2000.dp).height(1200.dp).testTag("PanelGridRow"),
@@ -286,7 +298,8 @@ class SpatialCompose : ComponentActivity() {
                             SubspaceModifier.fillMaxHeight(0.7f)
                                 .fillMaxWidth()
                                 .movable()
-                                .resizable()
+                                .resizable(),
+                        shape = dynamicShape,
                     )
                     val intent = remember {
                         Intent(this@SpatialCompose, AnotherActivity::class.java)
@@ -301,6 +314,7 @@ class SpatialCompose : ComponentActivity() {
                                 .fillMaxWidth()
                                 .testTag("ActivityPanel")
                                 .movable(),
+                        shape = dynamicShape,
                     )
                 }
                 SpatialColumn(
@@ -338,7 +352,8 @@ class SpatialCompose : ComponentActivity() {
                                     else -> {}
                                 }
                             },
-                    )
+                    ),
+            shape = SpatialRoundedCornerShape(CornerSize(cornerRadiusDp.dp)),
         ) {
             PanelContent { Text(text) }
 
@@ -381,7 +396,8 @@ class SpatialCompose : ComponentActivity() {
                 modifier.movable(
                     movePolicy =
                         MovePolicy.anchor(anchorPlaneOrientations = setOf(PlaneOrientation.Any))
-                )
+                ),
+            shape = SpatialRoundedCornerShape(CornerSize(cornerRadiusDp.dp)),
         ) {
             Column(
                 modifier = Modifier.background(Color.LightGray).padding(24.dp).fillMaxSize(),
@@ -454,7 +470,11 @@ class SpatialCompose : ComponentActivity() {
             }
         }
 
-        SpatialAndroidViewPanel(factory = { textView }, modifier = modifier)
+        SpatialAndroidViewPanel(
+            factory = { textView },
+            modifier = modifier,
+            shape = SpatialRoundedCornerShape(CornerSize(cornerRadiusDp.dp)),
+        )
     }
 
     @Composable
@@ -547,7 +567,8 @@ class SpatialCompose : ComponentActivity() {
     fun AspectRatioPanel() {
         var aspectRatioValue by remember { mutableFloatStateOf(1f) }
         SpatialPanel(
-            modifier = SubspaceModifier.fillMaxWidth().height(200.dp).aspectRatio(aspectRatioValue)
+            modifier = SubspaceModifier.fillMaxWidth().height(200.dp).aspectRatio(aspectRatioValue),
+            shape = SpatialRoundedCornerShape(CornerSize(cornerRadiusDp.dp)),
         ) {
             Column(
                 modifier = Modifier.fillMaxSize().background(Color.LightGray).padding(16.dp),
@@ -566,7 +587,10 @@ class SpatialCompose : ComponentActivity() {
     @SubspaceComposable
     @Composable
     fun RtlOrbiterPanel() {
-        SpatialPanel(modifier = SubspaceModifier.fillMaxWidth().height(200.dp)) {
+        SpatialPanel(
+            modifier = SubspaceModifier.fillMaxWidth().height(200.dp),
+            shape = SpatialRoundedCornerShape(CornerSize(cornerRadiusDp.dp)),
+        ) {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 Orbiter(
                     position =

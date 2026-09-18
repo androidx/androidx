@@ -324,7 +324,7 @@ internal sealed class CoreBasePanelEntity(
     /** The [SpatialShape] of this [CoreBasePanelEntity]. */
     private var shape: SpatialShape = SpatialPanelDefaults.shape
 
-    /* Sets the [SpatialShape] of this [CoreBasePanelEntity] and updates the shape */
+    /** Sets the [SpatialShape] of this [CoreBasePanelEntity] and updates the shape. */
     fun setShape(shape: SpatialShape, density: Density) {
         this.shape = shape
         this.shapeDensity = density
@@ -337,7 +337,10 @@ internal sealed class CoreBasePanelEntity(
         if (shape is SpatialRoundedCornerShape) {
             val radius =
                 shape.computeCornerRadius(size.width.toFloat(), size.height.toFloat(), density)
-            panelEntity?.cornerRadius = radius.pxToMeters(pixelDensity)
+            val radiusMeters = radius.pxToMeters(pixelDensity)
+            if (panelEntity?.cornerRadius != radiusMeters) {
+                panelEntity?.cornerRadius = radiusMeters
+            }
         }
     }
 }
