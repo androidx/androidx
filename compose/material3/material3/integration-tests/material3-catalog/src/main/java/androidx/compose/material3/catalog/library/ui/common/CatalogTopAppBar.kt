@@ -16,12 +16,21 @@
 
 package androidx.compose.material3.catalog.library.ui.common
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -32,17 +41,25 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.catalog.library.R
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -181,6 +198,60 @@ private fun MoreMenu(
         DropdownMenuItem(
             text = { Text(stringResource(id = R.string.open_source_licenses)) },
             onClick = onLicensesClick,
+        )
+    }
+}
+
+@Composable
+fun CatalogSearchField(
+    textFieldState: TextFieldState,
+    scrollBehavior: TopAppBarScrollBehavior,
+) {
+    val topAppBarColors = TopAppBarDefaults.topAppBarColors()
+    val topAppBarTargetContainerColor by
+        remember(topAppBarColors, scrollBehavior) {
+            derivedStateOf {
+                lerp(
+                    topAppBarColors.containerColor,
+                    topAppBarColors.scrolledContainerColor,
+                    FastOutLinearInEasing.transform(
+                        if (scrollBehavior.state.overlappedFraction > 0.01f) 1f else 0f
+                    ),
+                )
+            }
+        }
+    val topAppBarContainerColor by
+        animateColorAsState(
+            topAppBarTargetContainerColor,
+            animationSpec = MaterialTheme.motionScheme.defaultEffectsSpec(),
+        )
+
+    Box(
+        modifier =
+            Modifier.drawBehind {
+                    drawRect(color = topAppBarContainerColor)
+                }
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 4.dp)
+    ) {
+        TextField(
+            modifier = Modifier.fillMaxWidth(),
+            state = textFieldState,
+            lineLimits = TextFieldLineLimits.SingleLine,
+            placeholder = { Text(stringResource(id = R.string.search_samples)) },
+            leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+            trailingIcon = {
+                if (textFieldState.text.isNotEmpty()) {
+                    IconButton(onClick = { textFieldState.clearText() }) {
+                        Icon(
+                            Icons.Filled.Clear,
+                            contentDescription = stringResource(id = R.string.clear_text),
+                        )
+                    }
+                }
+            },
+            shape = TextFieldDefaults.roundedShape,
+            colors = TextFieldDefaults.tonalColors(),
         )
     }
 }
