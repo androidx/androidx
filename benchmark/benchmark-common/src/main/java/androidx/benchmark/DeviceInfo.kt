@@ -317,6 +317,62 @@ public object DeviceInfo {
             artVersion in ART_MAINLINE_VERSIONS_AFFECTING_METHOD_TRACING || // b/303660864
             (sdkInt == 34 && artVersion >= ART_MAINLINE_INTERNAL_BUILD_MIN) // b/303686344#comment31
 
+    /**
+     * Returns the estimated runtime slowdown multiplier for ART method tracing
+     * (`Debug.startMethodTracing` with [TRACE_CLOCK_SOURCE_WALL_CLOCK]) compared to untraced
+     * execution, calibrated per device (`Build.DEVICE`), SDK version, and ART mainline version.
+     *
+     * Multiplied by the estimated untraced duration in [Profiler.startIfNotRiskingAnrDeadline] to
+     * predict whether a method-traced iteration on the main thread will exceed
+     * [BenchmarkState.METHOD_TRACING_MAX_DURATION_NS] (4 seconds) and risk triggering an ANR.
+     *
+     * Per-device values were chosen by adding headroom above the maximum slowdown ratios observed
+     * across CI microbenchmark runs (matching
+     * [BenchmarkState.GENERIC_METHOD_TRACING_ESTIMATED_SLOWDOWN_FACTOR], which was set to 1000 from
+     * 600-800x observed on bramble API 31).
+     */
+    internal fun methodTracingSlowdownFactor(
+        device: String,
+        sdkInt: Int,
+        artMainlineVersion: Long,
+    ): Int {
+        if (device == "sargo" && sdkInt >= 31) {
+            // Pixel 3a on API 31 in CI runs factory ART (319999900) without
+            // TRACE_CLOCK_SOURCE_WALL_CLOCK support, with 120-405x dual-clock slowdown observed.
+            return 450
+        }
+        // ART mainline 341513000+ and Android 15 (SDK 35+) support TRACE_CLOCK_SOURCE_WALL_CLOCK
+        // in Debug.startMethodTracing, avoiding expensive per-method thread-CPU clock reads.
+        val supportsLowOverheadWallClockTracing =
+            (artMainlineVersion >= 341513000L || sdkInt >= 35) &&
+                artMainlineVersion < ART_MAINLINE_INTERNAL_BUILD_MIN
+        return if (supportsLowOverheadWallClockTracing) {
+            when (device) {
+                // Google reference board (mokey): chosen with headroom above 105-265x slowdown
+                // observed on API 35/36.
+                "mokey",
+                "aosp_mokey",
+                "mokey_go32" -> 300
+                // Wear OS reference board (eos): chosen with headroom above 280-310x slowdown
+                // observed on API 34/35.
+                "eos" -> 350
+                // Pixel 6: chosen with headroom above 85-132x slowdown observed on API 35/36
+                // (150x), and 145-488x slowdown observed on API 37 / ART 370000000+ (550x).
+                "oriole" -> if (sdkInt >= 37 || artMainlineVersion >= 370000000L) 550 else 150
+                else -> BenchmarkState.GENERIC_METHOD_TRACING_ESTIMATED_SLOWDOWN_FACTOR
+            }
+        } else {
+            BenchmarkState.GENERIC_METHOD_TRACING_ESTIMATED_SLOWDOWN_FACTOR
+        }
+    }
+
+    internal val methodTracingSlowdownFactor: Int =
+        methodTracingSlowdownFactor(
+            device = Build.DEVICE,
+            sdkInt = Build.VERSION.SDK_INT,
+            artMainlineVersion = artMainlineVersion,
+        )
+
     public val methodTracingAffectsMeasurements: Boolean =
         willMethodTracingAffectMeasurements(Build.VERSION.SDK_INT, artMainlineVersion)
 
