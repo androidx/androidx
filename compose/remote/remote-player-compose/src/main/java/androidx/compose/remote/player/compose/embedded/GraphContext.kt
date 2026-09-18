@@ -31,7 +31,9 @@ import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
 import androidx.compose.remote.player.core.platform.TypefaceResolver
+import androidx.compose.runtime.IntState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableFloatStateOf
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -60,8 +62,8 @@ import java.util.concurrent.ConcurrentHashMap
 internal class GraphContext(
     private val realState: SnapshotRemoteComposeState,
     private val computedOps: IntObjectMap<Operation>,
-    private val timeMillis: State<Float>,
-    clock: RemoteClock,
+    timeMillis: State<Float> = mutableFloatStateOf(0f),
+    clock: RemoteClock = RemoteClock.SYSTEM,
     internal var componentValues: Map<Int, State<Float>> = emptyMap(),
 ) : StoreBackedRemoteContext(clock) {
 
@@ -71,28 +73,36 @@ internal class GraphContext(
         this.typefaceResolver = resolver
     }
 
+    private var _timeState: GraphTimeState? = null
+
+    internal val timeState: GraphTimeState
+        get() = _timeState!!
+
     init {
         // Share the leaf store so collections/objects/paths and plain variables resolve against the
         // same (snapshot-backed) data the rest of the player uses.
         mRemoteComposeState = realState
+        _timeState = GraphTimeState(clock, timeMillis.value)
     }
+
+    internal val startClockMillis: Long
+        get() = timeState.startClockMillis
+
+    internal val epochSecondState: IntState
+        get() = timeState.epochSecondState
+
+    internal fun updateTime(frameMillis: Float, updateContinuous: Boolean = true): Boolean =
+        timeState.updateTime(frameMillis, updateContinuous)
+
+    internal fun timeFloatState(id: Int): State<Float> = timeState.timeFloatState(id)
+
+    override fun getClock(): RemoteClock = _timeState?.reactiveClock ?: super.getClock()
 
     private val graphPaintContext = GraphPaintContext(this)
 
-    /**
-     * Particle loops whose state has been seeded (keyed by op identity). Lives here because the
-     * GraphContext is the per-document Compose-side runtime state, remembered across frames — the
-     * particle simulation (see RcPlayerParticles) needs persistent state but runs from the draw
-     * pass, which isn't a composable.
-     */
     @Suppress("BanConcurrentHashMap")
     internal val particlesInitialized: MutableSet<Int> = ConcurrentHashMap.newKeySet()
 
-    /**
-     * The active [RcImageLoader], set by [RcPlayer]. Lives here because the canvas draw path (which
-     * isn't a composable, so can't read [LocalRcImageLoader]) needs it to resolve document image
-     * draws through the same pluggable loader the composable Image layout uses.
-     */
     internal var imageLoader: RcImageLoader? = null
 
     private class EvalPassState {
@@ -108,7 +118,6 @@ internal class GraphContext(
     // contractually single-thread. Re-entrancy within a thread is handled by save/restore.
     private val evalState = ThreadLocal.withInitial { EvalPassState() }
 
-    /** True if [id] is produced by a computed op (vs a leaf variable). */
     internal fun isComputed(id: Int): Boolean = computedOps.containsKey(id)
 
     private fun computedValue(id: Int): Any? {
@@ -156,33 +165,20 @@ internal class GraphContext(
     override fun getFloat(id: Int): Float {
         val compVal = componentValues[id]
         return when {
-            // Time variables come from the Compose frame-clock state (matching the resolver's time
-            // special-case), not the raw store — so a time-driven op reads seconds/minutes/hours.
-            // TODO(b/559048721): timeMillis.value is elapsed time since player start, which is
-            // correct for ID_ANIMATION_TIME, but ID_CONTINUOUS_SEC, ID_TIME_IN_SEC, ID_TIME_IN_MIN,
-            // and ID_TIME_IN_HR should reflect wall-clock time from midnight via RemoteClock.
-            id == RemoteContext.ID_ANIMATION_TIME -> timeMillis.value / 1000f
-            id == RemoteContext.ID_CONTINUOUS_SEC || id == RemoteContext.ID_TIME_IN_SEC ->
-                timeMillis.value / 1000f
-            id == RemoteContext.ID_TIME_IN_MIN -> timeMillis.value / 60000f
-            id == RemoteContext.ID_TIME_IN_HR -> timeMillis.value / 3600000f
-            // ComponentValue sizes (e.g. measured width/height) are produced during Compose layout
-            // passes
-            // and take precedence over store overrides, matching direct reads in RcPlayerState.
             compVal != null -> compVal.value
             realState.isFloatOverridden(id) -> super.getFloat(id)
             isComputed(id) -> (computedValue(id) as? Number)?.toFloat() ?: 0f
+            isTimeVariable(id) -> timeFloatState(id).value
             else -> super.getFloat(id)
         }
     }
 
     override fun getInteger(id: Int): Int =
-        if (realState.isIntegerOverridden(id)) {
-            super.getInteger(id)
-        } else if (isComputed(id)) {
-            (computedValue(id) as? Number)?.toInt() ?: 0
-        } else {
-            super.getInteger(id)
+        when {
+            realState.isIntegerOverridden(id) -> super.getInteger(id)
+            isComputed(id) -> (computedValue(id) as? Number)?.toInt() ?: 0
+            id == RemoteContext.ID_EPOCH_SECOND -> epochSecondState.intValue
+            else -> super.getInteger(id)
         }
 
     override fun getColor(id: Int): Int =
@@ -231,7 +227,6 @@ internal class GraphContext(
         if (id == state.captureId) state.captured = text
     }
 
-    // Non-scalar / multi-writes during evaluation are suppressed (never reach the real store).
     override fun putObject(id: Int, value: Any) {}
 
     override fun loadPathData(instanceId: Int, winding: Int, floatPath: FloatArray) {}

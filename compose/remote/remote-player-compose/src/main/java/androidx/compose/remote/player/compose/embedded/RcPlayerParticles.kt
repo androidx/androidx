@@ -90,7 +90,7 @@ private inline fun DrawScope.withCorePaintContext(
     block: (PaintContext) -> Unit,
 ) {
     // Observe the frame clock so the draw re-runs each tick (continuous simulation).
-    graph.getFloat(RemoteContext.ID_TIME_IN_SEC)
+    graph.getFloat(RemoteContext.ID_ANIMATION_TIME)
     val canvas = drawContext.canvas.nativeCanvas
     val currentPaintContext = remoteContext.paintContext
     val paintContext =
