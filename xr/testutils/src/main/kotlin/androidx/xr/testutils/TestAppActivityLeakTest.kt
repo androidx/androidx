@@ -27,6 +27,12 @@ import org.junit.Test
 abstract class TestAppActivityLeakTest(activityClass: Class<out Activity>) :
     TestAppTest(activityClass) {
 
+    /**
+     * Returns whether the activity under test requires spatial rendering / split engine resources.
+     * Subclasses can override this to customize test execution behavior. Defaults to false.
+     */
+    protected open val requiresSplitEngine: Boolean = false
+
     @Test
     @XrDeviceTest
     fun activity_doesNotLeak() {
@@ -39,6 +45,12 @@ abstract class TestAppActivityLeakTest(activityClass: Class<out Activity>) :
         instrumentation.waitForIdleSync()
 
         assertGarbageCollected(weakActivityRef)
+
+        if (requiresSplitEngine) {
+            // TODO(b/552839023): Platform issue during rapid spatial renderer teardown and
+            // re-initialization.
+            sleep(200)
+        }
     }
 
     @Test
@@ -54,6 +66,12 @@ abstract class TestAppActivityLeakTest(activityClass: Class<out Activity>) :
             instrumentation.waitForIdleSync()
 
             assertGarbageCollected(weakActivityRef)
+
+            if (requiresSplitEngine) {
+                // TODO(b/552839023): Platform issue during rapid spatial renderer teardown and
+                // re-initialization.
+                sleep(200)
+            }
         }
     }
 }
