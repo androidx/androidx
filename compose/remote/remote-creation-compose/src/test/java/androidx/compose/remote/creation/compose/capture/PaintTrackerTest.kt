@@ -25,7 +25,6 @@ import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.paint.PaintChanges
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
-import androidx.compose.remote.creation.compose.state.AndroidRemotePaint
 import androidx.compose.remote.creation.compose.state.CompatAndroidRemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createIdentity
@@ -382,15 +381,12 @@ class PaintTrackerTest {
     //
 
     @Test
-    fun testFontVariationSettingsSync_AndroidRemotePaint() {
+    fun testFontVariationSettingsSync_RemotePaint() {
         assumeTrue(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
 
-        val androidPaint = android.graphics.Paint()
-        val paint = AndroidRemotePaint(androidPaint)
-        val bundle = PaintBundle()
-
         val settings = FontVariation.Settings(FontVariation.weight(500), FontVariation.width(100f))
-        paint.fontVariationSettings = settings
+        val paint = RemotePaint { fontVariationSettings = settings }
+        val bundle = PaintBundle()
 
         // TODO fix after https://github.com/robolectric/robolectric/issues/11126
         //         assertThat(paint.fontVariationSettings).isNotNull()
@@ -418,7 +414,7 @@ class PaintTrackerTest {
         val androidPaint = android.graphics.Paint()
         androidPaint.fontVariationSettings = "'wght' 500.0, 'wdth' 100.0"
 
-        val paint = AndroidRemotePaint(androidPaint)
+        val paint = androidPaint.asRemotePaint()
         val bundle = PaintBundle()
 
         val wghtId = creationState.document.addText("wght")
@@ -595,7 +591,7 @@ class PaintTrackerTest {
     fun testFilterQuality_compatAndroidRemotePaintFilterBitmapFalse() {
         val compatPaint = CompatAndroidRemotePaint().apply { isFilterBitmap = false }
         val bundle = PaintBundle()
-        tracker.updateWithPaint(compatPaint.remotePaint, bundle, recordingCanvas)
+        tracker.updateWithPaint(compatPaint.asRemotePaint(), bundle, recordingCanvas)
 
         assertThat(tracker.isChanged).isTrue()
         val changes = TestPaintChanges()
