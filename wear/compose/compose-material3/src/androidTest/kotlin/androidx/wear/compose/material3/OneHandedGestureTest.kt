@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material3
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.view.View
@@ -27,6 +28,7 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,6 +40,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -691,6 +695,58 @@ class OneHandedGestureTest {
             assertEquals(buttonGestured[0], 1)
             assertEquals(buttonGestured[1], 1)
         }
+    }
+
+    @SuppressLint("UnusedBoxWithConstraintsScope")
+    @Test
+    fun moving_gesture_modifier_with_movable_content_does_not_crash() {
+        var gestured = false
+        var moveContent by mutableStateOf(false)
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                val gesturableContent = remember {
+                    movableContentOf {
+                        // Subcomposition inside the moved content, so that the gesture node is
+                        // updated before it is attached again in its new location.
+                        BoxWithConstraints {
+                            val gestureConfig =
+                                rememberOneHandedGestureConfiguration(
+                                    action = OneHandedGestureAction.Primary
+                                )
+                            Text(
+                                "Gesturable",
+                                modifier =
+                                    Modifier.oneHandedGesture(
+                                        gestureConfiguration = gestureConfig,
+                                        onGestureLabel = moveContent.toString(),
+                                    ) {
+                                        gestured = true
+                                    },
+                            )
+                        }
+                    }
+                }
+
+                // Changing the key moves the content to a new location in the composition.
+                key(moveContent) { gesturableContent() }
+            }
+        }
+
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle {
+            assertEquals(true, gestured)
+            gestured = false
+        }
+
+        // Move the content - the gesture node is detached, updated and attached again.
+        rule.runOnIdle { moveContent = true }
+        rule.waitForIdle()
+
+        // Verify that the gesture is still registered after the move.
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle { assertEquals(true, gestured) }
     }
 
     @Test
