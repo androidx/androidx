@@ -19,4 +19,4 @@ package androidx.benchmark.macro
 @RequiresOptIn(message = "This Metric API is experimental.")
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.CONSTRUCTOR)
-annotation class ExperimentalMetricApi
+public annotation class ExperimentalMetricApi

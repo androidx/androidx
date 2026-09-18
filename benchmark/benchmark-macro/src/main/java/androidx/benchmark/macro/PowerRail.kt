@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.benchmark.Shell
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-object PowerRail {
+public object PowerRail {
 
     private const val DUMPSYS_POWERSTATS = "dumpsys powerstats"
 
@@ -42,7 +42,7 @@ object PowerRail {
      * @Throws UnsupportedOperationException if `hasException == true` and no rail metrics are
      *   found.
      */
-    fun hasMetrics(throwOnMissingMetrics: Boolean = false): Boolean {
+    public fun hasMetrics(throwOnMissingMetrics: Boolean = false): Boolean {
         // Note - we don't capture stderr, since if dumpsys fails due to missing
         // service, we'll correctly fail to find channels in stdout
         val output = Shell.executeCommandCaptureStdoutOnly(DUMPSYS_POWERSTATS)

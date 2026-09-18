@@ -51,7 +51,7 @@ import org.junit.Assume.assumeFalse
 /** Get package ApplicationInfo, throw if not found. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Suppress("DEPRECATION")
-fun getInstalledPackageInfo(packageName: String): ApplicationInfo {
+public fun getInstalledPackageInfo(packageName: String): ApplicationInfo {
     val pm = InstrumentationRegistry.getInstrumentation().context.packageManager
     try {
         return pm.getApplicationInfo(packageName, 0)
@@ -65,7 +65,7 @@ fun getInstalledPackageInfo(packageName: String): ApplicationInfo {
 
 /** @return `true` if the [ApplicationInfo] instance is referring to a system app. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun ApplicationInfo.isSystemApp(): Boolean {
+public fun ApplicationInfo.isSystemApp(): Boolean {
     return flags and (FLAG_SYSTEM or FLAG_UPDATED_SYSTEM_APP) > 0
 }
 
@@ -434,7 +434,7 @@ private fun macrobenchmark(
 /** Run a macrobenchmark with the specified StartupMode */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @ExperimentalBenchmarkConfigApi
-fun macrobenchmarkWithStartupMode(
+public fun macrobenchmarkWithStartupMode(
     uniqueName: String,
     className: String,
     testName: String,

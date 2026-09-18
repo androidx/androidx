@@ -19,4 +19,4 @@ package androidx.benchmark.macro
 @RequiresOptIn(message = "This Macrobenchmark API is experimental.")
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
-annotation class ExperimentalMacrobenchmarkApi
+public annotation class ExperimentalMacrobenchmarkApi
