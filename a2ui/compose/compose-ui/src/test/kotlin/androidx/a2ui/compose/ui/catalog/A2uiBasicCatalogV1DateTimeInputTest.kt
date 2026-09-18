@@ -115,6 +115,8 @@ class A2uiBasicCatalogV1DateTimeInputTest {
         assertThat(A2uiBasicCatalogV1.DateTimeInput.LabelProperty.key).isEqualTo("label")
         assertThat(A2uiBasicCatalogV1.DateTimeInput.LabelProperty.isRequired).isFalse()
         assertIs<A2uiDynamicStringSchema>(A2uiBasicCatalogV1.DateTimeInput.LabelProperty.schema)
+        assertThat(A2uiBasicCatalogV1.DateTimeInput.LabelProperty.schema.description)
+            .isEqualTo("The text label for the input field.")
     }
 
     private fun assertDateTimeFormatConstraints(schema: A2uiSchema) {

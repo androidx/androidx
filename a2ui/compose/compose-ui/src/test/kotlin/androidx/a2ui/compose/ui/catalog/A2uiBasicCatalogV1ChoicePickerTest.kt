@@ -102,7 +102,7 @@ class A2uiBasicCatalogV1ChoicePickerTest {
         assertThat(variantSchema.description)
             .isEqualTo("A hint for how the choice picker should be displayed and behave.")
         assertThat(variantSchema.keywords)
-            .contains(A2uiSchemaKeyword.Enum(listOf("mutuallyExclusive", "multipleSelection")))
+            .contains(A2uiSchemaKeyword.Enum(listOf("multipleSelection", "mutuallyExclusive")))
         assertThat(variantSchema.keywords)
             .contains(
                 A2uiSchemaKeyword.Default(
@@ -208,10 +208,16 @@ class A2uiBasicCatalogV1ChoicePickerTest {
 
     @Test
     fun variant_values_matchSpecificationStrings() {
-        assertThat(A2uiBasicCatalogV1.ChoicePicker.Variant.MutuallyExclusive.value)
-            .isEqualTo("mutuallyExclusive")
+        assertThat(A2uiBasicCatalogV1.ChoicePicker.Variant.entries)
+            .containsExactly(
+                A2uiBasicCatalogV1.ChoicePicker.Variant.MultipleSelection,
+                A2uiBasicCatalogV1.ChoicePicker.Variant.MutuallyExclusive,
+            )
+            .inOrder()
         assertThat(A2uiBasicCatalogV1.ChoicePicker.Variant.MultipleSelection.value)
             .isEqualTo("multipleSelection")
+        assertThat(A2uiBasicCatalogV1.ChoicePicker.Variant.MutuallyExclusive.value)
+            .isEqualTo("mutuallyExclusive")
     }
 
     @Test
