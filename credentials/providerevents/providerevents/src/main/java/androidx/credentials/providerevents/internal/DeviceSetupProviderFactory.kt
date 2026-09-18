@@ -19,9 +19,16 @@ package androidx.credentials.providerevents.internal
 import android.content.Intent
 import androidx.credentials.providerevents.DeviceSetupProvider
 
-internal class DeviceSetupProviderFactory : ProviderFactory {
+internal class DeviceSetupProviderFactory(
+    private val classLoader: ClassLoader =
+        DeviceSetupProviderFactory::class.java.classLoader ?: ClassLoader.getSystemClassLoader()
+) : ProviderFactory {
     fun getBestAvailableProvider(intent: Intent): DeviceSetupProvider? {
-        return getBestAvailableProvider(intent, DeviceSetupProvider.DEVICE_SETUP_PROVIDER_KEY)
-            as DeviceSetupProvider?
+        return getBestAvailableProvider(
+            intent,
+            DeviceSetupProvider.DEVICE_SETUP_PROVIDER_KEY,
+            DeviceSetupProvider::class.java,
+            classLoader,
+        )
     }
 }
