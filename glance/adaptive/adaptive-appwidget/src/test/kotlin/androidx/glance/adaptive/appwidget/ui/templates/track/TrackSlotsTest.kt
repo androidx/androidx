@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.appwidget.ui.templates
+package androidx.glance.adaptive.appwidget.ui.templates.track
 
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
