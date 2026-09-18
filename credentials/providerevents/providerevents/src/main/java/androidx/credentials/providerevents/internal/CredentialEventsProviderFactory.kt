@@ -19,12 +19,17 @@ package androidx.credentials.providerevents.internal
 import android.content.Intent
 import androidx.credentials.providerevents.CredentialEventsProvider
 
-internal class CredentialEventsProviderFactory() : ProviderFactory {
+internal class CredentialEventsProviderFactory(
+    private val classLoader: ClassLoader =
+        CredentialEventsProviderFactory::class.java.classLoader
+            ?: ClassLoader.getSystemClassLoader()
+) : ProviderFactory {
     fun getBestAvailableProvider(intent: Intent): CredentialEventsProvider? {
         return getBestAvailableProvider(
             intent,
             CredentialEventsProvider.EVENTS_SERVICE_PROVIDER_KEY,
+            CredentialEventsProvider::class.java,
+            classLoader,
         )
-            as CredentialEventsProvider?
     }
 }

@@ -24,12 +24,18 @@ import androidx.credentials.providerevents.service.CredentialProviderEventsServi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class CredentialEventsProviderFactoryTest {
+
+    @Before
+    fun setUp() {
+        NonCredentialEventsProviderClass.instantiated = false
+    }
 
     @Test
     fun getBestAvailableProvider_validClassName_returnsProvider() {
@@ -45,6 +51,23 @@ class CredentialEventsProviderFactoryTest {
         val provider = factory.getBestAvailableProvider(intent)
 
         assertThat(provider).isInstanceOf(DummyCredentialEventsProvider::class.java)
+    }
+
+    @Test
+    fun getBestAvailableProvider_nonProviderClass_doesNotInstantiateAndReturnsNull() {
+        val factory = CredentialEventsProviderFactory()
+        val intent =
+            Intent().apply {
+                putExtra(
+                    CredentialEventsProvider.EVENTS_SERVICE_PROVIDER_KEY,
+                    NonCredentialEventsProviderClass::class.java.name,
+                )
+            }
+
+        val provider = factory.getBestAvailableProvider(intent)
+
+        assertThat(provider).isNull()
+        assertThat(NonCredentialEventsProviderClass.instantiated).isFalse()
     }
 
     @Test
@@ -78,5 +101,15 @@ class CredentialEventsProviderFactoryTest {
 class DummyCredentialEventsProvider : CredentialEventsProvider {
     override fun getStubImplementation(service: CredentialProviderEventsService): IBinder? {
         return Binder()
+    }
+}
+
+class NonCredentialEventsProviderClass {
+    init {
+        instantiated = true
+    }
+
+    companion object {
+        var instantiated: Boolean = false
     }
 }
