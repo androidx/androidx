@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.foundation
 
+import android.view.View
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -31,6 +32,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.findRootCoordinates
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.RotaryInjectionScope
 import androidx.compose.ui.test.assertIsDisplayed
@@ -39,6 +41,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performRotaryScrollInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
@@ -57,6 +60,7 @@ import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import androidx.wear.compose.foundation.rotary.RotarySnapSensitivityValues
 import androidx.wear.compose.foundation.rotary.rotaryScrollable
 import kotlin.math.absoluteValue
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -639,6 +643,58 @@ class PagerTest {
         rule.runOnIdle { Assert.assertEquals(expectedPageTarget, pagerState.currentPage) }
     }
 
+    @Test
+    fun swipe_on_page_2_inside_swipe_to_dismiss_with_default_inclusion_zone_pages_back() {
+        assertFalse(swipeInsideSwipeToDismissDismisses(initialPage = 1, fromEdge = false))
+    }
+
+    @Test
+    fun edge_swipe_on_page_2_inside_swipe_to_dismiss_with_default_inclusion_zone_pages_back() {
+        assertFalse(swipeInsideSwipeToDismissDismisses(initialPage = 1, fromEdge = true))
+    }
+
+    @Test
+    fun swipe_on_page_1_inside_swipe_to_dismiss_with_default_inclusion_zone_does_not_dismiss() {
+        assertFalse(swipeInsideSwipeToDismissDismisses(initialPage = 0, fromEdge = false))
+    }
+
+    @Test
+    fun edge_swipe_on_page_1_inside_swipe_to_dismiss_with_default_inclusion_zone_dismisses() {
+        assertTrue(swipeInsideSwipeToDismissDismisses(initialPage = 0, fromEdge = true))
+    }
+
+    @Test
+    fun edge_swipe_on_page_2_inside_swipe_to_dismiss_with_no_inclusion_dismisses() {
+        assertTrue(
+            swipeInsideSwipeToDismissDismisses(
+                initialPage = 1,
+                fromEdge = true,
+                gestureInclusion = { noInclusion },
+            )
+        )
+    }
+
+    @Test
+    fun horizontal_pager_with_default_inclusion_zone_disallows_android_view_back_gesture_on_page_2() {
+        assertTrue(parentAndroidViewCanScrollHorizontally(initialPage = 1, fromEdge = false))
+    }
+
+    @Test
+    fun horizontal_pager_with_default_inclusion_zone_allows_android_view_back_gesture_on_page_1() {
+        assertFalse(parentAndroidViewCanScrollHorizontally(initialPage = 0, fromEdge = true))
+    }
+
+    @Test
+    fun horizontal_pager_with_no_inclusion_allows_android_view_back_gesture_on_page_2() {
+        assertFalse(
+            parentAndroidViewCanScrollHorizontally(
+                initialPage = 1,
+                fromEdge = false,
+                gestureInclusion = { noInclusion },
+            )
+        )
+    }
+
     @Composable
     fun DefaultLazyColumn(state: LazyListState) {
         val focusRequester = remember { FocusRequester() }
@@ -653,4 +709,84 @@ class PagerTest {
             }
         }
     }
+
+    private fun swipeInsideSwipeToDismissDismisses(
+        initialPage: Int,
+        fromEdge: Boolean,
+        gestureInclusion: (@Composable (PagerState) -> GestureInclusion) = {
+            PagerDefaults.gestureInclusion(it)
+        },
+    ): Boolean {
+        lateinit var pagerState: PagerState
+        var dismissed = false
+        rule.setContent {
+            val swipeToDismissState = rememberSwipeToDismissBoxState()
+            pagerState = rememberPagerState(initialPage = initialPage) { 3 }
+            val inclusion = gestureInclusion(pagerState)
+            BasicSwipeToDismissBox(
+                state = swipeToDismissState,
+                onDismissed = { dismissed = true },
+            ) { isBackground ->
+                if (!isBackground) {
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.testTag(pagerTestTag),
+                        gestureInclusion = inclusion,
+                    ) { page ->
+                        BasicText("Page $page")
+                    }
+                }
+            }
+        }
+
+        val startXFraction = if (fromEdge) 0.05f else 0.3f
+        rule.onNodeWithTag(pagerTestTag).performTouchInput {
+            swipe(
+                start = Offset(width * startXFraction, height * 0.5f),
+                end = Offset(width * 0.9f, height * 0.5f),
+                durationMillis = 2000,
+            )
+        }
+        rule.waitForIdle()
+
+        val expectedPage = if (dismissed) initialPage else (initialPage - 1).coerceAtLeast(0)
+        Assert.assertEquals(expectedPage, pagerState.currentPage)
+        return dismissed
+    }
+
+    private fun parentAndroidViewCanScrollHorizontally(
+        initialPage: Int,
+        fromEdge: Boolean,
+        gestureInclusion: (@Composable (PagerState) -> GestureInclusion) = {
+            PagerDefaults.gestureInclusion(it)
+        },
+    ): Boolean {
+        lateinit var composeView: View
+        rule.setContent {
+            composeView = LocalView.current
+            val pagerState = rememberPagerState(initialPage = initialPage) { 3 }
+            val inclusion = gestureInclusion(pagerState)
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.testTag(pagerTestTag),
+                gestureInclusion = inclusion,
+            ) { page ->
+                BasicText("Page $page")
+            }
+        }
+
+        val startXFraction = if (fromEdge) 0.05f else 0.5f
+        rule.onNodeWithTag(pagerTestTag).performTouchInput {
+            down(Offset(width * startXFraction, height * 0.5f))
+        }
+        return rule.runOnIdle { composeView.canScrollHorizontally(-1) }
+    }
+
+    private val noInclusion =
+        object : GestureInclusion {
+            override fun ignoreGestureStart(
+                offset: Offset,
+                layoutCoordinates: LayoutCoordinates,
+            ): Boolean = true
+        }
 }

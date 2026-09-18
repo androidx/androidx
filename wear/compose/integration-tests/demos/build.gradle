@@ -67,6 +67,8 @@ dependencies {
     implementation(project(":wear:compose:compose-navigation-samples"))
     implementation(project(":wear:compose:compose-navigation3"))
     implementation(project(":wear:compose:compose-navigation3-samples"))
+    implementation(project(":navigation3:navigation3-ui"))
+    implementation(project(":wear:compose:compose-material3-samples"))
     implementation(project(":wear:compose:integration-tests:demos:common"))
     implementation(project(":wear:compose:compose-material3-integration-tests"))
 
