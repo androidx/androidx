@@ -20,8 +20,6 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.runtime.math.Pose
-import androidx.xr.runtime.math.Quaternion
-import androidx.xr.runtime.math.Vector3
 
 /**
  * SubspaceMeasurePolicy applied at the root of the compose tree.
@@ -40,7 +38,7 @@ internal class SubspaceRootMeasurePolicy() : SubspaceMeasurePolicy {
             measurables.size == 1 -> {
                 val placeable = measurables[0].measure(constraints)
                 layout(placeable.width, placeable.height, placeable.depth) {
-                    placeable.place(Pose(Vector3.Zero, Quaternion.Identity))
+                    placeable.place(Pose.Identity)
                 }
             }
             else -> {
@@ -55,7 +53,7 @@ internal class SubspaceRootMeasurePolicy() : SubspaceMeasurePolicy {
                 }
                 layout(maxWidth, maxHeight, maxDepth) {
                     placeables.fastForEach { placeable ->
-                        placeable.place(Pose(Vector3.Zero, Quaternion.Identity))
+                        placeable.place(Pose.Identity)
                     }
                 }
             }
