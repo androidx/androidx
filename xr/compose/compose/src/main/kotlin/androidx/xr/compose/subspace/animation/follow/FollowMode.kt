@@ -78,23 +78,23 @@ public abstract class FollowMode internal constructor() {
          *
          * @param dimensions A set of boolean flags which determine the dimensions of movement that
          *   are tracked. Defaults to [TrackedDimensions.All].
-         * @param halfLifeMs Time in milliseconds it takes for the content to cover half the
-         *   distance to the target. Defaults to [SoftFollowMode.DEFAULT_HALF_LIFE_MS].
+         * @param halfLifeMillis Time in milliseconds it takes for the content to cover half the
+         *   distance to the target. Defaults to 200 milliseconds.
          * @param startDelay Time in milliseconds to wait before starting the follow movement.
-         *   Defaults to [SoftFollowMode.DEFAULT_START_DELAY].
+         *   Defaults to 300 milliseconds.
          * @param startThresholds A set of thresholds that must be exceeded before movement starts.
-         *   Defaults to [SoftFollowMode.DEFAULT_START_THRESHOLDS].
+         *   Defaults to 0.1 meters of translation and 3 degrees of pitch, yaw, and roll.
          * @return A [FollowMode] instance configured for soft following.
          */
         public fun soft(
             dimensions: TrackedDimensions = TrackedDimensions.All,
-            @IntRange(from = 1) halfLifeMs: Long = SoftFollowMode.DEFAULT_HALF_LIFE_MS,
+            @IntRange(from = 1) halfLifeMillis: Long = SoftFollowMode.DEFAULT_HALF_LIFE_MILLIS,
             @IntRange(from = 0) startDelay: Long = SoftFollowMode.DEFAULT_START_DELAY,
             startThresholds: FollowThresholds = SoftFollowMode.DEFAULT_START_THRESHOLDS,
         ): FollowMode =
             SoftFollowMode(
                 dimensions = dimensions,
-                halfLifeMs = halfLifeMs,
+                halfLifeMillis = halfLifeMillis,
                 startDelay = startDelay,
                 startThresholds = startThresholds,
             )
@@ -111,7 +111,7 @@ public abstract class FollowMode internal constructor() {
         @Deprecated(
             message =
                 "durationMs is deprecated as follow motion is now based on exponential decay. " +
-                    "Use halfLifeMs instead.",
+                    "Use halfLifeMillis instead.",
             replaceWith = ReplaceWith("FollowMode.soft(dimensions = dimensions)"),
         )
         public fun soft(

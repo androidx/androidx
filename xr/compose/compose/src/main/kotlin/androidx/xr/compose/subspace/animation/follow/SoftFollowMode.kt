@@ -28,15 +28,15 @@ import androidx.xr.runtime.Session
  *
  * @param dimensions A set of boolean flags which determine the dimensions of movement that are
  *   tracked. By default, all dimensions are tracked.
- * @param halfLifeMs Time in milliseconds it takes for the content to cover half the distance to the
- *   user.
+ * @param halfLifeMillis Time in milliseconds it takes for the content to cover half the distance to
+ *   the user.
  * @param startDelay Time in milliseconds to wait before starting the follow movement.
  * @param startThresholds A set of thresholds that must be exceeded before movement starts.
  */
 @OptIn(ExperimentalFollowingSubspaceApi::class)
 internal class SoftFollowMode(
     private val dimensions: TrackedDimensions = TrackedDimensions.All,
-    private val halfLifeMs: Long = DEFAULT_HALF_LIFE_MS,
+    private val halfLifeMillis: Long = DEFAULT_HALF_LIFE_MILLIS,
     private val startDelay: Long = DEFAULT_START_DELAY,
     private val startThresholds: FollowThresholds = DEFAULT_START_THRESHOLDS,
 ) : FollowMode() {
@@ -45,7 +45,7 @@ internal class SoftFollowMode(
     internal val proxyMode =
         ExponentialDecayFollowMode(
             dimensions = dimensions,
-            halfLifeMs = halfLifeMs,
+            halfLifeMillis = halfLifeMillis,
             startDelay = startDelay,
             startThresholds = startThresholds,
             settleThresholds = DEFAULT_SETTLE_THRESHOLDS,
@@ -64,21 +64,21 @@ internal class SoftFollowMode(
         if (other !is SoftFollowMode) return false
 
         return dimensions == other.dimensions &&
-            halfLifeMs == other.halfLifeMs &&
+            halfLifeMillis == other.halfLifeMillis &&
             startDelay == other.startDelay &&
             startThresholds == other.startThresholds
     }
 
     override fun hashCode(): Int {
         var result = dimensions.hashCode()
-        result = 31 * result + halfLifeMs.hashCode()
+        result = 31 * result + halfLifeMillis.hashCode()
         result = 31 * result + startDelay.hashCode()
         result = 31 * result + startThresholds.hashCode()
         return result
     }
 
     internal companion object {
-        internal val DEFAULT_HALF_LIFE_MS: Long = 200L
+        internal val DEFAULT_HALF_LIFE_MILLIS: Long = 200L
         internal val DEFAULT_START_DELAY: Long = 300L
         internal val DEFAULT_START_THRESHOLDS: FollowThresholds =
             FollowThresholds(
