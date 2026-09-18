@@ -352,6 +352,66 @@ private fun RemoteButtonWithIconAndSecondaryLabelDisabledPreview(
 
 @Composable
 @RemoteComposable
+fun RemoteButtonChildColors() {
+    RemoteButton(
+        onClick = testAction,
+        modifier = RemoteModifier.buttonSizeModifier(),
+        colors = RemoteButtonDefaults.childButtonColors(),
+    ) {
+        RemoteText("Child Button".rs)
+    }
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteButtonChildColorsPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteButtonChildColors() } }
+
+@Composable
+@RemoteComposable
+fun RemoteButtonChildColorsDisabled() {
+    RemoteButton(
+        onClick = testAction,
+        modifier = RemoteModifier.buttonSizeModifier(),
+        enabled = false.rb,
+        colors = RemoteButtonDefaults.childButtonColors(),
+    ) {
+        RemoteText("Disabled Child".rs)
+    }
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteButtonChildColorsDisabledPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteButtonChildColorsDisabled() } }
+
+@Composable
+@RemoteComposable
+fun RemoteButtonWithSmallImageBackground() {
+    val smallImage =
+        rememberNamedRemoteImageBitmap(name = "smallBackgroundImage") {
+            createImage(8, 8).asImageBitmap()
+        }
+    val containerPainter = RemoteButtonDefaults.containerPainter(smallImage)
+    RemoteButton(
+        onClick = testAction,
+        modifier = RemoteModifier.buttonSizeModifier(),
+        containerPainter = containerPainter,
+    ) {
+        RemoteText("small_image".rs)
+    }
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteButtonWithSmallImageBackgroundPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteButtonWithSmallImageBackground() } }
+
+@Composable
+@RemoteComposable
 private fun Container(
     modifier: RemoteModifier = RemoteModifier.fillMaxSize(),
     content: @Composable @RemoteComposable () -> Unit,
