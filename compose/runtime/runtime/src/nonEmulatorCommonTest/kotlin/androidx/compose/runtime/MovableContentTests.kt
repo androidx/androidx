@@ -2028,6 +2028,42 @@ class MovableContentTests {
         moveContent = false
         expectChanges()
     }
+
+    @Test
+    fun movableContentMoveZeroesOutOldWrapperSlots_linkComposer() =
+        compositionTest(composerToUse = ComposerToUse.Link) {
+            class Payload(val iteration: Int)
+            var iteration by mutableStateOf(0)
+            var inFirstBranch by mutableStateOf(true)
+
+            val content = movableContentOf { payload: Payload ->
+                Text("Iteration ${payload.iteration}")
+            }
+
+            compose {
+                val payload = Payload(iteration)
+                if (inFirstBranch) {
+                    Column { content(payload) }
+                } else {
+                    Row { content(payload) }
+                }
+            }
+
+            val slotTable =
+                (composition as CompositionImpl).slotStorage
+                    as androidx.compose.runtime.composer.linkbuffer.SlotTable
+
+            repeat(20) {
+                iteration++
+                inFirstBranch = !inFirstBranch
+                expectChanges()
+            }
+
+            assertEquals(
+                1,
+                slotTable.addressSpace.slots.filterIsInstance<Payload>().distinct().size,
+            )
+        }
 }
 
 @Composable
