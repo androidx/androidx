@@ -446,6 +446,29 @@ class OrbiterTest {
     }
 
     @Test
+    fun orbiter_whenParentSpatialPanelExceedsComposeConstraints_doesNotCrash() {
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    modifier =
+                        SubspaceModifier.width(100_000.dp)
+                            .height(100_000.dp)
+                            .testTag("hugeSpatialPanelParent")
+                ) {
+                    Orbiter(ContentEdge.Top) {
+                        Box(modifier = Modifier.size(50.dp).testTag("orbiterContentBox")) {
+                            Text("Orbiter content")
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.onNodeWithTag("orbiterContentBox").assertWidthIsEqualTo(50.dp)
+        composeTestRule.onNodeWithTag("orbiterContentBox").assertHeightIsEqualTo(50.dp)
+    }
+
+    @Test
     fun orbiter_whenContentLargerThanMainPanel_isConstrained() {
         composeTestRule.setContent {
             Subspace {
