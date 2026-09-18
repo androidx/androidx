@@ -1081,9 +1081,19 @@ internal sealed class Operation(
             val to = getObject(To)
             val parentCompositionContext = getObject(ParentCompositionContext)
 
+            val providedResolvedState = getObject(ResolvedState)
+            // If the provided state did not exist when this operation was scheduled,
+            // resolve the state from the parent context. This also requires cleanup
+            // at the end of operation to ensure the objects are gc'd.
+            val fallbackState =
+                if (providedResolvedState == null) {
+                    parentCompositionContext.movableContentStateResolve(from)
+                } else {
+                    null
+                }
             val resolvedState =
-                getObject(ResolvedState)
-                    ?: parentCompositionContext.movableContentStateResolve(from)
+                providedResolvedState
+                    ?: fallbackState
                     ?: composeRuntimeError("Could not resolve state for movable content")
 
             val resolvedTable = resolvedState.slotStorage.asLinkBufferSlotTable()
@@ -1112,6 +1122,10 @@ internal sealed class Operation(
                 group = newGroup.group,
                 newOwner = to.composition as RecomposeScopeOwner,
             )
+
+            // Cleanup state resolved during this operation, as [DisposeMovableContentState] is not
+            // scheduled in this case and this state is not used anywhere else.
+            fallbackState?.dispose()
         }
     }
 
