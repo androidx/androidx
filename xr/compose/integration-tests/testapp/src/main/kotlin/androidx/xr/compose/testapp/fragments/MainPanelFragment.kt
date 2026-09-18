@@ -18,7 +18,6 @@ package androidx.xr.compose.testapp.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,10 +26,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
+import androidx.fragment.compose.content
 import androidx.xr.compose.spatial.Orbiter
 import androidx.xr.compose.spatial.OrbiterPosition
 import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
@@ -47,28 +45,22 @@ class MainPanelFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View {
+    ) = content {
         val xOffset = arguments?.getFloat("x_offset") ?: 0f
         val displayText = arguments?.getString("text") ?: "MainPanelFragment"
-        return ComposeView(requireContext()).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
-            setContent {
-                MainPanelContent(displayText)
-                Subspace {
-                    SpatialMainPanel(
-                        modifier =
-                            SubspaceModifier.width(300.dp).height(200.dp).offset(x = xOffset.dp)
+        MainPanelContent(displayText)
+        Subspace {
+            SpatialMainPanel(
+                modifier = SubspaceModifier.width(300.dp).height(200.dp).offset(x = xOffset.dp)
+            )
+            Orbiter(
+                position =
+                    OrbiterPosition.TopCenter(
+                        EdgeAlignment.Outside,
+                        offset = DpVolumeOffset(x = 0.dp, y = 10.dp, z = 0.dp),
                     )
-                    Orbiter(
-                        position =
-                            OrbiterPosition.TopCenter(
-                                EdgeAlignment.Outside,
-                                offset = DpVolumeOffset(x = 0.dp, y = 10.dp, z = 0.dp),
-                            )
-                    ) {
-                        Button(onClick = { parentFragmentManager.popBackStack() }) { Text("Back") }
-                    }
-                }
+            ) {
+                Button(onClick = { parentFragmentManager.popBackStack() }) { Text("Back") }
             }
         }
     }

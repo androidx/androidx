@@ -66,6 +66,7 @@ dependencies {
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":navigation:navigation-compose"))
+    implementation(project(":fragment:fragment-compose"))
 
     // External dependencies (Binary)
     implementation("androidx.activity:activity-compose:1.10.0")

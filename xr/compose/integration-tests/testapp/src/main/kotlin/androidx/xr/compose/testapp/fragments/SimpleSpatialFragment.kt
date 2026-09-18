@@ -20,35 +20,29 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.compose.currentStateAsState
-import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterPosition
-import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
+import androidx.fragment.app.FragmentContainerView
+import androidx.fragment.app.commit
+import androidx.fragment.app.commitNow
+import androidx.fragment.compose.content
 import androidx.xr.compose.spatial.Subspace
-import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialColumn
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
@@ -57,161 +51,144 @@ import androidx.xr.compose.subspace.layout.height as spatialHeight
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.width as spatialWidth
 import androidx.xr.compose.testapp.ui.components.TestDialog
-import androidx.xr.compose.unit.DpVolumeOffset
 
 class SimpleSpatialFragment : Fragment() {
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View {
-        return ComposeView(requireContext()).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                Subspace {
-                    val xOffset = arguments?.getFloat("x_offset") ?: 0f
-
-                    SpatialColumn(modifier = SubspaceModifier.offset(x = xOffset.dp)) {
-                        SpatialRow {
-                            SpatialPanel(
-                                modifier =
-                                    SubspaceModifier.spatialWidth(300.dp).spatialHeight(300.dp)
+    ) = content {
+        Subspace {
+            val xOffset = arguments?.getFloat("x_offset") ?: 0f
+            SpatialColumn(modifier = SubspaceModifier.offset(x = xOffset.dp)) {
+                SpatialRow {
+                    SpatialPanel(
+                        modifier = SubspaceModifier.spatialWidth(300.dp).spatialHeight(300.dp)
+                    ) {
+                        Surface(modifier = Modifier.fillMaxSize()) {
+                            Column(
+                                modifier = Modifier.fillMaxSize().padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
-                                Surface(modifier = Modifier.fillMaxSize()) {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize().padding(16.dp),
-                                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                Text("Simple Spatial Fragment", color = Color.Blue)
+
+                                Button(
+                                    onClick = {
+                                        (requireActivity() as? FragmentCompatibilityActivity)
+                                            ?.showVideoPlayerFragment()
+                                    }
+                                ) {
+                                    Text("Go to Video player fragment")
+                                }
+
+                                Button(
+                                    onClick = {
+                                        (requireActivity() as? FragmentCompatibilityActivity)
+                                            ?.showMainPanelFragment()
+                                    }
+                                ) {
+                                    Text("Go to MainPanel fragment")
+                                }
+
+                                TestDialog {
+                                    Surface(
+                                        color = Color.White,
+                                        modifier = Modifier.clip(RoundedCornerShape(5.dp)),
                                     ) {
-                                        val context = LocalContext.current
-                                        val lifecycleOwner = LocalLifecycleOwner.current
-                                        Text(
-                                            "Context: ${context.javaClass.simpleName}",
-                                            color = Color.Blue,
-                                        )
-                                        val currentState =
-                                            lifecycleOwner.lifecycle.currentStateAsState().value
-                                        Text("State: $currentState", color = Color.Blue)
-
-                                        var text by remember { mutableStateOf("") }
-                                        TextField(
-                                            value = text,
-                                            onValueChange = { text = it },
-                                            label = { Text("Enter text") },
-                                        )
-
-                                        Button(
-                                            onClick = {
-                                                (requireActivity()
-                                                        as? FragmentCompatibilityActivity)
-                                                    ?.showVideoPlayerFragment()
-                                            }
+                                        Column(
+                                            modifier = Modifier.padding(20.dp),
+                                            horizontalAlignment = Alignment.CenterHorizontally,
                                         ) {
-                                            Text("Go to Video player fragment")
+                                            Text(
+                                                "This is a SpatialDialog",
+                                                modifier = Modifier.padding(10.dp),
+                                            )
                                         }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
-                                        Button(
-                                            onClick = {
-                                                (requireActivity()
-                                                        as? FragmentCompatibilityActivity)
-                                                    ?.showMainPanelFragment()
-                                            }
-                                        ) {
-                                            Text("Go to MainPanel fragment")
-                                        }
+                SpatialPanel {
+                    Column(Modifier.size(500.dp).background(Color.White)) {
+                        Text("Fragment inside Panel", modifier = Modifier.padding(24.dp))
 
-                                        TestDialog {
-                                            Surface(
-                                                color = Color.White,
-                                                modifier = Modifier.clip(RoundedCornerShape(5.dp)),
-                                            ) {
-                                                Column(
-                                                    modifier = Modifier.padding(20.dp),
-                                                    horizontalAlignment =
-                                                        Alignment.CenterHorizontally,
-                                                ) {
-                                                    Text(
-                                                        "This is a SpatialDialog",
-                                                        modifier = Modifier.padding(10.dp),
+                        val containerId = remember { View.generateViewId() }
+
+                        // We manually embed a FragmentContainerView via AndroidView instead
+                        // of using the AndroidFragment composable because AndroidFragment relies
+                        // on ViewTree resolution (via LocalView.current and
+                        // FragmentManager.findFragmentManager) to discover the parent Fragment,
+                        // which resolves to the Activity's FragmentManager instead of this
+                        // parent Fragment's childFragmentManager.
+                        AndroidView(
+                            modifier = Modifier.fillMaxSize(),
+                            factory = { context ->
+                                FragmentContainerView(context).apply {
+                                    id = containerId
+
+                                    // Manually establish fragment parenting relationship on the
+                                    // View
+                                    setTag(
+                                        androidx.fragment.R.id.fragment_container_view_tag,
+                                        this@SimpleSpatialFragment,
+                                    )
+                                }
+                            },
+                            update = { containerView ->
+                                val existingFragment =
+                                    childFragmentManager.findFragmentById(containerView.id)
+                                if (existingFragment == null) {
+                                    val simpleTextFragment =
+                                        SimpleTextFragment().apply {
+                                            arguments =
+                                                Bundle().apply {
+                                                    putString(
+                                                        "text",
+                                                        "This is a 2D Embedded Fragment",
                                                     )
                                                 }
-                                            }
+                                        }
+                                    if (childFragmentManager.isStateSaved) {
+                                        childFragmentManager.commit(allowStateLoss = true) {
+                                            setReorderingAllowed(true)
+                                            add(
+                                                containerView,
+                                                simpleTextFragment,
+                                                "simple_text_fragment",
+                                            )
+                                        }
+                                    } else {
+                                        childFragmentManager.commitNow(allowStateLoss = true) {
+                                            setReorderingAllowed(true)
+                                            add(
+                                                containerView,
+                                                simpleTextFragment,
+                                                "simple_text_fragment",
+                                            )
                                         }
                                     }
                                 }
-                            }
-
-                            SpatialPanel(
-                                modifier =
-                                    SubspaceModifier.spatialWidth(300.dp).spatialHeight(300.dp)
-                            ) {
-                                Surface(modifier = Modifier.fillMaxSize()) {
-                                    Column(
-                                        modifier = Modifier.padding(16.dp),
-                                        verticalArrangement = Arrangement.Center,
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                    ) {
-                                        Text("Orbiter Host")
-
-                                        Orbiter(
-                                            position =
-                                                OrbiterPosition.TopCenter(
-                                                    EdgeAlignment.Outside,
-                                                    offset = DpVolumeOffset(y = 10.dp),
-                                                )
-                                        ) {
-                                            Surface(color = Color.Gray) {
-                                                Text(
-                                                    "Orbiter Content",
-                                                    modifier = Modifier.padding(8.dp),
-                                                )
-                                            }
-                                        }
+                                childFragmentManager.onContainerAvailable(containerView)
+                            },
+                            onRelease = { containerView ->
+                                val fragment =
+                                    childFragmentManager.findFragmentById(containerView.id)
+                                if (
+                                    fragment != null &&
+                                        !childFragmentManager.isStateSaved &&
+                                        !childFragmentManager.isDestroyed
+                                ) {
+                                    childFragmentManager.commit(allowStateLoss = true) {
+                                        remove(fragment)
                                     }
                                 }
-                            }
-                        }
-
-                        SpatialBox {
-                            SpatialPanel(
-                                modifier =
-                                    SubspaceModifier.spatialWidth(600.dp).spatialHeight(200.dp)
-                            ) {
-                                Surface(modifier = Modifier.fillMaxSize()) {
-                                    Column {
-                                        Text(
-                                            "Fragment inside Panel",
-                                            modifier = Modifier.padding(8.dp),
-                                        )
-                                        // Fragment inside SpatialPanel is giving an
-                                        // IllegalArgumentException leading to a crash. Need to be
-                                        // further investigated as part of b/455674712
-                                        /* val containerId = remember { View.generateViewId() }
-                                        AndroidView(
-                                            factory = { context ->
-                                                FragmentContainerView(context).apply {
-                                                    id = containerId
-                                                }
-                                            },
-                                            update = { view ->
-                                                view.post {
-                                                    if (childFragmentManager.findFragmentById(view.id) == null) {
-                                                        val simpleTextFragmentBundle = Bundle().apply {
-                                                            putString("text", "This is SecondFragment to see multi fragment view")
-                                                        }
-                                                        val simpleTextFragment = SimpleTextFragment().apply { arguments = simpleTextFragmentBundle }
-                                                        childFragmentManager.beginTransaction()
-                                                            .replace(view.id, simpleTextFragment)
-                                                            .commit()
-                                                    }
-                                                }
-                                            },
-                                            modifier = Modifier.fillMaxSize()
-                                        ) */
-                                    }
-                                }
-                            }
-                        }
+                            },
+                        )
                     }
                 }
             }
