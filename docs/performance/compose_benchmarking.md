@@ -27,9 +27,12 @@ When running benchmarks for Compose to establish baselines or test regressions,
 
 *   It provides a consistent baseline for our measurements and is representative
     of modern device topologies.
-*   For hardware setup instructions to reduce variance (e.g., locking clocks,
-    disabling JIT), please refer to the
-    [AndroidX Microbenchmarking Guide](microbenchmarking.md).
+*   For hardware setup instructions to reduce variance (e.g., flashing a
+    userdebug build, locking clocks, disabling JIT), see
+    [Setting up a Pixel device for benchmarking](device_setup.md).
+
+**Getting a device**: If you report to clarabayarri@, ask your manager.
+Otherwise reach out to compose-performance-team@.
 
 ## Interpreting Results and Metrics
 
