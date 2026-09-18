@@ -37,7 +37,11 @@ import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
+import androidx.health.connect.client.devicedatasource.DeviceDataSource
+import androidx.health.connect.client.devicedatasource.DeviceDataSourceCapabilities
+import androidx.health.connect.client.devicedatasource.GetDeviceDataSourcesResponse
 import androidx.health.connect.client.feature.ExperimentalPersonalHealthRecordApi
+import androidx.health.connect.client.feature.FEATURE_CONSTANT_NAME_DEVICE_DATA_PROVIDERS
 import androidx.health.connect.client.feature.FEATURE_CONSTANT_NAME_MATCHMAKING
 import androidx.health.connect.client.feature.FEATURE_CONSTANT_NAME_PHR
 import androidx.health.connect.client.feature.HealthConnectFeaturesUnavailableImpl
@@ -49,10 +53,13 @@ import androidx.health.connect.client.matchmaking.MatchmakingResponse
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_READ_MEDICAL_DATA_VACCINES
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_WRITE_MEDICAL_DATA
+import androidx.health.connect.client.records.BasalBodyTemperatureRecord
+import androidx.health.connect.client.records.BloodGlucoseRecord
 import androidx.health.connect.client.records.FhirResource
 import androidx.health.connect.client.records.MedicalDataSource
 import androidx.health.connect.client.records.MedicalResource
 import androidx.health.connect.client.records.MedicalResourceId
+import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
@@ -834,6 +841,77 @@ interface HealthConnectClient {
         throw createExceptionDueToFeatureUnavailable(
             FEATURE_CONSTANT_NAME_MATCHMAKING,
             "HealthConnectClient#createMatchmakingIntent()",
+        )
+    }
+
+    /**
+     * Retrieves all available [DeviceDataSource]s.
+     *
+     * The returned list includes devices advertised by device data providers, filtered based on
+     * caller permissions. A device is included if the caller holds read permission for at least one
+     * data type supported by that device.
+     *
+     * This feature is dependent on the version of Health Connect installed on the device. To check
+     * if it is available, call [HealthConnectFeatures.getFeatureStatus] and pass
+     * [HealthConnectFeatures.FEATURE_DEVICE_DATA_PROVIDERS]. An [UnsupportedOperationException] is
+     * thrown if the feature is not available.
+     *
+     * @return [GetDeviceDataSourcesResponse] containing the list of available [DeviceDataSource]s
+     * @throws UnsupportedOperationException if the feature is not available
+     */
+    @ExperimentalDeviceDataSourceApi
+    suspend fun getDeviceDataSources(): GetDeviceDataSourcesResponse {
+        throw createExceptionDueToFeatureUnavailable(
+            FEATURE_CONSTANT_NAME_DEVICE_DATA_PROVIDERS,
+            "HealthConnectClient#getDeviceDataSources()",
+        )
+    }
+
+    /**
+     * Retrieves the [DeviceDataSource] for the current device.
+     *
+     * The caller must hold at least one Health Connect read permission.
+     *
+     * This feature is dependent on the version of Health Connect installed on the device. To check
+     * if it is available, call [HealthConnectFeatures.getFeatureStatus] and pass
+     * [HealthConnectFeatures.FEATURE_DEVICE_DATA_PROVIDERS]. An [UnsupportedOperationException] is
+     * thrown if the feature is not available.
+     *
+     * @return [DeviceDataSource] for the current device
+     * @throws UnsupportedOperationException if the feature is not available
+     * @throws SecurityException if the caller does not hold at least one read permission
+     */
+    @ExperimentalDeviceDataSourceApi
+    suspend fun getCurrentDeviceDataSource(): DeviceDataSource {
+        throw createExceptionDueToFeatureUnavailable(
+            FEATURE_CONSTANT_NAME_DEVICE_DATA_PROVIDERS,
+            "HealthConnectClient#getCurrentDeviceDataSource()",
+        )
+    }
+
+    /**
+     * Returns record types that device data sources can provide.
+     *
+     * Use this method to avoid making unnecessary permission requests when reading device data if
+     * the record type is not provided by any device data source.
+     *
+     * Permission-sensitive record types (such as [BasalBodyTemperatureRecord],
+     * [BloodGlucoseRecord], and [OvulationTestRecord]) are excluded unless the caller holds read
+     * permissions for them.
+     *
+     * This feature is dependent on the version of Health Connect installed on the device. To check
+     * if it is available, call [HealthConnectFeatures.getFeatureStatus] and pass
+     * [HealthConnectFeatures.FEATURE_DEVICE_DATA_PROVIDERS]. An [UnsupportedOperationException] is
+     * thrown if the feature is not available.
+     *
+     * @return [DeviceDataSourceCapabilities] containing available record types
+     * @throws UnsupportedOperationException if the feature is not available
+     */
+    @ExperimentalDeviceDataSourceApi
+    suspend fun getDeviceDataSourceCapabilities(): DeviceDataSourceCapabilities {
+        throw createExceptionDueToFeatureUnavailable(
+            FEATURE_CONSTANT_NAME_DEVICE_DATA_PROVIDERS,
+            "HealthConnectClient#getDeviceDataSourceCapabilities()",
         )
     }
 

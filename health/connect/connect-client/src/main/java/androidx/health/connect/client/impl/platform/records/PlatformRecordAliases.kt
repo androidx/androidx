@@ -469,3 +469,13 @@ internal typealias PlatformMedicalResource = android.health.connect.datatypes.Me
 
 internal typealias PlatformMedicalResourceBuilder =
     android.health.connect.datatypes.MedicalResource.Builder
+
+internal typealias PlatformDeviceDataSource = android.health.connect.DeviceDataSource
+
+internal typealias PlatformDeviceDataTypeSource = android.health.connect.DeviceDataTypeSource
+
+internal typealias PlatformDeviceDataSourceCapabilities =
+    android.health.connect.DeviceDataSourceCapabilities
+
+internal typealias PlatformGetDeviceDataSourcesResponse =
+    android.health.connect.GetDeviceDataSourcesResponse

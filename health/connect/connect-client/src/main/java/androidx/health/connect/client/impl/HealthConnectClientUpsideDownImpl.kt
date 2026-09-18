@@ -37,6 +37,7 @@ import androidx.annotation.RequiresPermission
 import androidx.annotation.VisibleForTesting
 import androidx.core.os.asOutcomeReceiver
 import androidx.health.connect.client.ExperimentalDeduplicationApi
+import androidx.health.connect.client.ExperimentalDeviceDataSourceApi
 import androidx.health.connect.client.ExperimentalMatchmakingApi
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.HealthConnectClient.Companion.HEALTH_CONNECT_CLIENT_TAG
@@ -48,8 +49,12 @@ import androidx.health.connect.client.aggregate.AggregationResultGroupedByDurati
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
+import androidx.health.connect.client.devicedatasource.DeviceDataSource
+import androidx.health.connect.client.devicedatasource.DeviceDataSourceCapabilities
+import androidx.health.connect.client.devicedatasource.GetDeviceDataSourcesResponse
 import androidx.health.connect.client.feature.ExperimentalPersonalHealthRecordApi
 import androidx.health.connect.client.feature.HealthConnectFeaturesPlatformImpl
+import androidx.health.connect.client.feature.withDeviceDataProvidersFeatureCheckSuspend
 import androidx.health.connect.client.feature.withMatchmakingFeatureCheck
 import androidx.health.connect.client.feature.withMatchmakingFeatureCheckSuspend
 import androidx.health.connect.client.feature.withPhrFeatureCheckSuspend
@@ -57,6 +62,9 @@ import androidx.health.connect.client.impl.platform.aggregate.aggregateFallback
 import androidx.health.connect.client.impl.platform.aggregate.isPlatformSupportedMetric
 import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.impl.platform.records.toPlatformRecordClass
+import androidx.health.connect.client.impl.platform.records.toSdkDeviceDataSource
+import androidx.health.connect.client.impl.platform.records.toSdkDeviceDataSourceCapabilities
+import androidx.health.connect.client.impl.platform.records.toSdkGetDeviceDataSourcesResponse
 import androidx.health.connect.client.impl.platform.records.toSdkMedicalDataSource
 import androidx.health.connect.client.impl.platform.records.toSdkMedicalResource
 import androidx.health.connect.client.impl.platform.records.toSdkRecord
@@ -639,6 +647,54 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             "createMatchmakingIntent(request: MatchmakingRequest)",
         ) {
             healthConnectManager.createMatchmakingIntent(request.platformMatchmakingRequest)
+        }
+
+    @SuppressLint("NewApi") // already checked with a feature availability check
+    @ExperimentalDeviceDataSourceApi
+    override suspend fun getDeviceDataSources(): GetDeviceDataSourcesResponse =
+        withDeviceDataProvidersFeatureCheckSuspend(this::class, "getDeviceDataSources()") {
+            wrapPlatformException {
+                suspendCancellableCoroutine { continuation ->
+                    healthConnectManager.getDeviceDataSources(
+                        executor,
+                        continuation.asOutcomeReceiver(),
+                    )
+                }
+            }
+                .toSdkGetDeviceDataSourcesResponse()
+        }
+
+    @SuppressLint("NewApi") // already checked with a feature availability check
+    @ExperimentalDeviceDataSourceApi
+    override suspend fun getCurrentDeviceDataSource(): DeviceDataSource =
+        withDeviceDataProvidersFeatureCheckSuspend(this::class, "getCurrentDeviceDataSource()") {
+            wrapPlatformException {
+                suspendCancellableCoroutine { continuation ->
+                    healthConnectManager.getCurrentDeviceDataSource(
+                        executor,
+                        continuation.asOutcomeReceiver(),
+                    )
+                }
+            }
+                .toSdkDeviceDataSource()
+        }
+
+    @SuppressLint("NewApi") // already checked with a feature availability check
+    @ExperimentalDeviceDataSourceApi
+    override suspend fun getDeviceDataSourceCapabilities(): DeviceDataSourceCapabilities =
+        withDeviceDataProvidersFeatureCheckSuspend(
+            this::class,
+            "getDeviceDataSourceCapabilities()",
+        ) {
+            wrapPlatformException {
+                suspendCancellableCoroutine { continuation ->
+                    healthConnectManager.getDeviceDataSourceCapabilities(
+                        executor,
+                        continuation.asOutcomeReceiver(),
+                    )
+                }
+            }
+                .toSdkDeviceDataSourceCapabilities()
         }
 
     private suspend fun <T> wrapPlatformException(function: suspend () -> T): T {
