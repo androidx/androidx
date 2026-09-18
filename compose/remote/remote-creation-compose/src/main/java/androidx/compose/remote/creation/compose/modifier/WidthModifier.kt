@@ -24,13 +24,16 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.remote.creation.modifiers.WidthModifier as RecordingWidthModifier
 
 internal class WidthModifier(public val type: Type, public val value: RemoteFloat) :
     RemoteModifier.Element {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
-        return androidx.compose.remote.creation.modifiers.WidthModifier(type, value.floatId)
+        return RecordingWidthModifier(type, value.floatId)
     }
+
+    override fun toString(): String = "WidthModifier(type=$type, value=$value)"
 }
 
 /** Sets the width of the content using [RemoteDp]. */

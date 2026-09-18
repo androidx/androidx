@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Stable
+import java.util.EnumSet
 
 /**
  * An ordered, immutable collection of modifier elements for Remote Compose.
@@ -140,6 +141,21 @@ public sealed interface RemoteModifier {
 public fun RemoteStateScope.toRecordingModifier(modifier: RemoteModifier): RecordingModifier =
     with(modifier) { toRecordingModifier() }
 
+// Workaround for b/563261712: Modifier element types that do not support multiple instances
+// on the same component. When chained, the outer (first) modifier takes precedence and
+// subsequent duplicates are stripped with a logged warning.
+private enum class NonRepeatableModifier {
+    Width,
+    Height,
+}
+
+private fun RemoteModifier.Element.nonRepeatableType(): NonRepeatableModifier? =
+    when (this) {
+        is WidthModifier -> NonRepeatableModifier.Width
+        is HeightModifier -> NonRepeatableModifier.Height
+        else -> null
+    }
+
 /**
  * A node in a [RemoteModifier] chain. A CombinedModifier always contains at least two elements; a
  * Modifier [outer] that wraps around the Modifier [inner].
@@ -152,17 +168,17 @@ internal class CombinedRemoteModifier(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifier(): RecordingModifier {
         val scope = this
-        return RecordingModifier().apply {
-            if (outer is RemoteModifier.Element) {
-                then(with(outer) { scope.toRecordingModifierElement() })
+        val seenNonRepeatable = EnumSet.noneOf(NonRepeatableModifier::class.java)
+        return foldIn(RecordingModifier()) { acc, element ->
+            val nonRepeatable = element.nonRepeatableType()
+            if (nonRepeatable != null && !seenNonRepeatable.add(nonRepeatable)) {
+                System.err.println(
+                    "Warning: Ignoring duplicate ${element.javaClass.simpleName} ($element); " +
+                        "only the first instance is applied (b/563261712)"
+                )
+                acc
             } else {
-                then(with(outer) { scope.toRecordingModifier() })
-            }
-
-            if (inner is RemoteModifier.Element) {
-                then(with(inner) { scope.toRecordingModifierElement() })
-            } else {
-                then(with(inner) { scope.toRecordingModifier() })
+                acc.then(with(element) { scope.toRecordingModifierElement() })
             }
         }
     }
