@@ -629,7 +629,13 @@ public object RemoteButtonDefaults {
             contentColor = contentColor ?: default.contentColor,
             secondaryContentColor = secondaryContentColor ?: default.secondaryContentColor,
             iconColor = iconColor ?: default.iconColor,
-            disabledContainerColor = disabledContainerColor ?: default.disabledContainerColor,
+            disabledContainerColor =
+                disabledContainerColor
+                    ?: if (containerColor?.constantValueOrNull == Color.Transparent) {
+                        Color.Transparent.rc
+                    } else {
+                        default.disabledContainerColor
+                    },
             disabledContentColor = disabledContentColor ?: default.disabledContentColor,
             disabledSecondaryContentColor =
                 disabledSecondaryContentColor ?: default.disabledSecondaryContentColor,
@@ -721,6 +727,49 @@ public object RemoteButtonDefaults {
         disabledIconColor: RemoteColor? = null,
     ): RemoteButtonColors {
         val default = RemoteMaterialTheme.colorScheme.defaultOutlinedButtonColors
+        return default.copy(
+            contentColor = contentColor ?: default.contentColor,
+            secondaryContentColor = secondaryContentColor ?: default.secondaryContentColor,
+            iconColor = iconColor ?: default.iconColor,
+            disabledContentColor = disabledContentColor ?: default.disabledContentColor,
+            disabledSecondaryContentColor =
+                disabledSecondaryContentColor ?: default.disabledSecondaryContentColor,
+            disabledIconColor = disabledIconColor ?: default.disabledIconColor,
+        )
+    }
+
+    /**
+     * Creates a [RemoteButtonColors] with transparent background, the defaults for low emphasis
+     * buttons. Use [childButtonColors] for optional or supplementary actions with the least amount
+     * of prominence.
+     */
+    @Composable
+    public fun childButtonColors(): RemoteButtonColors =
+        RemoteMaterialTheme.colorScheme.defaultChildButtonColors
+
+    /**
+     * Creates a [RemoteButtonColors] with transparent background, the defaults for low emphasis
+     * buttons. Use [childButtonColors] for optional or supplementary actions with the least amount
+     * of prominence.
+     *
+     * @param contentColor The content color of this [RemoteButton] when enabled
+     * @param secondaryContentColor The content color of this [RemoteButton] when enabled
+     * @param iconColor The content color of this [RemoteButton] when enabled
+     * @param disabledContentColor The content color of this [RemoteButton] when not enabled
+     * @param disabledSecondaryContentColor The content color of this [RemoteButton] when not
+     *   enabled
+     * @param disabledIconColor The content color of this [RemoteButton] when not enabled
+     */
+    @Composable
+    public fun childButtonColors(
+        contentColor: RemoteColor? = null,
+        secondaryContentColor: RemoteColor? = null,
+        iconColor: RemoteColor? = null,
+        disabledContentColor: RemoteColor? = null,
+        disabledSecondaryContentColor: RemoteColor? = null,
+        disabledIconColor: RemoteColor? = null,
+    ): RemoteButtonColors {
+        val default = RemoteMaterialTheme.colorScheme.defaultChildButtonColors
         return default.copy(
             contentColor = contentColor ?: default.contentColor,
             secondaryContentColor = secondaryContentColor ?: default.secondaryContentColor,
@@ -906,6 +955,21 @@ public object RemoteButtonDefaults {
             )
         }
 
+    private val RemoteColorScheme.defaultChildButtonColors: RemoteButtonColors
+        @Composable
+        get() {
+            return RemoteButtonColors(
+                containerColor = Color.Transparent.rc,
+                contentColor = onSurface,
+                secondaryContentColor = onSurfaceVariant,
+                iconColor = primary,
+                disabledContainerColor = Color.Transparent.rc,
+                disabledContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
+                disabledSecondaryContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
+                disabledIconColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
+            )
+        }
+
     /**
      * Creates a [RemotePainter] for the background of a [RemoteButton] with container painter, that
      * displays an image with a scrim on top to make sure that any content above the background will
@@ -926,7 +990,7 @@ public object RemoteButtonDefaults {
     @Composable
     public fun containerPainter(
         image: RemoteImageBitmap,
-        scrim: RemoteBrush? = scrimBrush(RemoteSize(image.width, image.height)),
+        scrim: RemoteBrush? = scrimBrush(),
         alpha: RemoteFloat = DefaultAlpha.rf,
         shape: RemoteShape = this.shape,
         contentScale: ContentScale = ContentScale.Crop,
@@ -950,6 +1014,17 @@ public object RemoteButtonDefaults {
             painter = containerPainter,
             alpha = DisabledContainerAlpha,
         )
+    }
+
+    /**
+     * Creates a [RemoteBrush] for the recommended scrim drawn on top of image container
+     * backgrounds.
+     */
+    @Composable
+    public fun scrimBrush(): RemoteBrush {
+        val startColor = scrimGradientStartColor.rc
+        val endColor = scrimGradientEndColor.rc
+        return RemoteBrush.linearGradient(colors = listOf(startColor, endColor))
     }
 
     /**
