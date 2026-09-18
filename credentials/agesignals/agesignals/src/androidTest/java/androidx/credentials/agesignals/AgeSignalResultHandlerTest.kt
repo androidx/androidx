@@ -62,6 +62,7 @@ class AgeSignalResultHandlerTest {
     fun responseBundle_roundTrip_allAssuranceTiers() {
         val tiers =
             listOf(
+                GetAgeRangeResponse.ASSURANCE_TIER_UNSPECIFIED,
                 GetAgeRangeResponse.ASSURANCE_TIER_A,
                 GetAgeRangeResponse.ASSURANCE_TIER_B,
                 GetAgeRangeResponse.ASSURANCE_TIER_C,

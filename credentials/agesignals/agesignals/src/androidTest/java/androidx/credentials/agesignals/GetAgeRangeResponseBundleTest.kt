@@ -126,6 +126,18 @@ class GetAgeRangeResponseBundleTest {
     }
 
     @Test
+    fun asBundleAndFromBundle_unspecifiedAssuranceTier_preservesValue() {
+        val original = GetAgeRangeResponse(13, 17, GetAgeRangeResponse.ASSURANCE_TIER_UNSPECIFIED)
+        val bundle = GetAgeRangeResponse.asBundle(original)
+
+        val restored = GetAgeRangeResponse.fromBundle(bundle)
+
+        assertThat(restored).isEqualTo(original)
+        assertThat(restored!!.assuranceTier)
+            .isEqualTo(GetAgeRangeResponse.ASSURANCE_TIER_UNSPECIFIED)
+    }
+
+    @Test
     fun fromBundle_zeroLowerBound_succeeds() {
         val bundle =
             Bundle().apply {
