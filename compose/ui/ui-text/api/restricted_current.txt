@@ -1806,10 +1806,10 @@ package androidx.compose.ui.text.intl {
 package androidx.compose.ui.text.platform {
 
   public final class Synchronization_jvmKt {
-    method @kotlin.PublishedApi internal static inline <R> R synchronized(androidx.compose.ui.text.platform.SynchronizedObject lock, kotlin.jvm.functions.Function0<? extends R> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal static <R> R synchronized(androidx.compose.ui.text.platform.SynchronizedObject, kotlin.jvm.functions.Function0<? extends R>);
   }
 
-  @kotlin.PublishedApi internal final class SynchronizedObject {
+  @BytecodeOnly @kotlin.PublishedApi internal final class SynchronizedObject {
   }
 
 }

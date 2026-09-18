@@ -333,7 +333,9 @@ package androidx.compose.foundation {
     method @BytecodeOnly public static Object! mutate$default(androidx.compose.foundation.MutatorMutex!, androidx.compose.foundation.MutatePriority!, kotlin.jvm.functions.Function1!, kotlin.coroutines.Continuation!, int, Object!);
     method public suspend <T, R> Object? mutateWith(T receiver, optional androidx.compose.foundation.MutatePriority priority, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
     method @BytecodeOnly public static Object! mutateWith$default(androidx.compose.foundation.MutatorMutex!, Object!, androidx.compose.foundation.MutatePriority!, kotlin.jvm.functions.Function2!, kotlin.coroutines.Continuation!, int, Object!);
+    method @BytecodeOnly @kotlin.PublishedApi internal boolean tryLock();
     method public inline boolean tryMutate(kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal void unlock();
   }
 
   @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public final class OverscrollConfiguration {
@@ -2859,6 +2861,7 @@ package androidx.compose.foundation.style {
   @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public final class StyleResolver implements androidx.compose.runtime.RememberObserver {
     ctor @androidx.compose.runtime.annotation.RememberInComposition public StyleResolver(androidx.compose.foundation.style.CommonStyle style, optional androidx.compose.foundation.style.StyleState styleState);
     ctor @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public StyleResolver(androidx.compose.foundation.style.CommonStyle!, androidx.compose.foundation.style.StyleState!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @BytecodeOnly @kotlin.PublishedApi internal androidx.compose.foundation.style.StyleResolverScope getAccessorScope();
     method public void onAbandoned();
     method public void onForgotten();
     method public void onRemembered();
@@ -3479,12 +3482,15 @@ package androidx.compose.foundation.text.input {
     ctor @KotlinOnly @androidx.compose.runtime.annotation.RememberInComposition public TextFieldState(optional String initialText, optional androidx.compose.ui.text.TextRange initialSelection);
     ctor @BytecodeOnly public TextFieldState(String!, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public TextFieldState(String!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @BytecodeOnly @kotlin.PublishedApi internal void commitEdit(androidx.compose.foundation.text.input.TextFieldBuffer);
     method public inline void edit(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.text.input.TextFieldBuffer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal void finishEditing();
     method @BytecodeOnly public androidx.compose.ui.text.TextRange? getComposition-MzsxiRA();
     method @BytecodeOnly public long getSelection-d9O1mEE();
     method @InaccessibleFromKotlin public CharSequence getText();
     method @InaccessibleFromKotlin public androidx.compose.foundation.text.input.TextFieldTextStyles getTextStyles();
     method @InaccessibleFromKotlin public androidx.compose.foundation.text.input.UndoState getUndoState();
+    method @BytecodeOnly @kotlin.PublishedApi internal androidx.compose.foundation.text.input.TextFieldBuffer startEdit();
     property public androidx.compose.ui.text.TextRange? composition;
     property public androidx.compose.ui.text.TextRange selection;
     property public CharSequence text;

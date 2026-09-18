@@ -282,9 +282,8 @@ package androidx.graphics.opengl {
 package androidx.graphics.opengl.egl {
 
   public final class EGLConfigAttributes {
-    method @InaccessibleFromKotlin @kotlin.PublishedApi internal int[] getAttrs();
+    method @BytecodeOnly @kotlin.PublishedApi internal int[] getAttrs();
     method public int[] toArray();
-    property @kotlin.PublishedApi internal int[] attrs;
     field public static final androidx.graphics.opengl.egl.EGLConfigAttributes.Companion Companion;
     field public static final int EGL_COLOR_COMPONENT_TYPE_EXT = 13113; // 0x3339
     field public static final int EGL_COLOR_COMPONENT_TYPE_FIXED_EXT = 13114; // 0x333a

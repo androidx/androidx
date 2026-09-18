@@ -1248,7 +1248,7 @@ package androidx.health.connect.client.records {
     property public androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Volume> VOLUME_TOTAL;
   }
 
-  @kotlin.PublishedApi internal interface InstantaneousRecord extends androidx.health.connect.client.records.Record {
+  @BytecodeOnly @kotlin.PublishedApi internal interface InstantaneousRecord extends androidx.health.connect.client.records.Record {
     method @InaccessibleFromKotlin public java.time.Instant getTime();
     method @InaccessibleFromKotlin public java.time.ZoneOffset? getZoneOffset();
     property public abstract java.time.Instant time;
@@ -1265,7 +1265,7 @@ package androidx.health.connect.client.records {
     property public java.time.ZoneOffset? zoneOffset;
   }
 
-  @kotlin.PublishedApi internal interface IntervalRecord extends androidx.health.connect.client.records.Record {
+  @BytecodeOnly @kotlin.PublishedApi internal interface IntervalRecord extends androidx.health.connect.client.records.Record {
     method @InaccessibleFromKotlin public java.time.Instant getEndTime();
     method @InaccessibleFromKotlin public java.time.ZoneOffset? getEndZoneOffset();
     method @InaccessibleFromKotlin public java.time.Instant getStartTime();
@@ -1833,7 +1833,7 @@ package androidx.health.connect.client.records {
     property public androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Long> BPM_MIN;
   }
 
-  @kotlin.PublishedApi internal interface SeriesRecord<T> extends androidx.health.connect.client.records.IntervalRecord {
+  @BytecodeOnly @kotlin.PublishedApi internal interface SeriesRecord<T> extends androidx.health.connect.client.records.IntervalRecord {
     method @InaccessibleFromKotlin public java.util.List<T> getSamples();
     property public abstract java.util.List<T> samples;
   }

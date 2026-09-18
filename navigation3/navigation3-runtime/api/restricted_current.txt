@@ -30,7 +30,7 @@ package androidx.navigation3.runtime {
     method @BytecodeOnly public static void addEntryProvider$default(androidx.navigation3.runtime.EntryProviderScope!, Object!, Object!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function3!, int, Object!);
     method @BytecodeOnly public static void addEntryProvider$default(androidx.navigation3.runtime.EntryProviderScope!, kotlin.reflect.KClass!, kotlin.jvm.functions.Function1!, java.util.Map!, kotlin.jvm.functions.Function3!, int, Object!);
     method @BytecodeOnly public static void addEntryProvider$default(androidx.navigation3.runtime.EntryProviderScope!, kotlin.reflect.KClass!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function3!, int, Object!);
-    method @kotlin.PublishedApi internal kotlin.jvm.functions.Function1<T,androidx.navigation3.runtime.NavEntry<T>> build();
+    method @BytecodeOnly @kotlin.PublishedApi internal kotlin.jvm.functions.Function1<T,androidx.navigation3.runtime.NavEntry<T>!> build();
     method public <K extends T> void entry(androidx.navigation3.runtime.EntryProviderScope<T>, K key, optional Object contentKey, optional java.util.Map<java.lang.String,?> metadata, kotlin.jvm.functions.Function1<? super K,kotlin.Unit> content);
     method @BytecodeOnly public <K extends T> void entry(androidx.navigation3.runtime.EntryProviderScope<T>, K, Object, java.util.Map<java.lang.String!,? extends java.lang.Object!>, kotlin.jvm.functions.Function3<? super K,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
     method public <K extends T> void entry(androidx.navigation3.runtime.EntryProviderScope<T>, K key, optional Object contentKey, kotlin.jvm.functions.Function1<? super K,? extends java.util.Map<java.lang.String,?>> metadata, kotlin.jvm.functions.Function1<? super K,kotlin.Unit> content);
@@ -46,7 +46,7 @@ package androidx.navigation3.runtime {
 
   @androidx.navigation3.runtime.MetadataDsl public final class MetadataScope {
     ctor public MetadataScope();
-    method @kotlin.PublishedApi internal java.util.Map<java.lang.String,java.lang.Object> build();
+    method @BytecodeOnly @kotlin.PublishedApi internal java.util.Map<java.lang.String!,java.lang.Object!> build();
     method public <K extends androidx.navigation3.runtime.NavMetadataKey<T>, T> void put(K key, T value);
   }
 
@@ -110,7 +110,7 @@ package androidx.navigation3.runtime {
   }
 
   public final class NavEntryKt {
-    method @kotlin.PublishedApi internal static Object defaultContentKey(Object key);
+    method @BytecodeOnly @kotlin.PublishedApi internal static Object defaultContentKey(Object);
   }
 
   public interface NavKey {
@@ -253,8 +253,8 @@ package androidx.navigation3.runtime.deeplink {
   }
 
   @androidx.navigation3.runtime.deeplink.RequestExtrasDsl public final class RequestExtrasScope {
-    ctor @kotlin.PublishedApi internal RequestExtrasScope();
-    method @kotlin.PublishedApi internal androidx.navigation3.runtime.deeplink.RequestExtras build();
+    ctor @BytecodeOnly @kotlin.PublishedApi internal RequestExtrasScope();
+    method @BytecodeOnly @kotlin.PublishedApi internal androidx.navigation3.runtime.deeplink.RequestExtras build();
     method public <T> void put(androidx.navigation3.runtime.deeplink.RequestExtrasKey<T> key, T value);
   }
 

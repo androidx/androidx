@@ -27,8 +27,8 @@ package androidx.ink.rendering.android.view {
     ctor public ViewStrokeRenderer(androidx.ink.rendering.android.canvas.CanvasStrokeRenderer canvasStrokeRenderer, android.view.View view);
     method public inline void drawWithStrokes(android.graphics.Canvas canvas, kotlin.jvm.functions.Function1<? super androidx.ink.rendering.android.canvas.StrokeDrawScope,kotlin.Unit> block);
     method public void drawWithStrokes(android.graphics.Canvas canvas, kotlin.jvm.functions.Function2<? super android.graphics.Canvas,? super androidx.ink.rendering.android.canvas.StrokeDrawScope,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal androidx.ink.rendering.android.canvas.StrokeDrawScope obtainDrawScope(android.graphics.Canvas canvas);
-    method @kotlin.PublishedApi internal void recycleDrawScope(androidx.ink.rendering.android.canvas.StrokeDrawScope scope);
+    method @BytecodeOnly @kotlin.PublishedApi internal androidx.ink.rendering.android.canvas.StrokeDrawScope obtainDrawScope(android.graphics.Canvas);
+    method @BytecodeOnly @kotlin.PublishedApi internal void recycleDrawScope(androidx.ink.rendering.android.canvas.StrokeDrawScope);
   }
 
 }

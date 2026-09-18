@@ -156,13 +156,11 @@ package androidx.collection {
     method public final int lastIndexOf(double element);
     method public final inline boolean none();
     method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
-    property @kotlin.PublishedApi internal final int _size;
-    property @kotlin.PublishedApi internal final double[] content;
     property public final inline kotlin.ranges.IntRange indices;
     property @IntRange(from=-1L) public final inline int lastIndex;
     property @IntRange(from=0L) public final inline int size;
-    field @kotlin.PublishedApi internal int _size;
-    field @kotlin.PublishedApi internal double[] content;
+    field @BytecodeOnly @kotlin.PublishedApi internal int _size;
+    field @BytecodeOnly @kotlin.PublishedApi internal double[] content;
   }
 
   public final class DoubleListKt {
@@ -190,9 +188,9 @@ package androidx.collection {
     method public final boolean containsValue(float value);
     method public final int count();
     method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal final int findKeyIndex(float key);
+    method @BytecodeOnly @kotlin.PublishedApi internal final int findKeyIndex(float);
     method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
     method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
     method public final operator float get(float key);
@@ -218,13 +216,10 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.FloatFloatMap!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function2!, int, Object!);
     method public final boolean none();
     property public final int capacity;
-    property @kotlin.PublishedApi internal final float[] keys;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property public final int size;
-    property @kotlin.PublishedApi internal final float[] values;
-    field @kotlin.PublishedApi internal float[] keys;
-    field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal float[] values;
+    field @BytecodeOnly @kotlin.PublishedApi internal float[] keys;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal float[] values;
   }
 
   public final class FloatFloatMapKt {
@@ -271,9 +266,9 @@ package androidx.collection {
     method public final boolean containsValue(int value);
     method public final int count();
     method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Integer,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal final int findKeyIndex(float key);
+    method @BytecodeOnly @kotlin.PublishedApi internal final int findKeyIndex(float);
     method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Integer,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
     method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
     method public final operator int get(float key);
@@ -299,13 +294,10 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.FloatIntMap!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function2!, int, Object!);
     method public final boolean none();
     property public final int capacity;
-    property @kotlin.PublishedApi internal final float[] keys;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property public final int size;
-    property @kotlin.PublishedApi internal final int[] values;
-    field @kotlin.PublishedApi internal float[] keys;
-    field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal int[] values;
+    field @BytecodeOnly @kotlin.PublishedApi internal float[] keys;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal int[] values;
   }
 
   public final class FloatIntMapKt {
@@ -384,13 +376,11 @@ package androidx.collection {
     method public final int lastIndexOf(float element);
     method public final inline boolean none();
     method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
-    property @kotlin.PublishedApi internal final int _size;
-    property @kotlin.PublishedApi internal final float[] content;
     property public final inline kotlin.ranges.IntRange indices;
     property @IntRange(from=-1L) public final inline int lastIndex;
     property @IntRange(from=0L) public final inline int size;
-    field @kotlin.PublishedApi internal int _size;
-    field @kotlin.PublishedApi internal float[] content;
+    field @BytecodeOnly @kotlin.PublishedApi internal int _size;
+    field @BytecodeOnly @kotlin.PublishedApi internal float[] content;
   }
 
   public final class FloatListKt {
@@ -418,9 +408,9 @@ package androidx.collection {
     method public final boolean containsValue(long value);
     method public final int count();
     method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Long,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal final int findKeyIndex(float key);
+    method @BytecodeOnly @kotlin.PublishedApi internal final int findKeyIndex(float);
     method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Long,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
     method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
     method public final operator long get(float key);
@@ -446,13 +436,10 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.FloatLongMap!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function2!, int, Object!);
     method public final boolean none();
     property public final int capacity;
-    property @kotlin.PublishedApi internal final float[] keys;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property public final int size;
-    property @kotlin.PublishedApi internal final long[] values;
-    field @kotlin.PublishedApi internal float[] keys;
-    field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal long[] values;
+    field @BytecodeOnly @kotlin.PublishedApi internal float[] keys;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] values;
   }
 
   public final class FloatLongMapKt {
@@ -483,7 +470,7 @@ package androidx.collection {
     method public final int count();
     method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Float,? super V,java.lang.Boolean> predicate);
     method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Float,? super V,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
     method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super V,kotlin.Unit> block);
     method public final operator V? get(float key);
@@ -509,13 +496,10 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.FloatObjectMap!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function2!, int, Object!);
     method public final boolean none();
     property public final int capacity;
-    property @kotlin.PublishedApi internal final float[] keys;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property public final int size;
-    property @kotlin.PublishedApi internal final Object?[] values;
-    field @kotlin.PublishedApi internal float[] keys;
-    field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal Object?[] values;
+    field @BytecodeOnly @kotlin.PublishedApi internal float[] keys;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal Object?[] values;
   }
 
   public final class FloatObjectMapKt {
@@ -546,7 +530,7 @@ package androidx.collection {
     method public final inline float first();
     method public final inline float first(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
     method public final inline void forEach(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndex(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndex(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method @InaccessibleFromKotlin @IntRange(from=0L) public final int getCapacity();
     method @InaccessibleFromKotlin @IntRange(from=0L) public final int getSize();
     method public final boolean isEmpty();
@@ -567,11 +551,9 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.FloatSet!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function1!, int, Object!);
     method public final boolean none();
     property @IntRange(from=0L) public final int capacity;
-    property @kotlin.PublishedApi internal final float[] elements;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property @IntRange(from=0L) public final int size;
-    field @kotlin.PublishedApi internal float[] elements;
-    field @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal float[] elements;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
   }
 
   public final class FloatSetKt {
@@ -599,9 +581,9 @@ package androidx.collection {
     method public final boolean containsValue(float value);
     method public final int count();
     method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal final int findKeyIndex(int key);
+    method @BytecodeOnly @kotlin.PublishedApi internal final int findKeyIndex(int);
     method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
     method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
     method public final operator float get(int key);
@@ -627,13 +609,10 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.IntFloatMap!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function2!, int, Object!);
     method public final boolean none();
     property public final int capacity;
-    property @kotlin.PublishedApi internal final int[] keys;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property public final int size;
-    property @kotlin.PublishedApi internal final float[] values;
-    field @kotlin.PublishedApi internal int[] keys;
-    field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal float[] values;
+    field @BytecodeOnly @kotlin.PublishedApi internal int[] keys;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal float[] values;
   }
 
   public final class IntFloatMapKt {
@@ -663,9 +642,9 @@ package androidx.collection {
     method public final boolean containsValue(int value);
     method public final int count();
     method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal final int findKeyIndex(int key);
+    method @BytecodeOnly @kotlin.PublishedApi internal final int findKeyIndex(int);
     method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
     method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
     method public final operator int get(int key);
@@ -691,13 +670,10 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.IntIntMap!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function2!, int, Object!);
     method public final boolean none();
     property public final int capacity;
-    property @kotlin.PublishedApi internal final int[] keys;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property public final int size;
-    property @kotlin.PublishedApi internal final int[] values;
-    field @kotlin.PublishedApi internal int[] keys;
-    field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal int[] values;
+    field @BytecodeOnly @kotlin.PublishedApi internal int[] keys;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal int[] values;
   }
 
   public final class IntIntMapKt {
@@ -788,13 +764,11 @@ package androidx.collection {
     method public final int lastIndexOf(int element);
     method public final inline boolean none();
     method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
-    property @kotlin.PublishedApi internal final int _size;
-    property @kotlin.PublishedApi internal final int[] content;
     property public final inline kotlin.ranges.IntRange indices;
     property @IntRange(from=-1L) public final inline int lastIndex;
     property @IntRange(from=0L) public final inline int size;
-    field @kotlin.PublishedApi internal int _size;
-    field @kotlin.PublishedApi internal int[] content;
+    field @BytecodeOnly @kotlin.PublishedApi internal int _size;
+    field @BytecodeOnly @kotlin.PublishedApi internal int[] content;
   }
 
   public final class IntListKt {
@@ -822,9 +796,9 @@ package androidx.collection {
     method public final boolean containsValue(long value);
     method public final int count();
     method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal final int findKeyIndex(int key);
+    method @BytecodeOnly @kotlin.PublishedApi internal final int findKeyIndex(int);
     method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
     method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
     method public final operator long get(int key);
@@ -850,13 +824,10 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.IntLongMap!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function2!, int, Object!);
     method public final boolean none();
     property public final int capacity;
-    property @kotlin.PublishedApi internal final int[] keys;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property public final int size;
-    property @kotlin.PublishedApi internal final long[] values;
-    field @kotlin.PublishedApi internal int[] keys;
-    field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal long[] values;
+    field @BytecodeOnly @kotlin.PublishedApi internal int[] keys;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] values;
   }
 
   public final class IntLongMapKt {
@@ -887,7 +858,7 @@ package androidx.collection {
     method public final int count();
     method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super V,java.lang.Boolean> predicate);
     method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super V,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
     method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super V,kotlin.Unit> block);
     method public final operator V? get(int key);
@@ -913,13 +884,10 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.IntObjectMap!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function2!, int, Object!);
     method public final boolean none();
     property public final int capacity;
-    property @kotlin.PublishedApi internal final int[] keys;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property public final int size;
-    property @kotlin.PublishedApi internal final Object?[] values;
-    field @kotlin.PublishedApi internal int[] keys;
-    field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal Object?[] values;
+    field @BytecodeOnly @kotlin.PublishedApi internal int[] keys;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal Object?[] values;
   }
 
   public final class IntObjectMapKt {
@@ -950,7 +918,7 @@ package androidx.collection {
     method public final inline int first();
     method public final inline int first(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
     method public final inline void forEach(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndex(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndex(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method @InaccessibleFromKotlin @IntRange(from=0L) public final int getCapacity();
     method @InaccessibleFromKotlin @IntRange(from=0L) public final int getSize();
     method public final boolean isEmpty();
@@ -971,11 +939,9 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.IntSet!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function1!, int, Object!);
     method public final boolean none();
     property @IntRange(from=0L) public final int capacity;
-    property @kotlin.PublishedApi internal final int[] elements;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property @IntRange(from=0L) public final int size;
-    field @kotlin.PublishedApi internal int[] elements;
-    field @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal int[] elements;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
   }
 
   public final class IntSetKt {
@@ -1003,9 +969,9 @@ package androidx.collection {
     method public final boolean containsValue(float value);
     method public final int count();
     method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Float,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal final int findKeyIndex(long key);
+    method @BytecodeOnly @kotlin.PublishedApi internal final int findKeyIndex(long);
     method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Float,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
     method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
     method public final operator float get(long key);
@@ -1031,13 +997,10 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.LongFloatMap!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function2!, int, Object!);
     method public final boolean none();
     property public final int capacity;
-    property @kotlin.PublishedApi internal final long[] keys;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property public final int size;
-    property @kotlin.PublishedApi internal final float[] values;
-    field @kotlin.PublishedApi internal long[] keys;
-    field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal float[] values;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] keys;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal float[] values;
   }
 
   public final class LongFloatMapKt {
@@ -1067,9 +1030,9 @@ package androidx.collection {
     method public final boolean containsValue(int value);
     method public final int count();
     method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Integer,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal final int findKeyIndex(long key);
+    method @BytecodeOnly @kotlin.PublishedApi internal final int findKeyIndex(long);
     method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Integer,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
     method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
     method public final operator int get(long key);
@@ -1095,13 +1058,10 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.LongIntMap!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function2!, int, Object!);
     method public final boolean none();
     property public final int capacity;
-    property @kotlin.PublishedApi internal final long[] keys;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property public final int size;
-    property @kotlin.PublishedApi internal final int[] values;
-    field @kotlin.PublishedApi internal long[] keys;
-    field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal int[] values;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] keys;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal int[] values;
   }
 
   public final class LongIntMapKt {
@@ -1179,13 +1139,11 @@ package androidx.collection {
     method public final int lastIndexOf(long element);
     method public final inline boolean none();
     method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
-    property @kotlin.PublishedApi internal final int _size;
-    property @kotlin.PublishedApi internal final long[] content;
     property public final inline kotlin.ranges.IntRange indices;
     property @IntRange(from=-1L) public final inline int lastIndex;
     property @IntRange(from=0L) public final inline int size;
-    field @kotlin.PublishedApi internal int _size;
-    field @kotlin.PublishedApi internal long[] content;
+    field @BytecodeOnly @kotlin.PublishedApi internal int _size;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] content;
   }
 
   public final class LongListKt {
@@ -1213,9 +1171,9 @@ package androidx.collection {
     method public final boolean containsValue(long value);
     method public final int count();
     method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Long,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal final int findKeyIndex(long key);
+    method @BytecodeOnly @kotlin.PublishedApi internal final int findKeyIndex(long);
     method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Long,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
     method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
     method public final operator long get(long key);
@@ -1241,13 +1199,10 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.LongLongMap!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function2!, int, Object!);
     method public final boolean none();
     property public final int capacity;
-    property @kotlin.PublishedApi internal final long[] keys;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property public final int size;
-    property @kotlin.PublishedApi internal final long[] values;
-    field @kotlin.PublishedApi internal long[] keys;
-    field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal long[] values;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] keys;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] values;
   }
 
   public final class LongLongMapKt {
@@ -1288,7 +1243,7 @@ package androidx.collection {
     method public final int count();
     method public final inline int count(kotlin.jvm.functions.Function2<? super java.lang.Long,? super V,java.lang.Boolean> predicate);
     method public final inline void forEach(kotlin.jvm.functions.Function2<? super java.lang.Long,? super V,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
     method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super V,kotlin.Unit> block);
     method public final operator V? get(long key);
@@ -1314,13 +1269,10 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.LongObjectMap!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function2!, int, Object!);
     method public final boolean none();
     property public final int capacity;
-    property @kotlin.PublishedApi internal final long[] keys;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property public final int size;
-    property @kotlin.PublishedApi internal final Object?[] values;
-    field @kotlin.PublishedApi internal long[] keys;
-    field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal Object?[] values;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] keys;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal Object?[] values;
   }
 
   public final class LongObjectMapKt {
@@ -1351,7 +1303,7 @@ package androidx.collection {
     method public final inline long first();
     method public final inline long first(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
     method public final inline void forEach(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndex(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndex(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method @InaccessibleFromKotlin @IntRange(from=0L) public final int getCapacity();
     method @InaccessibleFromKotlin @IntRange(from=0L) public final int getSize();
     method public final boolean isEmpty();
@@ -1372,11 +1324,9 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.LongSet!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function1!, int, Object!);
     method public final boolean none();
     property @IntRange(from=0L) public final int capacity;
-    property @kotlin.PublishedApi internal final long[] elements;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property @IntRange(from=0L) public final int size;
-    field @kotlin.PublishedApi internal long[] elements;
-    field @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] elements;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
   }
 
   public final class LongSetKt {
@@ -1505,7 +1455,7 @@ package androidx.collection {
     ctor public MutableFloatFloatMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableFloatFloatMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
-    method @kotlin.PublishedApi internal int findInsertIndex(float key);
+    method @BytecodeOnly @kotlin.PublishedApi internal int findInsertIndex(float);
     method public inline float getOrPut(float key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
     method public inline operator void minusAssign(androidx.collection.FloatList keys);
     method public inline operator void minusAssign(androidx.collection.FloatSet keys);
@@ -1518,7 +1468,7 @@ package androidx.collection {
     method public void remove(float key);
     method public boolean remove(float key, float value);
     method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method @BytecodeOnly @kotlin.PublishedApi internal void removeValueAt(int);
     method public operator void set(float key, float value);
     method public int trim();
   }
@@ -1528,7 +1478,7 @@ package androidx.collection {
     ctor public MutableFloatIntMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableFloatIntMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
-    method @kotlin.PublishedApi internal int findInsertIndex(float key);
+    method @BytecodeOnly @kotlin.PublishedApi internal int findInsertIndex(float);
     method public inline int getOrPut(float key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
     method public inline operator void minusAssign(androidx.collection.FloatList keys);
     method public inline operator void minusAssign(androidx.collection.FloatSet keys);
@@ -1541,7 +1491,7 @@ package androidx.collection {
     method public void remove(float key);
     method public boolean remove(float key, int value);
     method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Integer,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method @BytecodeOnly @kotlin.PublishedApi internal void removeValueAt(int);
     method public operator void set(float key, int value);
     method public int trim();
   }
@@ -1586,7 +1536,7 @@ package androidx.collection {
     ctor public MutableFloatLongMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableFloatLongMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
-    method @kotlin.PublishedApi internal int findInsertIndex(float key);
+    method @BytecodeOnly @kotlin.PublishedApi internal int findInsertIndex(float);
     method public inline long getOrPut(float key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
     method public inline operator void minusAssign(androidx.collection.FloatList keys);
     method public inline operator void minusAssign(androidx.collection.FloatSet keys);
@@ -1599,7 +1549,7 @@ package androidx.collection {
     method public void remove(float key);
     method public boolean remove(float key, long value);
     method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Long,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method @BytecodeOnly @kotlin.PublishedApi internal void removeValueAt(int);
     method public operator void set(float key, long value);
     method public int trim();
   }
@@ -1609,7 +1559,7 @@ package androidx.collection {
     ctor public MutableFloatObjectMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableFloatObjectMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
-    method @kotlin.PublishedApi internal int findInsertIndex(float key);
+    method @BytecodeOnly @kotlin.PublishedApi internal int findInsertIndex(float);
     method public inline V getOrPut(float key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
     method public inline operator void minusAssign(androidx.collection.FloatList keys);
     method public inline operator void minusAssign(androidx.collection.FloatSet keys);
@@ -1621,7 +1571,7 @@ package androidx.collection {
     method public V? remove(float key);
     method public boolean remove(float key, V value);
     method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super V,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal V? removeValueAt(int index);
+    method @BytecodeOnly @kotlin.PublishedApi internal V? removeValueAt(int);
     method public operator void set(float key, V value);
     method public int trim();
   }
@@ -1651,7 +1601,7 @@ package androidx.collection {
     ctor public MutableIntFloatMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableIntFloatMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
-    method @kotlin.PublishedApi internal int findInsertIndex(int key);
+    method @BytecodeOnly @kotlin.PublishedApi internal int findInsertIndex(int);
     method public inline float getOrPut(int key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
     method public inline operator void minusAssign(androidx.collection.IntList keys);
     method public inline operator void minusAssign(androidx.collection.IntSet keys);
@@ -1664,7 +1614,7 @@ package androidx.collection {
     method public void remove(int key);
     method public boolean remove(int key, float value);
     method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method @BytecodeOnly @kotlin.PublishedApi internal void removeValueAt(int);
     method public operator void set(int key, float value);
     method public int trim();
   }
@@ -1674,7 +1624,7 @@ package androidx.collection {
     ctor public MutableIntIntMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableIntIntMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
-    method @kotlin.PublishedApi internal int findInsertIndex(int key);
+    method @BytecodeOnly @kotlin.PublishedApi internal int findInsertIndex(int);
     method public inline int getOrPut(int key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
     method public inline operator void minusAssign(androidx.collection.IntList keys);
     method public inline operator void minusAssign(androidx.collection.IntSet keys);
@@ -1687,7 +1637,7 @@ package androidx.collection {
     method public void remove(int key);
     method public boolean remove(int key, int value);
     method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method @BytecodeOnly @kotlin.PublishedApi internal void removeValueAt(int);
     method public operator void set(int key, int value);
     method public int trim();
   }
@@ -1732,7 +1682,7 @@ package androidx.collection {
     ctor public MutableIntLongMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableIntLongMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
-    method @kotlin.PublishedApi internal int findInsertIndex(int key);
+    method @BytecodeOnly @kotlin.PublishedApi internal int findInsertIndex(int);
     method public inline long getOrPut(int key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
     method public inline operator void minusAssign(androidx.collection.IntList keys);
     method public inline operator void minusAssign(androidx.collection.IntSet keys);
@@ -1745,7 +1695,7 @@ package androidx.collection {
     method public void remove(int key);
     method public boolean remove(int key, long value);
     method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method @BytecodeOnly @kotlin.PublishedApi internal void removeValueAt(int);
     method public operator void set(int key, long value);
     method public int trim();
   }
@@ -1755,7 +1705,7 @@ package androidx.collection {
     ctor public MutableIntObjectMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableIntObjectMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
-    method @kotlin.PublishedApi internal int findInsertIndex(int key);
+    method @BytecodeOnly @kotlin.PublishedApi internal int findInsertIndex(int);
     method public inline V getOrPut(int key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
     method public inline operator void minusAssign(androidx.collection.IntList keys);
     method public inline operator void minusAssign(androidx.collection.IntSet keys);
@@ -1767,7 +1717,7 @@ package androidx.collection {
     method public V? remove(int key);
     method public boolean remove(int key, V value);
     method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super V,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal V? removeValueAt(int index);
+    method @BytecodeOnly @kotlin.PublishedApi internal V? removeValueAt(int);
     method public operator void set(int key, V value);
     method public int trim();
   }
@@ -1797,7 +1747,7 @@ package androidx.collection {
     ctor public MutableLongFloatMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableLongFloatMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
-    method @kotlin.PublishedApi internal int findInsertIndex(long key);
+    method @BytecodeOnly @kotlin.PublishedApi internal int findInsertIndex(long);
     method public inline float getOrPut(long key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
     method public inline operator void minusAssign(androidx.collection.LongList keys);
     method public inline operator void minusAssign(androidx.collection.LongSet keys);
@@ -1810,7 +1760,7 @@ package androidx.collection {
     method public void remove(long key);
     method public boolean remove(long key, float value);
     method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Float,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method @BytecodeOnly @kotlin.PublishedApi internal void removeValueAt(int);
     method public operator void set(long key, float value);
     method public int trim();
   }
@@ -1820,7 +1770,7 @@ package androidx.collection {
     ctor public MutableLongIntMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableLongIntMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
-    method @kotlin.PublishedApi internal int findInsertIndex(long key);
+    method @BytecodeOnly @kotlin.PublishedApi internal int findInsertIndex(long);
     method public inline int getOrPut(long key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
     method public inline operator void minusAssign(androidx.collection.LongList keys);
     method public inline operator void minusAssign(androidx.collection.LongSet keys);
@@ -1833,7 +1783,7 @@ package androidx.collection {
     method public void remove(long key);
     method public boolean remove(long key, int value);
     method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Integer,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method @BytecodeOnly @kotlin.PublishedApi internal void removeValueAt(int);
     method public operator void set(long key, int value);
     method public int trim();
   }
@@ -1878,7 +1828,7 @@ package androidx.collection {
     ctor public MutableLongLongMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableLongLongMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
-    method @kotlin.PublishedApi internal int findInsertIndex(long key);
+    method @BytecodeOnly @kotlin.PublishedApi internal int findInsertIndex(long);
     method public inline long getOrPut(long key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
     method public inline operator void minusAssign(androidx.collection.LongList keys);
     method public inline operator void minusAssign(androidx.collection.LongSet keys);
@@ -1891,7 +1841,7 @@ package androidx.collection {
     method public void remove(long key);
     method public boolean remove(long key, long value);
     method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Long,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method @BytecodeOnly @kotlin.PublishedApi internal void removeValueAt(int);
     method public operator void set(long key, long value);
     method public int trim();
   }
@@ -1901,7 +1851,7 @@ package androidx.collection {
     ctor public MutableLongObjectMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableLongObjectMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
-    method @kotlin.PublishedApi internal int findInsertIndex(long key);
+    method @BytecodeOnly @kotlin.PublishedApi internal int findInsertIndex(long);
     method public inline V getOrPut(long key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
     method public inline operator void minusAssign(androidx.collection.LongList keys);
     method public inline operator void minusAssign(androidx.collection.LongSet keys);
@@ -1913,7 +1863,7 @@ package androidx.collection {
     method public V? remove(long key);
     method public boolean remove(long key, V value);
     method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super V,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal V? removeValueAt(int index);
+    method @BytecodeOnly @kotlin.PublishedApi internal V? removeValueAt(int);
     method public operator void set(long key, V value);
     method public int trim();
   }
@@ -1943,7 +1893,7 @@ package androidx.collection {
     ctor public MutableObjectFloatMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableObjectFloatMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
-    method @kotlin.PublishedApi internal int findInsertIndex(K key);
+    method @BytecodeOnly @kotlin.PublishedApi internal int findInsertIndex(K);
     method public inline float getOrPut(K key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
     method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
     method public inline operator void minusAssign(Iterable<? extends K> keys);
@@ -1957,7 +1907,7 @@ package androidx.collection {
     method public void remove(K key);
     method public boolean remove(K key, float value);
     method public inline void removeIf(kotlin.jvm.functions.Function2<? super K,? super java.lang.Float,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method @BytecodeOnly @kotlin.PublishedApi internal void removeValueAt(int);
     method public operator void set(K key, float value);
     method public int trim();
   }
@@ -1967,7 +1917,7 @@ package androidx.collection {
     ctor public MutableObjectIntMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableObjectIntMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
-    method @kotlin.PublishedApi internal int findInsertIndex(K key);
+    method @BytecodeOnly @kotlin.PublishedApi internal int findInsertIndex(K);
     method public inline int getOrPut(K key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
     method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
     method public inline operator void minusAssign(Iterable<? extends K> keys);
@@ -1981,7 +1931,7 @@ package androidx.collection {
     method public void remove(K key);
     method public boolean remove(K key, int value);
     method public inline void removeIf(kotlin.jvm.functions.Function2<? super K,? super java.lang.Integer,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method @BytecodeOnly @kotlin.PublishedApi internal void removeValueAt(int);
     method public operator void set(K key, int value);
     method public int trim();
   }
@@ -2030,7 +1980,7 @@ package androidx.collection {
     method public E removeAt(@IntRange(from=0L) int index);
     method public inline void removeIf(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method public void removeRange(@IntRange(from=0L) int start, @IntRange(from=0L) int end);
-    method @kotlin.PublishedApi internal void resizeStorage(int capacity, Object?[] oldContent);
+    method @BytecodeOnly @kotlin.PublishedApi internal void resizeStorage(int, Object![]);
     method public boolean retainAll(androidx.collection.ObjectList<E> elements);
     method public boolean retainAll(E[] elements);
     method public boolean retainAll(Iterable<? extends E> elements);
@@ -2052,7 +2002,7 @@ package androidx.collection {
     ctor public MutableObjectLongMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableObjectLongMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
-    method @kotlin.PublishedApi internal int findInsertIndex(K key);
+    method @BytecodeOnly @kotlin.PublishedApi internal int findInsertIndex(K);
     method public inline long getOrPut(K key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
     method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
     method public inline operator void minusAssign(Iterable<? extends K> keys);
@@ -2066,7 +2016,7 @@ package androidx.collection {
     method public void remove(K key);
     method public boolean remove(K key, long value);
     method public inline void removeIf(kotlin.jvm.functions.Function2<? super K,? super java.lang.Long,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal void removeValueAt(int index);
+    method @BytecodeOnly @kotlin.PublishedApi internal void removeValueAt(int);
     method public operator void set(K key, long value);
     method public int trim();
   }
@@ -2105,7 +2055,7 @@ package androidx.collection {
     method public boolean removeAll(E[] elements);
     method public boolean removeAll(Iterable<? extends E> elements);
     method public boolean removeAll(kotlin.sequences.Sequence<? extends E> elements);
-    method @kotlin.PublishedApi internal void removeElementAt(int index);
+    method @BytecodeOnly @kotlin.PublishedApi internal void removeElementAt(int);
     method public inline void removeIf(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method public boolean retainAll(androidx.collection.OrderedScatterSet<E> elements);
     method public boolean retainAll(androidx.collection.ScatterSet<E> elements);
@@ -2122,7 +2072,7 @@ package androidx.collection {
     method public java.util.Map<K,V> asMutableMap();
     method public void clear();
     method public inline V compute(K key, kotlin.jvm.functions.Function2<? super K,? super V?,? extends V> computeBlock);
-    method @kotlin.PublishedApi internal int findInsertIndex(K key);
+    method @BytecodeOnly @kotlin.PublishedApi internal int findInsertIndex(K);
     method public inline V getOrPut(K key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
     method public inline operator void minusAssign(androidx.collection.ObjectList<K> keys);
     method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
@@ -2145,7 +2095,7 @@ package androidx.collection {
     method public V? remove(K key);
     method public boolean remove(K key, V value);
     method public inline void removeIf(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal V? removeValueAt(int index);
+    method @BytecodeOnly @kotlin.PublishedApi internal V? removeValueAt(int);
     method public operator void set(K key, V value);
     method public int trim();
   }
@@ -2184,7 +2134,7 @@ package androidx.collection {
     method public boolean removeAll(E[] elements);
     method public boolean removeAll(Iterable<? extends E> elements);
     method public boolean removeAll(kotlin.sequences.Sequence<? extends E> elements);
-    method @kotlin.PublishedApi internal void removeElementAt(int index);
+    method @BytecodeOnly @kotlin.PublishedApi internal void removeElementAt(int);
     method public inline void removeIf(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method public boolean retainAll(androidx.collection.OrderedScatterSet<E> elements);
     method public boolean retainAll(androidx.collection.ScatterSet<E> elements);
@@ -2202,9 +2152,9 @@ package androidx.collection {
     method public final boolean containsValue(float value);
     method public final int count();
     method public final inline int count(kotlin.jvm.functions.Function2<? super K,? super java.lang.Float,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal final int findKeyIndex(K key);
+    method @BytecodeOnly @kotlin.PublishedApi internal final int findKeyIndex(K);
     method public final inline void forEach(kotlin.jvm.functions.Function2<? super K,? super java.lang.Float,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super K,kotlin.Unit> block);
     method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
     method public final operator float get(K key);
@@ -2230,13 +2180,10 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.ObjectFloatMap!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function2!, int, Object!);
     method public final boolean none();
     property public final int capacity;
-    property @kotlin.PublishedApi internal final Object?[] keys;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property public final int size;
-    property @kotlin.PublishedApi internal final float[] values;
-    field @kotlin.PublishedApi internal Object?[] keys;
-    field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal float[] values;
+    field @BytecodeOnly @kotlin.PublishedApi internal Object?[] keys;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal float[] values;
   }
 
   public final class ObjectFloatMapKt {
@@ -2266,9 +2213,9 @@ package androidx.collection {
     method public final boolean containsValue(int value);
     method public final int count();
     method public final inline int count(kotlin.jvm.functions.Function2<? super K,? super java.lang.Integer,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal final int findKeyIndex(K key);
+    method @BytecodeOnly @kotlin.PublishedApi internal final int findKeyIndex(K);
     method public final inline void forEach(kotlin.jvm.functions.Function2<? super K,? super java.lang.Integer,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super K,kotlin.Unit> block);
     method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
     method public final operator int get(K key);
@@ -2294,13 +2241,10 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.ObjectIntMap!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function2!, int, Object!);
     method public final boolean none();
     property public final int capacity;
-    property @kotlin.PublishedApi internal final Object?[] keys;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property public final int size;
-    property @kotlin.PublishedApi internal final int[] values;
-    field @kotlin.PublishedApi internal Object?[] keys;
-    field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal int[] values;
+    field @BytecodeOnly @kotlin.PublishedApi internal Object?[] keys;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal int[] values;
   }
 
   public final class ObjectIntMapKt {
@@ -2378,13 +2322,11 @@ package androidx.collection {
     method public final inline E? lastOrNull(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method public final boolean none();
     method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
-    property @kotlin.PublishedApi internal final int _size;
-    property @kotlin.PublishedApi internal final Object?[] content;
     property public final inline kotlin.ranges.IntRange indices;
     property @IntRange(from=-1L) public final inline int lastIndex;
     property @IntRange(from=0L) public final int size;
-    field @kotlin.PublishedApi internal int _size;
-    field @kotlin.PublishedApi internal Object?[] content;
+    field @BytecodeOnly @kotlin.PublishedApi internal int _size;
+    field @BytecodeOnly @kotlin.PublishedApi internal Object?[] content;
   }
 
   public final class ObjectListKt {
@@ -2416,9 +2358,9 @@ package androidx.collection {
     method public final boolean containsValue(long value);
     method public final int count();
     method public final inline int count(kotlin.jvm.functions.Function2<? super K,? super java.lang.Long,java.lang.Boolean> predicate);
-    method @kotlin.PublishedApi internal final int findKeyIndex(K key);
+    method @BytecodeOnly @kotlin.PublishedApi internal final int findKeyIndex(K);
     method public final inline void forEach(kotlin.jvm.functions.Function2<? super K,? super java.lang.Long,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super K,kotlin.Unit> block);
     method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
     method public final operator long get(K key);
@@ -2444,13 +2386,10 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.ObjectLongMap!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function2!, int, Object!);
     method public final boolean none();
     property public final int capacity;
-    property @kotlin.PublishedApi internal final Object?[] keys;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property public final int size;
-    property @kotlin.PublishedApi internal final long[] values;
-    field @kotlin.PublishedApi internal Object?[] keys;
-    field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal long[] values;
+    field @BytecodeOnly @kotlin.PublishedApi internal Object?[] keys;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] values;
   }
 
   public final class ObjectLongMapKt {
@@ -2501,20 +2440,15 @@ package androidx.collection {
     method public final inline E? lastOrNull(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method public final boolean none();
     method public final inline java.util.List<E> toList();
-    method @kotlin.PublishedApi internal final inline void unorderedForEach(kotlin.jvm.functions.Function1<? super E,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void unorderedForEachIndex(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void unorderedForEach(kotlin.jvm.functions.Function1<? super E,kotlin.Unit!>);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void unorderedForEachIndex(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     property @IntRange(from=0L) public final int capacity;
-    property @kotlin.PublishedApi internal final Object?[] elements;
-    property @kotlin.PublishedApi internal final int head;
-    property @kotlin.PublishedApi internal final long[] metadata;
-    property @kotlin.PublishedApi internal final long[] nodes;
     property @IntRange(from=0L) public final int size;
-    property @kotlin.PublishedApi internal final int tail;
-    field @kotlin.PublishedApi internal Object?[] elements;
-    field @kotlin.PublishedApi internal int head;
-    field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal long[] nodes;
-    field @kotlin.PublishedApi internal int tail;
+    field @BytecodeOnly @kotlin.PublishedApi internal Object?[] elements;
+    field @BytecodeOnly @kotlin.PublishedApi internal int head;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] nodes;
+    field @BytecodeOnly @kotlin.PublishedApi internal int tail;
   }
 
   public final class OrderedScatterSetKt {
@@ -2546,7 +2480,7 @@ package androidx.collection {
     method public final int count();
     method public final inline int count(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
     method public final inline void forEach(kotlin.jvm.functions.Function2<? super K,? super V,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method public final inline void forEachKey(kotlin.jvm.functions.Function1<? super K,kotlin.Unit> block);
     method public final inline void forEachValue(kotlin.jvm.functions.Function1<? super V,kotlin.Unit> block);
     method public final operator V? get(K key);
@@ -2566,34 +2500,28 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.ScatterMap!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function2!, int, Object!);
     method public final boolean none();
     property public final int capacity;
-    property @kotlin.PublishedApi internal final Object?[] keys;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property public final int size;
-    property @kotlin.PublishedApi internal final Object?[] values;
-    field @kotlin.PublishedApi internal Object?[] keys;
-    field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal Object?[] values;
+    field @BytecodeOnly @kotlin.PublishedApi internal Object?[] keys;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal Object?[] values;
   }
 
   public final class ScatterMapKt {
     method public static <K, V> androidx.collection.ScatterMap<K,V> emptyScatterMap();
-    method @kotlin.PublishedApi internal static inline boolean isFull(long value);
-    method @kotlin.PublishedApi internal static inline int lowestBitSet(long);
-    method @kotlin.PublishedApi internal static inline long maskEmptyOrDeleted(long);
-    method @kotlin.PublishedApi internal static inline long match(long, int m);
+    method @BytecodeOnly @kotlin.PublishedApi internal static boolean isFull(long);
+    method @BytecodeOnly @kotlin.PublishedApi internal static int lowestBitSet(long);
+    method @BytecodeOnly @kotlin.PublishedApi internal static long maskEmptyOrDeleted(long);
+    method @BytecodeOnly @kotlin.PublishedApi internal static long match(long, int);
     method public static <K, V> androidx.collection.MutableScatterMap<K,V> mutableScatterMapOf();
     method public static <K, V> androidx.collection.MutableScatterMap<K,V> mutableScatterMapOf(kotlin.Pair<? extends K,? extends V>... pairs);
-    method @kotlin.PublishedApi internal static inline long readRawMetadata(long[] data, int offset);
+    method @BytecodeOnly @kotlin.PublishedApi internal static long readRawMetadata(long[], int);
     method public static <K, V> androidx.collection.MutableScatterMap<K,V> toMutableScatterMap(androidx.collection.ScatterMap<K,V>);
     method public static <K, V> androidx.collection.MutableScatterMap<K,V> toMutableScatterMap(java.util.Map<K,? extends V>);
     method public static <K, V> androidx.collection.ScatterMap<K,V> toScatterMap(androidx.collection.ScatterMap<K,V>);
     method public static <K, V> androidx.collection.ScatterMap<K,V> toScatterMap(java.util.Map<K,? extends V>);
-    property @kotlin.PublishedApi internal static long BitmaskLsb;
-    property @kotlin.PublishedApi internal static long BitmaskMsb;
-    property @kotlin.PublishedApi internal static long Sentinel;
-    field @kotlin.PublishedApi internal static final long BitmaskLsb = 72340172838076673L; // 0x101010101010101L
-    field @kotlin.PublishedApi internal static final long BitmaskMsb = -9187201950435737472L; // 0x8080808080808080L
-    field @kotlin.PublishedApi internal static final long Sentinel = 255L; // 0xffL
+    field @BytecodeOnly @kotlin.PublishedApi internal static final long BitmaskLsb = 72340172838076673L; // 0x101010101010101L
+    field @BytecodeOnly @kotlin.PublishedApi internal static final long BitmaskMsb = -9187201950435737472L; // 0x8080808080808080L
+    field @BytecodeOnly @kotlin.PublishedApi internal static final long Sentinel = 255L; // 0xffL
   }
 
   public abstract sealed exhaustive class ScatterSet<E> {
@@ -2608,7 +2536,7 @@ package androidx.collection {
     method public final inline E first(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method public final inline E? firstOrNull(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method public final inline void forEach(kotlin.jvm.functions.Function1<? super E,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal final inline void forEachIndex(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void forEachIndex(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method @InaccessibleFromKotlin @IntRange(from=0L) public final int getCapacity();
     method @InaccessibleFromKotlin @IntRange(from=0L) public final int getSize();
     method public final boolean isEmpty();
@@ -2623,11 +2551,9 @@ package androidx.collection {
     method @BytecodeOnly public static String! joinToString$default(androidx.collection.ScatterSet!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function1!, int, Object!);
     method public final boolean none();
     property @IntRange(from=0L) public final int capacity;
-    property @kotlin.PublishedApi internal final Object?[] elements;
-    property @kotlin.PublishedApi internal final long[] metadata;
     property @IntRange(from=0L) public final int size;
-    field @kotlin.PublishedApi internal Object?[] elements;
-    field @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal Object?[] elements;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
   }
 
   public final class ScatterSetKt {
@@ -2661,7 +2587,7 @@ package androidx.collection {
     method public inline int count(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
     method public void evictAll();
     method public inline void forEach(kotlin.jvm.functions.Function2<? super K,? super V,kotlin.Unit> block);
-    method @kotlin.PublishedApi internal inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>);
     method public inline void forEachKey(kotlin.jvm.functions.Function1<? super K,kotlin.Unit> block);
     method public inline void forEachValue(kotlin.jvm.functions.Function1<? super V,kotlin.Unit> block);
     method public operator V? get(K key);
@@ -2700,25 +2626,18 @@ package androidx.collection {
     method public void trimToSize(int maxSize);
     property public int capacity;
     property public int count;
-    property @kotlin.PublishedApi internal Object?[] keys;
     property public int maxSize;
-    property @kotlin.PublishedApi internal long[] metadata;
     property public int size;
-    property @kotlin.PublishedApi internal Object?[] values;
-    field @kotlin.PublishedApi internal Object?[] keys;
-    field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal Object?[] values;
+    field @BytecodeOnly @kotlin.PublishedApi internal Object?[] keys;
+    field @BytecodeOnly @kotlin.PublishedApi internal long[] metadata;
+    field @BytecodeOnly @kotlin.PublishedApi internal Object?[] values;
   }
 
   public final class SieveCacheKt {
-    method @InaccessibleFromKotlin @kotlin.PublishedApi internal static inline int getNextNode(long);
-    method @InaccessibleFromKotlin @kotlin.PublishedApi internal static inline int getPreviousNode(long);
-    property @kotlin.PublishedApi internal static int NodeInvalidLink;
-    property @kotlin.PublishedApi internal static long NodeLinkMask;
-    property @kotlin.PublishedApi internal static inline int long.nextNode;
-    property @kotlin.PublishedApi internal static inline int long.previousNode;
-    field @kotlin.PublishedApi internal static final int NodeInvalidLink = 2147483647; // 0x7fffffff
-    field @kotlin.PublishedApi internal static final long NodeLinkMask = 2147483647L; // 0x7fffffffL
+    method @BytecodeOnly @kotlin.PublishedApi internal static inline int getNextNode(long);
+    method @BytecodeOnly @kotlin.PublishedApi internal static inline int getPreviousNode(long);
+    field @BytecodeOnly @kotlin.PublishedApi internal static final int NodeInvalidLink = 2147483647; // 0x7fffffff
+    field @BytecodeOnly @kotlin.PublishedApi internal static final long NodeLinkMask = 2147483647L; // 0x7fffffffL
   }
 
   public class SimpleArrayMap<K, V> {
@@ -2800,11 +2719,11 @@ package androidx.collection {
 package androidx.collection.internal {
 
   public final class PackingHelpers_jvmKt {
-    method @kotlin.PublishedApi internal static inline float floatFromBits(int bits);
+    method @BytecodeOnly @kotlin.PublishedApi internal static float floatFromBits(int);
   }
 
   public final class RuntimeHelpersKt {
-    method @kotlin.PublishedApi internal static Void throwNoSuchElementExceptionForInline(String message);
+    method @BytecodeOnly @kotlin.PublishedApi internal static Void throwNoSuchElementExceptionForInline(String);
   }
 
 }

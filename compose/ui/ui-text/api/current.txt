@@ -1803,6 +1803,17 @@ package androidx.compose.ui.text.intl {
 
 }
 
+package androidx.compose.ui.text.platform {
+
+  public final class Synchronization_jvmKt {
+    method @BytecodeOnly @kotlin.PublishedApi internal static <R> R synchronized(androidx.compose.ui.text.platform.SynchronizedObject, kotlin.jvm.functions.Function0<? extends R>);
+  }
+
+  @BytecodeOnly @kotlin.PublishedApi internal final class SynchronizedObject {
+  }
+
+}
+
 package androidx.compose.ui.text.platform.extensions {
 
   public final class TtsAnnotationExtensions_androidKt {
