@@ -40,7 +40,6 @@ import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.CircularProgressIndicator
-import androidx.wear.compose.material3.ExperimentalWearComposeMaterial3Api
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ProgressIndicatorDefaults
@@ -56,7 +55,6 @@ import androidx.wear.compose.material3.lazy.transformedHeight
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalWearComposeMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
@@ -107,7 +105,6 @@ fun PullToRefreshSample() {
     }
 }
 
-@OptIn(ExperimentalWearComposeMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
