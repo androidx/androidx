@@ -171,6 +171,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_PACKAGE_IDENTIFIER_MULTI_CERT =
             FLAG_PREFIX + "enable_package_identifier_multi_cert";
 
+    /** Enable multi-certificate apps indexing and visibility support for PWAs. */
+    public static final String FLAG_ENABLE_APPS_INDEXER_PWA_MULTI_CERT =
+            FLAG_PREFIX + "enable_apps_indexer_pwa_multi_cert";
+
     /** Enables AppSearch to manage blob files. */
     public static final String FLAG_ENABLE_APP_SEARCH_MANAGE_BLOB_FILES =
             FLAG_PREFIX + "enable_app_search_manage_blob_files";
@@ -661,6 +665,13 @@ public final class Flags {
 
     /** Whether multi-certificate support in PackageIdentifier should be enabled. */
     public static boolean enablePackageIdentifierMultiCert() {
+        return true;
+    }
+
+    /**
+     * Whether multi-certificate apps indexing and visibility support for PWAs should be enabled.
+     */
+    public static boolean enableAppsIndexerPwaMultiCert() {
         return true;
     }
 }
