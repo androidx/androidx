@@ -176,6 +176,7 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
                         "DataClassDefinition",
                         "TypeParameterName",
                         "HiddenAbstractMethodInInterface",
+                        "HidingApiMethodOverride",
                     )
                     .joinToString(),
             )
