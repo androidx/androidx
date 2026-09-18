@@ -88,7 +88,7 @@ import com.android.extensions.xr.ShadowXrExtensions
 import com.android.extensions.xr.space.ShadowActivityPanel
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
-import org.junit.Assert.assertTrue
+import kotlin.test.assertTrue
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -731,6 +731,76 @@ class SpatialPanelTest {
                     .metersToDp(composeTestRule.density, session.scene.virtualPixelDensity)
             )
             .isEqualTo(100.dp)
+    }
+
+    @Test
+    fun spatialPanel_shapeUpdates_dynamicallyUpdatesCornerRadius() {
+        var shape by mutableStateOf(SpatialRoundedCornerShape(CornerSize(16.dp)))
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    modifier = SubspaceModifier.width(200.dp).height(300.dp).testTag("panel"),
+                    shape = shape,
+                ) {}
+            }
+        }
+
+        val panelNode = composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode()
+        val panelEntity = panelNode.semanticsEntity as? PanelEntity
+        val session = assertNotNull(composeTestRule.session)
+        val initialRadius =
+            assertNotNull(panelEntity)
+                .cornerRadius
+                .metersToDp(composeTestRule.density, session.scene.virtualPixelDensity)
+
+        assertThat(initialRadius).isEqualTo(16.dp)
+
+        shape = SpatialRoundedCornerShape(CornerSize(32.dp))
+        composeTestRule.waitForIdle()
+
+        val updatedRadius =
+            panelEntity.cornerRadius.metersToDp(
+                composeTestRule.density,
+                session.scene.virtualPixelDensity,
+            )
+
+        assertThat(updatedRadius).isEqualTo(32.dp)
+    }
+
+    @Test
+    fun mainPanel_shapeUpdates_dynamicallyUpdatesCornerRadius() {
+        var shape by mutableStateOf(SpatialRoundedCornerShape(CornerSize(16.dp)))
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialMainPanel(
+                    modifier = SubspaceModifier.width(200.dp).height(300.dp).testTag("mainPanel"),
+                    shape = shape,
+                )
+            }
+        }
+
+        val panelNode = composeTestRule.onSubspaceNodeWithTag("mainPanel").fetchSemanticsNode()
+        val panelEntity = panelNode.semanticsEntity as? PanelEntity
+        val session = assertNotNull(composeTestRule.session)
+        val initialRadius =
+            assertNotNull(panelEntity)
+                .cornerRadius
+                .metersToDp(composeTestRule.density, session.scene.virtualPixelDensity)
+
+        assertThat(initialRadius).isEqualTo(16.dp)
+
+        shape = SpatialRoundedCornerShape(CornerSize(32.dp))
+        composeTestRule.waitForIdle()
+
+        val updatedRadius =
+            panelEntity.cornerRadius.metersToDp(
+                composeTestRule.density,
+                session.scene.virtualPixelDensity,
+            )
+
+        assertThat(updatedRadius).isEqualTo(32.dp)
     }
 
     @Test
