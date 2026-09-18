@@ -411,6 +411,7 @@ public fun RemoteCompactButton(
                 disabledContainerPainter = null,
                 horizontalArrangement =
                     if (icon != null) RemoteArrangement.Start else RemoteArrangement.Center,
+                role = null,
             ) {
                 if (icon != null) {
                     RemoteBox(
@@ -452,6 +453,7 @@ public fun RemoteCompactButton(
                 containerPainter = null,
                 disabledContainerPainter = null,
                 horizontalArrangement = RemoteArrangement.Center,
+                role = null,
             ) {
                 RemoteBox(
                     modifier = RemoteModifier.fillMaxSize().wrapContentSize(),
@@ -485,6 +487,7 @@ private fun RemoteButtonImpl(
     contentPadding: RemotePaddingValues,
     labelFont: RemoteTextStyle,
     horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Center,
+    role: Role? = Role.Button,
     content: @Composable @RemoteComposable RemoteRowScope.() -> Unit,
 ) {
     val containerModifier =
@@ -494,7 +497,13 @@ private fun RemoteButtonImpl(
                 enabled = enabled.constantValueOrNull ?: false && onClick != Action.Empty,
             )
             .padding(contentPadding)
-            .semantics(mergeDescendants = true) { role = Role.Button }
+            .let {
+                if (role != null) {
+                    it.semantics(mergeDescendants = true) { this.role = role }
+                } else {
+                    it
+                }
+            }
 
     RemoteRow(
         verticalAlignment = RemoteAlignment.CenterVertically,
