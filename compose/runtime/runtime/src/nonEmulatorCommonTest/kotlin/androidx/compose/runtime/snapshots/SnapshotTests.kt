@@ -44,7 +44,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNotSame
+import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlin.test.fail
@@ -1223,6 +1225,104 @@ class SnapshotTests {
             transparentSnapshot.dispose()
         }
         assertEquals(1, current.writeCount)
+    }
+
+    @Test
+    fun testWithoutReadObservationReusesTransparentSnapshot() {
+        var firstSnapshot: Snapshot? = null
+        var secondSnapshot: Snapshot? = null
+
+        Snapshot.withoutReadObservation {
+            firstSnapshot = currentSnapshot()
+        }
+
+        Snapshot.withoutReadObservation {
+            secondSnapshot = currentSnapshot()
+        }
+
+        assertNotNull(firstSnapshot)
+        assertNotNull(secondSnapshot)
+        assertSame(firstSnapshot, secondSnapshot)
+        assertTrue(firstSnapshot is TransparentObserverMutableSnapshot)
+    }
+
+    @Test
+    fun testNestedWithoutReadObservationReusedInPlace() {
+        var outerSnapshot: Snapshot? = null
+        var innerSnapshot: Snapshot? = null
+
+        Snapshot.withoutReadObservation {
+            outerSnapshot = currentSnapshot()
+            Snapshot.withoutReadObservation {
+                innerSnapshot = currentSnapshot()
+            }
+        }
+
+        assertSame(outerSnapshot, innerSnapshot)
+    }
+
+    @Test
+    fun testObserveReusesTransparentSnapshot() {
+        var firstSnapshot: Snapshot? = null
+        var secondSnapshot: Snapshot? = null
+
+        Snapshot.observe({}) {
+            firstSnapshot = currentSnapshot()
+        }
+
+        Snapshot.observe({}) {
+            secondSnapshot = currentSnapshot()
+        }
+
+        assertSame(firstSnapshot, secondSnapshot)
+        assertTrue(firstSnapshot is TransparentObserverMutableSnapshot)
+    }
+
+    @Test
+    fun testTransparentSnapshotReusedAcrossDifferentParentSnapshots() {
+        var snapshotInParent1: Snapshot? = null
+        var snapshotInParent2: Snapshot? = null
+
+        val parent1 = takeMutableSnapshot()
+        try {
+            parent1.enter {
+                Snapshot.withoutReadObservation {
+                    snapshotInParent1 = currentSnapshot()
+                }
+            }
+        } finally {
+            parent1.dispose()
+        }
+
+        val parent2 = takeMutableSnapshot()
+        try {
+            parent2.enter {
+                Snapshot.withoutReadObservation {
+                    snapshotInParent2 = currentSnapshot()
+                }
+            }
+        } finally {
+            parent2.dispose()
+        }
+
+        assertSame(snapshotInParent1, snapshotInParent2)
+    }
+
+    @Test
+    fun testTransparentSnapshotDisposalCleansUpObservers() {
+        var observed = false
+        val state = mutableStateOf(0)
+        var snapshot: Snapshot? = null
+        Snapshot.observe({ observed = true }) {
+            snapshot = currentSnapshot()
+            assertTrue(snapshot is TransparentObserverMutableSnapshot)
+            assertNotNull((snapshot as TransparentObserverMutableSnapshot).readObserver)
+            state.value
+        }
+        assertTrue(observed)
+        val transparentSnapshot = snapshot as TransparentObserverMutableSnapshot
+        assertNull(transparentSnapshot.readObserver)
+        assertNull(transparentSnapshot.writeObserver)
     }
 
     @Suppress("AutoboxingStateValueProperty") // The point of this test
