@@ -73,7 +73,8 @@ public class GetAgeRangeResponse(
      *
      * Higher tiers indicate stronger assurance that the user belongs to the specified age range
      * with [ASSURANCE_TIER_A] as the lowest and [ASSURANCE_TIER_D] as the highest tiers
-     * respectively.
+     * respectively, or [ASSURANCE_TIER_UNSPECIFIED] when the assurance tier is not shared by the
+     * provider.
      */
     @Retention(AnnotationRetention.SOURCE)
     @Target(
@@ -87,6 +88,7 @@ public class GetAgeRangeResponse(
     @IntDef(
         value =
             [
+                ASSURANCE_TIER_UNSPECIFIED,
                 ASSURANCE_TIER_A,
                 ASSURANCE_TIER_B,
                 ASSURANCE_TIER_C,
@@ -97,6 +99,9 @@ public class GetAgeRangeResponse(
     public annotation class AgeAssuranceTier
 
     public companion object {
+        /** The assurance tier is not specified or shared by the provider. */
+        public const val ASSURANCE_TIER_UNSPECIFIED: Int = 0
+
         /** User has self declared their age. */
         public const val ASSURANCE_TIER_A: Int = 1
 
