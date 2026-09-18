@@ -36,7 +36,6 @@ internal constructor(
         RemoteOperationCacheKey.create(RemoteLongOp.FromLowHigh, low, high),
 ) : BaseRemoteState<Long>(cacheKey) {
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @get:Suppress("AutoBoxing")
     public override val constantValueOrNull: Long?
         get() {
