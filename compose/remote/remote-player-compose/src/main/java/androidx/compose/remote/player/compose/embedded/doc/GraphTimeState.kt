@@ -25,6 +25,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.tracing.trace
 
 /**
  * Encapsulates reactive Compose snapshot states for all wall-clock, calendar, and continuous time
@@ -69,37 +70,39 @@ internal class GraphTimeState(
      * fields only update when the epoch second advances (and Compose's [MutableFloatState] only
      * emits a snapshot change when the specific field's value actually changes).
      */
-    internal fun updateTime(frameMillis: Float, updateContinuous: Boolean = true): Boolean {
-        val currentMillis = startClockMillis + frameMillis.toLong()
-        val epochSec = Math.floorDiv(currentMillis, 1000L)
-        val secondChanged = epochSec != lastEpochSecond
-        if (secondChanged) {
-            lastEpochSecond = epochSec
-            val boundaryMillis = epochSec * 1000L
-            val snapshot = baseClock.snapshot(boundaryMillis)
-            val timeInSec = snapshot.timeInSec
-            lastTimeInSec = timeInSec
-            epochSecondState.intValue = snapshot.epochSeconds
-            epochSecondFloatState.floatValue = snapshot.epochSeconds.toFloat()
-            timeInSecState.floatValue = timeInSec
-            timeInMinState.floatValue = snapshot.timeInMin
-            timeInHrState.floatValue = snapshot.hour.toFloat()
-            calendarMonthState.floatValue = snapshot.month.toFloat()
-            offsetToUtcState.floatValue = snapshot.offsetSeconds.toFloat()
-            weekDayState.floatValue = snapshot.dayOfWeek.toFloat()
-            dayOfMonthState.floatValue = snapshot.dayOfMonth.toFloat()
-            dayOfYearState.floatValue = snapshot.dayOfYear.toFloat()
-            yearState.floatValue = snapshot.year.toFloat()
+    internal fun updateTime(frameMillis: Float, updateContinuous: Boolean = true): Boolean =
+        trace("RcPlayer:updateTime") {
+            val currentMillis = startClockMillis + frameMillis.toLong()
+            val epochSec = Math.floorDiv(currentMillis, 1000L)
+            val secondChanged = epochSec != lastEpochSecond
+            if (secondChanged) {
+                lastEpochSecond = epochSec
+                val boundaryMillis = epochSec * 1000L
+                val snapshot = baseClock.snapshot(boundaryMillis)
+                val timeInSec = snapshot.timeInSec
+                lastTimeInSec = timeInSec
+                epochSecondState.intValue = snapshot.epochSeconds
+                epochSecondFloatState.floatValue = snapshot.epochSeconds.toFloat()
+                timeInSecState.floatValue = timeInSec
+                timeInMinState.floatValue = snapshot.timeInMin
+                timeInHrState.floatValue = snapshot.hour.toFloat()
+                calendarMonthState.floatValue = snapshot.month.toFloat()
+                offsetToUtcState.floatValue = snapshot.offsetSeconds.toFloat()
+                weekDayState.floatValue = snapshot.dayOfWeek.toFloat()
+                dayOfMonthState.floatValue = snapshot.dayOfMonth.toFloat()
+                dayOfYearState.floatValue = snapshot.dayOfYear.toFloat()
+                yearState.floatValue = snapshot.year.toFloat()
+            }
+            if (updateContinuous || secondChanged) {
+                currentMillisState.longValue = currentMillis
+                animationTimeState.floatValue = frameMillis / 1000f
+                continuousSecState.floatValue =
+                    lastTimeInSec + Math.floorMod(currentMillis, 1000L) * 1e-3f
+                true
+            } else {
+                false
+            }
         }
-        if (updateContinuous || secondChanged) {
-            currentMillisState.longValue = currentMillis
-            animationTimeState.floatValue = frameMillis / 1000f
-            continuousSecState.floatValue =
-                lastTimeInSec + Math.floorMod(currentMillis, 1000L) * 1e-3f
-            return true
-        }
-        return false
-    }
 
     internal fun timeFloatState(id: Int): State<Float> =
         when (id) {
