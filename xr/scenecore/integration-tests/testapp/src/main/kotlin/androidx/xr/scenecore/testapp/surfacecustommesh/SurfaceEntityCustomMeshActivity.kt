@@ -171,6 +171,17 @@ class SurfaceEntityCustomMeshActivity : ComponentActivity() {
         SurfaceEntity.Shape.TriangleMesh(positions = posBuffer, texCoords = texCoordsBuffer)
     }
 
+    private val triangleMeshNonDirect by lazy {
+        // A single triangle pointing upwards, centered on the origin.
+        val positions = floatArrayOf(-0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f)
+        val texCoords = floatArrayOf(0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 1.0f)
+
+        val posBuffer = java.nio.FloatBuffer.wrap(positions)
+        val texCoordsBuffer = java.nio.FloatBuffer.wrap(texCoords)
+
+        SurfaceEntity.Shape.TriangleMesh(positions = posBuffer, texCoords = texCoordsBuffer)
+    }
+
     private val triangleMeshByTriangleStripLeft by lazy {
         // A quad mesh represented as two triangles with indices.
         val positions =
@@ -839,6 +850,31 @@ class SurfaceEntityCustomMeshActivity : ComponentActivity() {
     }
 
     @Composable
+    fun TriangleMeshNonDirectButton(
+        session: Session,
+        arDevice: ArDevice,
+        activity: Activity,
+        enabled: Boolean = true,
+    ) {
+        PlayVideoButton(
+            session = session,
+            arDevice = arDevice,
+            activity = activity,
+            // For Testers: Note that this translates to "/sdcard/Download/vid_bigbuckbunny.mp4".
+            videoUri =
+                Environment.getExternalStorageDirectory().getPath() +
+                    "/Download/vid_bigbuckbunny.mp4",
+            stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM,
+            pose = Pose(Vector3(0.0f, 0.0f, -1.5f), Quaternion(0.0f, 0.0f, 0.0f, 1.0f)),
+            shape = SurfaceEntity.Shape.CustomMesh(leftEye = triangleMeshNonDirect),
+            buttonText = "Play Big Buck Bunny, Triangle Mesh (Non-Direct)",
+            buttonColor = VideoButtonColors.StandardPlayback,
+            enabled = enabled,
+            protected = false,
+        )
+    }
+
+    @Composable
     fun TriangleStripButton(
         session: Session,
         arDevice: ArDevice,
@@ -872,13 +908,12 @@ class SurfaceEntityCustomMeshActivity : ComponentActivity() {
 
     // We don't expect this to render correctly; The triangle fan will fall back to a triangle
     // list because it is not yet natively supported.
-    // TODO: b/474464351 - Crash in C++ after fallbacks from Triangle Fan to Triangles
     @Composable
     fun TriangleFanButton(
         session: Session,
         arDevice: ArDevice,
         activity: Activity,
-        enabled: Boolean = false,
+        enabled: Boolean = true,
         loop: Boolean = false,
     ) {
         PlayVideoButton(
@@ -890,7 +925,7 @@ class SurfaceEntityCustomMeshActivity : ComponentActivity() {
             videoUri =
                 Environment.getExternalStorageDirectory().getPath() +
                     "/Download/vid_bigbuckbunny.mp4",
-            stereoMode = SurfaceEntity.StereoMode.MONO,
+            stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM,
             pose = Pose(Vector3(0.0f, 0.0f, -1.5f), Quaternion(0.0f, 0.0f, 0.0f, 1.0f)),
             shape =
                 SurfaceEntity.Shape.CustomMesh(
@@ -936,6 +971,7 @@ class SurfaceEntityCustomMeshActivity : ComponentActivity() {
 
                     // High level testcases
                     TriangleMeshButton(session, arDevice, activity)
+                    TriangleMeshNonDirectButton(session, arDevice, activity)
                     TriangleStripButton(session, arDevice, activity)
                     TriangleFanButton(session, arDevice, activity)
                 } else {
