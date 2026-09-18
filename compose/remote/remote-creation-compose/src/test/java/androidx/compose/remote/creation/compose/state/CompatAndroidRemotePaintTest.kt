@@ -108,6 +108,16 @@ class CompatAndroidRemotePaintTest {
     }
 
     @Test
+    fun toRemotePaintTest() {
+        val paint = CompatAndroidRemotePaint()
+        val remoteColor = Color.Cyan.rc
+        paint.remoteColor = remoteColor
+
+        val remotePaint = paint.remotePaint
+        assertThat(remotePaint.color.constantValue).isEqualTo(remoteColor.constantValue)
+    }
+
+    @Test
     fun asRemotePaintTest() {
         val paint = CompatAndroidRemotePaint()
         val remoteColor = Color.Magenta.rc
