@@ -113,21 +113,31 @@ public class PackageIdentifier {
         return mPackageIdentifierParcel.getPackageName();
     }
 
-    // TODO(b/514617291): Deprecate this method and introduce a getSha256CertificateHistory method.
+    // TODO(b/536955734): Deprecate this method and introduce a getSha256CertificateHistory method.
     /**
      * Returns the SHA-256 certificate for a single-signer package.
      *
-     * <p>This method should not be called for multiple-signing certificates. Use
-     * {@link #getMultiSignerSha256Certificates} to retrieve all certificates.
+     * <p>For packages signed by multiple certificates, callers should use
+     * {@link #getMultiSignerSha256Certificates()} to retrieve all certificates. If this method
+     * is called on a multi-signer package, it returns the primary certificate (the first
+     * certificate in that list) for backward compatibility.
+     *
+     * <p>To determine whether a package has one or multiple certificates, check whether
+     * {@link #getMultiSignerSha256Certificates()} returns a non-empty list.
      */
     public @NonNull byte[] getSha256Certificate() {
         return mPackageIdentifierParcel.getSha256Certificate().clone();
     }
 
+    // TODO(b/536955734): Update Javadoc to recommend getSha256CertificateHistory() once
+    // getSha256Certificate() is deprecated.
     /**
-     * Returns all SHA-256 certificates for a multi-signer package.
+     * Returns all SHA-256 certificates for a multi-signer package, or an empty list if the
+     * package has a single signer.
      *
-     * <p>Returns an empty list if the package has a single signer.
+     * <p>For multi-signer packages, this list contains all active co-signing certificates. For
+     * single-signer packages (including those with certificate rotation), use
+     * {@link #getSha256Certificate()}.
      */
     @FlaggedApi(Flags.FLAG_ENABLE_PACKAGE_IDENTIFIER_MULTI_CERT)
     public @NonNull List<byte[]> getMultiSignerSha256Certificates() {
