@@ -356,23 +356,36 @@ public fun PlanarEmbeddedSubspace(
                 subspaceMeasurables,
                 _ ->
                 val volumeConstraints = view.findVolumeConstraints()
-                val placeables = subspaceMeasurables.fastMap {
-                    it.measure(
-                        VolumeConstraints(
-                            minWidth = constraints.minWidth,
-                            maxWidth = constraints.maxWidth,
-                            minHeight = constraints.minHeight,
-                            maxHeight = constraints.maxHeight,
-                            minDepth = volumeConstraints?.minDepth ?: 0,
-                            maxDepth = volumeConstraints?.maxDepth ?: Int.MAX_VALUE,
-                        )
+                val childConstraints =
+                    VolumeConstraints(
+                        minWidth = constraints.minWidth,
+                        maxWidth = constraints.maxWidth,
+                        minHeight = constraints.minHeight,
+                        maxHeight = constraints.maxHeight,
+                        minDepth = volumeConstraints?.minDepth ?: 0,
+                        maxDepth = volumeConstraints?.maxDepth ?: Int.MAX_VALUE,
                     )
+                var maxContentWidth = 0
+                var maxContentHeight = 0
+                var maxContentDepth = 0
+                val placeables = subspaceMeasurables.fastMap {
+                    it.measure(childConstraints).also { placeable ->
+                        if (placeable.width > maxContentWidth) {
+                            maxContentWidth = placeable.width
+                        }
+                        if (placeable.height > maxContentHeight) {
+                            maxContentHeight = placeable.height
+                        }
+                        if (placeable.depth > maxContentDepth) {
+                            maxContentDepth = placeable.depth
+                        }
+                    }
                 }
                 val measuredContentVolume =
                     IntVolumeSize(
-                            width = placeables.maxOf { it.width },
-                            height = placeables.maxOf { it.height },
-                            depth = placeables.maxOf { it.depth },
+                            width = maxContentWidth,
+                            height = maxContentHeight,
+                            depth = maxContentDepth,
                         )
                         .apply { subspaceContentPixelSize = IntSize(width, height) }
                 layout(
