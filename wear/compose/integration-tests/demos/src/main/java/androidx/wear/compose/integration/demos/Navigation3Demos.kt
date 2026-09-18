@@ -25,5 +25,9 @@ val WearNav3Demos =
         listOf(
             ActivityDemo("List - Detail Navigation", ListDetailNavDisplaySampleActivity::class),
             ActivityDemo("On Back", NavDisplayWithOnBackBehaviorSampleActivity::class),
+            ActivityDemo(
+                "Horizontal Pager",
+                HorizontalPagerNavDisplaySampleActivity::class,
+            ),
         ),
     )
