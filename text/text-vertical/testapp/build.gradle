@@ -34,6 +34,11 @@ dependencies {
 
     // Older versions of lifecycle-runtime lint checks use a deleted lint API
     implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
 }
 
 androidx {
