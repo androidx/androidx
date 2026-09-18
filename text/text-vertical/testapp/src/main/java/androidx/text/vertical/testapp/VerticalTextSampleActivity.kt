@@ -217,10 +217,26 @@ fun ComplexHorizontalText(style: VerticalTextStyle, modifier: Modifier = Modifie
                 withRuby("うえ", position = AnnotationPosition.Before) { text("上") }
                 text("と")
                 withRuby("した", position = AnnotationPosition.After) { text("下") }
-                text("。")
-                withEmphasis { text("傍点も") }
-                text("Support")
-                withEmphasis(EmphasisStyle.Sesame) { text("されてます。") }
+                text("。\n")
+                // Emphasis annotation position. In horizontal writing mode, Before places the
+                // emphasis mark above the base text and After places it below.
+                text("傍点位置：")
+                withEmphasis(density, position = AnnotationPosition.Before) { text("上") }
+                text("と")
+                withEmphasis(density, position = AnnotationPosition.After) { text("下") }
+                text("。\n")
+                withEmphasis(EmphasisStyle.Circle) { text("圏点") }
+                text("も")
+                withEmphasis(EmphasisStyle.DoubleCircle) { text("二重丸") }
+                text("もSupport")
+                withEmphasis(EmphasisStyle.Sesame) { text("されて") }
+                withEmphasis(
+                    density,
+                    style = EmphasisStyle.Triangle,
+                    position = AnnotationPosition.After,
+                ) {
+                    text("います。")
+                }
             }
         }
     LegacyHorizontalText(text, style, modifier)
@@ -264,6 +280,14 @@ private fun buildComplexText(density: Density) =
         withRuby("みぎ", position = AnnotationPosition.Before) { text("右") }
         text("と")
         withRuby("ひだり", position = AnnotationPosition.After) { text("左") }
+        text("。")
+
+        // Emphasis annotation position. In vertical writing, Before puts the emphasis mark on the
+        // right of the base text and After puts it on the left.
+        text("傍点位置：")
+        withEmphasis(density, position = AnnotationPosition.Before) { text("右") }
+        text("と")
+        withEmphasis(density, position = AnnotationPosition.After) { text("左") }
         text("。\n")
 
         upright("2024")
@@ -314,9 +338,10 @@ private fun buildComplexText(density: Density) =
         text("年もよろしくお願いいたします。")
 
         withStyle(fontShear = FontShearSpan.DEFAULT_FONT_SHEAR) {
-            text("日本語の斜体はEnglishのItalicとは少し違います。")
+            text("日本語の斜体はEnglishのItalicとは少し違います。\n")
         }
-        withEmphasis { text("傍点もSupportされてます。") }
+        withEmphasis(style = EmphasisStyle.Sesame) { text("傍点") }
+        text("もSupportされてます。")
     }
 
 private fun setStyleToPaint(

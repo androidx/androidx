@@ -199,9 +199,9 @@ public class VerticalTextScope internal constructor(internal val density: Densit
      * @return the value returned by [block].
      */
     public fun <R : Any> withEmphasis(
-        style: EmphasisStyle = EmphasisStyle.Dot,
-        filled: Boolean = true,
-        scale: Float = 0.5f,
+        style: EmphasisStyle = EmphasisSpan.DEFAULT_EMPHASIS_STYLE,
+        filled: Boolean = EmphasisSpan.DEFAULT_EMPHASIS_FILL,
+        scale: Float = EmphasisSpan.DEFAULT_SCALE,
         block: VerticalTextScope.() -> R,
     ): R = withSpan(EmphasisSpan(style, filled, scale = scale), block)
 }
