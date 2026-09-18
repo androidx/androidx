@@ -30,7 +30,6 @@ import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.currentComposer
@@ -212,7 +211,10 @@ private fun <T : View> AndroidViewPanel(
             }
     }
 
-    LaunchedEffect(shape, density) { corePanelEntity.setShape(shape, density) }
+    DisposableEffect(shape, density) {
+        corePanelEntity.setShape(shape, density)
+        onDispose {}
+    }
 
     val measurePolicy = SpatialViewPanelMeasurePolicy(view)
 
@@ -367,7 +369,10 @@ public fun SpatialMainPanel(
     val density = LocalDensity.current
     val view = LocalView.current
 
-    LaunchedEffect(shape, density) { mainPanel.setShape(shape, density) }
+    DisposableEffect(shape, density) {
+        mainPanel.setShape(shape, density)
+        onDispose {}
+    }
 
     SubspaceLayout(modifier = finalModifier, coreEntity = mainPanel) { _, constraints ->
         val measuredWidth = view.measuredWidth

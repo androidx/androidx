@@ -19,6 +19,7 @@ package androidx.xr.compose.subspace.layout
 import android.content.Intent
 import android.view.View
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,6 +47,8 @@ import androidx.xr.compose.testing.configureFakeSession
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.testing.session
 import androidx.xr.compose.unit.IntVolumeSize
+import androidx.xr.compose.unit.pxToMeters
+import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.AnchorSpace
@@ -560,5 +563,82 @@ class CoreEntityTest {
 
         assertThat(coreMainPanelEntity.poseInMeters).isEqualTo(Pose(Vector3(1f, 2f, 3f)))
         assertThat(coreMainPanelEntity.alpha).isEqualTo(0.5f)
+    }
+
+    @Test
+    fun coreMainPanelEntity_setShape_updatesAndRestoresCornerRadius() {
+        val session = composeTestRule.configureFakeSession()
+        val pixelDensity = session.scene.virtualPixelDensity
+        val coreMainPanelEntity = CoreMainPanelEntity(assertNotNull(session))
+        coreMainPanelEntity.size = IntVolumeSize(100, 200, 0)
+        val density = Density(1.0f)
+        val shape = SpatialRoundedCornerShape(CornerSize(25.dp))
+
+        coreMainPanelEntity.setShape(shape, density)
+
+        assertThat(session.scene.mainPanelEntity.cornerRadius)
+            .isEqualTo(25f.pxToMeters(pixelDensity))
+
+        // If the underlying entity's cornerRadius is externally modified, calling setShape
+        // with the same shape and density should override it back to the shape's corner radius.
+        session.scene.mainPanelEntity.cornerRadius = 0f
+        coreMainPanelEntity.setShape(shape, density)
+
+        assertThat(session.scene.mainPanelEntity.cornerRadius)
+            .isEqualTo(25f.pxToMeters(pixelDensity))
+
+        // Setting a different shape updates cornerRadius
+        val newShape = SpatialRoundedCornerShape(CornerSize(32.dp))
+        coreMainPanelEntity.setShape(newShape, density)
+
+        assertThat(session.scene.mainPanelEntity.cornerRadius)
+            .isEqualTo(32f.pxToMeters(pixelDensity))
+
+        // Setting a different density with the initial shape scales cornerRadius with density
+        val newDensity = Density(2.0f)
+        coreMainPanelEntity.setShape(shape, newDensity)
+
+        assertThat(session.scene.mainPanelEntity.cornerRadius)
+            .isEqualTo(50f.pxToMeters(pixelDensity))
+    }
+
+    @Test
+    fun corePanelEntity_setShape_updatesAndRestoresCornerRadius() {
+        val session = composeTestRule.configureFakeSession()
+        val pixelDensity = session.scene.virtualPixelDensity
+        val panelEntity =
+            PanelEntity.create(
+                assertNotNull(session),
+                View(composeTestRule.activity),
+                IntSize2d(100, 200),
+                "TestPanel",
+            )
+        val corePanelEntity = CorePanelEntity(pixelDensity, assertNotNull(panelEntity))
+        corePanelEntity.size = IntVolumeSize(100, 200, 0)
+        val density = Density(1.0f)
+        val shape = SpatialRoundedCornerShape(CornerSize(25.dp))
+
+        corePanelEntity.setShape(shape, density)
+
+        assertThat(panelEntity.cornerRadius).isEqualTo(25f.pxToMeters(pixelDensity))
+
+        // If the underlying entity's cornerRadius is externally modified, calling setShape
+        // with the same shape and density should override it back to the shape's corner radius.
+        panelEntity.cornerRadius = 0f
+        corePanelEntity.setShape(shape, density)
+
+        assertThat(panelEntity.cornerRadius).isEqualTo(25f.pxToMeters(pixelDensity))
+
+        // Setting a different shape updates cornerRadius
+        val newShape = SpatialRoundedCornerShape(CornerSize(32.dp))
+        corePanelEntity.setShape(newShape, density)
+
+        assertThat(panelEntity.cornerRadius).isEqualTo(32f.pxToMeters(pixelDensity))
+
+        // Setting a different density with the initial shape scales cornerRadius with density
+        val newDensity = Density(2.0f)
+        corePanelEntity.setShape(shape, newDensity)
+
+        assertThat(panelEntity.cornerRadius).isEqualTo(50f.pxToMeters(pixelDensity))
     }
 }
