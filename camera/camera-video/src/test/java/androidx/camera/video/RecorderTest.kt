@@ -1055,6 +1055,205 @@ class RecorderTest {
     }
 
     @Test
+    fun startRecording_duringSurfaceReconfiguration_doesNotUseTerminatingEncoder() {
+        val startedEncoders = mutableListOf<FakeEncoder>()
+        val recorder =
+            createRecorder(
+                videoEncoderFactory = createStartTrackingVideoEncoderFactory(startedEncoders)
+            )
+        val oldSurfaceRequest = checkNotNull(latestSurfaceRequest)
+        val oldEncoder = checkNotNull(latestVideoEncoder)
+
+        // Send a new surface request while IDLING. The old VideoEncoderSession becomes pending
+        // release until the old surface is released.
+        val newSurfaceRequest = SurfaceRequest(Size(640, 480), fakeCamera) {}
+        latestSurfaceRequest = newSurfaceRequest
+        surfaceRequestsToClose.add(newSurfaceRequest)
+        recorder.onSurfaceRequested(newSurfaceRequest)
+
+        // Start a recording before the new VideoEncoderSession is configured.
+        val recording = createRecording(recorder = recorder).start()
+
+        // The recording is deferred instead of being started on the terminating encoder.
+        recording.verifyNoMoreEvent()
+        assertThat(startedEncoders).isEmpty()
+
+        // Release the old surface so that the new VideoEncoderSession can be configured.
+        oldSurfaceRequest.deferrableSurface.close()
+        idleMainLooper()
+
+        // The recording starts on the new encoder.
+        recording.verifyStart()
+        val newEncoder = checkNotNull(latestVideoEncoder)
+        assertThat(newEncoder).isNotSameInstanceAs(oldEncoder)
+        assertThat(startedEncoders).containsExactly(newEncoder)
+        recording.sendFrames(3)
+        recording.stopAndVerify()
+    }
+
+    @Test
+    fun startRecording_newSurfaceRequestBeforeEncoderReady_doesNotUseTerminatingEncoder() {
+        val startedEncoders = mutableListOf<FakeEncoder>()
+        var onEncoderCreated: (() -> Unit)? = null
+        val recorder =
+            createRecorder(
+                sendSurfaceRequest = false,
+                videoEncoderFactory =
+                    createStartTrackingVideoEncoderFactory(startedEncoders) {
+                        onEncoderCreated?.invoke()
+                        onEncoderCreated = null
+                    },
+            )
+
+        // Start a recording before any surface request. It stays pending until the video
+        // encoder is configured.
+        val recording = createRecording(recorder = recorder).start()
+        recording.verifyNoMoreEvent()
+
+        // Send a second surface request while the VideoEncoderSession of the first surface
+        // request is being configured, i.e. before onConfigured() is invoked for it. This makes
+        // the first VideoEncoderSession pending release before it is reported as configured.
+        val secondSurfaceRequest = SurfaceRequest(Size(640, 480), fakeCamera) {}
+        surfaceRequestsToClose.add(secondSurfaceRequest)
+        onEncoderCreated = { recorder.onSurfaceRequested(secondSurfaceRequest) }
+        val firstSurfaceRequest = recorder.sendSurfaceRequest()
+        val firstEncoder = checkNotNull(latestVideoEncoder)
+
+        // The recording is deferred instead of being started on the terminating encoder.
+        recording.verifyNoMoreEvent()
+        assertThat(startedEncoders).isEmpty()
+
+        // Release the first surface so that the VideoEncoderSession of the second surface request
+        // can be configured.
+        firstSurfaceRequest.deferrableSurface.close()
+        idleMainLooper()
+
+        // The recording starts on the encoder of the second surface request.
+        recording.verifyStart()
+        val secondEncoder = checkNotNull(latestVideoEncoder)
+        assertThat(secondEncoder).isNotSameInstanceAs(firstEncoder)
+        assertThat(startedEncoders).containsExactly(secondEncoder)
+        recording.sendFrames(3)
+        recording.stopAndVerify()
+    }
+
+    @Test
+    fun startRecording_whileStoppingDuringSurfaceReconfiguration_doesNotUseTerminatingEncoder() {
+        val startedEncoders = mutableListOf<FakeEncoder>()
+        val recorder =
+            createRecorder(
+                videoEncoderFactory = createStartTrackingVideoEncoderFactory(startedEncoders)
+            )
+        val oldSurfaceRequest = checkNotNull(latestSurfaceRequest)
+        val oldEncoder = checkNotNull(latestVideoEncoder)
+
+        val firstRecording = createRecording(recorder = recorder).startAndVerify().sendFrames()
+        assertThat(startedEncoders).containsExactly(oldEncoder)
+        startedEncoders.clear()
+
+        // Send a new surface request while RECORDING. The old VideoEncoderSession becomes pending
+        // release until the old surface is released.
+        val newSurfaceRequest = SurfaceRequest(Size(640, 480), fakeCamera) {}
+        latestSurfaceRequest = newSurfaceRequest
+        surfaceRequestsToClose.add(newSurfaceRequest)
+        recorder.onSurfaceRequested(newSurfaceRequest)
+        idleMainLooper()
+
+        // Stop the first recording and immediately start a second recording while STOPPING, so
+        // that onRecordingFinalized() runs in PENDING_RECORDING state.
+        firstRecording.stop()
+        val secondRecording = createRecording(recorder = recorder).start()
+        idleMainLooper()
+
+        firstRecording.verifyFinalize()
+        // The second recording is deferred instead of being started on the terminating encoder,
+        // and the stream state transitions to INACTIVE once the first recording is finalized.
+        secondRecording.verifyNoMoreEvent()
+        assertThat(startedEncoders).isEmpty()
+        assertThat(recorder.streamInfo.fetchData().get()!!.streamState)
+            .isEqualTo(StreamInfo.StreamState.INACTIVE)
+
+        // Release the old surface so that the new VideoEncoderSession can be configured.
+        oldSurfaceRequest.deferrableSurface.close()
+        idleMainLooper()
+
+        // The second recording starts on the new encoder.
+        secondRecording.verifyStart()
+        val newEncoder = checkNotNull(latestVideoEncoder)
+        assertThat(newEncoder).isNotSameInstanceAs(oldEncoder)
+        assertThat(startedEncoders).containsExactly(newEncoder)
+        secondRecording.sendFrames(3)
+        secondRecording.stopAndVerify()
+    }
+
+    @Test
+    fun startRecording_whileResetting_resetsBeforeStartingOnNewEncoder() {
+        val startedEncoders = mutableListOf<FakeEncoder>()
+        val startTrackingFactory = createStartTrackingVideoEncoderFactory(startedEncoders)
+        var stopDeferringEncoder: StopDeferringEncoder? = null
+        // Only the first (old) video encoder defers stop(), so the first recording can be kept
+        // finalizing while the Recorder is RESETTING.
+        val recorder =
+            createRecorder(
+                videoEncoderFactory = { executor, config, sessionType ->
+                    val encoder =
+                        startTrackingFactory.createEncoder(executor, config, sessionType)
+                            as FakeEncoder
+                    if (stopDeferringEncoder == null) {
+                        StopDeferringEncoder(encoder).also { stopDeferringEncoder = it }
+                    } else {
+                        encoder
+                    }
+                }
+            )
+        val oldSurfaceRequest = checkNotNull(latestSurfaceRequest)
+        val oldEncoder = checkNotNull(latestVideoEncoder)
+        val deferringEncoder = checkNotNull(stopDeferringEncoder)
+
+        val firstRecording = createRecording(recorder = recorder).startAndVerify().sendFrames()
+        assertThat(startedEncoders).containsExactly(oldEncoder)
+        startedEncoders.clear()
+
+        // Send a new surface request while RECORDING. The old VideoEncoderSession becomes pending
+        // release until the old surface is released.
+        val newSurfaceRequest = SurfaceRequest(Size(640, 480), fakeCamera) {}
+        latestSurfaceRequest = newSurfaceRequest
+        surfaceRequestsToClose.add(newSurfaceRequest)
+        recorder.onSurfaceRequested(newSurfaceRequest)
+        idleMainLooper()
+
+        // Release the old surface. The Recorder requests a reset, which transitions to RESETTING
+        // and stops the first recording. Hold back the encoder stop so that the first recording
+        // is not finalized yet.
+        deferringEncoder.deferStop = true
+        oldSurfaceRequest.deferrableSurface.close()
+        idleMainLooper()
+        firstRecording.verifyNoFinalize()
+
+        // Start a second recording while RESETTING, i.e. PENDING_RECORDING with a RESETTING
+        // non-pending state.
+        val secondRecording = createRecording(recorder = recorder).start()
+        idleMainLooper()
+        secondRecording.verifyNoMoreEvent()
+        assertThat(oldEncoder.isReleaseCalled).isFalse()
+
+        // Let the first recording be finalized. onRecordingFinalized() must perform the pending
+        // reset, which releases the old encoder, instead of starting the second recording on it.
+        deferringEncoder.completeDeferredStop()
+        idleMainLooper()
+        firstRecording.verifyFinalize(error = ERROR_SOURCE_INACTIVE)
+        assertThat(oldEncoder.isReleaseCalled).isTrue()
+
+        // The second recording starts on the encoder created for the new surface request.
+        secondRecording.verifyStart()
+        val newEncoder = checkNotNull(latestVideoEncoder)
+        assertThat(newEncoder).isNotSameInstanceAs(oldEncoder)
+        assertThat(startedEncoders).containsExactly(newEncoder)
+        secondRecording.sendFrames(3)
+        secondRecording.stopAndVerify()
+    }
+
+    @Test
     fun getVideoCapabilitiesStabilizationSupportIsCorrect_whenNotSupportedInExtensions() {
         val cameraInfo = FakeCameraInfoInternal().apply { isVideoStabilizationSupported = true }
         val sessionProcessor =
@@ -1300,6 +1499,30 @@ class RecorderTest {
                 durationLimitMillis?.let { setDurationLimitMillis(it) }
             }
             .build()
+
+    /**
+     * Creates a video [EncoderFactory] that records every encoder that has been started into
+     * [startedEncoders], since [FakeEncoder.isStarted] is reset once the encoder is released.
+     */
+    private fun createStartTrackingVideoEncoderFactory(
+        startedEncoders: MutableList<FakeEncoder>,
+        onEncoderCreated: () -> Unit = {},
+    ): EncoderFactory = EncoderFactory { _, config, _ ->
+        lateinit var encoder: FakeEncoder
+        encoder =
+            FakeEncoder(
+                encoderInfo = FakeVideoEncoderInfo(supportedBitrateRange = Range(1, 100_000_000)),
+                encoderConfig = config,
+                onStateChanged = { isActive ->
+                    if (isActive && encoder !in startedEncoders) {
+                        startedEncoders.add(encoder)
+                    }
+                },
+            )
+        latestVideoEncoder = encoder
+        onEncoderCreated()
+        encoder
+    }
 
     private fun createFailingVideoEncoderFactory(failCreationTimes: Int = 2): EncoderFactory {
         var createEncoderRequestCount = 0

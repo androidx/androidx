@@ -236,6 +236,15 @@ final class VideoEncoderSession {
         return mVideoEncoder;
     }
 
+    /**
+     * Returns {@code true} if the surface of the VideoEncoder has been provided to the
+     * SurfaceRequest and the session is neither pending release nor released.
+     */
+    @ExecutedBy("mSequentialExecutor")
+    boolean isReady() {
+        return mVideoEncoderState == VideoEncoderState.READY;
+    }
+
     @ExecutedBy("mSequentialExecutor")
     private void closeInternal() {
         switch (mVideoEncoderState) {
