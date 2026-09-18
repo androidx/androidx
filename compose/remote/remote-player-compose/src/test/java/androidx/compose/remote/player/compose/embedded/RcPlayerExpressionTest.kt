@@ -21,6 +21,7 @@ import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.SystemClock
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.CanvasOperations
@@ -42,6 +43,9 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.Snapshot
 import com.google.common.truth.Truth.assertThat
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneOffset
 import org.junit.Test
 
 class RcPlayerExpressionTest {
@@ -319,13 +323,113 @@ class RcPlayerExpressionTest {
     @Test
     fun testContinuousSecResolvesInGraphContext() {
         val realState = SnapshotRemoteComposeState()
-        val timeState = mutableStateOf(5000f)
-        val graph = GraphContext(realState, emptyIntObjectMap(), timeState, RemoteClock.SYSTEM)
+        val baseInstant = Instant.parse("2026-01-01T12:30:45.123Z")
+        val clock = SystemClock(Clock.fixed(baseInstant, ZoneOffset.UTC))
+        val graph = GraphContext(realState, emptyIntObjectMap(), clock = clock)
+        graph.updateTime(5000f)
 
-        assertThat(graph.getFloat(RemoteContext.ID_CONTINUOUS_SEC)).isEqualTo(5f)
+        // At t = 5s (12:30:50.123Z):
+        assertThat(graph.getFloat(RemoteContext.ID_ANIMATION_TIME)).isEqualTo(5f)
+        assertThat(graph.getFloat(RemoteContext.ID_TIME_IN_HR)).isEqualTo(12f)
+        assertThat(graph.getFloat(RemoteContext.ID_TIME_IN_MIN)).isEqualTo(750f)
+        assertThat(graph.getFloat(RemoteContext.ID_TIME_IN_SEC)).isEqualTo(1850f)
+        assertThat(graph.getFloat(RemoteContext.ID_CONTINUOUS_SEC)).isWithin(0.001f).of(1850.123f)
+        assertThat(graph.getInteger(RemoteContext.ID_EPOCH_SECOND))
+            .isEqualTo((baseInstant.epochSecond + 5).toInt())
 
-        timeState.value = 8000f
-        assertThat(graph.getFloat(RemoteContext.ID_CONTINUOUS_SEC)).isEqualTo(8f)
+        // Advance to t = 65s (12:31:50.123Z):
+        graph.updateTime(65000f)
+        assertThat(graph.getFloat(RemoteContext.ID_ANIMATION_TIME)).isEqualTo(65f)
+        assertThat(graph.getFloat(RemoteContext.ID_TIME_IN_HR)).isEqualTo(12f)
+        assertThat(graph.getFloat(RemoteContext.ID_TIME_IN_MIN)).isEqualTo(751f)
+        assertThat(graph.getFloat(RemoteContext.ID_TIME_IN_SEC)).isEqualTo(1910f)
+        assertThat(graph.getFloat(RemoteContext.ID_CONTINUOUS_SEC)).isWithin(0.001f).of(1910.123f)
+        assertThat(graph.getInteger(RemoteContext.ID_EPOCH_SECOND))
+            .isEqualTo((baseInstant.epochSecond + 65).toInt())
+    }
+
+    @Test
+    fun testTimeFieldsOnlyInvalidateWhenTheirSpecificUnitChanges() {
+        val realState = SnapshotRemoteComposeState()
+        val baseInstant = Instant.parse("2026-01-01T12:30:45.100Z")
+        val clock = SystemClock(Clock.fixed(baseInstant, ZoneOffset.UTC))
+        val graph = GraphContext(realState, emptyIntObjectMap(), clock = clock)
+
+        var contEvals = 0
+        var secEvals = 0
+        var minEvals = 0
+        var hrEvals = 0
+        var monthEvals = 0
+
+        val contDerived = derivedStateOf {
+            contEvals++
+            graph.getFloat(RemoteContext.ID_CONTINUOUS_SEC)
+        }
+        val secDerived = derivedStateOf {
+            secEvals++
+            graph.getFloat(RemoteContext.ID_TIME_IN_SEC)
+        }
+        val minDerived = derivedStateOf {
+            minEvals++
+            graph.getFloat(RemoteContext.ID_TIME_IN_MIN)
+        }
+        val hrDerived = derivedStateOf {
+            hrEvals++
+            graph.getFloat(RemoteContext.ID_TIME_IN_HR)
+        }
+        val monthDerived = derivedStateOf {
+            monthEvals++
+            graph.getFloat(RemoteContext.ID_CALENDAR_MONTH)
+        }
+
+        // Initial reads
+        assertThat(contDerived.value).isWithin(0.001f).of(1845.1f)
+        assertThat(secDerived.value).isEqualTo(1845f)
+        assertThat(minDerived.value).isEqualTo(750f)
+        assertThat(hrDerived.value).isEqualTo(12f)
+        assertThat(monthDerived.value).isEqualTo(1f)
+        assertThat(contEvals).isEqualTo(1)
+        assertThat(secEvals).isEqualTo(1)
+        assertThat(minEvals).isEqualTo(1)
+        assertThat(hrEvals).isEqualTo(1)
+        assertThat(monthEvals).isEqualTo(1)
+
+        // Advance 10 frames (16ms each = 160ms total, still within second 45 at .260Z)
+        for (frame in 1..10) {
+            Snapshot.withMutableSnapshot { graph.updateTime(frame * 16f) }
+            contDerived.value
+            secDerived.value
+            minDerived.value
+            hrDerived.value
+            monthDerived.value
+        }
+
+        // Continuous sec re-evaluated on every frame; quantized fields did NOT re-evaluate at all!
+        assertThat(contEvals).isEqualTo(11)
+        assertThat(secEvals).isEqualTo(1)
+        assertThat(minEvals).isEqualTo(1)
+        assertThat(hrEvals).isEqualTo(1)
+        assertThat(monthEvals).isEqualTo(1)
+
+        // Advance past second boundary to t = 1000ms (12:30:46.100Z)
+        Snapshot.withMutableSnapshot { graph.updateTime(1000f) }
+        assertThat(secDerived.value).isEqualTo(1846f)
+        assertThat(minDerived.value).isEqualTo(750f)
+        assertThat(hrDerived.value).isEqualTo(12f)
+        assertThat(monthDerived.value).isEqualTo(1f)
+        assertThat(secEvals).isEqualTo(2)
+        assertThat(minEvals).isEqualTo(1)
+        assertThat(hrEvals).isEqualTo(1)
+        assertThat(monthEvals).isEqualTo(1)
+
+        // Advance past minute boundary to t = 15000ms (12:31:00.100Z)
+        Snapshot.withMutableSnapshot { graph.updateTime(15000f) }
+        assertThat(minDerived.value).isEqualTo(751f)
+        assertThat(hrDerived.value).isEqualTo(12f)
+        assertThat(monthDerived.value).isEqualTo(1f)
+        assertThat(minEvals).isEqualTo(2)
+        assertThat(hrEvals).isEqualTo(1)
+        assertThat(monthEvals).isEqualTo(1)
     }
 
     @Test
@@ -385,6 +489,8 @@ class RcPlayerExpressionTest {
     fun testIsExpressionTimeDependentDetectsTimeVariables() {
         val continuousSecExpr =
             FloatExpression(1, floatArrayOf(Utils.asNan(RemoteContext.ID_CONTINUOUS_SEC)), null)
+        val animationTimeExpr =
+            FloatExpression(8, floatArrayOf(Utils.asNan(RemoteContext.ID_ANIMATION_TIME)), null)
         val epochSecondExpr =
             FloatExpression(2, floatArrayOf(Utils.asNan(RemoteContext.ID_EPOCH_SECOND)), null)
         val timeInSecExpr =
@@ -397,13 +503,82 @@ class RcPlayerExpressionTest {
             FloatExpression(6, floatArrayOf(Utils.asNan(RemoteContext.ID_DAY_OF_MONTH)), null)
         val plainExpr = FloatExpression(7, floatArrayOf(1f, 2f, AnimatedFloatExpression.ADD), null)
 
+        val deltaTimeExpr =
+            FloatExpression(
+                9,
+                floatArrayOf(Utils.asNan(RemoteContext.ID_ANIMATION_DELTA_TIME)),
+                null,
+            )
+
+        assertThat(isExpressionContinuousTimeDependent(continuousSecExpr)).isTrue()
+        assertThat(isExpressionDiscreteTimeDependent(continuousSecExpr)).isFalse()
+        assertThat(isExpressionContinuousTimeDependent(animationTimeExpr)).isTrue()
+        assertThat(isExpressionDiscreteTimeDependent(animationTimeExpr)).isFalse()
+        assertThat(isContinuousTimeVariable(RemoteContext.ID_ANIMATION_DELTA_TIME)).isFalse()
+        assertThat(isExpressionContinuousTimeDependent(deltaTimeExpr)).isFalse()
+        assertThat(isExpressionDiscreteTimeDependent(deltaTimeExpr)).isFalse()
+        assertThat(isExpressionTimeDependent(deltaTimeExpr)).isFalse()
+
+        assertThat(isExpressionDiscreteTimeDependent(epochSecondExpr)).isTrue()
+        assertThat(isExpressionContinuousTimeDependent(epochSecondExpr)).isFalse()
+        assertThat(isExpressionDiscreteTimeDependent(timeInSecExpr)).isTrue()
+        assertThat(isExpressionDiscreteTimeDependent(timeInMinExpr)).isTrue()
+        assertThat(isExpressionDiscreteTimeDependent(timeInHrExpr)).isTrue()
+        assertThat(isExpressionDiscreteTimeDependent(dayOfMonthExpr)).isTrue()
+
         assertThat(isExpressionTimeDependent(continuousSecExpr)).isTrue()
         assertThat(isExpressionTimeDependent(epochSecondExpr)).isTrue()
         assertThat(isExpressionTimeDependent(timeInSecExpr)).isTrue()
         assertThat(isExpressionTimeDependent(timeInMinExpr)).isTrue()
         assertThat(isExpressionTimeDependent(timeInHrExpr)).isTrue()
-        assertThat(isExpressionTimeDependent(dayOfMonthExpr)).isFalse()
+        assertThat(isExpressionTimeDependent(dayOfMonthExpr)).isTrue()
         assertThat(isExpressionTimeDependent(plainExpr)).isFalse()
+    }
+
+    @Test
+    fun testSnapshotQueriedAtWholeSecondBoundariesWithoutDoubleFractionalSec() {
+        val baseInstant = Instant.parse("2026-01-01T12:30:45.450Z")
+        val underlying = SystemClock(Clock.fixed(baseInstant, ZoneOffset.UTC))
+        val queriedTimestamps = mutableListOf<Long>()
+        val trackingClock =
+            object : RemoteClock by underlying {
+                override fun snapshot(millis: Long?): RemoteClock.TimeSnapshot {
+                    val m = millis ?: underlying.millis()
+                    queriedTimestamps.add(m)
+                    val baseSnap = underlying.snapshot(m)
+                    return object : RemoteClock.TimeSnapshot by baseSnap {
+                        // Even if a custom TimeSnapshot implementation returns fractional timeInSec
+                        // when queried at a non-boundary timestamp, querying at boundaryMillis
+                        // ensures timeInSec is integer-aligned and continuousSec does not
+                        // double-count fractional milliseconds.
+                        override fun getTimeInSec(): Float =
+                            baseSnap.minute * 60f +
+                                baseSnap.second +
+                                baseSnap.millisOfSecond * 1e-3f
+                    }
+                }
+            }
+
+        val graph =
+            GraphContext(SnapshotRemoteComposeState(), emptyIntObjectMap(), clock = trackingClock)
+        // Initial updateTime(0f) at 12:30:45.450Z -> must query snapshot at 12:30:45.000Z
+        assertThat(queriedTimestamps).hasSize(1)
+        assertThat(queriedTimestamps[0] % 1000L).isEqualTo(0L)
+        assertThat(graph.getFloat(RemoteContext.ID_TIME_IN_SEC)).isEqualTo(1845f)
+        assertThat(graph.getFloat(RemoteContext.ID_CONTINUOUS_SEC)).isWithin(1e-3f).of(1845.450f)
+
+        // Advance within the same second to 12:30:45.750Z (frameMillis = 300f)
+        graph.updateTime(300f)
+        assertThat(queriedTimestamps).hasSize(1)
+        assertThat(graph.getFloat(RemoteContext.ID_TIME_IN_SEC)).isEqualTo(1845f)
+        assertThat(graph.getFloat(RemoteContext.ID_CONTINUOUS_SEC)).isWithin(1e-3f).of(1845.750f)
+
+        // Advance across second boundary to 12:30:46.200Z (frameMillis = 750f)
+        graph.updateTime(750f)
+        assertThat(queriedTimestamps).hasSize(2)
+        assertThat(queriedTimestamps[1] % 1000L).isEqualTo(0L)
+        assertThat(graph.getFloat(RemoteContext.ID_TIME_IN_SEC)).isEqualTo(1846f)
+        assertThat(graph.getFloat(RemoteContext.ID_CONTINUOUS_SEC)).isWithin(1e-3f).of(1846.200f)
     }
 
     @Test
