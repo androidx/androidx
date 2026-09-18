@@ -27,12 +27,12 @@ import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.NanMap
 import androidx.compose.remote.player.compose.embedded.LocalComponentValueStateMap
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
-import androidx.compose.remote.player.compose.embedded.LocalCurrentTimeMillis
 import androidx.compose.remote.player.compose.embedded.LocalGraphContext
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.getFloatExpressionsReflection
 import androidx.compose.remote.player.compose.embedded.getRemoteContextReflection
 import androidx.compose.remote.player.compose.embedded.getVariableIdReflection
+import androidx.compose.remote.player.compose.embedded.isTimeVariable
 import androidx.compose.remote.player.compose.embedded.resolveBitmap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -106,12 +106,17 @@ internal fun rememberMutableRemoteStringAsState(id: Int): MutableState<String> {
 internal fun rememberRemoteIntAsState(id: Int): State<Int> {
     val document = LocalCoreDocument.current
     val context = document.remoteComposeState
+    val graph = LocalGraphContext.current
 
     // Computed integer (IntegerExpression or e.g. TextLength): resolve via the pure-Compose graph.
-    val graph = LocalGraphContext.current
     if (graph != null && graph.isComputed(id)) {
         return remember(graph, id) { derivedStateOf { graph.getInteger(id) } }
     }
+
+    if (id == RemoteContext.ID_EPOCH_SECOND && graph != null) {
+        return graph.epochSecondState
+    }
+
     // Plain variable: reactive read of the snapshot-backed integer store.
     return remember(document, id) { derivedStateOf { context.getInteger(id) } }
 }
@@ -120,33 +125,6 @@ internal fun rememberRemoteIntAsState(id: Int): State<Int> {
 internal fun rememberRemoteFloatAsState(id: Int): State<Float> {
     val document = LocalCoreDocument.current
     val context = document.remoteComposeState
-
-    if (
-        id == RemoteContext.ID_CONTINUOUS_SEC ||
-            id == RemoteContext.ID_TIME_IN_SEC ||
-            id == RemoteContext.ID_TIME_IN_MIN ||
-            id == RemoteContext.ID_TIME_IN_HR ||
-            id == RemoteContext.ID_ANIMATION_TIME
-    ) {
-        val timeMillisState = LocalCurrentTimeMillis.current
-        return remember(timeMillisState) {
-            derivedStateOf {
-                // TODO(b/559048721): timeMillis is elapsed time since player start, which is
-                // correct for ID_ANIMATION_TIME, but ID_CONTINUOUS_SEC, ID_TIME_IN_SEC,
-                // ID_TIME_IN_MIN, and ID_TIME_IN_HR should reflect wall-clock time from midnight
-                // via RemoteClock.
-                val timeMillis = timeMillisState.value
-                when (id) {
-                    RemoteContext.ID_ANIMATION_TIME -> timeMillis / 1000f
-                    RemoteContext.ID_CONTINUOUS_SEC,
-                    RemoteContext.ID_TIME_IN_SEC -> timeMillis / 1000f
-                    RemoteContext.ID_TIME_IN_MIN -> timeMillis / 60000f
-                    RemoteContext.ID_TIME_IN_HR -> timeMillis / 3600000f
-                    else -> 0f
-                }
-            }
-        }
-    }
 
     val componentValueStates = LocalComponentValueStateMap.current
     val compState = componentValueStates[id]
@@ -171,6 +149,11 @@ internal fun rememberRemoteFloatAsState(id: Int): State<Float> {
     if (graph != null && graph.isComputed(id)) {
         return remember(graph, id) { derivedStateOf { graph.getFloat(id) } }
     }
+
+    if (isTimeVariable(id) && graph != null) {
+        return graph.timeFloatState(id)
+    }
+
     // Plain variable: reactive read of the snapshot-backed scalar store (no listener bridge).
     return remember(document, id) { derivedStateOf { context.getFloat(id) } }
 }

@@ -24,6 +24,7 @@ import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.SystemClock
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.action.combinedAction
@@ -105,6 +106,9 @@ import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneOffset
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -496,10 +500,10 @@ class RcPlayerInteractivityTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            // width = height = TIME_IN_SEC * 100 (px). The embedded player bridges
-                            // TIME_IN_SEC to the frame loop's elapsed millis / 1000, so this grows
-                            // monotonically from 0 as the clock advances.
-                            val size = RemoteFloat(RemoteContext.FLOAT_TIME_IN_SEC) * 100f
+                            // width = height = ANIMATION_TIME * 100 (px). The embedded player
+                            // bridges ANIMATION_TIME to the frame loop's elapsed millis / 1000,
+                            // so this grows monotonically from 0 as the clock advances.
+                            val size = RemoteFloat(RemoteContext.FLOAT_ANIMATION_TIME) * 100f
                             RemoteBox(
                                 modifier =
                                     RemoteModifier.semantics { contentDescription = "timed".rs }
@@ -544,6 +548,163 @@ class RcPlayerInteractivityTest {
                 "Expected mid width ($midWidth) > initial width ($initialWidth)"
             }
             assert(endWidth > midWidth) { "Expected end width ($endWidth) > mid width ($midWidth)" }
+        }
+    }
+
+    @Test
+    fun testWallClockTimeVariablesWithFixedClock() {
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val baseInstant = Instant.parse("2026-01-01T01:02:03.500Z")
+            val fixedClock = SystemClock(Clock.fixed(baseInstant, ZoneOffset.UTC))
+
+            val documentBytes =
+                captureSingleRemoteDocument(
+                        context = context,
+                        content = {
+                            val hrWidth = RemoteFloat(RemoteContext.FLOAT_TIME_IN_HR) * 10f
+                            val minWidth = RemoteFloat(RemoteContext.FLOAT_TIME_IN_MIN) * 2f
+                            val secWidth = RemoteFloat(RemoteContext.FLOAT_TIME_IN_SEC) * 2f
+                            val contWidth = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) * 2f
+
+                            RemoteBox(
+                                modifier =
+                                    RemoteModifier.semantics { contentDescription = "hrBox".rs }
+                                        .width(hrWidth)
+                                        .height(10.rdp)
+                            )
+                            RemoteBox(
+                                modifier =
+                                    RemoteModifier.semantics { contentDescription = "minBox".rs }
+                                        .width(minWidth)
+                                        .height(10.rdp)
+                            )
+                            RemoteBox(
+                                modifier =
+                                    RemoteModifier.semantics { contentDescription = "secBox".rs }
+                                        .width(secWidth)
+                                        .height(10.rdp)
+                            )
+                            RemoteBox(
+                                modifier =
+                                    RemoteModifier.semantics { contentDescription = "contBox".rs }
+                                        .width(contWidth)
+                                        .height(10.rdp)
+                            )
+                        },
+                    )
+                    .bytes
+
+            val document =
+                CoreDocument(fixedClock).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                    }
+                }
+
+            rule.mainClock.autoAdvance = false
+
+            rule.setContent {
+                Box(modifier = Modifier.size(300.dp).testTag("playerParent")) {
+                    RcPlayer(document = document)
+                }
+            }
+            // Advance 2 frames (32ms) so LaunchedEffect starts and captures startMillis at
+            // frameMillis = 0.
+            rule.mainClock.advanceTimeBy(32)
+
+            fun widthOf(desc: String) =
+                rule.onNodeWithContentDescription(desc).getUnclippedBoundsInRoot().let {
+                    it.right.value - it.left.value
+                }
+
+            // At t=0 (01:02:03.500Z):
+            // TIME_IN_HR = 1 (width = 10), TIME_IN_MIN = 1*60 + 2 = 62 (width = 124),
+            // TIME_IN_SEC = 2*60 + 3 = 123 (width = 246), CONTINUOUS_SEC = 123.5 (width = 247)
+            assertThat(widthOf("hrBox")).isWithin(0.1f).of(10f)
+            assertThat(widthOf("minBox")).isWithin(0.1f).of(124f)
+            assertThat(widthOf("secBox")).isWithin(0.1f).of(246f)
+            assertThat(widthOf("contBox")).isWithin(0.1f).of(247f)
+
+            // Advance 32 frames (32 * 16ms = 512ms) to 01:02:04.012Z:
+            // TIME_IN_SEC advances to 124 (width = 248), CONTINUOUS_SEC is ~124.012 (width = 248)
+            rule.mainClock.advanceTimeBy(512)
+            assertThat(widthOf("secBox")).isWithin(0.1f).of(248f)
+            assertThat(widthOf("contBox")).isWithin(0.1f).of(248f)
+
+            // Advance another 32 frames (512ms, total 1024ms) to 01:02:04.524Z:
+            // TIME_IN_SEC remains 124 (width = 248), CONTINUOUS_SEC is ~124.524 (width = 249)
+            rule.mainClock.advanceTimeBy(512)
+            assertThat(widthOf("secBox")).isWithin(0.1f).of(248f)
+            assertThat(widthOf("contBox")).isWithin(0.1f).of(249f)
+        }
+    }
+
+    @Test
+    fun testDiscreteTimeDocumentSleepsBetweenSecondBoundaries() {
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val baseInstant = Instant.parse("2026-01-01T01:02:03.200Z")
+            val fixedClock = SystemClock(Clock.fixed(baseInstant, ZoneOffset.UTC))
+
+            // Document reads ONLY discrete time variables (FLOAT_TIME_IN_SEC), with no continuous
+            // variables (no FLOAT_CONTINUOUS_SEC / FLOAT_ANIMATION_TIME).
+            val documentBytes =
+                captureSingleRemoteDocument(
+                        context = context,
+                        content = {
+                            val secWidth = RemoteFloat(RemoteContext.FLOAT_TIME_IN_SEC) * 2f
+                            RemoteBox(
+                                modifier =
+                                    RemoteModifier.semantics {
+                                            contentDescription = "secOnlyBox".rs
+                                        }
+                                        .width(secWidth)
+                                        .height(10.rdp)
+                            )
+                        },
+                    )
+                    .bytes
+
+            val document =
+                CoreDocument(fixedClock).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                    }
+                }
+
+            rule.mainClock.autoAdvance = false
+
+            rule.setContent {
+                Box(modifier = Modifier.size(300.dp).testTag("playerParent")) {
+                    RcPlayer(document = document)
+                }
+            }
+            // Start the LaunchedEffect (captures startMillis and enters delay(millisToNextSecond))
+            rule.mainClock.advanceTimeBy(32)
+
+            fun widthOf(desc: String) =
+                rule.onNodeWithContentDescription(desc).getUnclippedBoundsInRoot().let {
+                    it.right.value - it.left.value
+                }
+
+            // At t=0 (01:02:03.200Z): TIME_IN_SEC = 123 (width = 246)
+            assertThat(widthOf("secOnlyBox")).isWithin(0.1f).of(246f)
+
+            // Advance 500ms (total 532ms -> 01:02:03.732Z): still within second 03;
+            // coroutine is asleep in delay() until 01:02:04.000Z.
+            rule.mainClock.advanceTimeBy(500)
+            assertThat(widthOf("secOnlyBox")).isWithin(0.1f).of(246f)
+
+            // Advance 300ms (total 832ms -> 01:02:04.032Z): crosses second boundary;
+            // delay() resumes and updates TIME_IN_SEC to 124 (width = 248).
+            rule.mainClock.advanceTimeBy(300)
+            assertThat(widthOf("secOnlyBox")).isWithin(0.1f).of(248f)
+
+            // Advance another full second (1000ms -> 01:02:05.032Z):
+            // TIME_IN_SEC advances to 125 (width = 250).
+            rule.mainClock.advanceTimeBy(1000)
+            assertThat(widthOf("secOnlyBox")).isWithin(0.1f).of(250f)
         }
     }
 
