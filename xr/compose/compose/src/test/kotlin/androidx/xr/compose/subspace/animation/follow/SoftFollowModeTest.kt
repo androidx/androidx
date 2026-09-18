@@ -43,7 +43,7 @@ class SoftFollowModeTest {
         val mode =
             FollowMode.soft(
                 dimensions = customDimensions,
-                halfLifeMs = 500L,
+                halfLifeMillis = 500L,
                 startDelay = 100L,
                 startThresholds = customThresholds,
             )
@@ -53,7 +53,7 @@ class SoftFollowModeTest {
             .isEqualTo(
                 SoftFollowMode(
                     dimensions = customDimensions,
-                    halfLifeMs = 500L,
+                    halfLifeMillis = 500L,
                     startDelay = 100L,
                     startThresholds = customThresholds,
                 )
@@ -67,7 +67,7 @@ class SoftFollowModeTest {
         val mode =
             SoftFollowMode(
                 dimensions = customDimensions,
-                halfLifeMs = 500L,
+                halfLifeMillis = 500L,
                 startDelay = 100L,
                 startThresholds = customThresholds,
             )
@@ -77,7 +77,7 @@ class SoftFollowModeTest {
             .isEqualTo(
                 ExponentialDecayFollowMode(
                     dimensions = customDimensions,
-                    halfLifeMs = 500L,
+                    halfLifeMillis = 500L,
                     startDelay = 100L,
                     startThresholds = customThresholds,
                     settleThresholds = SoftFollowMode.DEFAULT_SETTLE_THRESHOLDS,
@@ -101,9 +101,9 @@ class SoftFollowModeTest {
     }
 
     @Test
-    fun softFollowMode_equals_differentHalfLifeMs_returnsFalse() {
-        val mode1 = SoftFollowMode(halfLifeMs = 80L)
-        val mode2 = SoftFollowMode(halfLifeMs = 120L)
+    fun softFollowMode_equals_differentHalfLifeMillis_returnsFalse() {
+        val mode1 = SoftFollowMode(halfLifeMillis = 80L)
+        val mode2 = SoftFollowMode(halfLifeMillis = 120L)
 
         assertThat(mode1).isNotEqualTo(mode2)
     }
@@ -173,9 +173,9 @@ class SoftFollowModeTest {
     }
 
     @Test
-    fun softFollowMode_hashCode_differentHalfLifeMs_differs() {
-        val mode1 = SoftFollowMode(halfLifeMs = 80L)
-        val mode2 = SoftFollowMode(halfLifeMs = 120L)
+    fun softFollowMode_hashCode_differentHalfLifeMillis_differs() {
+        val mode1 = SoftFollowMode(halfLifeMillis = 80L)
+        val mode2 = SoftFollowMode(halfLifeMillis = 120L)
 
         assertThat(mode1.hashCode()).isNotEqualTo(mode2.hashCode())
     }
