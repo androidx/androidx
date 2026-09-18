@@ -9,8 +9,8 @@ package androidx.compose.remote.tooling.preview {
   public final class RemoteDocumentPreviewKt {
     method @KotlinOnly @androidx.compose.runtime.Composable public static void RemoteDocumentPreview(androidx.compose.remote.player.core.RemoteDocument remoteDocument, optional androidx.compose.ui.Modifier modifier);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void RemoteDocumentPreview(androidx.compose.remote.player.core.RemoteDocument, androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static void RemoteDocumentPreview(byte[] document, optional androidx.compose.ui.Modifier modifier);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static void RemoteDocumentPreview(byte[], androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void RemoteDocumentPreview(byte[] document, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.remote.creation.profile.Profile? profile);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void RemoteDocumentPreview(byte[], androidx.compose.ui.Modifier?, androidx.compose.remote.creation.profile.Profile?, androidx.compose.runtime.Composer?, int, int);
   }
 
   public final class RemotePreviewWrapper implements androidx.compose.ui.tooling.preview.PreviewWrapperProvider {
