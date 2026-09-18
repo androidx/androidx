@@ -29,9 +29,9 @@ import android.os.Bundle
  *   selector, with less precedence than account ordering but more precedence than last used time;
  *   see [CredentialOption] for more information
  */
-class GetPasswordOption
+public class GetPasswordOption
 private constructor(
-    val allowedUserIds: Set<String>,
+    public val allowedUserIds: Set<String>,
     isAutoSelectAllowed: Boolean,
     allowedProviders: Set<ComponentName>,
     requestData: Bundle,
@@ -62,7 +62,7 @@ private constructor(
      *   [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies))
      */
     @JvmOverloads
-    constructor(
+    public constructor(
         allowedUserIds: Set<String> = emptySet(),
         isAutoSelectAllowed: Boolean = false,
         allowedProviders: Set<ComponentName> = emptySet(),

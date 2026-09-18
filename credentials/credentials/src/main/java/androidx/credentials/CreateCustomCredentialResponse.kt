@@ -38,7 +38,7 @@ import android.os.Bundle
  * @throws IllegalArgumentException If [type] is empty
  * @throws NullPointerException If [type] or [data] are null
  */
-open class CreateCustomCredentialResponse(type: String, data: Bundle) :
+public open class CreateCustomCredentialResponse(type: String, data: Bundle) :
     CreateCredentialResponse(type, data) {
     init {
         require(type.isNotEmpty()) { "type should not be empty" }

@@ -31,7 +31,7 @@ import androidx.credentials.provider.PendingIntentHandler.Companion.EXTRA_PASS_I
 /** An activity used to ensure all required API versions work as intended. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @Suppress("ForbiddenSuperClass")
-open class IdentityCredentialApiHiddenActivity : Activity() {
+public open class IdentityCredentialApiHiddenActivity : Activity() {
 
     private var resultReceiver: ResultReceiver? = null
     private var mWaitingForActivityResult = false
@@ -112,7 +112,7 @@ open class IdentityCredentialApiHiddenActivity : Activity() {
         finish()
     }
 
-    companion object {
+    public companion object {
         private const val KEY_AWAITING_RESULT = "androidx.credentials.playservices.AWAITING_RESULT"
     }
 }

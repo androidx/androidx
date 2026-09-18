@@ -56,7 +56,7 @@ import android.os.Bundle
  * @throws IllegalArgumentException If [type] is empty
  * @throws NullPointerException If [type], [credentialData], or [candidateQueryData] is null
  */
-open class CreateCustomCredentialRequest
+public open class CreateCustomCredentialRequest
 @JvmOverloads
 constructor(
     type: String,

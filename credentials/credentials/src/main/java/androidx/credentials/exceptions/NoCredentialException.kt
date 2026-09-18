@@ -25,7 +25,7 @@ package androidx.credentials.exceptions
  * [androidx.credentials.CredentialManager.createCredentialAsync] (java) to store the login info, so
  * that your user can sign in more easily through Credential Manager the next time.
  */
-class NoCredentialException @JvmOverloads constructor(errorMessage: CharSequence? = null) :
+public class NoCredentialException @JvmOverloads constructor(errorMessage: CharSequence? = null) :
     GetCredentialException(TYPE_FRAMEWORK_TYPE_NO_CREDENTIAL, errorMessage) {
 
     internal companion object {

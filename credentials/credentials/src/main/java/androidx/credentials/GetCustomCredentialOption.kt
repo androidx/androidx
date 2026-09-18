@@ -63,7 +63,7 @@ import android.os.Bundle
  *   credential selector amongst the signals used to order the entries, set to
  *   [CredentialOption.PRIORITY_DEFAULT] by default; see [CredentialOption] for more information
  */
-open class GetCustomCredentialOption
+public open class GetCustomCredentialOption
 internal constructor(
     requestData: Bundle,
     type: String,
@@ -123,7 +123,7 @@ internal constructor(
      * @throws NullPointerException If [requestData] or [type] is null
      */
     @JvmOverloads
-    constructor(
+    public constructor(
         type: String,
         requestData: Bundle,
         candidateQueryData: Bundle,
@@ -182,7 +182,7 @@ internal constructor(
      * @throws IllegalArgumentException If [type] is empty
      * @throws NullPointerException If [requestData] or [type] is null
      */
-    constructor(
+    public constructor(
         type: String,
         requestData: Bundle,
         candidateQueryData: Bundle,

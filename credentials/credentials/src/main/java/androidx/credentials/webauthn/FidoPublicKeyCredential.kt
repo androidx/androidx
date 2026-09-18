@@ -20,13 +20,13 @@ import androidx.annotation.RestrictTo
 import org.json.JSONObject
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class FidoPublicKeyCredential(
-    val rawId: ByteArray,
-    val response: AuthenticatorResponse,
-    val authenticatorAttachment: String,
+public class FidoPublicKeyCredential(
+    public val rawId: ByteArray,
+    public val response: AuthenticatorResponse,
+    public val authenticatorAttachment: String,
 ) {
 
-    fun json(): String {
+    public fun json(): String {
         // See RegistrationResponseJSON at
         // https://w3c.github.io/webauthn/#ref-for-dom-publickeycredential-tojson
         val encodedId = WebAuthnUtils.b64Encode(rawId)

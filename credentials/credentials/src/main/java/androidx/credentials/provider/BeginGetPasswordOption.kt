@@ -35,8 +35,8 @@ import androidx.credentials.PasswordCredential
  * @property allowedUserIds a optional set of user ids with which the credentials associated are
  *   requested; left as empty if the caller app wants to request all the available user credentials
  */
-class BeginGetPasswordOption
-constructor(val allowedUserIds: Set<String>, candidateQueryData: Bundle, id: String) :
+public class BeginGetPasswordOption
+constructor(public val allowedUserIds: Set<String>, candidateQueryData: Bundle, id: String) :
     BeginGetCredentialOption(id, PasswordCredential.TYPE_PASSWORD_CREDENTIAL, candidateQueryData) {
 
     internal companion object {

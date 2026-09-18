@@ -23,7 +23,7 @@ package androidx.credentials.exceptions.domerrors
  * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
  */
 @Suppress("ExtendsError") // This is not a real java `Error`
-class TransactionInactiveError :
+public class TransactionInactiveError :
     DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_TRANSACTION_INACTIVE_ERROR) {
     internal companion object {
         internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_TRANSACTION_INACTIVE_ERROR: String =

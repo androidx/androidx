@@ -35,9 +35,12 @@ import java.util.Objects
  *   on a UI.
  * @see AuthenticationErrorTypes
  */
-class AuthenticationError
+public class AuthenticationError
 @JvmOverloads
-constructor(val errorCode: @AuthenticationErrorTypes Int, val errorMsg: CharSequence? = null) {
+constructor(
+    public val errorCode: @AuthenticationErrorTypes Int,
+    public val errorMsg: CharSequence? = null,
+) {
     internal companion object {
         internal val TAG = "AuthenticationError"
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

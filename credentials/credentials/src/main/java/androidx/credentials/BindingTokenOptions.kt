@@ -29,22 +29,23 @@ import androidx.annotation.StringDef
  *   [ALGORITHM_SHA_384]; defaults to [ALGORITHM_SHA_256]
  */
 @ExperimentalDigitalCredentialApi
-class BindingTokenOptions
+public class BindingTokenOptions
 @JvmOverloads
 constructor(
-    val proofingToken: ByteArray,
-    @property:BindingAlgorithm val bindingAlgorithm: @BindingAlgorithm String = ALGORITHM_SHA_256,
+    public val proofingToken: ByteArray,
+    @property:BindingAlgorithm
+    public val bindingAlgorithm: @BindingAlgorithm String = ALGORITHM_SHA_256,
 ) {
     /** Algorithms supported for computing a binding token. */
     @Target(AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef(ALGORITHM_SHA_256, ALGORITHM_SHA_384)
-    annotation class BindingAlgorithm
+    public annotation class BindingAlgorithm
 
-    companion object {
-        const val ALGORITHM_SHA_256: String = "SHA-256"
-        const val ALGORITHM_SHA_384: String = "SHA-384"
+    public companion object {
+        public const val ALGORITHM_SHA_256: String = "SHA-256"
+        public const val ALGORITHM_SHA_384: String = "SHA-384"
     }
 
     override fun equals(other: Any?): Boolean {

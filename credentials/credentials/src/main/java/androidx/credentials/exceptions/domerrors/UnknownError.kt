@@ -23,7 +23,7 @@ package androidx.credentials.exceptions.domerrors
  * be found [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
  */
 @Suppress("ExtendsError") // This is not a real java `Error`
-class UnknownError : DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_UNKNOWN_ERROR) {
+public class UnknownError : DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_UNKNOWN_ERROR) {
     internal companion object {
         internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_UNKNOWN_ERROR: String =
             "androidx.credentials.TYPE_UNKNOWN_ERROR"

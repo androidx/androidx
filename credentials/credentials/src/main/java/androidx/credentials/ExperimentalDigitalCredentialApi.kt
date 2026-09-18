@@ -20,4 +20,4 @@ package androidx.credentials
     "This CredentialManager API is experimental and is likely to change or to be removed in the future."
 )
 @Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalDigitalCredentialApi
+public annotation class ExperimentalDigitalCredentialApi

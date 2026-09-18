@@ -32,7 +32,7 @@ import android.view.View
  * @property callback the callback on which the final [GetCredentialResponse] is returned, after the
  *   user has made its selections
  */
-class PendingGetCredentialRequest(
-    val request: GetCredentialRequest,
-    val callback: (GetCredentialResponse) -> Unit,
+public class PendingGetCredentialRequest(
+    public val request: GetCredentialRequest,
+    public val callback: (GetCredentialResponse) -> Unit,
 )

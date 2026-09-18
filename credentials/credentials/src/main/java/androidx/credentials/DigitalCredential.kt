@@ -43,7 +43,8 @@ import androidx.credentials.internal.RequestValidationHelper
  *   at https://wicg.github.io/digital-credentials/#the-digitalcredential-interface
  */
 @ExperimentalDigitalCredentialApi
-class DigitalCredential private constructor(val credentialJson: String, data: Bundle) :
+public class DigitalCredential
+private constructor(public val credentialJson: String, data: Bundle) :
     Credential(TYPE_DIGITAL_CREDENTIAL, data) {
 
     init {
@@ -59,12 +60,13 @@ class DigitalCredential private constructor(val credentialJson: String, data: Bu
      *   at https://wicg.github.io/digital-credentials/#the-digitalcredential-interface
      * @throws IllegalArgumentException if the `credentialJson` is not a valid json
      */
-    constructor(credentialJson: String) : this(credentialJson, toBundle(credentialJson))
+    public constructor(credentialJson: String) : this(credentialJson, toBundle(credentialJson))
 
     /** Companion constants / helpers for [DigitalCredential]. */
-    companion object {
+    public companion object {
         /** The type value for public key credential related operations. */
-        const val TYPE_DIGITAL_CREDENTIAL: String = "androidx.credentials.TYPE_DIGITAL_CREDENTIAL"
+        public const val TYPE_DIGITAL_CREDENTIAL: String =
+            "androidx.credentials.TYPE_DIGITAL_CREDENTIAL"
 
         internal const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
 

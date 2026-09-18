@@ -48,17 +48,17 @@ import org.json.JSONObject
  *   Ideal scenarios to set this to true are when making a request immediately after a successful,
  *   non-passkey sign-in (e.g. sign-in using a password), or an independent sign-up process
  */
-class CreatePublicKeyCredentialRequest
+public class CreatePublicKeyCredentialRequest
 private constructor(
-    val requestJson: String,
-    val clientDataHash: ByteArray?,
+    public val requestJson: String,
+    public val clientDataHash: ByteArray?,
     isAutoSelectAllowed: Boolean,
     preferImmediatelyAvailableCredentials: Boolean,
     displayInfo: DisplayInfo,
     origin: String? = null,
     credentialData: Bundle = toCredentialDataBundle(requestJson, clientDataHash),
     candidateQueryData: Bundle = toCandidateDataBundle(requestJson, clientDataHash),
-    val isConditional: Boolean = false,
+    public val isConditional: Boolean = false,
 ) :
     CreateCredentialRequest(
         type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
@@ -101,7 +101,7 @@ private constructor(
      *   (https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson)
      */
     @JvmOverloads
-    constructor(
+    public constructor(
         requestJson: String,
         clientDataHash: ByteArray? = null,
         preferImmediatelyAvailableCredentials: Boolean = false,
@@ -145,7 +145,7 @@ private constructor(
      *   `user.name` defined according to the
      *   [webauthn spec](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson)
      */
-    constructor(
+    public constructor(
         requestJson: String,
         clientDataHash: ByteArray?,
         preferImmediatelyAvailableCredentials: Boolean,

@@ -34,9 +34,9 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *   [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names)
  * @throws NullPointerException If [domError] is null
  */
-class CreatePublicKeyCredentialDomException
+public class CreatePublicKeyCredentialDomException
 @JvmOverloads
-constructor(val domError: DomError, errorMessage: CharSequence? = null) :
+constructor(public val domError: DomError, errorMessage: CharSequence? = null) :
     CreatePublicKeyCredentialException(
         TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + SEPARATOR + domError.type,
         errorMessage,

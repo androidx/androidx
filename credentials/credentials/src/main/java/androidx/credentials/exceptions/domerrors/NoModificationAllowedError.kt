@@ -23,7 +23,7 @@ package androidx.credentials.exceptions.domerrors
  * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
  */
 @Suppress("ExtendsError") // This is not a real java `Error`
-class NoModificationAllowedError :
+public class NoModificationAllowedError :
     DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NO_MODIFICATION_ALLOWED_ERROR) {
     internal companion object {
         internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NO_MODIFICATION_ALLOWED_ERROR: String =

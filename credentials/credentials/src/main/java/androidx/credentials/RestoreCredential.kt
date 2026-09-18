@@ -41,7 +41,8 @@ import androidx.credentials.internal.RequestValidationHelper
  *   valid JSON
  * @see CreateRestoreCredentialRequest on how to create a [RestoreCredential] instance.
  */
-class RestoreCredential private constructor(val authenticationResponseJson: String, data: Bundle) :
+public class RestoreCredential
+private constructor(public val authenticationResponseJson: String, data: Bundle) :
     Credential(TYPE_RESTORE_CREDENTIAL, data) {
 
     init {
@@ -50,7 +51,7 @@ class RestoreCredential private constructor(val authenticationResponseJson: Stri
         }
     }
 
-    companion object {
+    public companion object {
         @JvmStatic
         internal fun createFrom(data: Bundle): RestoreCredential {
             val responseJson =
@@ -62,7 +63,8 @@ class RestoreCredential private constructor(val authenticationResponseJson: Stri
         }
 
         /** The type value for restore credential related operations. */
-        const val TYPE_RESTORE_CREDENTIAL: String = "androidx.credentials.TYPE_RESTORE_CREDENTIAL"
+        public const val TYPE_RESTORE_CREDENTIAL: String =
+            "androidx.credentials.TYPE_RESTORE_CREDENTIAL"
         private const val BUNDLE_KEY_GET_RESTORE_CREDENTIAL_RESPONSE =
             "androidx.credentials.BUNDLE_KEY_GET_RESTORE_CREDENTIAL_RESPONSE"
     }

@@ -41,7 +41,7 @@ import org.json.JSONObject
  *     @throws SignalCredentialSecurityException if origin is set without having
  *       android.permission.CREDENTIAl_MANAGER_SET_ORIGIN
  */
-class SignalUnknownCredentialRequest
+public class SignalUnknownCredentialRequest
 internal constructor(requestJson: String, requestData: Bundle, origin: String? = null) :
     SignalCredentialStateRequest(
         SIGNAL_UNKNOWN_CREDENTIAL_STATE_REQUEST_TYPE,
@@ -62,7 +62,7 @@ internal constructor(requestJson: String, requestData: Bundle, origin: String? =
      *   [WebAuthn Spec](https://w3c.github.io/webauthn/#sctn-signalUnknownCredential). Throws
      *   SignalCredentialStateException if base64Url decoding fails for the credential id
      */
-    constructor(requestJson: String) : this(requestJson, null)
+    public constructor(requestJson: String) : this(requestJson, null)
 
     /**
      * Constructs a request to signal that a credential ID is not recognized by the calling app.
@@ -81,7 +81,7 @@ internal constructor(requestJson: String, requestData: Bundle, origin: String? =
      *   android.permission.CREDENTIAl_MANAGER_SET_ORIGIN
      */
     @RequiresPermission(CREDENTIAL_MANAGER_SET_ORIGIN, conditional = true)
-    constructor(
+    public constructor(
         requestJson: String,
         origin: String?,
     ) : this(requestJson, toRequestData(requestJson), origin)

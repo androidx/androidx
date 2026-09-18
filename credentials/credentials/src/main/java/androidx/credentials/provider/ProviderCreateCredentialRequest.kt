@@ -39,27 +39,27 @@ import androidx.credentials.provider.CallingAppInfo.Companion.setCallingAppInfo
  * @constructor constructs an instance of [ProviderCreateCredentialRequest]
  * @throws NullPointerException If [callingRequest], or [callingAppInfo] is null
  */
-class ProviderCreateCredentialRequest
+public class ProviderCreateCredentialRequest
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 constructor(
-    val callingRequest: CreateCredentialRequest,
-    val callingAppInfo: CallingAppInfo,
-    val biometricPromptResult: BiometricPromptResult?,
+    public val callingRequest: CreateCredentialRequest,
+    public val callingAppInfo: CallingAppInfo,
+    public val biometricPromptResult: BiometricPromptResult?,
     // The source Bundle used to construct this request, if applicable
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY) val sourceBundle: Bundle?,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY) public val sourceBundle: Bundle?,
 ) {
     /**
      * @constructor constructs an instance of [ProviderCreateCredentialRequest]
      * @throws NullPointerException If [callingRequest], or [callingAppInfo] is null
      */
     @JvmOverloads
-    constructor(
+    public constructor(
         callingRequest: CreateCredentialRequest,
         callingAppInfo: CallingAppInfo,
         biometricPromptResult: BiometricPromptResult? = null,
     ) : this(callingRequest, callingAppInfo, biometricPromptResult, null)
 
-    companion object {
+    public companion object {
 
         private const val EXTRA_CREATE_CREDENTIAL_REQUEST_TYPE =
             "androidx.credentials.provider.extra.CREATE_CREDENTIAL_REQUEST_TYPE"
@@ -76,7 +76,7 @@ constructor(
          */
         @JvmStatic
         @RequiresApi(23) // Icon dependency
-        fun asBundle(request: ProviderCreateCredentialRequest): Bundle {
+        public fun asBundle(request: ProviderCreateCredentialRequest): Bundle {
             val bundle = Bundle()
             bundle.putString(EXTRA_CREATE_CREDENTIAL_REQUEST_TYPE, request.callingRequest.type)
             bundle.putBundle(
@@ -102,7 +102,7 @@ constructor(
          */
         @RequiresApi(23) // Icon dependency
         @JvmStatic
-        fun fromBundle(bundle: Bundle): ProviderCreateCredentialRequest {
+        public fun fromBundle(bundle: Bundle): ProviderCreateCredentialRequest {
             val requestType: String =
                 bundle.getString(EXTRA_CREATE_CREDENTIAL_REQUEST_TYPE)
                     ?: throw IllegalArgumentException("Bundle was missing request type.")

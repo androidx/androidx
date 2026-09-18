@@ -23,4 +23,4 @@ package androidx.credentials
  * This is an empty response and simply indicates the signal request has been successfully passed to
  * the providers.
  */
-class SignalCredentialStateResponse {}
+public class SignalCredentialStateResponse {}

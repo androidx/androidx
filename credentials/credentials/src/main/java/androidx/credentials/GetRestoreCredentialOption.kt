@@ -38,7 +38,7 @@ import androidx.credentials.internal.RequestValidationHelper
  * @throws NoCredentialException if no viable restore credential is found
  * @throws IllegalArgumentException if the option is mixed with another [CredentialOption]
  */
-class GetRestoreCredentialOption(val requestJson: String) :
+public class GetRestoreCredentialOption(public val requestJson: String) :
     CredentialOption(
         type = RestoreCredential.TYPE_RESTORE_CREDENTIAL,
         requestData = toRequestDataBundle(requestJson),

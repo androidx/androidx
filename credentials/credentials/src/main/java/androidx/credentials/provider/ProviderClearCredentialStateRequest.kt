@@ -30,15 +30,16 @@ import androidx.credentials.provider.CallingAppInfo.Companion.setCallingAppInfo
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
  */
-class ProviderClearCredentialStateRequest constructor(val callingAppInfo: CallingAppInfo) {
-    companion object {
+public class ProviderClearCredentialStateRequest
+constructor(public val callingAppInfo: CallingAppInfo) {
+    public companion object {
         /**
          * Helper method to convert the given [request] to a parcelable [Bundle], in case the
          * instance needs to be sent across a process. Consumers of this method should use
          * [fromBundle] to reconstruct the class instance back from the bundle returned here.
          */
         @JvmStatic
-        fun asBundle(request: ProviderClearCredentialStateRequest): Bundle {
+        public fun asBundle(request: ProviderClearCredentialStateRequest): Bundle {
             val bundle = Bundle()
             bundle.setCallingAppInfo(request.callingAppInfo)
             return bundle
@@ -54,7 +55,7 @@ class ProviderClearCredentialStateRequest constructor(val callingAppInfo: Callin
          * avoid the failure.
          */
         @JvmStatic
-        fun fromBundle(bundle: Bundle): ProviderClearCredentialStateRequest {
+        public fun fromBundle(bundle: Bundle): ProviderClearCredentialStateRequest {
             val callingAppInfo =
                 extractCallingAppInfo(bundle)
                     ?: throw IllegalArgumentException("Bundle was missing CallingAppInfo.")

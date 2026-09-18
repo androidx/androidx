@@ -21,7 +21,7 @@ import java.security.MessageDigest
 import org.json.JSONObject
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class AuthenticatorAssertionResponse(
+public class AuthenticatorAssertionResponse(
     private val requestOptions: PublicKeyCredentialRequestOptions,
     private val credentialId: ByteArray,
     private val origin: String,
@@ -33,9 +33,9 @@ class AuthenticatorAssertionResponse(
     private val packageName: String? = null,
     private val clientDataHash: ByteArray? = null,
 ) : AuthenticatorResponse {
-    override var clientJson = JSONObject()
-    var authenticatorData: ByteArray
-    var signature: ByteArray = byteArrayOf()
+    override var clientJson: JSONObject = JSONObject()
+    public var authenticatorData: ByteArray
+    public var signature: ByteArray = byteArrayOf()
 
     init {
         clientJson.put("type", "webauthn.get")
@@ -48,7 +48,7 @@ class AuthenticatorAssertionResponse(
         authenticatorData = defaultAuthenticatorData()
     }
 
-    fun defaultAuthenticatorData(): ByteArray {
+    public fun defaultAuthenticatorData(): ByteArray {
         val md = MessageDigest.getInstance("SHA-256")
         val rpHash = md.digest(requestOptions.rpId.toByteArray())
         var flags: Int = 0
@@ -68,7 +68,7 @@ class AuthenticatorAssertionResponse(
         return ret
     }
 
-    fun dataToSign(): ByteArray {
+    public fun dataToSign(): ByteArray {
         val md = MessageDigest.getInstance("SHA-256")
         val hash: ByteArray
         if (clientDataHash != null) {

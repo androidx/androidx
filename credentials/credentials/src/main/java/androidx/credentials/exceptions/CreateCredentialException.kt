@@ -30,13 +30,14 @@ import androidx.credentials.internal.toJetpackCreateException
  * @see CreateCredentialCancellationException
  * @see CreateCredentialUnknownException
  */
-abstract class CreateCredentialException
+public abstract class CreateCredentialException
 @JvmOverloads
 internal constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) open val type: String,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) open val errorMessage: CharSequence? = null,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public open val type: String,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public open val errorMessage: CharSequence? = null,
 ) : Exception(errorMessage?.toString()) {
-    companion object {
+    public companion object {
         private const val EXTRA_CREATE_CREDENTIAL_EXCEPTION_TYPE =
             "androidx.credentials.provider.extra.CREATE_CREDENTIAL_EXCEPTION_TYPE"
         private const val EXTRA_CREATE_CREDENTIAL_EXCEPTION_MESSAGE =
@@ -48,7 +49,7 @@ internal constructor(
          * reconstruct the class instance back from the bundle returned here.
          */
         @JvmStatic
-        fun asBundle(ex: CreateCredentialException): Bundle {
+        public fun asBundle(ex: CreateCredentialException): Bundle {
             val bundle = Bundle()
             bundle.putString(EXTRA_CREATE_CREDENTIAL_EXCEPTION_TYPE, ex.type)
             ex.errorMessage?.let {
@@ -67,7 +68,7 @@ internal constructor(
          * failure.
          */
         @JvmStatic
-        fun fromBundle(bundle: Bundle): CreateCredentialException {
+        public fun fromBundle(bundle: Bundle): CreateCredentialException {
             val type =
                 bundle.getString(EXTRA_CREATE_CREDENTIAL_EXCEPTION_TYPE)
                     ?: throw IllegalArgumentException("Bundle was missing exception type.")

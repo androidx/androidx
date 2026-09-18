@@ -30,7 +30,7 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * @throws NullPointerException if [type] is null
  * @throws IllegalArgumentException if [type] is empty
  */
-open class GetPublicKeyCredentialException
+public open class GetPublicKeyCredentialException
 @JvmOverloads
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override val type: String,

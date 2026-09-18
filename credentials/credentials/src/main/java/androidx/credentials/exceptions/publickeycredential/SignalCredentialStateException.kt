@@ -28,15 +28,15 @@ import androidx.credentials.CredentialManager
  * @see SignalCredentialSecurityException
  * @see SignalCredentialStateProviderConfigurationException
  */
-abstract class SignalCredentialStateException
+public abstract class SignalCredentialStateException
 @JvmOverloads
 internal constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val type: String,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val type: String,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) errorMessage: CharSequence? = null,
 ) : Exception(errorMessage?.toString()) {
-    companion object {
+    public companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun createFrom(type: String, msg: String?): SignalCredentialStateException {
+        public fun createFrom(type: String, msg: String?): SignalCredentialStateException {
             return when (type) {
                 SignalCredentialSecurityException.TYPE_SIGNAL_CREDENTIAL_STATE_SECURITY_EXCEPTION ->
                     SignalCredentialSecurityException(msg)
@@ -50,7 +50,7 @@ internal constructor(
         }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun createFrom(msg: String?): SignalCredentialStateException {
+        public fun createFrom(msg: String?): SignalCredentialStateException {
             return SignalCredentialUnknownException(msg)
         }
     }
