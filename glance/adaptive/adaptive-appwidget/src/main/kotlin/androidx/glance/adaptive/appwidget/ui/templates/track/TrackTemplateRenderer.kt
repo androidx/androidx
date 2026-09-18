@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.appwidget.ui.templates
+package androidx.glance.adaptive.appwidget.ui.templates.track
 
 import android.os.Build
 import androidx.annotation.DrawableRes
@@ -26,15 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.adaptive.appwidget.R
-import androidx.glance.adaptive.appwidget.ui.components.BarChartBlock
-import androidx.glance.adaptive.appwidget.ui.components.ContainedRingBlock
-import androidx.glance.adaptive.appwidget.ui.components.PrimaryValueBlock
-import androidx.glance.adaptive.appwidget.ui.components.ProgressRingBlock
-import androidx.glance.adaptive.appwidget.ui.components.SpecialBadgeBlock
-import androidx.glance.adaptive.appwidget.ui.components.SupportingValueBlock
-import androidx.glance.adaptive.appwidget.ui.components.TERTIARY_TEXT_SIZE_SP
-import androidx.glance.adaptive.appwidget.ui.components.TertiaryLabelBlock
-import androidx.glance.adaptive.appwidget.ui.components.TrackBar
 import androidx.glance.adaptive.appwidget.ui.components.estimateTextWidthDp
 import androidx.glance.adaptive.appwidget.ui.components.fitMetric
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface

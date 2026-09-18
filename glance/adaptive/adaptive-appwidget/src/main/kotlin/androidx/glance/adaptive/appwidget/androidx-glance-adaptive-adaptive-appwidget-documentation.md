@@ -12,8 +12,16 @@ Provides AppWidget template registry and Compose UI orchestration.
 
 Provides AppWidget-specific surfaces, detectors, and size tiers.
 
-# Package androidx.glance.adaptive.appwidget.ui.templates
+# Package androidx.glance.adaptive.appwidget.ui.components
 
-Provides AppWidget layout archetypes, size selectors, and Glance renderers for standard templates.
+Provides template-agnostic building blocks shared across templates.
+
+A composable belongs here only once a second template needs it. Anything used by a single template
+lives in that template's package instead, and is promoted here in a change that introduces the
+second caller.
+
+# Package androidx.glance.adaptive.appwidget.ui.templates.track
+
+Provides the layout plan, size selector, Glance renderer, and blocks for the Track template.
 
 

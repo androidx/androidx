@@ -44,7 +44,8 @@ private const val START_ANGLE_DEGREES = -90f
  *
  * Glance 1.1.1 only offers an indeterminate `CircularProgressIndicator`, so the arc is drawn onto a
  * bitmap and emitted through `ImageProvider` instead. Callers are expected to cache the result —
- * see [ProgressRingBlock], which keys a `remember` on every input.
+ * see [androidx.glance.adaptive.appwidget.ui.templates.track.ProgressRingBlock], which keys a
+ * `remember` on every input.
  *
  * @param sizePx Requested edge length in pixels; clamped to [MAX_RING_SIZE_PX].
  * @param strokeWidthPx Ring thickness in pixels.
