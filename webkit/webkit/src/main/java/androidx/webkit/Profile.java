@@ -400,9 +400,14 @@ public interface Profile {
     /**
      * Add a header for outgoing requests that match the given origin rules.
      * <p>
-     * It applies to all requests that are initiated after this method is called,
-     * including prefetch requests and requests sent from service workers. It does
-     * not apply the header to WebSocket requests.
+     * Changes to custom headers take effect on document load. For document-initiated requests
+     * (such as subresources, {@code fetch()}, and {@code XMLHttpRequest}), the header will only
+     * apply to documents that begin loading after this method is called; it does not affect
+     * requests initiated by documents that are already loaded. Similarly, for requests sent from
+     * service workers, the header will only apply to service workers that are started after this
+     * method is called; it does not affect requests sent from service workers that are already
+     * running. The header also applies to navigation requests to load new documents and prefetch
+     * requests. It does not apply to WebSocket requests.
      * <p>
      * Headers added through this API will be present in the set returned by
      * getRequestHeaders provided in shouldInterceptRequest.
@@ -518,6 +523,11 @@ public interface Profile {
      * Removes the specified headers from the set of headers attached to requests. This will
      * remove all configured headers that match {@code headerName}.
      * <p>
+     * Changes to custom headers take effect on document load. For document-initiated requests,
+     * the header will only be removed for documents that begin loading after this method is called;
+     * requests initiated by documents that are already loaded will continue to send previously
+     * configured headers.
+     * <p>
      * It is safe to call this method even if {@code headerName} has not previously been set via
      * {@link #addCustomHeader(CustomHeader)}.
      *
@@ -538,6 +548,11 @@ public interface Profile {
 
     /**
      * Removes the specified header from the set of headers attached to requests.
+     * <p>
+     * Changes to custom headers take effect on document load. For document-initiated requests,
+     * the header will only be removed for documents that begin loading after this method is called;
+     * requests initiated by documents that are already loaded will continue to send previously
+     * configured headers.
      * <p>
      * It is safe to call this method even if {@code (headerName, headerValue)} has not
      * previously been set via {@link #addCustomHeader(CustomHeader)}.
@@ -560,6 +575,11 @@ public interface Profile {
 
     /**
      * Remove any currently set headers from being applied to network requests.
+     * <p>
+     * Changes to custom headers take effect on document load. For document-initiated requests,
+     * headers will only be removed for documents that begin loading after this method is called;
+     * requests initiated by documents that are already loaded will continue to send previously
+     * configured headers.
      *
      * @throws UnsupportedOperationException if the
      *     {@link WebViewFeature#CUSTOM_REQUEST_HEADERS} feature is not supported.
