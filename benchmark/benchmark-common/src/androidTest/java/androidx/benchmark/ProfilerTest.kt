@@ -20,8 +20,11 @@ import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import org.junit.Assume.assumeFalse
@@ -101,5 +104,24 @@ class ProfilerTest {
             regex = Regex("test-stackSampling-.+.trace"),
         )
         assertTrue(StackSamplingSimpleperf.requiresExtraRuntime)
+    }
+
+    @Test
+    fun methodTracing_skipsAndEmitsTraceSection_whenDurationRisksAnr() {
+        InMemoryTracing.clearEvents()
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            val result =
+                MethodTracing.startIfNotRiskingAnrDeadline(
+                    traceUniqueName = "testAnrSkip",
+                    estimatedDurationNs = 50_000_000L, // 50ms * >=150x >= 7.5s > 4.0s ANR limit
+                )
+            assertNull(result)
+        }
+        val trace = InMemoryTracing.commitToTrace("testLabel")
+        val events = trace.packet.mapNotNull { it.track_event }
+        assertEquals(2, events.size)
+        assertEquals(perfetto.protos.TrackEvent.Type.TYPE_SLICE_BEGIN, events[0].type)
+        assertTrue(events[0].name!!.startsWith("Skipping method trace of estimated duration"))
+        assertEquals(perfetto.protos.TrackEvent.Type.TYPE_SLICE_END, events[1].type)
     }
 }

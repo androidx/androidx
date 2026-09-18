@@ -234,14 +234,13 @@ constructor(testDefinition: TestDefinition, private val config: MicrobenchmarkCo
         internal const val TAG = "Benchmark"
 
         /**
-         * Conservative estimate for how much method tracing slows down runtime - how much longer
-         * will `methodTrace {x()}` be than `x()` for nontrivial workloads.
+         * Conservative fallback estimate for how much method tracing slows down runtime - how much
+         * longer will `methodTrace {x()}` be than `x()` on uncalibrated devices or older ART
+         * versions without low-overhead wall-clock tracing (`0x10` flag).
          *
-         * This is a conservative estimate, better version of this would account for OS/Art version
-         *
-         * Value derived from observed numbers on bramble API 31 (600-800x slowdown)
+         * Value derived from observed numbers on bramble API 31 (600-800x slowdown).
          */
-        internal const val METHOD_TRACING_ESTIMATED_SLOWDOWN_FACTOR = 1000
+        internal const val GENERIC_METHOD_TRACING_ESTIMATED_SLOWDOWN_FACTOR = 1000
 
         /**
          * Maximum duration to trace on main thread to avoid ANRs
