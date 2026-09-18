@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.compose.remote.core.operations
+package androidx.compose.remote.core
 
-import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.Operation
-import androidx.compose.remote.core.PaintContext
-import androidx.compose.remote.core.PaintOperation
-import androidx.compose.remote.core.RcPlatformServices
-import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.RemoteContext.ContextMode
-import androidx.compose.remote.core.VariableSupport
-import androidx.compose.remote.core.WireBuffer
+import androidx.compose.remote.core.operations.ComponentData
+import androidx.compose.remote.core.operations.DrawContent
+import androidx.compose.remote.core.operations.FloatExpression
+import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.layout.CanvasOperations
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation
 import androidx.compose.remote.core.operations.layout.Component
@@ -77,6 +73,7 @@ class OperationApplyTest(private val operation: Operation) {
             CoreDocument().apply {
                 operations.addAll(nestedList)
                 assignAllLayoutIndices()
+                mUseFeatureDataPassCanvasOps = true
             }
         return Pair(doc, context)
     }

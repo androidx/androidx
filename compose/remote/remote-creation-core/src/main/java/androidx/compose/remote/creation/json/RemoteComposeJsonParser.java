@@ -554,6 +554,8 @@ public class RemoteComposeJsonParser {
                 return Header.FEATURE_PAINT_MEASURE;
             case "disallowInterceptTouch":
                 return Header.FEATURE_DISALLOW_INTERCEPT_TOUCH;
+            case "dataPassCanvasOps":
+                return Header.FEATURE_DATA_PASS_CANVAS_OPS;
             case "debug":
                 return Header.DEBUG;
             default:
