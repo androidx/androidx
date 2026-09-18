@@ -34,7 +34,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.computedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -825,15 +825,12 @@ internal fun <T> AnimatedEnterExitImpl(
 
         val shouldDisposeAfterExit by
             remember(childTransition, shouldDisposeBlock) {
-                derivedStateOf {
-                    if (childTransition.exitFinished) {
+                computedStateOf {
+                    childTransition.exitFinished &&
                         shouldDisposeBlock(
                             childTransition.currentState,
                             childTransition.targetState,
                         )
-                    } else {
-                        false
-                    }
                 }
             }
 
