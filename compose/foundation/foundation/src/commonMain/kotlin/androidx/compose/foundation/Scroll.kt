@@ -31,7 +31,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.FrequentlyChangingValue
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.computedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -178,9 +178,9 @@ public class ScrollState(initial: Int) : ScrollableState {
     override val isScrollInProgress: Boolean
         get() = scrollableState.isScrollInProgress
 
-    override val canScrollForward: Boolean by derivedStateOf { value < maxValue }
+    override val canScrollForward: Boolean by computedStateOf { value < maxValue }
 
-    override val canScrollBackward: Boolean by derivedStateOf { value > 0 }
+    override val canScrollBackward: Boolean by computedStateOf { value > 0 }
 
     @get:Suppress("GetterSetterNames")
     override val lastScrolledForward: Boolean
