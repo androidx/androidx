@@ -36,7 +36,6 @@ import androidx.xr.scenecore.InputEvent
 import androidx.xr.scenecore.InteractableComponent
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
-import java.util.Collections
 import kotlin.math.abs
 import kotlin.math.hypot
 import kotlin.math.roundToInt
@@ -44,14 +43,10 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 
 internal class SpatialAnnotationRenderer(
     private val context: Context,
@@ -62,79 +57,65 @@ internal class SpatialAnnotationRenderer(
     @Volatile var isDotTop: Boolean = false
 
     private val overlayRenderer = QuadOverlayRenderer()
-    private val renderMutex = Mutex()
 
     private val _renderedSpatialAnnotations: MutableStateFlow<List<SpatialAnnotation>> =
         MutableStateFlow(mutableListOf<SpatialAnnotation>())
-    // TODO(b/561609019): Use a ConcurrentHashMap.
-    private val _runningJobs = Collections.synchronizedMap(HashMap<SpatialAnnotation, Job>())
 
-    private lateinit var _coroutineScope: CoroutineScope
-    private lateinit var _session: Session
-    private lateinit var _supervisorJob: Job
+    private var subscriptionJob: Job? = null
+    private lateinit var session: Session
 
     val renderedSpatialAnnotations: StateFlow<Collection<SpatialAnnotation>> =
         _renderedSpatialAnnotations.asStateFlow()
 
     fun startRendering(session: Session, coroutineScope: CoroutineScope) {
-        _session = session
-        _supervisorJob = SupervisorJob()
-        _coroutineScope = CoroutineScope(coroutineScope.coroutineContext + _supervisorJob)
+        this.session = session
+        subscriptionJob?.cancel()
 
-        _coroutineScope.launch {
-            try {
-                SpatialAnnotation.subscribe(_session).collect {
-                    Log.d(TAG, "Received SpatialAnnotation update! Count: ${it.size}")
-                    updateSpatialAnnotationModels(it)
+        subscriptionJob =
+            coroutineScope.launch(Dispatchers.Main) {
+                val runningJobs = mutableMapOf<SpatialAnnotation, Job>()
+                try {
+                    SpatialAnnotation.subscribe(session).collect {
+                        Log.d(TAG, "Received SpatialAnnotation update! Count: ${it.size}")
+                        updateSpatialAnnotationModels(coroutineScope, it, runningJobs)
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.e(TAG, "Exception in subscribe flow: $e", e)
                 }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Log.e(TAG, "Exception in subscribe flow: $e", e)
             }
-        }
     }
 
     fun stopRendering() {
-        if (!::_session.isInitialized || !::_supervisorJob.isInitialized) return
-        synchronized(_runningJobs) {
-            _runningJobs.values.forEach { it.cancel() }
-            _runningJobs.clear()
-        }
-        _supervisorJob.cancel()
+        subscriptionJob?.cancel()
+        subscriptionJob = null
         _renderedSpatialAnnotations.value = emptyList()
     }
 
-    private suspend fun updateSpatialAnnotationModels(spatialAnnotations: List<SpatialAnnotation>) {
+    private fun updateSpatialAnnotationModels(
+        coroutineScope: CoroutineScope,
+        spatialAnnotations: List<SpatialAnnotation>,
+        runningJobs: MutableMap<SpatialAnnotation, Job>,
+    ) {
         val spatialAnnotationsToRender = mutableListOf<SpatialAnnotation>()
         for (spatialAnnotation in spatialAnnotations) {
-            if (!_runningJobs.containsKey(spatialAnnotation)) {
-                addSpatialAnnotationModel(spatialAnnotation, spatialAnnotationsToRender)
-            } else {
-                spatialAnnotationsToRender.add(spatialAnnotation)
-            }
-        }
-        synchronized(_runningJobs) {
-            val iterator = _runningJobs.iterator()
-            while (iterator.hasNext()) {
-                val (spatialAnnotation, job) = iterator.next()
-                if (!spatialAnnotationsToRender.contains(spatialAnnotation)) {
-                    job.cancel()
-                    iterator.remove()
+            if (!runningJobs.containsKey(spatialAnnotation)) {
+                runningJobs[spatialAnnotation] = coroutineScope.launch {
+                    updateAndRenderSpatialAnnotation(spatialAnnotation)
                 }
+            }
+            spatialAnnotationsToRender.add(spatialAnnotation)
+        }
+        val iterator = runningJobs.entries.iterator()
+        while (iterator.hasNext()) {
+            val (spatialAnnotation, job) = iterator.next()
+            if (!spatialAnnotationsToRender.contains(spatialAnnotation)) {
+                job.cancel()
+                iterator.remove()
             }
         }
         _renderedSpatialAnnotations.value = spatialAnnotationsToRender
-    }
-
-    private fun addSpatialAnnotationModel(
-        spatialAnnotation: SpatialAnnotation,
-        spatialAnnotationsToRender: MutableList<SpatialAnnotation>,
-    ) {
-        _runningJobs[spatialAnnotation] = _coroutineScope.launch {
-            updateAndRenderSpatialAnnotation(spatialAnnotation)
-        }
-        spatialAnnotationsToRender.add(spatialAnnotation)
     }
 
     // TODO(b/542273731): Break this function into smaller helper functions.
@@ -192,27 +173,27 @@ internal class SpatialAnnotationRenderer(
                                 Pose(rotation = ANNOTATION_FROM_PANEL_ROTATION)
                             )
                         val panelInActivity =
-                            _session.scene.perceptionSpace.transformPoseTo(
+                            session.scene.perceptionSpace.transformPoseTo(
                                 panelInPerception,
-                                _session.scene.activitySpace,
+                                session.scene.activitySpace,
                             )
 
                         val currentSurfaceEntity: SurfaceEntity
                         if (surfaceEntity == null) {
                             currentSurfaceEntity =
                                 SurfaceEntity.create(
-                                        session = _session,
+                                        session = session,
                                         shape =
                                             SurfaceEntity.Shape.Quad(
                                                 FloatSize2d(coercedW, coercedH)
                                             ),
                                         pose = panelInActivity,
-                                        parent = _session.scene.activitySpace,
+                                        parent = session.scene.activitySpace,
                                     )
                                     .apply { setSurfacePixelDimensions(IntSize2d(pixelW, pixelH)) }
 
                             val interactable =
-                                InteractableComponent.create(_session) { inputEvent ->
+                                InteractableComponent.create(session) { inputEvent ->
                                     when (inputEvent.action) {
                                         InputEvent.Action.UP -> {
                                             onTrackingStopped(
@@ -224,16 +205,14 @@ internal class SpatialAnnotationRenderer(
                                                 currentInteractionState != InteractionState.HOVERED
                                             ) {
                                                 currentInteractionState = InteractionState.HOVERED
-                                                _coroutineScope.launch {
-                                                    renderOverlay(
-                                                        surfaceEntity,
-                                                        lastPixelW,
-                                                        lastPixelH,
-                                                        currentInteractionState,
-                                                        lastTrackingState,
-                                                        lastDotPlacement,
-                                                    )
-                                                }
+                                                renderOverlay(
+                                                    surfaceEntity,
+                                                    lastPixelW,
+                                                    lastPixelH,
+                                                    currentInteractionState,
+                                                    lastTrackingState,
+                                                    lastDotPlacement,
+                                                )
                                             }
                                         }
                                         InputEvent.Action.HOVER_EXIT -> {
@@ -241,16 +220,14 @@ internal class SpatialAnnotationRenderer(
                                                 currentInteractionState != InteractionState.NORMAL
                                             ) {
                                                 currentInteractionState = InteractionState.NORMAL
-                                                _coroutineScope.launch {
-                                                    renderOverlay(
-                                                        surfaceEntity,
-                                                        lastPixelW,
-                                                        lastPixelH,
-                                                        currentInteractionState,
-                                                        lastTrackingState,
-                                                        lastDotPlacement,
-                                                    )
-                                                }
+                                                renderOverlay(
+                                                    surfaceEntity,
+                                                    lastPixelW,
+                                                    lastPixelH,
+                                                    currentInteractionState,
+                                                    lastTrackingState,
+                                                    lastDotPlacement,
+                                                )
                                             }
                                         }
                                     }
@@ -328,7 +305,7 @@ internal class SpatialAnnotationRenderer(
         }
     }
 
-    private suspend fun renderOverlay(
+    private fun renderOverlay(
         entity: SurfaceEntity?,
         width: Int,
         height: Int,
@@ -338,19 +315,15 @@ internal class SpatialAnnotationRenderer(
     ) {
         if (entity == null || width <= 0 || height <= 0) return
         val surface = entity.getSurface()
-        renderMutex.withLock {
-            withContext(Dispatchers.Default) {
-                overlayRenderer.drawQuadOverlay(
-                    surface = surface,
-                    width = width,
-                    height = height,
-                    interactionState = interactionState,
-                    trackingState = trackingState,
-                    distance = 1.0f,
-                    dotPlacement = dotPlacement,
-                )
-            }
-        }
+        overlayRenderer.drawQuadOverlay(
+            surface = surface,
+            width = width,
+            height = height,
+            interactionState = interactionState,
+            trackingState = trackingState,
+            distance = 1.0f,
+            dotPlacement = dotPlacement,
+        )
     }
 
     private companion object {
