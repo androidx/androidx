@@ -40,11 +40,11 @@ import androidx.credentials.provider.utils.BeginGetCredentialUtil
  * @constructor constructs an instance of [BeginGetCredentialRequest]
  * @throws NullPointerException If [beginGetCredentialOptions] is null
  */
-class BeginGetCredentialRequest
+public class BeginGetCredentialRequest
 @JvmOverloads
 constructor(
-    val beginGetCredentialOptions: List<BeginGetCredentialOption>,
-    val callingAppInfo: CallingAppInfo? = null,
+    public val beginGetCredentialOptions: List<BeginGetCredentialOption>,
+    public val callingAppInfo: CallingAppInfo? = null,
 ) {
     @RequiresApi(34)
     private object Api34Impl {
@@ -130,10 +130,10 @@ constructor(
         }
     }
 
-    companion object {
+    public companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
-        fun createFrom(
+        public fun createFrom(
             id: String,
             type: String,
             candidateQueryData: Bundle,
@@ -146,7 +146,7 @@ constructor(
          * reconstruct the class instance back from the bundle returned here.
          */
         @JvmStatic
-        fun asBundle(request: BeginGetCredentialRequest): Bundle {
+        public fun asBundle(request: BeginGetCredentialRequest): Bundle {
             val bundle = Bundle()
             if (Build.VERSION.SDK_INT >= 34) { // Android U
                 Api34Impl.asBundle(bundle, request)
@@ -161,7 +161,7 @@ constructor(
          * [BeginGetCredentialRequest].
          */
         @JvmStatic
-        fun fromBundle(bundle: Bundle): BeginGetCredentialRequest? {
+        public fun fromBundle(bundle: Bundle): BeginGetCredentialRequest? {
             return if (Build.VERSION.SDK_INT >= 34) { // Android U
                 Api34Impl.fromBundle(bundle)
             } else {

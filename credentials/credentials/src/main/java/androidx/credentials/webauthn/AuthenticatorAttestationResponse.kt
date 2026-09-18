@@ -22,7 +22,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class AuthenticatorAttestationResponse(
+public class AuthenticatorAttestationResponse(
     private val requestOptions: PublicKeyCredentialCreationOptions,
     private val credentialId: ByteArray,
     private val credentialPublicKey: ByteArray,
@@ -34,8 +34,8 @@ class AuthenticatorAttestationResponse(
     private val packageName: String? = null,
     private val clientDataHash: ByteArray? = null,
 ) : AuthenticatorResponse {
-    override var clientJson = JSONObject()
-    var attestationObject: ByteArray
+    override var clientJson: JSONObject = JSONObject()
+    public var attestationObject: ByteArray
 
     init {
         clientJson.put("type", "webauthn.create")

@@ -22,7 +22,7 @@ import androidx.credentials.exceptions.CreateCredentialException
  * During the Restore Credential creation, this is thrown when the developer requests backup to
  * cloud but the user device did not enable end-to-end-encryption or backup.
  */
-class E2eeUnavailableException(errorMessage: CharSequence) :
+public class E2eeUnavailableException(errorMessage: CharSequence) :
     CreateCredentialException(TYPE_E2EE_UNAVAILABLE_EXCEPTION, errorMessage) {
     internal companion object {
         internal const val TYPE_E2EE_UNAVAILABLE_EXCEPTION =

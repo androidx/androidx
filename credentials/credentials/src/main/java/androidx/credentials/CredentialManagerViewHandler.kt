@@ -58,7 +58,7 @@ import androidx.credentials.internal.FrameworkImplHelper
 private const val TAG = "ViewHandler"
 
 @Suppress("NewApi")
-var View.pendingGetCredentialRequest: PendingGetCredentialRequest?
+public var View.pendingGetCredentialRequest: PendingGetCredentialRequest?
     get() =
         getTag(R.id.androidx_credential_pendingCredentialRequest) as? PendingGetCredentialRequest
     set(value) {

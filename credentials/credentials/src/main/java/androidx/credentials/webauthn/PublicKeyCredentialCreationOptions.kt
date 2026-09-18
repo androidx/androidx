@@ -20,18 +20,18 @@ import androidx.annotation.RestrictTo
 import org.json.JSONObject
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class PublicKeyCredentialCreationOptions(requestJson: String) {
-    val json: JSONObject
+public class PublicKeyCredentialCreationOptions(requestJson: String) {
+    public val json: JSONObject
 
-    val rp: PublicKeyCredentialRpEntity
-    val user: PublicKeyCredentialUserEntity
-    val challenge: ByteArray
-    val pubKeyCredParams: List<PublicKeyCredentialParameters>
+    public val rp: PublicKeyCredentialRpEntity
+    public val user: PublicKeyCredentialUserEntity
+    public val challenge: ByteArray
+    public val pubKeyCredParams: List<PublicKeyCredentialParameters>
 
-    var timeout: Long
-    var excludeCredentials: List<PublicKeyCredentialDescriptor>
-    var authenticatorSelection: AuthenticatorSelectionCriteria
-    var attestation: String
+    public var timeout: Long
+    public var excludeCredentials: List<PublicKeyCredentialDescriptor>
+    public var authenticatorSelection: AuthenticatorSelectionCriteria
+    public var attestation: String
 
     init {
         json = JSONObject(requestJson)

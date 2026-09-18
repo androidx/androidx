@@ -34,7 +34,7 @@ import androidx.credentials.provider.utils.BeginGetCredentialUtil
 
 /** Returns the stored create credential exception from the intent. */
 @RequiresApi(34)
-fun Intent.getCreateCredentialException(): android.credentials.CreateCredentialException? {
+public fun Intent.getCreateCredentialException(): android.credentials.CreateCredentialException? {
     val key = CredentialProviderService.EXTRA_CREATE_CREDENTIAL_EXCEPTION
     if (!hasExtra(key)) {
         return null
@@ -45,7 +45,7 @@ fun Intent.getCreateCredentialException(): android.credentials.CreateCredentialE
 
 /** Returns the stored get credential exception from the intent. */
 @RequiresApi(34)
-fun Intent.getGetCredentialException(): android.credentials.GetCredentialException? {
+public fun Intent.getGetCredentialException(): android.credentials.GetCredentialException? {
     val key = CredentialProviderService.EXTRA_GET_CREDENTIAL_EXCEPTION
     if (!hasExtra(key)) {
         return null
@@ -56,7 +56,7 @@ fun Intent.getGetCredentialException(): android.credentials.GetCredentialExcepti
 
 /** Returns the begin get response from the intent. */
 @RequiresApi(34)
-fun Intent.getBeginGetResponse(): BeginGetCredentialResponse? {
+public fun Intent.getBeginGetResponse(): BeginGetCredentialResponse? {
     val key = CredentialProviderService.EXTRA_BEGIN_GET_CREDENTIAL_RESPONSE
     if (!hasExtra(key)) {
         return null
@@ -73,7 +73,7 @@ fun Intent.getBeginGetResponse(): BeginGetCredentialResponse? {
 
 /** Returns the get response from the intent. */
 @RequiresApi(34)
-fun Intent.getGetCredentialResponse(): android.credentials.GetCredentialResponse? {
+public fun Intent.getGetCredentialResponse(): android.credentials.GetCredentialResponse? {
     val key = CredentialProviderService.EXTRA_GET_CREDENTIAL_RESPONSE
     if (!hasExtra(key)) {
         return null
@@ -84,7 +84,8 @@ fun Intent.getGetCredentialResponse(): android.credentials.GetCredentialResponse
 
 /** Returns the create response from the intent. */
 @RequiresApi(34)
-fun Intent.getCreateCredentialCredentialResponse(): android.credentials.CreateCredentialResponse? {
+public fun Intent.getCreateCredentialCredentialResponse():
+    android.credentials.CreateCredentialResponse? {
     val key = CredentialProviderService.EXTRA_CREATE_CREDENTIAL_RESPONSE
     if (!hasExtra(key)) {
         return null

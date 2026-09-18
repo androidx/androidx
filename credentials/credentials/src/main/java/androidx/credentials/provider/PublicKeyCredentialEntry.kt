@@ -78,15 +78,15 @@ import java.util.Collections
  */
 @RequiresApi(23)
 @Suppress("DEPRECATION") // For usage of slice
-class PublicKeyCredentialEntry
+public class PublicKeyCredentialEntry
 internal constructor(
-    val username: CharSequence,
-    val displayName: CharSequence?,
-    val typeDisplayName: CharSequence,
-    val pendingIntent: PendingIntent,
-    val icon: Icon,
-    val lastUsedTime: Instant?,
-    val isAutoSelectAllowed: Boolean,
+    public val username: CharSequence,
+    public val displayName: CharSequence?,
+    public val typeDisplayName: CharSequence,
+    public val pendingIntent: PendingIntent,
+    public val icon: Icon,
+    public val lastUsedTime: Instant?,
+    public val isAutoSelectAllowed: Boolean,
     beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption,
     isDefaultIconPreferredAsSingleProvider: Boolean,
     entryGroupId: CharSequence? = username,
@@ -107,9 +107,9 @@ internal constructor(
         affiliatedDomain = affiliatedDomain,
         biometricPromptData = biometricPromptData,
     ) {
-    val isAutoSelectAllowedFromOption = autoSelectAllowedFromOption
+    public val isAutoSelectAllowedFromOption: Boolean = autoSelectAllowedFromOption
     @get:JvmName("hasDefaultIcon")
-    val hasDefaultIcon: Boolean
+    public val hasDefaultIcon: Boolean
         get() {
             if (Build.VERSION.SDK_INT >= 28) {
                 return Api28Impl.isDefaultIcon(this)
@@ -157,7 +157,7 @@ internal constructor(
      *   [beginGetPublicKeyCredentialOption] is null
      * @throws IllegalArgumentException if [username] is empty
      */
-    constructor(
+    public constructor(
         context: Context,
         username: CharSequence,
         pendingIntent: PendingIntent,
@@ -218,7 +218,7 @@ internal constructor(
      * @throws IllegalArgumentException if [username] is empty
      */
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    constructor(
+    public constructor(
         context: Context,
         username: CharSequence,
         pendingIntent: PendingIntent,
@@ -284,7 +284,7 @@ internal constructor(
             ),
         level = DeprecationLevel.HIDDEN,
     )
-    constructor(
+    public constructor(
         context: Context,
         username: CharSequence,
         pendingIntent: PendingIntent,
@@ -591,7 +591,7 @@ internal constructor(
         }
     }
 
-    companion object {
+    public companion object {
         private const val TAG = "PublicKeyCredEntry"
 
         /**
@@ -602,7 +602,7 @@ internal constructor(
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
-        fun toSlice(entry: PublicKeyCredentialEntry): Slice? {
+        public fun toSlice(entry: PublicKeyCredentialEntry): Slice? {
             if (Build.VERSION.SDK_INT >= 35) {
                 return Api35Impl.toSlice(entry)
             } else if (Build.VERSION.SDK_INT >= 28) {
@@ -619,7 +619,7 @@ internal constructor(
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
-        fun fromSlice(slice: Slice): PublicKeyCredentialEntry? {
+        public fun fromSlice(slice: Slice): PublicKeyCredentialEntry? {
             if (Build.VERSION.SDK_INT >= 35) {
                 return Api35Impl.fromSlice(slice)
             } else if (Build.VERSION.SDK_INT >= 28) {
@@ -639,7 +639,7 @@ internal constructor(
          * @param credentialEntry the instance of framework class to be converted
          */
         @JvmStatic
-        fun fromCredentialEntry(
+        public fun fromCredentialEntry(
             credentialEntry: android.service.credentials.CredentialEntry
         ): PublicKeyCredentialEntry? {
             if (Build.VERSION.SDK_INT >= 34) {
@@ -790,7 +790,7 @@ internal constructor(
     }
 
     /** Builder for [PublicKeyCredentialEntry] */
-    class Builder(
+    public class Builder(
         private val context: Context,
         private val username: CharSequence,
         private val pendingIntent: PendingIntent,
@@ -804,13 +804,13 @@ internal constructor(
         private var biometricPromptData: BiometricPromptData? = null
 
         /** Sets a displayName to be shown on the UI with this entry */
-        fun setDisplayName(displayName: CharSequence?): Builder {
+        public fun setDisplayName(displayName: CharSequence?): Builder {
             this.displayName = displayName
             return this
         }
 
         /** Sets the icon to be shown on the UI with this entry */
-        fun setIcon(icon: Icon): Builder {
+        public fun setIcon(icon: Icon): Builder {
             this.icon = icon
             return this
         }
@@ -822,14 +822,14 @@ internal constructor(
          * biometric prompt flow.
          */
         @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-        fun setBiometricPromptData(biometricPromptData: BiometricPromptData?): Builder {
+        public fun setBiometricPromptData(biometricPromptData: BiometricPromptData?): Builder {
             this.biometricPromptData = biometricPromptData
             return this
         }
 
         /** Sets whether the entry should be auto-selected. The value is false by default */
         @Suppress("MissingGetterMatchingBuilder")
-        fun setAutoSelectAllowed(autoSelectAllowed: Boolean): Builder {
+        public fun setAutoSelectAllowed(autoSelectAllowed: Boolean): Builder {
             this.autoSelectAllowed = autoSelectAllowed
             return this
         }
@@ -839,7 +839,7 @@ internal constructor(
          *
          * This information will be used to sort the entries on the selector.
          */
-        fun setLastUsedTime(lastUsedTime: Instant?): Builder {
+        public fun setLastUsedTime(lastUsedTime: Instant?): Builder {
             this.lastUsedTime = lastUsedTime
             return this
         }
@@ -848,7 +848,7 @@ internal constructor(
          * When set to true, the UI prefers to render the default credential type icon when you are
          * the single available provider; false by default.
          */
-        fun setDefaultIconPreferredAsSingleProvider(
+        public fun setDefaultIconPreferredAsSingleProvider(
             isDefaultIconPreferredAsSingleProvider: Boolean
         ): Builder {
             this.isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider
@@ -856,7 +856,7 @@ internal constructor(
         }
 
         /** Builds an instance of [PublicKeyCredentialEntry] */
-        fun build(): PublicKeyCredentialEntry {
+        public fun build(): PublicKeyCredentialEntry {
             if (icon == null && Build.VERSION.SDK_INT >= 23) {
                 icon = Icon.createWithResource(context, R.drawable.adx_ic_passkey)
             }

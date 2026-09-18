@@ -34,16 +34,17 @@ import androidx.credentials.exceptions.publickeycredential.SignalCredentialSecur
  *   that application (Note: for API level >=34, setting a non-null value for this parameter will
  *   throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
  */
-abstract class SignalCredentialStateRequest
+public abstract class SignalCredentialStateRequest
 internal constructor(
-    val type: String,
-    val requestJson: String,
-    val requestData: Bundle,
-    val origin: String? = null,
+    public val type: String,
+    public val requestJson: String,
+    public val requestData: Bundle,
+    public val origin: String? = null,
 ) {
-    companion object {
+    public companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        const val SIGNAL_REQUEST_JSON_KEY = "androidx.credentials.signal_request_json_key"
+        public const val SIGNAL_REQUEST_JSON_KEY: String =
+            "androidx.credentials.signal_request_json_key"
 
         private const val SIGNAL_UNKNOWN_CREDENTIAL_STATE_REQUEST_TYPE =
             "androidx.credentials.SIGNAL_UNKNOWN_CREDENTIAL_STATE_REQUEST_TYPE"
@@ -56,7 +57,7 @@ internal constructor(
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
-        fun createFrom(
+        public fun createFrom(
             requestType: String,
             requestData: Bundle,
             origin: String?,
@@ -83,7 +84,7 @@ internal constructor(
          *   android.permission.CREDENTIAl_MANAGER_SET_ORIGIN
          */
         @JvmStatic
-        fun createFrom(
+        public fun createFrom(
             requestType: String,
             requestJson: String,
             origin: String?,

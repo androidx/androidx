@@ -50,14 +50,14 @@ import java.util.Collections
  * @constructor constructs an instance of [RemoteEntry]
  * @throws NullPointerException If [pendingIntent] is null
  */
-class RemoteEntry(val pendingIntent: PendingIntent) {
+public class RemoteEntry(public val pendingIntent: PendingIntent) {
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY)
-    var isAutoSelect: Boolean = false
+    public var isAutoSelect: Boolean = false
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    constructor(pendingIntent: PendingIntent, isAutoSelect: Boolean) : this(pendingIntent) {
+    public constructor(pendingIntent: PendingIntent, isAutoSelect: Boolean) : this(pendingIntent) {
         this@RemoteEntry.isAutoSelect = isAutoSelect
     }
 
@@ -70,9 +70,9 @@ class RemoteEntry(val pendingIntent: PendingIntent) {
      *   NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple times
      */
     @SuppressLint("EmptyBuilder")
-    class Builder constructor(private val pendingIntent: PendingIntent) {
+    public class Builder constructor(private val pendingIntent: PendingIntent) {
         /** Builds an instance of [RemoteEntry] */
-        fun build(): RemoteEntry {
+        public fun build(): RemoteEntry {
             return RemoteEntry(pendingIntent)
         }
     }
@@ -86,7 +86,7 @@ class RemoteEntry(val pendingIntent: PendingIntent) {
         }
     }
 
-    companion object {
+    public companion object {
         private const val TAG = "RemoteEntry"
 
         private const val SLICE_HINT_PENDING_INTENT =
@@ -108,7 +108,7 @@ class RemoteEntry(val pendingIntent: PendingIntent) {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
         @JvmStatic
-        fun toSlice(remoteEntry: RemoteEntry): Slice {
+        public fun toSlice(remoteEntry: RemoteEntry): Slice {
             val pendingIntent = remoteEntry.pendingIntent
             val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec(SLICE_SPEC_TYPE, REVISION_ID))
             sliceBuilder.addAction(
@@ -138,7 +138,7 @@ class RemoteEntry(val pendingIntent: PendingIntent) {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
-        fun fromSlice(slice: Slice): RemoteEntry? {
+        public fun fromSlice(slice: Slice): RemoteEntry? {
             var pendingIntent: PendingIntent? = null
             var isAutoSelect = false
             slice.items.forEach {
@@ -168,7 +168,9 @@ class RemoteEntry(val pendingIntent: PendingIntent) {
          * @param remoteEntry the instance of framework action class to be converted
          */
         @JvmStatic
-        fun fromRemoteEntry(remoteEntry: android.service.credentials.RemoteEntry): RemoteEntry? {
+        public fun fromRemoteEntry(
+            remoteEntry: android.service.credentials.RemoteEntry
+        ): RemoteEntry? {
             if (Build.VERSION.SDK_INT >= 34) {
                 return Api34Impl.fromRemoteEntry(remoteEntry)
             }

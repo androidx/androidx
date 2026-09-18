@@ -34,4 +34,4 @@ import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(value = [BIOMETRIC_STRONG, BIOMETRIC_WEAK, DEVICE_CREDENTIAL])
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-annotation class AuthenticatorTypes
+public annotation class AuthenticatorTypes

@@ -46,15 +46,15 @@ import androidx.credentials.provider.utils.BeginGetCredentialUtil
  * @param remoteEntry the entry that is set to allow retrieving a credential from another device
  * @constructor constructs an instance of [BeginGetCredentialResponse]
  */
-class BeginGetCredentialResponse
+public class BeginGetCredentialResponse
 constructor(
-    val credentialEntries: List<CredentialEntry> = listOf(),
-    val actions: List<Action> = listOf(),
-    val authenticationActions: List<AuthenticationAction> = listOf(),
-    val remoteEntry: RemoteEntry? = null,
+    public val credentialEntries: List<CredentialEntry> = listOf(),
+    public val actions: List<Action> = listOf(),
+    public val authenticationActions: List<AuthenticationAction> = listOf(),
+    public val remoteEntry: RemoteEntry? = null,
 ) {
     /** Builder for [BeginGetCredentialResponse]. */
-    class Builder {
+    public class Builder {
         private var credentialEntries: MutableList<CredentialEntry> = mutableListOf()
         private var actions: MutableList<Action> = mutableListOf()
         private var authenticationActions: MutableList<AuthenticationAction> = mutableListOf()
@@ -83,19 +83,19 @@ constructor(
          * callback from [CredentialProviderService#onBeginGetCredential] will throw a
          * [SecurityException].
          */
-        fun setRemoteEntry(remoteEntry: RemoteEntry?): Builder {
+        public fun setRemoteEntry(remoteEntry: RemoteEntry?): Builder {
             this.remoteEntry = remoteEntry
             return this
         }
 
         /** Adds a [CredentialEntry] to the list of entries to be displayed on the UI. */
-        fun addCredentialEntry(entry: CredentialEntry): Builder {
+        public fun addCredentialEntry(entry: CredentialEntry): Builder {
             credentialEntries.add(entry)
             return this
         }
 
         /** Sets the list of credential entries to be displayed on the account selector UI. */
-        fun setCredentialEntries(entries: List<CredentialEntry>): Builder {
+        public fun setCredentialEntries(entries: List<CredentialEntry>): Builder {
             credentialEntries = entries.toMutableList()
             return this
         }
@@ -107,13 +107,13 @@ constructor(
          * intenting directly into a certain app activity etc. The pending intent set with the
          * [action] must invoke the corresponding activity.
          */
-        fun addAction(action: Action): Builder {
+        public fun addAction(action: Action): Builder {
             this.actions.add(action)
             return this
         }
 
         /** Sets the list of actions to be displayed on the UI. */
-        fun setActions(actions: List<Action>): Builder {
+        public fun setActions(actions: List<Action>): Builder {
             this.actions = actions.toMutableList()
             return this
         }
@@ -133,19 +133,21 @@ constructor(
          * [CredentialProviderService#EXTRA_BEGIN_GET_CREDENTIAL_RESPONSE] extra should be set with
          * the new fully populated [BeginGetCredentialResponse] object.
          */
-        fun addAuthenticationAction(authenticationAction: AuthenticationAction): Builder {
+        public fun addAuthenticationAction(authenticationAction: AuthenticationAction): Builder {
             this.authenticationActions.add(authenticationAction)
             return this
         }
 
         /** Sets the list of authentication entries to be displayed on the account selector UI. */
-        fun setAuthenticationActions(authenticationEntries: List<AuthenticationAction>): Builder {
+        public fun setAuthenticationActions(
+            authenticationEntries: List<AuthenticationAction>
+        ): Builder {
             this.authenticationActions = authenticationEntries.toMutableList()
             return this
         }
 
         /** Builds a [BeginGetCredentialResponse] instance. */
-        fun build(): BeginGetCredentialResponse {
+        public fun build(): BeginGetCredentialResponse {
             return BeginGetCredentialResponse(
                 credentialEntries.toList(),
                 actions.toList(),
@@ -214,14 +216,14 @@ constructor(
         }
     }
 
-    companion object {
+    public companion object {
         /**
          * Helper method to convert the class to a parcelable [Bundle], in case the class instance
          * needs to be sent across a process. Consumers of this method should use [fromBundle] to
          * reconstruct the class instance back from the bundle returned here.
          */
         @JvmStatic
-        fun asBundle(response: BeginGetCredentialResponse): Bundle {
+        public fun asBundle(response: BeginGetCredentialResponse): Bundle {
             val bundle = Bundle()
             if (Build.VERSION.SDK_INT >= 34) { // Android U
                 Api34Impl.asBundle(bundle, response)
@@ -236,7 +238,7 @@ constructor(
          * [BeginGetCredentialResponse].
          */
         @JvmStatic
-        fun fromBundle(bundle: Bundle): BeginGetCredentialResponse? {
+        public fun fromBundle(bundle: Bundle): BeginGetCredentialResponse? {
             return if (Build.VERSION.SDK_INT >= 34) { // Android U
                 Api34Impl.fromBundle(bundle)
             } else if (Build.VERSION.SDK_INT >= 23) {

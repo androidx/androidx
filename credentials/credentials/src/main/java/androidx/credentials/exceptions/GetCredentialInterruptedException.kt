@@ -23,7 +23,7 @@ package androidx.credentials.exceptions
  *
  * @see GetCredentialException
  */
-class GetCredentialInterruptedException
+public class GetCredentialInterruptedException
 @JvmOverloads
 constructor(errorMessage: CharSequence? = null) :
     GetCredentialException(TYPE_GET_CREDENTIAL_INTERRUPTED_EXCEPTION, errorMessage) {

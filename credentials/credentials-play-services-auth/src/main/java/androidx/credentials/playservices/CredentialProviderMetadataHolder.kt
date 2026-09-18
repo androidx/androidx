@@ -27,7 +27,7 @@ import androidx.annotation.RestrictTo
  * [androidx.credentials.CredentialProvider] interface
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class CredentialProviderMetadataHolder : Service() {
+public class CredentialProviderMetadataHolder : Service() {
     // Binder given to clients.
     private val binder = LocalBinder()
 
@@ -35,10 +35,11 @@ class CredentialProviderMetadataHolder : Service() {
      * Class used for the client Binder. Because we know this service always runs in the same
      * process as its clients, we don't need to deal with IPC.
      */
-    inner class LocalBinder : Binder() {
+    public inner class LocalBinder : Binder() {
         // Return this instance of CredentialProviderMetadataHolder so clients
         // can call public methods.
-        fun getService(): CredentialProviderMetadataHolder = this@CredentialProviderMetadataHolder
+        public fun getService(): CredentialProviderMetadataHolder =
+            this@CredentialProviderMetadataHolder
     }
 
     override fun onBind(intent: Intent): IBinder {

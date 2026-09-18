@@ -31,10 +31,12 @@ import android.os.Bundle
  * @constructor creates a new ClearCredentialStateRequest
  * @throws IllegalArgumentException if the [requestType] is unsupported type.
  */
-class ClearCredentialStateRequest
+public class ClearCredentialStateRequest
 @JvmOverloads
-constructor(val requestType: @ClearCredentialRequestTypes String = TYPE_CLEAR_CREDENTIAL_STATE) {
-    val requestBundle: Bundle = Bundle()
+constructor(
+    public val requestType: @ClearCredentialRequestTypes String = TYPE_CLEAR_CREDENTIAL_STATE
+) {
+    public val requestBundle: Bundle = Bundle()
 
     init {
         if (
@@ -48,15 +50,16 @@ constructor(val requestType: @ClearCredentialRequestTypes String = TYPE_CLEAR_CR
         }
     }
 
-    companion object {
+    public companion object {
         /**
          * Clears credential state from all credential providers that have cached a user sign-in
          * states.
          */
-        const val TYPE_CLEAR_CREDENTIAL_STATE = "androidx.credentials.TYPE_CLEAR_CREDENTIAL_STATE"
+        public const val TYPE_CLEAR_CREDENTIAL_STATE: String =
+            "androidx.credentials.TYPE_CLEAR_CREDENTIAL_STATE"
 
         /** Clears restore credential from the device and the backup */
-        const val TYPE_CLEAR_RESTORE_CREDENTIAL =
+        public const val TYPE_CLEAR_RESTORE_CREDENTIAL: String =
             "androidx.credentials.TYPE_CLEAR_RESTORE_CREDENTIAL"
 
         private const val BUNDLE_KEY_CLEAR_RESTORE_CREDENTIAL_REQUEST =

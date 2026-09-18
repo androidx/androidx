@@ -27,12 +27,12 @@ import androidx.credentials.GetCredentialResponse
 
 @RequiresApi(34)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class FrameworkImplHelper {
-    companion object {
+public class FrameworkImplHelper {
+    public companion object {
         @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         @JvmStatic
         @Suppress("DEPRECATION")
-        fun convertGetResponseToJetpackClass(
+        public fun convertGetResponseToJetpackClass(
             response: android.credentials.GetCredentialResponse
         ): GetCredentialResponse {
             val credential = response.credential
@@ -41,7 +41,7 @@ class FrameworkImplHelper {
 
         @JvmStatic
         @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-        fun convertGetRequestToFrameworkClass(
+        public fun convertGetRequestToFrameworkClass(
             request: GetCredentialRequest
         ): android.credentials.GetCredentialRequest {
             val builder =
@@ -68,7 +68,7 @@ class FrameworkImplHelper {
         @SuppressLint("MissingPermission")
         @VisibleForTesting
         @JvmStatic
-        fun setOriginForGetRequest(
+        public fun setOriginForGetRequest(
             request: GetCredentialRequest,
             builder: android.credentials.GetCredentialRequest.Builder,
         ) {

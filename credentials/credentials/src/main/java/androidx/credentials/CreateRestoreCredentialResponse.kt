@@ -27,7 +27,8 @@ import androidx.credentials.internal.RequestValidationHelper
  * @property responseJson the public key credential registration response in
  *   [JSON format](https://w3c.github.io/webauthn/#authenticatorattestationresponse).
  */
-class CreateRestoreCredentialResponse private constructor(val responseJson: String, data: Bundle) :
+public class CreateRestoreCredentialResponse
+private constructor(public val responseJson: String, data: Bundle) :
     CreateCredentialResponse(RestoreCredential.TYPE_RESTORE_CREDENTIAL, data) {
 
     /**
@@ -35,7 +36,7 @@ class CreateRestoreCredentialResponse private constructor(val responseJson: Stri
      *
      * @throws IllegalArgumentException If [responseJson] is empty, or an invalid JSON
      */
-    constructor(responseJson: String) : this(responseJson, toBundle(responseJson))
+    public constructor(responseJson: String) : this(responseJson, toBundle(responseJson))
 
     init {
         require(RequestValidationHelper.isValidJSON(responseJson)) {
@@ -43,13 +44,13 @@ class CreateRestoreCredentialResponse private constructor(val responseJson: Stri
         }
     }
 
-    companion object {
-        const val BUNDLE_KEY_CREATE_RESTORE_CREDENTIAL_RESPONSE =
+    public companion object {
+        public const val BUNDLE_KEY_CREATE_RESTORE_CREDENTIAL_RESPONSE: String =
             "androidx.credentials.BUNDLE_KEY_CREATE_RESTORE_CREDENTIAL_RESPONSE"
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
-        fun createFrom(data: Bundle): CreateRestoreCredentialResponse {
+        public fun createFrom(data: Bundle): CreateRestoreCredentialResponse {
             val responseJson =
                 data.getString(BUNDLE_KEY_CREATE_RESTORE_CREDENTIAL_RESPONSE)
                     ?: throw CreateCredentialUnknownException(

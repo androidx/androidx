@@ -33,8 +33,12 @@ import androidx.credentials.provider.utils.BeginCreateCredentialUtil
  * This class is to be extended by structured create credential requests such as
  * [BeginCreatePasswordCredentialRequest].
  */
-abstract class BeginCreateCredentialRequest
-constructor(val type: String, val candidateQueryData: Bundle, val callingAppInfo: CallingAppInfo?) {
+public abstract class BeginCreateCredentialRequest
+constructor(
+    public val type: String,
+    public val candidateQueryData: Bundle,
+    public val callingAppInfo: CallingAppInfo?,
+) {
     @RequiresApi(34)
     private object Api34Impl {
         private const val REQUEST_KEY = "androidx.credentials.provider.BeginCreateCredentialRequest"
@@ -88,10 +92,10 @@ constructor(val type: String, val candidateQueryData: Bundle, val callingAppInfo
         }
     }
 
-    companion object {
+    public companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
-        fun createFrom(
+        public fun createFrom(
             type: String,
             candidateQueryData: Bundle,
             callingAppInfo: CallingAppInfo?,
@@ -125,7 +129,7 @@ constructor(val type: String, val candidateQueryData: Bundle, val callingAppInfo
          * reconstruct the class instance back from the bundle returned here.
          */
         @JvmStatic
-        fun asBundle(request: BeginCreateCredentialRequest): Bundle {
+        public fun asBundle(request: BeginCreateCredentialRequest): Bundle {
             val bundle = Bundle()
             if (Build.VERSION.SDK_INT >= 34) { // Android U
                 Api34Impl.asBundle(bundle, request)
@@ -140,7 +144,7 @@ constructor(val type: String, val candidateQueryData: Bundle, val callingAppInfo
          * [BeginCreateCredentialRequest].
          */
         @JvmStatic
-        fun fromBundle(bundle: Bundle): BeginCreateCredentialRequest? {
+        public fun fromBundle(bundle: Bundle): BeginCreateCredentialRequest? {
             return if (Build.VERSION.SDK_INT >= 34) { // Android U
                 Api34Impl.fromBundle(bundle)
             } else {

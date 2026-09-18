@@ -35,4 +35,4 @@ import androidx.credentials.ClearCredentialStateRequest.Companion.TYPE_CLEAR_RES
 @Retention(AnnotationRetention.SOURCE)
 @StringDef(value = [TYPE_CLEAR_CREDENTIAL_STATE, TYPE_CLEAR_RESTORE_CREDENTIAL])
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-annotation class ClearCredentialRequestTypes
+public annotation class ClearCredentialRequestTypes

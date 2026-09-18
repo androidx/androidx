@@ -23,7 +23,7 @@ package androidx.credentials.exceptions
  *
  * @see ClearCredentialException
  */
-class ClearCredentialInterruptedException
+public class ClearCredentialInterruptedException
 @JvmOverloads
 constructor(errorMessage: CharSequence? = null) :
     ClearCredentialException(TYPE_CLEAR_CREDENTIAL_INTERRUPTED_EXCEPTION, errorMessage) {
