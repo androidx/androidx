@@ -439,7 +439,7 @@ public class VisibilityToDocumentConverter {
                         .setPackageName(packageIdentifier.getPackageName())
                         .setPackageSha256Cert(
                                 ByteString.copyFrom(packageIdentifier.getSha256Certificate()));
-        if (Flags.enablePackageIdentifierMultiCert()) {
+        if (Flags.enableAppsIndexerPwaMultiCert()) {
             List<byte[]> certs = packageIdentifier.getMultiSignerSha256Certificates();
             if (!certs.isEmpty()) {
                 for (int i = 0; i < certs.size(); i++) {
@@ -454,7 +454,7 @@ public class VisibilityToDocumentConverter {
             @NonNull PackageIdentifierProto packageIdentifierProto) {
         // Prefer Tag 3 (repeated certs) when present for multi-signer packages;
         // otherwise fall back to Tag 2 for single-cert and legacy documents.
-        if (Flags.enablePackageIdentifierMultiCert()
+        if (Flags.enableAppsIndexerPwaMultiCert()
                 && packageIdentifierProto.getPackageSha256CertsCount() > 0) {
             List<ByteString> certsList = packageIdentifierProto.getPackageSha256CertsList();
             List<byte[]> certs = new ArrayList<>(certsList.size());
