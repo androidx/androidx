@@ -302,4 +302,10 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_PACKAGE_IDENTIFIER_MULTI_CERT)
                 .isEqualTo("com.android.appsearch.flags.enable_package_identifier_multi_cert");
     }
+
+    @Test
+    public void testFlagValue_enableAppsIndexerPwaMultiCert() {
+        assertThat(Flags.FLAG_ENABLE_APPS_INDEXER_PWA_MULTI_CERT)
+                .isEqualTo("com.android.appsearch.flags.enable_apps_indexer_pwa_multi_cert");
+    }
 }

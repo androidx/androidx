@@ -313,7 +313,7 @@ public class VisibilityToDocumentConverterTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_PACKAGE_IDENTIFIER_MULTI_CERT)
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_APPS_INDEXER_PWA_MULTI_CERT)
     public void testToGenericDocuments_multiCert() throws Exception {
         byte[] cert1 = new byte[32];
         byte[] cert2 = new byte[32];
@@ -369,7 +369,7 @@ public class VisibilityToDocumentConverterTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_PACKAGE_IDENTIFIER_MULTI_CERT)
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_APPS_INDEXER_PWA_MULTI_CERT)
     public void testToGenericDocuments_singleCert_rebuildsAsSingleSigner() throws Exception {
         byte[] cert = new byte[32];
         Arrays.fill(cert, (byte) 1);
