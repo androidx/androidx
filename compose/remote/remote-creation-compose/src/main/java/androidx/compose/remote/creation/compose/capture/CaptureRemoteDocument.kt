@@ -16,7 +16,7 @@
 
 @file:OptIn(
     ExperimentalCoroutinesApi::class,
-    androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi::class,
+    ExperimentalRemoteCreationComposeApi::class,
 )
 
 package androidx.compose.remote.creation.compose.capture
@@ -24,8 +24,10 @@ package androidx.compose.remote.creation.compose.capture
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
+import android.os.Looper
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.CreationDisplayInfo
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -49,12 +51,22 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.trace
 import androidx.core.graphics.createBitmap
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.tracing.traceAsync
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.ThreadLocalRandom
+import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.MainCoroutineDispatcher
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
@@ -107,9 +119,37 @@ public suspend fun captureSingleRemoteDocument(
     val rootNode = RemoteRootNode()
     val applier = RemoteComposeApplier(rootNode)
 
-    val recomposerContext = currentCoroutineContext()
+    // Limit the recomposer dispatcher to parallelism of 1 so that recomposition and frame clock
+    // events run sequentially on multi-threaded dispatchers (skipping Unconfined dispatchers which
+    // do not support limitedParallelism, Main dispatchers which are already single-threaded, and
+    // non-CoroutineDispatcher ContinuationInterceptors such as ApplyingContinuationInterceptor in
+    // Compose UI tests).
+    val interceptor = currentCoroutineContext()[ContinuationInterceptor]
+    val recomposerContext =
+        when {
+            interceptor == null ->
+                currentCoroutineContext() +
+                    Dispatchers.Default.limitedParallelism(
+                        parallelism = 1,
+                        name = "captureSingleRemoteDocument",
+                    )
+            Looper.myLooper() == Looper.getMainLooper() -> currentCoroutineContext()
+            interceptor is MainCoroutineDispatcher -> currentCoroutineContext()
+            interceptor is CoroutineDispatcher &&
+                interceptor.isDispatchNeeded(EmptyCoroutineContext) ->
+                currentCoroutineContext() +
+                    interceptor.limitedParallelism(
+                        parallelism = 1,
+                        name = "captureSingleRemoteDocument",
+                    )
+            else -> currentCoroutineContext()
+        }
     val recomposer = Recomposer(recomposerContext)
     val composition = Composition(applier, recomposer)
+    // Provide a thread-safe HeadlessLifecycleOwner in the RESUMED state so that composables
+    // observing LocalLifecycleOwner do not crash with IllegalStateException when capturing on a
+    // background thread.
+    val lifecycleOwner = HeadlessLifecycleOwner()
 
     try {
         val creationState =
@@ -138,6 +178,7 @@ public suspend fun captureSingleRemoteDocument(
                 LocalLayoutDirection provides layoutDirection,
                 LocalFontWeightAdjustment provides
                     platformFontWeightAdjustment(context.resources.configuration),
+                LocalLifecycleOwner provides lifecycleOwner,
                 content = content,
             )
         }
@@ -187,6 +228,7 @@ public suspend fun captureSingleRemoteDocument(
 
         return CapturedDocument(document, writerEvents.pendingIntents, writerEvents.lambdas)
     } finally {
+        lifecycleOwner.destroy()
         composition.dispose()
         recomposer.cancel()
     }
@@ -242,9 +284,15 @@ public fun captureRemoteDocument(
     val rootNode = RemoteRootNode()
     val applier = RemoteComposeApplier(rootNode)
 
+    val interceptor = coroutineContext[ContinuationInterceptor]
     val limitedCoroutineContext =
-        if (coroutineContext is CoroutineDispatcher) {
-            coroutineContext.limitedParallelism(parallelism = 1, name = "captureRemoteDocument")
+        if (
+            interceptor is CoroutineDispatcher &&
+                interceptor !is MainCoroutineDispatcher &&
+                interceptor.isDispatchNeeded(EmptyCoroutineContext)
+        ) {
+            coroutineContext +
+                interceptor.limitedParallelism(parallelism = 1, name = "captureRemoteDocument")
         } else {
             coroutineContext
         }
@@ -252,6 +300,7 @@ public fun captureRemoteDocument(
     val recomposerContext = currentCoroutineContext() + limitedCoroutineContext
     val recomposer = Recomposer(recomposerContext)
     val composition = Composition(applier, recomposer)
+    val lifecycleOwner = HeadlessLifecycleOwner()
 
     try {
         val layoutDirection =
@@ -282,6 +331,7 @@ public fun captureRemoteDocument(
                 LocalLayoutDirection provides layoutDirection,
                 LocalFontWeightAdjustment provides
                     platformFontWeightAdjustment(context.resources.configuration),
+                LocalLifecycleOwner provides lifecycleOwner,
                 content = content,
             )
         }
@@ -329,8 +379,64 @@ public fun captureRemoteDocument(
             emitAll(documentFlow)
         }
     } finally {
+        lifecycleOwner.destroy()
         composition.dispose()
         recomposer.cancel()
+    }
+}
+
+private class HeadlessLifecycleOwner : LifecycleOwner {
+    @Volatile private var state = Lifecycle.State.RESUMED
+    private val observers = CopyOnWriteArrayList<LifecycleObserver>()
+
+    override val lifecycle: Lifecycle =
+        object : Lifecycle() {
+            override val currentState: State
+                get() = state
+
+            override fun addObserver(observer: LifecycleObserver) {
+                if (state == State.DESTROYED) {
+                    return
+                }
+                observers.add(observer)
+                if (observer is DefaultLifecycleObserver) {
+                    observer.onCreate(this@HeadlessLifecycleOwner)
+                    observer.onStart(this@HeadlessLifecycleOwner)
+                    observer.onResume(this@HeadlessLifecycleOwner)
+                }
+                if (observer is LifecycleEventObserver) {
+                    observer.onStateChanged(this@HeadlessLifecycleOwner, Event.ON_CREATE)
+                    observer.onStateChanged(this@HeadlessLifecycleOwner, Event.ON_START)
+                    observer.onStateChanged(this@HeadlessLifecycleOwner, Event.ON_RESUME)
+                }
+            }
+
+            override fun removeObserver(observer: LifecycleObserver) {
+                observers.remove(observer)
+            }
+        }
+
+    fun destroy() {
+        state = Lifecycle.State.DESTROYED
+        for (observer in observers.toTypedArray()) {
+            if (observer is DefaultLifecycleObserver) {
+                if (observers.contains(observer)) observer.onPause(this)
+                if (observers.contains(observer)) observer.onStop(this)
+                if (observers.contains(observer)) observer.onDestroy(this)
+            }
+            if (observer is LifecycleEventObserver) {
+                if (observers.contains(observer)) {
+                    observer.onStateChanged(this, Lifecycle.Event.ON_PAUSE)
+                }
+                if (observers.contains(observer)) {
+                    observer.onStateChanged(this, Lifecycle.Event.ON_STOP)
+                }
+                if (observers.contains(observer)) {
+                    observer.onStateChanged(this, Lifecycle.Event.ON_DESTROY)
+                }
+            }
+        }
+        observers.clear()
     }
 }
 

@@ -33,16 +33,33 @@ import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import java.io.ByteArrayInputStream
 import java.lang.ref.WeakReference
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import kotlin.coroutines.AbstractCoroutineContextElement
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.startCoroutine
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -164,5 +181,119 @@ class CaptureRemoteDocumentTest {
         System.gc()
 
         assertNull(weakRef?.get())
+    }
+
+    @Test
+    fun captureSingleRemoteDocument_onBackgroundThread_withLifecycleObserver() = runTest {
+        var observedEvent: Lifecycle.Event? = null
+        var capturedLifecycle: Lifecycle? = null
+        val document =
+            withContext(Dispatchers.Default) {
+                captureSingleRemoteDocument(context) {
+                    val lifecycle = LocalLifecycleOwner.current.lifecycle
+                    capturedLifecycle = lifecycle
+                    lateinit var selfRemovingObserver: LifecycleEventObserver
+                    selfRemovingObserver = LifecycleEventObserver { _, event ->
+                        observedEvent = event
+                        if (event == Lifecycle.Event.ON_PAUSE) {
+                            lifecycle.removeObserver(selfRemovingObserver)
+                        }
+                    }
+                    lifecycle.addObserver(selfRemovingObserver)
+                    RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red.rc))
+                }
+            }
+
+        assertEquals(Lifecycle.Event.ON_PAUSE, observedEvent)
+        assertEquals(Lifecycle.State.DESTROYED, capturedLifecycle?.currentState)
+
+        // Adding an observer after destroy() must not dispatch any events.
+        var lateEvent: Lifecycle.Event? = null
+        capturedLifecycle?.addObserver(LifecycleEventObserver { _, event -> lateEvent = event })
+        assertNull(lateEvent)
+        assertTrue(document.bytes.isNotEmpty())
+    }
+
+    @Test
+    fun captureSingleRemoteDocument_withCustomContinuationInterceptor_preservesInterceptor() =
+        runTest {
+            withContext(Dispatchers.Default) {
+                val baseInterceptor = currentCoroutineContext()[ContinuationInterceptor]!!
+                val customInterceptor =
+                    object :
+                        AbstractCoroutineContextElement(ContinuationInterceptor),
+                        ContinuationInterceptor {
+                        override fun <T> interceptContinuation(
+                            continuation: Continuation<T>
+                        ): Continuation<T> = baseInterceptor.interceptContinuation(continuation)
+                    }
+
+                var capturedInterceptor: ContinuationInterceptor? = null
+                val document =
+                    withContext(customInterceptor) {
+                        captureSingleRemoteDocument(context) {
+                            LaunchedEffect(Unit) {
+                                capturedInterceptor =
+                                    currentCoroutineContext()[ContinuationInterceptor]
+                            }
+                            RemoteBox(
+                                modifier = RemoteModifier.fillMaxSize().background(Color.Red.rc)
+                            )
+                        }
+                    }
+
+                assertSame(customInterceptor, capturedInterceptor)
+                assertTrue(document.bytes.isNotEmpty())
+            }
+        }
+
+    @Test
+    fun captureSingleRemoteDocument_withBackgroundDispatcher_replacesWithLimitedParallelismDispatcher() =
+        runTest {
+            var capturedInterceptor: ContinuationInterceptor? = null
+            val document =
+                withContext(Dispatchers.Default) {
+                    captureSingleRemoteDocument(context) {
+                        LaunchedEffect(Unit) {
+                            capturedInterceptor = currentCoroutineContext()[ContinuationInterceptor]
+                        }
+                        RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red.rc))
+                    }
+                }
+
+            assertNotNull(capturedInterceptor)
+            assertNotSame(Dispatchers.Default, capturedInterceptor)
+            assertTrue(document.bytes.isNotEmpty())
+        }
+
+    @Test
+    fun captureSingleRemoteDocument_withoutContinuationInterceptor_replacesWithDefaultLimitedDispatcher() {
+        var capturedInterceptor: ContinuationInterceptor? = null
+        var document: CapturedDocument? = null
+        val latch = CountDownLatch(1)
+
+        val suspendBlock: suspend () -> Unit = {
+            document =
+                captureSingleRemoteDocument(context) {
+                    LaunchedEffect(Unit) {
+                        capturedInterceptor = currentCoroutineContext()[ContinuationInterceptor]
+                    }
+                    RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red.rc))
+                }
+        }
+
+        suspendBlock.startCoroutine(
+            object : Continuation<Unit> {
+                override val context = EmptyCoroutineContext
+
+                override fun resumeWith(result: Result<Unit>) {
+                    latch.countDown()
+                }
+            }
+        )
+
+        assertTrue(latch.await(10, TimeUnit.SECONDS))
+        assertNotNull(capturedInterceptor)
+        assertTrue(document!!.bytes.isNotEmpty())
     }
 }
