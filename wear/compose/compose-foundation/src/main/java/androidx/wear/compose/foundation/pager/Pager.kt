@@ -48,12 +48,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.onPlaced
-import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.CustomTouchSlopProvider
 import androidx.wear.compose.foundation.DefaultTouchExplorationStateProvider
 import androidx.wear.compose.foundation.GestureInclusion
 import androidx.wear.compose.foundation.LocalScreenIsActive
@@ -120,80 +118,75 @@ public fun HorizontalPager(
     var allowPaging by remember { mutableStateOf(true) }
     val pagerCoordinates = remember { mutableStateOf<LayoutCoordinates?>(null) }
 
-    val originalTouchSlop = LocalViewConfiguration.current.touchSlop
     val focusRequester = remember { FocusRequester() }
 
-    CustomTouchSlopProvider(newTouchSlop = originalTouchSlop * CustomTouchSlopMultiplier) {
-        val rotaryModifier =
-            if (rotaryScrollableBehavior != null && userScrollEnabled)
-                Modifier.requestFocusOnHierarchyActive()
-                    .rotaryScrollable(
-                        behavior = rotaryScrollableBehavior,
-                        focusRequester = focusRequester,
-                        reverseDirection = reverseLayout,
-                    )
-            else Modifier
+    val rotaryModifier =
+        if (rotaryScrollableBehavior != null && userScrollEnabled)
+            Modifier.requestFocusOnHierarchyActive()
+                .rotaryScrollable(
+                    behavior = rotaryScrollableBehavior,
+                    focusRequester = focusRequester,
+                    reverseDirection = reverseLayout,
+                )
+        else Modifier
 
-        HorizontalPager(
-            state = state.pagerState,
-            modifier =
-                modifier
-                    .onPlaced { layoutCoordinates -> pagerCoordinates.value = layoutCoordinates }
-                    .pointerInput(gestureInclusion, userScrollEnabled) {
-                        if (!userScrollEnabled || pagerCoordinates.value == null) {
-                            allowPaging = false
-                            return@pointerInput
-                        }
-                        awaitEachGesture {
-                            allowPaging = true
-                            val firstDown = awaitFirstDown(false, PointerEventPass.Initial)
+    HorizontalPager(
+        state = state.pagerState,
+        modifier =
+            modifier
+                .onPlaced { layoutCoordinates -> pagerCoordinates.value = layoutCoordinates }
+                .pointerInput(gestureInclusion, userScrollEnabled) {
+                    if (!userScrollEnabled || pagerCoordinates.value == null) {
+                        allowPaging = false
+                        return@pointerInput
+                    }
+                    awaitEachGesture {
+                        allowPaging = true
+                        val firstDown = awaitFirstDown(false, PointerEventPass.Initial)
 
-                            allowPaging =
-                                !gestureInclusion.ignoreGestureStart(
-                                    firstDown.position,
-                                    pagerCoordinates.value!!,
-                                )
-                        }
-                    }
-                    .semantics {
-                        horizontalScrollAxisRange =
-                            if (allowPaging) {
-                                ScrollAxisRange(
-                                    value = { state.currentPage.toFloat() },
-                                    maxValue = { state.pageCount.toFloat() },
-                                )
-                            } else {
-                                // signals system swipe to dismiss that it can take over
-                                ScrollAxisRange(value = { 0f }, maxValue = { 0f })
-                            }
-                    }
-                    .then(rotaryModifier),
-            contentPadding = contentPadding,
-            pageSize = PageSize.Fill,
-            beyondViewportPageCount = beyondViewportPageCount,
-            pageSpacing = 0.dp,
-            verticalAlignment = Alignment.CenterVertically,
-            flingBehavior = flingBehavior,
-            userScrollEnabled = userScrollEnabled && allowPaging,
-            reverseLayout = reverseLayout,
-            key = key,
-            snapPosition = SnapPosition.Start,
-        ) { page ->
-            CustomTouchSlopProvider(newTouchSlop = originalTouchSlop) {
-                val parentScreenActive = LocalScreenIsActive.current
-                CompositionLocalProvider(
-                    LocalScreenIsActive provides (state.currentPage == page && parentScreenActive)
-                ) {
-                    Box(
-                        if (rotaryScrollableBehavior == null) {
-                            Modifier.hierarchicalFocusGroup(state.currentPage == page)
-                        } else {
-                            Modifier
-                        }
-                    ) {
-                        WearPagerScopeImpl.content(page)
+                        allowPaging =
+                            !gestureInclusion.ignoreGestureStart(
+                                firstDown.position,
+                                pagerCoordinates.value!!,
+                            )
                     }
                 }
+                .semantics {
+                    horizontalScrollAxisRange =
+                        if (allowPaging) {
+                            ScrollAxisRange(
+                                value = { state.currentPage.toFloat() },
+                                maxValue = { state.pageCount.toFloat() },
+                            )
+                        } else {
+                            // signals system swipe to dismiss that it can take over
+                            ScrollAxisRange(value = { 0f }, maxValue = { 0f })
+                        }
+                }
+                .then(rotaryModifier),
+        contentPadding = contentPadding,
+        pageSize = PageSize.Fill,
+        beyondViewportPageCount = beyondViewportPageCount,
+        pageSpacing = 0.dp,
+        verticalAlignment = Alignment.CenterVertically,
+        flingBehavior = flingBehavior,
+        userScrollEnabled = userScrollEnabled && allowPaging,
+        reverseLayout = reverseLayout,
+        key = key,
+        snapPosition = SnapPosition.Start,
+    ) { page ->
+        val parentScreenActive = LocalScreenIsActive.current
+        CompositionLocalProvider(
+            LocalScreenIsActive provides (state.currentPage == page && parentScreenActive)
+        ) {
+            Box(
+                if (rotaryScrollableBehavior == null) {
+                    Modifier.hierarchicalFocusGroup(state.currentPage == page)
+                } else {
+                    Modifier
+                }
+            ) {
+                WearPagerScopeImpl.content(page)
             }
         }
     }
@@ -411,5 +404,3 @@ public object PagerDefaults {
      */
     public val BeyondViewportPageCount: Int = 0
 }
-
-internal const val CustomTouchSlopMultiplier = 1.10f
