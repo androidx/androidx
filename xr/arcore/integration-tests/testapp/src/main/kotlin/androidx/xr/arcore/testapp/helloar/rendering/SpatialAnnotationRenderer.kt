@@ -301,6 +301,7 @@ internal class SpatialAnnotationRenderer(
                 }
             }
         } finally {
+            surfaceEntity?.removeAllComponents()
             surfaceEntity?.parent = null
         }
     }
