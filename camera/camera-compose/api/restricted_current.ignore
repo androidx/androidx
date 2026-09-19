@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedFromBytecode: androidx.camera.compose.CameraXViewfinderKt#CameraXViewfinder(androidx.camera.core.SurfaceRequest, androidx.compose.ui.Modifier, androidx.camera.viewfinder.core.ImplementationMode, androidx.camera.viewfinder.compose.MutableCoordinateTransformer, androidx.compose.ui.Alignment, androidx.compose.ui.layout.ContentScale):
+    Binary breaking change: method androidx.camera.compose.CameraXViewfinderKt.CameraXViewfinder(androidx.camera.core.SurfaceRequest,androidx.compose.ui.Modifier,androidx.camera.viewfinder.core.ImplementationMode,androidx.camera.viewfinder.compose.MutableCoordinateTransformer,androidx.compose.ui.Alignment,androidx.compose.ui.layout.ContentScale) has been removed from bytecode
