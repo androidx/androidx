@@ -22,16 +22,10 @@
     <string name="error" msgid="6647806155663918015">"त्रुटि"</string>
     <string name="select_date" msgid="3625754389149364766">"मिति चयन गर्नुहोस्"</string>
     <string name="select_time" msgid="3530281639148646682">"समय चयन गर्नुहोस्"</string>
-    <!-- no translation found for choice_picker_placeholder_select_options (1896315524474297041) -->
-    <skip />
-    <!-- no translation found for choice_picker_placeholder_show_options (5266971913395406612) -->
-    <skip />
-    <!-- no translation found for choice_picker_placeholder_filter (485814500374016612) -->
-    <skip />
-    <!-- no translation found for choice_picker_no_matching_options (8908388495425719920) -->
-    <skip />
-    <!-- no translation found for choice_picker_remove_option (6344576400474543129) -->
-    <skip />
-    <!-- no translation found for choice_picker_clear_search (804053747390949932) -->
-    <skip />
+    <string name="choice_picker_placeholder_select_options" msgid="1896315524474297041">"विकल्पहरू चयन गर्नुहोस्"</string>
+    <string name="choice_picker_placeholder_show_options" msgid="5266971913395406612">"विकल्पहरू देखाउनुहोस्"</string>
+    <string name="choice_picker_placeholder_filter" msgid="485814500374016612">"फिल्टर गर्न टाइप गर्न थाल्नुहोस्…"</string>
+    <string name="choice_picker_no_matching_options" msgid="8908388495425719920">"ठ्याक्कै मिल्ने विकल्पहरू छैनन्"</string>
+    <string name="choice_picker_remove_option" msgid="6344576400474543129">"%1$s हटाउनुहोस्"</string>
+    <string name="choice_picker_clear_search" msgid="804053747390949932">"खोज फिल्टर हटाउनुहोस्"</string>
 </resources>

@@ -22,16 +22,10 @@
     <string name="error" msgid="6647806155663918015">"ದೋಷ"</string>
     <string name="select_date" msgid="3625754389149364766">"ದಿನಾಂಕವನ್ನು ಆಯ್ಕೆಮಾಡಿ"</string>
     <string name="select_time" msgid="3530281639148646682">"ಸಮಯವನ್ನು ಆಯ್ಕೆಮಾಡಿ"</string>
-    <!-- no translation found for choice_picker_placeholder_select_options (1896315524474297041) -->
-    <skip />
-    <!-- no translation found for choice_picker_placeholder_show_options (5266971913395406612) -->
-    <skip />
-    <!-- no translation found for choice_picker_placeholder_filter (485814500374016612) -->
-    <skip />
-    <!-- no translation found for choice_picker_no_matching_options (8908388495425719920) -->
-    <skip />
-    <!-- no translation found for choice_picker_remove_option (6344576400474543129) -->
-    <skip />
-    <!-- no translation found for choice_picker_clear_search (804053747390949932) -->
-    <skip />
+    <string name="choice_picker_placeholder_select_options" msgid="1896315524474297041">"ಆಯ್ಕೆಗಳನ್ನು ಆರಿಸಿ"</string>
+    <string name="choice_picker_placeholder_show_options" msgid="5266971913395406612">"ಆಯ್ಕೆಗಳನ್ನು ತೋರಿಸಿ"</string>
+    <string name="choice_picker_placeholder_filter" msgid="485814500374016612">"ಫಿಲ್ಟರ್ ಮಾಡಲು ಟೈಪ್ ಮಾಡಲು ಪ್ರಾರಂಭಿಸಿ…"</string>
+    <string name="choice_picker_no_matching_options" msgid="8908388495425719920">"ಯಾವುದೇ ಹೊಂದಾಣಿಕೆಯ ಆಯ್ಕೆಗಳಿಲ್ಲ"</string>
+    <string name="choice_picker_remove_option" msgid="6344576400474543129">"%1$s ಅವರನ್ನು ತೆಗೆದುಹಾಕಿ"</string>
+    <string name="choice_picker_clear_search" msgid="804053747390949932">"ಹುಡುಕಾಟ ಫಿಲ್ಟರ್ ಅನ್ನು ತೆರವುಗೊಳಿಸಿ"</string>
 </resources>
