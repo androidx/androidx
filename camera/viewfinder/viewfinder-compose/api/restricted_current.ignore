@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+RemovedFromBytecode: androidx.camera.viewfinder.compose.ViewfinderKt#Viewfinder(androidx.camera.viewfinder.core.ViewfinderSurfaceRequest, androidx.compose.ui.Modifier, androidx.camera.viewfinder.core.TransformationInfo, androidx.camera.viewfinder.compose.MutableCoordinateTransformer, androidx.compose.ui.Alignment, androidx.compose.ui.layout.ContentScale, kotlin.jvm.functions.Function1<? super androidx.camera.viewfinder.compose.ViewfinderInitScope,kotlin.Unit>):
+    Binary breaking change: method androidx.camera.viewfinder.compose.ViewfinderKt.Viewfinder(androidx.camera.viewfinder.core.ViewfinderSurfaceRequest,androidx.compose.ui.Modifier,androidx.camera.viewfinder.core.TransformationInfo,androidx.camera.viewfinder.compose.MutableCoordinateTransformer,androidx.compose.ui.Alignment,androidx.compose.ui.layout.ContentScale,kotlin.jvm.functions.Function1<androidx.camera.viewfinder.compose.ViewfinderInitScope,kotlin.Unit>) has been removed from bytecode
+
+
+RemovedMethod: androidx.camera.viewfinder.compose.CoordinateTransformer#transform(long):
+    Binary breaking change: Removed method androidx.camera.viewfinder.compose.CoordinateTransformer.transform(long)
+RemovedMethod: androidx.camera.viewfinder.compose.CoordinateTransformerKt#MutableCoordinateTransformer(float[]):
+    Binary breaking change: Removed method androidx.camera.viewfinder.compose.CoordinateTransformerKt.MutableCoordinateTransformer(float[])
