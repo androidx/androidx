@@ -111,4 +111,21 @@ class HorizontalRubySpanLayoutTest {
         assertThat(fm.top).isEqualTo(bodyAscent - rubyLineHeight)
         assertThat(fm.bottom).isEqualTo(bodyDescent)
     }
+
+    @Test
+    fun constructor_restoresWorkingPaintTextSize() {
+        val callerPaint = TextPaint().apply { textSize = 100f }
+
+        HorizontalRubySpanLayout(
+            text,
+            0,
+            text.length,
+            rubyText,
+            AnnotationPosition.Before,
+            callerPaint,
+            0.5f,
+        )
+
+        assertThat(workingPaintCache.get()?.textSize).isEqualTo(100f)
+    }
 }
