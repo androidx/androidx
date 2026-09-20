@@ -184,8 +184,9 @@ internal class A2uiCoreSurfaceActor(
                 "Surface '${message.surfaceId}' already exists."
             )
         }
+        val aliasedCatalogId = CATALOG_ID_ALIASES[message.catalogId]
         val catalog =
-            catalogs.find { it.id == message.catalogId }
+            catalogs.find { it.id == message.catalogId || it.id == aliasedCatalogId }
                 ?: throw A2uiException.A2uiRuntimeException(
                     "Catalog with ID '${message.catalogId}' not found."
                 )
@@ -259,3 +260,9 @@ internal class A2uiCoreSurfaceActor(
         outboundEvents.tryEmit(outboundEvent)
     }
 }
+
+private val CATALOG_ID_ALIASES: Map<String, String> =
+    mapOf(
+        "https://a2ui.org/specification/v0_9_1/catalogs/basic/catalog.json" to
+            "https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json"
+    )
