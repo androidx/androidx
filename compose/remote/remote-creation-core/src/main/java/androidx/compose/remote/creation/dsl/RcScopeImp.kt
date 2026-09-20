@@ -32,6 +32,7 @@ import androidx.compose.remote.core.RemoteContext.FLOAT_MAGNETIC_Y
 import androidx.compose.remote.core.RemoteContext.FLOAT_MAGNETIC_Z
 import androidx.compose.remote.core.RemoteContext.FLOAT_OFFSET_TO_UTC
 import androidx.compose.remote.core.operations.BitmapFontData
+import androidx.compose.remote.core.operations.DrawMesh2D
 import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.managers.Custom
@@ -1456,6 +1457,87 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         )
     }
 
+    /**
+     * An unset channel stays null all the way to the wire, where a zero-length group is what
+     * distinguishes "the layout decides" from "the author asked for zero".
+     *
+     * The writer is qualified because `RcFloat` has a nullable `writer` of its own that would
+     * otherwise shadow the scope's.
+     */
+    private fun RcFloat?.toExpression(): FloatArray? =
+        this?.withWriter(this@RcScopeImpl.writer)?.toArray()
+
+    override fun remoteMesh2D(
+        layout: RcMeshLayout,
+        uCount: Int,
+        vCount: Int,
+        path: RcPath?,
+        block: RcMesh2DScope.() -> Unit,
+    ): RcMesh {
+        val scope = RcMesh2DScope(writer).apply(block)
+        return RcMesh(
+            writer.addMesh2D(
+                layout.value,
+                uCount,
+                vCount,
+                scope.x.toExpression(),
+                scope.y.toExpression(),
+                scope.texU.toExpression(),
+                scope.texV.toExpression(),
+                scope.alpha.toExpression(),
+                scope.red.toExpression(),
+                scope.green.toExpression(),
+                scope.blue.toExpression(),
+                scope.width.toExpression(),
+                0,
+                path?.id ?: 0,
+            )
+        )
+    }
+
+    override fun remoteMesh2DValues(
+        verts: FloatArray,
+        indices: IntArray?,
+        uv: FloatArray?,
+        colors: IntArray?,
+        halfFloat: Boolean,
+        layout: RcMeshLayout,
+        uCount: Int,
+        vCount: Int,
+    ): RcMesh =
+        RcMesh(
+            writer.addMesh2DValues(
+                indices ?: IntArray(verts.size / 2) { it },
+                verts,
+                uv,
+                colors,
+                halfFloat,
+                layout.value,
+                uCount,
+                vCount,
+            )
+        )
+
+    override fun drawMesh2D(mesh: RcMesh, image: RcImage?, blend: RcMeshBlend?) {
+        // Untextured meshes have only their vertex colours; textured ones modulate by default,
+        // which is what makes a tinted bitmap the no-argument case.
+        val resolved = blend ?: if (image == null) RcMeshBlend.ColorsOnly else RcMeshBlend.Modulate
+        writer.drawMesh2D(mesh.id, resolved.value, image?.id ?: DrawMesh2D.NO_IMAGE)
+    }
+
+    override fun matrixFromMesh2D(mesh: RcMesh, u: Float, v: Float, apply: RcMeshMatrix) {
+        writer.matrixFromMesh2D(mesh.id, u, v, apply.value)
+    }
+
+    override fun matrixFromMesh2D(mesh: RcMesh, u: RcFloat, v: RcFloat, apply: RcMeshMatrix) {
+        writer.matrixFromMesh2D(
+            mesh.id,
+            u.withWriter(writer).toFloat(),
+            v.withWriter(writer).toFloat(),
+            apply.value,
+        )
+    }
+
     override fun conditionalOperations(
         type: Byte,
         a: RcFloat,
@@ -1864,6 +1946,53 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         val valueVal = value.withWriter(writer).toFloat()
         writer.setArrayValue(arrayId, indexVal, valueVal)
     }
+
+    // ###############################################
+
+    override fun componentContentWidth(): RcFloat {
+        return RcFloat(this.writer, this.writer.addComponentContentWidthValue())
+    }
+
+    override fun componentContentHeight(): RcFloat {
+        return RcFloat(this.writer, this.writer.addComponentContentHeightValue())
+    }
+
+    override fun componentX(): RcFloat {
+        return RcFloat(this.writer, this.writer.addComponentXValue())
+    }
+
+    override fun componentY(): RcFloat {
+        return RcFloat(this.writer, this.writer.addComponentYValue())
+    }
+
+    override fun componentRootX(): RcFloat {
+        return RcFloat(this.writer, this.writer.addComponentRootXValue())
+    }
+
+    override fun componentRootY(): RcFloat {
+        return RcFloat(this.writer, this.writer.addComponentRootYValue())
+    }
+
+    override fun rand(): RcFloat {
+        return RcFloat(this.writer, Rc.FloatExpression.RAND)
+    }
+
+    override fun index(): RcFloat {
+        return RcFloat(this.writer, Rc.FloatExpression.VAR1)
+    }
+
+    override val var1: RcFloat
+        get() = RcFloat(this.writer, floatArrayOf(Rc.FloatExpression.VAR1))
+
+    override fun rf(vararg elements: Float): RcFloat {
+        return RcFloat(this.writer, elements)
+    }
+
+    override fun rf(v: Number): RcFloat {
+        return RcFloat(this.writer, v.toFloat())
+    }
+
+    // ###############################################
 }
 
 private class RcImpulseScopeImpl(writer: RemoteComposeWriter) :

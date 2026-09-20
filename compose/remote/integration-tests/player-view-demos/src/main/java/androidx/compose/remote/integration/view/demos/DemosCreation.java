@@ -84,6 +84,10 @@ import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dL
 import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dMoreDemosKt;
 import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dPolarDemosKt;
 import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dRelationDemosKt;
+import androidx.compose.remote.integration.view.demos.dsl.mesh2d.DslMesh2DDemosKt;
+import androidx.compose.remote.integration.view.demos.dsl.mesh2d.DslMesh2DGapDemosKt;
+import androidx.compose.remote.integration.view.demos.dsl.mesh2d.DslMesh2DMoreDemosKt;
+import androidx.compose.remote.integration.view.demos.dsl.mesh2d.DslMesh2DTerrainDemoKt;
 import androidx.compose.remote.integration.view.demos.examples.BadExamples.DemoMemorySkipKt;
 import androidx.compose.remote.integration.view.demos.examples.BadExamples.MemoryKt;
 import androidx.compose.remote.integration.view.demos.examples.ColorCheckKt;
@@ -329,7 +333,37 @@ public abstract class DemosCreation {
                     get("1/055/relation/scatter", Graph2dRelationDemosKt::graph2dScatter),
                     get("1/056/relation/bubble", Graph2dRelationDemosKt::graph2dBubble),
                     get("1/057/relation/connectedScatter",
-                            Graph2dRelationDemosKt::graph2dConnectedScatter)
+                            Graph2dRelationDemosKt::graph2dConnectedScatter),
+                    get("1/64/dslMesh2DWavingFlag",
+                            DslMesh2DDemosKt::dslMesh2DWavingFlag),
+                    get("1/65/dslMesh2DRoseField",
+                            DslMesh2DDemosKt::dslMesh2DRoseField),
+                    get("1/66/dslMesh2DCometTrail",
+                            DslMesh2DDemosKt::dslMesh2DCometTrail),
+                    get("1/67/dslMesh2DRingGauge",
+                            DslMesh2DDemosKt::dslMesh2DRingGauge),
+                    get("1/68/dslMesh2DRippleField",
+                            DslMesh2DDemosKt::dslMesh2DRippleField),
+                    get("1/69/dslMesh2DPerlinTerrain",
+                            DslMesh2DTerrainDemoKt::dslMesh2DPerlinTerrain),
+                    get("1/70/dslMesh2DRoseWindow",
+                            DslMesh2DMoreDemosKt::dslMesh2DRoseWindow),
+                    get("1/71/dslMesh2DRadarSweep",
+                            DslMesh2DMoreDemosKt::dslMesh2DRadarSweep),
+                    get("1/72/dslMesh2DTexturedTapestry",
+                            DslMesh2DMoreDemosKt::dslMesh2DTexturedTapestry),
+                    get("1/73/dslMesh2DPerspectiveCarpet",
+                            DslMesh2DMoreDemosKt::dslMesh2DPerspectiveCarpet),
+                    get("1/74/rcJsonMesh2DWavingFlag",
+                            DslMesh2DMoreDemosKt::rcJsonMesh2DWavingFlag),
+                    get("1/75/dslMesh2DDefaultGeometry",
+                            DslMesh2DGapDemosKt::dslMesh2DDefaultGeometry),
+                    get("1/76/dslMesh2DTexturedValues",
+                            DslMesh2DGapDemosKt::dslMesh2DTexturedValues),
+                    get("1/77/dslMesh2DInvisibleScaffold",
+                            DslMesh2DGapDemosKt::dslMesh2DInvisibleScaffold),
+                    get("1/78/rcJsonMesh2DRingAndF16",
+                            DslMesh2DGapDemosKt::rcJsonMesh2DRingAndF16)
             ));
         }
 

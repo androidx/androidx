@@ -16,6 +16,7 @@
 package androidx.compose.remote.core;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.operations.AddMesh2D;
 import androidx.compose.remote.core.operations.BitmapData;
 import androidx.compose.remote.core.operations.BitmapFontData;
 import androidx.compose.remote.core.operations.BitmapTextMeasure;
@@ -44,6 +45,7 @@ import androidx.compose.remote.core.operations.DrawBitmapTextAnchored;
 import androidx.compose.remote.core.operations.DrawCircle;
 import androidx.compose.remote.core.operations.DrawContent;
 import androidx.compose.remote.core.operations.DrawLine;
+import androidx.compose.remote.core.operations.DrawMesh2D;
 import androidx.compose.remote.core.operations.DrawOval;
 import androidx.compose.remote.core.operations.DrawPath;
 import androidx.compose.remote.core.operations.DrawRect;
@@ -66,6 +68,7 @@ import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.IdLookup;
 import androidx.compose.remote.core.operations.ImageAttribute;
 import androidx.compose.remote.core.operations.IntegerExpression;
+import androidx.compose.remote.core.operations.MatrixFromMesh2D;
 import androidx.compose.remote.core.operations.MatrixFromPath;
 import androidx.compose.remote.core.operations.MatrixRestore;
 import androidx.compose.remote.core.operations.MatrixRotate;
@@ -3035,6 +3038,74 @@ public class RemoteComposeBuffer {
             float count,
             int flags) {
         PathExpression.apply(mBuffer, id, expressionX, expressionY, start, end, count, flags);
+    }
+
+    /**
+     * Define a 2D vertex mesh.
+     *
+     * @param meshId the id the mesh is stored under
+     * @param type how the vertex data is supplied
+     * @param layout the domain topology
+     * @param uCount grid resolution along u
+     * @param vCount grid resolution along v
+     * @param flags reserved
+     * @param aux layout dependent, e.g. a path id for PATH_STRIP
+     * @param expressions the RPN expression groups, for the expression type
+     * @param indices the triangle list, for the literal types
+     * @param verts x,y pairs, for the literal types
+     * @param uv u,v pairs, for the literal types
+     * @param colors packed ARGB per vertex, for the literal types
+     */
+    public void addMesh2D(
+            int meshId,
+            int type,
+            int layout,
+            int uCount,
+            int vCount,
+            int flags,
+            int aux,
+            float @Nullable [] @Nullable [] expressions,
+            int @Nullable [] indices,
+            float @Nullable [] verts,
+            float @Nullable [] uv,
+            int @Nullable [] colors) {
+        AddMesh2D.apply(
+                mBuffer,
+                meshId,
+                type,
+                layout,
+                uCount,
+                vCount,
+                flags,
+                aux,
+                expressions,
+                indices,
+                verts,
+                uv,
+                colors);
+    }
+
+    /**
+     * Draw a previously defined 2D vertex mesh.
+     *
+     * @param meshId the mesh to draw
+     * @param blend how vertex colour and texel combine
+     * @param imageId the bitmap to sample, 0 for untextured
+     */
+    public void addDrawMesh2D(int meshId, int blend, int imageId) {
+        DrawMesh2D.apply(mBuffer, meshId, blend, imageId);
+    }
+
+    /**
+     * Multiply the local frame of a 2D mesh at (u, v) into the current canvas matrix.
+     *
+     * @param meshId the mesh to read the surface from
+     * @param u the u parameter
+     * @param v the v parameter
+     * @param flags which parts of the local frame to apply
+     */
+    public void setMatrixFromMesh2D(int meshId, float u, float v, int flags) {
+        MatrixFromMesh2D.apply(mBuffer, meshId, u, v, flags);
     }
 
     /**

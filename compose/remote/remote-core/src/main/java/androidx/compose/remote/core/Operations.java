@@ -21,6 +21,7 @@ import static androidx.compose.remote.core.RcProfiles.PROFILE_EXPERIMENTAL;
 import static androidx.compose.remote.core.RcProfiles.PROFILE_WIDGETS;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.operations.AddMesh2D;
 import androidx.compose.remote.core.operations.BitmapData;
 import androidx.compose.remote.core.operations.BitmapFontData;
 import androidx.compose.remote.core.operations.BitmapTextMeasure;
@@ -49,6 +50,7 @@ import androidx.compose.remote.core.operations.DrawBitmapTextAnchored;
 import androidx.compose.remote.core.operations.DrawCircle;
 import androidx.compose.remote.core.operations.DrawContent;
 import androidx.compose.remote.core.operations.DrawLine;
+import androidx.compose.remote.core.operations.DrawMesh2D;
 import androidx.compose.remote.core.operations.DrawOval;
 import androidx.compose.remote.core.operations.DrawPath;
 import androidx.compose.remote.core.operations.DrawRect;
@@ -71,6 +73,7 @@ import androidx.compose.remote.core.operations.IdLookup;
 import androidx.compose.remote.core.operations.ImageAttribute;
 import androidx.compose.remote.core.operations.IncludeReferencedOperations;
 import androidx.compose.remote.core.operations.IntegerExpression;
+import androidx.compose.remote.core.operations.MatrixFromMesh2D;
 import androidx.compose.remote.core.operations.MatrixFromPath;
 import androidx.compose.remote.core.operations.MatrixRestore;
 import androidx.compose.remote.core.operations.MatrixRotate;
@@ -245,6 +248,12 @@ public class Operations {
     public static final int DATA_PATH = 123;
     public static final int DRAW_PATH = 124;
     public static final int DRAW_TWEEN_PATH = 125;
+
+    // --- 2D vertex mesh family -------------------------------------------------
+    // Deliberately separate from and independent of 3D
+    public static final int ADD_MESH_2D = 104;
+    public static final int DRAW_MESH_2D = 105;
+    public static final int MATRIX_FROM_MESH_2D = 106;
     public static final int DRAW_CONTENT = 139;
     public static final int MATRIX_SCALE = 126;
     public static final int MATRIX_TRANSLATE = 127;
@@ -513,6 +522,9 @@ public class Operations {
                 sAllOperationsV7.put(SOUND_EXPRESSION, SoundExpression::read);
                 sAllOperationsV7.put(PLAY_SOUND, PlaySound::read);
                 sAllOperationsV7.put(EVENT_ACTION, EventActionOperation::read);
+                sAllOperationsV7.put(ADD_MESH_2D, AddMesh2D::read);
+                sAllOperationsV7.put(DRAW_MESH_2D, DrawMesh2D::read);
+                sAllOperationsV7.put(MATRIX_FROM_MESH_2D, MatrixFromMesh2D::read);
 
                 sAllOperationsV7.put(ROOT_CONTENT_BEHAVIOR, RootContentBehavior::read);
             }
@@ -611,7 +623,10 @@ public class Operations {
                     DATA_SOUND,
                     SOUND_EXPRESSION,
                     PLAY_SOUND,
-                    EVENT_ACTION);
+                    EVENT_ACTION,
+                    ADD_MESH_2D,
+                    DRAW_MESH_2D,
+                    MATRIX_FROM_MESH_2D);
         }
         return sMapV7AndroidXExperimental;
     }
@@ -671,7 +686,10 @@ public class Operations {
                     MACRO_FOR_EACH,
                     DATA_SOUND,
                     SOUND_EXPRESSION,
-                    PLAY_SOUND);
+                    PLAY_SOUND,
+                    ADD_MESH_2D,
+                    DRAW_MESH_2D,
+                    MATRIX_FROM_MESH_2D);
         }
         return sMapV7WidgetsExperimental;
     }

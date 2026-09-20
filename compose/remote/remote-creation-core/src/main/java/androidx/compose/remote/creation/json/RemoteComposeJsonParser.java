@@ -18,14 +18,18 @@ package androidx.compose.remote.creation.json;
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemotePathBase;
+import androidx.compose.remote.core.operations.AddMesh2D;
 import androidx.compose.remote.core.operations.ConditionalOperations;
+import androidx.compose.remote.core.operations.DrawMesh2D;
 import androidx.compose.remote.core.operations.DrawTextOnCircle;
 import androidx.compose.remote.core.operations.Header;
+import androidx.compose.remote.core.operations.MatrixFromMesh2D;
 import androidx.compose.remote.core.operations.NamedVariable;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.managers.TextStyle;
 import androidx.compose.remote.core.operations.paint.PaintPathEffects;
 import androidx.compose.remote.core.operations.utilities.MatrixOperations;
+import androidx.compose.remote.core.operations.utilities.Mesh2DGenerator;
 import androidx.compose.remote.creation.RcPaint;
 import androidx.compose.remote.creation.RemoteComposeShader;
 import androidx.compose.remote.creation.RemoteComposeWriter;
@@ -58,6 +62,7 @@ public class RemoteComposeJsonParser {
     private final RemoteComposeWriter mWriter;
     public boolean mRemVars = false;
     final Map<Integer, String> mRecordedVariables = new LinkedHashMap<>();
+    final Map<String, Integer> mMeshes = new HashMap<>();
     final Map<String, Integer> mColors = new HashMap<>();
     final Map<String, Integer> mPaths = new HashMap<>();
     final Map<String, Object> mBitmaps = new HashMap<>();
@@ -77,6 +82,7 @@ public class RemoteComposeJsonParser {
 
     /**
      * Set whether the parser is currently in the first traversal pass.
+     *
      * @param remVars true if in the first pass, false otherwise
      */
     public void setRemVars(boolean remVars) {
@@ -85,6 +91,7 @@ public class RemoteComposeJsonParser {
 
     /**
      * Expose whether the parser is currently in the first traversal pass.
+     *
      * @return true if in the first pass, false otherwise
      */
     public boolean isRemVars() {
@@ -93,8 +100,9 @@ public class RemoteComposeJsonParser {
 
     /**
      * Record a variable by name and ID.
+     *
      * @param name the variable name
-     * @param id the variable ID
+     * @param id   the variable ID
      */
     public void recordVariable(@Nullable String name, int id) {
         if (name != null && !name.isEmpty()) {
@@ -104,6 +112,7 @@ public class RemoteComposeJsonParser {
 
     /**
      * Build a debug string of the recorded variables.
+     *
      * @return a formatted string showing the recorded variables
      */
     public @NonNull String getDebugNamesString() {
@@ -162,7 +171,7 @@ public class RemoteComposeJsonParser {
     /**
      * Register a custom procedural component parser.
      *
-     * @param type the lower-case type name (e.g. "custom_layout")
+     * @param type   the lower-case type name (e.g. "custom_layout")
      * @param parser the parser implementation
      */
     public void registerComponentParser(@NonNull String type, @NonNull JsonComponentParser parser) {
@@ -179,7 +188,7 @@ public class RemoteComposeJsonParser {
     /**
      * Register a custom layout modifier parser.
      *
-     * @param key the lower-case modifier key name (e.g. "custom_modifier")
+     * @param key    the lower-case modifier key name (e.g. "custom_modifier")
      * @param parser the parser implementation
      */
     public void registerModifierParser(@NonNull String key, @NonNull JsonModifierParser parser) {
@@ -321,7 +330,8 @@ public class RemoteComposeJsonParser {
         }
 
         @Override
-        public void log(@NonNull LogCategory category, @NonNull String message) {}
+        public void log(@NonNull LogCategory category, @NonNull String message) {
+        }
     };
 
     /**
@@ -349,7 +359,7 @@ public class RemoteComposeJsonParser {
     /**
      * Parse a JSON RemoteCompose document directly into a ByteBuffer binary representation.
      *
-     * @param json the JSON description of the RemoteCompose document
+     * @param json     the JSON description of the RemoteCompose document
      * @param platform platform services or null to use DEFAULT_PLATFORM
      * @return a ByteBuffer containing the binary encoded RemoteCompose document
      * @throws JSONException if JSON parsing fails
@@ -374,7 +384,7 @@ public class RemoteComposeJsonParser {
     /**
      * Define a custom float variable by name.
      *
-     * @param name the variable identifier string
+     * @param name  the variable identifier string
      * @param value the floating point value to associate with the name
      */
     public void defineVariable(@NonNull String name, float value) {
@@ -386,7 +396,7 @@ public class RemoteComposeJsonParser {
     /**
      * Register/define an image/bitmap resource by name.
      *
-     * @param name the unique name/key of the bitmap
+     * @param name   the unique name/key of the bitmap
      * @param bitmap the bitmap instance to associate
      */
     public void defineBitmap(@NonNull String name, @NonNull Object bitmap) {
@@ -523,24 +533,33 @@ public class RemoteComposeJsonParser {
 
     private static short parseHeaderTagStatic(@NonNull String name) throws JSONException {
         switch (name) {
-            case "width": return Header.DOC_WIDTH;
-            case "height": return Header.DOC_HEIGHT;
-            case "contentDescription": return Header.DOC_CONTENT_DESCRIPTION;
+            case "width":
+                return Header.DOC_WIDTH;
+            case "height":
+                return Header.DOC_HEIGHT;
+            case "contentDescription":
+                return Header.DOC_CONTENT_DESCRIPTION;
             case "desiredFPS":
             case "fps":
                 return Header.DOC_DESIRED_FPS;
-            case "profiles": return Header.DOC_PROFILES;
-            case "theme": return Header.TEST_COLOR_THEME;
-            case "ltResize": return Header.FEATURE_LT_RESIZE;
-            case "densityBehavior": return Header.DOC_DENSITY_BEHAVIOR;
-            case "featurePaintMeasure": return Header.FEATURE_PAINT_MEASURE;
-            case "disallowInterceptTouch": return Header.FEATURE_DISALLOW_INTERCEPT_TOUCH;
-            case "debug": return Header.DEBUG;
+            case "profiles":
+                return Header.DOC_PROFILES;
+            case "theme":
+                return Header.TEST_COLOR_THEME;
+            case "ltResize":
+                return Header.FEATURE_LT_RESIZE;
+            case "densityBehavior":
+                return Header.DOC_DENSITY_BEHAVIOR;
+            case "featurePaintMeasure":
+                return Header.FEATURE_PAINT_MEASURE;
+            case "disallowInterceptTouch":
+                return Header.FEATURE_DISALLOW_INTERCEPT_TOUCH;
+            case "debug":
+                return Header.DEBUG;
             default:
                 throw new JSONException("Unknown header tag: " + name);
         }
     }
-
 
 
     int getHorizontalAlign(@NonNull JSONObject component, @NonNull String defaultValue) {
@@ -637,26 +656,41 @@ public class RemoteComposeJsonParser {
 
     private int parseHorizontalAlignment(String align) {
         switch (align.toLowerCase()) {
-            case "start": return 1;
-            case "center": return 2;
-            case "end": return 3;
-            case "spacebetween": return 6;
-            case "spaceevenly": return 7;
-            case "spacearound": return 8;
-            default: return 1;
+            case "start":
+                return 1;
+            case "center":
+                return 2;
+            case "end":
+                return 3;
+            case "spacebetween":
+                return 6;
+            case "spaceevenly":
+                return 7;
+            case "spacearound":
+                return 8;
+            default:
+                return 1;
         }
     }
 
     private int parseVerticalAlignment(String align) {
         switch (align.toLowerCase()) {
-            case "start": return 1;
-            case "top": return 4;
-            case "center": return 2;
-            case "bottom": return 5;
-            case "spacebetween": return 6;
-            case "spaceevenly": return 7;
-            case "spacearound": return 8;
-            default: return 4;
+            case "start":
+                return 1;
+            case "top":
+                return 4;
+            case "center":
+                return 2;
+            case "bottom":
+                return 5;
+            case "spacebetween":
+                return 6;
+            case "spaceevenly":
+                return 7;
+            case "spacearound":
+                return 8;
+            default:
+                return 4;
         }
     }
 
@@ -785,7 +819,8 @@ public class RemoteComposeJsonParser {
                 fontAxis,
                 fontAxisValues,
                 autoSize,
-                0, () -> {});
+                0, () -> {
+                });
     }
 
     private int parseTextAlign(String align) {
@@ -840,6 +875,10 @@ public class RemoteComposeJsonParser {
                 Iterator<String> keys = obj.keys();
                 while (keys.hasNext()) {
                     String k = keys.next();
+                    if ("type".equals(k)) {
+                        normalized.put("source", obj.get(k));
+                        continue;
+                    }
                     normalized.put(k, obj.get(k));
                 }
             } else {
@@ -1460,9 +1499,36 @@ public class RemoteComposeJsonParser {
             case "matrixfrompath": {
                 int pathId = resolvePathId(command.get("path"));
                 float fraction = parseFloat(command.get("fraction"));
-                float vOffset = command.has("vOffset") ? parseFloat(command.get("vOffset")) : 0f;
+                float vOffset =
+                        command.has("vOffset") ? parseFloat(command.get("vOffset")) : 0f;
                 int flags = command.optInt("flags", 0);
                 mWriter.matrixFromPath(pathId, fraction, vOffset, flags);
+                break;
+            }
+            case "addmesh2d": {
+                parseAddMesh2D(command);
+                break;
+            }
+            case "drawmesh2d": {
+                Object meshRef =
+                        command.has("mesh") ? command.get("mesh") : command.get("meshId");
+                int meshId = resolveMeshId(meshRef);
+                int blend = parseMesh2DBlend(command);
+                int imageId =
+                        command.has("image")
+                                ? resolveTextId(command.get("image"))
+                                : DrawMesh2D.NO_IMAGE;
+                mWriter.drawMesh2D(meshId, blend, imageId);
+                break;
+            }
+            case "matrixfrommesh2d": {
+                Object meshRef =
+                        command.has("mesh") ? command.get("mesh") : command.get("meshId");
+                int meshId = resolveMeshId(meshRef);
+                float u = parseFloat(command.get("u"));
+                float v = parseFloat(command.get("v"));
+                int flags = parseMesh2DMatrixFlags(command);
+                mWriter.matrixFromMesh2D(meshId, u, v, flags);
                 break;
             }
             case "matrixconstant": {
@@ -1987,8 +2053,8 @@ public class RemoteComposeJsonParser {
             case "rem": {
                 String text = command.optString("text",
                         command.optString("value",
-                        command.optString("message",
-                        command.optString("comment", ""))));
+                                command.optString("message",
+                                        command.optString("comment", ""))));
                 mWriter.rem(text);
                 break;
             }
@@ -2211,11 +2277,21 @@ public class RemoteComposeJsonParser {
                 String conditionStr = command.getString("condition");
                 byte type_val = 0;
                 switch (conditionStr.toLowerCase()) {
-                    case "gt": type_val = (byte) ConditionalOperations.TYPE_GT; break;
-                    case "ge": type_val = (byte) ConditionalOperations.TYPE_GTE; break;
-                    case "lt": type_val = (byte) ConditionalOperations.TYPE_LT; break;
-                    case "le": type_val = (byte) ConditionalOperations.TYPE_LTE; break;
-                    case "eq": type_val = (byte) ConditionalOperations.TYPE_EQ; break;
+                    case "gt":
+                        type_val = (byte) ConditionalOperations.TYPE_GT;
+                        break;
+                    case "ge":
+                        type_val = (byte) ConditionalOperations.TYPE_GTE;
+                        break;
+                    case "lt":
+                        type_val = (byte) ConditionalOperations.TYPE_LT;
+                        break;
+                    case "le":
+                        type_val = (byte) ConditionalOperations.TYPE_LTE;
+                        break;
+                    case "eq":
+                        type_val = (byte) ConditionalOperations.TYPE_EQ;
+                        break;
                 }
                 float v1 = parseFloat(command.get("v1"));
                 float v2 = parseFloat(command.get("v2"));
@@ -2625,28 +2701,46 @@ public class RemoteComposeJsonParser {
     }
 
 
-
     float parseMatrixOperator(String op) {
         switch (op) {
-            case "IDENTITY": return MatrixOperations.IDENTITY;
-            case "TRANSLATE_X": return MatrixOperations.TRANSLATE_X;
-            case "TRANSLATE_Y": return MatrixOperations.TRANSLATE_Y;
-            case "TRANSLATE_Z": return MatrixOperations.TRANSLATE_Z;
-            case "TRANSLATE2": return MatrixOperations.TRANSLATE2;
-            case "TRANSLATE3": return MatrixOperations.TRANSLATE3;
-            case "SCALE_X": return MatrixOperations.SCALE_X;
-            case "SCALE_Y": return MatrixOperations.SCALE_Y;
-            case "SCALE_Z": return MatrixOperations.SCALE_Z;
-            case "SCALE2": return MatrixOperations.SCALE2;
-            case "SCALE3": return MatrixOperations.SCALE3;
-            case "ROT_X": return MatrixOperations.ROT_X;
-            case "ROT_Y": return MatrixOperations.ROT_Y;
-            case "ROT_Z": return MatrixOperations.ROT_Z;
-            case "ROT_PZ": return MatrixOperations.ROT_PZ;
-            case "ROT_AXIS": return MatrixOperations.ROT_AXIS;
-            case "MUL": return MatrixOperations.MUL;
-            case "PROJECTION": return MatrixOperations.PROJECTION;
-            default: return 0;
+            case "IDENTITY":
+                return MatrixOperations.IDENTITY;
+            case "TRANSLATE_X":
+                return MatrixOperations.TRANSLATE_X;
+            case "TRANSLATE_Y":
+                return MatrixOperations.TRANSLATE_Y;
+            case "TRANSLATE_Z":
+                return MatrixOperations.TRANSLATE_Z;
+            case "TRANSLATE2":
+                return MatrixOperations.TRANSLATE2;
+            case "TRANSLATE3":
+                return MatrixOperations.TRANSLATE3;
+            case "SCALE_X":
+                return MatrixOperations.SCALE_X;
+            case "SCALE_Y":
+                return MatrixOperations.SCALE_Y;
+            case "SCALE_Z":
+                return MatrixOperations.SCALE_Z;
+            case "SCALE2":
+                return MatrixOperations.SCALE2;
+            case "SCALE3":
+                return MatrixOperations.SCALE3;
+            case "ROT_X":
+                return MatrixOperations.ROT_X;
+            case "ROT_Y":
+                return MatrixOperations.ROT_Y;
+            case "ROT_Z":
+                return MatrixOperations.ROT_Z;
+            case "ROT_PZ":
+                return MatrixOperations.ROT_PZ;
+            case "ROT_AXIS":
+                return MatrixOperations.ROT_AXIS;
+            case "MUL":
+                return MatrixOperations.MUL;
+            case "PROJECTION":
+                return MatrixOperations.PROJECTION;
+            default:
+                return 0;
         }
     }
 
@@ -2812,5 +2906,232 @@ public class RemoteComposeJsonParser {
             return s.substring(6);
         }
         return s.substring(1);
+    }
+
+    /**
+     * Resolve a mesh reference to the id the writer allocated for it.
+     *
+     * <p>A mesh may be referred to either by the {@code id} it was declared with - a name, or a
+     * number local to the document - or by the raw writer id. Names are looked up first, so a
+     * document that numbers its meshes 1, 2, 3 keeps working even though the writer's real ids are
+     * something else entirely.
+     */
+    int resolveMeshId(@NonNull Object meshObj) throws JSONException {
+        Integer named = mMeshes.get(meshObj.toString());
+        if (named != null) {
+            return named;
+        }
+        if (meshObj instanceof Number) {
+            return ((Number) meshObj).intValue();
+        }
+        throw new JSONException("Mesh not found: " + meshObj);
+    }
+
+    /**
+     * Parse how an {@code addMesh2D}'s vertices arrive.
+     *
+     * <p>Spelled {@code source} rather than {@code type} because {@code type} already names the
+     * command itself in the flat form. A document written in the nested form - {@code {"addMesh2D":
+     * {"type": "expression"}}} - may still spell it {@code type}; the command normaliser relocates
+     * it here.
+     */
+    private int parseMesh2DType(@NonNull JSONObject command) throws JSONException {
+        boolean halfFloat = command.optBoolean("halfFloat", false);
+        String defaultSource =
+                command.has("verts") ? (halfFloat ? "f16values" : "values") : "expression";
+        String type = command.optString("source", defaultSource).toLowerCase();
+        switch (type) {
+            case "expression":
+                return AddMesh2D.TYPE_EXPRESSION;
+            case "values":
+                return halfFloat ? AddMesh2D.TYPE_F16_VALUES : AddMesh2D.TYPE_VALUES;
+            case "f16values":
+                return AddMesh2D.TYPE_F16_VALUES;
+            default:
+                throw new JSONException("Unknown mesh type: " + type);
+        }
+    }
+
+    /** Parse the {@code layout} field of an {@code addMesh2D} - what the (u, v) domain is. */
+    private int parseMesh2DLayout(@NonNull JSONObject command) throws JSONException {
+        String layout = command.optString("layout", "grid").toLowerCase();
+        switch (layout) {
+            case "grid":
+                return Mesh2DGenerator.LAYOUT_GRID;
+            case "polar":
+                return Mesh2DGenerator.LAYOUT_POLAR;
+            case "ring":
+                return Mesh2DGenerator.LAYOUT_RING;
+            case "strip":
+                return Mesh2DGenerator.LAYOUT_STRIP;
+            case "fan":
+                return Mesh2DGenerator.LAYOUT_FAN;
+            case "pathstrip":
+                return Mesh2DGenerator.LAYOUT_PATH_STRIP;
+            default:
+                throw new JSONException("Unknown mesh layout: " + layout);
+        }
+    }
+
+    /** Parse the {@code blend} field of a {@code drawMesh2D} - how colour and texel combine. */
+    private int parseMesh2DBlend(@NonNull JSONObject command) throws JSONException {
+        Object blend = command.opt("blend");
+        if (blend == null) {
+            // Untextured meshes have only their vertex colours; textured ones modulate by default,
+            // which is what makes a tinted bitmap the no-argument case.
+            return command.has("image") ? DrawMesh2D.BLEND_MODULATE : DrawMesh2D.BLEND_COLORS_ONLY;
+        }
+        if (blend instanceof Number) {
+            return ((Number) blend).intValue();
+        }
+        String name = blend.toString().toLowerCase();
+        switch (name) {
+            case "colors":
+            case "colorsonly":
+                return DrawMesh2D.BLEND_COLORS_ONLY;
+            case "modulate":
+                return DrawMesh2D.BLEND_MODULATE;
+            default:
+                throw new JSONException("Unknown mesh blend: " + name);
+        }
+    }
+
+    /**
+     * Parse the {@code flags} (or {@code apply}) field of a {@code matrixFromMesh2D} - how much of
+     * the mesh's local frame to apply. Accepts the raw int of the wire format or the readable name.
+     */
+    private int parseMesh2DMatrixFlags(@NonNull JSONObject command) throws JSONException {
+        Object flags = command.has("flags") ? command.get("flags") : command.opt("apply");
+        if (flags == null) {
+            return MatrixFromMesh2D.FLAG_FULL;
+        }
+        if (flags instanceof Number) {
+            return ((Number) flags).intValue();
+        }
+        String name = flags.toString().toLowerCase();
+        switch (name) {
+            case "origin":
+                return MatrixFromMesh2D.FLAG_ORIGIN;
+            case "rotation":
+                return MatrixFromMesh2D.FLAG_ROTATION;
+            case "scale":
+                return MatrixFromMesh2D.FLAG_SCALE;
+            case "full":
+                return MatrixFromMesh2D.FLAG_FULL;
+            default:
+                throw new JSONException("Unknown mesh matrix flags: " + name);
+        }
+    }
+
+    /**
+     * Read one expression field of an {@code addMesh2D}, or null when the document omits it.
+     *
+     * <p>An absent channel is a real signal rather than a gap to fill: an absent position means the
+     * layout's default geometry, an absent uv means the identity mapping, and absent colours mean
+     * the mesh carries none at all. Numbers are accepted as well as strings so a constant channel
+     * need not be quoted.
+     */
+    private float @Nullable [] parseMesh2DExpression(@NonNull JSONObject command, String field)
+            throws JSONException {
+        Object value = command.opt(field);
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof Number) {
+            return new float[]{((Number) value).floatValue()};
+        }
+        return parseFloatExpression(value);
+    }
+
+    /** Parse an {@code addMesh2D} command in any of its three forms. */
+    private void parseAddMesh2D(@NonNull JSONObject command) throws JSONException {
+        int type = parseMesh2DType(command);
+        int layout = parseMesh2DLayout(command);
+        int meshId;
+
+        if (type == AddMesh2D.TYPE_EXPRESSION) {
+            if (!command.has("uCount") || !command.has("vCount")) {
+                // Required rather than defaulted, so the runtime cost of a mesh is visible at the
+                // place it is authored rather than buried in a default.
+                throw new JSONException("addMesh2D of type expression requires uCount and vCount");
+            }
+            int uCount = command.getInt("uCount");
+            int vCount = command.getInt("vCount");
+            // A path strip follows a path, carried in the layout-dependent aux field. Spelled
+            // "path" for readability, matching matrixFromPath, with the wire name accepted too.
+            Object pathRef = command.has("path") ? command.get("path") : command.opt("aux");
+            int aux = pathRef == null ? 0 : resolvePathId(pathRef);
+            meshId =
+                    mWriter.addMesh2D(
+                            layout,
+                            uCount,
+                            vCount,
+                            parseMesh2DExpression(command, "x"),
+                            parseMesh2DExpression(command, "y"),
+                            parseMesh2DExpression(command, "texU"),
+                            parseMesh2DExpression(command, "texV"),
+                            parseMesh2DExpression(command, "alpha"),
+                            parseMesh2DExpression(command, "red"),
+                            parseMesh2DExpression(command, "green"),
+                            parseMesh2DExpression(command, "blue"),
+                            parseMesh2DExpression(command, "width"),
+                            command.optInt("flags", 0),
+                            aux);
+        } else {
+            JSONArray vertsArr = command.getJSONArray("verts");
+            float[] verts = new float[vertsArr.length()];
+            for (int i = 0; i < verts.length; i++) {
+                verts[i] = parseFloat(vertsArr.get(i));
+            }
+
+            int[] indices;
+            if (command.has("indices")) {
+                JSONArray indicesArr = command.getJSONArray("indices");
+                indices = new int[indicesArr.length()];
+                for (int i = 0; i < indices.length; i++) {
+                    indices[i] = indicesArr.getInt(i);
+                }
+            } else {
+                // No indices means "draw the vertices in order", the plain triangle list.
+                indices = new int[verts.length / 2];
+                for (int i = 0; i < indices.length; i++) {
+                    indices[i] = i;
+                }
+            }
+
+            float[] uv = null;
+            if (command.has("uv")) {
+                JSONArray uvArr = command.getJSONArray("uv");
+                uv = new float[uvArr.length()];
+                for (int i = 0; i < uv.length; i++) {
+                    uv[i] = (float) uvArr.getDouble(i);
+                }
+            }
+
+            int[] colors = null;
+            if (command.has("colors")) {
+                JSONArray colorsArr = command.getJSONArray("colors");
+                colors = new int[colorsArr.length()];
+                for (int i = 0; i < colors.length; i++) {
+                    colors[i] = parseColor(colorsArr.get(i));
+                }
+            }
+
+            meshId =
+                    mWriter.addMesh2DValues(
+                            indices,
+                            verts,
+                            uv,
+                            colors,
+                            type == AddMesh2D.TYPE_F16_VALUES,
+                            layout,
+                            command.optInt("uCount", 0),
+                            command.optInt("vCount", 0));
+        }
+
+        String idStr = command.optString("id", null);
+        if (idStr != null) {
+            mMeshes.put(idStr, meshId);
+        }
     }
 }
