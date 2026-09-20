@@ -142,6 +142,31 @@ class A2uiCoreSurfaceActorTest {
     }
 
     @Test
+    fun runProcessingLoop_surfaceCreationMessageWithCatalogAlias_resolvesCatalogSuccessfully() =
+        runTest {
+            val v09Catalog =
+                TestCatalog("https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json")
+            val actor = createActor(catalogsOverride = listOf(v09Catalog))
+            val job = launch { actor.runProcessingLoop() }
+
+            val message =
+                A2uiCreateSurfaceMessage(
+                    surfaceId = SURFACE_ID,
+                    catalogId = "https://a2ui.org/specification/v0_9_1/catalogs/basic/catalog.json",
+                )
+            actor.enqueue(A2uiEngineExternalMessage(message))
+            advanceUntilIdle()
+
+            val surface = surfaceGroup.getSurface(SURFACE_ID)
+            assertThat(surface).isNotNull()
+            assertThat(surface!!.id).isEqualTo(SURFACE_ID)
+            assertThat(surface.catalog.id)
+                .isEqualTo("https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json")
+
+            job.cancel()
+        }
+
+    @Test
     fun runProcessingLoop_surfaceCreationMessageWithUnknownCatalog_emitsA2uiException() = runTest {
         val actor = createActor()
         val job = launch { actor.runProcessingLoop() }
@@ -526,12 +551,13 @@ class A2uiCoreSurfaceActorTest {
         interceptors: List<A2uiActionInterceptor> = emptyList(),
         onActorIdleAndDeleted: (A2uiCoreSurfaceActor) -> Boolean = { true },
         dataModelFactoryOverride: (() -> A2uiCoreDataModel)? = null,
+        catalogsOverride: List<A2uiCoreCatalog>? = null,
     ): A2uiCoreSurfaceActor {
         var actorReference: A2uiCoreSurfaceActor? = null
         val actor =
             A2uiCoreSurfaceActor(
                 surfaceId = SURFACE_ID,
-                catalogs = catalogs,
+                catalogs = catalogsOverride ?: catalogs,
                 surfaceGroup = surfaceGroup,
                 dataModelFactory = dataModelFactoryOverride ?: { TestDataModel() },
                 componentRegistryFactory = { TestComponentRegistry() },
