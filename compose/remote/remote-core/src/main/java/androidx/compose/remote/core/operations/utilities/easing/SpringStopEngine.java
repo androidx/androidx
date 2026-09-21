@@ -151,7 +151,6 @@ public class SpringStopEngine {
         if (stopThreshold <= 0) {
             throw new RuntimeException("StopThreshold cannot be a Negative");
         }
-
     }
 
     /**
@@ -229,7 +228,7 @@ public class SpringStopEngine {
         double k = mStiffness;
         double c = mDamping;
         // Estimate how many time we should over sample based on the frequency and current sampling
-        int overSample = (int) (1 + 9 / (Math.sqrt(mStiffness / mMass) * dt * 4));
+        int overSample = (int) (1 + 9 * (Math.sqrt(mStiffness / mMass) * dt * 4));
         overSample = Math.min(overSample, 1000); // Clamp to 1000
         dt /= overSample;
 
