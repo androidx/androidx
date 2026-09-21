@@ -45,9 +45,13 @@ androidx {
     type = SoftwareType.TEST_APPLICATION
     inceptionYear = "2026"
     description = "Integration tests app for JXR SceneCore."
+    deviceTests {
+        enabled = false
+    }
 }
 
 dependencies {
+    implementation(project(":xr:assets"))
     implementation(project(":xr:runtime:runtime"))
     implementation(project(":xr:scenecore:scenecore"))
     implementation(project(":xr:scenecore:scenecore-spatial-core"))
@@ -67,6 +71,10 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(project(":xr:runtime:runtime-testing")) {
+        exclude group: "org.robolectric"
+    }
     androidTestImplementation(project(":xr:testutils"))
 
     androidTestUtil(libs.testOrchestrator)

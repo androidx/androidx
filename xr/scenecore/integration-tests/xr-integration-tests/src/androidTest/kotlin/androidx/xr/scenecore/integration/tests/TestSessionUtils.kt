@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.xr.scenecore.testapp
+package androidx.xr.scenecore.integration.tests
 
+import androidx.activity.ComponentActivity
 import androidx.test.core.app.ActivityScenario
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
@@ -28,8 +29,8 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
- * Launches [EmptyActivity], initializes a [Session], awaits the OS ActivitySpace gravity-alignment
- * and unscaling origin update, and executes [testBody].
+ * Launches [ComponentActivity], initializes a [Session], awaits the OS ActivitySpace
+ * gravity-alignment and unscaling origin update, and executes [testBody].
  *
  * ### ActivitySpace Origin Settlement
  * When an Activity launches in XR, SpaceFlinger initially attaches the Activity under the OS
@@ -39,10 +40,10 @@ import kotlinx.coroutines.withTimeoutOrNull
  * and gravity-alignment node transaction before test assertions run.
  */
 internal inline fun runTestWithSession(
-    crossinline testBody: suspend (EmptyActivity, Session) -> Unit
+    crossinline testBody: suspend (ComponentActivity, Session) -> Unit
 ) = runBlocking {
-    ActivityScenario.launch(EmptyActivity::class.java).use { scenario ->
-        var activityRef: EmptyActivity? = null
+    ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
+        var activityRef: ComponentActivity? = null
         scenario.onActivity { activity -> activityRef = activity }
         val activity = checkNotNull(activityRef)
 
