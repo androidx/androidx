@@ -28,6 +28,7 @@ import androidx.compose.remote.creation.compose.capture.widthDp
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
+import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.remote.testing.RemoteBaseContentTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -74,6 +75,7 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
      */
     fun setRemoteContent(
         customPlugins: CustomPluginRegistry? = null,
+        typefaceResolver: TypefaceResolver? = null,
         remoteCreationDisplayInfo: RemoteCreationDisplayInfo =
             createCreationDisplayInfo(
                 context = ApplicationProvider.getApplicationContext(),
@@ -117,7 +119,11 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
                 object : RemoteBaseContentTestRule.Player {
                     @Composable
                     override fun Play(coreDocument: CoreDocument, size: Size) {
-                        RcPlayer(document = coreDocument, customPlugins = customPlugins)
+                        RcPlayer(
+                            document = coreDocument,
+                            customPlugins = customPlugins,
+                            typefaceResolver = typefaceResolver,
+                        )
                     }
                 },
             size =
