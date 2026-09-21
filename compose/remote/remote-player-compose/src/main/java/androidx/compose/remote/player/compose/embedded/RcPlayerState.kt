@@ -30,6 +30,7 @@ import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -56,91 +57,14 @@ import java.io.ByteArrayInputStream
  *   the document, falling back to unprefixed `name` if defined without prefix, or `"$prefix:$name"`
  *   otherwise.
  */
+@Stable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface RcPlayerState {
+public class RcPlayerState(
     /** The underlying [CoreDocument] managed by this state. */
-    public val document: CoreDocument
-
+    public val document: CoreDocument,
     /** The default prefix applied to variable names (e.g. `"USER"`, or `null` for none). */
-    public val defaultPrefix: String?
-
-    public fun floatState(name: String, prefix: String? = defaultPrefix): MutableState<Float>
-
-    public fun intState(name: String, prefix: String? = defaultPrefix): MutableState<Int>
-
-    public fun booleanState(name: String, prefix: String? = defaultPrefix): MutableState<Boolean>
-
-    public fun stringState(name: String, prefix: String? = defaultPrefix): MutableState<String>
-
-    public fun colorState(name: String, prefix: String? = defaultPrefix): MutableState<Color>
-
-    public fun floatArrayState(
-        name: String,
-        prefix: String? = defaultPrefix,
-    ): MutableState<FloatArray>
-
-    public fun bitmapState(name: String, prefix: String? = defaultPrefix): MutableState<Bitmap?>
-
-    /** Clears any override applied to [name] and restores its authored document default. */
-    public fun clearOverride(name: String, prefix: String? = defaultPrefix)
-}
-
-/**
- * Creates an [RcPlayerState] for the given [document].
- *
- * @param document The [CoreDocument] to bind.
- * @param defaultPrefix The default variable name prefix (default is `"USER"`). Pass `null` for no
- *   prefix.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RcPlayerState(
-    document: CoreDocument,
-    defaultPrefix: String? = "USER",
-): RcPlayerState = RcPlayerStateImpl(document, defaultPrefix)
-
-/**
- * Creates an [RcPlayerState] for the given [capturedDocument].
- *
- * @param capturedDocument The [CapturedDocument] to bind.
- * @param defaultPrefix The default variable name prefix (default is `"USER"`). Pass `null` for no
- *   prefix.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RcPlayerState(
-    capturedDocument: CapturedDocument,
-    defaultPrefix: String? = "USER",
-): RcPlayerState {
-    RemoteImageSupport.enableEncodedImageReferences()
-    val coreDoc =
-        CoreDocument(RemoteClock.SYSTEM).apply {
-            ByteArrayInputStream(capturedDocument.bytes).use {
-                initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-            }
-        }
-    return RcPlayerStateImpl(coreDoc, defaultPrefix)
-}
-
-/** Creates and remembers an [RcPlayerState] for the given [document]. */
-@Composable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun rememberRcPlayerState(
-    document: CoreDocument,
-    defaultPrefix: String? = "USER",
-): RcPlayerState = remember(document, defaultPrefix) { RcPlayerState(document, defaultPrefix) }
-
-/** Creates and remembers an [RcPlayerState] for the given [capturedDocument]. */
-@Composable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun rememberRcPlayerState(
-    capturedDocument: CapturedDocument,
-    defaultPrefix: String? = "USER",
-): RcPlayerState =
-    remember(capturedDocument, defaultPrefix) { RcPlayerState(capturedDocument, defaultPrefix) }
-
-internal class RcPlayerStateImpl(
-    override val document: CoreDocument,
-    override val defaultPrefix: String?,
-) : RcPlayerState {
+    public val defaultPrefix: String? = "USER",
+) {
     internal val preprocessed: DocumentPreprocessResult = preprocessDocument(document)
     internal val remoteContext: AndroidRemoteContext =
         initializePlayerRemoteContext(
@@ -160,6 +84,25 @@ internal class RcPlayerStateImpl(
             .also { gc ->
                 gc.setTypefaceResolver(remoteContext.typefaceResolver)
             }
+
+    /**
+     * Advances document time to [frameMillis] across both time-tracking paths:
+     * 1. [GraphContext.updateTime] updates the expression DAG's `timeState` (driving compiled float
+     *    expressions like `ID_ANIMATION_TIME` and discrete wall-clock variables) and returns `true`
+     *    if any discrete clock boundary (second/minute/hour) was crossed.
+     * 2. [currentTimeMillisState] drives non-DAG time readers (such as `TextFromFloat` and canvas
+     *    operations). It is updated whenever continuous animation is active or a discrete clock
+     *    boundary was crossed so both paths stay synchronized on every frame.
+     */
+    internal fun updateTime(frameMillis: Float, updateContinuous: Boolean = true): Boolean {
+        val updated = graphContext.updateTime(frameMillis, updateContinuous)
+        // Advance the shared snapshot clock when running continuous animations or when a discrete
+        // clock boundary crossed so non-DAG operations observe the same frame timestamp.
+        if (updateContinuous || updated) {
+            currentTimeMillisState.floatValue = frameMillis
+        }
+        return updated
+    }
 
     private val initialFloats = mutableMapOf<Int, Float>()
     private val initialInts = mutableMapOf<Int, Int>()
@@ -296,7 +239,7 @@ internal class RcPlayerStateImpl(
             state.clearFloatOverride(id)
         }
 
-    override fun floatState(name: String, prefix: String?): MutableState<Float> =
+    public fun floatState(name: String, prefix: String? = defaultPrefix): MutableState<Float> =
         getOrCreateState(
             floatStates,
             name,
@@ -318,7 +261,7 @@ internal class RcPlayerStateImpl(
             state.clearIntegerOverride(id)
         }
 
-    override fun intState(name: String, prefix: String?): MutableState<Int> =
+    public fun intState(name: String, prefix: String? = defaultPrefix): MutableState<Int> =
         getOrCreateState(
             intStates,
             name,
@@ -339,7 +282,7 @@ internal class RcPlayerStateImpl(
             state.clearIntegerOverride(id)
         }
 
-    override fun booleanState(name: String, prefix: String?): MutableState<Boolean> =
+    public fun booleanState(name: String, prefix: String? = defaultPrefix): MutableState<Boolean> =
         getOrCreateState(
             booleanStates,
             name,
@@ -361,7 +304,7 @@ internal class RcPlayerStateImpl(
             state.clearDataOverride(id)
         }
 
-    override fun stringState(name: String, prefix: String?): MutableState<String> =
+    public fun stringState(name: String, prefix: String? = defaultPrefix): MutableState<String> =
         getOrCreateState(
             stringStates,
             name,
@@ -388,7 +331,7 @@ internal class RcPlayerStateImpl(
             initialColors[id]?.let { state.overrideColor(id, it) }
         }
 
-    override fun colorState(name: String, prefix: String?): MutableState<Color> =
+    public fun colorState(name: String, prefix: String? = defaultPrefix): MutableState<Color> =
         getOrCreateState(
             colorStates,
             name,
@@ -410,7 +353,7 @@ internal class RcPlayerStateImpl(
             state.clearDataOverride(id)
         }
 
-    override fun bitmapState(name: String, prefix: String?): MutableState<Bitmap?> =
+    public fun bitmapState(name: String, prefix: String? = defaultPrefix): MutableState<Bitmap?> =
         getOrCreateState(
             bitmapStates,
             name,
@@ -441,7 +384,10 @@ internal class RcPlayerStateImpl(
             }
         }
 
-    override fun floatArrayState(name: String, prefix: String?): MutableState<FloatArray> =
+    public fun floatArrayState(
+        name: String,
+        prefix: String? = defaultPrefix,
+    ): MutableState<FloatArray> =
         getOrCreateState(
             floatArrayStates,
             name,
@@ -450,7 +396,8 @@ internal class RcPlayerStateImpl(
             { n, v -> setFloatArray(n, v, null) },
         )
 
-    override fun clearOverride(name: String, prefix: String?) {
+    /** Clears any override applied to [name] and restores its authored document default. */
+    public fun clearOverride(name: String, prefix: String? = defaultPrefix) {
         clearFloat(name, prefix)
         clearInt(name, prefix)
         clearBoolean(name, prefix)
@@ -460,6 +407,45 @@ internal class RcPlayerStateImpl(
         clearFloatArray(name, prefix)
     }
 }
+
+/**
+ * Creates an [RcPlayerState] for the given [capturedDocument].
+ *
+ * @param capturedDocument The [CapturedDocument] to bind.
+ * @param defaultPrefix The default variable name prefix (default is `"USER"`). Pass `null` for no
+ *   prefix.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RcPlayerState(
+    capturedDocument: CapturedDocument,
+    defaultPrefix: String? = "USER",
+): RcPlayerState {
+    RemoteImageSupport.enableEncodedImageReferences()
+    val coreDoc =
+        CoreDocument(RemoteClock.SYSTEM).apply {
+            ByteArrayInputStream(capturedDocument.bytes).use {
+                initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+            }
+        }
+    return RcPlayerState(coreDoc, defaultPrefix)
+}
+
+/** Creates and remembers an [RcPlayerState] for the given [document]. */
+@Composable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun rememberRcPlayerState(
+    document: CoreDocument,
+    defaultPrefix: String? = "USER",
+): RcPlayerState = remember(document, defaultPrefix) { RcPlayerState(document, defaultPrefix) }
+
+/** Creates and remembers an [RcPlayerState] for the given [capturedDocument]. */
+@Composable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun rememberRcPlayerState(
+    capturedDocument: CapturedDocument,
+    defaultPrefix: String? = "USER",
+): RcPlayerState =
+    remember(capturedDocument, defaultPrefix) { RcPlayerState(capturedDocument, defaultPrefix) }
 
 private class DelegatedMutableState<T>(
     private val name: String,

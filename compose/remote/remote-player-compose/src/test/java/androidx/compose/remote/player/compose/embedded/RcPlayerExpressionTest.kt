@@ -18,10 +18,12 @@ package androidx.compose.remote.player.compose.embedded
 
 import androidx.collection.emptyIntObjectMap
 import androidx.collection.mutableIntObjectMapOf
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.SystemClock
+import androidx.compose.remote.core.operations.FloatConstant
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.CanvasOperations
@@ -699,5 +701,34 @@ class RcPlayerExpressionTest {
         val updatedB = observerB.value
         assertThat(updatedA).isEqualTo(updatedB)
         assertThat(updatedA).isNotEqualTo(initialA)
+    }
+
+    @Test
+    fun updateTime_updatesBothGraphContextAndCurrentTimeMillisState() {
+        val baseInstant = Instant.parse("2026-01-01T00:00:00Z")
+        val clock = SystemClock(Clock.fixed(baseInstant, ZoneOffset.UTC))
+        val doc = CoreDocument(clock)
+        val state = RcPlayerState(doc)
+
+        state.updateTime(250f)
+
+        assertThat(state.currentTimeMillisState.floatValue).isEqualTo(250f)
+        assertThat(state.graphContext.getFloat(RemoteContext.ID_ANIMATION_TIME))
+            .isWithin(0.0001f)
+            .of(0.25f)
+    }
+
+    @Test
+    fun preprocessDocument_reservedSystemVariableId_doesNotRemap() {
+        val baseInstant = Instant.parse("2026-01-01T00:00:00Z")
+        val clock = SystemClock(Clock.fixed(baseInstant, ZoneOffset.UTC))
+        val doc = CoreDocument(clock)
+        doc.getOperationsReflection().add(FloatConstant(RemoteContext.ID_OFFSET_TO_UTC, 123.456f))
+
+        val state = RcPlayerState(doc)
+
+        // Reserved system variable ID (10 = ID_OFFSET_TO_UTC) is not remapped or fixed;
+        // GraphContext continues resolving the system clock variable (0.0f in UTC).
+        assertThat(state.graphContext.getFloat(RemoteContext.ID_OFFSET_TO_UTC)).isEqualTo(0f)
     }
 }
