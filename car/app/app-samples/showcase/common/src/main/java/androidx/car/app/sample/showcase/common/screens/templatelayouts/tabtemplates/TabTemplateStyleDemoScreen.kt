@@ -200,9 +200,20 @@ class TabTemplateStyleDemoScreen(carContext: CarContext) : Screen(carContext) {
             )
         buildTabs().forEach(builder::addTab)
 
+        val endAction =
+            Action.Builder()
+                .setIcon(
+                    CarIcon.createOriginalIcon(
+                        IconCompat.createWithResource(carContext, R.drawable.test_image_square)
+                    )
+                )
+                .setOnClickListener { screenManager.push(ProfileScreen(carContext)) }
+                .build()
+
         return builder
             .setActiveTabContentId(mActiveContentId)
             .setHeaderAction(Action.APP_ICON)
+            .setEndAction(endAction)
             .setTabContents(
                 TabContents.Builder(createShortMessageTemplate(activeProperty.messageRes)).build()
             )
@@ -231,5 +242,27 @@ class TabTemplateStyleDemoScreen(carContext: CarContext) : Screen(carContext) {
             )
             .addAction(action)
             .build()
+    }
+
+    private class ProfileScreen(carContext: CarContext) : Screen(carContext) {
+        override fun onGetTemplate(): Template {
+            val backAction =
+                Action.Builder()
+                    .setTitle(carContext.getString(R.string.back_caps_action_title))
+                    .setIcon(CarIcon.BACK)
+                    .setOnClickListener { screenManager.pop() }
+                    .build()
+            val header =
+                Header.Builder().setTitle("Profile page").setStartHeaderAction(Action.BACK).build()
+            return MessageTemplate.Builder("Profile page")
+                .setHeader(header)
+                .setIcon(
+                    CarIcon.createOriginalIcon(
+                        IconCompat.createWithResource(carContext, R.drawable.test_android_media)
+                    )
+                )
+                .addAction(backAction)
+                .build()
+        }
     }
 }
