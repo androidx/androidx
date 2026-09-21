@@ -24,9 +24,11 @@ import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
+import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteColorAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteStringAsState
+import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
@@ -86,7 +88,8 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
 
     val fontFamilyType = if (paintState.isTypefaceSet) paintState.fontFamily else data.type
     val customFontNameState = rememberCustomFontName(fontFamilyType, remoteContext)
-    val fontCertsResId = (LocalTypefaceResolver.current as? HasFontCerts)?.fontCertsResId ?: 0
+    val typefaceResolver = LocalTypefaceResolver.current
+    val fontCertsResId = (typefaceResolver as? HasFontCerts)?.fontCertsResId ?: 0
     val fontFamily =
         resolveFontFamily(
             fontFamilyType,
@@ -97,6 +100,7 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
             data.fontAxisValues,
             LocalRemoteContext.current,
             fontCertsResId,
+            typefaceResolver,
         )
 
     val textDecoration =
@@ -205,7 +209,8 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
 
     val fontFamilyType = if (paintState.isTypefaceSet) paintState.fontFamily else data.type
     val customFontNameState = rememberCustomFontName(fontFamilyType, LocalRemoteContext.current)
-    val fontCertsResId = (LocalTypefaceResolver.current as? HasFontCerts)?.fontCertsResId ?: 0
+    val typefaceResolver = LocalTypefaceResolver.current
+    val fontCertsResId = (typefaceResolver as? HasFontCerts)?.fontCertsResId ?: 0
     val fontFamily =
         resolveFontFamily(
             fontFamilyType,
@@ -216,6 +221,7 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
             null,
             LocalRemoteContext.current,
             fontCertsResId,
+            typefaceResolver,
         )
 
     val overflow =
@@ -302,7 +308,37 @@ private fun resolveFontFamily(
     fontAxisValues: FloatArray?,
     context: RemoteContext,
     fontCertsResId: Int = 0,
+    typefaceResolver: TypefaceResolver? = null,
 ): FontFamily {
+    // Built-in EmbeddedPlayerTypefaceResolver and GmsFontTypefaceResolver rely on Compose's native
+    // FontFamily / GoogleFont.Provider resolution path below (using fontCertsResId and variation
+    // settings). When a caller supplies a custom TypefaceResolver (e.g. host app or test harness
+    // providing concrete android.graphics.Typeface instances), delegate to it directly.
+    if (
+        typefaceResolver != null &&
+            typefaceResolver !is EmbeddedPlayerTypefaceResolver &&
+            typefaceResolver !is GmsFontTypefaceResolver
+    ) {
+        val italic = fontStyle == FontStyle.Italic
+        val fi =
+            if (
+                fontName != null &&
+                    fontFamilyType !in
+                        PaintBundle.FONT_TYPE_DEFAULT..PaintBundle.FONT_TYPE_MONOSPACE
+            ) {
+                typefaceResolver.resolve(fontName, fontWeight.weight, italic, null, 400, false)
+            } else {
+                typefaceResolver.resolve(
+                    fontFamilyType,
+                    fontWeight.weight,
+                    italic,
+                    null,
+                    400,
+                    false,
+                )
+            }
+        return FontFamily(fi.getTypeface())
+    }
     if (fontName != null) {
         when {
             fontName.startsWith("device:") -> {
