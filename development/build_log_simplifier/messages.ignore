@@ -639,10 +639,6 @@ w: .*/test/java/com/android/build/gradle/internal/fixtures/FakeGradleExecOperati
 # Robolectric 4.17 images logs this
 .*HWUI    : Using FreeType backend \(prop=Auto\)
 .*HWUI    : Davey! duration=.*
-# https://github.com/square/wire/issues/3700
-w: .*\/generated\/source\/wire\/.*\.kt:[0-9]+:[0-9]+ This 'var' property is not written to more than once, it can be declared as 'val'\.
-# https://github.com/square/wire/issues/3701
-w: .*\/generated\/source\/wire\/.*\.kt:[0-9]+:[0-9]+ Initializer is redundant\.
 # Fixed in room-generated code, other projects need to upgrade after room releases.
 w: .*\/generated\/ksp\/.*\.kt:[0-9]+:[0-9]+ This 'var' property is never written to, it can be declared as 'val'\.
 # b/555167593
