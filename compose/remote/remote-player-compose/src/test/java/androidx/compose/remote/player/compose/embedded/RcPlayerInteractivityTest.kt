@@ -26,6 +26,9 @@ import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.SystemClock
 import androidx.compose.remote.core.operations.layout.Component
+import androidx.compose.remote.core.operations.layout.MultiClickModifier
+import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers
+import androidx.compose.remote.core.operations.layout.modifiers.HostActionOperation
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.action.combinedAction
 import androidx.compose.remote.creation.compose.action.hostAction
@@ -34,6 +37,7 @@ import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
@@ -87,16 +91,20 @@ import androidx.compose.remote.creation.compose.state.toDeg
 import androidx.compose.remote.creation.compose.state.toRad
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -1379,6 +1387,92 @@ class RcPlayerInteractivityTest {
             // Click Retake
             rule.onNodeWithContentDescription("Retake").performClick()
             rule.waitForIdle()
+        }
+    }
+
+    @Test
+    fun multiClickModifier_dispatchesSingleDoubleAndLongClicks() {
+        val modifiers =
+            ComponentModifiers().apply {
+                add(
+                    MultiClickModifier(MultiClickModifier.CLICK_TYPE_SINGLE).apply {
+                        list.add(HostActionOperation(101))
+                    }
+                )
+                add(
+                    MultiClickModifier(MultiClickModifier.CLICK_TYPE_DOUBLE).apply {
+                        list.add(HostActionOperation(102))
+                    }
+                )
+                add(
+                    MultiClickModifier(MultiClickModifier.CLICK_TYPE_LONG).apply {
+                        list.add(HostActionOperation(103))
+                    }
+                )
+            }
+
+        val remoteContext = AndroidRemoteContext()
+        val document = CoreDocument(RemoteClock.SYSTEM)
+        val triggeredIds = mutableListOf<Int>()
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalCoreDocument provides document,
+                LocalRemoteContext provides remoteContext,
+                LocalRemoteActionHandler provides { id, _ -> triggeredIds.add(id) },
+            ) {
+                Box(modifier = modifiers.toModifier().size(100.dp))
+            }
+        }
+        rule.waitForIdle()
+
+        rule.onNode(hasClickAction()).performClick()
+        rule.mainClock.advanceTimeBy(400L)
+        rule.waitForIdle()
+        assertThat(triggeredIds).contains(101)
+
+        rule.onNode(hasClickAction()).performTouchInput { doubleClick() }
+        rule.mainClock.advanceTimeBy(400L)
+        rule.waitForIdle()
+        assertThat(triggeredIds).contains(102)
+
+        rule.onNode(hasClickAction()).performTouchInput { longClick() }
+        rule.waitForIdle()
+        assertThat(triggeredIds).contains(103)
+    }
+
+    @Test
+    fun goneComponent_collapsesLayoutBoundsToZero() {
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val content: @Composable @RemoteComposable () -> Unit = {
+                RemoteRow {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.size(80.rdp)
+                                .visibility(Component.Visibility.GONE.ri)
+                                .semantics { contentDescription = "GoneBox".rs }
+                    )
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.size(80.rdp).semantics {
+                                contentDescription = "VisibleSibling".rs
+                            }
+                    )
+                }
+            }
+            val capturedDocument = captureSingleRemoteDocument(context = context, content = content)
+            rule.setContent {
+                Box(modifier = Modifier.size(200.dp)) {
+                    RcPlayer(capturedDocument = capturedDocument)
+                }
+            }
+            rule.waitForIdle()
+
+            // Because the preceding GONE box collapses to 0x0 in layout, VisibleSibling starts at
+            // left = 0dp.
+            val siblingBounds =
+                rule.onNodeWithContentDescription("VisibleSibling").getUnclippedBoundsInRoot()
+            assertThat(siblingBounds.left).isEqualTo(0.dp)
         }
     }
 }
