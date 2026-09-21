@@ -19,8 +19,8 @@ package androidx.datastore.core
 import androidx.datastore.core.util.getContextFromScope
 
 /** Public factory for creating DataStore instances. */
-actual object DataStoreFactory {
-    actual fun <T> create(
+public actual object DataStoreFactory {
+    public actual fun <T> create(
         storage: Storage<T>,
         corruptionHandler: androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>?,
         migrations: List<DataMigration<T>>,

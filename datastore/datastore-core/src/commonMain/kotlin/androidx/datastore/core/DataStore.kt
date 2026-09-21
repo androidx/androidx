@@ -90,7 +90,7 @@ public expect interface DataStore<T> {
      *   and must be managed manually.
      */
     /** Builder for [DataStore]. */
-    class Builder<T>(storage: Storage<T>, context: CoroutineContext) {
+    public class Builder<T>(storage: Storage<T>, context: CoroutineContext) {
         /**
          * Sets the [CorruptionHandler] for the DataStore.
          *
@@ -100,7 +100,7 @@ public expect interface DataStore<T> {
          * @param handler the corruption handler.
          * @return this [Builder] instance.
          */
-        fun setCorruptionHandler(handler: CorruptionHandler<T>): Builder<T>
+        public fun setCorruptionHandler(handler: CorruptionHandler<T>): Builder<T>
 
         /**
          * Adds [DataMigration]s to the DataStore.
@@ -110,13 +110,13 @@ public expect interface DataStore<T> {
          * @param migrations the list of migrations.
          * @return this [Builder] instance.
          */
-        fun addMigrations(migrations: List<DataMigration<T>>): Builder<T>
+        public fun addMigrations(migrations: List<DataMigration<T>>): Builder<T>
 
         /**
          * Validates the configuration and builds the [Builder] instance.
          *
          * @return a new DataStore instance.
          */
-        fun build(): DataStore<T>
+        public fun build(): DataStore<T>
     }
 }

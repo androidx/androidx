@@ -21,13 +21,16 @@ import androidx.tracing.Tracer
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.flow.Flow
 
-actual interface DataStore<T> {
-    actual val data: Flow<T>
+public actual interface DataStore<T> {
+    public actual val data: Flow<T>
 
-    actual suspend fun updateData(transform: suspend (t: T) -> T): T
+    public actual suspend fun updateData(transform: suspend (t: T) -> T): T
 
-    actual class Builder<T>
-    actual constructor(private val storage: Storage<T>, private val context: CoroutineContext) {
+    public actual class Builder<T>
+    public actual constructor(
+        private val storage: Storage<T>,
+        private val context: CoroutineContext,
+    ) {
         private var corruptionHandler: CorruptionHandler<T> = ReThrowCorruptionHandler()
         private var migrations: List<DataMigration<T>> = emptyList()
         private var tracer: DataStoreTracer? = null
@@ -42,7 +45,7 @@ actual interface DataStore<T> {
          * @return this [Builder] instance.
          */
         @Suppress("MissingGetterMatchingBuilder")
-        actual fun setCorruptionHandler(handler: CorruptionHandler<T>): Builder<T> = apply {
+        public actual fun setCorruptionHandler(handler: CorruptionHandler<T>): Builder<T> = apply {
             this.corruptionHandler = handler
         }
 
@@ -55,7 +58,7 @@ actual interface DataStore<T> {
          * @return this [Builder] instance.
          */
         @Suppress("MissingGetterMatchingBuilder")
-        actual fun addMigrations(migrations: List<DataMigration<T>>): Builder<T> = apply {
+        public actual fun addMigrations(migrations: List<DataMigration<T>>): Builder<T> = apply {
             this.migrations += migrations
         }
 
@@ -68,14 +71,14 @@ actual interface DataStore<T> {
         // TODO(b/486189894): When androidx.tracing becomes available in all target platforms
         //  supported by DataStore, move `setTracer()` to common.
         @Suppress("MissingGetterMatchingBuilder")
-        fun setTracer(tracer: DataStoreTracer): Builder<T> = apply { this.tracer = tracer }
+        public fun setTracer(tracer: DataStoreTracer): Builder<T> = apply { this.tracer = tracer }
 
         /**
          * Validates the configuration and builds the [Builder] instance.
          *
          * @return a new DataStore instance.
          */
-        actual fun build(): DataStore<T> {
+        public actual fun build(): DataStore<T> {
             return DataStoreImpl(
                 storage = storage,
                 corruptionHandler = corruptionHandler,

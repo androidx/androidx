@@ -27,5 +27,5 @@ import java.io.File
  * @param file The canonical file managed by [SingleProcessCoordinator]
  */
 @Suppress("StreamFiles")
-fun createSingleProcessCoordinator(file: File): InterProcessCoordinator =
+public fun createSingleProcessCoordinator(file: File): InterProcessCoordinator =
     createSingleProcessCoordinator(file.canonicalFile.absolutePath)

@@ -23,7 +23,7 @@ package androidx.datastore.core
  *
  * Implementers provide the specifics of how and where the data is stored.
  */
-interface Storage<T> {
+public interface Storage<T> {
     /**
      * Creates a storage connection which allows reading and writing to the underlying storage.
      *
@@ -31,5 +31,5 @@ interface Storage<T> {
      *
      * @throws IOException Unrecoverable IO exception when trying to access the underlying storage.
      */
-    fun createConnection(): StorageConnection<T>
+    public fun createConnection(): StorageConnection<T>
 }

@@ -33,7 +33,7 @@ import okio.BufferedSource
  * [DataStoreFactory#create][androidx.datastore.core.DataStoreFactory.create] function.
  */
 @OptIn(ExperimentalSerializationApi::class)
-actual object PreferencesSerializer : OkioSerializer<Preferences> {
+public actual object PreferencesSerializer : OkioSerializer<Preferences> {
     internal const val fileExtension = "preferences_pb"
 
     actual override val defaultValue: Preferences

@@ -35,7 +35,10 @@ import java.lang.reflect.Method
  * @return An instance of a [DirectBootUsageException] or the provided [exception].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-actual fun wrapExceptionIfDueToDirectBoot(parentDirPath: String?, exception: Exception): Exception {
+public actual fun wrapExceptionIfDueToDirectBoot(
+    parentDirPath: String?,
+    exception: Exception,
+): Exception {
     if (exception.isDeviceUnlocked()) {
         return exception
     } else {
