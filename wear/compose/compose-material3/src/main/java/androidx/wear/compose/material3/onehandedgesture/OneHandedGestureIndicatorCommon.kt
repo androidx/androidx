@@ -40,11 +40,50 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.wear.compose.material3.internal.LocalWristOrientation
 import androidx.wear.compose.material3.internal.isLeftWrist
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+
+internal val POINTER_BACKGROUND_WIDTH = 54.dp
+internal val POINTER_BACKGROUND_HEIGHT = 48.dp
+internal val POINTER_BACKGROUND_SIZE = DpSize(POINTER_BACKGROUND_WIDTH, POINTER_BACKGROUND_HEIGHT)
+
+/**
+ * Draws the one-handed gesture pointer background natively in Compose using paths, rather than
+ * using a vector drawable.
+ */
+@Composable
+internal fun GestureIndicatorPointerBackground(
+    color: Color,
+    modifier: Modifier = Modifier,
+) {
+    Canvas(modifier = modifier.size(POINTER_BACKGROUND_SIZE)) {
+        val scaleX = size.width / 54f
+        val scaleY = size.height / 48f
+        withTransform(
+            transformBlock = {
+                scale(scaleX, scaleY, pivot = Offset.Zero)
+            }
+        ) {
+            val path =
+                Path().apply {
+                    moveTo(24f, 0f)
+                    cubicTo(35.572f, 0f, 45.23f, 8.19f, 47.496f, 19.09f)
+                    lineTo(53f, 22.268f)
+                    cubicTo(54.333f, 23.037f, 54.333f, 24.963f, 53f, 25.732f)
+                    lineTo(47.496f, 28.909f)
+                    cubicTo(45.23f, 39.809f, 35.572f, 48f, 24f, 48f)
+                    cubicTo(10.745f, 48f, 0f, 37.255f, 0f, 24f)
+                    cubicTo(0f, 10.745f, 10.745f, 0f, 24f, 0f)
+                    close()
+                }
+            drawPath(path, color = color)
+        }
+    }
+}
 
 /**
  * Procedurally draws the one-handed gesture primary (double-pinch) indicator animation natively in
