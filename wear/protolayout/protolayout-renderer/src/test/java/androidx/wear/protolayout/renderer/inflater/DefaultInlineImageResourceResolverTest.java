@@ -21,13 +21,17 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import android.graphics.Bitmap;
+import android.os.Build.VERSION_CODES;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.proto.ResourceProto.ImageFormat;
 import androidx.wear.protolayout.proto.ResourceProto.InlineImageResource;
 import androidx.wear.protolayout.protobuf.ByteString;
 import androidx.wear.protolayout.renderer.inflater.ResourceResolvers.ResourceAccessException;
+import androidx.wear.protolayout.renderer.test.R;
+import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.Config;
 
 @RunWith(AndroidJUnit4.class)
 public class DefaultInlineImageResourceResolverTest {
@@ -131,6 +135,93 @@ public class DefaultInlineImageResourceResolverTest {
             .build();
 
     // This triggers the checkSize(targetSize) callback in ConstrainedImageDecoder
+    assertThrows(IllegalArgumentException.class, () -> mResolver.loadStructuredBitmap(resource));
+  }
+
+  @Test
+  public void loadStructuredBitmap_nonPositiveDimension_throws() {
+    byte[] minPng = getMinPng();
+
+    InlineImageResource resource =
+        InlineImageResource.newBuilder()
+            .setWidthPx(0)
+            .setHeightPx(10)
+            .setFormat(ImageFormat.IMAGE_FORMAT_UNDEFINED)
+            .setData(ByteString.copyFrom(minPng))
+            .build();
+
+    assertThrows(IllegalArgumentException.class, () -> mResolver.loadStructuredBitmap(resource));
+  }
+
+  @Test
+  @Config(sdk = VERSION_CODES.R)
+  public void loadStructuredBitmap_sdk30_validImage_succeeds() {
+    byte[] minPng = getMinPng();
+    int width = 10;
+    int height = 10;
+
+    InlineImageResource resource =
+        InlineImageResource.newBuilder()
+            .setWidthPx(width)
+            .setHeightPx(height)
+            .setFormat(ImageFormat.IMAGE_FORMAT_UNDEFINED)
+            .setData(ByteString.copyFrom(minPng))
+            .build();
+
+    Bitmap bitmap = mResolver.loadStructuredBitmap(resource);
+
+    assertThat(bitmap).isNotNull();
+    assertThat(bitmap.getWidth()).isEqualTo(width);
+    assertThat(bitmap.getHeight()).isEqualTo(height);
+  }
+
+  @Test
+  @Config(sdk = VERSION_CODES.R)
+  public void loadStructuredBitmap_sdk30_linearDimensionTooLarge_throws() {
+    byte[] minPng = getMinPng();
+
+    InlineImageResource resource =
+        InlineImageResource.newBuilder()
+            .setWidthPx(2049) // Exceeds the 2048px limit
+            .setHeightPx(1)
+            .setFormat(ImageFormat.IMAGE_FORMAT_UNDEFINED)
+            .setData(ByteString.copyFrom(minPng))
+            .build();
+
+    assertThrows(IllegalArgumentException.class, () -> mResolver.loadStructuredBitmap(resource));
+  }
+
+  @Test
+  @Config(sdk = VERSION_CODES.R)
+  public void loadStructuredBitmap_sdk30_nonPositiveDimension_throws() {
+    byte[] minPng = getMinPng();
+
+    InlineImageResource resource =
+        InlineImageResource.newBuilder()
+            .setWidthPx(0)
+            .setHeightPx(10)
+            .setFormat(ImageFormat.IMAGE_FORMAT_UNDEFINED)
+            .setData(ByteString.copyFrom(minPng))
+            .build();
+
+    assertThrows(IllegalArgumentException.class, () -> mResolver.loadStructuredBitmap(resource));
+  }
+
+  @Test
+  @Config(sdk = VERSION_CODES.R)
+  public void loadStructuredBitmap_sdk30_encodedDimensionTooLarge_throws() throws IOException {
+    ByteString largeImageBytes =
+        ByteString.readFrom(
+            getApplicationContext().getResources().openRawResource(R.drawable.test2049x2049));
+
+    InlineImageResource resource =
+        InlineImageResource.newBuilder()
+            .setWidthPx(10)
+            .setHeightPx(10)
+            .setFormat(ImageFormat.IMAGE_FORMAT_UNDEFINED)
+            .setData(largeImageBytes)
+            .build();
+
     assertThrows(IllegalArgumentException.class, () -> mResolver.loadStructuredBitmap(resource));
   }
 

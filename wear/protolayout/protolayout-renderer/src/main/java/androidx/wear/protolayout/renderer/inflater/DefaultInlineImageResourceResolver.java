@@ -148,14 +148,34 @@ public class DefaultInlineImageResourceResolver implements InlineImageResourceRe
                     inlineImage.getWidthPx(),
                     inlineImage.getHeightPx());
         }
-        Bitmap bitmap =
-                BitmapFactory.decodeByteArray(
-                        inlineImage.getData().toByteArray(), 0, inlineImage.getData().size());
+        int widthPx = inlineImage.getWidthPx();
+        int heightPx = inlineImage.getHeightPx();
+        byte[] data = inlineImage.getData().toByteArray();
+        if (mRestrictImageSize) {
+            if (widthPx <= 0
+                    || heightPx <= 0
+                    || widthPx > ConstrainedImageDecoder.DEFAULT_DECODE_HARD_LIMIT_PX
+                    || heightPx > ConstrainedImageDecoder.DEFAULT_DECODE_HARD_LIMIT_PX) {
+                throw new IllegalArgumentException(
+                        "InlineImage target size out of bounds: " + widthPx + "x" + heightPx);
+            }
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeByteArray(data, 0, data.length, options);
+            if (options.outWidth > ConstrainedImageDecoder.DEFAULT_DECODE_HARD_LIMIT_PX
+                    || options.outHeight > ConstrainedImageDecoder.DEFAULT_DECODE_HARD_LIMIT_PX) {
+                throw new IllegalArgumentException(
+                        "InlineImage decoded size out of bounds: "
+                                + options.outWidth
+                                + "x"
+                                + options.outHeight);
+            }
+        }
+        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
         if (bitmap == null) {
             Log.e(TAG, "Unable to load structured bitmap.");
             return null;
         }
-        return Bitmap.createScaledBitmap(
-                bitmap, inlineImage.getWidthPx(), inlineImage.getHeightPx(), /* filter= */ true);
+        return Bitmap.createScaledBitmap(bitmap, widthPx, heightPx, /* filter= */ true);
     }
 }
