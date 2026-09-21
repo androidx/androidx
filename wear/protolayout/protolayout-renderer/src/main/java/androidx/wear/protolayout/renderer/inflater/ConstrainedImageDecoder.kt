@@ -78,7 +78,9 @@ internal object ConstrainedImageDecoder {
 
     private fun checkSize(imageSize: Size) {
         if (
-            imageSize.width > DEFAULT_DECODE_HARD_LIMIT_PX ||
+            imageSize.width <= 0 ||
+                imageSize.height <= 0 ||
+                imageSize.width > DEFAULT_DECODE_HARD_LIMIT_PX ||
                 imageSize.height > DEFAULT_DECODE_HARD_LIMIT_PX
         ) {
             throw IllegalArgumentException(

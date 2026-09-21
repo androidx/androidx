@@ -105,6 +105,17 @@ class ConstrainedImageDecoderTest {
     }
 
     @Test
+    fun decodeBitmap_imageResource_nonPositiveTargetSize_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            ConstrainedImageDecoder.decodeBitmap(
+                getBytes(R.drawable.filled_image),
+                targetWidthPx = 0,
+                targetHeightPx = REASONABLE_SIZE_PX,
+            )
+        }
+    }
+
+    @Test
     fun decodeBitmap_largeImageResource_throws() {
         assertFailsWith<IllegalArgumentException> {
             ConstrainedImageDecoder.decodeBitmap(
