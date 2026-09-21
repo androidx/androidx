@@ -222,7 +222,8 @@ public fun RcPlayer(
     // store / other computed States and captures its write as the result. No imperative recompute
     // pass, no dirty flags — changing an input invalidates exactly the dependent States, and chains
     // compose naturally.
-    val graphContext = state.graphContext
+    val graphContext =
+        state.graphContext.also { gc -> gc.setTypefaceResolver(remoteContext.typefaceResolver) }
 
     val startClockMillis = remember(document, clock) { clock.millis() }
     val limiter = remember(document) { Limiter() }
@@ -268,7 +269,6 @@ public fun RcPlayer(
             themeColor.apply(remoteContext)
         }
     }
-
     // The document's root content description (Header DOC_CONTENT_DESCRIPTION /
     // RootContentDescription
     // op, resolved onto the document during initializeContext) labels the whole player for
@@ -585,7 +585,8 @@ internal fun RcPlayerChildren(
             RcPlayerComponent(child, scopeModifier)
         }
     } else {
-        val children = remember { ArrayList<Component>().apply { layout.getComponents(this) } }
+        val children =
+            remember(layout) { ArrayList<Component>().apply { layout.getComponents(this) } }
         children.fastForEach { op -> RcPlayerComponent(op) }
     }
 }
