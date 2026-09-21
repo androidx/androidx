@@ -49,6 +49,7 @@ import org.robolectric.android.controller.ActivityController
 
 @RunWith(AndroidJUnit4::class)
 @Suppress("DEPRECATION")
+@OptIn(ExperimentalCoroutinesApi::class)
 class InteractionTest {
     companion object {
         @ClassRule @JvmField val arCoreTestRule = ArCoreTestRule()
@@ -75,7 +76,6 @@ class InteractionTest {
         )
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun hitTest_successWithOneHitResult() =
         runTest(testDispatcher) {
@@ -95,6 +95,8 @@ class InteractionTest {
             }
             advanceUntilIdle()
 
+            assertThat(foundPlanes).isNotEmpty()
+
             // 3. Perform a hitTest to find Planes along ray from device in forward direction
             val plane = foundPlanes.first()
             val ray = Ray(origin = devicePose.translation, direction = devicePose.forward)
@@ -111,10 +113,10 @@ class InteractionTest {
         }
 
     @Test
-    fun hitTest_planeTrackingDisabled_throwsIllegalStateException() {
-        session.configure(Config.Builder().setPlaneTracking(PlaneTrackingMode.DISABLED).build())
+    fun hitTest_planeTrackingDisabled_throwsIllegalStateException() =
         runTest(testDispatcher) {
+            session.configure(Config.Builder().setPlaneTracking(PlaneTrackingMode.DISABLED).build())
+
             assertFailsWith<IllegalStateException> { hitTest(session, Ray()) }
         }
-    }
 }

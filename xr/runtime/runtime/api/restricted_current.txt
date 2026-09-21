@@ -494,6 +494,7 @@ package androidx.xr.runtime.internal {
     method @InaccessibleFromKotlin public default Long? getSessionPointer();
     method public default void initialize();
     method public default void pause();
+    method public default suspend Object? prepareForUpdate(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public default void resume();
     method public default suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.time.ComparableTimeMark?>);
     property public abstract androidx.xr.runtime.Config config;

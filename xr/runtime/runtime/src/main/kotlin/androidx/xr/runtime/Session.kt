@@ -618,7 +618,25 @@ public constructor(
 
     private suspend fun updateLoop() {
         while (lifecycleOwner.lifecycle.currentState == Lifecycle.State.RESUMED) {
+            prepareForUpdate()
             configurationMutex.withLock { update() }
+        }
+    }
+
+    /**
+     * Prepares the runtimes for an update.
+     *
+     * This method is effectively used for rate control among implementations of [JxrRuntime] as
+     * follows:
+     * - [androidx.xr.arcore.testing.FakePerceptionRuntime]: Suspends on a semaphore until triggered
+     *   by tests.
+     *
+     * More behaviors will be added in the future.
+     */
+    private suspend fun prepareForUpdate() {
+        if (isDestroyed) return
+        for (runtime in runtimes) {
+            runtime.prepareForUpdate()
         }
     }
 
@@ -631,8 +649,6 @@ public constructor(
      * - [androidx.xr.arcore.openxr.OpenXrRuntime.update]: Delays for a fixed frame interval.
      * - [androidx.xr.arcore.playservices.ArCoreRuntime.update]: Delays based on the camera config's
      *   average FPS.
-     * - [androidx.xr.arcore.testing.FakePerceptionRuntime.update]: Suspends on a semaphore until
-     *   triggered by tests.
      */
     @GuardedBy("configurationMutex")
     private suspend fun update() {

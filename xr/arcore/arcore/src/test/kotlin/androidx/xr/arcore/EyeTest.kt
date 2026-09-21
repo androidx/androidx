@@ -46,6 +46,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class EyeTest {
     @Rule @JvmField val arCoreTestRule = ArCoreTestRule()
 
@@ -80,7 +81,6 @@ class EyeTest {
         assertFailsWith<IllegalStateException> { Eye.left(session) }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun left_trackingStateMatchesRuntime() =
         runTest(testDispatcher) {
@@ -96,7 +96,6 @@ class EyeTest {
             assertThat(underTest.state.value.trackingState).isEqualTo(TrackingState.PAUSED)
         }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun left_isOpen_poseMatchesRuntime() =
         runTest(testDispatcher) {
@@ -110,7 +109,6 @@ class EyeTest {
             assertThat(underTest.state.value.pose).isEqualTo(expectedPose)
         }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun left_isClosed_poseDoesNotUpdate() =
         runTest(testDispatcher) {
@@ -132,7 +130,6 @@ class EyeTest {
         assertFailsWith<IllegalStateException> { Eye.right(session) }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun right_trackingStateMatchesRuntime() =
         runTest(testDispatcher) {
@@ -148,7 +145,6 @@ class EyeTest {
             assertThat(underTest.state.value.trackingState).isEqualTo(TrackingState.PAUSED)
         }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun right_isOpen_poseMatchesRuntime() =
         runTest(testDispatcher) {
@@ -162,7 +158,6 @@ class EyeTest {
             assertThat(underTest.state.value.pose).isEqualTo(expectedPose)
         }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun right_isClosed_poseDoesNotUpdate() =
         runTest(testDispatcher) {

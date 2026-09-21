@@ -50,6 +50,7 @@ import org.robolectric.android.controller.ActivityController
 import org.robolectric.shadows.ShadowContentResolver
 
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class HandTest {
     @Rule @JvmField val arCoreTestRule = ArCoreTestRule()
 
@@ -85,7 +86,6 @@ class HandTest {
         arCoreTestRule.rightHandTester.isVisible = false
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun left_returnsLeftHand() =
         runTest(testDispatcher) {
@@ -120,7 +120,6 @@ class HandTest {
         assertFailsWith<IllegalStateException> { Hand.left(session) }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun right_returnsRightHand() =
         runTest(testDispatcher) {
@@ -155,7 +154,6 @@ class HandTest {
         assertFailsWith<IllegalStateException> { Hand.right(session) }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun update_stateMatchesRuntimeHand() =
         runTest(testDispatcher) {
