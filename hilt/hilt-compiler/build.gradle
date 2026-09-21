@@ -75,5 +75,4 @@ androidx {
     mavenVersion = LibraryVersions.HILT
     inceptionYear = "2020"
     description = "AndroidX Hilt Extension Compiler"
-    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }
