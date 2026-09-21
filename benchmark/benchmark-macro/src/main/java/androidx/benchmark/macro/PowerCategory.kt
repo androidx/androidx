@@ -17,7 +17,7 @@
 package androidx.benchmark.macro
 
 @ExperimentalMetricApi
-enum class PowerCategory {
+public enum class PowerCategory {
     CPU,
     DISPLAY,
     GPU,

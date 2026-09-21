@@ -40,7 +40,7 @@ import java.io.File
  */
 public class MacrobenchmarkScope(
     /** ApplicationId / Package name of the app being tested. */
-    val packageName: String,
+    public val packageName: String,
     /**
      * Controls whether launches will automatically set [Intent.FLAG_ACTIVITY_CLEAR_TASK].
      *
@@ -152,7 +152,7 @@ public class MacrobenchmarkScope(
      * ahead of time.
      */
     @get:Suppress("AutoBoxing") // low frequency, non-perf-relevant part of test
-    var iteration: Int? = null
+    public var iteration: Int? = null
         internal set
 
     /**
@@ -175,7 +175,7 @@ public class MacrobenchmarkScope(
      * @throws IllegalStateException if unable to acquire intent for package.
      */
     @JvmOverloads
-    public fun startActivityAndWait(block: (Intent) -> Unit = {}) =
+    public fun startActivityAndWait(block: (Intent) -> Unit = {}): Unit =
         trace("startActivityAndWait") {
             val intent =
                 context.packageManager.getLaunchIntentForPackage(packageName)
@@ -351,12 +351,12 @@ public class MacrobenchmarkScope(
         replaceWith = ReplaceWith("killProcess()"),
     )
     @Suppress("UNUSED_PARAMETER")
-    fun killProcess(useKillAll: Boolean = false) {
+    public fun killProcess(useKillAll: Boolean = false) {
         killProcess()
     }
 
     /** Force-stop the process being measured. */
-    fun killProcess() {
+    public fun killProcess() {
         // Method traces are only flushed is a method tracing session is active.
         flushMethodTraces()
 
@@ -395,7 +395,7 @@ public class MacrobenchmarkScope(
      * @throws IllegalStateException if the device is not rooted, and the target app cannot be
      *   signalled to drop its shader cache.
      */
-    fun dropShaderCache() {
+    public fun dropShaderCache() {
         if (Arguments.dropShadersEnable) {
             Log.d(TAG, "Dropping shader cache for $packageName")
             val dropError = ProfileInstallBroadcast.dropShaderCache(packageName)

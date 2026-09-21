@@ -20,11 +20,11 @@ import androidx.annotation.RestrictTo
 import androidx.benchmark.DeviceInfo
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-object BatteryCharge {
+public object BatteryCharge {
 
     private const val MIN_BATTERY_PERCENT = 50
 
-    fun hasMinimumCharge(throwOnMissingMetrics: Boolean = false): Boolean {
+    public fun hasMinimumCharge(throwOnMissingMetrics: Boolean = false): Boolean {
         if (DeviceInfo.initialBatteryPercent >= MIN_BATTERY_PERCENT) {
             return true
         }

@@ -39,7 +39,7 @@ import java.io.File
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(28)
-fun collect(
+public fun collect(
     uniqueName: String,
     packageName: String,
     stableIterations: Int,
@@ -389,7 +389,7 @@ private data class Summary(
 /** A container for the results of collecting Baseline Profiles using the [collect] API. */
 public class BaselineProfileResult(
     /** A list of absolute file paths to the generated baseline profiles. */
-    val baselineProfiles: List<String> = emptyList(),
+    public val baselineProfiles: List<String> = emptyList(),
     /** A list of absolute file paths to the generated startup profiles. */
-    val startupProfiles: List<String> = emptyList(),
+    public val startupProfiles: List<String> = emptyList(),
 )

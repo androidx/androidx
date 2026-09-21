@@ -30,7 +30,7 @@ import kotlin.math.abs
  * @throws AssertionError
  */
 @ExperimentalMetricApi
-fun assertEqualMeasurements(
+public fun assertEqualMeasurements(
     expected: List<Metric.Measurement>,
     observed: List<Metric.Measurement>,
     threshold: Double,
