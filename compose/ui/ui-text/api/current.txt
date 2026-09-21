@@ -1012,7 +1012,7 @@ package androidx.compose.ui.text {
 
 }
 
-package androidx.compose.ui.text.android {
+package @SuppressCompatibility androidx.compose.ui.text.android {
 
   @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This is internal API that may change frequently and without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY}) public @interface InternalPlatformTextApi {
   }
@@ -1800,6 +1800,17 @@ package androidx.compose.ui.text.intl {
   }
 
   @Deprecated public typealias PlatformLocale = java.util.Locale;
+
+}
+
+package androidx.compose.ui.text.platform {
+
+  public final class Synchronization_jvmKt {
+    method @BytecodeOnly @kotlin.PublishedApi internal static <R> R synchronized(androidx.compose.ui.text.platform.SynchronizedObject, kotlin.jvm.functions.Function0<? extends R>);
+  }
+
+  @BytecodeOnly @kotlin.PublishedApi internal final class SynchronizedObject {
+  }
 
 }
 

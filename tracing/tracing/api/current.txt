@@ -37,6 +37,10 @@ package androidx.tracing {
     method public static inline long nanoTime();
   }
 
+  public final class CommonKt {
+    method @BytecodeOnly @kotlin.PublishedApi internal static long monotonicId();
+  }
+
   public interface Counter {
     method public String name();
     method public void setValue(double value);
@@ -44,6 +48,10 @@ package androidx.tracing {
   }
 
   @SuppressCompatibility @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.RequiresOptIn(message="Marks declarations in the Tracing API that are delicate.") @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface DelicateTracingApi {
+  }
+
+  @BytecodeOnly @kotlin.PublishedApi internal final class EmptyCloseable implements java.lang.AutoCloseable {
+    method public void close();
   }
 
   public abstract class EventMetadata {
@@ -68,6 +76,10 @@ package androidx.tracing {
     field public AutoCloseable closeable;
     field public androidx.tracing.EventMetadata metadata;
     field public androidx.tracing.PropagationToken propagationToken;
+  }
+
+  public final class EventMetadataCloseableKt {
+    method @BytecodeOnly @kotlin.PublishedApi internal static androidx.tracing.EventMetadataCloseable getEmptyEventMetadataCloseable();
   }
 
   @SuppressCompatibility @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.RequiresOptIn(message="Marks APIs that are highly experimental for context propagation.") @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalContextPropagation {
@@ -110,6 +122,13 @@ package androidx.tracing {
     property public String category;
     property public java.util.List<java.lang.Long> flowIds;
     property public String name;
+    field @BytecodeOnly @kotlin.PublishedApi internal static final androidx.tracing.PlatformThreadContextElement.Companion Companion;
+    field @BytecodeOnly @kotlin.PublishedApi internal static final kotlin.coroutines.CoroutineContext.Key<androidx.tracing.PlatformThreadContextElement> KEY;
+    field @BytecodeOnly @kotlin.PublishedApi internal static final int STATE_BEGIN = 1; // 0x1
+    field @BytecodeOnly @kotlin.PublishedApi internal static final int STATE_END = 0; // 0x0
+  }
+
+  @BytecodeOnly @kotlin.PublishedApi internal static final class PlatformThreadContextElement.Companion {
   }
 
   public abstract class Poolable<T extends androidx.tracing.Poolable<T>> {
@@ -133,6 +152,12 @@ package androidx.tracing {
     method public void close();
     method @SuppressCompatibility @androidx.tracing.DelicateTracingApi public kotlin.coroutines.CoroutineContext.Element? contextElementOrNull();
     field public static final androidx.tracing.PropagationUnsupportedToken INSTANCE;
+  }
+
+  @BytecodeOnly @kotlin.PublishedApi internal final class ProtoPool {
+    ctor public ProtoPool(boolean isDebug);
+    method public androidx.tracing.PooledTracePacketArray obtainTracePacketArray();
+    method public long poolableCount();
   }
 
   public final class Throwables {
@@ -161,6 +186,12 @@ package androidx.tracing {
     ctor public TraceEvent();
     method public void copyFrom(androidx.tracing.TraceEvent src);
     method public void reset();
+    method @BytecodeOnly @kotlin.PublishedApi internal void setBeginSection(long, String);
+    method @BytecodeOnly @kotlin.PublishedApi internal void setBeginSectionWithFlows(long, String, java.util.List<java.lang.Long!>);
+    method @BytecodeOnly @kotlin.PublishedApi internal void setCounterDouble(long, double);
+    method @BytecodeOnly @kotlin.PublishedApi internal void setCounterLong(long, long);
+    method @BytecodeOnly @kotlin.PublishedApi internal void setEndSection(long);
+    method @BytecodeOnly @kotlin.PublishedApi internal void setInstant(long, String, java.util.List<java.lang.Long!>);
     property public java.util.List<androidx.tracing.AttributeEntry> attributes;
     property public java.util.List<java.lang.String> categories;
     property public Long? correlationId;
@@ -199,6 +230,14 @@ package androidx.tracing {
     field public androidx.tracing.TrackDescriptor? trackDescriptor;
     field public long trackUuid;
     field public int type;
+  }
+
+  public final class TraceEventKt {
+    field @BytecodeOnly @kotlin.PublishedApi internal static final int TRACE_EVENT_TYPE_BEGIN = 1; // 0x1
+    field @BytecodeOnly @kotlin.PublishedApi internal static final int TRACE_EVENT_TYPE_COUNTER = 4; // 0x4
+    field @BytecodeOnly @kotlin.PublishedApi internal static final int TRACE_EVENT_TYPE_END = 2; // 0x2
+    field @BytecodeOnly @kotlin.PublishedApi internal static final int TRACE_EVENT_TYPE_INSTANT = 3; // 0x3
+    field @BytecodeOnly @kotlin.PublishedApi internal static final int TRACE_EVENT_TYPE_UNDEFINED = 0; // 0x0
   }
 
   public final class TraceKt {

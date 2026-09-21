@@ -58,7 +58,7 @@ package androidx.constraintlayout.compose {
     property @androidx.compose.runtime.Stable public androidx.constraintlayout.compose.ChainStyle SpreadInside;
   }
 
-  @kotlin.PublishedApi internal enum CompositionSource {
+  @BytecodeOnly @kotlin.PublishedApi internal enum CompositionSource {
     enum_constant public static final androidx.constraintlayout.compose.CompositionSource Content;
     enum_constant public static final androidx.constraintlayout.compose.CompositionSource Unknown;
   }
@@ -244,11 +244,11 @@ package androidx.constraintlayout.compose {
     method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor! createTopBarrier-3ABfNKs$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, float, int, Object!);
     method public final androidx.constraintlayout.compose.VerticalChainReference createVerticalChain(androidx.constraintlayout.compose.LayoutReference[] elements, optional androidx.constraintlayout.compose.ChainStyle chainStyle);
     method @BytecodeOnly public static androidx.constraintlayout.compose.VerticalChainReference! createVerticalChain$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, androidx.constraintlayout.compose.ChainStyle!, int, Object!);
-    method @InaccessibleFromKotlin @kotlin.PublishedApi internal final androidx.constraintlayout.core.parser.CLObject getContainerObject();
-    method @InaccessibleFromKotlin @kotlin.PublishedApi internal final int getHelpersHashCode();
+    method @BytecodeOnly @kotlin.PublishedApi internal final androidx.constraintlayout.core.parser.CLObject getContainerObject();
+    method @BytecodeOnly @kotlin.PublishedApi internal final int getHelpersHashCode();
     method @InaccessibleFromKotlin @Deprecated protected final java.util.List<kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.State,kotlin.Unit>> getTasks();
     method public void reset();
-    method @InaccessibleFromKotlin @kotlin.PublishedApi internal final void setHelpersHashCode(int);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void setHelpersHashCode(int);
     method @KotlinOnly public final androidx.constraintlayout.compose.LayoutReference withChainParams(androidx.constraintlayout.compose.LayoutReference, optional androidx.compose.ui.unit.Dp startMargin, optional androidx.compose.ui.unit.Dp topMargin, optional androidx.compose.ui.unit.Dp endMargin, optional androidx.compose.ui.unit.Dp bottomMargin, optional androidx.compose.ui.unit.Dp startGoneMargin, optional androidx.compose.ui.unit.Dp topGoneMargin, optional androidx.compose.ui.unit.Dp endGoneMargin, optional androidx.compose.ui.unit.Dp bottomGoneMargin, optional float weight);
     method @BytecodeOnly public final androidx.constraintlayout.compose.LayoutReference withChainParams-ouYQatA(androidx.constraintlayout.compose.LayoutReference, float, float, float, float, float, float, float, float, float);
     method @BytecodeOnly public static androidx.constraintlayout.compose.LayoutReference! withChainParams-ouYQatA$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference!, float, float, float, float, float, float, float, float, float, int, Object!);
@@ -258,8 +258,6 @@ package androidx.constraintlayout.compose {
     method @KotlinOnly public final androidx.constraintlayout.compose.LayoutReference withVerticalChainParams(androidx.constraintlayout.compose.LayoutReference, optional androidx.compose.ui.unit.Dp topMargin, optional androidx.compose.ui.unit.Dp bottomMargin, optional androidx.compose.ui.unit.Dp topGoneMargin, optional androidx.compose.ui.unit.Dp bottomGoneMargin, optional float weight);
     method @BytecodeOnly public final androidx.constraintlayout.compose.LayoutReference withVerticalChainParams-YLPp7PM(androidx.constraintlayout.compose.LayoutReference, float, float, float, float, float);
     method @BytecodeOnly public static androidx.constraintlayout.compose.LayoutReference! withVerticalChainParams-YLPp7PM$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference!, float, float, float, float, float, int, Object!);
-    property @kotlin.PublishedApi internal final androidx.constraintlayout.core.parser.CLObject containerObject;
-    property @kotlin.PublishedApi internal final int helpersHashCode;
     property @Deprecated protected final java.util.List<kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.State,kotlin.Unit>> tasks;
   }
 
@@ -323,13 +321,12 @@ package androidx.constraintlayout.compose {
   }
 
   @androidx.compose.foundation.layout.LayoutScopeMarker public final class ConstraintLayoutScope extends androidx.constraintlayout.compose.ConstraintLayoutBaseScope {
-    ctor @kotlin.PublishedApi internal ConstraintLayoutScope();
+    ctor @BytecodeOnly @kotlin.PublishedApi internal ConstraintLayoutScope();
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier constrainAs(androidx.compose.ui.Modifier, androidx.constraintlayout.compose.ConstrainedLayoutReference ref, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.ConstrainScope,kotlin.Unit> constrainBlock);
     method public androidx.constraintlayout.compose.ConstrainedLayoutReference createRef();
     method @androidx.compose.runtime.Stable public androidx.constraintlayout.compose.ConstraintLayoutScope.ConstrainedLayoutReferences createRefs();
-    method @InaccessibleFromKotlin @kotlin.PublishedApi internal boolean isAnimateChanges();
-    method @InaccessibleFromKotlin @kotlin.PublishedApi internal void setAnimateChanges(boolean);
-    property @kotlin.PublishedApi internal boolean isAnimateChanges;
+    method @BytecodeOnly @kotlin.PublishedApi internal boolean isAnimateChanges();
+    method @BytecodeOnly @kotlin.PublishedApi internal void setAnimateChanges(boolean);
   }
 
   public final class ConstraintLayoutScope.ConstrainedLayoutReferences {
@@ -374,7 +371,7 @@ package androidx.constraintlayout.compose {
     method public default androidx.constraintlayout.compose.ConstraintSet override(String name, float value);
   }
 
-  @kotlin.PublishedApi internal final class ConstraintSetForInlineDsl implements androidx.constraintlayout.compose.ConstraintSet androidx.compose.runtime.RememberObserver {
+  @BytecodeOnly @kotlin.PublishedApi internal final class ConstraintSetForInlineDsl implements androidx.constraintlayout.compose.ConstraintSet androidx.compose.runtime.RememberObserver {
     ctor public ConstraintSetForInlineDsl(androidx.constraintlayout.compose.ConstraintLayoutScope scope);
     method public void applyTo(androidx.constraintlayout.compose.State state, java.util.List<? extends androidx.compose.ui.layout.Measurable> measurables);
     method @InaccessibleFromKotlin public boolean getKnownDirty();
@@ -516,7 +513,7 @@ package androidx.constraintlayout.compose {
     property public androidx.constraintlayout.compose.Easing Standard;
   }
 
-  @kotlin.PublishedApi internal abstract class EditableJSONLayout implements androidx.constraintlayout.compose.LayoutInformationReceiver {
+  @BytecodeOnly @kotlin.PublishedApi internal abstract class EditableJSONLayout implements androidx.constraintlayout.compose.LayoutInformationReceiver {
     ctor public EditableJSONLayout(@org.intellij.lang.annotations.Language("json5") String content);
     method public final String getCurrentContent();
     method public final String? getDebugName();
@@ -741,7 +738,6 @@ package androidx.constraintlayout.compose {
   }
 
   public final class LateMotionLayoutKt {
-    method @KotlinOnly @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static void LateMotionLayout(androidx.compose.runtime.MutableState<androidx.constraintlayout.compose.ConstraintSet?> start, androidx.compose.runtime.MutableState<androidx.constraintlayout.compose.ConstraintSet?> end, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlinx.coroutines.channels.Channel<androidx.constraintlayout.compose.ConstraintSet> channel, androidx.compose.runtime.State<kotlin.Unit> contentTracker, androidx.compose.ui.node.Ref<androidx.constraintlayout.compose.CompositionSource> compositionSource, int optimizationLevel, kotlin.jvm.functions.Function0<kotlin.Unit>? finishedAnimationListener, androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static void LateMotionLayout(androidx.compose.runtime.MutableState<androidx.constraintlayout.compose.ConstraintSet!>, androidx.compose.runtime.MutableState<androidx.constraintlayout.compose.ConstraintSet!>, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>, kotlinx.coroutines.channels.Channel<androidx.constraintlayout.compose.ConstraintSet!>, androidx.compose.runtime.State<kotlin.Unit!>, androidx.compose.ui.node.Ref<androidx.constraintlayout.compose.CompositionSource!>, int, kotlin.jvm.functions.Function0<kotlin.Unit!>?, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
   }
 
@@ -765,7 +761,7 @@ package androidx.constraintlayout.compose {
   @androidx.compose.runtime.Stable public abstract class LayoutReference {
   }
 
-  @Deprecated @kotlin.PublishedApi internal class Measurer implements androidx.constraintlayout.core.widgets.analyzer.BasicMeasure.Measurer androidx.constraintlayout.compose.DesignInfoProvider {
+  @BytecodeOnly @Deprecated @kotlin.PublishedApi internal class Measurer implements androidx.constraintlayout.core.widgets.analyzer.BasicMeasure.Measurer androidx.constraintlayout.compose.DesignInfoProvider {
     ctor @Deprecated public Measurer(androidx.compose.ui.unit.Density density);
     method @Deprecated public final void addLayoutInformationReceiver(androidx.constraintlayout.compose.LayoutInformationReceiver? layoutReceiver);
     method @KotlinOnly @Deprecated protected final void applyRootSize(androidx.compose.ui.unit.Constraints constraints);
@@ -803,7 +799,7 @@ package androidx.constraintlayout.compose {
     property @Deprecated protected final androidx.constraintlayout.compose.State state;
   }
 
-  @kotlin.PublishedApi internal class Measurer2 implements androidx.constraintlayout.core.widgets.analyzer.BasicMeasure.Measurer androidx.constraintlayout.compose.DesignInfoProvider {
+  @BytecodeOnly @kotlin.PublishedApi internal class Measurer2 implements androidx.constraintlayout.core.widgets.analyzer.BasicMeasure.Measurer androidx.constraintlayout.compose.DesignInfoProvider {
     ctor public Measurer2(androidx.compose.ui.unit.Density density);
     method public final void addLayoutInformationReceiver(androidx.constraintlayout.compose.LayoutInformationReceiver? layoutReceiver);
     method @KotlinOnly protected final void applyRootSize(androidx.compose.ui.unit.Constraints constraints);
@@ -879,10 +875,7 @@ package androidx.constraintlayout.compose {
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static void MotionLayout-6oYECBM(androidx.constraintlayout.compose.MotionScene, float, androidx.compose.ui.Modifier?, String?, int, int, androidx.constraintlayout.compose.InvalidationStrategy?, kotlin.jvm.functions.Function3<? super androidx.constraintlayout.compose.MotionLayoutScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static void MotionLayout-T3LJ6Qw(androidx.constraintlayout.compose.ConstraintSet, androidx.constraintlayout.compose.ConstraintSet, float, androidx.compose.ui.Modifier?, androidx.constraintlayout.compose.Transition?, int, int, androidx.constraintlayout.compose.InvalidationStrategy?, kotlin.jvm.functions.Function3<? super androidx.constraintlayout.compose.MotionLayoutScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static void MotionLayout-T3LJ6Qw(androidx.constraintlayout.compose.MotionScene, String?, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>, androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function0<kotlin.Unit!>?, int, int, androidx.constraintlayout.compose.InvalidationStrategy?, kotlin.jvm.functions.Function3<? super androidx.constraintlayout.compose.MotionLayoutScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi @kotlin.PublishedApi internal static void MotionLayoutCore(androidx.constraintlayout.compose.ConstraintSet start, androidx.constraintlayout.compose.ConstraintSet end, androidx.constraintlayout.compose.Transition? transition, float progress, androidx.constraintlayout.compose.LayoutInformationReceiver? informationReceiver, int optimizationLevel, boolean showBounds, boolean showPaths, boolean showKeyPositions, androidx.compose.ui.Modifier modifier, androidx.compose.runtime.MutableState<kotlin.Unit> contentTracker, androidx.compose.ui.node.Ref<androidx.constraintlayout.compose.CompositionSource> compositionSource, androidx.constraintlayout.compose.InvalidationStrategy invalidationStrategy, kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi @kotlin.PublishedApi internal static void MotionLayoutCore(androidx.constraintlayout.compose.ConstraintSet, androidx.constraintlayout.compose.ConstraintSet, androidx.constraintlayout.compose.Transition?, float, androidx.constraintlayout.compose.LayoutInformationReceiver?, int, boolean, boolean, boolean, androidx.compose.ui.Modifier, androidx.compose.runtime.MutableState<kotlin.Unit!>, androidx.compose.ui.node.Ref<androidx.constraintlayout.compose.CompositionSource!>, androidx.constraintlayout.compose.InvalidationStrategy, kotlin.jvm.functions.Function3<? super androidx.constraintlayout.compose.MotionLayoutScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi @kotlin.PublishedApi internal static void MotionLayoutCore(androidx.constraintlayout.compose.MotionScene motionScene, float progress, String transitionName, int optimizationLevel, androidx.constraintlayout.compose.DebugFlags debugFlags, androidx.compose.ui.Modifier modifier, androidx.compose.runtime.MutableState<kotlin.Unit> contentTracker, androidx.compose.ui.node.Ref<androidx.constraintlayout.compose.CompositionSource> compositionSource, androidx.constraintlayout.compose.InvalidationStrategy invalidationStrategy, kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
-    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi @kotlin.PublishedApi internal static void MotionLayoutCore(androidx.constraintlayout.compose.MotionScene motionScene, String? constraintSetName, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? finishedAnimationListener, optional androidx.constraintlayout.compose.DebugFlags debugFlags, optional int optimizationLevel, androidx.compose.runtime.MutableState<kotlin.Unit> contentTracker, androidx.compose.ui.node.Ref<androidx.constraintlayout.compose.CompositionSource> compositionSource, androidx.constraintlayout.compose.InvalidationStrategy invalidationStrategy, kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi @kotlin.PublishedApi internal static void MotionLayoutCore-SehEMGo(androidx.constraintlayout.compose.MotionScene, float, String, int, int, androidx.compose.ui.Modifier, androidx.compose.runtime.MutableState<kotlin.Unit!>, androidx.compose.ui.node.Ref<androidx.constraintlayout.compose.CompositionSource!>, androidx.constraintlayout.compose.InvalidationStrategy, kotlin.jvm.functions.Function3<? super androidx.constraintlayout.compose.MotionLayoutScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi @kotlin.PublishedApi internal static void MotionLayoutCore-TEds9UA(androidx.constraintlayout.compose.MotionScene, String?, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>, androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function0<kotlin.Unit!>?, int, int, androidx.compose.runtime.MutableState<kotlin.Unit!>, androidx.compose.ui.node.Ref<androidx.constraintlayout.compose.CompositionSource!>, androidx.constraintlayout.compose.InvalidationStrategy, kotlin.jvm.functions.Function3<? super androidx.constraintlayout.compose.MotionLayoutScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int, int);
   }
@@ -1025,7 +1018,7 @@ package androidx.constraintlayout.compose {
     property public androidx.constraintlayout.compose.SwipeSide side;
   }
 
-  @androidx.compose.runtime.Immutable @kotlin.PublishedApi internal final class RawConstraintSet implements androidx.constraintlayout.compose.ConstraintSet {
+  @BytecodeOnly @androidx.compose.runtime.Immutable @kotlin.PublishedApi internal final class RawConstraintSet implements androidx.constraintlayout.compose.ConstraintSet {
     ctor public RawConstraintSet(androidx.constraintlayout.core.parser.CLObject clObject);
     method public void applyTo(androidx.constraintlayout.compose.State state, java.util.List<? extends androidx.compose.ui.layout.Measurable> measurables);
   }
@@ -1188,10 +1181,9 @@ package androidx.constraintlayout.compose {
 
   public final class ToolingUtilsKt {
     method @InaccessibleFromKotlin public static androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.constraintlayout.compose.DesignInfoProvider> getDesignInfoDataKey();
-    method @InaccessibleFromKotlin @kotlin.PublishedApi internal static androidx.constraintlayout.compose.DesignInfoProvider getDesignInfoProvider(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
-    method @InaccessibleFromKotlin @kotlin.PublishedApi internal static void setDesignInfoProvider(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.constraintlayout.compose.DesignInfoProvider);
+    method @BytecodeOnly @kotlin.PublishedApi internal static androidx.constraintlayout.compose.DesignInfoProvider getDesignInfoProvider(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
+    method @BytecodeOnly @kotlin.PublishedApi internal static void setDesignInfoProvider(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.constraintlayout.compose.DesignInfoProvider);
     property public static androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.constraintlayout.compose.DesignInfoProvider> DesignInfoDataKey;
-    property @kotlin.PublishedApi internal static androidx.constraintlayout.compose.DesignInfoProvider androidx.compose.ui.semantics.SemanticsPropertyReceiver.designInfoProvider;
   }
 
   @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.constraintlayout.compose.ExperimentalMotionApi public interface Transition {

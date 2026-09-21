@@ -256,7 +256,7 @@ package androidx.compose.animation {
   }
 
   public final class MutableContentTransform {
-    ctor @kotlin.PublishedApi internal MutableContentTransform(boolean initialVeilMatchParentSize, boolean targetVeilMatchParentSize, kotlin.jvm.functions.Function0<androidx.compose.ui.geometry.Offset>? initialOffsetVelocityProvider, kotlin.jvm.functions.Function0<androidx.compose.ui.geometry.Offset>? targetOffsetVelocityProvider);
+    ctor @BytecodeOnly @kotlin.PublishedApi internal MutableContentTransform(boolean, boolean, kotlin.jvm.functions.Function0<androidx.compose.ui.geometry.Offset!>?, kotlin.jvm.functions.Function0<androidx.compose.ui.geometry.Offset!>?);
     method public void initialContentTransform(kotlin.jvm.functions.Function2<? super androidx.compose.animation.TransformScope,? super androidx.compose.ui.unit.IntSize,kotlin.Unit> block);
     method public void targetContentTransform(kotlin.jvm.functions.Function2<? super androidx.compose.animation.TransformScope,? super androidx.compose.ui.unit.IntSize,kotlin.Unit> block);
   }

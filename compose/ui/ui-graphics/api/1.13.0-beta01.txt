@@ -6,6 +6,48 @@ package androidx.compose.ui.graphics {
     method @BytecodeOnly public static boolean isSupported-s9anfk8(int);
   }
 
+  @BytecodeOnly @kotlin.PublishedApi internal final class AndroidCanvas implements androidx.compose.ui.graphics.Canvas {
+    ctor public AndroidCanvas();
+    method @KotlinOnly public void clipPath(androidx.compose.ui.graphics.Path path, optional androidx.compose.ui.graphics.ClipOp clipOp);
+    method @BytecodeOnly public void clipPath-mtrdD-E(androidx.compose.ui.graphics.Path, int);
+    method @KotlinOnly public void clipRect(float left, float top, float right, float bottom, optional androidx.compose.ui.graphics.ClipOp clipOp);
+    method @BytecodeOnly public void clipRect-N_I0leg(float, float, float, float, int);
+    method @KotlinOnly public void concat(androidx.compose.ui.graphics.Matrix matrix);
+    method @BytecodeOnly public void concat-58bKbWc(float[]);
+    method public void disableZ();
+    method public void drawArc(float left, float top, float right, float bottom, float startAngle, float sweepAngle, boolean useCenter, androidx.compose.ui.graphics.Paint paint);
+    method @KotlinOnly public void drawCircle(androidx.compose.ui.geometry.Offset center, float radius, androidx.compose.ui.graphics.Paint paint);
+    method @BytecodeOnly public void drawCircle-9KIMszo(long, float, androidx.compose.ui.graphics.Paint);
+    method @KotlinOnly public void drawImage(androidx.compose.ui.graphics.ImageBitmap image, androidx.compose.ui.geometry.Offset topLeftOffset, androidx.compose.ui.graphics.Paint paint);
+    method @BytecodeOnly public void drawImage-d-4ec7I(androidx.compose.ui.graphics.ImageBitmap, long, androidx.compose.ui.graphics.Paint);
+    method @KotlinOnly public void drawImageRect(androidx.compose.ui.graphics.ImageBitmap image, optional androidx.compose.ui.unit.IntOffset srcOffset, optional androidx.compose.ui.unit.IntSize srcSize, optional androidx.compose.ui.unit.IntOffset dstOffset, optional androidx.compose.ui.unit.IntSize dstSize, androidx.compose.ui.graphics.Paint paint);
+    method @BytecodeOnly public void drawImageRect-HPBpro0(androidx.compose.ui.graphics.ImageBitmap, long, long, long, long, androidx.compose.ui.graphics.Paint);
+    method @KotlinOnly public void drawLine(androidx.compose.ui.geometry.Offset p1, androidx.compose.ui.geometry.Offset p2, androidx.compose.ui.graphics.Paint paint);
+    method @BytecodeOnly public void drawLine-Wko1d7g(long, long, androidx.compose.ui.graphics.Paint);
+    method public void drawOval(float left, float top, float right, float bottom, androidx.compose.ui.graphics.Paint paint);
+    method public void drawPath(androidx.compose.ui.graphics.Path path, androidx.compose.ui.graphics.Paint paint);
+    method @KotlinOnly public void drawPoints(androidx.compose.ui.graphics.PointMode pointMode, java.util.List<androidx.compose.ui.geometry.Offset> points, androidx.compose.ui.graphics.Paint paint);
+    method @BytecodeOnly public void drawPoints-O7TthRY(int, java.util.List<androidx.compose.ui.geometry.Offset!>, androidx.compose.ui.graphics.Paint);
+    method @KotlinOnly public void drawRawPoints(androidx.compose.ui.graphics.PointMode pointMode, float[] points, androidx.compose.ui.graphics.Paint paint);
+    method @BytecodeOnly public void drawRawPoints-O7TthRY(int, float[], androidx.compose.ui.graphics.Paint);
+    method public void drawRect(float left, float top, float right, float bottom, androidx.compose.ui.graphics.Paint paint);
+    method public void drawRoundRect(float left, float top, float right, float bottom, float radiusX, float radiusY, androidx.compose.ui.graphics.Paint paint);
+    method @KotlinOnly public void drawVertices(androidx.compose.ui.graphics.Vertices vertices, androidx.compose.ui.graphics.BlendMode blendMode, androidx.compose.ui.graphics.Paint paint);
+    method @BytecodeOnly public void drawVertices-TPEHhCM(androidx.compose.ui.graphics.Vertices, int, androidx.compose.ui.graphics.Paint);
+    method public void enableZ();
+    method @BytecodeOnly @kotlin.PublishedApi internal android.graphics.Canvas getInternalCanvas();
+    method public void restore();
+    method public void rotate(float degrees);
+    method public void save();
+    method public void saveLayer(androidx.compose.ui.geometry.Rect bounds, androidx.compose.ui.graphics.Paint paint);
+    method public void scale(float sx, optional float sy);
+    method @BytecodeOnly @kotlin.PublishedApi internal void setInternalCanvas(android.graphics.Canvas);
+    method public void skew(float sx, float sy);
+    method @KotlinOnly public android.graphics.Region.Op toRegionOp(androidx.compose.ui.graphics.ClipOp);
+    method @BytecodeOnly public android.graphics.Region.Op toRegionOp--7u2Bmg(int);
+    method public void translate(float dx, float dy);
+  }
+
   public final class AndroidCanvas_androidKt {
     method public static androidx.compose.ui.graphics.Canvas Canvas(android.graphics.Canvas c);
     method @InaccessibleFromKotlin public static android.graphics.Canvas getNativeCanvas(androidx.compose.ui.graphics.Canvas);
@@ -368,6 +410,7 @@ package androidx.compose.ui.graphics {
   public final class CanvasHolder {
     ctor public CanvasHolder();
     method public inline void drawInto(android.graphics.Canvas targetCanvas, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.Canvas,kotlin.Unit> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal androidx.compose.ui.graphics.AndroidCanvas getAndroidCanvas();
   }
 
   public final class CanvasKt {
@@ -503,6 +546,7 @@ package androidx.compose.ui.graphics {
     method @BytecodeOnly @ColorInt @androidx.compose.runtime.Stable public static int toArgb-8_81llA(long);
     property @androidx.compose.runtime.Stable public static inline boolean androidx.compose.ui.graphics.Color.isSpecified;
     property @androidx.compose.runtime.Stable public static inline boolean androidx.compose.ui.graphics.Color.isUnspecified;
+    field @BytecodeOnly @kotlin.PublishedApi internal static final long UnspecifiedColor = 16L; // 0x10L
   }
 
   @kotlin.jvm.JvmInline public final value class ColorMatrix {
@@ -550,6 +594,10 @@ package androidx.compose.ui.graphics {
   public fun interface ColorProducer {
     method @KotlinOnly public operator androidx.compose.ui.graphics.Color invoke();
     method @BytecodeOnly public long invoke-0d7_KjU();
+  }
+
+  public final class DegreesKt {
+    method @BytecodeOnly @kotlin.PublishedApi internal static float degrees(float);
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGraphicsApi {
@@ -1661,12 +1709,43 @@ package androidx.compose.ui.graphics.drawscope {
     method @BytecodeOnly public void drawRoundRect-u-Aw5IA(long, long, long, long, androidx.compose.ui.graphics.drawscope.DrawStyle, @FloatRange(from=0.0, to=1.0) float, androidx.compose.ui.graphics.ColorFilter?, int);
     method @InaccessibleFromKotlin public float getDensity();
     method @InaccessibleFromKotlin public androidx.compose.ui.graphics.drawscope.DrawContext getDrawContext();
+    method @BytecodeOnly @kotlin.PublishedApi internal androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams getDrawParams();
     method @InaccessibleFromKotlin public float getFontScale();
     method @InaccessibleFromKotlin public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
     property public float density;
     property public androidx.compose.ui.graphics.drawscope.DrawContext drawContext;
     property public float fontScale;
     property public androidx.compose.ui.unit.LayoutDirection layoutDirection;
+  }
+
+  @BytecodeOnly @kotlin.PublishedApi internal static final class CanvasDrawScope.DrawParams {
+    ctor @BytecodeOnly public CanvasDrawScope.DrawParams();
+    ctor @KotlinOnly public CanvasDrawScope.DrawParams(optional androidx.compose.ui.unit.Density density, optional androidx.compose.ui.unit.LayoutDirection layoutDirection, optional androidx.compose.ui.graphics.Canvas canvas, optional androidx.compose.ui.geometry.Size size);
+    ctor @BytecodeOnly public CanvasDrawScope.DrawParams(androidx.compose.ui.unit.Density!, androidx.compose.ui.unit.LayoutDirection!, androidx.compose.ui.graphics.Canvas!, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public CanvasDrawScope.DrawParams(androidx.compose.ui.unit.Density!, androidx.compose.ui.unit.LayoutDirection!, androidx.compose.ui.graphics.Canvas!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.compose.ui.unit.Density component1();
+    method public androidx.compose.ui.unit.LayoutDirection component2();
+    method public androidx.compose.ui.graphics.Canvas component3();
+    method @KotlinOnly public operator androidx.compose.ui.geometry.Size component4();
+    method @BytecodeOnly public long component4-NH-jbRc();
+    method @KotlinOnly public androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams copy(optional androidx.compose.ui.unit.Density density, optional androidx.compose.ui.unit.LayoutDirection layoutDirection, optional androidx.compose.ui.graphics.Canvas canvas, optional androidx.compose.ui.geometry.Size size);
+    method @BytecodeOnly public androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams copy-Ug5Nnss(androidx.compose.ui.unit.Density, androidx.compose.ui.unit.LayoutDirection, androidx.compose.ui.graphics.Canvas, long);
+    method @BytecodeOnly public static androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams! copy-Ug5Nnss$default(androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams!, androidx.compose.ui.unit.Density!, androidx.compose.ui.unit.LayoutDirection!, androidx.compose.ui.graphics.Canvas!, long, int, Object!);
+    method internal boolean equals(Object? other);
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.Canvas getCanvas();
+    method @InaccessibleFromKotlin public androidx.compose.ui.unit.Density getDensity();
+    method @InaccessibleFromKotlin public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
+    method @BytecodeOnly public long getSize-NH-jbRc();
+    method internal int hashCode();
+    method @InaccessibleFromKotlin public void setCanvas(androidx.compose.ui.graphics.Canvas);
+    method @InaccessibleFromKotlin public void setDensity(androidx.compose.ui.unit.Density);
+    method @InaccessibleFromKotlin public void setLayoutDirection(androidx.compose.ui.unit.LayoutDirection);
+    method @BytecodeOnly public void setSize-uvyYCjk(long);
+    method internal String toString();
+    property public androidx.compose.ui.graphics.Canvas canvas;
+    property public androidx.compose.ui.unit.Density density;
+    property public androidx.compose.ui.unit.LayoutDirection layoutDirection;
+    property public androidx.compose.ui.geometry.Size size;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface ContentDrawScope extends androidx.compose.ui.graphics.drawscope.DrawScope {

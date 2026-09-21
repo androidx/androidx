@@ -93,9 +93,16 @@ package androidx.compose.foundation.layout {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void Box(androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static inline void Box(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.Alignment contentAlignment, optional boolean propagateMinConstraints, kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void Box(androidx.compose.ui.Modifier?, androidx.compose.ui.Alignment?, boolean, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.BoxScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy maybeCachedBoxMeasurePolicy(androidx.compose.ui.Alignment, boolean);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy rememberBoxMeasurePolicy(androidx.compose.ui.Alignment, boolean, androidx.compose.runtime.Composer?, int);
   }
 
   @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable public interface BoxScope {
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier align(androidx.compose.ui.Modifier, androidx.compose.ui.Alignment alignment);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier matchParentSize(androidx.compose.ui.Modifier);
+  }
+
+  @BytecodeOnly @kotlin.PublishedApi internal final class BoxScopeInstance implements androidx.compose.foundation.layout.BoxScope {
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier align(androidx.compose.ui.Modifier, androidx.compose.ui.Alignment alignment);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier matchParentSize(androidx.compose.ui.Modifier);
   }
@@ -121,6 +128,8 @@ package androidx.compose.foundation.layout {
   public final class ColumnKt {
     method @KotlinOnly @androidx.compose.runtime.Composable public static inline void Column(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void Column(androidx.compose.ui.Modifier?, androidx.compose.foundation.layout.Arrangement.Vertical?, androidx.compose.ui.Alignment.Horizontal?, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.ColumnScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy columnMeasurePolicy(androidx.compose.foundation.layout.Arrangement.Vertical, androidx.compose.ui.Alignment.Horizontal, androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy getDefaultColumnMeasurePolicy();
   }
 
   @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface ColumnScope {
@@ -129,6 +138,13 @@ package androidx.compose.foundation.layout {
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier alignBy(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Measured,java.lang.Integer> alignmentLineBlock);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier weight(androidx.compose.ui.Modifier, @FloatRange(from=0.0, fromInclusive=false) float weight, optional boolean fill);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! weight$default(androidx.compose.foundation.layout.ColumnScope!, androidx.compose.ui.Modifier!, float, boolean, int, Object!);
+  }
+
+  @BytecodeOnly @kotlin.PublishedApi internal final class ColumnScopeInstance implements androidx.compose.foundation.layout.ColumnScope {
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier align(androidx.compose.ui.Modifier, androidx.compose.ui.Alignment.Horizontal alignment);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier alignBy(androidx.compose.ui.Modifier, androidx.compose.ui.layout.VerticalAlignmentLine alignmentLine);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier alignBy(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Measured,java.lang.Integer> alignmentLineBlock);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier weight(androidx.compose.ui.Modifier, float weight, optional boolean fill);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final class ComposeFoundationLayoutFlags {
@@ -209,6 +225,7 @@ package androidx.compose.foundation.layout {
 
   @kotlin.jvm.JvmInline public final value class FlexAlignContent {
     method @BytecodeOnly public static androidx.compose.foundation.layout.FlexAlignContent! box-impl(int);
+    method @BytecodeOnly @kotlin.PublishedApi internal static int constructor-impl(int);
     method @BytecodeOnly public int unbox-impl();
     field public static final androidx.compose.foundation.layout.FlexAlignContent.Companion Companion;
   }
@@ -230,6 +247,7 @@ package androidx.compose.foundation.layout {
 
   @kotlin.jvm.JvmInline public final value class FlexAlignItems {
     method @BytecodeOnly public static androidx.compose.foundation.layout.FlexAlignItems! box-impl(int);
+    method @BytecodeOnly @kotlin.PublishedApi internal static int constructor-impl(int);
     method @BytecodeOnly public int unbox-impl();
     field public static final androidx.compose.foundation.layout.FlexAlignItems.Companion Companion;
   }
@@ -249,6 +267,7 @@ package androidx.compose.foundation.layout {
 
   @kotlin.jvm.JvmInline public final value class FlexAlignSelf {
     method @BytecodeOnly public static androidx.compose.foundation.layout.FlexAlignSelf! box-impl(int);
+    method @BytecodeOnly @kotlin.PublishedApi internal static int constructor-impl(int);
     method @BytecodeOnly public int unbox-impl();
     field public static final androidx.compose.foundation.layout.FlexAlignSelf.Companion Companion;
   }
@@ -270,6 +289,7 @@ package androidx.compose.foundation.layout {
 
   @kotlin.jvm.JvmInline public final value class FlexBasis {
     method @BytecodeOnly public static androidx.compose.foundation.layout.FlexBasis! box-impl(long);
+    method @BytecodeOnly @kotlin.PublishedApi internal static long constructor-impl(long);
     method @BytecodeOnly public long unbox-impl();
     field public static final androidx.compose.foundation.layout.FlexBasis.Companion Companion;
   }
@@ -329,11 +349,16 @@ package androidx.compose.foundation.layout {
     method public static androidx.compose.foundation.layout.FlexConfig FlexConfig(androidx.compose.foundation.layout.FlexConfig first, androidx.compose.foundation.layout.FlexConfig second);
     method public static androidx.compose.foundation.layout.FlexConfig FlexConfig(androidx.compose.foundation.layout.FlexConfig first, androidx.compose.foundation.layout.FlexConfig second, androidx.compose.foundation.layout.FlexConfig third);
     method public static androidx.compose.foundation.layout.FlexConfig FlexConfig(androidx.compose.foundation.layout.FlexConfig... configs);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy flexMultiContentMeasurePolicy(androidx.compose.runtime.State<? extends androidx.compose.foundation.layout.FlexBoxConfig!>, androidx.compose.runtime.Composer?, int);
   }
 
   @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable public interface FlexBoxScope {
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier flex(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.FlexConfig flexConfig);
     method @androidx.compose.runtime.Stable public default androidx.compose.ui.Modifier flex(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlexConfigScope,kotlin.Unit> flexConfig);
+  }
+
+  @BytecodeOnly @kotlin.PublishedApi internal final class FlexBoxScopeInstance implements androidx.compose.foundation.layout.FlexBoxScope {
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier flex(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.FlexConfig flexConfig);
   }
 
   @androidx.compose.runtime.Stable public fun interface FlexConfig {
@@ -372,6 +397,7 @@ package androidx.compose.foundation.layout {
 
   @kotlin.jvm.JvmInline public final value class FlexDirection {
     method @BytecodeOnly public static androidx.compose.foundation.layout.FlexDirection! box-impl(int);
+    method @BytecodeOnly @kotlin.PublishedApi internal static int constructor-impl(int);
     method @BytecodeOnly public int unbox-impl();
     field public static final androidx.compose.foundation.layout.FlexDirection.Companion Companion;
   }
@@ -389,6 +415,7 @@ package androidx.compose.foundation.layout {
 
   @kotlin.jvm.JvmInline public final value class FlexJustifyContent {
     method @BytecodeOnly public static androidx.compose.foundation.layout.FlexJustifyContent! box-impl(int);
+    method @BytecodeOnly @kotlin.PublishedApi internal static int constructor-impl(int);
     method @BytecodeOnly public int unbox-impl();
     field public static final androidx.compose.foundation.layout.FlexJustifyContent.Companion Companion;
   }
@@ -410,6 +437,7 @@ package androidx.compose.foundation.layout {
 
   @kotlin.jvm.JvmInline public final value class FlexWrap {
     method @BytecodeOnly public static androidx.compose.foundation.layout.FlexWrap! box-impl(int);
+    method @BytecodeOnly @kotlin.PublishedApi internal static int constructor-impl(int);
     method @BytecodeOnly public int unbox-impl();
     field public static final androidx.compose.foundation.layout.FlexWrap.Companion Companion;
   }
@@ -459,6 +487,8 @@ package androidx.compose.foundation.layout {
     method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public static void FlowRow(androidx.compose.ui.Modifier?, androidx.compose.foundation.layout.Arrangement.Horizontal?, androidx.compose.foundation.layout.Arrangement.Vertical?, androidx.compose.ui.Alignment.Vertical?, int, int, androidx.compose.foundation.layout.FlowRowOverflow?, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.FlowRowScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static void FlowRow(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Vertical itemVerticalAlignment, optional int maxItemsInEachRow, optional int maxLines, kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.FlowRowScope,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void FlowRow(androidx.compose.ui.Modifier?, androidx.compose.foundation.layout.Arrangement.Horizontal?, androidx.compose.foundation.layout.Arrangement.Vertical?, androidx.compose.ui.Alignment.Vertical?, int, int, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.FlowRowScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy columnMeasurementHelper(androidx.compose.foundation.layout.Arrangement.Vertical, androidx.compose.foundation.layout.Arrangement.Horizontal, int, androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy rowMeasurementHelper(androidx.compose.foundation.layout.Arrangement.Horizontal, androidx.compose.foundation.layout.Arrangement.Vertical, int, androidx.compose.runtime.Composer?, int);
   }
 
   @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public abstract sealed exhaustive class FlowLayoutOverflow {
@@ -543,6 +573,7 @@ package androidx.compose.foundation.layout {
 
   @kotlin.jvm.JvmInline public final value class GridFlow {
     method @BytecodeOnly public static androidx.compose.foundation.layout.GridFlow! box-impl(int);
+    method @BytecodeOnly @kotlin.PublishedApi internal static int constructor-impl(int);
     method @BytecodeOnly public int unbox-impl();
     field public static final androidx.compose.foundation.layout.GridFlow.Companion Companion;
   }
@@ -559,6 +590,12 @@ package androidx.compose.foundation.layout {
     method @KotlinOnly @androidx.compose.runtime.Composable public static inline void Grid(kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.GridConfigurationScope,kotlin.Unit> config, optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.GridScope,kotlin.Unit> content);
     method public static void columns(androidx.compose.foundation.layout.GridConfigurationScope, androidx.compose.foundation.layout.GridTrackSpec... specs);
     method public static void rows(androidx.compose.foundation.layout.GridConfigurationScope, androidx.compose.foundation.layout.GridTrackSpec... specs);
+  }
+
+  @BytecodeOnly @kotlin.PublishedApi internal final class GridMeasurePolicy implements androidx.compose.ui.layout.MeasurePolicy {
+    ctor public GridMeasurePolicy(androidx.compose.runtime.State<? extends kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.GridConfigurationScope,kotlin.Unit>> configState);
+    method @KotlinOnly public androidx.compose.ui.layout.MeasureResult measure(androidx.compose.ui.layout.MeasureScope, java.util.List<androidx.compose.ui.layout.Measurable> measurables, androidx.compose.ui.unit.Constraints constraints);
+    method @BytecodeOnly public androidx.compose.ui.layout.MeasureResult measure-3p2s80s(androidx.compose.ui.layout.MeasureScope, java.util.List<? extends androidx.compose.ui.layout.Measurable!>, long);
   }
 
   @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface GridScope {
@@ -578,6 +615,12 @@ package androidx.compose.foundation.layout {
     property public static int MaxGridIndex;
     field public static final int GridIndexUnspecified = 0; // 0x0
     field public static final int MaxGridIndex = 1000; // 0x3e8
+  }
+
+  @BytecodeOnly @kotlin.PublishedApi internal final class GridScopeInstance implements androidx.compose.foundation.layout.GridScope {
+    method public androidx.compose.ui.Modifier gridItem(androidx.compose.ui.Modifier, optional int row, optional int column, optional int rowSpan, optional int columnSpan, optional androidx.compose.ui.Alignment alignment);
+    method public androidx.compose.ui.Modifier gridItem(androidx.compose.ui.Modifier, Object areaId, optional androidx.compose.ui.Alignment alignment);
+    method public androidx.compose.ui.Modifier gridItem(androidx.compose.ui.Modifier, kotlin.ranges.IntRange rows, kotlin.ranges.IntRange columns, optional androidx.compose.ui.Alignment alignment);
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class GridTrackSize implements androidx.compose.foundation.layout.GridTrackSpec {
@@ -709,6 +752,8 @@ package androidx.compose.foundation.layout {
   public final class RowKt {
     method @KotlinOnly @androidx.compose.runtime.Composable public static inline void Row(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.ui.Alignment.Vertical verticalAlignment, kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void Row(androidx.compose.ui.Modifier?, androidx.compose.foundation.layout.Arrangement.Horizontal?, androidx.compose.ui.Alignment.Vertical?, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.RowScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy getDefaultRowMeasurePolicy();
+    method @BytecodeOnly @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy rowMeasurePolicy(androidx.compose.foundation.layout.Arrangement.Horizontal, androidx.compose.ui.Alignment.Vertical, androidx.compose.runtime.Composer?, int);
   }
 
   @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface RowScope {
@@ -718,6 +763,14 @@ package androidx.compose.foundation.layout {
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier alignByBaseline(androidx.compose.ui.Modifier);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier weight(androidx.compose.ui.Modifier, @FloatRange(from=0.0, fromInclusive=false) float weight, optional boolean fill);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! weight$default(androidx.compose.foundation.layout.RowScope!, androidx.compose.ui.Modifier!, float, boolean, int, Object!);
+  }
+
+  @BytecodeOnly @kotlin.PublishedApi internal final class RowScopeInstance implements androidx.compose.foundation.layout.RowScope {
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier align(androidx.compose.ui.Modifier, androidx.compose.ui.Alignment.Vertical alignment);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier alignBy(androidx.compose.ui.Modifier, androidx.compose.ui.layout.HorizontalAlignmentLine alignmentLine);
+    method public androidx.compose.ui.Modifier alignBy(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Measured,java.lang.Integer> alignmentLineBlock);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier alignByBaseline(androidx.compose.ui.Modifier);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier weight(androidx.compose.ui.Modifier, float weight, optional boolean fill);
   }
 
   public final class RulerAlignmentKt {

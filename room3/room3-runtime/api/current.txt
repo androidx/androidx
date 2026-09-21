@@ -39,6 +39,7 @@ package androidx.room3 {
   }
 
   public static final class RoomDatabase.Builder<T extends androidx.room3.RoomDatabase> {
+    ctor @BytecodeOnly @kotlin.PublishedApi internal RoomDatabase.Builder(kotlin.reflect.KClass<T>, String?, kotlin.jvm.functions.Function0<? extends T>?, android.content.Context?);
     method public androidx.room3.RoomDatabase.Builder<T> addAutoMigrationSpec(androidx.room3.migration.AutoMigrationSpec autoMigrationSpec);
     method public androidx.room3.RoomDatabase.Builder<T> addCallback(androidx.room3.RoomDatabase.Callback callback);
     method public androidx.room3.RoomDatabase.Builder<T> addColumnTypeConverter(Object typeConverter);
