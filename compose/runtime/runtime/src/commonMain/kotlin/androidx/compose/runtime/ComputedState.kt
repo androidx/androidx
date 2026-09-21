@@ -37,11 +37,19 @@ private class ComputedSnapshotState<T>(
     override val value: T
         get() {
             Snapshot.current.readObserver?.invoke(this)
-            return notifyObservers(this, calculation)
+            // Read observer could advance the snapshot, so get current snapshot again
+            return Snapshot.readOnly {
+                notifyObservers(this, calculation)
+            }
         }
 
     override fun isInvalidFor(previousValue: T): Boolean {
-        return !policy.equivalent(Snapshot.withoutReadObservation(calculation), previousValue)
+        return !policy.equivalent(
+            Snapshot.withoutReadObservation {
+                Snapshot.readOnly(calculation)
+            },
+            previousValue,
+        )
     }
 
     override fun toString(): String =
@@ -66,6 +74,10 @@ private class ComputedSnapshotState<T>(
  *
  * Note that the calculation lambda may be called more times than [State.value] is read as part of
  * managing the state and checking its validity.
+ *
+ * The [calculation] lambda should be a read-only operation. It should not contain side effects, and
+ * it must not write to any states. If the calculation lambda attempts to write to a state in its
+ * block, an [IllegalStateException] will be thrown.
  *
  * If any of the referenced states are modified, reads of the state are only considered to be
  * invalid if the [calculation] lambda returns a value that is not equal to the last value read by

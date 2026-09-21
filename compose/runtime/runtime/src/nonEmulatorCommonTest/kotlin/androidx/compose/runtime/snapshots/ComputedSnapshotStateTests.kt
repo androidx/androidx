@@ -532,4 +532,49 @@ class ComputedSnapshotStateTests {
         shouldThrow = false
         assertEquals(1, computed.value)
     }
+
+    @Test
+    fun writingStateInComputationBlockThrows() {
+        var state by mutableStateOf(0)
+        val computed = computedStateOf {
+            state = 1
+        }
+        assertFailsWith<IllegalStateException> {
+            computed.value
+        }
+    }
+
+    @Test
+    fun writingStateInInvalidationCheckThrows() {
+        val observer = SnapshotStateObserver { it() }
+        observer.start()
+        try {
+            var trigger by mutableIntStateOf(0)
+            var state by mutableIntStateOf(0)
+            var writeStateInCalculation = false
+
+            val computed = computedStateOf {
+                if (writeStateInCalculation) {
+                    state = 1
+                }
+                trigger
+            }
+
+            Snapshot.notifyObjectsInitialized()
+
+            // Establish observation of computedState in observer
+            observer.observeReads(Unit, {}) {
+                computed.value
+            }
+
+            writeStateInCalculation = true
+            // Mutating trigger notifies observer and executes isInvalidFor -> calculation
+            assertFailsWith<IllegalStateException> {
+                trigger = 1
+                Snapshot.sendApplyNotifications()
+            }
+        } finally {
+            observer.stop()
+        }
+    }
 }
