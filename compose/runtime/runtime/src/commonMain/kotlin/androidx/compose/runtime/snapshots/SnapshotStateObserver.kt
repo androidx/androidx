@@ -421,7 +421,7 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
                         deriveStateScopeCount++
                     } else if (state is ComputedState<*>) {
                         if (deriveStateScopeCount == 0 && computedStateDepth == 0) {
-                            dependencyToIndirectStates.remove(state)
+                            dependencyToIndirectStates.removeScope(state)
                             rootComputingState = state
                         }
                         computedStateDepth++
@@ -498,19 +498,7 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
 
             val rootComputingState = rootComputingState
             if (rootComputingState != null) {
-                if (value is StateObjectImpl) {
-                    value.recordReadIn(ReaderKind.SnapshotStateObserver)
-                }
-                dependencyToIndirectStates.add(value, rootComputingState)
-                if (value is DerivedState<*>) {
-                    val record = value.currentRecord
-                    record.dependencies.forEach { dependency, _ ->
-                        if (dependency is StateObjectImpl) {
-                            dependency.recordReadIn(ReaderKind.SnapshotStateObserver)
-                        }
-                        dependencyToIndirectStates.add(dependency, rootComputingState)
-                    }
-                }
+                recordReadInComputedState(value, rootComputingState)
                 return
             }
 
@@ -536,6 +524,25 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
                     value.recordReadIn(ReaderKind.SnapshotStateObserver)
                 }
                 valueToScopes.add(value, currentScope)
+            }
+        }
+
+        private fun recordReadInComputedState(
+            value: Any,
+            computedState: ComputedState<*>,
+        ) {
+            if (value is StateObjectImpl) {
+                value.recordReadIn(ReaderKind.SnapshotStateObserver)
+            }
+            dependencyToIndirectStates.add(value, computedState)
+            if (value is DerivedState<*>) {
+                val record = value.currentRecord
+                record.dependencies.forEach { dependency, _ ->
+                    if (dependency is StateObjectImpl) {
+                        dependency.recordReadIn(ReaderKind.SnapshotStateObserver)
+                    }
+                    dependencyToIndirectStates.add(dependency, computedState)
+                }
             }
         }
 
@@ -674,18 +681,16 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
             val scopeToValues = scopeToValues
             val token = currentSnapshot().snapshotId.hashCode()
             if (indirectState is ComputedState<*>) {
-                Snapshot.observeInternal({
-                    valueToScopes.forEachScopeOf(indirectState) { scope ->
-                        recordRead(
-                            value = it,
-                            currentToken = token,
-                            currentScope = scope,
-                            recordedValues =
-                                scopeToValues.getOrPut(scope) { MutableObjectIntMap() },
-                        )
-                    }
+                val dependencyToIndirectStates = dependencyToIndirectStates
+                dependencyToIndirectStates.removeScope(indirectState)
+                Snapshot.observeInternal({ dependency ->
+                    recordReadInComputedState(dependency, indirectState)
                 }) {
-                    indirectState.value
+                    recordedIndirectStateValues[indirectState] = indirectState.value
+                }
+                valueToScopes.forEachScopeOf(indirectState) { scope ->
+                    val recordedValues = scopeToValues.getOrPut(scope) { MutableObjectIntMap() }
+                    recordedValues.put(indirectState, token, -1)
                 }
             } else {
                 valueToScopes.forEachScopeOf(indirectState) { scope ->
