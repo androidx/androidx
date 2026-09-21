@@ -83,13 +83,13 @@ public class StepsRecord(
         return "StepsRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, count=$count, metadata=$metadata)"
     }
 
-    companion object {
+    public companion object {
         /**
          * Metric identifier to retrieve the total steps count from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val COUNT_TOTAL: AggregateMetric<Long> =
+        public val COUNT_TOTAL: AggregateMetric<Long> =
             AggregateMetric.longMetric("Steps", AggregateMetric.AggregationType.TOTAL, "count")
     }
 }

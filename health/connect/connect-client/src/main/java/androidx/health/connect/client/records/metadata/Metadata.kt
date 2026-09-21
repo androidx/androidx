@@ -31,7 +31,10 @@ internal constructor(
      * [RECORDING_METHOD_ACTIVELY_RECORDED], [RECORDING_METHOD_AUTOMATICALLY_RECORDED] and
      * [RECORDING_METHOD_MANUAL_ENTRY].
      */
-    @param:RecordingMethod @property:RecordingMethod @get:RecordingMethod val recordingMethod: Int,
+    @param:RecordingMethod
+    @property:RecordingMethod
+    @get:RecordingMethod
+    public val recordingMethod: Int,
 
     /**
      * Unique identifier of this data, assigned by Health Connect at insertion time. When [Record]
@@ -108,11 +111,11 @@ internal constructor(
         return "Metadata(id='$id', dataOrigin=$dataOrigin, lastModifiedTime=$lastModifiedTime, clientRecordId=$clientRecordId, clientRecordVersion=$clientRecordVersion, device=$device, recordingMethod=$recordingMethod)"
     }
 
-    companion object {
+    public companion object {
         internal const val EMPTY_ID: String = ""
 
         /** Unknown recording method. */
-        const val RECORDING_METHOD_UNKNOWN = 0
+        public const val RECORDING_METHOD_UNKNOWN: Int = 0
 
         /**
          * For data actively recorded by the user.
@@ -122,7 +125,7 @@ internal constructor(
          *
          * [device] must be specified when using this recording method.
          */
-        const val RECORDING_METHOD_ACTIVELY_RECORDED = 1
+        public const val RECORDING_METHOD_ACTIVELY_RECORDED: Int = 1
 
         /**
          * For data recorded passively by a device without user explicitly initiating the recording,
@@ -132,14 +135,14 @@ internal constructor(
          *
          * [device] must be specified when using this recording method.
          */
-        const val RECORDING_METHOD_AUTOMATICALLY_RECORDED = 2
+        public const val RECORDING_METHOD_AUTOMATICALLY_RECORDED: Int = 2
 
         /**
          * For data manually entered by the user.
          *
          * For e.g. Nutrition or weight data entered by the user.
          */
-        const val RECORDING_METHOD_MANUAL_ENTRY = 3
+        public const val RECORDING_METHOD_MANUAL_ENTRY: Int = 3
 
         /** List of possible Recording method for the [Record]. */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -150,7 +153,7 @@ internal constructor(
             RECORDING_METHOD_MANUAL_ENTRY,
         )
         @Retention(AnnotationRetention.SOURCE)
-        annotation class RecordingMethod
+        public annotation class RecordingMethod
 
         /**
          * Creates Metadata for an actively recorded record.
@@ -160,7 +163,7 @@ internal constructor(
          * @param device The [Device] associated with the record.
          */
         @JvmStatic
-        fun activelyRecorded(device: Device): Metadata =
+        public fun activelyRecorded(device: Device): Metadata =
             Metadata(recordingMethod = RECORDING_METHOD_ACTIVELY_RECORDED, device = device)
 
         /**
@@ -174,7 +177,7 @@ internal constructor(
          */
         @JvmStatic
         @JvmOverloads
-        fun activelyRecorded(
+        public fun activelyRecorded(
             device: Device,
             clientRecordId: String,
             clientRecordVersion: Long = 0,
@@ -197,7 +200,7 @@ internal constructor(
          * @param device The [Device] associated with the record.
          */
         @JvmStatic
-        fun activelyRecordedWithId(id: String, device: Device): Metadata =
+        public fun activelyRecordedWithId(id: String, device: Device): Metadata =
             Metadata(recordingMethod = RECORDING_METHOD_ACTIVELY_RECORDED, id = id, device = device)
 
         /**
@@ -208,7 +211,7 @@ internal constructor(
          * @param device The [Device] associated with the record.
          */
         @JvmStatic
-        fun autoRecorded(device: Device): Metadata =
+        public fun autoRecorded(device: Device): Metadata =
             Metadata(recordingMethod = RECORDING_METHOD_AUTOMATICALLY_RECORDED, device = device)
 
         /**
@@ -222,7 +225,7 @@ internal constructor(
          */
         @JvmStatic
         @JvmOverloads
-        fun autoRecorded(
+        public fun autoRecorded(
             device: Device,
             clientRecordId: String,
             clientRecordVersion: Long = 0,
@@ -245,7 +248,7 @@ internal constructor(
          * @param device The [Device] associated with the record.
          */
         @JvmStatic
-        fun autoRecordedWithId(id: String, device: Device): Metadata =
+        public fun autoRecordedWithId(id: String, device: Device): Metadata =
             Metadata(
                 recordingMethod = RECORDING_METHOD_AUTOMATICALLY_RECORDED,
                 id = id,
@@ -262,7 +265,7 @@ internal constructor(
          */
         @JvmStatic
         @JvmOverloads
-        fun manualEntry(device: Device? = null): Metadata =
+        public fun manualEntry(device: Device? = null): Metadata =
             Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY, device = device)
 
         /**
@@ -277,7 +280,7 @@ internal constructor(
          */
         @JvmStatic
         @JvmOverloads
-        fun manualEntry(
+        public fun manualEntry(
             clientRecordId: String,
             clientRecordVersion: Long = 0,
             device: Device? = null,
@@ -301,7 +304,7 @@ internal constructor(
          */
         @JvmStatic
         @JvmOverloads
-        fun manualEntryWithId(id: String, device: Device? = null): Metadata =
+        public fun manualEntryWithId(id: String, device: Device? = null): Metadata =
             Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY, id = id, device = device)
 
         /**
@@ -315,7 +318,7 @@ internal constructor(
          */
         @JvmStatic
         @JvmOverloads
-        fun unknownRecordingMethod(device: Device? = null): Metadata =
+        public fun unknownRecordingMethod(device: Device? = null): Metadata =
             Metadata(recordingMethod = RECORDING_METHOD_UNKNOWN, device = device)
 
         /**
@@ -331,7 +334,7 @@ internal constructor(
          */
         @JvmStatic
         @JvmOverloads
-        fun unknownRecordingMethod(
+        public fun unknownRecordingMethod(
             clientRecordId: String,
             clientRecordVersion: Long = 0,
             device: Device? = null,
@@ -355,7 +358,7 @@ internal constructor(
          */
         @JvmStatic
         @JvmOverloads
-        fun unknownRecordingMethodWithId(id: String, device: Device? = null): Metadata =
+        public fun unknownRecordingMethodWithId(id: String, device: Device? = null): Metadata =
             Metadata(recordingMethod = RECORDING_METHOD_UNKNOWN, id = id, device = device)
     }
 }

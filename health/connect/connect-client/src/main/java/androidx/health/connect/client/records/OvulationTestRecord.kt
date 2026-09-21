@@ -64,35 +64,35 @@ public class OvulationTestRecord(
         const val INCONCLUSIVE = "inconclusive"
     }
 
-    companion object {
+    public companion object {
         /**
          * Inconclusive result. Refers to ovulation test results that are indeterminate (e.g. may be
          * testing malfunction, user error, etc.). ". Any unknown value will also be returned as
          * [RESULT_INCONCLUSIVE].
          */
-        const val RESULT_INCONCLUSIVE = 0
+        public const val RESULT_INCONCLUSIVE: Int = 0
 
         /**
          * Positive fertility (may also be referred as "peak" fertility). Refers to the peak of the
          * luteinizing hormone (LH) surge and ovulation is expected to occur in 10-36 hours.
          */
-        const val RESULT_POSITIVE = 1
+        public const val RESULT_POSITIVE: Int = 1
 
         /**
          * High fertility. Refers to a rise in estrogen or luteinizing hormone that may signal the
          * fertile window (time in the menstrual cycle when conception is likely to occur).
          */
-        const val RESULT_HIGH = 2
+        public const val RESULT_HIGH: Int = 2
 
         /**
          * Negative fertility (may also be referred as "low" fertility). Refers to the time in the
          * cycle where fertility/conception is expected to be low.
          */
-        const val RESULT_NEGATIVE = 3
+        public const val RESULT_NEGATIVE: Int = 3
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val RESULT_STRING_TO_INT_MAP: Map<String, Int> =
+        public val RESULT_STRING_TO_INT_MAP: Map<String, Int> =
             mapOf(
                 Result.INCONCLUSIVE to RESULT_INCONCLUSIVE,
                 Result.POSITIVE to RESULT_POSITIVE,
@@ -102,12 +102,12 @@ public class OvulationTestRecord(
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val RESULT_INT_TO_STRING_MAP = RESULT_STRING_TO_INT_MAP.reverse()
+        public val RESULT_INT_TO_STRING_MAP: Map<Int, String> = RESULT_STRING_TO_INT_MAP.reverse()
     }
 
     /** The result of a user's ovulation test. */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(value = [RESULT_INCONCLUSIVE, RESULT_POSITIVE, RESULT_HIGH, RESULT_NEGATIVE])
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    annotation class Results
+    public annotation class Results
 }

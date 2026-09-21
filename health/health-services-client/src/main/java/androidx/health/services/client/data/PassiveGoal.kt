@@ -26,10 +26,10 @@ import androidx.health.services.client.proto.DataProto.PassiveGoal as PassiveGoa
  * repeat daily.
  */
 @Suppress("ParcelCreator")
-class PassiveGoal
+public class PassiveGoal
 private constructor(
     /** [DataTypeCondition] which must be met for the passive goal to be triggered. */
-    val dataTypeCondition: DataTypeCondition<out Number, out DeltaDataType<out Number, *>>,
+    public val dataTypeCondition: DataTypeCondition<out Number, out DeltaDataType<out Number, *>>,
     /** Frequency this goal should trigger, which is expected to be a [TriggerFrequency]. */
     @TriggerFrequency internal val triggerFrequency: Int,
 ) {

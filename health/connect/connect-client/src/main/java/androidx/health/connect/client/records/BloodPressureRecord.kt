@@ -144,7 +144,7 @@ public class BloodPressureRecord(
                 MEASUREMENT_LOCATION_RIGHT_UPPER_ARM,
             ]
     )
-    annotation class MeasurementLocations
+    public annotation class MeasurementLocations
 
     /** The user's body position when a health measurement is taken. */
     @Retention(AnnotationRetention.SOURCE)
@@ -159,25 +159,25 @@ public class BloodPressureRecord(
             ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    annotation class BodyPositions
+    public annotation class BodyPositions
 
-    companion object {
+    public companion object {
 
-        const val MEASUREMENT_LOCATION_UNKNOWN = 0
-        const val MEASUREMENT_LOCATION_LEFT_WRIST = 1
-        const val MEASUREMENT_LOCATION_RIGHT_WRIST = 2
-        const val MEASUREMENT_LOCATION_LEFT_UPPER_ARM = 3
-        const val MEASUREMENT_LOCATION_RIGHT_UPPER_ARM = 4
+        public const val MEASUREMENT_LOCATION_UNKNOWN: Int = 0
+        public const val MEASUREMENT_LOCATION_LEFT_WRIST: Int = 1
+        public const val MEASUREMENT_LOCATION_RIGHT_WRIST: Int = 2
+        public const val MEASUREMENT_LOCATION_LEFT_UPPER_ARM: Int = 3
+        public const val MEASUREMENT_LOCATION_RIGHT_UPPER_ARM: Int = 4
 
-        const val BODY_POSITION_UNKNOWN = 0
-        const val BODY_POSITION_STANDING_UP = 1
-        const val BODY_POSITION_SITTING_DOWN = 2
-        const val BODY_POSITION_LYING_DOWN = 3
-        const val BODY_POSITION_RECLINING = 4
+        public const val BODY_POSITION_UNKNOWN: Int = 0
+        public const val BODY_POSITION_STANDING_UP: Int = 1
+        public const val BODY_POSITION_SITTING_DOWN: Int = 2
+        public const val BODY_POSITION_LYING_DOWN: Int = 3
+        public const val BODY_POSITION_RECLINING: Int = 4
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val MEASUREMENT_LOCATION_STRING_TO_INT_MAP: Map<String, Int> =
+        public val MEASUREMENT_LOCATION_STRING_TO_INT_MAP: Map<String, Int> =
             mapOf(
                 MeasurementLocation.LEFT_UPPER_ARM to MEASUREMENT_LOCATION_LEFT_UPPER_ARM,
                 MeasurementLocation.LEFT_WRIST to MEASUREMENT_LOCATION_LEFT_WRIST,
@@ -187,12 +187,12 @@ public class BloodPressureRecord(
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val MEASUREMENT_LOCATION_INT_TO_STRING_MAP =
+        public val MEASUREMENT_LOCATION_INT_TO_STRING_MAP: Map<Int, String> =
             MEASUREMENT_LOCATION_STRING_TO_INT_MAP.reverse()
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val BODY_POSITION_STRING_TO_INT_MAP: Map<String, Int> =
+        public val BODY_POSITION_STRING_TO_INT_MAP: Map<String, Int> =
             mapOf(
                 BodyPosition.LYING_DOWN to BODY_POSITION_LYING_DOWN,
                 BodyPosition.RECLINING to BODY_POSITION_RECLINING,
@@ -202,7 +202,8 @@ public class BloodPressureRecord(
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val BODY_POSITION_INT_TO_STRING_MAP = BODY_POSITION_STRING_TO_INT_MAP.reverse()
+        public val BODY_POSITION_INT_TO_STRING_MAP: Map<Int, String> =
+            BODY_POSITION_STRING_TO_INT_MAP.reverse()
 
         private const val BLOOD_PRESSURE_NAME = "BloodPressure"
         private const val SYSTOLIC_FIELD_NAME = "systolic"
@@ -217,7 +218,7 @@ public class BloodPressureRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val SYSTOLIC_AVG: AggregateMetric<Pressure> =
+        public val SYSTOLIC_AVG: AggregateMetric<Pressure> =
             AggregateMetric.doubleMetric(
                 dataTypeName = BLOOD_PRESSURE_NAME,
                 aggregationType = AggregateMetric.AggregationType.AVERAGE,
@@ -230,7 +231,7 @@ public class BloodPressureRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val SYSTOLIC_MIN: AggregateMetric<Pressure> =
+        public val SYSTOLIC_MIN: AggregateMetric<Pressure> =
             AggregateMetric.doubleMetric(
                 dataTypeName = BLOOD_PRESSURE_NAME,
                 aggregationType = AggregateMetric.AggregationType.MINIMUM,
@@ -243,7 +244,7 @@ public class BloodPressureRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val SYSTOLIC_MAX: AggregateMetric<Pressure> =
+        public val SYSTOLIC_MAX: AggregateMetric<Pressure> =
             AggregateMetric.doubleMetric(
                 dataTypeName = BLOOD_PRESSURE_NAME,
                 aggregationType = AggregateMetric.AggregationType.MAXIMUM,
@@ -256,7 +257,7 @@ public class BloodPressureRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val DIASTOLIC_AVG: AggregateMetric<Pressure> =
+        public val DIASTOLIC_AVG: AggregateMetric<Pressure> =
             AggregateMetric.doubleMetric(
                 dataTypeName = BLOOD_PRESSURE_NAME,
                 aggregationType = AggregateMetric.AggregationType.AVERAGE,
@@ -269,7 +270,7 @@ public class BloodPressureRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val DIASTOLIC_MIN: AggregateMetric<Pressure> =
+        public val DIASTOLIC_MIN: AggregateMetric<Pressure> =
             AggregateMetric.doubleMetric(
                 dataTypeName = BLOOD_PRESSURE_NAME,
                 aggregationType = AggregateMetric.AggregationType.MINIMUM,
@@ -282,7 +283,7 @@ public class BloodPressureRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val DIASTOLIC_MAX: AggregateMetric<Pressure> =
+        public val DIASTOLIC_MAX: AggregateMetric<Pressure> =
             AggregateMetric.doubleMetric(
                 dataTypeName = BLOOD_PRESSURE_NAME,
                 aggregationType = AggregateMetric.AggregationType.MAXIMUM,

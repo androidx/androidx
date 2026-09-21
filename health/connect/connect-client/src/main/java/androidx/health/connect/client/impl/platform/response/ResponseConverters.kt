@@ -70,13 +70,14 @@ private const val BUCKET_DATA_ORIGINS_EXTENSION_VERSION = 10
 
 @SuppressLint("NewApi") // already checked with a feature availability check
 @OptIn(ExperimentalMatchmakingApi::class)
-fun PlatformMatchmakingResponse.toKtResponse(): MatchmakingResponse =
+public fun PlatformMatchmakingResponse.toKtResponse(): MatchmakingResponse =
     MatchmakingResponse(isMatchmakingPossible = isMatchmakingPossible)
 
-fun AggregateRecordsResponse<Any>.toSdkResponse(metrics: Set<AggregateMetric<Any>>) =
-    buildAggregationResult(metrics, ::get, ::getDataOrigins)
+public fun AggregateRecordsResponse<Any>.toSdkResponse(
+    metrics: Set<AggregateMetric<Any>>
+): AggregationResult = buildAggregationResult(metrics, ::get, ::getDataOrigins)
 
-fun AggregateRecordsGroupedByDurationResponse<Any>.toSdkResponse(
+public fun AggregateRecordsGroupedByDurationResponse<Any>.toSdkResponse(
     metrics: Set<AggregateMetric<Any>>
 ): AggregationResultGroupedByDuration {
     val platformDataOriginsGetter: (AggregationType<Any>) -> Set<PlatformDataOrigin> =
@@ -98,10 +99,11 @@ fun AggregateRecordsGroupedByDurationResponse<Any>.toSdkResponse(
     )
 }
 
-fun AggregateRecordsGroupedByPeriodResponse<Any>.toSdkResponse(metrics: Set<AggregateMetric<Any>>) =
-    toSdkResponse(metrics, startTime, endTime)
+public fun AggregateRecordsGroupedByPeriodResponse<Any>.toSdkResponse(
+    metrics: Set<AggregateMetric<Any>>
+): AggregationResultGroupedByPeriod = toSdkResponse(metrics, startTime, endTime)
 
-fun AggregateRecordsGroupedByPeriodResponse<Any>.toSdkResponse(
+public fun AggregateRecordsGroupedByPeriodResponse<Any>.toSdkResponse(
     metrics: Set<AggregateMetric<Any>>,
     bucketStartTime: LocalDateTime,
     bucketEndTime: LocalDateTime,

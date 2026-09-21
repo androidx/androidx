@@ -304,7 +304,7 @@ public class NutritionRecord(
         return "NutritionRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, biotin=$biotin, caffeine=$caffeine, calcium=$calcium, energy=$energy, energyFromFat=$energyFromFat, chloride=$chloride, cholesterol=$cholesterol, chromium=$chromium, copper=$copper, dietaryFiber=$dietaryFiber, folate=$folate, folicAcid=$folicAcid, iodine=$iodine, iron=$iron, magnesium=$magnesium, manganese=$manganese, molybdenum=$molybdenum, monounsaturatedFat=$monounsaturatedFat, niacin=$niacin, pantothenicAcid=$pantothenicAcid, phosphorus=$phosphorus, polyunsaturatedFat=$polyunsaturatedFat, potassium=$potassium, protein=$protein, riboflavin=$riboflavin, saturatedFat=$saturatedFat, selenium=$selenium, sodium=$sodium, sugar=$sugar, thiamin=$thiamin, totalCarbohydrate=$totalCarbohydrate, totalFat=$totalFat, transFat=$transFat, unsaturatedFat=$unsaturatedFat, vitaminA=$vitaminA, vitaminB12=$vitaminB12, vitaminB6=$vitaminB6, vitaminC=$vitaminC, vitaminD=$vitaminD, vitaminE=$vitaminE, vitaminK=$vitaminK, zinc=$zinc, name=$name, mealType=$mealType, metadata=$metadata)"
     }
 
-    companion object {
+    public companion object {
         private const val TYPE_NAME = "Nutrition"
 
         private val MIN_MASS = 0.grams
@@ -319,7 +319,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val BIOTIN_TOTAL: AggregateMetric<Mass> =
+        public val BIOTIN_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "biotin", Mass::grams)
 
         /**
@@ -327,7 +327,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val CAFFEINE_TOTAL: AggregateMetric<Mass> =
+        public val CAFFEINE_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "caffeine", Mass::grams)
 
         /**
@@ -335,7 +335,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val CALCIUM_TOTAL: AggregateMetric<Mass> =
+        public val CALCIUM_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "calcium", Mass::grams)
 
         /**
@@ -343,7 +343,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val ENERGY_TOTAL: AggregateMetric<Energy> =
+        public val ENERGY_TOTAL: AggregateMetric<Energy> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "calories", Energy::kilocalories)
 
         /**
@@ -351,7 +351,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val ENERGY_FROM_FAT_TOTAL: AggregateMetric<Energy> =
+        public val ENERGY_FROM_FAT_TOTAL: AggregateMetric<Energy> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "caloriesFromFat", Energy::kilocalories)
 
         /**
@@ -359,7 +359,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val CHLORIDE_TOTAL: AggregateMetric<Mass> =
+        public val CHLORIDE_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "chloride", Mass::grams)
 
         /**
@@ -367,7 +367,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val CHOLESTEROL_TOTAL: AggregateMetric<Mass> =
+        public val CHOLESTEROL_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "cholesterol", Mass::grams)
 
         /**
@@ -375,7 +375,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val CHROMIUM_TOTAL: AggregateMetric<Mass> =
+        public val CHROMIUM_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "chromium", Mass::grams)
 
         /**
@@ -383,7 +383,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val COPPER_TOTAL: AggregateMetric<Mass> =
+        public val COPPER_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "copper", Mass::grams)
 
         /**
@@ -391,7 +391,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val DIETARY_FIBER_TOTAL: AggregateMetric<Mass> =
+        public val DIETARY_FIBER_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "dietaryFiber", Mass::grams)
 
         /**
@@ -399,7 +399,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val FOLATE_TOTAL: AggregateMetric<Mass> =
+        public val FOLATE_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "folate", Mass::grams)
 
         /**
@@ -407,7 +407,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val FOLIC_ACID_TOTAL: AggregateMetric<Mass> =
+        public val FOLIC_ACID_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "folicAcid", Mass::grams)
 
         /**
@@ -415,7 +415,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val IODINE_TOTAL: AggregateMetric<Mass> =
+        public val IODINE_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "iodine", Mass::grams)
 
         /**
@@ -423,7 +423,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val IRON_TOTAL: AggregateMetric<Mass> =
+        public val IRON_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "iron", Mass::grams)
 
         /**
@@ -431,7 +431,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val MAGNESIUM_TOTAL: AggregateMetric<Mass> =
+        public val MAGNESIUM_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "magnesium", Mass::grams)
 
         /**
@@ -439,7 +439,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val MANGANESE_TOTAL: AggregateMetric<Mass> =
+        public val MANGANESE_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "manganese", Mass::grams)
 
         /**
@@ -447,7 +447,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val MOLYBDENUM_TOTAL: AggregateMetric<Mass> =
+        public val MOLYBDENUM_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "molybdenum", Mass::grams)
 
         /**
@@ -455,7 +455,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val MONOUNSATURATED_FAT_TOTAL: AggregateMetric<Mass> =
+        public val MONOUNSATURATED_FAT_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "monounsaturatedFat", Mass::grams)
 
         /**
@@ -463,7 +463,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val NIACIN_TOTAL: AggregateMetric<Mass> =
+        public val NIACIN_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "niacin", Mass::grams)
 
         /**
@@ -471,7 +471,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val PANTOTHENIC_ACID_TOTAL: AggregateMetric<Mass> =
+        public val PANTOTHENIC_ACID_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "pantothenicAcid", Mass::grams)
 
         /**
@@ -479,7 +479,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val PHOSPHORUS_TOTAL: AggregateMetric<Mass> =
+        public val PHOSPHORUS_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "phosphorus", Mass::grams)
 
         /**
@@ -487,7 +487,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val POLYUNSATURATED_FAT_TOTAL: AggregateMetric<Mass> =
+        public val POLYUNSATURATED_FAT_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "polyunsaturatedFat", Mass::grams)
 
         /**
@@ -495,7 +495,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val POTASSIUM_TOTAL: AggregateMetric<Mass> =
+        public val POTASSIUM_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "potassium", Mass::grams)
 
         /**
@@ -503,7 +503,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val PROTEIN_TOTAL: AggregateMetric<Mass> =
+        public val PROTEIN_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "protein", Mass::grams)
 
         /**
@@ -511,7 +511,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val RIBOFLAVIN_TOTAL: AggregateMetric<Mass> =
+        public val RIBOFLAVIN_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "riboflavin", Mass::grams)
 
         /**
@@ -519,7 +519,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val SATURATED_FAT_TOTAL: AggregateMetric<Mass> =
+        public val SATURATED_FAT_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "saturatedFat", Mass::grams)
 
         /**
@@ -527,7 +527,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val SELENIUM_TOTAL: AggregateMetric<Mass> =
+        public val SELENIUM_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "selenium", Mass::grams)
 
         /**
@@ -535,7 +535,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val SODIUM_TOTAL: AggregateMetric<Mass> =
+        public val SODIUM_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "sodium", Mass::grams)
 
         /**
@@ -543,7 +543,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val SUGAR_TOTAL: AggregateMetric<Mass> =
+        public val SUGAR_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "sugar", Mass::grams)
 
         /**
@@ -551,7 +551,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val THIAMIN_TOTAL: AggregateMetric<Mass> =
+        public val THIAMIN_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "thiamin", Mass::grams)
 
         /**
@@ -559,7 +559,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val TOTAL_CARBOHYDRATE_TOTAL: AggregateMetric<Mass> =
+        public val TOTAL_CARBOHYDRATE_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "totalCarbohydrate", Mass::grams)
 
         /**
@@ -567,7 +567,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val TOTAL_FAT_TOTAL: AggregateMetric<Mass> =
+        public val TOTAL_FAT_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "totalFat", Mass::grams)
 
         /**
@@ -575,7 +575,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val TRANS_FAT_TOTAL: AggregateMetric<Mass> =
+        public val TRANS_FAT_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "transFat", Mass::grams)
 
         /**
@@ -583,7 +583,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val UNSATURATED_FAT_TOTAL: AggregateMetric<Mass> =
+        public val UNSATURATED_FAT_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "unsaturatedFat", Mass::grams)
 
         /**
@@ -591,7 +591,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val VITAMIN_A_TOTAL: AggregateMetric<Mass> =
+        public val VITAMIN_A_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "vitaminA", Mass::grams)
 
         /**
@@ -599,7 +599,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val VITAMIN_B12_TOTAL: AggregateMetric<Mass> =
+        public val VITAMIN_B12_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "vitaminB12", Mass::grams)
 
         /**
@@ -607,7 +607,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val VITAMIN_B6_TOTAL: AggregateMetric<Mass> =
+        public val VITAMIN_B6_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "vitaminB6", Mass::grams)
 
         /**
@@ -615,7 +615,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val VITAMIN_C_TOTAL: AggregateMetric<Mass> =
+        public val VITAMIN_C_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "vitaminC", Mass::grams)
 
         /**
@@ -623,7 +623,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val VITAMIN_D_TOTAL: AggregateMetric<Mass> =
+        public val VITAMIN_D_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "vitaminD", Mass::grams)
 
         /**
@@ -631,7 +631,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val VITAMIN_E_TOTAL: AggregateMetric<Mass> =
+        public val VITAMIN_E_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "vitaminE", Mass::grams)
 
         /**
@@ -639,7 +639,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val VITAMIN_K_TOTAL: AggregateMetric<Mass> =
+        public val VITAMIN_K_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "vitaminK", Mass::grams)
 
         /**
@@ -647,7 +647,7 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val ZINC_TOTAL: AggregateMetric<Mass> =
+        public val ZINC_TOTAL: AggregateMetric<Mass> =
             doubleMetric(TYPE_NAME, AggregationType.TOTAL, "zinc", Mass::grams)
     }
 }

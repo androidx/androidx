@@ -22,12 +22,12 @@ import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.ResponseProto
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class ReadDataRangeResponse(override val proto: ResponseProto.ReadDataRangeResponse) :
+public class ReadDataRangeResponse(override val proto: ResponseProto.ReadDataRangeResponse) :
     ProtoParcelable<ResponseProto.ReadDataRangeResponse>() {
 
-    companion object {
+    public companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<ReadDataRangeResponse> = ProtoParcelable.newCreator {
+        public val CREATOR: Parcelable.Creator<ReadDataRangeResponse> = ProtoParcelable.newCreator {
             val proto = ResponseProto.ReadDataRangeResponse.parseFrom(it)
             ReadDataRangeResponse(proto)
         }

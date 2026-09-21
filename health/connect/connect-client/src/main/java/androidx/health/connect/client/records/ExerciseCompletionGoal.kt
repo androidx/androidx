@@ -20,9 +20,9 @@ import androidx.health.connect.client.units.Length
 import java.time.Duration
 
 /** A goal which should be met to complete a [PlannedExerciseStep]. */
-abstract class ExerciseCompletionGoal internal constructor() {
+public abstract class ExerciseCompletionGoal internal constructor() {
     /** An [ExerciseCompletionGoal] that requires covering a specified distance. */
-    class DistanceGoal(val distance: Length) : ExerciseCompletionGoal() {
+    public class DistanceGoal(public val distance: Length) : ExerciseCompletionGoal() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is DistanceGoal) return false
@@ -48,8 +48,10 @@ abstract class ExerciseCompletionGoal internal constructor() {
      * <p>For example, a swimming coach may specify '100m @ 1min40s'. This implies: complete 100m
      * and if you manage it in 1min30s, you will have 10s of rest prior to the next set.
      */
-    class DistanceAndDurationGoal(val distance: Length, val duration: Duration) :
-        ExerciseCompletionGoal() {
+    public class DistanceAndDurationGoal(
+        public val distance: Length,
+        public val duration: Duration,
+    ) : ExerciseCompletionGoal() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is DistanceAndDurationGoal) return false
@@ -69,7 +71,7 @@ abstract class ExerciseCompletionGoal internal constructor() {
     }
 
     /** An [ExerciseCompletionGoal] that requires completing a specified number of steps. */
-    class StepsGoal(val steps: Int) : ExerciseCompletionGoal() {
+    public class StepsGoal(public val steps: Int) : ExerciseCompletionGoal() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is StepsGoal) return false
@@ -87,7 +89,7 @@ abstract class ExerciseCompletionGoal internal constructor() {
     }
 
     /** An [ExerciseCompletionGoal] that requires a specified duration to elapse. */
-    class DurationGoal(val duration: Duration) : ExerciseCompletionGoal() {
+    public class DurationGoal(public val duration: Duration) : ExerciseCompletionGoal() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is DurationGoal) return false
@@ -107,7 +109,7 @@ abstract class ExerciseCompletionGoal internal constructor() {
     /**
      * An [ExerciseCompletionGoal] that requires a specified number of repetitions to be completed.
      */
-    class RepetitionsGoal(val repetitions: Int) : ExerciseCompletionGoal() {
+    public class RepetitionsGoal(public val repetitions: Int) : ExerciseCompletionGoal() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is RepetitionsGoal) return false
@@ -127,7 +129,8 @@ abstract class ExerciseCompletionGoal internal constructor() {
     /**
      * An [ExerciseCompletionGoal] that requires a specified number of total calories to be burned.
      */
-    class TotalCaloriesBurnedGoal(val totalCalories: Energy) : ExerciseCompletionGoal() {
+    public class TotalCaloriesBurnedGoal(public val totalCalories: Energy) :
+        ExerciseCompletionGoal() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is TotalCaloriesBurnedGoal) return false
@@ -147,7 +150,8 @@ abstract class ExerciseCompletionGoal internal constructor() {
     /**
      * An [ExerciseCompletionGoal] that requires a specified number of active calories to be burned.
      */
-    class ActiveCaloriesBurnedGoal(val activeCalories: Energy) : ExerciseCompletionGoal() {
+    public class ActiveCaloriesBurnedGoal(public val activeCalories: Energy) :
+        ExerciseCompletionGoal() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is ActiveCaloriesBurnedGoal) return false
@@ -165,7 +169,7 @@ abstract class ExerciseCompletionGoal internal constructor() {
     }
 
     /** An [ExerciseCompletionGoal] that is unknown. */
-    object UnknownGoal : ExerciseCompletionGoal() {
+    public object UnknownGoal : ExerciseCompletionGoal() {
         override fun toString(): String {
             return "UnknownGoal()"
         }
@@ -176,7 +180,7 @@ abstract class ExerciseCompletionGoal internal constructor() {
      * determine when the associated [PlannedExerciseStep] is complete, typically based upon some
      * instruction in the [PlannedExerciseStep.description] field.
      */
-    object ManualCompletion : ExerciseCompletionGoal() {
+    public object ManualCompletion : ExerciseCompletionGoal() {
         override fun toString(): String {
             return "ManualCompletion()"
         }

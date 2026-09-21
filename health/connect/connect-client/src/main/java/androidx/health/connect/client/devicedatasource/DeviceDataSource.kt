@@ -28,10 +28,10 @@ import androidx.health.connect.client.records.metadata.Device
  * @property deviceDataTypeSources set of [DeviceDataTypeSource]s provided by this device
  */
 @ExperimentalDeviceDataSourceApi
-class DeviceDataSource(
-    val deviceDataOrigin: DataOrigin,
-    val device: Device,
-    val deviceDataTypeSources: Set<DeviceDataTypeSource>,
+public class DeviceDataSource(
+    public val deviceDataOrigin: DataOrigin,
+    public val device: Device,
+    public val deviceDataTypeSources: Set<DeviceDataTypeSource>,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

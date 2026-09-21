@@ -247,7 +247,7 @@ internal val GRAMS_AGGREGATION_METRIC_TYPE_MAP:
         },
     )
 
-val KILOGRAMS_AGGREGATION_METRIC_TYPE_MAP:
+public val KILOGRAMS_AGGREGATION_METRIC_TYPE_MAP:
     Map<AggregateMetric<Mass>, PlatformAggregateMetric<PlatformMass>> =
     mapOf(
         WeightRecord.WEIGHT_AVG to PlatformWeightRecord.WEIGHT_AVG,

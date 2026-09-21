@@ -74,13 +74,13 @@ public class FloorsClimbedRecord(
         return "FloorsClimbedRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, floors=$floors, metadata=$metadata)"
     }
 
-    companion object {
+    public companion object {
         /**
          * Metric identifier to retrieve the total floors climbed from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val FLOORS_CLIMBED_TOTAL: AggregateMetric<Double> =
+        public val FLOORS_CLIMBED_TOTAL: AggregateMetric<Double> =
             AggregateMetric.doubleMetric(
                 "FloorsClimbed",
                 AggregateMetric.AggregationType.TOTAL,

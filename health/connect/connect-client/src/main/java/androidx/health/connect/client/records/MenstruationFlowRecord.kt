@@ -56,20 +56,20 @@ public class MenstruationFlowRecord(
         return "MenstruationFlowRecord(time=$time, zoneOffset=$zoneOffset, flow=$flow, metadata=$metadata)"
     }
 
-    companion object {
-        const val FLOW_UNKNOWN = 0
-        const val FLOW_LIGHT = 1
-        const val FLOW_MEDIUM = 2
-        const val FLOW_HEAVY = 3
+    public companion object {
+        public const val FLOW_UNKNOWN: Int = 0
+        public const val FLOW_LIGHT: Int = 1
+        public const val FLOW_MEDIUM: Int = 2
+        public const val FLOW_HEAVY: Int = 3
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val FLOW_TYPE_STRING_TO_INT_MAP: Map<String, Int> =
+        public val FLOW_TYPE_STRING_TO_INT_MAP: Map<String, Int> =
             mapOf("light" to FLOW_LIGHT, "medium" to FLOW_MEDIUM, "heavy" to FLOW_HEAVY)
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val FLOW_TYPE_INT_TO_STRING_MAP: Map<Int, String> =
+        public val FLOW_TYPE_INT_TO_STRING_MAP: Map<Int, String> =
             FLOW_TYPE_STRING_TO_INT_MAP.entries.associateBy({ it.value }, { it.key })
     }
 
@@ -77,5 +77,5 @@ public class MenstruationFlowRecord(
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(value = [FLOW_UNKNOWN, FLOW_LIGHT, FLOW_MEDIUM, FLOW_HEAVY])
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    annotation class Flows
+    public annotation class Flows
 }

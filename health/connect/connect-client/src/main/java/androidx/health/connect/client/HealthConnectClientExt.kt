@@ -42,7 +42,7 @@ import java.io.IOException
  *
  * Example usage to delete written steps data by its unique identifier:
  */
-suspend inline fun <reified T : Record> HealthConnectClient.deleteRecords(
+public suspend inline fun <reified T : Record> HealthConnectClient.deleteRecords(
     recordIdsList: List<String>,
     clientRecordIdsList: List<String>,
 ) {
@@ -69,7 +69,7 @@ suspend inline fun <reified T : Record> HealthConnectClient.deleteRecords(
  *
  * Example usage to delete written steps data in a time range:
  */
-suspend inline fun <reified T : Record> HealthConnectClient.deleteRecords(
+public suspend inline fun <reified T : Record> HealthConnectClient.deleteRecords(
     timeRangeFilter: TimeRangeFilter
 ) {
     deleteRecords(recordType = T::class, timeRangeFilter = timeRangeFilter)
@@ -88,6 +88,6 @@ suspend inline fun <reified T : Record> HealthConnectClient.deleteRecords(
  * @throws IllegalStateException If service is not available.
  * @see HealthConnectClient.readRecord
  */
-suspend inline fun <reified T : Record> HealthConnectClient.readRecord(
+public suspend inline fun <reified T : Record> HealthConnectClient.readRecord(
     recordId: String
 ): ReadRecordResponse<T> = readRecord(recordType = T::class, recordId = recordId)

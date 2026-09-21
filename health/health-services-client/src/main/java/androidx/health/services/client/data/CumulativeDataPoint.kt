@@ -24,15 +24,15 @@ import java.time.Instant
  * Unlike [IntervalDataPoint], this is guaranteed to increase over time (assuming the same [start]
  * value.) For example, an [IntervalDataPoint] for [DataType.STEPS]
  */
-class CumulativeDataPoint<T : Number>(
+public class CumulativeDataPoint<T : Number>(
     /** The [DataType] this [DataPoint] represents. */
     dataType: AggregateDataType<T, CumulativeDataPoint<T>>,
     /** The accumulated value between [start] and [end]. */
-    val total: T,
+    public val total: T,
     /** The beginning of the time period this [DataPoint] represents. */
-    val start: Instant,
+    public val start: Instant,
     /** The end of the time period this [DataPoint] represents. */
-    val end: Instant,
+    public val end: Instant,
 ) : DataPoint<T>(dataType) {
 
     internal val proto: DataProto.AggregateDataPoint =

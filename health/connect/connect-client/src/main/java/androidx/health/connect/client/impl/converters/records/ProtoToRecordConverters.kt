@@ -82,7 +82,7 @@ import androidx.health.platform.client.proto.DataProto
 import java.time.Instant
 
 /** Converts public API object into internal proto for ipc. */
-fun toRecord(proto: DataProto.DataPoint): Record =
+public fun toRecord(proto: DataProto.DataPoint): Record =
     with(proto) {
         when (dataType.name) {
             "ActivityIntensity" ->
@@ -621,7 +621,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
         }
     }
 
-fun toExerciseRouteData(
+public fun toExerciseRouteData(
     protoWrapper: androidx.health.platform.client.exerciseroute.ExerciseRoute
 ): ExerciseRoute {
     return ExerciseRoute(

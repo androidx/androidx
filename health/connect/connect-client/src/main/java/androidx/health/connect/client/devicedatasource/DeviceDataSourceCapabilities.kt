@@ -26,7 +26,7 @@ import kotlin.reflect.KClass
  * @property recordTypes set of [Record] types that can be provided
  */
 @ExperimentalDeviceDataSourceApi
-class DeviceDataSourceCapabilities(val recordTypes: Set<KClass<out Record>>) {
+public class DeviceDataSourceCapabilities(public val recordTypes: Set<KClass<out Record>>) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is DeviceDataSourceCapabilities) return false

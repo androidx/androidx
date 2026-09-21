@@ -37,7 +37,7 @@ constructor(
     internal val exerciseEventCapabilities: Map<ExerciseEventType<*>, ExerciseEventCapabilities> =
         emptyMap(),
     /** Map from supported debounced goals to a set of compatible [ComparisonType]s. */
-    val supportedDebouncedGoals: Map<DataType<*, *>, Set<ComparisonType>> = emptyMap(),
+    public val supportedDebouncedGoals: Map<DataType<*, *>, Set<ComparisonType>> = emptyMap(),
 ) {
 
     internal constructor(

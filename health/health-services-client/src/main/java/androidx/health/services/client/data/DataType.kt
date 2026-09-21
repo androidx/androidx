@@ -29,7 +29,7 @@ import androidx.health.services.client.proto.DataProto.DataType.TimeType.TIME_TY
  * [DataType] that represents a granular, non-aggregated point in time. This will map to
  * [IntervalDataPoint]s and [SampleDataPoint]s.
  */
-class DeltaDataType<T : Any, D : DataPoint<T>>(
+public class DeltaDataType<T : Any, D : DataPoint<T>>(
     name: String,
     timeType: TimeType,
     valueClass: Class<T>,
@@ -39,7 +39,7 @@ class DeltaDataType<T : Any, D : DataPoint<T>>(
  * [DataType] that represents aggregated data. This will map to [CumulativeDataPoint]s and
  * [StatisticalDataPoint]s.
  */
-class AggregateDataType<T : Number, D : DataPoint<T>>(
+public class AggregateDataType<T : Number, D : DataPoint<T>>(
     name: String,
     timeType: TimeType,
     valueClass: Class<T>,
@@ -61,15 +61,15 @@ class AggregateDataType<T : Number, D : DataPoint<T>>(
  * [DISTANCE] may come from GPS location if available, or steps if not available.
  */
 @Suppress("ParcelCreator")
-abstract class DataType<T : Any, D : DataPoint<T>>(
+public abstract class DataType<T : Any, D : DataPoint<T>>(
     /** Returns the name of this [DataType], e.g. `"Steps"`. */
-    val name: String,
+    public val name: String,
 
     /** Returns the [TimeType] of this [DataType]. */
     internal val timeType: TimeType,
 
     /** Returns the underlying [Class] of this [DataType]. */
-    val valueClass: Class<T>,
+    public val valueClass: Class<T>,
 
     /**
      * Returns `true` if this will be represented by [StatisticalDataPoint] or
@@ -103,21 +103,21 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
                 else -> TIME_TYPE_UNKNOWN
             }
 
-        companion object {
+        public companion object {
             /** The [TimeType] is unknown or this library is too old to know about it. */
-            @JvmField val UNKNOWN: TimeType = TimeType(0, "UNKNOWN")
+            @JvmField public val UNKNOWN: TimeType = TimeType(0, "UNKNOWN")
 
             /**
              * TimeType that indicates the DataType has a value that represents an interval of time
              * with a beginning and end. For example, number of steps taken over a span of time.
              */
-            @JvmField val INTERVAL: TimeType = TimeType(1, "INTERVAL")
+            @JvmField public val INTERVAL: TimeType = TimeType(1, "INTERVAL")
 
             /**
              * TimeType that indicates the DataType has a value that represents a single point in
              * time. For example, heart rate reading at a specific time.
              */
-            @JvmField val SAMPLE: TimeType = TimeType(2, "SAMPLE")
+            @JvmField public val SAMPLE: TimeType = TimeType(2, "SAMPLE")
 
             internal fun fromProto(proto: DataProto.DataType.TimeType): TimeType =
                 when (proto) {
@@ -209,7 +209,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
         return result
     }
 
-    companion object {
+    public companion object {
         private const val TAG = "DataType"
 
         private inline fun <reified T : Number> createIntervalDataType(
@@ -237,7 +237,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * losses are not counted in this metric (so it will only be positive or 0).
          */
         @JvmField
-        val ELEVATION_GAIN: DeltaDataType<Double, IntervalDataPoint<Double>> =
+        public val ELEVATION_GAIN: DeltaDataType<Double, IntervalDataPoint<Double>> =
             createIntervalDataType("Elevation Gain")
 
         /**
@@ -246,7 +246,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * or 0).
          */
         @JvmField
-        val ELEVATION_GAIN_TOTAL: AggregateDataType<Double, CumulativeDataPoint<Double>> =
+        public val ELEVATION_GAIN_TOTAL: AggregateDataType<Double, CumulativeDataPoint<Double>> =
             createCumulativeDataType("Elevation Gain")
 
         /**
@@ -254,7 +254,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * gains are not counted in this metric (so it will only be positive or 0).
          */
         @JvmField
-        val ELEVATION_LOSS: DeltaDataType<Double, IntervalDataPoint<Double>> =
+        public val ELEVATION_LOSS: DeltaDataType<Double, IntervalDataPoint<Double>> =
             createIntervalDataType("Elevation Loss")
 
         /**
@@ -263,12 +263,12 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * 0).
          */
         @JvmField
-        val ELEVATION_LOSS_TOTAL: AggregateDataType<Double, CumulativeDataPoint<Double>> =
+        public val ELEVATION_LOSS_TOTAL: AggregateDataType<Double, CumulativeDataPoint<Double>> =
             createCumulativeDataType("Elevation Loss")
 
         /** Absolute elevation at a specific point in time expressed in meters. */
         @JvmField
-        val ABSOLUTE_ELEVATION: DeltaDataType<Double, SampleDataPoint<Double>> =
+        public val ABSOLUTE_ELEVATION: DeltaDataType<Double, SampleDataPoint<Double>> =
             createSampleDataType("Absolute Elevation")
 
         /**
@@ -276,22 +276,23 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * exercise expressed in meters.
          */
         @JvmField
-        val ABSOLUTE_ELEVATION_STATS: AggregateDataType<Double, StatisticalDataPoint<Double>> =
+        public val ABSOLUTE_ELEVATION_STATS:
+            AggregateDataType<Double, StatisticalDataPoint<Double>> =
             createStatsDataType("Absolute Elevation")
 
         /** A distance delta between each reading expressed in meters. */
         @JvmField
-        val DISTANCE: DeltaDataType<Double, IntervalDataPoint<Double>> =
+        public val DISTANCE: DeltaDataType<Double, IntervalDataPoint<Double>> =
             createIntervalDataType("Distance")
 
         /** Total distance since the start of the active exercise expressed in meters. */
         @JvmField
-        val DISTANCE_TOTAL: AggregateDataType<Double, CumulativeDataPoint<Double>> =
+        public val DISTANCE_TOTAL: AggregateDataType<Double, CumulativeDataPoint<Double>> =
             createCumulativeDataType("Distance")
 
         /** Distance traveled over declining ground between each reading expressed in meters. */
         @JvmField
-        val DECLINE_DISTANCE: DeltaDataType<Double, IntervalDataPoint<Double>> =
+        public val DECLINE_DISTANCE: DeltaDataType<Double, IntervalDataPoint<Double>> =
             createIntervalDataType("Decline Distance")
 
         /**
@@ -299,7 +300,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * the active exercise expressed in meters.
          */
         @JvmField
-        val DECLINE_DISTANCE_TOTAL: AggregateDataType<Double, CumulativeDataPoint<Double>> =
+        public val DECLINE_DISTANCE_TOTAL: AggregateDataType<Double, CumulativeDataPoint<Double>> =
             createCumulativeDataType("Decline Distance")
 
         /**
@@ -307,7 +308,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * expressed in seconds.
          */
         @JvmField
-        val DECLINE_DURATION: DeltaDataType<Long, IntervalDataPoint<Long>> =
+        public val DECLINE_DURATION: DeltaDataType<Long, IntervalDataPoint<Long>> =
             createIntervalDataType("Decline Duration")
 
         /**
@@ -315,12 +316,12 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * active exercise, expressed in seconds.
          */
         @JvmField
-        val DECLINE_DURATION_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
+        public val DECLINE_DURATION_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
             createCumulativeDataType("Decline Duration")
 
         /** The distance traveled over flat since the last update expressed in meters. */
         @JvmField
-        val FLAT_GROUND_DISTANCE: DeltaDataType<Double, IntervalDataPoint<Double>> =
+        public val FLAT_GROUND_DISTANCE: DeltaDataType<Double, IntervalDataPoint<Double>> =
             createIntervalDataType("Flat Ground Distance")
 
         /**
@@ -328,7 +329,8 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * expressed in meters.
          */
         @JvmField
-        val FLAT_GROUND_DISTANCE_TOTAL: AggregateDataType<Double, CumulativeDataPoint<Double>> =
+        public val FLAT_GROUND_DISTANCE_TOTAL:
+            AggregateDataType<Double, CumulativeDataPoint<Double>> =
             createCumulativeDataType("Flat Ground Distance")
 
         /**
@@ -336,7 +338,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * expressed in seconds.
          */
         @JvmField
-        val FLAT_GROUND_DURATION: DeltaDataType<Long, IntervalDataPoint<Long>> =
+        public val FLAT_GROUND_DURATION: DeltaDataType<Long, IntervalDataPoint<Long>> =
             createIntervalDataType("Flat Ground Duration")
 
         /**
@@ -344,7 +346,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * active exercise, expressed in seconds.
          */
         @JvmField
-        val FLAT_GROUND_DURATION_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
+        public val FLAT_GROUND_DURATION_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
             createCumulativeDataType("Flat Ground Duration")
 
         /**
@@ -352,7 +354,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * swinging the club and hitting the ball.
          */
         @JvmField
-        val GOLF_SHOT_COUNT: DeltaDataType<Long, IntervalDataPoint<Long>> =
+        public val GOLF_SHOT_COUNT: DeltaDataType<Long, IntervalDataPoint<Long>> =
             createIntervalDataType("Golf Shot Count")
 
         /**
@@ -360,14 +362,14 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * where a golf shot consists swinging the club and hitting the ball.
          */
         @JvmField
-        val GOLF_SHOT_COUNT_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
+        public val GOLF_SHOT_COUNT_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
             createCumulativeDataType("Golf Shot Count")
 
         /**
          * The distance traveled over inclining ground since the last update expressed in meters.
          */
         @JvmField
-        val INCLINE_DISTANCE: DeltaDataType<Double, IntervalDataPoint<Double>> =
+        public val INCLINE_DISTANCE: DeltaDataType<Double, IntervalDataPoint<Double>> =
             createIntervalDataType("Incline Distance")
 
         /**
@@ -375,7 +377,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * expressed in meters.
          */
         @JvmField
-        val INCLINE_DISTANCE_TOTAL: AggregateDataType<Double, CumulativeDataPoint<Double>> =
+        public val INCLINE_DISTANCE_TOTAL: AggregateDataType<Double, CumulativeDataPoint<Double>> =
             createCumulativeDataType("Incline Distance")
 
         /**
@@ -383,7 +385,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * expressed in seconds.
          */
         @JvmField
-        val INCLINE_DURATION: DeltaDataType<Long, IntervalDataPoint<Long>> =
+        public val INCLINE_DURATION: DeltaDataType<Long, IntervalDataPoint<Long>> =
             createIntervalDataType("Incline Duration")
 
         /**
@@ -391,7 +393,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * the active exercise, expressed in seconds.
          */
         @JvmField
-        val INCLINE_DURATION_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
+        public val INCLINE_DURATION_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
             createCumulativeDataType("Incline Duration")
 
         /**
@@ -399,7 +401,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * so this is represented as a [Double].
          */
         @JvmField
-        val FLOORS: DeltaDataType<Double, IntervalDataPoint<Double>> =
+        public val FLOORS: DeltaDataType<Double, IntervalDataPoint<Double>> =
             createIntervalDataType("Floors")
 
         /**
@@ -407,7 +409,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * floors are supported, so this is represented as a [Double].
          */
         @JvmField
-        val FLOORS_TOTAL: AggregateDataType<Double, CumulativeDataPoint<Double>> =
+        public val FLOORS_TOTAL: AggregateDataType<Double, CumulativeDataPoint<Double>> =
             createCumulativeDataType("Floors")
 
         /**
@@ -417,7 +419,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * [HeartRateAccuracy].
          */
         @JvmField
-        val HEART_RATE_BPM: DeltaDataType<Double, SampleDataPoint<Double>> =
+        public val HEART_RATE_BPM: DeltaDataType<Double, SampleDataPoint<Double>> =
             createSampleDataType("HeartRate")
 
         /**
@@ -425,7 +427,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * minute.
          */
         @JvmField
-        val HEART_RATE_BPM_STATS: AggregateDataType<Double, StatisticalDataPoint<Double>> =
+        public val HEART_RATE_BPM_STATS: AggregateDataType<Double, StatisticalDataPoint<Double>> =
             createStatsDataType("HeartRate")
 
         /**
@@ -434,18 +436,19 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * Accuracy for a [DataPoint] of type [LOCATION] is represented by [LocationAccuracy].
          */
         @JvmField
-        val LOCATION: DeltaDataType<LocationData, SampleDataPoint<LocationData>> =
+        public val LOCATION: DeltaDataType<LocationData, SampleDataPoint<LocationData>> =
             DeltaDataType("Location", TimeType.SAMPLE, LocationData::class.java)
 
         /** Speed at a specific point in time, expressed as meters/second. */
         @JvmField
-        val SPEED: DeltaDataType<Double, SampleDataPoint<Double>> = createSampleDataType("Speed")
+        public val SPEED: DeltaDataType<Double, SampleDataPoint<Double>> =
+            createSampleDataType("Speed")
 
         /**
          * Statistics on speed since the start of the active exercise, expressed in meters/second.
          */
         @JvmField
-        val SPEED_STATS: AggregateDataType<Double, StatisticalDataPoint<Double>> =
+        public val SPEED_STATS: AggregateDataType<Double, StatisticalDataPoint<Double>> =
             createStatsDataType("Speed")
 
         /**
@@ -453,7 +456,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * `0f` - `100f`.
          */
         @JvmField
-        val VO2_MAX: DeltaDataType<Double, SampleDataPoint<Double>> =
+        public val VO2_MAX: DeltaDataType<Double, SampleDataPoint<Double>> =
             createSampleDataType("VO2 Max")
 
         /**
@@ -461,43 +464,44 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * Valid range `0f` - `100f`.
          */
         @JvmField
-        val VO2_MAX_STATS: AggregateDataType<Double, StatisticalDataPoint<Double>> =
+        public val VO2_MAX_STATS: AggregateDataType<Double, StatisticalDataPoint<Double>> =
             createStatsDataType("VO2 Max")
 
         /** Number of steps taken since the last update. */
         @JvmField
-        val STEPS: DeltaDataType<Long, IntervalDataPoint<Long>> = createIntervalDataType("Steps")
+        public val STEPS: DeltaDataType<Long, IntervalDataPoint<Long>> =
+            createIntervalDataType("Steps")
 
         /** Total steps taken since the start of the active exercise. */
         @JvmField
-        val STEPS_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
+        public val STEPS_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
             createCumulativeDataType("Steps")
 
         /** Number of steps taken while walking since the last update. */
         @JvmField
-        val WALKING_STEPS: DeltaDataType<Long, IntervalDataPoint<Long>> =
+        public val WALKING_STEPS: DeltaDataType<Long, IntervalDataPoint<Long>> =
             createIntervalDataType("Walking Steps")
 
         /**
          * Total number of steps taken while walking since the start of the current active exercise.
          */
         @JvmField
-        val WALKING_STEPS_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
+        public val WALKING_STEPS_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
             createCumulativeDataType("Walking Steps")
 
         /** Number of steps taken while running since the last update. */
         @JvmField
-        val RUNNING_STEPS: DeltaDataType<Long, IntervalDataPoint<Long>> =
+        public val RUNNING_STEPS: DeltaDataType<Long, IntervalDataPoint<Long>> =
             createIntervalDataType("Running Steps")
 
         /** Number of steps taken while running since the start of the current active exercise. */
         @JvmField
-        val RUNNING_STEPS_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
+        public val RUNNING_STEPS_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
             createCumulativeDataType("Running Steps")
 
         /** Step rate in steps/minute at a given point in time. */
         @JvmField
-        val STEPS_PER_MINUTE: DeltaDataType<Long, SampleDataPoint<Long>> =
+        public val STEPS_PER_MINUTE: DeltaDataType<Long, SampleDataPoint<Long>> =
             createSampleDataType("Step per minute")
 
         /**
@@ -505,24 +509,24 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * exercise.
          */
         @JvmField
-        val STEPS_PER_MINUTE_STATS: AggregateDataType<Long, StatisticalDataPoint<Long>> =
+        public val STEPS_PER_MINUTE_STATS: AggregateDataType<Long, StatisticalDataPoint<Long>> =
             createStatsDataType("Step per minute")
 
         /** Number of swimming strokes taken since the last update. */
         @JvmField
-        val SWIMMING_STROKES: DeltaDataType<Long, IntervalDataPoint<Long>> =
+        public val SWIMMING_STROKES: DeltaDataType<Long, IntervalDataPoint<Long>> =
             createIntervalDataType("Swimming Strokes")
 
         /**
          * Total number of swimming strokes taken since the start of the current active exercise.
          */
         @JvmField
-        val SWIMMING_STROKES_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
+        public val SWIMMING_STROKES_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
             createCumulativeDataType("Swimming Strokes")
 
         /** Number of calories burned (including basal rate and activity) since the last update. */
         @JvmField
-        val CALORIES: DeltaDataType<Double, IntervalDataPoint<Double>> =
+        public val CALORIES: DeltaDataType<Double, IntervalDataPoint<Double>> =
             createIntervalDataType("Calories")
 
         /**
@@ -530,7 +534,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * the current active exercise.
          */
         @JvmField
-        val CALORIES_TOTAL: AggregateDataType<Double, CumulativeDataPoint<Double>> =
+        public val CALORIES_TOTAL: AggregateDataType<Double, CumulativeDataPoint<Double>> =
             createCumulativeDataType("Calories")
 
         /**
@@ -538,26 +542,28 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * will be in milliseconds/kilometer.
          */
         @JvmField
-        val PACE: DeltaDataType<Double, SampleDataPoint<Double>> = createSampleDataType("Pace")
+        public val PACE: DeltaDataType<Double, SampleDataPoint<Double>> =
+            createSampleDataType("Pace")
 
         /**
          * Statistics on pace since the start of the current exercise. A value of 0 indicates the
          * user stopped moving, otherwise the value will be in milliseconds/kilometer.
          */
         @JvmField
-        val PACE_STATS: AggregateDataType<Double, StatisticalDataPoint<Double>> =
+        public val PACE_STATS: AggregateDataType<Double, StatisticalDataPoint<Double>> =
             createStatsDataType("Pace")
 
         /**
          * The number of seconds the user has been resting during an exercise since the last update.
          */
         @JvmField
-        val RESTING_EXERCISE_DURATION: DeltaDataType<Long, IntervalDataPoint<Long>> =
+        public val RESTING_EXERCISE_DURATION: DeltaDataType<Long, IntervalDataPoint<Long>> =
             createIntervalDataType("Resting Exercise Duration")
 
         /** The total number of seconds the user has been resting during the active exercise. */
         @JvmField
-        val RESTING_EXERCISE_DURATION_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
+        public val RESTING_EXERCISE_DURATION_TOTAL:
+            AggregateDataType<Long, CumulativeDataPoint<Long>> =
             createCumulativeDataType("Resting Exercise Duration")
 
         /**
@@ -569,22 +575,23 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * every [ExerciseUpdate].**
          */
         @JvmField
-        val ACTIVE_EXERCISE_DURATION_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
+        public val ACTIVE_EXERCISE_DURATION_TOTAL:
+            AggregateDataType<Long, CumulativeDataPoint<Long>> =
             createCumulativeDataType("Active Exercise Duration")
 
         /** Count of swimming laps since the last update. */
         @JvmField
-        val SWIMMING_LAP_COUNT: DeltaDataType<Long, IntervalDataPoint<Long>> =
+        public val SWIMMING_LAP_COUNT: DeltaDataType<Long, IntervalDataPoint<Long>> =
             createIntervalDataType("Swim Lap Count")
 
         /** Count of swimming laps since the start of the current active exercise. */
         @JvmField
-        val SWIMMING_LAP_COUNT_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
+        public val SWIMMING_LAP_COUNT_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
             createCumulativeDataType("Swim Lap Count")
 
         /** The number of repetitions of an exercise performed since the last update. */
         @JvmField
-        val REP_COUNT: DeltaDataType<Long, IntervalDataPoint<Long>> =
+        public val REP_COUNT: DeltaDataType<Long, IntervalDataPoint<Long>> =
             createIntervalDataType("Rep Count")
 
         /**
@@ -592,7 +599,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * exercise.
          */
         @JvmField
-        val REP_COUNT_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
+        public val REP_COUNT_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
             createCumulativeDataType("Rep Count")
 
         /**
@@ -600,7 +607,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * ground in milliseconds in `long` format.
          */
         @JvmField
-        val GROUND_CONTACT_TIME: DeltaDataType<Long, SampleDataPoint<Long>> =
+        public val GROUND_CONTACT_TIME: DeltaDataType<Long, SampleDataPoint<Long>> =
             createSampleDataType("Ground Contact Time")
 
         /**
@@ -608,7 +615,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * contact with the ground in milliseconds in `long` format.
          */
         @JvmField
-        val GROUND_CONTACT_TIME_STATS: AggregateDataType<Long, StatisticalDataPoint<Long>> =
+        public val GROUND_CONTACT_TIME_STATS: AggregateDataType<Long, StatisticalDataPoint<Long>> =
             createStatsDataType("Ground Contact Time")
 
         /**
@@ -616,7 +623,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * format.
          */
         @JvmField
-        val VERTICAL_OSCILLATION: DeltaDataType<Double, SampleDataPoint<Double>> =
+        public val VERTICAL_OSCILLATION: DeltaDataType<Double, SampleDataPoint<Double>> =
             createSampleDataType("Vertical Oscillation")
 
         /**
@@ -624,7 +631,8 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * in `double` format.
          */
         @JvmField
-        val VERTICAL_OSCILLATION_STATS: AggregateDataType<Double, StatisticalDataPoint<Double>> =
+        public val VERTICAL_OSCILLATION_STATS:
+            AggregateDataType<Double, StatisticalDataPoint<Double>> =
             createStatsDataType("Vertical Oscillation")
 
         /**
@@ -634,7 +642,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * vertical ratio of 0.625.
          */
         @JvmField
-        val VERTICAL_RATIO: DeltaDataType<Double, SampleDataPoint<Double>> =
+        public val VERTICAL_RATIO: DeltaDataType<Double, SampleDataPoint<Double>> =
             createSampleDataType("Vertical Ratio")
 
         /**
@@ -644,17 +652,17 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * vertical ratio of 0.625.
          */
         @JvmField
-        val VERTICAL_RATIO_STATS: AggregateDataType<Double, StatisticalDataPoint<Double>> =
+        public val VERTICAL_RATIO_STATS: AggregateDataType<Double, StatisticalDataPoint<Double>> =
             createStatsDataType("Vertical Ratio")
 
         /** Distance covered by a single step in meters in `double` format. */
         @JvmField
-        val STRIDE_LENGTH: DeltaDataType<Double, SampleDataPoint<Double>> =
+        public val STRIDE_LENGTH: DeltaDataType<Double, SampleDataPoint<Double>> =
             createSampleDataType("Stride Length")
 
         /** Statistics on distance covered by a single step in meters in `double` format. */
         @JvmField
-        val STRIDE_LENGTH_STATS: AggregateDataType<Double, StatisticalDataPoint<Double>> =
+        public val STRIDE_LENGTH_STATS: AggregateDataType<Double, StatisticalDataPoint<Double>> =
             createStatsDataType("Stride Length")
 
         /**
@@ -663,7 +671,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * of day to now. In the event of time-zone shifts, the interval may be greater than 24hrs.
          */
         @JvmField
-        val STEPS_DAILY: DeltaDataType<Long, IntervalDataPoint<Long>> =
+        public val STEPS_DAILY: DeltaDataType<Long, IntervalDataPoint<Long>> =
             createIntervalDataType("Daily Steps")
 
         /**
@@ -673,7 +681,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * than 24hrs.
          */
         @JvmField
-        val FLOORS_DAILY: DeltaDataType<Double, IntervalDataPoint<Double>> =
+        public val FLOORS_DAILY: DeltaDataType<Double, IntervalDataPoint<Double>> =
             createIntervalDataType("Daily Floors")
 
         /**
@@ -684,7 +692,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * the interval might be greater than 24hrs.
          */
         @JvmField
-        val ELEVATION_GAIN_DAILY: DeltaDataType<Double, IntervalDataPoint<Double>> =
+        public val ELEVATION_GAIN_DAILY: DeltaDataType<Double, IntervalDataPoint<Double>> =
             createIntervalDataType("Daily Elevation Gain")
 
         /**
@@ -694,7 +702,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * shifts, the interval might be greater than 24hrs.
          */
         @JvmField
-        val CALORIES_DAILY: DeltaDataType<Double, IntervalDataPoint<Double>> =
+        public val CALORIES_DAILY: DeltaDataType<Double, IntervalDataPoint<Double>> =
             createIntervalDataType("Daily Calories")
 
         /**
@@ -703,7 +711,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * to now. In the event of time-zone shifts, the interval may be greater than 24hrs.
          */
         @JvmField
-        val DISTANCE_DAILY: DeltaDataType<Double, IntervalDataPoint<Double>> =
+        public val DISTANCE_DAILY: DeltaDataType<Double, IntervalDataPoint<Double>> =
             createIntervalDataType("Daily Distance")
 
         internal val deltaDataTypes: Set<DeltaDataType<*, *>> =

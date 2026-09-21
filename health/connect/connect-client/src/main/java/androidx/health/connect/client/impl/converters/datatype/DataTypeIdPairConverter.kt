@@ -23,13 +23,13 @@ import androidx.health.platform.client.proto.RequestProto
 import kotlin.reflect.KClass
 
 /** Converts public API object into internal proto for ipc. */
-fun toDataTypeIdPairProto(
+public fun toDataTypeIdPairProto(
     dataTypeKC: KClass<out Record>,
     uid: String,
 ): RequestProto.DataTypeIdPair =
     RequestProto.DataTypeIdPair.newBuilder().setDataType(dataTypeKC.toDataType()).setId(uid).build()
 
-fun toDataTypeIdPairProtoList(
+public fun toDataTypeIdPairProtoList(
     dataTypeKC: KClass<out Record>,
     uidsList: List<String>,
 ): List<RequestProto.DataTypeIdPair> {

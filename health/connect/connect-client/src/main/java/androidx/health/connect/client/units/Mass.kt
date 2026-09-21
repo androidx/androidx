@@ -25,37 +25,37 @@ package androidx.health.connect.client.units
  * - ounces - see [Mass.ounces], [Double.ounces]
  * - pounds - see [Mass.pounds], [Double.pounds]
  */
-class Mass private constructor(private val value: Double, private val type: Type) :
+public class Mass private constructor(private val value: Double, private val type: Type) :
     Comparable<Mass> {
 
     /** Returns the mass in grams. */
     @get:JvmName("getGrams")
-    val inGrams: Double
+    public val inGrams: Double
         get() = value * type.gramsPerUnit
 
     /** Returns the mass in kilograms. */
     @get:JvmName("getKilograms")
-    val inKilograms: Double
+    public val inKilograms: Double
         get() = get(type = Type.KILOGRAMS)
 
     /** Returns the mass in milligrams. */
     @get:JvmName("getMilligrams")
-    val inMilligrams: Double
+    public val inMilligrams: Double
         get() = get(type = Type.MILLIGRAMS)
 
     /** Returns the mass in micrograms. */
     @get:JvmName("getMicrograms")
-    val inMicrograms: Double
+    public val inMicrograms: Double
         get() = get(type = Type.MICROGRAMS)
 
     /** Returns the mass in ounces. */
     @get:JvmName("getOunces")
-    val inOunces: Double
+    public val inOunces: Double
         get() = get(type = Type.OUNCES)
 
     /** Returns the mass in pounds. */
     @get:JvmName("getPounds")
-    val inPounds: Double
+    public val inPounds: Double
         get() = get(type = Type.POUNDS)
 
     private fun get(type: Type): Double =
@@ -86,26 +86,26 @@ class Mass private constructor(private val value: Double, private val type: Type
 
     override fun toString(): String = "$value ${type.name.lowercase()}"
 
-    companion object {
+    public companion object {
         private val ZEROS = Type.values().associateWith { Mass(value = 0.0, type = it) }
 
         /** Creates [Mass] with the specified value in grams. */
-        @JvmStatic fun grams(value: Double): Mass = Mass(value, Type.GRAMS)
+        @JvmStatic public fun grams(value: Double): Mass = Mass(value, Type.GRAMS)
 
         /** Creates [Mass] with the specified value in kilograms. */
-        @JvmStatic fun kilograms(value: Double): Mass = Mass(value, Type.KILOGRAMS)
+        @JvmStatic public fun kilograms(value: Double): Mass = Mass(value, Type.KILOGRAMS)
 
         /** Creates [Mass] with the specified value in milligrams. */
-        @JvmStatic fun milligrams(value: Double): Mass = Mass(value, Type.MILLIGRAMS)
+        @JvmStatic public fun milligrams(value: Double): Mass = Mass(value, Type.MILLIGRAMS)
 
         /** Creates [Mass] with the specified value in micrograms. */
-        @JvmStatic fun micrograms(value: Double): Mass = Mass(value, Type.MICROGRAMS)
+        @JvmStatic public fun micrograms(value: Double): Mass = Mass(value, Type.MICROGRAMS)
 
         /** Creates [Mass] with the specified value in ounces. */
-        @JvmStatic fun ounces(value: Double): Mass = Mass(value, Type.OUNCES)
+        @JvmStatic public fun ounces(value: Double): Mass = Mass(value, Type.OUNCES)
 
         /** Creates [Mass] with the specified value in pounds. */
-        @JvmStatic fun pounds(value: Double): Mass = Mass(value, Type.POUNDS)
+        @JvmStatic public fun pounds(value: Double): Mass = Mass(value, Type.POUNDS)
     }
 
     private enum class Type {
@@ -134,120 +134,120 @@ class Mass private constructor(private val value: Double, private val type: Type
 
 /** Creates [Mass] with the specified value in grams. */
 @get:JvmSynthetic
-val Double.grams: Mass
+public val Double.grams: Mass
     get() = Mass.grams(value = this)
 
 /** Creates [Mass] with the specified value in grams. */
 @get:JvmSynthetic
-val Float.grams: Mass
+public val Float.grams: Mass
     get() = toDouble().grams
 
 /** Creates [Mass] with the specified value in grams. */
 @get:JvmSynthetic
-val Long.grams: Mass
+public val Long.grams: Mass
     get() = toDouble().grams
 
 /** Creates [Mass] with the specified value in grams. */
 @get:JvmSynthetic
-val Int.grams: Mass
+public val Int.grams: Mass
     get() = toDouble().grams
 
 /** Creates [Mass] with the specified value in kilograms. */
 @get:JvmSynthetic
-val Double.kilograms: Mass
+public val Double.kilograms: Mass
     get() = Mass.kilograms(value = this)
 
 /** Creates [Mass] with the specified value in kilograms. */
 @get:JvmSynthetic
-val Float.kilograms: Mass
+public val Float.kilograms: Mass
     get() = toDouble().kilograms
 
 /** Creates [Mass] with the specified value in kilograms. */
 @get:JvmSynthetic
-val Long.kilograms: Mass
+public val Long.kilograms: Mass
     get() = toDouble().kilograms
 
 /** Creates [Mass] with the specified value in kilograms. */
 @get:JvmSynthetic
-val Int.kilograms: Mass
+public val Int.kilograms: Mass
     get() = toDouble().kilograms
 
 /** Creates [Mass] with the specified value in milligrams. */
 @get:JvmSynthetic
-val Double.milligrams: Mass
+public val Double.milligrams: Mass
     get() = Mass.milligrams(value = this)
 
 /** Creates [Mass] with the specified value in milligrams. */
 @get:JvmSynthetic
-val Float.milligrams: Mass
+public val Float.milligrams: Mass
     get() = toDouble().milligrams
 
 /** Creates [Mass] with the specified value in milligrams. */
 @get:JvmSynthetic
-val Long.milligrams: Mass
+public val Long.milligrams: Mass
     get() = toDouble().milligrams
 
 /** Creates [Mass] with the specified value in milligrams. */
 @get:JvmSynthetic
-val Int.milligrams: Mass
+public val Int.milligrams: Mass
     get() = toDouble().milligrams
 
 /** Creates [Mass] with the specified value in micrograms. */
 @get:JvmSynthetic
-val Double.micrograms: Mass
+public val Double.micrograms: Mass
     get() = Mass.micrograms(value = this)
 
 /** Creates [Mass] with the specified value in micrograms. */
 @get:JvmSynthetic
-val Float.micrograms: Mass
+public val Float.micrograms: Mass
     get() = toDouble().micrograms
 
 /** Creates [Mass] with the specified value in micrograms. */
 @get:JvmSynthetic
-val Long.micrograms: Mass
+public val Long.micrograms: Mass
     get() = toDouble().micrograms
 
 /** Creates [Mass] with the specified value in micrograms. */
 @get:JvmSynthetic
-val Int.micrograms: Mass
+public val Int.micrograms: Mass
     get() = toDouble().micrograms
 
 /** Creates [Mass] with the specified value in ounces. */
 @get:JvmSynthetic
-val Double.ounces: Mass
+public val Double.ounces: Mass
     get() = Mass.ounces(value = this)
 
 /** Creates [Mass] with the specified value in ounces. */
 @get:JvmSynthetic
-val Float.ounces: Mass
+public val Float.ounces: Mass
     get() = toDouble().ounces
 
 /** Creates [Mass] with the specified value in ounces. */
 @get:JvmSynthetic
-val Long.ounces: Mass
+public val Long.ounces: Mass
     get() = toDouble().ounces
 
 /** Creates [Mass] with the specified value in ounces. */
 @get:JvmSynthetic
-val Int.ounces: Mass
+public val Int.ounces: Mass
     get() = toDouble().ounces
 
 /** Creates [Mass] with the specified value in pounds. */
 @get:JvmSynthetic
-val Double.pounds: Mass
+public val Double.pounds: Mass
     get() = Mass.pounds(value = this)
 
 /** Creates [Mass] with the specified value in pounds. */
 @get:JvmSynthetic
-val Float.pounds: Mass
+public val Float.pounds: Mass
     get() = toDouble().pounds
 
 /** Creates [Mass] with the specified value in pounds. */
 @get:JvmSynthetic
-val Long.pounds: Mass
+public val Long.pounds: Mass
     get() = toDouble().pounds
 
 /** Creates [Mass] with the specified value in pounds. */
 @get:JvmSynthetic
-val Int.pounds: Mass
+public val Int.pounds: Mass
     get() = toDouble().pounds

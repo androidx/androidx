@@ -63,15 +63,16 @@ import java.time.ZoneOffset
  *   time range or baseline is not within [MIN_TEMPERATURE], [MAX_TEMPERATURE].
  * @sample androidx.health.connect.client.samples.ReadSkinTemperatureRecord
  */
-class SkinTemperatureRecord(
+public class SkinTemperatureRecord(
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
     override val metadata: Metadata,
-    val deltas: List<Delta>,
-    val baseline: Temperature? = null,
-    @SkinTemperatureMeasurementLocation val measurementLocation: Int = MEASUREMENT_LOCATION_UNKNOWN,
+    public val deltas: List<Delta>,
+    public val baseline: Temperature? = null,
+    @SkinTemperatureMeasurementLocation
+    public val measurementLocation: Int = MEASUREMENT_LOCATION_UNKNOWN,
 ) : IntervalRecord {
 
     init {
@@ -131,7 +132,7 @@ class SkinTemperatureRecord(
         return "SkinTemperatureRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, deltas=$deltas, baseline=$baseline, measurementLocation=$measurementLocation, metadata=$metadata)"
     }
 
-    companion object {
+    public companion object {
 
         private const val SKIN_TEMPERATURE_TYPE_NAME = "SkinTemperature"
         private const val TEMPERATURE_DELTA_FIELD_NAME = "temperatureDelta"
@@ -145,7 +146,7 @@ class SkinTemperatureRecord(
          * [HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE] as the argument.
          */
         @JvmField
-        val TEMPERATURE_DELTA_AVG: AggregateMetric<TemperatureDelta> =
+        public val TEMPERATURE_DELTA_AVG: AggregateMetric<TemperatureDelta> =
             doubleMetric(
                 SKIN_TEMPERATURE_TYPE_NAME,
                 AVERAGE,
@@ -160,7 +161,7 @@ class SkinTemperatureRecord(
          * [HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE] as the argument.
          */
         @JvmField
-        val TEMPERATURE_DELTA_MIN: AggregateMetric<TemperatureDelta> =
+        public val TEMPERATURE_DELTA_MIN: AggregateMetric<TemperatureDelta> =
             doubleMetric(
                 SKIN_TEMPERATURE_TYPE_NAME,
                 MINIMUM,
@@ -175,7 +176,7 @@ class SkinTemperatureRecord(
          * [HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE] as the argument.
          */
         @JvmField
-        val TEMPERATURE_DELTA_MAX: AggregateMetric<TemperatureDelta> =
+        public val TEMPERATURE_DELTA_MAX: AggregateMetric<TemperatureDelta> =
             doubleMetric(
                 SKIN_TEMPERATURE_TYPE_NAME,
                 MAXIMUM,
@@ -184,18 +185,18 @@ class SkinTemperatureRecord(
             )
 
         /** Use this if the location is unknown. */
-        const val MEASUREMENT_LOCATION_UNKNOWN: Int = 0
+        public const val MEASUREMENT_LOCATION_UNKNOWN: Int = 0
         /** Skin temperature measurement was taken from finger. */
-        const val MEASUREMENT_LOCATION_FINGER: Int = 1
+        public const val MEASUREMENT_LOCATION_FINGER: Int = 1
         /** Skin temperature measurement was taken from toe. */
-        const val MEASUREMENT_LOCATION_TOE: Int = 2
+        public const val MEASUREMENT_LOCATION_TOE: Int = 2
         /** Skin temperature measurement was taken from wrist. */
-        const val MEASUREMENT_LOCATION_WRIST: Int = 3
+        public const val MEASUREMENT_LOCATION_WRIST: Int = 3
 
         /** Internal mappings useful for interoperability between integers and strings. */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val MEASUREMENT_LOCATION_STRING_TO_INT_MAP: Map<String, Int> =
+        public val MEASUREMENT_LOCATION_STRING_TO_INT_MAP: Map<String, Int> =
             mapOf(
                 "finger" to MEASUREMENT_LOCATION_FINGER,
                 "toe" to MEASUREMENT_LOCATION_TOE,
@@ -204,7 +205,7 @@ class SkinTemperatureRecord(
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val MEASUREMENT_LOCATION_INT_TO_STRING_MAP =
+        public val MEASUREMENT_LOCATION_INT_TO_STRING_MAP: Map<Int, String> =
             MEASUREMENT_LOCATION_STRING_TO_INT_MAP.reverse()
 
         /** Measurement location of the skin temperature. */
@@ -219,7 +220,7 @@ class SkinTemperatureRecord(
                 ]
         )
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        annotation class SkinTemperatureMeasurementLocation
+        public annotation class SkinTemperatureMeasurementLocation
     }
 
     /**
@@ -232,7 +233,7 @@ class SkinTemperatureRecord(
      * @see SkinTemperatureRecord
      * @see TemperatureDelta
      */
-    public class Delta(val time: Instant, val delta: TemperatureDelta) {
+    public class Delta(public val time: Instant, public val delta: TemperatureDelta) {
 
         init {
             delta.requireNotLess(other = MIN_DELTA_TEMPERATURE, "delta")

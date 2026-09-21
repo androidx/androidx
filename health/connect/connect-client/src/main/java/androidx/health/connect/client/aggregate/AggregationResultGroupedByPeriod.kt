@@ -26,12 +26,12 @@ import java.time.LocalDateTime
  * @property endTime end time of the slice.
  * @see [androidx.health.connect.client.HealthConnectClient.aggregateGroupByPeriod]
  */
-class AggregationResultGroupedByPeriod
+public class AggregationResultGroupedByPeriod
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(
-    val result: AggregationResult,
-    val startTime: LocalDateTime,
-    val endTime: LocalDateTime,
+    public val result: AggregationResult,
+    public val startTime: LocalDateTime,
+    public val endTime: LocalDateTime,
     shouldSkipValidation: Boolean = false,
 ) {
     init {

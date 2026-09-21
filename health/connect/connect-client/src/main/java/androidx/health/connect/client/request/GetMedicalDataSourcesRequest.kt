@@ -43,7 +43,7 @@ import androidx.health.connect.client.records.toString
  *   will be returned.
  */
 @ExperimentalPersonalHealthRecordApi
-class GetMedicalDataSourcesRequest(val packageNames: List<String>) {
+public class GetMedicalDataSourcesRequest(public val packageNames: List<String>) {
 
     @SuppressLint("NewApi") // already checked with a feature availability check
     internal val platformGetMedicalDataSourcesRequest: PlatformGetMedicalDataSourcesRequest =
@@ -53,7 +53,7 @@ class GetMedicalDataSourcesRequest(val packageNames: List<String>) {
                 .build()
         }
 
-    override fun toString() = toString(this, mapOf("packageNames" to packageNames))
+    override fun toString(): String = toString(this, mapOf("packageNames" to packageNames))
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

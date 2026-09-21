@@ -25,7 +25,7 @@ import androidx.health.platform.client.proto.ResponseProto
 
 /** Converts public API object into internal proto for ipc. */
 @Suppress("UNCHECKED_CAST") // Safe to cast as the type should match
-fun <T : Record> toReadRecordsResponse(
+public fun <T : Record> toReadRecordsResponse(
     proto: ResponseProto.ReadDataRangeResponse
 ): ReadRecordsResponse<T> =
     ReadRecordsResponse(

@@ -23,12 +23,12 @@ import androidx.health.platform.client.proto.ResponseProto
 
 /** Internal wrapper to help transfer protos over ipc. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class AggregateDataResponse(override val proto: ResponseProto.AggregateDataResponse) :
+public class AggregateDataResponse(override val proto: ResponseProto.AggregateDataResponse) :
     ProtoParcelable<ResponseProto.AggregateDataResponse>() {
 
-    companion object {
+    public companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<AggregateDataResponse> = newCreator {
+        public val CREATOR: Parcelable.Creator<AggregateDataResponse> = newCreator {
             val proto = ResponseProto.AggregateDataResponse.parseFrom(it)
             AggregateDataResponse(proto)
         }

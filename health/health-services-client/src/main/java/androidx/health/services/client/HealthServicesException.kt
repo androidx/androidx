@@ -17,4 +17,4 @@
 package androidx.health.services.client
 
 /** Exception class for all the Health Services errors. */
-class HealthServicesException(message: String) : Exception(message)
+public class HealthServicesException(message: String) : Exception(message)

@@ -23,9 +23,9 @@ import java.util.Objects
 /** An [ExerciseEvent] that contains information about Golf Shot events for the current exercise. */
 public class GolfShotEvent(
     /** [Duration] since device boot when the golf shot was detected. */
-    val durationSinceBoot: Duration,
+    public val durationSinceBoot: Duration,
     /** The type of golf swing that was detected. */
-    val swingType: GolfShotSwingType,
+    public val swingType: GolfShotSwingType,
 ) : ExerciseEvent() {
 
     internal constructor(
@@ -62,18 +62,18 @@ public class GolfShotEvent(
             DataProto.GolfShotSwingType.forNumber(id)
                 ?: DataProto.GolfShotSwingType.GOLF_SHOT_SWING_TYPE_UNKNOWN
 
-        companion object {
+        public companion object {
             /** The swing type of the received golf shot is unknown. */
-            @JvmField val UNKNOWN: GolfShotSwingType = GolfShotSwingType(0)
+            @JvmField public val UNKNOWN: GolfShotSwingType = GolfShotSwingType(0)
 
             /** The swing type of the received golf shot is putt. */
-            @JvmField val PUTT: GolfShotSwingType = GolfShotSwingType(1)
+            @JvmField public val PUTT: GolfShotSwingType = GolfShotSwingType(1)
 
             /** The swing type of the received golf shot is partial. */
-            @JvmField val PARTIAL: GolfShotSwingType = GolfShotSwingType(2)
+            @JvmField public val PARTIAL: GolfShotSwingType = GolfShotSwingType(2)
 
             /** The swing type of the received golf shot is full. */
-            @JvmField val FULL: GolfShotSwingType = GolfShotSwingType(3)
+            @JvmField public val FULL: GolfShotSwingType = GolfShotSwingType(3)
 
             internal fun fromProto(proto: DataProto.GolfShotSwingType): GolfShotSwingType =
                 when (proto) {

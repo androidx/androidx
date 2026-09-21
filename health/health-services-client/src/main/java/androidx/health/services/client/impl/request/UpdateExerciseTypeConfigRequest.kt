@@ -24,9 +24,9 @@ import androidx.health.services.client.proto.RequestsProto
 
 /** Request for updating exercise type configuration in an [ExerciseTypeConfig]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class UpdateExerciseTypeConfigRequest(
-    val packageName: String,
-    val exerciseTypeConfig: ExerciseTypeConfig,
+public class UpdateExerciseTypeConfigRequest(
+    public val packageName: String,
+    public val exerciseTypeConfig: ExerciseTypeConfig,
 ) : ProtoParcelable<RequestsProto.UpdateExerciseTypeConfigRequest>() {
     override val proto: RequestsProto.UpdateExerciseTypeConfigRequest =
         RequestsProto.UpdateExerciseTypeConfigRequest.newBuilder()
@@ -34,14 +34,15 @@ class UpdateExerciseTypeConfigRequest(
             .setConfig(exerciseTypeConfig.toProto())
             .build()
 
-    companion object {
+    public companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<UpdateExerciseTypeConfigRequest> = newCreator { bytes ->
-            val proto = RequestsProto.UpdateExerciseTypeConfigRequest.parseFrom(bytes)
-            UpdateExerciseTypeConfigRequest(
-                proto.packageName,
-                ExerciseTypeConfig.fromProto(proto.config),
-            )
-        }
+        public val CREATOR: Parcelable.Creator<UpdateExerciseTypeConfigRequest> =
+            newCreator { bytes ->
+                val proto = RequestsProto.UpdateExerciseTypeConfigRequest.parseFrom(bytes)
+                UpdateExerciseTypeConfigRequest(
+                    proto.packageName,
+                    ExerciseTypeConfig.fromProto(proto.config),
+                )
+            }
     }
 }

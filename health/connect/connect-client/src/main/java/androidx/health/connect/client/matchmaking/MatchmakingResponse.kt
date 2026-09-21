@@ -25,7 +25,7 @@ import androidx.health.connect.client.ExperimentalMatchmakingApi
  *   device, `false` otherwise.
  */
 @ExperimentalMatchmakingApi
-class MatchmakingResponse(val isMatchmakingPossible: Boolean) {
+public class MatchmakingResponse(public val isMatchmakingPossible: Boolean) {
     override fun toString(): String =
         "MatchmakingResponse(isMatchmakingPossible=$isMatchmakingPossible)"
 

@@ -36,7 +36,8 @@ import androidx.health.connect.client.impl.platform.records.PlatformFhirVersion
  * [UnsupportedOperationException] would be thrown if the feature is not available.
  */
 @ExperimentalPersonalHealthRecordApi
-class FhirVersion(val major: Int, val minor: Int, val patch: Int) : Comparable<FhirVersion> {
+public class FhirVersion(public val major: Int, public val minor: Int, public val patch: Int) :
+    Comparable<FhirVersion> {
     @SuppressLint("NewApi") // already checked with a feature availability check
     internal val platformFhirVersion: PlatformFhirVersion =
         withPhrFeatureCheck(this::class) {
@@ -86,12 +87,12 @@ class FhirVersion(val major: Int, val minor: Int, val patch: Int) : Comparable<F
      * [HealthConnectFeatures.FEATURE_PERSONAL_HEALTH_RECORD] as an argument.
      */
     @SuppressLint("NewApi") // checked by `getFeatureStatus()`
-    fun isSupportedFhirVersion(): Boolean =
+    public fun isSupportedFhirVersion(): Boolean =
         withPhrFeatureCheck(this::class, "isSupportedFhirVersion") {
             platformFhirVersion.isSupportedFhirVersion
         }
 
-    companion object {
+    public companion object {
         private val VERSION_REGEX = Regex("(\\d+)\\.(\\d+)\\.(\\d+)")
 
         /**
@@ -103,7 +104,7 @@ class FhirVersion(val major: Int, val minor: Int, val patch: Int) : Comparable<F
          * the "label" is not supported for now, which represents a 'working' version.
          */
         @JvmStatic
-        fun parseFhirVersion(fhirVersionString: String): FhirVersion {
+        public fun parseFhirVersion(fhirVersionString: String): FhirVersion {
             val result = VERSION_REGEX.find(fhirVersionString)
             require(result != null) { "Invalid FHIR version string: $fhirVersionString" }
             return FhirVersion(

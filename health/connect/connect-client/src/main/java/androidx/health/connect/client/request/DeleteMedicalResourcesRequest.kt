@@ -47,9 +47,9 @@ import androidx.health.connect.client.records.toString
  * @see [HealthConnectClient.deleteMedicalResources]
  */
 @ExperimentalPersonalHealthRecordApi
-class DeleteMedicalResourcesRequest(
-    val dataSourceIds: Set<String> = emptySet<String>(),
-    val medicalResourceTypes: Set<Int> = emptySet<Int>(),
+public class DeleteMedicalResourcesRequest(
+    public val dataSourceIds: Set<String> = emptySet<String>(),
+    public val medicalResourceTypes: Set<Int> = emptySet<Int>(),
 ) {
     @SuppressLint("NewApi") // already checked with a feature availability check
     internal val platformReadMedicalResourcesRequest: PlatformDeleteMedicalResourcesRequest =
@@ -62,7 +62,7 @@ class DeleteMedicalResourcesRequest(
                 .build()
         }
 
-    override fun toString() =
+    override fun toString(): String =
         toString(
             this,
             mapOf("dataSourceIds" to dataSourceIds, "medicalResourceTypes" to medicalResourceTypes),

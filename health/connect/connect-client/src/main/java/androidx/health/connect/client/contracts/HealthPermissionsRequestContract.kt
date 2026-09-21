@@ -31,7 +31,7 @@ import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAUL
  * It receives a set of permissions as input and returns a set with the granted permissions as
  * output.
  */
-class HealthPermissionsRequestContract(
+public class HealthPermissionsRequestContract(
     providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME
 ) : ActivityResultContract<Set<String>, Set<String>>() {
 

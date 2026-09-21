@@ -28,7 +28,7 @@ import kotlin.reflect.KClass
  *
  * @see [ReadRecordsRequest] for more information.
  */
-inline fun <reified T : Record> ReadRecordsRequest(
+public inline fun <reified T : Record> ReadRecordsRequest(
     timeRangeFilter: TimeRangeFilter,
     dataOriginFilter: Set<DataOrigin> = emptySet(),
     ascendingOrder: Boolean = true,
@@ -70,19 +70,19 @@ public class ReadRecordsRequest<T : Record>
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @ExperimentalDeduplicationApi
 constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val recordType: KClass<T>,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val timeRangeFilter: TimeRangeFilter,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val recordType: KClass<T>,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val timeRangeFilter: TimeRangeFilter,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val dataOriginFilter: Set<DataOrigin> = emptySet(),
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val ascendingOrder: Boolean = true,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val pageSize: Int = 1000,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val pageToken: String? = null,
+    public val dataOriginFilter: Set<DataOrigin> = emptySet(),
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val ascendingOrder: Boolean = true,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val pageSize: Int = 1000,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val pageToken: String? = null,
     @DeduplicationStrategy
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val deduplicateStrategy: Int = DEDUPLICATION_STRATEGY_ENABLED_DEFAULT,
+    public val deduplicateStrategy: Int = DEDUPLICATION_STRATEGY_ENABLED_DEFAULT,
 ) {
     @OptIn(ExperimentalDeduplicationApi::class)
-    constructor(
+    public constructor(
         recordType: KClass<T>,
         timeRangeFilter: TimeRangeFilter,
         dataOriginFilter: Set<DataOrigin> = emptySet(),
@@ -159,7 +159,7 @@ constructor(
     )
     @OptIn(ExperimentalDeduplicationApi::class)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    annotation class DeduplicationStrategy
+    public annotation class DeduplicationStrategy
 
     @ExperimentalDeduplicationApi
     internal companion object {

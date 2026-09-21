@@ -23,12 +23,12 @@ import androidx.health.platform.client.proto.RequestProto
 
 /** Internal parcelable for IPC calls. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class ReadDataRequest(override val proto: RequestProto.ReadDataRequest) :
+public class ReadDataRequest(override val proto: RequestProto.ReadDataRequest) :
     ProtoParcelable<RequestProto.ReadDataRequest>() {
 
-    companion object {
+    public companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<ReadDataRequest> = ProtoParcelable.newCreator {
+        public val CREATOR: Parcelable.Creator<ReadDataRequest> = ProtoParcelable.newCreator {
             val proto = RequestProto.ReadDataRequest.parseFrom(it)
             ReadDataRequest(proto)
         }

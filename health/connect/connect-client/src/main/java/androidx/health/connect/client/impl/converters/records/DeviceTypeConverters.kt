@@ -21,7 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.DeviceTypes
 
-val DEVICE_TYPE_STRING_TO_INT_MAP =
+public val DEVICE_TYPE_STRING_TO_INT_MAP: Map<String, Int> =
     mapOf(
         DeviceTypes.UNKNOWN to Device.TYPE_UNKNOWN,
         DeviceTypes.CHEST_STRAP to Device.TYPE_CHEST_STRAP,
@@ -34,5 +34,5 @@ val DEVICE_TYPE_STRING_TO_INT_MAP =
         DeviceTypes.WATCH to Device.TYPE_WATCH,
     )
 
-val DEVICE_TYPE_INT_TO_STRING_MAP: Map<Int, String> =
+public val DEVICE_TYPE_INT_TO_STRING_MAP: Map<Int, String> =
     DEVICE_TYPE_STRING_TO_INT_MAP.entries.associate { it.value to it.key }

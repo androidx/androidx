@@ -23,14 +23,15 @@ import androidx.health.platform.client.proto.RequestProto
 
 /** Internal parcelable for IPC calls. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class ReadExerciseRouteRequest(override val proto: RequestProto.ReadExerciseRouteRequest) :
+public class ReadExerciseRouteRequest(override val proto: RequestProto.ReadExerciseRouteRequest) :
     ProtoParcelable<RequestProto.ReadExerciseRouteRequest>() {
 
-    companion object {
+    public companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<ReadExerciseRouteRequest> = ProtoParcelable.newCreator {
-            val proto = RequestProto.ReadExerciseRouteRequest.parseFrom(it)
-            ReadExerciseRouteRequest(proto)
-        }
+        public val CREATOR: Parcelable.Creator<ReadExerciseRouteRequest> =
+            ProtoParcelable.newCreator {
+                val proto = RequestProto.ReadExerciseRouteRequest.parseFrom(it)
+                ReadExerciseRouteRequest(proto)
+            }
     }
 }

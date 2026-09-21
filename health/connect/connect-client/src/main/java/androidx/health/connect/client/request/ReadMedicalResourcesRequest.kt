@@ -35,7 +35,7 @@ import androidx.health.connect.client.records.MedicalResource
  * @see [HealthConnectClient.readMedicalResources]
  */
 @ExperimentalPersonalHealthRecordApi
-abstract class ReadMedicalResourcesRequest internal constructor(val pageSize: Int) {
+public abstract class ReadMedicalResourcesRequest internal constructor(public val pageSize: Int) {
     internal abstract val platformReadMedicalResourcesRequest: PlatformReadMedicalResourcesRequest
 
     override fun equals(other: Any?): Boolean {
@@ -51,8 +51,8 @@ abstract class ReadMedicalResourcesRequest internal constructor(val pageSize: In
         return pageSize
     }
 
-    companion object {
+    public companion object {
         /** Default value for [ReadMedicalResourcesRequest.pageSize]. */
-        const val DEFAULT_PAGE_SIZE = 1000
+        public const val DEFAULT_PAGE_SIZE: Int = 1000
     }
 }

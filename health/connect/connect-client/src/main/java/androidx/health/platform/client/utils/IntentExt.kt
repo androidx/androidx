@@ -23,10 +23,12 @@ import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.health.platform.client.proto.AbstractMessageLite
 
-fun Intent.putProtoMessages(name: String, messages: Collection<AbstractMessageLite<*, *>>): Intent =
-    putByteArraysExtra(name = name, byteArrays = messages.map { it.toByteArray() })
+public fun Intent.putProtoMessages(
+    name: String,
+    messages: Collection<AbstractMessageLite<*, *>>,
+): Intent = putByteArraysExtra(name = name, byteArrays = messages.map { it.toByteArray() })
 
-fun Intent.putByteArraysExtra(name: String, byteArrays: Collection<ByteArray>): Intent =
+public fun Intent.putByteArraysExtra(name: String, byteArrays: Collection<ByteArray>): Intent =
     putExtra(
         name,
         Bundle(byteArrays.size).apply {
@@ -34,12 +36,12 @@ fun Intent.putByteArraysExtra(name: String, byteArrays: Collection<ByteArray>): 
         },
     )
 
-fun <T : AbstractMessageLite<*, *>> Intent.getProtoMessages(
+public fun <T : AbstractMessageLite<*, *>> Intent.getProtoMessages(
     name: String,
     parser: (ByteArray) -> T,
 ): List<T>? = getByteArraysExtra(name = name)?.map(parser)
 
-fun Intent.getByteArraysExtra(name: String): List<ByteArray>? =
+public fun Intent.getByteArraysExtra(name: String): List<ByteArray>? =
     getBundleExtra(name)?.let { bundle ->
         List(bundle.size()) { index -> requireNotNull(bundle.getByteArray(index.toString())) }
     }

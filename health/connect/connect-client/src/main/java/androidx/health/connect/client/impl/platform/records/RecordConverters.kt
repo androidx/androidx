@@ -157,7 +157,7 @@ private fun KClass<out Record>.toPlatformRecordClassExt16(): Class<out PlatformR
 }
 
 @SuppressLint("NewApi")
-fun Record.toPlatformRecord(): PlatformRecord {
+public fun Record.toPlatformRecord(): PlatformRecord {
     return toPlatformRecordExt16()
         ?: toPlatformRecordExt15()
         ?: toPlatformRecordExt13()
@@ -236,7 +236,7 @@ private fun Record.toPlatformRecordExt16(): PlatformRecord? {
     }
 }
 
-fun PlatformRecord.toSdkRecord(): Record {
+public fun PlatformRecord.toSdkRecord(): Record {
     return toSdkRecordExt16()
         ?: toSdkRecordExt15()
         ?: toSdkRecordExt13()
@@ -958,7 +958,8 @@ private fun ExerciseRoute.toPlatformExerciseRoute() =
     )
 
 @SuppressLint("NewApi") // Guarded by sdk extension check
-fun ExerciseSegment.toPlatformExerciseSegment() =
+public fun ExerciseSegment.toPlatformExerciseSegment():
+    android.health.connect.datatypes.ExerciseSegment =
     PlatformExerciseSegmentBuilder(startTime, endTime, segmentType.toPlatformExerciseSegmentType())
         .setRepetitionsCount(repetitions)
         .apply {

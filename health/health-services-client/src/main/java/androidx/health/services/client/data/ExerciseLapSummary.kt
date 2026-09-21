@@ -23,28 +23,28 @@ import java.time.Instant
 
 /** Describes a completed exercise lap. */
 @Suppress("ParcelCreator")
-class ExerciseLapSummary(
+public class ExerciseLapSummary(
     /** Returns the lap count of this summary. Lap count starts at 1 for the first lap. */
-    val lapCount: Int,
+    public val lapCount: Int,
 
     /** Returns the time at which the lap has started. */
-    val startTime: Instant,
+    public val startTime: Instant,
 
     /** Returns the time at which the lap has ended. */
-    val endTime: Instant,
+    public val endTime: Instant,
 
     /**
      * Returns the total elapsed time for which the exercise has been active during this lap, i.e.
      * started but not paused.
      */
-    val activeDuration: Duration,
+    public val activeDuration: Duration,
 
     /**
      * Returns the [DataPoint]s for each metric keyed by [DataType] tracked between [startTime] and
      * [endTime] i.e. during the duration of this lap. This will only contain [AggregateDataType]s
      * calculated over the duration of the lap.
      */
-    val lapMetrics: DataPointContainer,
+    public val lapMetrics: DataPointContainer,
 ) {
 
     internal constructor(

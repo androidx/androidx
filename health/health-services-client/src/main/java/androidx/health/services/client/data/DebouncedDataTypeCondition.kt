@@ -28,13 +28,13 @@ public class DebouncedDataTypeCondition<T : Number, D : DataType<T, out DataPoin
 internal constructor(
 
     /** [DataType] which this condition applies to. */
-    val dataType: D,
+    public val dataType: D,
 
     /** The threshold at which point this condition should be met. */
-    val threshold: T,
+    public val threshold: T,
 
     /** The comparison type to use when comparing the threshold against the current value. */
-    val comparisonType: ComparisonType,
+    public val comparisonType: ComparisonType,
 
     /**
      * The amount of time (in seconds) that must pass before the goal can trigger. Applicable only
@@ -55,7 +55,7 @@ internal constructor(
      * The default value is 0, which means trigger whenever the goal has reached threshold, or has
      * reached threshold for a specified durationAtThreshold.
      */
-    val initialDelaySeconds: Int = 0,
+    public val initialDelaySeconds: Int = 0,
 
     /**
      * The amount of time (in seconds) the threshold must be crossed uninterruptedly for this goal
@@ -74,7 +74,7 @@ internal constructor(
      * The default value is 0, which means once reached threshold, trigger immediately (if
      * initialDelay has expired).
      */
-    val durationAtThresholdSeconds: Int = 0,
+    public val durationAtThresholdSeconds: Int = 0,
 ) {
 
     internal val proto: DataProto.DebouncedDataTypeCondition =
@@ -122,7 +122,7 @@ internal constructor(
         )
     }
 
-    companion object {
+    public companion object {
 
         /**
          * Creates a [DebouncedDataTypeCondition] for a sample data type, whose value represents an
@@ -140,7 +140,7 @@ internal constructor(
          *   crossed uninterruptedly for this goal to trigger. Must be greater or equal to zero
          */
         @JvmStatic
-        fun <
+        public fun <
             T : Number,
             D : DeltaDataType<T, out SampleDataPoint<T>>,
         > createDebouncedDataTypeCondition(
@@ -175,7 +175,7 @@ internal constructor(
          *   crossed uninterruptedly for this goal to trigger. Must be greater or equal to zero
          */
         @JvmStatic
-        fun <
+        public fun <
             T : Number,
             D : AggregateDataType<T, out StatisticalDataPoint<T>>,
         > createDebouncedDataTypeCondition(

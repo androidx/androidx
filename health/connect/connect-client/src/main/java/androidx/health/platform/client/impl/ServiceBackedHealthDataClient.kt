@@ -48,7 +48,7 @@ import kotlin.math.min
 
 /** An IPC backed HealthDataClient implementation. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class ServiceBackedHealthDataClient(
+public class ServiceBackedHealthDataClient(
     private val context: Context,
     clientConfiguration: ClientConfiguration,
     connectionManager: ConnectionManager,
@@ -72,7 +72,7 @@ class ServiceBackedHealthDataClient(
         )
     }
 
-    constructor(
+    public constructor(
         context: Context,
         clientConfiguration: ClientConfiguration,
     ) : this(context, clientConfiguration, ProviderConnectionManager.getInstance(context))
