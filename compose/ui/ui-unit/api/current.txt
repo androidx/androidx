@@ -75,6 +75,7 @@ package androidx.compose.ui.unit {
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Constraints offset(androidx.compose.ui.unit.Constraints, optional int horizontal, optional int vertical);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long offset-NN6Ew-U(long, int, int);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long offset-NN6Ew-U$default(long, int, int, int, Object!);
+    field @BytecodeOnly @kotlin.PublishedApi internal static final long MaxDimensionsAndFocusMask = -8589934589L; // 0xfffffffe00000003L
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface Density extends androidx.compose.ui.unit.FontScaling {
@@ -512,6 +513,7 @@ package androidx.compose.ui.unit {
     method @BytecodeOnly public static long div-kPz2Gy4(long, double);
     method @BytecodeOnly public static long div-kPz2Gy4(long, float);
     method @BytecodeOnly public static long div-kPz2Gy4(long, int);
+    method @BytecodeOnly @kotlin.PublishedApi internal static long getRawType-impl(long);
     method @BytecodeOnly public static long getType-UIouoOA(long);
     method @BytecodeOnly public static float getValue-impl(long);
     method @BytecodeOnly public static boolean isEm-impl(long);
@@ -540,6 +542,9 @@ package androidx.compose.ui.unit {
   public final class TextUnitKt {
     method @KotlinOnly public static androidx.compose.ui.unit.TextUnit TextUnit(float value, androidx.compose.ui.unit.TextUnitType type);
     method @BytecodeOnly public static long TextUnit-anM5pPY(float, long);
+    method @BytecodeOnly @kotlin.PublishedApi internal static void checkArithmetic--R2X_6o(long);
+    method @BytecodeOnly @kotlin.PublishedApi internal static void checkArithmetic-NB67dxo(long, long);
+    method @BytecodeOnly @kotlin.PublishedApi internal static void checkArithmetic-vU-0ePk(long, long, long);
     method @BytecodeOnly public static long getEm(double);
     method @BytecodeOnly public static long getEm(float);
     method @BytecodeOnly public static long getEm(int);
@@ -550,6 +555,7 @@ package androidx.compose.ui.unit {
     method @BytecodeOnly public static boolean isUnspecified--R2X_6o(long);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.TextUnit lerp(androidx.compose.ui.unit.TextUnit start, androidx.compose.ui.unit.TextUnit stop, float fraction);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long lerp-C3pnCVY(long, long, float);
+    method @BytecodeOnly @kotlin.PublishedApi internal static long pack(long, float);
     method @KotlinOnly public static inline androidx.compose.ui.unit.TextUnit takeOrElse(androidx.compose.ui.unit.TextUnit, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.TextUnit> block);
     method @BytecodeOnly public static long takeOrElse-eAf_CNQ(long, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.TextUnit!>);
     method @KotlinOnly @androidx.compose.runtime.Stable public static inline operator androidx.compose.ui.unit.TextUnit times(double, androidx.compose.ui.unit.TextUnit other);

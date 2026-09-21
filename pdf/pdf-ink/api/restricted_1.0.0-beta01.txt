@@ -1,5 +1,5 @@
 // Signature format: 4.0
-package androidx.pdf.ink {
+package @SuppressCompatibility androidx.pdf.ink {
 
   @SuppressCompatibility @RequiresExtension(extension=android.os.Build.VERSION_CODES.S, version=18) @androidx.pdf.ExperimentalPdfApi public class EditablePdfViewerFragment extends androidx.pdf.viewer.fragment.PdfViewerFragment {
     ctor public EditablePdfViewerFragment();

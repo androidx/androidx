@@ -130,8 +130,8 @@ package androidx.xr.scenecore.testing {
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialEnvironmentTester getSpatialEnvironmentTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialSoundPoolTester getSpatialSoundPoolTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialWindowTester getSpatialWindowTester();
-    method @kotlin.PublishedApi internal Object? resolveTesterInternal(androidx.xr.scenecore.Component component);
-    method @kotlin.PublishedApi internal Object? resolveTesterInternal(androidx.xr.scenecore.Entity entity);
+    method @BytecodeOnly @kotlin.PublishedApi internal Object? resolveTesterInternal(androidx.xr.scenecore.Component);
+    method @BytecodeOnly @kotlin.PublishedApi internal Object? resolveTesterInternal(androidx.xr.scenecore.Entity);
     property public androidx.xr.scenecore.testing.ActivitySpaceTester activitySpaceTester;
     property public androidx.xr.scenecore.testing.MainPanelEntityTester mainPanelEntityTester;
     property public androidx.xr.scenecore.testing.PerceptionSpaceTester perceptionSpaceTester;

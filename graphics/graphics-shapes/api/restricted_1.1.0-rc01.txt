@@ -103,8 +103,7 @@ package androidx.graphics.shapes {
     method public inline void forEachCubic(float progress, optional androidx.graphics.shapes.MutableCubic mutableCubic, kotlin.jvm.functions.Function1<? super androidx.graphics.shapes.MutableCubic,kotlin.Unit> callback);
     method public inline void forEachCubic(float progress, kotlin.jvm.functions.Function1<? super androidx.graphics.shapes.MutableCubic,kotlin.Unit> callback);
     method @BytecodeOnly public static void forEachCubic$default(androidx.graphics.shapes.Morph!, float, androidx.graphics.shapes.MutableCubic!, kotlin.jvm.functions.Function1!, int, Object!);
-    method @InaccessibleFromKotlin @kotlin.PublishedApi internal java.util.List<kotlin.Pair<androidx.graphics.shapes.Cubic,androidx.graphics.shapes.Cubic>> getMorphMatch();
-    property @kotlin.PublishedApi internal java.util.List<kotlin.Pair<androidx.graphics.shapes.Cubic,androidx.graphics.shapes.Cubic>> morphMatch;
+    method @BytecodeOnly @kotlin.PublishedApi internal java.util.List<kotlin.Pair<androidx.graphics.shapes.Cubic,androidx.graphics.shapes.Cubic>> getMorphMatch();
   }
 
   public final class MutableCubic extends androidx.graphics.shapes.Cubic {

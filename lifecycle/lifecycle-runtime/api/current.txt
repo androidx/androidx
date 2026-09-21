@@ -51,6 +51,7 @@ package androidx.lifecycle {
   }
 
   public final class WithLifecycleStateKt {
+    method @BytecodeOnly @kotlin.PublishedApi internal static <R> Object? suspendWithStateAtLeastUnchecked(androidx.lifecycle.Lifecycle, androidx.lifecycle.Lifecycle.State, boolean, kotlinx.coroutines.CoroutineDispatcher, kotlin.jvm.functions.Function0<? extends R>, kotlin.coroutines.Continuation<? super R>);
     method public static suspend inline <R> Object? withCreated(androidx.lifecycle.Lifecycle, kotlin.jvm.functions.Function0<? extends R> block, kotlin.coroutines.Continuation<? super R>);
     method public static suspend inline <R> Object? withCreated(androidx.lifecycle.LifecycleOwner, kotlin.jvm.functions.Function0<? extends R> block, kotlin.coroutines.Continuation<? super R>);
     method public static suspend inline <R> Object? withResumed(androidx.lifecycle.Lifecycle, kotlin.jvm.functions.Function0<? extends R> block, kotlin.coroutines.Continuation<? super R>);
@@ -59,6 +60,7 @@ package androidx.lifecycle {
     method public static suspend inline <R> Object? withStarted(androidx.lifecycle.LifecycleOwner, kotlin.jvm.functions.Function0<? extends R> block, kotlin.coroutines.Continuation<? super R>);
     method public static suspend inline <R> Object? withStateAtLeast(androidx.lifecycle.Lifecycle, androidx.lifecycle.Lifecycle.State state, kotlin.jvm.functions.Function0<? extends R> block, kotlin.coroutines.Continuation<? super R>);
     method public static suspend inline <R> Object? withStateAtLeast(androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.State state, kotlin.jvm.functions.Function0<? extends R> block, kotlin.coroutines.Continuation<? super R>);
+    method @BytecodeOnly @kotlin.PublishedApi internal static <R> Object? withStateAtLeastUnchecked(androidx.lifecycle.Lifecycle, androidx.lifecycle.Lifecycle.State, kotlin.jvm.functions.Function0<? extends R>, kotlin.coroutines.Continuation<? super R>);
   }
 
 }
