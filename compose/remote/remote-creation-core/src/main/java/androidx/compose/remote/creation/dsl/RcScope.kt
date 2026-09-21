@@ -970,6 +970,106 @@ public interface RcScope {
     /** Sets the Matrix relative to the path using remote floats. */
     public fun matrixFromPath(path: RcPath, fraction: RcFloat, vOffset: RcFloat, flags: Int)
 
+    /**
+     * Adds a parametric 2D mesh whose vertices come from expressions over `(u, v)`, and returns a
+     * handle to it.
+     *
+     * Grid topology is implicit - there is no index array - which is most of the size win, and the
+     * animation is free: a waving flag costs what a flat one costs.
+     *
+     * ```
+     * val flag = remoteMesh2D(RcMeshLayout.Grid, uCount = 24, vCount = 16) {
+     *     x = u * 300f
+     *     y = v * 200f + sin(u * 6f + continuousSec()) * 18f
+     * }
+     * drawMesh2D(flag, image = banner)
+     * ```
+     *
+     * @param layout the domain topology, which also decides the default geometry
+     * @param uCount the resolution along u, required so the runtime cost is visible where authored
+     * @param vCount the resolution along v
+     * @param path the path a [RcMeshLayout.PathStrip] follows; ignored by every other layout
+     * @param block sets the channel expressions; see [RcMesh2DScope]
+     */
+    public fun remoteMesh2D(
+        layout: RcMeshLayout,
+        uCount: Int,
+        vCount: Int,
+        path: RcPath? = null,
+        block: RcMesh2DScope.() -> Unit,
+    ): RcMesh
+
+    /**
+     * Adds a 2D mesh from explicit geometry - the escape hatch for tool generated meshes, and the
+     * closest thing to Android's `drawVertices`.
+     *
+     * @param verts x, y pairs
+     * @param indices the triangle list, or null to draw the vertices in order
+     * @param uv u, v pairs in 0..1, or null
+     * @param colors packed ARGB per vertex, or null
+     * @param halfFloat write positions and uv as IEEE half floats, halving the wire size. Exact for
+     *   integers up to 2048, so a surface wider than about 4096 is where it stops being free.
+     * @param layout the domain topology, used when sampling the surface for a matrix
+     * @param uCount the resolution along u if the geometry describes a grid, otherwise 0
+     * @param vCount the resolution along v if the geometry describes a grid, otherwise 0
+     */
+    public fun remoteMesh2DValues(
+        verts: FloatArray,
+        indices: IntArray? = null,
+        uv: FloatArray? = null,
+        colors: IntArray? = null,
+        halfFloat: Boolean = false,
+        layout: RcMeshLayout = RcMeshLayout.Grid,
+        uCount: Int = 0,
+        vCount: Int = 0,
+    ): RcMesh
+
+    /**
+     * Draws a mesh, positioned by the ordinary 2D canvas matrix.
+     *
+     * @param mesh the mesh to draw
+     * @param image the bitmap to sample through the mesh's uv, or null for an untextured mesh
+     * @param blend how vertex colour and texel combine; defaults to what [image] implies
+     */
+    public fun drawMesh2D(mesh: RcMesh, image: RcImage? = null, blend: RcMeshBlend? = null)
+
+    /**
+     * Multiplies the mesh's local frame at `(u, v)` into the current canvas matrix, so ordinary
+     * drawing can be placed onto a deformed surface.
+     *
+     * @param mesh the mesh to read the surface from
+     * @param u where in the domain to sample
+     * @param v where in the domain to sample
+     * @param apply how much of the local frame to apply
+     */
+    public fun matrixFromMesh2D(
+        mesh: RcMesh,
+        u: Float,
+        v: Float,
+        apply: RcMeshMatrix = RcMeshMatrix.Full,
+    )
+
+    /**
+     * Multiplies the mesh's local frame at `(u, v)` into the current canvas matrix, so ordinary
+     * drawing can be placed onto a deformed surface.
+     *
+     * This is the two-dimensional analogue of [matrixFromPath], and it is what stops meshes being a
+     * closed world: attach a label to a waving flag, put icons around a ring, run text along a path
+     * strip. The content is drawn with the commands that already exist and never learns a mesh was
+     * involved - the mesh only supplies the matrix.
+     *
+     * @param mesh the mesh to read the surface from
+     * @param u where in the domain to sample
+     * @param v where in the domain to sample
+     * @param apply how much of the local frame to apply
+     */
+    public fun matrixFromMesh2D(
+        mesh: RcMesh,
+        u: RcFloat,
+        v: RcFloat,
+        apply: RcMeshMatrix = RcMeshMatrix.Full,
+    )
+
     /** Adds a conditional block based on the comparison of two values. */
     public fun conditionalOperations(
         type: Byte,
@@ -1448,6 +1548,44 @@ public interface RcScope {
     public fun RcFloats(variables: FloatArray): Array<RcFloat> {
         return Array<RcFloat>(variables.size) { RcFloat(variables[it]) }
     }
+
+    // ###############################################
+
+    /** Content Width */
+    public fun componentContentWidth(): RcFloat
+
+    /** Content Height */
+    public fun componentContentHeight(): RcFloat
+
+    /** X */
+    public fun componentX(): RcFloat
+
+    /** Y */
+    public fun componentY(): RcFloat
+
+    /** ROOT X */
+    public fun componentRootX(): RcFloat
+
+    /** ROOT Y */
+    public fun componentRootY(): RcFloat
+
+    /** generate random number */
+    public fun rand(): RcFloat
+
+    /** the index variable in the particle system */
+    public fun index(): RcFloat
+
+    public val var1: RcFloat
+
+    /**
+     * This is a collection of utilities that make RcFloat class and allows kotlin float expressions
+     * to be converted to RemoteCompose RPM expressions
+     */
+    public fun rf(vararg elements: Float): RcFloat
+
+    public fun rf(v: Number): RcFloat
+
+    // ###############################################
 }
 
 /** Impulse container scope. */

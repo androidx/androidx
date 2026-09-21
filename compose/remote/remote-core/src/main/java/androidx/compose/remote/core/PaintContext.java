@@ -590,6 +590,70 @@ public abstract class PaintContext {
     public abstract void matrixFromPath(int pathId, float fraction, float vOffset, int flags);
 
     /**
+     * Store the geometry of a 2D vertex mesh.
+     *
+     * <p>The engine does all the work - expression evaluation, half float widening, expanding a
+     * layout into a triangle list - and hands the backend flat arrays already in the shape {@code
+     * Canvas.drawVertices} and {@code SkVertices} want, so a backend copies rather than converts.
+     * Interleaved x,y is {@code SkPoint[]}; packed ARGB in an int32 is exactly {@code SkColor}'s
+     * layout.
+     *
+     * <p>Separate from {@link #drawMesh} because a mesh defined once and drawn repeatedly under
+     * different transforms should upload its vertices once. Backends that can cache get that for
+     * free; backends that cannot may treat this as a store and do the work in {@link #drawMesh}.
+     *
+     * <p>An empty array means the channel is absent.
+     *
+     * @param meshId the id to store the mesh under
+     * @param layout the mesh layout (one of {@code Mesh2DGenerator.LAYOUT_*})
+     * @param uCount samples along u
+     * @param vCount samples along v
+     * @param verts x,y interleaved
+     * @param uv u,v interleaved, normalised 0..1 with (0,0) at the top left, or empty
+     * @param colors packed ARGB per vertex, or empty
+     * @param indices triangle list
+     */
+    public void setMesh(
+            int meshId,
+            int layout,
+            int uCount,
+            int vCount,
+            float @NonNull [] verts,
+            float @NonNull [] uv,
+            int @NonNull [] colors,
+            int @NonNull [] indices) {}
+
+    /**
+     * Draw a 2D vertex mesh previously stored by {@link #setMesh}.
+     *
+     * <p><b>This must leave the paint exactly as it found it.</b> Whatever it sets - shader, blend
+     * mode, style, colour - must be restored before it returns, including when the draw throws, and
+     * a draw that follows it must render identically whether or not a mesh was drawn in between.
+     * This is a hard requirement rather than a nicety: paint is canvas state, and a backend that
+     * borrows it must give it back. Nothing errors when it does not; the shapes are all correct and
+     * simply the wrong colour, which is the hardest kind of defect to attribute.
+     *
+     * <p>A mesh draw is not a paint command. It composes with {@code save}/{@code restore} exactly
+     * as {@code drawRect} does, and a document should never need to wrap it in a save block
+     * defensively.
+     *
+     * @param meshId the mesh to draw
+     * @param blend how vertex colour and texel combine
+     * @param imageId the bitmap to sample, 0 for untextured
+     */
+    public void drawMesh(int meshId, int blend, int imageId) {}
+
+    /**
+     * Multiply the local frame of a 2D mesh at {@code (u, v)} into the current canvas matrix.
+     *
+     * @param meshId the mesh to sample
+     * @param u the u parameter, 0..1
+     * @param v the v parameter, 0..1
+     * @param flags which parts of the local frame to apply
+     */
+    public void matrixFromMesh(int meshId, float u, float v, int flags) {}
+
+    /**
      * Redirect drawing to a bitmap (0 = back to main canvas)
      *
      * @param bitmapId id of bitmap to draw to or 0 to draw to the canvas

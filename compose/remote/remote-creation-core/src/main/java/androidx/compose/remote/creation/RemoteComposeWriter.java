@@ -52,6 +52,7 @@ import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.core.RemoteComposeState;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.operations.AddMesh2D;
 import androidx.compose.remote.core.operations.BitmapFontData;
 import androidx.compose.remote.core.operations.ComponentValue;
 import androidx.compose.remote.core.operations.DataMapIds;
@@ -742,8 +743,134 @@ public class RemoteComposeWriter {
     }
 
     /**
-     * Get a byte array with the current buffer contents.
-     * The array is a copy, so further changes to the buffer don't affect the array.
+     * Add a parametric 2D mesh, whose vertices come from expressions over {@code (u, v)}.
+     *
+     * <p>Grid topology is implicit - there is no index array - which is most of the size win. The
+     * animation is free: adding {@code continuousSec()} to {@code y} does not change the byte
+     * count, so a waving flag costs what a flat one costs.
+     *
+     * <p>Every expression is optional. An absent position falls back to the layout's default
+     * geometry (a unit square for {@code grid}, a unit disc for {@code polar}, and so on), an
+     * absent uv is the identity mapping, and absent colour channels mean the mesh carries no vertex
+     * colours at all.
+     *
+     * @param layout the domain topology
+     * @param uCount grid resolution along u
+     * @param vCount grid resolution along v
+     * @param x the x position expression, or null for the layout default
+     * @param y the y position expression, or null for the layout default
+     * @param texU the texture u expression, or null for identity
+     * @param texV the texture v expression, or null for identity
+     * @param colorA the alpha expression, 0..1, or null
+     * @param colorR the red expression, 0..1, or null
+     * @param colorG the green expression, 0..1, or null
+     * @param colorB the blue expression, 0..1, or null
+     * @param width the strip cross width expression, read by {@code pathStrip} only, or null for 1
+     * @param flags reserved
+     * @param aux layout dependent, e.g. a path id for a path strip
+     * @return the id of the mesh
+     */
+    public int addMesh2D(
+            int layout,
+            int uCount,
+            int vCount,
+            float @Nullable [] x,
+            float @Nullable [] y,
+            float @Nullable [] texU,
+            float @Nullable [] texV,
+            float @Nullable [] colorA,
+            float @Nullable [] colorR,
+            float @Nullable [] colorG,
+            float @Nullable [] colorB,
+            float @Nullable [] width,
+            int flags,
+            int aux) {
+        int id = mState.createNextAvailableId();
+        float[][] expressions =
+                new float[][] {x, y, texU, texV, colorA, colorR, colorG, colorB, width};
+        mBuffer.addMesh2D(
+                id,
+                AddMesh2D.TYPE_EXPRESSION,
+                layout,
+                uCount,
+                vCount,
+                flags,
+                aux,
+                expressions,
+                null,
+                null,
+                null,
+                null);
+        return id;
+    }
+
+    /**
+     * Add a 2D mesh from explicit geometry - the escape hatch for tool generated geometry, and the
+     * closest thing to Android's {@code drawVertices}.
+     *
+     * @param indices the triangle list
+     * @param verts x,y pairs
+     * @param uv u,v pairs, or null
+     * @param colors packed ARGB per vertex, or null
+     * @param halfFloat true to write positions and uv as IEEE half floats, halving the wire size
+     * @param layout the domain topology, used when sampling the surface for a matrix
+     * @param uCount grid resolution along u if the geometry describes a grid, otherwise 0
+     * @param vCount grid resolution along v if the geometry describes a grid, otherwise 0
+     * @return the id of the mesh
+     */
+    public int addMesh2DValues(
+            int @NonNull [] indices,
+            float @NonNull [] verts,
+            float @Nullable [] uv,
+            int @Nullable [] colors,
+            boolean halfFloat,
+            int layout,
+            int uCount,
+            int vCount) {
+        int id = mState.createNextAvailableId();
+        mBuffer.addMesh2D(
+                id,
+                halfFloat ? AddMesh2D.TYPE_F16_VALUES : AddMesh2D.TYPE_VALUES,
+                layout,
+                uCount,
+                vCount,
+                0,
+                0,
+                null,
+                indices,
+                verts,
+                uv,
+                colors);
+        return id;
+    }
+
+    /**
+     * Draw a previously defined 2D mesh.
+     *
+     * @param meshId the mesh to draw
+     * @param blend how vertex colour and texel combine
+     * @param imageId the bitmap to sample, 0 for untextured
+     */
+    public void drawMesh2D(int meshId, int blend, int imageId) {
+        mBuffer.addDrawMesh2D(meshId, blend, imageId);
+    }
+
+    /**
+     * Multiply the local frame of a 2D mesh at {@code (u, v)} into the current canvas matrix, so
+     * ordinary drawing can be placed onto a deformed surface.
+     *
+     * @param meshId the mesh to read the surface from
+     * @param u the u parameter
+     * @param v the v parameter
+     * @param flags which parts of the local frame to apply
+     */
+    public void matrixFromMesh2D(int meshId, float u, float v, int flags) {
+        mBuffer.setMatrixFromMesh2D(meshId, u, v, flags);
+    }
+
+    /**
+     * Get a byte array with the current buffer contents. The array is a copy, so further changes to
+     * the buffer don't affect the array.
      *
      * @return a byte array with the current buffer contents.
      */
