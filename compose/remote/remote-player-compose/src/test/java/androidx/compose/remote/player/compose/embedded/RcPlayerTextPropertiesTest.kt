@@ -17,6 +17,7 @@
 package androidx.compose.remote.player.compose.embedded
 
 import android.content.Context
+import android.graphics.Typeface
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
@@ -29,9 +30,10 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
+import androidx.compose.remote.player.core.platform.FontInstance
+import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -49,9 +51,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class RcPlayerTextPropertiesTest {
 
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
-
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
     @Test
     fun testCoreTextDataReflectiveReading() {
@@ -220,5 +220,57 @@ class RcPlayerTextPropertiesTest {
         val textAlignWithJustification =
             resolveTextAlign(CoreText.TEXT_ALIGN_JUSTIFY, CoreText.JUSTIFICATION_MODE_INTER_WORD)
         assertThat(textAlignWithJustification).isEqualTo(TextAlign.Justify)
+    }
+
+    @Test
+    fun testCustomTypefaceResolverPropagatesToGraphContextAndTextLayout() {
+        var resolveCount = 0
+        val fontInstance =
+            object : FontInstance {
+                override fun getTypeface(): Typeface = Typeface.MONOSPACE
+
+                override fun applyVariationSettings(
+                    names: Array<out String>?,
+                    values: FloatArray,
+                ): Typeface = Typeface.MONOSPACE
+
+                override fun setOnLoadedListener(listener: Runnable) {}
+            }
+        val customResolver =
+            object : TypefaceResolver {
+                override fun resolve(
+                    fontFamily: Int,
+                    weight: Int,
+                    italic: Boolean,
+                    fallback: Typeface?,
+                    fallbackWeight: Int,
+                    fallbackItalic: Boolean,
+                ): FontInstance {
+                    resolveCount++
+                    return fontInstance
+                }
+
+                override fun resolve(
+                    fontFamily: String,
+                    weight: Int,
+                    italic: Boolean,
+                    fallback: Typeface?,
+                    fallbackWeight: Int,
+                    fallbackItalic: Boolean,
+                ): FontInstance {
+                    resolveCount++
+                    return fontInstance
+                }
+            }
+
+        rule.setRemoteContent(typefaceResolver = customResolver) {
+            RemoteText(
+                text = "Custom Typeface Test".rs,
+                style = RemoteTextStyle(fontSize = 18.rsp),
+            )
+        }
+
+        rule.onNodeWithText("Custom Typeface Test").assertIsDisplayed()
+        assertThat(resolveCount).isGreaterThan(0)
     }
 }
