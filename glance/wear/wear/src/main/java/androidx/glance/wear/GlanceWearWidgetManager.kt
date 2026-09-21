@@ -131,9 +131,10 @@ public class GlanceWearWidgetManager {
     public suspend fun fetchActiveWidgets(
         widget: KClass<out GlanceWearWidget>
     ): List<ActiveWearWidgetHandle> {
-        val serviceToWidgetMapping = state.getServiceToWidgetMapping()
+        val targetName = widget.qualifiedName()
+        val serviceToWidgetMapping = state.getServiceToWidgetMapping(targetName)
         return fetchActiveWidgets().filter {
-            serviceToWidgetMapping[it.provider] == widget.qualifiedName
+            serviceToWidgetMapping[it.provider] == targetName
         }
     }
 
@@ -149,8 +150,8 @@ public class GlanceWearWidgetManager {
     internal suspend fun getProviderForWidget(
         widgetClass: KClass<out GlanceWearWidget>
     ): ComponentName? {
-        val serviceToWidgetMapping = state.getServiceToWidgetMapping()
         val targetName = widgetClass.qualifiedName()
+        val serviceToWidgetMapping = state.getServiceToWidgetMapping(targetName)
         return serviceToWidgetMapping.entries.firstOrNull { it.value == targetName }?.key
     }
 
@@ -193,10 +194,16 @@ public class GlanceWearWidgetManager {
      * [GlanceWearWidget].
      */
     private class State(private val context: Context, private val widgetCache: WearWidgetCache) {
-        suspend fun getServiceToWidgetMapping(): Map<ComponentName, String> {
+        suspend fun getServiceToWidgetMapping(
+            targetWidgetName: String
+        ): Map<ComponentName, String> {
+            val cachedMapping = widgetCache.getServiceToWidgetMapping()
             val mapping =
-                widgetCache.getServiceToWidgetMapping().takeIf { it.isNotEmpty() }
-                    ?: recoverServiceToWidgetMapping()
+                if (cachedMapping.containsValue(targetWidgetName)) {
+                    cachedMapping
+                } else {
+                    cachedMapping + recoverServiceToWidgetMapping()
+                }
             return mapping.mapKeys { (serviceName, _) -> ComponentName(context, serviceName) }
         }
 
