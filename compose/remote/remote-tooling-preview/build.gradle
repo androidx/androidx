@@ -41,7 +41,7 @@ dependencies {
     implementation("androidx.compose.runtime:runtime:1.8.3")
     implementation("androidx.compose.foundation:foundation:1.8.3")
     implementation("androidx.compose.ui:ui:1.8.3")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.12.0-beta02")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.12.0")
     api(project(":compose:remote:remote-creation-core"))
     implementation(project(":compose:remote:remote-core"))
     implementation(project(":compose:remote:remote-creation"))
