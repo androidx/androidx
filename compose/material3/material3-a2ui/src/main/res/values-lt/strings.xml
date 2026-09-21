@@ -22,16 +22,10 @@
     <string name="error" msgid="6647806155663918015">"Klaida"</string>
     <string name="select_date" msgid="3625754389149364766">"Pasirinkite datą"</string>
     <string name="select_time" msgid="3530281639148646682">"Pasirinkite laiką"</string>
-    <!-- no translation found for choice_picker_placeholder_select_options (1896315524474297041) -->
-    <skip />
-    <!-- no translation found for choice_picker_placeholder_show_options (5266971913395406612) -->
-    <skip />
-    <!-- no translation found for choice_picker_placeholder_filter (485814500374016612) -->
-    <skip />
-    <!-- no translation found for choice_picker_no_matching_options (8908388495425719920) -->
-    <skip />
-    <!-- no translation found for choice_picker_remove_option (6344576400474543129) -->
-    <skip />
-    <!-- no translation found for choice_picker_clear_search (804053747390949932) -->
-    <skip />
+    <string name="choice_picker_placeholder_select_options" msgid="1896315524474297041">"Pasirinkite parinktis"</string>
+    <string name="choice_picker_placeholder_show_options" msgid="5266971913395406612">"Rodyti parinktis"</string>
+    <string name="choice_picker_placeholder_filter" msgid="485814500374016612">"Pradėkite vesti tekstą, kad filtruotumėte…"</string>
+    <string name="choice_picker_no_matching_options" msgid="8908388495425719920">"Nėra atitinkančių parinkčių"</string>
+    <string name="choice_picker_remove_option" msgid="6344576400474543129">"Pašalinti %1$s"</string>
+    <string name="choice_picker_clear_search" msgid="804053747390949932">"Išvalyti paieškos filtrą"</string>
 </resources>
