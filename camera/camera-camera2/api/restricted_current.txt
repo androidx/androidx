@@ -107,7 +107,7 @@ package androidx.camera.camera2.interop {
     method public void configure(androidx.camera.core.CameraControl cameraControl);
   }
 
-  @androidx.camera.core.CameraXDsl public interface CameraControlCamera2Interop extends androidx.camera.camera2.interop.CameraCaptureSessionInterop {
+  @androidx.camera.core.CameraXDsl public abstract class CameraControlCamera2Interop implements androidx.camera.camera2.interop.CameraCaptureSessionInterop {
   }
 
   public interface CameraDeviceInterop {
@@ -143,7 +143,7 @@ package androidx.camera.camera2.interop {
     method public void configure(androidx.camera.core.ImageCapture.Builder imageCaptureBuilder);
   }
 
-  @androidx.camera.core.CameraXDsl public interface ImageCaptureCamera2Interop extends androidx.camera.camera2.interop.OutputConfigurationInterop androidx.camera.camera2.interop.StillCaptureInterop {
+  @androidx.camera.core.CameraXDsl public abstract class ImageCaptureCamera2Interop implements androidx.camera.camera2.interop.OutputConfigurationInterop androidx.camera.camera2.interop.StillCaptureInterop {
   }
 
   public interface OutputConfigurationInterop {
@@ -175,7 +175,7 @@ package androidx.camera.camera2.interop {
     method public void configure(androidx.camera.core.SessionConfig.Builder sessionConfigBuilder);
   }
 
-  @androidx.camera.core.CameraXDsl public interface SessionConfigCamera2Interop extends androidx.camera.camera2.interop.CameraDeviceInterop androidx.camera.camera2.interop.CameraCaptureSessionInterop androidx.camera.camera2.interop.SessionConfigurationInterop {
+  @androidx.camera.core.CameraXDsl public abstract class SessionConfigCamera2Interop implements androidx.camera.camera2.interop.CameraCaptureSessionInterop androidx.camera.camera2.interop.CameraDeviceInterop androidx.camera.camera2.interop.SessionConfigurationInterop {
   }
 
   public interface SessionConfigurationInterop {
@@ -219,7 +219,7 @@ package androidx.camera.camera2.interop {
     method public void configure(androidx.camera.core.UseCase.InteropConfigurable<? extends java.lang.Object?> useCaseConfigurable);
   }
 
-  @androidx.camera.core.CameraXDsl public interface UseCaseCamera2Interop extends androidx.camera.camera2.interop.OutputConfigurationInterop {
+  @androidx.camera.core.CameraXDsl public abstract class UseCaseCamera2Interop implements androidx.camera.camera2.interop.OutputConfigurationInterop {
   }
 
 }
