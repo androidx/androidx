@@ -39,7 +39,6 @@ androidx {
     mavenVersion = LibraryVersions.HILT
     inceptionYear = "2025"
     description = "ViewModel Hilt Extension"
-    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }
 
 android {

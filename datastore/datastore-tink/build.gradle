@@ -81,5 +81,4 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2026"
     description = "Encryption support for datastore by integrating with the Tink library"
-    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }
