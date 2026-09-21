@@ -46,6 +46,7 @@ import com.intellij.psi.PsiPrimitiveType
 import com.intellij.psi.PsiReferenceExpression
 import com.intellij.psi.PsiType
 import com.intellij.psi.PsiTypeParameter
+import com.intellij.psi.PsiTypeParameterListOwner
 import com.intellij.psi.PsiVariable
 import com.intellij.psi.PsiWildcardType
 import org.jetbrains.kotlin.analysis.api.analyze
@@ -475,6 +476,54 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
             return rawName in LOW_LEVEL_BASE_TYPES
         }
 
+        /**
+         * Returns the first valid upper bound of this type parameter that is not a low-level base
+         * type (e.g. [Object] or [Any]).
+         *
+         * Example: For `<T : ViewModel>`, returns `ViewModel`. For unbounded `<T>`, returns `null`.
+         */
+        private fun PsiTypeParameter.getValidUpperBound(): PsiType? =
+            extendsListTypes.firstOrNull { !isTooLowLevelBaseType(it) }
+                ?: superTypes.firstOrNull { !isTooLowLevelBaseType(it) }
+
+        /**
+         * Inspects enclosing cast expressions on an invocation (e.g. `newInstance()`) to deduce a
+         * target domain type when the runtime class name is dynamic.
+         *
+         * Example:
+         * ```
+         * val merger = Class.forName(className).getDeclaredConstructor().newInstance() as InputMerger
+         * // Infers InputMerger as the keep target.
+         * ```
+         */
+        private fun findEnclosingCastTargetType(
+            context: JavaContext,
+            invocationNode: UElement,
+        ): PsiType? {
+            var p = invocationNode.uastParent
+            if (
+                p is UQualifiedReferenceExpression &&
+                    p.selector.skipParenthesizedExprDown() == invocationNode
+            ) {
+                p = p.uastParent
+            }
+            p = skipParenthesizedExprUp(p)
+            if (p is UBinaryExpressionWithType) {
+                val castType = p.type
+                val resolvedClass = (castType as? PsiClassType)?.resolve()
+                val targetType =
+                    if (resolvedClass is PsiTypeParameter) {
+                        resolvedClass.getValidUpperBound()
+                    } else {
+                        castType
+                    }
+                if (targetType is PsiClassType && !isTooLowLevelBaseType(targetType)) {
+                    return context.evaluator.erasure(targetType) ?: targetType
+                }
+            }
+            return null
+        }
+
         private fun getNestedClassType(clazz: PsiType): PsiType? {
             if (clazz is PsiCapturedWildcardType) {
                 val bound = clazz.wildcard.bound
@@ -546,6 +595,39 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                 }
             }
 
+            return null
+        }
+
+        /**
+         * Evaluates the class name argument of `Class.forName(...)` or `loadClass(...)`. Handles
+         * string constants, constant fields, and `.getName()` on class literals.
+         *
+         * Examples:
+         * ```
+         * Class.forName(AppOpsManager.class.getName()) // -> "android.app.AppOpsManager"
+         * Class.forName(FONT_FAMILY_CLASS)             // -> "android.graphics.FontFamily"
+         * ```
+         */
+        private fun evaluateClassNameArgument(
+            context: JavaContext,
+            argument: UExpression,
+        ): String? {
+            ConstantEvaluator.evaluateString(context, argument, false)?.let {
+                return it
+            }
+            val arg = argument.skipParenthesizedExprDown()
+            if (arg is UQualifiedReferenceExpression) {
+                val selector = arg.selector.skipParenthesizedExprDown()
+                val selName =
+                    (selector as? UCallExpression)?.methodName
+                        ?: (selector as? USimpleNameReferenceExpression)?.identifier
+                if (selName == "getName" || selName == "name" || selName == "getCanonicalName") {
+                    val rec = arg.receiver.skipParenthesizedExprDown()
+                    if (rec is UClassLiteralExpression) {
+                        return rec.type?.canonicalText
+                    }
+                }
+            }
             return null
         }
 
@@ -847,53 +929,6 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                     }
                     .build()
             return fix
-        }
-
-        /**
-         * Checks the given [expression] node which is performing reflection on the given
-         * [className] and [methodName] for annotations guards, and if not, suggest adding them. A
-         * default error message will be provided but can be overridden with [message].
-         *
-         * Returns true if the potential problem has been handled (e.g. with an existing guard
-         * annotation or by issuing a warning.) False in cases where the check doesn't apply, such
-         * as missing annotation target or missing keep annotations on the classpath.
-         */
-        fun checkMethodUsage(
-            context: JavaContext,
-            expression: UExpression,
-            message: String?,
-            className: String,
-            methodName: String,
-            parameterList: List<String>?,
-        ): Boolean {
-            val annotationTarget = expression.getAnnotationTarget() ?: return false
-
-            val reflection =
-                MethodReflection(
-                        className = className,
-                        classNameIsConstant = false,
-                        methodName = methodName,
-                        parameterTypes = parameterList,
-                        parameterTypesAreStrings = true,
-                    )
-                    .apply { this.node = expression }
-
-            // Already annotated?
-            val isKotlin = context.psiFile is KtFile
-            val annotations = getReflectionAnnotations(context, annotationTarget, isKotlin)
-            if (annotations.any { it.contains(reflection) }) {
-                return true
-            }
-
-            if (!keepClassAvailable(context, reflection)) {
-                return false
-            }
-
-            val message =
-                message ?: createErrorMessage(className, methodName, false, reflection, expression)
-            val fix = createReferencedMemberFix(context, isKotlin, annotationTarget, reflection)
-            context.report(ISSUE, expression, context.getNameLocation(expression), message, fix)
-            return true
         }
     }
 
@@ -1235,11 +1270,14 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
     }
 
     /**
-     * Given a Class#getMethodDeclaration or getFieldDeclaration call, figure out the corresponding
-     * class name the method is being invoked on
+     * Resolves the receiver `Class<T>` from a member reflection call (e.g. `getMethod`,
+     * `getDeclaredConstructor`), handling both direct calls (`obj.getConstructor()`) and Kotlin
+     * safe-calls (`obj?.getConstructor()`).
      *
-     * @param call the [Class.getDeclaredMethod] or [Class.getDeclaredField] call
-     * @return the fully qualified name of the class, if found
+     * Example:
+     * ```
+     * systemProperties?.getDeclaredMethod(...) // Extracts `systemProperties` receiver
+     * ```
      */
     private fun getJavaClassFromMemberLookup(
         context: JavaContext,
@@ -1383,21 +1421,22 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
             // First try the type inferred from the Psi, in case it's a known class reference.
             // e.g. MyViewModel::class.java has type Class<MyViewModel>, where T is MyViewModel
             val type = element.getExpressionType()
-
             if (type is PsiClassType && type.parameterCount == 1) {
                 var clazz = type.parameters[0]
                 if (clazz is PsiClassType) {
-                    val resolved = clazz.resolve()
+                    // If resolving the type argument (e.g. T in Class<T>) fails to resolve to a
+                    // PsiTypeParameter directly, look it up by name from the enclosing method's
+                    // declared type parameters.
+                    val resolved =
+                        clazz.resolve()
+                            ?: (element.getParentOfType<UMethod>()?.javaPsi
+                                    as? PsiTypeParameterListOwner)
+                                ?.typeParameters
+                                ?.firstOrNull { it.name == clazz.className }
                     if (resolved is PsiTypeParameter) {
                         // For a bounded type parameter (e.g. <T : ViewModel>), use its upper bound
                         // as long as the bound is not too low-level.
-                        val bound =
-                            resolved.extendsListTypes.firstOrNull {
-                                !isTooLowLevelBaseType(it)
-                            }
-                                ?: resolved.superTypes.firstOrNull {
-                                    !isTooLowLevelBaseType(it)
-                                }
+                        val bound = resolved.getValidUpperBound()
                         if (bound != null) {
                             val erased = context.evaluator.erasure(bound) ?: bound
                             return Pair(erased, true)
@@ -1470,14 +1509,13 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                     if (FOR_NAME == name || LOAD_CLASS == name) {
                         val arguments = call.valueArguments
                         if (arguments.isNotEmpty()) {
-                            return ConstantEvaluator.evaluateString(null, arguments[0], false)
-                                ?.let {
-                                    Pair(
-                                        PsiElementFactory.getInstance(context.project.ideaProject)
-                                            .createTypeFromText(it, null),
-                                        false,
-                                    )
-                                }
+                            return evaluateClassNameArgument(context, arguments[0])?.let {
+                                Pair(
+                                    PsiElementFactory.getInstance(context.project.ideaProject)
+                                        .createTypeFromText(it, null),
+                                    false,
+                                )
+                            }
                         }
                     }
                 }
@@ -1505,8 +1543,7 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                 return
             }
 
-            var className =
-                ConstantEvaluator.evaluateString(context, node.valueArguments.first(), false)
+            var className = evaluateClassNameArgument(context, node.valueArguments.first())
             var classNameIsConstant = false
             if (className == null) {
 
@@ -1811,6 +1848,16 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
             val memberName = reflection.memberName
             val invocationNode = reflection.node ?: continue
 
+            // If the reflection target class was unresolved, check if the invocation expression
+            // is explicitly cast to a domain base class or interface (e.g. `newInstance() as
+            // TargetInterface`)
+            if (reflection.className.isEmpty() && memberName == CONSTRUCTOR_NAME) {
+                findEnclosingCastTargetType(context, invocationNode)?.let { targetType ->
+                    reflection.className = targetType.canonicalText
+                    reflection.classNameIsConstant = true
+                }
+            }
+
             val annotations = getReflectionAnnotations(context, annotationTarget, isKotlin)
             if (annotations.any { it.contains(reflection) }) {
                 continue
@@ -1827,10 +1874,17 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                 continue
             }
 
+            val effectiveClassName = reflection.className.ifEmpty { className }
             val message =
-                createErrorMessage(className, memberName, isFieldLookup, reflection, invocationNode)
+                createErrorMessage(
+                    effectiveClassName,
+                    memberName,
+                    isFieldLookup,
+                    reflection,
+                    invocationNode,
+                )
             val fix =
-                if (className != null || memberName != null) {
+                if (effectiveClassName != null || memberName != null) {
                     createReferencedMemberFix(context, isKotlin, annotationTarget, reflection)
                 } else {
                     null
