@@ -22,16 +22,17 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.wear.compose.remote.material3.RemoteStepper
@@ -43,7 +44,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @Composable
 @RemoteComposable
 public fun RemoteStepperDefault() {
-    val value = rememberMutableRemoteFloat(2f)
+    val value = remember { MutableRemoteFloat(2f) }
     RemoteStepper(
         value = value,
         steps = 4,
@@ -81,7 +82,7 @@ private fun RemoteStepperDisabledPreview(
 @Composable
 @RemoteComposable
 public fun RemoteStepperCustomColors() {
-    val value = rememberMutableRemoteFloat(3f)
+    val value = remember { MutableRemoteFloat(3f) }
     RemoteStepper(
         value = value,
         steps = 4,

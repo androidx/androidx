@@ -41,8 +41,8 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -147,11 +147,12 @@ class RemotePlayerImageLoadingActivity : ComponentActivity() {
                             ) {
                                 for (i in 0 until 3) {
                                     val hex = colors[i]
-                                    val bitmap =
-                                        rememberNamedRemoteImageBitmap(
+                                    val bitmap = remember {
+                                        createNamedRemoteImageBitmap(
                                             name = "img_$i",
                                             url = "color://$hex",
                                         )
+                                    }
                                     RemoteImage(
                                         remoteBitmap = bitmap,
                                         contentDescription = "Image $i".rs,
@@ -165,11 +166,12 @@ class RemotePlayerImageLoadingActivity : ComponentActivity() {
                             RemoteRow(horizontalArrangement = RemoteArrangement.Center) {
                                 for (i in 3 until 6) {
                                     val hex = colors[i]
-                                    val bitmap =
-                                        rememberNamedRemoteImageBitmap(
+                                    val bitmap = remember {
+                                        createNamedRemoteImageBitmap(
                                             name = "img_$i",
                                             url = "color://$hex",
                                         )
+                                    }
                                     RemoteImage(
                                         remoteBitmap = bitmap,
                                         contentDescription = "Image $i".rs,

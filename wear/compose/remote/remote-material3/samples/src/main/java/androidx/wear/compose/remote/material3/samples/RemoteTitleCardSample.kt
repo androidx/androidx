@@ -22,10 +22,11 @@ import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.padding
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.wear.compose.remote.material3.RemoteCardDefaults
@@ -56,10 +57,11 @@ fun RemoteTitleCardSample() {
 @WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteTitleCardWithImageSample() {
-    val backgroundImage =
-        rememberNamedRemoteImageBitmap(name = "backgroundImage") {
+    val backgroundImage = remember {
+        createNamedRemoteImageBitmap(name = "backgroundImage") {
             createImage(200, 200).asImageBitmap()
         }
+    }
     val containerPainter = RemoteCardDefaults.containerPainter(backgroundImage)
     RemoteTitleCard(
         onClick = Action.Empty,

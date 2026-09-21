@@ -24,13 +24,14 @@ import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteFloat
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteString
 import androidx.compose.remote.creation.compose.state.rememberRemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.testing.RemoteContentTestRule
+import androidx.compose.runtime.remember
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -75,11 +76,13 @@ class RemoteStateTest {
 
                 val width = rememberRemoteFloatExpression { componentWidth() }
 
-                val configurableWidth =
-                    rememberNamedRemoteFloat(name = "configurableWidth") { width }
+                val configurableWidth = remember {
+                    createNamedRemoteFloatExpression(name = "configurableWidth") { width }
+                }
 
-                val configurableWidth2 =
-                    rememberNamedRemoteFloat(name = "configurableWidth2") { width }
+                val configurableWidth2 = remember {
+                    createNamedRemoteFloatExpression(name = "configurableWidth2") { width }
+                }
 
                 RemoteText(RemoteString("Width: ") + width.toRemoteString(DecimalFormat("###0")))
                 RemoteText(
@@ -116,9 +119,9 @@ class RemoteStateTest {
             RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
                 val valString = "Hello".rs
 
-                val namedString1 = rememberNamedRemoteString(name = "named1", "Hello")
+                val namedString1 = remember { createNamedRemoteString(name = "named1", "Hello") }
 
-                val namedString2 = rememberNamedRemoteString(name = "named2", "Hello")
+                val namedString2 = remember { createNamedRemoteString(name = "named2", "Hello") }
 
                 RemoteText(RemoteString("val: ") + valString)
                 RemoteText(RemoteString("named1: ") + namedString1)

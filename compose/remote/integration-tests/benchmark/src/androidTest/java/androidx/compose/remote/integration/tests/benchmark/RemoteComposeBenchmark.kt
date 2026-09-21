@@ -22,14 +22,15 @@ import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocum
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.padding
-import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.runtime.remember
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.runBlocking
@@ -50,7 +51,7 @@ class RemoteComposeBenchmark {
                     profile = RcPlatformProfiles.ANDROIDX,
                     context = InstrumentationRegistry.getInstrumentation().context,
                 ) {
-                    val scrollState = rememberRemoteScrollState()
+                    val scrollState = remember { RemoteScrollState() }
                     RemoteColumn(
                         modifier = RemoteModifier.fillMaxSize().verticalScroll(scrollState)
                     ) {

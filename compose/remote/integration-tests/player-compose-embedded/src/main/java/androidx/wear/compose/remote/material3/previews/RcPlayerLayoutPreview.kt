@@ -44,9 +44,9 @@ import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
+import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
@@ -54,6 +54,7 @@ import androidx.compose.remote.player.compose.embedded.integration.previews.Expe
 import androidx.compose.remote.player.compose.embedded.integration.previews.utils.PlayerImpl
 import androidx.compose.remote.player.compose.embedded.integration.previews.utils.PlayerImplPreviewParameterProvider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -256,7 +257,7 @@ private fun RcStateLayoutSharedElementPreview(
     @PreviewParameter(PlayerImplPreviewParameterProvider::class) playerImpl: PlayerImpl
 ) =
     ExperimentalRemoteContentPreview(playerImpl = playerImpl) {
-        val isExpanded = rememberMutableRemoteBoolean(false)
+        val isExpanded = remember { MutableRemoteBoolean(false) }
         Frame {
             RemoteBox(
                 modifier =

@@ -30,17 +30,18 @@ import androidx.compose.remote.creation.compose.shaders.radialGradient
 import androidx.compose.remote.creation.compose.shaders.sweepGradient
 import androidx.compose.remote.creation.compose.shaders.verticalGradient
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rc
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -134,7 +135,7 @@ class BackgroundModifierTest {
             remoteCreationDisplayInfo = creationDisplayInfo,
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
-            val blue = rememberNamedRemoteColor("ABC", Color.Blue)
+            val blue = remember { createNamedRemoteColor("ABC", Color.Blue) }
             DemoBox("background(".rs + blue.toHexString() + ".rc named)") {
                 RemoteBox(modifier = RemoteModifier.fillMaxSize().background(blue))
             }

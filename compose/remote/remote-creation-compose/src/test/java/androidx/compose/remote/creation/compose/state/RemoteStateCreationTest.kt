@@ -33,6 +33,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.cr
 import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createNamedRemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.RemoteFloatArray.Companion.createNamedRemoteFloatArray
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
@@ -83,7 +84,7 @@ class RemoteStateCreationTest {
     fun rememberNamedRemoteInt_isTracked() = runTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
-                val namedInt = rememberNamedRemoteInt("testInt", 42).withGlobalScope()
+                val namedInt = remember { createNamedRemoteInt("testInt", 42) }.withGlobalScope()
                 RemoteBox(modifier = RemoteModifier.size(RemoteDp(namedInt.toRemoteFloat())))
             }
         assertThat(coreDoc.getNamedVariables(NamedVariable.INT_TYPE))
@@ -95,7 +96,9 @@ class RemoteStateCreationTest {
     fun rememberNamedRemoteFloat_isTracked() = runTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
-                val namedFloat = rememberNamedRemoteFloat("testFloat") { 42.42f.rf }
+                val namedFloat = remember {
+                    createNamedRemoteFloatExpression("testFloat") { 42.42f.rf }
+                }
                 RemoteBox(modifier = RemoteModifier.size(RemoteDp(namedFloat)))
             }
         assertThat(coreDoc.getNamedVariables(NamedVariable.FLOAT_TYPE))
@@ -107,7 +110,7 @@ class RemoteStateCreationTest {
     fun rememberNamedRemoteLong_isTracked() = runTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
-                val namedLong = rememberNamedRemoteLong("testLong", 42L)
+                val namedLong = remember { createNamedRemoteLong("testLong", 42L) }
                 namedLong.writeToDocument(LocalRemoteComposeCreationState.current)
             }
 
@@ -118,7 +121,10 @@ class RemoteStateCreationTest {
     fun rememberNamedRemoteBoolean_isPresent() = runTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
-                val namedBoolean = rememberNamedRemoteBoolean("isRed", true).withGlobalScope()
+                val namedBoolean = remember {
+                    createNamedRemoteBoolean("isRed", true)
+                }
+                    .withGlobalScope()
 
                 //                RemoteText(text = namedBoolean.select("a".rs, "b".rs))
                 RemoteBox(
@@ -137,9 +143,11 @@ class RemoteStateCreationTest {
         runTest {
             val coreDoc =
                 remoteCaptureRule.captureDocument(context) {
-                    val namedFloat = rememberNamedRemoteFloat("shared") { 10f.rf }
-                    val namedInt = rememberNamedRemoteInt("shared", 5)
-                    val namedBoolean = rememberNamedRemoteBoolean("shared", true)
+                    val namedFloat = remember {
+                        createNamedRemoteFloatExpression("shared") { 10f.rf }
+                    }
+                    val namedInt = remember { createNamedRemoteInt("shared", 5) }
+                    val namedBoolean = remember { createNamedRemoteBoolean("shared", true) }
 
                     val selectedFloat = namedBoolean.select(namedFloat, 0f.rf)
                     val selectedInt = namedBoolean.select(namedInt, 0.ri)
@@ -158,7 +166,7 @@ class RemoteStateCreationTest {
     fun rememberNamedRemoteString_isTracked() = runTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
-                val namedString = rememberNamedRemoteString("testString", "Hello")
+                val namedString = remember { createNamedRemoteString("testString", "Hello") }
                 RemoteText(text = namedString)
             }
         assertThat(coreDoc.getNamedVariables(NamedVariable.STRING_TYPE))
@@ -170,7 +178,7 @@ class RemoteStateCreationTest {
     fun rememberNamedRemoteDp_isTracked() = runTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
-                val namedDp = rememberNamedRemoteDp("testDp") { 10.rdp }
+                val namedDp = remember { createNamedRemoteDp("testDp") { 10.rdp } }
                 RemoteBox(modifier = RemoteModifier.padding(namedDp.value))
             }
         assertThat(coreDoc.getNamedVariables(NamedVariable.FLOAT_TYPE))
@@ -182,8 +190,10 @@ class RemoteStateCreationTest {
     fun rememberNamedRemoteColor_isTracked() = runTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
-                val namedColor =
-                    rememberNamedRemoteColor("testColor", Color.Magenta).withGlobalScope()
+                val namedColor = remember {
+                    createNamedRemoteColor("testColor", Color.Magenta)
+                }
+                    .withGlobalScope()
                 RemoteBox(modifier = RemoteModifier.size(10.rdp).background(namedColor))
             }
         assertThat(coreDoc.getNamedVariables(NamedVariable.COLOR_TYPE))
@@ -197,12 +207,13 @@ class RemoteStateCreationTest {
         limitsRule.setEnableImageFiles(true)
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
-                val namedBitmap =
-                    rememberNamedRemoteImageBitmap(
+                val namedBitmap = remember {
+                    createNamedRemoteImageBitmap(
                         name = "testBitmapUrl",
                         url =
                             "android.resource://androidx.compose.remote.foundation/drawable/dummy",
                     )
+                }
                 RemoteBox(
                     modifier =
                         RemoteModifier.size(100.rdp)
@@ -217,12 +228,13 @@ class RemoteStateCreationTest {
         limitsRule.setEnableImageFiles(true)
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
-                val namedBitmap =
-                    rememberNamedRemoteImageBitmap("testBitmapImage") {
+                val namedBitmap = remember {
+                    createNamedRemoteImageBitmap("testBitmapImage") {
                         Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
                             .apply { eraseColor(android.graphics.Color.GREEN) }
                             .asImageBitmap()
                     }
+                }
                 RemoteBox(
                     modifier =
                         RemoteModifier.size(100.rdp)
@@ -238,7 +250,9 @@ class RemoteStateCreationTest {
         val url = "android.resource://androidx.compose.remote.foundation/drawable/dummy"
         val prevDoc =
             remoteCaptureRule.captureDocument(context) {
-                val namedBitmap = rememberNamedRemoteImageBitmap(name = "testBitmapUrl", url = url)
+                val namedBitmap = remember {
+                    createNamedRemoteImageBitmap(name = "testBitmapUrl", url = url)
+                }
                 RemoteBox(
                     modifier =
                         RemoteModifier.size(100.rdp)
@@ -272,8 +286,9 @@ class RemoteStateCreationTest {
 
         val prevDoc =
             remoteCaptureRule.captureDocument(context) {
-                val namedBitmap =
-                    rememberNamedRemoteImageBitmap("testBitmapImage") { createBitmap() }
+                val namedBitmap = remember {
+                    createNamedRemoteImageBitmap("testBitmapImage") { createBitmap() }
+                }
                 RemoteBox(
                     modifier =
                         RemoteModifier.size(100.rdp)
@@ -336,10 +351,11 @@ class RemoteStateCreationTest {
         limitsRule.setEnableImageFiles(true)
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
-                val bitmap =
-                    rememberRemoteImageBitmap(
+                val bitmap = remember {
+                    RemoteImageBitmap(
                         url = "android.resource://androidx.compose.remote.foundation/drawable/dummy"
                     )
+                }
                 RemoteBox(
                     modifier =
                         RemoteModifier.size(100.rdp).background(painterRemoteImageBitmap(bitmap))
@@ -357,19 +373,18 @@ class RemoteStateCreationTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 val creationState = LocalRemoteComposeCreationState.current
-                val bitmap1 = rememberRemoteImageBitmap(url = "url1")
-                val bitmap2 = rememberRemoteImageBitmap(url = "url1")
-                val bitmap3 = rememberRemoteImageBitmap(url = "url2")
+                val bitmap1 = remember { RemoteImageBitmap(url = "url1") }
+                val bitmap2 = remember { RemoteImageBitmap(url = "url1") }
+                val bitmap3 = remember { RemoteImageBitmap(url = "url2") }
 
                 id1 = bitmap1.getIdForCreationState(creationState)
                 id2 = bitmap2.getIdForCreationState(creationState)
                 id3 = bitmap3.getIdForCreationState(creationState)
             }
 
-        com.google.common.truth.Truth.assertThat(id1).isNotEqualTo(-1)
-        com.google.common.truth.Truth.assertThat(id1).isEqualTo(id2) // Same URL should have same ID
-        com.google.common.truth.Truth.assertThat(id1)
-            .isNotEqualTo(id3) // Different URL should have different ID
+        assertThat(id1).isNotEqualTo(-1)
+        assertThat(id1).isEqualTo(id2) // Same URL should have same ID
+        assertThat(id1).isNotEqualTo(id3) // Different URL should have different ID
     }
 
     @Test
@@ -380,7 +395,7 @@ class RemoteStateCreationTest {
                 .asImageBitmap()
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
-                val bitmap = rememberMutableRemoteImageBitmap(imageBitmap)
+                val bitmap = remember { MutableRemoteImageBitmap(imageBitmap) }
                 RemoteBox(
                     modifier =
                         RemoteModifier.size(100.rdp).background(painterRemoteImageBitmap(bitmap))

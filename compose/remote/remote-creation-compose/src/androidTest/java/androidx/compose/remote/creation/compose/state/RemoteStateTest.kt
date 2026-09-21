@@ -31,7 +31,13 @@ import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocum
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
+import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
+import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
+import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
@@ -74,9 +80,9 @@ class RemoteStateTest {
     fun cachesRemoteColor() = runTest {
         withContext(Dispatchers.Main) {
             captureSingleRemoteDocument(context) {
-                val blue = rememberNamedRemoteColor("blue", Color.Blue)
-                val red = rememberNamedRemoteColor("red", Color.Red)
-                val blue2 = rememberNamedRemoteColor("blue", Color.Blue)
+                val blue = remember { createNamedRemoteColor("blue", Color.Blue) }
+                val red = remember { createNamedRemoteColor("red", Color.Red) }
+                val blue2 = remember { createNamedRemoteColor("blue", Color.Blue) }
 
                 AssertSameSameDifferent(blue, blue2, red)
             }
@@ -87,20 +93,23 @@ class RemoteStateTest {
     fun cachesRemoteImageBitmap() = runTest {
         withContext(Dispatchers.Main) {
             captureSingleRemoteDocument(context) {
-                val blue =
-                    rememberNamedRemoteImageBitmap("blue") {
+                val blue = remember {
+                    createNamedRemoteImageBitmap("blue") {
                         Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
                             .apply { setPixel(0, 0, Color.Blue.toArgb()) }
                             .asImageBitmap()
                     }
-                val red =
-                    rememberNamedRemoteImageBitmap("red") {
+                }
+                val red = remember {
+                    createNamedRemoteImageBitmap("red") {
                         Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
                             .apply { setPixel(0, 0, Color.Red.toArgb()) }
                             .asImageBitmap()
                     }
-                val blue2 =
-                    rememberNamedRemoteImageBitmap("blue", url = "https://example.org/favicon.ico")
+                }
+                val blue2 = remember {
+                    createNamedRemoteImageBitmap("blue", url = "https://example.org/favicon.ico")
+                }
 
                 AssertSameSameDifferent(blue, blue2, red)
             }
@@ -111,9 +120,9 @@ class RemoteStateTest {
     fun cachesRemoteInt() = runTest {
         withContext(Dispatchers.Main) {
             captureSingleRemoteDocument(context) {
-                val one = rememberNamedRemoteInt(name = "one", defaultValue = 1)
-                val two = rememberNamedRemoteInt(name = "two", defaultValue = 2)
-                val one2 = rememberNamedRemoteInt(name = "one", defaultValue = 3)
+                val one = remember { createNamedRemoteInt(name = "one", defaultValue = 1) }
+                val two = remember { createNamedRemoteInt(name = "two", defaultValue = 2) }
+                val one2 = remember { createNamedRemoteInt(name = "one", defaultValue = 3) }
 
                 AssertSameSameDifferent(one, one2, two)
             }
@@ -124,9 +133,9 @@ class RemoteStateTest {
     fun cachesRemoteLong() = runTest {
         withContext(Dispatchers.Main) {
             captureSingleRemoteDocument(context) {
-                val one = rememberNamedRemoteLong(name = "one", defaultValue = 1L)
-                val two = rememberNamedRemoteLong(name = "two", defaultValue = 2L)
-                val one2 = rememberNamedRemoteLong(name = "one", defaultValue = 3L)
+                val one = remember { createNamedRemoteLong(name = "one", defaultValue = 1L) }
+                val two = remember { createNamedRemoteLong(name = "two", defaultValue = 2L) }
+                val one2 = remember { createNamedRemoteLong(name = "one", defaultValue = 3L) }
 
                 AssertSameSameDifferent(one, one2, two)
             }
@@ -137,9 +146,13 @@ class RemoteStateTest {
     fun cachesRemoteString() = runTest {
         withContext(Dispatchers.Main) {
             captureSingleRemoteDocument(context) {
-                val blue = rememberNamedRemoteString(name = "blue", defaultValue = "blue")
-                val red = rememberNamedRemoteString(name = "red", defaultValue = "red")
-                val blue2 = rememberNamedRemoteString(name = "blue", defaultValue = "blue2")
+                val blue = remember {
+                    createNamedRemoteString(name = "blue", defaultValue = "blue")
+                }
+                val red = remember { createNamedRemoteString(name = "red", defaultValue = "red") }
+                val blue2 = remember {
+                    createNamedRemoteString(name = "blue", defaultValue = "blue2")
+                }
 
                 AssertSameSameDifferent(blue, blue2, red)
             }
@@ -151,20 +164,22 @@ class RemoteStateTest {
         withContext(Dispatchers.Main) {
             val capturedDoc =
                 captureSingleRemoteDocument(context) {
-                    val s1 =
-                        rememberNamedRemoteString(
+                    val s1 = remember {
+                        createNamedRemoteString(
                             name = "s1",
                             defaultValue = "1",
                             domain = RemoteState.Domain.User,
                         )
+                    }
                     // Will be committed immediately in a global scope
-                    val s2 =
-                        rememberNamedRemoteString(
-                                name = "s2",
-                                defaultValue = "2",
-                                domain = RemoteState.Domain.User,
-                            )
-                            .withGlobalScope()
+                    val s2 = remember {
+                        createNamedRemoteString(
+                            name = "s2",
+                            defaultValue = "2",
+                            domain = RemoteState.Domain.User,
+                        )
+                    }
+                        .withGlobalScope()
 
                     RemoteBox { RemoteText(s1 + s2) }
                 }
@@ -196,7 +211,7 @@ class RemoteStateTest {
             captureSingleRemoteDocument(
                 InstrumentationRegistry.getInstrumentation().targetContext
             ) {
-                val mutableFloat = rememberMutableRemoteFloat(0f)
+                val mutableFloat = remember { MutableRemoteFloat(0f) }
                 val creationState = LocalRemoteComposeCreationState.current
 
                 // 1. Get the ID allocated for actions (e.g., valueChange)

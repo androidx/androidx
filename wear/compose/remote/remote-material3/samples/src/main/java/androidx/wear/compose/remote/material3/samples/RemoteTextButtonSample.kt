@@ -21,10 +21,11 @@ package androidx.wear.compose.remote.material3.samples
 import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.wear.compose.remote.material3.RemoteMaterialTheme
 import androidx.wear.compose.remote.material3.RemoteText
@@ -38,7 +39,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteTextButtonSimpleSample(modifier: RemoteModifier = RemoteModifier) {
-    val tapCount = rememberMutableRemoteInt(0)
+    val tapCount = remember { MutableRemoteInt(0) }
     val text = "+".rs + tapCount.toRemoteString()
 
     RemoteTextButton(
