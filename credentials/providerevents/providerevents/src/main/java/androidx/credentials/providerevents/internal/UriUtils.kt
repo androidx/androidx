@@ -25,6 +25,7 @@ import java.io.BufferedWriter
 import java.io.File
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
+import java.nio.charset.StandardCharsets
 
 /** A util class for reading or writing credentials to URI */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -36,8 +37,8 @@ public class UriUtils {
 
         /** Write the credentials json into the provided uri. */
         public fun writeToUri(uri: Uri, responseJson: String, context: Context) {
-            context.contentResolver.openOutputStream(uri).use {
-                val writer = BufferedWriter(OutputStreamWriter(it))
+            context.contentResolver.openOutputStream(uri)?.use {
+                val writer = BufferedWriter(OutputStreamWriter(it, StandardCharsets.UTF_8))
                 writer.write(responseJson)
                 writer.flush()
                 writer.close()
@@ -47,8 +48,8 @@ public class UriUtils {
         /** Read the credentials json from the provided uri. */
         public fun readFromUri(uri: Uri, context: Context): String {
             var credentialsJson = ""
-            context.contentResolver.openInputStream(uri).use {
-                val reader = BufferedReader(InputStreamReader(it))
+            context.contentResolver.openInputStream(uri)?.use {
+                val reader = BufferedReader(InputStreamReader(it, StandardCharsets.UTF_8))
                 credentialsJson = reader.readText()
                 reader.close()
             }
