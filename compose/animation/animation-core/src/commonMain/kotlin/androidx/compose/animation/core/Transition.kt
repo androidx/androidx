@@ -28,7 +28,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.computedStateOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -1377,7 +1376,7 @@ protected constructor(
             // target change.
             val runFrameLoop by
                 remember(this) {
-                    computedStateOf {
+                    derivedStateOf {
                         this.targetState != currentState || isRunning || updateChildrenNeeded
                     }
                 }
@@ -2124,8 +2123,8 @@ public inline fun <S, T, V : AnimationVector> Transition<S>.animateValue(
     // recomposition for both the first and second frame of the animation. As a temporary
     // workaround, `derivedStateOf` is added here to avoid recomposing when the state value is the
     // same.
-    val targetValue = targetValueByState(remember(this) { computedStateOf { targetState } }.value)
-    val animationSpec = transitionSpec(remember(this) { computedStateOf { segment } }.value)
+    val targetValue = targetValueByState(remember(this) { derivedStateOf { targetState } }.value)
+    val animationSpec = transitionSpec(remember(this) { derivedStateOf { segment } }.value)
 
     return createTransitionAnimation(initialValue, targetValue, animationSpec, typeConverter, label)
 }
