@@ -3906,6 +3906,152 @@ class KeepRuleDetectorTest {
                 """
             )
     }
+
+    /**
+     * Verifies that when a platform class (e.g. `android.view.GhostView`) is fetched via
+     * `Class.forName` into a static field in one function, that platform type is tracked on the
+     * field so that member reflection (`getDeclaredMethod`) in another function is also recognized
+     * as platform reflection and ignored, rather than triggering a false positive.
+     */
+    @Test
+    fun testPlatformClassCachedInFieldIgnoredAcrossFunctions() {
+        lint()
+            .issues(KeepRuleDetector.ISSUE)
+            .files(
+                java(
+                        """
+                    package test.pkg;
+
+                    public class PlatformMethodReflectionTest {
+                        private static Class<?> sGhostViewClass;
+
+                        private static void fetchGhostViewClass() {
+                            try {
+                                sGhostViewClass = Class.forName("android.view.GhostView");
+                            } catch (ClassNotFoundException e) {
+                            }
+                        }
+
+                        public void callPlatformMethod() throws Exception {
+                            fetchGhostViewClass();
+                            sGhostViewClass.getDeclaredMethod("addGhost", Object.class);
+                        }
+                    }
+                    """
+                    )
+                    .indented(),
+                *usesReflectionStubs,
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun testClassForNameWithCastPreservesTargetClass() {
+        lint()
+            .issues(KeepRuleDetector.ISSUE)
+            .files(
+                kotlin(
+                        """
+                    package test.pkg
+
+                    interface TargetInterface
+
+                    class CastReflectionTest {
+                        fun testCastTarget(): TargetInterface? {
+                            val clazz = Class.forName("com.example.TargetImpl") as Class<TargetInterface>
+                            return clazz.getDeclaredConstructor().newInstance()
+                        }
+                    }
+                    """
+                    )
+                    .indented(),
+                *usesReflectionStubs,
+            )
+            .run()
+            .expectFixDiffs(
+                """
+                Autofix for src/test/pkg/TargetInterface.kt line 8: Annotate with @UsesReflectionToConstruct:
+                @@ -1,0 +2 @@
+                +import androidx.annotation.keep.UsesReflectionToConstruct
+                @@ -5,0 +7,4 @@
+                +    @UsesReflectionToConstruct(
+                +        className = "com.example.TargetImpl",
+                +        parameterTypes = []
+                +    )
+                """
+            )
+    }
+
+    /**
+     * Verifies that meta-reflection on `java.lang.Class` (such as
+     * `Class::class.java.getDeclaredMethod(...)`, a pattern used in Compose ViewLayer to bypass
+     * hidden API restrictions on Android P) is recognized as platform reflection and does not
+     * attempt to extract wildcard type arguments (`Class<*>`), which previously generated invalid
+     * Kotlin syntax like `classConstant = ?::class`.
+     */
+    @Test
+    fun testKotlinClassMetaReflectionDoesNotEmitWildcard() {
+        lint()
+            .issues(KeepRuleDetector.ISSUE)
+            .files(
+                kotlin(
+                        """
+                    package test.pkg
+
+                    class WildcardMetaReflectionTest {
+                        fun testMetaReflection() {
+                            val getDeclaredMethod =
+                                Class::class
+                                    .java
+                                    .getDeclaredMethod(
+                                        "getDeclaredMethod",
+                                        String::class.java,
+                                        arrayOf<Class<*>>()::class.java,
+                                    )
+                        }
+                    }
+                    """
+                    )
+                    .indented(),
+                *usesReflectionStubs,
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun testSafeCallOnPlatformClassIgnored() {
+        lint()
+            .issues(KeepRuleDetector.ISSUE)
+            .files(
+                kotlin(
+                        """
+                    package test.pkg
+
+                    class SafeCallPlatformTest {
+                        private var systemPropertiesClass: Class<*>? = null
+
+                        fun testSafeCall(): Boolean {
+                            if (systemPropertiesClass == null) {
+                                systemPropertiesClass = Class.forName("android.os.SystemProperties")
+                            }
+                            val method = systemPropertiesClass?.getDeclaredMethod(
+                                "getBoolean",
+                                String::class.java,
+                                Boolean::class.java,
+                            )
+                            return method != null
+                        }
+                    }
+                    """
+                    )
+                    .indented(),
+                *usesReflectionStubs,
+            )
+            .run()
+            .expectClean()
+    }
 }
 
 val usesReflectionStubs: Array<TestFile> =
