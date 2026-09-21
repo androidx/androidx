@@ -33,6 +33,7 @@ import androidx.car.app.model.Header
 import androidx.car.app.model.Row
 import androidx.car.app.model.RowSection
 import androidx.car.app.model.SectionedItemTemplate
+import androidx.car.app.model.StrokeCap
 import androidx.car.app.model.Template
 import androidx.car.app.sample.showcase.common.R
 import androidx.core.graphics.drawable.IconCompat
@@ -64,6 +65,7 @@ class ProgressBarDemoScreen(carContext: CarContext) : Screen(carContext) {
             .addSection(createRegularRowsSection())
             .addSection(createRowConfigurationsSection())
             .addSection(createColoredRowsSection())
+            .addSection(createStrokeCapRowsSection())
             .addSection(createGridSection(GridSection.ITEM_SIZE_SMALL))
             .addSection(createGridSection(GridSection.ITEM_SIZE_MEDIUM))
             .addSection(createGridSection(GridSection.ITEM_SIZE_LARGE))
@@ -102,7 +104,7 @@ class ProgressBarDemoScreen(carContext: CarContext) : Screen(carContext) {
         val colors = listOf(CarColor.RED, CarColor.GREEN, CarColor.BLUE, CarColor.YELLOW)
         val colorNames = listOf("Red", "Green", "Blue", "Yellow")
 
-        val rows =
+        val coloredRows =
             colors.zip(colorNames).map { (color, name) ->
                 Row.Builder()
                     .setTitle("$name Progress Bar Row")
@@ -110,12 +112,81 @@ class ProgressBarDemoScreen(carContext: CarContext) : Screen(carContext) {
                     .setImage(testImage, Row.IMAGE_TYPE_LARGE)
                     .setProgressBar(
                         CarProgressBar.Builder(0.5f)
-                            .setStyle(CarProgressBarStyle.Builder().setColor(color).build())
+                            .setStyle(
+                                CarProgressBarStyle.Builder()
+                                    .setColor(color)
+                                    .setTrackColor(color)
+                                    .build()
+                            )
                             .build()
                     )
                     .build()
             }
-        return RowSection.Builder().setTitle("Colored Progress Bars").setItems(rows).build()
+
+        // Track color examples
+        val trackColoredRows =
+            listOf(
+                Row.Builder()
+                    .setTitle("Green Progress Bar Row with Blue Track")
+                    .addText("Colored progress bar example")
+                    .setImage(testImage, Row.IMAGE_TYPE_LARGE)
+                    .setProgressBar(
+                        CarProgressBar.Builder(0.5f)
+                            .setStyle(
+                                CarProgressBarStyle.Builder()
+                                    .setColor(CarColor.GREEN)
+                                    .setTrackColor(CarColor.BLUE)
+                                    .build()
+                            )
+                            .build()
+                    )
+                    .build(),
+                Row.Builder()
+                    .setTitle("Red Progress Bar Row with Yellow Track")
+                    .addText("Colored progress bar example")
+                    .setImage(testImage, Row.IMAGE_TYPE_LARGE)
+                    .setProgressBar(
+                        CarProgressBar.Builder(0.5f)
+                            .setStyle(
+                                CarProgressBarStyle.Builder()
+                                    .setColor(CarColor.RED)
+                                    .setTrackColor(CarColor.YELLOW)
+                                    .build()
+                            )
+                            .build()
+                    )
+                    .build(),
+            )
+
+        return RowSection.Builder()
+            .setTitle("Colored Progress Bars")
+            .setItems(coloredRows + trackColoredRows)
+            .build()
+    }
+
+    private fun createStrokeCapRowsSection(): RowSection {
+        val strokeCaps =
+            listOf(
+                StrokeCap.DEFAULT,
+                StrokeCap.ROUND,
+                StrokeCap.SQUARE,
+            )
+        val strokeCapNames = listOf("System default", "Round", "Square")
+
+        val rows =
+            strokeCaps.zip(strokeCapNames).map { (strokeCap, name) ->
+                Row.Builder()
+                    .setTitle("$name Stroke Cap Progress Bar Row")
+                    .addText("Custom shaped progress bar example")
+                    .setImage(testImage, Row.IMAGE_TYPE_LARGE)
+                    .setProgressBar(
+                        CarProgressBar.Builder(0.5f)
+                            .setStyle(CarProgressBarStyle.Builder().setStrokeCap(strokeCap).build())
+                            .build()
+                    )
+                    .build()
+            }
+        return RowSection.Builder().setTitle("Shaped Progress Bars").setItems(rows).build()
     }
 
     private fun createGridSection(
