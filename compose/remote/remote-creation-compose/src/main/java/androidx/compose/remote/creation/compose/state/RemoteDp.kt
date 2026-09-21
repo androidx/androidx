@@ -204,7 +204,6 @@ internal constructor(
             )
         }
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         public fun createNamedRemoteDp(
             name: String,

@@ -238,7 +238,6 @@ internal constructor(
      *
      * @param initialValue The initial [Long] value.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RememberInComposition
     public constructor(
         initialValue: Long
@@ -263,6 +262,7 @@ internal constructor(
          * @param initialValue The initial value for the state.
          * @return A new [MutableRemoteLong] instance.
          */
+        @RememberInComposition
         public operator fun invoke(initialValue: Long): MutableRemoteLong {
             return MutableRemoteLong(initialValue)
         }

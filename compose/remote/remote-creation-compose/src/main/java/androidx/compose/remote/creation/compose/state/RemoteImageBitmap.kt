@@ -142,7 +142,6 @@ internal constructor(
                 )
             }
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         public fun createNamedRemoteImageBitmap(
             name: String,
@@ -161,7 +160,6 @@ internal constructor(
             }
         }
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         public fun createNamedRemoteImageBitmap(
             name: String,
@@ -213,7 +211,6 @@ internal constructor(
      *
      * @param initialValue The initial [ImageBitmap] value.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RememberInComposition
     public constructor(
         initialValue: ImageBitmap
@@ -236,6 +233,7 @@ internal constructor(
          * @param initialValue The initial value for the state.
          * @return A new [MutableRemoteImageBitmap] instance.
          */
+        @RememberInComposition
         public operator fun invoke(initialValue: ImageBitmap): MutableRemoteImageBitmap {
             return MutableRemoteImageBitmap(initialValue)
         }

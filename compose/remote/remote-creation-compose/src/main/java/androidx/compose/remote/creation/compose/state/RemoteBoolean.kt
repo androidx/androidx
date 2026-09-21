@@ -477,7 +477,6 @@ public class MutableRemoteBoolean
 internal constructor(remoteInt: MutableRemoteInt) :
     RemoteBoolean(remoteInt), MutableRemoteState<Boolean> {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RememberInComposition
     public constructor(initialValue: Boolean) : this(MutableRemoteInt(if (initialValue) 1 else 0))
 
@@ -514,6 +513,7 @@ internal constructor(remoteInt: MutableRemoteInt) :
          * @param initialValue The initial value for this mutable boolean.
          * @return A [MutableRemoteBoolean] instance.
          */
+        @RememberInComposition
         public operator fun invoke(initialValue: Boolean): MutableRemoteBoolean {
             val initInt: Int = if (initialValue) 1 else 0
             return MutableRemoteBoolean(MutableRemoteInt(initInt))

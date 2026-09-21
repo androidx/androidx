@@ -16,12 +16,12 @@
 
 package androidx.compose.remote.creation.compose.modifier
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.ScrollModifier as CoreScrollModifier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.remember
 
@@ -37,15 +37,13 @@ import androidx.compose.runtime.remember
  *   greater than 0, the scroll position will snap to the nearest notch when the scroll gesture
  *   ends. If 0, scrolling is continuous.
  */
+@Stable
 public class RemoteScrollState
 @RememberInComposition
 constructor(public val positionState: MutableRemoteFloat, public val notches: Int) {
-    internal constructor(
-        position: Float,
-        notches: Int,
-    ) : this(MutableRemoteFloat(position), notches)
+    @RememberInComposition
+    public constructor(position: Float, notches: Int) : this(MutableRemoteFloat(position), notches)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RememberInComposition
     public constructor(notches: Int = 0) : this(MutableRemoteFloat(), notches)
 
