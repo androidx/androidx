@@ -64,10 +64,9 @@ androidXMultiplatform {
 dependencies {
     constraints {
         // Prevents symbols duplication with old versions of JetBrains' fork.
-        // Starting with version 1.5.0-beta01, this module is published as empty artifact with dependency
+        // Starting with version 1.5.0, this module is published as empty artifact with dependency
         // to this androidx module.
-        // TODO: update this stable version once out
-        commonMainImplementation("org.jetbrains.androidx.window:window-core:1.5.0-beta01") {
+        commonMainImplementation("org.jetbrains.androidx.window:window-core:1.5.0") {
             because "prevents symbols duplication"
         }
     }
