@@ -100,7 +100,7 @@ dependencies.constraints {
     // Prevents symbols duplication with old versions of JetBrains' fork.
     // Starting with Compose Multiplatform 1.11.0, this module is published as empty
     // artifact with dependency to this androidx module.
-    commonMainImplementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.1.0-rc01") {
+    commonMainImplementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.1.0") {
         because "prevents symbols duplication"
     }
 }
