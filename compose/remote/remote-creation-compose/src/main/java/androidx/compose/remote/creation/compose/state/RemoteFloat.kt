@@ -1562,7 +1562,6 @@ internal constructor(
      *
      * @param initialValue The initial [Float] value.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RememberInComposition
     public constructor(
         initialValue: Float
@@ -1576,7 +1575,6 @@ internal constructor(
      *
      * @param value A lambda evaluated within [RemoteFloatContext] that provides the initial value.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RememberInComposition
     public constructor(
         value: RemoteFloatContext.() -> RemoteFloat
@@ -1617,6 +1615,7 @@ internal constructor(
          * @param initialValue The initial value for the state.
          * @return A new [MutableRemoteFloat] instance.
          */
+        @RememberInComposition
         public operator fun invoke(initialValue: Float): MutableRemoteFloat {
             return MutableRemoteFloat(cacheKey = RemoteStateInstanceKey()) { creationState ->
                 creationState.document.floatExpression(initialValue)
@@ -1666,22 +1665,24 @@ internal constructor(
         },
     )
 
-    /**
-     * Creates a [RemoteFloatExpression] from a lambda returning a [FloatArray].
-     *
-     * @param value A lambda returning the raw [FloatArray] representing the expression.
-     */
-    @RememberInComposition
-    public constructor(
-        value: () -> FloatArray
-    ) : this(
-        constantValueOrNull = null,
-        cacheKey = RemoteStateInstanceKey(),
-        arrayProvider = { creationState ->
-            val floatArrayId = creationState.document.addFloatArray(value())
-            floatArrayOf(floatArrayId)
-        },
-    )
+    public companion object {
+        /**
+         * Creates a [RemoteFloatExpression] from a lambda returning a [FloatArray].
+         *
+         * @param value A lambda returning the raw [FloatArray] representing the expression.
+         */
+        @RememberInComposition
+        public fun fromFloatArray(value: () -> FloatArray): RemoteFloatExpression {
+            return RemoteFloatExpression(
+                constantValueOrNull = null,
+                cacheKey = RemoteStateInstanceKey(),
+                arrayProvider = { creationState ->
+                    val floatArrayId = creationState.document.addFloatArray(value())
+                    floatArrayOf(floatArrayId)
+                },
+            )
+        }
+    }
 
     init {
         if (constantValueOrNull?.isNaN() == true) {
@@ -2037,7 +2038,7 @@ public fun toArray(a: RemoteFloat, creationState: RemoteComposeCreationState): F
 @Composable
 @RemoteComposable
 public fun rememberRemoteFloatArray(value: () -> FloatArray): RemoteFloat {
-    return remember { RemoteFloatExpression(value) }
+    return remember { RemoteFloatExpression.fromFloatArray(value) }
 }
 
 /**

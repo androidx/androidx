@@ -1010,7 +1010,6 @@ internal constructor(
      *
      * @param initialValue The initial [Int] value.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RememberInComposition
     public constructor(
         initialValue: Int
@@ -1027,6 +1026,7 @@ internal constructor(
          * @param initialValue The initial value for the state.
          * @return A new [MutableRemoteInt] instance.
          */
+        @RememberInComposition
         public operator fun invoke(initialValue: Int): MutableRemoteInt {
             return MutableRemoteInt(initialValue)
         }
