@@ -20,12 +20,13 @@ import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.previews.utils.RemoteComponentPreviewWrapper
+import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
+import androidx.compose.remote.creation.compose.state.MutableRemoteEnum
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rc
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteEnum
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 
@@ -33,7 +34,7 @@ import androidx.compose.ui.tooling.preview.PreviewWrapper
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun RemoteStateLayoutBooleanSample() {
-    val state = rememberMutableRemoteBoolean(true)
+    val state = remember { MutableRemoteBoolean(true) }
     RemoteStateLayout(currentState = state) { isTrue ->
         if (isTrue) {
             RemoteText("True State".rs, color = Color.Green.rc)
@@ -47,7 +48,7 @@ fun RemoteStateLayoutBooleanSample() {
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun RemoteStateLayoutIntSample() {
-    val state = rememberMutableRemoteInt(0)
+    val state = remember { MutableRemoteInt(0) }
     RemoteStateLayout(currentState = state, 0, 1, 2) { index ->
         when (index) {
             0 -> RemoteText("State 0".rs, color = Color.Red.rc)
@@ -67,7 +68,7 @@ enum class SampleState {
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun RemoteStateLayoutEnumSample() {
-    val state = rememberMutableRemoteEnum(SampleState.Loading)
+    val state = remember { MutableRemoteEnum(SampleState.Loading) }
     RemoteStateLayout(currentState = state) { screen ->
         when (screen) {
             SampleState.Loading -> RemoteText("Loading...".rs, color = Color.Gray.rc)

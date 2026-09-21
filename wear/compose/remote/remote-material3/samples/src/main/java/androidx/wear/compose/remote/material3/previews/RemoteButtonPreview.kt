@@ -28,16 +28,17 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -242,10 +243,11 @@ private fun RemoteButtonWithIconAndLongLabelPreview(
 @Composable
 @RemoteComposable
 fun RemoteButtonWithBackground() {
-    val backgroundImage =
-        rememberNamedRemoteImageBitmap(name = "backgroundImage") {
+    val backgroundImage = remember {
+        createNamedRemoteImageBitmap(name = "backgroundImage") {
             createImage(200, 200).asImageBitmap()
         }
+    }
     val containerPainter = RemoteButtonDefaults.containerPainter(backgroundImage)
     RemoteButton(
         onClick = testAction,
@@ -390,10 +392,11 @@ private fun RemoteButtonChildColorsDisabledPreview(
 @Composable
 @RemoteComposable
 fun RemoteButtonWithSmallImageBackground() {
-    val smallImage =
-        rememberNamedRemoteImageBitmap(name = "smallBackgroundImage") {
+    val smallImage = remember {
+        createNamedRemoteImageBitmap(name = "smallBackgroundImage") {
             createImage(8, 8).asImageBitmap()
         }
+    }
     val containerPainter = RemoteButtonDefaults.containerPainter(smallImage)
     RemoteButton(
         onClick = testAction,

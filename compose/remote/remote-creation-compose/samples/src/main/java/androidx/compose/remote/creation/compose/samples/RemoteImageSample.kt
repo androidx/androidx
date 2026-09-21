@@ -21,10 +21,11 @@ import androidx.compose.remote.creation.compose.layout.RemoteImage
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.previews.utils.RemoteComponentPreviewWrapper
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 
@@ -32,7 +33,9 @@ import androidx.compose.ui.tooling.preview.PreviewWrapper
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun RemoteImageSample() {
-    val remoteBitmap = rememberRemoteImageBitmap(url = "https://example.com/placeholder.png")
+    val remoteBitmap = remember {
+        RemoteImageBitmap(url = "https://example.com/placeholder.png")
+    }
     RemoteImage(
         remoteBitmap = remoteBitmap,
         contentDescription = "Sample Remote Image".rs,
@@ -45,7 +48,9 @@ fun RemoteImageSample() {
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun RemoteImageFitSample() {
-    val remoteBitmap = rememberRemoteImageBitmap(url = "https://example.com/placeholder.png")
+    val remoteBitmap = remember {
+        RemoteImageBitmap(url = "https://example.com/placeholder.png")
+    }
     RemoteImage(
         remoteBitmap = remoteBitmap,
         contentDescription = "Fit Sample".rs,

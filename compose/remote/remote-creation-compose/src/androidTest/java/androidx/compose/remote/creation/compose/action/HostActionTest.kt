@@ -24,17 +24,18 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.semantics
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
+import androidx.compose.remote.creation.compose.state.MutableRemoteString
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteString
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteString
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.test.utils.RemoteInteractionTestRule
+import androidx.compose.runtime.remember
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.uiautomator.uiAutomator
 import com.google.common.truth.Truth.assertThat
@@ -101,9 +102,9 @@ class HostActionTest {
 
             val mutableValue =
                 when (value) {
-                    is RemoteInt -> rememberMutableRemoteInt(value.constantValue)
+                    is RemoteInt -> remember { MutableRemoteInt(value.constantValue) }
                     is RemoteFloat -> value
-                    is RemoteString -> rememberMutableRemoteString(value.constantValue)
+                    is RemoteString -> remember { MutableRemoteString(value.constantValue) }
                     else -> "null".rs
                 }
 

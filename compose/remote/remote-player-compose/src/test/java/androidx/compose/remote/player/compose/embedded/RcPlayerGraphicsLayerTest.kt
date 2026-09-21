@@ -43,11 +43,12 @@ import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
+import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -225,7 +226,7 @@ class RcPlayerGraphicsLayerTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val origin = rememberMutableRemoteFloat(0.5f)
+                            val origin = remember { MutableRemoteFloat(0.5f) }
                             RemoteColumn {
                                 // 60x30 non-square red box rotated 180 degrees.
                                 // At origin (0.5, 0.5), pivot is (30, 15) -> occupies (0..60,
@@ -296,7 +297,7 @@ class RcPlayerGraphicsLayerTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val scaleVar = rememberMutableRemoteFloat(1f)
+                            val scaleVar = remember { MutableRemoteFloat(1f) }
                             RemoteColumn {
                                 // 40x40 red box with origin (0f, 0f).
                                 // At scaleX = 1f -> width is 40dp (spans x = 0..40dp).

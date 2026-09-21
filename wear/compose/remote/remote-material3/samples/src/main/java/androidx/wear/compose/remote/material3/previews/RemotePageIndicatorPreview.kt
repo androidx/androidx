@@ -20,14 +20,15 @@ package androidx.wear.compose.remote.material3.previews
 
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
 import androidx.compose.remote.creation.compose.state.deltaFromReferenceInSeconds
 import androidx.compose.remote.creation.compose.state.floor
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteLong
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.wear.compose.remote.material3.RemoteHorizontalPageIndicator
 import androidx.wear.compose.remote.material3.RemoteVerticalPageIndicator
@@ -81,7 +82,9 @@ fun RemoteVerticalPageIndicatorAnimatedPreview(
 
 @Composable
 private fun RemotePageIndicatorAnimatedPreviewHelper(isHorizontal: Boolean, rememberKey: String) {
-    val startTime = rememberNamedRemoteLong(rememberKey, System.currentTimeMillis())
+    val startTime = remember {
+        createNamedRemoteLong(rememberKey, System.currentTimeMillis())
+    }
     val animTime = -deltaFromReferenceInSeconds(startTime) * 2f.rf
 
     // Continuous scroll simulator (page + offset fraction) cycle over 8 scaled seconds

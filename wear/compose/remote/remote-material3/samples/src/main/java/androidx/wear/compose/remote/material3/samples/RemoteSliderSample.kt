@@ -19,13 +19,14 @@ package androidx.wear.compose.remote.material3.samples
 import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteFloat
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.wear.compose.remote.material3.RemoteSlider
 import androidx.wear.compose.remote.material3.previews.utils.RemoteComponentPreviewWrapper
@@ -36,7 +37,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteSliderSample(modifier: RemoteModifier = RemoteModifier) {
-    val value = rememberMutableRemoteFloat(2f)
+    val value = remember { MutableRemoteFloat(2f) }
     RemoteSlider(
         value = value,
         steps = 4,
@@ -51,7 +52,7 @@ fun RemoteSliderSample(modifier: RemoteModifier = RemoteModifier) {
 @WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteSliderIntegerSample(modifier: RemoteModifier = RemoteModifier) {
-    val value = rememberMutableRemoteInt(2)
+    val value = remember { MutableRemoteInt(2) }
     RemoteSlider(
         value = value,
         steps = 4,

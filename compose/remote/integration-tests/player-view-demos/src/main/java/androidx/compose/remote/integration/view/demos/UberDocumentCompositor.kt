@@ -20,8 +20,9 @@ package androidx.compose.remote.integration.view.demos.examples
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.visibility
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 
 class RemoteLayer(val name: String, val visibility: Int = 1, val content: @Composable () -> Unit)
 
@@ -31,7 +32,9 @@ fun UberDocumentCompositor(vararg layers: RemoteLayer) {
     // The first layer in the list is the bottom layer.
     RemoteBox(modifier = RemoteModifier) {
         for (layer in layers) {
-            val visibilityFlag = rememberNamedRemoteInt("layer.${layer.name}", layer.visibility)
+            val visibilityFlag = remember {
+                createNamedRemoteInt("layer.${layer.name}", layer.visibility)
+            }
             RemoteBox(modifier = RemoteModifier.visibility(visibilityFlag)) { layer.content() }
         }
     }

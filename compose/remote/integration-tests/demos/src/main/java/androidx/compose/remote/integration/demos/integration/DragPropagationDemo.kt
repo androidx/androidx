@@ -41,6 +41,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
@@ -49,11 +50,10 @@ import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.onTouchDown
 import androidx.compose.remote.creation.compose.modifier.onTouchUp
 import androidx.compose.remote.creation.compose.modifier.padding
-import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.integration.demos.common.RemoteDemo
 import androidx.compose.runtime.Composable
@@ -139,8 +139,8 @@ fun DragPropagationDemo() {
                     }
                 },
             ) {
-                val valueChangeClicks = rememberMutableRemoteInt(0)
-                val touchValueClicks = rememberMutableRemoteInt(0)
+                val valueChangeClicks = remember { MutableRemoteInt(0) }
+                val touchValueClicks = remember { MutableRemoteInt(0) }
                 RemoteColumn(
                     modifier = RemoteModifier.fillMaxSize().padding(8.rdp),
                     horizontalAlignment = RemoteAlignment.CenterHorizontally,
@@ -246,7 +246,7 @@ fun DragPropagationDemo() {
                     .padding(8.dp)
         ) {
             RemoteDemo(modifier = Modifier.fillMaxSize()) {
-                val scrollState = rememberRemoteScrollState()
+                val scrollState = remember { RemoteScrollState() }
                 RemoteColumn(
                     modifier =
                         RemoteModifier.fillMaxSize().verticalScroll(scrollState).padding(8.rdp)

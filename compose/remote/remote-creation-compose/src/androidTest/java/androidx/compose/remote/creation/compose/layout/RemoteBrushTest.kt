@@ -40,15 +40,16 @@ import androidx.compose.remote.creation.compose.shaders.sweepGradient
 import androidx.compose.remote.creation.compose.shaders.verticalGradient
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createTranslateXy
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
@@ -211,13 +212,14 @@ class RemoteBrushTest {
     @Test
     fun bitmapBrushTest() {
         remoteComposeTestRule.runScreenshotTest {
-            val image =
-                rememberNamedRemoteImageBitmap(
+            val image = remember {
+                createNamedRemoteImageBitmap(
                     name = "background",
                     domain = RemoteState.Domain.User,
                 ) {
                     createImage(400, 400).asImageBitmap()
                 }
+            }
             val imageSize = RemoteSize(image.width, image.height)
             val topLeftX = 50f
             val topLeftY = 50f
@@ -289,10 +291,11 @@ class RemoteBrushTest {
     @Composable
     @RemoteComposable
     private fun BitmapBrushBox(contentScale: ContentScale) {
-        val backgroundImage =
-            rememberNamedRemoteImageBitmap(name = "background") {
+        val backgroundImage = remember {
+            createNamedRemoteImageBitmap(name = "background") {
                 createImage(300, 400).asImageBitmap()
             }
+        }
         val backgroundBrush =
             RemoteBrush.image(
                 image = backgroundImage,

@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -58,7 +59,7 @@ class ScrollModifierScreenshotTest {
     @Test
     fun verticalScroll() {
         composeTestRule.setContent {
-            val scrollState = rememberRemoteScrollState()
+            val scrollState = remember { RemoteScrollState() }
             RemoteColumn(modifier = RemoteModifier.verticalScroll(scrollState).fillMaxSize()) {
                 repeat(4) { index ->
                     val color = colors[index % colors.size].rc
@@ -90,7 +91,7 @@ class ScrollModifierScreenshotTest {
     @Test
     fun horizontalScroll() {
         composeTestRule.setContent {
-            val scrollState = rememberRemoteScrollState()
+            val scrollState = remember { RemoteScrollState() }
             RemoteRow(modifier = RemoteModifier.horizontalScroll(scrollState).fillMaxSize()) {
                 repeat(4) { index ->
                     val color = colors[index % colors.size].rc
@@ -121,7 +122,7 @@ class ScrollModifierScreenshotTest {
     @Test
     fun horizontalScrollWithPosition() {
         composeTestRule.setContent {
-            val scrollState = rememberRemoteScrollState()
+            val scrollState = remember { RemoteScrollState() }
             RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
                 RemoteRow(
                     modifier =
@@ -163,7 +164,7 @@ class ScrollModifierScreenshotTest {
     @Test
     fun horizontalScrollTo() {
         composeTestRule.setContent {
-            val scrollState = rememberRemoteScrollState()
+            val scrollState = remember { RemoteScrollState() }
             RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
                 RemoteRow(
                     modifier =
@@ -205,7 +206,7 @@ class ScrollModifierScreenshotTest {
     @Test
     fun horizontalScrollBy() {
         composeTestRule.setContent {
-            val scrollState = rememberRemoteScrollState()
+            val scrollState = remember { RemoteScrollState() }
             RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
                 RemoteRow(
                     modifier =

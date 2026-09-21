@@ -25,9 +25,10 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.state.MutableRemoteString
 import androidx.compose.remote.creation.compose.state.rc
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteString
 import androidx.compose.remote.testing.util.GoldenScreenshotNameTestRule
+import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -69,7 +70,7 @@ class RemoteSharedTestRuleScreenshotTest {
     @Test
     fun content() {
         remoteContentTestRule.setContent(createCreationDisplayInfo(context)) {
-            val text = rememberMutableRemoteString("Initial")
+            val text = remember { MutableRemoteString("Initial") }
             RemoteBox(
                 modifier = RemoteModifier.fillMaxSize().background(Color.White.rc),
                 contentAlignment = RemoteAlignment.Center,

@@ -42,20 +42,21 @@ import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
+import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
+import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteEasing
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.animateRemoteDpAsState
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteFloat
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -228,7 +229,7 @@ class RcPlayerAnimationTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val targetWidth = rememberMutableRemoteFloat(50f)
+                            val targetWidth = remember { MutableRemoteFloat(50f) }
                             val animatedWidth =
                                 animateRemoteFloatAsState(
                                     targetValue = targetWidth,
@@ -538,7 +539,7 @@ class RcPlayerAnimationTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val checked = rememberMutableRemoteBoolean(false)
+                            val checked = remember { MutableRemoteBoolean(false) }
                             RemoteColumn {
                                 RemoteBox(
                                     modifier =
@@ -641,7 +642,7 @@ class RcPlayerAnimationTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val stateIndex = rememberMutableRemoteInt(0)
+                            val stateIndex = remember { MutableRemoteInt(0) }
                             RemoteColumn {
                                 RemoteBox(
                                     modifier =
@@ -760,7 +761,7 @@ class RcPlayerAnimationTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val state = rememberMutableRemoteBoolean(false)
+                            val state = remember { MutableRemoteBoolean(false) }
                             RemoteColumn {
                                 RemoteBox(
                                     modifier =
@@ -907,7 +908,7 @@ class RcPlayerAnimationTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val state = rememberMutableRemoteBoolean(false)
+                            val state = remember { MutableRemoteBoolean(false) }
                             RemoteColumn {
                                 RemoteBox(
                                     modifier =
