@@ -121,6 +121,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
@@ -486,10 +487,24 @@ internal fun RcPlayerRootLayoutComponent(size: IntSize) {
     val document = LocalCoreDocument.current
     val root: RootLayoutComponent = document.rootLayoutComponent!!
     val remoteContext = LocalRemoteContext.current
+    val graph = LocalGraphContext.current
 
     root.setWidth(size.width.toFloat())
     root.setHeight(size.height.toFloat())
     root.updateVariables(remoteContext)
+
+    val drawOps = remember(root) { root.list.fastFilter { it !is Component } }
+    if (drawOps.isNotEmpty()) {
+        val textMeasurer = rememberTextMeasurer()
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            executeOperations(
+                drawOps,
+                remoteContext,
+                graph = graph,
+                textMeasurer = textMeasurer,
+            )
+        }
+    }
 
     RcPlayerChildren(root)
 }
