@@ -69,13 +69,13 @@ public class HeartRateRecord(
         return "HeartRateRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, samples=$samples, metadata=$metadata)"
     }
 
-    companion object {
+    public companion object {
         private const val HEART_RATE_TYPE_NAME = "HeartRateSeries"
         private const val BPM_FIELD_NAME = "bpm"
 
         /** Metric identifier to retrieve the average heart rate from [AggregationResult]. */
         @JvmField
-        val BPM_AVG: AggregateMetric<Long> =
+        public val BPM_AVG: AggregateMetric<Long> =
             AggregateMetric.longMetric(
                 HEART_RATE_TYPE_NAME,
                 AggregateMetric.AggregationType.AVERAGE,
@@ -84,7 +84,7 @@ public class HeartRateRecord(
 
         /** Metric identifier to retrieve the minimum heart rate from [AggregationResult]. */
         @JvmField
-        val BPM_MIN: AggregateMetric<Long> =
+        public val BPM_MIN: AggregateMetric<Long> =
             AggregateMetric.longMetric(
                 HEART_RATE_TYPE_NAME,
                 AggregateMetric.AggregationType.MINIMUM,
@@ -93,7 +93,7 @@ public class HeartRateRecord(
 
         /** Metric identifier to retrieve the maximum heart rate from [AggregationResult]. */
         @JvmField
-        val BPM_MAX: AggregateMetric<Long> =
+        public val BPM_MAX: AggregateMetric<Long> =
             AggregateMetric.longMetric(
                 HEART_RATE_TYPE_NAME,
                 AggregateMetric.AggregationType.MAXIMUM,
@@ -105,7 +105,7 @@ public class HeartRateRecord(
          * [AggregationResult].
          */
         @JvmField
-        val MEASUREMENTS_COUNT: AggregateMetric<Long> =
+        public val MEASUREMENTS_COUNT: AggregateMetric<Long> =
             AggregateMetric.countMetric(HEART_RATE_TYPE_NAME)
     }
 
@@ -117,8 +117,8 @@ public class HeartRateRecord(
      * @see HeartRateRecord
      */
     public class Sample(
-        val time: Instant,
-        @androidx.annotation.IntRange(from = 1, to = 300) val beatsPerMinute: Long,
+        public val time: Instant,
+        @androidx.annotation.IntRange(from = 1, to = 300) public val beatsPerMinute: Long,
     ) {
 
         init {

@@ -25,14 +25,14 @@ import java.util.Objects
  * durationAtThreshold. Only applies to sample data types(e.g. heart rate, speed) and aggregate data
  * type with statistical data points(e.g. pace stats).
  */
-class DebouncedGoal<T : Number>
+public class DebouncedGoal<T : Number>
 private constructor(
 
     /**
      * The condition which specifies data type, threshold, comparison type and debounced params. The
      * condition must be met in order to trigger the goal.
      */
-    val debouncedDataTypeCondition: DebouncedDataTypeCondition<T, *>
+    public val debouncedDataTypeCondition: DebouncedDataTypeCondition<T, *>
 ) {
 
     internal val proto: DataProto.DebouncedGoal =
@@ -58,7 +58,7 @@ private constructor(
     override fun toString(): String =
         "DebouncedGoal(debouncedDataTypeCondition=$debouncedDataTypeCondition)"
 
-    companion object {
+    public companion object {
 
         internal fun fromProto(proto: DataProto.DebouncedGoal): DebouncedGoal<Number> {
             val condition = DebouncedDataTypeCondition.fromProto(proto.debouncedDataTypeCondition)
@@ -74,7 +74,7 @@ private constructor(
          * @return a debounced goal that is triggered when the condition is met
          */
         @JvmStatic
-        fun <T : Number> createSampleDebouncedGoal(
+        public fun <T : Number> createSampleDebouncedGoal(
             condition: DebouncedDataTypeCondition<T, DeltaDataType<T, SampleDataPoint<T>>>
         ): DebouncedGoal<T> {
             return DebouncedGoal(condition)
@@ -89,7 +89,7 @@ private constructor(
          * @return a debounced goal that is triggered when the condition is met
          */
         @JvmStatic
-        fun <T : Number> createAggregateDebouncedGoal(
+        public fun <T : Number> createAggregateDebouncedGoal(
             condition: DebouncedDataTypeCondition<T, AggregateDataType<T, StatisticalDataPoint<T>>>
         ): DebouncedGoal<T> = DebouncedGoal(condition)
     }

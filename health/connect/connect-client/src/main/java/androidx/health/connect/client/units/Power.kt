@@ -21,17 +21,17 @@ package androidx.health.connect.client.units
  * - watts - see [Power.watts], [Double.watts]
  * - kilocalories/day - see [Power.kilocaloriesPerDay], [Double.kilocaloriesPerDay]
  */
-class Power private constructor(private val value: Double, private val type: Type) :
+public class Power private constructor(private val value: Double, private val type: Type) :
     Comparable<Power> {
 
     /** Returns the power in Watts. */
     @get:JvmName("getWatts")
-    val inWatts: Double
+    public val inWatts: Double
         get() = value * type.wattsPerUnit
 
     /** Returns the power in kilocalories/day. */
     @get:JvmName("getKilocaloriesPerDay")
-    val inKilocaloriesPerDay: Double
+    public val inKilocaloriesPerDay: Double
         get() = get(type = Type.KILOCALORIES_PER_DAY)
 
     private fun get(type: Type): Double =
@@ -62,15 +62,16 @@ class Power private constructor(private val value: Double, private val type: Typ
 
     override fun toString(): String = "$value ${type.title}"
 
-    companion object {
+    public companion object {
         private val ZEROS = Type.values().associateWith { Power(value = 0.0, type = it) }
 
         /** Creates [Power] with the specified value in Watts. */
-        @JvmStatic fun watts(value: Double): Power = Power(value, Type.WATTS)
+        @JvmStatic public fun watts(value: Double): Power = Power(value, Type.WATTS)
 
         /** Creates [Power] with the specified value in kilocalories/day. */
         @JvmStatic
-        fun kilocaloriesPerDay(value: Double): Power = Power(value, Type.KILOCALORIES_PER_DAY)
+        public fun kilocaloriesPerDay(value: Double): Power =
+            Power(value, Type.KILOCALORIES_PER_DAY)
     }
 
     private enum class Type {
@@ -90,40 +91,40 @@ class Power private constructor(private val value: Double, private val type: Typ
 
 /** Creates [Power] with the specified value in Watts. */
 @get:JvmSynthetic
-val Double.watts: Power
+public val Double.watts: Power
     get() = Power.watts(value = this)
 
 /** Creates [Power] with the specified value in Watts. */
 @get:JvmSynthetic
-val Long.watts: Power
+public val Long.watts: Power
     get() = toDouble().watts
 
 /** Creates [Power] with the specified value in Watts. */
 @get:JvmSynthetic
-val Float.watts: Power
+public val Float.watts: Power
     get() = toDouble().watts
 
 /** Creates [Power] with the specified value in Watts. */
 @get:JvmSynthetic
-val Int.watts: Power
+public val Int.watts: Power
     get() = toDouble().watts
 
 /** Creates [Power] with the specified value in kilocalories/day. */
 @get:JvmSynthetic
-val Double.kilocaloriesPerDay: Power
+public val Double.kilocaloriesPerDay: Power
     get() = Power.kilocaloriesPerDay(value = this)
 
 /** Creates [Power] with the specified value in kilocalories/day. */
 @get:JvmSynthetic
-val Long.kilocaloriesPerDay: Power
+public val Long.kilocaloriesPerDay: Power
     get() = toDouble().kilocaloriesPerDay
 
 /** Creates [Power] with the specified value in kilocalories/day. */
 @get:JvmSynthetic
-val Float.kilocaloriesPerDay: Power
+public val Float.kilocaloriesPerDay: Power
     get() = toDouble().kilocaloriesPerDay
 
 /** Creates [Power] with the specified value in kilocalories/day. */
 @get:JvmSynthetic
-val Int.kilocaloriesPerDay: Power
+public val Int.kilocaloriesPerDay: Power
     get() = toDouble().kilocaloriesPerDay

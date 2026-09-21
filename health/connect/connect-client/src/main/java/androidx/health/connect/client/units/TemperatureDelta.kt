@@ -21,13 +21,13 @@ package androidx.health.connect.client.units
  * - Celsius - see [TemperatureDelta.celsius]
  * - Fahrenheit - see [TemperatureDelta.fahrenheit]
  */
-class TemperatureDelta
+public class TemperatureDelta
 private constructor(private val value: Double, private val temperatureUnit: TemperatureUnit) :
     Comparable<TemperatureDelta> {
 
     /** Returns the TemperatureDelta in Celsius degrees. */
     @get:JvmName("getCelsius")
-    val inCelsius: Double
+    public val inCelsius: Double
         get() =
             when (temperatureUnit) {
                 TemperatureUnit.CELSIUS -> value
@@ -36,7 +36,7 @@ private constructor(private val value: Double, private val temperatureUnit: Temp
 
     /** Returns the TemperatureDelta in Fahrenheit degrees. */
     @get:JvmName("getFahrenheit")
-    val inFahrenheit: Double
+    public val inFahrenheit: Double
         get() =
             when (temperatureUnit) {
                 TemperatureUnit.CELSIUS -> value * 1.8
@@ -65,15 +65,15 @@ private constructor(private val value: Double, private val temperatureUnit: Temp
 
     override fun toString(): String = "$value ${temperatureUnit.title}"
 
-    companion object {
+    public companion object {
         /** Creates [TemperatureDelta] with the specified value in Celsius degrees. */
         @JvmStatic
-        fun celsius(value: Double): TemperatureDelta =
+        public fun celsius(value: Double): TemperatureDelta =
             TemperatureDelta(value, TemperatureUnit.CELSIUS)
 
         /** Creates [TemperatureDelta] with the specified value in Fahrenheit degrees. */
         @JvmStatic
-        fun fahrenheit(value: Double): TemperatureDelta =
+        public fun fahrenheit(value: Double): TemperatureDelta =
             TemperatureDelta(value, TemperatureUnit.FAHRENHEIT)
     }
 

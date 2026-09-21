@@ -40,10 +40,10 @@ import androidx.health.connect.client.request.ReadMedicalResourcesPageRequest
  * @see [HealthConnectClient.readMedicalResources]
  */
 @ExperimentalPersonalHealthRecordApi
-class ReadMedicalResourcesResponse(
-    val medicalResources: List<MedicalResource>,
-    val nextPageToken: String?,
-    val remainingCount: Int,
+public class ReadMedicalResourcesResponse(
+    public val medicalResources: List<MedicalResource>,
+    public val nextPageToken: String?,
+    public val remainingCount: Int,
 ) {
     override fun toString(): String =
         toString(

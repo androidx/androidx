@@ -46,20 +46,21 @@ import androidx.health.services.client.proto.DataProto
  * @constructor Creates a new ExerciseConfig for an exercise tracked using Health Services
  */
 @Suppress("ParcelCreator")
-class ExerciseConfig
+public class ExerciseConfig
 @JvmOverloads
 constructor(
-    val exerciseType: ExerciseType,
-    val dataTypes: Set<DataType<*, *>>,
-    val isAutoPauseAndResumeEnabled: Boolean,
-    val isGpsEnabled: Boolean,
-    val exerciseGoals: List<ExerciseGoal<*>> = listOf(),
-    val exerciseParams: Bundle = Bundle(),
-    @FloatRange(from = 0.0) val swimmingPoolLengthMeters: Float = SWIMMING_POOL_LENGTH_UNSPECIFIED,
-    val exerciseTypeConfig: ExerciseTypeConfig? = null,
-    val batchingModeOverrides: Set<BatchingMode> = emptySet(),
-    val exerciseEventTypes: Set<ExerciseEventType<*>> = emptySet(),
-    val debouncedGoals: List<DebouncedGoal<*>> = emptyList(),
+    public val exerciseType: ExerciseType,
+    public val dataTypes: Set<DataType<*, *>>,
+    public val isAutoPauseAndResumeEnabled: Boolean,
+    public val isGpsEnabled: Boolean,
+    public val exerciseGoals: List<ExerciseGoal<*>> = listOf(),
+    public val exerciseParams: Bundle = Bundle(),
+    @FloatRange(from = 0.0)
+    public val swimmingPoolLengthMeters: Float = SWIMMING_POOL_LENGTH_UNSPECIFIED,
+    public val exerciseTypeConfig: ExerciseTypeConfig? = null,
+    public val batchingModeOverrides: Set<BatchingMode> = emptySet(),
+    public val exerciseEventTypes: Set<ExerciseEventType<*>> = emptySet(),
+    public val debouncedGoals: List<DebouncedGoal<*>> = emptyList(),
 ) {
 
     internal constructor(
@@ -108,7 +109,7 @@ constructor(
     }
 
     /** Builder for [ExerciseConfig] instances. */
-    class Builder(
+    public class Builder(
         /**
          * The active [ExerciseType] the user is performing for this exercise.
          *
@@ -137,7 +138,7 @@ constructor(
          * @param dataTypes set of [DataType]s ([AggregateDataType] or [DeltaDataType]) to track
          *   during this exercise
          */
-        fun setDataTypes(dataTypes: Set<DataType<*, *>>): Builder {
+        public fun setDataTypes(dataTypes: Set<DataType<*, *>>): Builder {
             this.dataTypes = dataTypes.toSet()
             return this
         }
@@ -149,7 +150,7 @@ constructor(
          * @param isAutoPauseAndResumeEnabled if true, exercise will automatically pause and resume
          */
         @Suppress("MissingGetterMatchingBuilder")
-        fun setIsAutoPauseAndResumeEnabled(isAutoPauseAndResumeEnabled: Boolean): Builder {
+        public fun setIsAutoPauseAndResumeEnabled(isAutoPauseAndResumeEnabled: Boolean): Builder {
             this.isAutoPauseAndResumeEnabled = isAutoPauseAndResumeEnabled
             return this
         }
@@ -168,7 +169,7 @@ constructor(
          * @param isGpsEnabled if true, GPS will be enabled for this exercise
          */
         @Suppress("MissingGetterMatchingBuilder")
-        fun setIsGpsEnabled(isGpsEnabled: Boolean): Builder {
+        public fun setIsGpsEnabled(isGpsEnabled: Boolean): Builder {
             this.isGpsEnabled = isGpsEnabled
             return this
         }
@@ -182,7 +183,7 @@ constructor(
          *
          * @param exerciseGoals the list of [ExerciseGoal]s to begin the exercise with
          */
-        fun setExerciseGoals(exerciseGoals: List<ExerciseGoal<*>>): Builder {
+        public fun setExerciseGoals(exerciseGoals: List<ExerciseGoal<*>>): Builder {
             this.exerciseGoals = exerciseGoals
             return this
         }
@@ -196,7 +197,7 @@ constructor(
          *
          * @param debouncedGoals the list of [DebouncedGoal]s to begin the exercise with
          */
-        fun setDebouncedGoals(debouncedGoals: List<DebouncedGoal<*>>): Builder {
+        public fun setDebouncedGoals(debouncedGoals: List<DebouncedGoal<*>>): Builder {
             this.debouncedGoals = debouncedGoals
             return this
         }
@@ -207,14 +208,14 @@ constructor(
          *
          * @param exerciseParams [Bundle] containing OEM specific parameters
          */
-        fun setExerciseParams(exerciseParams: Bundle): Builder {
+        public fun setExerciseParams(exerciseParams: Bundle): Builder {
             this.exerciseParams = exerciseParams
             return this
         }
 
         /** Sets the swimming pool length (in m). */
         @Suppress("MissingGetterMatchingBuilder")
-        fun setSwimmingPoolLengthMeters(swimmingPoolLength: Float): Builder {
+        public fun setSwimmingPoolLengthMeters(swimmingPoolLength: Float): Builder {
             this.swimmingPoolLength = swimmingPoolLength
             return this
         }
@@ -225,7 +226,7 @@ constructor(
          * @param exerciseTypeConfig [ExerciseTypeConfig] specifying active exercise type
          *   configurations
          */
-        fun setExerciseTypeConfig(exerciseTypeConfig: ExerciseTypeConfig?): Builder {
+        public fun setExerciseTypeConfig(exerciseTypeConfig: ExerciseTypeConfig?): Builder {
             this.exerciseTypeConfig = exerciseTypeConfig
             return this
         }
@@ -235,7 +236,7 @@ constructor(
          *
          * @param batchingModeOverrides [BatchingMode] overrides
          */
-        fun setBatchingModeOverrides(batchingModeOverrides: Set<BatchingMode>): Builder {
+        public fun setBatchingModeOverrides(batchingModeOverrides: Set<BatchingMode>): Builder {
             this.batchingModeOverrides = batchingModeOverrides
             return this
         }
@@ -245,13 +246,13 @@ constructor(
          *
          * @param exerciseEventTypes the set of [ExerciseEventType]s to begin the exercise with
          */
-        fun setExerciseEventTypes(exerciseEventTypes: Set<ExerciseEventType<*>>): Builder {
+        public fun setExerciseEventTypes(exerciseEventTypes: Set<ExerciseEventType<*>>): Builder {
             this.exerciseEventTypes = exerciseEventTypes
             return this
         }
 
         /** Returns the built [ExerciseConfig]. */
-        fun build(): ExerciseConfig {
+        public fun build(): ExerciseConfig {
             return ExerciseConfig(
                 exerciseType,
                 dataTypes,
@@ -299,14 +300,14 @@ constructor(
         return builder.build()
     }
 
-    companion object {
+    public companion object {
         /**
          * Returns a fresh new [Builder].
          *
          * @param exerciseType the [ExerciseType] representing this exercise
          */
-        @JvmStatic fun builder(exerciseType: ExerciseType): Builder = Builder(exerciseType)
+        @JvmStatic public fun builder(exerciseType: ExerciseType): Builder = Builder(exerciseType)
 
-        public const val SWIMMING_POOL_LENGTH_UNSPECIFIED = 0.0f
+        public const val SWIMMING_POOL_LENGTH_UNSPECIFIED: Float = 0.0f
     }
 }

@@ -17,10 +17,10 @@
 package androidx.health.connect.client.records
 
 /** Result of the route associated with an exercise session a user does. */
-abstract class ExerciseRouteResult internal constructor() {
+public abstract class ExerciseRouteResult internal constructor() {
 
     /** Class containing data for an [ExerciseRoute]. */
-    class Data(val exerciseRoute: ExerciseRoute) : ExerciseRouteResult() {
+    public class Data(public val exerciseRoute: ExerciseRoute) : ExerciseRouteResult() {
 
         override fun equals(other: Any?): Boolean {
             if (other !is Data) {
@@ -39,7 +39,7 @@ abstract class ExerciseRouteResult internal constructor() {
     }
 
     /** Class indicating that a permission hasn't been granted and a value couldn't be returned. */
-    class ConsentRequired : ExerciseRouteResult() {
+    public class ConsentRequired : ExerciseRouteResult() {
         override fun equals(other: Any?): Boolean {
             return other is ConsentRequired
         }
@@ -54,7 +54,7 @@ abstract class ExerciseRouteResult internal constructor() {
     }
 
     /** Class indicating that there's no data to request permissions for. */
-    class NoData : ExerciseRouteResult() {
+    public class NoData : ExerciseRouteResult() {
         override fun equals(other: Any?): Boolean {
             return other is NoData
         }

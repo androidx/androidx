@@ -62,7 +62,7 @@ import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
 import kotlin.reflect.KClass
 
-val RECORDS_TYPE_NAME_MAP: Map<String, KClass<out Record>> =
+public val RECORDS_TYPE_NAME_MAP: Map<String, KClass<out Record>> =
     mapOf(
         "ActiveCaloriesBurned" to ActiveCaloriesBurnedRecord::class,
         "ActivityIntensity" to ActivityIntensityRecord::class,
@@ -108,5 +108,5 @@ val RECORDS_TYPE_NAME_MAP: Map<String, KClass<out Record>> =
         "Weight" to WeightRecord::class,
     )
 
-val RECORDS_CLASS_NAME_MAP: Map<KClass<out Record>, String> =
+public val RECORDS_CLASS_NAME_MAP: Map<KClass<out Record>, String> =
     RECORDS_TYPE_NAME_MAP.entries.associate { it.value to it.key }

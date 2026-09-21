@@ -23,7 +23,7 @@ import androidx.health.connect.client.records.Record
  *
  * @property record Updated or inserted record.
  */
-class UpsertionChange
+public class UpsertionChange
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(public val record: Record) : Change {
 

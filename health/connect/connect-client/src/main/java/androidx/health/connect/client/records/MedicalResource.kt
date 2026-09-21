@@ -57,12 +57,12 @@ import androidx.health.connect.client.records.MedicalResource.Companion.MEDICAL_
  * @property fhirResource The [FhirResource] that this `MedicalResource` represents.
  */
 @ExperimentalPersonalHealthRecordApi
-class MedicalResource(
-    @MedicalResourceType val type: Int,
-    val id: MedicalResourceId,
-    val dataSourceId: String,
-    val fhirVersion: FhirVersion,
-    val fhirResource: FhirResource,
+public class MedicalResource(
+    @MedicalResourceType public val type: Int,
+    public val id: MedicalResourceId,
+    public val dataSourceId: String,
+    public val fhirVersion: FhirVersion,
+    public val fhirResource: FhirResource,
 ) {
     @SuppressLint("NewApi") // already checked with a feature availability check
     internal val platformMedicalResource: PlatformMedicalResource =
@@ -109,51 +109,51 @@ class MedicalResource(
         return result
     }
 
-    companion object {
+    public companion object {
         /** Medical resource type that labels data as vaccines. */
-        const val MEDICAL_RESOURCE_TYPE_VACCINES = 1
+        public const val MEDICAL_RESOURCE_TYPE_VACCINES: Int = 1
 
         /** Medical resource type that labels data as allergies or intolerances. */
-        const val MEDICAL_RESOURCE_TYPE_ALLERGIES_INTOLERANCES = 2
+        public const val MEDICAL_RESOURCE_TYPE_ALLERGIES_INTOLERANCES: Int = 2
 
         /** Medical resource type that labels data as to do with pregnancy. */
-        const val MEDICAL_RESOURCE_TYPE_PREGNANCY = 3
+        public const val MEDICAL_RESOURCE_TYPE_PREGNANCY: Int = 3
 
         /** Medical resource type that labels data as social history. */
-        const val MEDICAL_RESOURCE_TYPE_SOCIAL_HISTORY = 4
+        public const val MEDICAL_RESOURCE_TYPE_SOCIAL_HISTORY: Int = 4
 
         /** Medical resource type that labels data as vital signs. */
-        const val MEDICAL_RESOURCE_TYPE_VITAL_SIGNS = 5
+        public const val MEDICAL_RESOURCE_TYPE_VITAL_SIGNS: Int = 5
 
         /** Medical resource type that labels data as results (Laboratory or pathology). */
-        const val MEDICAL_RESOURCE_TYPE_LABORATORY_RESULTS = 6
+        public const val MEDICAL_RESOURCE_TYPE_LABORATORY_RESULTS: Int = 6
 
         /**
          * Medical resource type that labels data as medical conditions (clinical condition,
          * problem, diagnosis etc).
          */
-        const val MEDICAL_RESOURCE_TYPE_CONDITIONS = 7
+        public const val MEDICAL_RESOURCE_TYPE_CONDITIONS: Int = 7
 
         /**
          * Medical resource type that labels data as procedures (actions taken on or for a patient).
          */
-        const val MEDICAL_RESOURCE_TYPE_PROCEDURES = 8
+        public const val MEDICAL_RESOURCE_TYPE_PROCEDURES: Int = 8
 
         /** Medical resource type that labels data as medication related. */
-        const val MEDICAL_RESOURCE_TYPE_MEDICATIONS = 9
+        public const val MEDICAL_RESOURCE_TYPE_MEDICATIONS: Int = 9
 
         /**
          * Medical resource type that labels data as related to personal details, including
          * demographic information such as name, date of birth, and contact details such as address
          * or telephone numbers.
          */
-        const val MEDICAL_RESOURCE_TYPE_PERSONAL_DETAILS = 10
+        public const val MEDICAL_RESOURCE_TYPE_PERSONAL_DETAILS: Int = 10
 
         /**
          * Medical resource type that labels data as related to practitioners. This is information
          * about the doctors, nurses, masseurs, physios, etc who have been involved with the user.
          */
-        const val MEDICAL_RESOURCE_TYPE_PRACTITIONER_DETAILS = 11
+        public const val MEDICAL_RESOURCE_TYPE_PRACTITIONER_DETAILS: Int = 11
 
         /**
          * Medical resource type that labels data as related to an encounter with a practitioner.
@@ -161,7 +161,7 @@ class MedicalResource(
          * videoconference appointments, and information about the time, location and organization
          * who is being met.
          */
-        const val MEDICAL_RESOURCE_TYPE_VISITS = 12
+        public const val MEDICAL_RESOURCE_TYPE_VISITS: Int = 12
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef(
@@ -179,6 +179,6 @@ class MedicalResource(
             MEDICAL_RESOURCE_TYPE_VITAL_SIGNS,
         )
         @Retention(AnnotationRetention.SOURCE)
-        annotation class MedicalResourceType
+        public annotation class MedicalResourceType
     }
 }

@@ -54,10 +54,10 @@ import kotlin.reflect.KClass
  * [includedDataSources] and [excludedDataSources] cannot both be set at the same time.
  */
 @ExperimentalMatchmakingApi
-class MatchmakingRequest(
-    val recordTypes: Set<KClass<out Record>> = emptySet(),
-    val includedDataSources: Set<DataOrigin> = emptySet(),
-    val excludedDataSources: Set<DataOrigin> = emptySet(),
+public class MatchmakingRequest(
+    public val recordTypes: Set<KClass<out Record>> = emptySet(),
+    public val includedDataSources: Set<DataOrigin> = emptySet(),
+    public val excludedDataSources: Set<DataOrigin> = emptySet(),
 ) {
     /*
      * Android U devices with SDK extension 23 and later use the platform's validation

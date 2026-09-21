@@ -82,7 +82,7 @@ public class ElevationGainedRecord(
         return "ElevationGainedRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, elevation=$elevation, metadata=$metadata)"
     }
 
-    companion object {
+    public companion object {
         private val MAX_ELEVATION_GAIN = (1000_000).meters
         private val MIN_ELEVATION_GAIN = (-1000_000).meters
 
@@ -91,7 +91,7 @@ public class ElevationGainedRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val ELEVATION_GAINED_TOTAL: AggregateMetric<Length> =
+        public val ELEVATION_GAINED_TOTAL: AggregateMetric<Length> =
             AggregateMetric.doubleMetric(
                 dataTypeName = "ElevationGained",
                 aggregationType = AggregateMetric.AggregationType.TOTAL,

@@ -83,18 +83,18 @@ public class Vo2MaxRecord(
         return "Vo2MaxRecord(time=$time, zoneOffset=$zoneOffset, vo2MillilitersPerMinuteKilogram=$vo2MillilitersPerMinuteKilogram, measurementMethod=$measurementMethod, metadata=$metadata)"
     }
 
-    companion object {
-        const val MEASUREMENT_METHOD_OTHER = 0
-        const val MEASUREMENT_METHOD_METABOLIC_CART = 1
-        const val MEASUREMENT_METHOD_HEART_RATE_RATIO = 2
-        const val MEASUREMENT_METHOD_COOPER_TEST = 3
-        const val MEASUREMENT_METHOD_MULTISTAGE_FITNESS_TEST = 4
-        const val MEASUREMENT_METHOD_ROCKPORT_FITNESS_TEST = 5
+    public companion object {
+        public const val MEASUREMENT_METHOD_OTHER: Int = 0
+        public const val MEASUREMENT_METHOD_METABOLIC_CART: Int = 1
+        public const val MEASUREMENT_METHOD_HEART_RATE_RATIO: Int = 2
+        public const val MEASUREMENT_METHOD_COOPER_TEST: Int = 3
+        public const val MEASUREMENT_METHOD_MULTISTAGE_FITNESS_TEST: Int = 4
+        public const val MEASUREMENT_METHOD_ROCKPORT_FITNESS_TEST: Int = 5
 
         /** Internal mappings useful for interoperability between integers and strings. */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val MEASUREMENT_METHOD_STRING_TO_INT_MAP: Map<String, Int> =
+        public val MEASUREMENT_METHOD_STRING_TO_INT_MAP: Map<String, Int> =
             mapOf(
                 MeasurementMethod.OTHER to MEASUREMENT_METHOD_OTHER,
                 MeasurementMethod.METABOLIC_CART to MEASUREMENT_METHOD_METABOLIC_CART,
@@ -107,7 +107,8 @@ public class Vo2MaxRecord(
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val MEASUREMENT_METHOD_INT_TO_STRING_MAP = MEASUREMENT_METHOD_STRING_TO_INT_MAP.reverse()
+        public val MEASUREMENT_METHOD_INT_TO_STRING_MAP: Map<Int, String> =
+            MEASUREMENT_METHOD_STRING_TO_INT_MAP.reverse()
     }
 
     /** VO2 max (maximal aerobic capacity) measurement method. */
@@ -134,5 +135,5 @@ public class Vo2MaxRecord(
             ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    annotation class MeasurementMethods
+    public annotation class MeasurementMethods
 }

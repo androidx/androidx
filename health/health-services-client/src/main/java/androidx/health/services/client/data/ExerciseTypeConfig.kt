@@ -24,10 +24,10 @@ import androidx.health.services.client.proto.DataProto
  * Developers should create instances of [ExerciseTypeConfig] using the constructor of available
  * subclasses, depending on their needs. Currently available types are: [GolfExerciseTypeConfig].
  */
-abstract class ExerciseTypeConfig internal constructor() {
+public abstract class ExerciseTypeConfig internal constructor() {
     internal abstract fun toProto(): DataProto.ExerciseTypeConfig
 
-    companion object {
+    public companion object {
         internal fun fromProto(proto: DataProto.ExerciseTypeConfig): ExerciseTypeConfig {
             if (proto.hasGolfShotTrackingPlaceInfo()) {
                 return GolfExerciseTypeConfig(

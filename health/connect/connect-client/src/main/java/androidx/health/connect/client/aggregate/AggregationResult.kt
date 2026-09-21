@@ -33,11 +33,11 @@ import androidx.health.connect.client.records.metadata.DataOrigin
  *
  * @see [androidx.health.connect.client.HealthConnectClient.aggregate]
  */
-class AggregationResult
+public class AggregationResult
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val longValues: Map<String, Long>,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val doubleValues: Map<String, Double>,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val longValues: Map<String, Long>,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val doubleValues: Map<String, Double>,
     /** Set of [DataOrigin]s that contributed to the aggregation result. */
     public val dataOrigins: Set<DataOrigin>,
 ) {
@@ -49,7 +49,7 @@ constructor(
      * @param metric an aggregate metric identifier.
      * @return whether given metric is set.
      */
-    operator fun contains(metric: AggregateMetric<*>): Boolean =
+    public operator fun contains(metric: AggregateMetric<*>): Boolean =
         when (metric.converter) {
             is Converter.FromLong -> metric.metricKey in longValues
             is Converter.FromDouble -> metric.metricKey in doubleValues
@@ -64,7 +64,7 @@ constructor(
      * @return the value of the metric, or null if not set.
      * @see contains
      */
-    operator fun <T : Any> get(metric: AggregateMetric<T>): T? =
+    public operator fun <T : Any> get(metric: AggregateMetric<T>): T? =
         when (metric.converter) {
             is Converter.FromLong -> longValues[metric.metricKey]?.let(metric.converter)
             is Converter.FromDouble -> doubleValues[metric.metricKey]?.let(metric.converter)

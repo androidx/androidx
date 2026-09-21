@@ -37,60 +37,60 @@ import androidx.annotation.RestrictTo
 )
 @Retention(AnnotationRetention.SOURCE)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-annotation class ErrorCode {
-    companion object {
+public annotation class ErrorCode {
+    public companion object {
         /** Health Platform is not installed. */
-        const val PROVIDER_NOT_INSTALLED = 1
+        public const val PROVIDER_NOT_INSTALLED: Int = 1
 
         /** Health Platform is installed, but disabled. */
-        const val PROVIDER_NOT_ENABLED = 2
+        public const val PROVIDER_NOT_ENABLED: Int = 2
 
         /**
          * Health Platform needs to be updated (client requires newer version of a particular API
          * method).
          */
-        const val PROVIDER_NEEDS_UPDATE = 3
+        public const val PROVIDER_NEEDS_UPDATE: Int = 3
 
         /** The calling application is trying to access data without required authorization. */
-        const val NO_PERMISSION = 4
+        public const val NO_PERMISSION: Int = 4
 
         /**
          * Calling application is trying to modify data it doesn't own, i.e. the data was inserted
          * by another app into Health Platform.
          */
-        const val INVALID_OWNERSHIP = 10000
+        public const val INVALID_OWNERSHIP: Int = 10000
 
         /** Calling application is not allowed to access Health Platform. */
-        const val NOT_ALLOWED = 10001
+        public const val NOT_ALLOWED: Int = 10001
 
         /** Requested permission list can't be empty. */
-        const val EMPTY_PERMISSION_LIST = 10002
+        public const val EMPTY_PERMISSION_LIST: Int = 10002
 
         /** Calling application is trying to request a permission it has not declared. */
-        const val PERMISSION_NOT_DECLARED = 10003
+        public const val PERMISSION_NOT_DECLARED: Int = 10003
 
         /**
          * Calling application is trying to request permissions without having a valid rationale
          * Activity declared to explain the use of permissions.
          */
-        const val INVALID_PERMISSION_RATIONALE_DECLARATION = 10004
+        public const val INVALID_PERMISSION_RATIONALE_DECLARATION: Int = 10004
 
         /** Requested data UID is invalid and could not be found. */
-        const val INVALID_UID = 10005
+        public const val INVALID_UID: Int = 10005
 
         /** Internal database error in Health Platform. */
-        const val DATABASE_ERROR = 10006
+        public const val DATABASE_ERROR: Int = 10006
 
         /** Some Internal error which will not get resolved even when client retry. */
-        const val INTERNAL_ERROR = 10007
+        public const val INTERNAL_ERROR: Int = 10007
 
         /**
          * Calling application is using a changes token that indicates some changes were cleaned
          * after its last sync and before this call.
          */
-        const val CHANGES_TOKEN_OUTDATED = 10008
+        public const val CHANGES_TOKEN_OUTDATED: Int = 10008
 
         /** Remote end failed to deliver response, likely due to parcel too large. */
-        const val TRANSACTION_TOO_LARGE = 10010
+        public const val TRANSACTION_TOO_LARGE: Int = 10010
     }
 }

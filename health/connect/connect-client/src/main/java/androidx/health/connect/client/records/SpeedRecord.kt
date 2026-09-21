@@ -73,7 +73,7 @@ public class SpeedRecord(
         return "SpeedRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, samples=$samples, metadata=$metadata)"
     }
 
-    companion object {
+    public companion object {
         private const val SPEED_TYPE_NAME = "SpeedSeries"
         private const val SPEED_FIELD_NAME = "speed"
         private val MAX_SPEED = 1000_000.metersPerSecond
@@ -83,7 +83,7 @@ public class SpeedRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val SPEED_AVG: AggregateMetric<Velocity> =
+        public val SPEED_AVG: AggregateMetric<Velocity> =
             AggregateMetric.doubleMetric(
                 dataTypeName = SPEED_TYPE_NAME,
                 aggregationType = AggregateMetric.AggregationType.AVERAGE,
@@ -96,7 +96,7 @@ public class SpeedRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val SPEED_MIN: AggregateMetric<Velocity> =
+        public val SPEED_MIN: AggregateMetric<Velocity> =
             AggregateMetric.doubleMetric(
                 dataTypeName = SPEED_TYPE_NAME,
                 aggregationType = AggregateMetric.AggregationType.MINIMUM,
@@ -109,7 +109,7 @@ public class SpeedRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val SPEED_MAX: AggregateMetric<Velocity> =
+        public val SPEED_MAX: AggregateMetric<Velocity> =
             AggregateMetric.doubleMetric(
                 dataTypeName = SPEED_TYPE_NAME,
                 aggregationType = AggregateMetric.AggregationType.MAXIMUM,
@@ -125,7 +125,7 @@ public class SpeedRecord(
      * @param speed Speed in [Velocity] unit. Valid range: 0-1000000 meters/sec.
      * @see SpeedRecord
      */
-    public class Sample(val time: Instant, val speed: Velocity) {
+    public class Sample(public val time: Instant, public val speed: Velocity) {
 
         init {
             speed.requireNotLess(other = speed.zero(), name = "speed")

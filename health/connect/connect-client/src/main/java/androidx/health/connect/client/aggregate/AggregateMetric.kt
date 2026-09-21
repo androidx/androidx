@@ -24,7 +24,7 @@ import java.time.Duration
  * @see AggregationResult.contains
  * @see AggregationResult.get
  */
-class AggregateMetric<out T : Any>
+public class AggregateMetric<out T : Any>
 internal constructor(
     /** Converter from a raw value to the resulting type [T]. Internal to SDK only. */
     internal val converter: Converter<*, T>,
@@ -137,7 +137,7 @@ internal constructor(
     }
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val metricKey: String
+    public val metricKey: String
         get() {
             val aggregationTypeString = aggregationType.aggregationTypeString
             return if (aggregationField == null) {

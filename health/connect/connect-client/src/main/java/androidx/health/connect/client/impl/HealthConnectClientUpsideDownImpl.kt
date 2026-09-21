@@ -106,7 +106,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 /** Implements the [HealthConnectClient] with APIs in UpsideDownCake. */
 @RequiresApi(api = 34)
-class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionController {
+public class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionController {
 
     private val executor = Dispatchers.Default.asExecutor()
 
@@ -114,7 +114,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
     private val healthConnectManager: HealthConnectManager
     private val revokePermissionsFunction: (Collection<String>) -> Unit
 
-    constructor(context: Context) : this(context, context::revokeSelfPermissionsOnKill)
+    public constructor(context: Context) : this(context, context::revokeSelfPermissionsOnKill)
 
     @VisibleForTesting
     internal constructor(

@@ -23,11 +23,11 @@ import androidx.health.platform.client.proto.ChangeProto
 
 /** Returned via [OnChangesListenerProxy]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class ChangesEvent(override val proto: ChangeProto.ChangesEvent) :
+public class ChangesEvent(override val proto: ChangeProto.ChangesEvent) :
     ProtoParcelable<ChangeProto.ChangesEvent>() {
-    companion object {
+    public companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<ChangesEvent> = newCreator {
+        public val CREATOR: Parcelable.Creator<ChangesEvent> = newCreator {
             val proto = ChangeProto.ChangesEvent.parseFrom(it)
             ChangesEvent(proto)
         }

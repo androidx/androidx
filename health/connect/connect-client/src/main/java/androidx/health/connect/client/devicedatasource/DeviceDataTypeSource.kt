@@ -28,10 +28,10 @@ import kotlin.reflect.KClass
  * @property isUserEnabled whether the user has enabled this data type for the device
  */
 @ExperimentalDeviceDataSourceApi
-class DeviceDataTypeSource(
-    val dataType: KClass<out Record>,
-    val isAvailable: Boolean,
-    val isUserEnabled: Boolean,
+public class DeviceDataTypeSource(
+    public val dataType: KClass<out Record>,
+    public val isAvailable: Boolean,
+    public val isUserEnabled: Boolean,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

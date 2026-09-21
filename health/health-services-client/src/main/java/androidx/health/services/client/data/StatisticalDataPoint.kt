@@ -23,19 +23,19 @@ import java.time.Instant
  * Data point that represents statistics on [SampleDataPoint]s between [start] and [end], though it
  * is not required to request samples separately.
  */
-class StatisticalDataPoint<T : Number>(
+public class StatisticalDataPoint<T : Number>(
     /** The [DataType] this [DataPoint] represents. */
     dataType: AggregateDataType<T, StatisticalDataPoint<T>>,
     /** The minimum observed value between [start] and [end]. */
-    val min: T,
+    public val min: T,
     /** The maximum observed value between [start] and [end]. */
-    val max: T,
+    public val max: T,
     /** The average observed value between [start] and [end]. */
-    val average: T,
+    public val average: T,
     /** The beginning of time this point covers. */
-    val start: Instant,
+    public val start: Instant,
     /** The end time this point covers. */
-    val end: Instant,
+    public val end: Instant,
 ) : DataPoint<T>(dataType) {
 
     internal val proto: DataProto.AggregateDataPoint =
@@ -51,7 +51,7 @@ class StatisticalDataPoint<T : Number>(
             )
             .build()
 
-    companion object {
+    public companion object {
         @Suppress("UNCHECKED_CAST")
         internal fun fromProto(
             proto: DataProto.AggregateDataPoint.StatisticalDataPoint

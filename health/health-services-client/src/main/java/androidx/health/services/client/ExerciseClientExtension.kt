@@ -116,7 +116,7 @@ public suspend fun ExerciseClient.startExercise(configuration: ExerciseConfig) {
  *   the call
  */
 @kotlin.jvm.Throws(HealthServicesException::class)
-public suspend fun ExerciseClient.pauseExercise() = pauseExerciseAsync().awaitWithException()
+public suspend fun ExerciseClient.pauseExercise(): Void = pauseExerciseAsync().awaitWithException()
 
 /**
  * Resumes the current exercise, if it is currently paused.
@@ -130,7 +130,8 @@ public suspend fun ExerciseClient.pauseExercise() = pauseExerciseAsync().awaitWi
  *   the call
  */
 @kotlin.jvm.Throws(HealthServicesException::class)
-public suspend fun ExerciseClient.resumeExercise() = resumeExerciseAsync().awaitWithException()
+public suspend fun ExerciseClient.resumeExercise(): Void =
+    resumeExerciseAsync().awaitWithException()
 
 /**
  * Ends the current exercise, if it has been started.
@@ -147,7 +148,7 @@ public suspend fun ExerciseClient.resumeExercise() = resumeExerciseAsync().await
  *   process the call
  */
 @kotlin.jvm.Throws(HealthServicesException::class)
-public suspend fun ExerciseClient.endExercise() = endExerciseAsync().awaitWithException()
+public suspend fun ExerciseClient.endExercise(): Void = endExerciseAsync().awaitWithException()
 
 /**
  * Flushes the sensors for the active exercise. This call should be used sparingly and will be
@@ -156,7 +157,7 @@ public suspend fun ExerciseClient.endExercise() = endExerciseAsync().awaitWithEx
  * @throws HealthServicesException if the Health Service fails to process the request
  */
 @kotlin.jvm.Throws(HealthServicesException::class)
-public suspend fun ExerciseClient.flush() = flushAsync().awaitWithException()
+public suspend fun ExerciseClient.flush(): Void = flushAsync().awaitWithException()
 
 /**
  * Ends the current lap, calls [ExerciseUpdateCallback.onLapSummaryReceived] with data spanning the
@@ -171,7 +172,7 @@ public suspend fun ExerciseClient.flush() = flushAsync().awaitWithException()
  *   to process the call
  */
 @kotlin.jvm.Throws(HealthServicesException::class)
-public suspend fun ExerciseClient.markLap() = markLapAsync().awaitWithException()
+public suspend fun ExerciseClient.markLap(): Void = markLapAsync().awaitWithException()
 
 /**
  * Returns the current [ExerciseInfo].
@@ -185,7 +186,7 @@ public suspend fun ExerciseClient.markLap() = markLapAsync().awaitWithException(
  * @throws HealthServicesException if Health Service fails to process the call
  */
 @kotlin.jvm.Throws(HealthServicesException::class)
-public suspend fun ExerciseClient.getCurrentExerciseInfo() =
+public suspend fun ExerciseClient.getCurrentExerciseInfo(): ExerciseInfo =
     getCurrentExerciseInfoAsync().awaitWithException()
 
 /**
@@ -198,7 +199,7 @@ public suspend fun ExerciseClient.getCurrentExerciseInfo() =
  */
 @Suppress("ExecutorRegistration")
 @kotlin.jvm.Throws(HealthServicesException::class)
-public suspend fun ExerciseClient.clearUpdateCallback(callback: ExerciseUpdateCallback) =
+public suspend fun ExerciseClient.clearUpdateCallback(callback: ExerciseUpdateCallback): Void =
     clearUpdateCallbackAsync(callback).awaitWithException()
 
 /**
@@ -211,7 +212,7 @@ public suspend fun ExerciseClient.clearUpdateCallback(callback: ExerciseUpdateCa
  * @throws HealthServicesException if Health Service fails to process the call
  */
 @kotlin.jvm.Throws(HealthServicesException::class)
-public suspend fun ExerciseClient.addGoalToActiveExercise(exerciseGoal: ExerciseGoal<*>) =
+public suspend fun ExerciseClient.addGoalToActiveExercise(exerciseGoal: ExerciseGoal<*>): Void =
     addGoalToActiveExerciseAsync(exerciseGoal).awaitWithException()
 
 /**
@@ -225,8 +226,9 @@ public suspend fun ExerciseClient.addGoalToActiveExercise(exerciseGoal: Exercise
  * @throws HealthServicesException if Health Service fails to process the call
  */
 @kotlin.jvm.Throws(HealthServicesException::class)
-public suspend fun ExerciseClient.removeGoalFromActiveExercise(exerciseGoal: ExerciseGoal<*>) =
-    removeGoalFromActiveExerciseAsync(exerciseGoal).awaitWithException()
+public suspend fun ExerciseClient.removeGoalFromActiveExercise(
+    exerciseGoal: ExerciseGoal<*>
+): Void = removeGoalFromActiveExerciseAsync(exerciseGoal).awaitWithException()
 
 /**
  * Enables or disables auto pause/resume for the current exercise.
@@ -235,8 +237,9 @@ public suspend fun ExerciseClient.removeGoalFromActiveExercise(exerciseGoal: Exe
  * @throws HealthServicesException if Health Service fails to process the call
  */
 @kotlin.jvm.Throws(HealthServicesException::class)
-public suspend fun ExerciseClient.overrideAutoPauseAndResumeForActiveExercise(enabled: Boolean) =
-    overrideAutoPauseAndResumeForActiveExerciseAsync(enabled).awaitWithException()
+public suspend fun ExerciseClient.overrideAutoPauseAndResumeForActiveExercise(
+    enabled: Boolean
+): Void = overrideAutoPauseAndResumeForActiveExerciseAsync(enabled).awaitWithException()
 
 /**
  * Sets the batching mode for the current exercise synchronously.
@@ -249,7 +252,7 @@ public suspend fun ExerciseClient.overrideAutoPauseAndResumeForActiveExercise(en
 @kotlin.jvm.Throws(HealthServicesException::class)
 public suspend fun ExerciseClient.overrideBatchingModesForActiveExercise(
     batchingModes: Set<BatchingMode>
-) = overrideBatchingModesForActiveExerciseAsync(batchingModes).awaitWithException()
+): Void = overrideBatchingModesForActiveExerciseAsync(batchingModes).awaitWithException()
 
 /**
  * Returns the [ExerciseCapabilities] of this client for the device.
@@ -263,7 +266,8 @@ public suspend fun ExerciseClient.overrideBatchingModesForActiveExercise(
  * @throws HealthServicesException if Health Service fails to process the call
  */
 @kotlin.jvm.Throws(HealthServicesException::class)
-public suspend fun ExerciseClient.getCapabilities() = getCapabilitiesAsync().awaitWithException()
+public suspend fun ExerciseClient.getCapabilities(): ExerciseCapabilities =
+    getCapabilitiesAsync().awaitWithException()
 
 /**
  * Updates the configurable exercise type attributes for the current exercise.
@@ -275,8 +279,9 @@ public suspend fun ExerciseClient.getCapabilities() = getCapabilitiesAsync().awa
  * @throws HealthServicesException if Health Service fails to process the call
  */
 @kotlin.jvm.Throws(HealthServicesException::class)
-public suspend fun ExerciseClient.updateExerciseTypeConfig(exerciseTypeConfig: ExerciseTypeConfig) =
-    updateExerciseTypeConfigAsync(exerciseTypeConfig).awaitWithException()
+public suspend fun ExerciseClient.updateExerciseTypeConfig(
+    exerciseTypeConfig: ExerciseTypeConfig
+): Void = updateExerciseTypeConfigAsync(exerciseTypeConfig).awaitWithException()
 
 /**
  * Adds a [DebouncedGoal] for an active exercise.
@@ -297,7 +302,7 @@ public suspend fun ExerciseClient.updateExerciseTypeConfig(exerciseTypeConfig: E
 @kotlin.jvm.Throws(HealthServicesException::class)
 public suspend fun ExerciseClient.addDebouncedGoalToActiveExercise(
     debouncedGoal: DebouncedGoal<*>
-) = addDebouncedGoalToActiveExerciseAsync(debouncedGoal).awaitWithException()
+): Void = addDebouncedGoalToActiveExerciseAsync(debouncedGoal).awaitWithException()
 
 /**
  * Removes a debounced goal from an active exercise.
@@ -308,4 +313,4 @@ public suspend fun ExerciseClient.addDebouncedGoalToActiveExercise(
 @kotlin.jvm.Throws(HealthServicesException::class)
 public suspend fun ExerciseClient.removeDebouncedGoalFromActiveExercise(
     debouncedGoal: DebouncedGoal<*>
-) = removeDebouncedGoalFromActiveExerciseAsync(debouncedGoal).awaitWithException()
+): Void = removeDebouncedGoalFromActiveExerciseAsync(debouncedGoal).awaitWithException()

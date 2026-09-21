@@ -30,7 +30,7 @@ import androidx.health.connect.client.changes.Change
  * @property changesTokenExpired Whether requested Changes-Token has expired.
  * @see [androidx.health.connect.client.HealthConnectClient.getChanges]
  */
-class ChangesResponse
+public class ChangesResponse
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(
     public val changes: List<Change>,

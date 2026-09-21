@@ -21,7 +21,7 @@ import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures an instance of user's intermenstrual bleeding, also known as spotting. */
-class IntermenstrualBleedingRecord(
+public class IntermenstrualBleedingRecord(
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata,

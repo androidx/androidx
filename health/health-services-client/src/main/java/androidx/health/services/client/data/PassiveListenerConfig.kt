@@ -81,7 +81,7 @@ public class PassiveListenerConfig(
          * @param shouldUserActivityInfoBeRequested whether to request user activity state tracking
          */
         @Suppress("MissingGetterMatchingBuilder")
-        fun setShouldUserActivityInfoBeRequested(
+        public fun setShouldUserActivityInfoBeRequested(
             shouldUserActivityInfoBeRequested: Boolean
         ): Builder {
             this.requestUserActivityState = shouldUserActivityInfoBeRequested

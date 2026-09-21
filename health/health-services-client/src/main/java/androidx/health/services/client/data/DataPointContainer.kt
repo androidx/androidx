@@ -26,16 +26,18 @@ package androidx.health.services.client.data
  * }
  * ```
  */
-class DataPointContainer(internal val dataPoints: Map<DataType<*, *>, List<DataPoint<*>>>) {
+public class DataPointContainer(internal val dataPoints: Map<DataType<*, *>, List<DataPoint<*>>>) {
 
     /** Constructs a [DataPointContainer] using a list of [DataPoint]s. */
-    constructor(dataPointList: List<DataPoint<*>>) : this(dataPointList.groupBy { it.dataType })
+    public constructor(
+        dataPointList: List<DataPoint<*>>
+    ) : this(dataPointList.groupBy { it.dataType })
 
     /** Set of [DataType]s contained within this [DataPointContainer]. */
-    val dataTypes: Set<DataType<*, *>> = dataPoints.keys
+    public val dataTypes: Set<DataType<*, *>> = dataPoints.keys
 
     /** Returns all [SampleDataPoint]s contained in this update. */
-    val sampleDataPoints: List<SampleDataPoint<*>>
+    public val sampleDataPoints: List<SampleDataPoint<*>>
         get() {
             return dataPoints
                 .flatMap { it.value }
@@ -44,7 +46,7 @@ class DataPointContainer(internal val dataPoints: Map<DataType<*, *>, List<DataP
         }
 
     /** Returns all [IntervalDataPoint]s contained in this update. */
-    val intervalDataPoints: List<IntervalDataPoint<*>>
+    public val intervalDataPoints: List<IntervalDataPoint<*>>
         get() {
             return dataPoints
                 .flatMap { it.value }
@@ -53,7 +55,7 @@ class DataPointContainer(internal val dataPoints: Map<DataType<*, *>, List<DataP
         }
 
     /** Returns all [CumulativeDataPoint]s contained in this update. */
-    val cumulativeDataPoints: List<CumulativeDataPoint<*>>
+    public val cumulativeDataPoints: List<CumulativeDataPoint<*>>
         get() {
             return dataPoints
                 .flatMap { it.value }
@@ -62,7 +64,7 @@ class DataPointContainer(internal val dataPoints: Map<DataType<*, *>, List<DataP
         }
 
     /** Returns all [StatisticalDataPoint]s contained in this update. */
-    val statisticalDataPoints: List<StatisticalDataPoint<*>>
+    public val statisticalDataPoints: List<StatisticalDataPoint<*>>
         get() {
             return dataPoints
                 .flatMap { it.value }
@@ -72,7 +74,7 @@ class DataPointContainer(internal val dataPoints: Map<DataType<*, *>, List<DataP
 
     /** Returns all [DataPoint] objects with a matching delta [type]. */
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any, D : DataPoint<T>> getData(type: DeltaDataType<T, D>): List<D> {
+    public fun <T : Any, D : DataPoint<T>> getData(type: DeltaDataType<T, D>): List<D> {
         return dataPoints[type] as? List<D> ?: emptyList()
     }
 
@@ -81,7 +83,7 @@ class DataPointContainer(internal val dataPoints: Map<DataType<*, *>, List<DataP
      * this [DataPointContainer].
      */
     @Suppress("UNCHECKED_CAST")
-    fun <T : Number, D : DataPoint<T>> getData(type: AggregateDataType<T, D>): D? {
+    public fun <T : Number, D : DataPoint<T>> getData(type: AggregateDataType<T, D>): D? {
         return (dataPoints[type] as? List<D>)?.lastOrNull()
     }
 }

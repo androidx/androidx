@@ -22,7 +22,7 @@ import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAUL
 
 @JvmDefaultWithCompatibility
 /** Interface for operations related to permissions. */
-interface PermissionController {
+public interface PermissionController {
 
     /**
      * Returns a set of all health permissions granted by the user to the calling app.
@@ -33,7 +33,7 @@ interface PermissionController {
      * @throws IllegalStateException If service is not available.
      * @sample androidx.health.connect.client.samples.GetPermissions
      */
-    suspend fun getGrantedPermissions(): Set<String>
+    public suspend fun getGrantedPermissions(): Set<String>
 
     /**
      * Revokes all previously granted [HealthPermission] by the user to the calling app.
@@ -42,9 +42,9 @@ interface PermissionController {
      * @throws java.io.IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
-    suspend fun revokeAllPermissions()
+    public suspend fun revokeAllPermissions()
 
-    companion object {
+    public companion object {
 
         /**
          * Creates an [ActivityResultContract] to request Health permissions.
@@ -56,7 +56,7 @@ interface PermissionController {
          */
         @JvmStatic
         @JvmOverloads
-        fun createRequestPermissionResultContract(
+        public fun createRequestPermissionResultContract(
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME
         ): ActivityResultContract<Set<String>, Set<String>> {
             return HealthPermissionsRequestContract(providerPackageName)

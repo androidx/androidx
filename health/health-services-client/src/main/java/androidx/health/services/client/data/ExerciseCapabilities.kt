@@ -33,7 +33,7 @@ public class ExerciseCapabilities(
     public val supportedBatchingModeOverrides: Set<BatchingMode> = emptySet(),
 ) {
 
-    constructor(
+    public constructor(
         typeToCapabilities: Map<ExerciseType, ExerciseTypeCapabilities>
     ) : this(typeToCapabilities, emptySet())
 

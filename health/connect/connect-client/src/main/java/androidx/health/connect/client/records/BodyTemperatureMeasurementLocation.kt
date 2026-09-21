@@ -20,17 +20,17 @@ import androidx.annotation.RestrictTo
 
 /** Where on the user's body a temperature measurement was taken from. */
 public object BodyTemperatureMeasurementLocation {
-    const val MEASUREMENT_LOCATION_UNKNOWN = 0
-    const val MEASUREMENT_LOCATION_ARMPIT = 1
-    const val MEASUREMENT_LOCATION_FINGER = 2
-    const val MEASUREMENT_LOCATION_FOREHEAD = 3
-    const val MEASUREMENT_LOCATION_MOUTH = 4
-    const val MEASUREMENT_LOCATION_RECTUM = 5
-    const val MEASUREMENT_LOCATION_TEMPORAL_ARTERY = 6
-    const val MEASUREMENT_LOCATION_TOE = 7
-    const val MEASUREMENT_LOCATION_EAR = 8
-    const val MEASUREMENT_LOCATION_WRIST = 9
-    const val MEASUREMENT_LOCATION_VAGINA = 10
+    public const val MEASUREMENT_LOCATION_UNKNOWN: Int = 0
+    public const val MEASUREMENT_LOCATION_ARMPIT: Int = 1
+    public const val MEASUREMENT_LOCATION_FINGER: Int = 2
+    public const val MEASUREMENT_LOCATION_FOREHEAD: Int = 3
+    public const val MEASUREMENT_LOCATION_MOUTH: Int = 4
+    public const val MEASUREMENT_LOCATION_RECTUM: Int = 5
+    public const val MEASUREMENT_LOCATION_TEMPORAL_ARTERY: Int = 6
+    public const val MEASUREMENT_LOCATION_TOE: Int = 7
+    public const val MEASUREMENT_LOCATION_EAR: Int = 8
+    public const val MEASUREMENT_LOCATION_WRIST: Int = 9
+    public const val MEASUREMENT_LOCATION_VAGINA: Int = 10
 
     internal const val ARMPIT = "armpit"
     internal const val FINGER = "finger"
@@ -46,7 +46,7 @@ public object BodyTemperatureMeasurementLocation {
     /** Internal mappings useful for interoperability between integers and strings. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @JvmField
-    val MEASUREMENT_LOCATION_STRING_TO_INT_MAP: Map<String, Int> =
+    public val MEASUREMENT_LOCATION_STRING_TO_INT_MAP: Map<String, Int> =
         mapOf(
             ARMPIT to MEASUREMENT_LOCATION_ARMPIT,
             FINGER to MEASUREMENT_LOCATION_FINGER,
@@ -62,7 +62,8 @@ public object BodyTemperatureMeasurementLocation {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @JvmField
-    val MEASUREMENT_LOCATION_INT_TO_STRING_MAP = MEASUREMENT_LOCATION_STRING_TO_INT_MAP.reverse()
+    public val MEASUREMENT_LOCATION_INT_TO_STRING_MAP: Map<Int, String> =
+        MEASUREMENT_LOCATION_STRING_TO_INT_MAP.reverse()
 }
 
 /** Where on the user's body a temperature measurement was taken from. */
@@ -85,4 +86,4 @@ public object BodyTemperatureMeasurementLocation {
         ]
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-annotation class BodyTemperatureMeasurementLocations
+public annotation class BodyTemperatureMeasurementLocations

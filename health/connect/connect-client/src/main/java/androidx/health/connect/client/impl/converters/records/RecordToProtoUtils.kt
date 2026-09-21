@@ -82,7 +82,7 @@ private fun DataProto.DataPoint.Builder.setMetadata(metadata: Metadata) = apply 
     }
 }
 
-fun Device.toProto(): DataProto.Device {
+public fun Device.toProto(): DataProto.Device {
     val obj = this
     return DataProto.Device.newBuilder()
         .apply {

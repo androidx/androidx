@@ -22,19 +22,19 @@ import java.time.Duration
 import java.time.Instant
 
 /** Data point that includes just the delta from the previous data point for [dataType]. */
-class IntervalDataPoint<T : Any>(
+public class IntervalDataPoint<T : Any>(
     /** The [DataType] this [DataPoint] represents. */
     override val dataType: DataType<T, out IntervalDataPoint<T>>,
     /** The value of this data point. */
-    val value: T,
+    public val value: T,
     /** The beginning of the time period this [DataPoint] represents. */
-    val startDurationFromBoot: Duration,
+    public val startDurationFromBoot: Duration,
     /** The end of the time period this [DataPoint] represents. */
-    val endDurationFromBoot: Duration,
+    public val endDurationFromBoot: Duration,
     /** OEM specific data. In general, this should not be relied upon by non-preloaded apps. */
-    val metadata: Bundle = Bundle(),
+    public val metadata: Bundle = Bundle(),
     /** Accuracy of this DataPoint. */
-    val accuracy: DataPointAccuracy? = null,
+    public val accuracy: DataPointAccuracy? = null,
 ) : DataPoint<T>(dataType) {
 
     internal val proto: DataProto.DataPoint = getDataPointProto()
@@ -59,7 +59,7 @@ class IntervalDataPoint<T : Any>(
      * @param bootInstant the [Instant] at which the system booted, this can be computed by
      *   `Instant.ofEpochMilli(System.currentTimeMillis() - SystemClock.elapsedRealtime()) `
      */
-    fun getStartInstant(bootInstant: Instant): Instant {
+    public fun getStartInstant(bootInstant: Instant): Instant {
         return bootInstant.plus(startDurationFromBoot)
     }
 
@@ -69,7 +69,7 @@ class IntervalDataPoint<T : Any>(
      * @param bootInstant the [Instant] at which the system booted, this can be computed by
      *   `Instant.ofEpochMilli(System.currentTimeMillis() - SystemClock.elapsedRealtime())`
      */
-    fun getEndInstant(bootInstant: Instant): Instant {
+    public fun getEndInstant(bootInstant: Instant): Instant {
         return bootInstant.plus(endDurationFromBoot)
     }
 

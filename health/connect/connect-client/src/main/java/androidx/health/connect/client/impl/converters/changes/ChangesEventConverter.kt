@@ -26,7 +26,7 @@ import androidx.health.connect.client.impl.converters.records.toRecord
 import androidx.health.platform.client.proto.ChangeProto
 
 /** Converts proto response to public API object. */
-fun toApiChangesEvent(proto: ChangeProto.ChangesEvent): ChangesEvent {
+public fun toApiChangesEvent(proto: ChangeProto.ChangesEvent): ChangesEvent {
     return ChangesEvent(
         changes = extractApiChanges(proto.changesList),
         nextChangesToken = proto.nextChangesToken,

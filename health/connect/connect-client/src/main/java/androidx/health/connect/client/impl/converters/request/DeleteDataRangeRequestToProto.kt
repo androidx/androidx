@@ -26,7 +26,7 @@ import androidx.health.platform.client.proto.RequestProto
 import kotlin.reflect.KClass
 
 /** Converts public API object into internal proto for ipc. */
-fun toDeleteDataRangeRequestProto(
+public fun toDeleteDataRangeRequestProto(
     dataTypeKC: KClass<out Record>,
     timeRangeFilter: TimeRangeFilter,
 ): RequestProto.DeleteDataRangeRequest =

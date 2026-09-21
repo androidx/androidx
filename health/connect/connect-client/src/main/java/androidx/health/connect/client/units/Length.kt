@@ -17,32 +17,32 @@
 package androidx.health.connect.client.units
 
 /** Represents a unit of length. Supported units: meters, kilometers, miles, inches and feet. */
-class Length private constructor(private val value: Double, private val type: Type) :
+public class Length private constructor(private val value: Double, private val type: Type) :
     Comparable<Length> {
 
     /** Returns the length in meters. */
     @get:JvmName("getMeters")
-    val inMeters: Double
+    public val inMeters: Double
         get() = value * type.metersPerUnit
 
     /** Returns the length in kilometers. */
     @get:JvmName("getKilometers")
-    val inKilometers: Double
+    public val inKilometers: Double
         get() = get(type = Type.KILOMETERS)
 
     /** Returns the length in miles. */
     @get:JvmName("getMiles")
-    val inMiles: Double
+    public val inMiles: Double
         get() = get(type = Type.MILES)
 
     /** Returns the length in inches. */
     @get:JvmName("getInches")
-    val inInches: Double
+    public val inInches: Double
         get() = get(type = Type.INCHES)
 
     /** Returns the length in feet. */
     @get:JvmName("getFeet")
-    val inFeet: Double
+    public val inFeet: Double
         get() = get(type = Type.FEET)
 
     private fun get(type: Type): Double =
@@ -73,23 +73,23 @@ class Length private constructor(private val value: Double, private val type: Ty
 
     override fun toString(): String = "$value ${type.name.lowercase()}"
 
-    companion object {
+    public companion object {
         private val ZEROS = Type.values().associateWith { Length(value = 0.0, type = it) }
 
         /** Creates [Length] with the specified value in meters. */
-        @JvmStatic fun meters(value: Double): Length = Length(value, Type.METERS)
+        @JvmStatic public fun meters(value: Double): Length = Length(value, Type.METERS)
 
         /** Creates [Length] with the specified value in kilometers. */
-        @JvmStatic fun kilometers(value: Double): Length = Length(value, Type.KILOMETERS)
+        @JvmStatic public fun kilometers(value: Double): Length = Length(value, Type.KILOMETERS)
 
         /** Creates [Length] with the specified value in miles. */
-        @JvmStatic fun miles(value: Double): Length = Length(value, Type.MILES)
+        @JvmStatic public fun miles(value: Double): Length = Length(value, Type.MILES)
 
         /** Creates [Length] with the specified value in inches. */
-        @JvmStatic fun inches(value: Double): Length = Length(value, Type.INCHES)
+        @JvmStatic public fun inches(value: Double): Length = Length(value, Type.INCHES)
 
         /** Creates [Length] with the specified value in feet. */
-        @JvmStatic fun feet(value: Double): Length = Length(value, Type.FEET)
+        @JvmStatic public fun feet(value: Double): Length = Length(value, Type.FEET)
     }
 
     private enum class Type {
@@ -115,100 +115,100 @@ class Length private constructor(private val value: Double, private val type: Ty
 
 /** Creates [Length] with the specified value in meters. */
 @get:JvmSynthetic
-val Double.meters: Length
+public val Double.meters: Length
     get() = Length.meters(value = this)
 
 /** Creates [Length] with the specified value in meters. */
 @get:JvmSynthetic
-val Long.meters: Length
+public val Long.meters: Length
     get() = toDouble().meters
 
 /** Creates [Length] with the specified value in meters. */
 @get:JvmSynthetic
-val Float.meters: Length
+public val Float.meters: Length
     get() = toDouble().meters
 
 /** Creates [Length] with the specified value in meters. */
 @get:JvmSynthetic
-val Int.meters: Length
+public val Int.meters: Length
     get() = toDouble().meters
 
 /** Creates [Length] with the specified value in kilometers. */
 @get:JvmSynthetic
-val Double.kilometers: Length
+public val Double.kilometers: Length
     get() = Length.kilometers(value = this)
 
 /** Creates [Length] with the specified value in kilometers. */
 @get:JvmSynthetic
-val Float.kilometers: Length
+public val Float.kilometers: Length
     get() = toDouble().kilometers
 
 /** Creates [Length] with the specified value in kilometers. */
 @get:JvmSynthetic
-val Long.kilometers: Length
+public val Long.kilometers: Length
     get() = toDouble().kilometers
 
 /** Creates [Length] with the specified value in kilometers. */
 @get:JvmSynthetic
-val Int.kilometers: Length
+public val Int.kilometers: Length
     get() = toDouble().kilometers
 
 /** Creates [Length] with the specified value in miles. */
 @get:JvmSynthetic
-val Double.miles: Length
+public val Double.miles: Length
     get() = Length.miles(value = this)
 
 /** Creates [Length] with the specified value in miles. */
 @get:JvmSynthetic
-val Float.miles: Length
+public val Float.miles: Length
     get() = toDouble().miles
 
 /** Creates [Length] with the specified value in miles. */
 @get:JvmSynthetic
-val Long.miles: Length
+public val Long.miles: Length
     get() = toDouble().miles
 
 /** Creates [Length] with the specified value in miles. */
 @get:JvmSynthetic
-val Int.miles: Length
+public val Int.miles: Length
     get() = toDouble().miles
 
 /** Creates [Length] with the specified value in inches. */
 @get:JvmSynthetic
-val Double.inches: Length
+public val Double.inches: Length
     get() = Length.inches(value = this)
 
 /** Creates [Length] with the specified value in inches. */
 @get:JvmSynthetic
-val Float.inches: Length
+public val Float.inches: Length
     get() = toDouble().inches
 
 /** Creates [Length] with the specified value in inches. */
 @get:JvmSynthetic
-val Long.inches: Length
+public val Long.inches: Length
     get() = toDouble().inches
 
 /** Creates [Length] with the specified value in inches. */
 @get:JvmSynthetic
-val Int.inches: Length
+public val Int.inches: Length
     get() = toDouble().inches
 
 /** Creates [Length] with the specified value in feet. */
 @get:JvmSynthetic
-val Double.feet: Length
+public val Double.feet: Length
     get() = Length.feet(value = this)
 
 /** Creates [Length] with the specified value in feet. */
 @get:JvmSynthetic
-val Float.feet: Length
+public val Float.feet: Length
     get() = toDouble().feet
 
 /** Creates [Length] with the specified value in feet. */
 @get:JvmSynthetic
-val Long.feet: Length
+public val Long.feet: Length
     get() = toDouble().feet
 
 /** Creates [Length] with the specified value in feet. */
 @get:JvmSynthetic
-val Int.feet: Length
+public val Int.feet: Length
     get() = toDouble().feet

@@ -27,27 +27,27 @@ import androidx.annotation.RestrictTo
  * @param completionGoal The goal that must be completed to finish this step.
  * @param performanceTargets Performance related targets that should be met during this step.
  */
-class PlannedExerciseStep(
-    @property:ExerciseSegment.Companion.ExerciseSegmentTypes val exerciseType: Int,
-    @property:ExercisePhase val exercisePhase: Int,
-    val completionGoal: ExerciseCompletionGoal,
-    val performanceTargets: List<ExercisePerformanceTarget>,
-    val description: String? = null,
+public class PlannedExerciseStep(
+    @property:ExerciseSegment.Companion.ExerciseSegmentTypes public val exerciseType: Int,
+    @property:ExercisePhase public val exercisePhase: Int,
+    public val completionGoal: ExerciseCompletionGoal,
+    public val performanceTargets: List<ExercisePerformanceTarget>,
+    public val description: String? = null,
 ) {
-    companion object {
+    public companion object {
         /* Next Id: 6. */
         /** An unknown phase of exercise. */
-        const val EXERCISE_PHASE_UNKNOWN = 0
+        public const val EXERCISE_PHASE_UNKNOWN: Int = 0
         /** A warmup. */
-        const val EXERCISE_PHASE_WARMUP = 1
+        public const val EXERCISE_PHASE_WARMUP: Int = 1
         /** A rest. */
-        const val EXERCISE_PHASE_REST = 2
+        public const val EXERCISE_PHASE_REST: Int = 2
         /** Active exercise. */
-        const val EXERCISE_PHASE_ACTIVE = 3
+        public const val EXERCISE_PHASE_ACTIVE: Int = 3
         /** Cooldown exercise, typically at the end of a workout. */
-        const val EXERCISE_PHASE_COOLDOWN = 4
+        public const val EXERCISE_PHASE_COOLDOWN: Int = 4
         /** Lower intensity, active exercise. */
-        const val EXERCISE_PHASE_RECOVERY = 5
+        public const val EXERCISE_PHASE_RECOVERY: Int = 5
 
         /** List of supported exercise phase types. */
         @Retention(AnnotationRetention.SOURCE)
@@ -63,7 +63,7 @@ class PlannedExerciseStep(
                     EXERCISE_PHASE_RECOVERY,
                 ]
         )
-        annotation class ExercisePhase
+        public annotation class ExercisePhase
     }
 
     override fun equals(other: Any?): Boolean {

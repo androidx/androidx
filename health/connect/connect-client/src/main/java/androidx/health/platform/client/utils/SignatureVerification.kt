@@ -28,10 +28,10 @@ import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAUL
 import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_PACKAGE_NAME
 import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_RELEASE_CERT_SHA256
 
-@VisibleForTesting @JvmField var sBypassSignatureCheckForTesting = false
+@VisibleForTesting @JvmField public var sBypassSignatureCheckForTesting: Boolean = false
 
 /** Returns whether the target package's signature is valid. */
-fun isTargetSignatureValid(packageManager: PackageManager, packageName: String): Boolean {
+public fun isTargetSignatureValid(packageManager: PackageManager, packageName: String): Boolean {
     if (sBypassSignatureCheckForTesting) {
         return true
     }
