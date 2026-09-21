@@ -32,7 +32,7 @@ import java.io.OutputStream
  * [DataStore][androidx.datastore.core.DataStore] using the
  * [DataStoreFactory#create][androidx.datastore.core.DataStoreFactory.create] function.
  */
-object PreferencesFileSerializer : Serializer<Preferences> {
+public object PreferencesFileSerializer : Serializer<Preferences> {
     internal const val fileExtension = "preferences_pb"
 
     override val defaultValue: Preferences

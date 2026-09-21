@@ -67,5 +67,4 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android DataStore Core - contains wrappers for using DataStore using RxJava2"
-    legacyDisableKotlinStrictApiMode = true
 }

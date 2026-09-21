@@ -36,7 +36,7 @@ import kotlinx.coroutines.sync.withLock
  *   doesn't support cross process use cases.
  * @param produceFile The file producer that returns the file that will be read and written.
  */
-class FileStorage<T>(
+public class FileStorage<T>(
     private val serializer: Serializer<T>,
     private val coordinatorProducer: (File) -> InterProcessCoordinator = {
         createSingleProcessCoordinator(it)

@@ -32,4 +32,7 @@ import kotlin.jvm.JvmName
  * @return An instance of a `DirectBootUsageException` or the provided [exception].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-expect fun wrapExceptionIfDueToDirectBoot(parentDirPath: String?, exception: Exception): Exception
+public expect fun wrapExceptionIfDueToDirectBoot(
+    parentDirPath: String?,
+    exception: Exception,
+): Exception

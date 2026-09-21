@@ -43,7 +43,7 @@ import okio.ByteString.Companion.toByteString
  * [DataStore][androidx.datastore.core.DataStore] using the
  * [DataStoreFactory#create][androidx.datastore.core.DataStoreFactory.create] function.
  */
-actual object PreferencesSerializer : OkioSerializer<Preferences> {
+public actual object PreferencesSerializer : OkioSerializer<Preferences> {
     private val delegateJsonSerializer =
         WebSerializer(JsonObject.serializer(), JsonObject(emptyMap()))
 
