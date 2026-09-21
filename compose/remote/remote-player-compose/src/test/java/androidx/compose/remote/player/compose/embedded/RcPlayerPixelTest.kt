@@ -19,13 +19,15 @@ package androidx.compose.remote.player.compose.embedded
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color as AndroidColor
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
+import androidx.compose.remote.core.RemoteClock
+import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.layout.Container
+import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -47,6 +49,7 @@ import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -57,10 +60,11 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
+import com.google.common.truth.Truth.assertThat
+import java.io.ByteArrayInputStream
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -75,9 +79,7 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class RcPlayerPixelTest {
 
-    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
-
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
     @get:Rule val captureRule = RemoteCaptureTestRule()
 
@@ -370,7 +372,7 @@ class RcPlayerPixelTest {
     fun roundedClipRectActuallyClipsAndUpdatesReactively() {
         val d = rule.density.density
         val document = runBlocking {
-            captureRule.captureDocument(context = rule.activity) {
+            captureRule.captureDocument(context = ApplicationProvider.getApplicationContext()) {
                 val radius = remember {
                     createNamedRemoteFloatExpression("radius") { 0f.rf }
                 }
@@ -415,7 +417,7 @@ class RcPlayerPixelTest {
         val d = rule.density.density
         val initialData = floatArrayOf(20f, 60f, 90f)
         val document = runBlocking {
-            captureRule.captureDocument(context = rule.activity) {
+            captureRule.captureDocument(context = ApplicationProvider.getApplicationContext()) {
                 val chartData = remember {
                     createNamedRemoteFloatArray(
                         name = "chartData",
@@ -518,5 +520,38 @@ class RcPlayerPixelTest {
     private fun CoreDocument.getVariableIdByName(name: String): Int {
         return findVariableId(getOperations(), name)
             ?: throw IllegalArgumentException("Named variable not found: $name")
+    }
+
+    /**
+     * Direct non-Component paint operations placed inside RootLayoutComponent (without a child
+     * CanvasLayout) must still execute when rendered through the embedded player.
+     */
+    @Test
+    fun rootLayoutComponent_executesDirectDrawOperations() {
+        val writer = RemoteComposeWriterAndroid(100, 100, "test", AndroidxRcPlatformServices())
+        writer.root {
+            writer.getRcPaint().setColor(0xFFFF0000.toInt()).commit()
+            writer.drawRect(0f, 0f, 100f, 100f)
+        }
+        val bytes = writer.buffer()
+        val document =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                ByteArrayInputStream(bytes, 0, writer.bufferSize()).use {
+                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                }
+            }
+
+        rule.setContent {
+            Box(modifier = Modifier.size(100.dp).testTag("player")) {
+                RcPlayer(document = document)
+            }
+        }
+        rule.waitForIdle()
+
+        val bitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+        val centerPixel = bitmap.getPixel(50, 50)
+        assertThat(AndroidColor.red(centerPixel)).isGreaterThan(200)
+        assertThat(AndroidColor.green(centerPixel)).isLessThan(50)
+        assertThat(AndroidColor.blue(centerPixel)).isLessThan(50)
     }
 }

@@ -27,6 +27,7 @@ import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ShaderBrush
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -318,5 +319,20 @@ class RcPlayerPaintTest {
 
         assertThat(paintState.brush).isNotNull()
         assertThat(paintState.brush).isInstanceOf(ShaderBrush::class.java)
+    }
+
+    @Test
+    fun updatePaintFromBundle_tracksFilterBitmapAndImageFilterQuality() {
+        val remoteContext = AndroidRemoteContext()
+        val paintState = ComposeLocalPaint()
+        assertThat(paintState.filterQuality).isEqualTo(FilterQuality.Low)
+
+        val noFilterBundle = PaintBundle().apply { setFilterBitmap(false) }
+        updatePaintFromBundle(noFilterBundle, paintState, remoteContext, read = remoteContext)
+        assertThat(paintState.filterQuality).isEqualTo(FilterQuality.None)
+
+        val filterBundle = PaintBundle().apply { setFilterBitmap(true) }
+        updatePaintFromBundle(filterBundle, paintState, remoteContext, read = remoteContext)
+        assertThat(paintState.filterQuality).isEqualTo(FilterQuality.Low)
     }
 }

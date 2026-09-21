@@ -584,6 +584,7 @@ internal fun DrawScope.executeOperations(
                             alpha = paintState.alpha,
                             colorFilter = paintState.colorFilter,
                             blendMode = paintState.blendMode,
+                            filterQuality = paintState.filterQuality,
                         )
                     } else {
                         drawImage(
@@ -867,6 +868,7 @@ internal fun DrawScope.executeOperations(
                         alpha = paintState.alpha,
                         colorFilter = paintState.colorFilter,
                         blendMode = paintState.blendMode,
+                        filterQuality = paintState.filterQuality,
                     )
                     drawContext.canvas.restore()
                 }
@@ -899,6 +901,7 @@ internal fun DrawScope.executeOperations(
                             alpha = paintState.alpha,
                             colorFilter = paintState.colorFilter,
                             blendMode = paintState.blendMode,
+                            filterQuality = paintState.filterQuality,
                         )
                     }
                 }
