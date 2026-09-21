@@ -39,21 +39,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.LocalReduceMotion
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
-import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IndicatorImpl
 import androidx.wear.compose.material3.IndicatorState
 import androidx.wear.compose.material3.LocalScaffoldState
 import androidx.wear.compose.material3.OffsetOverscrollEffect
-import androidx.wear.compose.material3.R
 import androidx.wear.compose.material3.ScalingLazyColumnStateAdapter
 import androidx.wear.compose.material3.ScrollIndicatorColors
 import androidx.wear.compose.material3.ScrollIndicatorDefaults
@@ -376,18 +372,6 @@ private fun GestureScrollIndicator(
     }
 
     val isRtl = (LocalLayoutDirection.current == LayoutDirection.Rtl)
-    val density = LocalDensity.current
-    val backgroundPainter =
-        painterResource(R.drawable.wear_one_handed_gesture_indicator_pointer_background)
-    val backgroundSize =
-        remember(density) {
-            with(density) {
-                DpSize(
-                    backgroundPainter.intrinsicSize.width.toDp(),
-                    backgroundPainter.intrinsicSize.height.toDp(),
-                )
-            }
-        }
 
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
@@ -401,18 +385,16 @@ private fun GestureScrollIndicator(
                                 pivotFractionY = 0.5f,
                             )
                     }
-                    .size(backgroundSize),
+                    .size(POINTER_BACKGROUND_SIZE),
             contentAlignment = Alignment.CenterStart,
         ) {
-            Icon(
-                painter = backgroundPainter,
-                contentDescription = null,
-                tint = gestureIndicatorBackgroundColor,
+            GestureIndicatorPointerBackground(
+                color = gestureIndicatorBackgroundColor,
                 modifier = Modifier.graphicsLayer { scaleX = if (isRtl) -1f else 1f },
             )
 
             Box(
-                modifier = Modifier.size(backgroundSize.height),
+                modifier = Modifier.size(POINTER_BACKGROUND_HEIGHT),
                 contentAlignment = Alignment.Center,
             ) {
                 if (gestureConfiguration.action == OneHandedGestureAction.Dismiss) {
