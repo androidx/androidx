@@ -128,7 +128,7 @@ class GlanceWearWidgetManagerTest {
             executor.execute { outcomeReceiver.onError(RuntimeException()) }
         }
 
-        val unused = widgetManager.fetchActiveWidgets()
+        widgetManager.fetchActiveWidgets()
     }
 
     @Test
@@ -376,6 +376,67 @@ class GlanceWearWidgetManagerTest {
         val widgets = widgetManager.fetchActiveWidgets(TestWidget1::class)
         assertThat(widgets).isEmpty()
     }
+
+    @Test
+    fun getProviderForWidget_whenCacheHasOtherWidget_recoversMissingWidgetFromPackageManager() =
+        runTest {
+            whenever(widgetCache.getServiceToWidgetMapping())
+                .thenReturn(
+                    mapOf(
+                        TestWidgetService1::class.java.name to
+                            TestWidget1::class.java.canonicalName!!
+                    )
+                )
+
+            val shadowPackageManager = Shadows.shadowOf(context.packageManager)
+            val filter = IntentFilter(WearWidgetProviderInfo.ACTION_BIND_WIDGET_PROVIDER)
+            shadowPackageManager.addServiceIfNotPresent(componentLarge)
+            shadowPackageManager.addIntentFilterForService(componentLarge, filter)
+
+            val provider = widgetManager.getProviderForWidget(TestWidget2::class)
+
+            assertThat(provider).isEqualTo(componentLarge)
+            verify(widgetCache).update(any())
+        }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun fetchActiveWidgets_withClassArg_whenCacheHasOtherWidget_recoversMissingWidgetFromPackageManager() =
+        runTest {
+            whenever(tilesManager.getActiveTiles(any(), any())).thenAnswer { invocationOnMock ->
+                val executor = invocationOnMock.getArgument<Executor>(0)
+                val outcomeReceiver =
+                    invocationOnMock.getArgument<OutcomeReceiver<List<TileInstance>, Exception>>(1)
+                executor.execute {
+                    outcomeReceiver.onResult(listOf(tileInstanceFullScreen, tileInstanceLarge))
+                }
+            }
+            whenever(widgetCache.getServiceToWidgetMapping())
+                .thenReturn(
+                    mapOf(
+                        TestWidgetService1::class.java.name to
+                            TestWidget1::class.java.canonicalName!!
+                    )
+                )
+
+            val shadowPackageManager = Shadows.shadowOf(context.packageManager)
+            val filter = IntentFilter(WearWidgetProviderInfo.ACTION_BIND_WIDGET_PROVIDER)
+            shadowPackageManager.addServiceIfNotPresent(componentLarge)
+            shadowPackageManager.addIntentFilterForService(componentLarge, filter)
+
+            val widgets = widgetManager.fetchActiveWidgets(TestWidget2::class)
+
+            assertThat(widgets)
+                .containsExactly(
+                    ActiveWearWidgetHandle(
+                        provider = componentLarge,
+                        instanceId =
+                            WidgetInstanceId(WidgetInstanceId.WIDGET_CAROUSEL_NAMESPACE, 2),
+                        containerType = ContainerInfo.CONTAINER_TYPE_LARGE,
+                    )
+                )
+            verify(widgetCache).update(any())
+        }
 }
 
 private open class TestWidget1 : GlanceWearWidget() {
