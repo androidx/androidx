@@ -26,7 +26,7 @@ import kotlinx.coroutines.Job
 import okio.FileSystem
 import okio.Path
 
-actual object PreferenceDataStoreFactory {
+public actual object PreferenceDataStoreFactory {
     /**
      * Create an instance of [DataStore]. Never create more than one instance of DataStore for a
      * given file; doing so can break all DataStore functionality. You should consider managing your

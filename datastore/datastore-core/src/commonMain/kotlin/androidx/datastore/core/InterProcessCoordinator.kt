@@ -27,13 +27,13 @@ import kotlinx.coroutines.flow.Flow
  * and [createMultiProcessCoordinator] for a DataStore that needs to be accessed in multiple
  * processes.
  */
-interface InterProcessCoordinator {
+public interface InterProcessCoordinator {
 
     /**
      * A flow that emits a Unit when the data for the DataStore changes. [DataStore] collects this
      * flow to signal the action to invalidate cache and re-read data from disk.
      */
-    val updateNotifications: Flow<Unit>
+    public val updateNotifications: Flow<Unit>
 
     /**
      * Get the exclusive lock shared by the coordinators from DataStore instances (even from
@@ -43,7 +43,7 @@ interface InterProcessCoordinator {
      *
      * @param block The block of code that is performed with the lock resource.
      */
-    suspend fun <T> lock(block: suspend () -> T): T
+    public suspend fun <T> lock(block: suspend () -> T): T
 
     /**
      * Attempt to get the exclusive lock shared by the coordinators from DataStore instances (even
@@ -54,14 +54,14 @@ interface InterProcessCoordinator {
      * @param block The block of code that is performed after attempting to get the lock resource.
      *   Block will receive a Boolean parameter which is true if the try lock succeeded.
      */
-    suspend fun <T> tryLock(block: suspend (Boolean) -> T): T
+    public suspend fun <T> tryLock(block: suspend (Boolean) -> T): T
 
     /**
      * Atomically get the current version. [DataStore] instances for the same data use this method
      * to access the shared version for its cached data and internal state. Notice concurrent access
      * to the version should guarantee data consistency.
      */
-    suspend fun getVersion(): Int
+    public suspend fun getVersion(): Int
 
     /**
      * Atomically increment version and return the new version. [DataStore] instances for the same
@@ -72,7 +72,7 @@ interface InterProcessCoordinator {
      * detail for DataStore and implementers of this API should not make any assumption based on the
      * number of version increments.
      */
-    suspend fun incrementAndGetVersion(): Int
+    public suspend fun incrementAndGetVersion(): Int
 }
 
 /**
@@ -81,5 +81,5 @@ interface InterProcessCoordinator {
  * @param filePath The canonical file path of the file managed by [SingleProcessCoordinator]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun createSingleProcessCoordinator(filePath: String): InterProcessCoordinator =
+public fun createSingleProcessCoordinator(filePath: String): InterProcessCoordinator =
     SingleProcessCoordinator(filePath)

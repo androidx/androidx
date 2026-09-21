@@ -124,7 +124,7 @@ public abstract class Preferences internal constructor() {
      * @param block The lambda to apply to a mutable copy of these preferences.
      * @return A new read-only `Preferences` object with the applied changes.
      */
-    fun copy(block: (MutablePreferences) -> Unit): Preferences {
+    public fun copy(block: (MutablePreferences) -> Unit): Preferences {
         return MutablePreferences(asMap().toMutableMap(), startFrozen = false).also {
             block(it)
             it.freeze()

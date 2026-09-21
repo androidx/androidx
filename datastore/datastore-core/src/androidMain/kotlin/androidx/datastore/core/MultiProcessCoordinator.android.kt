@@ -202,5 +202,7 @@ internal class MultiProcessCoordinator(
  * @param file the File in which [DataStore] stores the data.
  */
 @Suppress("StreamFiles")
-fun createMultiProcessCoordinator(context: CoroutineContext, file: File): InterProcessCoordinator =
-    MultiProcessCoordinator(context, file)
+public fun createMultiProcessCoordinator(
+    context: CoroutineContext,
+    file: File,
+): InterProcessCoordinator = MultiProcessCoordinator(context, file)

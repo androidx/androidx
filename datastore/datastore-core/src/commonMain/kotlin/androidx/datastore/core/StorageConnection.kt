@@ -20,7 +20,7 @@ package androidx.datastore.core
  * StorageConnection provides a way to read and write a particular type <T> of data.
  * StorageConnections are created from [Storage] objects.
  */
-interface StorageConnection<T> : Closeable {
+public interface StorageConnection<T> : Closeable {
 
     /**
      * Creates a scope for reading to allow storage reads, and will try to obtain a read lock.
@@ -29,7 +29,7 @@ interface StorageConnection<T> : Closeable {
      *   `locked` parameter which is true if the try lock succeeded.
      * @throws IOException when there is an unrecoverable exception in reading.
      */
-    suspend fun <R> readScope(block: suspend ReadScope<T>.(locked: Boolean) -> R): R
+    public suspend fun <R> readScope(block: suspend ReadScope<T>.(locked: Boolean) -> R): R
 
     /**
      * Creates a write scope that guaranteed to only have one single writer, ensuring also that any
@@ -37,30 +37,32 @@ interface StorageConnection<T> : Closeable {
      *
      * @throws IOException when there is an unrecoverable exception in writing.
      */
-    suspend fun writeScope(block: suspend WriteScope<T>.() -> Unit)
+    public suspend fun writeScope(block: suspend WriteScope<T>.() -> Unit)
 
     /**
      * Provides a coordinator to guarantee data consistency across multiple threads and processes.
      */
-    val coordinator: InterProcessCoordinator
+    public val coordinator: InterProcessCoordinator
 }
 
 /** The scope used for a read transaction. */
-interface ReadScope<T> : Closeable {
+public interface ReadScope<T> : Closeable {
 
     /** Read the data <T> from the underlying storage. */
-    suspend fun readData(): T
+    public suspend fun readData(): T
 }
 
 /** The scope used for a write transaction. */
-interface WriteScope<T> : ReadScope<T> {
+public interface WriteScope<T> : ReadScope<T> {
 
     /** Writes the data <T> to the underlying storage. */
-    suspend fun writeData(value: T)
+    public suspend fun writeData(value: T)
 }
 
 /* Convenience method for opening a read scope, doing a single read, and closing the scope. */
-suspend fun <T> StorageConnection<T>.readData(): T = readScope { readData() }
+public suspend fun <T> StorageConnection<T>.readData(): T = readScope { readData() }
 
 /* Convenience method for opening a write scope, doing a single write, and closing the scope. */
-suspend fun <T> StorageConnection<T>.writeData(value: T) = writeScope { writeData(value) }
+public suspend fun <T> StorageConnection<T>.writeData(value: T): Unit = writeScope {
+    writeData(value)
+}

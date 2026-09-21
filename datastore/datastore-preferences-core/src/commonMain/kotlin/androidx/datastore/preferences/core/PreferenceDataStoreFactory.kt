@@ -25,7 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import okio.Path
 
-expect object PreferenceDataStoreFactory {
+public expect object PreferenceDataStoreFactory {
 
     /**
      * Create an instance of [DataStore]. Never create more than one instance of DataStore for a
