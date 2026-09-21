@@ -154,6 +154,9 @@ internal constructor(
      *   by the calling application.
      */
     public suspend fun triggerUpdate(context: Context, instanceId: WidgetInstanceId) {
+        if (context.isDebuggableBuild()) {
+            updateClient.sendUpdateBroadcast(context, instanceId = instanceId)
+        }
         triggerUpdateInternal(context, instanceId, cachedHandle = null)
     }
 
@@ -168,18 +171,25 @@ internal constructor(
      */
     @SuppressLint("ListIterator") // Not running inside Compose code.
     public suspend fun triggerUpdateAll(context: Context) {
-        // In debugging mode (such as Emulator), we would always trigger a pull update instead of
-        // trying to use push mechanism.
-        if (context.isDebuggingEnabled()) {
-            GlanceWearWidgetManager(context).getProviderForWidget(this::class)?.let {
-                triggerPullUpdate(context, it, instanceId = null)
-                return@triggerUpdateAll
+        val isDebuggable = context.isDebuggableBuild()
+        val isDeveloperMode = context.isDeveloperModeEnabled()
+        if (isDebuggable || isDeveloperMode) {
+            GlanceWearWidgetManager(context).getProviderForWidget(this::class)?.let { provider ->
+                if (isDebuggable) {
+                    updateClient.sendUpdateBroadcast(context, provider = provider)
+                }
+                // In developer mode (such as Emulator), we would always trigger a pull update
+                // instead of trying to use push mechanism.
+                if (isDeveloperMode) {
+                    triggerPullUpdate(context, provider, instanceId = null)
+                    return@triggerUpdateAll
+                }
             }
         }
 
         val activeWidgets = fetchActiveWidgets(context)
         if (activeWidgets.isEmpty()) {
-            Log.i(TAG, "No active instances found to update.")
+            Log.i(TAG, "No active instances found in the system to update.")
             return
         }
         coroutineScope {
@@ -203,11 +213,7 @@ internal constructor(
         instanceId: WidgetInstanceId,
         cachedHandle: ActiveWearWidgetHandle? = null,
     ) {
-        if (context.isDebuggableBuild()) {
-            updateClient.sendUpdateBroadcast(context, instanceId = instanceId)
-        }
-
-        if (context.isDebuggingEnabled()) {
+        if (context.isDeveloperModeEnabled()) {
             GlanceWearWidgetManager(context).getProviderForWidget(this::class)?.let {
                 triggerPullUpdate(context, it, instanceId)
                 return@triggerUpdateInternal
@@ -289,12 +295,12 @@ internal constructor(
             (this.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
 
         /**
-         * Returns whether debugging is enabled for the device.
+         * Returns whether developer mode is enabled for the device.
          *
-         * Debugging is enabled if the device is an emulator or if the developer settings are
+         * Developer mode is enabled if the device is an emulator or if the developer settings are
          * enabled.
          */
-        internal fun Context.isDebuggingEnabled(): Boolean =
+        internal fun Context.isDeveloperModeEnabled(): Boolean =
             isEmulator() ||
                 Settings.Global.getInt(
                     contentResolver,

@@ -65,6 +65,10 @@ internal class WidgetUpdateClientImpl(
         provider: ComponentName?,
         instanceId: WidgetInstanceId?,
     ) {
+        Log.d(
+            TAG,
+            "Broadcasting an update request to the widget tray emulator (provider=$provider, instanceId=$instanceId)",
+        )
         val intent =
             Intent(ACTION_REQUEST_TILE_UPDATE_BROADCAST_LEGACY).apply {
                 provider?.let { putExtra(Intent.EXTRA_COMPONENT_NAME, it) }
