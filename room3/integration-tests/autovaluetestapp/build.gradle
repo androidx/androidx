@@ -62,5 +62,4 @@ tasks.withType(JavaCompile) {
 }
 
 androidx {
-    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }
