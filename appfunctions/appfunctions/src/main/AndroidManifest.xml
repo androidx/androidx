@@ -22,8 +22,5 @@
         <property
             android:name="android.app.appfunctions.schema"
             android:value="app_functions_schema.xsd" />
-        <receiver
-            android:name="androidx.appfunctions.internal.AppFunctionCallerVerificationReceiver"
-            android:exported="false" />
     </application>
 </manifest>
