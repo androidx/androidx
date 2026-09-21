@@ -149,7 +149,13 @@ internal class ReflectionSupport(private val inlineClassConverter: InlineClassCo
             return it
         }
         val metadataAnnotation = javaClass.getAnnotation(Metadata::class.java) ?: return null
-        val metadata = KotlinClassMetadata.readStrict(metadataAnnotation)
+        val metadata =
+            try {
+                KotlinClassMetadata.readLenient(metadataAnnotation)
+            } catch (e: Throwable) {
+                // TODO(b/562965619) Implement a way to send exception to the agent client
+                null
+            }
         val mappedClass =
             when (metadata) {
                 is KotlinClassMetadata.Class -> MappedClass(metadata.kmClass, null)
