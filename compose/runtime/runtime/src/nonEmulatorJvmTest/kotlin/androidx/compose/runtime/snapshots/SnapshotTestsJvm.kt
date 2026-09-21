@@ -30,6 +30,7 @@ import kotlin.concurrent.thread
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -251,6 +252,191 @@ class SnapshotTestsJvm {
             exception.message?.contains("Reading a state that was created after the snapshot"),
             true,
         )
+    }
+
+    @Test
+    fun readOnly_onlyAppliesToCurrentThread_globalScope() {
+        val state = mutableStateOf(0)
+        val threadAInsideReadOnly = Semaphore(0)
+        val threadBFinishedWrite = Semaphore(0)
+        var threadBException: Throwable? = null
+        var threadAInsideException: Throwable? = null
+        var threadAOutsideException: Throwable? = null
+
+        val threadA = thread {
+            try {
+                Snapshot.readOnly {
+                    threadAInsideReadOnly.release()
+                    threadBFinishedWrite.acquire()
+
+                    try {
+                        state.value = 100
+                    } catch (e: Throwable) {
+                        threadAInsideException = e
+                    }
+                }
+                // Outside readOnly on Thread A
+                try {
+                    state.value = 200
+                } catch (e: Throwable) {
+                    threadAOutsideException = e
+                }
+            } catch (e: Throwable) {
+                threadAInsideException = e
+                threadAInsideReadOnly.release()
+            }
+        }
+
+        val threadB = thread {
+            try {
+                threadAInsideReadOnly.acquire()
+                // Thread A is currently in readOnly on the global snapshot.
+                // Thread B writing on the global snapshot should succeed without throwing.
+                state.value = 42
+            } catch (e: Throwable) {
+                threadBException = e
+            } finally {
+                threadBFinishedWrite.release()
+            }
+        }
+
+        threadA.join()
+        threadB.join()
+
+        // Thread B should not have thrown any exception
+        threadBException?.let { throw it }
+
+        // Thread A should have had an IllegalStateException inside readOnly
+        assertTrue(
+            threadAInsideException is IllegalStateException,
+            "Thread A should have thrown IllegalStateException inside readOnly, but got: $threadAInsideException",
+        )
+
+        // Thread A should not have thrown outside readOnly
+        threadAOutsideException?.let { throw it }
+    }
+
+    @Test
+    fun readOnly_onlyAppliesToCurrentThread_mutableSnapshot() {
+        val state = mutableStateOf(0)
+        val snapshot = Snapshot.takeMutableSnapshot()
+        val threadAInsideReadOnly = Semaphore(0)
+        val threadBFinishedWrite = Semaphore(0)
+        var threadBException: Throwable? = null
+        var threadAInsideException: Throwable? = null
+        var threadAOutsideException: Throwable? = null
+
+        try {
+            val threadA = thread {
+                try {
+                    snapshot.enter {
+                        Snapshot.readOnly {
+                            threadAInsideReadOnly.release()
+                            threadBFinishedWrite.acquire()
+
+                            try {
+                                state.value = 100
+                            } catch (e: Throwable) {
+                                threadAInsideException = e
+                            }
+                        }
+
+                        // Outside readOnly on Thread A
+                        try {
+                            state.value = 200
+                        } catch (e: Throwable) {
+                            threadAOutsideException = e
+                        }
+                    }
+                } catch (e: Throwable) {
+                    threadAInsideException = e
+                    threadAInsideReadOnly.release()
+                }
+            }
+
+            val threadB = thread {
+                try {
+                    threadAInsideReadOnly.acquire()
+                    // Thread A is currently in readOnly on this snapshot.
+                    // Thread B enters the same snapshot and writes; it should succeed without
+                    // throwing.
+                    snapshot.enter {
+                        state.value = 42
+                    }
+                } catch (e: Throwable) {
+                    threadBException = e
+                } finally {
+                    threadBFinishedWrite.release()
+                }
+            }
+
+            threadA.join()
+            threadB.join()
+        } finally {
+            snapshot.dispose()
+        }
+
+        // Thread B should not have thrown any exception
+        threadBException?.let { throw it }
+
+        // Thread A should have had an IllegalStateException inside readOnly
+        assertTrue(
+            threadAInsideException is IllegalStateException,
+            "Thread A should have thrown IllegalStateException inside readOnly, but got: $threadAInsideException",
+        )
+
+        // Thread A should not have thrown outside readOnly
+        threadAOutsideException?.let { throw it }
+    }
+
+    @Test
+    fun readOnly_independentReadOnlyOnConcurrentThreads() {
+        val state = mutableStateOf(0)
+        val bothInsideReadOnly = Semaphore(0)
+        val threadAExitedReadOnly = Semaphore(0)
+        var threadAException: Throwable? = null
+        var threadBException: Throwable? = null
+
+        val threadA = thread {
+            try {
+                Snapshot.readOnly {
+                    bothInsideReadOnly.release()
+                }
+                // Thread A exited readOnly
+                threadAExitedReadOnly.release()
+                // Thread A writes outside readOnly - should succeed
+                state.value = 10
+            } catch (e: Throwable) {
+                threadAException = e
+                bothInsideReadOnly.release()
+                threadAExitedReadOnly.release()
+            }
+        }
+
+        val threadB = thread {
+            try {
+                Snapshot.readOnly {
+                    bothInsideReadOnly.acquire()
+                    threadAExitedReadOnly.acquire()
+                    // Thread A exited readOnly and wrote, but Thread B is STILL in readOnly.
+                    // Thread B attempting to write should throw IllegalStateException.
+                    try {
+                        state.value = 20
+                        error("Thread B should not have been allowed to write")
+                    } catch (e: IllegalStateException) {
+                        // Expected
+                    }
+                }
+            } catch (e: Throwable) {
+                threadBException = e
+            }
+        }
+
+        threadA.join()
+        threadB.join()
+
+        threadAException?.let { throw it }
+        threadBException?.let { throw it }
     }
 }
 

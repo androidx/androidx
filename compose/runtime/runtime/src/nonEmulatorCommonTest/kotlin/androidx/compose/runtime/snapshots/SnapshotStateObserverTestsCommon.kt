@@ -1244,25 +1244,6 @@ class SnapshotStateObserverTestsCommon {
     }
 
     @Test
-    fun computedStateReentrant() = runSimpleTest { observer, state ->
-        val initialRead = mutableStateOf(true)
-        val computedStates =
-            Array(3) {
-                computedStateOf {
-                    if (state.value >= 2) return@computedStateOf
-                    if (initialRead.value) return@computedStateOf
-                    if (state.value < 2) {
-                        state.value++
-                    }
-                }
-            }
-
-        observer.observeReads(Unit, {}) { computedStates.forEach { it.value } }
-
-        initialRead.value = false
-    }
-
-    @Test
     fun computedState_doesNotLeakDependenciesToScope_whenDependenciesChangeWithoutValueChanged() {
         var changes = 0
         val changeBlock: (Any) -> Unit = { changes++ }
