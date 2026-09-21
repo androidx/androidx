@@ -20,7 +20,6 @@ import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
-import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.isConstructor
@@ -389,14 +388,13 @@ data class DocumentClassCreationInfo(
 
                 val builderType: XType =
                     if (annotatedElement.isMethod()) {
-                        val method = annotatedElement as XMethodElement
                         requireIsDeclaredTypeWithBuildMethod(
-                            method.returnType,
+                            annotatedElement.returnType,
                             documentClass,
                             annotatedElement,
                             helper,
                         )
-                        method.returnType
+                        annotatedElement.returnType
                     } else {
                         // A class is annotated with @Document.BuilderProducer. Use its constructors
                         // as the creation methods.
