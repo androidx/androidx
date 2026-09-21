@@ -23,10 +23,10 @@ import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.horizontalScroll
 import androidx.compose.remote.creation.compose.modifier.padding
-import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.previews.utils.RemoteComponentPreviewWrapper
@@ -34,6 +34,7 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 
@@ -41,7 +42,7 @@ import androidx.compose.ui.tooling.preview.PreviewWrapper
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun VerticalScrollSample() {
-    val scrollState = rememberRemoteScrollState()
+    val scrollState = remember { RemoteScrollState() }
     RemoteColumn(
         modifier =
             RemoteModifier.size(200.rdp).background(Color.LightGray.rc).verticalScroll(scrollState)
@@ -62,7 +63,7 @@ fun VerticalScrollSample() {
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun HorizontalScrollSample() {
-    val scrollState = rememberRemoteScrollState()
+    val scrollState = remember { RemoteScrollState() }
     RemoteRow(
         modifier =
             RemoteModifier.size(200.rdp, 100.rdp)

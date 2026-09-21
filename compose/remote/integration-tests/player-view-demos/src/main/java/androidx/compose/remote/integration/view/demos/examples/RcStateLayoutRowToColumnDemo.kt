@@ -50,14 +50,15 @@ import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
+import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.modifiers.RoundedRectShape
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 
 /**
  * Demo showing a StateLayout transition with 3 colored boxes. State 0 arranges the 3 boxes
@@ -144,7 +145,7 @@ fun RcStateLayoutRowToColumnDemo(): RemoteComposeContext {
 @Composable
 @RemoteComposable
 fun StateLayoutRowToColumnDemo() {
-    val isEndState = rememberMutableRemoteBoolean(false)
+    val isEndState = remember { MutableRemoteBoolean(false) }
 
     RemoteColumn(
         modifier = RemoteModifier.fillMaxSize().padding(16.rdp),

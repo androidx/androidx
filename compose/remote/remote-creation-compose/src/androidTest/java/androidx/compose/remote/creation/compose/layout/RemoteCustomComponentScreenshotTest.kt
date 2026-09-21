@@ -31,12 +31,12 @@ import androidx.compose.remote.creation.compose.capture.heightDp
 import androidx.compose.remote.creation.compose.capture.widthDp
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
+import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
+import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteBoolean
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteColor
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteFloat
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteInt
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteString
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.creation.compose.util.TestProfiles
@@ -44,6 +44,7 @@ import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.remote.player.core.platform.AndroidComponentSupport
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -219,7 +220,7 @@ class RemoteCustomComponentScreenshotTest {
     @Composable
     @RemoteComposable
     private fun RemoteIntProp() {
-        val remoteInt = rememberNamedRemoteInt("remote_int_prop", 123)
+        val remoteInt = remember { createNamedRemoteInt("remote_int_prop", 123) }
         RemoteCustomComponent(
             name = "SupportAllProperties",
             modifier = RemoteModifier.size(80.rdp, 30.rdp),
@@ -231,7 +232,9 @@ class RemoteCustomComponentScreenshotTest {
     @Composable
     @RemoteComposable
     private fun RemoteColorProp() {
-        val remoteColor = rememberNamedRemoteColor("remote_color_prop", Color(0xFF00FF00))
+        val remoteColor = remember {
+            createNamedRemoteColor("remote_color_prop", Color(0xFF00FF00))
+        }
         RemoteCustomComponent(
             name = "SupportAllProperties",
             modifier = RemoteModifier.size(80.rdp, 30.rdp),
@@ -243,7 +246,9 @@ class RemoteCustomComponentScreenshotTest {
     @Composable
     @RemoteComposable
     private fun RemoteFloatProp() {
-        val remoteFloat = rememberNamedRemoteFloat("remote_float_prop") { 2.71f.rf }
+        val remoteFloat = remember {
+            createNamedRemoteFloatExpression("remote_float_prop") { 2.71f.rf }
+        }
         RemoteCustomComponent(
             name = "SupportAllProperties",
             modifier = RemoteModifier.size(80.rdp, 30.rdp),
@@ -255,7 +260,7 @@ class RemoteCustomComponentScreenshotTest {
     @Composable
     @RemoteComposable
     private fun RemoteStringProp() {
-        val remoteString = rememberNamedRemoteString("remote_string_prop", "Remote")
+        val remoteString = remember { createNamedRemoteString("remote_string_prop", "Remote") }
         RemoteCustomComponent(
             name = "SupportAllProperties",
             modifier = RemoteModifier.size(80.rdp, 30.rdp),
@@ -267,7 +272,7 @@ class RemoteCustomComponentScreenshotTest {
     @Composable
     @RemoteComposable
     private fun RemoteBooleanProp() {
-        val remoteBoolean = rememberNamedRemoteBoolean("remote_boolean_prop", true)
+        val remoteBoolean = remember { createNamedRemoteBoolean("remote_boolean_prop", true) }
         RemoteCustomComponent(
             name = "SupportAllProperties",
             modifier = RemoteModifier.size(80.rdp, 30.rdp),

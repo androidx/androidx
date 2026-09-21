@@ -27,9 +27,18 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.painter.painterRemoteImageBitmap
+import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
+import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createNamedRemoteDp
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
+import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
+import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.remote.testing.LimitsRule
 import androidx.compose.remote.testing.RemoteCaptureTestRule
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.createBitmap
@@ -75,7 +84,7 @@ class NamedVariableDiscardedTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
-                    val namedColor = rememberNamedRemoteColor("testColor", Color.Red)
+                    val namedColor = remember { createNamedRemoteColor("testColor", Color.Red) }
                     RemoteBox(modifier = RemoteModifier.size(10.rdp).background(namedColor))
                 }
             }
@@ -89,8 +98,10 @@ class NamedVariableDiscardedTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
-                    val namedColor =
-                        rememberNamedRemoteColor("testColor", Color.Red).withGlobalScope()
+                    val namedColor = remember {
+                        createNamedRemoteColor("testColor", Color.Red)
+                    }
+                        .withGlobalScope()
                     RemoteBox(modifier = RemoteModifier.size(10.rdp).background(namedColor))
                 }
             }
@@ -107,7 +118,9 @@ class NamedVariableDiscardedTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
-                    val namedFloat = rememberNamedRemoteFloat("testFloat") { 10f.rf }
+                    val namedFloat = remember {
+                        createNamedRemoteFloatExpression("testFloat") { 10f.rf }
+                    }
                     RemoteBox(modifier = RemoteModifier.size(RemoteDp(namedFloat)))
                 }
             }
@@ -121,8 +134,10 @@ class NamedVariableDiscardedTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
-                    val namedFloat =
-                        rememberNamedRemoteFloat("testFloat") { 10f.rf }.withGlobalScope()
+                    val namedFloat = remember {
+                        createNamedRemoteFloatExpression("testFloat") { 10f.rf }
+                    }
+                        .withGlobalScope()
                     RemoteBox(modifier = RemoteModifier.size(RemoteDp(namedFloat)))
                 }
             }
@@ -139,7 +154,7 @@ class NamedVariableDiscardedTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
-                    val namedDp = rememberNamedRemoteDp("testDp") { 10.rdp }
+                    val namedDp = remember { createNamedRemoteDp("testDp") { 10.rdp } }
                     RemoteBox(modifier = RemoteModifier.size(namedDp))
                 }
             }
@@ -153,7 +168,10 @@ class NamedVariableDiscardedTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
-                    val namedDp = rememberNamedRemoteDp("testDp") { 10.rdp }.withGlobalScope()
+                    val namedDp = remember {
+                        createNamedRemoteDp("testDp") { 10.rdp }
+                    }
+                        .withGlobalScope()
                     RemoteBox(modifier = RemoteModifier.size(namedDp))
                 }
             }
@@ -170,7 +188,7 @@ class NamedVariableDiscardedTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
-                    val namedInt = rememberNamedRemoteInt("testInt", 42)
+                    val namedInt = remember { createNamedRemoteInt("testInt", 42) }
                     RemoteBox(modifier = RemoteModifier.size(RemoteDp(namedInt.toRemoteFloat())))
                 }
             }
@@ -184,7 +202,10 @@ class NamedVariableDiscardedTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
-                    val namedInt = rememberNamedRemoteInt("testInt", 42).withGlobalScope()
+                    val namedInt = remember {
+                        createNamedRemoteInt("testInt", 42)
+                    }
+                        .withGlobalScope()
                     RemoteBox(modifier = RemoteModifier.size(RemoteDp(namedInt.toRemoteFloat())))
                 }
             }
@@ -201,7 +222,7 @@ class NamedVariableDiscardedTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
-                    val namedBoolean = rememberNamedRemoteBoolean("testBoolean", true)
+                    val namedBoolean = remember { createNamedRemoteBoolean("testBoolean", true) }
                     RemoteBox(
                         modifier =
                             RemoteModifier.size(10.rdp)
@@ -219,8 +240,10 @@ class NamedVariableDiscardedTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
-                    val namedBoolean =
-                        rememberNamedRemoteBoolean("testBoolean", true).withGlobalScope()
+                    val namedBoolean = remember {
+                        createNamedRemoteBoolean("testBoolean", true)
+                    }
+                        .withGlobalScope()
                     RemoteBox(
                         modifier =
                             RemoteModifier.size(10.rdp)
@@ -241,7 +264,7 @@ class NamedVariableDiscardedTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
-                    val namedLong = rememberNamedRemoteLong("testLong", 42L)
+                    val namedLong = remember { createNamedRemoteLong("testLong", 42L) }
                     with(LocalRemoteComposeCreationState.current) { namedLong.id }
                 }
             }
@@ -255,7 +278,10 @@ class NamedVariableDiscardedTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
-                    val namedLong = rememberNamedRemoteLong("testLong", 42L).withGlobalScope()
+                    val namedLong = remember {
+                        createNamedRemoteLong("testLong", 42L)
+                    }
+                        .withGlobalScope()
                     with(LocalRemoteComposeCreationState.current) { namedLong.id }
                 }
             }
@@ -272,7 +298,7 @@ class NamedVariableDiscardedTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
-                    val namedString = rememberNamedRemoteString("testString", "hello")
+                    val namedString = remember { createNamedRemoteString("testString", "hello") }
                     RemoteText(namedString)
                 }
             }
@@ -286,8 +312,10 @@ class NamedVariableDiscardedTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
-                    val namedString =
-                        rememberNamedRemoteString("testString", "hello").withGlobalScope()
+                    val namedString = remember {
+                        createNamedRemoteString("testString", "hello")
+                    }
+                        .withGlobalScope()
                     RemoteText(namedString)
                 }
             }
@@ -305,7 +333,9 @@ class NamedVariableDiscardedTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
-                    val namedBitmap = rememberNamedRemoteImageBitmap("testBitmap") { bitmap }
+                    val namedBitmap = remember {
+                        createNamedRemoteImageBitmap("testBitmap") { bitmap }
+                    }
                     RemoteBox(
                         modifier =
                             RemoteModifier.size(10.rdp)
@@ -324,8 +354,10 @@ class NamedVariableDiscardedTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
-                    val namedBitmap =
-                        rememberNamedRemoteImageBitmap("testBitmap") { bitmap }.withGlobalScope()
+                    val namedBitmap = remember {
+                        createNamedRemoteImageBitmap("testBitmap") { bitmap }
+                    }
+                        .withGlobalScope()
                     RemoteBox(
                         modifier =
                             RemoteModifier.size(10.rdp)

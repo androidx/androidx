@@ -27,12 +27,13 @@ import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionO
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteString
+import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.serialization.yaml.YAMLSerializer
 import androidx.compose.remote.testing.RemoteCaptureTestRule
+import androidx.compose.runtime.remember
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
@@ -99,7 +100,7 @@ class HostActionTest {
     fun hostActionWithVariableRemoteString_createsHostActionOperation() = runTest {
         val doc =
             captureRule.captureDocument(context) {
-                val variableName = rememberNamedRemoteString("action_name", "my_action")
+                val variableName = remember { createNamedRemoteString("action_name", "my_action") }
                 RemoteBox(modifier = RemoteModifier.clickable(hostAction(variableName)))
             }
         val namedOps = doc.findOperations<HostNamedActionOperation>()
@@ -114,7 +115,7 @@ class HostActionTest {
     fun hostActionWithVariableRemoteStringAndValue_createsHostActionMetadataOperation() = runTest {
         val doc =
             captureRule.captureDocument(context) {
-                val variableName = rememberNamedRemoteString("action_name", "my_action")
+                val variableName = remember { createNamedRemoteString("action_name", "my_action") }
                 RemoteBox(modifier = RemoteModifier.clickable(hostAction(variableName, "value".rs)))
             }
         val namedOps = doc.findOperations<HostNamedActionOperation>()

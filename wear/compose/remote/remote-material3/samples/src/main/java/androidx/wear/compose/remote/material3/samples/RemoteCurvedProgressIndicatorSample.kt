@@ -24,12 +24,13 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.wear.compose.remote.material3.RemoteCurvedProgressIndicator
 import androidx.wear.compose.remote.material3.previews.utils.RemoteComponentPreviewWrapper
@@ -59,7 +60,7 @@ public fun RemoteCurvedProgressIndicatorSample(
 public fun RemoteCurvedProgressIndicatorAnimatedSample(
     modifier: RemoteModifier = RemoteModifier.size(150.rdp)
 ) {
-    val progress = rememberMutableRemoteFloat { 0.25f.rf }
+    val progress = remember { MutableRemoteFloat { 0.25f.rf } }
     val animatedProgress =
         animateRemoteFloatAsState(
             targetValue = progress,

@@ -45,13 +45,13 @@ import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteEnum
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.integration.view.demos.examples.SwitchState.*
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 
@@ -189,9 +189,9 @@ fun Divider(modifier: RemoteModifier = RemoteModifier) {
 @RemoteComposable
 fun SwitchWidgetDemo() {
     RemoteColumn(modifier = Modifier.padding(8.rdp).background(Color.LightGray.rc)) {
-        val checkedA = rememberMutableRemoteEnum(Off)
-        val checkedB = rememberMutableRemoteEnum(Off)
-        val checkedC = rememberMutableRemoteEnum(On)
+        val checkedA = remember { MutableRemoteEnum(Off) }
+        val checkedB = remember { MutableRemoteEnum(Off) }
+        val checkedC = remember { MutableRemoteEnum(On) }
 
         val visibilityModifierC = RemoteModifier.visibility(checkedC.visibility)
         RowSwitch(checkedA, "State A")

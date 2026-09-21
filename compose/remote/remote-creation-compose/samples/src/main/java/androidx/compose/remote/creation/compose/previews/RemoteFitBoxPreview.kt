@@ -29,11 +29,12 @@ import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.previews.utils.RemoteComponentPreviewWrapper
+import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewWrapper
@@ -42,7 +43,7 @@ import androidx.compose.ui.tooling.preview.PreviewWrapper
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 private fun RemoteFitBoxPreview() {
-    val useLargeSize = rememberMutableRemoteBoolean(true)
+    val useLargeSize = remember { MutableRemoteBoolean(true) }
     val containerSize = useLargeSize.select(200.rdp, 100.rdp)
 
     RemoteColumn(horizontalAlignment = RemoteAlignment.CenterHorizontally) {

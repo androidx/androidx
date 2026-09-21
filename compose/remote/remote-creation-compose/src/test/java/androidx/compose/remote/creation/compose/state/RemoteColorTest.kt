@@ -39,6 +39,7 @@ import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.remote.testing.RemoteCaptureTestRule
+import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -533,7 +534,7 @@ class RemoteColorTest {
         val colorName = "TEST"
         val coreDoc =
             remoteCaptureRule.captureDocument(context = androidContext) {
-                val namedColor = rememberNamedRemoteColor(colorName, Color.Red)
+                val namedColor = remember { createNamedRemoteColor(colorName, Color.Red) }
 
                 val copy = namedColor.copy(alpha = 0f.rf)
 

@@ -26,18 +26,18 @@ import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.managers.Custom
 import androidx.compose.remote.core.operations.layout.managers.Custom.CustomProperty
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
+import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
+import androidx.compose.remote.creation.compose.state.MutableRemoteString
+import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
+import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
+import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteFloat
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteString
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteBoolean
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteColor
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteFloat
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteInt
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteString
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
@@ -48,6 +48,7 @@ import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.remote.testing.RemoteBaseContentTestRule
 import androidx.compose.remote.testing.RemoteContentTestRule
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -79,7 +80,7 @@ class RemoteCustomComponentTest {
                     }
                 },
             ) {
-                val textState = rememberNamedRemoteString("named_text_return", "Initial")
+                val textState = remember { createNamedRemoteString("named_text_return", "Initial") }
                 RemoteCustomComponent(name = "TextReturnCustom") { bindReturn(1, textState) }
             }
 
@@ -107,7 +108,7 @@ class RemoteCustomComponentTest {
                     }
                 },
             ) {
-                val textState = rememberMutableRemoteString("Initial")
+                val textState = remember { MutableRemoteString("Initial") }
                 RemoteCustomComponent(name = "MutableTextReturnCustom") { bindReturn(1, textState) }
             }
 
@@ -133,7 +134,9 @@ class RemoteCustomComponentTest {
                     }
                 },
             ) {
-                val floatState = rememberNamedRemoteFloat("named_float_return") { 0f.rf }
+                val floatState = remember {
+                    createNamedRemoteFloatExpression("named_float_return") { 0f.rf }
+                }
                 RemoteCustomComponent(name = "FloatReturnCustom") { bindReturn(2, floatState) }
             }
 
@@ -161,7 +164,7 @@ class RemoteCustomComponentTest {
                     }
                 },
             ) {
-                val floatState = rememberMutableRemoteFloat(0f)
+                val floatState = remember { MutableRemoteFloat(0f) }
                 RemoteCustomComponent(name = "MutableFloatReturnCustom") {
                     bindReturn(2, floatState)
                 }
@@ -189,7 +192,7 @@ class RemoteCustomComponentTest {
                     }
                 },
             ) {
-                val boolState = rememberNamedRemoteBoolean("named_bool_return", false)
+                val boolState = remember { createNamedRemoteBoolean("named_bool_return", false) }
                 RemoteCustomComponent(name = "BooleanReturnCustom") { bindReturn(3, boolState) }
             }
 
@@ -217,7 +220,7 @@ class RemoteCustomComponentTest {
                     }
                 },
             ) {
-                val boolState = rememberMutableRemoteBoolean(false)
+                val boolState = remember { MutableRemoteBoolean(false) }
                 RemoteCustomComponent(name = "MutableBooleanReturnCustom") {
                     bindReturn(3, boolState)
                 }
@@ -245,7 +248,7 @@ class RemoteCustomComponentTest {
                     }
                 },
             ) {
-                val intState = rememberNamedRemoteInt("named_int_return", 0)
+                val intState = remember { createNamedRemoteInt("named_int_return", 0) }
                 RemoteCustomComponent(name = "IntReturnCustom") { bindReturn(5, intState) }
             }
 
@@ -273,7 +276,7 @@ class RemoteCustomComponentTest {
                     }
                 },
             ) {
-                val intState = rememberMutableRemoteInt(0)
+                val intState = remember { MutableRemoteInt(0) }
                 RemoteCustomComponent(name = "MutableIntReturnCustom") { bindReturn(5, intState) }
             }
 
@@ -296,7 +299,7 @@ class RemoteCustomComponentTest {
                 name = "IntPropertiesCustom",
                 configureInt = { _, type, value -> configuredInts[type] = value },
             ) {
-                val namedInt = rememberNamedRemoteInt("named_int_prop", 200)
+                val namedInt = remember { createNamedRemoteInt("named_int_prop", 200) }
                 RemoteCustomComponent(name = "IntPropertiesCustom") {
                     property(1, 42)
                     property(2, 100.ri)
@@ -333,7 +336,7 @@ class RemoteCustomComponentTest {
                 name = "ColorPropertiesCustom",
                 configureInt = { _, type, value -> configuredInts[type] = value },
             ) {
-                val namedColor = rememberNamedRemoteColor("named_color_prop", Color.Blue)
+                val namedColor = remember { createNamedRemoteColor("named_color_prop", Color.Blue) }
                 RemoteCustomComponent(name = "ColorPropertiesCustom") {
                     property(1, Color.Red)
                     property(2, Color.Green.rc)
@@ -371,7 +374,9 @@ class RemoteCustomComponentTest {
                 name = "FloatPropertiesCustom",
                 configureFloat = { _, type, value -> configuredFloats[type] = value },
             ) {
-                val namedFloat = rememberNamedRemoteFloat("named_float_prop") { 1.41f.rf }
+                val namedFloat = remember {
+                    createNamedRemoteFloatExpression("named_float_prop") { 1.41f.rf }
+                }
                 RemoteCustomComponent(name = "FloatPropertiesCustom") {
                     property(1, 3.14f)
                     property(2, 2.71f.rf)
@@ -414,7 +419,9 @@ class RemoteCustomComponentTest {
                 name = "StringPropertiesCustom",
                 configureString = { _, type, value -> configuredStrings[type] = value },
             ) {
-                val namedString = rememberNamedRemoteString("named_string_prop", "NamedRemote")
+                val namedString = remember {
+                    createNamedRemoteString("named_string_prop", "NamedRemote")
+                }
                 RemoteCustomComponent(name = "StringPropertiesCustom") {
                     property(1, "Hello")
                     property(2, "ConstantRemote".rs)
@@ -452,8 +459,10 @@ class RemoteCustomComponentTest {
                 name = "BooleanPropertiesCustom",
                 configureInt = { _, type, value -> configuredInts[type] = value },
             ) {
-                val namedBoolTrue = rememberNamedRemoteBoolean("named_bool_true", true)
-                val namedBoolFalse = rememberNamedRemoteBoolean("named_bool_false", false)
+                val namedBoolTrue = remember { createNamedRemoteBoolean("named_bool_true", true) }
+                val namedBoolFalse = remember {
+                    createNamedRemoteBoolean("named_bool_false", false)
+                }
                 RemoteCustomComponent(name = "BooleanPropertiesCustom") {
                     property(1, true)
                     property(2, false)
@@ -513,7 +522,9 @@ class RemoteCustomComponentTest {
                     }
                 },
             ) {
-                val colorState = rememberNamedRemoteColor("named_color_return", Color.Red)
+                val colorState = remember {
+                    createNamedRemoteColor("named_color_return", Color.Red)
+                }
                 RemoteCustomComponent(name = "ColorReturnCustom") { bindReturn(4, colorState) }
             }
 
