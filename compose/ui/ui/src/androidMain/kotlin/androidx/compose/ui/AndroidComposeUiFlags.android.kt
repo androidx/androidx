@@ -64,7 +64,7 @@ public object AndroidComposeUiFlags {
     // TODO: b/483449576
     @field:Suppress("MutableBareField")
     @JvmField
-    public var isFrameworkVelocityTrackerEnabled: Boolean = false
+    public var isFrameworkVelocityTrackerEnabled: Boolean = true
 
     /**
      * If enabled, the creation of the container for AndroidViews is delayed until an AndroidView is
