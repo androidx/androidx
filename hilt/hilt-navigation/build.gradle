@@ -45,7 +45,6 @@ androidx {
     inceptionYear = "2021"
     description = "Android Navigation Hilt Extension"
     legacyDisableKotlinStrictApiMode = true
-    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }
 
 android {

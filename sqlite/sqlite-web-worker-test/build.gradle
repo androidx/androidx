@@ -51,5 +51,4 @@ androidx {
     type = SoftwareType.INTERNAL_TEST_LIBRARY
     inceptionYear = "2026"
     description = "The Web Worker implementation of the SQLite Web driver for tests using the SQLite WASM project"
-    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }

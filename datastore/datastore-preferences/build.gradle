@@ -66,5 +66,4 @@ androidx {
     inceptionYear = "2020"
     description = "Android Preferences DataStore"
     legacyDisableKotlinStrictApiMode = true
-    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }

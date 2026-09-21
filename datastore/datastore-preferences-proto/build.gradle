@@ -54,5 +54,4 @@ androidx {
     type = SoftwareType.PUBLISHED_PROTO_LIBRARY
     inceptionYear = "2020"
     description = "Jarjar the generated proto for use by datastore-preferences."
-    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }
