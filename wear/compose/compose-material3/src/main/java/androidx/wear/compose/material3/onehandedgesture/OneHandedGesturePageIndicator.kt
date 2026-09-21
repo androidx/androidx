@@ -36,18 +36,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.wear.compose.foundation.pager.PagerState
 import androidx.wear.compose.material3.HorizontalPageIndicator
-import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.PageIndicatorDefaults
-import androidx.wear.compose.material3.R
 import androidx.wear.compose.material3.VerticalPageIndicator
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
@@ -302,19 +298,7 @@ private fun GesturePageIndicator(
     state.gestureConfiguration = gestureConfiguration
     state.gestureManager = gestureManager
 
-    val density = LocalDensity.current
-    val backgroundPainter =
-        painterResource(R.drawable.wear_one_handed_gesture_indicator_pointer_background)
-    val backgroundSize =
-        remember(backgroundPainter, density) {
-            with(density) {
-                DpSize(
-                    backgroundPainter.intrinsicSize.width.toDp(),
-                    backgroundPainter.intrinsicSize.height.toDp(),
-                )
-            }
-        }
-    val largestBackgroundSide = max(backgroundSize.width, backgroundSize.height)
+    val largestBackgroundSide = max(POINTER_BACKGROUND_WIDTH, POINTER_BACKGROUND_HEIGHT)
 
     Box(
         modifier =
@@ -326,10 +310,8 @@ private fun GesturePageIndicator(
                 .size(largestBackgroundSide),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(
-            painter = backgroundPainter,
-            contentDescription = null,
-            tint = gestureIndicatorBackgroundColor,
+        GestureIndicatorPointerBackground(
+            color = gestureIndicatorBackgroundColor,
             modifier =
                 Modifier.graphicsLayer {
                     scaleX = backgroundScale
@@ -337,7 +319,7 @@ private fun GesturePageIndicator(
                 },
         )
         Box(
-            modifier = Modifier.size(backgroundSize.height).align(avdAlignment),
+            modifier = Modifier.size(POINTER_BACKGROUND_HEIGHT).align(avdAlignment),
             contentAlignment = Alignment.Center,
         ) {
             if (gestureConfiguration.action == OneHandedGestureAction.Dismiss) {
