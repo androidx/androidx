@@ -22,16 +22,10 @@
     <string name="error" msgid="6647806155663918015">"错误"</string>
     <string name="select_date" msgid="3625754389149364766">"选择日期"</string>
     <string name="select_time" msgid="3530281639148646682">"选择时间"</string>
-    <!-- no translation found for choice_picker_placeholder_select_options (1896315524474297041) -->
-    <skip />
-    <!-- no translation found for choice_picker_placeholder_show_options (5266971913395406612) -->
-    <skip />
-    <!-- no translation found for choice_picker_placeholder_filter (485814500374016612) -->
-    <skip />
-    <!-- no translation found for choice_picker_no_matching_options (8908388495425719920) -->
-    <skip />
-    <!-- no translation found for choice_picker_remove_option (6344576400474543129) -->
-    <skip />
-    <!-- no translation found for choice_picker_clear_search (804053747390949932) -->
-    <skip />
+    <string name="choice_picker_placeholder_select_options" msgid="1896315524474297041">"选择选项"</string>
+    <string name="choice_picker_placeholder_show_options" msgid="5266971913395406612">"显示选项"</string>
+    <string name="choice_picker_placeholder_filter" msgid="485814500374016612">"开始输入即可过滤…"</string>
+    <string name="choice_picker_no_matching_options" msgid="8908388495425719920">"没有匹配的选项"</string>
+    <string name="choice_picker_remove_option" msgid="6344576400474543129">"移除%1$s"</string>
+    <string name="choice_picker_clear_search" msgid="804053747390949932">"清除搜索过滤条件"</string>
 </resources>
