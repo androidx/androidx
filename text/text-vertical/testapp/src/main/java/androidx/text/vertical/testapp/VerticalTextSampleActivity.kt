@@ -27,7 +27,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -64,6 +66,7 @@ import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.sp
@@ -100,6 +103,7 @@ class VerticalTextSampleActivity : ComponentActivity() {
                     DemoTab("Horizontal Multi-style Text") {
                         ZoomableVerticalText(isVertical = false) { ComplexHorizontalText(it) }
                     },
+                    DemoTab("Style Colors") { ZoomableVerticalText { StyleColorsText(it) } },
                 )
 
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -417,6 +421,28 @@ private fun buildComplexText(density: Density) =
         withEmphasis(style = EmphasisStyle.Sesame) { text("傍点") }
         text("もSupportされてます。")
     }
+
+@Composable
+fun StyleColorsText(style: VerticalTextStyle, modifier: Modifier = Modifier) {
+    val coloredStyle =
+        style.copy(
+            color = Color(0xFF1A237E),
+            background = Color(0xFFFFF59D),
+        )
+    val density = LocalDensity.current
+    val text =
+        remember(density) {
+            buildVerticalText(density) {
+                text("吾輩は猫である。")
+                withRuby("なまえ") { text("名前") }
+                text("はまだ無い。")
+            }
+        }
+    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        VerticalText(text, style = coloredStyle, overflow = TextOverflow.Visible)
+        VerticalText("プレーン文字列", style = coloredStyle, overflow = TextOverflow.Visible)
+    }
+}
 
 private fun setStyleToPaint(
     style: VerticalTextStyle,
