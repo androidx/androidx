@@ -30,7 +30,7 @@ plugins {
 
 dependencies {
     api(libs.androidx.annotation)
-    api(project(":annotation:annotation-experimental"))
+    api("androidx.annotation:annotation-experimental:1.4.1")
     // Add dependencies here
     api(libs.kotlinCoroutinesCore)
 
