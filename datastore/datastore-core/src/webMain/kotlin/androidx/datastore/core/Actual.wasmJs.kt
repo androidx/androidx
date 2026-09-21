@@ -24,9 +24,9 @@ import kotlinx.coroutines.Dispatchers
 
 // TODO(b/442842414): Replace with `kotlinx.io.IOException` when it is stable.
 @Suppress("AcronymName")
-actual open class IOException actual constructor(message: String?, cause: Throwable?) :
+public actual open class IOException actual constructor(message: String?, cause: Throwable?) :
     Exception() {
-    actual constructor(message: String?) : this(message, null)
+    public actual constructor(message: String?) : this(message, null)
 }
 
 // TODO(b/441511612): Support locking for LocalStorage and OPFS.

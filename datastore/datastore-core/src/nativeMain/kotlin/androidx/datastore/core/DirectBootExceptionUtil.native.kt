@@ -26,5 +26,7 @@ import androidx.annotation.RestrictTo
  * @return The provided [exception].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-actual fun wrapExceptionIfDueToDirectBoot(parentDirPath: String?, exception: Exception): Exception =
-    exception
+public actual fun wrapExceptionIfDueToDirectBoot(
+    parentDirPath: String?,
+    exception: Exception,
+): Exception = exception

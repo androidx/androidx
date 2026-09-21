@@ -25,7 +25,7 @@ import okio.BufferedSource
  * [DataStore][androidx.datastore.core.DataStore] using the
  * [DataStoreFactory#create][androidx.datastore.core.DataStoreFactory.create] function.
  */
-expect object PreferencesSerializer : OkioSerializer<Preferences> {
+public expect object PreferencesSerializer : OkioSerializer<Preferences> {
     override val defaultValue: Preferences
 
     override suspend fun readFrom(source: BufferedSource): Preferences

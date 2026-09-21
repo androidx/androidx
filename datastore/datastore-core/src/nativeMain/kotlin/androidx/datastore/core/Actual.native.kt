@@ -25,7 +25,7 @@ import kotlinx.coroutines.IO
 @Suppress("AcronymName")
 public actual open class IOException actual constructor(message: String?, cause: Throwable?) :
     Exception(message, cause) {
-    actual constructor(message: String?) : this(message, null)
+    public actual constructor(message: String?) : this(message, null)
 }
 
 internal actual class AtomicInt actual constructor(initialValue: Int) {

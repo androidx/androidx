@@ -20,13 +20,16 @@ import androidx.datastore.core.handlers.ReThrowCorruptionHandler
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.flow.Flow
 
-actual interface DataStore<T> {
-    actual val data: Flow<T>
+public actual interface DataStore<T> {
+    public actual val data: Flow<T>
 
-    actual suspend fun updateData(transform: suspend (t: T) -> T): T
+    public actual suspend fun updateData(transform: suspend (t: T) -> T): T
 
-    actual class Builder<T>
-    actual constructor(private val storage: Storage<T>, private val context: CoroutineContext) {
+    public actual class Builder<T>
+    public actual constructor(
+        private val storage: Storage<T>,
+        private val context: CoroutineContext,
+    ) {
         private var corruptionHandler: CorruptionHandler<T> = ReThrowCorruptionHandler()
         private var migrations: List<DataMigration<T>> = emptyList()
 
@@ -39,7 +42,7 @@ actual interface DataStore<T> {
          * @param handler the corruption handler.
          * @return this [Builder] instance.
          */
-        actual fun setCorruptionHandler(handler: CorruptionHandler<T>): Builder<T> = apply {
+        public actual fun setCorruptionHandler(handler: CorruptionHandler<T>): Builder<T> = apply {
             this.corruptionHandler = handler
         }
 
@@ -51,7 +54,7 @@ actual interface DataStore<T> {
          * @param migrations the list of migrations.
          * @return this [Builder] instance.
          */
-        actual fun addMigrations(migrations: List<DataMigration<T>>): Builder<T> = apply {
+        public actual fun addMigrations(migrations: List<DataMigration<T>>): Builder<T> = apply {
             this.migrations += migrations
         }
 
@@ -60,7 +63,7 @@ actual interface DataStore<T> {
          *
          * @return a new DataStore instance.
          */
-        actual fun build(): DataStore<T> {
+        public actual fun build(): DataStore<T> {
             return DataStoreImpl(
                 storage = storage,
                 corruptionHandler = corruptionHandler,

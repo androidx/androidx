@@ -47,7 +47,7 @@ private constructor(
     private val scope: CoroutineScope,
 ) : Disposable {
 
-    companion object {
+    public companion object {
         /** Visible for datastore-preferences-rxjava2 artifact only */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun <T : Any> create(
@@ -62,7 +62,7 @@ private constructor(
      * Dispose of the DataStore. Wait for the Completable returned by [shutdownComplete] to confirm
      * that the DataStore has been shut down.
      */
-    override fun dispose() = scope.coroutineContext.job.cancel()
+    override fun dispose(): Unit = scope.coroutineContext.job.cancel()
 
     /** Returns whether this DataStore is closed */
     override fun isDisposed(): Boolean = !scope.coroutineContext.job.isActive
