@@ -16,13 +16,25 @@
 package androidx.compose.remote.core;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import androidx.compose.remote.core.operations.FloatExpression;
+import androidx.compose.remote.core.operations.ShaderData;
+import androidx.compose.remote.core.operations.Utils;
+import androidx.compose.remote.core.operations.utilities.ArrayAccess;
+import androidx.compose.remote.core.operations.utilities.CollectionsAccess;
+import androidx.compose.remote.core.operations.utilities.DataMap;
 import androidx.compose.remote.core.operations.utilities.easing.SpringStopEngine;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 
-/** Tests for {@link SpringStopEngine}. */
+import java.util.HashMap;
+import java.util.Map;
+
+/** Tests for {@link SpringStopEngine} and spring-backed {@link FloatExpression}. */
 public class SpringStopEngineTest {
 
     @Test
@@ -278,5 +290,370 @@ public class SpringStopEngineTest {
         double slow = -omega * (zeta - root);
         double fast = -omega * (zeta + root);
         return 1 - (slow * Math.exp(fast * time) - fast * Math.exp(slow * time)) / (slow - fast);
+    }
+
+    @Test
+    public void floatExpressionSpring_syncsTimeBeforeTargetChangeAfterIdlePeriod() {
+        float stiffness = 1400f;
+        float damping = (float) (2.0 * Math.sqrt(stiffness));
+        int inputVarId = 1;
+        int springVarId = 2;
+
+        FloatExpression expr =
+                new FloatExpression(
+                        springVarId,
+                        new float[] {Utils.asNan(inputVarId)},
+                        new float[] {0f, stiffness, damping, 0.001f, Float.intBitsToFloat(0)});
+
+        FakeRemoteContext context = new FakeRemoteContext();
+        context.loadFloat(inputVarId, 0f);
+
+        // Startup frame.
+        context.setAnimationTime(0.016f);
+        expr.updateVariables(context);
+        expr.apply(context);
+        assertEquals(0f, context.getFloat(springVarId), 0.001f);
+
+        // Five seconds with no frames painted, then the input toggles.
+        context.setAnimationTime(5.000f);
+        context.loadFloat(inputVarId, 1f);
+        expr.updateVariables(context);
+        expr.apply(context);
+
+        // The spring has only just been retargeted, so it is still at 0 and asks for frames.
+        float valueAtToggle = context.getFloat(springVarId);
+        assertEquals(0f, valueAtToggle, 0.01f);
+        assertTrue(expr.isDirty());
+        assertTrue(context.mRepaintRequested);
+
+        // One 16ms frame later it is under way, not snapped to the target.
+        context.mRepaintRequested = false;
+        context.setAnimationTime(5.016f);
+        expr.updateVariables(context);
+        expr.apply(context);
+        float valueFrame1 = context.getFloat(springVarId);
+        assertTrue(
+                "Expected 0f < valueFrame1 < 1f, got " + valueFrame1,
+                valueFrame1 > 0.05f && valueFrame1 < 0.95f);
+        assertTrue(expr.isDirty());
+        assertTrue(context.mRepaintRequested);
+
+        // Run on until settled.
+        for (float t = 5.032f; t <= 5.500f; t += 0.016f) {
+            context.setAnimationTime(t);
+            expr.updateVariables(context);
+            expr.apply(context);
+        }
+        assertEquals(1f, context.getFloat(springVarId), 0.01f);
+    }
+
+    /**
+     * A spring retargeted every frame, such as a needle damping towards a live bearing, is already
+     * stepped by apply(), so updateVariables() must not step it again: that would integrate the
+     * frame against the previous target and cost a frame of latency. Driven with a 0.5Hz sweep, it
+     * must track an undelayed reference rather than one stepped a frame behind.
+     */
+    @Test
+    public void floatExpressionSpring_continuouslyRetargeted_doesNotLagByAFrame() {
+        float stiffness = 50f;
+        float damping = 0.3f * (float) (2.0 * Math.sqrt(stiffness));
+        int inputVarId = 1;
+        int springVarId = 2;
+        float[] springSpec = {0f, stiffness, damping, 0.001f, Float.intBitsToFloat(0)};
+
+        FloatExpression expr =
+                new FloatExpression(
+                        springVarId, new float[] {Utils.asNan(inputVarId)}, springSpec.clone());
+        FakeRemoteContext context = new FakeRemoteContext();
+
+        // Startup frame: everything begins settled at 0.
+        context.loadFloat(inputVarId, 0f);
+        context.setAnimationTime(0f);
+        expr.updateVariables(context);
+        expr.apply(context);
+
+        SpringStopEngine undelayed = newSettledSpring(springSpec);
+        SpringStopEngine delayedByAFrame = newSettledSpring(springSpec);
+
+        float maxDeltaVsUndelayed = 0f;
+        float maxDeltaVsDelayed = 0f;
+        for (int frame = 1; frame <= 180; frame++) {
+            float t = frame / 60f;
+            float target = (float) Math.sin(2 * Math.PI * 0.5 * t);
+
+            context.setAnimationTime(t);
+            context.loadFloat(inputVarId, target);
+            expr.updateVariables(context);
+            expr.apply(context);
+            float actual = context.getFloat(springVarId);
+
+            // Retarget, then step the frame: the new target applies to this frame.
+            undelayed.setTargetValue(target);
+            float undelayedValue = undelayed.get(t);
+
+            // Step the frame first, then retarget: the new target only applies next frame.
+            delayedByAFrame.get(t);
+            delayedByAFrame.setTargetValue(target);
+            float delayedValue = delayedByAFrame.get(t);
+
+            maxDeltaVsUndelayed = Math.max(maxDeltaVsUndelayed, Math.abs(actual - undelayedValue));
+            maxDeltaVsDelayed = Math.max(maxDeltaVsDelayed, Math.abs(actual - delayedValue));
+        }
+
+        assertTrue(
+                "Driven spring should track the undelayed reference, max delta was "
+                        + maxDeltaVsUndelayed,
+                maxDeltaVsUndelayed < 0.005f);
+        assertTrue(
+                "Driven spring should not match a one-frame-delayed reference, max delta was "
+                        + maxDeltaVsDelayed,
+                maxDeltaVsDelayed > 0.02f);
+    }
+
+    /**
+     * A settled spring must stop asking for frames: once it reaches its target and the input stops
+     * changing, apply() must neither request a repaint nor mark itself dirty.
+     */
+    @Test
+    public void floatExpressionSpring_settled_stopsRequestingFrames() {
+        float stiffness = 1400f;
+        float damping = (float) (2.0 * Math.sqrt(stiffness));
+        int inputVarId = 1;
+        int springVarId = 2;
+
+        FloatExpression expr =
+                new FloatExpression(
+                        springVarId,
+                        new float[] {Utils.asNan(inputVarId)},
+                        new float[] {0f, stiffness, damping, 0.001f, Float.intBitsToFloat(0)});
+
+        FakeRemoteContext context = new FakeRemoteContext();
+        context.loadFloat(inputVarId, 0f);
+        context.setAnimationTime(0f);
+        expr.updateVariables(context);
+        expr.apply(context);
+
+        // One second of frames after the input toggles: the spring animates.
+        context.loadFloat(inputVarId, 1f);
+        boolean requestedWhileMoving = false;
+        for (int frame = 1; frame <= 60; frame++) {
+            context.mRepaintRequested = false;
+            expr.markNotDirty();
+            context.setAnimationTime(frame / 60f);
+            expr.updateVariables(context);
+            expr.apply(context);
+            requestedWhileMoving |= context.mRepaintRequested;
+        }
+        assertTrue("Expected repaints while the spring was moving", requestedWhileMoving);
+        assertEquals(1f, context.getFloat(springVarId), 0.001f);
+
+        // A further second with the input unchanged must be completely quiet.
+        for (int frame = 61; frame <= 120; frame++) {
+            float time = frame / 60f;
+            context.mRepaintRequested = false;
+            expr.markNotDirty();
+            context.setAnimationTime(time);
+            expr.updateVariables(context);
+            expr.apply(context);
+            assertFalse(
+                    "Settled spring requested a repaint at t=" + time, context.mRepaintRequested);
+            assertFalse("Settled spring marked itself dirty at t=" + time, expr.isDirty());
+            assertEquals(1f, context.getFloat(springVarId), 0.0001f);
+        }
+    }
+
+    /** A spring sitting settled at 0 with its clock synced to t = 0. */
+    private static SpringStopEngine newSettledSpring(float[] springSpec) {
+        SpringStopEngine spring = new SpringStopEngine(springSpec.clone());
+        spring.setInitialValue(0f);
+        spring.setTargetValue(0f);
+        spring.get(0f);
+        return spring;
+    }
+
+    private static class FakeRemoteContext extends RemoteContext {
+        private final Map<Integer, Float> mFloats = new HashMap<>();
+        boolean mRepaintRequested = false;
+
+        FakeRemoteContext() {
+            mRemoteComposeState =
+                    new RemoteComposeState() {
+                        @Override
+                        public @Nullable float[] getFloats(int id) {
+                            return null;
+                        }
+                    };
+        }
+
+        @Override
+        public void needsRepaint() {
+            mRepaintRequested = true;
+        }
+
+        @Override
+        public void loadFloat(int id, float value) {
+            mFloats.put(id, value);
+        }
+
+        @Override
+        public float getFloat(int id) {
+            return mFloats.getOrDefault(id, 0f);
+        }
+
+        @Override
+        public @NonNull CollectionsAccess getCollectionsAccess() {
+            return mRemoteComposeState;
+        }
+
+        @Override
+        public void loadPathData(int instanceId, int winding, float @NonNull [] floatPath) {}
+
+        @Override
+        public float @Nullable [] getPathData(int instanceId) {
+            return null;
+        }
+
+        @Override
+        public void loadVariableName(@NonNull String varName, int varId, int varType) {}
+
+        @Override
+        public void loadColor(int id, int color) {}
+
+        @Override
+        public void setNamedColorOverride(@NonNull String colorName, int color) {}
+
+        @Override
+        public void setNamedStringOverride(@NonNull String stringName, @NonNull String value) {}
+
+        @Override
+        public void clearNamedStringOverride(@NonNull String stringName) {}
+
+        @Override
+        public void setNamedBooleanOverride(@NonNull String booleanName, boolean value) {}
+
+        @Override
+        public void clearNamedBooleanOverride(@NonNull String booleanName) {}
+
+        @Override
+        public void setNamedIntegerOverride(@NonNull String integerName, int value) {}
+
+        @Override
+        public void clearNamedIntegerOverride(@NonNull String integerName) {}
+
+        @Override
+        public void setNamedFloatOverride(@NonNull String floatName, float value) {}
+
+        @Override
+        public void clearNamedFloatOverride(@NonNull String floatName) {}
+
+        @Override
+        public void setNamedLong(@NonNull String name, long value) {}
+
+        @Override
+        public void setNamedDataOverride(@NonNull String dataName, @NonNull Object value) {}
+
+        @Override
+        public void clearNamedDataOverride(@NonNull String dataName) {}
+
+        @Override
+        public void addCollection(int id, @NonNull ArrayAccess collection) {}
+
+        @Override
+        public void putDataMap(int id, @NonNull DataMap map) {}
+
+        @Override
+        public @Nullable DataMap getDataMap(int id) {
+            return null;
+        }
+
+        @Override
+        public void runAction(int id, @NonNull String metadata) {}
+
+        @Override
+        public void runNamedAction(int id, @Nullable Object value) {}
+
+        @Override
+        public void putObject(int id, @NonNull Object value) {}
+
+        @Override
+        public @Nullable Object getObject(int id) {
+            return null;
+        }
+
+        @Override
+        public void hapticEffect(int type) {}
+
+        @Override
+        public void loadBitmap(
+                int imageId,
+                short encoding,
+                short type,
+                int width,
+                int height,
+                byte @NonNull [] bitmap) {}
+
+        @Override
+        public void loadText(int id, @NonNull String text) {}
+
+        @Override
+        public @Nullable String getText(int id) {
+            return null;
+        }
+
+        @Override
+        public void overrideFloat(int id, float value) {}
+
+        @Override
+        public void loadInteger(int id, int value) {}
+
+        @Override
+        public void overrideInteger(int id, int value) {}
+
+        @Override
+        public void overrideText(int id, int valueId) {}
+
+        @Override
+        public void loadAnimatedFloat(int id, @NonNull FloatExpression animatedFloat) {}
+
+        @Override
+        public void loadShader(int id, @NonNull ShaderData value) {}
+
+        @Override
+        public int getInteger(int id) {
+            return 0;
+        }
+
+        @Override
+        public long getLong(int id) {
+            return 0;
+        }
+
+        @Override
+        public int getColor(int id) {
+            return 0;
+        }
+
+        @Override
+        public void listensTo(int id, @NonNull VariableSupport variableSupport) {}
+
+        @Override
+        public int updateOps() {
+            return 0;
+        }
+
+        @Override
+        public @Nullable ShaderData getShader(int id) {
+            return null;
+        }
+
+        @Override
+        public void addClickArea(
+                int id,
+                int contentDescriptionId,
+                float left,
+                float top,
+                float right,
+                float bottom,
+                int metadataId) {}
     }
 }
