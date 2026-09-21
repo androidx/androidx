@@ -760,7 +760,7 @@ package androidx.compose.animation.core {
     method @InaccessibleFromKotlin public final boolean isRunning();
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final void seek(S initialState, S targetState, long playTimeNanos);
     method @KotlinOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final void setPlaytimeAfterInitialAndTargetStateEstablished(S initialState, S targetState, long playTimeNanos);
-    method @kotlin.PublishedApi internal final void updatePendingTarget(S? value);
+    method @BytecodeOnly @kotlin.PublishedApi internal final void updatePendingTarget(S?);
     property public final java.util.List<androidx.compose.animation.core.Transition<S>.TransitionAnimationState<? extends java.lang.Object?,? extends java.lang.Object?>> animations;
     property public final S currentState;
     property @SuppressCompatibility @androidx.compose.animation.core.InternalAnimationApi public final boolean hasInitialValueAnimations;
@@ -794,13 +794,13 @@ package androidx.compose.animation.core {
     property public T value;
   }
 
-  @kotlin.PublishedApi internal final class TransitionInstance<S> extends androidx.compose.animation.core.Transition<S> {
+  @BytecodeOnly @kotlin.PublishedApi internal final class TransitionInstance<S> extends androidx.compose.animation.core.Transition<S> {
     ctor @BytecodeOnly @kotlin.PublishedApi internal TransitionInstance(androidx.compose.animation.core.MutableTransitionState!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor @kotlin.PublishedApi internal TransitionInstance(androidx.compose.animation.core.MutableTransitionState<S> transitionState, optional String? label);
+    ctor @BytecodeOnly @kotlin.PublishedApi internal TransitionInstance(androidx.compose.animation.core.MutableTransitionState<S>, String?);
     ctor @BytecodeOnly public TransitionInstance(androidx.compose.animation.core.TransitionState!, androidx.compose.animation.core.Transition!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly @kotlin.PublishedApi internal TransitionInstance(androidx.compose.animation.core.TransitionState!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public TransitionInstance(androidx.compose.animation.core.TransitionState<S> transitionState, androidx.compose.animation.core.Transition<? extends java.lang.Object?>? parentTransition, optional String? label);
-    ctor @kotlin.PublishedApi internal TransitionInstance(androidx.compose.animation.core.TransitionState<S> transitionState, optional String? label);
+    ctor @BytecodeOnly @kotlin.PublishedApi internal TransitionInstance(androidx.compose.animation.core.TransitionState<S>, String?);
   }
 
   public final class TransitionKt {
@@ -824,9 +824,7 @@ package androidx.compose.animation.core {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <S, T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.runtime.State<T> animateValue(androidx.compose.animation.core.Transition<S>, androidx.compose.animation.core.TwoWayConverter<T,V>, kotlin.jvm.functions.Function3<? super androidx.compose.animation.core.Transition.Segment<S>!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,? extends androidx.compose.animation.core.FiniteAnimationSpec<T>!>?, String?, kotlin.jvm.functions.Function3<? super S,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,? extends T>, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static inline <S, T> androidx.compose.animation.core.Transition<T> createChildTransition(androidx.compose.animation.core.Transition<S>, optional String label, kotlin.jvm.functions.Function1<S,T> transformToChildState);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <S, T> androidx.compose.animation.core.Transition<T> createChildTransition(androidx.compose.animation.core.Transition<S>, String?, kotlin.jvm.functions.Function3<? super S,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,? extends T>, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static <S, T> androidx.compose.animation.core.Transition<T> createChildTransitionInternal(androidx.compose.animation.core.Transition<S>, T initialState, T targetState, String childLabel);
     method @BytecodeOnly @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static <S, T> androidx.compose.animation.core.Transition<T> createChildTransitionInternal(androidx.compose.animation.core.Transition<S>, T, T, String, androidx.compose.runtime.Composer?, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static <S, T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.runtime.State<T> createTransitionAnimation(androidx.compose.animation.core.Transition<S>, T initialValue, T targetValue, androidx.compose.animation.core.FiniteAnimationSpec<T> animationSpec, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, String label);
     method @BytecodeOnly @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static <S, T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.runtime.State<T> createTransitionAnimation(androidx.compose.animation.core.Transition<S>, T, T, androidx.compose.animation.core.FiniteAnimationSpec<T>, androidx.compose.animation.core.TwoWayConverter<T,V>, String, androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.animation.core.DeferredTransition<T> rememberDeferredTransition(androidx.compose.animation.core.DeferredTransitionState<T> transitionState, optional String? label);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.animation.core.DeferredTransition<T> rememberDeferredTransition(androidx.compose.animation.core.DeferredTransitionState<T>, String?, androidx.compose.runtime.Composer?, int, int);

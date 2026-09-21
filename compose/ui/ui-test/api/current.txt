@@ -374,6 +374,7 @@ package androidx.compose.ui.test {
 
   @Deprecated public final class GestureScope {
     ctor @Deprecated public GestureScope(androidx.compose.ui.semantics.SemanticsNode node, androidx.compose.ui.test.TestContext testContext);
+    method @BytecodeOnly @Deprecated @kotlin.PublishedApi internal androidx.compose.ui.test.MultiModalInjectionScope getDelegateScope();
     method @BytecodeOnly @Deprecated public long getVisibleSize-YbymL2g();
     property @Deprecated public androidx.compose.ui.unit.IntSize visibleSize;
   }
@@ -1180,6 +1181,14 @@ package androidx.compose.ui.test.junit4.android {
 
   public final class ComposeNotIdleException extends java.lang.Exception {
     ctor public ComposeNotIdleException(String? message, Throwable? cause);
+  }
+
+}
+
+package androidx.compose.ui.test.platform {
+
+  public final class Synchronization_androidKt {
+    method @BytecodeOnly @kotlin.PublishedApi internal static <R> R synchronized(Object, kotlin.jvm.functions.Function0<? extends R>);
   }
 
 }

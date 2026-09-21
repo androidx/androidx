@@ -37,7 +37,6 @@ package androidx.compose.ui.unit {
     property public int maxWidth;
     property public int minHeight;
     property public int minWidth;
-    property @kotlin.PublishedApi internal long value;
     field public static final androidx.compose.ui.unit.Constraints.Companion Companion;
     field public static final int Infinity = 2147483647; // 0x7fffffff
   }
@@ -76,8 +75,7 @@ package androidx.compose.ui.unit {
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Constraints offset(androidx.compose.ui.unit.Constraints, optional int horizontal, optional int vertical);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long offset-NN6Ew-U(long, int, int);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long offset-NN6Ew-U$default(long, int, int, int, Object!);
-    property @kotlin.PublishedApi internal static long MaxDimensionsAndFocusMask;
-    field @kotlin.PublishedApi internal static final long MaxDimensionsAndFocusMask = -8589934589L; // 0xfffffffe00000003L
+    field @BytecodeOnly @kotlin.PublishedApi internal static final long MaxDimensionsAndFocusMask = -8589934589L; // 0xfffffffe00000003L
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface Density extends androidx.compose.ui.unit.FontScaling {
@@ -299,7 +297,6 @@ package androidx.compose.ui.unit {
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long times-Gh9hcWk(long, int);
     method @BytecodeOnly public long unbox-impl();
     property @androidx.compose.runtime.Stable public androidx.compose.ui.unit.Dp height;
-    property @kotlin.PublishedApi internal long packedValue;
     property @androidx.compose.runtime.Stable public androidx.compose.ui.unit.Dp width;
     field public static final androidx.compose.ui.unit.DpSize.Companion Companion;
   }
@@ -532,7 +529,6 @@ package androidx.compose.ui.unit {
     method @BytecodeOnly public long unbox-impl();
     property public boolean isEm;
     property public boolean isSp;
-    property @kotlin.PublishedApi internal long rawType;
     property public androidx.compose.ui.unit.TextUnitType type;
     property public float value;
     field public static final androidx.compose.ui.unit.TextUnit.Companion Companion;
@@ -546,9 +542,6 @@ package androidx.compose.ui.unit {
   public final class TextUnitKt {
     method @KotlinOnly public static androidx.compose.ui.unit.TextUnit TextUnit(float value, androidx.compose.ui.unit.TextUnitType type);
     method @BytecodeOnly public static long TextUnit-anM5pPY(float, long);
-    method @KotlinOnly @kotlin.PublishedApi internal static void checkArithmetic(androidx.compose.ui.unit.TextUnit a);
-    method @KotlinOnly @kotlin.PublishedApi internal static void checkArithmetic(androidx.compose.ui.unit.TextUnit a, androidx.compose.ui.unit.TextUnit b);
-    method @KotlinOnly @kotlin.PublishedApi internal static void checkArithmetic(androidx.compose.ui.unit.TextUnit a, androidx.compose.ui.unit.TextUnit b, androidx.compose.ui.unit.TextUnit c);
     method @BytecodeOnly @kotlin.PublishedApi internal static void checkArithmetic--R2X_6o(long);
     method @BytecodeOnly @kotlin.PublishedApi internal static void checkArithmetic-NB67dxo(long, long);
     method @BytecodeOnly @kotlin.PublishedApi internal static void checkArithmetic-vU-0ePk(long, long, long);
@@ -562,7 +555,6 @@ package androidx.compose.ui.unit {
     method @BytecodeOnly public static boolean isUnspecified--R2X_6o(long);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.TextUnit lerp(androidx.compose.ui.unit.TextUnit start, androidx.compose.ui.unit.TextUnit stop, float fraction);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long lerp-C3pnCVY(long, long, float);
-    method @KotlinOnly @kotlin.PublishedApi internal static androidx.compose.ui.unit.TextUnit pack(long unitType, float v);
     method @BytecodeOnly @kotlin.PublishedApi internal static long pack(long, float);
     method @KotlinOnly public static inline androidx.compose.ui.unit.TextUnit takeOrElse(androidx.compose.ui.unit.TextUnit, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.TextUnit> block);
     method @BytecodeOnly public static long takeOrElse-eAf_CNQ(long, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.TextUnit!>);

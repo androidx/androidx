@@ -21,6 +21,10 @@ package androidx.compose.runtime {
     property @Deprecated public static androidx.compose.runtime.MonotonicFrameClock DefaultMonotonicFrameClock;
   }
 
+  public final class ActualJvm_jvmKt {
+    method @BytecodeOnly @Deprecated @kotlin.PublishedApi internal static <R> R synchronized(Object!, kotlin.jvm.functions.Function0<? extends R>!);
+  }
+
   @kotlin.jvm.JvmDefaultWithCompatibility public interface Applier<N> {
     method public default void apply(kotlin.jvm.functions.Function2<? super N,java.lang.Object?,kotlin.Unit> block, Object? value);
     method public void clear();
@@ -117,6 +121,7 @@ package androidx.compose.runtime {
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.InternalComposeApi @androidx.compose.runtime.ReadOnlyComposable @org.jetbrains.annotations.TestOnly public static androidx.compose.runtime.CompositionContext getCurrentCompositionContext(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.CompositionLocalContext getCurrentCompositionLocalContext(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static androidx.compose.runtime.RecomposeScope getCurrentRecomposeScope(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @kotlin.PublishedApi internal static void invalidApplier();
     method @KotlinOnly @androidx.compose.runtime.Composable public static inline <T> T key(java.lang.Object?... keys, kotlin.jvm.functions.Function0<T> block);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T key(Object![], kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,? extends T>, androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T remember(Object?, Object?, Object?, kotlin.jvm.functions.Function0<? extends T>, androidx.compose.runtime.Composer?, int);
@@ -250,6 +255,12 @@ package androidx.compose.runtime {
 
   public final class ComposerKt {
     method @androidx.compose.runtime.ComposeCompilerApi public static inline <T> T cache(androidx.compose.runtime.Composer, boolean invalid, kotlin.jvm.functions.Function0<? extends T> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal static Object getCompositionLocalMap();
+    method @BytecodeOnly @kotlin.PublishedApi internal static Object getInvocation();
+    method @BytecodeOnly @kotlin.PublishedApi internal static Object getProvider();
+    method @BytecodeOnly @kotlin.PublishedApi internal static Object getProviderMaps();
+    method @BytecodeOnly @kotlin.PublishedApi internal static Object getProviderValues();
+    method @BytecodeOnly @kotlin.PublishedApi internal static Object getReference();
     method @androidx.compose.runtime.ComposeCompilerApi public static boolean isTraceInProgress();
     method @androidx.compose.runtime.ComposeCompilerApi public static void sourceInformation(androidx.compose.runtime.Composer composer, String sourceInformation);
     method @androidx.compose.runtime.ComposeCompilerApi public static void sourceInformationMarkerEnd(androidx.compose.runtime.Composer composer);
@@ -257,6 +268,13 @@ package androidx.compose.runtime {
     method @androidx.compose.runtime.ComposeCompilerApi public static void traceEventEnd();
     method @androidx.compose.runtime.ComposeCompilerApi public static void traceEventStart(int key, int dirty1, int dirty2, String info);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.ComposeCompilerApi public static void traceEventStart(int, String!);
+    field @BytecodeOnly @kotlin.PublishedApi internal static final int compositionLocalMapKey = 202; // 0xca
+    field @BytecodeOnly @kotlin.PublishedApi internal static final int invocationKey = 200; // 0xc8
+    field @BytecodeOnly @kotlin.PublishedApi internal static final int providerKey = 201; // 0xc9
+    field @BytecodeOnly @kotlin.PublishedApi internal static final int providerMapsKey = 204; // 0xcc
+    field @BytecodeOnly @kotlin.PublishedApi internal static final int providerValuesKey = 203; // 0xcb
+    field @BytecodeOnly @kotlin.PublishedApi internal static final int referenceKey = 206; // 0xce
+    field @BytecodeOnly @kotlin.PublishedApi internal static final int reuseKey = 207; // 0xcf
   }
 
   public final class CompositeKeyHashCode_jvmKt {
@@ -328,6 +346,15 @@ package androidx.compose.runtime {
   public static final class CompositionLocalMap.Companion {
     method @InaccessibleFromKotlin public androidx.compose.runtime.CompositionLocalMap getEmpty();
     property public androidx.compose.runtime.CompositionLocalMap Empty;
+  }
+
+  @BytecodeOnly @kotlin.PublishedApi internal final class CompositionScopedCoroutineScopeCanceller implements androidx.compose.runtime.RememberObserver {
+    ctor public CompositionScopedCoroutineScopeCanceller(kotlinx.coroutines.CoroutineScope coroutineScope);
+    method @InaccessibleFromKotlin public kotlinx.coroutines.CoroutineScope getCoroutineScope();
+    method public void onAbandoned();
+    method public void onForgotten();
+    method public void onRemembered();
+    property public kotlinx.coroutines.CoroutineScope coroutineScope;
   }
 
   public interface CompositionServiceKey<T> {
@@ -432,6 +459,7 @@ package androidx.compose.runtime {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void SideEffect(Object![], kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ExplicitGroupsComposable @androidx.compose.runtime.NonRestartableComposable public static void SideEffect(kotlin.jvm.functions.Function0<kotlin.Unit> effect);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void SideEffect(kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @kotlin.PublishedApi internal static kotlinx.coroutines.CoroutineScope createCompositionCoroutineScope(kotlin.coroutines.CoroutineContext, androidx.compose.runtime.Composer);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static kotlinx.coroutines.CoroutineScope rememberCoroutineScope(kotlin.jvm.functions.Function0<? extends kotlin.coroutines.CoroutineContext!>?, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static inline kotlinx.coroutines.CoroutineScope rememberCoroutineScope(optional kotlin.jvm.functions.Function0<kotlin.coroutines.CoroutineContext> getContext);
   }
@@ -651,6 +679,10 @@ package androidx.compose.runtime {
     method public void invalidate();
   }
 
+  public final class RecomposeScopeImplKt {
+    method @BytecodeOnly @kotlin.PublishedApi internal static int updateChangedFlags(int);
+  }
+
   public final class Recomposer extends androidx.compose.runtime.CompositionContext {
     ctor public Recomposer(kotlin.coroutines.CoroutineContext effectCoroutineContext);
     method public androidx.compose.runtime.RecomposerInfo asRecomposerInfo();
@@ -868,6 +900,7 @@ package androidx.compose.runtime {
 package androidx.compose.runtime.collection {
 
   public final class MutableVector<T> implements java.util.RandomAccess {
+    ctor @BytecodeOnly @kotlin.PublishedApi internal MutableVector(T[], int);
     method public void add(int index, T element);
     method public boolean add(T element);
     method public inline boolean addAll(androidx.compose.runtime.collection.MutableVector<T> elements);
@@ -899,6 +932,7 @@ package androidx.compose.runtime.collection {
     method public inline void forEachReversed(kotlin.jvm.functions.Function1<? super T,kotlin.Unit> block);
     method public inline void forEachReversedIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> block);
     method public inline operator T get(int index);
+    method @BytecodeOnly @kotlin.PublishedApi internal T[] getContent();
     method @InaccessibleFromKotlin public inline kotlin.ranges.IntRange getIndices();
     method @InaccessibleFromKotlin public inline int getLastIndex();
     method @InaccessibleFromKotlin public int getSize();
@@ -925,14 +959,19 @@ package androidx.compose.runtime.collection {
     method public T removeAt(int index);
     method public inline void removeIf(kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method public void removeRange(int start, int end);
+    method @BytecodeOnly @kotlin.PublishedApi internal void resizeStorage(int);
     method public boolean retainAll(java.util.Collection<? extends T> elements);
     method public inline boolean reversedAny(kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method public operator T set(int index, T element);
+    method @BytecodeOnly @kotlin.PublishedApi internal void setSize(int);
     method public void sortWith(java.util.Comparator<T> comparator);
     method public inline int sumBy(kotlin.jvm.functions.Function1<? super T,java.lang.Integer> selector);
+    method @BytecodeOnly @kotlin.PublishedApi internal Void throwNoSuchElementException();
+    method @BytecodeOnly @kotlin.PublishedApi internal Void throwNoSuchElementException(String);
     property public inline kotlin.ranges.IntRange indices;
     property public inline int lastIndex;
     property public int size;
+    field @BytecodeOnly @kotlin.PublishedApi internal T?[] content;
   }
 
   public final class MutableVectorKt {
@@ -1036,6 +1075,14 @@ package androidx.compose.runtime.internal {
 
 }
 
+package androidx.compose.runtime.platform {
+
+  public final class Synchronization_androidKt {
+    method @BytecodeOnly @kotlin.PublishedApi internal static <R> R synchronized(Object, kotlin.jvm.functions.Function0<? extends R>);
+  }
+
+}
+
 package androidx.compose.runtime.reflect {
 
   public final class ComposableMethod {
@@ -1084,10 +1131,13 @@ package androidx.compose.runtime.snapshots {
     method public void dispose();
     method public final inline <T> T enter(kotlin.jvm.functions.Function0<? extends T> block);
     method @InaccessibleFromKotlin @Deprecated public int getId();
+    method @BytecodeOnly @kotlin.PublishedApi internal abstract kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? getReadObserver();
     method @InaccessibleFromKotlin public abstract boolean getReadOnly();
     method @InaccessibleFromKotlin public abstract androidx.compose.runtime.snapshots.Snapshot getRoot();
     method @InaccessibleFromKotlin public long getSnapshotId();
     method public abstract boolean hasPendingChanges();
+    method @BytecodeOnly @kotlin.PublishedApi internal androidx.compose.runtime.snapshots.Snapshot? makeCurrent();
+    method @BytecodeOnly @kotlin.PublishedApi internal void restoreCurrent(androidx.compose.runtime.snapshots.Snapshot?);
     method public abstract androidx.compose.runtime.snapshots.Snapshot takeNestedSnapshot(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver);
     method @BytecodeOnly public static androidx.compose.runtime.snapshots.Snapshot! takeNestedSnapshot$default(androidx.compose.runtime.snapshots.Snapshot!, kotlin.jvm.functions.Function1!, int, Object!);
     method public final androidx.compose.runtime.snapshots.Snapshot? unsafeEnter();
@@ -1101,16 +1151,22 @@ package androidx.compose.runtime.snapshots {
   }
 
   public static final class Snapshot.Companion {
+    method @BytecodeOnly @kotlin.PublishedApi internal androidx.compose.runtime.snapshots.Snapshot createNonObservableSnapshot();
     method @InaccessibleFromKotlin public androidx.compose.runtime.snapshots.Snapshot getCurrent();
+    method @BytecodeOnly @kotlin.PublishedApi internal androidx.compose.runtime.snapshots.Snapshot? getCurrentThreadSnapshot();
     method public inline <T> T global(kotlin.jvm.functions.Function0<? extends T> block);
     method @InaccessibleFromKotlin public boolean isApplyObserverNotificationPending();
     method @InaccessibleFromKotlin public boolean isInSnapshot();
+    method @BytecodeOnly @kotlin.PublishedApi internal androidx.compose.runtime.snapshots.Snapshot makeCurrentNonObservable(androidx.compose.runtime.snapshots.Snapshot?);
     method public void notifyObjectsInitialized();
     method public <T> T observe(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver, optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver, kotlin.jvm.functions.Function0<? extends T> block);
     method @BytecodeOnly public static Object! observe$default(androidx.compose.runtime.snapshots.Snapshot.Companion!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function0!, int, Object!);
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public int openSnapshotCount();
     method public androidx.compose.runtime.snapshots.ObserverHandle registerApplyObserver(kotlin.jvm.functions.Function2<? super java.util.Set<?>,? super androidx.compose.runtime.snapshots.Snapshot,kotlin.Unit> observer);
     method public androidx.compose.runtime.snapshots.ObserverHandle registerGlobalWriteObserver(kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> observer);
+    method @BytecodeOnly @kotlin.PublishedApi internal androidx.compose.runtime.snapshots.Snapshot? removeCurrent();
+    method @BytecodeOnly @kotlin.PublishedApi internal void restoreCurrent(androidx.compose.runtime.snapshots.Snapshot?);
+    method @BytecodeOnly @kotlin.PublishedApi internal void restoreNonObservable(androidx.compose.runtime.snapshots.Snapshot?, androidx.compose.runtime.snapshots.Snapshot, kotlin.jvm.functions.Function1<java.lang.Object!,kotlin.Unit!>?);
     method public void sendApplyNotifications();
     method public androidx.compose.runtime.snapshots.MutableSnapshot takeMutableSnapshot(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver, optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver);
     method @BytecodeOnly public static androidx.compose.runtime.snapshots.MutableSnapshot! takeMutableSnapshot$default(androidx.compose.runtime.snapshots.Snapshot.Companion!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, Object!);
@@ -1169,12 +1225,20 @@ package androidx.compose.runtime.snapshots {
   }
 
   public final class SnapshotKt {
+    method @BytecodeOnly @kotlin.PublishedApi internal static <T extends androidx.compose.runtime.snapshots.StateRecord> T current(T);
+    method @BytecodeOnly @kotlin.PublishedApi internal static <T extends androidx.compose.runtime.snapshots.StateRecord> T current(T, androidx.compose.runtime.snapshots.Snapshot);
+    method @BytecodeOnly @kotlin.PublishedApi internal static <T extends androidx.compose.runtime.snapshots.StateRecord> T current(T, androidx.compose.runtime.snapshots.StateObject);
+    method @BytecodeOnly @kotlin.PublishedApi internal static Object getLock();
+    method @BytecodeOnly @kotlin.PublishedApi internal static androidx.compose.runtime.snapshots.Snapshot getSnapshotInitializer();
+    method @BytecodeOnly @kotlin.PublishedApi internal static void notifyWrite(androidx.compose.runtime.snapshots.Snapshot, androidx.compose.runtime.snapshots.StateObject);
     method public static <T extends androidx.compose.runtime.snapshots.StateRecord> T readable(T, androidx.compose.runtime.snapshots.StateObject state);
     method public static <T extends androidx.compose.runtime.snapshots.StateRecord> T readable(T, androidx.compose.runtime.snapshots.StateObject state, androidx.compose.runtime.snapshots.Snapshot snapshot);
+    method @BytecodeOnly @kotlin.PublishedApi internal static <T> T sync(kotlin.jvm.functions.Function0<? extends T>);
     method public static inline <T extends androidx.compose.runtime.snapshots.StateRecord, R> R withCurrent(T, androidx.compose.runtime.snapshots.StateObject state, kotlin.jvm.functions.Function1<? super T,? extends R> block);
     method @Deprecated public static inline <T extends androidx.compose.runtime.snapshots.StateRecord, R> R withCurrent(T, kotlin.jvm.functions.Function1<? super T,? extends R> block);
     method public static inline <T extends androidx.compose.runtime.snapshots.StateRecord, R> R writable(T, androidx.compose.runtime.snapshots.StateObject state, androidx.compose.runtime.snapshots.Snapshot snapshot, kotlin.jvm.functions.Function1<? super T,? extends R> block);
     method public static inline <T extends androidx.compose.runtime.snapshots.StateRecord, R> R writable(T, androidx.compose.runtime.snapshots.StateObject state, kotlin.jvm.functions.Function1<? super T,? extends R> block);
+    method @BytecodeOnly @kotlin.PublishedApi internal static <T extends androidx.compose.runtime.snapshots.StateRecord> T writableRecord(T, androidx.compose.runtime.snapshots.StateObject, androidx.compose.runtime.snapshots.Snapshot);
   }
 
   public interface SnapshotMutableState<T> extends androidx.compose.runtime.MutableState<T> {

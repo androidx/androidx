@@ -38,10 +38,6 @@
          ! Include APIs restricted to subclasses because they're visible to library clients and must be tracked for binary compatibility.
          !-->
         <annotation-rule pattern="androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES)" effect="show"/>
-        <!--
-         ! Include Kotlin `@PublishedApi`s because they're required for binary stability of inline functions.
-         !-->
-        <annotation-rule pattern="kotlin.PublishedApi" effect="show"/>
       </selection-criteria>
     </api-surface>
 

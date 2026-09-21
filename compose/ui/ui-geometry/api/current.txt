@@ -49,6 +49,18 @@ package androidx.compose.ui.geometry {
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long lerp-3Ry4LBc(long, long, float);
   }
 
+  public final class InlineClassHelperKt {
+    field @BytecodeOnly @kotlin.PublishedApi internal static final long DualFirstNaN = 9187343246269874177L; // 0x7f8000017f800001L
+    field @BytecodeOnly @kotlin.PublishedApi internal static final long DualFloatInfinityBase = 9187343241974906880L; // 0x7f8000007f800000L
+    field @BytecodeOnly @kotlin.PublishedApi internal static final long DualFloatSignBit = -9223372034707292160L; // 0x8000000080000000L
+    field @BytecodeOnly @kotlin.PublishedApi internal static final long DualLoadedSignificand = 36028792732385279L; // 0x7fffff007fffffL
+    field @BytecodeOnly @kotlin.PublishedApi internal static final long DualUnsignedFloatMask = 9223372034707292159L; // 0x7fffffff7fffffffL
+    field @BytecodeOnly @kotlin.PublishedApi internal static final int FloatInfinityBase = 2139095040; // 0x7f800000
+    field @BytecodeOnly @kotlin.PublishedApi internal static final long Uint64High32 = -9223372034707292160L; // 0x8000000080000000L
+    field @BytecodeOnly @kotlin.PublishedApi internal static final long Uint64Low32 = 4294967297L; // 0x100000001L
+    field @BytecodeOnly @kotlin.PublishedApi internal static final long UnspecifiedPackedFloats = 9205357640488583168L; // 0x7fc000007fc00000L
+  }
+
   public final class MutableRect {
     ctor public MutableRect(float left, float top, float right, float bottom);
     method @KotlinOnly public operator boolean contains(androidx.compose.ui.geometry.Offset offset);
