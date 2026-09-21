@@ -21,9 +21,12 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -73,6 +76,28 @@ class A2uiObjectSchemaTest {
             put(DESCRIPTION_FIELD, TEST_DESCRIPTION_1)
         }
         assertThat(Json.parseToJsonElement(schema.toJsonSchema())).isEqualTo(expected)
+    }
+
+    @Test
+    fun toJsonSchema_withMultipleRequiredProperties_serializesRequiredInAlphabeticalOrder() {
+        val schema =
+            A2uiObjectSchema(
+                properties =
+                    mapOf(
+                        "zebra" to A2uiBooleanSchema(),
+                        "alpha" to A2uiBooleanSchema(),
+                        "middle" to A2uiBooleanSchema(),
+                    ),
+                // Pass in non-alphabetical order to ensure sorting occurs regardless of input set
+                // iteration order
+                required = linkedSetOf("zebra", "alpha", "middle"),
+            )
+
+        val jsonElement = Json.parseToJsonElement(schema.toJsonSchema()) as JsonObject
+        val requiredArray = jsonElement[REQUIRED_FIELD] as JsonArray
+        val requiredList = requiredArray.map { it.jsonPrimitive.content }
+
+        assertThat(requiredList).containsExactly("alpha", "middle", "zebra").inOrder()
     }
 
     @Test

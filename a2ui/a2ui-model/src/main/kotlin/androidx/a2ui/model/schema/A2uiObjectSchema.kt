@@ -61,7 +61,7 @@ public constructor(
         put(KEY_TYPE, TYPE_OBJECT)
         put(KEY_PROPERTIES, JsonObject(properties.mapValues { it.value.toJsonElement() }))
         if (required.isNotEmpty()) {
-            put(KEY_REQUIRED, JsonArray(required.map { JsonPrimitive(it) }))
+            put(KEY_REQUIRED, JsonArray(required.sorted().map { JsonPrimitive(it) }))
         }
         if (!isAdditionalPropertiesAllowed) {
             put(KEY_ADDITIONAL_PROPERTIES, false)
