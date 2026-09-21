@@ -27,7 +27,7 @@ import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.RequestProto
 
-fun AggregateRequest.toProto(): RequestProto.AggregateDataRequest =
+public fun AggregateRequest.toProto(): RequestProto.AggregateDataRequest =
     RequestProto.AggregateDataRequest.newBuilder()
         .setTimeSpec(timeRangeFilter.toProto())
         .addAllDataOrigin(dataOriginFilter.toProtoList())
@@ -35,7 +35,7 @@ fun AggregateRequest.toProto(): RequestProto.AggregateDataRequest =
         .build()
 
 @SuppressWarnings("NewApi")
-fun AggregateGroupByDurationRequest.toProto(): RequestProto.AggregateDataRequest =
+public fun AggregateGroupByDurationRequest.toProto(): RequestProto.AggregateDataRequest =
     RequestProto.AggregateDataRequest.newBuilder()
         .setTimeSpec(timeRangeFilter.toProto())
         .addAllDataOrigin(dataOriginFilter.toProtoList())
@@ -44,7 +44,7 @@ fun AggregateGroupByDurationRequest.toProto(): RequestProto.AggregateDataRequest
         .build()
 
 @SuppressWarnings("NewApi")
-fun AggregateGroupByPeriodRequest.toProto(): RequestProto.AggregateDataRequest =
+public fun AggregateGroupByPeriodRequest.toProto(): RequestProto.AggregateDataRequest =
     RequestProto.AggregateDataRequest.newBuilder()
         .setTimeSpec(timeRangeFilter.toProto())
         .addAllDataOrigin(dataOriginFilter.toProtoList())

@@ -27,7 +27,7 @@ import java.time.Instant
  * Location points contain a timestamp, longitude, latitude, and optionally altitude, horizontal and
  * vertical accuracy.
  */
-class ExerciseRoute constructor(val route: List<Location>) {
+public class ExerciseRoute constructor(public val route: List<Location>) {
     init {
         val sortedRoute: List<Location> = route.sortedBy { it.time }
         for (i in 0 until sortedRoute.lastIndex) {
@@ -62,16 +62,16 @@ class ExerciseRoute constructor(val route: List<Location>) {
      * @param verticalAccuracy in [Length] unit. Optional field. Valid range: non-negative numbers.
      * @see ExerciseRouteResult
      */
-    class Location(
-        val time: Instant,
-        val latitude: Double,
-        val longitude: Double,
-        val horizontalAccuracy: Length? = null,
-        val verticalAccuracy: Length? = null,
-        val altitude: Length? = null,
+    public class Location(
+        public val time: Instant,
+        public val latitude: Double,
+        public val longitude: Double,
+        public val horizontalAccuracy: Length? = null,
+        public val verticalAccuracy: Length? = null,
+        public val altitude: Length? = null,
     ) {
 
-        companion object {
+        public companion object {
             private const val MIN_LONGITUDE = -180.0
             private const val MAX_LONGITUDE = 180.0
             private const val MIN_LATITUDE = -90.0

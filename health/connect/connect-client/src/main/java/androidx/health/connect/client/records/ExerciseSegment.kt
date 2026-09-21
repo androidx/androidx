@@ -136,7 +136,7 @@ constructor(
         return "ExerciseSegment(startTime=$startTime, endTime=$endTime, segmentType=$segmentType, repetitions=$repetitions, weight=$weight, setIndex=$setIndex, rateOfPerceivedExertion=$rateOfPerceivedExertion)"
     }
 
-    companion object {
+    public companion object {
         /**
          * Is a segment type compatible with a session type.
          *
@@ -148,7 +148,7 @@ constructor(
          * @return True, if [sessionType] can contain the provided segment, otherwise false.
          */
         @JvmStatic
-        fun isSegmentTypeCompatibleWithSessionType(
+        public fun isSegmentTypeCompatibleWithSessionType(
             @ExerciseSegmentTypes segmentType: Int,
             @ExerciseTypes sessionType: Int,
         ): Boolean {
@@ -164,205 +164,205 @@ constructor(
         /** Next Id: 68. */
 
         /** Use this type if the type of the exercise segment is not known. */
-        const val EXERCISE_SEGMENT_TYPE_UNKNOWN = 0
+        public const val EXERCISE_SEGMENT_TYPE_UNKNOWN: Int = 0
 
         /** Use this type for arm curls. */
-        const val EXERCISE_SEGMENT_TYPE_ARM_CURL = 1
+        public const val EXERCISE_SEGMENT_TYPE_ARM_CURL: Int = 1
 
         /** Use this type for back extensions. */
-        const val EXERCISE_SEGMENT_TYPE_BACK_EXTENSION = 2
+        public const val EXERCISE_SEGMENT_TYPE_BACK_EXTENSION: Int = 2
 
         /** Use this type for ball slams. */
-        const val EXERCISE_SEGMENT_TYPE_BALL_SLAM = 3
+        public const val EXERCISE_SEGMENT_TYPE_BALL_SLAM: Int = 3
 
         /** Use this type for barbel shoulder press. */
-        const val EXERCISE_SEGMENT_TYPE_BARBELL_SHOULDER_PRESS = 4
+        public const val EXERCISE_SEGMENT_TYPE_BARBELL_SHOULDER_PRESS: Int = 4
 
         /** Use this type for bench presses. */
-        const val EXERCISE_SEGMENT_TYPE_BENCH_PRESS = 5
+        public const val EXERCISE_SEGMENT_TYPE_BENCH_PRESS: Int = 5
 
         /** Use this type for bench sit up. */
-        const val EXERCISE_SEGMENT_TYPE_BENCH_SIT_UP = 6
+        public const val EXERCISE_SEGMENT_TYPE_BENCH_SIT_UP: Int = 6
 
         /** Use this type for biking. */
-        const val EXERCISE_SEGMENT_TYPE_BIKING = 7
+        public const val EXERCISE_SEGMENT_TYPE_BIKING: Int = 7
 
         /** Use this type for stationary biking. */
-        const val EXERCISE_SEGMENT_TYPE_BIKING_STATIONARY = 8
+        public const val EXERCISE_SEGMENT_TYPE_BIKING_STATIONARY: Int = 8
 
         /** Use this type for burpees. */
-        const val EXERCISE_SEGMENT_TYPE_BURPEE = 9
+        public const val EXERCISE_SEGMENT_TYPE_BURPEE: Int = 9
 
         /** Use this type for crunches. */
-        const val EXERCISE_SEGMENT_TYPE_CRUNCH = 10
+        public const val EXERCISE_SEGMENT_TYPE_CRUNCH: Int = 10
 
         /** Use this type for deadlifts. */
-        const val EXERCISE_SEGMENT_TYPE_DEADLIFT = 11
+        public const val EXERCISE_SEGMENT_TYPE_DEADLIFT: Int = 11
 
         /** Use this type for double arms triceps extensions. */
-        const val EXERCISE_SEGMENT_TYPE_DOUBLE_ARM_TRICEPS_EXTENSION = 12
+        public const val EXERCISE_SEGMENT_TYPE_DOUBLE_ARM_TRICEPS_EXTENSION: Int = 12
 
         /** Use this type for left arm dumbbell curl. */
-        const val EXERCISE_SEGMENT_TYPE_DUMBBELL_CURL_LEFT_ARM = 13
+        public const val EXERCISE_SEGMENT_TYPE_DUMBBELL_CURL_LEFT_ARM: Int = 13
 
-        const val EXERCISE_SEGMENT_TYPE_DUMBBELL_CURL_RIGHT_ARM = 14
+        public const val EXERCISE_SEGMENT_TYPE_DUMBBELL_CURL_RIGHT_ARM: Int = 14
 
         /** Use this type for right arm dumbbell curl. */
-        const val EXERCISE_SEGMENT_TYPE_DUMBBELL_FRONT_RAISE = 15
+        public const val EXERCISE_SEGMENT_TYPE_DUMBBELL_FRONT_RAISE: Int = 15
 
         /** Use this type for dumbbell lateral raises. */
-        const val EXERCISE_SEGMENT_TYPE_DUMBBELL_LATERAL_RAISE = 16
+        public const val EXERCISE_SEGMENT_TYPE_DUMBBELL_LATERAL_RAISE: Int = 16
 
         /** Use this type for dumbbells rows. */
-        const val EXERCISE_SEGMENT_TYPE_DUMBBELL_ROW = 17
+        public const val EXERCISE_SEGMENT_TYPE_DUMBBELL_ROW: Int = 17
 
         /** Use this type for left arm triceps extensions. */
-        const val EXERCISE_SEGMENT_TYPE_DUMBBELL_TRICEPS_EXTENSION_LEFT_ARM = 18
+        public const val EXERCISE_SEGMENT_TYPE_DUMBBELL_TRICEPS_EXTENSION_LEFT_ARM: Int = 18
 
         /** Use this type for right arm triceps extensions. */
-        const val EXERCISE_SEGMENT_TYPE_DUMBBELL_TRICEPS_EXTENSION_RIGHT_ARM = 19
+        public const val EXERCISE_SEGMENT_TYPE_DUMBBELL_TRICEPS_EXTENSION_RIGHT_ARM: Int = 19
 
         /** Use this type for two arms triceps extensions. */
-        const val EXERCISE_SEGMENT_TYPE_DUMBBELL_TRICEPS_EXTENSION_TWO_ARM = 20
+        public const val EXERCISE_SEGMENT_TYPE_DUMBBELL_TRICEPS_EXTENSION_TWO_ARM: Int = 20
 
         /** Use this type for elliptical workout. */
-        const val EXERCISE_SEGMENT_TYPE_ELLIPTICAL = 21
+        public const val EXERCISE_SEGMENT_TYPE_ELLIPTICAL: Int = 21
 
         /** Use this type for forward twists. */
-        const val EXERCISE_SEGMENT_TYPE_FORWARD_TWIST = 22
+        public const val EXERCISE_SEGMENT_TYPE_FORWARD_TWIST: Int = 22
 
         /** Use this type for front raises. */
-        const val EXERCISE_SEGMENT_TYPE_FRONT_RAISE = 23
+        public const val EXERCISE_SEGMENT_TYPE_FRONT_RAISE: Int = 23
 
         /** Use this type for high intensity training. */
-        const val EXERCISE_SEGMENT_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING = 24
+        public const val EXERCISE_SEGMENT_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING: Int = 24
 
         /** Use this type for hip thrusts. */
-        const val EXERCISE_SEGMENT_TYPE_HIP_THRUST = 25
+        public const val EXERCISE_SEGMENT_TYPE_HIP_THRUST: Int = 25
 
         /** Use this type for hula-hoops. */
-        const val EXERCISE_SEGMENT_TYPE_HULA_HOOP = 26
+        public const val EXERCISE_SEGMENT_TYPE_HULA_HOOP: Int = 26
 
         /** Use this type for jumping jacks. */
-        const val EXERCISE_SEGMENT_TYPE_JUMPING_JACK = 27
+        public const val EXERCISE_SEGMENT_TYPE_JUMPING_JACK: Int = 27
 
         /** Use this type for jump rope. */
-        const val EXERCISE_SEGMENT_TYPE_JUMP_ROPE = 28
+        public const val EXERCISE_SEGMENT_TYPE_JUMP_ROPE: Int = 28
 
         /** Use this type for kettlebell swings. */
-        const val EXERCISE_SEGMENT_TYPE_KETTLEBELL_SWING = 29
+        public const val EXERCISE_SEGMENT_TYPE_KETTLEBELL_SWING: Int = 29
 
         /** Use this type for lateral raises. */
-        const val EXERCISE_SEGMENT_TYPE_LATERAL_RAISE = 30
+        public const val EXERCISE_SEGMENT_TYPE_LATERAL_RAISE: Int = 30
 
         /** Use this type for lat pull-downs. */
-        const val EXERCISE_SEGMENT_TYPE_LAT_PULL_DOWN = 31
+        public const val EXERCISE_SEGMENT_TYPE_LAT_PULL_DOWN: Int = 31
 
         /** Use this type for leg curls. */
-        const val EXERCISE_SEGMENT_TYPE_LEG_CURL = 32
+        public const val EXERCISE_SEGMENT_TYPE_LEG_CURL: Int = 32
 
         /** Use this type for leg extensions. */
-        const val EXERCISE_SEGMENT_TYPE_LEG_EXTENSION = 33
+        public const val EXERCISE_SEGMENT_TYPE_LEG_EXTENSION: Int = 33
 
         /** Use this type for leg presses. */
-        const val EXERCISE_SEGMENT_TYPE_LEG_PRESS = 34
+        public const val EXERCISE_SEGMENT_TYPE_LEG_PRESS: Int = 34
 
         /** Use this type for leg raises. */
-        const val EXERCISE_SEGMENT_TYPE_LEG_RAISE = 35
+        public const val EXERCISE_SEGMENT_TYPE_LEG_RAISE: Int = 35
 
         /** Use this type for lunges. */
-        const val EXERCISE_SEGMENT_TYPE_LUNGE = 36
+        public const val EXERCISE_SEGMENT_TYPE_LUNGE: Int = 36
 
         /** Use this type for mountain climber. */
-        const val EXERCISE_SEGMENT_TYPE_MOUNTAIN_CLIMBER = 37
+        public const val EXERCISE_SEGMENT_TYPE_MOUNTAIN_CLIMBER: Int = 37
 
         /** Use this type for other workout. */
-        const val EXERCISE_SEGMENT_TYPE_OTHER_WORKOUT = 38
+        public const val EXERCISE_SEGMENT_TYPE_OTHER_WORKOUT: Int = 38
 
         /** Use this type for the pause. */
-        const val EXERCISE_SEGMENT_TYPE_PAUSE = 39
+        public const val EXERCISE_SEGMENT_TYPE_PAUSE: Int = 39
 
         /** Use this type for pilates. */
-        const val EXERCISE_SEGMENT_TYPE_PILATES = 40
+        public const val EXERCISE_SEGMENT_TYPE_PILATES: Int = 40
 
         /** Use this type for plank. */
-        const val EXERCISE_SEGMENT_TYPE_PLANK = 41
+        public const val EXERCISE_SEGMENT_TYPE_PLANK: Int = 41
 
         /** Use this type for pull-ups. */
-        const val EXERCISE_SEGMENT_TYPE_PULL_UP = 42
+        public const val EXERCISE_SEGMENT_TYPE_PULL_UP: Int = 42
 
         /** Use this type for punches. */
-        const val EXERCISE_SEGMENT_TYPE_PUNCH = 43
+        public const val EXERCISE_SEGMENT_TYPE_PUNCH: Int = 43
 
         /** Use this type for the rest. */
-        const val EXERCISE_SEGMENT_TYPE_REST = 44
+        public const val EXERCISE_SEGMENT_TYPE_REST: Int = 44
 
         /** Use this type for rowing machine workout. */
-        const val EXERCISE_SEGMENT_TYPE_ROWING_MACHINE = 45
+        public const val EXERCISE_SEGMENT_TYPE_ROWING_MACHINE: Int = 45
 
         /** Use this type for running. */
-        const val EXERCISE_SEGMENT_TYPE_RUNNING = 46
+        public const val EXERCISE_SEGMENT_TYPE_RUNNING: Int = 46
 
         /** Use this type for treadmill running. */
-        const val EXERCISE_SEGMENT_TYPE_RUNNING_TREADMILL = 47
+        public const val EXERCISE_SEGMENT_TYPE_RUNNING_TREADMILL: Int = 47
 
-        const val EXERCISE_SEGMENT_TYPE_SHOULDER_PRESS = 48
+        public const val EXERCISE_SEGMENT_TYPE_SHOULDER_PRESS: Int = 48
 
         /** Use this type for shoulder press. */
-        const val EXERCISE_SEGMENT_TYPE_SINGLE_ARM_TRICEPS_EXTENSION = 49
+        public const val EXERCISE_SEGMENT_TYPE_SINGLE_ARM_TRICEPS_EXTENSION: Int = 49
 
         /** Use this type for sit-ups. */
-        const val EXERCISE_SEGMENT_TYPE_SIT_UP = 50
+        public const val EXERCISE_SEGMENT_TYPE_SIT_UP: Int = 50
 
         /** Use this type for squats. */
-        const val EXERCISE_SEGMENT_TYPE_SQUAT = 51
+        public const val EXERCISE_SEGMENT_TYPE_SQUAT: Int = 51
 
         /** Use this type for stair climbing. */
-        const val EXERCISE_SEGMENT_TYPE_STAIR_CLIMBING = 52
+        public const val EXERCISE_SEGMENT_TYPE_STAIR_CLIMBING: Int = 52
 
         /** Use this type for stair climbing machine. */
-        const val EXERCISE_SEGMENT_TYPE_STAIR_CLIMBING_MACHINE = 53
+        public const val EXERCISE_SEGMENT_TYPE_STAIR_CLIMBING_MACHINE: Int = 53
 
         /** Use this type for stretching. */
-        const val EXERCISE_SEGMENT_TYPE_STRETCHING = 54
+        public const val EXERCISE_SEGMENT_TYPE_STRETCHING: Int = 54
 
         /** Use this type for backstroke swimming. */
-        const val EXERCISE_SEGMENT_TYPE_SWIMMING_BACKSTROKE = 55
+        public const val EXERCISE_SEGMENT_TYPE_SWIMMING_BACKSTROKE: Int = 55
 
         /** Use this type for breaststroke swimming. */
-        const val EXERCISE_SEGMENT_TYPE_SWIMMING_BREASTSTROKE = 56
+        public const val EXERCISE_SEGMENT_TYPE_SWIMMING_BREASTSTROKE: Int = 56
 
         /** Use this type for butterfly swimming. */
-        const val EXERCISE_SEGMENT_TYPE_SWIMMING_BUTTERFLY = 57
+        public const val EXERCISE_SEGMENT_TYPE_SWIMMING_BUTTERFLY: Int = 57
 
-        const val EXERCISE_SEGMENT_TYPE_SWIMMING_FREESTYLE = 58
+        public const val EXERCISE_SEGMENT_TYPE_SWIMMING_FREESTYLE: Int = 58
 
         /** Use this type for mixed swimming. */
-        const val EXERCISE_SEGMENT_TYPE_SWIMMING_MIXED = 59
+        public const val EXERCISE_SEGMENT_TYPE_SWIMMING_MIXED: Int = 59
 
         /** Use this type for swimming in open water. */
-        const val EXERCISE_SEGMENT_TYPE_SWIMMING_OPEN_WATER = 60
+        public const val EXERCISE_SEGMENT_TYPE_SWIMMING_OPEN_WATER: Int = 60
 
         /** Use this type if other swimming styles are not suitable. */
-        const val EXERCISE_SEGMENT_TYPE_SWIMMING_OTHER = 61
+        public const val EXERCISE_SEGMENT_TYPE_SWIMMING_OTHER: Int = 61
 
         /** Use this type for swimming in the pool. */
-        const val EXERCISE_SEGMENT_TYPE_SWIMMING_POOL = 62
+        public const val EXERCISE_SEGMENT_TYPE_SWIMMING_POOL: Int = 62
 
         /** Use this type for upper twists. */
-        const val EXERCISE_SEGMENT_TYPE_UPPER_TWIST = 63
+        public const val EXERCISE_SEGMENT_TYPE_UPPER_TWIST: Int = 63
 
         /** Use this type for walking. */
-        const val EXERCISE_SEGMENT_TYPE_WALKING = 64
+        public const val EXERCISE_SEGMENT_TYPE_WALKING: Int = 64
 
         /** Use this type for weightlifting. */
-        const val EXERCISE_SEGMENT_TYPE_WEIGHTLIFTING = 65
+        public const val EXERCISE_SEGMENT_TYPE_WEIGHTLIFTING: Int = 65
 
         /** Use this type for wheelchair. */
-        const val EXERCISE_SEGMENT_TYPE_WHEELCHAIR = 66
+        public const val EXERCISE_SEGMENT_TYPE_WHEELCHAIR: Int = 66
 
         /** Use this type for yoga. */
-        const val EXERCISE_SEGMENT_TYPE_YOGA = 67
+        public const val EXERCISE_SEGMENT_TYPE_YOGA: Int = 67
 
         internal val UNIVERSAL_SESSION_TYPES =
             setOf(
@@ -558,6 +558,6 @@ constructor(
                     EXERCISE_SEGMENT_TYPE_PAUSE,
                 ]
         )
-        annotation class ExerciseSegmentTypes
+        public annotation class ExerciseSegmentTypes
     }
 }

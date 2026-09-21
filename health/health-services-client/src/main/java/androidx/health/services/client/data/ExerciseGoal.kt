@@ -24,15 +24,15 @@ import java.util.Objects
 
 /** Defines a goal for an exercise. */
 @SuppressLint("BanParcelableUsage") // Uses proto in implementation for compat
-class ExerciseGoal<T : Number>
+public class ExerciseGoal<T : Number>
 internal constructor(
     /**
      * The type of this exercise goal ([ExerciseGoalType.ONE_TIME_GOAL] or
      * [ExerciseGoalType.MILESTONE].)
      */
-    val exerciseGoalType: ExerciseGoalType,
-    val dataTypeCondition: DataTypeCondition<T, AggregateDataType<T, *>>,
-    val period: T? = null,
+    public val exerciseGoalType: ExerciseGoalType,
+    public val dataTypeCondition: DataTypeCondition<T, AggregateDataType<T, *>>,
+    public val period: T? = null,
 ) : Parcelable {
 
     public override fun describeContents(): Int = 0
@@ -90,9 +90,9 @@ internal constructor(
             "period=$period" +
             ")"
 
-    companion object {
+    public companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<ExerciseGoal<*>> =
+        public val CREATOR: Parcelable.Creator<ExerciseGoal<*>> =
             object : Parcelable.Creator<ExerciseGoal<*>> {
                 override fun createFromParcel(source: Parcel): ExerciseGoal<*>? {
                     val bytes: ByteArray = source.createByteArray() ?: return null
@@ -121,7 +121,7 @@ internal constructor(
          * satisfied.
          */
         @JvmStatic
-        fun <T : Number> createOneTimeGoal(
+        public fun <T : Number> createOneTimeGoal(
             condition: DataTypeCondition<T, AggregateDataType<T, *>>
         ): ExerciseGoal<T> {
             return ExerciseGoal(ExerciseGoalType.ONE_TIME_GOAL, condition)
@@ -133,14 +133,14 @@ internal constructor(
          * one for every 2km. This goal will there be triggered at distances = 2km, 4km, 6km, ...
          */
         @JvmStatic
-        fun <T : Number> createMilestone(
+        public fun <T : Number> createMilestone(
             condition: DataTypeCondition<T, AggregateDataType<T, *>>,
             period: T,
         ): ExerciseGoal<T> = ExerciseGoal(ExerciseGoalType.MILESTONE, condition, period)
 
         /** Creates a new goal that is the same as a given goal but with a new threshold value. */
         @JvmStatic
-        fun <T : Number> createMilestoneGoalWithUpdatedThreshold(
+        public fun <T : Number> createMilestoneGoalWithUpdatedThreshold(
             goal: ExerciseGoal<T>,
             newThreshold: T,
         ): ExerciseGoal<T> {

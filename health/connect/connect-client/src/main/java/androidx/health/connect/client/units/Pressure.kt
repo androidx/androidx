@@ -21,11 +21,11 @@ package androidx.health.connect.client.units
  * - millimeters of Mercury (mmHg) - see [Pressure.millimetersOfMercury],
  *   [Double.millimetersOfMercury].
  */
-class Pressure private constructor(private val value: Double) : Comparable<Pressure> {
+public class Pressure private constructor(private val value: Double) : Comparable<Pressure> {
 
     /** Returns the pressure in millimeters of Mercury (mmHg). */
     @get:JvmName("getMillimetersOfMercury")
-    val inMillimetersOfMercury: Double
+    public val inMillimetersOfMercury: Double
         get() = value
 
     /** Returns zero [Pressure] of the same type (currently there is only one type - mmHg). */
@@ -44,30 +44,30 @@ class Pressure private constructor(private val value: Double) : Comparable<Press
 
     override fun toString(): String = "$value mmHg"
 
-    companion object {
+    public companion object {
         private val ZERO = Pressure(value = 0.0)
 
         /** Creates [Pressure] with the specified value in millimeters of Mercury (mmHg). */
-        @JvmStatic fun millimetersOfMercury(value: Double): Pressure = Pressure(value)
+        @JvmStatic public fun millimetersOfMercury(value: Double): Pressure = Pressure(value)
     }
 }
 
 /** Creates [Pressure] with the specified value in millimeters of Mercury (mmHg). */
 @get:JvmSynthetic
-val Double.millimetersOfMercury: Pressure
+public val Double.millimetersOfMercury: Pressure
     get() = Pressure.millimetersOfMercury(value = this)
 
 /** Creates [Pressure] with the specified value in millimeters of Mercury (mmHg). */
 @get:JvmSynthetic
-val Long.millimetersOfMercury: Pressure
+public val Long.millimetersOfMercury: Pressure
     get() = toDouble().millimetersOfMercury
 
 /** Creates [Pressure] with the specified value in millimeters of Mercury (mmHg). */
 @get:JvmSynthetic
-val Float.millimetersOfMercury: Pressure
+public val Float.millimetersOfMercury: Pressure
     get() = toDouble().millimetersOfMercury
 
 /** Creates [Pressure] with the specified value in millimeters of Mercury (mmHg). */
 @get:JvmSynthetic
-val Int.millimetersOfMercury: Pressure
+public val Int.millimetersOfMercury: Pressure
     get() = toDouble().millimetersOfMercury

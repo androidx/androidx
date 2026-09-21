@@ -22,14 +22,15 @@ import androidx.health.platform.client.proto.RequestProto
 
 /** Internal parcelable for IPC calls. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class DeleteDataRangeRequest(override val proto: RequestProto.DeleteDataRangeRequest) :
+public class DeleteDataRangeRequest(override val proto: RequestProto.DeleteDataRangeRequest) :
     ProtoParcelable<RequestProto.DeleteDataRangeRequest>() {
 
-    companion object {
+    public companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<DeleteDataRangeRequest> = ProtoParcelable.newCreator {
-            val proto = RequestProto.DeleteDataRangeRequest.parseFrom(it)
-            DeleteDataRangeRequest(proto)
-        }
+        public val CREATOR: Parcelable.Creator<DeleteDataRangeRequest> =
+            ProtoParcelable.newCreator {
+                val proto = RequestProto.DeleteDataRangeRequest.parseFrom(it)
+                DeleteDataRangeRequest(proto)
+            }
     }
 }

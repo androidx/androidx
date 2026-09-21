@@ -86,7 +86,7 @@ public class TotalCaloriesBurnedRecord(
         return "TotalCaloriesBurnedRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, energy=$energy, metadata=$metadata)"
     }
 
-    companion object {
+    public companion object {
         private val MAX_ENERGY = 1000_000.kilocalories
 
         /**
@@ -94,7 +94,7 @@ public class TotalCaloriesBurnedRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val ENERGY_TOTAL: AggregateMetric<Energy> =
+        public val ENERGY_TOTAL: AggregateMetric<Energy> =
             AggregateMetric.doubleMetric(
                 dataTypeName = "TotalCaloriesBurned",
                 aggregationType = AggregateMetric.AggregationType.TOTAL,

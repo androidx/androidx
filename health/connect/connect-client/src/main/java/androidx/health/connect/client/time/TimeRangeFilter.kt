@@ -34,15 +34,16 @@ import java.time.LocalDateTime
  *   without knowing which time zone the user was at that time. [Record] without specifying
  *   zoneOffset will assume the current system zone offset at query time.
  */
-class TimeRangeFilter
+public class TimeRangeFilter
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val startTime: Instant? = null,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val endTime: Instant? = null,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val localStartTime: LocalDateTime? = null,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val localEndTime: LocalDateTime? = null,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val startTime: Instant? = null,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val endTime: Instant? = null,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val localStartTime: LocalDateTime? = null,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val localEndTime: LocalDateTime? = null,
 ) {
-    companion object {
+    public companion object {
         /**
          * Creates a [TimeRangeFilter] for a time range within the [Instant] time range [startTime,
          * endTime).
@@ -58,7 +59,7 @@ constructor(
          * @see after for time range with open-ended [endTime].
          */
         @JvmStatic
-        fun between(startTime: Instant, endTime: Instant): TimeRangeFilter {
+        public fun between(startTime: Instant, endTime: Instant): TimeRangeFilter {
             require(startTime.isBefore(endTime)) { "end time needs be after start time" }
             return TimeRangeFilter(startTime = startTime, endTime = endTime)
         }
@@ -74,7 +75,7 @@ constructor(
          * @see after for time range with open-ended [endTime].
          */
         @JvmStatic
-        fun between(startTime: LocalDateTime, endTime: LocalDateTime): TimeRangeFilter {
+        public fun between(startTime: LocalDateTime, endTime: LocalDateTime): TimeRangeFilter {
             require(startTime.isBefore(endTime)) { "end time needs be after start time" }
             return TimeRangeFilter(
                 startTime = null,
@@ -93,7 +94,8 @@ constructor(
          * @see after for time range with open-ended [endTime]
          */
         @JvmStatic
-        fun before(endTime: Instant) = TimeRangeFilter(startTime = null, endTime = endTime)
+        public fun before(endTime: Instant): TimeRangeFilter =
+            TimeRangeFilter(startTime = null, endTime = endTime)
 
         /**
          * Creates a [TimeRangeFilter] for a time range until the given [endTime].
@@ -104,7 +106,7 @@ constructor(
          * @see after for time range with open-ended [endTime]
          */
         @JvmStatic
-        fun before(endTime: LocalDateTime) =
+        public fun before(endTime: LocalDateTime): TimeRangeFilter =
             TimeRangeFilter(
                 startTime = null,
                 endTime = null,
@@ -120,7 +122,9 @@ constructor(
          * @see between for closed-ended time range.
          * @see after for time range with open-ended [startTime]
          */
-        @JvmStatic fun after(startTime: Instant) = TimeRangeFilter(startTime = startTime)
+        @JvmStatic
+        public fun after(startTime: Instant): TimeRangeFilter =
+            TimeRangeFilter(startTime = startTime)
 
         /**
          * Creates a [TimeRangeFilter] for a time range after the given [startTime].
@@ -131,7 +135,7 @@ constructor(
          * @see after for time range with open-ended [startTime]
          */
         @JvmStatic
-        fun after(startTime: LocalDateTime) =
+        public fun after(startTime: LocalDateTime): TimeRangeFilter =
             TimeRangeFilter(startTime = null, endTime = null, localStartTime = startTime)
     }
 

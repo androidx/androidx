@@ -21,4 +21,4 @@ package androidx.health.connect.client.feature
         "This is a part of the Personal Health Record experimental Health Connect APIs and could change in the future."
 )
 @Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalPersonalHealthRecordApi
+public annotation class ExperimentalPersonalHealthRecordApi

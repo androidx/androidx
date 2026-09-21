@@ -30,5 +30,5 @@ constructor(
      * [androidx.health.connect.client.metadata.Metadata.recordId] of inserted [Record] in same order as
      * passed to [androidx.health.connect.client.HealthDataClient.insertRecords].
      */
-    val recordIdsList: List<String>
+    public val recordIdsList: List<String>
 )

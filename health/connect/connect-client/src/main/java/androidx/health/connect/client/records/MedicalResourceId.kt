@@ -45,10 +45,10 @@ import androidx.health.connect.client.records.FhirResource.Companion.FhirResourc
  *   [MedicalDataSource].
  */
 @ExperimentalPersonalHealthRecordApi
-class MedicalResourceId(
-    val dataSourceId: String,
-    @FhirResourceType val fhirResourceType: Int,
-    val fhirResourceId: String,
+public class MedicalResourceId(
+    public val dataSourceId: String,
+    @FhirResourceType public val fhirResourceType: Int,
+    public val fhirResourceId: String,
 ) {
     @SuppressLint("NewApi") // already checked with a feature availability check
     internal val platformMedicalResourceId: PlatformMedicalResourceId =
@@ -78,7 +78,7 @@ class MedicalResourceId(
         return result
     }
 
-    override fun toString() =
+    override fun toString(): String =
         toString(
             this,
             mapOf(
@@ -88,7 +88,7 @@ class MedicalResourceId(
             ),
         )
 
-    companion object {
+    public companion object {
         /**
          * Creates a [MedicalResourceId] instance from `dataSourceId` and `fhirReference`.
          *
@@ -111,7 +111,10 @@ class MedicalResourceId(
          */
         @SuppressLint("NewApi") // checked with feature availability
         @JvmStatic
-        fun fromFhirReference(dataSourceId: String, fhirReference: String): MedicalResourceId =
+        public fun fromFhirReference(
+            dataSourceId: String,
+            fhirReference: String,
+        ): MedicalResourceId =
             withPhrFeatureCheck(this::class, "fromFhirReference") {
                 PlatformMedicalResourceId.fromFhirReference(dataSourceId, fhirReference)
                     .toSdkMedicalResourceId()

@@ -25,5 +25,5 @@ import androidx.annotation.RestrictTo
  * @property changes List of changes required to sync.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class ChangesEvent
+public class ChangesEvent
 internal constructor(public val nextChangesToken: String, public val changes: List<Change>)

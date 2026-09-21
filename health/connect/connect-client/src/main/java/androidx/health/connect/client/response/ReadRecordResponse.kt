@@ -23,6 +23,6 @@ import androidx.health.connect.client.records.Record
  *
  * @see [androidx.health.connect.client.HealthConnectClient.readRecord]
  */
-class ReadRecordResponse<T : Record>
+public class ReadRecordResponse<T : Record>
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-constructor(val record: T)
+constructor(public val record: T)

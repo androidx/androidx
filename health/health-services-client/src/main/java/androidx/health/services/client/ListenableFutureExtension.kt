@@ -29,7 +29,7 @@ import kotlin.jvm.Throws
  * @throws HealthServicesException if remote operation fails
  */
 @Throws(HealthServicesException::class)
-suspend fun <T> ListenableFuture<T>.awaitWithException(): T {
+public suspend fun <T> ListenableFuture<T>.awaitWithException(): T {
     val t: T =
         try {
             await()

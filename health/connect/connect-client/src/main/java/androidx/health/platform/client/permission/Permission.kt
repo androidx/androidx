@@ -22,12 +22,12 @@ import androidx.health.platform.client.proto.PermissionProto
 
 /** Internal parcelable wrapper over proto object. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class Permission(override val proto: PermissionProto.Permission) :
+public class Permission(override val proto: PermissionProto.Permission) :
     ProtoParcelable<PermissionProto.Permission>() {
 
-    companion object {
+    public companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<Permission> = newCreator {
+        public val CREATOR: Parcelable.Creator<Permission> = newCreator {
             val proto = PermissionProto.Permission.parseFrom(it)
             Permission(proto)
         }

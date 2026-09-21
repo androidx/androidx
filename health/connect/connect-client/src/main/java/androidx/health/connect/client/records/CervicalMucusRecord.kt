@@ -38,28 +38,28 @@ public class CervicalMucusRecord(
     @property:Sensations public val sensation: Int = SENSATION_UNKNOWN,
 ) : InstantaneousRecord {
 
-    companion object {
-        const val APPEARANCE_UNKNOWN = 0
-        const val APPEARANCE_DRY = 1
-        const val APPEARANCE_STICKY = 2
-        const val APPEARANCE_CREAMY = 3
-        const val APPEARANCE_WATERY = 4
+    public companion object {
+        public const val APPEARANCE_UNKNOWN: Int = 0
+        public const val APPEARANCE_DRY: Int = 1
+        public const val APPEARANCE_STICKY: Int = 2
+        public const val APPEARANCE_CREAMY: Int = 3
+        public const val APPEARANCE_WATERY: Int = 4
 
         /** A constant describing clear or egg white like looking cervical mucus. */
-        const val APPEARANCE_EGG_WHITE = 5
+        public const val APPEARANCE_EGG_WHITE: Int = 5
 
         /** A constant describing an unusual (worth attention) kind of cervical mucus. */
-        const val APPEARANCE_UNUSUAL = 6
+        public const val APPEARANCE_UNUSUAL: Int = 6
 
-        const val SENSATION_UNKNOWN = 0
-        const val SENSATION_LIGHT = 1
-        const val SENSATION_MEDIUM = 2
-        const val SENSATION_HEAVY = 3
+        public const val SENSATION_UNKNOWN: Int = 0
+        public const val SENSATION_LIGHT: Int = 1
+        public const val SENSATION_MEDIUM: Int = 2
+        public const val SENSATION_HEAVY: Int = 3
 
         /** Internal mappings useful for interoperability between integers and strings. */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val APPEARANCE_STRING_TO_INT_MAP: Map<String, Int> =
+        public val APPEARANCE_STRING_TO_INT_MAP: Map<String, Int> =
             mapOf(
                 Appearance.CLEAR to APPEARANCE_EGG_WHITE,
                 Appearance.CREAMY to APPEARANCE_CREAMY,
@@ -71,11 +71,12 @@ public class CervicalMucusRecord(
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val APPEARANCE_INT_TO_STRING_MAP = APPEARANCE_STRING_TO_INT_MAP.reverse()
+        public val APPEARANCE_INT_TO_STRING_MAP: Map<Int, String> =
+            APPEARANCE_STRING_TO_INT_MAP.reverse()
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val SENSATION_STRING_TO_INT_MAP: Map<String, Int> =
+        public val SENSATION_STRING_TO_INT_MAP: Map<String, Int> =
             mapOf(
                 Sensation.LIGHT to SENSATION_LIGHT,
                 Sensation.MEDIUM to SENSATION_MEDIUM,
@@ -84,7 +85,8 @@ public class CervicalMucusRecord(
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val SENSATION_INT_TO_STRING_MAP = SENSATION_STRING_TO_INT_MAP.reverse()
+        public val SENSATION_INT_TO_STRING_MAP: Map<Int, String> =
+            SENSATION_STRING_TO_INT_MAP.reverse()
     }
 
     /** List of supported Cervical Mucus Sensation types on Health Platform. */
@@ -98,7 +100,7 @@ public class CervicalMucusRecord(
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(value = [SENSATION_UNKNOWN, SENSATION_LIGHT, SENSATION_MEDIUM, SENSATION_HEAVY])
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    annotation class Sensations
+    public annotation class Sensations
 
     /** The consistency or appearance of the user's cervical mucus. */
     internal object Appearance {
@@ -125,7 +127,7 @@ public class CervicalMucusRecord(
             ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    annotation class Appearances
+    public annotation class Appearances
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

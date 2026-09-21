@@ -29,8 +29,8 @@ import java.util.Objects
  * @property golfShotTrackingPlaceInfo location where user takes [DataType.GOLF_SHOT_COUNT] during
  *   [ExerciseType.GOLF] activity
  */
-class GolfExerciseTypeConfig(
-    val golfShotTrackingPlaceInfo: GolfShotTrackingPlaceInfo =
+public class GolfExerciseTypeConfig(
+    public val golfShotTrackingPlaceInfo: GolfShotTrackingPlaceInfo =
         GOLF_SHOT_TRACKING_PLACE_INFO_UNSPECIFIED
 ) : ExerciseTypeConfig() {
 
@@ -45,7 +45,7 @@ class GolfExerciseTypeConfig(
      * The tracking information for a golf shot used in [GolfExerciseTypeConfig]. It is the semantic
      * location of a user while golfing to assist golf swing activity recognition algorithms.
      */
-    class GolfShotTrackingPlaceInfo private constructor(val placeInfoId: Int) {
+    public class GolfShotTrackingPlaceInfo private constructor(public val placeInfoId: Int) {
         override fun equals(other: Any?): Boolean {
             return other is GolfShotTrackingPlaceInfo && other.placeInfoId == this.placeInfoId
         }
@@ -65,7 +65,7 @@ class GolfExerciseTypeConfig(
             return "GolfShotTrackingPlaceInfo(placeInfoId=$placeInfoId):$name"
         }
 
-        companion object {
+        public companion object {
             internal fun GolfShotTrackingPlaceInfo.toProto():
                 DataProto.GolfShotTrackingPlaceInfoType =
                 when (this) {
@@ -98,16 +98,24 @@ class GolfExerciseTypeConfig(
                 }
 
             /** The golf shot is being taken from an unspecified place. */
-            @JvmField val GOLF_SHOT_TRACKING_PLACE_INFO_UNSPECIFIED = GolfShotTrackingPlaceInfo(0)
+            @JvmField
+            public val GOLF_SHOT_TRACKING_PLACE_INFO_UNSPECIFIED: GolfShotTrackingPlaceInfo =
+                GolfShotTrackingPlaceInfo(0)
 
             /** The golf shot is being taken from the fairway. */
-            @JvmField val GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY = GolfShotTrackingPlaceInfo(1)
+            @JvmField
+            public val GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY: GolfShotTrackingPlaceInfo =
+                GolfShotTrackingPlaceInfo(1)
 
             /** The golf shot is being taken from the putting green. */
-            @JvmField val GOLF_SHOT_TRACKING_PLACE_INFO_PUTTING_GREEN = GolfShotTrackingPlaceInfo(2)
+            @JvmField
+            public val GOLF_SHOT_TRACKING_PLACE_INFO_PUTTING_GREEN: GolfShotTrackingPlaceInfo =
+                GolfShotTrackingPlaceInfo(2)
 
             /** The golf shot is being taken from the tee box area. */
-            @JvmField val GOLF_SHOT_TRACKING_PLACE_INFO_TEE_BOX = GolfShotTrackingPlaceInfo(3)
+            @JvmField
+            public val GOLF_SHOT_TRACKING_PLACE_INFO_TEE_BOX: GolfShotTrackingPlaceInfo =
+                GolfShotTrackingPlaceInfo(3)
         }
     }
 

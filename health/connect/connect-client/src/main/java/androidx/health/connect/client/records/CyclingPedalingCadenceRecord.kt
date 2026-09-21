@@ -75,7 +75,7 @@ public class CyclingPedalingCadenceRecord(
         return "CyclingPedalingCadenceRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, samples=$samples, metadata=$metadata)"
     }
 
-    companion object {
+    public companion object {
         private const val TYPE = "CyclingPedalingCadenceSeries"
         private const val RPM_FIELD = "rpm"
         private val MAX_RPM = 10_000.0
@@ -84,19 +84,22 @@ public class CyclingPedalingCadenceRecord(
          * Metric identifier to retrieve average cycling pedaling cadence from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
-        @JvmField val RPM_AVG: AggregateMetric<Double> = doubleMetric(TYPE, AVERAGE, RPM_FIELD)
+        @JvmField
+        public val RPM_AVG: AggregateMetric<Double> = doubleMetric(TYPE, AVERAGE, RPM_FIELD)
 
         /**
          * Metric identifier to retrieve minimum cycling pedaling cadence from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
-        @JvmField val RPM_MIN: AggregateMetric<Double> = doubleMetric(TYPE, MINIMUM, RPM_FIELD)
+        @JvmField
+        public val RPM_MIN: AggregateMetric<Double> = doubleMetric(TYPE, MINIMUM, RPM_FIELD)
 
         /**
          * Metric identifier to retrieve maximum cycling pedaling cadence from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
-        @JvmField val RPM_MAX: AggregateMetric<Double> = doubleMetric(TYPE, MAXIMUM, RPM_FIELD)
+        @JvmField
+        public val RPM_MAX: AggregateMetric<Double> = doubleMetric(TYPE, MAXIMUM, RPM_FIELD)
     }
 
     /**
@@ -107,8 +110,8 @@ public class CyclingPedalingCadenceRecord(
      * @see CyclingPedalingCadenceRecord
      */
     public class Sample(
-        val time: Instant,
-        @FloatRange(from = 0.0, to = 10_000.0) val revolutionsPerMinute: Double,
+        public val time: Instant,
+        @FloatRange(from = 0.0, to = 10_000.0) public val revolutionsPerMinute: Double,
     ) {
 
         init {

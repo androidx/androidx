@@ -22,14 +22,15 @@ import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.RequestProto
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class GetChangesTokenRequest(override val proto: RequestProto.GetChangesTokenRequest) :
+public class GetChangesTokenRequest(override val proto: RequestProto.GetChangesTokenRequest) :
     ProtoParcelable<RequestProto.GetChangesTokenRequest>() {
 
-    companion object {
+    public companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<GetChangesTokenRequest> = ProtoParcelable.newCreator {
-            val proto = RequestProto.GetChangesTokenRequest.parseFrom(it)
-            GetChangesTokenRequest(proto)
-        }
+        public val CREATOR: Parcelable.Creator<GetChangesTokenRequest> =
+            ProtoParcelable.newCreator {
+                val proto = RequestProto.GetChangesTokenRequest.parseFrom(it)
+                GetChangesTokenRequest(proto)
+            }
     }
 }

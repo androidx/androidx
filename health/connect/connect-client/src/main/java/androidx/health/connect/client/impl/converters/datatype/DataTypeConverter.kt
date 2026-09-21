@@ -23,13 +23,13 @@ import androidx.health.platform.client.proto.DataProto.DataType
 import kotlin.reflect.KClass
 
 /** Converts public API object into internal proto for ipc. */
-fun KClass<out Record>.toDataTypeName(): String =
+public fun KClass<out Record>.toDataTypeName(): String =
     RECORDS_CLASS_NAME_MAP[this] ?: throw UnsupportedOperationException("Not supported yet: $this")
 
-fun KClass<out Record>.toDataType(): DataType =
+public fun KClass<out Record>.toDataType(): DataType =
     DataType.newBuilder().setName(toDataTypeName()).build()
 
-fun String.toDataTypeKClass(): KClass<out Record> =
+public fun String.toDataTypeKClass(): KClass<out Record> =
     RECORDS_TYPE_NAME_MAP[this] ?: throw UnsupportedOperationException("Not supported yet: $this")
 
-fun DataType.toDataTypeKClass(): KClass<out Record> = name.toDataTypeKClass()
+public fun DataType.toDataTypeKClass(): KClass<out Record> = name.toDataTypeKClass()

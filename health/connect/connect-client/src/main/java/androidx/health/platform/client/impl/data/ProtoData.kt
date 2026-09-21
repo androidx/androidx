@@ -20,9 +20,9 @@ import androidx.health.platform.client.proto.MessageLite
 
 /** Base class for data objects backed by protos. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-abstract class ProtoData<T : MessageLite> {
+public abstract class ProtoData<T : MessageLite> {
     /** Proto representation of this object. */
-    abstract val proto: T
+    public abstract val proto: T
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

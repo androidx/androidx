@@ -72,7 +72,7 @@ public class RestingHeartRateRecord(
         return "RestingHeartRateRecord(time=$time, zoneOffset=$zoneOffset, beatsPerMinute=$beatsPerMinute, metadata=$metadata)"
     }
 
-    companion object {
+    public companion object {
         private const val REST_HEART_RATE_TYPE_NAME = "RestingHeartRate"
         private const val BPM_FIELD_NAME = "bpm"
 
@@ -80,7 +80,7 @@ public class RestingHeartRateRecord(
          * Metric identifier to retrieve the average resting heart rate from [AggregationResult].
          */
         @JvmField
-        val BPM_AVG: AggregateMetric<Long> =
+        public val BPM_AVG: AggregateMetric<Long> =
             AggregateMetric.longMetric(
                 REST_HEART_RATE_TYPE_NAME,
                 AggregateMetric.AggregationType.AVERAGE,
@@ -91,7 +91,7 @@ public class RestingHeartRateRecord(
          * Metric identifier to retrieve the minimum resting heart rate from [AggregationResult].
          */
         @JvmField
-        val BPM_MIN: AggregateMetric<Long> =
+        public val BPM_MIN: AggregateMetric<Long> =
             AggregateMetric.longMetric(
                 REST_HEART_RATE_TYPE_NAME,
                 AggregateMetric.AggregationType.MINIMUM,
@@ -102,7 +102,7 @@ public class RestingHeartRateRecord(
          * Metric identifier to retrieve the maximum resting heart rate from [AggregationResult].
          */
         @JvmField
-        val BPM_MAX: AggregateMetric<Long> =
+        public val BPM_MAX: AggregateMetric<Long> =
             AggregateMetric.longMetric(
                 REST_HEART_RATE_TYPE_NAME,
                 AggregateMetric.AggregationType.MAXIMUM,

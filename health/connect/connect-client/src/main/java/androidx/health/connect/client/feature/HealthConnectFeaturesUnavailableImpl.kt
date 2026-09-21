@@ -24,6 +24,7 @@ import androidx.health.connect.client.HealthConnectFeatures
  * [getFeatureStatus].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object HealthConnectFeaturesUnavailableImpl : HealthConnectFeatures {
-    override fun getFeatureStatus(feature: Int) = HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE
+public object HealthConnectFeaturesUnavailableImpl : HealthConnectFeatures {
+    override fun getFeatureStatus(feature: Int): Int =
+        HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE
 }

@@ -77,7 +77,7 @@ public class HydrationRecord(
         return "HydrationRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, volume=$volume, metadata=$metadata)"
     }
 
-    companion object {
+    public companion object {
         private val MAX_VOLUME = 100.liters
 
         /**
@@ -85,7 +85,7 @@ public class HydrationRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val VOLUME_TOTAL: AggregateMetric<Volume> =
+        public val VOLUME_TOTAL: AggregateMetric<Volume> =
             AggregateMetric.doubleMetric(
                 dataTypeName = "Hydration",
                 aggregationType = AggregateMetric.AggregationType.TOTAL,

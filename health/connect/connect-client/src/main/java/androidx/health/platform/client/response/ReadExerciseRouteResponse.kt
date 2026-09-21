@@ -21,14 +21,16 @@ import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.ResponseProto
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class ReadExerciseRouteResponse(override val proto: ResponseProto.ReadExerciseRouteResponse) :
-    ProtoParcelable<ResponseProto.ReadExerciseRouteResponse>() {
+public class ReadExerciseRouteResponse(
+    override val proto: ResponseProto.ReadExerciseRouteResponse
+) : ProtoParcelable<ResponseProto.ReadExerciseRouteResponse>() {
 
-    companion object {
+    public companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<ReadExerciseRouteResponse> = ProtoParcelable.newCreator {
-            val proto = ResponseProto.ReadExerciseRouteResponse.parseFrom(it)
-            ReadExerciseRouteResponse(proto)
-        }
+        public val CREATOR: Parcelable.Creator<ReadExerciseRouteResponse> =
+            ProtoParcelable.newCreator {
+                val proto = ResponseProto.ReadExerciseRouteResponse.parseFrom(it)
+                ReadExerciseRouteResponse(proto)
+            }
     }
 }

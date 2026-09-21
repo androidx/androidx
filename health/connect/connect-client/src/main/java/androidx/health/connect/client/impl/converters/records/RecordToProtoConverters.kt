@@ -69,7 +69,7 @@ import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.platform.client.proto.DataProto
 
 /** Converts public API object into internal proto for ipc. */
-fun Record.toProto(): DataProto.DataPoint =
+public fun Record.toProto(): DataProto.DataPoint =
     when (this) {
         is ActivityIntensityRecord ->
             intervalProto()

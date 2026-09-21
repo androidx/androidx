@@ -70,7 +70,7 @@ import kotlin.reflect.KClass
  * @see androidx.health.connect.client.PermissionController
  */
 public class HealthPermission internal constructor() {
-    companion object {
+    public companion object {
         /**
          * Returns a permission defined in [HealthPermission] to read records of type [T], such as
          * `StepsRecord`.
@@ -79,7 +79,7 @@ public class HealthPermission internal constructor() {
          * @throws IllegalArgumentException if the given record type is invalid.
          */
         @JvmStatic
-        inline fun <reified T : Record> getReadPermission(): String {
+        public inline fun <reified T : Record> getReadPermission(): String {
             return getReadPermission(T::class)
         }
 
@@ -109,7 +109,7 @@ public class HealthPermission internal constructor() {
          * @throws IllegalArgumentException if the given record type is invalid.
          */
         @JvmStatic
-        inline fun <reified T : Record> getWritePermission(): String {
+        public inline fun <reified T : Record> getWritePermission(): String {
             return getWritePermission(T::class)
         }
 
@@ -146,7 +146,8 @@ public class HealthPermission internal constructor() {
          *
          * @sample androidx.health.connect.client.samples.InsertExerciseRoute
          */
-        const val PERMISSION_WRITE_EXERCISE_ROUTE = PERMISSION_PREFIX + "WRITE_EXERCISE_ROUTE"
+        public const val PERMISSION_WRITE_EXERCISE_ROUTE: String =
+            PERMISSION_PREFIX + "WRITE_EXERCISE_ROUTE"
 
         /**
          * A permission to read exercise routes. The string value for this permission is
@@ -165,7 +166,8 @@ public class HealthPermission internal constructor() {
          *
          * @sample androidx.health.connect.client.samples.ReadExerciseRoute
          */
-        const val PERMISSION_READ_EXERCISE_ROUTES = PERMISSION_PREFIX + "READ_EXERCISE_ROUTES"
+        public const val PERMISSION_READ_EXERCISE_ROUTES: String =
+            PERMISSION_PREFIX + "READ_EXERCISE_ROUTES"
 
         /**
          * A permission to read data in background.
@@ -179,7 +181,7 @@ public class HealthPermission internal constructor() {
          * @sample androidx.health.connect.client.samples.RequestBackgroundReadPermission
          * @sample androidx.health.connect.client.samples.ReadRecordsInBackground
          */
-        const val PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND =
+        public const val PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND: String =
             PERMISSION_PREFIX + "READ_HEALTH_DATA_IN_BACKGROUND"
 
         /**
@@ -203,7 +205,7 @@ public class HealthPermission internal constructor() {
          *
          * @sample androidx.health.connect.client.samples.RequestHistoryReadPermission
          */
-        const val PERMISSION_READ_HEALTH_DATA_HISTORY =
+        public const val PERMISSION_READ_HEALTH_DATA_HISTORY: String =
             PERMISSION_PREFIX + "READ_HEALTH_DATA_HISTORY"
 
         /**
@@ -218,7 +220,8 @@ public class HealthPermission internal constructor() {
          * @sample androidx.health.connect.client.samples.RequestMedicalPermissions
          */
         @ExperimentalPersonalHealthRecordApi
-        const val PERMISSION_WRITE_MEDICAL_DATA = PERMISSION_PREFIX + "WRITE_MEDICAL_DATA"
+        public const val PERMISSION_WRITE_MEDICAL_DATA: String =
+            PERMISSION_PREFIX + "WRITE_MEDICAL_DATA"
 
         /**
          * Allows an application to read the user's data about allergies and intolerances.
@@ -231,7 +234,7 @@ public class HealthPermission internal constructor() {
          * @sample androidx.health.connect.client.samples.RequestMedicalPermissions
          */
         @ExperimentalPersonalHealthRecordApi
-        const val PERMISSION_READ_MEDICAL_DATA_ALLERGIES_INTOLERANCES =
+        public const val PERMISSION_READ_MEDICAL_DATA_ALLERGIES_INTOLERANCES: String =
             PERMISSION_PREFIX + "READ_MEDICAL_DATA_ALLERGIES_INTOLERANCES"
 
         /**
@@ -245,7 +248,7 @@ public class HealthPermission internal constructor() {
          * @sample androidx.health.connect.client.samples.RequestMedicalPermissions
          */
         @ExperimentalPersonalHealthRecordApi
-        const val PERMISSION_READ_MEDICAL_DATA_CONDITIONS =
+        public const val PERMISSION_READ_MEDICAL_DATA_CONDITIONS: String =
             PERMISSION_PREFIX + "READ_MEDICAL_DATA_CONDITIONS"
 
         /**
@@ -259,7 +262,7 @@ public class HealthPermission internal constructor() {
          * @sample androidx.health.connect.client.samples.RequestMedicalPermissions
          */
         @ExperimentalPersonalHealthRecordApi
-        const val PERMISSION_READ_MEDICAL_DATA_LABORATORY_RESULTS =
+        public const val PERMISSION_READ_MEDICAL_DATA_LABORATORY_RESULTS: String =
             PERMISSION_PREFIX + "READ_MEDICAL_DATA_LABORATORY_RESULTS"
 
         /**
@@ -273,7 +276,7 @@ public class HealthPermission internal constructor() {
          * @sample androidx.health.connect.client.samples.RequestMedicalPermissions
          */
         @ExperimentalPersonalHealthRecordApi
-        const val PERMISSION_READ_MEDICAL_DATA_MEDICATIONS =
+        public const val PERMISSION_READ_MEDICAL_DATA_MEDICATIONS: String =
             PERMISSION_PREFIX + "READ_MEDICAL_DATA_MEDICATIONS"
 
         /**
@@ -291,7 +294,7 @@ public class HealthPermission internal constructor() {
          * @sample androidx.health.connect.client.samples.RequestMedicalPermissions
          */
         @ExperimentalPersonalHealthRecordApi
-        const val PERMISSION_READ_MEDICAL_DATA_PERSONAL_DETAILS =
+        public const val PERMISSION_READ_MEDICAL_DATA_PERSONAL_DETAILS: String =
             PERMISSION_PREFIX + "READ_MEDICAL_DATA_PERSONAL_DETAILS"
 
         /**
@@ -308,7 +311,7 @@ public class HealthPermission internal constructor() {
          * @sample androidx.health.connect.client.samples.RequestMedicalPermissions
          */
         @ExperimentalPersonalHealthRecordApi
-        const val PERMISSION_READ_MEDICAL_DATA_PRACTITIONER_DETAILS =
+        public const val PERMISSION_READ_MEDICAL_DATA_PRACTITIONER_DETAILS: String =
             PERMISSION_PREFIX + "READ_MEDICAL_DATA_PRACTITIONER_DETAILS"
 
         /**
@@ -322,7 +325,7 @@ public class HealthPermission internal constructor() {
          * @sample androidx.health.connect.client.samples.RequestMedicalPermissions
          */
         @ExperimentalPersonalHealthRecordApi
-        const val PERMISSION_READ_MEDICAL_DATA_PREGNANCY =
+        public const val PERMISSION_READ_MEDICAL_DATA_PREGNANCY: String =
             PERMISSION_PREFIX + "READ_MEDICAL_DATA_PREGNANCY"
 
         /**
@@ -336,7 +339,7 @@ public class HealthPermission internal constructor() {
          * @sample androidx.health.connect.client.samples.RequestMedicalPermissions
          */
         @ExperimentalPersonalHealthRecordApi
-        const val PERMISSION_READ_MEDICAL_DATA_PROCEDURES =
+        public const val PERMISSION_READ_MEDICAL_DATA_PROCEDURES: String =
             PERMISSION_PREFIX + "READ_MEDICAL_DATA_PROCEDURES"
 
         /**
@@ -350,7 +353,7 @@ public class HealthPermission internal constructor() {
          * @sample androidx.health.connect.client.samples.RequestMedicalPermissions
          */
         @ExperimentalPersonalHealthRecordApi
-        const val PERMISSION_READ_MEDICAL_DATA_SOCIAL_HISTORY =
+        public const val PERMISSION_READ_MEDICAL_DATA_SOCIAL_HISTORY: String =
             PERMISSION_PREFIX + "READ_MEDICAL_DATA_SOCIAL_HISTORY"
 
         /**
@@ -364,7 +367,7 @@ public class HealthPermission internal constructor() {
          * @sample androidx.health.connect.client.samples.RequestMedicalPermissions
          */
         @ExperimentalPersonalHealthRecordApi
-        const val PERMISSION_READ_MEDICAL_DATA_VACCINES =
+        public const val PERMISSION_READ_MEDICAL_DATA_VACCINES: String =
             PERMISSION_PREFIX + "READ_MEDICAL_DATA_VACCINES"
 
         /**
@@ -381,7 +384,7 @@ public class HealthPermission internal constructor() {
          * @sample androidx.health.connect.client.samples.RequestMedicalPermissions
          */
         @ExperimentalPersonalHealthRecordApi
-        const val PERMISSION_READ_MEDICAL_DATA_VISITS =
+        public const val PERMISSION_READ_MEDICAL_DATA_VISITS: String =
             PERMISSION_PREFIX + "READ_MEDICAL_DATA_VISITS"
 
         /**
@@ -395,7 +398,7 @@ public class HealthPermission internal constructor() {
          * @sample androidx.health.connect.client.samples.RequestMedicalPermissions
          */
         @ExperimentalPersonalHealthRecordApi
-        const val PERMISSION_READ_MEDICAL_DATA_VITAL_SIGNS =
+        public const val PERMISSION_READ_MEDICAL_DATA_VITAL_SIGNS: String =
             PERMISSION_PREFIX + "READ_MEDICAL_DATA_VITAL_SIGNS"
 
         // Read permissions for ACTIVITY.

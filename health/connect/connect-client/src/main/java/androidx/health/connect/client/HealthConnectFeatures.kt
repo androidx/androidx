@@ -23,7 +23,7 @@ import androidx.health.connect.client.feature.HealthConnectPlatformVersion
 import androidx.health.connect.client.feature.HealthConnectVersionInfo
 
 /** Interface for checking availability of features in [HealthConnectClient]. */
-interface HealthConnectFeatures {
+public interface HealthConnectFeatures {
 
     /**
      * Checks whether the given feature is available.
@@ -31,31 +31,32 @@ interface HealthConnectFeatures {
      * @param feature the feature to be checked. One of the "FEATURE_" constants in this class.
      * @return one of [FEATURE_STATUS_UNAVAILABLE] or [FEATURE_STATUS_AVAILABLE]
      */
-    @FeatureStatus fun getFeatureStatus(@Feature feature: Int): Int
+    @FeatureStatus public fun getFeatureStatus(@Feature feature: Int): Int
 
     /** Constants related to HealthConnect feature availability. */
-    companion object {
+    public companion object {
 
         /** Feature constant for reading health data in background. */
-        const val FEATURE_READ_HEALTH_DATA_IN_BACKGROUND = 1
+        public const val FEATURE_READ_HEALTH_DATA_IN_BACKGROUND: Int = 1
 
         /** Feature constant for skin temperature. */
-        const val FEATURE_SKIN_TEMPERATURE = 2
+        public const val FEATURE_SKIN_TEMPERATURE: Int = 2
 
         /** Feature constant for planned exercise sessions. */
-        const val FEATURE_PLANNED_EXERCISE = 3
+        public const val FEATURE_PLANNED_EXERCISE: Int = 3
 
         /** Feature constant for reading health data history. */
-        const val FEATURE_READ_HEALTH_DATA_HISTORY = 4
+        public const val FEATURE_READ_HEALTH_DATA_HISTORY: Int = 4
 
         /** Feature constant for mindfulness session. */
-        const val FEATURE_MINDFULNESS_SESSION = 5
+        public const val FEATURE_MINDFULNESS_SESSION: Int = 5
 
         /** Feature constant for Personal Health Records APIs. */
-        @ExperimentalPersonalHealthRecordApi const val FEATURE_PERSONAL_HEALTH_RECORD = 6
+        @ExperimentalPersonalHealthRecordApi
+        public const val FEATURE_PERSONAL_HEALTH_RECORD: Int = 6
 
         /** Feature constant for Activity Intensity APIs. */
-        const val FEATURE_ACTIVITY_INTENSITY = 7
+        public const val FEATURE_ACTIVITY_INTENSITY: Int = 7
 
         /**
          * Feature constant for extended device types.
@@ -72,7 +73,7 @@ interface HealthConnectFeatures {
          * If this feature is not available, these device types will be treated as
          * `Device.TYPE_UNKNOWN`.
          */
-        const val FEATURE_EXTENDED_DEVICE_TYPES = 8
+        public const val FEATURE_EXTENDED_DEVICE_TYPES: Int = 8
 
         /**
          * Feature constant for exercise session improvements.
@@ -83,10 +84,10 @@ interface HealthConnectFeatures {
          * - `ExerciseSegment.setIndex`
          * - `ExerciseSegment.rateOfPerceivedExertion`
          */
-        const val FEATURE_EXERCISE_SESSION_IMPROVEMENTS = 9
+        public const val FEATURE_EXERCISE_SESSION_IMPROVEMENTS: Int = 9
 
         /** Feature constant for Matchmaking APIs. */
-        @ExperimentalMatchmakingApi const val FEATURE_MATCHMAKING = 10
+        @ExperimentalMatchmakingApi public const val FEATURE_MATCHMAKING: Int = 10
 
         /**
          * Feature constant for on-device step tracking.
@@ -94,7 +95,7 @@ interface HealthConnectFeatures {
          * On-device step tracking refers to step counts recorded directly by the on-device hardware
          * pedometer or sensor, distinct from steps synced or contributed by external applications.
          */
-        const val FEATURE_ON_DEVICE_STEP_TRACKING = 11
+        public const val FEATURE_ON_DEVICE_STEP_TRACKING: Int = 11
 
         /**
          * Feature constant for Device Data Providers APIs.
@@ -104,7 +105,7 @@ interface HealthConnectFeatures {
          * - [HealthConnectClient.getCurrentDeviceDataSource]
          * - [HealthConnectClient.getDeviceDataSourceCapabilities]
          */
-        @ExperimentalDeviceDataSourceApi const val FEATURE_DEVICE_DATA_PROVIDERS = 12
+        @ExperimentalDeviceDataSourceApi public const val FEATURE_DEVICE_DATA_PROVIDERS: Int = 12
 
         @OptIn(
             ExperimentalPersonalHealthRecordApi::class,
@@ -130,23 +131,23 @@ interface HealthConnectFeatures {
                 ]
         )
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        annotation class Feature
+        public annotation class Feature
 
         /**
          * Indicates that a feature is unavailable and the corresponding APIs cannot be used at
          * runtime.
          */
-        const val FEATURE_STATUS_UNAVAILABLE = 1
+        public const val FEATURE_STATUS_UNAVAILABLE: Int = 1
 
         /**
          * Indicates that a feature is available and the corresponding APIs can be used at runtime.
          */
-        const val FEATURE_STATUS_AVAILABLE = 2
+        public const val FEATURE_STATUS_AVAILABLE: Int = 2
 
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(value = [FEATURE_STATUS_UNAVAILABLE, FEATURE_STATUS_AVAILABLE])
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        annotation class FeatureStatus
+        public annotation class FeatureStatus
 
         private val SDK_EXT_13_PLATFORM_VERSION: HealthConnectPlatformVersion =
             HealthConnectPlatformVersion(buildVersionCode = 34, sdkExtensionVersion = 13)

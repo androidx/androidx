@@ -39,7 +39,7 @@ import java.time.ZoneOffset
  *
  * @sample androidx.health.connect.client.samples.ReadExerciseSessions
  */
-class ExerciseSessionRecord
+public class ExerciseSessionRecord
 internal constructor(
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
@@ -47,29 +47,29 @@ internal constructor(
     override val endZoneOffset: ZoneOffset?,
     override val metadata: Metadata,
     /** Type of exercise (e.g. walking, swimming). Required field. */
-    @property:ExerciseTypes val exerciseType: Int,
+    @property:ExerciseTypes public val exerciseType: Int,
     /** Title of the session. Optional field. */
-    val title: String? = null,
+    public val title: String? = null,
     /** Additional notes for the session. Optional field. */
-    val notes: String? = null,
+    public val notes: String? = null,
     /**
      * [ExerciseSegment]s of the session. Optional field. Time in segments should be within the
      * parent session, and should not overlap with each other.
      */
-    val segments: List<ExerciseSegment> = emptyList(),
+    public val segments: List<ExerciseSegment> = emptyList(),
     /**
      * [ExerciseLap]s of the session. Optional field. Time in laps should be within the parent
      * session, and should not overlap with each other.
      */
-    val laps: List<ExerciseLap> = emptyList(),
+    public val laps: List<ExerciseLap> = emptyList(),
 
     /**
      * [ExerciseRouteResult] [ExerciseRouteResult] of the session. Location data points of
      * [ExerciseRoute] should be within the parent session, and should be before the end time of the
      * session.
      */
-    val exerciseRouteResult: ExerciseRouteResult = ExerciseRouteResult.NoData(),
-    val plannedExerciseSessionId: String? = null,
+    public val exerciseRouteResult: ExerciseRouteResult = ExerciseRouteResult.NoData(),
+    public val plannedExerciseSessionId: String? = null,
     @Suppress("AutoBoxing")
     @get:Suppress("AutoBoxing")
     /**
@@ -79,11 +79,11 @@ internal constructor(
      */
     @FloatRange(from = 0.0, to = 10.0)
     @get:FloatRange(from = 0.0, to = 10.0)
-    val rateOfPerceivedExertion: Float? = null,
+    public val rateOfPerceivedExertion: Float? = null,
 ) : IntervalRecord {
 
     @JvmOverloads
-    constructor(
+    public constructor(
         startTime: Instant,
         startZoneOffset: ZoneOffset?,
         endTime: Instant,
@@ -224,13 +224,13 @@ internal constructor(
         return "ExerciseSessionRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, exerciseType=$exerciseType, title=$title, notes=$notes, metadata=$metadata, segments=$segments, laps=$laps, exerciseRouteResult=$exerciseRouteResult, rateOfPerceivedExertion=$rateOfPerceivedExertion)"
     }
 
-    companion object {
+    public companion object {
         /**
          * Metric identifier to retrieve the total exercise time from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val EXERCISE_DURATION_TOTAL: AggregateMetric<Duration> =
+        public val EXERCISE_DURATION_TOTAL: AggregateMetric<Duration> =
             AggregateMetric.durationMetric(
                 dataTypeName = "ActiveTime",
                 aggregationType = AggregateMetric.AggregationType.TOTAL,
@@ -246,71 +246,71 @@ internal constructor(
          *
          * Next Id: 84.
          */
-        const val EXERCISE_TYPE_OTHER_WORKOUT = 0
-        const val EXERCISE_TYPE_BADMINTON = 2
-        const val EXERCISE_TYPE_BASEBALL = 4
-        const val EXERCISE_TYPE_BASKETBALL = 5
-        const val EXERCISE_TYPE_BIKING = 8
-        const val EXERCISE_TYPE_BIKING_STATIONARY = 9
-        const val EXERCISE_TYPE_BOOT_CAMP = 10
-        const val EXERCISE_TYPE_BOXING = 11
-        const val EXERCISE_TYPE_CALISTHENICS = 13
-        const val EXERCISE_TYPE_CRICKET = 14
-        const val EXERCISE_TYPE_DANCING = 16
-        const val EXERCISE_TYPE_ELLIPTICAL = 25
-        const val EXERCISE_TYPE_EXERCISE_CLASS = 26
-        const val EXERCISE_TYPE_FENCING = 27
-        const val EXERCISE_TYPE_FOOTBALL_AMERICAN = 28
-        const val EXERCISE_TYPE_FOOTBALL_AUSTRALIAN = 29
-        const val EXERCISE_TYPE_FRISBEE_DISC = 31
-        const val EXERCISE_TYPE_GOLF = 32
-        const val EXERCISE_TYPE_GUIDED_BREATHING = 33
-        const val EXERCISE_TYPE_GYMNASTICS = 34
-        const val EXERCISE_TYPE_HANDBALL = 35
-        const val EXERCISE_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING = 36
-        const val EXERCISE_TYPE_HIKING = 37
-        const val EXERCISE_TYPE_ICE_HOCKEY = 38
-        const val EXERCISE_TYPE_ICE_SKATING = 39
-        const val EXERCISE_TYPE_MARTIAL_ARTS = 44
-        const val EXERCISE_TYPE_PADDLING = 46
-        const val EXERCISE_TYPE_PARAGLIDING = 47
-        const val EXERCISE_TYPE_PILATES = 48
-        const val EXERCISE_TYPE_RACQUETBALL = 50
-        const val EXERCISE_TYPE_ROCK_CLIMBING = 51
-        const val EXERCISE_TYPE_ROLLER_HOCKEY = 52
-        const val EXERCISE_TYPE_ROWING = 53
-        const val EXERCISE_TYPE_ROWING_MACHINE = 54
-        const val EXERCISE_TYPE_RUGBY = 55
-        const val EXERCISE_TYPE_RUNNING = 56
-        const val EXERCISE_TYPE_RUNNING_TREADMILL = 57
-        const val EXERCISE_TYPE_SAILING = 58
-        const val EXERCISE_TYPE_SCUBA_DIVING = 59
-        const val EXERCISE_TYPE_SKATING = 60
-        const val EXERCISE_TYPE_SKIING = 61
-        const val EXERCISE_TYPE_SNOWBOARDING = 62
-        const val EXERCISE_TYPE_SNOWSHOEING = 63
-        const val EXERCISE_TYPE_SOCCER = 64
-        const val EXERCISE_TYPE_SOFTBALL = 65
-        const val EXERCISE_TYPE_SQUASH = 66
-        const val EXERCISE_TYPE_STAIR_CLIMBING = 68
-        const val EXERCISE_TYPE_STAIR_CLIMBING_MACHINE = 69
-        const val EXERCISE_TYPE_STRENGTH_TRAINING = 70
-        const val EXERCISE_TYPE_STRETCHING = 71
-        const val EXERCISE_TYPE_SURFING = 72
-        const val EXERCISE_TYPE_SWIMMING_OPEN_WATER = 73
-        const val EXERCISE_TYPE_SWIMMING_POOL = 74
-        const val EXERCISE_TYPE_TABLE_TENNIS = 75
-        const val EXERCISE_TYPE_TENNIS = 76
-        const val EXERCISE_TYPE_VOLLEYBALL = 78
-        const val EXERCISE_TYPE_WALKING = 79
-        const val EXERCISE_TYPE_WATER_POLO = 80
-        const val EXERCISE_TYPE_WEIGHTLIFTING = 81
-        const val EXERCISE_TYPE_WHEELCHAIR = 82
-        const val EXERCISE_TYPE_YOGA = 83
+        public const val EXERCISE_TYPE_OTHER_WORKOUT: Int = 0
+        public const val EXERCISE_TYPE_BADMINTON: Int = 2
+        public const val EXERCISE_TYPE_BASEBALL: Int = 4
+        public const val EXERCISE_TYPE_BASKETBALL: Int = 5
+        public const val EXERCISE_TYPE_BIKING: Int = 8
+        public const val EXERCISE_TYPE_BIKING_STATIONARY: Int = 9
+        public const val EXERCISE_TYPE_BOOT_CAMP: Int = 10
+        public const val EXERCISE_TYPE_BOXING: Int = 11
+        public const val EXERCISE_TYPE_CALISTHENICS: Int = 13
+        public const val EXERCISE_TYPE_CRICKET: Int = 14
+        public const val EXERCISE_TYPE_DANCING: Int = 16
+        public const val EXERCISE_TYPE_ELLIPTICAL: Int = 25
+        public const val EXERCISE_TYPE_EXERCISE_CLASS: Int = 26
+        public const val EXERCISE_TYPE_FENCING: Int = 27
+        public const val EXERCISE_TYPE_FOOTBALL_AMERICAN: Int = 28
+        public const val EXERCISE_TYPE_FOOTBALL_AUSTRALIAN: Int = 29
+        public const val EXERCISE_TYPE_FRISBEE_DISC: Int = 31
+        public const val EXERCISE_TYPE_GOLF: Int = 32
+        public const val EXERCISE_TYPE_GUIDED_BREATHING: Int = 33
+        public const val EXERCISE_TYPE_GYMNASTICS: Int = 34
+        public const val EXERCISE_TYPE_HANDBALL: Int = 35
+        public const val EXERCISE_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING: Int = 36
+        public const val EXERCISE_TYPE_HIKING: Int = 37
+        public const val EXERCISE_TYPE_ICE_HOCKEY: Int = 38
+        public const val EXERCISE_TYPE_ICE_SKATING: Int = 39
+        public const val EXERCISE_TYPE_MARTIAL_ARTS: Int = 44
+        public const val EXERCISE_TYPE_PADDLING: Int = 46
+        public const val EXERCISE_TYPE_PARAGLIDING: Int = 47
+        public const val EXERCISE_TYPE_PILATES: Int = 48
+        public const val EXERCISE_TYPE_RACQUETBALL: Int = 50
+        public const val EXERCISE_TYPE_ROCK_CLIMBING: Int = 51
+        public const val EXERCISE_TYPE_ROLLER_HOCKEY: Int = 52
+        public const val EXERCISE_TYPE_ROWING: Int = 53
+        public const val EXERCISE_TYPE_ROWING_MACHINE: Int = 54
+        public const val EXERCISE_TYPE_RUGBY: Int = 55
+        public const val EXERCISE_TYPE_RUNNING: Int = 56
+        public const val EXERCISE_TYPE_RUNNING_TREADMILL: Int = 57
+        public const val EXERCISE_TYPE_SAILING: Int = 58
+        public const val EXERCISE_TYPE_SCUBA_DIVING: Int = 59
+        public const val EXERCISE_TYPE_SKATING: Int = 60
+        public const val EXERCISE_TYPE_SKIING: Int = 61
+        public const val EXERCISE_TYPE_SNOWBOARDING: Int = 62
+        public const val EXERCISE_TYPE_SNOWSHOEING: Int = 63
+        public const val EXERCISE_TYPE_SOCCER: Int = 64
+        public const val EXERCISE_TYPE_SOFTBALL: Int = 65
+        public const val EXERCISE_TYPE_SQUASH: Int = 66
+        public const val EXERCISE_TYPE_STAIR_CLIMBING: Int = 68
+        public const val EXERCISE_TYPE_STAIR_CLIMBING_MACHINE: Int = 69
+        public const val EXERCISE_TYPE_STRENGTH_TRAINING: Int = 70
+        public const val EXERCISE_TYPE_STRETCHING: Int = 71
+        public const val EXERCISE_TYPE_SURFING: Int = 72
+        public const val EXERCISE_TYPE_SWIMMING_OPEN_WATER: Int = 73
+        public const val EXERCISE_TYPE_SWIMMING_POOL: Int = 74
+        public const val EXERCISE_TYPE_TABLE_TENNIS: Int = 75
+        public const val EXERCISE_TYPE_TENNIS: Int = 76
+        public const val EXERCISE_TYPE_VOLLEYBALL: Int = 78
+        public const val EXERCISE_TYPE_WALKING: Int = 79
+        public const val EXERCISE_TYPE_WATER_POLO: Int = 80
+        public const val EXERCISE_TYPE_WEIGHTLIFTING: Int = 81
+        public const val EXERCISE_TYPE_WHEELCHAIR: Int = 82
+        public const val EXERCISE_TYPE_YOGA: Int = 83
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val EXERCISE_TYPE_STRING_TO_INT_MAP: Map<String, Int> =
+        public val EXERCISE_TYPE_STRING_TO_INT_MAP: Map<String, Int> =
             mapOf(
                 "back_extension" to EXERCISE_TYPE_CALISTHENICS,
                 "badminton" to EXERCISE_TYPE_BADMINTON,
@@ -403,7 +403,7 @@ internal constructor(
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val EXERCISE_TYPE_INT_TO_STRING_MAP =
+        public val EXERCISE_TYPE_INT_TO_STRING_MAP: Map<Int, String> =
             EXERCISE_TYPE_STRING_TO_INT_MAP.entries.associateBy({ it.value }, { it.key })
     }
 
@@ -476,5 +476,5 @@ internal constructor(
                 EXERCISE_TYPE_YOGA,
             ]
     )
-    annotation class ExerciseTypes
+    public annotation class ExerciseTypes
 }

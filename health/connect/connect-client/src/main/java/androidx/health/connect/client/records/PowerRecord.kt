@@ -77,7 +77,7 @@ public class PowerRecord(
         return "PowerRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, samples=$samples, metadata=$metadata)"
     }
 
-    companion object {
+    public companion object {
         private const val TYPE = "PowerSeries"
         private const val POWER_FIELD = "power"
         private val MAX_POWER = 100_000.watts
@@ -87,7 +87,7 @@ public class PowerRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val POWER_AVG: AggregateMetric<Power> =
+        public val POWER_AVG: AggregateMetric<Power> =
             doubleMetric(
                 dataTypeName = TYPE,
                 aggregationType = AVERAGE,
@@ -100,7 +100,7 @@ public class PowerRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val POWER_MIN: AggregateMetric<Power> =
+        public val POWER_MIN: AggregateMetric<Power> =
             doubleMetric(
                 dataTypeName = TYPE,
                 aggregationType = MINIMUM,
@@ -113,7 +113,7 @@ public class PowerRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val POWER_MAX: AggregateMetric<Power> =
+        public val POWER_MAX: AggregateMetric<Power> =
             doubleMetric(
                 dataTypeName = TYPE,
                 aggregationType = MAXIMUM,
@@ -130,7 +130,7 @@ public class PowerRecord(
      * @param power Power generated, in [Power] unit. Valid range: 0-100000 Watts.
      * @see PowerRecord
      */
-    public class Sample(val time: Instant, val power: Power) {
+    public class Sample(public val time: Instant, public val power: Power) {
 
         init {
             power.requireNotLess(other = power.zero(), name = "power")

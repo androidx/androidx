@@ -61,15 +61,15 @@ public class SexualActivityRecord(
         return "SexualActivityRecord(time=$time, zoneOffset=$zoneOffset, protectionUsed=$protectionUsed, metadata=$metadata)"
     }
 
-    companion object {
-        const val PROTECTION_USED_UNKNOWN = 0
-        const val PROTECTION_USED_PROTECTED = 1
-        const val PROTECTION_USED_UNPROTECTED = 2
+    public companion object {
+        public const val PROTECTION_USED_UNKNOWN: Int = 0
+        public const val PROTECTION_USED_PROTECTED: Int = 1
+        public const val PROTECTION_USED_UNPROTECTED: Int = 2
 
         /** Internal mappings useful for interoperability between integers and strings. */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val PROTECTION_USED_STRING_TO_INT_MAP: Map<String, Int> =
+        public val PROTECTION_USED_STRING_TO_INT_MAP: Map<String, Int> =
             mapOf(
                 Protection.PROTECTED to PROTECTION_USED_PROTECTED,
                 Protection.UNPROTECTED to PROTECTION_USED_UNPROTECTED,
@@ -77,7 +77,8 @@ public class SexualActivityRecord(
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val PROTECTION_USED_INT_TO_STRING_MAP = PROTECTION_USED_STRING_TO_INT_MAP.reverse()
+        public val PROTECTION_USED_INT_TO_STRING_MAP: Map<Int, String> =
+            PROTECTION_USED_STRING_TO_INT_MAP.reverse()
     }
 
     /** Whether protection was used during sexual activity. */
@@ -90,5 +91,5 @@ public class SexualActivityRecord(
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(value = [PROTECTION_USED_PROTECTED, PROTECTION_USED_UNPROTECTED])
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    annotation class Protections
+    public annotation class Protections
 }

@@ -54,10 +54,10 @@ import kotlin.String
  *   [FhirVersion].
  */
 @ExperimentalPersonalHealthRecordApi
-class CreateMedicalDataSourceRequest(
-    val fhirBaseUri: Uri,
-    val displayName: String,
-    val fhirVersion: FhirVersion,
+public class CreateMedicalDataSourceRequest(
+    public val fhirBaseUri: Uri,
+    public val displayName: String,
+    public val fhirVersion: FhirVersion,
 ) {
     @SuppressLint("NewApi") // already checked with a feature availability check
     internal val platformCreateMedicalDataSourceRequest: PlatformCreateMedicalDataSourceRequest =
@@ -70,7 +70,7 @@ class CreateMedicalDataSourceRequest(
                 .build()
         }
 
-    override fun toString() =
+    override fun toString(): String =
         toString(
             this,
             mapOf(

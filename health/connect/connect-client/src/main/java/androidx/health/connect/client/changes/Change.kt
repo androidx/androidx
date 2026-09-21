@@ -22,4 +22,4 @@ package androidx.health.connect.client.changes
  * @see UpsertionChange
  * @see DeletionChange
  */
-interface Change
+public interface Change

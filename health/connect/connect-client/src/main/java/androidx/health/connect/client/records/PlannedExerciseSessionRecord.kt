@@ -35,23 +35,23 @@ import java.time.ZoneOffset
  *
  * Requires [androidx.health.connect.client.HealthConnectFeatures.FEATURE_PLANNED_EXERCISE].
  */
-class PlannedExerciseSessionRecord
+public class PlannedExerciseSessionRecord
 internal constructor(
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
     override val metadata: Metadata,
-    @get:JvmName("hasExplicitTime") val hasExplicitTime: Boolean,
+    @get:JvmName("hasExplicitTime") public val hasExplicitTime: Boolean,
     /** Type of exercise (e.g. walking, swimming). Required field. */
-    @property:ExerciseSessionRecord.ExerciseTypes val exerciseType: Int,
+    @property:ExerciseSessionRecord.ExerciseTypes public val exerciseType: Int,
     /** The exercise session that completed this planned session. */
-    val completedExerciseSessionId: String?,
-    val blocks: List<PlannedExerciseBlock>,
+    public val completedExerciseSessionId: String?,
+    public val blocks: List<PlannedExerciseBlock>,
     /** Title of the session. Optional field. */
-    val title: String? = null,
+    public val title: String? = null,
     /** Additional notes for the session. Optional field. */
-    val notes: String? = null,
+    public val notes: String? = null,
 ) : IntervalRecord {
     /**
      * Constructor that accepts a physical time and zone offset.
@@ -69,7 +69,7 @@ internal constructor(
      * @param metadata Metadata for this session.
      */
     @JvmOverloads
-    constructor(
+    public constructor(
         startTime: Instant,
         startZoneOffset: ZoneOffset?,
         endTime: Instant,
@@ -110,7 +110,7 @@ internal constructor(
      * @param metadata Metadata for this session.
      */
     @JvmOverloads
-    constructor(
+    public constructor(
         metadata: Metadata,
         startDate: LocalDate,
         duration: Duration,
@@ -183,7 +183,7 @@ internal constructor(
         return "PlannedExerciseSessionRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, hasExplicitTime=$hasExplicitTime, title=$title, notes=$notes, exerciseType=$exerciseType, completedExerciseSessionId=$completedExerciseSessionId, metadata=$metadata, blocks=$blocks)"
     }
 
-    companion object {
+    public companion object {
         /**
          * Converts a local date to a physical timestamp by assuming a fixed time at noon and the
          * current system time zone.
