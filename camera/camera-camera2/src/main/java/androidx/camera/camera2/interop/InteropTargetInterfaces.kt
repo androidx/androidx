@@ -38,7 +38,8 @@ import androidx.camera.core.impl.MutableConfig
  * Provides setters for output stream configuration options, such as physical camera ID, stream use
  * case, mirror mode, timestamp base, dynamic range profile, and surface group ID.
  */
-@CameraXDsl public interface UseCaseCamera2Interop : OutputConfigurationInterop
+@CameraXDsl
+public abstract class UseCaseCamera2Interop internal constructor() : OutputConfigurationInterop
 
 /**
  * Configures Camera2 options on an [androidx.camera.core.ImageCapture] use case.
@@ -71,7 +72,8 @@ import androidx.camera.core.impl.MutableConfig
  *   [android.hardware.camera2.CameraCaptureSession.switchToOffline]
  */
 @CameraXDsl
-public interface ImageCaptureCamera2Interop : OutputConfigurationInterop, StillCaptureInterop
+public abstract class ImageCaptureCamera2Interop internal constructor() :
+    OutputConfigurationInterop, StillCaptureInterop
 
 /**
  * Configures Camera2 options on a [androidx.camera.core.SessionConfig].
@@ -103,7 +105,7 @@ public interface ImageCaptureCamera2Interop : OutputConfigurationInterop, StillC
  *   [android.hardware.camera2.CameraCaptureSession.switchToOffline])
  */
 @CameraXDsl
-public interface SessionConfigCamera2Interop :
+public abstract class SessionConfigCamera2Interop internal constructor() :
     CameraDeviceInterop, SessionConfigurationInterop, CameraCaptureSessionInterop
 
 /**
@@ -131,27 +133,29 @@ public interface SessionConfigCamera2Interop :
  *   [android.hardware.camera2.CameraCaptureSession.prepare], or
  *   [android.hardware.camera2.CameraCaptureSession.switchToOffline]
  */
-@CameraXDsl public interface CameraControlCamera2Interop : CameraCaptureSessionInterop
+@CameraXDsl
+public abstract class CameraControlCamera2Interop internal constructor() :
+    CameraCaptureSessionInterop
 
 // =========================================================================================
 // Concrete Implementation Classes
 // =========================================================================================
 
 /** Default implementation of [UseCaseCamera2Interop] storing options in [mutableConfig]. */
-internal open class UseCaseCamera2InteropImpl(override val mutableConfig: MutableConfig) :
-    UseCaseCamera2Interop, OutputConfigurationInteropDelegate
+internal class UseCaseCamera2InteropImpl(override val mutableConfig: MutableConfig) :
+    UseCaseCamera2Interop(), OutputConfigurationInteropDelegate
 
 /** Default implementation of [ImageCaptureCamera2Interop] storing options in [mutableConfig]. */
 internal class ImageCaptureCamera2InteropImpl(override val mutableConfig: MutableConfig) :
-    ImageCaptureCamera2Interop, OutputConfigurationInteropDelegate, StillCaptureInteropDelegate
+    ImageCaptureCamera2Interop(), OutputConfigurationInteropDelegate, StillCaptureInteropDelegate
 
 /** Default implementation of [SessionConfigCamera2Interop] storing options in [mutableConfig]. */
 internal class SessionConfigCamera2InteropImpl(override val mutableConfig: MutableConfig) :
-    SessionConfigCamera2Interop,
+    SessionConfigCamera2Interop(),
     CameraDeviceInteropDelegate,
     SessionConfigurationInteropDelegate,
     CameraCaptureSessionInteropDelegate
 
 /** Default implementation of [CameraControlCamera2Interop] storing options in [mutableConfig]. */
 internal class CameraControlCamera2InteropImpl(override val mutableConfig: MutableConfig) :
-    CameraControlCamera2Interop, CameraCaptureSessionInteropDelegate
+    CameraControlCamera2Interop(), CameraCaptureSessionInteropDelegate
