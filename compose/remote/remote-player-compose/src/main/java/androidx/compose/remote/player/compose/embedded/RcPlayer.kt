@@ -27,6 +27,7 @@ package androidx.compose.remote.player.compose.embedded
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.collection.IntObjectMap
 import androidx.collection.emptyIntObjectMap
@@ -165,16 +166,12 @@ public fun RcPlayer(
     val resolvedTheme = remember(theme, isDark) { resolveThemeMode(theme, isDark) }
     val androidContext = LocalContext.current
 
-    val preprocessed =
-        (state as? RcPlayerStateImpl)?.preprocessed
-            ?: remember(document) { preprocessDocument(document) }
+    val preprocessed = state.preprocessed
 
     val density = LocalDensity.current
     val remoteContext =
         remember(typefaceResolver, preprocessed, state) {
-            val ctx =
-                (state as? RcPlayerStateImpl)?.remoteContext
-                    ?: initializePlayerRemoteContext(document, clock, preprocessed)
+            val ctx = state.remoteContext
             val resolvedResolver = typefaceResolver ?: EmbeddedPlayerTypefaceResolver
             ctx.setTypefaceResolver(resolvedResolver)
             ctx.useChoreographer = true
@@ -213,9 +210,7 @@ public fun RcPlayer(
     // clocks
     //   (FloatAnimation via Animatable, StateLayout via AnimatedContent) initialize t=0 once and
     //   settle immediately to idle without a background loop.
-    val currentTimeMillisState =
-        (state as? RcPlayerStateImpl)?.currentTimeMillisState
-            ?: remember { mutableFloatStateOf(0f) }
+    val currentTimeMillisState = state.currentTimeMillisState
     val needsContinuousLoop =
         preprocessed.hasContinuousTime || preprocessed.hasParticles || preprocessed.hasWakeIn
     val needsDiscreteLoop = !needsContinuousLoop && preprocessed.hasDiscreteTime
@@ -227,20 +222,7 @@ public fun RcPlayer(
     // store / other computed States and captures its write as the result. No imperative recompute
     // pass, no dirty flags — changing an input invalidates exactly the dependent States, and chains
     // compose naturally.
-    val graphContext =
-        (state as? RcPlayerStateImpl)?.graphContext
-            ?: remember(document, remoteContext) {
-                (remoteContext.mRemoteComposeState as? SnapshotRemoteComposeState)?.let {
-                    snapshotState ->
-                    GraphContext(
-                            snapshotState,
-                            preprocessed.computedOpIndex,
-                            currentTimeMillisState,
-                            clock,
-                        )
-                        .also { gc -> gc.setTypefaceResolver(remoteContext.typefaceResolver) }
-                }
-            }
+    val graphContext = state.graphContext
 
     val startClockMillis = remember(document, clock) { clock.millis() }
     val limiter = remember(document) { Limiter() }
@@ -254,14 +236,10 @@ public fun RcPlayer(
         while (true) {
             val frameMillis = withInfiniteAnimationFrameMillis { it } - startMillis
             limiter.recordDrawStart(frameMillis * 1_000_000L)
-            val updated =
-                graphContext?.updateTime(
-                    frameMillis = frameMillis.toFloat(),
-                    updateContinuous = needsContinuousLoop,
-                ) ?: true
-            if (needsContinuousLoop || updated) {
-                currentTimeMillisState.floatValue = frameMillis.toFloat()
-            }
+            state.updateTime(
+                frameMillis = frameMillis.toFloat(),
+                updateContinuous = needsContinuousLoop,
+            )
             remoteContext.currentTime = startClockMillis + frameMillis
 
             if (!needsContinuousLoop && !needsDiscreteLoop) break
@@ -346,7 +324,7 @@ public fun RcPlayer(
                 }
             }
         }
-        graphContext?.componentValues = componentValueStateMap
+        graphContext.componentValues = componentValueStateMap
 
         val stateUpdater = remember(remoteContext) { StateUpdaterImpl(remoteContext) }
         // The image loader: the caller-supplied one, or the default that wraps embedded bitmaps.
@@ -357,7 +335,7 @@ public fun RcPlayer(
         // Make it reachable from the (non-composable) canvas draw path too — the document image
         // draws
         // resolve through it via the GraphContext.
-        graphContext?.imageLoader = resolvedImageLoader
+        graphContext.imageLoader = resolvedImageLoader
         CompositionLocalProvider(
             LocalCoreDocument provides document,
             LocalRemoteContext provides remoteContext,
@@ -647,6 +625,21 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
     var hasDiscreteTime = false
 
     fun visitOp(op: Operation) {
+        val definedId =
+            when (op) {
+                is NamedVariable -> op.mVarId
+                is VariableProvider -> op.id
+                else -> -1
+            }
+        // Warn when a document operation defines an ID that collides with a reserved system
+        // variable.
+        if (definedId > 0 && isTimeVariable(definedId)) {
+            Log.w(
+                "RcPlayer",
+                "Operation ${op.javaClass.simpleName} defines reserved system variable ID $definedId",
+            )
+        }
+
         if (op is TextFromFloat && Utils.isVariable(op.mValue)) {
             val id = Utils.idFromNan(op.mValue)
             if (isContinuousTimeVariable(id)) {
