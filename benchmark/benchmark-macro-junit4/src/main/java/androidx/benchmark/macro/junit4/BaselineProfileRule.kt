@@ -45,7 +45,7 @@ import org.junit.runners.model.Statement
  * @sample androidx.benchmark.samples.baselineProfileRuleLibrarySample
  */
 @RequiresApi(28)
-class BaselineProfileRule : TestRule {
+public class BaselineProfileRule : TestRule {
     private lateinit var currentDescription: Description
 
     override fun apply(base: Statement, description: Description): Statement =
@@ -81,7 +81,7 @@ class BaselineProfileRule : TestRule {
      * @param [profileBlock] defines the critical user journey.
      */
     @JvmOverloads
-    fun collect(
+    public fun collect(
         packageName: String,
         maxIterations: Int = 15,
         stableIterations: Int = 3,

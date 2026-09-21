@@ -64,7 +64,7 @@ import org.junit.AssumptionViolatedException
  * [`cmd compile`](https://source.android.com/devices/tech/dalvik/jit-compiler#force-compilation-of-a-specific-package)
  * to compile the target app).
  */
-sealed class CompilationMode {
+public sealed class CompilationMode {
     internal fun resetAndCompile(
         scope: MacrobenchmarkScope,
         allowCompilationSkipping: Boolean = true,
@@ -134,7 +134,7 @@ sealed class CompilationMode {
      * work on older APIs without root.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun reinstallPackage(packageName: String) {
+    public fun reinstallPackage(packageName: String) {
         inMemoryTrace("reinstallPackage") {
             val copiedApkPaths = copiedApkPaths(packageName)
             try {
@@ -159,7 +159,7 @@ sealed class CompilationMode {
      * after uninstall.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun copiedApkPaths(packageName: String): String {
+    public fun copiedApkPaths(packageName: String): String {
         // Copy APKs to /data/local/temp
         val apkPaths = Shell.pmPath(packageName)
 
@@ -175,7 +175,7 @@ sealed class CompilationMode {
 
     /** Uninstalls an app package by using `pm uninstall` under the hood. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun uninstallPackage(packageName: String) {
+    public fun uninstallPackage(packageName: String) {
         Log.d(TAG, "Uninstalling $packageName")
         val output = Shell.executeScriptCaptureStdout("pm uninstall $packageName")
         check(output.trim() == "Success") { "Unable to uninstall $packageName ($output)" }
@@ -186,7 +186,7 @@ sealed class CompilationMode {
      * `/data/local/tmp` from a pre-existing install session.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun installPackageFromPaths(packageName: String, copiedApkPaths: String) {
+    public fun installPackageFromPaths(packageName: String, copiedApkPaths: String) {
         Log.d(TAG, "Installing $packageName")
         val builder = StringBuilder("pm install")
         // Provide a `-t` argument to `pm install` to ensure test packages are
@@ -241,7 +241,7 @@ sealed class CompilationMode {
      * (such as will `StartupMode.COLD`), as app code is jitted.
      */
     @Suppress("CanSealedSubClassBeObject")
-    class None : CompilationMode() {
+    public class None : CompilationMode() {
 
         override fun toString(): String = "None"
 
@@ -267,7 +267,7 @@ sealed class CompilationMode {
     // Leaving possibility for future configuration
     @ExperimentalMacrobenchmarkApi
     @Suppress("CanSealedSubClassBeObject")
-    class Ignore : CompilationMode() {
+    public class Ignore : CompilationMode() {
         override fun toString(): String = "Ignore"
 
         override fun compileImpl(scope: MacrobenchmarkScope, warmupBlock: () -> Unit) {
@@ -290,9 +290,9 @@ sealed class CompilationMode {
      * have the ProfileInstaller library included, and have been built by AGP 7.0+ to package the
      * baseline profile in the APK.
      */
-    class Partial
+    public class Partial
     @JvmOverloads
-    constructor(
+    public constructor(
         /**
          * Controls whether a Baseline Profile should be used to partially pre compile the app.
          *
@@ -300,13 +300,13 @@ sealed class CompilationMode {
          *
          * @see BaselineProfileMode
          */
-        val baselineProfileMode: BaselineProfileMode = BaselineProfileMode.Require,
+        public val baselineProfileMode: BaselineProfileMode = BaselineProfileMode.Require,
 
         /**
          * If greater than 0, your macrobenchmark will run an extra [warmupIterations] times before
          * compilation, to prepare
          */
-        @IntRange(from = 0) val warmupIterations: Int = 0,
+        @IntRange(from = 0) public val warmupIterations: Int = 0,
     ) : CompilationMode() {
         init {
             require(warmupIterations >= 0) {
@@ -379,7 +379,7 @@ sealed class CompilationMode {
      * compiled ahead-of-time.
      */
     @Suppress("CanSealedSubClassBeObject") // Leaving possibility for future configuration
-    class Full : CompilationMode() {
+    public class Full : CompilationMode() {
         override fun toString(): String = "Full"
 
         override fun compileImpl(scope: MacrobenchmarkScope, warmupBlock: () -> Unit) {
@@ -398,7 +398,7 @@ sealed class CompilationMode {
      * TODO: migrate this to an internal-only flag on [None] instead
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    object Interpreted : CompilationMode() {
+    public object Interpreted : CompilationMode() {
         override fun toString(): String = "Interpreted"
 
         override fun compileImpl(scope: MacrobenchmarkScope, warmupBlock: () -> Unit) {
@@ -408,7 +408,7 @@ sealed class CompilationMode {
         override fun shouldReset(): Boolean = true
     }
 
-    companion object {
+    public companion object {
 
         /**
          * Represents the default compilation mode for the platform, on an end user's device.
@@ -425,7 +425,7 @@ sealed class CompilationMode {
          * an app's BaselineProfile can be correctly used.
          */
         @JvmField
-        val DEFAULT: CompilationMode =
+        public val DEFAULT: CompilationMode =
             Partial(baselineProfileMode = BaselineProfileMode.UseIfAvailable, warmupIterations = 0)
 
         internal fun cmdPackageCompile(packageName: String, compileArgument: String) {
@@ -452,7 +452,7 @@ sealed class CompilationMode {
         }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // enable testing
-        fun compileResetErrorString(
+        public fun compileResetErrorString(
             packageName: String,
             output: String,
             isEmulator: Boolean,
@@ -487,7 +487,7 @@ sealed class CompilationMode {
  * Used by jetpack-internal benchmarks to skip CompilationModes that would self-suppress.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun CompilationMode.isSupportedWithVmSettings(): Boolean {
+public fun CompilationMode.isSupportedWithVmSettings(): Boolean {
     // Only check for supportedVmSettings when CompilationMode.Interpreted is being requested.
     // More context: b/248085179
     val interpreted = this == CompilationMode.Interpreted

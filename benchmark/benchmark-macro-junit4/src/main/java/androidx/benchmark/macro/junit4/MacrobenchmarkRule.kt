@@ -39,7 +39,7 @@ import org.junit.runners.model.Statement
  *
  * @sample androidx.benchmark.samples.macrobenchmarkRuleSample
  */
-class MacrobenchmarkRule : TestRule {
+public class MacrobenchmarkRule : TestRule {
     private lateinit var currentDescription: Description
 
     /**
@@ -75,7 +75,7 @@ class MacrobenchmarkRule : TestRule {
      * @param measureBlock The block performing app actions to benchmark each iteration.
      */
     @JvmOverloads
-    fun measureRepeated(
+    public fun measureRepeated(
         packageName: String,
         metrics: List<Metric>,
         compilationMode: CompilationMode = CompilationMode.DEFAULT,
@@ -143,7 +143,7 @@ class MacrobenchmarkRule : TestRule {
      */
     @ExperimentalBenchmarkConfigApi
     @JvmOverloads
-    fun measureRepeated(
+    public fun measureRepeated(
         packageName: String,
         metrics: List<Metric>,
         @IntRange(from = 1) iterations: Int,
@@ -168,6 +168,10 @@ class MacrobenchmarkRule : TestRule {
         )
     }
 
+    /**
+     * @param perfettoConfig Configuration for Perfetto trace capture during each iteration. Note
+     *   that insufficient or invalid configs may result in built-in [Metric]s not working.
+     */
     @ExperimentalBenchmarkConfigApi
     @JvmOverloads
     @Deprecated(
@@ -179,11 +183,7 @@ class MacrobenchmarkRule : TestRule {
             ),
         level = DeprecationLevel.WARNING,
     )
-    /**
-     * @param perfettoConfig Configuration for Perfetto trace capture during each iteration. Note
-     *   that insufficient or invalid configs may result in built-in [Metric]s not working.
-     */
-    fun measureRepeated(
+    public fun measureRepeated(
         packageName: String,
         metrics: List<Metric>,
         @IntRange(from = 1) iterations: Int,
@@ -192,7 +192,7 @@ class MacrobenchmarkRule : TestRule {
         startupMode: StartupMode? = null,
         setupBlock: MacrobenchmarkScope.() -> Unit = {},
         measureBlock: MacrobenchmarkScope.() -> Unit,
-    ) =
+    ): Unit =
         measureRepeated(
             packageName,
             metrics,

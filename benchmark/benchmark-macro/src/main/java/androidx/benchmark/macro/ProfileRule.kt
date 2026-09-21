@@ -24,16 +24,16 @@ private val PROFILE_RULE_REGEX = "(H?S?P?)L([^;]*);(->)?(.*)".toRegex()
 
 /**  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-data class ProfileRule(
-    val underlying: String,
-    val flags: String,
-    val classDescriptor: String,
-    val methodDescriptor: String?,
+public data class ProfileRule(
+    public val underlying: String,
+    public val flags: String,
+    public val classDescriptor: String,
+    public val methodDescriptor: String?,
 ) {
-    companion object {
+    public companion object {
         /** Parses a profile rule to its constituent elements. */
         @JvmStatic
-        fun parse(rule: String): ProfileRule? {
+        public fun parse(rule: String): ProfileRule? {
             return when (val result = PROFILE_RULE_REGEX.find(rule)) {
                 null -> null
                 else -> {
