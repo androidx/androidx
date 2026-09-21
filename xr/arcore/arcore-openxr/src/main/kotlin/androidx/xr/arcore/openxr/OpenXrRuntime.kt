@@ -214,6 +214,12 @@ internal class OpenXrRuntime(
         }
 
         config.augmentedImageDatabase?.let {
+            if (perceptionManager.imageDatabaseMaxLoadedImageCount == 0) {
+                throw UnsupportedOperationException(
+                    "Failed to configure session, augmented image tracking is not supported."
+                )
+            }
+
             if (
                 it.entries.isEmpty() ||
                     it.entries.size > perceptionManager.imageDatabaseMaxLoadedImageCount
