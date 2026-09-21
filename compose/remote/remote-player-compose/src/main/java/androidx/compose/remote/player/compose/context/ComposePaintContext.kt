@@ -35,6 +35,7 @@ import androidx.compose.remote.core.operations.ClipPath
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation
 import androidx.compose.remote.core.operations.paint.PaintBundle
+import androidx.compose.remote.core.operations.utilities.IntMap
 import androidx.compose.remote.player.compose.custom.ComposeCustomSupport
 import androidx.compose.remote.player.compose.utils.FloatsToPath
 import androidx.compose.remote.player.compose.utils.copy
@@ -686,6 +687,153 @@ internal class ComposePaintContext(
 
         measure.getMatrix(matrix, fraction, flags)
         canvas.concat(matrix)
+    }
+
+    /** Geometry for one 2D mesh, already in the shape `Canvas.drawVertices` wants. */
+    private class Mesh2D(
+        val layout: Int,
+        val uCount: Int,
+        val vCount: Int,
+        val verts: FloatArray,
+        val uv: FloatArray,
+        val colors: IntArray?,
+        val indices: ShortArray,
+    )
+
+    private val meshCache = IntMap<Mesh2D>()
+    private val meshShaderCache = IntMap<android.graphics.BitmapShader>()
+
+    override fun setMesh(
+        meshId: Int,
+        layout: Int,
+        uCount: Int,
+        vCount: Int,
+        verts: FloatArray,
+        uv: FloatArray,
+        colors: IntArray,
+        indices: IntArray,
+    ) {
+        // Android's drawVertices takes short[] indices, so narrow once here rather than per frame.
+        val shortIndices = ShortArray(indices.size) { indices[it].toShort() }
+        meshCache.put(
+            meshId,
+            Mesh2D(
+                layout,
+                uCount,
+                vCount,
+                verts.copyOf(),
+                uv.copyOf(),
+                if (colors.isNotEmpty()) colors.copyOf() else null,
+                shortIndices,
+            ),
+        )
+    }
+
+    override fun drawMesh(meshId: Int, blend: Int, imageId: Int) {
+        val mesh = meshCache[meshId] ?: return
+        if (mesh.verts.isEmpty() || mesh.indices.isEmpty()) return
+
+        // Compose's Canvas has no vertex primitive, so drop to the framework canvas - the same
+        // escape hatch the bitmap path already uses.
+        @Suppress("DEPRECATION", "DEPRECATION_ERROR") val nativePaint = paint.asFrameworkPaint()
+        val previousShader = nativePaint.shader
+        var shaderInstalled = false
+        var texs: FloatArray? = null
+
+        try {
+            if (imageId != 0 && mesh.uv.size == mesh.verts.size) {
+                var bitmap = mContext.mRemoteComposeState.getFromId(imageId) as? Bitmap
+                if (bitmap != null) {
+                    var shader = meshShaderCache.get(imageId)
+                    if (shader == null) {
+                        shader =
+                            android.graphics.BitmapShader(
+                                bitmap,
+                                Shader.TileMode.CLAMP,
+                                Shader.TileMode.CLAMP,
+                            )
+                        meshShaderCache.put(imageId, shader)
+                    }
+                    nativePaint.shader = shader
+                    shaderInstalled = true
+
+                    // uv is 0..1 with (0,0) at the top left; both Android and Skia want image
+                    // pixels, so this is a plain multiply with no flip.
+                    val width = bitmap.width
+                    val height = bitmap.height
+                    texs =
+                        FloatArray(mesh.uv.size) { i ->
+                            if (i % 2 == 0) mesh.uv[i] * width else mesh.uv[i] * height
+                        }
+                }
+            }
+
+            if (blend == 0) {
+                // colours only: ignore any texture and let the vertex colours through
+                texs = null
+                if (shaderInstalled) {
+                    nativePaint.shader = previousShader
+                    shaderInstalled = false
+                }
+            }
+
+            nativeCanvas()
+                .drawVertices(
+                    android.graphics.Canvas.VertexMode.TRIANGLES,
+                    mesh.verts.size,
+                    mesh.verts,
+                    0,
+                    texs,
+                    0,
+                    mesh.colors,
+                    0,
+                    mesh.indices,
+                    0,
+                    mesh.indices.size,
+                    nativePaint,
+                )
+        } finally {
+            // Paint is canvas state; a backend that borrows it must give it back.
+            if (shaderInstalled) {
+                nativePaint.shader = previousShader
+            }
+        }
+    }
+
+    override fun matrixFromMesh(meshId: Int, u: Float, v: Float, flags: Int) {
+        val mesh = meshCache[meshId] ?: return
+        val affine = FloatArray(6)
+        if (
+            !androidx.compose.remote.core.operations.utilities.Mesh2DGenerator
+                .computeMatrixFromMesh(
+                    mesh.layout,
+                    mesh.uCount,
+                    mesh.vCount,
+                    mesh.verts,
+                    u,
+                    v,
+                    flags,
+                    affine,
+                )
+        ) {
+            return
+        }
+        val m = android.graphics.Matrix()
+        // [duX, duY, dvX, dvY, originX, originY] -> the 3x3 Android wants, row major
+        m.setValues(
+            floatArrayOf(
+                affine[0],
+                affine[2],
+                affine[4],
+                affine[1],
+                affine[3],
+                affine[5],
+                0f,
+                0f,
+                1f,
+            )
+        )
+        nativeCanvas().concat(m)
     }
 
     override fun drawToBitmap(bitmapId: Int, mode: Int, color: Int) {

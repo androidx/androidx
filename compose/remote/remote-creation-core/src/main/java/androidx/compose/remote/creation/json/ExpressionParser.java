@@ -306,8 +306,10 @@ class ExpressionParser {
     public Float getSystemVariableNan(String token) {
         switch (token) {
             case "a[0]":
+            case "u":
                 return Utils.asNan(AnimatedFloatExpression.OFFSET + 70);
             case "a[1]":
+            case "v":
                 return Utils.asNan(AnimatedFloatExpression.OFFSET + 71);
             case "a[2]":
                 return Utils.asNan(AnimatedFloatExpression.OFFSET + 72);

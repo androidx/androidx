@@ -59,6 +59,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.compose.remote.core.CoreDocument.ShaderControl;
+import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.creation.RemoteComposeContext;
 import androidx.compose.remote.creation.RemoteComposeWriter;
@@ -109,6 +110,10 @@ public class ExperimentRecyclerActivity extends Activity {
     static int sNotificationId = 1;
     public static final boolean BACKGROUND = false;
     private static final boolean NO_COMPOSE = false;
+
+    static {
+        Limits.DEFAULT_MAX_AVG_FPS = 120;
+    }
 
 
     public static @NonNull RemoteComposeBuffer getCurrentDoc() {

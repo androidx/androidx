@@ -61,6 +61,7 @@ import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.ClipPath;
+import androidx.compose.remote.core.operations.DrawMesh2D;
 import androidx.compose.remote.core.operations.DrawTextOnCircle;
 import androidx.compose.remote.core.operations.ShaderData;
 import androidx.compose.remote.core.operations.Utils;
@@ -69,6 +70,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerMod
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 import androidx.compose.remote.core.operations.paint.PaintChanges;
 import androidx.compose.remote.core.operations.paint.PaintPathEffects;
+import androidx.compose.remote.core.operations.utilities.Mesh2DGenerator;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -1555,6 +1557,155 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
         Matrix matrix = new Matrix();
         measure.getMatrix((len * fraction) % len, matrix, flags);
         mCanvas.concat(matrix);
+    }
+
+    /** Geometry for one 2D mesh, already in the shape {@code Canvas.drawVertices} wants. */
+    private static final class Mesh2D {
+        final int mLayout;
+        final int mUCount;
+        final int mVCount;
+        final float[] mVerts;
+        final float[] mUv;
+        final int[] mColors;
+        final short[] mIndices;
+
+        Mesh2D(
+                int layout,
+                int uCount,
+                int vCount,
+                float[] verts,
+                float[] uv,
+                int[] colors,
+                short[] indices) {
+            mLayout = layout;
+            mUCount = uCount;
+            mVCount = vCount;
+            mVerts = verts;
+            mUv = uv;
+            mColors = colors;
+            mIndices = indices;
+        }
+    }
+
+    private final HashMap<Integer, Mesh2D> mMeshCache = new HashMap<>();
+    private final HashMap<Integer, BitmapShader> mMeshShaderCache = new HashMap<>();
+
+    @Override
+    public void setMesh(
+            int meshId,
+            int layout,
+            int uCount,
+            int vCount,
+            float @NonNull [] verts,
+            float @NonNull [] uv,
+            int @NonNull [] colors,
+            int @NonNull [] indices) {
+        // Android's drawVertices takes short[] indices, so narrow once here rather than per frame.
+        short[] shortIndices = new short[indices.length];
+        for (int i = 0; i < indices.length; i++) {
+            shortIndices[i] = (short) indices[i];
+        }
+        float[] vertsCopy = verts.length > 0 ? verts.clone() : new float[0];
+        float[] uvCopy = uv.length > 0 ? uv.clone() : new float[0];
+        int[] colorsCopy = colors.length > 0 ? colors.clone() : new int[0];
+        mMeshCache.put(
+                meshId,
+                new Mesh2D(layout, uCount, vCount, vertsCopy, uvCopy, colorsCopy, shortIndices));
+    }
+
+    @Override
+    public void drawMesh(int meshId, int blend, int imageId) {
+        Mesh2D mesh = mMeshCache.get(meshId);
+        if (mesh == null || mesh.mVerts.length == 0 || mesh.mIndices.length == 0) {
+            return;
+        }
+
+        int vertexCount = mesh.mVerts.length;
+        int[] colors = mesh.mColors.length > 0 ? mesh.mColors : null;
+
+        // drawVertices takes no bitmap: the texture comes from the paint's shader, and texs are
+        // coordinates in shader space. Passing texs with no shader is meaningless, so an
+        // untextured mesh must pass null.
+        Shader previousShader = mPaint.getShader();
+        boolean shaderInstalled = false;
+        float[] texs = null;
+
+        try {
+            if (imageId != DrawMesh2D.NO_IMAGE && mesh.mUv.length == mesh.mVerts.length) {
+                Bitmap bitmap = (Bitmap) mContext.mRemoteComposeState.getFromId(imageId);
+                if (bitmap != null) {
+                    BitmapShader shader = mMeshShaderCache.get(imageId);
+                    if (shader == null) {
+                        shader =
+                                new BitmapShader(
+                                        bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+                        mMeshShaderCache.put(imageId, shader);
+                    }
+                    mPaint.setShader(shader);
+                    shaderInstalled = true;
+
+                    // uv is normalised 0..1 with (0,0) at the top left, and both Android and Skia
+                    // want image pixels, so the conversion is a plain multiply with no flip. The
+                    // 3D path next door flips v for the GL convention; 2D deliberately does not.
+                    int width = bitmap.getWidth();
+                    int height = bitmap.getHeight();
+                    texs = new float[mesh.mUv.length];
+                    for (int i = 0; i < mesh.mUv.length; i += 2) {
+                        texs[i] = mesh.mUv[i] * width;
+                        texs[i + 1] = mesh.mUv[i + 1] * height;
+                    }
+                }
+            }
+
+            if (blend == DrawMesh2D.BLEND_COLORS_ONLY) {
+                // colours only: ignore any texture and let the vertex colours through
+                texs = null;
+                if (shaderInstalled) {
+                    mPaint.setShader(previousShader);
+                    shaderInstalled = false;
+                }
+            }
+
+            mCanvas.drawVertices(
+                    Canvas.VertexMode.TRIANGLES,
+                    vertexCount,
+                    mesh.mVerts,
+                    0,
+                    texs,
+                    0,
+                    colors,
+                    0,
+                    mesh.mIndices,
+                    0,
+                    mesh.mIndices.length,
+                    mPaint);
+        } finally {
+            // Paint is canvas state; a backend that borrows it must give it back, including when
+            // the draw throws.
+            if (shaderInstalled) {
+                mPaint.setShader(previousShader);
+            }
+        }
+    }
+
+    @Override
+    public void matrixFromMesh(int meshId, float u, float v, int flags) {
+        Mesh2D mesh = mMeshCache.get(meshId);
+        if (mesh == null) {
+            return;
+        }
+        float[] affine = new float[6];
+        if (!Mesh2DGenerator.computeMatrixFromMesh(
+                mesh.mLayout, mesh.mUCount, mesh.mVCount, mesh.mVerts, u, v, flags, affine)) {
+            return;
+        }
+        Matrix m = new Matrix();
+        // [duX, duY, dvX, dvY, originX, originY] -> the 3x3 Android wants, row major
+        m.setValues(
+                new float[] {
+                    affine[0], affine[2], affine[4], affine[1], affine[3], affine[5], 0f, 0f, 1f
+                });
+        mCanvas.concat(m);
     }
 
     HashMap<Bitmap, Canvas> mCCache = new HashMap<>();
