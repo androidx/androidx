@@ -16,7 +16,7 @@
 
 package androidx.benchmark.macro
 
-class BaselineProfileConfig
+public class BaselineProfileConfig
 internal constructor(
     private val outputFilePrefix: String?,
     private val packageName: String,
@@ -32,22 +32,22 @@ internal constructor(
      * @return An optional file name prefix used when creating the output file with the contents of
      *   the human readable baseline profile. For example: `outputFilePrefix-baseline-prof.txt`
      */
-    fun getOutputFilePrefix(): String? = outputFilePrefix
+    public fun getOutputFilePrefix(): String? = outputFilePrefix
 
     /** @return The Package name of the app for which profiles are to be generated. */
-    fun getPackageName(): String = packageName
+    public fun getPackageName(): String = packageName
 
     /** @return the he critical user journey. */
-    fun getProfileBlock(): MacrobenchmarkScope.() -> Unit = profileBlock
+    public fun getProfileBlock(): MacrobenchmarkScope.() -> Unit = profileBlock
 
     /** @return the maximum number of iterations to run when collecting profiles. */
-    fun getMaxIterations(): Int = maxIterations
+    public fun getMaxIterations(): Int = maxIterations
 
     /**
      * @return the minimum number of iterations to observe as stable before assuming stability, and
      *   completing profile generation.
      */
-    fun getStableIterations(): Int = stableIterations
+    public fun getStableIterations(): Int = stableIterations
 
     /**
      * Determines whether the generated profile should be also used as a startup profile. A startup
@@ -56,16 +56,16 @@ internal constructor(
      * flows, such as main application startup pre and post login or other entry points of the app.
      * Note that methods collected in a startup profiles are also utilized for baseline profiles.
      */
-    fun isIncludeInStartupProfile(): Boolean = includeInStartupProfile
+    public fun isIncludeInStartupProfile(): Boolean = includeInStartupProfile
 
     /** @return `true` iff we enforce that the generated profile was stable */
-    fun isStrictStability(): Boolean = strictStability
+    public fun isStrictStability(): Boolean = strictStability
 
     /** @return the function used to filter individual rules / lines of the baseline profile. */
-    fun getFilterPredicate(): (String) -> Boolean = filterPredicate
+    public fun getFilterPredicate(): (String) -> Boolean = filterPredicate
 
     /** Can be used to build a [androidx.benchmark.macro.BaselineProfileConfig] instance. */
-    class Builder
+    public class Builder
     public constructor(
         private val packageName: String,
         private val profileBlock: MacrobenchmarkScope.() -> Unit,
@@ -84,7 +84,7 @@ internal constructor(
          * @return The [androidx.benchmark.macro.BaselineProfileConfig.Builder] instance for
          *   chaining.
          */
-        fun setOutputFilePrefix(outputFilePrefix: String): Builder {
+        public fun setOutputFilePrefix(outputFilePrefix: String): Builder {
             this.outputFilePrefix = outputFilePrefix
             return this
         }
@@ -95,7 +95,7 @@ internal constructor(
          * @return The [androidx.benchmark.macro.BaselineProfileConfig.Builder] instance for
          *   chaining.
          */
-        fun setMaxIterations(maxIterations: Int): Builder {
+        public fun setMaxIterations(maxIterations: Int): Builder {
             this.maxIterations = maxIterations
             return this
         }
@@ -107,7 +107,7 @@ internal constructor(
          * @return The [androidx.benchmark.macro.BaselineProfileConfig.Builder] instance for
          *   chaining.
          */
-        fun setStableIterations(stableIterations: Int): Builder {
+        public fun setStableIterations(stableIterations: Int): Builder {
             this.stableIterations = stableIterations
             return this
         }
@@ -123,7 +123,7 @@ internal constructor(
          * @return The [androidx.benchmark.macro.BaselineProfileConfig.Builder] instance for
          *   chaining.
          */
-        fun setIncludeInStartupProfile(includeInStartupProfile: Boolean): Builder {
+        public fun setIncludeInStartupProfile(includeInStartupProfile: Boolean): Builder {
             this.includeInStartupProfile = includeInStartupProfile
             return this
         }
@@ -134,7 +134,7 @@ internal constructor(
          * @return The [androidx.benchmark.macro.BaselineProfileConfig.Builder] instance for
          *   chaining.
          */
-        fun setStrictStability(strictStability: Boolean): Builder {
+        public fun setStrictStability(strictStability: Boolean): Builder {
             this.strictStability = strictStability
             return this
         }
@@ -147,13 +147,13 @@ internal constructor(
          * @return The [androidx.benchmark.macro.BaselineProfileConfig.Builder] instance for
          *   chaining.
          */
-        fun setFilterPredicate(filterPredicate: (String) -> Boolean): Builder {
+        public fun setFilterPredicate(filterPredicate: (String) -> Boolean): Builder {
             this.filterPredicate = filterPredicate
             return this
         }
 
         /** @return the [androidx.benchmark.macro.BaselineProfileConfig] instance. */
-        fun build(): BaselineProfileConfig {
+        public fun build(): BaselineProfileConfig {
             return BaselineProfileConfig(
                 outputFilePrefix = outputFilePrefix,
                 packageName = packageName,

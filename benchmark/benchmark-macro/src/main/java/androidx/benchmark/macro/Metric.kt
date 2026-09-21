@@ -37,7 +37,7 @@ import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.test.platform.app.InstrumentationRegistry
 
 /** Metric interface. */
-sealed class Metric {
+public sealed class Metric {
     internal open fun configure(captureInfo: CaptureInfo) {}
 
     internal open fun start() {}
@@ -63,16 +63,16 @@ sealed class Metric {
      *   mainline (<30). `null` if captured from a fixed trace, where mainline version is unknown.
      */
     @ExperimentalMetricApi
-    class CaptureInfo(
-        val apiLevel: Int,
-        val targetPackageName: String,
-        val testPackageName: String,
-        val startupMode: StartupMode?,
+    public class CaptureInfo(
+        public val apiLevel: Int,
+        public val targetPackageName: String,
+        public val testPackageName: String,
+        public val startupMode: StartupMode?,
 
         // allocations for tests not relevant, not in critical path
         @Suppress("AutoBoxing")
         @get:Suppress("AutoBoxing")
-        val artMainlineVersion: Long? = expectedArtMainlineVersion(apiLevel),
+        public val artMainlineVersion: Long? = expectedArtMainlineVersion(apiLevel),
     ) {
         init {
             val expectedArtMainlineVersion = expectedArtMainlineVersion(apiLevel)
@@ -84,7 +84,7 @@ sealed class Metric {
             }
         }
 
-        companion object {
+        public companion object {
             internal fun expectedArtMainlineVersion(apiLevel: Int) =
                 when {
                     apiLevel == 30 -> 1L
@@ -103,7 +103,10 @@ sealed class Metric {
              *   launch in a specific state, `null` otherwise.
              */
             @JvmStatic
-            fun forLocalCapture(targetPackageName: String, startupMode: StartupMode?) =
+            public fun forLocalCapture(
+                targetPackageName: String,
+                startupMode: StartupMode?,
+            ): CaptureInfo =
                 CaptureInfo(
                     apiLevel = Build.VERSION.SDK_INT,
                     artMainlineVersion = DeviceInfo.artMainlineVersion,
@@ -123,7 +126,7 @@ sealed class Metric {
     @ConsistentCopyVisibility // Mirror copy()'s visibility with that of the constructor
     @ExperimentalMetricApi
     @Suppress("DataClassDefinition")
-    data class Measurement
+    public data class Measurement
     internal constructor(
         /**
          * Unique name of the metric, should be camel case with abbreviated suffix, e.g.
@@ -148,7 +151,7 @@ sealed class Metric {
          * For example, in a startup Macrobenchmark, [StartupTimingMetric] returns a single
          * measurement for `timeToInitialDisplayMs`.
          */
-        constructor(
+        public constructor(
             name: String,
             data: Double,
         ) : this(name, listOf(data), requireSingleValue = true)
@@ -162,7 +165,7 @@ sealed class Metric {
          * When measurements are merged across multiple iterations, percentiles are extracted from
          * the total pool of samples: P50, P90, P95, and P99.
          */
-        constructor(
+        public constructor(
             name: String,
             dataSamples: List<Double>,
         ) : this(name, dataSamples, requireSingleValue = false)
@@ -199,7 +202,7 @@ private fun Long.nsToDoubleMs(): Double = this / 1_000_000.0
  * framerate rendering) more naturally.
  */
 @Suppress("CanSealedSubClassBeObject")
-class FrameTimingMetric() : Metric() {
+public class FrameTimingMetric() : Metric() {
     private var processSuffix: String = ""
     private var metricSuffix: String = ""
 
@@ -212,7 +215,7 @@ class FrameTimingMetric() : Metric() {
      */
     @ExperimentalMetricApi
     @JvmOverloads
-    constructor(
+    public constructor(
         processNameSuffix: String,
         metricNameSuffix: String = processNameSuffix.replace(oldValue = ":", newValue = "_"),
     ) : this() {
@@ -260,7 +263,7 @@ class FrameTimingMetric() : Metric() {
  * are not available, only high level, millisecond-precision statistics.
  */
 @ExperimentalMetricApi
-class FrameTimingGfxInfoMetric : Metric() {
+public class FrameTimingGfxInfoMetric : Metric() {
     private lateinit var packageName: String
     private val helper = JankCollectionHelper()
     private var metrics = mutableMapOf<String, Double>()
@@ -369,7 +372,7 @@ class FrameTimingGfxInfoMetric : Metric() {
  *   This measurement may not be available prior to API 29.
  */
 @Suppress("CanSealedSubClassBeObject")
-class StartupTimingMetric : Metric() {
+public class StartupTimingMetric : Metric() {
     override fun getMeasurements(
         captureInfo: CaptureInfo,
         traceSession: TraceProcessor.Session,
@@ -399,7 +402,7 @@ class StartupTimingMetric : Metric() {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @Suppress("CanSealedSubClassBeObject")
 @RequiresApi(29)
-class StartupTimingLegacyMetric : Metric() {
+public class StartupTimingLegacyMetric : Metric() {
     override fun getMeasurements(
         captureInfo: CaptureInfo,
         traceSession: TraceProcessor.Session,
@@ -480,7 +483,7 @@ class StartupTimingLegacyMetric : Metric() {
  * @see TraceProcessor.Session.query
  */
 @ExperimentalMetricApi
-abstract class TraceMetric : Metric() {
+public abstract class TraceMetric : Metric() {
     /**
      * Get the metric result for a given iteration given information about the target process and a
      * TraceProcessor session
@@ -517,7 +520,7 @@ abstract class TraceMetric : Metric() {
  * @see androidx.tracing.trace
  */
 @ExperimentalMetricApi
-class TraceSectionMetric(
+public class TraceSectionMetric(
     /**
      * List of section names or patterns to match.
      *
@@ -540,7 +543,7 @@ class TraceSectionMetric(
 ) : Metric() {
 
     @JvmOverloads
-    constructor(
+    public constructor(
         /**
          * Section name or pattern to match.
          *
@@ -560,14 +563,14 @@ class TraceSectionMetric(
         targetPackageOnly: Boolean = true,
     ) : this(listOf(sectionName), label, mode, targetPackageOnly)
 
-    sealed class Mode(internal val name: String) {
+    public sealed class Mode(internal val name: String) {
         /**
          * Captures the duration of the first instance of `sectionName` in the trace.
          *
          * When this mode is used, no measurement will be reported if the named section does not
          * appear in the trace.
          */
-        object First : Mode("First")
+        public object First : Mode("First")
 
         /**
          * Captures the sum of all instances of `sectionName` in the trace.
@@ -575,7 +578,7 @@ class TraceSectionMetric(
          * When this mode is used, a measurement of `0` will be reported if the named section does
          * not appear in the trace.
          */
-        object Sum : Mode("Sum")
+        public object Sum : Mode("Sum")
 
         /**
          * Reports the maximum observed duration for a trace section matching `sectionName` in the
@@ -584,7 +587,7 @@ class TraceSectionMetric(
          * When this mode is used, no measurement will be reported if the named section does not
          * appear in the trace.
          */
-        object Min : Mode("Min")
+        public object Min : Mode("Min")
 
         /**
          * Reports the maximum observed duration for a trace section matching `sectionName` in the
@@ -593,7 +596,7 @@ class TraceSectionMetric(
          * When this mode is used, no measurement will be reported if the named section does not
          * appear in the trace.
          */
-        object Max : Mode("Max")
+        public object Max : Mode("Max")
 
         /**
          * Counts the number of observed instances of a trace section matching `sectionName` in the
@@ -602,7 +605,7 @@ class TraceSectionMetric(
          * When this mode is used, a measurement of `0` will be reported if the named section does
          * not appear in the trace.
          */
-        object Count : Mode("Count")
+        public object Count : Mode("Count")
 
         /**
          * Average duration of trace sections matching `sectionName` in the trace.
@@ -610,7 +613,7 @@ class TraceSectionMetric(
          * When this mode is used, a measurement of `0` will be reported if the named section does
          * not appear in the trace.
          */
-        object Average : Mode("Average")
+        public object Average : Mode("Average")
 
         /**
          * Internal class to prevent external exhaustive when statements, which would break as we
@@ -759,7 +762,7 @@ class TraceSectionMetric(
  * Some classes will be verified at runtime rather than install time due to limitations in the
  * compiler and runtime or due to being malformed.
  */
-class ArtMetric : Metric() {
+public class ArtMetric : Metric() {
     override fun getMeasurements(
         captureInfo: CaptureInfo,
         traceSession: TraceProcessor.Session,
@@ -849,19 +852,19 @@ class ArtMetric : Metric() {
  */
 @RequiresApi(29)
 @ExperimentalMetricApi
-class PowerMetric(private val type: Type) : Metric() {
+public class PowerMetric(private val type: Type) : Metric() {
 
-    companion object {
+    public companion object {
         internal const val MEASURE_BLOCK_SECTION_NAME = "measureBlock"
 
         @JvmStatic
-        fun Battery(): Type.Battery {
+        public fun Battery(): Type.Battery {
             return Type.Battery()
         }
 
         @JvmOverloads
         @JvmStatic
-        fun Energy(
+        public fun Energy(
             categories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
         ): Type.Energy {
             return Type.Energy(categories)
@@ -869,7 +872,7 @@ class PowerMetric(private val type: Type) : Metric() {
 
         @JvmOverloads
         @JvmStatic
-        fun Power(
+        public fun Power(
             categories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
         ): Type.Power {
             return Type.Power(categories)
@@ -903,7 +906,7 @@ class PowerMetric(private val type: Type) : Metric() {
          * ```
          */
         @JvmStatic
-        fun deviceSupportsHighPrecisionTracking(): Boolean =
+        public fun deviceSupportsHighPrecisionTracking(): Boolean =
             hasMetrics(throwOnMissingMetrics = false)
 
         /**
@@ -914,7 +917,7 @@ class PowerMetric(private val type: Type) : Metric() {
          * or to skip the test, e.g. with `assumeTrue(PowerMetric.deviceBatteryHasMinimumCharge())`
          */
         @JvmStatic
-        fun deviceBatteryHasMinimumCharge(): Boolean =
+        public fun deviceBatteryHasMinimumCharge(): Boolean =
             hasMinimumCharge(throwOnMissingMetrics = false)
     }
 
@@ -927,14 +930,18 @@ class PowerMetric(private val type: Type) : Metric() {
      *   category will have metrics displayed independently or summed for a total metric of the
      *   category.
      */
-    sealed class Type(var categories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()) {
-        class Power(powerCategories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()) :
-            Type(powerCategories)
+    public sealed class Type(
+        public var categories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
+    ) {
+        public class Power(
+            powerCategories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
+        ) : Type(powerCategories)
 
-        class Energy(energyCategories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()) :
-            Type(energyCategories)
+        public class Energy(
+            energyCategories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
+        ) : Type(energyCategories)
 
-        class Battery : Type()
+        public class Battery : Type()
     }
 
     override fun configure(captureInfo: CaptureInfo) {
@@ -1076,9 +1083,9 @@ class PowerMetric(private val type: Type) : Metric() {
  *   replaced by "_".
  */
 @ExperimentalMetricApi
-class MemoryUsageMetric
+public class MemoryUsageMetric
 @JvmOverloads
-constructor(
+public constructor(
     private val mode: Mode,
     private val subMetrics: List<SubMetric> =
         listOf(
@@ -1091,7 +1098,7 @@ constructor(
     private val metricNameSuffix: String =
         processNameSuffix.replace(oldValue = ":", newValue = "_"),
 ) : TraceMetric() {
-    enum class Mode {
+    public enum class Mode {
         /**
          * Select the last available sample for each value. Useful for inspecting the final state of
          * e.g. Heap Size.
@@ -1107,7 +1114,7 @@ constructor(
         Max,
     }
 
-    enum class SubMetric(
+    public enum class SubMetric(
         /** Name of counter in trace. */
         internal val counterName: String,
         /**
@@ -1199,7 +1206,7 @@ constructor(
  *   replaced by "_".
  */
 @ExperimentalMetricApi
-class MemoryCountersMetric
+public class MemoryCountersMetric
 @JvmOverloads
 constructor(
     private val processNameSuffix: String = "",

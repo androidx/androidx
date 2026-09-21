@@ -20,7 +20,7 @@ package androidx.benchmark.macro
  * Choice of how the Baseline Profile in a target application should be included or ignored during
  * pre-compilation.
  */
-enum class BaselineProfileMode {
+public enum class BaselineProfileMode {
     /**
      * Require the BaselineProfile methods/classes from the target app to be pre-compiled.
      *
