@@ -79,11 +79,12 @@ public abstract class FollowMode internal constructor() {
          * @param dimensions A set of boolean flags which determine the dimensions of movement that
          *   are tracked. Defaults to [TrackedDimensions.All].
          * @param halfLifeMillis Time in milliseconds it takes for the content to cover half the
-         *   distance to the target. Defaults to 200 milliseconds.
+         *   distance to the target. Defaults to 175 milliseconds.
          * @param startDelay Time in milliseconds to wait before starting the follow movement.
-         *   Defaults to 300 milliseconds.
+         *   Defaults to 100 milliseconds.
          * @param startThresholds A set of thresholds that must be exceeded before movement starts.
-         *   Defaults to 0.1 meters of translation and 3 degrees of pitch, yaw, and roll.
+         *   Defaults to 0.1 meters of translation and 12 degrees of pitch, 20 degrees of yaw, and 5
+         *   degrees of roll.
          * @return A [FollowMode] instance configured for soft following.
          */
         public fun soft(
