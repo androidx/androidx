@@ -18,6 +18,7 @@ package androidx.compose.remote.core.documentation
 
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operations
+import androidx.compose.remote.core.operations.AddMesh2D
 import androidx.compose.remote.core.operations.BitmapData
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.BitmapTextMeasure
@@ -44,6 +45,7 @@ import androidx.compose.remote.core.operations.DrawBitmapTextAnchored
 import androidx.compose.remote.core.operations.DrawCircle
 import androidx.compose.remote.core.operations.DrawContent
 import androidx.compose.remote.core.operations.DrawLine
+import androidx.compose.remote.core.operations.DrawMesh2D
 import androidx.compose.remote.core.operations.DrawOval
 import androidx.compose.remote.core.operations.DrawPath
 import androidx.compose.remote.core.operations.DrawRect
@@ -62,6 +64,7 @@ import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.IdLookup
 import androidx.compose.remote.core.operations.ImageAttribute
 import androidx.compose.remote.core.operations.IntegerExpression
+import androidx.compose.remote.core.operations.MatrixFromMesh2D
 import androidx.compose.remote.core.operations.MatrixFromPath
 import androidx.compose.remote.core.operations.MatrixRestore
 import androidx.compose.remote.core.operations.MatrixRotate
@@ -464,6 +467,9 @@ class RemoteComposeDocumentation(val title: String) : DocumentationBuilder {
         operationsMap.put(Operations.MATRIX_ROTATE, MatrixRotate::documentation)
         operationsMap.put(Operations.MATRIX_SKEW, MatrixSkew::documentation)
         operationsMap.put(Operations.MATRIX_FROM_PATH, MatrixFromPath::documentation)
+        operationsMap.put(Operations.ADD_MESH_2D, AddMesh2D::documentation)
+        operationsMap.put(Operations.DRAW_MESH_2D, DrawMesh2D::documentation)
+        operationsMap.put(Operations.MATRIX_FROM_MESH_2D, MatrixFromMesh2D::documentation)
         operationsMap.put(Operations.MATRIX_CONSTANT, MatrixConstant::documentation)
         operationsMap.put(Operations.MATRIX_EXPRESSION, MatrixExpression::documentation)
         operationsMap.put(Operations.MATRIX_VECTOR_MATH, MatrixVectorMath::documentation)
