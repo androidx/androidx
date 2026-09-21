@@ -30,6 +30,7 @@ import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.LayoutComponent
+import androidx.compose.remote.core.operations.layout.MultiClickModifier
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation
@@ -64,6 +65,7 @@ import androidx.compose.remote.player.compose.embedded.modifier.graphicsLayer
 import androidx.compose.remote.player.compose.embedded.modifier.height
 import androidx.compose.remote.player.compose.embedded.modifier.heightIn
 import androidx.compose.remote.player.compose.embedded.modifier.marquee
+import androidx.compose.remote.player.compose.embedded.modifier.multiClick
 import androidx.compose.remote.player.compose.embedded.modifier.offset
 import androidx.compose.remote.player.compose.embedded.modifier.padding
 import androidx.compose.remote.player.compose.embedded.modifier.ripple
@@ -103,6 +105,7 @@ public fun ComponentModifiers.toModifier(drawOpsList: List<Operation>? = null): 
     // that subsequent clip operations are hoisted before drawWithContent without bypassing
     // preceding padding.
     var drawContentProcessed = false
+    var multiClickProcessed = false
     list.fastForEach { op ->
         modifier =
             when (op) {
@@ -123,6 +126,24 @@ public fun ComponentModifiers.toModifier(drawOpsList: List<Operation>? = null): 
                 is HeightInModifierOperation -> modifier.heightIn(op)
                 is DimensionConstraintsModifierOperation -> modifier.dimensionConstraints(op)
                 is ClickModifierOperation -> modifier.click(op)
+                is MultiClickModifier -> {
+                    // RemoteCompose emits a separate MultiClickModifier operation per gesture type
+                    // (e.g. CLICK_TYPE_SINGLE, CLICK_TYPE_DOUBLE, CLICK_TYPE_LONG) on the same
+                    // component. Chaining multiple separate combinedClickable modifiers in Compose
+                    // causes the outer pointer handler to consume gestures before inner handlers
+                    // see them, so we coalesce all MultiClickModifier ops into a single
+                    // combinedClickable at the position of the first MultiClickModifier.
+                    if (!multiClickProcessed) {
+                        multiClickProcessed = true
+                        val multiClickOps =
+                            ArrayList<MultiClickModifier>().apply {
+                                list.fastForEach { if (it is MultiClickModifier) add(it) }
+                            }
+                        modifier.multiClick(multiClickOps)
+                    } else {
+                        modifier
+                    }
+                }
                 is ComponentVisibilityOperation -> modifier.visible(op)
                 is MarqueeModifierOperation -> modifier.marquee(op)
                 is CoreSemantics -> modifier.semantics(op)

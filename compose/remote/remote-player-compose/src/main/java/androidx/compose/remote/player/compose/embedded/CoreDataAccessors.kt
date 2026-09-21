@@ -57,6 +57,7 @@ import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.LayoutComponentContent
 import androidx.compose.remote.core.operations.layout.LoopOperation
+import androidx.compose.remote.core.operations.layout.MultiClickModifier
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.remote.core.operations.layout.managers.CoreText
@@ -1455,3 +1456,10 @@ internal fun paddingRawValues(op: PaddingModifierOperation): FloatArray {
         paddingBottomField.getFloat(op),
     )
 }
+
+// 14. MultiClickModifier clickType Reflection
+private val multiClickTypeField =
+    MultiClickModifier::class.java.getDeclaredField("mClickType").apply { isAccessible = true }
+
+internal val MultiClickModifier.clickTypeReflection: Int
+    get() = multiClickTypeField.getInt(this)
