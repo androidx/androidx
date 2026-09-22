@@ -75,6 +75,8 @@ dependencies {
     androidTestImplementation("androidx.activity:activity:1.8.2")
     androidTestImplementation("androidx.activity:activity-compose:1.8.2")
     androidTestImplementation("androidx.activity:activity-ktx:1.8.2")
+    androidTestImplementation(project(":navigationevent:navigationevent"))
+    androidTestImplementation(project(":navigationevent:navigationevent-compose"))
     androidTestImplementation(project(":compose:runtime:runtime"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.10.0")

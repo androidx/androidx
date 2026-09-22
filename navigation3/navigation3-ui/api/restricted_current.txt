@@ -54,9 +54,13 @@ package androidx.navigation3.scene {
   }
 
   @androidx.compose.runtime.Immutable public final class SceneInfo<T> extends androidx.navigationevent.NavigationEventInfo {
+    ctor @BytecodeOnly public SceneInfo(androidx.navigation3.scene.Scene!, String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public SceneInfo(androidx.navigation3.scene.Scene<T> scene);
+    ctor public SceneInfo(androidx.navigation3.scene.Scene<T> scene, optional String? title, optional String? url);
     method @InaccessibleFromKotlin public androidx.navigation3.scene.Scene<T> getScene();
     property public androidx.navigation3.scene.Scene<T> scene;
+    property public String? title;
+    property public String? url;
   }
 
   @androidx.compose.runtime.Immutable public final class SceneState<T> {
@@ -90,6 +94,14 @@ package androidx.navigation3.scene {
   public final class SinglePaneSceneStrategy<T> implements androidx.navigation3.scene.SceneStrategy<T> {
     ctor public SinglePaneSceneStrategy();
     method public androidx.navigation3.scene.Scene<T> calculateScene(androidx.navigation3.scene.SceneStrategyScope<T>, java.util.List<androidx.navigation3.runtime.NavEntry<T>> entries);
+  }
+
+  public final class TitleMetadataKey implements androidx.navigation3.runtime.NavMetadataKey<kotlin.jvm.functions.Function0<? extends java.lang.String>> {
+    field public static final androidx.navigation3.scene.TitleMetadataKey INSTANCE;
+  }
+
+  public final class UrlMetadataKey implements androidx.navigation3.runtime.NavMetadataKey<kotlin.jvm.functions.Function0<? extends java.lang.String>> {
+    field public static final androidx.navigation3.scene.UrlMetadataKey INSTANCE;
   }
 
 }
