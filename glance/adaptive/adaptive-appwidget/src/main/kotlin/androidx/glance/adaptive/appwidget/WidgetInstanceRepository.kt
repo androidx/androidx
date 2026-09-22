@@ -137,7 +137,9 @@ internal class WidgetInstanceRepository(
         if (widgetIds == null) return true
         val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
         val storedWidgetId =
-            options?.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID) ?: return false
+            options?.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)?.takeIf {
+                it.isNotBlank()
+            } ?: return false
 
         return storedWidgetId in widgetIds
     }

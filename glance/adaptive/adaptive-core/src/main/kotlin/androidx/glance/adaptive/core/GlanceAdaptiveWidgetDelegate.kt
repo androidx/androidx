@@ -38,6 +38,14 @@ public interface GlanceAdaptiveWidgetDelegate {
     )
 
     /**
+     * Returns the active widget instances matching [widgetName] currently placed on host surfaces
+     * of this device.
+     *
+     * @param widgetName The developer-defined identifier of the widget definition.
+     */
+    public suspend fun getActiveInstances(widgetName: String): List<WidgetInstanceInfo>
+
+    /**
      * Sets or updates dynamic preview data rendered in host widget pickers for [widgetName].
      *
      * @param widgetName The developer-defined identifier of the widget definition.
