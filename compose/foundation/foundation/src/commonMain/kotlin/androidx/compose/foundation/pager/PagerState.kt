@@ -46,6 +46,7 @@ import androidx.compose.foundation.lazy.layout.PrefetchScheduler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.FrequentlyChangingValue
+import androidx.compose.runtime.computedStateOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -56,7 +57,6 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.MeasureResult
@@ -406,14 +406,13 @@ internal constructor(
      *
      * @sample androidx.compose.foundation.samples.ObservingStateChangesInPagerStateSample
      */
-    public val settledPage: Int by
-        derivedStateOf(structuralEqualityPolicy()) {
-            if (isScrollInProgress) {
-                settledPageState
-            } else {
-                this.currentPage
-            }
+    public val settledPage: Int by computedStateOf {
+        if (isScrollInProgress) {
+            settledPageState
+        } else {
+            this.currentPage
         }
+    }
 
     /**
      * The page this [Pager] intends to settle to. During fling or animated scroll (from
@@ -424,27 +423,26 @@ internal constructor(
      *
      * @sample androidx.compose.foundation.samples.ObservingStateChangesInPagerStateSample
      */
-    public val targetPage: Int by
-        derivedStateOf(structuralEqualityPolicy()) {
-            val finalPage =
-                if (!isScrollInProgress) {
-                    this.currentPage
-                } else if (programmaticScrollTargetPage != -1) {
-                    programmaticScrollTargetPage
-                } else {
-                    // act on scroll only
-                    if (abs(this.currentPageOffsetFraction) >= abs(positionThresholdFraction)) {
-                        if (lastScrolledForward) {
-                            firstVisiblePage + 1
-                        } else {
-                            firstVisiblePage
-                        }
+    public val targetPage: Int by computedStateOf {
+        val finalPage =
+            if (!isScrollInProgress) {
+                this.currentPage
+            } else if (programmaticScrollTargetPage != -1) {
+                programmaticScrollTargetPage
+            } else {
+                // act on scroll only
+                if (abs(this.currentPageOffsetFraction) >= abs(positionThresholdFraction)) {
+                    if (lastScrolledForward) {
+                        firstVisiblePage + 1
                     } else {
-                        this.currentPage
+                        firstVisiblePage
                     }
+                } else {
+                    this.currentPage
                 }
-            finalPage.coerceInPageRange()
-        }
+            }
+        finalPage.coerceInPageRange()
+    }
 
     /**
      * Indicates how far the current page is to the snapped position, this will vary from -0.5 (page
