@@ -4344,6 +4344,219 @@ class PointerInteropFilterTest {
     }
 
     @Test
+    fun trackpadPan_exitingBounds_cancelsViewAndResetsState() {
+        val dispatchedActions = mutableListOf<Int>()
+        pointerInteropFilter.onTouchEvent = { motionEvent ->
+            dispatchedActions.add(motionEvent.actionMasked)
+            dispatchedMotionEvents.add(motionEvent)
+            retVal
+        }
+
+        val pointerId = PointerId(0)
+        val downMotionEvent =
+            MotionEvent(
+                10,
+                ACTION_DOWN,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(PointerCoords(10f, 10f)),
+            )
+        val moveMotionEvent =
+            MotionEvent(
+                20,
+                ACTION_MOVE,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(PointerCoords(150f, 150f)),
+            )
+        val nextDownMotionEvent =
+            MotionEvent(
+                30,
+                ACTION_DOWN,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(PointerCoords(20f, 20f)),
+            )
+
+        val downChange =
+            PointerInputChange(
+                id = pointerId,
+                uptimeMillis = 10L,
+                position = Offset(10f, 10f),
+                pressed = false,
+                previousUptimeMillis = 0L,
+                previousPosition = Offset(10f, 10f),
+                previousPressed = false,
+                isInitiallyConsumed = false,
+                type = PointerType.Mouse,
+            )
+        val panStartEvent =
+            PointerInputEvent(
+                uptime = 10L,
+                pointers =
+                    listOf(
+                        PointerInputEventData(
+                            id = pointerId,
+                            uptime = 10L,
+                            positionOnScreen = Offset(10f, 10f),
+                            position = Offset(10f, 10f),
+                            down = false,
+                            pressure = 0f,
+                            type = PointerType.Mouse,
+                            activeHover = false,
+                            historical = emptyList(),
+                            scaleGestureFactor = 0f,
+                            panGestureOffset = Offset.Zero,
+                        )
+                    ),
+                motionEvent = downMotionEvent,
+                activeGesture = PointerClassification.Pan,
+            )
+        val internalPanStartEvent =
+            InternalPointerEvent(
+                LongSparseArray<PointerInputChange>(1).apply { put(pointerId.value, downChange) },
+                panStartEvent,
+            )
+
+        // 1. PanStart dispatches ACTION_DOWN
+        val realPanStartEvent =
+            PointerEvent(listOf(downChange), internalPanStartEvent).also {
+                it.type = PointerEventType.PanStart
+            }
+        pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
+            realPanStartEvent
+        )
+        assertThat(dispatchedActions).containsExactly(ACTION_DOWN).inOrder()
+
+        // 2. Pan exits bounds: HitPathTracker dispatches synthetic Exit followed by PanMove, and
+        // then prunes the node so PanEnd is never delivered.
+        val exitMoveChange =
+            PointerInputChange(
+                id = pointerId,
+                uptimeMillis = 20L,
+                position = Offset(150f, 150f),
+                pressed = false,
+                previousUptimeMillis = 10L,
+                previousPosition = Offset(10f, 10f),
+                previousPressed = false,
+                isInitiallyConsumed = false,
+                type = PointerType.Mouse,
+            )
+        val panMoveEvent =
+            PointerInputEvent(
+                uptime = 20L,
+                pointers =
+                    listOf(
+                        PointerInputEventData(
+                            id = pointerId,
+                            uptime = 20L,
+                            positionOnScreen = Offset(150f, 150f),
+                            position = Offset(150f, 150f),
+                            down = false,
+                            pressure = 0f,
+                            type = PointerType.Mouse,
+                            activeHover = false,
+                            historical = emptyList(),
+                            scaleGestureFactor = 0f,
+                            panGestureOffset = Offset(140f, 140f),
+                        )
+                    ),
+                motionEvent = moveMotionEvent,
+                activeGesture = PointerClassification.Pan,
+            )
+        val internalPanMoveEvent =
+            InternalPointerEvent(
+                LongSparseArray<PointerInputChange>(1).apply {
+                    put(pointerId.value, exitMoveChange)
+                },
+                panMoveEvent,
+            )
+        val syntheticExitEvent =
+            PointerEvent(listOf(exitMoveChange), internalPanMoveEvent).also {
+                it.type = PointerEventType.Exit
+            }
+        pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
+            syntheticExitEvent
+        )
+        val realPanMoveEvent =
+            PointerEvent(listOf(exitMoveChange), internalPanMoveEvent).also {
+                it.type = PointerEventType.PanMove
+            }
+        pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
+            realPanMoveEvent
+        )
+
+        // View should have received ACTION_MOVE followed by ACTION_CANCEL upon exiting bounds
+        assertThat(dispatchedActions)
+            .containsExactly(ACTION_DOWN, ACTION_MOVE, ACTION_CANCEL)
+            .inOrder()
+
+        // 3. Subsequent touch/click stream (without any PanEnd) must be dispatched normally
+        val nextDown = down(0, 30L, 20f, 20f)
+        pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
+            pointerEventOf(nextDown, motionEvent = nextDownMotionEvent)
+        )
+        assertThat(dispatchedActions)
+            .containsExactly(ACTION_DOWN, ACTION_MOVE, ACTION_CANCEL, ACTION_DOWN)
+            .inOrder()
+        assertThat(dispatchedMotionEvents[3]).isSameInstanceAs(nextDownMotionEvent)
+    }
+
+    @Test
+    fun onCancel_whenNotDispatching_resetsStateForSubsequentEvents() {
+        val consumedDown = down(1, 10L, 10f, 10f).apply { consume() }
+        val motionEvent1 =
+            MotionEvent(
+                10,
+                ACTION_DOWN,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(PointerCoords(10f, 10f)),
+            )
+        val hoverMotionEvent =
+            MotionEvent(
+                20,
+                android.view.MotionEvent.ACTION_HOVER_MOVE,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(PointerCoords(15f, 15f)),
+            )
+
+        // 1. Consumed down puts PointerInteropFilter into NotDispatching state
+        pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
+            pointerEventOf(consumedDown, motionEvent = motionEvent1)
+        )
+        assertThat(dispatchedMotionEvents).isEmpty()
+
+        // 2. Gesture is cancelled before ACTION_UP arrives
+        pointerInteropFilter.pointerInputFilter.onCancel()
+
+        // 3. Subsequent hover move event must not be swallowed by a leaked NotDispatching state
+        val hoverChange =
+            PointerInputChange(
+                id = PointerId(1),
+                uptimeMillis = 20L,
+                position = Offset(15f, 15f),
+                pressed = false,
+                previousUptimeMillis = 10L,
+                previousPosition = Offset(10f, 10f),
+                previousPressed = false,
+                isInitiallyConsumed = false,
+                type = PointerType.Mouse,
+            )
+        pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverAllPasses(
+            pointerEventOf(hoverChange, motionEvent = hoverMotionEvent)
+        )
+        assertThat(dispatchedMotionEvents).hasSize(1)
+        assertThat(dispatchedMotionEvents[0]).isSameInstanceAs(hoverMotionEvent)
+    }
+
+    @Test
     fun testInspectorValue() {
         val onTouchEvent: (MotionEvent) -> Boolean = { true }
         rule.setContent {

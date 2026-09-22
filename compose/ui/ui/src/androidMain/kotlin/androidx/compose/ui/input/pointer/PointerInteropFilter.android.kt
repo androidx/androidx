@@ -236,6 +236,26 @@ internal class PointerInteropFilter : PointerInputModifier {
              */
             private var lastEventDispatchedToInitialPass: PointerEvent? = null
 
+            /**
+             * Tracks whether a synthetic [PointerEventType.Exit] occurred during an active trackpad
+             * pan gesture.
+             *
+             * When a pan gesture exits a node's bounds, [HitPathTracker] first dispatches a
+             * synthetic [PointerEventType.Exit] across all three passes (`Initial`, `Main`,
+             * `Final`), immediately followed in the same frame by the [PointerEventType.PanMove]
+             * event across all three passes, and then prunes the pointer from the node after
+             * `PanMove`'s `Final` pass (meaning this filter will never receive
+             * [PointerEventType.PanEnd]).
+             *
+             * We must wait until the `Final` pass of that [PointerEventType.PanMove] event (rather
+             * than resetting during the `Final` pass of the preceding [PointerEventType.Exit]) to
+             * call [stopDispatching] and [reset]; otherwise, resetting `state` to
+             * [DispatchToViewState.Unknown] during `Exit` would cause the immediately following
+             * `PanMove` to re-enter [dispatchToView], dispatching `ACTION_MOVE` after
+             * `ACTION_CANCEL` and leaving `state` stuck after the node is pruned.
+             */
+            private var panExitedBounds = false
+
             override fun onPointerEvent(
                 pointerEvent: PointerEvent,
                 pass: PointerEventPass,
@@ -250,14 +270,23 @@ internal class PointerInteropFilter : PointerInputModifier {
                         (pointerEvent.type == PointerEventType.Enter ||
                             pointerEvent.type == PointerEventType.Exit)
                 ) {
+                    if (pointerEvent.type == PointerEventType.Exit) {
+                        panExitedBounds = true
+                    }
                     return
                 }
 
                 val changes = pointerEvent.changes
 
-                val isMoveEvent = changes.fastAll {
-                    !it.changedToDownIgnoreConsumed() && !it.changedToUpIgnoreConsumed()
-                }
+                val isPanStartOrEnd =
+                    pointerEvent.type == PointerEventType.PanStart ||
+                        pointerEvent.type == PointerEventType.PanEnd
+
+                val isMoveEvent =
+                    !isPanStartOrEnd &&
+                        changes.fastAll {
+                            !it.changedToDownIgnoreConsumed() && !it.changedToUpIgnoreConsumed()
+                        }
 
                 val hasUnconsumedMove = isMoveEvent && changes.fastAll { !it.isConsumed }
 
@@ -267,6 +296,7 @@ internal class PointerInteropFilter : PointerInputModifier {
                 // intercept due to movement.
                 val dispatchDuringInitialTunnel =
                     disallowIntercept ||
+                        isPanStartOrEnd ||
                         changes.fastAny {
                             it.changedToDownIgnoreConsumed() || it.changedToUpIgnoreConsumed()
                         } ||
@@ -300,15 +330,24 @@ internal class PointerInteropFilter : PointerInputModifier {
                     }
                 }
                 if (pass == PointerEventPass.Final) {
-                    // If all of the changes were up changes, or if a trackpad pan gesture has
-                    // ended, then the "event stream" has ended and we reset.
-                    //
-                    // Note: Trackpad pan gestures maintain pressed = false across the entire stream
-                    // in MotionEventAdapter, which prevents changedToUpIgnoreConsumed() from
-                    // returning true on ACTION_UP. Checking for PointerEventType.PanEnd is
-                    // therefore required to properly reset the dispatching state when a pan
-                    // gesture concludes.
-                    if (
+                    // If a trackpad pan gesture exited the node's bounds, HitPathTracker will prune
+                    // this node after the Final pass without delivering PanEnd. Cancel any active
+                    // view dispatch and reset state now so neither the View nor this filter gets
+                    // stuck in an active/suppressed gesture state.
+                    if (panExitedBounds && pointerEvent.type != PointerEventType.PanEnd) {
+                        if (state === DispatchToViewState.Dispatching) {
+                            stopDispatching(pointerEvent)
+                        }
+                        reset()
+                    } else if (
+                        // If all of the changes were up changes, or if a trackpad pan gesture has
+                        // ended, then the "event stream" has ended and we reset.
+                        //
+                        // Note: Trackpad pan gestures maintain pressed = false across the entire
+                        // stream in MotionEventAdapter, which prevents changedToUpIgnoreConsumed()
+                        // from returning true on ACTION_UP. Checking for PointerEventType.PanEnd is
+                        // therefore required to properly reset the dispatching state when a pan
+                        // gesture concludes.
                         changes.fastAll { it.changedToUpIgnoreConsumed() } ||
                             pointerEvent.type == PointerEventType.PanEnd
                     ) {
@@ -335,8 +374,8 @@ internal class PointerInteropFilter : PointerInputModifier {
                     emptyCancelMotionEventScope(SystemClock.uptimeMillis()) { motionEvent ->
                         onTouchEvent(motionEvent)
                     }
-                    reset()
                 }
+                reset()
             }
 
             /** Resets all of our state to be ready for a "new event stream". */
@@ -344,6 +383,7 @@ internal class PointerInteropFilter : PointerInputModifier {
                 state = DispatchToViewState.Unknown
                 disallowIntercept = false
                 lastEventDispatchedToInitialPass = null
+                panExitedBounds = false
             }
 
             /**
