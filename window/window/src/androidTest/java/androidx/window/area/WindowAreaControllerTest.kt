@@ -21,7 +21,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.util.Consumer
 import androidx.window.WindowTestUtils.Companion.assumeAtLeastWindowExtensionVersion
-import androidx.window.core.ExperimentalWindowApi
 import java.util.concurrent.Executor
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -32,7 +31,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assume.assumeTrue
 
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalWindowApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class WindowAreaControllerTest {
 
     private val testScope = TestScope(UnconfinedTestDispatcher())

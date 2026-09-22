@@ -35,7 +35,6 @@ import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_ST
 import androidx.window.area.WindowAreaControllerImpl.Companion.REAR_DISPLAY_WINDOW_AREA_TOKEN
 import androidx.window.area.adapter.WindowAreaAdapter
 import androidx.window.core.BuildConfig
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.VerificationMode
 import androidx.window.extensions.area.ExtensionWindowAreaStatus
@@ -236,7 +235,6 @@ internal class WindowAreaControllerImpl(private val windowAreaComponent: WindowA
         }
     }
 
-    @ExperimentalWindowApi
     override fun presentContentOnWindowArea(
         windowAreaToken: WindowAreaToken,
         activity: Activity,
@@ -300,7 +298,6 @@ internal class WindowAreaControllerImpl(private val windowAreaComponent: WindowA
         windowAreaComponent.startRearDisplaySession(activity, rearDisplaySessionConsumer)
     }
 
-    @ExperimentalWindowApi
     private fun startRearDisplayPresentationMode(
         windowAreaToken: WindowAreaToken,
         activity: Activity,
@@ -327,7 +324,6 @@ internal class WindowAreaControllerImpl(private val windowAreaComponent: WindowA
         )
     }
 
-    @ExperimentalWindowApi
     override fun getActivePresentationSession(
         windowAreaToken: WindowAreaToken
     ): WindowAreaSessionPresenter? {
@@ -343,7 +339,6 @@ internal class WindowAreaControllerImpl(private val windowAreaComponent: WindowA
         return null
     }
 
-    @ExperimentalWindowApi
     private fun createRearFacingPresentationSession(): WindowAreaSessionPresenter {
         return RearDisplayPresentationSessionPresenterImpl(
             windowAreaComponent,
@@ -389,7 +384,6 @@ internal class WindowAreaControllerImpl(private val windowAreaComponent: WindowA
         }
     }
 
-    @ExperimentalWindowApi
     internal inner class RearDisplayPresentationSessionConsumer(
         private val executor: Executor,
         private val windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback,

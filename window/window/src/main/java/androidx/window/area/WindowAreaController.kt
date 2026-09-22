@@ -25,7 +25,6 @@ import androidx.window.area.WindowArea.Type.Companion.TYPE_REAR_FACING
 import androidx.window.area.WindowAreaCapability.Operation.Companion.OPERATION_TRANSFER_TO_AREA
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_AVAILABLE
 import androidx.window.core.BuildConfig
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.VerificationMode
 import java.util.concurrent.Executor
@@ -129,7 +128,6 @@ constructor() {
      *   the currently enabled rear display presentation.
      * @see addWindowAreasListener
      */
-    @ExperimentalWindowApi
     public abstract fun presentContentOnWindowArea(
         windowAreaToken: WindowAreaToken,
         activity: Activity,
@@ -142,7 +140,6 @@ constructor() {
      * [WindowArea] identified by the provided [WindowAreaToken]. Returns null if there is no active
      * presentation session for the provided [windowAreaToken].
      */
-    @ExperimentalWindowApi
     public abstract fun getActivePresentationSession(
         windowAreaToken: WindowAreaToken
     ): WindowAreaSessionPresenter?

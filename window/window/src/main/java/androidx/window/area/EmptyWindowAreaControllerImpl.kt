@@ -18,7 +18,6 @@ package androidx.window.area
 
 import android.app.Activity
 import androidx.core.util.Consumer
-import androidx.window.core.ExperimentalWindowApi
 import java.util.concurrent.Executor
 
 /** Empty Implementation for devices that do not support the [WindowAreaController] functionality */
@@ -36,7 +35,6 @@ internal class EmptyWindowAreaControllerImpl : WindowAreaController() {
         throw IllegalStateException("There are no WindowAreas")
     }
 
-    @ExperimentalWindowApi
     override fun presentContentOnWindowArea(
         windowAreaToken: WindowAreaToken,
         activity: Activity,
@@ -48,7 +46,6 @@ internal class EmptyWindowAreaControllerImpl : WindowAreaController() {
         )
     }
 
-    @ExperimentalWindowApi
     override fun getActivePresentationSession(
         windowAreaToken: WindowAreaToken
     ): WindowAreaSessionPresenter? {

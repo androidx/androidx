@@ -19,7 +19,6 @@ package androidx.window.area
 import android.content.Context
 import android.view.View
 import android.view.Window
-import androidx.window.core.ExperimentalWindowApi
 
 /**
  * A container that allows getting access to and showing content on a window area. The container is
@@ -29,7 +28,6 @@ import androidx.window.core.ExperimentalWindowApi
  *
  * @see WindowAreaController.presentContentOnWindowArea
  */
-@ExperimentalWindowApi
 public interface WindowAreaSessionPresenter : AutoCloseable {
     /** Returns the [Context] associated with the window area. */
     public val context: Context
