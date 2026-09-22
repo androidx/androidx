@@ -79,20 +79,20 @@ internal class SoftFollowMode(
 
     internal companion object {
         internal val DEFAULT_HALF_LIFE_MILLIS: Long = 175L
-        internal val DEFAULT_START_DELAY: Long = 100L
+        internal val DEFAULT_START_DELAY: Long = 200L
         internal val DEFAULT_START_THRESHOLDS: FollowThresholds =
             FollowThresholds(
-                translationMeters = 0.1f,
-                pitchDegrees = 12f,
-                yawDegrees = 20f,
-                rollDegrees = 5f,
+                translationMeters = 0.2f,
+                pitchDegrees = 16f,
+                yawDegrees = 24f,
+                rollDegrees = 20f,
             )
         internal val DEFAULT_SETTLE_THRESHOLDS: FollowThresholds =
             FollowThresholds(
                 translationMeters = 0.01f,
-                pitchDegrees = 0.05f,
-                yawDegrees = 0.05f,
-                rollDegrees = 0.05f,
+                pitchDegrees = 0.1f,
+                yawDegrees = 0.1f,
+                rollDegrees = 0.1f,
             )
     }
 }
