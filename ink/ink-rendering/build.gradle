@@ -24,6 +24,8 @@ plugins {
     id("AndroidXPlugin")
 }
 
+evaluationDependsOn(":ink:ink-storage")
+
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.ink.rendering"
@@ -80,6 +82,7 @@ tasks.named("iosSimulatorArm64Test") {
     // be some setup/teardown to boot and shut down the simulator. That's not
     // currently handled by the KMP Gradle Plugin, see
     // https://youtrack.jetbrains.com/issue/KMT-2955.
+    mustRunAfter(":ink:ink-storage:iosSimulatorArm64Test")
     standalone = false
     def injected = project.objects.newInstance(InjectedExecOps)
     doFirst {
