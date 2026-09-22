@@ -534,6 +534,7 @@ includeProject(":camera:camera-compose:camera-compose-samples", "camera/camera-c
 includeProject(":camera:camera-core", [BuildType.CAMERA])
 includeProject(":camera:camera-core:camera-core-samples", "camera/camera-core/samples", [BuildType.CAMERA])
 includeProject(":camera:camera-effects", [BuildType.CAMERA])
+includeProject(":camera:camera-effects-play-services", [BuildType.CAMERA])
 includeProject(":camera:camera-extensions", [BuildType.CAMERA])
 includeProject(":camera:camera-extensions:camera-extensions-samples", "camera/camera-extensions/samples", [BuildType.CAMERA])
 includeProject(":camera:camera-extensions-stub", [BuildType.CAMERA])
