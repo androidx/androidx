@@ -125,6 +125,13 @@ class MeshEntityActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // The content view must be installed before the Session is created. Creating a Session
+        // registers this Activity's window as an XR "window leash", and the platform reads
+        // Window.peekDecorView() without a null check when a compositor transform update
+        // arrives, which crashes the process if no content view has been set yet.
+        // See b/562983987.
+        setContentView(R.layout.activity_mesh_entity)
+
         lifecycleScope.launch {
             session = SessionManager(this@MeshEntityActivity).createSession()
             if (session == null) {
@@ -136,8 +143,6 @@ class MeshEntityActivity : AppCompatActivity() {
             val movableComponent = MovableComponent.createSystemMovable(session!!)
             movableComponent.size = FloatSize3d(0.4f, 0.3f, 0.1f)
             session!!.scene.mainPanelEntity.addComponent(movableComponent)
-
-            setContentView(R.layout.activity_mesh_entity)
 
             movableSwitch = findViewById<MaterialSwitch>(R.id.movableSwitch)
             movableSwitch?.setOnCheckedChangeListener { _, isChecked ->
