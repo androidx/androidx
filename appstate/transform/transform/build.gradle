@@ -80,7 +80,12 @@ androidXMultiplatform {
             }
         }
 
-        create("nonAndroidMain").dependsOn(commonMain)
+        create("nonAndroidMain") {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.atomicFu)
+            }
+        }
         desktopMain.dependsOn(nonAndroidMain)
         nativeMain.dependsOn(nonAndroidMain)
         webMain.dependsOn(nonAndroidMain)
