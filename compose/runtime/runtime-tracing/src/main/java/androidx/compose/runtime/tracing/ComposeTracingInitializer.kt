@@ -19,6 +19,8 @@ package androidx.compose.runtime.tracing
 import android.content.Context
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.InternalComposeTracingApi
+import androidx.compose.runtime.tracing.internal.RecompositionTracerState
+import androidx.compose.runtime.tracing.internal.RecompositionTracingEnabledReceiver
 import androidx.startup.AppInitializer
 import androidx.startup.Initializer
 
@@ -30,16 +32,19 @@ internal const val CONNECTED_PROFILER_TRACING_INITIALIZER =
     "androidx.tracing.profiler.ConnectedProfilerTracingInitializer"
 
 /**
- * Configures Perfetto SDK tracing in the app allowing for capturing Compose specific information
- * (e.g. Composable function names) in a Perfetto SDK trace
+ * Configures AndroidX Tracing in the app allowing for capturing Compose specific information (e.g.
+ * Composable function names) in a AndroidX trace
  */
 @OptIn(InternalComposeTracingApi::class)
 public class ComposeTracingInitializer : Initializer<Unit> {
     override fun create(context: Context) {
-        val composeTracer =
-            AppInitializer.getInstance(context)
-                .initializeComponent(ComposeTracerInitializer::class.java)
+        val appInitializer = AppInitializer.getInstance(context)
+        val composeTracer = appInitializer.initializeComponent(ComposeTracerInitializer::class.java)
         Composer.setTracer(composeTracer)
+
+        if (RecompositionTracingEnabledReceiver.isEnabled(context)) {
+            RecompositionTracerState.startTracing(context)
+        }
     }
 
     override fun dependencies(): List<Class<out Initializer<*>>> {
