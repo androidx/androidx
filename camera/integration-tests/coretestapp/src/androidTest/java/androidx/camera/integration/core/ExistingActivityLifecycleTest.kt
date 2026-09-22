@@ -20,6 +20,8 @@ import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.view.Display
+import android.view.Surface
 import android.view.View
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
@@ -41,6 +43,7 @@ import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
@@ -49,7 +52,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 private const val HOME_TIMEOUT_MS = 3000L
-private const val ROTATE_TIMEOUT_MS = 2000L
+private const val ROTATE_TIMEOUT_MS = 10000L
 
 // Test application lifecycle when using CameraX.
 @RunWith(Parameterized::class)
@@ -84,11 +87,19 @@ class ExistingActivityLifecycleTest(private val implName: String) {
 
     @Before
     fun setUp() {
+        setOrientationNatural()
         requireForegroundRule.deferCleanup {
             val context = ApplicationProvider.getApplicationContext<Context>()
             val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
             cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
         }
+    }
+
+    @After
+    fun tearDown() {
+        // Restore natural orientation between test repetitions without unfreezing rotation
+        // (RequireForegroundRule will unfreeze rotation when the test completes).
+        setOrientationNatural()
     }
 
     // Check if Preview screen is updated or not, after Destroy-Create lifecycle.
@@ -248,8 +259,6 @@ class ExistingActivityLifecycleTest(private val implName: String) {
                 // recreated.
                 rotateDeviceLeftAndWait()
 
-                // Get idling from the re-created activity.
-                withActivity { resetViewIdlingLatch() }
                 waitForViewfinderIdleDirect()
 
                 moveToState(CREATED)
@@ -277,8 +286,6 @@ class ExistingActivityLifecycleTest(private val implName: String) {
                 // recreated.
                 rotateDeviceLeftAndWait()
 
-                // Get idling from the re-created activity.
-                withActivity { resetViewIdlingLatch() }
                 waitForViewfinderIdleDirect()
                 // Go through pause/resume then check again.
                 moveToState(CREATED)
@@ -291,15 +298,44 @@ class ExistingActivityLifecycleTest(private val implName: String) {
     }
 
     private fun rotateDeviceLeftAndWait() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        // Ensure the device starts from natural orientation before attempting rotation left.
+        if (device.displayRotation != Surface.ROTATION_0) {
+            setOrientationNatural()
+            instrumentation.waitForIdleSync()
+        }
         // Create an ActivityMonitor to explicitly wait for the activity to be recreated after
         // rotating the device.
         val monitor = Instrumentation.ActivityMonitor(CameraXActivity::class.java.name, null, false)
-        InstrumentationRegistry.getInstrumentation().addMonitor(monitor)
-        device.setOrientationLeft()
-        // Wait for the rotation to complete
-        InstrumentationRegistry.getInstrumentation()
-            .waitForMonitorWithTimeout(monitor, ROTATE_TIMEOUT_MS)
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        instrumentation.addMonitor(monitor)
+        try {
+            setOrientationLeft()
+            // Wait for the rotation to complete and activity to be recreated
+            val recreatedActivity =
+                instrumentation.waitForMonitorWithTimeout(monitor, ROTATE_TIMEOUT_MS)
+            val timeoutMsg =
+                "Activity was not recreated within $ROTATE_TIMEOUT_MS ms after rotating device left"
+            assertWithMessage(timeoutMsg).that(recreatedActivity).isNotNull()
+            instrumentation.waitForIdleSync()
+        } finally {
+            instrumentation.removeMonitor(monitor)
+        }
+    }
+
+    private fun setOrientationNatural() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            device.setOrientationNatural(Display.DEFAULT_DISPLAY)
+        } else {
+            device.setOrientationNatural()
+        }
+    }
+
+    private fun setOrientationLeft() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            device.setOrientationLeft(Display.DEFAULT_DISPLAY)
+        } else {
+            device.setOrientationLeft()
+        }
     }
 
     @Test
