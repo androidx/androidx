@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalInkCrossPlatformRenderingApi::class, ExperimentalForeignApi::class)
+
 package androidx.ink.storage
 
 import androidx.annotation.RestrictTo
@@ -25,9 +27,14 @@ import androidx.ink.brush.Version
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
+import platform.CoreGraphics.CGColorSpaceCreateDeviceRGB
+import platform.CoreGraphics.CGColorSpaceRelease
 import platform.CoreGraphics.CGImageRelease
 import platform.CoreImage.CIContext
+import platform.CoreImage.CIImage
 import platform.CoreImage.createCGImage
+import platform.CoreImage.kCIContextUseSoftwareRenderer
+import platform.CoreImage.kCIFormatRGBA8
 import platform.Foundation.NSData
 import platform.Foundation.dataWithBytes
 import platform.UIKit.UIImage
@@ -169,7 +176,6 @@ public fun BrushFamily.Companion.decodeMultiple(
         onDecodeTexture.toOnDecodeTexturePngBytes(),
     )
 
-@OptIn(ExperimentalInkCrossPlatformRenderingApi::class)
 private fun TextureImageStore.toTexturePngBytesLookup() = TexturePngBytesLookup { textureId ->
     get(textureId)?.let { uiImage ->
         checkNotNull(uiImage.toPngBytes()) {
@@ -178,17 +184,8 @@ private fun TextureImageStore.toTexturePngBytesLookup() = TexturePngBytesLookup 
     }
 }
 
-@OptIn(ExperimentalForeignApi::class)
-private fun UIImage.toPngBytes(): ByteArray? =
-    if (CGImage != null) {
-            this
-        } else {
-            CIImage?.let {
-                CIContext.contextWithOptions(null).createCGImage(it, it.extent)?.let { cgImage ->
-                    UIImage(cgImage).also { CGImageRelease(cgImage) }
-                }
-            }
-        }
+internal fun UIImage.toPngBytes(): ByteArray? =
+    toUiImageWrappingCgImage()
         ?.let { uiImageWrappingCgImage -> UIImagePNGRepresentation(uiImageWrappingCgImage) }
         ?.takeIf { nsData -> nsData.length > 0U }
         ?.let { nsData ->
@@ -197,7 +194,45 @@ private fun UIImage.toPngBytes(): ByteArray? =
             }
         }
 
-@OptIn(ExperimentalInkCrossPlatformRenderingApi::class, ExperimentalForeignApi::class)
+private fun UIImage.toUiImageWrappingCgImage(): UIImage? =
+    // If the UIImage was directly initialized from a CGImage, use it.
+    if (CGImage != null) {
+        this
+    } else {
+        CIImage?.toUiImageWrappingCgImage()
+    }
+
+private fun CIImage.toUiImageWrappingCgImage(): UIImage? {
+    // If the CIImage was directly initialized from a CGImage, wrap the CGImage more directly so
+    // that
+    // calling UIImagePNGRepresentation on the result works.
+    CGImage?.let {
+        return UIImage(it)
+    }
+
+    val colorSpace = CGColorSpaceCreateDeviceRGB()
+    try {
+        val cgImage =
+            CIContext.contextWithOptions(null)
+                .createCGImage(
+                    this,
+                    fromRect = extent,
+                    format = kCIFormatRGBA8,
+                    colorSpace = colorSpace,
+                )
+                ?: CIContext.contextWithOptions(mapOf(kCIContextUseSoftwareRenderer to true))
+                    .createCGImage(
+                        this,
+                        fromRect = extent,
+                        format = kCIFormatRGBA8,
+                        colorSpace = colorSpace,
+                    )
+        return cgImage?.let { UIImage(it).also { _ -> CGImageRelease(it) } }
+    } finally {
+        CGColorSpaceRelease(colorSpace)
+    }
+}
+
 private fun OnDecodeTextureUiImage.toOnDecodeTexturePngBytes() =
     OnDecodeTexturePngBytes { textureId: String, pngBytes: ByteArray? ->
         onDecodeTexture(
