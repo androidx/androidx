@@ -58,13 +58,22 @@ class AnchorSpaceActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // The content view must be installed before the Session is created. Creating a Session
+        // registers this Activity's window as an XR "window leash", and the platform reads
+        // Window.peekDecorView() without a null check when a compositor transform update
+        // arrives, which crashes the process if no content view has been set yet.
+        // See b/562983987.
+        setContentView(R.layout.common_test_panel)
+
         lifecycleScope.launch {
             session = SessionManager(this@AnchorSpaceActivity).createSession()
-            if (session == null) this@AnchorSpaceActivity.finish()
+            if (session == null) {
+                this@AnchorSpaceActivity.finish()
+                return@launch
+            }
             session?.scene?.keyEntity = null
 
             // View
-            setContentView(R.layout.common_test_panel)
             ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
                 val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
                 v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)

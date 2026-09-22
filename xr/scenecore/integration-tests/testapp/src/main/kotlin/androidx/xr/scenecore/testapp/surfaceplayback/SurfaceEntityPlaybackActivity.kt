@@ -201,6 +201,15 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // The content must be installed before the Session is created. Creating a Session
+        // registers this Activity's window as an XR "window leash", and the platform reads
+        // Window.peekDecorView() without a null check when a compositor transform update
+        // arrives, which crashes the process if no content view has been set yet. The content
+        // renders nothing until the Session is ready.
+        // See b/562983987.
+        val sessionState = mutableStateOf<Session?>(null)
+        setContent { sessionState.value?.let { HelloWorld(it, activity) } }
+
         lifecycleScope.launch {
             val sessionResult = Session.create(context = this@SurfaceEntityPlaybackActivity)
             if (sessionResult is SessionCreateSuccess) {
@@ -230,7 +239,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
                     )
 
                 alphaMaskTexture = Texture.create(session, Paths.get("textures", "alpha_mask.png"))
-                setContent { HelloWorld(session, activity) }
+                sessionState.value = session
             } else {
                 finish()
             }
