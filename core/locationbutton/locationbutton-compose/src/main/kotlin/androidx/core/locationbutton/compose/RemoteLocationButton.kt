@@ -58,14 +58,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.constrainHeight
-import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.isSpecified
+import androidx.compose.ui.unit.offset
 import androidx.compose.ui.viewinterop.AndroidView
 
 /** CompositionLocal to provide a [LocationButtonProvider]. */
@@ -142,6 +142,23 @@ internal fun RemoteLocationButton(
     Layout(
         modifier = modifier,
         content = {
+            // Hidden measurement twin. This is the same button the system renders, composed
+            // locally only so that it can be measured. It is measured but never placed, so it is
+            // skipped during layout and draw and stays out of the semantics tree.
+            LocationButtonContent(
+                onClick = {},
+                modifier = Modifier.clearAndSetSemantics {},
+                referenceHeight = ButtonDefaults.MinHeight,
+                backgroundColor = backgroundColor,
+                strokeColor = strokeColor,
+                strokeWidth = strokeWidth,
+                cornerRadius = cornerRadius,
+                pressedCornerRadius = pressedCornerRadius,
+                iconTint = iconTint,
+                textType = textType,
+                textColor = textColor,
+            )
+
             val hostToken = surfaceHostToken
             val displayId = surfaceDisplayId
             val size = layoutSize
@@ -342,20 +359,51 @@ internal fun RemoteLocationButton(
     ) { measurables, constraints ->
         // The measure policy only decides the size. Sending it to the system is a side effect,
         // so the update block does it once placement has recorded the result.
+        val twinMeasurable = measurables[0]
+        val surfaceMeasurable = measurables[1]
+
+        // The twin is the button inside the padding, so it is measured within the constraints minus
+        // the padding, as the local button is. Relax the minimums so the twin reports its natural
+        // size instead of being stretched to whatever the parent happens to allow.
+        val paddings = safePaddings(clickablePadding, layoutDirection)
+        val horizontalPaddingPx = paddings.left + paddings.right
+        val verticalPaddingPx = paddings.top + paddings.bottom
+        val twinPlaceable =
+            twinMeasurable.measure(
+                constraints
+                    .offset(-horizontalPaddingPx, -verticalPaddingPx)
+                    .copy(minWidth = 0, minHeight = 0)
+            )
+
+        // The system subtracts the padding again on its side, so the requested size includes it.
+        val naturalWidth = twinPlaceable.width + horizontalPaddingPx
+        val naturalHeight = twinPlaceable.height + verticalPaddingPx
+
+        val minSizePx = MinTouchTargetSize.roundToPx()
+        val maxSizePx = MaxButtonHeight.roundToPx()
+
+        // Only a fixed constraint is a size the caller asked for. A bounded constraint is an upper
+        // limit, and treating it as required is what made the button fill its parent.
+        //
+        // When wrapping, the size is ours to choose, so it is clamped to the same bounds the system
+        // enforces. Otherwise this layout slot and the surface the system renders into disagree,
+        // and the SurfaceView clips the result. An explicit caller size is passed through as is, so
+        // that both implementations lay out identically.
         val widthPx =
-            if (constraints.hasBoundedWidth) {
+            if (constraints.hasFixedWidth) {
                 constraints.maxWidth
             } else {
-                constraints.constrainWidth(ButtonDefaults.MinWidth.roundToPx())
+                naturalWidth.coerceAtLeast(minSizePx)
             }
         val heightPx =
-            if (constraints.hasBoundedHeight) {
+            if (constraints.hasFixedHeight) {
                 constraints.maxHeight
             } else {
-                constraints.constrainHeight(ButtonDefaults.MinHeight.roundToPx())
+                naturalHeight.coerceIn(minSizePx, maxSizePx)
             }
 
-        val placeable = measurables.first().measure(Constraints.fixed(widthPx, heightPx))
+        val placeable = surfaceMeasurable.measure(Constraints.fixed(widthPx, heightPx))
+        // The twin is deliberately not placed, so it is never drawn.
         layout(widthPx, heightPx) {
             // Placement doesn't run for intrinsic measurements, so only a real layout pass records
             // the size the session uses.

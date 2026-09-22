@@ -40,7 +40,12 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -53,13 +58,20 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertWidthIsEqualTo
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.locationbutton.R
 import androidx.core.locationbutton.testing.TestLocationButtonProvider
@@ -586,10 +598,317 @@ class LocationButtonTest {
         assertThat(errors).isEmpty()
     }
 
+    @Test
+    fun testNoSizeModifierWrapsContent() {
+        composeTestRule.setContent {
+            MaterialTheme {
+                Column(modifier = Modifier.width(ParentWidth)) {
+                    LocationButton(
+                        modifier = Modifier.testTag(SizedButtonTag),
+                        textType = LocationButtonTextType.PreciseLocation,
+                        onRequestPermissions = {},
+                    ) {
+                        // onPermissionResult
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        // A Column child is given a bounded but not fixed width. The button must treat that as an
+        // upper limit and wrap, rather than stretching to fill it.
+        val bounds = composeTestRule.onNodeWithTag(SizedButtonTag).getUnclippedBoundsInRoot()
+        assertThat((bounds.right - bounds.left).value).isLessThan(ParentWidth.value)
+    }
+
+    @Test
+    fun testWrapContentSizeModifierWrapsContent() {
+        composeTestRule.setContent {
+            MaterialTheme {
+                Column(modifier = Modifier.width(ParentWidth)) {
+                    LocationButton(
+                        modifier = Modifier.testTag(SizedButtonTag).wrapContentSize(),
+                        textType = LocationButtonTextType.PreciseLocation,
+                        onRequestPermissions = {},
+                    ) {
+                        // onPermissionResult
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        val bounds = composeTestRule.onNodeWithTag(SizedButtonTag).getUnclippedBoundsInRoot()
+        assertThat((bounds.right - bounds.left).value).isLessThan(ParentWidth.value)
+    }
+
+    @Test
+    fun testExplicitSizeIsRespected() {
+        composeTestRule.setContent {
+            MaterialTheme {
+                Column(modifier = Modifier.width(ParentWidth)) {
+                    LocationButton(
+                        modifier = Modifier.testTag(SizedButtonTag).size(200.dp, 50.dp),
+                        textType = LocationButtonTextType.PreciseLocation,
+                        onRequestPermissions = {},
+                    ) {
+                        // onPermissionResult
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithTag(SizedButtonTag)
+            .assertWidthIsEqualTo(200.dp)
+            .assertHeightIsEqualTo(50.dp)
+    }
+
+    @Test
+    fun testFillMaxWidthStillFillsParent() {
+        composeTestRule.setContent {
+            MaterialTheme {
+                Column(modifier = Modifier.width(ParentWidth)) {
+                    LocationButton(
+                        modifier = Modifier.testTag(SizedButtonTag).fillMaxWidth(),
+                        textType = LocationButtonTextType.PreciseLocation,
+                        onRequestPermissions = {},
+                    ) {
+                        // onPermissionResult
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        // fillMaxWidth produces a fixed width, so filling the parent is still correct.
+        composeTestRule.onNodeWithTag(SizedButtonTag).assertWidthIsEqualTo(ParentWidth)
+    }
+
+    @Test
+    fun testWrappedHeightMeetsMinimumTouchTarget() {
+        composeTestRule.setContent {
+            MaterialTheme {
+                Column(modifier = Modifier.width(ParentWidth)) {
+                    LocationButton(
+                        modifier = Modifier.testTag(SizedButtonTag),
+                        textType = LocationButtonTextType.PreciseLocation,
+                        onRequestPermissions = {},
+                    ) {
+                        // onPermissionResult
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        // The system enforces a minimum touch target, so a wrapped button must not be smaller.
+        val bounds = composeTestRule.onNodeWithTag(SizedButtonTag).getUnclippedBoundsInRoot()
+        assertThat((bounds.bottom - bounds.top).value).isAtLeast(MinTouchTargetSize.value)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    fun testWrappedSizeIsRequestedFromSystem() {
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN)
+        var capturedRequest: LocationButtonRequest? = null
+        val platformProvider =
+            object :
+                TestLocationButtonProvider(
+                    InstrumentationRegistry.getInstrumentation().targetContext
+                ) {
+                override fun onSessionRequestReceived(
+                    request: LocationButtonRequest,
+                    session: LocationButtonSession,
+                ) {
+                    capturedRequest = request
+                }
+            }
+        composeTestRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(LocalLocationButtonProvider provides platformProvider) {
+                    Column(modifier = Modifier.width(ParentWidth)) {
+                        LocationButton(
+                            modifier = Modifier.testTag(SizedButtonTag),
+                            textType = LocationButtonTextType.PreciseLocation,
+                            onRequestPermissions = {},
+                        ) {
+                            // onPermissionResult
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        // The wrapped size must reach the system, and must match the slot laid out for it,
+        // otherwise the rendered surface is clipped by the SurfaceView.
+        assertThat(capturedRequest).isNotNull()
+        val request = capturedRequest!!
+        val density =
+            InstrumentationRegistry.getInstrumentation()
+                .targetContext
+                .resources
+                .displayMetrics
+                .density
+        assertThat(request.width).isLessThan(Math.round(ParentWidth.value * density))
+        assertThat(request.height).isAtLeast(Math.round(MinTouchTargetSize.value * density))
+
+        val bounds = composeTestRule.onNodeWithTag(SizedButtonTag).getUnclippedBoundsInRoot()
+        assertThat(request.width)
+            .isEqualTo(Math.round((bounds.right - bounds.left).value * density))
+        assertThat(request.height)
+            .isEqualTo(Math.round((bounds.bottom - bounds.top).value * density))
+    }
+
+    @Test
+    fun testFixedHeightWithNarrowMaxWidthPicksTokensFromWidth() {
+        assumeTrue(Build.VERSION.SDK_INT < Build.VERSION_CODES.CINNAMON_BUN)
+        var expectedLineHeight = 0.dp
+        composeTestRule.setContent {
+            WithoutFontScaling {
+                MaterialTheme {
+                    expectedLineHeight =
+                        with(LocalDensity.current) {
+                            MaterialTheme.typography.labelLarge.lineHeight.toDp()
+                        }
+                    LocationButton(
+                        modifier = Modifier.height(FixedHeight).widthIn(max = NarrowMaxWidth),
+                        textType = LocationButtonTextType.PreciseLocation,
+                        onRequestPermissions = {},
+                    ) {
+                        // onPermissionResult
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        // The content can be at most 52dp wide, so the button picks the small text, icon and
+        // padding from the width, as SystemUI would, even though the 72dp content height alone
+        // would select the medium ones.
+        assertLabelHeightIsEqualTo(expectedLineHeight)
+    }
+
+    @Test
+    fun testFixedHeightInWideParentPicksTokensFromHeight() {
+        assumeTrue(Build.VERSION.SDK_INT < Build.VERSION_CODES.CINNAMON_BUN)
+        var expectedLineHeight = 0.dp
+        composeTestRule.setContent {
+            WithoutFontScaling {
+                MaterialTheme {
+                    expectedLineHeight =
+                        with(LocalDensity.current) {
+                            MaterialTheme.typography.titleMedium.lineHeight.toDp()
+                        }
+                    Column(modifier = Modifier.width(ParentWidth)) {
+                        LocationButton(
+                            modifier = Modifier.height(FixedHeight),
+                            textType = LocationButtonTextType.PreciseLocation,
+                            onRequestPermissions = {},
+                        ) {
+                            // onPermissionResult
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        // The parent's max width is far wider than the 72dp content height, so the height selects
+        // the medium tokens.
+        assertLabelHeightIsEqualTo(expectedLineHeight)
+    }
+
+    @Composable
+    private fun WithoutFontScaling(content: @Composable () -> Unit) {
+        // Text derives its line height differently under non-linear font scaling, so the line
+        // height assertions run at a font scale of 1.
+        CompositionLocalProvider(
+            LocalDensity provides Density(LocalDensity.current.density, fontScale = 1f),
+            content = content,
+        )
+    }
+
+    private fun assertLabelHeightIsEqualTo(expected: Dp) {
+        val text =
+            InstrumentationRegistry.getInstrumentation()
+                .targetContext
+                .getString(R.string.location_button_precise_location)
+        composeTestRule.onNodeWithText(text, useUnmergedTree = true).assertHeightIsEqualTo(expected)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    fun testFixedHeightWithNarrowMaxWidthIsRequestedWithinMaxWidth() {
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN)
+        var capturedRequest: LocationButtonRequest? = null
+        val platformProvider =
+            object :
+                TestLocationButtonProvider(
+                    InstrumentationRegistry.getInstrumentation().targetContext
+                ) {
+                override fun onSessionRequestReceived(
+                    request: LocationButtonRequest,
+                    session: LocationButtonSession,
+                ) {
+                    capturedRequest = request
+                }
+            }
+        composeTestRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(LocalLocationButtonProvider provides platformProvider) {
+                    LocationButton(
+                        modifier = Modifier.height(FixedHeight).widthIn(max = NarrowMaxWidth),
+                        textType = LocationButtonTextType.PreciseLocation,
+                        onRequestPermissions = {},
+                    ) {
+                        // onPermissionResult
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        // The hidden copy is measured inside the padding, so the requested size, which includes the
+        // padding, stays within the max width, and the system can't pick bigger tokens than the
+        // width allows.
+        assertThat(capturedRequest).isNotNull()
+        val request = capturedRequest!!
+        val density =
+            InstrumentationRegistry.getInstrumentation()
+                .targetContext
+                .resources
+                .displayMetrics
+                .density
+        assertThat(request.width).isAtMost(Math.round(NarrowMaxWidth.value * density))
+        assertThat(request.height).isEqualTo(Math.round(FixedHeight.value * density))
+    }
+
     private companion object {
         private const val VirtualDisplayWidth = 800
         private const val VirtualDisplayHeight = 600
         private const val VirtualDisplayDensityDpi = 160
+
+        // Narrower than any phone screen, so that the parent is really this wide, and wider than
+        // the wrapped button, so that wrapping is observable.
+        private val ParentWidth = 300.dp
+        private const val SizedButtonTag = "SizedLocationButton"
+
+        // A fixed height whose content height selects the medium tokens, and a max width narrower
+        // than that, which limits the content to the small ones.
+        private val FixedHeight = 80.dp
+        private val NarrowMaxWidth = 60.dp
     }
 }
 

@@ -17,32 +17,22 @@
 package androidx.core.locationbutton.compose
 
 import android.os.Build
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ButtonShapes
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.isSpecified
-import androidx.core.locationbutton.R
 
 /**
  * Renders a standard Material 3 Button locally on platforms before
@@ -63,6 +53,10 @@ internal fun LocalLocationButton(
     textColor: Color,
     clickablePadding: PaddingValues,
 ) {
+    // BoxWithConstraints is deliberate here. LocationButtonContent selects its Material 3 tokens
+    // during composition from referenceHeight, so the composition itself depends on the incoming
+    // constraints, which is what subcomposition is for. RemoteLocationButton has no such
+    // dependency, since the button is composed by the system, and uses a plain Layout instead.
     BoxWithConstraints(modifier = modifier) {
         val layoutDirection = LocalLayoutDirection.current
 
@@ -74,52 +68,33 @@ internal fun LocalLocationButton(
         val bottomPadding =
             clickablePadding.calculateBottomPadding().coerceIn(MinPadding, MaxPadding)
 
-        val totalWidth = if (maxWidth != Dp.Infinity) maxWidth else ButtonDefaults.MinWidth
-        val totalHeight = if (maxHeight != Dp.Infinity) maxHeight else ButtonDefaults.MinHeight
+        // Only a fixed constraint means the caller asked for a specific size. A bounded constraint,
+        // which is what an ordinary Column, Box or Scaffold child receives, is an upper limit, and
+        // treating it as a required size is what made the button fill its parent.
+        val hasFixedWidth = constraints.hasFixedWidth
+        val hasFixedHeight = constraints.hasFixedHeight
 
-        val visualWidth = maxOf(0.dp, totalWidth - startPadding - endPadding)
-        val visualHeight = maxOf(0.dp, totalHeight - topPadding - bottomPadding)
+        val visualWidth = maxOf(0.dp, maxWidth - startPadding - endPadding)
+        val visualHeight = maxOf(0.dp, maxHeight - topPadding - bottomPadding)
 
-        val referenceHeight = minOf(visualWidth, visualHeight)
-
-        val textResId = getTextResId(textType)
-
-        val defaultShapes = ButtonDefaults.shapesFor(referenceHeight)
-        val shape =
-            if (cornerRadius.isSpecified) {
-                RoundedCornerShape(cornerRadius)
-            } else {
-                defaultShapes.shape
+        // The system picks the tokens from the smaller of the two content dimensions. The width
+        // can't exceed its maximum, so a bounded width limits the tokens even when it isn't fixed.
+        val referenceHeight =
+            when {
+                !hasFixedHeight -> ButtonDefaults.MinHeight
+                constraints.hasBoundedWidth -> minOf(visualWidth, visualHeight)
+                else -> visualHeight
             }
 
-        val pressedShape =
-            if (pressedCornerRadius.isSpecified) {
-                RoundedCornerShape(pressedCornerRadius)
-            } else {
-                defaultShapes.pressedShape
+        val sizeModifier =
+            when {
+                hasFixedWidth && hasFixedHeight -> Modifier.size(visualWidth, visualHeight)
+                hasFixedWidth -> Modifier.width(visualWidth)
+                hasFixedHeight -> Modifier.height(visualHeight)
+                else -> Modifier
             }
 
-        val contentPadding =
-            if (textResId != null) {
-                val defaultPadding = ButtonDefaults.contentPaddingFor(referenceHeight)
-                PaddingValues(
-                    start = defaultPadding.calculateStartPadding(layoutDirection),
-                    top = 0.dp,
-                    end = defaultPadding.calculateEndPadding(layoutDirection),
-                    bottom = 0.dp,
-                )
-            } else {
-                PaddingValues()
-            }
-
-        val border =
-            if (strokeWidth.isSpecified && strokeWidth > 0.dp && strokeColor.isSpecified) {
-                BorderStroke(strokeWidth, strokeColor)
-            } else {
-                null
-            }
-
-        Button(
+        LocationButtonContent(
             onClick = onClick,
             modifier =
                 Modifier.padding(
@@ -128,46 +103,16 @@ internal fun LocalLocationButton(
                         end = endPadding,
                         bottom = bottomPadding,
                     )
-                    .size(visualWidth, visualHeight),
-            shapes = ButtonShapes(shape = shape, pressedShape = pressedShape),
-            colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = backgroundColor,
-                    contentColor = textColor,
-                ),
-            border = border,
-            contentPadding = contentPadding,
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_location_button_my_location),
-                contentDescription = null,
-                modifier = Modifier.requiredSize(ButtonDefaults.iconSizeFor(referenceHeight)),
-                tint = iconTint,
-            )
-            textResId?.let { resId ->
-                Text(
-                    text = stringResource(resId),
-                    modifier =
-                        Modifier.padding(start = ButtonDefaults.iconSpacingFor(referenceHeight)),
-                    style = ButtonDefaults.textStyleFor(referenceHeight),
-                    maxLines = 1,
-                    softWrap = false,
-                )
-            }
-        }
+                    .then(sizeModifier),
+            referenceHeight = referenceHeight,
+            backgroundColor = backgroundColor,
+            strokeColor = strokeColor,
+            strokeWidth = strokeWidth,
+            cornerRadius = cornerRadius,
+            pressedCornerRadius = pressedCornerRadius,
+            iconTint = iconTint,
+            textType = textType,
+            textColor = textColor,
+        )
     }
 }
-
-private fun getTextResId(textType: Int): Int? =
-    when (textType) {
-        LocationButtonTextType.PreciseLocation.value -> R.string.location_button_precise_location
-        LocationButtonTextType.UsePreciseLocation.value ->
-            R.string.location_button_use_precise_location
-        LocationButtonTextType.SharePreciseLocation.value ->
-            R.string.location_button_share_precise_location
-        LocationButtonTextType.NearMyPreciseLocation.value ->
-            R.string.location_button_near_my_precise_location
-        LocationButtonTextType.NearYourPreciseLocation.value ->
-            R.string.location_button_near_your_precise_location
-        else -> null
-    }
