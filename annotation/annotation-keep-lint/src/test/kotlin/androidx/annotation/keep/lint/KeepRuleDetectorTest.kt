@@ -1424,40 +1424,7 @@ class KeepRuleDetectorTest {
                 *usesReflectionStubs,
             )
             .run()
-            .expect(
-                """
-        src/com/example/keeptest/AppOpsTest.java:25: Error: This method references OP_POST_NOTIFICATION reflectively, so it should be annotated with @UsesReflectionToAccessField(...) [ReflectionWithoutKeepAnnotations]
-                int value = (int) opPostNotificationValue.get(Integer.class);
-                                                          ~~~
-        src/com/example/keeptest/AppOpsTest.java:26: Error: This method calls checkOpNoThrow() reflectively, so it should be annotated with @UsesReflectionToAccessMethod(...) [ReflectionWithoutKeepAnnotations]
-                return ((int) checkOpNoThrowMethod.invoke(appOps, value, uid, pkg)
-                                                   ~~~~~~
-        2 errors
-        """
-            )
-            .expectFixDiffs(
-                """
-        Fix for src/com/example/keeptest/AppOpsTest.java line 25: Annotate with @UsesReflectionToAccessField:
-        @@ -7,0 +8 @@
-        +import androidx.annotation.keep.UsesReflectionToAccessField;
-        @@ -14,0 +16,5 @@
-        +    @UsesReflectionToAccessField(
-        +        className = "[TODO]|",
-        +        fieldName = "OP_POST_NOTIFICATION",
-        +        fieldType = int.class
-        +    )
-        Fix for src/com/example/keeptest/AppOpsTest.java line 26: Annotate with @UsesReflectionToAccessMethod:
-        @@ -7,0 +8 @@
-        +import androidx.annotation.keep.UsesReflectionToAccessMethod;
-        @@ -14,0 +16,6 @@
-        +    @UsesReflectionToAccessMethod(
-        +        className = "[TODO]|",
-        +        methodName = "checkOpNoThrow",
-        +        parameterTypes = {int.class, int.class, String.class},
-        +        returnType = int.class
-        +    )
-        """
-            )
+            .expectClean()
     }
 
     @Test
@@ -3735,6 +3702,11 @@ class KeepRuleDetectorTest {
                         fun <T : ViewModel> create(modelClass: Class<T>): T {
                             return modelClass.getDeclaredConstructor().newInstance()
                         }
+
+                        fun <T : ViewModel> createViaHandle(modelClass: Class<T>): T {
+                            val constructor = modelClass.getDeclaredConstructor()
+                            return constructor.newInstance()
+                        }
                     }
                     """
                     )
@@ -3747,7 +3719,10 @@ class KeepRuleDetectorTest {
                 src/test/pkg/ViewModel.kt:7: Error: This method calls test.pkg.ViewModel.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
                         return modelClass.getDeclaredConstructor().newInstance()
                                                                    ~~~~~~~~~~~
-                1 error
+                src/test/pkg/ViewModel.kt:12: Error: This method calls test.pkg.ViewModel.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
+                        return constructor.newInstance()
+                                           ~~~~~~~~~~~
+                2 errors
                 """
             )
             .expectFixDiffs(
@@ -3756,6 +3731,14 @@ class KeepRuleDetectorTest {
                 @@ -1,0 +2 @@
                 +import androidx.annotation.keep.UsesReflectionToConstruct
                 @@ -5,0 +7,4 @@
+                +    @UsesReflectionToConstruct(
+                +        classConstant = ViewModel::class,
+                +        parameterTypes = []
+                +    )
+                Autofix for src/test/pkg/ViewModel.kt line 12: Annotate with @UsesReflectionToConstruct:
+                @@ -1,0 +2 @@
+                +import androidx.annotation.keep.UsesReflectionToConstruct
+                @@ -9,0 +11,4 @@
                 +    @UsesReflectionToConstruct(
                 +        classConstant = ViewModel::class,
                 +        parameterTypes = []
@@ -4042,6 +4025,82 @@ class KeepRuleDetectorTest {
                                 Boolean::class.java,
                             )
                             return method != null
+                        }
+                    }
+                    """
+                    )
+                    .indented(),
+                *usesReflectionStubs,
+            )
+            .run()
+            .expectClean()
+    }
+
+    /**
+     * Infers the target class from a cast on `newInstance()` (e.g. `as TargetInterface`) to
+     * generate an autofix when the loaded class name is dynamic.
+     */
+    @Test
+    fun testCastTargetDeductionOnNewInstance() {
+        lint()
+            .issues(KeepRuleDetector.ISSUE)
+            .files(
+                kotlin(
+                        """
+                    package test.pkg
+
+                    interface InputMerger
+
+                    class InputMergerFactory {
+                        fun fromClassName(className: String): InputMerger? {
+                            val clazz = Class.forName(className)
+                            return clazz.getDeclaredConstructor().newInstance() as InputMerger
+                        }
+                    }
+                    """
+                    )
+                    .indented(),
+                *usesReflectionStubs,
+            )
+            .run()
+            .expectFixDiffs(
+                """
+                Autofix for src/test/pkg/InputMerger.kt line 8: Annotate with @UsesReflectionToConstruct:
+                @@ -1,0 +2 @@
+                +import androidx.annotation.keep.UsesReflectionToConstruct
+                @@ -5,0 +7,4 @@
+                +    @UsesReflectionToConstruct(
+                +        classConstant = InputMerger::class,
+                +        parameterTypes = []
+                +    )
+                """
+            )
+    }
+
+    /**
+     * Ignores platform classes loaded via `Class.forName(Class.getName())` or via constant string
+     * fields (`android.graphics.FontFamily`).
+     */
+    @Test
+    fun testPlatformClassResolutionViaGetNameAndConstantField() {
+        lint()
+            .issues(KeepRuleDetector.ISSUE)
+            .files(
+                java(
+                        """
+                    package test.pkg;
+
+                    public class PlatformResolutionTest {
+                        private static final String FONT_FAMILY_CLASS = "android.graphics.FontFamily";
+
+                        public void testPlatformGetClass() throws Exception {
+                            Class<?> appOpsClass = Class.forName(android.app.AppOpsManager.class.getName());
+                            appOpsClass.getMethod("checkOpNoThrow", Integer.TYPE, Integer.TYPE, String.class);
+                        }
+
+                        public void testPlatformConstantField() throws Exception {
+                            Class<?> fontFamilyClass = Class.forName(FONT_FAMILY_CLASS);
+                            fontFamilyClass.getConstructor();
                         }
                     }
                     """
