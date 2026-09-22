@@ -144,8 +144,19 @@ public class FloatExpression extends Operation
         } else if (value_changed && mSpring != null) {
             if (isStartup) {
                 mSpring.setInitialValue(v);
+                mSpring.setTargetValue(v);
+                mSpring.get(context.getAnimationTime());
+            } else {
+                if (mSpring.isStopped()) {
+                    // A settled spring stopped requesting frames, so its clock is frozen at the
+                    // last painted one. Sync it to now before retargeting, or the next apply()
+                    // integrates the whole idle gap in a single step; at equilibrium this cannot
+                    // move the spring. A moving spring is already stepped every frame by apply(),
+                    // and stepping it again here would cost it a frame of latency.
+                    mSpring.get(context.getAnimationTime());
+                }
+                mSpring.setTargetValue(v);
             }
-            mSpring.setTargetValue(v);
         }
     }
 
@@ -207,6 +218,7 @@ public class FloatExpression extends Operation
                                     mPreCalcValue.length);
                     mSpring.setTargetValue(mLastCalculatedValue);
                     mSpring.setInitialValue(mLastCalculatedValue);
+                    mSpring.get(t);
                 } catch (Exception e) {
                     throw new RuntimeException(
                             this.toString() + " len = " + mPreCalcValue.length, e);
@@ -215,10 +227,12 @@ public class FloatExpression extends Operation
             float lastComputedValue = mSpring.get(t);
             float epsilon = 0.01f;
             if (lastComputedValue != mLastAnimatedValue
+                    || !mSpring.isStopped()
                     || Math.abs(mSpring.getTargetValue() - lastComputedValue) > epsilon) {
                 mLastAnimatedValue = lastComputedValue;
                 context.loadFloat(mId, lastComputedValue);
                 context.needsRepaint();
+                markDirty();
             }
         } else { // no animation
             float v = 0;
