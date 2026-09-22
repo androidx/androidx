@@ -109,7 +109,7 @@ androidXMultiplatform {
         }
         jvmTest {
             dependencies {
-                implementation("androidx.sqlite:sqlite-bundled:2.7.0-1")
+                implementation("androidx.sqlite:sqlite-bundled:2.7.1")
                 implementation(libs.kotlinTestJunit)
             }
         }
