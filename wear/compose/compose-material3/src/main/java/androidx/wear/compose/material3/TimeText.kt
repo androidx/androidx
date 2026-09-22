@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLocale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -117,7 +118,7 @@ public fun TimeText(
 ) {
     val currentTime = timeSource.currentTime()
 
-    CurvedLayout(modifier = modifier) {
+    CurvedLayout(modifier = modifier.testTag("time_text")) {
         curvedRow(
             modifier =
                 curvedModifier
