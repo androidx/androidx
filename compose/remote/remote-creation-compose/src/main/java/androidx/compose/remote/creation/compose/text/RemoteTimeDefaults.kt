@@ -16,21 +16,21 @@
 
 package androidx.compose.remote.creation.compose.text
 
-import android.text.format.DateFormat
 import androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_HR
 import androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_MIN
 import androidx.compose.remote.core.operations.TextFromFloat.PAD_PRE_ZERO
+import androidx.compose.remote.creation.compose.capture.LocalIs24HourFormat
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 
 /**
  * Contains default values and helper methods for displaying time-related text in a remote context.
  */
+// TODO(b/564951851): Move RemoteTimeDefaults to androidx.wear.compose.remote.material3.
 public object RemoteTimeDefaults {
 
     /**
@@ -38,8 +38,7 @@ public object RemoteTimeDefaults {
      * Currently captured at recording time.
      */
     @Composable
-    public fun is24HourFormat(): RemoteBoolean =
-        RemoteBoolean(DateFormat.is24HourFormat(LocalContext.current))
+    public fun is24HourFormat(): RemoteBoolean = RemoteBoolean(LocalIs24HourFormat.current)
 
     /**
      * Creates a [RemoteString] representing the current time in either 12-hour or 24-hour format.
