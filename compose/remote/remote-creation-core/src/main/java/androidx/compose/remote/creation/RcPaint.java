@@ -313,6 +313,88 @@ public class RcPaint {
     }
 
     /**
+     * Sets a shader that draws a radial gradient between two circles, the start circle (often
+     * referred to as the focal circle) and the end circle.
+     *
+     * @param startX      The x-coordinate of the center of the starting circle, often referred
+     *                    to as the focal point.
+     * @param startY      The y-coordinate of the center of the starting circle, often referred
+     *                    to as the focal point.
+     * @param startRadius The radius of the starting circle, often referred to as the focal
+     *                    radius. Must be greater than or equal to zero.
+     * @param endX        The x-coordinate of the center of the ending circle
+     * @param endY        The y-coordinate of the center of the ending circle
+     * @param endRadius   The radius of the ending circle. Must be strictly greater than zero.
+     * @param colors      The sRGB colors to be distributed between the start and end circle
+     * @param positions   May be <code>null</code>. Valid values are between <code>0.0f</code> and
+     *                    <code>1.0f</code>. The relative position of each corresponding color in
+     *                    the colors array.
+     *                    If <code>null</code>, colors are distributed evenly between the start
+     *                    and end circle.
+     * @param tileMode    The Shader tiling mode (ordinal of Shader.TileMode)
+     */
+    public @NonNull RcPaint setRadialGradient(
+            float startX,
+            float startY,
+            float startRadius,
+            float endX,
+            float endY,
+            float endRadius,
+            int @NonNull [] colors,
+            float @Nullable [] positions,
+            int tileMode) {
+        return setRadialGradient(
+                startX, startY, startRadius, endX, endY, endRadius, colors, 0, positions, tileMode);
+    }
+
+    /**
+     * Sets a shader that draws a radial gradient between two circles, the start circle (often
+     * referred to as the focal circle) and the end circle.
+     *
+     * @param startX      The x-coordinate of the center of the starting circle, often referred
+     *                    to as the focal point.
+     * @param startY      The y-coordinate of the center of the starting circle, often referred
+     *                    to as the focal point.
+     * @param startRadius The radius of the starting circle, often referred to as the focal
+     *                    radius. Must be greater than or equal to zero.
+     * @param endX        The x-coordinate of the center of the ending circle
+     * @param endY        The y-coordinate of the center of the ending circle
+     * @param endRadius   The radius of the ending circle. Must be strictly greater than zero.
+     * @param colors      The sRGB colors to be distributed between the start and end circle
+     * @param mask        defines a bit mask of colors that are ids
+     * @param positions   May be <code>null</code>. Valid values are between <code>0.0f</code> and
+     *                    <code>1.0f</code>. The relative position of each corresponding color in
+     *                    the colors array.
+     *                    If <code>null</code>, colors are distributed evenly between the start
+     *                    and end circle.
+     * @param tileMode    The Shader tiling mode (ordinal of Shader.TileMode)
+     */
+    public @NonNull RcPaint setRadialGradient(
+            float startX,
+            float startY,
+            float startRadius,
+            float endX,
+            float endY,
+            float endRadius,
+            int @NonNull [] colors,
+            int mask,
+            float @Nullable [] positions,
+            int tileMode) {
+        mPaint.setRadialGradient(
+                colors,
+                mask,
+                positions,
+                startX,
+                startY,
+                startRadius,
+                endX,
+                endY,
+                endRadius,
+                tileMode);
+        return this;
+    }
+
+    /**
      * Set a shader that draws a sweep gradient around a center point.
      *
      * @param centerX   The x-coordinate of the center

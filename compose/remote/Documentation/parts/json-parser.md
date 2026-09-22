@@ -201,7 +201,25 @@ Paint attributes can be specified via individual commands (`setColor`, `setStyle
 - `"shader"`: Shader ID.
 - `"pathEffect"`: Array of floats configuring line dash effects.
 - `"linearGradient"`: Configures a linear gradient (`x1`, `y1`, `x2`, `y2`, `colors`, `stops`, `tileMode`).
-- `"radialGradient"`: Configures a radial gradient (`centerX`, `centerY`, `radius`, `colors`, `stops`, `tileMode`).
+- `"radialGradient"`: Configures a radial gradient. Two forms are accepted:
+  - Single circle: `centerX`, `centerY`, `radius`, `colors`, `stops`, `tileMode`.
+  - Two circles (focal): `startX`, `startY`, `startR` and `endX`, `endY`, `endR`, plus the same
+    `colors`, `stops`, `tileMode`. `startRadius`/`endRadius` are accepted as aliases of
+    `startR`/`endR`, and `focalX`/`focalY`/`focalR` may be layered on top of a
+    `centerX`/`centerY`/`radius` gradient, in which case the center circle becomes the end
+    circle. The gradient runs from the edge of the start (focal) circle to the edge of the end
+    circle. Requires API 31 on the player; below that the end circle alone is drawn.
+    ```json
+    {
+      "radialGradient": {
+        "startX": 120.0, "startY": 120.0, "startR": 0.0,
+        "endX": 200.0, "endY": 200.0, "endR": 180.0,
+        "colors": ["#FFFFFF", "#2266FF", "#001133"],
+        "stops": [0.0, 0.45, 1.0],
+        "tileMode": 0
+      }
+    }
+    ```
 - `"sweepGradient"`: Configures a sweep gradient (`centerX`, `centerY`, `colors`, `stops`).
 
 #### Advanced Shaders & Particle Systems
