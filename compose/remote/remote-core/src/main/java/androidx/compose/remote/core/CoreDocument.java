@@ -116,6 +116,7 @@ public class CoreDocument implements Serializable {
     private static final int DEFAULT_FEATURE_LT_RESIZE = 1;
     private static final int DEFAULT_FEATURE_ARRAY_LISTENERS = 1;
     private static final int DEFAULT_FEATURE_DISALLOW_INTERCEPT_TOUCH = 1;
+    private static final int DEFAULT_FEATURE_DATA_PASS_CANVAS_OPS = 1;
     public static final int OPTIMIZATION_NONE = 0;
     public static final int OPTIMIZATION_MEASURE_CACHE = 1;
     public static final int OPTIMIZATION_LAYOUT_BOUNDARIES = 2;
@@ -143,6 +144,7 @@ public class CoreDocument implements Serializable {
     boolean mUseFeaturePaintMeasure;
     boolean mUseFeaturePriorityFix;
     boolean mUseFeatureLTResize;
+    boolean mUseFeatureDataPassCanvasOps;
 
     int mMeasureVersion = DEFAULT_FEATURE_MEASURE_VERSION;
     int mTouchVersion = DEFAULT_FEATURE_TOUCH_VERSION;
@@ -880,6 +882,9 @@ public class CoreDocument implements Serializable {
         if (featureId == Header.FEATURE_DISALLOW_INTERCEPT_TOUCH) {
             return useFeature(featureId, DEFAULT_FEATURE_DISALLOW_INTERCEPT_TOUCH);
         }
+        if (featureId == Header.FEATURE_DATA_PASS_CANVAS_OPS) {
+            return useFeature(featureId, DEFAULT_FEATURE_DATA_PASS_CANVAS_OPS);
+        }
         return useFeature(featureId, 0);
     }
 
@@ -1325,6 +1330,7 @@ public class CoreDocument implements Serializable {
         mUseFeaturePaintMeasure = useFeature(Header.FEATURE_PAINT_MEASURE);
         mUseFeaturePriorityFix = useFeature(Header.FEATURE_PRIORITY_FIX);
         mUseFeatureLTResize = useFeature(Header.FEATURE_LT_RESIZE);
+        mUseFeatureDataPassCanvasOps = useFeature(Header.FEATURE_DATA_PASS_CANVAS_OPS);
 
         mMeasureVersion = featureIntValue(Header.FEATURE_MEASURE_VERSION);
         int optLevel = featureIntValue(Header.FEATURE_OPTIMIZATION_LEVEL);
@@ -1591,6 +1597,13 @@ public class CoreDocument implements Serializable {
             if (op instanceof Container) {
                 if (op instanceof ComponentData) {
                     op.apply(context);
+                }
+                if (mUseFeatureDataPassCanvasOps && op instanceof LayoutComponent) {
+                    LayoutComponent layoutComponent = (LayoutComponent) op;
+                    CanvasOperations canvasOperations = layoutComponent.getCanvasOperations();
+                    if (canvasOperations != null) {
+                        applyOperations(context, canvasOperations.getList());
+                    }
                 }
                 applyOperations(context, ((Container) op).getList());
             } else {
