@@ -909,6 +909,22 @@ public class RemoteComposeJsonParserTest {
     }
 
     @Test
+    public void testDataPassCanvasOpsInHeader() throws JSONException {
+        String json = "{\n"
+                + "  \"header\": {\n"
+                + "    \"dataPassCanvasOps\": 1\n"
+                + "  },\n"
+                + "  \"root\": {\n"
+                + "    \"type\": \"box\"\n"
+                + "  }\n"
+                + "}";
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        assertEquals(1, tags.length);
+        assertEquals(Header.FEATURE_DATA_PASS_CANVAS_OPS, tags[0].getTag());
+        assertEquals(1, tags[0].getValue());
+    }
+
+    @Test
     public void testSeedExpression() throws JSONException {
         ExpressionParser parser = new ExpressionParser(mParser);
         java.util.List<Object> rpn = parser.infixToRpn("seed(12345, rand)");

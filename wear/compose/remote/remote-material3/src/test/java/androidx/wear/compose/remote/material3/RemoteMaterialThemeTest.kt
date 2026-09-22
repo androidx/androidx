@@ -43,7 +43,6 @@ import androidx.wear.compose.material3.ColorScheme
 import androidx.wear.compose.remote.material3.util.EnableEmbeddedPlayerRule
 import androidx.wear.compose.remote.material3.util.TestImageVectors
 import java.io.ByteArrayInputStream
-import kotlin.test.Ignore
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -89,7 +88,6 @@ class RemoteMaterialThemeTest {
     }
 
     @Test
-    @Ignore("Fails because of b/502878815")
     fun button_named_color_can_be_overridden() {
         val expectedTint = Color.Yellow
 
