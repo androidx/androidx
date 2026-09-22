@@ -105,8 +105,5 @@
                 <action android:name="androidx.appfunctions.integration.testapp.ACTION_SET_STATE" />
             </intent-filter>
         </receiver>
-        <receiver
-            android:name="androidx.appfunctions.internal.AppFunctionCallerVerificationReceiver"
-            android:exported="false" />
     </application>
 </manifest>
