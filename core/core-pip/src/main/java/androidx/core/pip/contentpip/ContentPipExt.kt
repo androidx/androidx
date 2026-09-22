@@ -19,6 +19,8 @@
 package androidx.core.pip.contentpip
 
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.KeyEvent
@@ -45,11 +47,24 @@ import androidx.lifecycle.LifecycleObserver
  * **Threading:** This callback is strictly tied to the UI toolkit and will **always** be executed
  * synchronously on the main thread of your application.
  *
+ * **Important note:** A no-op [ContentPipToken] is returned if the running device is **not**
+ * compatible with this feature, for instance
+ * - On older Android releases where the Auto-Enter PiP feature is not available. Otherwise, this
+ *   would conflict with legacy enter PiP path.
+ * - On running devices do not support PiP system feature.
+ *
  * @param callback The callback to manage handoff between tasks.
  * @return [ContentPipToken] that caller can pass to [disablePipOnAppSwitch].
  */
 @SuppressLint("ExecutorRegistration")
 public fun ComponentActivity.enablePipOnAppSwitch(callback: ContentPipCallback): ContentPipToken {
+    // Return a no-op ContentPipToken if the running device is not compatible with this feature.
+    if (
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+            !packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
+    ) {
+        return ContentPipToken(Runnable {}, object : LifecycleObserver {}, window.callback)
+    }
     val onUserLeaveHintListener = Runnable {
         // Triggered synchronously to avoid interrupting system transitions
         if (callback.onInitContentPip()) {
