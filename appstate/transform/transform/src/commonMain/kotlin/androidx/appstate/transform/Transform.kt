@@ -53,18 +53,22 @@ public fun <R> transform(
     onUpdate: @Composable (R) -> R,
 ): State<R> {
     GlobalSnapshotManager.ensureStarted(dispatcher)
-    // TODO: Figure out the appropriate frame clock
-    val clockContext = GatedFrameClock(scope, dispatcher)
-    val finalContext = dispatcher + clockContext
+    val clock = HeadlessTransformClock()
+    val finalContext = dispatcher + clock
 
     // TODO: Determine whether a single recomposer is the correct approach
     val recomposer = Recomposer(finalContext)
     val composition = Composition(UnitApplier, recomposer)
+    // The clock does nothing until it is "pumped", so we start it before anything can await a
+    // frame.
+    scope.launch(dispatcher, start = CoroutineStart.UNDISPATCHED) { clock.runClock() }
     scope.launch(finalContext, start = CoroutineStart.UNDISPATCHED) {
         try {
             recomposer.runRecomposeAndApplyChanges()
         } finally {
             composition.dispose()
+            // Tear down the clock
+            clock.cancel()
         }
     }
 
