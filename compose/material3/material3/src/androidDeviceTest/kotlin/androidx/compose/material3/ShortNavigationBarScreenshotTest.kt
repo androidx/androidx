@@ -414,6 +414,86 @@ class ShortNavigationBarScreenshotTest {
         )
     }
 
+    @Test
+    fun withStyle_equalWeightArrangement_lightTheme() {
+        val interactionSource = MutableInteractionSource()
+        lateinit var scope: CoroutineScope
+
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            scope = rememberCoroutineScope()
+            DefaultStyleableShortNavigationBar(interactionSource)
+        }
+
+        assertShortNavigationBarMatches(
+            scope = scope,
+            interactionSource = interactionSource,
+            interaction = null,
+            goldenIdentifier = "shortNavigationBar_withStyle_equalWeightArrangement_lightTheme",
+        )
+    }
+
+    @Test
+    fun withStyle_equalWeightArrangement_darkTheme() {
+        val interactionSource = MutableInteractionSource()
+        lateinit var scope: CoroutineScope
+
+        composeTestRule.setMaterialContent(darkColorScheme()) {
+            scope = rememberCoroutineScope()
+            DefaultStyleableShortNavigationBar(interactionSource)
+        }
+
+        assertShortNavigationBarMatches(
+            scope = scope,
+            interactionSource = interactionSource,
+            interaction = null,
+            goldenIdentifier = "shortNavigationBar_withStyle_equalWeightArrangement_darkTheme",
+        )
+    }
+
+    @Test
+    fun withStyle_centeredArrangement_lightTheme() {
+        val interactionSource = MutableInteractionSource()
+        lateinit var scope: CoroutineScope
+
+        composeTestRule.setContentWithSimulatedSize(600.dp, 100.dp, lightColorScheme()) {
+            scope = rememberCoroutineScope()
+            DefaultStyleableShortNavigationBar(
+                interactionSource = interactionSource,
+                arrangement = ShortNavigationBarArrangement.Centered,
+                iconPosition = NavigationItemIconPosition.Start,
+            )
+        }
+
+        assertShortNavigationBarMatches(
+            scope = scope,
+            interactionSource = interactionSource,
+            interaction = null,
+            goldenIdentifier = "shortNavigationBar_withStyle_centeredArrangement_lightTheme",
+        )
+    }
+
+    @Test
+    fun withStyle_centeredArrangement_darkTheme() {
+        val interactionSource = MutableInteractionSource()
+        lateinit var scope: CoroutineScope
+
+        composeTestRule.setContentWithSimulatedSize(600.dp, 100.dp, darkColorScheme()) {
+            scope = rememberCoroutineScope()
+            DefaultStyleableShortNavigationBar(
+                interactionSource = interactionSource,
+                arrangement = ShortNavigationBarArrangement.Centered,
+                iconPosition = NavigationItemIconPosition.Start,
+            )
+        }
+
+        assertShortNavigationBarMatches(
+            scope = scope,
+            interactionSource = interactionSource,
+            interaction = null,
+            goldenIdentifier = "shortNavigationBar_withStyle_centeredArrangement_darkTheme",
+        )
+    }
+
     /**
      * Asserts that the [ShortNavigationBar] matches the screenshot with identifier
      * [goldenIdentifier].
@@ -488,6 +568,44 @@ private fun DefaultShortNavigationBar(
                 onClick = {},
             )
             ShortNavigationBarItem(
+                icon = { Icon(Icons.Filled.Favorite, null) },
+                iconPosition = iconPosition,
+                selected = false,
+                label = { Text("Label") },
+                enabled = !setUnselectedItemsAsDisabled,
+                onClick = {},
+            )
+        }
+    }
+}
+
+@Composable
+private fun DefaultStyleableShortNavigationBar(
+    interactionSource: MutableInteractionSource,
+    modifier: Modifier = Modifier,
+    setUnselectedItemsAsDisabled: Boolean = false,
+    arrangement: ShortNavigationBarArrangement = ShortNavigationBarArrangement.EqualWeight,
+    iconPosition: NavigationItemIconPosition = NavigationItemIconPosition.Top,
+) {
+    Box(modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
+        StyleableShortNavigationBar(arrangement = arrangement, windowInsets = NoWindowInsets) {
+            StyleableShortNavigationBarItem(
+                icon = { Icon(Icons.Filled.Favorite, null) },
+                iconPosition = iconPosition,
+                selected = true,
+                label = { Text("Label") },
+                onClick = {},
+                interactionSource = interactionSource,
+            )
+            StyleableShortNavigationBarItem(
+                icon = { Icon(Icons.Filled.Favorite, null) },
+                iconPosition = iconPosition,
+                selected = false,
+                label = { Text("Label") },
+                enabled = !setUnselectedItemsAsDisabled,
+                onClick = {},
+            )
+            StyleableShortNavigationBarItem(
                 icon = { Icon(Icons.Filled.Favorite, null) },
                 iconPosition = iconPosition,
                 selected = false,
