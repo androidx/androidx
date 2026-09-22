@@ -158,6 +158,7 @@ package androidx.compose.ui.test {
     method @InaccessibleFromKotlin public androidx.compose.ui.unit.Density getDensity();
     method @InaccessibleFromKotlin public androidx.compose.ui.test.MainTestClock getMainClock();
     method public boolean hasPendingWork();
+    method public default androidx.compose.runtime.snapshots.ObserverHandle runOnEachSnapshotApply(kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public <T> T runOnIdle(kotlin.jvm.functions.Function0<? extends T> action);
     method public <T> T runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
     method public <T> T runWithoutImplicitWait(kotlin.jvm.functions.Function0<? extends T> block);

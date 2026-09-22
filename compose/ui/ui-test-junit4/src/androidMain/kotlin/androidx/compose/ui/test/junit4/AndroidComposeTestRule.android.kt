@@ -19,6 +19,7 @@ package androidx.compose.ui.test.junit4
 import androidx.activity.ComponentActivity
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.snapshots.ObserverHandle
 import androidx.compose.ui.test.AndroidComposeUiTest
 import androidx.compose.ui.test.AndroidComposeUiTestEnvironment
 import androidx.compose.ui.test.ComposeAccessibilityValidator
@@ -288,6 +289,9 @@ private constructor(
     private val composeTest: AndroidComposeUiTest<A>
         get() = environment.test
 
+    // Handles of the runOnEachSnapshotApply blocks that the test hasn't disposed
+    private val snapshotApplyHandles = mutableListOf<ObserverHandle>()
+
     /**
      * Android specific implementation of [ComposeContentTestRule], where compose content is hosted
      * by an Activity.
@@ -427,9 +431,16 @@ private constructor(
                 override fun evaluate() {
                     var blockException: Throwable? = null
                     try {
-                        // Run the test
-                        base.evaluate()
-                        // Surface any coroutine / recomposer errors before ActivityScenario closes
+                        try {
+                            // Run the test
+                            base.evaluate()
+                        } finally {
+                            // Stop runOnEachSnapshotApply blocks before ActivityScenario closes,
+                            // also if the test failed, as closing it changes state
+                            stopSnapshotApplyBlocks()
+                        }
+                        // Surface any coroutine, recomposer or runOnEachSnapshotApply errors
+                        // before ActivityScenario closes
                         environment.checkPendingExceptions()
                     } catch (t: Throwable) {
                         blockException = t
@@ -627,6 +638,28 @@ private constructor(
 
     public override fun hasPendingWork(): Boolean {
         return composeTest.hasPendingWork()
+    }
+
+    public override fun runOnEachSnapshotApply(block: () -> Unit): ObserverHandle {
+        val handle = composeTest.runOnEachSnapshotApply(block)
+        synchronized(snapshotApplyHandles) { snapshotApplyHandles += handle }
+        return ObserverHandle {
+            synchronized(snapshotApplyHandles) { snapshotApplyHandles -= handle }
+            handle.dispose()
+        }
+    }
+
+    /**
+     * Runs the [runOnEachSnapshotApply] blocks for pending writes to global state, then stops them.
+     * The errors that they threw are thrown by
+     * [AndroidComposeUiTestEnvironment.checkPendingExceptions], or when the test finishes.
+     */
+    private fun stopSnapshotApplyBlocks() {
+        val handles =
+            synchronized(snapshotApplyHandles) {
+                snapshotApplyHandles.toTypedArray().also { snapshotApplyHandles.clear() }
+            }
+        handles.forEach { it.dispose() }
     }
 }
 

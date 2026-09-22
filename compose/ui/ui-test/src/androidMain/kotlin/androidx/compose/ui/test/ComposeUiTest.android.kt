@@ -30,6 +30,8 @@ import androidx.activity.compose.setContent
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.snapshots.ObserverHandle
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.node.RootForTest
@@ -40,6 +42,7 @@ import androidx.compose.ui.platform.WindowRecomposerPolicy
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.ComposeRootRegistry.OnRegistrationChangedListener
 import androidx.compose.ui.test.failure.FailurePipelineRunner
+import androidx.compose.ui.test.snapshots.StateIntegrityRegistry
 import androidx.compose.ui.unit.Density
 import androidx.core.os.HandlerCompat
 import androidx.test.core.app.ActivityScenario
@@ -582,6 +585,10 @@ internal constructor(
 
     private val failurePipelineRunner = FailurePipelineRunner(config)
 
+    private val stateIntegrityRegistry =
+        StateIntegrityRegistry(::withSnapshotApplyGuard, ::sendApplyNotificationsOnUiThread)
+    // Whether runOnEachSnapshotApply blocks are running on the current thread
+    private val isInSnapshotApplyBlock = ThreadLocal<Boolean>()
     private val mainClockImpl: MainTestClockImpl
     private lateinit var composeIdlingResource: ComposeIdlingResource
     private var idlingStrategy: IdlingStrategy = EspressoLink(idlingResourceRegistry)
@@ -729,12 +736,16 @@ internal constructor(
         return result
     }
 
-    /** Checks if there are any pending uncaught coroutine or recomposition exceptions. */
+    /**
+     * Checks if there are any pending uncaught coroutine, recomposition or
+     * [runOnEachSnapshotApply][ComposeUiTest.runOnEachSnapshotApply] exceptions.
+     */
     @Suppress("BanRestrictTo")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun checkPendingExceptions() {
         throwPendingException()
         coroutineExceptionHandler.throwUncaught()
+        stateIntegrityRegistry.throwIfFailed()
     }
 
     /**
@@ -781,7 +792,11 @@ internal constructor(
                             withTestCoroutines {
                                 withWindowRecomposer {
                                     withComposeIdlingResource {
-                                        withConfiguredInputMode { testReceiverScope.block() }
+                                        withConfiguredInputMode {
+                                            stateIntegrityRegistry.withRegistry {
+                                                testReceiverScope.block()
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -836,6 +851,7 @@ internal constructor(
     }
 
     private fun waitForIdle(atLeastOneRootExpected: Boolean) {
+        checkNotInSnapshotApplyBlock()
         // First wait until we have a compose root (in case an Activity is being started)
         composeRootRegistry.waitForComposeRoots(atLeastOneRootExpected)
         // Then await composition(s)
@@ -845,6 +861,8 @@ internal constructor(
         waitForNextChoreographerFrame()
         // Check if a coroutine threw an uncaught exception
         coroutineExceptionHandler.throwUncaught()
+        // Check if a runOnEachSnapshotApply block failed
+        stateIntegrityRegistry.throwIfFailed()
     }
 
     private fun waitForNextChoreographerFrame() {
@@ -992,6 +1010,7 @@ internal constructor(
         }
 
         override suspend fun awaitIdle() {
+            checkNotInSnapshotApplyBlock()
             // First wait until we have a compose root (in case an Activity is being started)
             composeRootRegistry.awaitComposeRoots()
             // Switch to a thread where we're allowed to call synchronization methods
@@ -1005,6 +1024,8 @@ internal constructor(
             }
             // Check if a coroutine threw an uncaught exception
             coroutineExceptionHandler.throwUncaught()
+            // Check if a runOnEachSnapshotApply block failed
+            stateIntegrityRegistry.throwIfFailed()
         }
 
         @Suppress("BanThreadSleep")
@@ -1013,6 +1034,7 @@ internal constructor(
             timeoutMillis: Long,
             condition: () -> Boolean,
         ) {
+            checkNotInSnapshotApplyBlock()
             val startTime = System.nanoTime()
 
             // With a StandardTestDispatcher, it could be that tasks are due which can satisfy the
@@ -1028,12 +1050,16 @@ internal constructor(
                 // Let Android run measure, draw and in general any other async operations.
                 Thread.sleep(10)
                 throwPendingException()
+                // Check if a runOnEachSnapshotApply block failed, before it can cause a timeout
+                stateIntegrityRegistry.throwIfFailed()
                 if (System.nanoTime() - startTime > timeoutMillis * NanoSecondsPerMilliSecond) {
                     throw ComposeTimeoutException(
                         buildWaitUntilTimeoutMessage(timeoutMillis, conditionDescription)
                     )
                 }
             }
+            // Check if a runOnEachSnapshotApply block failed, also when the condition was met
+            stateIntegrityRegistry.throwIfFailed()
         }
 
         override fun registerIdlingResource(idlingResource: IdlingResource) {
@@ -1042,6 +1068,10 @@ internal constructor(
 
         override fun unregisterIdlingResource(idlingResource: IdlingResource) {
             idlingResourceRegistry.unregisterIdlingResource(idlingResource)
+        }
+
+        override fun runOnEachSnapshotApply(block: () -> Unit): ObserverHandle {
+            return stateIntegrityRegistry.runOnEachSnapshotApply(block)
         }
 
         override fun onNode(
@@ -1126,6 +1156,38 @@ internal constructor(
         }
     }
 
+    /**
+     * Runs [block] with the current thread marked as running runOnEachSnapshotApply blocks, so that
+     * [checkNotInSnapshotApplyBlock] catches the blocks that synchronize or look up nodes.
+     */
+    private fun withSnapshotApplyGuard(block: () -> Unit) {
+        val wasInBlock = isInSnapshotApplyBlock.get()
+        isInSnapshotApplyBlock.set(true)
+        try {
+            block()
+        } finally {
+            isInSnapshotApplyBlock.set(wasInBlock)
+        }
+    }
+
+    /**
+     * Sends the apply notifications of pending writes to global state on the main thread, where
+     * Compose sends them, so that it also waits until the main thread finishes sending the ones
+     * that it already started to send.
+     */
+    private fun sendApplyNotificationsOnUiThread() {
+        runOnUiThread { Snapshot.sendApplyNotifications() }
+    }
+
+    private fun checkNotInSnapshotApplyBlock() {
+        check(isInSnapshotApplyBlock.get() != true) {
+            "A runOnEachSnapshotApply block can't synchronize or look up nodes, e.g. with " +
+                "waitForIdle(), waitUntil(), assertExists() or performClick(). It runs while a " +
+                "snapshot is being applied, before the UI updates. Assert on the state that " +
+                "drives the UI instead, and move these calls out of the block."
+        }
+    }
+
     private inner class AndroidTestOwner : TestOwner {
         /**
          * Inside [ComposeUiTest.runWithoutImplicitWait] the UI is expected to be stable, so node
@@ -1147,6 +1209,7 @@ internal constructor(
         override fun <T> runOnUiThread(action: () -> T): T = testReceiverScope.runOnUiThread(action)
 
         override fun getRoots(atLeastOneRootExpected: Boolean): Set<RootForTest> {
+            checkNotInSnapshotApplyBlock()
             if (!isImplicitWaitSuppressed) {
                 waitForIdle(atLeastOneRootExpected)
             }
