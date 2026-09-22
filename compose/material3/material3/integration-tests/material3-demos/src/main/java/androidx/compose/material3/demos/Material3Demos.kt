@@ -24,6 +24,7 @@ val Material3Demos =
         "Material 3",
         listOf(
             ComposableDemo("Button Groups") { ButtonGroupDemos() },
+            ComposableDemo("Card") { CardDemo() },
             DemoCategory(
                 "Carousel",
                 listOf(
