@@ -52,6 +52,13 @@ class TimeTextTest {
     }
 
     @Test
+    fun has_default_testtag() {
+        rule.setContentWithTheme { TimeText() }
+
+        rule.onNodeWithTag("time_text").assertExists()
+    }
+
+    @Test
     fun shows_time_by_default() {
         val timeText = "time"
 
