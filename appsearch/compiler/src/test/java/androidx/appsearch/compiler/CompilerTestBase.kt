@@ -15,10 +15,10 @@
  */
 package androidx.appsearch.compiler
 
-import androidx.room.compiler.processing.util.Source.Companion.kotlin
-import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
-import androidx.room.compiler.processing.util.compiler.TestCompilationResult
-import androidx.room.compiler.processing.util.compiler.compile
+import androidx.room3.compiler.processing.util.Source.Companion.kotlin
+import androidx.room3.compiler.processing.util.compiler.TestCompilationArguments
+import androidx.room3.compiler.processing.util.compiler.TestCompilationResult
+import androidx.room3.compiler.processing.util.compiler.compile
 import com.google.auto.value.processor.AutoValueProcessor
 import com.google.common.io.CharStreams
 import com.google.common.io.Files
@@ -70,7 +70,7 @@ abstract class CompilerTestBase {
             TestCompilationArguments(
                 listOf(kotlinSource),
                 inheritClasspath = true,
-                kotlincArguments = listOf("-language-version=1.9", "-api-version=1.9"),
+                kotlincArguments = listOf("-language-version=2.0", "-api-version=2.0"),
                 kaptProcessors = listOf(AppSearchCompiler()),
                 symbolProcessorProviders = listOf(),
                 processorOptions =
