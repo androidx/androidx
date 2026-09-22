@@ -38,6 +38,7 @@ import android.util.Log;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 import androidx.mediarouter.media.StubMediaRoute2ProviderService.StubMediaRoute2Provider.StubDynamicGroupRouteController;
 import androidx.mediarouter.testing.MediaRouterTestHelper;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -367,19 +368,15 @@ public class MediaRouter2Test {
                 TIMEOUT_MS, () -> mMr2Provider.getCreatedControllers(descriptorId).isEmpty());
     }
 
-
     @Test
     @MediumTest
+    @UiThreadTest
     public void defaultAndBluetoothRoutes_isSystemRoute_returnsTrue() {
-        getInstrumentation()
-                .runOnMainSync(
-                        () -> {
-                            for (RouteInfo routeInfo : mRouter.getRoutes()) {
-                                if (routeInfo.isDefaultOrBluetooth()) {
-                                    assertTrue(routeInfo.isSystemRoute());
-                                }
-                            }
-                        });
+        for (RouteInfo routeInfo : mRouter.getRoutes()) {
+            if (routeInfo.isDefaultOrBluetooth()) {
+                assertTrue(routeInfo.isSystemRoute());
+            }
+        }
     }
 
 

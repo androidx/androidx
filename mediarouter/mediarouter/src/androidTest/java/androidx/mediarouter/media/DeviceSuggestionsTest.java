@@ -25,6 +25,7 @@ import android.content.Context;
 import android.os.Build;
 
 import androidx.mediarouter.testing.MediaRouterTestHelper;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -122,80 +123,69 @@ public class DeviceSuggestionsTest {
 
     @Test
     @SmallTest
+    @UiThreadTest
     public void getDeviceSuggestions_withoutSettingDeviceSuggestions_returnsEmptyMap() {
-        runOnMain(
-                () -> {
-                    Map<String, List<SuggestedDeviceInfo>> deviceSuggestionsMap =
-                            mMediaRouterUnderTest.getDeviceSuggestions();
+        Map<String, List<SuggestedDeviceInfo>> deviceSuggestionsMap =
+                mMediaRouterUnderTest.getDeviceSuggestions();
 
-                    assertTrue(deviceSuggestionsMap.isEmpty());
-                });
+        assertTrue(deviceSuggestionsMap.isEmpty());
     }
 
     @Test
+    @UiThreadTest
     public void getDeviceSuggestions_afterSettingDeviceSuggestions_returnsDeviceSuggestions() {
-        runOnMain(
-                () -> {
-                    MediaRouter.RouteInfo validRoute = getValidRoute(mMediaRouterUnderTest);
-                    mMediaRouterUnderTest.setDeviceSuggestions(List.of(validRoute));
+        MediaRouter.RouteInfo validRoute = getValidRoute(mMediaRouterUnderTest);
 
-                    Map<String, List<SuggestedDeviceInfo>> deviceSuggestionsMap =
-                            mMediaRouterUnderTest.getDeviceSuggestions();
+        mMediaRouterUnderTest.setDeviceSuggestions(List.of(validRoute));
 
-                    assertTrue(deviceSuggestionsMap.containsKey(mContext.getPackageName()));
-                    List<SuggestedDeviceInfo> suggestedDevices =
-                            deviceSuggestionsMap.get(mContext.getPackageName());
-                    assertNotNull(suggestedDevices);
-                    assertEquals(1, suggestedDevices.size());
-                    SuggestedDeviceInfo suggestedDeviceFetched = suggestedDevices.get(0);
-                    assertEquals(
-                            validRoute.getName(), suggestedDeviceFetched.getDeviceDisplayName());
-                    assertEquals(validRoute.getId(), suggestedDeviceFetched.getRouteId());
-                    assertEquals(validRoute.getDeviceType(), suggestedDeviceFetched.getType());
-                });
+        Map<String, List<SuggestedDeviceInfo>> deviceSuggestionsMap =
+                mMediaRouterUnderTest.getDeviceSuggestions();
+        assertTrue(deviceSuggestionsMap.containsKey(mContext.getPackageName()));
+        List<SuggestedDeviceInfo> suggestedDevices =
+                deviceSuggestionsMap.get(mContext.getPackageName());
+        assertNotNull(suggestedDevices);
+        assertEquals(1, suggestedDevices.size());
+        SuggestedDeviceInfo suggestedDeviceFetched = suggestedDevices.get(0);
+        assertEquals(validRoute.getName(), suggestedDeviceFetched.getDeviceDisplayName());
+        assertEquals(validRoute.getId(), suggestedDeviceFetched.getRouteId());
+        assertEquals(validRoute.getDeviceType(), suggestedDeviceFetched.getType());
     }
 
     @Test
+    @UiThreadTest
     public void getDeviceSuggestions_afterClearingDeviceSuggestions_returnsEmptyMap() {
-        runOnMain(
-                () -> {
-                    mMediaRouterUnderTest.setDeviceSuggestions(
-                            List.of(getValidRoute(mMediaRouterUnderTest)));
-                    mMediaRouterUnderTest.clearDeviceSuggestions();
+        mMediaRouterUnderTest.setDeviceSuggestions(List.of(getValidRoute(mMediaRouterUnderTest)));
 
-                    Map<String, List<SuggestedDeviceInfo>> deviceSuggestionsMap =
-                            mMediaRouterUnderTest.getDeviceSuggestions();
+        mMediaRouterUnderTest.clearDeviceSuggestions();
 
-                    assertTrue(deviceSuggestionsMap.isEmpty());
-                });
+        Map<String, List<SuggestedDeviceInfo>> deviceSuggestionsMap =
+                mMediaRouterUnderTest.getDeviceSuggestions();
+        assertTrue(deviceSuggestionsMap.isEmpty());
     }
 
     @Test
+    @UiThreadTest
     public void setDeviceSuggestions_withSystemRoute_filtersOutSystemRoute() {
-        runOnMain(
-                () -> {
-                    MediaRouter.RouteInfo defaultRoute = mMediaRouterUnderTest.getDefaultRoute();
-                    assertTrue(defaultRoute.isSystemRoute());
-                    mMediaRouterUnderTest.setDeviceSuggestions(List.of(defaultRoute));
+        MediaRouter.RouteInfo defaultRoute = mMediaRouterUnderTest.getDefaultRoute();
+        assertTrue(defaultRoute.isSystemRoute());
 
-                    Map<String, List<SuggestedDeviceInfo>> deviceSuggestionsMap =
-                            mMediaRouterUnderTest.getDeviceSuggestions();
+        mMediaRouterUnderTest.setDeviceSuggestions(List.of(defaultRoute));
 
-                    assertTrue(deviceSuggestionsMap.containsKey(mContext.getPackageName()));
-                    List<SuggestedDeviceInfo> suggestedDevices =
-                            deviceSuggestionsMap.get(mContext.getPackageName());
-                    assertNotNull(suggestedDevices);
-                    assertTrue(suggestedDevices.isEmpty());
-                });
+        Map<String, List<SuggestedDeviceInfo>> deviceSuggestionsMap =
+                mMediaRouterUnderTest.getDeviceSuggestions();
+        assertTrue(deviceSuggestionsMap.containsKey(mContext.getPackageName()));
+        List<SuggestedDeviceInfo> suggestedDevices =
+                deviceSuggestionsMap.get(mContext.getPackageName());
+        assertNotNull(suggestedDevices);
+        assertTrue(suggestedDevices.isEmpty());
     }
 
     @Test
+    @UiThreadTest
     public void
             unregisterDeviceSuggestionsUpdatesCallback_withoutCallbackRegistered_doesNotCrash() {
-        runOnMain(
-                () ->
-                        mMediaRouterUnderTest.unregisterDeviceSuggestionsUpdatesCallback(
-                                mDeviceSuggestionsUpdatesCallback));
+        mMediaRouterUnderTest.unregisterDeviceSuggestionsUpdatesCallback(
+                mDeviceSuggestionsUpdatesCallback);
     }
 
     @Test

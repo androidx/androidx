@@ -22,6 +22,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.os.Build;
 
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -66,15 +67,13 @@ public class RouteListingPreferenceTest {
 
     @SmallTest
     @Test
+    @UiThreadTest
     public void setRouteListingPreference_onAnyApiLevel_doesNotCrash() {
         // AndroidX infra runs tests on all API levels with significant usage, hence this test
         // checks this call does not crash regardless of whether route listing preference symbols
         // are defined on the current platform level.
-        InstrumentationRegistry.getInstrumentation()
-                .runOnMainSync(
-                        () ->
-                                mMediaRouterUnderTest.setRouteListingPreference(
-                                        new RouteListingPreference.Builder().build()));
+        mMediaRouterUnderTest.setRouteListingPreference(
+                new RouteListingPreference.Builder().build());
     }
 
     @SmallTest
