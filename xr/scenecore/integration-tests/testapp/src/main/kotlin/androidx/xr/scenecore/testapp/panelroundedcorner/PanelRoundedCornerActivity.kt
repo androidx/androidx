@@ -58,6 +58,13 @@ class PanelRoundedCornerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // The content view must be installed before the Session is created. Creating a Session
+        // registers this Activity's window as an XR "window leash", and the platform reads
+        // Window.peekDecorView() without a null check when a compositor transform update
+        // arrives, which crashes the process if no content view has been set yet.
+        // See b/562983987.
+        setContentView(R.layout.common_test_panel)
+
         // Create session
 
         lifecycleScope.launch {
@@ -179,7 +186,6 @@ class PanelRoundedCornerActivity : AppCompatActivity() {
             panelEntitySeekBar.progress = DEFAULT_CORNER_RADIUS
 
             // Set main panel dimensions
-            setContentView(R.layout.common_test_panel)
             session!!.scene.mainPanelEntity.setPose(Pose(Vector3(-0.1f, 0.1f, 0.0f)))
 
             // Set toolbar
