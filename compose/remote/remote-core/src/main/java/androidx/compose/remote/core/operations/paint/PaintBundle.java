@@ -272,6 +272,9 @@ public class PaintBundle implements Serializable {
                     p.setPathEffect(pathEffect);
 
                     break;
+                case ANTI_ALIAS:
+                    // TODO enable this and fix add p.setAntiAlias((cmd >> 16) != 0);
+                    break;
                 default:
                     System.err.println("error unknown Paint Type " + (cmd & 0xFFFF));
                     break;

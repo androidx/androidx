@@ -18,8 +18,11 @@ package androidx.compose.remote.core.operations;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
+import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.operations.utilities.Mesh2DGenerator;
@@ -876,5 +879,445 @@ public class Mesh2DTest {
                         0.5f,
                         Mesh2DGenerator.FLAG_FULL,
                         out));
+    }
+
+    // ------------------------------------------------------- spline path strip
+
+    /** A straight path from (0, 0) to (100, 0), so the normal is (0, 1) everywhere. */
+    private static float[] straightPath() {
+        return new float[] {
+            nanOp(10), 0f, 0f, // MOVE (0, 0)
+            nanOp(11), 100f, 0f, // LINE (100, 0)
+            nanOp(16), // DONE
+        };
+    }
+
+    /** The cross width of the ribbon at column {@code i}, i.e. the gap between its two rows. */
+    private static float crossWidthAt(AddMesh2D mesh, int uCount, int i) {
+        float[] verts = mesh.getVerts();
+        float dx = verts[(uCount + i) * 2] - verts[i * 2];
+        float dy = verts[(uCount + i) * 2 + 1] - verts[i * 2 + 1];
+        return (float) Math.hypot(dx, dy);
+    }
+
+    private static AddMesh2D splineStrip(int segments, float[] widths, float[] positions) {
+        return new AddMesh2D(
+                7,
+                AddMesh2D.TYPE_PATH_SPLINE_STRIP,
+                Mesh2DGenerator.LAYOUT_PATH_STRIP,
+                segments + 1,
+                2,
+                0,
+                21,
+                null,
+                null,
+                null,
+                null,
+                null,
+                widths,
+                positions);
+    }
+
+    @Test
+    public void splineStripInterpolatesWidthBetweenControlPoints() {
+        HeadlessRemoteContext context = new HeadlessRemoteContext();
+        context.loadPathData(21, 0, straightPath());
+
+        int segments = 8;
+        int uCount = segments + 1;
+        // Evenly spaced with no explicit positions: 0 at the start, 20 in the middle, 0 at the end.
+        AddMesh2D mesh = splineStrip(segments, new float[] {0f, 20f, 0f}, null);
+        mesh.updateVariables(context);
+        mesh.expand(context);
+
+        assertEquals(uCount * 2 * 2, mesh.getVerts().length);
+        // The control points land exactly on their knots.
+        assertEquals(0f, crossWidthAt(mesh, uCount, 0), 1e-4f);
+        assertEquals(20f, crossWidthAt(mesh, uCount, segments / 2), 1e-4f);
+        assertEquals(0f, crossWidthAt(mesh, uCount, segments), 1e-4f);
+        // Monotone between them: no overshoot below zero on the way up, and it really does swell.
+        for (int i = 0; i <= segments / 2; i++) {
+            float width = crossWidthAt(mesh, uCount, i);
+            assertTrue(width >= -1e-4f);
+            assertTrue(width <= 20f + 1e-4f);
+        }
+        assertTrue(crossWidthAt(mesh, uCount, 2) > 0f);
+
+        // The ribbon still follows the path: the spine advances along x and is centred on y = 0.
+        float[] verts = mesh.getVerts();
+        assertEquals(0f, verts[0], 1e-4f);
+        assertEquals(100f, verts[segments * 2], 1e-4f);
+        assertEquals(
+                0f,
+                verts[(segments / 2) * 2 + 1] + verts[(uCount + segments / 2) * 2 + 1],
+                1e-4f);
+    }
+
+    @Test
+    public void splineStripWithOneWidthIsAConstantRibbon() {
+        HeadlessRemoteContext context = new HeadlessRemoteContext();
+        context.loadPathData(21, 0, straightPath());
+
+        // A single control point must not reach the spline at all: MonotonicSpline cannot fit one
+        // knot, so this is the case that would throw if it were not short circuited.
+        int segments = 4;
+        AddMesh2D mesh = splineStrip(segments, new float[] {12f}, null);
+        mesh.updateVariables(context);
+        mesh.expand(context);
+
+        for (int i = 0; i <= segments; i++) {
+            assertEquals(12f, crossWidthAt(mesh, segments + 1, i), 1e-4f);
+        }
+    }
+
+    @Test
+    public void splineStripHonoursExplicitWidthPositions() {
+        HeadlessRemoteContext context = new HeadlessRemoteContext();
+        context.loadPathData(21, 0, straightPath());
+
+        // The fat point is pushed to three quarters along rather than the middle.
+        int segments = 8;
+        AddMesh2D mesh =
+                splineStrip(segments, new float[] {2f, 30f, 2f}, new float[] {0f, 0.75f, 1f});
+        mesh.updateVariables(context);
+        mesh.expand(context);
+
+        int uCount = segments + 1;
+        assertEquals(2f, crossWidthAt(mesh, uCount, 0), 1e-4f);
+        assertEquals(30f, crossWidthAt(mesh, uCount, 6), 1e-4f);
+        assertEquals(2f, crossWidthAt(mesh, uCount, segments), 1e-4f);
+        // Off-centre, so the midpoint is nowhere near the peak.
+        assertTrue(crossWidthAt(mesh, uCount, 4) < 30f);
+    }
+
+    @Test
+    public void splineStripSurvivesTheWire() {
+        AddMesh2D original = splineStrip(12, new float[] {1f, 9f, 3f}, new float[] {0f, 0.4f, 1f});
+
+        WireBuffer buffer = new WireBuffer();
+        original.write(buffer);
+        buffer.setIndex(0);
+        buffer.readByte(); // the opcode, consumed by the dispatcher in the real reader
+
+        ArrayList<Operation> operations = new ArrayList<>();
+        AddMesh2D.read(buffer, operations);
+
+        assertEquals(1, operations.size());
+        assertEquals(original.toString(), operations.get(0).toString());
+
+        // toString only covers the header, so check the payload survived by generating from it.
+        HeadlessRemoteContext context = new HeadlessRemoteContext();
+        context.loadPathData(21, 0, straightPath());
+        AddMesh2D restored = (AddMesh2D) operations.get(0);
+        restored.updateVariables(context);
+        restored.expand(context);
+        assertEquals(1f, crossWidthAt(restored, 13, 0), 1e-4f);
+        assertEquals(3f, crossWidthAt(restored, 13, 12), 1e-4f);
+    }
+
+    @Test
+    public void widthSplineRefusesToProduceNaNFromDegenerateKnots() {
+        // Fewer than two control points is a constant, not a fit.
+        assertNull(Mesh2DGenerator.widthSpline(null, null));
+        assertNull(Mesh2DGenerator.widthSpline(new float[0], null));
+        assertNull(Mesh2DGenerator.widthSpline(new float[] {4f}, null));
+        assertEquals(1f, Mesh2DGenerator.widthAt(null, new float[0], 0.5f), 0f);
+        assertEquals(4f, Mesh2DGenerator.widthAt(null, new float[] {4f}, 0.5f), 0f);
+
+        // Positions are animatable, so at playback they can collide or go backwards. That divides
+        // by zero inside the fit and would otherwise poison every vertex with NaN.
+        float[] widths = new float[] {1f, 5f, 9f};
+        float[] collapsed = new float[] {0.5f, 0.5f, 0.5f};
+        for (float t = 0f; t <= 1f; t += 0.25f) {
+            float width =
+                    Mesh2DGenerator.widthAt(
+                            Mesh2DGenerator.widthSpline(widths, collapsed), widths, t);
+            assertTrue(!Float.isNaN(width));
+        }
+        float[] reversed = new float[] {0.9f, 0.5f, 0.1f};
+        for (float t = 0f; t <= 1f; t += 0.25f) {
+            float width =
+                    Mesh2DGenerator.widthAt(
+                            Mesh2DGenerator.widthSpline(widths, reversed), widths, t);
+            assertTrue(!Float.isNaN(width));
+        }
+
+        // A mismatched position array is ignored rather than fatal: the widths spread evenly.
+        float[] shortPositions = new float[] {0f, 1f};
+        assertEquals(
+                1f,
+                Mesh2DGenerator.widthAt(
+                        Mesh2DGenerator.widthSpline(widths, shortPositions), widths, 0f),
+                1e-4f);
+
+        // Extrapolation past the ends can dip below zero; a negative width folds the ribbon inside
+        // out, so it is clamped away.
+        float[] falling = new float[] {10f, 0f};
+        assertEquals(
+                0f,
+                Mesh2DGenerator.widthAt(Mesh2DGenerator.widthSpline(falling, null), falling, 2f),
+                0f);
+    }
+
+    @Test
+    public void splineStripRejectsProfilesItCannotFit() {
+        WireBuffer buffer = new WireBuffer();
+        assertThrows(
+                RuntimeException.class,
+                () -> AddMesh2D.applyPathSplineStrip(buffer, 1, 8, 2, new float[0], null));
+        assertThrows(
+                RuntimeException.class,
+                () -> AddMesh2D.applyPathSplineStrip(buffer, 1, 0, 2, new float[] {4f}, null));
+        // Positions, when given at all, must name every width.
+        assertThrows(
+                RuntimeException.class,
+                () ->
+                        AddMesh2D.applyPathSplineStrip(
+                                buffer, 1, 8, 2, new float[] {1f, 2f, 3f}, new float[] {0f, 1f}));
+        // Literal positions must be ordered; only variables get the benefit of the doubt.
+        assertThrows(
+                RuntimeException.class,
+                () ->
+                        AddMesh2D.applyPathSplineStrip(
+                                buffer,
+                                1,
+                                8,
+                                2,
+                                new float[] {1f, 2f, 3f},
+                                new float[] {0f, 0.8f, 0.4f}));
+        assertThrows(
+                RuntimeException.class,
+                () ->
+                        AddMesh2D.applyPathSplineStrip(
+                                buffer,
+                                1,
+                                8,
+                                2,
+                                new float[Limits.MAX_MESH_2D_WIDTH_SAMPLES + 1],
+                                null));
+    }
+
+    // ------------------------------------------------------- round capped spline strip
+
+    /** Build a round capped strip the way a document does, so the header derivation is covered. */
+    private static AddMesh2D roundStrip(int segments, float[] widths, float[] positions) {
+        WireBuffer buffer = new WireBuffer();
+        AddMesh2D.applySplineRoundStrip(buffer, 7, segments, 21, widths, positions);
+        buffer.setIndex(0);
+        buffer.readByte(); // the opcode, consumed by the dispatcher in the real reader
+        ArrayList<Operation> operations = new ArrayList<>();
+        AddMesh2D.read(buffer, operations);
+        return (AddMesh2D) operations.get(0);
+    }
+
+    /** The two vertices of column {@code i}, as x0, y0, x1, y1. */
+    private static float[] columnAt(AddMesh2D mesh, int uCount, int i) {
+        float[] verts = mesh.getVerts();
+        return new float[] {
+            verts[i * 2], verts[i * 2 + 1], verts[(uCount + i) * 2], verts[(uCount + i) * 2 + 1]
+        };
+    }
+
+    @Test
+    public void roundCapSegmentCountIsClampedAtBothEnds() {
+        // Too coarse and the cap reads as a chamfer, so there is a floor.
+        assertEquals(3, Mesh2DGenerator.roundCapSegments(1));
+        assertEquals(3, Mesh2DGenerator.roundCapSegments(8));
+        assertEquals(3, Mesh2DGenerator.roundCapSegments(12));
+        // Between the clamps it tracks the body, so a finely sampled strip gets a fine cap.
+        assertEquals(4, Mesh2DGenerator.roundCapSegments(16));
+        assertEquals(10, Mesh2DGenerator.roundCapSegments(40));
+        // Past the ceiling the arc is already smooth and more vertices buy nothing.
+        assertEquals(16, Mesh2DGenerator.roundCapSegments(64));
+        assertEquals(16, Mesh2DGenerator.roundCapSegments(100000));
+    }
+
+    @Test
+    public void roundStripAddsItsCapsOutsideTheSegmentBudget() {
+        int segments = 8;
+        int cap = Mesh2DGenerator.roundCapSegments(segments);
+        AddMesh2D mesh = roundStrip(segments, new float[] {20f}, null);
+
+        HeadlessRemoteContext context = new HeadlessRemoteContext();
+        context.loadPathData(21, 0, straightPath());
+        mesh.updateVariables(context);
+        mesh.expand(context);
+
+        // The caps are extra columns, not a slice taken out of the body.
+        int uCount = segments + 1 + 2 * cap;
+        assertEquals(uCount * 2 * 2, mesh.getVerts().length);
+        // Topology is untouched: still a two row strip, still one quad per column.
+        assertEquals((uCount - 1) * 6, mesh.getIndices().length);
+    }
+
+    @Test
+    public void roundStripFollowsItsPathExactlyAsTheFlatOneDoes() {
+        HeadlessRemoteContext context = new HeadlessRemoteContext();
+        context.loadPathData(21, 0, straightPath());
+
+        int segments = 8;
+        int cap = Mesh2DGenerator.roundCapSegments(segments);
+        float[] widths = new float[] {6f, 24f, 10f};
+
+        AddMesh2D flat = splineStrip(segments, widths, null);
+        flat.updateVariables(context);
+        flat.expand(context);
+
+        AddMesh2D round = roundStrip(segments, widths, null);
+        round.updateVariables(context);
+        round.expand(context);
+
+        // This is the whole point of spending extra columns on the caps rather than borrowing
+        // them: the body of the rounded strip is the flat strip, vertex for vertex.
+        int flatUCount = segments + 1;
+        int roundUCount = segments + 1 + 2 * cap;
+        for (int k = 0; k <= segments; k++) {
+            float[] a = columnAt(flat, flatUCount, k);
+            float[] b = columnAt(round, roundUCount, cap + k);
+            for (int c = 0; c < 4; c++) {
+                assertEquals(a[c], b[c], 1e-3f);
+            }
+        }
+    }
+
+    @Test
+    public void roundStripCapsSweepTheHalfDisc() {
+        HeadlessRemoteContext context = new HeadlessRemoteContext();
+        context.loadPathData(21, 0, straightPath());
+
+        int segments = 8;
+        int cap = Mesh2DGenerator.roundCapSegments(segments);
+        int uCount = segments + 1 + 2 * cap;
+        float radius = 10f;
+        AddMesh2D mesh = roundStrip(segments, new float[] {radius * 2f}, null);
+        mesh.updateVariables(context);
+        mesh.expand(context);
+
+        // The tips are degenerate, sitting one radius beyond each end of the path along it.
+        float[] startTip = columnAt(mesh, uCount, 0);
+        assertEquals(-radius, startTip[0], 1e-3f);
+        assertEquals(0f, startTip[1], 1e-3f);
+        assertEquals(startTip[0], startTip[2], 1e-3f);
+        assertEquals(startTip[1], startTip[3], 1e-3f);
+
+        float[] endTip = columnAt(mesh, uCount, uCount - 1);
+        assertEquals(100f + radius, endTip[0], 1e-3f);
+        assertEquals(0f, endTip[1], 1e-3f);
+        assertEquals(endTip[0], endTip[2], 1e-3f);
+        assertEquals(endTip[1], endTip[3], 1e-3f);
+
+        // Every cap vertex lies on the circle about the endpoint, which is what makes the fan of
+        // cross segments between them sweep the half disc rather than some cheaper polygon.
+        for (int i = 0; i <= cap; i++) {
+            float[] column = columnAt(mesh, uCount, i);
+            assertEquals(radius, (float) Math.hypot(column[0], column[1]), 1e-3f);
+            assertEquals(radius, (float) Math.hypot(column[2], column[3]), 1e-3f);
+            // Behind the start, never in front of it: the cap must not eat into the body.
+            assertTrue(column[0] <= 1e-3f);
+        }
+        for (int i = 0; i <= cap; i++) {
+            float[] column = columnAt(mesh, uCount, uCount - 1 - i);
+            assertEquals(radius, (float) Math.hypot(column[0] - 100f, column[1]), 1e-3f);
+            assertEquals(radius, (float) Math.hypot(column[2] - 100f, column[3]), 1e-3f);
+            assertTrue(column[0] >= 100f - 1e-3f);
+        }
+    }
+
+    @Test
+    public void roundStripTaperingToNothingEndsInAPoint() {
+        HeadlessRemoteContext context = new HeadlessRemoteContext();
+        context.loadPathData(21, 0, straightPath());
+
+        int segments = 8;
+        int cap = Mesh2DGenerator.roundCapSegments(segments);
+        int uCount = segments + 1 + 2 * cap;
+        // The cap radius is half the width at that end, so a profile that reaches zero has no cap
+        // to draw and must collapse onto the endpoint rather than bulge or invert.
+        AddMesh2D mesh = roundStrip(segments, new float[] {0f, 20f, 0f}, null);
+        mesh.updateVariables(context);
+        mesh.expand(context);
+
+        for (int i = 0; i <= cap; i++) {
+            float[] start = columnAt(mesh, uCount, i);
+            assertEquals(0f, (float) Math.hypot(start[0], start[1]), 1e-3f);
+            assertEquals(0f, (float) Math.hypot(start[2], start[3]), 1e-3f);
+
+            float[] end = columnAt(mesh, uCount, uCount - 1 - i);
+            assertEquals(0f, (float) Math.hypot(end[0] - 100f, end[1]), 1e-3f);
+            assertEquals(0f, (float) Math.hypot(end[2] - 100f, end[3]), 1e-3f);
+        }
+    }
+
+    @Test
+    public void roundStripSurvivesTheWire() {
+        WireBuffer buffer = new WireBuffer();
+        AddMesh2D.applySplineRoundStrip(buffer, 7, 12, 21, new float[] {1f, 9f, 3f}, null);
+        buffer.setIndex(0);
+        buffer.readByte();
+
+        ArrayList<Operation> operations = new ArrayList<>();
+        AddMesh2D.read(buffer, operations);
+        assertEquals(1, operations.size());
+        AddMesh2D restored = (AddMesh2D) operations.get(0);
+
+        // Rewriting must reproduce the same bytes, which means write() recovered the original
+        // segment count from a header that had the caps folded into it.
+        WireBuffer rewritten = new WireBuffer();
+        restored.write(rewritten);
+        assertEquals(buffer.getSize(), rewritten.getSize());
+
+        buffer.setIndex(0);
+        rewritten.setIndex(0);
+        for (int i = 0; i < rewritten.getSize(); i++) {
+            assertEquals(buffer.readByte(), rewritten.readByte());
+        }
+    }
+
+    @Test
+    public void roundStripIgnoresACapCountThatWouldSwallowTheStrip() {
+        HeadlessRemoteContext context = new HeadlessRemoteContext();
+        context.loadPathData(21, 0, straightPath());
+
+        // flags is read straight off the wire, and a corrupt document can put anything there. A
+        // cap wider than the strip would leave no body at all and divide by zero in the remap.
+        int uCount = 6;
+        AddMesh2D mesh =
+                new AddMesh2D(
+                        7,
+                        AddMesh2D.TYPE_SPLINE_ROUND_STRIP,
+                        Mesh2DGenerator.LAYOUT_PATH_STRIP,
+                        uCount,
+                        2,
+                        9999,
+                        21,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        new float[] {8f},
+                        null);
+        mesh.updateVariables(context);
+        mesh.expand(context);
+
+        for (float vert : mesh.getVerts()) {
+            assertTrue(!Float.isNaN(vert) && !Float.isInfinite(vert));
+        }
+    }
+
+    @Test
+    public void roundStripRejectsProfilesItCannotFit() {
+        WireBuffer buffer = new WireBuffer();
+        assertThrows(
+                RuntimeException.class,
+                () -> AddMesh2D.applySplineRoundStrip(buffer, 1, 8, 2, new float[0], null));
+        assertThrows(
+                RuntimeException.class,
+                () -> AddMesh2D.applySplineRoundStrip(buffer, 1, 0, 2, new float[] {4f}, null));
+        assertThrows(
+                RuntimeException.class,
+                () ->
+                        AddMesh2D.applySplineRoundStrip(
+                                buffer, 1, 8, 2, new float[] {1f, 2f, 3f}, new float[] {0f, 1f}));
     }
 }

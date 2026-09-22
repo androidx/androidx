@@ -1518,6 +1518,52 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
             )
         )
 
+    override fun remoteMesh2DPathStrip(
+        path: RcPath,
+        segments: Int,
+        widths: FloatArray,
+        positions: FloatArray?,
+    ): RcMesh = RcMesh(writer.addMesh2DPathStrip(path.id, segments, widths, positions))
+
+    override fun remoteMesh2DPathStrip(
+        path: RcPath,
+        segments: Int,
+        widths: Array<RcFloat>,
+        positions: Array<RcFloat>?,
+    ): RcMesh =
+        RcMesh(
+            writer.addMesh2DPathStrip(
+                path.id,
+                segments,
+                // Each control point collapses to one wire float: a literal, or the NaN id of a
+                // variable the mesh then listens to.
+                FloatArray(widths.size) { widths[it].withWriter(writer).toFloat() },
+                positions?.let { p -> FloatArray(p.size) { p[it].withWriter(writer).toFloat() } },
+            )
+        )
+
+    override fun remoteMesh2DRoundStrip(
+        path: RcPath,
+        segments: Int,
+        widths: FloatArray,
+        positions: FloatArray?,
+    ): RcMesh = RcMesh(writer.addMesh2DRoundStrip(path.id, segments, widths, positions))
+
+    override fun remoteMesh2DRoundStrip(
+        path: RcPath,
+        segments: Int,
+        widths: Array<RcFloat>,
+        positions: Array<RcFloat>?,
+    ): RcMesh =
+        RcMesh(
+            writer.addMesh2DRoundStrip(
+                path.id,
+                segments,
+                FloatArray(widths.size) { widths[it].withWriter(writer).toFloat() },
+                positions?.let { p -> FloatArray(p.size) { p[it].withWriter(writer).toFloat() } },
+            )
+        )
+
     override fun drawMesh2D(mesh: RcMesh, image: RcImage?, blend: RcMeshBlend?) {
         // Untextured meshes have only their vertex colours; textured ones modulate by default,
         // which is what makes a tinted bitmap the no-argument case.

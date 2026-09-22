@@ -132,5 +132,14 @@ public class Limits {
      */
     public static final int MAX_MESH_2D_GRID = 16384;
 
+    /**
+     * Maximum width control points on a spline path strip.
+     *
+     * <p>A ribbon's width profile is a shape, not a data set: a handful of control points and the
+     * monotonic fit does the rest. Anyone needing more than this wants the explicit vertex types
+     * instead.
+     */
+    public static final int MAX_MESH_2D_WIDTH_SAMPLES = 64;
+
     private Limits() {}
 }

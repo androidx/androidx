@@ -16,6 +16,7 @@
 package androidx.compose.remote.core.operations.utilities;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.operations.utilities.easing.MonotonicSpline;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -317,6 +318,148 @@ public final class Mesh2DGenerator {
         out[1] = y1;
         out[2] = len > 0f ? dx / len : 1f;
         out[3] = len > 0f ? dy / len : 0f;
+    }
+
+    /**
+     * Smallest gap forced between two spline knots.
+     *
+     * <p>Knot positions may be driven by document variables, so they can become equal or go
+     * backwards at runtime however carefully they were validated at authoring time. A zero gap
+     * divides by zero inside the spline and poisons the whole ribbon with NaN, so the knots are
+     * nudged apart instead.
+     */
+    private static final float MIN_KNOT_GAP = 1e-6f;
+
+    /**
+     * Build the spline that gives a path strip its cross width along the path.
+     *
+     * <p>Returns {@code null} when there is nothing to interpolate - no widths at all, or a single
+     * width, which is a constant and needs no spline. Callers must handle that case; see {@link
+     * #widthAt}.
+     *
+     * <p>{@code positions} is optional. When it is absent the widths are spread evenly over the
+     * path, so the first is the width at the start and the last is the width at the end. When it is
+     * present it must have one entry per width, each a fraction of arclength.
+     *
+     * @param widths the width control points, in the path's own units
+     * @param positions where each width sits along the path, 0..1, or null for evenly spaced
+     * @return the interpolating spline, or null when the width is constant or undefined
+     */
+    public static @Nullable MonotonicSpline widthSpline(
+            float @Nullable [] widths, float @Nullable [] positions) {
+        if (widths == null || widths.length < 2) {
+            return null;
+        }
+        float[] knots = null;
+        if (positions != null && positions.length == widths.length) {
+            knots = new float[positions.length];
+            float previous = Float.NEGATIVE_INFINITY;
+            for (int i = 0; i < positions.length; i++) {
+                float t = positions[i];
+                if (Float.isNaN(t)) {
+                    t = previous == Float.NEGATIVE_INFINITY ? 0f : previous + MIN_KNOT_GAP;
+                } else if (previous != Float.NEGATIVE_INFINITY && t <= previous) {
+                    t = previous + MIN_KNOT_GAP;
+                }
+                knots[i] = t;
+                previous = t;
+            }
+        }
+        return new MonotonicSpline(knots, widths);
+    }
+
+    /**
+     * The cross width of a path strip at a fraction of its arclength.
+     *
+     * <p>A negative width would fold the ribbon inside out, so it is clamped away. The monotonic
+     * fit will not overshoot between control points, but it does extrapolate past the ends.
+     *
+     * @param spline the spline from {@link #widthSpline}, or null when the width is constant
+     * @param widths the width control points the spline was built from
+     * @param fraction the position along the path, 0..1
+     * @return the width, never negative
+     */
+    public static float widthAt(
+            @Nullable MonotonicSpline spline, float @Nullable [] widths, float fraction) {
+        float width;
+        if (spline != null) {
+            width = spline.getPos(fraction);
+        } else if (widths != null && widths.length > 0) {
+            width = widths[0];
+        } else {
+            return 1f;
+        }
+        if (Float.isNaN(width) || width < 0f) {
+            return 0f;
+        }
+        return width;
+    }
+
+    /**
+     * The fewest columns a round end cap is ever drawn with. Below this the arc reads as a bevel.
+     */
+    public static final int MIN_ROUND_CAP_SEGMENTS = 3;
+
+    /**
+     * The most columns a round end cap is ever drawn with. Beyond this the arc is already smooth.
+     */
+    public static final int MAX_ROUND_CAP_SEGMENTS = 16;
+
+    /**
+     * How many columns of the strip to spend on each round end cap.
+     *
+     * <p>The caps are extra columns on top of the body rather than a slice out of it, so a rounded
+     * strip follows its path at exactly the same resolution as a flat one with the same {@code
+     * segments}. The count scales with the body so a finely sampled strip does not end in a visibly
+     * coarse arc, but it is clamped at both ends: three columns is the least that reads as round
+     * rather than chamfered, and past sixteen the extra vertices buy nothing a viewer can see.
+     *
+     * @param segments the number of columns spanning the path itself
+     * @return the number of columns in each cap
+     */
+    public static int roundCapSegments(int segments) {
+        int cap = segments / 4;
+        if (cap < MIN_ROUND_CAP_SEGMENTS) {
+            return MIN_ROUND_CAP_SEGMENTS;
+        }
+        return Math.min(cap, MAX_ROUND_CAP_SEGMENTS);
+    }
+
+    /**
+     * Place a vertex on a semicircular end cap of a path strip.
+     *
+     * <p>The cap is swept as a quarter turn, {@code angle} running from 0 at the tip to {@code
+     * PI/2} where the cap meets the body. At each angle the two edges of the strip sit at {@code
+     * +/- halfWidth * sin(angle)} across the path and {@code halfWidth * cos(angle)} beyond its
+     * end, so the segments joining them sweep out exactly the half disc of radius {@code
+     * halfWidth}: a true round cap, built from the strip's own quads rather than from extra fan
+     * geometry. At {@code angle == PI/2} the point coincides with the flat end of the body, so the
+     * cap joins it seamlessly; at {@code angle == 0} both edges meet at the tip, leaving one
+     * degenerate column that rasterises to nothing.
+     *
+     * @param sample position and unit tangent at the path end, as filled by {@link #samplePolyline}
+     * @param halfWidth half the strip's cross width at this end, which is the cap's radius
+     * @param angle 0 at the tip, {@code PI/2} at the base where the cap meets the body
+     * @param v the cross parameter, 0..1
+     * @param outward 1 at the end of the path, -1 at the start, being the direction the cap bulges
+     * @param out a 2 element array receiving x then y
+     */
+    public static void roundCapPoint(
+            float @NonNull [] sample,
+            float halfWidth,
+            float angle,
+            float v,
+            float outward,
+            float @NonNull [] out) {
+        float tx = sample[2];
+        float ty = sample[3];
+        // the normal is the tangent turned a quarter turn, matching the body of the strip
+        float nx = -ty;
+        float ny = tx;
+        float along = outward * halfWidth * (float) Math.cos(angle);
+        float across = (v - 0.5f) * 2f * halfWidth * (float) Math.sin(angle);
+        out[0] = sample[0] + tx * along + nx * across;
+        out[1] = sample[1] + ty * along + ny * across;
     }
 
     /**
