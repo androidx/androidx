@@ -63,8 +63,7 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
- * [Material Design multi-browse
- * carousel](https://m3.material.io/components/carousel/specs#3c9dc903-2f88-4b27-84e3-213c50674632)
+ * [Material Design multi-browse carousel](https://m3.material.io/components/carousel/specs)
  *
  * A horizontal carousel meant to display many items at once for quick browsing of smaller content
  * like album art or photo thumbnails.
@@ -149,8 +148,7 @@ public fun HorizontalMultiBrowseCarousel(
 }
 
 /**
- * [Material Design uncontained
- * carousel](https://m3.material.io/components/carousel/specs#477de3a1-c9df-4742-baf3-bcd5eeb3764c)
+ * [Material Design uncontained carousel](https://m3.material.io/components/carousel/specs)
  *
  * A horizontal carousel that displays its items with the given size except for one item at the end
  * that is cut off.
@@ -215,8 +213,7 @@ public fun HorizontalUncontainedCarousel(
 }
 
 /**
- * [Material Design center-aligned hero
- * carousel](https://m3.material.io/components/carousel/specs#a8cf229e-48ae-4161-9936-d1e47d295cd8)
+ * [Material Design center-aligned hero carousel](https://m3.material.io/components/carousel/specs)
  *
  * A horizontal carousel that centers at least one large item between two small items.
  *
@@ -224,22 +221,31 @@ public fun HorizontalUncontainedCarousel(
  * depending on their scroll offset to create items which smoothly expand and collapse between the
  * large and small sizes.
  *
- * [maxItemWidth] is a target rather than a limit. Carousel keeps the arrangement whose large item
- * size lands closest to it, resizing small items between [minSmallItemWidth] and
- * [maxSmallItemWidth] to fill the rest of the viewport. The default [maxItemWidth] value of
- * [Dp.Unspecified] always results in one large item; smaller values may fit more large items. A
- * centered arrangement needs at least three items, otherwise items are start-aligned.
+ * The selected item is centered whenever items sit on both sides of it. At the bounds of the list
+ * the arrangement shifts, so the first item aligns to the start of the viewport and the last item
+ * aligns to its end:
+ * ```
+ * // Five items, one large item between two small items:
+ * item 1 selected:  [        1        ][2][3]
+ * item 3 selected:  [2][        3        ][4]
+ * item 5 selected:  [3][4][        5        ]
+ * ```
+ *
+ * Lists holding fewer items than the arrangement needs (three at a minimum) stay start-aligned.
  *
  * Example of a center-aligned hero carousel:
  *
  * @sample androidx.compose.material3.samples.HorizontalCenteredHeroCarouselSample
  * @param state The state object to be used to control the carousel's state
  * @param modifier A modifier instance to be applied to this carousel container
- * @param maxItemWidth The max width a large item should be in dp. The default value of
- *   [Dp.Unspecified] allows one large item to grow to fill the entire viewport minus space for two
- *   surrounding small items. Values other than unspecified will add additional large items as space
- *   allows. To allow items to grow up to a certain aspect ratio, use the carousel's cross axis
- *   size * a multiplier (e.g. `220.dp * 2` for a max aspect ratio of 2:1).
+ * @param preferredItemWidth The width large items aim for in dp. Carousel picks the arrangement
+ *   whose large item width lands closest to this value, resizing small items between
+ *   [minSmallItemWidth] and [maxSmallItemWidth] to fill the rest of the viewport, so the final
+ *   width can differ. The default [Dp.Unspecified] targets the whole viewport, fitting one large
+ *   item beside two small items; smaller values fit more large items. Large items always end up
+ *   wider than the small items beside them, which are never narrower than [minSmallItemWidth], so
+ *   widths at or below that bound cannot be honored. To target an aspect ratio, use the carousel's
+ *   cross axis size * a multiplier (e.g. `220.dp * 2` for a 2:1 ratio).
  * @param itemSpacing The amount of space used to separate items in the carousel
  * @param flingBehavior The [TargetedFlingBehavior] to be used for post scroll gestures
  * @param userScrollEnabled whether the scrolling via the user gestures or accessibility actions is
@@ -255,7 +261,7 @@ public fun HorizontalUncontainedCarousel(
 public fun HorizontalCenteredHeroCarousel(
     state: CarouselState,
     modifier: Modifier = Modifier,
-    maxItemWidth: Dp = Dp.Unspecified,
+    preferredItemWidth: Dp = Dp.Unspecified,
     itemSpacing: Dp = CarouselDefaults.ItemSpacing,
     flingBehavior: TargetedFlingBehavior =
         CarouselDefaults.singleAdvanceFlingBehavior(state = state),
@@ -274,7 +280,8 @@ public fun HorizontalCenteredHeroCarousel(
                 heroKeylineList(
                     density = this,
                     carouselMainAxisSize = availableSpace,
-                    maxItemSize = if (maxItemWidth.isSpecified) maxItemWidth.toPx() else null,
+                    preferredItemSize =
+                        if (preferredItemWidth.isSpecified) preferredItemWidth.toPx() else null,
                     itemSpacing = itemSpacingPx,
                     itemCount = state.pagerState.pageCountState.value.invoke(),
                     isCentered = true,
