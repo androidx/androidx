@@ -88,7 +88,7 @@ import androidx.collection.ScatterMap
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableObjectListOf
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.computedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
@@ -516,7 +516,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     // relying on the derivedStateOf() notification change. This can be removed when
     // b/442011315 is fixed.
     private var isAttached by mutableStateOf(false)
-    private val derivedIsAttached by derivedStateOf { isAttached }
+    private val derivedIsAttached by computedStateOf { isAttached }
 
     /**
      * Because AndroidComposeView always accepts focus, we have to divert focus to another View if
