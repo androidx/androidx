@@ -43,6 +43,8 @@ fun MainScreen(
     navigateToRoute: (String) -> Unit,
     modifier: Modifier = Modifier,
     selectedFontName: String = "Default",
+    useEmbeddedPlayer: Boolean = false,
+    onUseEmbeddedPlayerChange: (Boolean) -> Unit = {},
 ) {
     val transformationSpec = rememberTransformationSpec()
     val columnState = rememberTransformingLazyColumnState()
@@ -72,6 +74,15 @@ fun MainScreen(
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center,
                         )
+                    }
+                }
+                item {
+                    SwitchButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        checked = useEmbeddedPlayer,
+                        onCheckedChange = onUseEmbeddedPlayerChange,
+                    ) {
+                        Text("Embedded Player")
                     }
                 }
                 item {

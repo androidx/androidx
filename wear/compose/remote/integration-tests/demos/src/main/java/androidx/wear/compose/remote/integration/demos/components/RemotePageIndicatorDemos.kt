@@ -26,11 +26,16 @@ import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocum
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
+import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
+import androidx.compose.remote.player.compose.embedded.RcPlayer
+import androidx.compose.remote.player.compose.embedded.rememberRcPlayerState
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -68,11 +73,13 @@ fun RemoteVerticalPageIndicator10Demo(modifier: Modifier = Modifier) {
     RemoteVerticalPageIndicatorDemoHelper(pageCount = 10, modifier = modifier)
 }
 
+@OptIn(ExperimentalRemotePlayerApi::class)
 @Composable
 private fun RemoteHorizontalPageIndicatorDemoHelper(pageCount: Int, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val pagerState = rememberPagerState(pageCount = { pageCount })
-    var document by remember { mutableStateOf<RemoteDocument?>(null) }
+    var capturedBytes by remember { mutableStateOf<ByteArray?>(null) }
+    val useEmbeddedPlayer = LocalUseEmbeddedPlayer.current
 
     LaunchedEffect(context, pageCount) {
         val captured =
@@ -87,7 +94,7 @@ private fun RemoteHorizontalPageIndicatorDemoHelper(pageCount: Int, modifier: Mo
                     )
                 RemoteHorizontalPageIndicator(state = state)
             }
-        document = RemoteDocument(captured.bytes)
+        capturedBytes = captured.bytes
     }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -108,32 +115,52 @@ private fun RemoteHorizontalPageIndicatorDemoHelper(pageCount: Int, modifier: Mo
             }
         }
 
-        if (document != null) {
-            AndroidView(
-                factory = { ctx ->
-                    object : RemoteComposePlayer(ctx) {
-                            override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
-                                return false
-                            }
-                        }
-                        .apply { setDocument(document) }
-                },
-                modifier = Modifier.fillMaxSize(),
-                update = { player ->
-                    player.setUserLocalInt("selectedPage", pagerState.currentPage)
-                    player.setUserLocalFloat("pageOffset", pagerState.currentPageOffsetFraction)
-                    player.invalidate()
-                },
-            )
+        val currentBytes = capturedBytes
+        if (currentBytes != null) {
+            key(useEmbeddedPlayer, currentBytes) {
+                val document =
+                    remember(useEmbeddedPlayer, currentBytes) { RemoteDocument(currentBytes) }
+                if (useEmbeddedPlayer) {
+                    RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = true
+                    val playerState = rememberRcPlayerState(document.document)
+                    var selectedPageState by playerState.intState("selectedPage")
+                    var pageOffsetState by playerState.floatState("pageOffset")
+                    selectedPageState = pagerState.currentPage
+                    pageOffsetState = pagerState.currentPageOffsetFraction
+                    RcPlayer(state = playerState, modifier = Modifier.fillMaxSize())
+                } else {
+                    AndroidView(
+                        factory = { ctx ->
+                            object : RemoteComposePlayer(ctx) {
+                                    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+                                        return false
+                                    }
+                                }
+                                .apply { setDocument(document) }
+                        },
+                        modifier = Modifier.fillMaxSize(),
+                        update = { player ->
+                            player.setUserLocalInt("selectedPage", pagerState.currentPage)
+                            player.setUserLocalFloat(
+                                "pageOffset",
+                                pagerState.currentPageOffsetFraction,
+                            )
+                            player.invalidate()
+                        },
+                    )
+                }
+            }
         }
     }
 }
 
+@OptIn(ExperimentalRemotePlayerApi::class)
 @Composable
 private fun RemoteVerticalPageIndicatorDemoHelper(pageCount: Int, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val pagerState = rememberPagerState(pageCount = { pageCount })
-    var document by remember { mutableStateOf<RemoteDocument?>(null) }
+    var capturedBytes by remember { mutableStateOf<ByteArray?>(null) }
+    val useEmbeddedPlayer = LocalUseEmbeddedPlayer.current
 
     LaunchedEffect(context, pageCount) {
         val captured =
@@ -148,7 +175,7 @@ private fun RemoteVerticalPageIndicatorDemoHelper(pageCount: Int, modifier: Modi
                     )
                 RemoteVerticalPageIndicator(state = state)
             }
-        document = RemoteDocument(captured.bytes)
+        capturedBytes = captured.bytes
     }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -169,23 +196,41 @@ private fun RemoteVerticalPageIndicatorDemoHelper(pageCount: Int, modifier: Modi
             }
         }
 
-        if (document != null) {
-            AndroidView(
-                factory = { ctx ->
-                    object : RemoteComposePlayer(ctx) {
-                            override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
-                                return false
-                            }
-                        }
-                        .apply { setDocument(document) }
-                },
-                modifier = Modifier.fillMaxSize(),
-                update = { player ->
-                    player.setUserLocalInt("selectedPage", pagerState.currentPage)
-                    player.setUserLocalFloat("pageOffset", pagerState.currentPageOffsetFraction)
-                    player.invalidate()
-                },
-            )
+        val currentBytes = capturedBytes
+        if (currentBytes != null) {
+            key(useEmbeddedPlayer, currentBytes) {
+                val document =
+                    remember(useEmbeddedPlayer, currentBytes) { RemoteDocument(currentBytes) }
+                if (useEmbeddedPlayer) {
+                    RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = true
+                    val playerState = rememberRcPlayerState(document.document)
+                    var selectedPageState by playerState.intState("selectedPage")
+                    var pageOffsetState by playerState.floatState("pageOffset")
+                    selectedPageState = pagerState.currentPage
+                    pageOffsetState = pagerState.currentPageOffsetFraction
+                    RcPlayer(state = playerState, modifier = Modifier.fillMaxSize())
+                } else {
+                    AndroidView(
+                        factory = { ctx ->
+                            object : RemoteComposePlayer(ctx) {
+                                    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+                                        return false
+                                    }
+                                }
+                                .apply { setDocument(document) }
+                        },
+                        modifier = Modifier.fillMaxSize(),
+                        update = { player ->
+                            player.setUserLocalInt("selectedPage", pagerState.currentPage)
+                            player.setUserLocalFloat(
+                                "pageOffset",
+                                pagerState.currentPageOffsetFraction,
+                            )
+                            player.invalidate()
+                        },
+                    )
+                }
+            }
         }
     }
 }
