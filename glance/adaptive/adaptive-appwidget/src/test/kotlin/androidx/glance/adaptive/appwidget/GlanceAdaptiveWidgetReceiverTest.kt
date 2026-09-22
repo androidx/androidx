@@ -29,8 +29,10 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
+import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -74,7 +76,7 @@ class GlanceAdaptiveWidgetReceiverTest {
         override fun onUpdate(
             context: Context,
             appWidgetManager: AppWidgetManager,
-            appWidgetIds: IntArray?,
+            appWidgetIds: IntArray,
         ) {
             updateCallCount++
         }
@@ -124,6 +126,207 @@ class GlanceAdaptiveWidgetReceiverTest {
     }
 
     @Test
+    fun onUpdate_whenWidgetIdMissing_generatesAndStoresDefaultWidgetIdInOptions() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val receiver = TestReceiver()
+        val appWidgetId1 = 10
+        val appWidgetId2 = 20
+        setupBoundWidget(context, appWidgetId1, TestReceiver::class.java.name)
+        setupBoundWidget(context, appWidgetId2, TestReceiver::class.java.name)
+
+        receiver.onUpdate(context, appWidgetManager, intArrayOf(appWidgetId1, appWidgetId2))
+
+        val options1 = appWidgetManager.getAppWidgetOptions(appWidgetId1)
+        val options2 = appWidgetManager.getAppWidgetOptions(appWidgetId2)
+        val id1 = options1.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)
+        val id2 = options2.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)
+        assertThat(UUID.fromString(id1)).isNotEqualTo(UUID.fromString(id2))
+    }
+
+    @Test
+    fun onUpdate_whenWidgetIdAlreadyPresent_preservesExistingWidgetId() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val receiver = TestReceiver()
+        val appWidgetId = 30
+        setupBoundWidget(context, appWidgetId, TestReceiver::class.java.name)
+        appWidgetManager.updateAppWidgetOptions(
+            appWidgetId,
+            Bundle().apply {
+                putString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID, "custom-id-30")
+            },
+        )
+
+        receiver.onUpdate(context, appWidgetManager, intArrayOf(appWidgetId))
+
+        val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
+        assertThat(options.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID))
+            .isEqualTo("custom-id-30")
+    }
+
+    @Test
+    fun onUpdate_whenAlreadyCached_doesNotUpdateAppWidgetOptions() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val receiver = TestReceiver()
+        val appWidgetId = 70
+        setupBoundWidget(context, appWidgetId, TestReceiver::class.java.name)
+
+        // First onUpdate generates and persists the ID in options
+        receiver.onUpdate(context, appWidgetManager, intArrayOf(appWidgetId))
+        val options1 = appWidgetManager.getAppWidgetOptions(appWidgetId)
+        val generatedId = options1.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)
+        assertThat(UUID.fromString(generatedId)).isNotNull()
+
+        // Manually update options in AppWidgetManager with a custom marker
+        appWidgetManager.updateAppWidgetOptions(
+            appWidgetId,
+            Bundle().apply { putString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID, "marker-id") },
+        )
+
+        // Second onUpdate should see cached state and skip re-initializing
+        receiver.onUpdate(context, appWidgetManager, intArrayOf(appWidgetId))
+
+        // Options in AppWidgetManager remain untouched because re-initialization was skipped
+        val options2 = appWidgetManager.getAppWidgetOptions(appWidgetId)
+        assertThat(options2.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID))
+            .isEqualTo("marker-id")
+    }
+
+    @Test
+    fun onAppWidgetOptionsChanged_whenWidgetIdMissing_generatesAndStoresWidgetId() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val receiver = TestReceiver()
+        val appWidgetId = 50
+        setupBoundWidget(context, appWidgetId, TestReceiver::class.java.name)
+        val initialOptions =
+            Bundle().apply { putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 120) }
+
+        receiver.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, initialOptions)
+
+        val storedOptions = appWidgetManager.getAppWidgetOptions(appWidgetId)
+        val generatedId = storedOptions.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)
+        assertThat(UUID.fromString(generatedId)).isNotNull()
+    }
+
+    @Test
+    fun onAppWidgetOptionsChanged_whenWidgetIdMissingInNewOptions_preservesExistingCachedWidgetId() =
+        runTest {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val receiver = TestReceiver()
+            val appWidgetId = 60
+            setupBoundWidget(context, appWidgetId, TestReceiver::class.java.name)
+            appWidgetManager.updateAppWidgetOptions(
+                appWidgetId,
+                Bundle().apply {
+                    putString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID, "preconfigured-id")
+                },
+            )
+
+            // Cache the options and ID via onUpdate
+            receiver.onUpdate(context, appWidgetManager, intArrayOf(appWidgetId))
+
+            // New options arriving from host without EXTRA_WIDGET_ID (e.g. resize)
+            val resizeOptions =
+                Bundle().apply { putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 150) }
+            receiver.onAppWidgetOptionsChanged(
+                context,
+                appWidgetManager,
+                appWidgetId,
+                resizeOptions,
+            )
+
+            val storedOptions = appWidgetManager.getAppWidgetOptions(appWidgetId)
+            assertThat(storedOptions.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID))
+                .isEqualTo("preconfigured-id")
+        }
+
+    @Test
+    fun onAppWidgetOptionsChanged_onColdStart_whenCustomIdPersistedInAppWidgetManager_preservesCustomId() =
+        runTest {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val receiver = TestReceiver()
+            val appWidgetId = 80
+            setupBoundWidget(context, appWidgetId, TestReceiver::class.java.name)
+            // Persist a custom widget ID in the platform options
+            appWidgetManager.updateAppWidgetOptions(
+                appWidgetId,
+                Bundle().apply {
+                    putString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID, "cold-start-custom-id")
+                },
+            )
+
+            // Ensure cache is cold (empty)
+            GlanceAdaptiveWidgetReceiver.clearOptionsCache()
+
+            // Host sends options changed (e.g. resize) on cold start without EXTRA_WIDGET_ID
+            val resizeOptions =
+                Bundle().apply { putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 180) }
+            receiver.onAppWidgetOptionsChanged(
+                context,
+                appWidgetManager,
+                appWidgetId,
+                resizeOptions,
+            )
+
+            val storedOptions = appWidgetManager.getAppWidgetOptions(appWidgetId)
+            assertThat(storedOptions.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID))
+                .isEqualTo("cold-start-custom-id")
+        }
+
+    @Test
+    fun onUpdate_whenConcurrentOptionsChangedOccurs_doesNotOverwriteNewerOptions() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        var optionsChangeUpdateCount = 0
+        val receiver =
+            object : GlanceAdaptiveWidgetReceiver() {
+                override val widgetName: String = "test_widget"
+                override val coroutineContext = Dispatchers.Unconfined
+
+                override fun onUpdate(
+                    context: Context,
+                    appWidgetManager: AppWidgetManager,
+                    appWidgetIds: IntArray,
+                ) {
+                    super.onUpdate(context, appWidgetManager, appWidgetIds)
+                    optionsChangeUpdateCount++
+                }
+            }
+        val appWidgetId = 90
+        setupBoundWidget(context, appWidgetId, receiver.javaClass.name)
+        appWidgetManager.updateAppWidgetOptions(
+            appWidgetId,
+            Bundle().apply {
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 100)
+                putString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID, "id-90")
+            },
+        )
+
+        // Simulate onAppWidgetOptionsChanged with new size (minWidth = 300)
+        val updatedOptions =
+            Bundle().apply {
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 300)
+                putString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID, "id-90")
+            }
+        receiver.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, updatedOptions)
+        assertThat(optionsChangeUpdateCount).isEqualTo(1)
+
+        // onUpdate should see the up-to-date cache and not overwrite it with older platform options
+        receiver.onUpdate(context, appWidgetManager, intArrayOf(appWidgetId))
+        assertThat(optionsChangeUpdateCount).isEqualTo(2)
+
+        // A subsequent onAppWidgetOptionsChanged with the same minWidth = 300 should be
+        // deduplicated
+        receiver.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, updatedOptions)
+        assertThat(optionsChangeUpdateCount).isEqualTo(2)
+    }
+
+    @Test
     fun onAppWidgetOptionsChanged_whenOptionsChanged_invokesOnUpdateForTargetWidgetId() = runTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         var updatedAppWidgetIds: IntArray? = null
@@ -135,7 +338,7 @@ class GlanceAdaptiveWidgetReceiverTest {
                 override fun onUpdate(
                     context: Context,
                     appWidgetManager: AppWidgetManager,
-                    appWidgetIds: IntArray?,
+                    appWidgetIds: IntArray,
                 ) {
                     updatedAppWidgetIds = appWidgetIds
                     super.onUpdate(context, appWidgetManager, appWidgetIds)
@@ -426,7 +629,7 @@ class GlanceAdaptiveWidgetReceiverTest {
         override fun onUpdate(
             context: Context,
             appWidgetManager: AppWidgetManager,
-            appWidgetIds: IntArray?,
+            appWidgetIds: IntArray,
         ) {
             throw IllegalStateException("Synchronous exception in onUpdate")
         }
@@ -438,7 +641,7 @@ class GlanceAdaptiveWidgetReceiverTest {
         override fun onUpdate(
             context: Context,
             appWidgetManager: AppWidgetManager,
-            appWidgetIds: IntArray?,
+            appWidgetIds: IntArray,
         ) {
             throw CancellationException("Simulated cancellation")
         }

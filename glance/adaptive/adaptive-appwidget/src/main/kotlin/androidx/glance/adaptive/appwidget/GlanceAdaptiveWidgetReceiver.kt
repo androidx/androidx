@@ -32,6 +32,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.mutableIntObjectMapOf
+import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -110,44 +111,85 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
         // Default no-op. Overridden by developers to provide initial or refreshed data.
     }
 
+    // Generates a unique default string identifier for a widget instance when one is not
+    // explicitly provided or already configured.
+    private fun generateWidgetId(): String = UUID.randomUUID().toString()
+
     @CallSuper
     override fun onUpdate(
-        @Suppress("InvalidNullabilityOverride") context: Context,
-        @Suppress("InvalidNullabilityOverride") appWidgetManager: AppWidgetManager,
-        @Suppress("InvalidNullabilityOverride") appWidgetIds: IntArray?,
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray,
     ) {
         runAndLogExceptions {
-            cacheWidgetOptionsIfMissing(appWidgetManager, appWidgetIds)
+            initializeWidgetOptionsAndIds(appWidgetManager, appWidgetIds)
             goAsync(coroutineContext) { onUpdate(context) }
         }
     }
 
-    private fun cacheWidgetOptionsIfMissing(
+    private fun initializeWidgetOptionsAndIds(
         appWidgetManager: AppWidgetManager,
-        appWidgetIds: IntArray?,
+        appWidgetIds: IntArray,
     ) {
-        appWidgetIds?.forEach { id ->
+        for (id in appWidgetIds) {
             val isCached = synchronized(lock) { lastOptionsCache.containsKey(id) }
             if (!isCached) {
-                val options = appWidgetManager.getAppWidgetOptions(id)
-                if (options != null) {
-                    val state = WidgetOptionsState.from(options)
-                    synchronized(lock) { lastOptionsCache[id] = state }
+                val rawOptions = appWidgetManager.getAppWidgetOptions(id)
+                val options =
+                    ensureWidgetIdIsPresent(
+                        appWidgetManager,
+                        id,
+                        rawOptions ?: Bundle(),
+                        checkManagerIfMissing = false,
+                    )
+                val state = WidgetOptionsState.from(options)
+                synchronized(lock) {
+                    if (!lastOptionsCache.containsKey(id)) {
+                        lastOptionsCache[id] = state
+                    }
                 }
             }
         }
     }
 
+    // Ensures a non-blank EXTRA_WIDGET_ID is present in options, retrieving it from memory cache
+    // or AppWidgetManager, or falling back to a generated default ID. If checkManagerIfMissing is
+    // false, skipping querying AppWidgetManager avoids a redundant IPC call when options was
+    // already retrieved directly from AppWidgetManager.
+    private fun ensureWidgetIdIsPresent(
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        options: Bundle,
+        checkManagerIfMissing: Boolean = true,
+    ): Bundle {
+        if (!options.getString(EXTRA_WIDGET_ID).isNullOrBlank()) {
+            return options
+        }
+        val widgetId =
+            synchronized(lock) { lastOptionsCache[appWidgetId]?.widgetId }
+                ?.takeUnless { it.isBlank() }
+                ?: appWidgetManager
+                    .takeIf { checkManagerIfMissing }
+                    ?.getAppWidgetOptions(appWidgetId)
+                    ?.getString(EXTRA_WIDGET_ID)
+                    ?.takeUnless { it.isBlank() }
+                ?: generateWidgetId()
+        return Bundle(options)
+            .apply { putString(EXTRA_WIDGET_ID, widgetId) }
+            .also { appWidgetManager.updateAppWidgetOptions(appWidgetId, it) }
+    }
+
     @CallSuper
     override fun onAppWidgetOptionsChanged(
-        @Suppress("InvalidNullabilityOverride") context: Context,
-        @Suppress("InvalidNullabilityOverride") appWidgetManager: AppWidgetManager,
+        context: Context,
+        appWidgetManager: AppWidgetManager,
         appWidgetId: Int,
-        @Suppress("InvalidNullabilityOverride") newOptions: Bundle,
+        newOptions: Bundle,
     ) {
         runAndLogExceptions {
             super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
-            val newState = WidgetOptionsState.from(newOptions)
+            val options = ensureWidgetIdIsPresent(appWidgetManager, appWidgetId, newOptions)
+            val newState = WidgetOptionsState.from(options)
             val oldState =
                 synchronized(lock) {
                     val prev = lastOptionsCache[appWidgetId]
@@ -168,10 +210,7 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
      * cleanup.
      */
     @CallSuper
-    override fun onDeleted(
-        @Suppress("InvalidNullabilityOverride") context: Context,
-        @Suppress("InvalidNullabilityOverride") appWidgetIds: IntArray,
-    ) {
+    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
         runAndLogExceptions {
             super.onDeleted(context, appWidgetIds)
             synchronized(lock) {
@@ -183,11 +222,7 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
     }
 
     @CallSuper
-    override fun onRestored(
-        @Suppress("InvalidNullabilityOverride") context: Context,
-        @Suppress("InvalidNullabilityOverride") oldWidgetIds: IntArray,
-        @Suppress("InvalidNullabilityOverride") newWidgetIds: IntArray,
-    ) {
+    override fun onRestored(context: Context, oldWidgetIds: IntArray, newWidgetIds: IntArray) {
         runAndLogExceptions {
             super.onRestored(context, oldWidgetIds, newWidgetIds)
             val count = minOf(oldWidgetIds.size, newWidgetIds.size)
@@ -309,6 +344,7 @@ private inline fun runAndLogExceptions(block: () -> Unit) {
 }
 
 private data class WidgetOptionsState(
+    val widgetId: String?,
     val minWidth: Int?,
     val minHeight: Int?,
     val maxWidth: Int?,
@@ -321,6 +357,7 @@ private data class WidgetOptionsState(
                 if (options.containsKey(key)) options.getInt(key) else null
 
             return WidgetOptionsState(
+                widgetId = options.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID),
                 minWidth = getIntOrNull(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH),
                 minHeight = getIntOrNull(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT),
                 maxWidth = getIntOrNull(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH),
