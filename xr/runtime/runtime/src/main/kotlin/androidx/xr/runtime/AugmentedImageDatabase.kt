@@ -18,7 +18,15 @@ package androidx.xr.runtime
 
 import android.graphics.Bitmap
 
-/** Database of target images used by the tracker via [Config.augmentedImageDatabase]. */
+/**
+ * Database of target images used by the tracker via [Config.augmentedImageDatabase].
+ *
+ * Supported runtimes:
+ * - OpenXR
+ *
+ * Required permissions:
+ * - [SCENE_UNDERSTANDING_COARSE][androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_COARSE]
+ */
 public class AugmentedImageDatabase {
 
     private val _entries: MutableList<AugmentedImageDatabaseEntry> = mutableListOf()
