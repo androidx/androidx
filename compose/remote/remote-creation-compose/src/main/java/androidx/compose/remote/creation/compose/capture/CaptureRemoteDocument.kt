@@ -24,6 +24,7 @@ package androidx.compose.remote.creation.compose.capture
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
+import android.text.format.DateFormat
 import androidx.annotation.VisibleForTesting
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.CreationDisplayInfo
@@ -163,6 +164,7 @@ public suspend fun captureSingleRemoteDocument(
                 LocalFontWeightAdjustment provides
                     platformFontWeightAdjustment(context.resources.configuration),
                 LocalLifecycleOwner provides lifecycleOwner,
+                LocalIs24HourFormat provides DateFormat.is24HourFormat(context),
                 content = content,
             )
         }
@@ -356,6 +358,7 @@ public fun captureRemoteDocument(
                 LocalFontWeightAdjustment provides
                     platformFontWeightAdjustment(context.resources.configuration),
                 LocalLifecycleOwner provides lifecycleOwner,
+                LocalIs24HourFormat provides DateFormat.is24HourFormat(context),
                 content = content,
             )
         }

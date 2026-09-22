@@ -31,3 +31,8 @@ public val LocalRemoteDensity: ProvidableCompositionLocal<RemoteDensity> =
 internal val LocalFontWeightAdjustment: ProvidableCompositionLocal<Int> = staticCompositionLocalOf {
     0
 }
+
+/** Composition local for 24-hour time format setting. */
+internal val LocalIs24HourFormat: ProvidableCompositionLocal<Boolean> = staticCompositionLocalOf {
+    false
+}
