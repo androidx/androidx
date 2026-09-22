@@ -53,9 +53,14 @@ final class <#A: kotlin/Any> androidx.navigation3.scene/SceneDecoratorStrategySc
 
 final class <#A: kotlin/Any> androidx.navigation3.scene/SceneInfo : androidx.navigationevent/NavigationEventInfo { // androidx.navigation3.scene/SceneInfo|null[0]
     constructor <init>(androidx.navigation3.scene/Scene<#A>) // androidx.navigation3.scene/SceneInfo.<init>|<init>(androidx.navigation3.scene.Scene<1:0>){}[0]
+    constructor <init>(androidx.navigation3.scene/Scene<#A>, kotlin/String? = ..., kotlin/String? = ...) // androidx.navigation3.scene/SceneInfo.<init>|<init>(androidx.navigation3.scene.Scene<1:0>;kotlin.String?;kotlin.String?){}[0]
 
     final val scene // androidx.navigation3.scene/SceneInfo.scene|{}scene[0]
         final fun <get-scene>(): androidx.navigation3.scene/Scene<#A> // androidx.navigation3.scene/SceneInfo.scene.<get-scene>|<get-scene>(){}[0]
+    final val title // androidx.navigation3.scene/SceneInfo.title|{}title[0]
+        final fun <get-title>(): kotlin/String? // androidx.navigation3.scene/SceneInfo.title.<get-title>|<get-title>(){}[0]
+    final val url // androidx.navigation3.scene/SceneInfo.url|{}url[0]
+        final fun <get-url>(): kotlin/String? // androidx.navigation3.scene/SceneInfo.url.<get-url>|<get-url>(){}[0]
 
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.navigation3.scene/SceneInfo.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.navigation3.scene/SceneInfo.hashCode|hashCode(){}[0]
@@ -90,6 +95,10 @@ open class <#A: kotlin/Any> androidx.navigation3.scene/SceneStrategyScope { // a
         final fun <get-onBack>(): kotlin/Function0<kotlin/Unit> // androidx.navigation3.scene/SceneStrategyScope.onBack.<get-onBack>|<get-onBack>(){}[0]
 }
 
+final object androidx.navigation3.scene/TitleMetadataKey : androidx.navigation3.runtime/NavMetadataKey<kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/String>> // androidx.navigation3.scene/TitleMetadataKey|null[0]
+
+final object androidx.navigation3.scene/UrlMetadataKey : androidx.navigation3.runtime/NavMetadataKey<kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/String>> // androidx.navigation3.scene/UrlMetadataKey|null[0]
+
 final object androidx.navigation3.ui/NavDisplay { // androidx.navigation3.ui/NavDisplay|null[0]
     final fun popTransitionSpec(kotlin/Function1<androidx.compose.animation/AnimatedContentTransitionScope<androidx.navigation3.scene/Scene<*>>, androidx.compose.animation/ContentTransform?>): kotlin.collections/Map<kotlin/String, kotlin/Any> // androidx.navigation3.ui/NavDisplay.popTransitionSpec|popTransitionSpec(kotlin.Function1<androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<*>>,androidx.compose.animation.ContentTransform?>){}[0]
     final fun predictivePopTransitionSpec(kotlin/Function2<androidx.compose.animation/AnimatedContentTransitionScope<androidx.navigation3.scene/Scene<*>>, kotlin/Int, androidx.compose.animation/ContentTransform?>): kotlin.collections/Map<kotlin/String, kotlin/Any> // androidx.navigation3.ui/NavDisplay.predictivePopTransitionSpec|predictivePopTransitionSpec(kotlin.Function2<androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<*>>,kotlin.Int,androidx.compose.animation.ContentTransform?>){}[0]
@@ -109,6 +118,8 @@ final val androidx.navigation3.scene/androidx_navigation3_scene_SceneInfo$stable
 final val androidx.navigation3.scene/androidx_navigation3_scene_SceneState$stableprop // androidx.navigation3.scene/androidx_navigation3_scene_SceneState$stableprop|#static{}androidx_navigation3_scene_SceneState$stableprop[0]
 final val androidx.navigation3.scene/androidx_navigation3_scene_SceneStrategyScope$stableprop // androidx.navigation3.scene/androidx_navigation3_scene_SceneStrategyScope$stableprop|#static{}androidx_navigation3_scene_SceneStrategyScope$stableprop[0]
 final val androidx.navigation3.scene/androidx_navigation3_scene_SinglePaneSceneStrategy$stableprop // androidx.navigation3.scene/androidx_navigation3_scene_SinglePaneSceneStrategy$stableprop|#static{}androidx_navigation3_scene_SinglePaneSceneStrategy$stableprop[0]
+final val androidx.navigation3.scene/androidx_navigation3_scene_TitleMetadataKey$stableprop // androidx.navigation3.scene/androidx_navigation3_scene_TitleMetadataKey$stableprop|#static{}androidx_navigation3_scene_TitleMetadataKey$stableprop[0]
+final val androidx.navigation3.scene/androidx_navigation3_scene_UrlMetadataKey$stableprop // androidx.navigation3.scene/androidx_navigation3_scene_UrlMetadataKey$stableprop|#static{}androidx_navigation3_scene_UrlMetadataKey$stableprop[0]
 final val androidx.navigation3.ui/LocalNavAnimatedContentScope // androidx.navigation3.ui/LocalNavAnimatedContentScope|{}LocalNavAnimatedContentScope[0]
     final fun <get-LocalNavAnimatedContentScope>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.animation/AnimatedContentScope> // androidx.navigation3.ui/LocalNavAnimatedContentScope.<get-LocalNavAnimatedContentScope>|<get-LocalNavAnimatedContentScope>(){}[0]
 final val androidx.navigation3.ui/androidx_navigation3_ui_NavDisplay$stableprop // androidx.navigation3.ui/androidx_navigation3_ui_NavDisplay$stableprop|#static{}androidx_navigation3_ui_NavDisplay$stableprop[0]
@@ -135,6 +146,8 @@ final fun androidx.navigation3.scene/androidx_navigation3_scene_SceneInfo$stable
 final fun androidx.navigation3.scene/androidx_navigation3_scene_SceneState$stableprop_getter(): kotlin/Int // androidx.navigation3.scene/androidx_navigation3_scene_SceneState$stableprop_getter|androidx_navigation3_scene_SceneState$stableprop_getter(){}[0]
 final fun androidx.navigation3.scene/androidx_navigation3_scene_SceneStrategyScope$stableprop_getter(): kotlin/Int // androidx.navigation3.scene/androidx_navigation3_scene_SceneStrategyScope$stableprop_getter|androidx_navigation3_scene_SceneStrategyScope$stableprop_getter(){}[0]
 final fun androidx.navigation3.scene/androidx_navigation3_scene_SinglePaneSceneStrategy$stableprop_getter(): kotlin/Int // androidx.navigation3.scene/androidx_navigation3_scene_SinglePaneSceneStrategy$stableprop_getter|androidx_navigation3_scene_SinglePaneSceneStrategy$stableprop_getter(){}[0]
+final fun androidx.navigation3.scene/androidx_navigation3_scene_TitleMetadataKey$stableprop_getter(): kotlin/Int // androidx.navigation3.scene/androidx_navigation3_scene_TitleMetadataKey$stableprop_getter|androidx_navigation3_scene_TitleMetadataKey$stableprop_getter(){}[0]
+final fun androidx.navigation3.scene/androidx_navigation3_scene_UrlMetadataKey$stableprop_getter(): kotlin/Int // androidx.navigation3.scene/androidx_navigation3_scene_UrlMetadataKey$stableprop_getter|androidx_navigation3_scene_UrlMetadataKey$stableprop_getter(){}[0]
 final fun androidx.navigation3.ui/androidx_navigation3_ui_NavDisplay$stableprop_getter(): kotlin/Int // androidx.navigation3.ui/androidx_navigation3_ui_NavDisplay$stableprop_getter|androidx_navigation3_ui_NavDisplay$stableprop_getter(){}[0]
 final fun androidx.navigation3.ui/androidx_navigation3_ui_NavDisplay_PopTransitionKey$stableprop_getter(): kotlin/Int // androidx.navigation3.ui/androidx_navigation3_ui_NavDisplay_PopTransitionKey$stableprop_getter|androidx_navigation3_ui_NavDisplay_PopTransitionKey$stableprop_getter(){}[0]
 final fun androidx.navigation3.ui/androidx_navigation3_ui_NavDisplay_PredictivePopTransitionKey$stableprop_getter(): kotlin/Int // androidx.navigation3.ui/androidx_navigation3_ui_NavDisplay_PredictivePopTransitionKey$stableprop_getter|androidx_navigation3_ui_NavDisplay_PredictivePopTransitionKey$stableprop_getter(){}[0]

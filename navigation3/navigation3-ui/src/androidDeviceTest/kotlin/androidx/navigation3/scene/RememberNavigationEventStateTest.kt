@@ -20,6 +20,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.kruth.assertThat
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.metadata
 import androidx.navigation3.runtime.rememberDecoratedNavEntries
 import androidx.navigationevent.compose.NavigationEventState
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -46,9 +47,27 @@ internal class RememberNavigationEventStateTest {
                     backStack,
                     emptyList(),
                     entryProvider {
-                        entry<First> {}
-                        entry<Second> {}
-                        entry<Third> {}
+                        entry<First>(
+                            metadata =
+                                metadata {
+                                    put(TitleMetadataKey) { "First Title" }
+                                    put(UrlMetadataKey) { "https://example.com/first" }
+                                }
+                        ) {}
+                        entry<Second>(
+                            metadata =
+                                metadata {
+                                    put(TitleMetadataKey) { "Second Title" }
+                                    put(UrlMetadataKey) { "https://example.com/second" }
+                                }
+                        ) {}
+                        entry<Third>(
+                            metadata =
+                                metadata {
+                                    put(TitleMetadataKey) { "Third Title" }
+                                    put(UrlMetadataKey) { "https://example.com/third" }
+                                }
+                        ) {}
                     },
                 )
             sceneState =
@@ -61,10 +80,14 @@ internal class RememberNavigationEventStateTest {
         rule.runOnIdle {
             // Check that the NavigationEventState reflects the current scene from SceneState
             assertThat(navigationEventState.currentInfo.scene).isEqualTo(sceneState.currentScene)
+            assertThat(navigationEventState.currentInfo.title).isEqualTo("Second Title")
+            assertThat(navigationEventState.currentInfo.url).isEqualTo("https://example.com/second")
             // Check that the NavigationEventState reflects the previous scenes from SceneState
             assertThat(navigationEventState.backInfo).hasSize(1)
             assertThat(navigationEventState.backInfo[0].scene)
                 .isEqualTo(sceneState.previousScenes[0])
+            assertThat(navigationEventState.backInfo[0].title).isEqualTo("First Title")
+            assertThat(navigationEventState.backInfo[0].url).isEqualTo("https://example.com/first")
         }
 
         // Add a new entry to the backstack and verify it updates
@@ -73,11 +96,17 @@ internal class RememberNavigationEventStateTest {
 
         rule.runOnIdle {
             assertThat(navigationEventState.currentInfo.scene).isEqualTo(sceneState.currentScene)
+            assertThat(navigationEventState.currentInfo.title).isEqualTo("Third Title")
+            assertThat(navigationEventState.currentInfo.url).isEqualTo("https://example.com/third")
             assertThat(navigationEventState.backInfo).hasSize(2)
             assertThat(navigationEventState.backInfo[0].scene)
                 .isEqualTo(sceneState.previousScenes[0])
+            assertThat(navigationEventState.backInfo[0].title).isEqualTo("First Title")
+            assertThat(navigationEventState.backInfo[0].url).isEqualTo("https://example.com/first")
             assertThat(navigationEventState.backInfo[1].scene)
                 .isEqualTo(sceneState.previousScenes[1])
+            assertThat(navigationEventState.backInfo[1].title).isEqualTo("Second Title")
+            assertThat(navigationEventState.backInfo[1].url).isEqualTo("https://example.com/second")
         }
     }
 
