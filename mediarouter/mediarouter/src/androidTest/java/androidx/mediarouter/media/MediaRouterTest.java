@@ -161,14 +161,16 @@ public class MediaRouterTest {
 
     @SmallTest
     @Test
+    @UiThreadTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     public void setRouterParams_shouldSetMediaTransferRestrictToSelfProviders() {
         MediaRouterParams params =
                 new MediaRouterParams.Builder()
                         .setMediaTransferRestrictedToSelfProviders(true)
                         .build();
-        getInstrumentation()
-                .runOnMainSync(() -> mRouter.setRouterParams(params));
+
+        mRouter.setRouterParams(params);
+
         assertTrue(
                 MediaRouter.getGlobalRouter()
                         .mRegisteredProviderWatcher
