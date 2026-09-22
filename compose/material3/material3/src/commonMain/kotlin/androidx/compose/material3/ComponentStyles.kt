@@ -25,6 +25,7 @@ import androidx.compose.material3.tokens.AppBarTokens
 import androidx.compose.material3.tokens.CheckboxTokens
 import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.material3.tokens.ColorToken
+import androidx.compose.material3.tokens.NavigationBarTokens
 import androidx.compose.material3.tokens.RadioButtonTokens
 import androidx.compose.material3.tokens.ScrimTokens
 import androidx.compose.material3.tokens.SearchBarTokens
@@ -66,6 +67,8 @@ internal value class ComponentState(val mask: Int = 0) {
 
     fun expanded(expanded: Boolean) = set(EXPANDED, expanded)
 
+    fun orientation(isVertical: Boolean) = set(VERTICAL, isVertical)
+
     @Composable
     fun interactionState(interactionSource: MutableInteractionSource): ComponentState {
         return set(PRESSED, interactionSource.collectIsPressedAsState().value)
@@ -85,6 +88,7 @@ internal value class ComponentState(val mask: Int = 0) {
         const val HOVERED = 1 shl 6
         const val DRAGGED = 1 shl 7
         const val EXPANDED = 1 shl 8
+        const val VERTICAL = 1 shl 9
 
         val Default = ComponentState(ENABLED)
 
@@ -103,6 +107,8 @@ internal value class ComponentState(val mask: Int = 0) {
         fun indeterminate(indeterminate: Boolean) = Default.indeterminate(indeterminate)
 
         fun expanded(expanded: Boolean) = Default.expanded(expanded)
+
+        fun orientation(isVertical: Boolean) = Default.orientation(isVertical)
 
         @Composable
         fun interactionState(interactionSource: MutableInteractionSource) =
@@ -229,6 +235,12 @@ internal interface ExpandedState<T : StatefulStyleScope<T>> : StatefulStyleScope
     fun expanded(style: T.() -> Unit) = setState(ComponentState.EXPANDED, style)
 
     fun collapsed(style: T.() -> Unit) = setNotState(ComponentState.EXPANDED, style)
+}
+
+internal interface OrientationState<T : StatefulStyleScope<T>> : StatefulStyleScope<T> {
+    fun vertical(style: T.() -> Unit) = setState(ComponentState.VERTICAL, style)
+
+    fun horizontal(style: T.() -> Unit) = setNotState(ComponentState.VERTICAL, style)
 }
 
 // Component style definitions start from here.
@@ -710,5 +722,103 @@ internal class ExpandedDockedSearchBarStyleScope(override val theme: MaterialThe
 
     fun dropdownScrimColor(color: Color) {
         this.dropdownScrimColor = color
+    }
+}
+
+internal fun interface NavigationBarStyle : ComponentStyle<NavigationBarStyleScope> {
+    infix fun then(other: NavigationBarStyle): NavigationBarStyle = NavigationBarStyle {
+        this.applyStyle()
+        with(other) { applyStyle() }
+    }
+
+    companion object {
+        val Default = NavigationBarStyle {
+            containerColor(NavigationBarTokens.ContainerColor.value)
+            contentColor(theme.colorScheme.onSurface)
+            containerHeight(NavigationBarTokens.ContainerHeight)
+        }
+    }
+}
+
+internal class NavigationBarStyleScope(override val theme: MaterialTheme.Values) :
+    MaterialThemeAccessorScope, StyleResolver by StyleResolverImpl() {
+    var containerColor: Color = Color.Unspecified
+        private set
+
+    var contentColor: Color = Color.Unspecified
+        private set
+
+    var containerHeight: Dp = Dp.Unspecified
+        private set
+
+    fun containerColor(color: Color) {
+        containerColor = color
+    }
+
+    fun contentColor(color: Color) {
+        contentColor = color
+    }
+
+    fun containerHeight(height: Dp) {
+        containerHeight = height
+    }
+}
+
+internal fun interface NavigationBarItemStyle : ComponentStyle<NavigationBarItemStyleScope> {
+    infix fun then(other: NavigationBarItemStyle): NavigationBarItemStyle = NavigationBarItemStyle {
+        this.applyStyle()
+        with(other) { applyStyle() }
+    }
+
+    companion object {
+        val Default = NavigationBarItemStyle {
+            iconColor(NavigationBarTokens.ItemInactiveIconColor.value)
+            textColor(NavigationBarTokens.ItemInactiveLabelTextColor.value)
+            indicatorColor(NavigationBarTokens.ItemActiveIndicatorColor.value)
+            disabled {
+                iconColor(NavigationBarTokens.ItemInactiveIconColor.value.copy(alpha = 0.38f))
+                textColor(NavigationBarTokens.ItemInactiveLabelTextColor.value.copy(alpha = 0.38f))
+            }
+            selected {
+                iconColor(NavigationBarTokens.ItemActiveIconColor.value)
+                vertical {
+                    textColor(NavigationBarTokens.ItemActiveLabelTextColor.value)
+                }
+                horizontal {
+                    textColor(NavigationBarTokens.ItemActiveIconColor.value)
+                }
+            }
+        }
+    }
+}
+
+internal class NavigationBarItemStyleScope(
+    override val theme: MaterialTheme.Values,
+    override val state: ComponentState = ComponentState.Default,
+) :
+    MaterialThemeAccessorScope,
+    SelectedState<NavigationBarItemStyleScope>,
+    DisabledState<NavigationBarItemStyleScope>,
+    OrientationState<NavigationBarItemStyleScope>,
+    StyleResolver by StyleResolverImpl() {
+    var iconColor: Color = Color.Unspecified
+        private set
+
+    var textColor: Color = Color.Unspecified
+        private set
+
+    var indicatorColor: Color = Color.Unspecified
+        private set
+
+    fun iconColor(color: Color) {
+        iconColor = color
+    }
+
+    fun textColor(color: Color) {
+        textColor = color
+    }
+
+    fun indicatorColor(color: Color) {
+        indicatorColor = color
     }
 }
