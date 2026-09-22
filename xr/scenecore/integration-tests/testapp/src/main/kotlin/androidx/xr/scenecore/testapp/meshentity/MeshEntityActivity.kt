@@ -92,6 +92,9 @@ class MeshEntityActivity : AppCompatActivity() {
     private var twoMaterialsEntity: MeshEntity? = null
     private var wigglingStickEntity: MeshEntity? = null
     private var customStridesEntity: MeshEntity? = null
+    private var dynamicVertexEntity: MeshEntity? = null
+    private var dynamicColorEntity: MeshEntity? = null
+    private var dynamicIndexEntity: MeshEntity? = null
 
     private data class EntityComponents(
         val movable: MovableComponent,
@@ -102,6 +105,22 @@ class MeshEntityActivity : AppCompatActivity() {
     private val initialPoses = mutableMapOf<MeshEntity, Pose>()
     private var movableSwitch: MaterialSwitch? = null
     private var interactableSwitch: MaterialSwitch? = null
+
+    companion object {
+        /**
+         * Vertices per cube: 6 faces x 4 corners, not shared so normals and colors stay per-face.
+         */
+        private const val CUBE_VERTEX_COUNT = 24
+
+        /** Triangles per cube: 6 faces x 2. */
+        private const val CUBE_TRIANGLE_COUNT = 12
+
+        /** Indices per cube, at 3 corners per triangle. */
+        private const val CUBE_INDEX_COUNT = CUBE_TRIANGLE_COUNT * 3
+
+        /** Index buffers are always 32-bit. */
+        private const val BYTES_PER_INDEX = 4
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -325,6 +344,72 @@ class MeshEntityActivity : AppCompatActivity() {
         buffer2.position(buffer2.position() + vIdx * stride2)
     }
 
+    /** Writes cube positions and normals, morphed from a cube (0f) to a pyramid (1f). */
+    private fun putMorphedCubeVertices(
+        buffer: ByteBuffer,
+        centerX: Float,
+        centerY: Float,
+        centerZ: Float,
+        size: Float,
+        morphAmount: Float,
+    ) {
+        generateCubeVertices(centerX, centerY, centerZ, size) { x, y, z, nx, ny, nz, _, _, _, _ ->
+            val isTop = y > centerY
+            val factor = if (isTop) 1f - morphAmount else 1f
+            val dx = x - centerX
+            val dz = z - centerZ
+
+            val fx = centerX + dx * factor
+            val fy = y
+            val fz = centerZ + dz * factor
+
+            var fnx = nx
+            var fny = ny
+            var fnz = nz
+
+            if (ny in -0.5f..0.5f) {
+                // Side faces lean up towards the pyramid peak.
+                fnx = 2f * nx
+                fny = morphAmount
+                fnz = 2f * nz
+                val flen = kotlin.math.sqrt(fnx * fnx + fny * fny + fnz * fnz).coerceAtLeast(1e-6f)
+                fnx /= flen
+                fny /= flen
+                fnz /= flen
+            }
+
+            buffer.putFloat(fx)
+            buffer.putFloat(fy)
+            buffer.putFloat(fz)
+            buffer.putFloat(fnx)
+            buffer.putFloat(fny)
+            buffer.putFloat(fnz)
+        }
+    }
+
+    /** Writes per-vertex colors that cycle through the color wheel as [time] advances. */
+    private fun putAnimatedCubeColors(buffer: ByteBuffer, time: Float) {
+        for (i in 0 until CUBE_VERTEX_COUNT) {
+            val r = ((kotlin.math.sin(time + i * 0.1f) + 1f) / 2f * 255).toInt().toByte()
+            val g = ((kotlin.math.sin(time * 1.3f + i * 0.2f) + 1f) / 2f * 255).toInt().toByte()
+            val b = ((kotlin.math.sin(time * 0.7f + i * 0.3f) + 1f) / 2f * 255).toInt().toByte()
+            buffer.put(r)
+            buffer.put(g)
+            buffer.put(b)
+            buffer.put(255.toByte())
+        }
+    }
+
+    /** Writes the per-face colors of [colorSchemeIndex]; the geometry args are unused. */
+    private fun putCubeColors(buffer: ByteBuffer, colorSchemeIndex: Int) {
+        generateCubeVertices(0f, 0f, 0f, 0.3f, colorSchemeIndex) { _, _, _, _, _, _, r, g, b, a ->
+            buffer.put(r.toByte())
+            buffer.put(g.toByte())
+            buffer.put(b.toByte())
+            buffer.put(a.toByte())
+        }
+    }
+
     private fun putCubeIndices(indexBuffer: ByteBuffer, vertexOffset: Int) {
         val intBuffer = indexBuffer.asIntBuffer()
         fun putIndices(vararg indices: Int) {
@@ -475,6 +560,7 @@ class MeshEntityActivity : AppCompatActivity() {
             createTest5_TwoMaterials(currentSession, vertexLayout, stride)
             createTest6_WigglingStick(currentSession)
             createTest7_CustomStridesAndOffsets(currentSession)
+            createTest8_DynamicMeshUpdates(currentSession)
         }
     }
 
@@ -976,6 +1062,259 @@ class MeshEntityActivity : AppCompatActivity() {
                 }
             ) {
                 Text("Swap Materials", fontSize = 48.sp)
+            }
+        }
+    }
+
+    private fun createTest8_DynamicMeshUpdates(currentSession: Session) {
+        val indexSize = CUBE_INDEX_COUNT * BYTES_PER_INDEX
+
+        val posNormStride = 24
+        val colorStride = 4
+        val posNormSize = CUBE_VERTEX_COUNT * posNormStride
+        val colorSize = CUBE_VERTEX_COUNT * colorStride
+        val dynamicLayout =
+            VertexLayout.Builder()
+                .addAttribute(VertexAttribute.POSITION, VertexAttributeType.FLOAT3)
+                .addAttribute(VertexAttribute.NORMAL, VertexAttributeType.FLOAT3)
+                .setStride(posNormStride)
+                .startNextBuffer()
+                .addAttribute(VertexAttribute.COLOR, VertexAttributeType.UBYTE4_NORM)
+                .setStride(colorStride)
+                .build()
+
+        val indexBuffer = ByteBuffer.allocateDirect(indexSize).order(ByteOrder.nativeOrder())
+        putCubeIndices(indexBuffer, 0)
+
+        // --- 1. Morph Cube (Updates Buffer 0, Color constant in Buffer 1) ---
+        val vertexBufferMorphPosNorm =
+            ByteBuffer.allocateDirect(posNormSize).order(ByteOrder.nativeOrder())
+        putMorphedCubeVertices(vertexBufferMorphPosNorm, 0f, 0f, 0f, 0.3f, 0f)
+
+        val vertexBufferMorphColor =
+            ByteBuffer.allocateDirect(colorSize).order(ByteOrder.nativeOrder())
+        putCubeColors(vertexBufferMorphColor, 1)
+
+        val meshBufferMorph =
+            MeshBuffer.createDynamic(
+                session = currentSession,
+                vertexLayout = dynamicLayout,
+                vertexCount = CUBE_VERTEX_COUNT,
+                indexCount = CUBE_INDEX_COUNT,
+                vertexData =
+                    listOf(
+                        ByteBufferRegion(vertexBufferMorphPosNorm, 0, posNormSize),
+                        ByteBufferRegion(vertexBufferMorphColor, 0, colorSize),
+                    ),
+                indexData = ByteBufferRegion(indexBuffer, 0, indexSize),
+            )
+
+        val cubeMeshMorph =
+            CustomMesh.BuilderFromMeshBuffer(currentSession, meshBufferMorph)
+                .addSubset(MeshSubsetTopology.TRIANGLES, 0, CUBE_INDEX_COUNT)
+                .setBounds(
+                    BoundingBox.fromCenterAndHalfExtents(
+                        Vector3(0f, 0f, 0f),
+                        FloatSize3d(0.15f, 0.15f, 0.15f),
+                    )
+                )
+                .build()
+
+        dynamicVertexEntity =
+            createMeshEntity(
+                currentSession,
+                cubeMeshMorph,
+                listOf(material!!),
+                Pose(Vector3(4f, 0.2f, -1.5f)),
+            )
+
+        // --- 2. Color Cycle Cube (Pos/Norm constant in Buffer 0, Updates Color in Buffer 1) ---
+        val vertexBufferCyclePosNorm =
+            ByteBuffer.allocateDirect(posNormSize).order(ByteOrder.nativeOrder())
+        putMorphedCubeVertices(vertexBufferCyclePosNorm, 0f, 0f, 0f, 0.3f, 0f)
+
+        val vertexBufferCycleColor =
+            ByteBuffer.allocateDirect(colorSize).order(ByteOrder.nativeOrder())
+        putAnimatedCubeColors(vertexBufferCycleColor, 0f)
+
+        val meshBufferCycle =
+            MeshBuffer.createDynamic(
+                session = currentSession,
+                vertexLayout = dynamicLayout,
+                vertexCount = CUBE_VERTEX_COUNT,
+                indexCount = CUBE_INDEX_COUNT,
+                vertexData =
+                    listOf(
+                        ByteBufferRegion(vertexBufferCyclePosNorm, 0, posNormSize),
+                        ByteBufferRegion(vertexBufferCycleColor, 0, colorSize),
+                    ),
+                indexData = ByteBufferRegion(indexBuffer, 0, indexSize),
+            )
+
+        val cubeMeshCycle =
+            CustomMesh.BuilderFromMeshBuffer(currentSession, meshBufferCycle)
+                .addSubset(MeshSubsetTopology.TRIANGLES, 0, CUBE_INDEX_COUNT)
+                .setBounds(
+                    BoundingBox.fromCenterAndHalfExtents(
+                        Vector3(0f, 0f, 0f),
+                        FloatSize3d(0.15f, 0.15f, 0.15f),
+                    )
+                )
+                .build()
+
+        dynamicColorEntity =
+            createMeshEntity(
+                currentSession,
+                cubeMeshCycle,
+                listOf(material!!),
+                Pose(Vector3(4f, -0.2f, -1.5f)),
+            )
+
+        // --- 3. Index Update Cube (Constant Pos/Color, Updates Index Buffer) ---
+        val doubleSidedIndexCount = CUBE_INDEX_COUNT * 2
+        val doubleSidedIndexSize = doubleSidedIndexCount * BYTES_PER_INDEX
+        val indexBufferDoubleSided =
+            ByteBuffer.allocateDirect(doubleSidedIndexSize).order(ByteOrder.nativeOrder())
+
+        for (triangle in 0 until CUBE_TRIANGLE_COUNT) {
+            val firstIndex = triangle * 3
+            val v0 = indexBuffer.getInt(firstIndex * BYTES_PER_INDEX)
+            val v1 = indexBuffer.getInt((firstIndex + 1) * BYTES_PER_INDEX)
+            val v2 = indexBuffer.getInt((firstIndex + 2) * BYTES_PER_INDEX)
+
+            indexBufferDoubleSided.putInt(v0)
+            indexBufferDoubleSided.putInt(v1)
+            indexBufferDoubleSided.putInt(v2)
+
+            // Reversed
+            indexBufferDoubleSided.putInt(v0)
+            indexBufferDoubleSided.putInt(v2)
+            indexBufferDoubleSided.putInt(v1)
+        }
+
+        val vertexBufferIndexPosNorm =
+            ByteBuffer.allocateDirect(posNormSize).order(ByteOrder.nativeOrder())
+        putMorphedCubeVertices(vertexBufferIndexPosNorm, 0f, 0f, 0f, 0.3f, 0f)
+
+        val vertexBufferIndexColor =
+            ByteBuffer.allocateDirect(colorSize).order(ByteOrder.nativeOrder())
+        putCubeColors(vertexBufferIndexColor, 0)
+
+        val meshBufferIndex =
+            MeshBuffer.createDynamic(
+                session = currentSession,
+                vertexLayout = dynamicLayout,
+                vertexCount = CUBE_VERTEX_COUNT,
+                indexCount = doubleSidedIndexCount,
+                vertexData =
+                    listOf(
+                        ByteBufferRegion(vertexBufferIndexPosNorm, 0, posNormSize),
+                        ByteBufferRegion(vertexBufferIndexColor, 0, colorSize),
+                    ),
+                indexData = ByteBufferRegion(indexBufferDoubleSided, 0, doubleSidedIndexSize),
+            )
+
+        val cubeMeshIndex =
+            CustomMesh.BuilderFromMeshBuffer(currentSession, meshBufferIndex)
+                .addSubset(MeshSubsetTopology.TRIANGLES, 0, doubleSidedIndexCount)
+                .setBounds(
+                    BoundingBox.fromCenterAndHalfExtents(
+                        Vector3(0f, 0f, 0f),
+                        FloatSize3d(0.15f, 0.15f, 0.15f),
+                    )
+                )
+                .build()
+
+        dynamicIndexEntity =
+            createMeshEntity(
+                currentSession,
+                cubeMeshIndex,
+                listOf(material2!!),
+                Pose(Vector3(4f, -0.6f, -1.5f)),
+            )
+
+        // --- Panel ---
+        createPanel(
+            currentSession,
+            "Dynamic Meshes:\nTop: Morph to Pyramid\nMid: Color Cycle\nBot: Index Assembly",
+            Pose(Vector3(4f, 0.7f, -1.5f)),
+            listOfNotNull(dynamicVertexEntity, dynamicColorEntity, dynamicIndexEntity),
+        )
+
+        // --- Animation Loop ---
+        lifecycleScope.launch {
+            var time = 0f
+            var indexTime = 0
+            // Frames taken to assemble the cube one triangle at a time before restarting.
+            val assemblyPeriodFrames = 150
+            val updateBufferPosNorm =
+                ByteBuffer.allocateDirect(posNormSize).order(ByteOrder.nativeOrder())
+            val updateBufferColor =
+                ByteBuffer.allocateDirect(colorSize).order(ByteOrder.nativeOrder())
+            val updateBufferIndex =
+                ByteBuffer.allocateDirect(doubleSidedIndexSize).order(ByteOrder.nativeOrder())
+
+            val posNormRegion = ByteBufferRegion(updateBufferPosNorm, 0, posNormSize)
+            val colorRegion = ByteBufferRegion(updateBufferColor, 0, colorSize)
+            val indexRegion = ByteBufferRegion(updateBufferIndex, 0, doubleSidedIndexSize)
+
+            val originalIndices = IntArray(CUBE_INDEX_COUNT)
+            indexBuffer.position(0)
+            indexBuffer.asIntBuffer().get(originalIndices)
+
+            // Order: Top-left triangle of each face, then bottom-right triangle
+            val triangleOrder = intArrayOf(0, 2, 4, 6, 8, 10, 1, 3, 5, 7, 9, 11)
+
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (true) {
+                    awaitFrame()
+                    time += 0.05f
+
+                    // 1. Morph Cube (Buffer 0)
+                    updateBufferPosNorm.clear()
+                    val morph = (kotlin.math.sin(time) + 1f) / 2f
+                    putMorphedCubeVertices(updateBufferPosNorm, 0f, 0f, 0f, 0.3f, morph)
+                    cubeMeshMorph.meshBuffer.updateVertexData(0, posNormRegion)
+
+                    // 2. Color Cycle Cube (Buffer 1)
+                    updateBufferColor.clear()
+                    putAnimatedCubeColors(updateBufferColor, time)
+                    cubeMeshCycle.meshBuffer.updateVertexData(1, colorRegion)
+
+                    // 3. Index Assembly Cube
+                    indexTime = (indexTime + 1) % assemblyPeriodFrames
+                    // Reveal one more triangle each step, holding the full cube for one step.
+                    val numTriangles =
+                        (indexTime / assemblyPeriodFrames.toFloat() * (CUBE_TRIANGLE_COUNT + 1))
+                            .toInt()
+                            .coerceIn(0, CUBE_TRIANGLE_COUNT)
+                    updateBufferIndex.clear()
+
+                    for (i in 0 until CUBE_TRIANGLE_COUNT) {
+                        if (i < numTriangles) {
+                            val targetTriangle = triangleOrder[i]
+                            val v0 = originalIndices[targetTriangle * 3]
+                            val v1 = originalIndices[targetTriangle * 3 + 1]
+                            val v2 = originalIndices[targetTriangle * 3 + 2]
+
+                            // Front face
+                            updateBufferIndex.putInt(v0)
+                            updateBufferIndex.putInt(v1)
+                            updateBufferIndex.putInt(v2)
+
+                            // Back face
+                            updateBufferIndex.putInt(v0)
+                            updateBufferIndex.putInt(v2)
+                            updateBufferIndex.putInt(v1)
+                        } else {
+                            // Degenerate triangle pair
+                            for (j in 0 until 6) {
+                                updateBufferIndex.putInt(0)
+                            }
+                        }
+                    }
+                    cubeMeshIndex.meshBuffer.updateIndexData(indexRegion)
+                }
             }
         }
     }
