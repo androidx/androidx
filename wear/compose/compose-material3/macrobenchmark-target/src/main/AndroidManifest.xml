@@ -227,6 +227,16 @@
         </activity>
 
         <activity
+            android:name=".OneHandedGestureActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.wear.compose.material3.macrobenchmark.target.ONE_HANDED_GESTURE_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".OpenOnPhoneDialogActivity"
             android:theme="@style/AppTheme"
             android:exported="true">
