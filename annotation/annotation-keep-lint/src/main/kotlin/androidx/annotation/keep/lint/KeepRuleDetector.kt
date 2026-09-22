@@ -74,6 +74,7 @@ import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.UReferenceExpression
 import org.jetbrains.uast.UReturnExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
+import org.jetbrains.uast.UVariable
 import org.jetbrains.uast.UastBinaryOperator
 import org.jetbrains.uast.UastFacade
 import org.jetbrains.uast.evaluateString
@@ -487,13 +488,18 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                 ?: superTypes.firstOrNull { !isTooLowLevelBaseType(it) }
 
         /**
-         * Inspects enclosing cast expressions on an invocation (e.g. `newInstance()`) to deduce a
-         * target domain type when the runtime class name is dynamic.
+         * Inspects enclosing cast expressions on an invocation (e.g. `newInstance()`) or on a local
+         * variable storing the invocation result to deduce a target domain type when the runtime
+         * class name is dynamic.
          *
-         * Example:
+         * Examples:
          * ```
+         * // Inline cast:
          * val merger = Class.forName(className).getDeclaredConstructor().newInstance() as InputMerger
-         * // Infers InputMerger as the keep target.
+         *
+         * // Delayed cast via local variable:
+         * val instance = factoryClass.getDeclaredConstructor().newInstance()
+         * return instance as DocumentClassFactory
          * ```
          */
         private fun findEnclosingCastTargetType(
@@ -519,6 +525,42 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                     }
                 if (targetType is PsiClassType && !isTooLowLevelBaseType(targetType)) {
                     return context.evaluator.erasure(targetType) ?: targetType
+                }
+            } else if (p is UVariable) {
+                // If stored in a local variable, look for a cast on that variable within the method
+                val varName = p.name
+                val method = invocationNode.getParentOfType<UMethod>()
+                var foundCast: PsiType? = null
+                method?.accept(
+                    object : AbstractUastVisitor() {
+                        override fun visitBinaryExpressionWithType(
+                            node: UBinaryExpressionWithType
+                        ): Boolean {
+                            val operand = node.operand.skipParenthesizedExprDown()
+                            val operandName =
+                                (operand as? USimpleNameReferenceExpression)?.identifier
+                            if (operandName == varName) {
+                                val castType = node.type
+                                val resolvedClass = (castType as? PsiClassType)?.resolve()
+                                val targetType =
+                                    if (resolvedClass is PsiTypeParameter) {
+                                        resolvedClass.getValidUpperBound()
+                                    } else {
+                                        castType
+                                    }
+                                if (
+                                    targetType is PsiClassType && !isTooLowLevelBaseType(targetType)
+                                ) {
+                                    foundCast = context.evaluator.erasure(targetType) ?: targetType
+                                    return true
+                                }
+                            }
+                            return super.visitBinaryExpressionWithType(node)
+                        }
+                    }
+                )
+                if (foundCast != null) {
+                    return foundCast
                 }
             }
             return null
@@ -812,10 +854,12 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
         }
 
         private fun isApplicableClassName(context: Context, className: String): Boolean {
-            // Platform classes (Android SDK, Java standard library, Dalvik, Libcore) are
-            // provided by the runtime environment and are not subject to R8 shrinking.
+            // Platform classes (Android SDK, Java standard library, Dalvik, Libcore, internal
+            // platform packages) are provided by the runtime environment and are not subject to R8
+            // shrinking.
             if (
                 className.startsWith("android.") ||
+                    className.startsWith("com.android.internal.") ||
                     className.startsWith("java.") ||
                     className.startsWith("javax.") ||
                     className.startsWith("dalvik.") ||
