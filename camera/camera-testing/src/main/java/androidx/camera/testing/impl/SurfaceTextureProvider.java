@@ -16,7 +16,10 @@
 
 package androidx.camera.testing.impl;
 
+import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
+import android.media.Image;
+import android.media.ImageReader;
 import android.opengl.EGL14;
 import android.opengl.EGLConfig;
 import android.opengl.EGLContext;
@@ -206,6 +209,14 @@ public final class SurfaceTextureProvider {
             @Nullable Consumer<SurfaceRequest> onSurfaceRequestAvailableListener,
             @Nullable Consumer<SurfaceRequest.Result> resultListener
     ) {
+        if (AndroidUtil.isEmulator(24)) {
+            // Use ImageReader to drain frames without OpenGL/EGL to avoid SwiftShader native
+            // crashes in eglCreateImageKHR on API 24 emulators (b/563154933, b/539514196).
+            return createAutoDrainingImageReaderProvider(
+                    frameAvailableListener,
+                    onSurfaceRequestAvailableListener,
+                    resultListener);
+        }
         return (surfaceRequest) -> {
             if (onSurfaceRequestAvailableListener != null) {
                 onSurfaceRequestAvailableListener.accept(surfaceRequest);
@@ -239,6 +250,60 @@ public final class SurfaceTextureProvider {
                             e);
                 }
             }, CameraXExecutors.directExecutor());
+        };
+    }
+
+    private static Preview.@NonNull SurfaceProvider createAutoDrainingImageReaderProvider(
+            SurfaceTexture.@Nullable OnFrameAvailableListener frameAvailableListener,
+            @Nullable Consumer<SurfaceRequest> onSurfaceRequestAvailableListener,
+            @Nullable Consumer<SurfaceRequest.Result> resultListener) {
+        return (surfaceRequest) -> {
+            if (onSurfaceRequestAvailableListener != null) {
+                onSurfaceRequestAvailableListener.accept(surfaceRequest);
+            }
+            HandlerThread handlerThread = new HandlerThread("CameraX-AutoDrainThread");
+            handlerThread.start();
+            Handler handler = HandlerCompat.createAsync(handlerThread.getLooper());
+
+            ImageReader imageReader = ImageReader.newInstance(
+                    surfaceRequest.getResolution().getWidth(),
+                    surfaceRequest.getResolution().getHeight(),
+                    ImageFormat.PRIVATE,
+                    2);
+
+            SurfaceTexture dummySurfaceTexture =
+                    frameAvailableListener != null ? new SurfaceTexture(0) : null;
+
+            imageReader.setOnImageAvailableListener(reader -> {
+                boolean frameReceived = false;
+                try {
+                    Image image = reader.acquireLatestImage();
+                    if (image != null) {
+                        image.close();
+                        frameReceived = true;
+                    }
+                } catch (IllegalStateException e) {
+                    // ImageReader may already be closed.
+                }
+                if (frameReceived && frameAvailableListener != null) {
+                    frameAvailableListener.onFrameAvailable(dummySurfaceTexture);
+                }
+            }, handler);
+
+            Surface surface = imageReader.getSurface();
+            surfaceRequest.provideSurface(surface,
+                    CameraXExecutors.directExecutor(),
+                    (surfaceResponse) -> {
+                        if (resultListener != null) {
+                            resultListener.accept(surfaceResponse);
+                        }
+                        surface.release();
+                        imageReader.close();
+                        if (dummySurfaceTexture != null) {
+                            dummySurfaceTexture.release();
+                        }
+                        handlerThread.quitSafely();
+                    });
         };
     }
 
