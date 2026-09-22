@@ -161,6 +161,12 @@ public class Header extends Operation implements RemoteComposeOperation {
      */
     public static final short FEATURE_DISALLOW_INTERCEPT_TOUCH = 29;
 
+    /**
+     * Controls whether CanvasOperations within LayoutComponents are evaluated during the DATA pass.
+     * 0: disabled, 1: enabled.
+     */
+    public static final short FEATURE_DATA_PASS_CANVAS_OPS = 30;
+
     /** The object is an integer */
     private static final short DATA_TYPE_INT = 0;
 
@@ -194,6 +200,7 @@ public class Header extends Operation implements RemoteComposeOperation {
         DOC_DENSITY_BEHAVIOR,
         FEATURE_OPTIMIZATION_LEVEL,
         FEATURE_DISALLOW_INTERCEPT_TOUCH,
+        FEATURE_DATA_PASS_CANVAS_OPS,
     };
     private static final String[] KEY_NAMES = {
         "DOC_WIDTH",
@@ -215,7 +222,8 @@ public class Header extends Operation implements RemoteComposeOperation {
         "CLICK_VERSION",
         "DENSITY_BEHAVIOR",
         "OPTIMIZATION_LEVEL",
-        "DISALLOW_INTERCEPT_TOUCH"
+        "DISALLOW_INTERCEPT_TOUCH",
+        "DATA_PASS_CANVAS_OPS"
     };
 
     /**
