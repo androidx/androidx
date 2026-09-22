@@ -186,13 +186,6 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
     // it contains expected violations that we do not want to trigger a build failure
     val isTestingLintItself = (project.path == ":lint-checks:integration-tests")
 
-    // Enable annotation keep lint for each project, so modules using the annotation-keep library:
-    // get errors if missing reflection annotations, and can't forget to apply the plugin (for
-    // consumer rule generation)
-    findLintProject(":annotation:annotation-keep-lint")?.let {
-        project.dependencies.add("lintChecks", it)
-    }
-
     lint.apply {
         // Skip lintVital tasks on assemble. We explicitly run lintRelease for libraries.
         checkReleaseBuilds = false
