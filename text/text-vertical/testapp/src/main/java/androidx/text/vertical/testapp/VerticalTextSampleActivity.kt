@@ -27,28 +27,27 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
@@ -62,6 +61,8 @@ import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.isSpecified
@@ -72,51 +73,85 @@ import androidx.text.vertical.FontShearSpan
 import androidx.text.vertical.compose.VerticalText
 import androidx.text.vertical.compose.VerticalTextStyle
 import androidx.text.vertical.compose.buildVerticalText
+import kotlin.math.roundToInt
+
+/**
+ * One tab in the sample app.
+ *
+ * @param title the label of the tab.
+ * @param content the demo that the tab shows.
+ */
+private class DemoTab(val title: String, val content: @Composable () -> Unit)
 
 class VerticalTextSampleActivity : ComponentActivity() {
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val demos =
-                arrayOf<Pair<String, @Composable () -> Unit>>(
-                    "Vertical Text" to { ZoomableVerticalText { LongText(it) } },
-                    "Vertical Multi-style Text" to { ZoomableVerticalText { ComplexText(it) } },
-                    "Horizontal Text" to { ZoomableVerticalText { LongHorizontalText(it) } },
-                    "Horizontal Complex Text" to
-                        {
-                            ZoomableVerticalText { ComplexHorizontalText(it) }
-                        },
+            val tabs =
+                arrayOf(
+                    DemoTab("Vertical Text") { ZoomableVerticalText { LongText(it) } },
+                    DemoTab("Vertical Multi-style Text") {
+                        ZoomableVerticalText { ComplexText(it) }
+                    },
+                    DemoTab("Horizontal Text") {
+                        ZoomableVerticalText(isVertical = false) { LongHorizontalText(it) }
+                    },
+                    DemoTab("Horizontal Multi-style Text") {
+                        ZoomableVerticalText(isVertical = false) { ComplexHorizontalText(it) }
+                    },
                 )
 
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                 Column(modifier = Modifier.padding(innerPadding)) {
-                    var selectedTabIndex by remember { mutableIntStateOf(0) }
+                    var selectedTabIndex by remember {
+                        mutableIntStateOf(intent.getIntExtra("tab", 0).coerceIn(tabs.indices))
+                    }
                     PrimaryTabRow(
                         selectedTabIndex = selectedTabIndex,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        demos.forEachIndexed { index, (title, _) ->
+                        tabs.forEachIndexed { index, tab ->
                             Tab(
                                 selected = selectedTabIndex == index,
                                 onClick = { selectedTabIndex = index },
-                                text = { Text(title) },
+                                text = { Text(tab.title) },
                             )
                         }
                     }
-                    demos[selectedTabIndex].second()
+                    key(selectedTabIndex) { tabs[selectedTabIndex].content() }
                 }
             }
         }
     }
 }
 
+/**
+ * The limits of the pan offset of [ZoomableVerticalText], in pixels.
+ *
+ * The measure policy writes these values and the gesture handler reads them.
+ *
+ * This is a plain holder and not snapshot state. Compose records each snapshot read that occurs
+ * during measure, and a write to one of those values asks for a new measure pass. A measure policy
+ * that writes the state it reads therefore measures its content two times for each change.
+ */
+private class PanLimits {
+    var minX: Float = 0f
+    var maxX: Float = 0f
+    var minY: Float = 0f
+    var maxY: Float = 0f
+}
+
 @Composable
-fun ZoomableVerticalText(content: @Composable (VerticalTextStyle) -> Unit) {
+fun ZoomableVerticalText(
+    isVertical: Boolean = true,
+    content: @Composable (VerticalTextStyle) -> Unit,
+) {
     val fontSize = 32f
     var zoom by remember { mutableFloatStateOf(1f) }
     var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
+    val panLimits = remember { PanLimits() }
     val style =
         remember(zoom) {
             VerticalTextStyle(
@@ -134,25 +169,63 @@ fun ZoomableVerticalText(content: @Composable (VerticalTextStyle) -> Unit) {
             )
         }
 
-    Box(
+    Layout(
         modifier =
-            Modifier.pointerInput(Unit) {
+            Modifier.fillMaxSize()
+                .clipToBounds()
+                .pointerInput(Unit) {
                     detectTapGestures(
                         onDoubleTap = {
                             zoom = 1f
                             offsetX = 0f
+                            offsetY = 0f
                         }
                     )
                 }
                 .pointerInput(Unit) {
                     detectTransformGestures { _, offsetChange, gestureZoom, _ ->
                         zoom = (zoom * gestureZoom).coerceIn(0.25f, 10f)
-                        offsetX += offsetChange.x
+                        offsetX =
+                            (offsetX + offsetChange.x).coerceIn(panLimits.minX, panLimits.maxX)
+                        offsetY =
+                            (offsetY + offsetChange.y).coerceIn(panLimits.minY, panLimits.maxY)
                     }
-                }
-                .graphicsLayer(translationX = offsetX)
-    ) {
-        content(style)
+                },
+        content = { content(style) },
+    ) { measurables, constraints ->
+        val childConstraints =
+            if (isVertical) {
+                constraints.copy(minWidth = 0, maxWidth = Constraints.Infinity)
+            } else {
+                constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity)
+            }
+        val placeable = measurables.first().measure(childConstraints)
+
+        val overflowX = maxOf(0f, (placeable.width - constraints.maxWidth).toFloat())
+        if (isVertical) {
+            panLimits.minX = 0f
+            panLimits.maxX = overflowX
+        } else {
+            panLimits.minX = -overflowX
+            panLimits.maxX = 0f
+        }
+        panLimits.minY = -maxOf(0f, (placeable.height - constraints.maxHeight).toFloat())
+        panLimits.maxY = 0f
+
+        // The gesture handler keeps the offset inside the limits. Clamp again here, because a
+        // change of the zoom can shrink the limits after the last gesture event.
+        val clampedX = offsetX.coerceIn(panLimits.minX, panLimits.maxX)
+        val clampedY = offsetY.coerceIn(panLimits.minY, panLimits.maxY)
+
+        val x =
+            if (isVertical) {
+                constraints.maxWidth - placeable.width + clampedX.roundToInt()
+            } else {
+                clampedX.roundToInt()
+            }
+        val y = clampedY.roundToInt()
+
+        layout(constraints.maxWidth, constraints.maxHeight) { placeable.place(x, y) }
     }
 }
 
@@ -180,14 +253,15 @@ fun LegacyHorizontalText(text: Spanned, style: VerticalTextStyle, modifier: Modi
     }
     Layout(
         modifier =
-            modifier.fillMaxSize().drawWithContent {
+            modifier.drawWithContent {
                 drawIntoCanvas { c -> hTextLayout?.draw(c.nativeCanvas) }
             },
         content = {},
     ) { _, constraints ->
-        hTextLayout =
+        val layout =
             StaticLayout.Builder.obtain(text, 0, text.length, paint, constraints.maxWidth).build()
-        layout(constraints.maxWidth, constraints.maxHeight) {}
+        hTextLayout = layout
+        layout(constraints.maxWidth, layout.height) {}
     }
 }
 
@@ -195,7 +269,7 @@ fun LegacyHorizontalText(text: Spanned, style: VerticalTextStyle, modifier: Modi
 fun LongText(style: VerticalTextStyle, modifier: Modifier = Modifier) {
     val density = LocalDensity.current
     val text = remember(density) { makeSampleText(density) }
-    VerticalText(text, modifier, style)
+    VerticalText(text, modifier, style, overflow = TextOverflow.Visible)
 }
 
 @Composable
@@ -269,7 +343,7 @@ fun makeSampleText(density: Density) =
 fun ComplexText(style: VerticalTextStyle, modifier: Modifier = Modifier) {
     val density = LocalDensity.current
     val text = remember(density) { buildComplexText(density) }
-    VerticalText(text, modifier, style)
+    VerticalText(text, modifier, style, overflow = TextOverflow.Visible)
 }
 
 private fun buildComplexText(density: Density) =
