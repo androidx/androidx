@@ -1891,7 +1891,7 @@ public final class AppSearchImpl implements Closeable {
      * @return {@link InternalPutDocumentResponse}
      * @throws AppSearchException on IcingSearchEngine error.
      *
-     * @deprecated use {@link #batchPutDocuments(String, String, List, List,
+     * @deprecated use {@link #batchPutDocuments(String, String, List,
      *                          AppSearchBatchResult.Builder, boolean, AppSearchLogger,
      *                          PersistType.Code, CallStats.Builder)}
      */
