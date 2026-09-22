@@ -36,11 +36,12 @@ import androidx.ink.brush.behavior.TargetNode
 import androidx.ink.brush.behavior.TargetNode.Target
 import androidx.kruth.assertThat
 import kotlin.test.Test
-import kotlin.test.assertFailsWith
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.readBytes
+import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.usePinned
+import platform.CoreFoundation.CFDataCreate
 import platform.CoreFoundation.CFDataGetBytePtr
 import platform.CoreFoundation.CFDataGetLength
 import platform.CoreFoundation.CFRelease
@@ -48,13 +49,15 @@ import platform.CoreGraphics.CGColorRenderingIntent
 import platform.CoreGraphics.CGColorSpaceCreateDeviceRGB
 import platform.CoreGraphics.CGColorSpaceRelease
 import platform.CoreGraphics.CGDataProviderCopyData
-import platform.CoreGraphics.CGDataProviderCreateWithData
+import platform.CoreGraphics.CGDataProviderCreateWithCFData
 import platform.CoreGraphics.CGDataProviderRelease
 import platform.CoreGraphics.CGImageAlphaInfo
 import platform.CoreGraphics.CGImageCreate
 import platform.CoreGraphics.CGImageGetDataProvider
 import platform.CoreGraphics.CGImageRelease
+import platform.CoreGraphics.CGRectMake
 import platform.CoreGraphics.kCGBitmapByteOrderDefault
+import platform.CoreImage.CIColor
 import platform.CoreImage.CIImage
 import platform.UIKit.UIImage
 
@@ -143,15 +146,15 @@ class IosBrushFamilyExtensionsTest {
 
     fun examplePng(colorValue: Byte): UIImage {
         val pixelData = byteArrayOf(colorValue, colorValue, colorValue, colorValue)
-        val provider =
+        val cfData =
             pixelData.usePinned { pinned ->
-                CGDataProviderCreateWithData(
-                    info = null,
-                    data = pinned.addressOf(0),
-                    size = pixelData.size.toULong(),
-                    releaseData = null,
+                CFDataCreate(
+                    allocator = null,
+                    bytes = pinned.addressOf(0).reinterpret(),
+                    length = pixelData.size.toLong(),
                 )
             }!!
+        val provider = CGDataProviderCreateWithCFData(cfData)!!
         val colorSpace = CGColorSpaceCreateDeviceRGB()
         val cgImage =
             CGImageCreate(
@@ -172,14 +175,15 @@ class IosBrushFamilyExtensionsTest {
             CGImageRelease(cgImage)
             CGColorSpaceRelease(colorSpace)
             CGDataProviderRelease(provider)
+            CFRelease(cfData)
         }
     }
 
     fun UIImage.imagePixelData(): List<Byte> {
         val provider = CGImageGetDataProvider(CGImage!!)!!
-        val cgData = CGDataProviderCopyData(provider)!!
-        val bytes = CFDataGetBytePtr(cgData)!!.readBytes(CFDataGetLength(cgData).toInt())
-        CFRelease(cgData)
+        val cfData = CGDataProviderCopyData(provider)!!
+        val bytes = CFDataGetBytePtr(cfData)!!.readBytes(CFDataGetLength(cfData).toInt())
+        CFRelease(cfData)
         return bytes.toList()
     }
 
@@ -207,23 +211,48 @@ class IosBrushFamilyExtensionsTest {
     }
 
     @Test
-    fun withTextures_writingFromCiImage() {
+    fun uiImageWrappingCiImage_toPngBytes() {
+        val wrappingCiImage = UIImage(CIImage(testBitmap1.CGImage!!))
+        assertThat(wrappingCiImage.toPngBytes()).isNotNull()
+    }
+
+    @Test
+    fun uiImageWrappingGeneratedCiImage_toPngBytes() {
+        val generatedCiImage =
+            CIImage.imageWithColor(CIColor.blackColor)
+                .imageByCroppingToRect(CGRectMake(0.0, 0.0, 1.0, 1.0))
+        assertThat(generatedCiImage.CGImage).isNull()
+
+        val wrappingGeneratedCiImage = UIImage(generatedCiImage)
+        assertThat(wrappingGeneratedCiImage.toPngBytes()).isNotNull()
+    }
+
+    @Test
+    fun withTextures_writingFromCiImage_roundTrip_roundTrip() {
         val decodedTextureBitmapStore = mutableMapOf<String, UIImage?>()
         val decodeCallback = OnDecodeTextureUiImage { id: String, uiImage: UIImage? ->
             decodedTextureBitmapStore[id] = uiImage
             id
         }
         val original = testBrushFamilyWithTextures
-        // TODO(b/562142546): Not sure why the logic in our UIImage.toPngBytes isn't working in
-        // Jetpack
-        // to encode from UIImage wrapping CIImage, it is working upstream.
-        assertFailsWith<IllegalStateException> {
+        val encoded =
             original.encode(
                 TextureImageStore { textureId ->
                     textureIdToUIImage[textureId]?.let { UIImage(CIImage(it.CGImage!!)) }
                 }
             )
-        }
+        assertThat(BrushFamily.decode(encoded, onDecodeTexture = decodeCallback))
+            .isEqualTo(original)
+
+        assertThat(decodedTextureBitmapStore.size).isEqualTo(2)
+
+        val actualUiImage1 = decodedTextureBitmapStore[textureId1]!!
+        val expectedUiImage1 = textureIdToUIImage[textureId1]!!
+        assertThat(actualUiImage1!!.imagePixelData()).isEqualTo(expectedUiImage1!!.imagePixelData())
+
+        val actualUiImage2 = decodedTextureBitmapStore[textureId2]!!
+        val expectedUiImage2 = textureIdToUIImage[textureId2]!!
+        assertThat(actualUiImage2.imagePixelData()).isEqualTo(expectedUiImage2.imagePixelData())
     }
 
     @Test
