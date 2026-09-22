@@ -17,12 +17,12 @@
 package androidx.mediarouter.media;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
-import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import static org.junit.Assert.assertNotNull;
 
 import android.content.Context;
 
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
@@ -34,29 +34,20 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class MediaRouterInitializationTest {
-    /**
-     * This test checks weather MediaRouter is initialized well if an empty route exists
-     */
+    /** This test checks whether MediaRouter is initialized well if an empty route exists */
     @Test
     @MediumTest
+    @UiThreadTest
     public void testEmptyUserRoute() {
-        getInstrumentation()
-                .runOnMainSync(
-                        () -> {
-                            final Context context = getApplicationContext();
-                            android.media.MediaRouter router =
-                                    (android.media.MediaRouter)
-                                            context.getSystemService(Context.MEDIA_ROUTER_SERVICE);
+        final Context context = getApplicationContext();
+        android.media.MediaRouter router =
+                (android.media.MediaRouter) context.getSystemService(Context.MEDIA_ROUTER_SERVICE);
+        android.media.MediaRouter.RouteCategory category = router.createRouteCategory("", false);
+        android.media.MediaRouter.UserRouteInfo routeInfo = router.createUserRoute(category);
+        router.addUserRoute(routeInfo);
 
-                            // Add empty user route
-                            android.media.MediaRouter.RouteCategory category =
-                                    router.createRouteCategory("", false);
-                            android.media.MediaRouter.UserRouteInfo routeInfo =
-                                    router.createUserRoute(category);
-                            router.addUserRoute(routeInfo);
+        MediaRouter mediaRouter = MediaRouter.getInstance(context);
 
-                            MediaRouter mediaRouter = MediaRouter.getInstance(context);
-                            assertNotNull(mediaRouter.getDefaultRoute());
-                        });
+        assertNotNull(mediaRouter.getDefaultRoute());
     }
 }
