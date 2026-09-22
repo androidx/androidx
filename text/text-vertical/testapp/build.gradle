@@ -39,6 +39,14 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:" + composeVersion)
+
+    // ui-test-junit4 brings espresso-core 3.5.0. That version calls
+    // InputManager.getInstance(), which newer platforms do not have.
+    androidTestImplementation(libs.espressoCore)
+
+    // Supplies the host activity that createComposeRule() starts.
+    debugImplementation("androidx.compose.ui:ui-test-manifest:" + composeVersion)
 }
 
 androidx {
