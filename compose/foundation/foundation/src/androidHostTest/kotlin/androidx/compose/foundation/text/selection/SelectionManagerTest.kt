@@ -23,10 +23,12 @@ import androidx.collection.mutableLongObjectMapOf
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagSuppress
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.TextToolbar
+import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
@@ -901,7 +903,7 @@ class SelectionManagerTest {
         selectionRegistrar.subselections = longObjectMapOf(selectableId, selection)
         selectionManager.hasFocus = true
 
-        selectionManager.showToolbar = true
+        selectionManager.showSelectionToolbar()
 
         verify(textToolbar, times(1)).showMenu(any(), any(), isNull(), isNull(), any(), isNull())
     }
@@ -934,10 +936,107 @@ class SelectionManagerTest {
         selectionRegistrar.subselections = longObjectMapOf(selectableId, selection)
         selectionManager.hasFocus = false
 
-        selectionManager.showToolbar = true
+        selectionManager.showSelectionToolbar()
 
         verify(textToolbar, never()).showMenu(any(), any(), isNull(), isNull(), isNull(), any())
     }
+
+    // region showSelectionToolbar / hideSelectionToolbar repeated call Tests
+
+    @ContextMenuFlagSuppress(suppressedFlagValue = true)
+    @Test
+    fun showHideSelectionToolbar_calledRepeatedly_everyTransitionUpdatesToolbar() {
+        val toolbar = setUpToolbarTest()
+
+        repeat(3) {
+            selectionManager.showSelectionToolbar()
+            selectionManager.showSelectionToolbar()
+            selectionManager.hideSelectionToolbar()
+            selectionManager.hideSelectionToolbar()
+        }
+
+        assertThat(toolbar.showMenuCount).isEqualTo(6)
+        assertThat(toolbar.hideCount).isEqualTo(3)
+        assertThat(toolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+    }
+
+    @ContextMenuFlagSuppress(suppressedFlagValue = true)
+    @Test
+    fun selectAll_whileToolbarShown_refreshesToolbarWithoutSelectAllItem() {
+        val toolbar = setUpToolbarTest()
+        selectionManager.showSelectionToolbar()
+        assertThat(toolbar.lastOnSelectAllRequested).isNotNull()
+
+        selectionManager.selectAll()
+
+        assertThat(selectionManager.isEntireContainerSelected()).isTrue()
+        assertThat(toolbar.showMenuCount).isEqualTo(2)
+        assertThat(toolbar.lastOnSelectAllRequested).isNull()
+    }
+
+    @ContextMenuFlagSuppress(suppressedFlagValue = true)
+    @Test
+    fun showSelectionToolbar_calledAgain_afterToolbarDismissedExternally_showsMenuAgain() {
+        val toolbar = setUpToolbarTest()
+        selectionManager.showSelectionToolbar()
+        toolbar.dismissExternally()
+
+        selectionManager.showSelectionToolbar()
+
+        assertThat(toolbar.showMenuCount).isEqualTo(2)
+        assertThat(toolbar.status).isEqualTo(TextToolbarStatus.Shown)
+    }
+
+    /**
+     * Sets up a focused, touch-mode [selectionManager] with a partial selection ("Text" in "Text
+     * Demo") on [selectable], and returns the [FakeTextToolbar] it reports to.
+     */
+    private fun setUpToolbarTest(): FakeTextToolbar {
+        val text = "Text Demo"
+        selectable.textToReturn = AnnotatedString(text)
+        selectable.layoutCoordinatesToReturn = containerLayoutCoordinates
+        selectable.fakeSelectAllSelection =
+            expectedSelection(startOffset = 0, endOffset = text.length)
+        val partialSelection = expectedSelection(startOffset = 0, endOffset = 4)
+        selectionManager.selection = partialSelection
+        selectionRegistrar.subselections = longObjectMapOf(selectableId, partialSelection)
+        selectionManager.hasFocus = true
+        selectionManager.isInTouchMode = true
+        return FakeTextToolbar().also { selectionManager.textToolbar = it }
+    }
+
+    private class FakeTextToolbar : TextToolbar {
+        var showMenuCount = 0
+        var hideCount = 0
+        var lastOnSelectAllRequested: (() -> Unit)? = null
+
+        override var status: TextToolbarStatus = TextToolbarStatus.Hidden
+            private set
+
+        override fun showMenu(
+            rect: Rect,
+            onCopyRequested: (() -> Unit)?,
+            onPasteRequested: (() -> Unit)?,
+            onCutRequested: (() -> Unit)?,
+            onSelectAllRequested: (() -> Unit)?,
+        ) {
+            showMenuCount++
+            lastOnSelectAllRequested = onSelectAllRequested
+            status = TextToolbarStatus.Shown
+        }
+
+        override fun hide() {
+            hideCount++
+            status = TextToolbarStatus.Hidden
+        }
+
+        /** Simulates the platform closing the toolbar without [hide] being called. */
+        fun dismissExternally() {
+            status = TextToolbarStatus.Hidden
+        }
+    }
+
+    // endregion showSelectionToolbar / hideSelectionToolbar repeated call Tests
 
     @Test
     fun onRelease_selectionMap_is_setToEmpty() {
