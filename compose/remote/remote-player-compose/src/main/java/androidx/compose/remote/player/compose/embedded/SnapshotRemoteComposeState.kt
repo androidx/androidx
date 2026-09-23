@@ -54,7 +54,6 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
     override fun cacheFloat(id: Int, item: Float) {
         super.cacheFloat(id, item)
         floats[id] = super.getFloat(id)
-        integers[id] = super.getInteger(id)
         colors[id] = super.getColor(id)
     }
 
@@ -64,7 +63,6 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
         val new = super.getFloat(id)
         if (new != old) {
             floats[id] = new
-            integers[id] = super.getInteger(id)
             colors[id] = super.getColor(id)
         }
     }
@@ -76,7 +74,6 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
         val new = super.getFloat(id)
         if (new != old) {
             floats[id] = new
-            integers[id] = super.getInteger(id)
             colors[id] = super.getColor(id)
         }
     }
@@ -85,7 +82,6 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
         super.clearFloatOverride(id)
         overriddenFloats[id] = false
         floats[id] = super.getFloat(id)
-        integers[id] = super.getInteger(id)
         colors[id] = super.getColor(id)
     }
 
@@ -94,9 +90,17 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
 
     // --- Integer ---
     override fun getInteger(id: Int): Int {
-        if (id !in integers) {
-            integers[id] = super.getInteger(id)
+        if (id in integers) {
+            return integers[id] ?: 0
         }
+        // IDs below START_ID (42) are reserved for built-in system variables and literal enum
+        // constants (e.g. Component.Visibility.VISIBLE = 1). Explicit integer updates are already
+        // stored in `integers`, whereas `super.getInteger(id)` reads `mIntegerMap` which is also
+        // mutated by `super.updateFloat`/`super.overrideFloat` for system float variables.
+        if (id in 0 until RemoteComposeState.START_ID) {
+            return id
+        }
+        integers[id] = super.getInteger(id)
         return integers[id] ?: 0
     }
 

@@ -1477,4 +1477,39 @@ class RcPlayerInteractivityTest {
             assertThat(siblingBounds.left).isEqualTo(0.dp)
         }
     }
+
+    @Test
+    fun snapshotRemoteComposeState_preservesLiteralIntegerIdsAndCachedIntegers() {
+        val state = SnapshotRemoteComposeState()
+
+        // Caching, updating, or overriding floats under small IDs (< START_ID) must not clobber
+        // literal integer ID lookups such as Component.Visibility.VISIBLE (1) or INVISIBLE (2).
+        state.cacheFloat(1, 3.14f)
+        state.updateFloat(1, 99.7f)
+        state.cacheFloat(2, 2.71f)
+        state.overrideFloat(2, 88.4f)
+        state.clearFloatOverride(2)
+        assertThat(state.getInteger(Component.Visibility.VISIBLE))
+            .isEqualTo(Component.Visibility.VISIBLE)
+        assertThat(state.getInteger(Component.Visibility.INVISIBLE))
+            .isEqualTo(Component.Visibility.INVISIBLE)
+
+        // Explicit integer updates (including small IDs and regular variable IDs) are still
+        // returned.
+        state.updateInteger(21, 42)
+        state.updateInteger(100, 999)
+        assertThat(state.getInteger(21)).isEqualTo(42)
+        assertThat(state.getInteger(100)).isEqualTo(999)
+
+        // Updating, overriding, and clearing float overrides on those same IDs must not alter
+        // their integer values.
+        state.updateFloat(21, 1.5f)
+        state.overrideFloat(21, 9.5f)
+        state.clearFloatOverride(21)
+        state.updateFloat(100, 2.5f)
+        state.overrideFloat(100, 8.5f)
+        state.clearFloatOverride(100)
+        assertThat(state.getInteger(21)).isEqualTo(42)
+        assertThat(state.getInteger(100)).isEqualTo(999)
+    }
 }
