@@ -18,23 +18,52 @@ package androidx.wear.compose.remote.material3
 
 import android.content.Context
 import androidx.collection.buildObjectIntMap
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.toRemoteImageVector
+import androidx.compose.remote.creation.compose.layout.RemoteAlignment
+import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.background
+import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
+import androidx.compose.remote.creation.compose.state.rb
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
+import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
+import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.IconButton
+import androidx.wear.compose.material3.IconButtonDefaults
+import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.remote.material3.previews.RemoteIconButtonEnabled
 import androidx.wear.compose.remote.material3.previews.RemoteIconButtonExtraSmall
 import androidx.wear.compose.remote.material3.previews.RemoteIconButtonFilled
@@ -45,6 +74,8 @@ import androidx.wear.compose.remote.material3.previews.RemoteIconButtonTonal
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.wear.compose.remote.material3.util.TestImageVectors
+import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -211,6 +242,98 @@ class RemoteIconButtonTest {
             },
         ) {
             ComponentContainer { RemoteIconButtonEnabled() }
+        }
+    }
+
+    @Ignore("b/556172440 - Enable once corner equality and embedded player icon mask fixes land")
+    @OptIn(ExperimentalRemotePlayerApi::class)
+    @Test
+    fun remote_icon_button_filled_add_matches_wear_m3() {
+        RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = true
+        try {
+            val density = context.resources.displayMetrics.density
+            val sizeDp = 52.dp
+            val sizePx = 52f * density
+            val displayInfo = createCreationDisplayInfo(context, Size(sizePx, sizePx))
+            val showWearM3 = mutableStateOf(false)
+            val capturedDoc = mutableStateOf<CoreDocument?>(null)
+
+            remoteComposeTestRule.setContent(
+                remoteCreationDisplayInfo = displayInfo,
+                profile = RcPlatformProfiles.WEAR_WIDGETS,
+                onCoreDocumentCreated = { capturedDoc.value = it },
+                playComposableWrapper = {
+                    if (!showWearM3.value) {
+                        capturedDoc.value?.let { doc ->
+                            RcPlayer(
+                                document = doc,
+                                modifier = Modifier.size(sizeDp),
+                            )
+                        }
+                    } else {
+                        Box(
+                            modifier =
+                                Modifier.size(sizeDp)
+                                    .background(Color.Black)
+                                    .testTag("WEAR_M3_ICON_BUTTON"),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            MaterialTheme {
+                                IconButton(
+                                    onClick = {},
+                                    enabled = true,
+                                    colors = IconButtonDefaults.filledIconButtonColors(),
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Add,
+                                        contentDescription = null,
+                                        modifier =
+                                            Modifier.size(IconButtonDefaults.DefaultIconSize),
+                                    )
+                                }
+                            }
+                        }
+                    }
+                },
+            ) {
+                RemoteMaterialTheme {
+                    RemoteBox(
+                        modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc),
+                        contentAlignment = RemoteAlignment.Center,
+                    ) {
+                        RemoteIconButton(
+                            onClick = Action.Empty,
+                            enabled = true.rb,
+                            colors = RemoteIconButtonDefaults.filledIconButtonColors(),
+                        ) {
+                            RemoteIcon(
+                                imageVector = Icons.Filled.Add.toRemoteImageVector(),
+                                contentDescription = null,
+                                modifier =
+                                    RemoteModifier.size(RemoteIconButtonDefaults.DefaultIconSize),
+                            )
+                        }
+                    }
+                }
+            }
+            remoteComposeTestRule.composeTestRule.waitForIdle()
+            val remoteBitmap =
+                remoteComposeTestRule.composeTestRule
+                    .onNodeWithTag(RemoteScreenshotTestRule.ROOT_TEST_TAG)
+                    .captureToImage()
+                    .asAndroidBitmap()
+
+            showWearM3.value = true
+            remoteComposeTestRule.composeTestRule.waitForIdle()
+            val wearBitmap =
+                remoteComposeTestRule.composeTestRule
+                    .onNodeWithTag("WEAR_M3_ICON_BUTTON")
+                    .captureToImage()
+                    .asAndroidBitmap()
+
+            assertThat(remoteBitmap.sameAs(wearBitmap)).isTrue()
+        } finally {
+            RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = false
         }
     }
 }

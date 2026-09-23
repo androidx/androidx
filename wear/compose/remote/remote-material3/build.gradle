@@ -80,6 +80,7 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation("androidx.compose.ui:ui-test:1.11.0")
     testImplementation("androidx.compose.ui:ui-test-junit4:1.11.0")
+    testImplementation("androidx.compose.material:material-icons-core:1.7.8")
     testImplementation(project(":compose:test-utils"))
     testImplementation(project(":compose:remote:remote-core"))
     testImplementation(project(":compose:remote:remote-creation"))
