@@ -59,35 +59,46 @@ internal class HorizontalEmphasisSpanLayout(
     private val positions: FloatArray
 
     init {
-        val copied = cloneWithoutReplacementSpan(text, start, end)
+        val copiedBodyText = cloneWithoutReplacementSpan(text, start, end)
 
+        // TODO(b/561269843): The StaticLayout keeps a reference to this ThreadLocal TextPaint. If
+        // draw() runs on another thread, mutating layout.paint mutates the building thread's cache.
         // Use a thread-local paint to avoid allocation overhead during measurement
-        val wPaint = workingPaintCache.getOrSet { TextPaint() }
-        wPaint.set(paint)
+        val workPaint = workingPaintCache.getOrSet { TextPaint() }
+        workPaint.set(paint)
 
         // Measure Body Width
-        spanWidth = ceil(Layout.getDesiredWidth(copied, 0, copied.length, wPaint)).toInt()
+        spanWidth =
+            ceil(Layout.getDesiredWidth(copiedBodyText, 0, copiedBodyText.length, workPaint))
+                .toInt()
 
         // Create Body Layout
         bodyLayout =
-            StaticLayout.Builder.obtain(copied, 0, copied.length, wPaint, spanWidth).build()
+            StaticLayout.Builder.obtain(
+                    copiedBodyText,
+                    0,
+                    copiedBodyText.length,
+                    workPaint,
+                    spanWidth,
+                )
+                .build()
 
         // Create Emphasis Layout
-        val originalSize = wPaint.textSize
-        wPaint.textSize *= relSize
-        emphasisWidth = ceil(Layout.getDesiredWidth(emphasis, 0, emphasis.length, wPaint)).toInt()
         val emLayout =
-            StaticLayout.Builder.obtain(emphasis, 0, emphasis.length, wPaint, emphasisWidth).build()
+            workPaint.withTextScale(relSize) {
+                val width = ceil(Layout.getDesiredWidth(emphasis, 0, emphasis.length, this)).toInt()
+                StaticLayout.Builder.obtain(emphasis, 0, emphasis.length, this, width).build()
+            }
+        emphasisWidth = emLayout.width
         emphasisAscent = emLayout.getLineAscent(0)
         emphasisDescent = emLayout.getLineDescent(0)
-        wPaint.textSize = originalSize
 
         // Calculate drawing position of emphasis letter.
-        positions = FloatArray(copied.length) { Float.NaN }
-        copied.forStyleRuns(0, end - start, wPaint) { ss, se, paint, _, _, _ ->
-            copied.forEachGrapheme(ss, se, paint.textLocale) { gs, ge ->
-                if (isEmphasisTarget(Character.codePointAt(copied, gs))) {
-                    val width = paint.measureText(copied, gs, ge)
+        positions = FloatArray(copiedBodyText.length) { Float.NaN }
+        copiedBodyText.forStyleRuns(0, end - start, workPaint) { ss, se, paint, _, _, _ ->
+            copiedBodyText.forEachGrapheme(ss, se, paint.textLocale) { gs, ge ->
+                if (isEmphasisTarget(Character.codePointAt(copiedBodyText, gs))) {
+                    val width = paint.measureText(copiedBodyText, gs, ge)
                     val pos = bodyLayout.getPrimaryHorizontal(gs)
                     positions[gs] = pos + (width - emphasisWidth) / 2
                 }
@@ -130,6 +141,14 @@ internal class HorizontalEmphasisSpanLayout(
         fm.bottom = fm.descent
     }
 
+    /**
+     * Draws the pre-calculated body layout and emphasis marks onto the canvas.
+     *
+     * @param canvas The target canvas.
+     * @param x The horizontal start position.
+     * @param y The baseline vertical position.
+     * @param paint The paint from the draw call, used to update the layout paint and draw marks.
+     */
     override fun draw(canvas: Canvas, x: Float, y: Float, paint: Paint) {
         // Draw Body Text
         canvas.withSave {
@@ -143,6 +162,9 @@ internal class HorizontalEmphasisSpanLayout(
         }
 
         // Draw Emphasis Text
+        // Canvas.drawText takes the glyph baseline. StaticLayout.draw takes the top of the line
+        // box. Subtract the mark descent for Before, or the mark ascent for After. This makes the
+        // mark line box touch the body line box.
         val emphasisDrawY =
             if (isMarkOver) y + bodyAscent - emphasisDescent else y + bodyDescent - emphasisAscent
         paint.withTextScale(relSize) {
