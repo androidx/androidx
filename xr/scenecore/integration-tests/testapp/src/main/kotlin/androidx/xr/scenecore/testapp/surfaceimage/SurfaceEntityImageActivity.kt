@@ -87,7 +87,6 @@ import java.nio.file.Paths
 import kotlinx.coroutines.launch
 
 private const val TAG = "JXR-SurfaceEntity-SurfaceEntityImageActivity"
-private const val MAX_CORNER_RADIUS = 0.5f
 
 object VideoButtonColors {
     val StandardPlayback = Color(0xFF42A5F5) // Blue 400
@@ -114,6 +113,10 @@ class SurfaceEntityImageActivity : ComponentActivity() {
     private var controlPanelEntity: PanelEntity? = null
     private var alphaMaskTexture: Texture? = null
     private var movieParent: Entity? = null
+
+    // Hoisted out of the controls UI so resizing the canvas can clamp them.
+    private var cornerRadius by mutableFloatStateOf(0.0f)
+    private var maxCornerRadius by mutableFloatStateOf(0.0f)
 
     // This is a custom move listener which moves the movieParent instead of the surfaceEntity
     // directly. This allows for the SurfaceEntity to be independently rotated without impacting
@@ -345,6 +348,15 @@ class SurfaceEntityImageActivity : ComponentActivity() {
 
         currentImageSize = null
         currentVideoRotationDegrees = 0
+        cornerRadius = 0.0f
+        maxCornerRadius = 0.0f
+    }
+
+    // Shape.Quad throws if cornerRadius exceeds half the smaller extent, so clamp on every resize.
+    private fun setQuadShape(extents: FloatSize2d) {
+        maxCornerRadius = maxOf(0.0f, minOf(extents.width, extents.height) / 2.0f)
+        cornerRadius = cornerRadius.coerceIn(0.0f, maxCornerRadius)
+        surfaceEntity!!.shape = SurfaceEntity.Shape.Quad(extents, cornerRadius)
     }
 
     fun getCanvasAspectRatio(
@@ -399,7 +411,6 @@ class SurfaceEntityImageActivity : ComponentActivity() {
         var isQuadShape by remember {
             mutableStateOf(surfaceEntity?.shape is SurfaceEntity.Shape.Quad)
         }
-        var cornerRadius by remember { mutableFloatStateOf(0.0f) }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -438,27 +449,30 @@ class SurfaceEntityImageActivity : ComponentActivity() {
                     )
                 }
             }
+            val cornerRadiusEnabled = isQuadShape && maxCornerRadius > 0.0f
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "Corner Radius", fontSize = 10.sp, color = Color.White)
+                Text(
+                    text = "Corner Radius",
+                    fontSize = 10.sp,
+                    color = if (cornerRadiusEnabled) Color.White else Color.Gray,
+                )
                 Slider(
                     value = cornerRadius,
                     onValueChange = {
-                        cornerRadius = it
                         val currentShape = surfaceEntity!!.shape
                         if (currentShape is SurfaceEntity.Shape.Quad) {
-                            surfaceEntity!!.shape =
-                                SurfaceEntity.Shape.Quad(currentShape.extents, cornerRadius)
+                            cornerRadius = it
+                            setQuadShape(currentShape.extents)
                         }
                     },
-                    valueRange = 0.0f..MAX_CORNER_RADIUS,
-                    enabled = isQuadShape,
+                    valueRange = 0.0f..maxCornerRadius,
+                    enabled = cornerRadiusEnabled,
                 )
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Button(
                     onClick = {
-                        surfaceEntity!!.shape =
-                            SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f), cornerRadius)
+                        setQuadShape(FloatSize2d(1.0f, 1.0f))
                         isQuadShape = true
                         // Move the Quad-shaped canvas to a spot in front of the User.
                         surfaceEntity!!.setPose(
@@ -520,10 +534,7 @@ class SurfaceEntityImageActivity : ComponentActivity() {
                 currentPixelAspectRatio,
             )
         if (surfaceEntity!!.shape is SurfaceEntity.Shape.Quad) {
-            surfaceEntity!!.shape =
-                SurfaceEntity.Shape.Quad(
-                    FloatSize2d(newShapeDimensions.width, newShapeDimensions.height)
-                )
+            setQuadShape(FloatSize2d(newShapeDimensions.width, newShapeDimensions.height))
             movableComponent?.size = surfaceEntity!!.dimensions
         }
 
