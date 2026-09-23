@@ -21,8 +21,10 @@ import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.max
+import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.unit.LayoutDirection
+import kotlin.math.min as kotlinMin
 
 /**
  * Base class for [RemoteShape]s defined by four [RemoteCornerSize]s.
@@ -65,6 +67,29 @@ public abstract class RemoteCornerBasedShape(
         strokeWidth: RemoteFloat = 0f.rf,
         offset: RemoteOffset = RemoteOffset(strokeWidth / 2f, strokeWidth / 2f),
     ): RemoteOutline {
+        // When all four corners are equal (e.g. RemoteCircleShape), compute a single shared
+        // RemoteFloat radius expression so that:
+        // 1. Only one float expression is emitted into the document instead of four duplicate ones.
+        // 2. All four corners share the same RemoteFloat instance/cacheKey, allowing
+        //    RemoteOutline.Rounded.drawOutline to detect that the corners are uniform and emit a
+        //    native drawRoundRect operation instead of falling back to a 4-segment cubic Bezier
+        //    path approximation.
+        if (topStart == topEnd && topEnd == bottomEnd && bottomEnd == bottomStart) {
+            var radius =
+                if (topStart is RemotePercentCornerSize) {
+                    size.minDimension * (kotlinMin(topStart.percent, 50) / 100f)
+                } else {
+                    min(topStart.toPx(size, density), size.minDimension * 0.5f)
+                }
+            val halfStroke = strokeWidth / 2f
+            radius = max(radius - halfStroke, 0f)
+            return createOutline(
+                corner = radius,
+                size = RemoteSize(size.width - strokeWidth, size.height - strokeWidth),
+                offset = offset,
+            )
+        }
+
         var topStart = topStart.toPx(size, density)
         var topEnd = topEnd.toPx(size, density)
         var bottomEnd = bottomEnd.toPx(size, density)
@@ -99,6 +124,24 @@ public abstract class RemoteCornerBasedShape(
             offset = offset,
         )
     }
+
+    /**
+     * Creates a [RemoteOutline] of this shape when all four corners share a single uniform [corner]
+     * radius expression.
+     */
+    internal fun createOutline(
+        corner: RemoteFloat,
+        size: RemoteSize? = null,
+        offset: RemoteOffset = RemoteOffset.Zero,
+    ): RemoteOutline =
+        createOutline(
+            topStart = corner,
+            topEnd = corner,
+            bottomEnd = corner,
+            bottomStart = corner,
+            size = size,
+            offset = offset,
+        )
 
     /**
      * Creates [RemoteOutline] of this shape.

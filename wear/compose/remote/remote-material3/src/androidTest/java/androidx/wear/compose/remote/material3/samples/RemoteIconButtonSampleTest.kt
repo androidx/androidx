@@ -44,8 +44,8 @@ class RemoteIconButtonSampleTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val creationDisplayInfo =
         RemoteCreationDisplayInfo(
-            500,
-            500,
+            180,
+            180,
             context.resources.displayMetrics.densityDpi,
             context.resources.configuration.fontScale,
         )

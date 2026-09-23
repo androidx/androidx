@@ -244,6 +244,25 @@ class RemoteRoundedCornerShapeTest {
     }
 
     @Test
+    fun drawOutline_circleShape_withDynamicSize_usesDrawRoundRect() {
+        val fakeBuffer = TestRemoteComposeBuffer()
+        val (drawScope, recordingCanvas) =
+            createRemoteDrawScope(width = 100, height = 50, fakeBuffer = fakeBuffer)
+        val outline =
+            RemoteCircleShape.createOutline(
+                size = RemoteSize(drawScope.width, drawScope.height),
+                density = RemoteDensity(2f.rf, 1f.rf),
+                layoutDirection = LayoutDirection.Ltr,
+            )
+
+        drawScope.drawOutline(outline, RemotePaint())
+        recordingCanvas.flush()
+
+        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawRoundRect(") }).isTrue()
+        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawPath(") }).isFalse()
+    }
+
+    @Test
     fun drawOutline_rectangle() {
         val fakeBuffer = TestRemoteComposeBuffer()
         val (drawScope, recordingCanvas) =
