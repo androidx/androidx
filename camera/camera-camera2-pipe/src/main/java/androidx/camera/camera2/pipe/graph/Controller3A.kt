@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.hasFlashUnit
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsAutoFocusTrigger
 import androidx.camera.camera2.pipe.ControlMode
 import androidx.camera.camera2.pipe.Converge3ABehavior
@@ -43,6 +44,7 @@ import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.Result3A.Status
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.core.Log.warn
 import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
@@ -771,8 +773,16 @@ constructor(
      * To use [FlashMode.TORCH], either [AeMode.ON] or [AeMode.OFF] needs to be used, otherwise, the
      * flash mode is a no-op. If the current AE mode is neither of them, this function changes the
      * AE mode to [AeMode.ON] in order to enable the torch.
+     *
+     * If the camera device does not have a flash unit ([CameraMetadata.hasFlashUnit] is `false`),
+     * the torch cannot be enabled. In that case this function returns immediately with
+     * [Status.SUBMIT_FAILED] and leaves the current 3A state untouched.
      */
     fun setTorchOn(): Deferred<Result3A> {
+        if (!metadata.hasFlashUnit) {
+            warn { "setTorchOn - ${metadata.camera} does not have a flash unit, ignoring." }
+            return deferredResult3ASubmitFailed
+        }
         val currAeMode = graphState3A.current.aeMode
         val desiredAeMode =
             if (currAeMode == AeMode.ON || currAeMode == AeMode.OFF) null else AeMode.ON
