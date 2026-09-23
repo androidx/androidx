@@ -30,6 +30,8 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecu
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executor
+import java.util.concurrent.RejectedExecutionException
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -161,6 +163,20 @@ class SurfaceOutputImplTest {
 
         // Assert.
         assertThat(hasRequestedClose).isFalse()
+    }
+
+    @Test
+    fun requestClose_whenExecutorRejected_closesSurfaceOutput() {
+        // Arrange.
+        val surfaceOutImpl = createFakeSurfaceOutputImpl()
+        val rejectedExecutor = Executor { throw RejectedExecutionException() }
+        surfaceOutImpl.getSurface(rejectedExecutor) {}
+
+        // Act.
+        surfaceOutImpl.requestClose()
+
+        // Assert.
+        assertThat(surfaceOutImpl.isClosed).isTrue()
     }
 
     private fun createFakeSurfaceOutputImpl(camera: FakeCamera? = FakeCamera()) =
