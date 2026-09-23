@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.capture.CanvasOp
 import androidx.compose.remote.creation.compose.capture.CanvasOperationBuffer
 import androidx.compose.remote.creation.compose.capture.RecordingCanvas
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -40,12 +41,29 @@ import androidx.graphics.shapes.RoundedPolygon
  * types in its public API where possible.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteCanvas(
-    /** The underlying [RecordingCanvas] being wrapped. */
-    public val internalCanvas: RecordingCanvas
-) : RemoteStateScope by internalCanvas {
+public class RemoteCanvas(private val internalCanvas: RecordingCanvas) :
+    RemoteStateScope by internalCanvas {
     public val drawScope: RemoteDrawScope = RemoteDrawScope(this)
     public val remote: RemoteAccess = RemoteAccess(drawScope)
+
+    /** Flushes recorded operations to the underlying creation state. */
+    internal fun flush() {
+        internalCanvas.flush()
+    }
+
+    /** Draws the content of the component. */
+    internal fun drawComponentContent() {
+        internalCanvas.drawComponentContent()
+    }
+
+    /** Emits a custom component with custom properties. */
+    internal fun custom(
+        config: String,
+        modifier: RemoteModifier = RemoteModifier,
+        properties: RemoteCustomPropertiesScope.() -> Unit = {},
+    ) {
+        internalCanvas.custom(config = config, modifier = modifier, properties = properties)
+    }
 
     /** Processes a [RemotePaint] object and serializes its changes to the remote document. */
     public fun usePaint(paint: RemotePaint?) {

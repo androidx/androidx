@@ -311,13 +311,8 @@ class RcPlayerPixelTest {
         val d = rule.density.density
         val bmp = renderPlayerToBitmap {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
-                val writer = remoteCanvas.internalCanvas
-                val paint =
-                    android.graphics.Paint().apply {
-                        color = android.graphics.Color.RED
-                        style = android.graphics.Paint.Style.FILL
-                    }
-                writer.drawRect(0f, 0f, 100f, 100f, paint)
+                document.rcPaint.setColor(AndroidColor.RED).commit()
+                document.drawRect(0f, 0f, 100f, 100f)
             }
         }
         val px = bmp.getPixel(50, 50)
