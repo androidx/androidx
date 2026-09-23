@@ -41,7 +41,7 @@ internal class RemoteCanvasNode : RemoteComposeNode() {
             drawScope.onDraw()
         }
 
-        remoteCanvas.internalCanvas.flush()
+        remoteCanvas.flush()
 
         creationState.document.endCanvas()
     }

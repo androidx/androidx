@@ -49,7 +49,7 @@ public fun RemoteCustomComponent(
     properties: RemoteCustomPropertiesScope.() -> Unit = {},
 ) {
     RemoteCanvas(modifier = modifier) {
-        remoteCanvas.internalCanvas.custom(
+        remoteCanvas.custom(
             config = name,
             modifier = modifier,
             properties = properties,
