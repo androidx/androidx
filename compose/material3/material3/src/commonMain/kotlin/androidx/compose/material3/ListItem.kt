@@ -253,6 +253,8 @@ public fun ListItem(
  *   different states. See [ListItemDefaults.elevation].
  * @param contentPadding the padding to be applied to the content of this list item.
  * @param content the main content of this list item. Also known as the headline or label.
+ *
+ * @material3expressive
  */
 @Composable
 public fun ListItem(
@@ -332,6 +334,8 @@ public fun ListItem(
  *   appearance or preview the list item in different states. Note that if `null` is provided,
  *   interactions will still happen internally.
  * @param content the main content of this list item. Also known as the headline or label.
+ *
+ * @material3expressive
  */
 @Composable
 public fun ListItem(
@@ -410,6 +414,8 @@ public fun ListItem(
  *   appearance or preview the list item in different states. Note that if `null` is provided,
  *   interactions will still happen internally.
  * @param content the main content of this list item. Also known as the headline or label.
+ *
+ * @material3expressive
  */
 @Composable
 public fun ListItem(
@@ -494,6 +500,8 @@ public fun ListItem(
  *   appearance or preview the list item in different states. Note that if `null` is provided,
  *   interactions will still happen internally.
  * @param content the main content of this list item. Also known as the headline or label.
+ *
+ * @material3expressive
  */
 @Composable
 public fun ListItem(
@@ -569,6 +577,8 @@ public fun ListItem(
  *   different states. See [ListItemDefaults.elevation].
  * @param contentPadding the padding to be applied to the content of this list item.
  * @param content the main content of this list item. Also known as the headline or label.
+ *
+ * @material3expressive
  */
 @Composable
 public fun SegmentedListItem(
@@ -647,6 +657,8 @@ public fun SegmentedListItem(
  *   appearance or preview the list item in different states. Note that if `null` is provided,
  *   interactions will still happen internally.
  * @param content the main content of this list item. Also known as the headline or label.
+ *
+ * @material3expressive
  */
 @Composable
 public fun SegmentedListItem(
@@ -727,6 +739,8 @@ public fun SegmentedListItem(
  *   appearance or preview the list item in different states. Note that if `null` is provided,
  *   interactions will still happen internally.
  * @param content the main content of this list item. Also known as the headline or label.
+ *
+ * @material3expressive
  */
 @Composable
 public fun SegmentedListItem(
@@ -811,6 +825,8 @@ public fun SegmentedListItem(
  *   appearance or preview the list item in different states. Note that if `null` is provided,
  *   interactions will still happen internally.
  * @param content the main content of this list item. Also known as the headline or label.
+ *
+ * @material3expressive
  */
 @Composable
 public fun SegmentedListItem(
