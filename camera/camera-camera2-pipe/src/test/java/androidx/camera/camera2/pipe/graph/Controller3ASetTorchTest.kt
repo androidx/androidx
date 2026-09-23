@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.graph
 
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
 import android.hardware.camera2.CaptureResult
@@ -88,6 +89,28 @@ internal class Controller3ASetTorchTest {
         val result = controller3A.setTorchOff()
         assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
         assertThat(graphState3A2.current.flashMode).isEqualTo(FlashMode.OFF)
+    }
+
+    @Test
+    fun setTorchOn_withoutFlashUnit_failsImmediatelyWithNoGraphStateChange() = runTest {
+        val graphState3A2 = GraphState3A()
+        val controller3A =
+            Controller3A(
+                graphProcessor,
+                FakeCameraMetadata.fromTemplate(
+                    HighEndDeviceTemplate,
+                    characteristicsOverrides =
+                        mapOf(CameraCharacteristics.FLASH_INFO_AVAILABLE to false),
+                ),
+                graphState3A2,
+                listener3A,
+            )
+
+        val result = controller3A.setTorchOn()
+
+        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+        assertThat(graphState3A2.current.aeMode).isNull()
+        assertThat(graphState3A2.current.flashMode).isNull()
     }
 
     @Test

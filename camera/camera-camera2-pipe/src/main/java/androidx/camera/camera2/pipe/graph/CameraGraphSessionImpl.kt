@@ -125,8 +125,6 @@ internal class CameraGraphSessionImpl(
 
     override fun setTorchOn(): Deferred<Result3A> {
         check(!token.released) { "Cannot call setTorchOn on $this after close." }
-        // TODO(sushilnath): First check whether the camera device has a flash unit. Ref:
-        // https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#FLASH_INFO_AVAILABLE
         return controller3A.setTorchOn()
     }
 

@@ -150,6 +150,11 @@ public interface CameraControls3A {
      * AE mode after the torch control has been used. The [setTorchOff] or [update3A] method can be
      * used to restore the AE state to a previous value.
      *
+     * If the camera device does not have a flash unit (see
+     * [CameraCharacteristics.FLASH_INFO_AVAILABLE]), the torch cannot be turned on. In that case
+     * the returned [Deferred] completes immediately with [Result3A.Status.SUBMIT_FAILED] and the
+     * current 3A state, including the AE mode, is left unchanged.
+     *
      * @return the FrameNumber at which the torch was fully turned on if switch was ON, or the
      *   FrameNumber at which it was completely turned off when the switch was OFF.
      */
