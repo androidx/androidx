@@ -40,9 +40,11 @@ public fun SemanticsNodeInteraction.assertIsDisplayed(): SemanticsNodeInteractio
 }
 
 /**
- * Asserts that the current semantics node is not displayed on screen.
+ * Asserts that the current semantics node is not displayed on screen, including when the node is
+ * not composed, composed but not placed, or when none of its bounds are visible on screen after
+ * clipping is applied.
  *
- * Throws [AssertionError] if the node is displayed.
+ * @throws AssertionError If the node is displayed.
  */
 public fun SemanticsNodeInteraction.assertIsNotDisplayed(): SemanticsNodeInteraction {
     if (!isNotDisplayed()) {
@@ -436,10 +438,11 @@ public fun SemanticsNodeInteraction.isDisplayed(): Boolean =
     checkIsDisplayed(assertIsFullyVisible = false)
 
 /**
- * Returns true if no matching node is displayed on screen.
+ * Returns true if the matched node is not displayed on screen, including when the node is not
+ * composed, composed but not placed, or when none of its bounds are visible on screen after
+ * clipping is applied.
  *
- * Returns false if a matching node is currently displayed. If multiple nodes match, throws an
- * [AssertionError].
+ * Returns false if a matching node is currently displayed.
  *
  * @sample androidx.compose.ui.test.samples.waitForNotDisplayed
  * @throws AssertionError If multiple nodes match this [SemanticsNodeInteraction].
