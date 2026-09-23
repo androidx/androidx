@@ -723,6 +723,8 @@ public fun FilterChip(
  *   emitting [Interaction]s for this chip. You can use this to change the chip's appearance or
  *   preview the chip in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
+ *
+ * @material3expressive
  */
 @Composable
 public fun FilterChip(
@@ -996,6 +998,8 @@ public fun ElevatedFilterChip(
  *   emitting [Interaction]s for this chip. You can use this to change the chip's appearance or
  *   preview the chip in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
+ *
+ * @material3expressive
  */
 @Composable
 public fun ElevatedFilterChip(
@@ -1287,6 +1291,8 @@ public fun InputChip(
  *   emitting [Interaction]s for this chip. You can use this to change the chip's appearance or
  *   preview the chip in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
+ *
+ * @material3expressive
  */
 @Composable
 public fun InputChip(
