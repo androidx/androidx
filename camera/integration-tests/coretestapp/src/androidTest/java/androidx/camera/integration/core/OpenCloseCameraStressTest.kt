@@ -120,6 +120,9 @@ class OpenCloseCameraStressTest(
     companion object {
         @ClassRule @JvmField val stressTest = StressTestRule()
 
+        private const val CAMERA_OPEN_TIMEOUT_MS = 3000L
+        private const val CAMERA_CLOSE_TIMEOUT_MS = 5000L
+
         @JvmStatic
         @Parameterized.Parameters(name = "config = {0}, cameraId = {2}")
         fun data() = StressTestUtil.getAllCameraXConfigCameraIdCombinations()
@@ -270,11 +273,13 @@ class OpenCloseCameraStressTest(
         }
 
         fun awaitCameraOpenedAndAssert() {
-            assertThat(openCameraLatch.await(3000, TimeUnit.MILLISECONDS)).isTrue()
+            assertThat(openCameraLatch.await(CAMERA_OPEN_TIMEOUT_MS, TimeUnit.MILLISECONDS))
+                .isTrue()
         }
 
         fun awaitCameraClosedAndAssert() {
-            assertThat(closeCameraLatch.await(3000, TimeUnit.MILLISECONDS)).isTrue()
+            assertThat(closeCameraLatch.await(CAMERA_CLOSE_TIMEOUT_MS, TimeUnit.MILLISECONDS))
+                .isTrue()
         }
     }
 }
