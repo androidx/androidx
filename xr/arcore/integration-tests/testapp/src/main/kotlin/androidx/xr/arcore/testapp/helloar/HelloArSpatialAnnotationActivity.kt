@@ -353,11 +353,11 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
 
     fun onTrackingStopped(message: String? = null) {
         lifecycleScope.launch(Dispatchers.Main) {
-            if (!isTrackingStarted && lastSnapshot == null) return@launch
             if (message != null) {
                 Toast.makeText(this@HelloArSpatialAnnotationActivity, message, Toast.LENGTH_SHORT)
                     .show()
             }
+            if (!isTrackingStarted && lastSnapshot == null) return@launch
             val s = session
             if (s != null && isTrackingStarted) {
                 try {

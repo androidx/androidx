@@ -18,6 +18,7 @@
 
 package androidx.xr.arcore.testapp.helloar.rendering
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
 import androidx.xr.arcore.SpatialAnnotation
@@ -55,6 +56,9 @@ internal class SpatialAnnotationRenderer(
 
     @Volatile var isDotCenter: Boolean = false
     @Volatile var isDotTop: Boolean = false
+
+    private val isActivityDestroyed: Boolean
+        get() = (context as? Activity)?.let { it.isDestroyed || it.isFinishing } ?: false
 
     private val overlayRenderer = QuadOverlayRenderer()
 
@@ -301,8 +305,10 @@ internal class SpatialAnnotationRenderer(
                 }
             }
         } finally {
-            surfaceEntity?.removeAllComponents()
-            surfaceEntity?.parent = null
+            if (!isActivityDestroyed) {
+                surfaceEntity?.removeAllComponents()
+                surfaceEntity?.parent = null
+            }
         }
     }
 
