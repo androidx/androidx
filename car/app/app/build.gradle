@@ -152,8 +152,6 @@ abstract class GenerateProtocolApiTask extends ProtocolApiTask {
                 generatedApi.toString(),
                 "--show-annotation",
                 "androidx.car.app.annotations.CarProtocol",
-                "--hide",
-                "UnhiddenSystemApi"
         ]
 
         runMetalava(args)
