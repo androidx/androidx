@@ -337,8 +337,6 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
                 args.addAll(
                     listOf(
                         "--hide",
-                        "UnhiddenSystemApi",
-                        "--hide",
                         "ReferencesHidden",
                         "--hide",
                         "ReferencesDeprecated",
