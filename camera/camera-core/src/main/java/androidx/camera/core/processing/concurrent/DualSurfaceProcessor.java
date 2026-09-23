@@ -18,6 +18,8 @@ package androidx.camera.core.processing.concurrent;
 
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 
+import static java.util.Objects.requireNonNull;
+
 import android.graphics.SurfaceTexture;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -48,6 +50,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -64,13 +67,21 @@ public class DualSurfaceProcessor implements SurfaceProcessorInternal,
         SurfaceTexture.OnFrameAvailableListener {
 
     private static final String TAG = "DualSurfaceProcessor";
+    // Per-GL-thread map of active input SurfaceTextures and Surfaces to prevent premature GC
+    // finalization before the provideSurface result listener releases them.
+    private static final ThreadLocal<Map<SurfaceTexture, Surface>> sInputSurfaces =
+            new ThreadLocal<>() {
+                @Override
+                protected Map<SurfaceTexture, Surface> initialValue() {
+                    return new HashMap<>();
+                }
+            };
     private final DualOpenGlRenderer mGlRenderer;
     @VisibleForTesting
     final HandlerThread mGlThread;
     private final Executor mGlExecutor;
     @VisibleForTesting
     final Handler mGlHandler;
-    private int mInputSurfaceCount = 0;
     private boolean mIsReleased = false;
     private final AtomicBoolean mIsReleaseRequested = new AtomicBoolean(false);
     // Map of current set of available outputs. Only access this on GL thread.
@@ -114,17 +125,17 @@ public class DualSurfaceProcessor implements SurfaceProcessorInternal,
             return;
         }
         executeSafely(() -> {
-            mInputSurfaceCount++;
             SurfaceTexture surfaceTexture = new SurfaceTexture(
                     mGlRenderer.getTextureName(surfaceRequest.isPrimary()));
             surfaceTexture.setDefaultBufferSize(surfaceRequest.getResolution().getWidth(),
                     surfaceRequest.getResolution().getHeight());
             Surface surface = new Surface(surfaceTexture);
+            requireNonNull(sInputSurfaces.get()).put(surfaceTexture, surface);
             surfaceRequest.provideSurface(surface, mGlExecutor, result -> {
                 surfaceTexture.setOnFrameAvailableListener(null);
                 surfaceTexture.release();
                 surface.release();
-                mInputSurfaceCount--;
+                requireNonNull(sInputSurfaces.get()).remove(surfaceTexture);
                 checkReadyToRelease();
             });
             if (surfaceRequest.isPrimary()) {
@@ -276,7 +287,7 @@ public class DualSurfaceProcessor implements SurfaceProcessorInternal,
 
     @WorkerThread
     private void checkReadyToRelease() {
-        if (mIsReleased && mInputSurfaceCount == 0) {
+        if (mIsReleased && requireNonNull(sInputSurfaces.get()).isEmpty()) {
             // Once release is called, we can stop sending frame to output surfaces.
             for (SurfaceOutput surfaceOutput : mOutputSurfaces.keySet()) {
                 surfaceOutput.close();

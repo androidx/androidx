@@ -59,6 +59,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -77,6 +78,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
         SurfaceTexture.OnFrameAvailableListener {
     private static final String TAG = "DefaultSurfaceProcessor";
+    // Per-GL-thread map of active input SurfaceTextures and Surfaces to prevent premature GC
+    // finalization before the provideSurface result listener releases them.
+    private static final ThreadLocal<Map<SurfaceTexture, Surface>> sInputSurfaces =
+            new ThreadLocal<>() {
+                @Override
+                protected Map<SurfaceTexture, Surface> initialValue() {
+                    return new HashMap<>();
+                }
+            };
 
     private final OpenGlRenderer mGlRenderer;
     @VisibleForTesting
@@ -91,8 +101,6 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Map<SurfaceOutput, Surface> mOutputSurfaces = new LinkedHashMap<>();
 
-    // Only access this on GL thread.
-    private int mInputSurfaceCount = 0;
     // Only access this on GL thread.
     private boolean mIsReleased = false;
     // Only access this on GL thread.
@@ -135,11 +143,11 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
             return;
         }
         executeSafely(() -> {
-            mInputSurfaceCount++;
             SurfaceTexture surfaceTexture = new SurfaceTexture(mGlRenderer.getTextureName());
             surfaceTexture.setDefaultBufferSize(surfaceRequest.getResolution().getWidth(),
                     surfaceRequest.getResolution().getHeight());
             Surface surface = new Surface(surfaceTexture);
+            requireNonNull(sInputSurfaces.get()).put(surfaceTexture, surface);
             surfaceRequest.setTransformationInfoListener(mGlExecutor, transformationInfo -> {
                 InputFormat inputFormat = InputFormat.DEFAULT;
                 if (surfaceRequest.getDynamicRange().is10BitHdr()
@@ -154,7 +162,7 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
                 surfaceTexture.setOnFrameAvailableListener(null);
                 surfaceTexture.release();
                 surface.release();
-                mInputSurfaceCount--;
+                requireNonNull(sInputSurfaces.get()).remove(surfaceTexture);
                 checkReadyToRelease();
             });
             surfaceTexture.setOnFrameAvailableListener(this, mGlHandler);
@@ -346,7 +354,7 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
 
     @WorkerThread
     private void checkReadyToRelease() {
-        if (mIsReleased && mInputSurfaceCount == 0) {
+        if (mIsReleased && requireNonNull(sInputSurfaces.get()).isEmpty()) {
             // Once release is called, we can stop sending frame to output surfaces.
             for (SurfaceOutput surfaceOutput : mOutputSurfaces.keySet()) {
                 surfaceOutput.close();
