@@ -115,6 +115,18 @@ internal constructor(public val value: RemoteFloat, public val type: TextUnitTyp
 public val Int.rsp: RemoteTextUnit
     get() = RemoteTextUnit(this.rf, TextUnitType.Sp)
 
+/** Extension property to convert a [Float] to a [RemoteTextUnit] in Sp. */
+public val Float.rsp: RemoteTextUnit
+    get() = RemoteTextUnit(this.rf, TextUnitType.Sp)
+
+/**
+ * Extension property to convert a [RemoteFloat] to a [RemoteTextUnit] in Sp.
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.RemoteTextDynamicFontSizeSample
+ */
+public val RemoteFloat.rsp: RemoteTextUnit
+    get() = RemoteTextUnit(this, TextUnitType.Sp)
+
 /** Extension function to convert a [TextUnit] to a [RemoteTextUnit]. */
 public fun TextUnit.asRemoteTextUnit(): RemoteTextUnit = RemoteTextUnit(this.value.rf, this.type)
 

@@ -1473,10 +1473,14 @@ package androidx.compose.remote.creation.compose.state {
   public final class RemoteTextUnitKt {
     method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit asRemoteTextUnit(androidx.compose.ui.unit.TextUnit);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit asRemoteTextUnit--R2X_6o(long);
+    method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteTextUnit getRsp(androidx.compose.remote.creation.compose.state.RemoteFloat);
+    method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteTextUnit getRsp(float);
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteTextUnit getRsp(int);
     method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit toRsp(androidx.compose.ui.unit.Dp);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit toRsp-0680j_4(float);
     property public static androidx.compose.remote.creation.compose.state.RemoteTextUnit int.rsp;
+    property public static androidx.compose.remote.creation.compose.state.RemoteTextUnit float.rsp;
+    property public static androidx.compose.remote.creation.compose.state.RemoteTextUnit androidx.compose.remote.creation.compose.state.RemoteFloat.rsp;
   }
 
   public final class RemoteTweenSpec implements androidx.compose.remote.creation.compose.state.RemoteAnimationSpec {
