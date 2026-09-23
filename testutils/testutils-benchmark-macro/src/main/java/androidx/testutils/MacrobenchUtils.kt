@@ -17,7 +17,6 @@
 package androidx.testutils
 
 import android.content.Intent
-import android.os.Build
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
 import androidx.benchmark.ExperimentalConfig
 import androidx.benchmark.StartupInsightsConfig
@@ -75,12 +74,6 @@ fun defaultMemoryMetrics(): List<Metric> {
         add(MemoryUsageMetric.SubMetric.HeapSize)
         add(MemoryUsageMetric.SubMetric.RssAnon)
         add(MemoryUsageMetric.SubMetric.RssFile)
-        if (Build.VERSION.SDK_INT >= 33) {
-            add(MemoryUsageMetric.SubMetric.Swap)
-        }
-        if (Build.VERSION.SDK_INT >= 36) {
-            add(MemoryUsageMetric.SubMetric.BitmapMemory)
-        }
     }
     return listOf(
         MemoryUsageMetric(
