@@ -690,6 +690,7 @@ public final class AudioSource {
         ByteBuffer byteBuffer = inputBuffer.getByteBuffer();
         AudioStream.PacketInfo packetInfo = audioStream.read(byteBuffer);
         if (packetInfo.getSizeInBytes() > 0) {
+            byteBuffer.limit(byteBuffer.position() + packetInfo.getSizeInBytes());
             if (mMuted) {
                 overrideBySilence(byteBuffer, packetInfo.getSizeInBytes());
             }
@@ -701,7 +702,6 @@ public final class AudioSource {
                 mAmplitudeTimestamp = packetInfo.getTimestampNs();
                 postMaxAmplitude(byteBuffer);
             }
-            byteBuffer.limit(byteBuffer.position() + packetInfo.getSizeInBytes());
             inputBuffer.setPresentationTimeUs(
                     NANOSECONDS.toMicros(packetInfo.getTimestampNs()));
             inputBuffer.submit();
