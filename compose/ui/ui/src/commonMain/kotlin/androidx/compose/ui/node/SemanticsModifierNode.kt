@@ -131,6 +131,7 @@ internal val SemanticsConfiguration.useMinimumTouchTarget: Boolean
 internal fun Modifier.Node.effectiveBoundsInRoot(
     useMinimumTouchTarget: Boolean,
     clipBounds: Boolean,
+    clipToParentIfLargerThanMinTouchTarget: Boolean = false,
 ): Rect {
     if (!node.isAttached) {
         return Rect.Zero
@@ -139,7 +140,8 @@ internal fun Modifier.Node.effectiveBoundsInRoot(
         return requireCoordinator(Nodes.Semantics).boundsInRoot(clipBounds)
     }
 
-    return requireCoordinator(Nodes.Semantics).touchBoundsInRoot()
+    return requireCoordinator(Nodes.Semantics)
+        .touchBoundsInRoot(clipToParentIfLargerThanMinTouchTarget)
 }
 
 /** The boundaries of this layout inside the root. */

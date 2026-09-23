@@ -282,7 +282,12 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
                 return
             }
             val touchBoundsInRoot = currentNode.touchBoundsInRoot.roundToIntRect()
-            region.set(touchBoundsInRoot)
+            val clippedTouchBoundsInRoot =
+                if (ComposeUiFlags.isClippedTouchBoundsOcclusionFixEnabled) {
+                    currentNode.clippedTouchBoundsInRoot.roundToIntRect()
+                } else {
+                    touchBoundsInRoot
+                }
 
             val virtualViewId = virtualViewId(currentNode)
 
@@ -291,8 +296,17 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
                     (currentNode.unmergedConfig.isMergingSemanticsOfDescendants &&
                         currentNode.unmergedConfig.contains(HideFromAccessibility))
 
+            // Test the actual uncovered Region inside the clipping container (not region.bounds,
+            // whose rectangular bounding box would include L-shaped corner overhang).
+            region.set(clippedTouchBoundsInRoot)
+
             // Note that the `intersect` call updates the region
-            if (region.intersect(unaccountedSpace)) {
+            val isUncovered = region.intersect(unaccountedSpace)
+            if (isUncovered && clippedTouchBoundsInRoot != touchBoundsInRoot) {
+                region.set(touchBoundsInRoot)
+                region.intersect(unaccountedSpace)
+            }
+            if (isUncovered) {
                 nodes[virtualViewId] =
                     AdjustedSemanticsNode(currentNode, region.bounds, isCurrentHidden)
 
@@ -339,7 +353,7 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
                     }
                 }
                 if (currentNode.isImportantForAccessibility()) {
-                    unaccountedSpace.difference(touchBoundsInRoot)
+                    unaccountedSpace.difference(clippedTouchBoundsInRoot)
                 }
             } else {
                 if (currentNode.isFake) {

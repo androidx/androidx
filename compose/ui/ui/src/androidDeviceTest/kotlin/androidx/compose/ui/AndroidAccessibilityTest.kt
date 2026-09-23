@@ -6575,6 +6575,211 @@ class AndroidAccessibilityTest {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
+    private fun withClippedTouchBoundsOcclusionFixFlag(
+        enabled: Boolean = true,
+        block: () -> Unit,
+    ) {
+        val saved = ComposeUiFlags.isClippedTouchBoundsOcclusionFixEnabled
+        ComposeUiFlags.isClippedTouchBoundsOcclusionFixEnabled = enabled
+        try {
+            block()
+        } finally {
+            ComposeUiFlags.isClippedTouchBoundsOcclusionFixEnabled = saved
+        }
+    }
+
+    @Test
+    fun clippedChildInScrollContainer_doesNotOccludeAdjacentSiblingTouchTarget() =
+        withClippedTouchBoundsOcclusionFixFlag {
+            val topButtonTag = "top_button"
+            val gridItemTag = "grid_item"
+            var itemTopOffsetDp by mutableStateOf((-12).dp)
+            container.setContent {
+                Column(Modifier.size(200.dp)) {
+                    // Top bar with a 48.dp clickable button (zIndex = 0f)
+                    Box(Modifier.fillMaxWidth().height(56.dp)) {
+                        Box(
+                            Modifier.size(48.dp)
+                                .align(Alignment.BottomStart)
+                                .testTag(topButtonTag)
+                                .clickable {}
+                        )
+                    }
+                    // Clipped container below top bar with a partially scrolled/clipped clickable
+                    // item
+                    Box(Modifier.fillMaxWidth().height(144.dp).clipToBounds()) {
+                        Box(
+                            Modifier.offset(y = itemTopOffsetDp)
+                                .size(100.dp)
+                                .testTag(gridItemTag)
+                                .clickable {}
+                        )
+                    }
+                }
+            }
+
+            val topButtonNode = rule.onNodeWithTag(topButtonTag).fetchSemanticsNode()
+            val gridItemNode = rule.onNodeWithTag(gridItemTag).fetchSemanticsNode()
+            val expectedHeight = with(rule.density) { 48.dp.roundToPx() }
+            val containerTopPx = with(rule.density) { 56.dp.roundToPx().toFloat() }
+            // Since 88.dp (>= 48.dp) of grid_item is visible inside the clipped container, its
+            // touchBoundsInRoot should be clipped to the container's top edge (56.dp).
+            assertThat(gridItemNode.touchBoundsInRoot.top).isEqualTo(containerTopPx)
+            rule.runOnIdle {
+                val topButtonAni = createAccessibilityNodeInfo(topButtonNode.id)
+                val bounds = Rect().also { topButtonAni.getBoundsInScreen(it) }
+                assertThat(bounds.height()).isEqualTo(expectedHeight)
+            }
+
+            // Now scroll the item further up so less than 48.dp (20.dp) is visible inside the
+            // clipped container. Its touchBoundsInRoot extends above the container for minimum
+            // touch target, but it still must not occlude the sibling top_button outside the
+            // clipped container.
+            rule.runOnIdle { itemTopOffsetDp = (-80).dp }
+            val gridItemNodeAfterScroll = rule.onNodeWithTag(gridItemTag).fetchSemanticsNode()
+            assertThat(gridItemNodeAfterScroll.touchBoundsInRoot.top).isLessThan(containerTopPx)
+            rule.runOnIdle {
+                val topButtonAniAfterScroll = createAccessibilityNodeInfo(topButtonNode.id)
+                val boundsAfterScroll =
+                    Rect().also { topButtonAniAfterScroll.getBoundsInScreen(it) }
+                assertThat(boundsAfterScroll.height()).isEqualTo(expectedHeight)
+            }
+        }
+
+    @Test
+    fun overlappingClippedChildrenNearContainerEdge_occludedChildIsPruned() =
+        withClippedTouchBoundsOcclusionFixFlag {
+            val primaryButtonTag = "primary_button"
+            val secondaryButtonTag = "secondary_button"
+            container.setContent {
+                Box(Modifier.size(100.dp).clipToBounds()) {
+                    // Two 0.dp-height clickable nodes placed 20.dp above the bottom edge of a
+                    // 100.dp clipping container (at y = 80.dp). Both expand their 48.dp minimum
+                    // touch target to [56.dp, 104.dp], sticking 4.dp outside the container's
+                    // bottom edge (100.dp).
+                    Box(
+                        Modifier.offset(y = 80.dp)
+                            .size(width = 80.dp, height = 0.dp)
+                            .testTag(primaryButtonTag)
+                            .clickable {}
+                    )
+                    Box(
+                        Modifier.offset(y = 80.dp)
+                            .size(width = 80.dp, height = 0.dp)
+                            .testTag(secondaryButtonTag)
+                            .clickable {}
+                    )
+                }
+            }
+
+            val primaryNode = rule.onNodeWithTag(primaryButtonTag).fetchSemanticsNode()
+            val secondaryNode = rule.onNodeWithTag(secondaryButtonTag).fetchSemanticsNode()
+            val expectedHeight = with(rule.density) { 48.dp.roundToPx() }
+
+            rule.runOnIdle {
+                val rootAni =
+                    createAccessibilityNodeInfo(AccessibilityNodeProviderCompat.HOST_VIEW_ID)
+                val secondaryAni = createAccessibilityNodeInfo(secondaryNode.id)
+                val secondaryBounds = Rect().also { secondaryAni.getBoundsInScreen(it) }
+                assertThat(secondaryBounds.height()).isEqualTo(expectedHeight)
+                // The underlying primary button is 100% occluded within the clipping container and
+                // must be pruned rather than surviving with a 4.dp overhang sliver outside the
+                // container.
+                assertThat(rootAni.childCount).isEqualTo(1)
+                assertThat(provider.createAccessibilityNodeInfo(primaryNode.id)).isNull()
+            }
+        }
+
+    @Test
+    fun overlappingClippedChildrenInContainerCorner_occludedChildIsPruned() =
+        withClippedTouchBoundsOcclusionFixFlag {
+            val primaryButtonTag = "primary_corner_button"
+            val secondaryButtonTag = "secondary_corner_button"
+            container.setContent {
+                Box(Modifier.padding(50.dp).size(100.dp).clipToBounds()) {
+                    // Two 20.dp clickable nodes stacked in the bottom-start corner of a 100.dp
+                    // clipping container. Their 48.dp minimum touch target overhangs both the left
+                    // and bottom edges by 14.dp (an L-shaped overhang outside the container).
+                    Box(
+                        Modifier.align(Alignment.BottomStart)
+                            .size(20.dp)
+                            .testTag(primaryButtonTag)
+                            .clickable {}
+                    )
+                    Box(
+                        Modifier.align(Alignment.BottomStart)
+                            .size(20.dp)
+                            .testTag(secondaryButtonTag)
+                            .clickable {}
+                    )
+                }
+            }
+
+            val primaryNode = rule.onNodeWithTag(primaryButtonTag).fetchSemanticsNode()
+            val secondaryNode = rule.onNodeWithTag(secondaryButtonTag).fetchSemanticsNode()
+            val expectedSize = with(rule.density) { 48.dp.roundToPx() }
+
+            rule.runOnIdle {
+                val rootAni =
+                    createAccessibilityNodeInfo(AccessibilityNodeProviderCompat.HOST_VIEW_ID)
+                val secondaryAni = createAccessibilityNodeInfo(secondaryNode.id)
+                val secondaryBounds = Rect().also { secondaryAni.getBoundsInScreen(it) }
+                assertThat(secondaryBounds.width()).isEqualTo(expectedSize)
+                assertThat(secondaryBounds.height()).isEqualTo(expectedSize)
+                assertThat(rootAni.childCount).isEqualTo(1)
+                assertThat(provider.createAccessibilityNodeInfo(primaryNode.id)).isNull()
+            }
+        }
+
+    @Test
+    fun clippedChildWithPerpendicularSiblingOverlap_preservesFullTouchTargetBounds() =
+        withClippedTouchBoundsOcclusionFixFlag {
+            val dismissButtonTag = "dismiss_tag_button"
+            val lowerRowButtonTag = "lower_row_button"
+            container.setContent {
+                Box(Modifier.padding(50.dp).size(200.dp)) {
+                    // Row 0: A 32.dp-tall, 100.dp-wide clipping chip container (height < 48.dp,
+                    // width >= 48.dp) with a 24.dp dismiss button placed 4.dp from the right edge.
+                    // Its 48x48.dp touchBoundsInRoot extends 8.dp vertically ([-8.dp, 40.dp]) and
+                    // 8.dp horizontally past the right edge of the chip ([68.dp, 108.dp]).
+                    // Because the chip clips horizontally (width = 100.dp >= 48.dp) but not
+                    // vertically (height = 32.dp < 48.dp), clippedTouchBoundsInRoot is
+                    // [68.dp, 100.dp] x [-8.dp, 40.dp].
+                    Box(Modifier.size(width = 100.dp, height = 32.dp).clipToBounds()) {
+                        Box(
+                            Modifier.align(Alignment.CenterEnd)
+                                .padding(end = 4.dp)
+                                .size(24.dp)
+                                .testTag(dismissButtonTag)
+                                .clickable {}
+                        )
+                    }
+                    // Row 1 (placed 8.dp below Row 0, at y = 40.dp): A 32.dp-tall clickable sibling
+                    // spanning x = [0.dp, 100.dp]. Its 48.dp vertical touch target spans
+                    // y = [32.dp, 80.dp], overlapping y = [32.dp, 40.dp] across x = [68.dp, 100.dp]
+                    // inside the chip's clipped width, while leaving the right overhang
+                    // x = [100.dp, 108.dp] x [-8.dp, 40.dp] completely unoccluded.
+                    Box(
+                        Modifier.offset(y = 40.dp)
+                            .size(width = 100.dp, height = 32.dp)
+                            .testTag(lowerRowButtonTag)
+                            .clickable {}
+                    )
+                }
+            }
+
+            val dismissNode = rule.onNodeWithTag(dismissButtonTag).fetchSemanticsNode()
+            val expectedSize = with(rule.density) { 48.dp.roundToPx() }
+
+            rule.runOnIdle {
+                val dismissAni = createAccessibilityNodeInfo(dismissNode.id)
+                val dismissBounds = Rect().also { dismissAni.getBoundsInScreen(it) }
+                assertThat(dismissBounds.width()).isEqualTo(expectedSize)
+                assertThat(dismissBounds.height()).isEqualTo(expectedSize)
+            }
+        }
+
     private fun Modifier.pointerInputSharedWithSiblings(onPointerEvent: () -> Unit = {}): Modifier =
         this.then(PointerInputSharedWithSiblingsElement(onPointerEvent))
 

@@ -185,4 +185,15 @@ public object ComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isHardwareNavigationHandlingEnabled: Boolean = false
+
+    /**
+     * Enables clipping `touchBoundsInRoot` when a child has at least `minimumTouchTargetSize`
+     * visible inside a clipping container and when subtracting a child's touch bounds from
+     * `unaccountedSpace` in `SemanticsOwner`, preventing clipped items inside scrollable containers
+     * from truncating the accessibility bounds of adjacent sibling toolbar buttons.
+     */
+    // TODO: b/565962277 - Cleanup feature flag
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isClippedTouchBoundsOcclusionFixEnabled: Boolean = false
 }
