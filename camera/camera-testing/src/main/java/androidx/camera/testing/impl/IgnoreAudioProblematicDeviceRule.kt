@@ -16,6 +16,7 @@
 
 package androidx.camera.testing.impl
 
+import androidx.camera.testing.impl.IgnoreProblematicDeviceRule.Companion.isMediumPhoneApi26Emulator
 import androidx.camera.testing.impl.IgnoreProblematicDeviceRule.Companion.isPixel2Api26Emulator
 import androidx.camera.testing.impl.IgnoreProblematicDeviceRule.Companion.isPixel2Api30Emulator
 import org.junit.AssumptionViolatedException
@@ -25,7 +26,8 @@ import org.junit.runners.model.Statement
 
 /** Test class to set the TestRule that should not be run on the audio problematically devices. */
 public class IgnoreAudioProblematicDeviceRule : TestRule {
-    private val isProblematicDevices = isPixel2Api26Emulator || isPixel2Api30Emulator
+    private val isProblematicDevices =
+        isPixel2Api26Emulator || isPixel2Api30Emulator || isMediumPhoneApi26Emulator
 
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {

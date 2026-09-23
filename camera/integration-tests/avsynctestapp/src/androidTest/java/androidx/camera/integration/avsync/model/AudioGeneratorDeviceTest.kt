@@ -18,6 +18,7 @@ package androidx.camera.integration.avsync.model
 
 import android.content.Context
 import android.media.AudioTrack
+import androidx.camera.testing.impl.IgnoreAudioProblematicDeviceRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -25,12 +26,15 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class AudioGeneratorDeviceTest {
+
+    @get:Rule val ignoreAudioProblematicDeviceRule = IgnoreAudioProblematicDeviceRule()
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private lateinit var audioGenerator: AudioGenerator
