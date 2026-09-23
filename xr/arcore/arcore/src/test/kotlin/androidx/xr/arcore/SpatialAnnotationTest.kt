@@ -53,7 +53,6 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
-import org.robolectric.shadows.ShadowLooper
 
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -152,21 +151,21 @@ class SpatialAnnotationTest {
             val testAnnotation = TestSpatialAnnotation(TEST_ANNOTATION_ID)
             arCoreTestRule.addTrackables(testAnnotation)
 
-            advanceUntilIdle()
-
             var underTest = emptyList<SpatialAnnotation>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 SpatialAnnotation.subscribe(session).collect { underTest = it.toList() }
             }
-            activityController.pause()
+            // Gather the spatial annotations.
             advanceUntilIdle()
+
+            assertThat(underTest).isNotEmpty()
+
             session.configure(
                 Config.Builder()
                     .setSpatialAnnotationTracking(SpatialAnnotationTrackingMode.DISABLED)
                     .build()
             )
-            ShadowLooper.idleMainLooper()
-            activityController.resume()
+            // Propagate the effects of configure().
             advanceUntilIdle()
 
             assertThat(underTest.single().state.value.trackingState)

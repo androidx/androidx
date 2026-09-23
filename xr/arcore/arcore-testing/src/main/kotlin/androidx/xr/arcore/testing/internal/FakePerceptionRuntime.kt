@@ -83,14 +83,17 @@ internal class FakePerceptionRuntime(override val perceptionManager: FakePercept
         state = State.RESUMED
     }
 
+    override suspend fun prepareForUpdate() {
+        check(state == State.RESUMED)
+        semaphore.acquire()
+    }
+
     /**
      * Retrieves the latest time mark. The first call to this method will execute immediately.
      * Subsequent calls will be blocked until [allowOneMoreCallToUpdate] is called.
      */
     override suspend fun update(): ComparableTimeMark {
         check(state == State.RESUMED)
-        semaphore.acquire()
-
         perceptionManager.updateTrackingStates(config)
 
         // Move any pending Trackable objects to PerceptionManager

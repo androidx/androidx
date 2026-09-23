@@ -45,6 +45,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class RenderViewpointTest {
 
     @Rule @JvmField val arCoreTestRule = ArCoreTestRule()
@@ -86,7 +87,6 @@ class RenderViewpointTest {
         arCoreTestRule.deviceTester.pose = Pose()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun left_returnsPoseAndFov() =
         runTest(testDispatcher) {
@@ -107,7 +107,6 @@ class RenderViewpointTest {
                 .isEqualTo(EXPECTED_FOV.angleDown)
         }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun right_returnsPoseAndFov() =
         runTest(testDispatcher) {
@@ -128,7 +127,6 @@ class RenderViewpointTest {
                 .isEqualTo(EXPECTED_FOV.angleDown)
         }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun mono_returnsPoseAndFov() =
         runTest(testDispatcher) {
@@ -149,7 +147,6 @@ class RenderViewpointTest {
                 .isEqualTo(EXPECTED_FOV.angleDown)
         }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun left_returnsPoseAndFovInPerceptionSpace() =
         runTest(testDispatcher) {
@@ -172,7 +169,6 @@ class RenderViewpointTest {
                 .isEqualTo(EXPECTED_FOV.angleDown)
         }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun right_returnsPoseAndFovInPerceptionSpace() =
         runTest(testDispatcher) {
@@ -195,7 +191,6 @@ class RenderViewpointTest {
                 .isEqualTo(EXPECTED_FOV.angleDown)
         }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun mono_returnsPoseAndFovInPerceptionSpace() =
         runTest(testDispatcher) {

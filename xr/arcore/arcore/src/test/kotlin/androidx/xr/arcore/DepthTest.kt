@@ -45,6 +45,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class DepthTest {
     companion object {
         val RAW_ONLY_CONFIG =
@@ -91,7 +92,6 @@ class DepthTest {
                 .session
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun left_depthEstimationDisabled_throwsIllegalStateException() =
         runTest(testDispatcher) {
@@ -101,7 +101,6 @@ class DepthTest {
             assertFailsWith<IllegalStateException> { Depth.left(session) }
         }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun right_depthEstimationDisabled_throwsIllegalStateException() =
         runTest(testDispatcher) {
@@ -111,7 +110,6 @@ class DepthTest {
             assertFailsWith<IllegalStateException> { Depth.right(session) }
         }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun mono_depthEstimationDisabled_throwsIllegalStateException() =
         runTest(testDispatcher) {
@@ -121,12 +119,10 @@ class DepthTest {
             assertFailsWith<IllegalStateException> { Depth.mono(session) }
         }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun left_rawOnly_updatesRawDepthMap() {
-        session.configure(RAW_ONLY_CONFIG)
-
+    fun left_rawOnly_updatesRawDepthMap() =
         runTest(testDispatcher) {
+            session.configure(RAW_ONLY_CONFIG)
             applyExpectedValues(arCoreTestRule.leftDepthTester)
             advanceUntilIdle()
 
@@ -140,14 +136,11 @@ class DepthTest {
             assertThat(underTest.state.value.smoothDepthMap).isNull()
             assertThat(underTest.state.value.smoothConfidenceMap).isNull()
         }
-    }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun left_smoothOnly_updatesSmoothDepthMap() {
-        session.configure(SMOOTH_ONLY_CONFIG)
-
+    fun left_smoothOnly_updatesSmoothDepthMap() =
         runTest(testDispatcher) {
+            session.configure(SMOOTH_ONLY_CONFIG)
             applyExpectedValues(arCoreTestRule.leftDepthTester)
             advanceUntilIdle()
 
@@ -161,14 +154,11 @@ class DepthTest {
             assertThat(underTest.state.value.smoothConfidenceMap)
                 .isEqualTo(expectedSmoothConfidenceBuffer)
         }
-    }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun left_smoothAndRaw_updatesSmoothAndRawDepthMaps() {
-        session.configure(SMOOTH_AND_RAW_CONFIG)
-
+    fun left_smoothAndRaw_updatesSmoothAndRawDepthMaps() =
         runTest(testDispatcher) {
+            session.configure(SMOOTH_AND_RAW_CONFIG)
             applyExpectedValues(arCoreTestRule.leftDepthTester)
             advanceUntilIdle()
 
@@ -183,14 +173,11 @@ class DepthTest {
             assertThat(underTest.state.value.smoothConfidenceMap)
                 .isEqualTo(expectedSmoothConfidenceBuffer)
         }
-    }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun right_rawOnly_updatesRawDepthMap() {
-        session.configure(RAW_ONLY_CONFIG)
-
+    fun right_rawOnly_updatesRawDepthMap() =
         runTest(testDispatcher) {
+            session.configure(RAW_ONLY_CONFIG)
             applyExpectedValues(arCoreTestRule.rightDepthTester)
             advanceUntilIdle()
 
@@ -204,14 +191,11 @@ class DepthTest {
             assertThat(underTest.state.value.smoothDepthMap).isNull()
             assertThat(underTest.state.value.smoothConfidenceMap).isNull()
         }
-    }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun right_smoothOnly_updatesSmoothDepthMap() {
-        session.configure(SMOOTH_ONLY_CONFIG)
-
+    fun right_smoothOnly_updatesSmoothDepthMap() =
         runTest(testDispatcher) {
+            session.configure(SMOOTH_ONLY_CONFIG)
             applyExpectedValues(arCoreTestRule.rightDepthTester)
             advanceUntilIdle()
 
@@ -225,14 +209,11 @@ class DepthTest {
             assertThat(underTest.state.value.smoothConfidenceMap)
                 .isEqualTo(expectedSmoothConfidenceBuffer)
         }
-    }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun right_smoothAndRaw_updatesSmoothAndRawDepthMaps() {
-        session.configure(SMOOTH_AND_RAW_CONFIG)
-
+    fun right_smoothAndRaw_updatesSmoothAndRawDepthMaps() =
         runTest(testDispatcher) {
+            session.configure(SMOOTH_AND_RAW_CONFIG)
             applyExpectedValues(arCoreTestRule.rightDepthTester)
             advanceUntilIdle()
 
@@ -247,14 +228,11 @@ class DepthTest {
             assertThat(underTest.state.value.smoothConfidenceMap)
                 .isEqualTo(expectedSmoothConfidenceBuffer)
         }
-    }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun mono_rawOnly_updatesRawDepthMap() {
-        session.configure(RAW_ONLY_CONFIG)
-
+    fun mono_rawOnly_updatesRawDepthMap() =
         runTest(testDispatcher) {
+            session.configure(RAW_ONLY_CONFIG)
             applyExpectedValues(arCoreTestRule.monoDepthTester)
             advanceUntilIdle()
 
@@ -268,14 +246,11 @@ class DepthTest {
             assertThat(underTest.state.value.smoothDepthMap).isNull()
             assertThat(underTest.state.value.smoothConfidenceMap).isNull()
         }
-    }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun mono_smoothOnly_updatesSmoothDepthMap() {
-        session.configure(SMOOTH_ONLY_CONFIG)
-
+    fun mono_smoothOnly_updatesSmoothDepthMap() =
         runTest(testDispatcher) {
+            session.configure(SMOOTH_ONLY_CONFIG)
             applyExpectedValues(arCoreTestRule.monoDepthTester)
             advanceUntilIdle()
 
@@ -289,14 +264,11 @@ class DepthTest {
             assertThat(underTest.state.value.smoothConfidenceMap)
                 .isEqualTo(expectedSmoothConfidenceBuffer)
         }
-    }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun mono_smoothAndRaw_updatesSmoothAndRawDepthMaps() {
-        session.configure(SMOOTH_AND_RAW_CONFIG)
-
+    fun mono_smoothAndRaw_updatesSmoothAndRawDepthMaps() =
         runTest(testDispatcher) {
+            session.configure(SMOOTH_AND_RAW_CONFIG)
             applyExpectedValues(arCoreTestRule.monoDepthTester)
             advanceUntilIdle()
 
@@ -311,7 +283,6 @@ class DepthTest {
             assertThat(underTest.state.value.smoothConfidenceMap)
                 .isEqualTo(expectedSmoothConfidenceBuffer)
         }
-    }
 
     private fun applyExpectedValues(depthTester: DepthTester) = depthTester.apply {
         width = expectedWidth

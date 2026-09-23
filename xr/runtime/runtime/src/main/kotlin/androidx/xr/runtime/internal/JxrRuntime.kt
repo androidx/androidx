@@ -52,6 +52,13 @@ public interface JxrRuntime {
     public fun configure(config: Config) {}
 
     /**
+     * Called immediately before [update]. Allows [androidx.xr.runtime.Session] to execute logic
+     * necessary for updating the runtime _without_ holding the configuration mutex. This method can
+     * only be called when the runtime is resumed.
+     */
+    public suspend fun prepareForUpdate() {}
+
+    /**
      * Updates the state of the system. The call is blocking and will return once the underlying
      * implementation has been updated or a platform-specific timeout has been reached. This method
      * can only be called when the runtime is resumed.
