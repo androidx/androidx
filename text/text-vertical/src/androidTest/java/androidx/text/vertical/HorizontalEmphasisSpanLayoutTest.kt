@@ -16,6 +16,7 @@
 
 package androidx.text.vertical
 
+import android.graphics.Canvas
 import android.graphics.Paint
 import android.text.Layout
 import android.text.SpannableString
@@ -137,6 +138,23 @@ class HorizontalEmphasisSpanLayoutTest {
     }
 
     @Test
+    fun constructor_restoresWorkingPaintTextSize() {
+        val callerPaint = TextPaint().apply { textSize = 100f }
+
+        HorizontalEmphasisSpanLayout(
+            text,
+            0,
+            text.length,
+            emphasisMark,
+            AnnotationPosition.Before,
+            callerPaint,
+            0.5f,
+        )
+
+        assertThat(workingPaintCache.get()?.textSize).isEqualTo(100f)
+    }
+
+    @Test
     fun fillFontMetrics_reservesSpaceForTheScaledMark() {
         val relSize = 0.5f
         val basePaint = TextPaint().apply { textSize = 100f }
@@ -171,5 +189,77 @@ class HorizontalEmphasisSpanLayoutTest {
         assertThat(fm.descent).isEqualTo(bodyLayout.getLineDescent(0))
         assertThat(fm.top).isEqualTo(bodyLayout.getLineAscent(0) - markLineHeight)
         assertThat(fm.bottom).isEqualTo(bodyLayout.getLineDescent(0))
+    }
+
+    @Test
+    fun draw_positionBefore_placesMarksAtExactBaselineAndHorizontalCenter() {
+        assertDrawMarkCoordinates(AnnotationPosition.Before)
+    }
+
+    @Test
+    fun draw_positionAfter_placesMarksAtExactBaselineAndHorizontalCenter() {
+        assertDrawMarkCoordinates(AnnotationPosition.After)
+    }
+
+    private fun assertDrawMarkCoordinates(position: AnnotationPosition) {
+        val relSize = 0.5f
+        val drawX = 15f
+        val drawY = 200f
+        val basePaint = TextPaint().apply { textSize = 100f }
+        val layout =
+            HorizontalEmphasisSpanLayout(
+                text,
+                0,
+                text.length,
+                emphasisMark,
+                position,
+                TextPaint(basePaint),
+                relSize,
+            )
+        val bodyWidth = ceil(Layout.getDesiredWidth(text, 0, text.length, basePaint)).toInt()
+        val bodyLayout =
+            StaticLayout.Builder.obtain(text, 0, text.length, basePaint, bodyWidth).build()
+        val scaledPaint = TextPaint(basePaint).apply { textSize = basePaint.textSize * relSize }
+        val emphasisWidth =
+            ceil(Layout.getDesiredWidth(emphasisMark, 0, emphasisMark.length, scaledPaint)).toInt()
+        val emLayout =
+            StaticLayout.Builder.obtain(
+                    emphasisMark,
+                    0,
+                    emphasisMark.length,
+                    scaledPaint,
+                    emphasisWidth,
+                )
+                .build()
+        val markedIndices = (0 until text.length).filter { isEmphasisTarget(text[it].code) }
+        val expectedXs = markedIndices.map { i ->
+            val charWidth = basePaint.measureText(text, i, i + 1)
+            drawX + bodyLayout.getPrimaryHorizontal(i) + (charWidth - emphasisWidth) / 2f
+        }
+
+        val drawnXs = mutableListOf<Float>()
+        val drawnYs = mutableListOf<Float>()
+        val canvas =
+            object : Canvas() {
+                override fun drawText(text: String, x: Float, y: Float, paint: Paint) {
+                    if (text == emphasisMark) {
+                        drawnXs.add(x)
+                        drawnYs.add(y)
+                    }
+                }
+            }
+
+        layout.draw(canvas, drawX, drawY, TextPaint(basePaint))
+
+        assertThat(drawnYs).hasSize(markedIndices.size)
+        assertThat(drawnYs.distinct()).hasSize(1)
+        val markTop = drawnYs.first() + emLayout.getLineAscent(0)
+        val markBottom = drawnYs.first() + emLayout.getLineDescent(0)
+        if (position == AnnotationPosition.Before) {
+            assertThat(markBottom).isEqualTo(drawY + bodyLayout.getLineAscent(0))
+        } else {
+            assertThat(markTop).isEqualTo(drawY + bodyLayout.getLineDescent(0))
+        }
+        assertThat(drawnXs).containsExactlyElementsIn(expectedXs).inOrder()
     }
 }
