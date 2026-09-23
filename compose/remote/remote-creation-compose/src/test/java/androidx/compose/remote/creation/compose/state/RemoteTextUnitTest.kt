@@ -28,11 +28,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @SdkSuppress(minSdkVersion = 29)
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(
-    sdk = [org.robolectric.annotation.Config.TARGET_SDK],
+@Config(
+    sdk = [Config.TARGET_SDK],
     qualifiers = "xhdpi",
 )
 class RemoteTextUnitTest {
@@ -56,8 +57,37 @@ class RemoteTextUnitTest {
     @Test
     fun extensionProperties_createCorrectly() {
         assertThat(16.rsp.value.constantValue).isEqualTo(16f)
+        assertThat(16.rsp.type).isEqualTo(TextUnitType.Sp)
+        assertThat(16.5f.rsp.value.constantValue).isEqualTo(16.5f)
+        assertThat(16.5f.rsp.type).isEqualTo(TextUnitType.Sp)
+        assertThat(18f.rf.rsp.value.constantValue).isEqualTo(18f)
+        assertThat(18f.rf.rsp.type).isEqualTo(TextUnitType.Sp)
         assertThat(16.sp.asRemoteTextUnit().value.constantValue).isEqualTo(16f)
         assertThat(16.sp.asRemoteTextUnit().type).isEqualTo(TextUnitType.Sp)
+    }
+
+    @Test
+    fun remoteFloatRsp_dynamicExpression_calculatesToPxCorrectly() {
+        val density = 2f
+        val fontScale = 1.5f
+        val customDensity = RemoteDensity(density.rf, fontScale.rf)
+        val originalDensity = remoteComposeTestRule.creationState.remoteDensity
+        remoteComposeTestRule.creationState.remoteDensity = customDensity
+
+        val (dynamicPxId, staticPxId) =
+            remoteComposeTestRule.initialise {
+                val baseSize = RemoteFloat.createNamedRemoteFloat("baseSize", 14f)
+                val dynamicTextUnit = (baseSize * 2f).rsp
+                val staticTextUnit = 28.rsp
+                Pair(
+                    dynamicTextUnit.toPx().getIdForCreationState(it),
+                    staticTextUnit.toPx().getIdForCreationState(it),
+                )
+            }
+
+        assertThat(context.getFloat(dynamicPxId)).isEqualTo(context.getFloat(staticPxId))
+
+        remoteComposeTestRule.creationState.remoteDensity = originalDensity
     }
 
     @Test
