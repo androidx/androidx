@@ -1692,6 +1692,112 @@ class FlexBoxDirectionTest(private val directionName: String) {
     }
 
     @Test
+    fun alignContent_start_singleLine_withAlignItemsCenter() {
+        val crossPositions = mutableListOf<Float>()
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                Box(Modifier.directionSize(mainAxisSize = 200.dp, crossAxisSize = 100.dp)) {
+                    FlexBox(
+                        modifier = Modifier.fillMaxSize(),
+                        config = {
+                            direction(direction)
+                            wrap(FlexWrap.Wrap)
+                            alignContent(FlexAlignContent.Start)
+                            alignItems(FlexAlignItems.Center)
+                        },
+                    ) {
+                        Box(
+                            Modifier.directionSize(mainAxisSize = 50.dp, crossAxisSize = 30.dp)
+                                .onPlaced { crossPositions.add(crossAxis(it.positionInParent())) }
+                        )
+                        Box(
+                            Modifier.directionSize(mainAxisSize = 50.dp, crossAxisSize = 10.dp)
+                                .onPlaced { crossPositions.add(crossAxis(it.positionInParent())) }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        // Single wrapped line has cross size 30dp (from tallest item) and sits at cross-start (0f).
+        // Item 0 (30dp) is at 0f; Item 1 (10dp) is centered in the 30dp line at (30 - 10) / 2 =
+        // 10f.
+        Truth.assertThat(crossPositions).containsExactly(0f, 10f).inOrder()
+    }
+
+    @Test
+    fun alignContent_center_singleLine_withAlignItemsCenter() {
+        val crossPositions = mutableListOf<Float>()
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                Box(Modifier.directionSize(mainAxisSize = 200.dp, crossAxisSize = 100.dp)) {
+                    FlexBox(
+                        modifier = Modifier.fillMaxSize(),
+                        config = {
+                            direction(direction)
+                            wrap(FlexWrap.Wrap)
+                            alignContent(FlexAlignContent.Center)
+                            alignItems(FlexAlignItems.Center)
+                        },
+                    ) {
+                        Box(
+                            Modifier.directionSize(mainAxisSize = 50.dp, crossAxisSize = 30.dp)
+                                .onPlaced { crossPositions.add(crossAxis(it.positionInParent())) }
+                        )
+                        Box(
+                            Modifier.directionSize(mainAxisSize = 50.dp, crossAxisSize = 10.dp)
+                                .onPlaced { crossPositions.add(crossAxis(it.positionInParent())) }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        // Single 30dp wrapped line is centered in 100dp container at (100 - 30) / 2 = 35f.
+        // Item 0 (30dp) is at 35f; Item 1 (10dp) is at 35 + (30 - 10) / 2 = 45f.
+        Truth.assertThat(crossPositions).containsExactly(35f, 45f).inOrder()
+    }
+
+    @Test
+    fun alignContent_end_singleLine_withAlignItemsCenter() {
+        val crossPositions = mutableListOf<Float>()
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                Box(Modifier.directionSize(mainAxisSize = 200.dp, crossAxisSize = 100.dp)) {
+                    FlexBox(
+                        modifier = Modifier.fillMaxSize(),
+                        config = {
+                            direction(direction)
+                            wrap(FlexWrap.Wrap)
+                            alignContent(FlexAlignContent.End)
+                            alignItems(FlexAlignItems.Center)
+                        },
+                    ) {
+                        Box(
+                            Modifier.directionSize(mainAxisSize = 50.dp, crossAxisSize = 30.dp)
+                                .onPlaced { crossPositions.add(crossAxis(it.positionInParent())) }
+                        )
+                        Box(
+                            Modifier.directionSize(mainAxisSize = 50.dp, crossAxisSize = 10.dp)
+                                .onPlaced { crossPositions.add(crossAxis(it.positionInParent())) }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        // Single 30dp wrapped line is packed at cross-end: 100 - 30 = 70f.
+        // Item 0 (30dp) is at 70f; Item 1 (10dp) is at 70 + (30 - 10) / 2 = 80f.
+        Truth.assertThat(crossPositions).containsExactly(70f, 80f).inOrder()
+    }
+
+    @Test
     fun overflow_mainAxis_itemOverflows() {
         val itemSize = 50
         val containerSize = 120

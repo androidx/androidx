@@ -239,7 +239,7 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
 
         // If we have single line and constraints are defined then the size of line is the
         // constraints instead of tallest item in the line.
-        if (lines.size == 1) {
+        if (!flexBoxConfig.isWrapEnabled && lines.isNotEmpty()) {
             val constrainedCrossSize = max(lines[0].crossAxisSize, constraints.crossAxisMin)
             lines[0].crossAxisSize = constrainedCrossSize
         }
@@ -682,10 +682,10 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
         crossAxisGap: Int,
     ): Int {
         if (
-            flexBoxConfig.alignContent != FlexAlignContent.Stretch ||
+            !flexBoxConfig.isWrapEnabled ||
+                flexBoxConfig.alignContent != FlexAlignContent.Stretch ||
                 constraints.crossAxisMin == Constraints.Infinity ||
-                lines.isEmpty() ||
-                lines.size == 1
+                lines.isEmpty()
         )
             return totalLinesCrossSize
 
@@ -752,7 +752,7 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
 
                 // If we have single line and constraints are defined then the size of line is the
                 // constraints instead of tallest item in the line.
-                if (lines.size == 1) {
+                if (!flexBoxConfig.isWrapEnabled) {
                     lineCrossAxisSize = max(lineCrossAxisSize, constraints.crossAxisMin)
                 }
             }
@@ -776,14 +776,15 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
         totalLinesCrossSize: Int,
         crossAxisGap: Int,
     ) {
-        if (lines.isEmpty() || lines.size == 1) return
+        if (!flexBoxConfig.isWrapEnabled || lines.isEmpty()) return
         val totalGap = (lines.size - 1) * crossAxisGap
         val freeSpace = totalCrossAxisSpace - totalLinesCrossSize - totalGap
 
         val spaceInBetweenLines =
             when (flexBoxConfig.alignContent) {
                 FlexAlignContent.SpaceAround -> freeSpace / (lines.size)
-                FlexAlignContent.SpaceBetween -> freeSpace / (lines.size - 1)
+                FlexAlignContent.SpaceBetween ->
+                    if (lines.size > 1) freeSpace / (lines.size - 1) else 0
                 else -> 0
             }
 
