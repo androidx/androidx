@@ -18,7 +18,6 @@
 
 package androidx.compose.remote.player.compose.embedded.layout
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -118,7 +117,13 @@ internal fun RcPlayerFlowRow(layout: FlowLayout, modifier: Modifier) {
                 behavior,
                 density,
             ),
-        verticalArrangement = Arrangement.Top,
+        verticalArrangement =
+            columnVerticalArrangement(
+                layout.verticalPositioningReflection,
+                0f,
+                behavior,
+                density,
+            ),
         itemVerticalAlignment = rowVerticalAlignment(layout.verticalPositioningReflection),
         maxItemsInEachRow = layout.mMaxItemsInEachRow,
         maxLines = layout.mMaxLines,

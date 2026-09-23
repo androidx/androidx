@@ -18,11 +18,20 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import android.content.Context
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size as composeSize
+import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
+import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleColumn
 import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleRow
+import androidx.compose.remote.creation.compose.layout.RemoteFlowRow
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.contentDescription
@@ -32,12 +41,18 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.unit.dp
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,6 +69,15 @@ import org.robolectric.annotation.Config
 class RcPlayerCollapsibleLayoutTest {
 
     @get:Rule val playerRule = RcPlayerTestRule()
+
+    private val experimentalProfile =
+        Profile(
+            CoreDocument.DOCUMENT_API_LEVEL,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            AndroidxRcPlatformServices(),
+        ) { creationDisplayInfo, profile, callback ->
+            RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)
+        }
 
     @Test
     fun collapsesLowestPriorityChildFirst() {
@@ -278,5 +302,83 @@ class RcPlayerCollapsibleLayoutTest {
 
         playerRule.composeRule.onNodeWithContentDescription("A").assertIsDisplayed()
         playerRule.composeRule.onNodeWithContentDescription("B").assertIsNotDisplayed()
+    }
+
+    @Test
+    fun collapsibleColumn_withoutExplicitPriorities_collapsesInDocumentOrder() {
+        playerRule.setRemoteContent {
+            RemoteCollapsibleColumn(modifier = RemoteModifier.size(100.rdp, 100.rdp)) {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.semantics { contentDescription = "First".rs }
+                            .size(100.rdp, 60.rdp)
+                )
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.semantics { contentDescription = "Second".rs }
+                            .size(100.rdp, 60.rdp)
+                )
+            }
+        }
+        playerRule.composeRule.mainClock.advanceTimeBy(100)
+
+        playerRule.composeRule.onNodeWithContentDescription("First").assertIsDisplayed()
+        playerRule.composeRule.onNodeWithContentDescription("Second").assertIsNotDisplayed()
+    }
+
+    @Test
+    fun collapsibleColumn_crossAxisCenterAlignment_alignsKeptChildren() {
+        playerRule.setRemoteContent {
+            RemoteCollapsibleColumn(
+                modifier = RemoteModifier.size(100.rdp, 100.rdp),
+                horizontalAlignment = RemoteAlignment.CenterHorizontally,
+            ) {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.semantics { contentDescription = "CenteredChild".rs }
+                            .size(50.rdp, 50.rdp)
+                )
+            }
+        }
+        playerRule.composeRule.mainClock.advanceTimeBy(100)
+
+        val bounds =
+            playerRule.composeRule
+                .onNodeWithContentDescription("CenteredChild")
+                .getUnclippedBoundsInRoot()
+        assertThat(bounds.left.value).isEqualTo(25f)
+    }
+
+    @Test
+    fun flowRow_verticalArrangement_alignsWrappedRows() {
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val capturedDocument =
+                captureSingleRemoteDocument(
+                    context = context,
+                    profile = experimentalProfile,
+                ) {
+                    RemoteFlowRow(
+                        modifier = RemoteModifier.size(100.rdp, 200.rdp),
+                        verticalArrangement = RemoteArrangement.Bottom,
+                    ) {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.semantics { contentDescription = "FlowItem".rs }
+                                    .size(60.rdp, 40.rdp)
+                        )
+                    }
+                }
+            playerRule.setContent {
+                Box(modifier = Modifier.composeSize(100.dp, 200.dp)) {
+                    RcPlayer(capturedDocument = capturedDocument)
+                }
+            }
+            playerRule.waitForIdle()
+
+            val bounds =
+                playerRule.onNodeWithContentDescription("FlowItem").getUnclippedBoundsInRoot()
+            assertThat(bounds.top.value).isEqualTo(160f)
+        }
     }
 }
