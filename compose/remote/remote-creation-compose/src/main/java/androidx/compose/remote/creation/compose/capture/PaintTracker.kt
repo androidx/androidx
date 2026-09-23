@@ -85,8 +85,11 @@ internal class PaintTracker {
     }
 
     @SuppressLint("ObsoleteSdkInt")
-    fun updateWithPaint(newPaint: RemotePaint, paintBundle: PaintBundle, scope: RecordingCanvas) {
-        val creationState = scope.creationState
+    fun updateWithPaint(
+        newPaint: RemotePaint,
+        paintBundle: PaintBundle,
+        creationState: RemoteComposeCreationState,
+    ) {
 
         // Color
         val targetRemoteColor = newPaint.color
