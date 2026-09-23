@@ -439,6 +439,7 @@ public class Rc {
 
         /** force measure every pass (not recommended) */
         public static final int MEASURE_EVERY_TIME = DrawTextAnchored.MEASURE_EVERY_TIME;
+
         /** force measure every pass (not recommended) */
         public static final int BASELINE_RELATIVE = DrawTextAnchored.BASELINE_RELATIVE;
     }
@@ -588,26 +589,33 @@ public class Rc {
 
         /** TOUCH_VEL_Y is the x velocity of the touch */
         public static final float VELOCITY_Y = RemoteContext.FLOAT_TOUCH_VEL_Y;
+
         /** TOUCH_EVENT_TIME the time of the touch */
         public static final float TOUCH_EVENT_TIME = RemoteContext.FLOAT_TOUCH_EVENT_TIME;
+
         /** Stop as soon as touch up */
         public static final int STOP_INSTANTLY = TouchExpression.STOP_INSTANTLY;
+
         /** Jump to the absolute position of the point */
         public static final int STOP_ABSOLUTE_POS = TouchExpression.STOP_ABSOLUTE_POS;
+
         /** Stop only at the start or end */
         public static final int STOP_ENDS = TouchExpression.STOP_ENDS;
+
         /** Stop at a series of notch positions expressed as a percent of the range */
         public static final int STOP_NOTCHES_PERCENTS = TouchExpression.STOP_NOTCHES_PERCENTS;
+
         /** Stop by decelerating */
         public static final int STOP_GENTLY = TouchExpression.STOP_GENTLY;
+
         /** Stop at a collection of point described in absolute cordnates */
         public static final int STOP_NOTCHES_ABSOLUTE = TouchExpression.STOP_NOTCHES_ABSOLUTE;
+
         /** Stop at a series of evenly spaced notches */
         public static final int STOP_NOTCHES_EVEN = TouchExpression.STOP_NOTCHES_EVEN;
-        /** Stop at evenly spaced single step notches */
-        public static final int STOP_NOTCHES_SINGLE_EVEN =
-                TouchExpression.STOP_NOTCHES_SINGLE_EVEN;
 
+        /** Stop at evenly spaced single step notches */
+        public static final int STOP_NOTCHES_SINGLE_EVEN = TouchExpression.STOP_NOTCHES_SINGLE_EVEN;
     }
 
     /** Used for Sensor variables */
@@ -829,7 +837,7 @@ public class Rc {
         public static final int PAD_PRE_ZERO =
                 androidx.compose.remote.core.operations.TextFromFloat.PAD_PRE_ZERO;
 
-        /** default e.g.  e.g. 1234567890.12 */
+        /** default e.g. e.g. 1234567890.12 */
         public static final int GROUPING_NONE =
                 androidx.compose.remote.core.operations.TextFromFloat.GROUPING_NONE;
 
@@ -880,7 +888,6 @@ public class Rc {
         /** Legacy compatibility mode grouping & separator ignored */
         public static final int FULL_FORMAT =
                 androidx.compose.remote.core.operations.TextFromFloat.FULL_FORMAT;
-
     }
 
     /** Used in Texture */
@@ -921,8 +928,10 @@ public class Rc {
     public static class Theme {
         /** region of code is run only in dark mode */
         public static final int DARK = androidx.compose.remote.core.operations.Theme.DARK;
+
         /** region of code is run only in light mode */
         public static final int LIGHT = androidx.compose.remote.core.operations.Theme.LIGHT;
+
         /** region of code is run in any mode */
         public static final int UNSPECIFIED =
                 androidx.compose.remote.core.operations.Theme.UNSPECIFIED;
@@ -945,9 +954,7 @@ public class Rc {
                 androidx.compose.remote.core.operations.TextAttribute.TEXT_LENGTH;
     }
 
-    /**
-     * defining standard system color identifiers.
-     */
+    /** defining standard system color identifiers. */
     public static final class AndroidColors {
         /** The android color group name. */
         public static final String GROUP = "android";
@@ -997,7 +1004,7 @@ public class Rc {
         /** The system accent1 0 color identifier. */
         public static final short SYSTEM_ACCENT1_0 = 14;
 
-        /** The system accent5 10 color identifier. */
+        /** The system accent1 10 color identifier. */
         public static final short SYSTEM_ACCENT1_10 = 15;
 
         /** The system accent1 100 color identifier. */
@@ -1046,7 +1053,7 @@ public class Rc {
         public static final short SYSTEM_ACCENT2_1000 = 30;
 
         /** The system accent2 200 color identifier. */
-        public static final short SYSTEM_ACCENT2_200 = 30;
+        public static final short SYSTEM_ACCENT2_200 = 31;
 
         /** The system accent2 300 color identifier. */
         public static final short SYSTEM_ACCENT2_300 = 32;
@@ -1138,14 +1145,14 @@ public class Rc {
         /** The system error 0 color identifier. */
         public static final short SYSTEM_ERROR_0 = 61;
 
-        /** The system error 620 color identifier. */
-        public static final short SYSTEM_ERROR_620 = 62;
+        /** The system error 10 color identifier. */
+        public static final short SYSTEM_ERROR_10 = 62;
 
-        /** The system error 6300 color identifier. */
-        public static final short SYSTEM_ERROR_6300 = 63;
+        /** The system error 100 color identifier. */
+        public static final short SYSTEM_ERROR_100 = 63;
 
-        /** The system error 64000 color identifier. */
-        public static final short SYSTEM_ERROR_64000 = 64;
+        /** The system error 1000 color identifier. */
+        public static final short SYSTEM_ERROR_1000 = 64;
 
         /** The system error 200 color identifier. */
         public static final short SYSTEM_ERROR_200 = 65;
@@ -1186,56 +1193,56 @@ public class Rc {
         /** The light system error color identifier. */
         public static final short SYSTEM_ERROR_LIGHT = 77;
 
-        /** The system neutral78 0 color identifier. */
-        public static final short SYSTEM_NEUTRAL78_0 = 78;
+        /** The system neutral1 0 color identifier. */
+        public static final short SYSTEM_NEUTRAL1_0 = 78;
 
-        /** The system neutral79 790 color identifier. */
-        public static final short SYSTEM_NEUTRAL79_790 = 79;
+        /** The system neutral1 10 color identifier. */
+        public static final short SYSTEM_NEUTRAL1_10 = 79;
 
-        /** The system neutral80 8000 color identifier. */
-        public static final short SYSTEM_NEUTRAL80_8000 = 80;
+        /** The system neutral1 100 color identifier. */
+        public static final short SYSTEM_NEUTRAL1_100 = 80;
 
-        /** The system neutral81 81000 color identifier. */
-        public static final short SYSTEM_NEUTRAL81_81000 = 81;
+        /** The system neutral1 1000 color identifier. */
+        public static final short SYSTEM_NEUTRAL1_1000 = 81;
 
-        /** The system neutral82 200 color identifier. */
-        public static final short SYSTEM_NEUTRAL82_200 = 82;
+        /** The system neutral1 200 color identifier. */
+        public static final short SYSTEM_NEUTRAL1_200 = 82;
 
-        /** The system neutral83 300 color identifier. */
-        public static final short SYSTEM_NEUTRAL83_300 = 83;
+        /** The system neutral1 300 color identifier. */
+        public static final short SYSTEM_NEUTRAL1_300 = 83;
 
-        /** The system neutral84 400 color identifier. */
-        public static final short SYSTEM_NEUTRAL84_400 = 84;
+        /** The system neutral1 400 color identifier. */
+        public static final short SYSTEM_NEUTRAL1_400 = 84;
 
-        /** The system neutral85 50 color identifier. */
-        public static final short SYSTEM_NEUTRAL85_50 = 85;
+        /** The system neutral1 50 color identifier. */
+        public static final short SYSTEM_NEUTRAL1_50 = 85;
 
-        /** The system neutral86 500 color identifier. */
-        public static final short SYSTEM_NEUTRAL86_500 = 86;
+        /** The system neutral1 500 color identifier. */
+        public static final short SYSTEM_NEUTRAL1_500 = 86;
 
-        /** The system neutral87 600 color identifier. */
-        public static final short SYSTEM_NEUTRAL87_600 = 87;
+        /** The system neutral1 600 color identifier. */
+        public static final short SYSTEM_NEUTRAL1_600 = 87;
 
-        /** The system neutral88 700 color identifier. */
-        public static final short SYSTEM_NEUTRAL88_700 = 88;
+        /** The system neutral1 700 color identifier. */
+        public static final short SYSTEM_NEUTRAL1_700 = 88;
 
-        /** The system neutral89 800 color identifier. */
-        public static final short SYSTEM_NEUTRAL89_800 = 89;
+        /** The system neutral1 800 color identifier. */
+        public static final short SYSTEM_NEUTRAL1_800 = 89;
 
-        /** The system neutral90 900 color identifier. */
-        public static final short SYSTEM_NEUTRAL90_900 = 90;
+        /** The system neutral1 900 color identifier. */
+        public static final short SYSTEM_NEUTRAL1_900 = 90;
 
         /** The system neutral2 0 color identifier. */
         public static final short SYSTEM_NEUTRAL2_0 = 91;
 
-        /** The system neutral2 920 color identifier. */
-        public static final short SYSTEM_NEUTRAL2_920 = 92;
+        /** The system neutral2 10 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_10 = 92;
 
-        /** The system neutral2 9300 color identifier. */
-        public static final short SYSTEM_NEUTRAL2_9300 = 93;
+        /** The system neutral2 100 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_100 = 93;
 
-        /** The system neutral2 94000 color identifier. */
-        public static final short SYSTEM_NEUTRAL2_94000 = 94;
+        /** The system neutral2 1000 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_1000 = 94;
 
         /** The system neutral2 200 color identifier. */
         public static final short SYSTEM_NEUTRAL2_200 = 95;
@@ -1588,7 +1595,7 @@ public class Rc {
         public static final int DO_NOT_CLEAR = DrawToBitmap.MODE_NO_INITIALIZE;
     }
 
-    public static final class BitmapTextMeasure{
+    public static final class BitmapTextMeasure {
         public static final int WIDTH = MEASURE_WIDTH;
         public static final int HEIGHT = MEASURE_HEIGHT;
         public static final int LEFT = MEASURE_LEFT;
