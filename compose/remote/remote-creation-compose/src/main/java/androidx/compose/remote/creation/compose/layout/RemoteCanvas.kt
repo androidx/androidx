@@ -150,13 +150,7 @@ public class RemoteCanvas(private val internalCanvas: RecordingCanvas) :
      * @param matrix The [Matrix] to concatenate with the current canvas transformation.
      */
     public fun transform(matrix: Matrix) {
-        internalCanvas.concat(
-            android.graphics.Matrix().apply {
-                matrix.values.let { v ->
-                    setValues(floatArrayOf(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]))
-                }
-            }
-        )
+        internalCanvas.concat(matrix)
     }
 
     private fun recordRenderingOp(action: () -> Unit): CanvasOperationBuffer.SpanOp {
