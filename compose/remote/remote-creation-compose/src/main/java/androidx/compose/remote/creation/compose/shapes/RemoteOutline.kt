@@ -211,4 +211,6 @@ public fun RemoteDrawScope.drawOutline(outline: RemoteOutline, paint: RemotePain
 }
 
 private fun areEqual(a: RemoteFloat, b: RemoteFloat): Boolean =
-    a === b || (a.hasConstantValue && b.hasConstantValue && a.constantValue == b.constantValue)
+    a === b ||
+        a.cacheKey == b.cacheKey ||
+        (a.hasConstantValue && b.hasConstantValue && a.constantValue == b.constantValue)
