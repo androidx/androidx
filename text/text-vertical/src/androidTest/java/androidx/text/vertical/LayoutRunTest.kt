@@ -16,7 +16,9 @@
 
 package androidx.text.vertical
 
+import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Paint.FontMetricsInt
 import android.os.Build
@@ -26,6 +28,9 @@ import androidx.text.vertical.ResolvedOrientation.Rotate
 import androidx.text.vertical.ResolvedOrientation.TateChuYoko
 import androidx.text.vertical.ResolvedOrientation.Upright
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import kotlin.math.ceil
+import kotlin.math.floor
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -292,7 +297,105 @@ class LayoutRunTest {
             )
         }
     }
+
+    @Test
+    fun layoutRun_UprightPlainString_honorsBasePaintBgColor() {
+        val bgPaint = bgTextPaint()
+        val run = createLayoutRun(JAPANESE_TEXT, 0, JAPANESE_TEXT.length, bgPaint, Upright)
+        assertRunDrawsBackground(run, bgPaint)
+    }
+
+    @Test
+    fun layoutRun_RotatePlainString_honorsBasePaintBgColor() {
+        val bgPaint = bgTextPaint()
+        val run = createLayoutRun(LATIN_TEXT, 0, LATIN_TEXT.length, bgPaint, Rotate)
+        assertRunDrawsBackground(run, bgPaint)
+    }
+
+    @Test
+    fun rubyLayoutRun_plainStringRubyAnnotation_honorsBasePaintBgColor() {
+        val bgPaint = bgTextPaint()
+        val run = RubyLayoutRun("漢字", 0, 2, TextOrientation.Mixed, bgPaint, RubySpan("かな"))
+        val bitmap =
+            Bitmap.createBitmap(160, ceil(run.height).toInt() + 40, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap).apply { drawColor(Color.WHITE) }
+
+        run.draw(canvas, ORIGIN_X, ORIGIN_Y, bgPaint)
+
+        // Check specifically inside the ruby annotation column to the right of the 1em body column.
+        val rubyLeft = ceil(ORIGIN_X + bgPaint.textSize * 0.5f).toInt() + 1
+        val rubyRight = floor(ORIGIN_X + run.rightSideOffset).toInt()
+        val top = ORIGIN_Y.toInt()
+        val bottom = ceil(ORIGIN_Y + run.height).toInt()
+        assertWithMessage(
+                "Expected Color.YELLOW pixel in [%s, %s) x [%s, %s)",
+                rubyLeft,
+                rubyRight,
+                top,
+                bottom,
+            )
+            .that(bitmap.hasPixelWithColor(Color.YELLOW, rubyLeft, top, rubyRight, bottom))
+            .isTrue()
+    }
+
+    private fun assertRunDrawsBackground(run: LayoutRun, bgPaint: TextPaint) {
+        val bitmap =
+            Bitmap.createBitmap(120, ceil(run.height).toInt() + 40, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap).apply { drawColor(Color.WHITE) }
+
+        run.draw(canvas, ORIGIN_X, ORIGIN_Y, bgPaint)
+
+        val left = floor(ORIGIN_X + run.leftSideOffset).toInt()
+        val top = ORIGIN_Y.toInt()
+        val right = ceil(ORIGIN_X + run.rightSideOffset).toInt()
+        val bottom = ceil(ORIGIN_Y + run.height).toInt()
+        assertWithMessage(
+                "Expected Color.YELLOW pixel in [%s, %s) x [%s, %s)",
+                left,
+                right,
+                top,
+                bottom,
+            )
+            .that(bitmap.hasPixelWithColor(Color.YELLOW, left, top, right, bottom))
+            .isTrue()
+    }
 }
+
+/** Large enough that glyph strokes cannot cover every pixel of the background rectangle. */
+private const val BG_TEXT_SIZE = 40f
+private const val ORIGIN_X = 60f
+private const val ORIGIN_Y = 10f
+
+private fun bgTextPaint(): TextPaint =
+    TextPaint().apply {
+        textSize = BG_TEXT_SIZE
+        color = Color.BLACK
+        bgColor = Color.YELLOW
+    }
 
 private fun Paint.hasVerticalTextFlag() =
     (flags and Paint.VERTICAL_TEXT_FLAG) == Paint.VERTICAL_TEXT_FLAG
+
+/** Returns true when any pixel in `[left, right) x [top, bottom)` equals [expectedColor]. */
+private fun Bitmap.hasPixelWithColor(
+    expectedColor: Int,
+    left: Int,
+    top: Int,
+    right: Int,
+    bottom: Int,
+): Boolean {
+    require(left in 0 until right && right <= width) {
+        "Invalid horizontal range [$left, $right) for bitmap width $width"
+    }
+    require(top in 0 until bottom && bottom <= height) {
+        "Invalid vertical range [$top, $bottom) for bitmap height $height"
+    }
+    for (y in top until bottom) {
+        for (x in left until right) {
+            if (getPixel(x, y) == expectedColor) {
+                return true
+            }
+        }
+    }
+    return false
+}

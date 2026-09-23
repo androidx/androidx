@@ -511,7 +511,7 @@ internal inline fun CharSequence.forStyleRuns(
     // Easy case: if the text is a non-styled text, just call back entire text with applying
     // vertical flag.
     if (this !is Spanned) {
-        block(start, end, basePaint, 0 /* bgColor */, 0f /* fontShear */, null /* emphasis */)
+        block(start, end, basePaint, basePaint.bgColor, 0f /* fontShear */, null /* emphasis */)
         return
     }
 
