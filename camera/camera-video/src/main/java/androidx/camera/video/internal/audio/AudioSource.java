@@ -137,8 +137,6 @@ public final class AudioSource {
     boolean mAudioStreamSilenced;
     boolean mMuted;
     private byte @Nullable [] mZeroBytes;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    double mAudioAmplitude;
     long mAmplitudeTimestamp = 0;
     private final int mAudioFormat;
     @VisibleForTesting
@@ -675,10 +673,9 @@ public final class AudioSource {
 
             maxAmplitude = maxAmplitude / Short.MAX_VALUE;
 
-            mAudioAmplitude = maxAmplitude;
-
             if (executor != null && callback != null) {
-                executor.execute(() -> callback.onAmplitudeValue(mAudioAmplitude));
+                final double amplitudeToReport = maxAmplitude;
+                executor.execute(() -> callback.onAmplitudeValue(amplitudeToReport));
             }
         }
     }
