@@ -91,6 +91,8 @@ import androidx.compose.ui.util.fastCoerceIn
  * in this example:
  *
  * @sample androidx.compose.material3.samples.LinearThickWavyProgressIndicatorSample
+ *
+ * @material3expressive
  */
 @Composable
 public fun LinearWavyProgressIndicator(
@@ -161,6 +163,8 @@ public fun LinearWavyProgressIndicator(
  *   The value here represents a DP per seconds, and by default it's matched to the [wavelength] to
  *   render an animation that moves the wave by one wave length per second.
  * @sample androidx.compose.material3.samples.IndeterminateLinearWavyProgressIndicatorSample
+ *
+ * @material3expressive
  */
 @Composable
 public fun LinearWavyProgressIndicator(
@@ -270,6 +274,8 @@ public fun LinearWavyProgressIndicator(
  * in this example:
  *
  * @sample androidx.compose.material3.samples.CircularThickWavyProgressIndicatorSample
+ *
+ * @material3expressive
  */
 @Composable
 public fun CircularWavyProgressIndicator(
@@ -340,6 +346,8 @@ public fun CircularWavyProgressIndicator(
  *   speed may be slightly different, as the [wavelength] can be adjusted to ensure a continuous
  *   wave shape.
  * @sample androidx.compose.material3.samples.IndeterminateCircularWavyProgressIndicatorSample
+ *
+ * @material3expressive
  */
 @Composable
 public fun CircularWavyProgressIndicator(
