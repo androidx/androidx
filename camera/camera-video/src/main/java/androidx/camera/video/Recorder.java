@@ -2866,6 +2866,16 @@ public final class Recorder implements VideoOutput {
                 // Reset audio state to INITIALIZING if the audio encoder encountered error, so
                 // that it can be setup again when the next recording with audio enabled is started.
                 setAudioState(AudioState.INITIALIZING);
+                // The audio source may have already been started when the error occurred, e.g.
+                // the error was reported by the audio source or encoder callback during
+                // recording. Since stopInternal() doesn't stop the audio encoder once the audio
+                // state is in error, the audio source is still streaming audio data and holding
+                // the microphone. Stop it to avoid leaking these resources into the next
+                // recording. The audio source can be null if the error occurred while creating
+                // it, and stopping an audio source that has never been started is a no-op.
+                if (mAudioSource != null) {
+                    mAudioSource.stop();
+                }
                 break;
         }
 

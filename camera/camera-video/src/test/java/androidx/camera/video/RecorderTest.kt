@@ -26,6 +26,7 @@ import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Looper
 import android.os.ParcelFileDescriptor
+import android.os.SystemClock
 import android.util.Range
 import android.util.Size
 import androidx.camera.core.SurfaceRequest
@@ -43,9 +44,11 @@ import androidx.camera.testing.impl.fakes.FakeEncoder
 import androidx.camera.testing.impl.fakes.FakeSessionProcessor
 import androidx.camera.testing.impl.fakes.FakeVideoEncoderInfo
 import androidx.camera.testing.impl.fakes.NoOpMuxer
+import androidx.camera.testing.impl.mocks.helpers.CallTimes
 import androidx.camera.testing.impl.video.Recording
 import androidx.camera.testing.impl.video.RecordingSession
 import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_WEBM
+import androidx.camera.video.Recorder.AudioState
 import androidx.camera.video.Recorder.VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE
 import androidx.camera.video.Recorder.VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES
 import androidx.camera.video.Recorder.sRetrySetupVideoDelayMs
@@ -67,6 +70,7 @@ import androidx.camera.video.internal.BufferProvider
 import androidx.camera.video.internal.OutputStorage
 import androidx.camera.video.internal.audio.AudioStreamFactory
 import androidx.camera.video.internal.audio.FakeAudioStream
+import androidx.camera.video.internal.encoder.EncodeException
 import androidx.camera.video.internal.encoder.EncoderFactory
 import androidx.camera.video.internal.encoder.InvalidConfigException
 import androidx.camera.video.internal.muxer.MuxerException
@@ -1073,6 +1077,55 @@ class RecorderTest {
     }
 
     @Test
+    fun audioEncoderError_stopsAudioSourceWhenRecordingFinalized() {
+        // Arrange.
+        val audioStream = createFakeAudioStream()
+        val recorder = createRecorder(audioStreamFactory = { _, _ -> audioStream })
+        val recording = createRecording(recorder, withAudio = true).startAndVerify()
+        audioStream.verifyStartCall(CallTimes(1), VERIFY_AUDIO_STREAM_TIMEOUT_MS)
+
+        // Act: the audio encoder fails, so the recording continues without audio.
+        checkNotNull(latestAudioEncoder)
+            .triggerEncodeError(EncodeException.ERROR_UNKNOWN, "Audio encoder fail on purpose.")
+        idle(recorder)
+        assertThat(recorder.mAudioState).isEqualTo(AudioState.ERROR_ENCODER)
+
+        recording.sendFrames().stopAndVerify()
+
+        // Assert: the audio source is stopped rather than left streaming.
+        audioStream.verifyStopCall(CallTimes(1), VERIFY_AUDIO_STREAM_TIMEOUT_MS)
+    }
+
+    @Test
+    fun audioSourceError_stopsAudioSourceWhenRecordingFinalized() {
+        // Arrange: a failing audio processor makes the audio source report an
+        // AudioSourceAccessException while the recording is in progress.
+        val audioStream = createFakeAudioStream()
+        val recorder =
+            createRecorder(
+                audioStreamFactory = { _, _ -> audioStream },
+                audioProcessors = listOf(FailingAudioProcessor()),
+            )
+        val recording = createRecording(recorder, withAudio = true).startAndVerify()
+        audioStream.verifyStartCall(CallTimes(1), VERIFY_AUDIO_STREAM_TIMEOUT_MS)
+
+        // Act: wait until the audio source error has been propagated to the recorder.
+        val deadlineMs = SystemClock.uptimeMillis() + VERIFY_AUDIO_STREAM_TIMEOUT_MS
+        while (
+            recorder.mAudioState != AudioState.ERROR_SOURCE &&
+                SystemClock.uptimeMillis() < deadlineMs
+        ) {
+            idle(recorder)
+        }
+        assertThat(recorder.mAudioState).isEqualTo(AudioState.ERROR_SOURCE)
+
+        recording.sendFrames().stopAndVerify()
+
+        // Assert: the audio source is stopped rather than left streaming.
+        audioStream.verifyStopCall(CallTimes(1), VERIFY_AUDIO_STREAM_TIMEOUT_MS)
+    }
+
+    @Test
     fun recordingWithSetTargetVideoEncodingBitRate() {
         testRecorderIsConfiguredBasedOnTargetVideoEncodingBitrate(6_000_000)
     }
@@ -1148,6 +1201,7 @@ class RecorderTest {
         retrySetupVideoDelayMs: Long? = null,
         audioSource: Int? = null,
         requiredFreeStorageBytes: Long? = null,
+        audioProcessors: List<AudioProcessor>? = null,
     ): Recorder {
         val defaultVideoEncoderFactory = EncoderFactory { _, config, _ ->
             FakeEncoder(
@@ -1179,15 +1233,7 @@ class RecorderTest {
                         override fun getAvailableBytes(): Long = Long.MAX_VALUE
                     }
             }
-        val defaultAudioStreamFactory = AudioStreamFactory { _, _ ->
-            FakeAudioStream(
-                audioDataProvider = { index ->
-                    val byteBuffer = ByteBuffer.allocate(1024).put(0, 10.toByte())
-                    FakeAudioStream.AudioData(byteBuffer, index * 10_000_000L)
-                },
-                readDelayMs = 1,
-            )
-        }
+        val defaultAudioStreamFactory = AudioStreamFactory { _, _ -> createFakeAudioStream() }
         val recorder =
             Recorder.Builder()
                 .setExecutor(mainThreadExecutor())
@@ -1200,6 +1246,7 @@ class RecorderTest {
                     targetBitrate?.let { setTargetVideoEncodingBitRate(it) }
                     audioSource?.let { setAudioSource(it) }
                     requiredFreeStorageBytes?.let { setRequiredFreeStorageBytes(it) }
+                    audioProcessors?.let { setAudioProcessors(it) }
                 }
                 .build()
                 .apply {
@@ -1265,7 +1312,27 @@ class RecorderTest {
         return this
     }
 
+    private fun createFakeAudioStream(): FakeAudioStream =
+        FakeAudioStream(
+            audioDataProvider = { index ->
+                val byteBuffer = ByteBuffer.allocate(1024).put(0, 10.toByte())
+                FakeAudioStream.AudioData(byteBuffer, index * 10_000_000L)
+            },
+            readDelayMs = 1,
+        )
+
     private class NoOpAudioProcessor : PassthroughAudioProcessor() {
         override fun onAudioBuffer(audioBuffer: ByteBuffer) {}
+    }
+
+    /** An [AudioProcessor] that always fails, which makes the audio source report an error. */
+    private class FailingAudioProcessor : PassthroughAudioProcessor() {
+        override fun onAudioBuffer(audioBuffer: ByteBuffer) {
+            throw RuntimeException("Audio processing fail on purpose.")
+        }
+    }
+
+    private companion object {
+        private const val VERIFY_AUDIO_STREAM_TIMEOUT_MS = 10_000L
     }
 }
