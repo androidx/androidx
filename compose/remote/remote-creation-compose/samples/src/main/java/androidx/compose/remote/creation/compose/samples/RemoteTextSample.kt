@@ -21,6 +21,8 @@ import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.previews.utils.RemoteComponentPreviewWrapper
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rememberNamedRemoteFloat
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
@@ -36,6 +38,15 @@ import androidx.compose.ui.tooling.preview.PreviewWrapper
 @Composable
 fun RemoteTextSample() {
     RemoteText(text = "Hello Remote Compose".rs, color = Color.Blue.rc, fontSize = 20.rsp)
+}
+
+@Sampled
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
+@Composable
+fun RemoteTextDynamicFontSizeSample() {
+    val fontScale = rememberNamedRemoteFloat("fontScale") { 1.2f.rf }
+    val dynamicSize = (16f.rf * fontScale).rsp
+    RemoteText(text = "Dynamic Size Text".rs, fontSize = dynamicSize)
 }
 
 @Sampled
