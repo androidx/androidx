@@ -1504,52 +1504,64 @@ internal fun obtainTransparentReadOnlySnapshot(snapshot: Snapshot): Snapshot {
 }
 
 internal fun releaseTransparentReadOnlySnapshot(snapshot: Snapshot) {
-    (snapshot as? TransparentReadOnlySnapshot)?.let {
-        reusableTransparentReadOnlySnapshot.setIfEmpty(it)
-    }
+    snapshot.dispose()
 }
 
 /** A pseudo snapshot that doesn't introduce isolation and is read-only. */
-internal class TransparentReadOnlySnapshot(private var parentSnapshot: Snapshot) :
+internal class TransparentReadOnlySnapshot(private var parentSnapshot: Snapshot?) :
     Snapshot(
         INVALID_SNAPSHOT,
         SnapshotIdSet.EMPTY,
     ) {
+    internal val threadId: Long = currentThreadId()
+
+    private val currentSnapshot: Snapshot
+        get() = parentSnapshot ?: globalSnapshot
+
+    override fun dispose() {
+        // Explicitly don't call super.dispose()
+        disposed = true
+        parentSnapshot = null
+        if (threadId == currentThreadId()) {
+            reusableTransparentReadOnlySnapshot.setIfEmpty(this)
+        }
+    }
 
     internal fun reuse(newParent: Snapshot) {
         parentSnapshot = newParent
+        disposed = false
     }
 
     override val readObserver
-        get() = parentSnapshot.readObserver
+        get() = currentSnapshot.readObserver
 
     override val writeObserver: ((Any) -> Unit)?
-        get() = parentSnapshot.writeObserver
+        get() = currentSnapshot.writeObserver
 
     override val root: Snapshot
-        get() = parentSnapshot.root
+        get() = currentSnapshot.root
 
     override var snapshotId: SnapshotId
-        get() = parentSnapshot.snapshotId
+        get() = currentSnapshot.snapshotId
         @Suppress("UNUSED_PARAMETER")
         set(value) {
             unsupported()
         }
 
     override var invalid
-        get() = parentSnapshot.invalid
+        get() = currentSnapshot.invalid
         @Suppress("UNUSED_PARAMETER") set(value) = unsupported()
 
-    override fun hasPendingChanges(): Boolean = parentSnapshot.hasPendingChanges()
+    override fun hasPendingChanges(): Boolean = currentSnapshot.hasPendingChanges()
 
     override var modified: MutableScatterSet<StateObject>?
-        get() = parentSnapshot.modified
+        get() = currentSnapshot.modified
         @Suppress("UNUSED_PARAMETER") set(value) = unsupported()
 
     override var writeCount: Int
-        get() = parentSnapshot.writeCount
+        get() = currentSnapshot.writeCount
         set(value) {
-            parentSnapshot.writeCount = value
+            currentSnapshot.writeCount = value
         }
 
     override val readOnly: Boolean = true
@@ -1557,10 +1569,10 @@ internal class TransparentReadOnlySnapshot(private var parentSnapshot: Snapshot)
     override fun recordModified(state: StateObject) = reportReadonlySnapshotWrite()
 
     override fun takeNestedSnapshot(readObserver: ((Any) -> Unit)?): Snapshot {
-        return parentSnapshot.takeNestedSnapshot(readObserver)
+        return currentSnapshot.takeNestedSnapshot(readObserver)
     }
 
-    override fun notifyObjectsInitialized() = parentSnapshot.notifyObjectsInitialized()
+    override fun notifyObjectsInitialized() = currentSnapshot.notifyObjectsInitialized()
 
     /** Should never be called. */
     override fun nestedActivated(snapshot: Snapshot) = unsupported()
