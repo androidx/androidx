@@ -1,2 +1,0 @@
-# Allow active release owner to Autosubmit automated version bumps for weekly demo app releases.
-per-file build.gradle = sravaniva@google.com
