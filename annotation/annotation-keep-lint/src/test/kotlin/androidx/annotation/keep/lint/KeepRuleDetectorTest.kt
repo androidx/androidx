@@ -3763,6 +3763,7 @@ class KeepRuleDetectorTest {
                             Class.forName("android.view.GhostView")
                             Class.forName("android.os.SystemProperties")
                             Class.forName("libcore.icu.ICU")
+                            Class.forName("com.android.internal.view.menu.MenuBuilder")
                             icon.javaClass.getDeclaredMethod("getBitmap")
                         }
                     }
@@ -4056,6 +4057,12 @@ class KeepRuleDetectorTest {
                             val clazz = Class.forName(className)
                             return clazz.getDeclaredConstructor().newInstance() as InputMerger
                         }
+
+                        fun fromClassNameDelayed(className: String): InputMerger {
+                            val clazz = Class.forName(className)
+                            val instance = clazz.getDeclaredConstructor().newInstance()
+                            return instance as InputMerger
+                        }
                     }
                     """
                     )
@@ -4069,6 +4076,14 @@ class KeepRuleDetectorTest {
                 @@ -1,0 +2 @@
                 +import androidx.annotation.keep.UsesReflectionToConstruct
                 @@ -5,0 +7,4 @@
+                +    @UsesReflectionToConstruct(
+                +        classConstant = InputMerger::class,
+                +        parameterTypes = []
+                +    )
+                Autofix for src/test/pkg/InputMerger.kt line 13: Annotate with @UsesReflectionToConstruct:
+                @@ -1,0 +2 @@
+                +import androidx.annotation.keep.UsesReflectionToConstruct
+                @@ -10,0 +12,4 @@
                 +    @UsesReflectionToConstruct(
                 +        classConstant = InputMerger::class,
                 +        parameterTypes = []
@@ -4098,9 +4113,13 @@ class KeepRuleDetectorTest {
                             appOpsClass.getMethod("checkOpNoThrow", Integer.TYPE, Integer.TYPE, String.class);
                         }
 
-                        public void testPlatformConstantField() throws Exception {
-                            Class<?> fontFamilyClass = Class.forName(FONT_FAMILY_CLASS);
-                            fontFamilyClass.getConstructor();
+                        public void testPlatformConstantField() {
+                            Class<?> clazz;
+                            try {
+                                clazz = Class.forName(FONT_FAMILY_CLASS);
+                                clazz.getConstructor();
+                                clazz.getMethod("addFontWeightStyle", String.class, Integer.TYPE, Boolean.TYPE);
+                            } catch (Exception e) {}
                         }
                     }
                     """
