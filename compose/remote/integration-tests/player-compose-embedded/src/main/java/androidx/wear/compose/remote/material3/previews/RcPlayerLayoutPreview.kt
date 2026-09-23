@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX", "DEPRECATION")
+@file:Suppress("RestrictedApiAndroidX")
 
 package androidx.wear.compose.remote.material3.previews
 
-import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
-import androidx.compose.remote.core.operations.utilities.easing.GeneralEasing
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -32,7 +30,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.alpha
-import androidx.compose.remote.creation.compose.modifier.animationSpec
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.border
 import androidx.compose.remote.creation.compose.modifier.clickable
@@ -41,12 +38,14 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.offset
 import androidx.compose.remote.creation.compose.modifier.padding
+import androidx.compose.remote.creation.compose.modifier.sharedElement
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
@@ -274,14 +273,9 @@ private fun RcStateLayoutSharedElementPreview(
                         ) {
                             RemoteBox(
                                 modifier =
-                                    RemoteModifier.animationSpec(
-                                            animationId = 1,
-                                            motionDuration = 400f,
-                                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            visibilityDuration = 400f,
-                                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    RemoteModifier.sharedElement(
+                                            key = 1,
+                                            spec = remoteTween(durationMillis = 400),
                                         )
                                         .size(36.rdp)
                                         .clip(RemoteRoundedCornerShape(18.rdp))
@@ -292,14 +286,9 @@ private fun RcStateLayoutSharedElementPreview(
                             }
                             RemoteColumn(
                                 modifier =
-                                    RemoteModifier.animationSpec(
-                                        animationId = 2,
-                                        motionDuration = 400f,
-                                        motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                        visibilityDuration = 400f,
-                                        visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                        enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                        exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    RemoteModifier.sharedElement(
+                                        key = 2,
+                                        spec = remoteTween(durationMillis = 400),
                                     )
                             ) {
                                 RemoteText(
@@ -321,14 +310,9 @@ private fun RcStateLayoutSharedElementPreview(
                         ) {
                             RemoteBox(
                                 modifier =
-                                    RemoteModifier.animationSpec(
-                                            animationId = 1,
-                                            motionDuration = 400f,
-                                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            visibilityDuration = 400f,
-                                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    RemoteModifier.sharedElement(
+                                            key = 1,
+                                            spec = remoteTween(durationMillis = 400),
                                         )
                                         .size(width = 180.rdp, height = 70.rdp)
                                         .clip(RemoteRoundedCornerShape(8.rdp))
@@ -339,14 +323,9 @@ private fun RcStateLayoutSharedElementPreview(
                             }
                             RemoteColumn(
                                 modifier =
-                                    RemoteModifier.animationSpec(
-                                        animationId = 2,
-                                        motionDuration = 400f,
-                                        motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                        visibilityDuration = 400f,
-                                        visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                        enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                        exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    RemoteModifier.sharedElement(
+                                        key = 2,
+                                        spec = remoteTween(durationMillis = 400),
                                     )
                             ) {
                                 RemoteText(
@@ -386,14 +365,9 @@ private fun RcFitBoxSharedElementsPreview(
             ) {
                 RemoteFitBox(
                     modifier =
-                        RemoteModifier.animationSpec(
-                            animationId = 100,
-                            motionDuration = 400f,
-                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                            visibilityDuration = 400f,
-                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                        RemoteModifier.sharedElement(
+                            key = 100,
+                            spec = remoteTween(durationMillis = 400),
                         )
                 ) {
                     // Wide alternative (fits >= 170dp)
@@ -404,14 +378,9 @@ private fun RcFitBoxSharedElementsPreview(
                         ) {
                             RemoteBox(
                                 modifier =
-                                    RemoteModifier.animationSpec(
-                                            animationId = 1,
-                                            motionDuration = 400f,
-                                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            visibilityDuration = 400f,
-                                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    RemoteModifier.sharedElement(
+                                            key = 1,
+                                            spec = remoteTween(durationMillis = 400),
                                         )
                                         .size(36.rdp)
                                         .clip(RemoteRoundedCornerShape(18.rdp))
@@ -422,14 +391,9 @@ private fun RcFitBoxSharedElementsPreview(
                             }
                             RemoteColumn(
                                 modifier =
-                                    RemoteModifier.animationSpec(
-                                        animationId = 2,
-                                        motionDuration = 400f,
-                                        motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                        visibilityDuration = 400f,
-                                        visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                        enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                        exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    RemoteModifier.sharedElement(
+                                        key = 2,
+                                        spec = remoteTween(durationMillis = 400),
                                     )
                             ) {
                                 RemoteText(
@@ -450,14 +414,9 @@ private fun RcFitBoxSharedElementsPreview(
                     RemoteBox(modifier = RemoteModifier.width(80.rdp).height(50.rdp)) {
                         RemoteBox(
                             modifier =
-                                RemoteModifier.animationSpec(
-                                        animationId = 1,
-                                        motionDuration = 400f,
-                                        motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                        visibilityDuration = 400f,
-                                        visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                        enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                        exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                RemoteModifier.sharedElement(
+                                        key = 1,
+                                        spec = remoteTween(durationMillis = 400),
                                     )
                                     .size(44.rdp)
                                     .clip(RemoteRoundedCornerShape(22.rdp))
