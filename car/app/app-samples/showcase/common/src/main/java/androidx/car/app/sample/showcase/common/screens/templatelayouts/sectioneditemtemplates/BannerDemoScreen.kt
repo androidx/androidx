@@ -63,6 +63,10 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
             CarIcon.createOriginalIcon(
                 IconCompat.createWithResource(carContext, R.drawable.test_android_media)
             )
+        val heroImage =
+            CarIcon.createOriginalIcon(
+                IconCompat.createWithResource(carContext, R.drawable.test_image_square)
+            )
         val playIcon = CarIcon.MEDIA_PLAYBACK
         val settingsIcon =
             CarIcon.createTintedIcon(
@@ -89,7 +93,7 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
                 .build()
         val standardSection = createSection(null, standardBanner)
 
-        // 2. Banner with Leading Image
+        // 2. Banner with Leading Image (Medium)
         val leadingImageBanner =
             Banner.Builder()
                 .setTitle("Leading Image")
@@ -98,7 +102,23 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
                 .build()
         val leadingImageSection = createSection("Leading Banners", leadingImageBanner)
 
-        // 3. Banner with Leading Icon
+        // 3. Banner with Leading Large (Hero) Image
+        val leadingLargeImageBanner =
+            Banner.Builder()
+                .setTitle("Leading Large (Hero) Image")
+                .setSubtitle("Edge-to-edge large leading image.")
+                .setLeadingImage(heroImage, Banner.IMAGE_TYPE_LARGE)
+                .addTrailingAction(
+                    Action.Builder()
+                        .setIcon(settingsIcon)
+                        .setOnClickListener { showToast("Clicked Hero Banner Action") }
+                        .build()
+                )
+                .setOnClickListener { showToast("Clicked Leading Large Banner") }
+                .build()
+        val leadingLargeImageSection = createSection(null, leadingLargeImageBanner)
+
+        // 4. Banner with Leading Icon
         val leadingIconBanner =
             Banner.Builder()
                 .setTitle("Leading Icon")
@@ -107,7 +127,7 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
                 .build()
         val leadingIconSection = createSection(null, leadingIconBanner)
 
-        // 4. Banner with Trailing Icon
+        // 5. Banner with Trailing Icon
         val trailingIconBanner =
             Banner.Builder()
                 .setTitle("Trailing Icon")
@@ -116,7 +136,7 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
                 .build()
         val trailingIconSection = createSection("Trailing Banners", trailingIconBanner)
 
-        // 5. Banner with Trailing Image
+        // 6. Banner with Trailing Image (Medium)
         val trailingImageBanner =
             Banner.Builder()
                 .setTitle("Trailing Image")
@@ -125,7 +145,18 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
                 .build()
         val trailingImageSection = createSection(null, trailingImageBanner)
 
-        // 6. Banner with Trailing Action (Settings Icon)
+        // 7. Banner with Trailing Large (Hero) Image
+        val trailingLargeImageBanner =
+            Banner.Builder()
+                .setTitle("Trailing Large (Hero) Image")
+                .setSubtitle("Edge-to-edge large trailing image.")
+                .setLeadingImage(playIcon, Banner.IMAGE_TYPE_SMALL)
+                .addTrailingImage(heroImage, Banner.IMAGE_TYPE_LARGE)
+                .setOnClickListener { showToast("Clicked Trailing Large Banner") }
+                .build()
+        val trailingLargeImageSection = createSection(null, trailingLargeImageBanner)
+
+        // 8. Banner with Trailing Action (Settings Icon)
         val trailingActionBanner =
             Banner.Builder()
                 .setTitle("Trailing Icon Button")
@@ -140,7 +171,7 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
                 .build()
         val trailingActionSection = createSection(null, trailingActionBanner)
 
-        // 7. Banner with Trailing Button
+        // 9. Banner with Trailing Button
         val trailingButtonBanner =
             Banner.Builder()
                 .setTitle("Trailing Button")
@@ -154,7 +185,7 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
                 .build()
         val trailingButtonSection = createSection(null, trailingButtonBanner)
 
-        // 8. Banner with 1 Below Action
+        // 10. Banner with 1 Below Action
         val belowActionBanner =
             Banner.Builder()
                 .setTitle("Below Action")
@@ -168,7 +199,7 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
                 .build()
         val belowActionSection = createSection("Below Actions", belowActionBanner)
 
-        // 9. Banner with Below Actions (2 actions and subtitle)
+        // 11. Banner with Below Actions (2 actions and subtitle)
         val belowActionsBanner =
             Banner.Builder()
                 .setTitle("Below Actions")
@@ -188,7 +219,7 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
                 .build()
         val belowActionsSection = createSection(null, belowActionsBanner)
 
-        // 10. Rich Banner Section
+        // 12. Rich Banner Section
         val richDemoBanner =
             Banner.Builder()
                 .setTitle("Rich Banner")
@@ -216,7 +247,7 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
                 .build()
         val richDemoSection = createSection("Rich Banner", richDemoBanner)
 
-        // 11. Different Shapes Section
+        // 13. Different Shapes Section
         val shapes =
             listOf(
                 "None" to Shape.NONE,
@@ -267,7 +298,7 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
             richShapesSection.add(createSection(headerTitle, banner))
         }
 
-        // 12. Different Background Colors Section
+        // 14. Different Background Colors Section
         // TODO: b/510071734 - Revert hex custom colors back to standard built-in CarColor constants
         //  (CarColor.RED, BLUE, etc.) once host BannerLayout supports
         // ColorBackgroundUiModel.BuiltIn.
@@ -304,9 +335,11 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
             .addSection(simpleSection)
             .addSection(standardSection)
             .addSection(leadingImageSection)
+            .addSection(leadingLargeImageSection)
             .addSection(leadingIconSection)
             .addSection(trailingIconSection)
             .addSection(trailingImageSection)
+            .addSection(trailingLargeImageSection)
             .addSection(trailingActionSection)
             .addSection(trailingButtonSection)
             .addSection(belowActionSection)
