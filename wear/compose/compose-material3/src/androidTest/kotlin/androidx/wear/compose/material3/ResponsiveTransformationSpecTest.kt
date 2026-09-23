@@ -17,19 +17,28 @@
 package androidx.wear.compose.material3
 
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import androidx.wear.compose.foundation.LocalReduceMotion
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.lazy.ResponsiveTransformationSpec
 import androidx.wear.compose.material3.lazy.ResponsiveTransformationSpec.Companion.NoOpTransformationSpec
 import androidx.wear.compose.material3.lazy.ResponsiveTransformationSpecImpl
 import androidx.wear.compose.material3.lazy.TransformationSpec
 import androidx.wear.compose.material3.lazy.TransformationVariableSpec
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.responsiveTransformationSpec
+import androidx.wear.compose.material3.lazy.transformedHeight
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Rule
@@ -256,6 +265,26 @@ class ResponsiveTransformationSpecTest {
             EPSILON,
         )
         Assert.assertEquals(specs3.last(), responsiveTransformationSpec(300.dp, specs3))
+    }
+
+    @Test
+    fun negativeSpacingAndBigScalingWorks() {
+        val tlcSpec =
+            ResponsiveTransformationSpec.smallScreen(scale = TransformationVariableSpec(0.4f))
+        var state: TransformingLazyColumnState? = null
+        rule.setContent {
+            state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 50_000)
+            TransformingLazyColumn(
+                Modifier.size(200.dp),
+                state = state,
+                verticalArrangement = Arrangement.spacedBy((-10).dp),
+            ) {
+                items(100_000) { Box(Modifier.size(20.dp).transformedHeight(this, tlcSpec)) }
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(state!!.layoutInfo.visibleItems.size).isLessThan(100)
     }
 
     private val EPSILON = 1e-5f

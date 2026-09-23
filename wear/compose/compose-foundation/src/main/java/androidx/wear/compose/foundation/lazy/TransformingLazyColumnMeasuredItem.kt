@@ -112,7 +112,9 @@ internal data class TransformingLazyColumnMeasuredItem(
                     // TODO: Save transformedHeight provider.
                     placeable?.let { p ->
                         (p.parentData as? TransformingLazyColumnParentData)?.let {
-                            it.heightProvider?.invoke(p.height, measureScrollProgress)
+                            it.heightProvider
+                                ?.invoke(p.height, measureScrollProgress)
+                                ?.coerceAtLeast(0)
                         } ?: p.height
                     } ?: 0
             }
@@ -199,8 +201,10 @@ internal data class TransformingLazyColumnMeasuredItem(
                 if (currentAnimation != null) {
                     val parentData = placeable.parentData as? TransformingLazyColumnParentData
                     lastMeasuredTransformedHeight =
-                        parentData?.heightProvider?.invoke(placeable.height, scrollProgress)
-                            ?: placeable.height
+                        parentData
+                            ?.heightProvider
+                            ?.invoke(placeable.height, scrollProgress)
+                            ?.coerceAtLeast(0) ?: placeable.height
                 }
 
                 val animationDelta = currentAnimation?.placementDelta ?: IntOffset.Zero
