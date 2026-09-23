@@ -20,9 +20,28 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteComposeState
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathFillType
+import androidx.compose.ui.graphics.PathMeasure
+import kotlin.math.max
+import kotlin.math.min
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteComposeState.getPath(id: Int, start: Float, end: Float): Path {
+    val cachedPath = getPath(id) as? Path
+    if (cachedPath != null) {
+        if (start > 0f || end < 1f) {
+            val trimmed = Path()
+            if (start < end) {
+                val measure = PathMeasure()
+                measure.setPath(cachedPath, false)
+                val len = measure.length
+                val scaleStart = (max(start, 0f) * len)
+                val scaleStop = (min(end, 1f) * len)
+                measure.getSegment(scaleStart, scaleStop, trimmed, true)
+            }
+            return trimmed
+        }
+        return cachedPath
+    }
     val winding: Int = getPathWinding(id)
     val path = Path()
     val pathData: FloatArray? = getPathData(id)
