@@ -236,6 +236,8 @@ public object MaterialTheme {
  * @param shapes A set of corner shapes to be used as this hierarchy's shape system
  * @param typography A set of text styles to be used as this hierarchy's typography system
  * @param content The content inheriting this theme
+ *
+ * @material3expressive
  */
 @Composable
 public fun MaterialExpressiveTheme(
