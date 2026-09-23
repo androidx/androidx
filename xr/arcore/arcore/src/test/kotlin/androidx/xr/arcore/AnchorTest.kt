@@ -172,17 +172,21 @@ class AnchorTest {
         }
 
     @Test
-    fun persist_anchorPersistenceDisabled_throwsIllegalStateException() {
-        val anchorResult = Anchor.create(session, Pose())
-        check(anchorResult is AnchorCreateSuccess)
+    fun persist_anchorPersistenceDisabled_throwsIllegalStateException() =
+        runTest(testDispatcher) {
+            val anchorResult = Anchor.create(session, Pose())
+            check(anchorResult is AnchorCreateSuccess)
 
-        val underTest = anchorResult.anchor
-        session.configure(
-            Config.Builder().setAnchorPersistence(AnchorPersistenceMode.DISABLED).build()
-        )
+            val underTest = anchorResult.anchor
+            session.configure(
+                Config.Builder().setAnchorPersistence(AnchorPersistenceMode.DISABLED).build()
+            )
+            // Most tests require an advanceUntilIdle to propagate the effects of configure, but
+            // this one doesn't. The Anchor impl directly checks the config stored in Session, which
+            // has already been updated.
 
-        runTest(testDispatcher) { assertFailsWith<IllegalStateException> { underTest.persist() } }
-    }
+            assertFailsWith<IllegalStateException> { underTest.persist() }
+        }
 
     @Test
     fun getPersistedAnchorUuids_previouslyPersistedAnchor_returnsPersistedAnchorUuid() =

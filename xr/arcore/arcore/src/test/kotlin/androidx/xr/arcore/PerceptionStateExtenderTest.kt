@@ -121,7 +121,7 @@ class PerceptionStateExtenderTest {
     }
 
     @Test
-    fun extend_notInitialized_throwsIllegalStateException(): Unit =
+    fun extend_notInitialized_throwsIllegalStateException() =
         runTest(testDispatcher) {
             val coreState = CoreState(timeSource.markNow())
 

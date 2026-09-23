@@ -51,10 +51,9 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
-import org.robolectric.shadows.ShadowLooper
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class FaceTest {
     companion object {
         const val BLEND_SHAPE_COUNT = 68
@@ -89,12 +88,12 @@ class FaceTest {
                 .session
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun getUserFace_returnsFaceWithUpdatedTrackingStateAndBlendShapes() {
-        session.configure(BLEND_SHAPES_CONFIG)
+    fun getUserFace_returnsFaceWithUpdatedTrackingStateAndBlendShapes() =
         runTest(testDispatcher) {
+            session.configure(BLEND_SHAPES_CONFIG)
             val underTest = Face.getUserFace(session)
+            advanceUntilIdle()
 
             assertThat(underTest.state.value.blendShapeValues).isNotNull()
             assertThat(underTest.state.value.blendShapeValues!!.all { it == 0f }).isTrue()
@@ -111,7 +110,6 @@ class FaceTest {
             assertThat(underTest.state.value.blendShapeValues)
                 .isEqualTo(expectedBlendShapes.toFloatArray())
         }
-    }
 
     @Test
     fun getUserFace_faceTrackingDisabled_throwsIllegalStateException() {
@@ -127,11 +125,10 @@ class FaceTest {
         assertFailsWith<IllegalStateException> { Face.getUserFace(session) }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun subscribe_collectReturnsFaceMesh() {
-        session.configure(MESHES_CONFIG)
+    fun subscribe_collectReturnsFaceMesh() =
         runTest(testDispatcher) {
+            session.configure(MESHES_CONFIG)
             val testFace = TestFace()
             arCoreTestRule.addTrackables(testFace)
             advanceUntilIdle()
@@ -143,7 +140,6 @@ class FaceTest {
 
             assertThat(underTest).isNotEmpty()
         }
-    }
 
     @Test
     fun subscribe_faceTrackingDisabled_throwsIllegalStateException() {
@@ -159,35 +155,30 @@ class FaceTest {
         assertFailsWith<IllegalStateException> { Face.subscribe(session) }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun getUserFace_stateMatchesRuntimeFace() {
-        session.configure(BLEND_SHAPES_CONFIG)
+    fun getUserFace_stateMatchesRuntimeFace() =
         runTest(testDispatcher) {
+            session.configure(BLEND_SHAPES_CONFIG)
             val underTest = Face.getUserFace(session)
             arCoreTestRule.faceTester.isValid = true
+            // Propagate the effects of configure() and enabling the face.
             advanceUntilIdle()
 
             assertThat(underTest.state.value.trackingState.toRuntimeTrackingState())
                 .isEqualTo(TrackingState.TRACKING)
 
-            activityController.pause()
-            advanceUntilIdle()
             session.configure(DISABLED_CONFIG)
-            ShadowLooper.idleMainLooper()
-            activityController.resume()
+            // Propagate the effects of configure().
             advanceUntilIdle()
 
             assertThat(underTest.state.value.trackingState.toRuntimeTrackingState())
                 .isEqualTo(TrackingState.STOPPED)
         }
-    }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun blendShapeArray_invalidValues_doesNotUpdateState() {
-        session.configure(BLEND_SHAPES_CONFIG)
+    fun blendShapeArray_invalidValues_doesNotUpdateState() =
         runTest(testDispatcher) {
+            session.configure(BLEND_SHAPES_CONFIG)
             val underTest = Face.getUserFace(session)
 
             val expectedBlendShapes = MutableList(BLEND_SHAPE_COUNT) { 0.0f }
@@ -214,13 +205,11 @@ class FaceTest {
             assertThat(underTest.state.value.blendShapeValues)
                 .isEqualTo(expectedBlendShapes.toFloatArray())
         }
-    }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun confidenceArray_invalidValues_doesNotUpdateState() {
-        session.configure(BLEND_SHAPES_CONFIG)
+    fun confidenceArray_invalidValues_doesNotUpdateState() =
         runTest(testDispatcher) {
+            session.configure(BLEND_SHAPES_CONFIG)
             val underTest = Face.getUserFace(session)
 
             val expectedConfidences = listOf(0f, .3333f, .6666f)
@@ -244,12 +233,11 @@ class FaceTest {
             assertThat(underTest.state.value.confidenceValues)
                 .isEqualTo(expectedConfidences.toFloatArray())
         }
-    }
 
     @Test
-    fun update_trackingStateMatchesRuntime() {
-        session.configure(MESHES_CONFIG)
+    fun update_trackingStateMatchesRuntime() =
         runTest(testDispatcher) {
+            session.configure(MESHES_CONFIG)
             val testFace = TestFace()
             arCoreTestRule.addTrackables(testFace)
             advanceUntilIdle()
@@ -269,12 +257,11 @@ class FaceTest {
             assertThat(underTest.state.value.trackingState.toRuntimeTrackingState())
                 .isEqualTo(TrackingState.PAUSED)
         }
-    }
 
     @Test
-    fun update_centerPoseMatchesRuntime() {
-        session.configure(MESHES_CONFIG)
+    fun update_centerPoseMatchesRuntime() =
         runTest(testDispatcher) {
+            session.configure(MESHES_CONFIG)
             val testFace = TestFace()
             arCoreTestRule.addTrackables(testFace)
             advanceUntilIdle()
@@ -291,12 +278,11 @@ class FaceTest {
             check(underTest != null)
             assertThat(underTest.state.value.centerPose).isEqualTo(expectedPose)
         }
-    }
 
     @Test
-    fun update_noseTipPoseMatchesRuntime() {
-        session.configure(MESHES_CONFIG)
+    fun update_noseTipPoseMatchesRuntime() =
         runTest(testDispatcher) {
+            session.configure(MESHES_CONFIG)
             val testFace = TestFace()
             arCoreTestRule.addTrackables(testFace)
             advanceUntilIdle()
@@ -313,12 +299,11 @@ class FaceTest {
             check(underTest != null)
             assertThat(underTest.state.value.noseTipPose).isEqualTo(expectedPose)
         }
-    }
 
     @Test
-    fun update_foreheadLeftPoseMatchesRuntime() {
-        session.configure(MESHES_CONFIG)
+    fun update_foreheadLeftPoseMatchesRuntime() =
         runTest(testDispatcher) {
+            session.configure(MESHES_CONFIG)
             val testFace = TestFace()
             arCoreTestRule.addTrackables(testFace)
             advanceUntilIdle()
@@ -335,12 +320,11 @@ class FaceTest {
             check(underTest != null)
             assertThat(underTest.state.value.foreheadLeftPose).isEqualTo(expectedPose)
         }
-    }
 
     @Test
-    fun update_foreheadRightPoseMatchesRuntime() {
-        session.configure(MESHES_CONFIG)
+    fun update_foreheadRightPoseMatchesRuntime() =
         runTest(testDispatcher) {
+            session.configure(MESHES_CONFIG)
             val testFace = TestFace()
             arCoreTestRule.addTrackables(testFace)
             advanceUntilIdle()
@@ -357,12 +341,11 @@ class FaceTest {
             check(underTest != null)
             assertThat(underTest.state.value.foreheadRightPose).isEqualTo(expectedPose)
         }
-    }
 
     @Test
-    fun update_mesh_matchesRuntime() {
-        session.configure(MESHES_CONFIG)
+    fun update_mesh_matchesRuntime() =
         runTest(testDispatcher) {
+            session.configure(MESHES_CONFIG)
             val testFace = TestFace()
             arCoreTestRule.addTrackables(testFace)
             advanceUntilIdle()
@@ -385,5 +368,4 @@ class FaceTest {
             check(underTest != null)
             assertThat(underTest.state.value.mesh).isEqualTo(expectedMesh)
         }
-    }
 }

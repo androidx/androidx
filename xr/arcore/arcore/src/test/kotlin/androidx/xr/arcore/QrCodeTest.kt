@@ -47,11 +47,10 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
-import org.robolectric.shadows.ShadowLooper
 
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("DEPRECATION")
+@OptIn(ExperimentalCoroutinesApi::class)
 class QrCodeTest {
 
     companion object {
@@ -133,18 +132,17 @@ class QrCodeTest {
             val testQrCode = TestQrCode(QR_CODE_DATA)
             arCoreTestRule.addTrackables(testQrCode)
 
-            advanceUntilIdle()
-
             var underTest = emptyList<QrCode>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 QrCode.subscribe(session).collect { underTest = it.toList() }
             }
-
-            activityController.pause()
+            // Gather the QR codes.
             advanceUntilIdle()
+
+            assertThat(underTest).isNotEmpty()
+
             session.configure(Config(qrCodeTracking = QrCodeTrackingMode.DISABLED))
-            ShadowLooper.idleMainLooper()
-            activityController.resume()
+            // Propagate the effects of configure().
             advanceUntilIdle()
 
             assertThat(underTest.single().state.value.trackingState)

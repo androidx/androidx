@@ -48,7 +48,6 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
-import org.robolectric.shadows.ShadowLooper
 
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -206,18 +205,18 @@ class PlaneTest {
             val testPlane = TestPlane(PlaneType.VERTICAL, PlaneLabel.WALL)
             arCoreTestRule.addTrackables(testPlane)
 
-            advanceUntilIdle()
-
             var underTest = emptyList<Plane>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Plane.subscribe(session).collect { underTest = it.toList() }
             }
-
-            activityController.pause()
+            // Gather the planes.
             advanceUntilIdle()
+
+            assertThat(underTest).isNotEmpty()
+
             session.configure(DISABLED_CONFIG)
-            ShadowLooper.idleMainLooper()
-            activityController.resume()
+            // Propagate the effects of configure().
+            advanceUntilIdle()
 
             assertFailsWith<IllegalStateException> { underTest.single().createAnchor(Pose()) }
         }
@@ -251,18 +250,17 @@ class PlaneTest {
             val testPlane = TestPlane(PlaneType.VERTICAL, PlaneLabel.WALL)
             arCoreTestRule.addTrackables(testPlane)
 
-            advanceUntilIdle()
-
             var underTest = emptyList<Plane>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Plane.subscribe(session).collect { underTest = it.toList() }
             }
-
-            activityController.pause()
+            // Gather the planes.
             advanceUntilIdle()
+
+            assertThat(underTest).isNotEmpty()
+
             session.configure(DISABLED_CONFIG)
-            ShadowLooper.idleMainLooper()
-            activityController.resume()
+            // Propagate the effects of configure().
             advanceUntilIdle()
 
             assertThat(underTest.single().state.value.trackingState)
