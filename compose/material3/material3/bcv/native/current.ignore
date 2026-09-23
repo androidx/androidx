@@ -449,10 +449,7 @@
 [linuxX64]: Removed declaration onValueChangeFinished from androidx.compose.material3/RangeSliderState
 [linuxX64]: Removed declaration Saver(kotlin/Function0<kotlin/Unit>?, kotlin.ranges/ClosedFloatingPointRange<kotlin/Float>) from androidx.compose.material3/RangeSliderState.Companion
 [linuxX64]: Removed declaration collapsedCoords from androidx.compose.material3/SearchBarState
-[linuxX64]: Removed superType androidx.compose.foundation.gestures/DraggableState from androidx.compose.material3/SliderState
 [linuxX64]: Removed declaration <init>(kotlin/Float, kotlin/Int, kotlin/Function0<kotlin/Unit>?, kotlin.ranges/ClosedFloatingPointRange<kotlin/Float>) from androidx.compose.material3/SliderState
-[linuxX64]: Removed declaration dispatchRawDelta(kotlin/Float) from androidx.compose.material3/SliderState
-[linuxX64]: Removed declaration drag(androidx.compose.foundation/MutatePriority, kotlin.coroutines/SuspendFunction1<androidx.compose.foundation.gestures/DragScope, kotlin/Unit>) from androidx.compose.material3/SliderState
 [linuxX64]: Removed declaration valueRange from androidx.compose.material3/SliderState
 [linuxX64]: Removed declaration onValueChange from androidx.compose.material3/SliderState
 [linuxX64]: Removed declaration onValueChangeFinished from androidx.compose.material3/SliderState
