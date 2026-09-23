@@ -203,6 +203,8 @@ public fun IconButton(
  *   appearance or preview the icon button in different states. Note that if `null` is provided,
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
+ *
+ * @material3expressive
  */
 @Composable
 public fun IconButton(
@@ -404,6 +406,8 @@ public fun IconToggleButton(
  *   appearance or preview the icon button in different states. Note that if `null` is provided,
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
+ *
+ * @material3expressive
  */
 @Composable
 public fun IconToggleButton(
@@ -546,6 +550,8 @@ public fun FilledIconButton(
  *   appearance or preview the icon button in different states. Note that if `null` is provided,
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
+ *
+ * @material3expressive
  */
 @Composable
 public fun FilledIconButton(
@@ -654,6 +660,8 @@ public fun FilledIconToggleButton(
  *   appearance or preview the icon button in different states. Note that if `null` is provided,
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
+ *
+ * @material3expressive
  */
 @Composable
 public fun FilledIconToggleButton(
@@ -769,6 +777,8 @@ public fun FilledTonalIconButton(
  *   appearance or preview the icon button in different states. Note that if `null` is provided,
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
+ *
+ * @material3expressive
  */
 @Composable
 public fun FilledTonalIconButton(
@@ -888,6 +898,8 @@ public fun FilledTonalIconToggleButton(
  *   appearance or preview the icon button in different states. Note that if `null` is provided,
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
+ *
+ * @material3expressive
  */
 @Composable
 public fun FilledTonalIconToggleButton(
@@ -1019,6 +1031,8 @@ public fun OutlinedIconButton(
  *   appearance or preview the icon button in different states. Note that if `null` is provided,
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
+ *
+ * @material3expressive
  */
 @Composable
 public fun OutlinedIconButton(
@@ -1133,6 +1147,8 @@ public fun OutlinedIconToggleButton(
  *   appearance or preview the icon button in different states. Note that if `null` is provided,
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
+ *
+ * @material3expressive
  */
 @Composable
 public fun OutlinedIconToggleButton(
