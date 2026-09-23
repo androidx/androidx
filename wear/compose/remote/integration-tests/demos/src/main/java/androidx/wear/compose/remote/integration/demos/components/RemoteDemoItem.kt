@@ -34,7 +34,13 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
+import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
+import androidx.compose.remote.player.compose.embedded.HasFontCerts
+import androidx.compose.remote.player.compose.embedded.RcPlayer
+import androidx.compose.remote.player.compose.embedded.RcPlayerState
+import androidx.compose.remote.player.compose.embedded.rememberRcPlayerState
 import androidx.compose.remote.player.compose.test.utils.DownloadableTypefaceResolver
 import androidx.compose.remote.player.compose.test.utils.FallbackCreateTypefaceResolver
 import androidx.compose.remote.player.compose.test.utils.RemappingTypefaceResolver
@@ -45,6 +51,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -65,6 +72,7 @@ import androidx.wear.compose.remote.material3.RemoteTypography
 
 internal val LocalUseDynamicColor = compositionLocalOf { true }
 internal val LocalSelectedFontFamilyName = compositionLocalOf { "Default" }
+internal val LocalUseEmbeddedPlayer = compositionLocalOf { false }
 
 @Suppress("RestrictedApiAndroidX")
 private val profileFeaturePaintMeasureDisabled =
@@ -85,6 +93,7 @@ private val profileFeaturePaintMeasureDisabled =
         )
     }
 
+@OptIn(ExperimentalRemotePlayerApi::class)
 @Composable
 @Suppress("RestrictedApiAndroidX")
 fun RemoteDemoItem(
@@ -93,9 +102,10 @@ fun RemoteDemoItem(
     documentHeight: Int? = null,
     useDynamicColor: Boolean = LocalUseDynamicColor.current,
     selectedFontName: String = LocalSelectedFontFamilyName.current,
+    useEmbeddedPlayer: Boolean = LocalUseEmbeddedPlayer.current,
     content: @Composable @RemoteComposable () -> Unit,
 ) {
-    var documentState by remember(selectedFontName) { mutableStateOf<RemoteDocument?>(null) }
+    var capturedBytes by remember(selectedFontName) { mutableStateOf<ByteArray?>(null) }
 
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
@@ -126,24 +136,44 @@ fun RemoteDemoItem(
                     )
                 }
             }
-        documentState = RemoteDocument(captured.bytes)
+        capturedBytes = captured.bytes
     }
 
-    if (documentState != null) {
-        val windowInfo = LocalWindowInfo.current
+    val currentBytes = capturedBytes
+    if (currentBytes != null) {
+        val typefaceResolver = remember(context) { configureTypefaceResolver(context) }
+        key(useEmbeddedPlayer, useDynamicColor, currentBytes) {
+            val remoteDoc =
+                remember(useEmbeddedPlayer, useDynamicColor, currentBytes) {
+                    RemoteDocument(currentBytes)
+                }
+            if (useEmbeddedPlayer) {
+                RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = true
+                val playerState = rememberRcPlayerState(remoteDoc.document)
+                setDynamicColors(dynamicColors, playerState)
+                RcPlayer(
+                    state = playerState,
+                    modifier = modifier,
+                    typefaceResolver = typefaceResolver,
+                )
+            } else {
+                val windowInfo = LocalWindowInfo.current
 
-        @Composable fun getDefaultHeight() = with(LocalDensity.current) { 50.dp.toPx() }.toInt()
+                @Composable
+                fun getDefaultHeight() = with(LocalDensity.current) { 50.dp.toPx() }.toInt()
 
-        RemoteDocumentPlayer(
-            document = documentState!!.document,
-            documentWidth = documentWidth ?: windowInfo.containerSize.width,
-            documentHeight = documentHeight ?: getDefaultHeight(),
-            modifier = modifier,
-            debugMode = 0,
-            update = { player -> setDynamicColors(dynamicColors, player) },
-            onNamedAction = { _, _, _ -> },
-            typefaceResolver = configureTypefaceResolver(context),
-        )
+                RemoteDocumentPlayer(
+                    document = remoteDoc.document,
+                    documentWidth = documentWidth ?: windowInfo.containerSize.width,
+                    documentHeight = documentHeight ?: getDefaultHeight(),
+                    modifier = modifier,
+                    debugMode = 0,
+                    update = { player -> setDynamicColors(dynamicColors, player) },
+                    onNamedAction = { _, _, _ -> },
+                    typefaceResolver = typefaceResolver,
+                )
+            }
+        }
     }
 }
 
@@ -152,7 +182,46 @@ private fun configureTypefaceResolver(context: Context): TypefaceResolver {
     val current = FallbackCreateTypefaceResolver()
     val remappingResolver = RemappingTypefaceResolver(current).apply { remapType(0, "roboto-flex") }
     val downloadableResolver = DownloadableTypefaceResolver(context, remappingResolver)
-    return downloadableResolver
+    return object : TypefaceResolver by downloadableResolver, HasFontCerts {
+        override val fontCertsResId: Int =
+            androidx.compose.remote.player.compose.test.utils.R.array
+                .com_google_android_gms_fonts_certs
+    }
+}
+
+@Suppress("RestrictedApiAndroidX")
+private fun setDynamicColors(dynamicColors: ColorScheme?, playerState: RcPlayerState) {
+    dynamicColors?.let { colors ->
+        playerState.colorState("WearM3.primary").value = colors.primary
+        playerState.colorState("WearM3.primaryDim").value = colors.primaryDim
+        playerState.colorState("WearM3.primaryContainer").value = colors.primaryContainer
+        playerState.colorState("WearM3.onPrimary").value = colors.onPrimary
+        playerState.colorState("WearM3.onPrimaryContainer").value = colors.onPrimaryContainer
+        playerState.colorState("WearM3.secondary").value = colors.secondary
+        playerState.colorState("WearM3.secondaryDim").value = colors.secondaryDim
+        playerState.colorState("WearM3.secondaryContainer").value = colors.secondaryContainer
+        playerState.colorState("WearM3.onSecondary").value = colors.onSecondary
+        playerState.colorState("WearM3.onSecondaryContainer").value = colors.onSecondaryContainer
+        playerState.colorState("WearM3.tertiary").value = colors.tertiary
+        playerState.colorState("WearM3.tertiaryDim").value = colors.tertiaryDim
+        playerState.colorState("WearM3.tertiaryContainer").value = colors.tertiaryContainer
+        playerState.colorState("WearM3.onTertiary").value = colors.onTertiary
+        playerState.colorState("WearM3.onTertiaryContainer").value = colors.onTertiaryContainer
+        playerState.colorState("WearM3.surfaceContainerLow").value = colors.surfaceContainerLow
+        playerState.colorState("WearM3.surfaceContainer").value = colors.surfaceContainer
+        playerState.colorState("WearM3.surfaceContainerHigh").value = colors.surfaceContainerHigh
+        playerState.colorState("WearM3.onSurface").value = colors.onSurface
+        playerState.colorState("WearM3.onSurfaceVariant").value = colors.onSurfaceVariant
+        playerState.colorState("WearM3.outline").value = colors.outline
+        playerState.colorState("WearM3.outlineVariant").value = colors.outlineVariant
+        playerState.colorState("WearM3.background").value = colors.background
+        playerState.colorState("WearM3.onBackground").value = colors.onBackground
+        playerState.colorState("WearM3.error").value = colors.error
+        playerState.colorState("WearM3.errorDim").value = colors.errorDim
+        playerState.colorState("WearM3.errorContainer").value = colors.errorContainer
+        playerState.colorState("WearM3.onError").value = colors.onError
+        playerState.colorState("WearM3.onErrorContainer").value = colors.onErrorContainer
+    }
 }
 
 @Suppress("RestrictedApiAndroidX")
@@ -202,7 +271,6 @@ fun TransformingLazyColumnScope.remoteDemoItem(
     playerModifier: Modifier = Modifier,
     documentWidth: Int? = null,
     documentHeight: Int? = null,
-    useDynamicColor: Boolean = true,
     content: @Composable @RemoteComposable () -> Unit,
 ) {
     item { ListSubHeader { Text(label) } }
@@ -211,7 +279,6 @@ fun TransformingLazyColumnScope.remoteDemoItem(
             modifier = playerModifier,
             documentWidth = documentWidth,
             documentHeight = documentHeight,
-            useDynamicColor = useDynamicColor,
             content = content,
         )
     }
