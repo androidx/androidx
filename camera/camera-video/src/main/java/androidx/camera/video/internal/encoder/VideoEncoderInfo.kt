@@ -78,6 +78,9 @@ public interface VideoEncoderInfo : EncoderInfo {
     /** Returns the video encoder's bitrate range. */
     public val supportedBitrateRange: Range<Int>
 
+    /** Returns whether the video encoder is hardware accelerated. */
+    public val isHardwareAccelerated: Boolean
+
     /** A finder that can find a [VideoEncoderInfo]. */
     public fun interface Finder {
         /** Finds a [VideoEncoderInfo] for the given MIME type. */

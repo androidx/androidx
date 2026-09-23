@@ -26,6 +26,7 @@ public open class FakeVideoEncoderInfo(
     override var widthAlignment: Int = 2,
     override var heightAlignment: Int = 2,
     override var supportedBitrateRange: Range<Int> = Range(1, Int.MAX_VALUE),
+    override var isHardwareAccelerated: Boolean = true,
     mime: String = "video/fake",
 ) : FakeEncoderInfo(mime = mime), VideoEncoderInfo {
 

@@ -148,6 +148,9 @@ private constructor(private val videoEncoderInfo: VideoEncoderInfo) : VideoEncod
     override val supportedBitrateRange: Range<Int>
         get() = videoEncoderInfo.supportedBitrateRange
 
+    override val isHardwareAccelerated: Boolean
+        get() = videoEncoderInfo.isHardwareAccelerated
+
     private data class ProfileData(val extraSizes: Set<Size>, val maxWidth: Int, val maxHeight: Int)
 
     public companion object {
