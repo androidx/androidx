@@ -155,6 +155,8 @@ import kotlinx.coroutines.launch
  * @param contentPadding the spacing values to apply internally between the container and the
  *   content
  * @param content the content of this wide navigation rail, typically [WideNavigationRailItem]s
+ *
+ * @material3expressive
  */
 @Composable
 public fun WideNavigationRail(
@@ -213,6 +215,8 @@ public fun WideNavigationRail(
  *   that if there's a header present, the items will be arranged on the remaining space below it,
  *   except for the center arrangement which considers the entire height of the container
  * @param content the content of this wide navigation rail, typically [WideNavigationRailItem]s
+ *
+ * @material3expressive
  */
 @Deprecated(
     message = "Deprecated in favor of function with contentPadding parameter",
@@ -514,6 +518,8 @@ private fun WideNavigationRailLayout(
  * @param contentPadding the spacing values to apply internally between the container and the
  *   content
  * @param content the content of this modal wide navigation rail, usually [WideNavigationRailItem]s
+ *
+ * @material3expressive
  */
 @Composable
 public fun ModalWideNavigationRail(
@@ -712,6 +718,8 @@ public fun ModalWideNavigationRail(
  * @param expandedProperties [ModalWideNavigationRailProperties] for further customization of the
  *   expanded modal wide navigation rail's window behavior
  * @param content the content of this modal wide navigation rail, usually [WideNavigationRailItem]s
+ *
+ * @material3expressive
  */
 @Deprecated(
     message = "Deprecated in favor of function with contentPadding parameter",
@@ -786,6 +794,8 @@ public fun ModalWideNavigationRail(
  * @param indicatorPadding the spacing values to apply internally between the indicator and the
  *   indicator's content, if you need different paddings during expanded and collapsed states, use
  *   [WideNavigationRailItemDefaults.indicatorPadding] to correctly handle animations.
+ *
+ * @material3expressive
  */
 @Composable
 public fun WideNavigationRailItem(
@@ -861,6 +871,8 @@ public fun WideNavigationRailItem(
  *   emitting [Interaction]s for this item. You can use this to change the item's appearance or
  *   preview the item in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
+ *
+ * @material3expressive
  */
 @Deprecated(
     message = "Deprecated in favor of function with indicatorPadding parameter",
