@@ -3086,6 +3086,49 @@ public class RemoteComposeBuffer {
     }
 
     /**
+     * Define a ribbon along a path whose cross width is a spline through control points.
+     *
+     * <p>{@code widths} and {@code positions} may hold NaN variable ids, so the profile can be
+     * animated.
+     *
+     * @param meshId the id the mesh is stored under
+     * @param segments roughly how many quads to divide the path into; at least 1
+     * @param pathId the path to follow
+     * @param widths the width control points, at least one, in the path's own units
+     * @param positions where each width sits along the path, 0..1, empty for evenly spaced
+     */
+    public void addMesh2DPathStrip(
+            int meshId,
+            int segments,
+            int pathId,
+            float @Nullable [] widths,
+            float @Nullable [] positions) {
+        AddMesh2D.applyPathSplineStrip(mBuffer, meshId, segments, pathId, widths, positions);
+    }
+
+    /**
+     * Define a spline width path strip that ends in a semicircle at each end.
+     *
+     * <p>As {@link #addMesh2DPathStrip}, with a round cap of radius half the ribbon's width at each
+     * end. The caps are extra columns rather than a slice of {@code segments}, so the body is
+     * sampled exactly as finely as the flat variant would sample it.
+     *
+     * @param meshId the id the mesh is stored under
+     * @param segments roughly how many quads to divide the path into, excluding the caps
+     * @param pathId the path to follow
+     * @param widths the width control points, at least one, in the path's own units
+     * @param positions where each width sits along the path, 0..1, empty for evenly spaced
+     */
+    public void addMesh2DRoundStrip(
+            int meshId,
+            int segments,
+            int pathId,
+            float @Nullable [] widths,
+            float @Nullable [] positions) {
+        AddMesh2D.applySplineRoundStrip(mBuffer, meshId, segments, pathId, widths, positions);
+    }
+
+    /**
      * Draw a previously defined 2D vertex mesh.
      *
      * @param meshId the mesh to draw

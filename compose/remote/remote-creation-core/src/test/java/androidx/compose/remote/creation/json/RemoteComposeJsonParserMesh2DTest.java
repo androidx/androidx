@@ -284,6 +284,149 @@ public class RemoteComposeJsonParserMesh2DTest {
         assertTrue(matrix.toString(), matrix.toString().endsWith("" + MatrixFromMesh2D.FLAG_SCALE));
     }
 
+    @Test
+    public void widthsImplyASplinePathStrip() throws JSONException {
+        // No "source": a widths array is enough to say what this is, the same way a verts array
+        // already implies the literal form.
+        ArrayList<Operation> operations =
+                parse(
+                        "{\"type\": \"addMesh2D\", \"id\": \"ribbon\", \"path\": 3,"
+                                + " \"segments\": 24, \"widths\": [0, 18, 4]}");
+
+        AddMesh2D mesh = first(operations, AddMesh2D.class);
+        String description = mesh.toString();
+        assertTrue(description, description.contains("type=" + AddMesh2D.TYPE_PATH_SPLINE_STRIP));
+        assertTrue(
+                description, description.contains("layout=" + Mesh2DGenerator.LAYOUT_PATH_STRIP));
+        // segments quads need segments + 1 rings of vertices, two across.
+        assertTrue(description, description.contains("u=25"));
+        assertTrue(description, description.contains("v=2"));
+        assertTrue(description, description.contains("aux=3"));
+    }
+
+    @Test
+    public void splinePathStripAcceptsItsSourceNamesAndExplicitPositions() throws JSONException {
+        String[] names = {"pathSplineStrip", "splineStrip"};
+        for (String name : names) {
+            setup(); // a fresh writer per case, so each mesh is the only one in its document
+            ArrayList<Operation> operations =
+                    parse(
+                            "{\"type\": \"addMesh2D\", \"source\": \""
+                                    + name
+                                    + "\", \"path\": 5, \"segments\": 8,"
+                                    + " \"widths\": [1, 9], \"pos\": [0, 1]}");
+            AddMesh2D mesh = first(operations, AddMesh2D.class);
+            assertTrue(
+                    name + " -> " + mesh,
+                    mesh.toString().contains("type=" + AddMesh2D.TYPE_PATH_SPLINE_STRIP));
+        }
+    }
+
+    @Test
+    public void splinePathStripWidthsMayBeVariables() throws JSONException {
+        // The whole point of carrying widths rather than baking geometry: the profile animates.
+        mParser.parse(
+                "{\"resources\": {\"variables\": {\"swell\": \"4 + 12\"}},"
+                        + " \"root\": {\"type\": \"canvas\", \"commands\": ["
+                        + "{\"type\": \"addMesh2D\", \"id\": \"ribbon\", \"path\": 2,"
+                        + " \"segments\": 16, \"widths\": [1, \"@swell\", 1]},"
+                        + "{\"type\": \"drawMesh2D\", \"mesh\": \"ribbon\"}"
+                        + "]}}");
+        ArrayList<Operation> operations = new ArrayList<>();
+        mWriter.getBuffer().inflateFromBuffer(operations);
+
+        AddMesh2D mesh = first(operations, AddMesh2D.class);
+        assertTrue(
+                mesh.toString(),
+                mesh.toString().contains("type=" + AddMesh2D.TYPE_PATH_SPLINE_STRIP));
+        assertNotNull(mWriter.encodeToByteArray());
+    }
+
+    @Test
+    public void splinePathStripRequiresItsPathSegmentsAndWidths() {
+        assertThrows(
+                JSONException.class,
+                () ->
+                        parse(
+                                "{\"type\": \"addMesh2D\", \"source\": \"pathSplineStrip\","
+                                        + " \"segments\": 8, \"widths\": [4]}"));
+        assertThrows(
+                JSONException.class,
+                () ->
+                        parse(
+                                "{\"type\": \"addMesh2D\", \"source\": \"pathSplineStrip\","
+                                        + " \"path\": 3, \"widths\": [4]}"));
+        assertThrows(
+                JSONException.class,
+                () ->
+                        parse(
+                                "{\"type\": \"addMesh2D\", \"source\": \"pathSplineStrip\","
+                                        + " \"path\": 3, \"segments\": 8}"));
+    }
+
+    @Test
+    public void roundStripAcceptsItsSourceNamesAndAddsCapsToTheColumnCount() throws JSONException {
+        String[] names = {"splineRoundStrip", "roundStrip"};
+        for (String name : names) {
+            setup(); // a fresh writer per case, so each mesh is the only one in its document
+            ArrayList<Operation> operations =
+                    parse(
+                            "{\"type\": \"addMesh2D\", \"source\": \""
+                                    + name
+                                    + "\", \"path\": 5, \"segments\": 24,"
+                                    + " \"widths\": [4, 18, 4]}");
+            AddMesh2D mesh = first(operations, AddMesh2D.class);
+            String description = mesh.toString();
+            assertTrue(
+                    name + " -> " + description,
+                    description.contains("type=" + AddMesh2D.TYPE_SPLINE_ROUND_STRIP));
+            // Topology is that of any other path strip; the caps are just extra columns.
+            assertTrue(
+                    description,
+                    description.contains("layout=" + Mesh2DGenerator.LAYOUT_PATH_STRIP));
+            int cap = Mesh2DGenerator.roundCapSegments(24);
+            assertTrue(description, description.contains("u=" + (24 + 1 + 2 * cap)));
+            assertTrue(description, description.contains("v=2"));
+            assertTrue(description, description.contains("aux=5"));
+        }
+    }
+
+    @Test
+    public void aBareWidthsListNeverMeansRoundEnds() throws JSONException {
+        // Rounding changes the silhouette, so it stays opt in: inference still gives the squared
+        // off strip that documents written before the round variant existed expect.
+        ArrayList<Operation> operations =
+                parse(
+                        "{\"type\": \"addMesh2D\", \"id\": \"ribbon\", \"path\": 3,"
+                                + " \"segments\": 24, \"widths\": [0, 18, 4]}");
+        AddMesh2D mesh = first(operations, AddMesh2D.class);
+        assertTrue(
+                mesh.toString(),
+                mesh.toString().contains("type=" + AddMesh2D.TYPE_PATH_SPLINE_STRIP));
+    }
+
+    @Test
+    public void roundStripRequiresItsPathSegmentsAndWidths() {
+        assertThrows(
+                JSONException.class,
+                () ->
+                        parse(
+                                "{\"type\": \"addMesh2D\", \"source\": \"roundStrip\","
+                                        + " \"segments\": 8, \"widths\": [4]}"));
+        assertThrows(
+                JSONException.class,
+                () ->
+                        parse(
+                                "{\"type\": \"addMesh2D\", \"source\": \"roundStrip\","
+                                        + " \"path\": 3, \"widths\": [4]}"));
+        assertThrows(
+                JSONException.class,
+                () ->
+                        parse(
+                                "{\"type\": \"addMesh2D\", \"source\": \"roundStrip\","
+                                        + " \"path\": 3, \"segments\": 8}"));
+    }
+
     /** The smallest platform a writer will accept. */
     private static class MockMeshPlatform implements RcPlatformServices {
         @Override

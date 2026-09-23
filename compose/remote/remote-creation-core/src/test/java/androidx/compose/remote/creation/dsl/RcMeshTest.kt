@@ -27,6 +27,7 @@ import androidx.compose.remote.core.operations.utilities.Mesh2DGenerator
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.profile.Profile
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -245,5 +246,139 @@ class RcMeshTest {
         )
         assertTrue(matrix.toString(), matrix.toString().contains("0.25, 0.75"))
         assertTrue(matrix.toString(), matrix.toString().endsWith("${MatrixFromMesh2D.FLAG_SCALE}"))
+    }
+
+    /** A simple curve for a ribbon to follow. */
+    private fun RcScope.testPath() =
+        remoteXYPath(rFun { s -> s * 200f }, rFun { s -> s * 50f }, 0f, 1f, 16)
+
+    @Test
+    fun pathSplineStripReachesTheWire() {
+        val writer = RemoteComposeWriter(testProfile)
+        val scope = RcScopeImpl(writer)
+
+        // Three constants: pinched at both ends, fat in the middle.
+        val ribbon =
+            scope.remoteMesh2DPathStrip(
+                scope.testPath(),
+                segments = 32,
+                widths = floatArrayOf(0f, 24f, 2f),
+            )
+        scope.drawMesh2D(ribbon)
+
+        val add = operationsOf(writer).filterIsInstance<AddMesh2D>().single()
+        assertTrue(
+            add.toString(),
+            add.toString().contains("type=${AddMesh2D.TYPE_PATH_SPLINE_STRIP}"),
+        )
+        // The topology is an ordinary path strip; only the width source is new.
+        assertTrue(
+            add.toString(),
+            add.toString().contains("layout=${Mesh2DGenerator.LAYOUT_PATH_STRIP}"),
+        )
+        // segments quads need segments + 1 rings of vertices, two across.
+        assertTrue(add.toString(), add.toString().contains("u=33"))
+        assertTrue(add.toString(), add.toString().contains("v=2"))
+    }
+
+    @Test
+    fun pathSplineStripAcceptsRemoteFloatWidthsAndPositions() {
+        val writer = RemoteComposeWriter(testProfile)
+        val scope = RcScopeImpl(writer)
+
+        // The overload that makes the profile animatable: each control point is a remote float, so
+        // it resolves to a variable id the mesh then listens to.
+        val ribbon =
+            scope.remoteMesh2DPathStrip(
+                scope.testPath(),
+                segments = 8,
+                widths = arrayOf(RcFloat(1f), RcFloat(18f)),
+                positions = arrayOf(RcFloat(0f), RcFloat(1f)),
+            )
+        scope.drawMesh2D(ribbon)
+
+        val add = operationsOf(writer).filterIsInstance<AddMesh2D>().single()
+        assertTrue(
+            add.toString(),
+            add.toString().contains("type=${AddMesh2D.TYPE_PATH_SPLINE_STRIP}"),
+        )
+        assertTrue(add.toString(), add.toString().contains("u=9"))
+    }
+
+    @Test
+    fun pathSplineStripNeedsAtLeastOneWidth() {
+        val writer = RemoteComposeWriter(testProfile)
+        val scope = RcScopeImpl(writer)
+        val path = scope.testPath()
+
+        assertThrows(RuntimeException::class.java) {
+            scope.remoteMesh2DPathStrip(path, segments = 8, widths = floatArrayOf())
+        }
+    }
+
+    @Test
+    fun roundStripReachesTheWireWithItsCapsOutsideTheSegmentBudget() {
+        val writer = RemoteComposeWriter(testProfile)
+        val scope = RcScopeImpl(writer)
+
+        val ribbon =
+            scope.remoteMesh2DRoundStrip(
+                scope.testPath(),
+                segments = 32,
+                widths = floatArrayOf(4f, 24f, 4f),
+            )
+        scope.drawMesh2D(ribbon)
+
+        val add = operationsOf(writer).filterIsInstance<AddMesh2D>().single()
+        assertTrue(
+            add.toString(),
+            add.toString().contains("type=${AddMesh2D.TYPE_SPLINE_ROUND_STRIP}"),
+        )
+        // Topology is untouched; only the column count and the flags field differ from flat.
+        assertTrue(
+            add.toString(),
+            add.toString().contains("layout=${Mesh2DGenerator.LAYOUT_PATH_STRIP}"),
+        )
+        // 32 body columns plus a cap at each end, rather than 32 columns split between them.
+        val cap = Mesh2DGenerator.roundCapSegments(32)
+        assertTrue(add.toString(), add.toString().contains("u=${32 + 1 + 2 * cap}"))
+        assertTrue(add.toString(), add.toString().contains("v=2"))
+    }
+
+    @Test
+    fun roundStripAcceptsRemoteFloatWidthsAndPositions() {
+        val writer = RemoteComposeWriter(testProfile)
+        val scope = RcScopeImpl(writer)
+
+        // Animatable control points drive the cap radius as well as the body width.
+        val ribbon =
+            scope.remoteMesh2DRoundStrip(
+                scope.testPath(),
+                segments = 8,
+                widths = arrayOf(RcFloat(1f), RcFloat(18f)),
+                positions = arrayOf(RcFloat(0f), RcFloat(1f)),
+            )
+        scope.drawMesh2D(ribbon)
+
+        val add = operationsOf(writer).filterIsInstance<AddMesh2D>().single()
+        assertTrue(
+            add.toString(),
+            add.toString().contains("type=${AddMesh2D.TYPE_SPLINE_ROUND_STRIP}"),
+        )
+        assertTrue(
+            add.toString(),
+            add.toString().contains("u=${8 + 1 + 2 * Mesh2DGenerator.roundCapSegments(8)}"),
+        )
+    }
+
+    @Test
+    fun roundStripNeedsAtLeastOneWidth() {
+        val writer = RemoteComposeWriter(testProfile)
+        val scope = RcScopeImpl(writer)
+        val path = scope.testPath()
+
+        assertThrows(RuntimeException::class.java) {
+            scope.remoteMesh2DRoundStrip(path, segments = 8, widths = floatArrayOf())
+        }
     }
 }

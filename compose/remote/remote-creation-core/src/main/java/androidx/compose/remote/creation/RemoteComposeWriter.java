@@ -845,6 +845,55 @@ public class RemoteComposeWriter {
     }
 
     /**
+     * Add a ribbon that follows a path, its cross width a monotonic spline through control points.
+     *
+     * <p>The common case for a variable width stroke. One width is a constant width; two or more
+     * are interpolated along the path. With no {@code positions} the widths are spread evenly, so
+     * the first is the width at the start of the path and the last the width at the end. With
+     * {@code positions} there must be one entry per width, each a fraction of arclength.
+     *
+     * <p>Widths and positions may be variables, so the profile can animate.
+     *
+     * @param pathId the path to follow
+     * @param segments roughly how many quads to divide the path into; at least 1
+     * @param widths the width control points, at least one, in the path's own units
+     * @param positions where each width sits along the path, 0..1, or null for evenly spaced
+     * @return the id of the mesh
+     */
+    public int addMesh2DPathStrip(
+            int pathId, int segments, float @NonNull [] widths, float @Nullable [] positions) {
+        int id = mState.createNextAvailableId();
+        mBuffer.addMesh2DPathStrip(id, segments, pathId, widths, positions);
+        return id;
+    }
+
+    /**
+     * Add a spline width ribbon that rounds off at both ends.
+     *
+     * <p>Identical to {@link #addMesh2DPathStrip} apart from the caps: each end closes with a
+     * semicircle of radius half the ribbon's width there, so a profile that tapers to zero comes to
+     * a point and one that ends wide ends in a dome. This is the mesh equivalent of a round stroke
+     * cap, and the reason to reach for it is that a bare spline strip ends in a visibly square
+     * edge.
+     *
+     * <p>{@code segments} still counts only the columns spanning the path; the caps are added on
+     * top, so swapping between the two variants does not change how closely the ribbon tracks its
+     * path.
+     *
+     * @param pathId the path to follow
+     * @param segments roughly how many quads to divide the path into, excluding the caps
+     * @param widths the width control points, at least one, in the path's own units
+     * @param positions where each width sits along the path, 0..1, or null for evenly spaced
+     * @return the id of the mesh
+     */
+    public int addMesh2DRoundStrip(
+            int pathId, int segments, float @NonNull [] widths, float @Nullable [] positions) {
+        int id = mState.createNextAvailableId();
+        mBuffer.addMesh2DRoundStrip(id, segments, pathId, widths, positions);
+        return id;
+    }
+
+    /**
      * Draw a previously defined 2D mesh.
      *
      * @param meshId the mesh to draw

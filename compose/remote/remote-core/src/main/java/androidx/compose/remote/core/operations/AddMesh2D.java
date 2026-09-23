@@ -33,6 +33,7 @@ import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.CollectionsAccess;
 import androidx.compose.remote.core.operations.utilities.Mesh2DGenerator;
 import androidx.compose.remote.core.operations.utilities.NanMap;
+import androidx.compose.remote.core.operations.utilities.easing.MonotonicSpline;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
@@ -69,6 +70,36 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
 
     /** As {@link #TYPE_VALUES}, with positions and uv as IEEE half floats. A wire format only. */
     public static final int TYPE_F16_VALUES = 2;
+
+    /**
+     * A ribbon along a path whose cross width is a monotonic spline through control points.
+     *
+     * <p>Always uses {@link Mesh2DGenerator#LAYOUT_PATH_STRIP}: the topology is exactly that of an
+     * ordinary path strip and only the source of the width differs. Where {@link #TYPE_EXPRESSION}
+     * spends expression tokens computing a width from {@code u}, this carries the widths
+     * themselves, which is both cheaper and far easier to author for the common case of a stroke
+     * that swells and tapers. Geometry only: uv is the identity mapping and there are no vertex
+     * colours, so colour comes from the paint or from a textured {@code drawMesh2D}.
+     */
+    public static final int TYPE_PATH_SPLINE_STRIP = 3;
+
+    /**
+     * As {@link #TYPE_PATH_SPLINE_STRIP}, but the ribbon ends in a semicircle instead of a squared
+     * off edge - the mesh equivalent of a round stroke cap.
+     *
+     * <p>Identical on the wire to the flat variant, and identical in topology: still {@link
+     * Mesh2DGenerator#LAYOUT_PATH_STRIP}, still two vertices across, still one quad per column. The
+     * caps are simply extra columns at each end whose {@code u} sweeps a quarter turn around the
+     * endpoint rather than advancing along the path, so the strip's own quads sweep out the half
+     * disc. Because the caps are added to the column budget rather than taken out of it, a rounded
+     * strip follows its path at the same resolution as a flat one with the same {@code segments}.
+     *
+     * <p>The cap radius is half the ribbon's width at that end, so a profile that tapers to zero
+     * ends in a point and one that ends wide ends in a correspondingly large dome. The number of
+     * columns in each cap is carried in the header's {@code flags} field; see {@link
+     * Mesh2DGenerator#roundCapSegments}.
+     */
+    public static final int TYPE_SPLINE_ROUND_STRIP = 4;
 
     /** Index into the expression group array: x position. */
     private static final int EXP_X = 0;
@@ -107,6 +138,9 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
     /** The number of expression groups carried by {@link #TYPE_EXPRESSION}. */
     public static final int EXPRESSION_GROUPS = 9;
 
+    /** A quarter turn, the angle a round end cap sweeps from its tip to the body of the strip. */
+    private static final float HALF_PI = (float) (Math.PI * 0.5);
+
     private final int mMeshId;
     private final int mType;
     private final int mLayout;
@@ -125,6 +159,17 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
     private final float[] mOutSrcVerts;
     private final float[] mSrcUv;
     private final int[] mSrcColors;
+
+    // Spline strip payload: the width control points and, optionally, where they sit.
+    private final float[] mWidths;
+    private final float[] mOutWidths;
+    private final float[] mWidthPositions;
+    private final float[] mOutWidthPositions;
+
+    /** The fit through {@link #mOutWidths}, rebuilt lazily whenever a width input changes. */
+    private @Nullable MonotonicSpline mWidthSpline;
+
+    private boolean mWidthSplineValid;
 
     // Expanded geometry, in the exact layout drawVertices wants.
     private float[] mVerts = new float[0];
@@ -152,6 +197,39 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
             float @Nullable [] verts,
             float @Nullable [] uv,
             int @Nullable [] colors) {
+        this(
+                meshId,
+                type,
+                layout,
+                uCount,
+                vCount,
+                flags,
+                aux,
+                expressions,
+                indices,
+                verts,
+                uv,
+                colors,
+                null,
+                null);
+    }
+
+    @SuppressWarnings("UnknownNullness") // Annotations on a primitive array are compile error.
+    public AddMesh2D(
+            int meshId,
+            int type,
+            int layout,
+            int uCount,
+            int vCount,
+            int flags,
+            int aux,
+            float @Nullable [] @Nullable [] expressions,
+            int @Nullable [] indices,
+            float @Nullable [] verts,
+            float @Nullable [] uv,
+            int @Nullable [] colors,
+            float @Nullable [] widths,
+            float @Nullable [] widthPositions) {
         mMeshId = meshId;
         mType = type;
         mLayout = layout;
@@ -178,6 +256,13 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
         System.arraycopy(mSrcVerts, 0, mOutSrcVerts, 0, mSrcVerts.length);
         mSrcUv = uv != null ? uv : new float[0];
         mSrcColors = colors != null ? colors : new int[0];
+
+        mWidths = widths != null ? widths : new float[0];
+        mOutWidths = new float[mWidths.length];
+        System.arraycopy(mWidths, 0, mOutWidths, 0, mWidths.length);
+        mWidthPositions = widthPositions != null ? widthPositions : new float[0];
+        mOutWidthPositions = new float[mWidthPositions.length];
+        System.arraycopy(mWidthPositions, 0, mOutWidthPositions, 0, mWidthPositions.length);
     }
 
     /**
@@ -246,6 +331,17 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
             float v = mSrcVerts[i];
             mOutSrcVerts[i] = isResolvableVariable(v) ? context.getFloat(Utils.idFromNan(v)) : v;
         }
+        for (int i = 0; i < mWidths.length; i++) {
+            float v = mWidths[i];
+            mOutWidths[i] = isResolvableVariable(v) ? context.getFloat(Utils.idFromNan(v)) : v;
+        }
+        for (int i = 0; i < mWidthPositions.length; i++) {
+            float v = mWidthPositions[i];
+            mOutWidthPositions[i] =
+                    isResolvableVariable(v) ? context.getFloat(Utils.idFromNan(v)) : v;
+        }
+        // The fit is over the resolved values, so any of them moving retires it.
+        mWidthSplineValid = false;
         mMeshChanged = true;
     }
 
@@ -267,10 +363,36 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
                 context.listensTo(Utils.idFromNan(v), this);
             }
         }
+        for (float v : mWidths) {
+            if (Float.isNaN(v)
+                    && !AnimatedFloatExpression.isMathOperator(v)
+                    && !NanMap.isDataVariable(v)) {
+                context.listensTo(Utils.idFromNan(v), this);
+            }
+        }
+        for (float v : mWidthPositions) {
+            if (Float.isNaN(v)
+                    && !AnimatedFloatExpression.isMathOperator(v)
+                    && !NanMap.isDataVariable(v)) {
+                context.listensTo(Utils.idFromNan(v), this);
+            }
+        }
+    }
+
+    /** Whether {@code type} takes its width from control points rather than from an expression. */
+    private static boolean isSplineStrip(int type) {
+        return type == TYPE_PATH_SPLINE_STRIP || type == TYPE_SPLINE_ROUND_STRIP;
     }
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
+        if (isSplineStrip(mType)) {
+            // The caps sit outside the body, so subtract them back off to recover what the author
+            // asked for; applySplineStrip re-derives the same count from it.
+            int segments = Math.max(1, mUCount - 1 - 2 * roundCapColumns());
+            applySplineStrip(buffer, mMeshId, mType, segments, mAux, mWidths, mWidthPositions);
+            return;
+        }
         apply(
                 buffer,
                 mMeshId,
@@ -295,7 +417,7 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
      * @param context the context used to resolve path data and array collections
      */
     public void expand(@NonNull RemoteContext context) {
-        if (mType == TYPE_EXPRESSION) {
+        if (mType == TYPE_EXPRESSION || isSplineStrip(mType)) {
             expandParametric(context);
         } else {
             expandLiteral();
@@ -435,16 +557,90 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
         return Mesh2DGenerator.flattenPath(pathData, mScratchPolyline);
     }
 
+    /**
+     * How many columns at each end of the strip are given over to a round cap.
+     *
+     * <p>Zero for every type but {@link #TYPE_SPLINE_ROUND_STRIP}. The count is clamped against
+     * {@link #mUCount} rather than trusted, because it arrives from the wire in a field that older
+     * documents left as a reserved zero and that a corrupt one could set to anything; at least one
+     * column must be left for the body or the strip would be nothing but caps.
+     */
+    private int roundCapColumns() {
+        if (mType != TYPE_SPLINE_ROUND_STRIP || mFlags < 1) {
+            return 0;
+        }
+        int columns = mUCount - 1;
+        if (columns < 3) {
+            return 0;
+        }
+        return Math.min(mFlags, (columns - 1) / 2);
+    }
+
     private void positionOnPath(@NonNull RemoteContext context, float u, float v, int points) {
-        Mesh2DGenerator.samplePolyline(mScratchPolyline, points, u, mScratchPathSample);
-        // Width is an expression, so it can taper: a width of 1 leaves the strip one unit across.
-        float halfWidth = evaluate(context, EXP_WIDTH, u, v, 1f) * 0.5f;
+        float fraction = u;
+        int capColumns = roundCapColumns();
+        if (capColumns > 0) {
+            // The caps own the first and last capColumns columns of the u domain; the body is
+            // squeezed into what is left, so u is no longer the path fraction and has to be
+            // rescaled. At the joins the two agree exactly, which is what keeps the seam invisible.
+            float capSpan = capColumns / (float) (mUCount - 1);
+            if (u <= capSpan) {
+                capPosition(context, points, 0f, u / capSpan, v, -1f);
+                return;
+            }
+            if (u >= 1f - capSpan) {
+                capPosition(context, points, 1f, (1f - u) / capSpan, v, 1f);
+                return;
+            }
+            fraction = (u - capSpan) / (1f - 2f * capSpan);
+        }
+        Mesh2DGenerator.samplePolyline(mScratchPolyline, points, fraction, mScratchPathSample);
+        float halfWidth = strokeWidthAt(context, fraction, v) * 0.5f;
         float offset = (v - 0.5f) * 2f * halfWidth;
         // the normal is the tangent turned a quarter turn
         float nx = -mScratchPathSample[3];
         float ny = mScratchPathSample[2];
         mScratchPosition[0] = mScratchPathSample[0] + nx * offset;
         mScratchPosition[1] = mScratchPathSample[1] + ny * offset;
+    }
+
+    /**
+     * Place a vertex on one of the two round caps.
+     *
+     * @param end 0 at the start of the path, 1 at its end
+     * @param sweep 0 at the tip of the cap, 1 where it meets the body
+     * @param outward 1 at the end of the path, -1 at the start, being the way the cap bulges
+     */
+    private void capPosition(
+            @NonNull RemoteContext context,
+            int points,
+            float end,
+            float sweep,
+            float v,
+            float outward) {
+        Mesh2DGenerator.samplePolyline(mScratchPolyline, points, end, mScratchPathSample);
+        float halfWidth = strokeWidthAt(context, end, v) * 0.5f;
+        Mesh2DGenerator.roundCapPoint(
+                mScratchPathSample, halfWidth, sweep * HALF_PI, v, outward, mScratchPosition);
+    }
+
+    /**
+     * The full cross width of the ribbon at {@code u}, in the path's own units.
+     *
+     * <p>Two sources, chosen by the type. The spline strips interpolate the width control points,
+     * and because those may be variables the fit is cached and rebuilt only when {@link
+     * #updateVariables} retires it. Everything else evaluates the width expression, which defaults
+     * to 1 and so leaves the strip one unit across.
+     */
+    private float strokeWidthAt(@NonNull RemoteContext context, float u, float v) {
+        if (!isSplineStrip(mType)) {
+            return evaluate(context, EXP_WIDTH, u, v, 1f);
+        }
+        if (!mWidthSplineValid) {
+            mWidthSpline = Mesh2DGenerator.widthSpline(mOutWidths, mOutWidthPositions);
+            mWidthSplineValid = true;
+        }
+        return Mesh2DGenerator.widthAt(mWidthSpline, mOutWidths, u);
     }
 
     private float evaluate(
@@ -631,6 +827,144 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
         }
     }
 
+    /**
+     * Write a path strip whose cross width is a spline through control points.
+     *
+     * <p>The header is derived here rather than taken from the caller: the layout is always {@link
+     * Mesh2DGenerator#LAYOUT_PATH_STRIP} and the strip is two vertices across, so the only free
+     * choices are how finely the path is sampled and the widths themselves.
+     *
+     * <p>{@code widths} and {@code positions} may hold NaN variable ids, so the profile can be
+     * animated; the fit is rebuilt whenever one of them changes.
+     *
+     * @param buffer the buffer to add to
+     * @param meshId the id the mesh is stored under
+     * @param segments roughly how many quads to divide the path into; at least 1
+     * @param pathId the path to follow
+     * @param widths the width control points, at least one, in the path's own units
+     * @param positions where each width sits along the path, 0..1, empty for evenly spaced
+     */
+    public static void applyPathSplineStrip(
+            @NonNull WireBuffer buffer,
+            int meshId,
+            int segments,
+            int pathId,
+            float @Nullable [] widths,
+            float @Nullable [] positions) {
+        applySplineStrip(buffer, meshId, TYPE_PATH_SPLINE_STRIP, segments, pathId, widths,
+                positions);
+    }
+
+    /**
+     * Write a spline width path strip that ends in a semicircle at each end.
+     *
+     * <p>Exactly {@link #applyPathSplineStrip} but for the type and the cap columns it adds; see
+     * {@link #TYPE_SPLINE_ROUND_STRIP}. {@code segments} still describes the body alone, so a
+     * rounded strip and a flat one with the same argument follow the path identically.
+     *
+     * @param buffer the buffer to add to
+     * @param meshId the id the mesh is stored under
+     * @param segments roughly how many quads to divide the path into, excluding the caps
+     * @param pathId the path to follow
+     * @param widths the width control points, at least one, in the path's own units
+     * @param positions where each width sits along the path, 0..1, empty for evenly spaced
+     */
+    public static void applySplineRoundStrip(
+            @NonNull WireBuffer buffer,
+            int meshId,
+            int segments,
+            int pathId,
+            float @Nullable [] widths,
+            float @Nullable [] positions) {
+        applySplineStrip(buffer, meshId, TYPE_SPLINE_ROUND_STRIP, segments, pathId, widths,
+                positions);
+    }
+
+    private static void applySplineStrip(
+            @NonNull WireBuffer buffer,
+            int meshId,
+            int type,
+            int segments,
+            int pathId,
+            float @Nullable [] widths,
+            float @Nullable [] positions) {
+        float[] safeWidths = widths != null ? widths : new float[0];
+        float[] safePositions = positions != null ? positions : new float[0];
+        int capSegments =
+                type == TYPE_SPLINE_ROUND_STRIP ? Mesh2DGenerator.roundCapSegments(segments) : 0;
+        validateSplineStrip(segments, capSegments, safeWidths, safePositions);
+
+        buffer.start(OP_CODE);
+        buffer.writeInt(meshId);
+        buffer.writeInt(type);
+        buffer.writeInt(Mesh2DGenerator.LAYOUT_PATH_STRIP);
+        // segments quads need segments + 1 rings of vertices, two across, plus a cap at each end.
+        buffer.writeInt(segments + 1 + 2 * capSegments);
+        buffer.writeInt(2);
+        // flags carries the cap width so the reader can tell body columns from cap columns.
+        buffer.writeInt(capSegments);
+        buffer.writeInt(pathId);
+
+        buffer.writeInt(safeWidths.length);
+        for (float width : safeWidths) {
+            buffer.writeFloat(width);
+        }
+        buffer.writeInt(safePositions.length);
+        for (float position : safePositions) {
+            buffer.writeFloat(position);
+        }
+    }
+
+    private static void validateSplineStrip(
+            int segments,
+            int capSegments,
+            float @NonNull [] widths,
+            float @NonNull [] positions) {
+        if (segments < 1) {
+            throw new RuntimeException("Mesh2D path strip needs at least 1 segment");
+        }
+        if (widths.length < 1) {
+            throw new RuntimeException("Mesh2D path strip needs at least 1 width");
+        }
+        if (widths.length > Limits.MAX_MESH_2D_WIDTH_SAMPLES) {
+            throw new RuntimeException(
+                    "Mesh2D width sample count "
+                            + widths.length
+                            + " exceeds MAX_MESH_2D_WIDTH_SAMPLES ("
+                            + Limits.MAX_MESH_2D_WIDTH_SAMPLES
+                            + ")");
+        }
+        if (positions.length != 0 && positions.length != widths.length) {
+            throw new RuntimeException(
+                    "Mesh2D width positions ("
+                            + positions.length
+                            + ") must match widths ("
+                            + widths.length
+                            + ")");
+        }
+        long grid = (long) (segments + 1 + 2 * capSegments) * 2L;
+        if (grid > Limits.MAX_MESH_2D_GRID) {
+            throw new RuntimeException(
+                    "Mesh2D path strip "
+                            + segments
+                            + " segments exceeds MAX_MESH_2D_GRID ("
+                            + Limits.MAX_MESH_2D_GRID
+                            + ")");
+        }
+        // A variable position is only known at playback, so only literals can be ordered here.
+        float previous = Float.NEGATIVE_INFINITY;
+        for (float position : positions) {
+            if (Float.isNaN(position)) {
+                previous = Float.NEGATIVE_INFINITY;
+                continue;
+            }
+            if (previous != Float.NEGATIVE_INFINITY && position <= previous) {
+                throw new RuntimeException("Mesh2D width positions must be increasing");
+            }
+            previous = position;
+        }
+    }
+
     private static void validate(
             int type, int uCount, int vCount, int @Nullable [] indices, float @Nullable [] verts) {
         if (type == TYPE_EXPRESSION) {
@@ -687,8 +1021,38 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
         float[] verts = null;
         float[] uv = null;
         int[] colors = null;
+        float[] widths = null;
+        float[] widthPositions = null;
 
-        if (type == TYPE_EXPRESSION) {
+        if (isSplineStrip(type)) {
+            long grid = (long) uCount * (long) vCount;
+            if (grid > Limits.MAX_MESH_2D_GRID) {
+                throw new RuntimeException(
+                        "Mesh2D grid exceeds MAX_MESH_2D_GRID (" + Limits.MAX_MESH_2D_GRID + ")");
+            }
+            int widthCount = buffer.readInt();
+            if (widthCount > Limits.MAX_MESH_2D_WIDTH_SAMPLES) {
+                throw new RuntimeException(
+                        "Mesh2D width sample count exceeds MAX_MESH_2D_WIDTH_SAMPLES ("
+                                + Limits.MAX_MESH_2D_WIDTH_SAMPLES
+                                + ")");
+            }
+            widths = new float[widthCount];
+            for (int i = 0; i < widthCount; i++) {
+                widths[i] = buffer.readNanId();
+            }
+            int positionCount = buffer.readInt();
+            if (positionCount > Limits.MAX_MESH_2D_WIDTH_SAMPLES) {
+                throw new RuntimeException(
+                        "Mesh2D width position count exceeds MAX_MESH_2D_WIDTH_SAMPLES ("
+                                + Limits.MAX_MESH_2D_WIDTH_SAMPLES
+                                + ")");
+            }
+            widthPositions = new float[positionCount];
+            for (int i = 0; i < positionCount; i++) {
+                widthPositions[i] = buffer.readNanId();
+            }
+        } else if (type == TYPE_EXPRESSION) {
             long grid = (long) uCount * (long) vCount;
             if (grid > Limits.MAX_MESH_2D_GRID) {
                 throw new RuntimeException(
@@ -767,7 +1131,9 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
                         indices,
                         verts,
                         uv,
-                        colors));
+                        colors,
+                        widths,
+                        widthPositions));
     }
 
     /**
@@ -788,6 +1154,8 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
                 .possibleValues("TYPE_EXPRESSION", TYPE_EXPRESSION)
                 .possibleValues("TYPE_VALUES", TYPE_VALUES)
                 .possibleValues("TYPE_F16_VALUES", TYPE_F16_VALUES)
+                .possibleValues("TYPE_PATH_SPLINE_STRIP", TYPE_PATH_SPLINE_STRIP)
+                .possibleValues("TYPE_SPLINE_ROUND_STRIP", TYPE_SPLINE_ROUND_STRIP)
                 .field(INT, "layout", "The domain topology")
                 .possibleValues("LAYOUT_GRID", Mesh2DGenerator.LAYOUT_GRID)
                 .possibleValues("LAYOUT_POLAR", Mesh2DGenerator.LAYOUT_POLAR)
@@ -797,13 +1165,18 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
                 .possibleValues("LAYOUT_PATH_STRIP", Mesh2DGenerator.LAYOUT_PATH_STRIP)
                 .field(INT, "uCount", "Grid resolution along u")
                 .field(INT, "vCount", "Grid resolution along v")
-                .field(INT, "flags", "Reserved")
+                .field(INT, "flags", "Cap columns for TYPE_SPLINE_ROUND_STRIP, otherwise reserved")
                 .field(INT, "aux", "Layout dependent, e.g. a path id for PATH_STRIP")
                 .field(FLOAT_ARRAY, "expressions", "Eight RPN groups: x, y, texU, texV, a, r, g, b")
                 .field(INT_ARRAY, "indices", "Triangle list, 16 bit, for the literal types")
                 .field(FLOAT_ARRAY, "verts", "x,y pairs for the literal types")
                 .field(FLOAT_ARRAY, "uv", "u,v pairs for the literal types")
-                .field(INT_ARRAY, "colors", "Packed ARGB per vertex for the literal types");
+                .field(INT_ARRAY, "colors", "Packed ARGB per vertex for the literal types")
+                .field(FLOAT_ARRAY, "widths", "Width control points, for the spline strip types")
+                .field(
+                        FLOAT_ARRAY,
+                        "widthPositions",
+                        "Where each width sits along the path, 0..1, empty for evenly spaced");
     }
 
     @Override
