@@ -65,7 +65,6 @@ import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.animation.follow.AnchorTarget
 import androidx.xr.compose.subspace.animation.follow.FollowMode
 import androidx.xr.compose.subspace.animation.follow.FollowTarget
-import androidx.xr.compose.subspace.animation.follow.TightFollowMode
 import androidx.xr.compose.subspace.animation.follow.TrackedDimensions
 import androidx.xr.compose.subspace.animation.follow.ViewTarget
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
@@ -604,10 +603,7 @@ public fun FollowingSubspace(
  * content. For this API, it is required for device tracking to not be disabled in the session
  * configuration. If it is disabled, this API will not return anything. The session configuration
  * should resemble `session.configure( config =
- * Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build() )` The
- * [FollowTarget.view] is not compatible with [FollowMode.tight]. Combining these together will
- * cause this composable to not be displayed. For a near-tight experience, use [FollowMode.soft]
- * with a low duration value.
+ * Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build() )`
  *
  * When the `follow` parameter is specified to be [FollowTarget.anchor], the content will be
  * positioned around an anchor. This is useful for placing UI elements on real-world surfaces or at
@@ -839,11 +835,6 @@ private fun rememberRecenterSignal(
 private fun validateFollowingSubspaceConfiguration(follow: FollowTarget, config: Config): Boolean {
     // Following an AR device requires device tracking to be enabled.
     if (follow is ViewTarget && config.deviceTracking == DeviceTrackingMode.DISABLED) {
-        return false
-    }
-
-    // Tight follow for AR devices was not performant enough to be supported at this time.
-    if (follow is ViewTarget && follow.mode is TightFollowMode) {
         return false
     }
 

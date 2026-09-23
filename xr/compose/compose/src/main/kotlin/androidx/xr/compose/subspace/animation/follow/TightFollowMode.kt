@@ -16,10 +16,10 @@
 
 package androidx.xr.compose.subspace.animation.follow
 
+import androidx.annotation.VisibleForTesting
 import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.runtime.Session
-import kotlinx.coroutines.withContext
 
 /**
  * This is the implementation for TightFollowing which is accessible through the public interface as
@@ -28,26 +28,23 @@ import kotlinx.coroutines.withContext
 @OptIn(ExperimentalFollowingSubspaceApi::class)
 internal class TightFollowMode(private val dimensions: TrackedDimensions = TrackedDimensions.All) :
     FollowMode() {
+
+    @VisibleForTesting
+    internal val proxyMode =
+        ExponentialDecayFollowMode(
+            dimensions = dimensions,
+            halfLifeMillis = HALF_LIFE_MILLIS,
+            startDelay = START_DELAY,
+            startThresholds = START_THRESHOLDS,
+            settleThresholds = SETTLE_THRESHOLDS,
+        )
+
     override suspend fun start(
         session: Session,
         trailingEntity: CoreGroupEntity,
         target: FollowTarget,
     ) {
-        var isInitialized: Boolean = false
-        val initialPose = trailingEntity.poseInMeters
-
-        if (target !is FollowTargetFlow) return
-
-        withContext(dispatcherOverride) {
-            target.poseUpdates(session).collect { pose ->
-                trailingEntity.poseInMeters =
-                    dimensions.getPoseByTrackedDimensions(pose = pose, fallbackPose = initialPose)
-                if (!isInitialized) {
-                    trailingEntity.enabled = true
-                    isInitialized = true
-                }
-            }
-        }
+        proxyMode.start(session, trailingEntity, target)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -58,4 +55,11 @@ internal class TightFollowMode(private val dimensions: TrackedDimensions = Track
     }
 
     override fun hashCode(): Int = dimensions.hashCode()
+
+    internal companion object {
+        internal val HALF_LIFE_MILLIS: Long = 87L
+        internal val START_DELAY: Long = 0L
+        internal val START_THRESHOLDS: FollowThresholds = FollowThresholds.Zero
+        internal val SETTLE_THRESHOLDS: FollowThresholds = FollowThresholds.Zero
+    }
 }
