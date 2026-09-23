@@ -72,6 +72,9 @@ final class ImpressApiTestHelper {
     static native void nativeSetExpectedSetGltfModelAnimationSpeed(
             int nodeId, float speed, int channelId);
 
+    static native void nativeSetExpectedSetGltfModelAnimationLoop(
+            int nodeId, boolean loop, int channelId);
+
     static native void nativeSetExpectedSetGltfModelAnimationPlaybackTime(
             int nodeId, float playbackTime, int channelId);
 

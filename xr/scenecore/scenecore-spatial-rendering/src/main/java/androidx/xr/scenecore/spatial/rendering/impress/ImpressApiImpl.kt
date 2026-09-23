@@ -520,6 +520,20 @@ public class ImpressApiImpl : ImpressApi {
         nSetGltfModelAnimationSpeed(getViewNativeHandle(view), impressNode.handle, speed, channel)
 
     /**
+     * Sets whether an animation on an instanced glTF model should loop on a specific channel.
+     *
+     * @param impressNode The object of the Impress node for the instance of the glTF model.
+     * @param loop true if the animation should loop, false otherwise.
+     * @param channel The channel of the animation.
+     */
+    override fun setGltfModelAnimationLoop(
+        impressNode: ImpressNode,
+        loop: Boolean,
+        channel: Int,
+    ): Unit =
+        nSetGltfModelAnimationLoop(getViewNativeHandle(view), impressNode.handle, loop, channel)
+
+    /**
      * Returns the number of animations on an instanced glTF model.
      *
      * @param impressNode The integer ID of the Impress node for the instance of the GLTF
@@ -1924,6 +1938,13 @@ public class ImpressApiImpl : ImpressApi {
         view: Long,
         impressNode: Int,
         speed: Float,
+        channelId: Int,
+    )
+
+    private external fun nSetGltfModelAnimationLoop(
+        view: Long,
+        impressNode: Int,
+        loop: Boolean,
         channelId: Int,
     )
 

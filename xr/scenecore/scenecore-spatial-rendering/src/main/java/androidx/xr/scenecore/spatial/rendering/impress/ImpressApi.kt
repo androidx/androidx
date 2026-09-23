@@ -351,6 +351,15 @@ public interface ImpressApi {
     public fun setGltfModelAnimationSpeed(impressNode: ImpressNode, speed: Float, channel: Int)
 
     /**
+     * Sets whether a glTF model's animation should loop on a specific channel.
+     *
+     * @param impressNode The object of the Impress node for the instance of the glTF model.
+     * @param loop true if the animation should loop, false otherwise.
+     * @param channel The channel of the animation.
+     */
+    public fun setGltfModelAnimationLoop(impressNode: ImpressNode, loop: Boolean, channel: Int)
+
+    /**
      * Returns the number of animations on an instanced glTF model.
      *
      * @param impressNode The object of the Impress node for the instance of the glTF model.
