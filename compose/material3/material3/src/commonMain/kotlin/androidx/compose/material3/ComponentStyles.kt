@@ -21,10 +21,13 @@ import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.tokens.AppBarTokens
 import androidx.compose.material3.tokens.CheckboxTokens
 import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.material3.tokens.ColorToken
+import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.NavigationBarTokens
 import androidx.compose.material3.tokens.RadioButtonTokens
 import androidx.compose.material3.tokens.ScrimTokens
@@ -463,24 +466,27 @@ internal fun interface SearchBarStyle : ComponentStyle<SearchBarStyleScope> {
     companion object {
         val Default = SearchBarStyle {
             containerColor(SearchBarTokens.ContainerColor.value)
+            contentColor(theme.colorScheme.onSurface)
             shape(SearchBarTokens.ContainerShape.value)
-            tonalElevation(SearchBarDefaults.TonalElevation)
-            shadowElevation(SearchBarDefaults.ShadowElevation)
+            tonalElevation(ElevationTokens.Level0)
+            shadowElevation(ElevationTokens.Level0)
         }
 
         val ExpandedFullScreenContained = SearchBarStyle {
             containerColor(SearchBarTokens.ContainerColor.value)
+            contentColor(theme.colorScheme.onSurface)
             expanded { containerColor(ColorSchemeKeyTokens.SurfaceContainerLow.value) }
             shape(SearchBarTokens.ContainerShape.value)
-            tonalElevation(SearchBarDefaults.TonalElevation)
-            shadowElevation(SearchBarDefaults.ShadowElevation)
+            tonalElevation(ElevationTokens.Level0)
+            shadowElevation(ElevationTokens.Level0)
         }
 
         val ExpandedFullScreen = SearchBarStyle {
             containerColor(SearchBarTokens.ContainerColor.value)
+            contentColor(theme.colorScheme.onSurface)
             shape(SearchBarTokens.ContainerShape.value)
-            tonalElevation(SearchBarDefaults.TonalElevation)
-            shadowElevation(SearchBarDefaults.ShadowElevation)
+            tonalElevation(ElevationTokens.Level0)
+            shadowElevation(ElevationTokens.Level0)
             dividerColor(SearchViewTokens.DividerColor.value)
         }
     }
@@ -494,6 +500,9 @@ internal class SearchBarStyleScope(
     MaterialThemeAccessorScope,
     StyleResolver by StyleResolverImpl() {
     var containerColor: Color = Color.Unspecified
+        private set
+
+    var contentColor: Color = Color.Unspecified
         private set
 
     var shape: Shape = RectangleShape
@@ -510,6 +519,10 @@ internal class SearchBarStyleScope(
 
     fun containerColor(color: Color) {
         containerColor = color
+    }
+
+    fun contentColor(color: Color) {
+        contentColor = color
     }
 
     fun shape(shape: Shape) {
@@ -538,14 +551,15 @@ internal fun interface AppBarWithSearchStyle : ComponentStyle<AppBarWithSearchSt
     companion object {
         val Default = AppBarWithSearchStyle {
             searchBarContainerColor(SearchBarTokens.ContainerColor.value)
+            searchBarContentColor(theme.colorScheme.onSurface)
             scrolledSearchBarContainerColor(ColorSchemeKeyTokens.SurfaceContainerHighest.value)
             appBarContainerColor(AppBarTokens.ContainerColor.value)
             scrolledAppBarContainerColor(AppBarTokens.OnScrollContainerColor.value)
             appBarNavigationIconColor(AppBarTokens.LeadingIconColor.value)
             appBarActionIconColor(AppBarTokens.TrailingIconColor.value)
             shape(SearchBarTokens.ContainerShape.value)
-            tonalElevation(SearchBarDefaults.TonalElevation)
-            shadowElevation(SearchBarDefaults.ShadowElevation)
+            tonalElevation(ElevationTokens.Level0)
+            shadowElevation(ElevationTokens.Level0)
             contentPadding(0.dp, 0.dp, 0.dp, 0.dp)
         }
     }
@@ -554,6 +568,9 @@ internal fun interface AppBarWithSearchStyle : ComponentStyle<AppBarWithSearchSt
 internal class AppBarWithSearchStyleScope(override val theme: MaterialTheme.Values) :
     MaterialThemeAccessorScope, StyleResolver by StyleResolverImpl() {
     var searchBarContainerColor: Color = Color.Unspecified
+        private set
+
+    var searchBarContentColor: Color = Color.Unspecified
         private set
 
     var scrolledSearchBarContainerColor: Color = Color.Unspecified
@@ -594,6 +611,10 @@ internal class AppBarWithSearchStyleScope(override val theme: MaterialTheme.Valu
 
     fun searchBarContainerColor(color: Color) {
         searchBarContainerColor = color
+    }
+
+    fun searchBarContentColor(color: Color) {
+        searchBarContentColor = color
     }
 
     fun scrolledSearchBarContainerColor(color: Color) {
@@ -648,20 +669,22 @@ internal fun interface ExpandedDockedSearchBarStyle :
         val Default = ExpandedDockedSearchBarStyle {
             shape(SearchViewTokens.DockedContainerShape.value)
             containerColor(SearchBarTokens.ContainerColor.value)
+            contentColor(theme.colorScheme.onSurface)
             dividerColor(SearchViewTokens.DividerColor.value)
-            tonalElevation(SearchBarDefaults.TonalElevation)
-            shadowElevation(SearchBarDefaults.ShadowElevation)
+            tonalElevation(ElevationTokens.Level0)
+            shadowElevation(ElevationTokens.Level0)
         }
 
         val WithGap = ExpandedDockedSearchBarStyle {
             shape(SearchViewTokens.DockedContainerShape.value)
-            dropdownShape(SearchBarDefaults.dockedDropdownShape)
-            dropdownGapSize(SearchBarDefaults.dockedDropdownGapSize)
+            dropdownShape(RoundedCornerShape(corner = CornerSize(12.dp)))
+            dropdownGapSize(2.dp)
             dropdownScrimColor(ScrimTokens.ContainerColor.value)
             containerColor(SearchBarTokens.ContainerColor.value)
+            contentColor(theme.colorScheme.onSurface)
             dividerColor(SearchViewTokens.DividerColor.value)
-            tonalElevation(SearchBarDefaults.TonalElevation)
-            shadowElevation(SearchBarDefaults.ShadowElevation)
+            tonalElevation(ElevationTokens.Level0)
+            shadowElevation(ElevationTokens.Level0)
         }
     }
 }
@@ -672,6 +695,9 @@ internal class ExpandedDockedSearchBarStyleScope(override val theme: MaterialThe
         private set
 
     var containerColor: Color = Color.Unspecified
+        private set
+
+    var contentColor: Color = Color.Unspecified
         private set
 
     var dividerColor: Color = Color.Unspecified
@@ -698,6 +724,10 @@ internal class ExpandedDockedSearchBarStyleScope(override val theme: MaterialThe
 
     fun containerColor(color: Color) {
         containerColor = color
+    }
+
+    fun contentColor(color: Color) {
+        contentColor = color
     }
 
     fun dividerColor(color: Color) {
