@@ -147,6 +147,17 @@ class ProfileAwareVideoEncoderInfoTest {
         assertThat(wrapper.isSizeSupported(EXTRA_SIZE.width, EXTRA_SIZE.height)).isTrue()
     }
 
+    @Test
+    fun isHardwareAccelerated_delegatesToBaseInfo() {
+        val baseInfoHardware = createFakeInfo(MIME_AVC).apply { isHardwareAccelerated = true }
+        val wrapperHardware = ProfileAwareVideoEncoderInfo.from(baseInfoHardware)
+        assertThat(wrapperHardware.isHardwareAccelerated).isTrue()
+
+        val baseInfoSoftware = createFakeInfo(MIME_AVC).apply { isHardwareAccelerated = false }
+        val wrapperSoftware = ProfileAwareVideoEncoderInfo.from(baseInfoSoftware)
+        assertThat(wrapperSoftware.isHardwareAccelerated).isFalse()
+    }
+
     private fun setupFakeProfile(width: Int, height: Int, mime: String) {
         if (Build.VERSION.SDK_INT >= 31) {
             val mockProfiles = createFakeEncoderProfiles(width, height, mime)
