@@ -36,6 +36,7 @@ import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import androidx.wear.compose.remote.integration.demos.components.LocalSelectedFontFamilyName
 import androidx.wear.compose.remote.integration.demos.components.LocalUseDynamicColor
+import androidx.wear.compose.remote.integration.demos.components.LocalUseEmbeddedPlayer
 import androidx.wear.compose.remote.integration.demos.components.RemoteAppCardDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteButtonDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteButtonGroupDemos
@@ -69,6 +70,7 @@ import kotlinx.coroutines.launch
 private val Context.dataStore by preferencesDataStore(name = "remote_material3_demos")
 private val USE_DYNAMIC_COLOR = booleanPreferencesKey("use_dynamic_color")
 private val SELECTED_FONT_NAME = stringPreferencesKey("selected_font_name")
+private val USE_EMBEDDED_PLAYER = booleanPreferencesKey("use_embedded_player")
 
 @Composable
 fun WearApp(
@@ -87,9 +89,15 @@ fun WearApp(
     }
     val selectedFontName by selectedFontNameFlow.collectAsState(initial = "Default")
 
+    val useEmbeddedPlayerFlow = remember {
+        context.dataStore.data.map { preferences -> preferences[USE_EMBEDDED_PLAYER] ?: false }
+    }
+    val useEmbeddedPlayer by useEmbeddedPlayerFlow.collectAsState(initial = false)
+
     CompositionLocalProvider(
         LocalUseDynamicColor provides useDynamicColor,
         LocalSelectedFontFamilyName provides selectedFontName,
+        LocalUseEmbeddedPlayer provides useEmbeddedPlayer,
     ) {
         AppScaffold(modifier = modifier) {
             SwipeDismissableNavHost(
@@ -111,6 +119,14 @@ fun WearApp(
                             coroutineScope.launch {
                                 context.dataStore.edit { preferences ->
                                     preferences[SELECTED_FONT_NAME] = newValue
+                                }
+                            }
+                        },
+                        useEmbeddedPlayer = useEmbeddedPlayer,
+                        onUseEmbeddedPlayerChange = { newValue ->
+                            coroutineScope.launch {
+                                context.dataStore.edit { preferences ->
+                                    preferences[USE_EMBEDDED_PLAYER] = newValue
                                 }
                             }
                         },
