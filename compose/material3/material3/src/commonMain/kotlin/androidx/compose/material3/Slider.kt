@@ -443,6 +443,8 @@ public fun Slider(
  *   lambda receives a [SliderState] which is used to obtain the current active track.
  * @param track the track to be displayed on the slider, it is placed underneath the thumb. The
  *   lambda receives a [SliderState] which is used to obtain the current active track.
+ *
+ * @material3expressive
  */
 @Composable
 public fun VerticalSlider(
@@ -531,6 +533,8 @@ public fun VerticalSlider(
  *   lambda receives a [SliderState] which is used to obtain the current active track.
  * @param track the track to be displayed on the slider, it is placed underneath the thumb. The
  *   lambda receives a [SliderState] which is used to obtain the current active track.
+ *
+ * @material3expressive
  */
 @Deprecated(message = "Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
 @Composable
@@ -1786,8 +1790,6 @@ public object SliderDefaults {
      *   not respond to user input, and it will appear visually disabled and disabled to
      *   accessibility services.
      * @param thumbSize the size of the thumb.
-     *
-     * @material3expressive
      */
     @Deprecated(
         "Maintained for binary compatibility. Use the overload that takes isVertical instead.",
