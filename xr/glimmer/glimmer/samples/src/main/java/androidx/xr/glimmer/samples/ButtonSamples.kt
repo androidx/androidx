@@ -22,8 +22,10 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.xr.glimmer.Button
+import androidx.xr.glimmer.ButtonDefaults
 import androidx.xr.glimmer.ButtonSize
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Icon
@@ -44,6 +46,7 @@ fun ButtonSampleUsage() {
         item { LargeButtonWithLeadingIconSample() }
         item { LargeButtonWithTrailingIconSample() }
         item { LargeButtonWithLeadingAndTrailingIconSample() }
+        item { CustomFocusedColorButtonSample() }
     }
 }
 
@@ -119,6 +122,17 @@ private fun LargeButtonWithLeadingAndTrailingIconSample() {
     }
 }
 
+@Sampled
+@Composable
+fun CustomFocusedColorButtonSample() {
+    Button(
+        onClick = {},
+        focusedColor = ButtonDefaults.focusedColor(Color(0xFF34E0A1)),
+    ) {
+        Text("Button with custom colors")
+    }
+}
+
 @Preview
 @Composable
 private fun ButtonPreview() {
@@ -165,4 +179,10 @@ private fun LargeButtonWithTrailingIconPreview() {
 @Composable
 private fun LargeButtonWithLeadingAndTrailingIconPreview() {
     GlimmerTheme { LargeButtonWithLeadingAndTrailingIconSample() }
+}
+
+@Preview
+@Composable
+private fun CustomFocusedColorButtonPreview() {
+    GlimmerTheme { CustomFocusedColorButtonSample() }
 }
