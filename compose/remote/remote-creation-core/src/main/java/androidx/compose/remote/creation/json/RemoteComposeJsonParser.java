@@ -2939,8 +2939,14 @@ public class RemoteComposeJsonParser {
      */
     private int parseMesh2DType(@NonNull JSONObject command) throws JSONException {
         boolean halfFloat = command.optBoolean("halfFloat", false);
-        String defaultSource =
-                command.has("verts") ? (halfFloat ? "f16values" : "values") : "expression";
+        String defaultSource;
+        if (command.has("verts")) {
+            defaultSource = halfFloat ? "f16values" : "values";
+        } else if (command.has("widths")) {
+            defaultSource = "pathsplinestrip";
+        } else {
+            defaultSource = "expression";
+        }
         String type = command.optString("source", defaultSource).toLowerCase();
         switch (type) {
             case "expression":
@@ -2949,6 +2955,17 @@ public class RemoteComposeJsonParser {
                 return halfFloat ? AddMesh2D.TYPE_F16_VALUES : AddMesh2D.TYPE_VALUES;
             case "f16values":
                 return AddMesh2D.TYPE_F16_VALUES;
+            // Not "pathStrip": that already names a layout, and the two would read alike while
+            // meaning different meshes - one takes its width from an expression, this from a
+            // spline.
+            case "pathsplinestrip":
+            case "splinestrip":
+                return AddMesh2D.TYPE_PATH_SPLINE_STRIP;
+            // The same mesh with round ends. Never inferred: a squared off strip is what a bare
+            // widths list has always meant, so rounding stays something the author asks for.
+            case "splineroundstrip":
+            case "roundstrip":
+                return AddMesh2D.TYPE_SPLINE_ROUND_STRIP;
             default:
                 throw new JSONException("Unknown mesh type: " + type);
         }
@@ -3045,13 +3062,58 @@ public class RemoteComposeJsonParser {
         return parseFloatExpression(value);
     }
 
-    /** Parse an {@code addMesh2D} command in any of its three forms. */
+    /**
+     * Read an array of floats that may name variables, or null when the document omits it.
+     *
+     * <p>Used for the width control points of a spline path strip, where an entry may be a literal
+     * or a reference resolving to a NaN variable id, which is what lets the profile animate.
+     */
+    private float @Nullable [] parseMesh2DFloatArray(@NonNull JSONObject command, String field)
+            throws JSONException {
+        JSONArray array = command.optJSONArray(field);
+        if (array == null) {
+            return null;
+        }
+        float[] out = new float[array.length()];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = parseFloat(array.get(i));
+        }
+        return out;
+    }
+
+    /** Parse an {@code addMesh2D} command in any of its forms. */
     private void parseAddMesh2D(@NonNull JSONObject command) throws JSONException {
         int type = parseMesh2DType(command);
         int layout = parseMesh2DLayout(command);
         int meshId;
 
-        if (type == AddMesh2D.TYPE_EXPRESSION) {
+        if (type == AddMesh2D.TYPE_PATH_SPLINE_STRIP || type == AddMesh2D.TYPE_SPLINE_ROUND_STRIP) {
+            boolean round = type == AddMesh2D.TYPE_SPLINE_ROUND_STRIP;
+            String name = round ? "splineRoundStrip" : "pathSplineStrip";
+            Object pathRef = command.has("path") ? command.get("path") : command.opt("aux");
+            if (pathRef == null) {
+                throw new JSONException("addMesh2D of type " + name + " requires a path");
+            }
+            if (!command.has("segments")) {
+                // Required rather than defaulted, so the runtime cost of a mesh is visible at the
+                // place it is authored rather than buried in a default.
+                throw new JSONException("addMesh2D of type " + name + " requires segments");
+            }
+            float[] widths = parseMesh2DFloatArray(command, "widths");
+            if (widths == null) {
+                throw new JSONException("addMesh2D of type " + name + " requires widths");
+            }
+            float[] positions = parseMesh2DFloatArray(command, "pos");
+            if (positions == null) {
+                positions = parseMesh2DFloatArray(command, "positions");
+            }
+            int pathId = resolvePathId(pathRef);
+            int segments = command.getInt("segments");
+            meshId =
+                    round
+                            ? mWriter.addMesh2DRoundStrip(pathId, segments, widths, positions)
+                            : mWriter.addMesh2DPathStrip(pathId, segments, widths, positions);
+        } else if (type == AddMesh2D.TYPE_EXPRESSION) {
             if (!command.has("uCount") || !command.has("vCount")) {
                 // Required rather than defaulted, so the runtime cost of a mesh is visible at the
                 // place it is authored rather than buried in a default.

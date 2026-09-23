@@ -1025,6 +1025,105 @@ public interface RcScope {
     ): RcMesh
 
     /**
+     * Adds a ribbon that follows a path, its cross width a monotonic spline through [widths].
+     *
+     * The variable width stroke, without spending expression tokens on it. One width is a constant
+     * width; two or more are interpolated along the path, so a stroke that swells in the middle and
+     * tapers at both ends is three numbers.
+     *
+     * ```
+     * val brush = remoteMesh2DPathStrip(stroke, segments = 48, widths = floatArrayOf(0f, 26f, 4f))
+     * drawMesh2D(brush)
+     * ```
+     *
+     * Geometry only: uv is the identity mapping and there are no vertex colours, so colour comes
+     * from the paint, or from passing an image to [drawMesh2D].
+     *
+     * @param path the path to follow
+     * @param segments roughly how many quads to divide the path into; at least 1
+     * @param widths the width control points, at least one, in the path's own units
+     * @param positions where each width sits along the path as a fraction of arclength, 0..1. Null
+     *   spreads the widths evenly, so the first is the width at the start of the path and the last
+     *   the width at the end. Otherwise there must be one entry per width, increasing.
+     */
+    public fun remoteMesh2DPathStrip(
+        path: RcPath,
+        segments: Int,
+        widths: FloatArray,
+        positions: FloatArray? = null,
+    ): RcMesh
+
+    /**
+     * Adds a ribbon that follows a path, its cross width a monotonic spline through [widths], where
+     * the widths are remote floats and so can animate.
+     *
+     * The spline is refitted whenever one of them changes, so the profile can be driven by time, a
+     * gesture or incoming data - a stroke that thickens under the finger, a trail that fades to
+     * nothing behind a moving head.
+     *
+     * @param path the path to follow
+     * @param segments roughly how many quads to divide the path into; at least 1
+     * @param widths the width control points, at least one, in the path's own units
+     * @param positions where each width sits along the path as a fraction of arclength, 0..1, or
+     *   null to spread the widths evenly. Otherwise there must be one entry per width.
+     */
+    public fun remoteMesh2DPathStrip(
+        path: RcPath,
+        segments: Int,
+        widths: Array<RcFloat>,
+        positions: Array<RcFloat>? = null,
+    ): RcMesh
+
+    /**
+     * Adds a spline width ribbon that rounds off at both ends.
+     *
+     * [remoteMesh2DPathStrip] stops dead at each end of the path, leaving a square edge that reads
+     * as unfinished on anything meant to look drawn. This closes each end with a semicircle of
+     * radius half the ribbon's width there - the mesh equivalent of a round stroke cap. A profile
+     * that tapers to zero therefore comes to a point rather than a blunt stub.
+     *
+     * ```
+     * val stroke = remoteMesh2DRoundStrip(ink, segments = 48, widths = floatArrayOf(4f, 26f, 4f))
+     * drawMesh2D(stroke)
+     * ```
+     *
+     * [segments] still counts only the columns spanning the path; the caps are added on top, so
+     * switching between the two does not change how closely the ribbon tracks its path.
+     *
+     * @param path the path to follow
+     * @param segments roughly how many quads to divide the path into, excluding the caps
+     * @param widths the width control points, at least one, in the path's own units
+     * @param positions where each width sits along the path as a fraction of arclength, 0..1. Null
+     *   spreads the widths evenly, so the first is the width at the start of the path and the last
+     *   the width at the end. Otherwise there must be one entry per width, increasing.
+     */
+    public fun remoteMesh2DRoundStrip(
+        path: RcPath,
+        segments: Int,
+        widths: FloatArray,
+        positions: FloatArray? = null,
+    ): RcMesh
+
+    /**
+     * Adds a spline width ribbon that rounds off at both ends, with animatable [widths].
+     *
+     * As [remoteMesh2DRoundStrip], but the control points are remote floats, so the profile - and
+     * with it the radius of each cap - can be driven by time, a gesture or incoming data.
+     *
+     * @param path the path to follow
+     * @param segments roughly how many quads to divide the path into, excluding the caps
+     * @param widths the width control points, at least one, in the path's own units
+     * @param positions where each width sits along the path as a fraction of arclength, 0..1, or
+     *   null to spread the widths evenly. Otherwise there must be one entry per width.
+     */
+    public fun remoteMesh2DRoundStrip(
+        path: RcPath,
+        segments: Int,
+        widths: Array<RcFloat>,
+        positions: Array<RcFloat>? = null,
+    ): RcMesh
+
+    /**
      * Draws a mesh, positioned by the ordinary 2D canvas matrix.
      *
      * @param mesh the mesh to draw
