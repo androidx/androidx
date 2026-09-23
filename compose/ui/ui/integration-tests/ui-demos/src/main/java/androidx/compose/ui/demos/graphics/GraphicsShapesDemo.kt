@@ -41,14 +41,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CornerRounding
 import androidx.compose.foundation.shape.MorphPolygonShape
 import androidx.compose.foundation.shape.PolygonShape
 import androidx.compose.foundation.shape.PolygonShapeGeometry
-import androidx.compose.foundation.shape.PolygonShapeGeometry.Companion.CornerRounding
-import androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.shape.scaledToFit
-import androidx.compose.foundation.shape.transformed
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.Checkbox
@@ -102,6 +99,7 @@ private val TextSecondary = Color(0xFF94A3B8)
 enum class DemoTab {
     ShapeEditor,
     MorphSandbox,
+    TransformSandbox,
     GraphicsLayerMorph,
     LoadingIndicator,
 }
@@ -149,6 +147,7 @@ fun GraphicsShapesDemo() {
                                 when (tab) {
                                     DemoTab.ShapeEditor -> "Editor"
                                     DemoTab.MorphSandbox -> "Morph"
+                                    DemoTab.TransformSandbox -> "Transform"
                                     DemoTab.GraphicsLayerMorph -> "Layer"
                                     DemoTab.LoadingIndicator -> "Official Shape APIs"
                                 },
@@ -166,6 +165,7 @@ fun GraphicsShapesDemo() {
                 when (currentTab) {
                     DemoTab.ShapeEditor -> ShapeEditorContent()
                     DemoTab.MorphSandbox -> MorphSandboxContent()
+                    DemoTab.TransformSandbox -> RotatingShapeTransformContent()
                     DemoTab.GraphicsLayerMorph -> GraphicsLayerMorphContent()
                     DemoTab.LoadingIndicator -> FoundationLoadingIndicatorDemo()
                 }
@@ -192,15 +192,18 @@ private fun ShapeEditorContent() {
                     numPoints = vertices.toInt(),
                     innerRadiusRatio = innerRadiusRatio,
                     outerRounding =
-                        CornerRounding(percent = (roundingPercent.toInt()), smoothing = smoothing),
+                        CornerRounding.fraction(
+                            fraction = roundingPercent / 100f,
+                            smoothing = smoothing,
+                        ),
                 )
             } else {
                 PolygonShape {
                     polygon(
                         vertices.toInt(),
                         rounding =
-                            CornerRounding(
-                                percent = roundingPercent.toInt(),
+                            CornerRounding.fraction(
+                                fraction = roundingPercent / 100f,
                                 smoothing = smoothing,
                             ),
                     )
@@ -312,28 +315,28 @@ private val SandboxShapeNames =
 
 private fun sandboxShape(type: Int): PolygonShape =
     when (type) {
-        0 -> PolygonShape { polygon(3, rounding = CornerRounding(percent = 10)) }
+        0 -> PolygonShape { polygon(3, rounding = CornerRounding.fraction(0.1f)) }
         1 ->
             PolygonShape.rectangle(
-                topStartRounding = CornerRounding(percent = 20),
-                topEndRounding = CornerRounding(percent = 20),
-                bottomEndRounding = CornerRounding(percent = 20),
-                bottomStartRounding = CornerRounding(percent = 20),
+                topStartRounding = CornerRounding.fraction(0.2f),
+                topEndRounding = CornerRounding.fraction(0.2f),
+                bottomEndRounding = CornerRounding.fraction(0.2f),
+                bottomStartRounding = CornerRounding.fraction(0.2f),
             )
         2 -> PolygonShape.circle()
         3 ->
             PolygonShape.star(
                 numPoints = 5,
                 innerRadiusRatio = 0.4f,
-                outerRounding = CornerRounding(percent = 50),
+                outerRounding = CornerRounding.fraction(0.5f),
             )
         4 ->
             PolygonShape.star(
                 numPoints = 8,
                 innerRadiusRatio = 0.6f,
-                outerRounding = CornerRounding(percent = 10),
+                outerRounding = CornerRounding.fraction(0.1f),
             )
-        else -> PolygonShape { polygon(6, rounding = CornerRounding(percent = 15)) }
+        else -> PolygonShape { polygon(6, rounding = CornerRounding.fraction(0.15f)) }
     }
 
 @Composable
@@ -467,11 +470,166 @@ private fun MorphSandboxContent() {
                 )
             } else {
                 Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = "Loop Progress: ${String.format("%.2f", animatedProgress)}",
-                    color = TextSecondary,
-                    fontSize = 12.sp,
-                )
+                LoopProgressReadout(animatedProgress)
+            }
+        }
+    }
+}
+
+@Composable
+private fun LoopProgressReadout(progressState: androidx.compose.runtime.State<Float>) {
+    Text(
+        text = "Loop Progress: ${String.format("%.2f", progressState.value)}",
+        color = TextSecondary,
+        fontSize = 12.sp,
+    )
+}
+
+private class RecompositionCounter(var count: Int = 0)
+
+@Composable
+private fun RotatingShapeTransformContent() {
+    val recompositionCounter = remember { RecompositionCounter() }
+    recompositionCounter.count++
+    var manualTick by remember { mutableIntStateOf(0) }
+
+    val infiniteTransition = rememberInfiniteTransition(label = "ShapeTransformTransition")
+    val animatedDegrees =
+        infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 360f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(4000, easing = LinearEasing),
+                    repeatMode = RepeatMode.Restart,
+                ),
+            label = "Degrees",
+        )
+
+    // The shape itself rotates via PolygonShape.transform {} during outline resolution.
+    // Neither the Box's graphicsLayer nor the inner Text content is rotated, and reading
+    // animatedDegrees.value inside transform {} does not trigger recomposition.
+    val rotatingShape = remember {
+        PolygonShape.star(
+                numPoints = 6,
+                innerRadiusRatio = 0.55f,
+                outerRounding = CornerRounding.dp(radius = 12.dp, smoothing = 0.5f),
+            )
+            .apply {
+                transform {
+                    scaleToFit(ContentScale.Fit)
+                    rotate(animatedDegrees.value)
+                }
+            }
+    }
+
+    Card(
+        backgroundColor = CardBackground,
+        shape = RoundedCornerShape(16.dp),
+        elevation = 4.dp,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        "PolygonShape.transform { rotate(...) }",
+                        color = TextPrimary,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        "Shape rotates in-place during draw; inner content stays upright & 0 recompositions occur.",
+                        color = TextSecondary,
+                        fontSize = 12.sp,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    modifier =
+                        Modifier.background(
+                                PrimaryAccent.copy(alpha = 0.2f),
+                                RoundedCornerShape(8.dp),
+                            )
+                            .border(1.dp, PrimaryAccent, RoundedCornerShape(8.dp))
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    // Read manualTick so clicking "Force Recompose" increments the counter.
+                    val tick = manualTick
+                    Text(
+                        text =
+                            "Recompositions: ${recompositionCounter.count}" +
+                                if (tick > 0) " (manual: $tick)" else "",
+                        color = TextPrimary,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+
+                Box(
+                    modifier =
+                        Modifier.clip(RoundedCornerShape(8.dp))
+                            .background(SecondaryAccent)
+                            .clickable { manualTick++ }
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = "Force Recompose",
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Box(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .height(240.dp)
+                        .background(BackgroundDark, RoundedCornerShape(12.dp))
+                        .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Box(
+                    modifier =
+                        Modifier.size(190.dp)
+                            .background(
+                                brush =
+                                    Brush.linearGradient(
+                                        colors = listOf(PrimaryAccent, SecondaryAccent)
+                                    ),
+                                shape = rotatingShape,
+                            ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "Upright Content",
+                            color = Color.White,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            text = "Recomp: ${recompositionCounter.count}",
+                            color = Color.White.copy(alpha = 0.85f),
+                            fontSize = 12.sp,
+                        )
+                    }
+                }
             }
         }
     }
@@ -479,15 +637,17 @@ private fun MorphSandboxContent() {
 
 @Composable
 private fun GraphicsLayerMorphContent() {
+    val recompositionCounter = remember { RecompositionCounter() }
+    recompositionCounter.count++
 
     val startShape = remember {
-        PolygonShape { polygon(3, rounding = CornerRounding(radius = 12.dp, smoothing = 0.5f)) }
+        PolygonShape { polygon(3, rounding = CornerRounding.dp(radius = 12.dp, smoothing = 0.5f)) }
     }
     val endShape = remember {
         PolygonShape.star(
             numPoints = 8,
             innerRadiusRatio = 0.5f,
-            outerRounding = CornerRounding(radius = 8.dp, smoothing = 0.5f),
+            outerRounding = CornerRounding.dp(radius = 8.dp, smoothing = 0.5f),
         )
     }
 
@@ -509,54 +669,79 @@ private fun GraphicsLayerMorphContent() {
             MorphPolygonShape(startShape, endShape) { animatedProgress.value }
         }
 
-    Card(
-        backgroundColor = CardBackground,
-        shape = RoundedCornerShape(16.dp),
-        elevation = 4.dp,
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                "graphicsLayer Clipping Morph",
-                color = TextPrimary,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-            )
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        RotatingShapeTransformContent()
 
-            Spacer(modifier = Modifier.height(16.dp))
+        Card(
+            backgroundColor = CardBackground,
+            shape = RoundedCornerShape(16.dp),
+            elevation = 4.dp,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        "graphicsLayer Clipping Morph",
+                        color = TextPrimary,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        "Recompositions: ${recompositionCounter.count}",
+                        color = TextSecondary,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
 
-            Box(
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .height(240.dp)
-                        .background(BackgroundDark, RoundedCornerShape(12.dp))
-                        .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center,
-            ) {
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Box(
                     modifier =
-                        Modifier.size(180.dp)
-                            .background(
-                                brush =
-                                    Brush.linearGradient(
-                                        colors = listOf(PrimaryAccent, SecondaryAccent)
-                                    ),
-                                shape = morphingShape,
+                        Modifier.fillMaxWidth()
+                            .height(240.dp)
+                            .background(BackgroundDark, RoundedCornerShape(12.dp))
+                            .border(
+                                1.dp,
+                                Color.White.copy(alpha = 0.05f),
+                                RoundedCornerShape(12.dp),
                             ),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "Clipped Layout",
-                            color = Color.White,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                        )
+                    Box(
+                        modifier =
+                            Modifier.size(180.dp)
+                                .background(
+                                    brush =
+                                        Brush.linearGradient(
+                                            colors = listOf(PrimaryAccent, SecondaryAccent)
+                                        ),
+                                    shape = morphingShape,
+                                ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "Clipped Layout",
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Text(
+                                text = "Recomp: ${recompositionCounter.count}",
+                                color = Color.White.copy(alpha = 0.85f),
+                                fontSize = 12.sp,
+                            )
+                        }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     }
 }
@@ -619,8 +804,8 @@ private fun ScrollableTabSelector(selected: Int, items: List<String>, onSelected
 
 private data class PointNRound(val o: Offset, val r: CornerRounding = CornerRounding.Unrounded)
 
-private val cornerRound15 = CornerRounding(percent = 15)
-private val cornerRound50 = CornerRounding(percent = 50)
+private val cornerRound15 = CornerRounding.fraction(0.15f)
+private val cornerRound50 = CornerRounding.fraction(0.5f)
 
 private val rotateNeg45 = Matrix().apply { rotateZ(-45f) }
 private val rotateNeg90 = Matrix().apply { rotateZ(-90f) }
@@ -680,41 +865,42 @@ private fun customPolygonShape(
     startRotation: Matrix? = null,
 ): PolygonShape {
     val points = doRepeat(pnr, reps, center, mirroring)
-    val shape =
-        PolygonShape(
-            PolygonShapeGeometry(
-                vertices = points.fastMap { it.o },
-                perVertexRounding = points.fastMap { it.r },
-                center = center,
-            )
+    val geometry =
+        PolygonShapeGeometry(
+            vertices = points.fastMap { it.o },
+            perVertexRounding = points.fastMap { it.r },
+            center = center,
         )
-    // A rotation applied after the internal fit can overflow the bounds, so re-fit.
-    return if (startRotation != null) {
-        shape.transformed(startRotation, contentScale = ContentScale.Fit)
-    } else {
-        shape
-    }
+    return PolygonShape { geometry }
+        .apply {
+            if (startRotation != null) {
+                transform {
+                    transform(startRotation)
+                    scaleToFit(ContentScale.Fit)
+                }
+            } else {
+                transform { scaleToFit() }
+            }
+        }
 }
 
 object M3Shapes {
 
     val Oval =
-        PolygonShape.circle(numVertices = 10)
-            .transformed(
-                matrix =
-                    Matrix().apply {
-                        rotateZ(-45f)
-                        scale(1f, 0.64f)
-                    },
-                contentScale = ContentScale.Fit,
-            )
+        PolygonShape.circle(numVertices = 10).apply {
+            transform {
+                scale(1f, 0.64f)
+                rotate(-45f)
+                scaleToFit(ContentScale.Fit)
+            }
+        }
 
     val Pill =
         customPolygonShape(
             listOf(
-                PointNRound(Offset(0.961f, 0.039f), CornerRounding(0.426f)),
+                PointNRound(Offset(0.961f, 0.039f), CornerRounding.fraction(0.426f)),
                 PointNRound(Offset(1.001f, 0.428f)),
-                PointNRound(Offset(1.000f, 0.609f), CornerRounding(1f)),
+                PointNRound(Offset(1.000f, 0.609f), CornerRounding.fraction(1f)),
             ),
             reps = 2,
             mirroring = true,
@@ -723,9 +909,9 @@ object M3Shapes {
     val Pentagon =
         customPolygonShape(
             listOf(
-                PointNRound(Offset(0.500f, -0.009f), CornerRounding(0.172f)),
-                PointNRound(Offset(1.030f, 0.365f), CornerRounding(0.164f)),
-                PointNRound(Offset(0.828f, 0.970f), CornerRounding(0.169f)),
+                PointNRound(Offset(0.500f, -0.009f), CornerRounding.fraction(0.172f)),
+                PointNRound(Offset(1.030f, 0.365f), CornerRounding.fraction(0.164f)),
+                PointNRound(Offset(0.828f, 0.970f), CornerRounding.fraction(0.169f)),
             ),
             reps = 1,
             mirroring = true,
@@ -733,26 +919,31 @@ object M3Shapes {
 
     val Sunny =
         PolygonShape.star(numPoints = 8, innerRadiusRatio = 0.8f, outerRounding = cornerRound15)
-            .scaledToFit()
+            .apply { transform { scaleToFit() } }
 
     val Cookie4Sided =
         customPolygonShape(
             listOf(
-                PointNRound(Offset(1.237f, 1.236f), CornerRounding(0.258f)),
-                PointNRound(Offset(0.500f, 0.918f), CornerRounding(0.233f)),
+                PointNRound(Offset(1.237f, 1.236f), CornerRounding.fraction(0.175f)),
+                PointNRound(Offset(0.500f, 0.918f), CornerRounding.fraction(0.158f)),
             ),
             reps = 4,
         )
 
     val Cookie9Sided =
         PolygonShape.star(numPoints = 9, innerRadiusRatio = 0.8f, outerRounding = cornerRound50)
-            .transformed(rotateNeg90, contentScale = ContentScale.Fit)
+            .apply {
+                transform {
+                    transform(rotateNeg90)
+                    scaleToFit(ContentScale.Fit)
+                }
+            }
 
     val SoftBurst =
         customPolygonShape(
             listOf(
-                PointNRound(Offset(0.193f, 0.277f), CornerRounding(0.053f)),
-                PointNRound(Offset(0.176f, 0.055f), CornerRounding(0.053f)),
+                PointNRound(Offset(0.193f, 0.277f), CornerRounding.fraction(0.053f)),
+                PointNRound(Offset(0.176f, 0.055f), CornerRounding.fraction(0.053f)),
             ),
             reps = 10,
         )

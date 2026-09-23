@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.5.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha04)" variant="all" version="9.5.0-alpha04">
+<issues format="6" by="lint 9.5.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha05)" variant="all" version="9.5.0-alpha05">
 
     <issue
         id="NewApi"
@@ -1759,7 +1759,7 @@
     <issue
         id="RestrictedApiAndroidX"
         message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
-        errorLine1="    override val fontScale: Float,"
+        errorLine1="    override var fontScale: Float,"
         errorLine2="                 ~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/shape/PolygonShape.kt"/>
@@ -1768,8 +1768,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
-        errorLine1="            PolygonShapeScopeImpl(density.density, density.fontScale, size, layoutDirection)"
-        errorLine2="                                                           ~~~~~~~~~">
+        errorLine1="    override var fontScale: Float = 1f"
+        errorLine2="                 ~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/shape/PolygonShape.kt"/>
     </issue>
@@ -1777,8 +1777,17 @@
     <issue
         id="RestrictedApiAndroidX"
         message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
-        errorLine1="                ?: PolygonShapeScopeImpl(density.density, density.fontScale, size, layoutDirection)"
-        errorLine2="                                                                  ~~~~~~~~~">
+        errorLine1="            fontScale = density.fontScale,"
+        errorLine2="                                ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/shape/PolygonShape.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontScalingLinear.getFontScale can only be called from within the same library group (referenced groupId=`androidx.compose.ui` from groupId=`androidx.compose.foundation`)"
+        errorLine1="        scope.fontScale = density.fontScale"
+        errorLine2="                                  ~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/shape/PolygonShape.kt"/>
     </issue>
