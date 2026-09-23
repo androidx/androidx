@@ -98,7 +98,10 @@ import androidx.compose.ui.util.fastForEach
 @Composable
 @Suppress("ModifierFactoryExtensionFunction")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun ComponentModifiers.toModifier(drawOpsList: List<Operation>? = null): Modifier {
+public fun ComponentModifiers.toModifier(
+    drawOpsList: List<Operation>? = null,
+    ignoreVisibility: Boolean = false,
+): Modifier {
     val textMeasurer = rememberTextMeasurer()
     var modifier: Modifier = Modifier
     // Track whether a DrawContentOperation has already been attached to the modifier chain, so
@@ -144,7 +147,8 @@ public fun ComponentModifiers.toModifier(drawOpsList: List<Operation>? = null): 
                         modifier
                     }
                 }
-                is ComponentVisibilityOperation -> modifier.visible(op)
+                is ComponentVisibilityOperation ->
+                    if (ignoreVisibility) modifier else modifier.visible(op)
                 is MarqueeModifierOperation -> modifier.marquee(op)
                 is CoreSemantics -> modifier.semantics(op)
                 is DrawContentOperation -> {
@@ -203,8 +207,7 @@ internal fun rememberComponentVisibility(op: ComponentVisibilityOperation): Int 
     return when {
         Component.Visibility.isVisible(rawInt) -> Component.Visibility.VISIBLE
         Component.Visibility.isGone(rawInt) -> Component.Visibility.GONE
-        Component.Visibility.isInvisible(rawInt) -> Component.Visibility.INVISIBLE
-        else -> Component.Visibility.GONE
+        else -> Component.Visibility.INVISIBLE
     }
 }
 

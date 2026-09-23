@@ -29,6 +29,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.LayoutComponent
+import androidx.compose.remote.core.operations.layout.managers.CollapsibleColumnLayout
+import androidx.compose.remote.core.operations.layout.managers.CollapsibleRowLayout
 import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout
 import androidx.compose.remote.player.compose.embedded.LocalAnimatedVisibilityScope
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
@@ -45,10 +47,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastMapIndexed
 import androidx.compose.ui.util.fastMaxOfOrNull
 
 /**
@@ -100,8 +105,17 @@ internal fun RcPlayerFitBoxLayout(layout: FitBoxLayout, modifier: Modifier) {
                 }
             }
 
-        val childConstraints = constraints.copy(minWidth = 0, minHeight = 0)
-        val placeables = probeMeasurables.fastMap { it.measure(childConstraints) }
+        // Collapsible candidates require the container bound on their collapse axis so they can
+        // drop low-priority children.
+        val placeables = probeMeasurables.fastMapIndexed { index, measurable ->
+            val probeConstraints =
+                when (children[index]) {
+                    is CollapsibleColumnLayout -> Constraints(maxHeight = maxHeight)
+                    is CollapsibleRowLayout -> Constraints(maxWidth = maxWidth)
+                    else -> Constraints()
+                }
+            measurable.measure(probeConstraints)
+        }
 
         var chosen = -1
         for (i in 0 until placeables.size) {
@@ -116,11 +130,20 @@ internal fun RcPlayerFitBoxLayout(layout: FitBoxLayout, modifier: Modifier) {
                 }
             }
         }
-        if (chosen < 0) {
-            chosen =
-                placeables.indices.minByOrNull {
-                    placeables[it].width
-                } ?: 0
+        val noFit = chosen < 0
+        if (noFit) {
+            chosen = placeables.indices.minByOrNull { placeables[it].width } ?: 0
+            layout.mVisibility = Component.Visibility.GONE
+            for (i in 0 until children.size) {
+                children[i].mVisibility = Component.Visibility.GONE
+            }
+        } else {
+            layout.mVisibility = Component.Visibility.VISIBLE
+            for (i in 0 until children.size) {
+                val vis =
+                    if (i == chosen) Component.Visibility.VISIBLE else Component.Visibility.GONE
+                children[i].mVisibility = vis
+            }
         }
 
         // Phase 2 (Content): Subcompose the chosen alternative with AnimatedContent.
@@ -155,12 +178,21 @@ internal fun RcPlayerFitBoxLayout(layout: FitBoxLayout, modifier: Modifier) {
                 }
             }
 
-        val contentPlaceables = contentMeasurables.fastMap { it.measure(constraints) }
+        val contentConstraints =
+            if (noFit) Constraints() else constraints.copy(minWidth = 0, minHeight = 0)
+        val contentPlaceables = contentMeasurables.fastMap { it.measure(contentConstraints) }
         val width = constraints.constrainWidth(contentPlaceables.fastMaxOfOrNull { it.width } ?: 0)
         val height =
             constraints.constrainHeight(contentPlaceables.fastMaxOfOrNull { it.height } ?: 0)
 
-        layout(width, height) { contentPlaceables.fastForEach { it.placeRelative(0, 0) } }
+        layout(width, height) {
+            val containerSize = IntSize(width, height)
+            contentPlaceables.fastForEach { placeable ->
+                val childSize = IntSize(placeable.width, placeable.height)
+                val offset = alignment.align(childSize, containerSize, layoutDirection)
+                placeable.place(offset)
+            }
+        }
     }
 }
 
