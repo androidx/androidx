@@ -2443,6 +2443,159 @@ class AndroidAccessibilityTest {
     }
 
     @Test
+    fun testPerformAction_showOnScreen_lazy_withContentPadding() {
+        rule.mainClock.autoAdvance = false
+
+        val lazyState = LazyListState()
+        val target0Tag = "target0"
+        val target1Tag = "target1"
+        setContent {
+            Box {
+                with(LocalDensity.current) {
+                    LazyColumn(
+                        modifier = Modifier.size(200.toDp()),
+                        state = lazyState,
+                        contentPadding = PaddingValues(top = 40.toDp(), bottom = 60.toDp()),
+                    ) {
+                        item { BasicText("First", Modifier.testTag(target0Tag).size(80.toDp())) }
+                        item { BasicText("Second", Modifier.testTag(target1Tag).size(80.toDp())) }
+                        item { BasicText("Third", Modifier.size(80.toDp())) }
+                    }
+                }
+            }
+        }
+        assertThat(lazyState.firstVisibleItemIndex).isEqualTo(0)
+        assertThat(lazyState.firstVisibleItemScrollOffset).isEqualTo(0)
+
+        // Second item is at [120, 200], which is within the outer bounds [0, 200] of LazyColumn
+        // but obscured by bottom contentPadding [140, 200]. ACTION_SHOW_ON_SCREEN should scroll
+        // by 60px so that Second item's bottom aligns with the padded viewport bottom (140).
+        val showOnScreen = android.R.id.accessibilityActionShowOnScreen
+        val target1Id = rule.onNodeWithTag(target1Tag).semanticsId()
+        rule.runOnUiThread {
+            assertThat(provider.performAction(target1Id, showOnScreen, null)).isTrue()
+        }
+        rule.mainClock.advanceTimeBy(5000)
+        assertThat(lazyState.firstVisibleItemIndex).isEqualTo(0)
+        assertThat(lazyState.firstVisibleItemScrollOffset).isEqualTo(60)
+
+        // First item is now at [-20, 60], partially obscured by top contentPadding [0, 40].
+        // ACTION_SHOW_ON_SCREEN on First item should scroll back to 0 so its top aligns with 40.
+        val target0Id = rule.onNodeWithTag(target0Tag).semanticsId()
+        rule.runOnUiThread {
+            assertThat(provider.performAction(target0Id, showOnScreen, null)).isTrue()
+        }
+        rule.mainClock.advanceTimeBy(5000)
+        assertThat(lazyState.firstVisibleItemIndex).isEqualTo(0)
+        assertThat(lazyState.firstVisibleItemScrollOffset).isEqualTo(0)
+    }
+
+    @Test
+    fun testPerformAction_showOnScreen_lazy_reverseLayout_withContentPadding() {
+        rule.mainClock.autoAdvance = false
+
+        val lazyState = LazyListState()
+        val target0Tag = "target0"
+        val target1Tag = "target1"
+        setContent {
+            Box {
+                with(LocalDensity.current) {
+                    LazyColumn(
+                        modifier = Modifier.size(200.toDp()),
+                        state = lazyState,
+                        reverseLayout = true,
+                        contentPadding = PaddingValues(top = 60.toDp(), bottom = 40.toDp()),
+                    ) {
+                        item { BasicText("First", Modifier.testTag(target0Tag).size(70.toDp())) }
+                        item { BasicText("Second", Modifier.testTag(target1Tag).size(70.toDp())) }
+                        item { BasicText("Third", Modifier.size(70.toDp())) }
+                    }
+                }
+            }
+        }
+        assertThat(lazyState.firstVisibleItemIndex).isEqualTo(0)
+        assertThat(lazyState.firstVisibleItemScrollOffset).isEqualTo(0)
+
+        // With reverseLayout = true, First item is at [90, 160] and Second item is at [20, 90],
+        // which is within the outer bounds [0, 200] but obscured by top contentPadding [0, 60].
+        // ACTION_SHOW_ON_SCREEN on Second item should scroll by 40px so its top aligns with 60.
+        val showOnScreen = android.R.id.accessibilityActionShowOnScreen
+        val target1Id = rule.onNodeWithTag(target1Tag).semanticsId()
+        rule.runOnUiThread {
+            assertThat(provider.performAction(target1Id, showOnScreen, null)).isTrue()
+        }
+        rule.mainClock.advanceTimeBy(5000)
+        assertThat(lazyState.firstVisibleItemIndex).isEqualTo(0)
+        assertThat(lazyState.firstVisibleItemScrollOffset).isEqualTo(40)
+
+        // First item is now at [130, 200], within outer bounds [0, 200] but obscured by bottom
+        // contentPadding [160, 200]. ACTION_SHOW_ON_SCREEN on First item should scroll back to 0.
+        val target0Id = rule.onNodeWithTag(target0Tag).semanticsId()
+        rule.runOnUiThread {
+            assertThat(provider.performAction(target0Id, showOnScreen, null)).isTrue()
+        }
+        rule.mainClock.advanceTimeBy(5000)
+        assertThat(lazyState.firstVisibleItemIndex).isEqualTo(0)
+        assertThat(lazyState.firstVisibleItemScrollOffset).isEqualTo(0)
+    }
+
+    @Test
+    fun testPerformAction_showOnScreen_lazyRow_rtl_withContentPadding() {
+        rule.mainClock.autoAdvance = false
+
+        val lazyState = LazyListState()
+        val target0Tag = "target0"
+        val target1Tag = "target1"
+        setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Box {
+                    with(LocalDensity.current) {
+                        LazyRow(
+                            modifier = Modifier.size(200.toDp()),
+                            state = lazyState,
+                            contentPadding = PaddingValues(start = 40.toDp(), end = 60.toDp()),
+                        ) {
+                            item {
+                                BasicText("First", Modifier.testTag(target0Tag).size(70.toDp()))
+                            }
+                            item {
+                                BasicText("Second", Modifier.testTag(target1Tag).size(70.toDp()))
+                            }
+                            item { BasicText("Third", Modifier.size(70.toDp())) }
+                        }
+                    }
+                }
+            }
+        }
+        assertThat(lazyState.firstVisibleItemIndex).isEqualTo(0)
+        assertThat(lazyState.firstVisibleItemScrollOffset).isEqualTo(0)
+
+        // In RTL, start (40px) is on the right [160, 200] and end (60px) is on the left [0, 60].
+        // First item is at [90, 160] and Second item is at [20, 90], within outer bounds [0, 200]
+        // but obscured by left (end) contentPadding [0, 60]. ACTION_SHOW_ON_SCREEN on Second item
+        // should scroll by 40px so its left edge aligns with 60.
+        val showOnScreen = android.R.id.accessibilityActionShowOnScreen
+        val target1Id = rule.onNodeWithTag(target1Tag).semanticsId()
+        rule.runOnUiThread {
+            assertThat(provider.performAction(target1Id, showOnScreen, null)).isTrue()
+        }
+        rule.mainClock.advanceTimeBy(5000)
+        assertThat(lazyState.firstVisibleItemIndex).isEqualTo(0)
+        assertThat(lazyState.firstVisibleItemScrollOffset).isEqualTo(40)
+
+        // First item is now at [130, 200], within outer bounds [0, 200] but obscured by right
+        // (start) contentPadding [160, 200]. ACTION_SHOW_ON_SCREEN on First item should scroll
+        // back to 0.
+        val target0Id = rule.onNodeWithTag(target0Tag).semanticsId()
+        rule.runOnUiThread {
+            assertThat(provider.performAction(target0Id, showOnScreen, null)).isTrue()
+        }
+        rule.mainClock.advanceTimeBy(5000)
+        assertThat(lazyState.firstVisibleItemIndex).isEqualTo(0)
+        assertThat(lazyState.firstVisibleItemScrollOffset).isEqualTo(0)
+    }
+
+    @Test
     fun testPerformAction_showOnScreen_lazynested() {
         val parentLazyState = LazyListState()
         val lazyState = LazyListState()
