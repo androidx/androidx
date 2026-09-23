@@ -214,6 +214,8 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
         private const val DISMISS_LOCK_SCREEN_CODE = 82
         private const val ADB_SHELL_DISMISS_KEYGUARD_API23_AND_ABOVE = "wm dismiss-keyguard"
         private const val ADB_SHELL_SCREEN_ALWAYS_ON = "svc power stayon true"
+        private const val ADB_SHELL_DISABLE_SENSOR_PRIVACY_API31_AND_ABOVE =
+            "cmd sensor_privacy disable 0 camera"
 
         /** The display foreground of the device is occupied that cannot execute UI related test. */
         public class ForegroundOccupiedError(message: String) : Exception(message)
@@ -336,6 +338,16 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
                 instrumentation.targetContext.sendBroadcast(
                     Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
                 )
+            } else {
+                try {
+                    device.executeShellCommand(ADB_SHELL_DISABLE_SENSOR_PRIVACY_API31_AND_ABOVE)
+                } catch (_: IOException) {}
+                try {
+                    val currentUser = device.executeShellCommand("am get-current-user").trim()
+                    if (currentUser.isNotEmpty() && currentUser != "0") {
+                        device.executeShellCommand("cmd sensor_privacy disable $currentUser camera")
+                    }
+                } catch (_: IOException) {}
             }
         }
 
