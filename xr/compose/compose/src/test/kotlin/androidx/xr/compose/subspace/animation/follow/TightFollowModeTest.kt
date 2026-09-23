@@ -19,6 +19,7 @@ package androidx.xr.compose.subspace.animation.follow
 import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -26,6 +27,41 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 @OptIn(ExperimentalFollowingSubspaceApi::class)
 class TightFollowModeTest {
+
+    @Test
+    fun followModeTight_default_createsTightFollowModeWithDefaults() {
+        val mode = FollowMode.tight()
+
+        assertIs<TightFollowMode>(mode)
+        assertThat(mode).isEqualTo(TightFollowMode())
+    }
+
+    @Test
+    fun followModeTight_customArguments_propagatesAllParameters() {
+        val customDimensions = TrackedDimensions.RotationOnly
+        val mode = FollowMode.tight(dimensions = customDimensions)
+
+        assertIs<TightFollowMode>(mode)
+        assertThat(mode).isEqualTo(TightFollowMode(dimensions = customDimensions))
+    }
+
+    @Test
+    fun tightFollowMode_delegatesToExponentialDecayFollowMode() {
+        val customDimensions = TrackedDimensions.RotationOnly
+        val mode = TightFollowMode(dimensions = customDimensions)
+
+        assertIs<ExponentialDecayFollowMode>(mode.proxyMode)
+        assertThat(mode.proxyMode)
+            .isEqualTo(
+                ExponentialDecayFollowMode(
+                    dimensions = customDimensions,
+                    halfLifeMillis = TightFollowMode.HALF_LIFE_MILLIS,
+                    startDelay = TightFollowMode.START_DELAY,
+                    startThresholds = TightFollowMode.START_THRESHOLDS,
+                    settleThresholds = TightFollowMode.SETTLE_THRESHOLDS,
+                )
+            )
+    }
 
     @Test
     fun tightFollowMode_equals_sameInstance_returnsTrue() {
@@ -43,7 +79,7 @@ class TightFollowModeTest {
     }
 
     @Test
-    fun tightFollowMode_equals_sameDimensionsDifferentMode_returns() {
+    fun tightFollowMode_equals_sameDimensionsDifferentMode_returnsFalse() {
         val mode1 = TightFollowMode(TrackedDimensions.All)
         val mode2 = SnapFollowMode(TrackedDimensions.All)
 

@@ -250,7 +250,7 @@ class FollowingSubspaceV2Test {
 
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     @Test
-    fun followingSubspaceV2_whenViewTargetTightUsedTogether_DoNotRender() {
+    fun followingSubspaceV2_whenViewTargetTightUsedTogether_renders() {
         composeTestRule.session = configureSessionWithDeviceTrackingMode()
 
         composeTestRule.setContent {
@@ -260,7 +260,7 @@ class FollowingSubspaceV2Test {
             ) {}
         }
 
-        composeTestRule.onSubspaceNodeWithTag("FollowingSubspaceV2").assertDoesNotExist()
+        composeTestRule.onSubspaceNodeWithTag("FollowingSubspaceV2").assertExists()
     }
 
     @OptIn(ExperimentalFollowingSubspaceApi::class)
@@ -2106,6 +2106,15 @@ class FollowingSubspaceV2TestWithArCoreTestRule {
         return assertNotNull(node.semanticsEntity).getPose(relativeTo = Space.ACTIVITY)
     }
 
+    private fun advanceTimeBy(durationMs: Long) {
+        testDispatcher.scheduler.advanceUntilIdle()
+        val frames = (durationMs / 16L).toInt() + 1
+        repeat(frames) {
+            composeTestRule.mainClock.advanceTimeByFrame()
+            testDispatcher.scheduler.advanceUntilIdle()
+        }
+    }
+
     @Test
     @OptIn(ExperimentalFollowingSubspaceApi::class, ExperimentalCoroutinesApi::class)
     @Suppress("DEPRECATION")
@@ -2203,7 +2212,7 @@ class FollowingSubspaceV2TestWithArCoreTestRule {
             val updatedRotation = Quaternion.fromEulerAngles(40f, 50f, 60f)
             val updatedPose = Pose(updatedTranslation, updatedRotation)
             testPlane.centerPose = updatedPose
-            advanceUntilIdle()
+            advanceTimeBy(1000L)
 
             val expectedUpdatedPose = Pose(Vector3.Zero, updatedRotation)
             assertPose(assertExistenceAndGetNodeWorldPose("subspace"), expectedUpdatedPose)
@@ -2242,7 +2251,7 @@ class FollowingSubspaceV2TestWithArCoreTestRule {
             // Update anchor's pose and verify the Panel is at the new location.
             val updatedPose = Pose(Vector3(40f, 50f, 60f), Quaternion(15f, 25f, 35f, 45f))
             testPlane.centerPose = updatedPose
-            advanceUntilIdle()
+            advanceTimeBy(1000L)
 
             assertPose(assertExistenceAndGetNodeWorldPose("subspace"), updatedPose)
         }

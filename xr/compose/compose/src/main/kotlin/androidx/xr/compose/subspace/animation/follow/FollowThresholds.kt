@@ -68,6 +68,12 @@ public class FollowThresholds(
     }
 
     public companion object {
-        public val Zero: FollowThresholds = FollowThresholds()
+        public val Zero: FollowThresholds =
+            FollowThresholds(
+                translationMeters = 0.0f,
+                pitchDegrees = 0.0f,
+                yawDegrees = 0.0f,
+                rollDegrees = 0.0f,
+            )
     }
 }
