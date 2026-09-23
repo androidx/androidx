@@ -198,8 +198,19 @@ public fun ComponentModifiers.toModifier(drawOpsList: List<Operation>? = null): 
 }
 
 @Composable
+internal fun rememberComponentVisibility(op: ComponentVisibilityOperation): Int {
+    val rawInt by rememberRemoteIntAsState(op.getVisibilityIdReflection())
+    return when {
+        Component.Visibility.isVisible(rawInt) -> Component.Visibility.VISIBLE
+        Component.Visibility.isGone(rawInt) -> Component.Visibility.GONE
+        Component.Visibility.isInvisible(rawInt) -> Component.Visibility.INVISIBLE
+        else -> Component.Visibility.GONE
+    }
+}
+
+@Composable
 private fun Modifier.visible(op: ComponentVisibilityOperation): Modifier {
-    val visible by rememberRemoteIntAsState(op.getVisibilityIdReflection())
+    val visible = rememberComponentVisibility(op)
 
     return this.layout { measurable, constraints ->
             val placeable = measurable.measure(constraints)
