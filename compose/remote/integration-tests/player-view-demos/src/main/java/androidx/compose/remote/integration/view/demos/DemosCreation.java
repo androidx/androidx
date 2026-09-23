@@ -87,6 +87,7 @@ import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dR
 import androidx.compose.remote.integration.view.demos.dsl.mesh2d.DslMesh2DDemosKt;
 import androidx.compose.remote.integration.view.demos.dsl.mesh2d.DslMesh2DGapDemosKt;
 import androidx.compose.remote.integration.view.demos.dsl.mesh2d.DslMesh2DMoreDemosKt;
+import androidx.compose.remote.integration.view.demos.dsl.mesh2d.DslMesh2DSplineStripDemosKt;
 import androidx.compose.remote.integration.view.demos.dsl.mesh2d.DslMesh2DTerrainDemoKt;
 import androidx.compose.remote.integration.view.demos.examples.BadExamples.DemoMemorySkipKt;
 import androidx.compose.remote.integration.view.demos.examples.BadExamples.MemoryKt;
@@ -224,7 +225,7 @@ public abstract class DemosCreation {
         boolean customViews; // = (types & 2) != 0;
         boolean dsl1 = (types & 4) != 0;
         boolean dsl2 = (types & 8) != 0;
-        customViews = true;
+        customViews = false;
 //        demos.add(get("-0/030/conditional", DslConditionalKt::dslConditionalDemo));
         if (dsl) {
             demos.addAll(Arrays.asList(
@@ -363,7 +364,15 @@ public abstract class DemosCreation {
                     get("1/77/dslMesh2DInvisibleScaffold",
                             DslMesh2DGapDemosKt::dslMesh2DInvisibleScaffold),
                     get("1/78/rcJsonMesh2DRingAndF16",
-                            DslMesh2DGapDemosKt::rcJsonMesh2DRingAndF16)
+                            DslMesh2DGapDemosKt::rcJsonMesh2DRingAndF16),
+                    get("1/79/dslMesh2DSplineBrush",
+                            DslMesh2DSplineStripDemosKt::dslMesh2DSplineBrush),
+                    get("1/80/dslMesh2DSplineBreathingRibbon",
+                            DslMesh2DSplineStripDemosKt::dslMesh2DSplineBreathingRibbon),
+                    get("1/81/dslMesh2DRoundStrip",
+                            DslMesh2DSplineStripDemosKt::dslMesh2DRoundStrip),
+                    get("1/82/dslMesh2DRoundStripBreathing",
+                            DslMesh2DSplineStripDemosKt::dslMesh2DRoundStripBreathing)
             ));
         }
 
