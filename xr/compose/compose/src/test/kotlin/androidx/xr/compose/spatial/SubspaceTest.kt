@@ -100,6 +100,7 @@ import androidx.xr.compose.testing.hasAnyAncestor
 import androidx.xr.compose.testing.onSubspaceNode
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.testing.session
+import androidx.xr.compose.unit.DpVolumeOffset
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.compose.unit.metersToDp
 import androidx.xr.compose.unit.roundMetersToPx
@@ -1462,6 +1463,116 @@ class SubspaceTest {
         composeTestRule
             .onSubspaceNodeWithTag("innerPanel")
             .assertDepthIsEqualTo(expectedDepth = 100.dp)
+    }
+
+    @Test
+    fun planarEmbeddedSubspace_whenOrbiterInSpatialPanel_hasCorrectPose() {
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(SubspaceModifier.size(200.dp).testTag("panel")) {
+                    Row {
+                        Spacer(Modifier.size(100.dp))
+                        Column {
+                            Spacer(Modifier.size(25.dp))
+                            PlanarEmbeddedSubspace {
+                                SpatialPanel(SubspaceModifier.size(100.dp).testTag("innerPanel")) {
+                                    Orbiter(
+                                        anchorPoint = OrbiterAnchorPoint.Top,
+                                        offset = DpVolumeOffset.Zero,
+                                    ) {
+                                        Box(Modifier.size(10.dp).testTag("orbiterContent"))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("innerPanel").assertExists()
+        composeTestRule.onNodeWithTag("orbiterContent").assertExists()
+
+        val subspaceRootContainerEntity =
+            assertNotNull(
+                composeTestRule
+                    .onSubspaceNodeWithTag("panel")
+                    .fetchSemanticsNode()
+                    .semanticsEntity
+                    ?.children
+                    ?.single()
+            )
+        composeTestRule
+            .onSubspaceNodeWithTag("innerPanel")
+            .assertEntityIsDescendantOf(subspaceRootContainerEntity)
+
+        val innerPanelEntity =
+            assertNotNull(
+                composeTestRule
+                    .onSubspaceNodeWithTag("innerPanel")
+                    .fetchSemanticsNode()
+                    .semanticsEntity
+            )
+        val orbiterEntity = assertNotNull(innerPanelEntity.children.singleOrNull())
+
+        val session = checkNotNull(composeTestRule.session) { "session must be initialized" }
+        val pixelDensity = session.scene.virtualPixelDensity
+        val density = composeTestRule.density
+
+        // Expected local offset of the Orbiter relative to the inner panel:
+        // Top anchor point centers horizontally (x = 0 dp) and places the orbiter above the panel's
+        // top edge in 3D space:
+        // y = (inner panel height / 2) + (orbiter height / 2) = 50.dp + 5.dp = 55.dp
+        val expectedLocalXOffset = 0.dp
+        val expectedLocalYOffset = 55.dp
+        val expectedLocalZOffset = 0.dp
+
+        val actualLocalXOffsetDp =
+            orbiterEntity.getPose().translation.x.metersToDp(density, pixelDensity)
+        val actualLocalYOffsetDp =
+            orbiterEntity.getPose().translation.y.metersToDp(density, pixelDensity)
+        val actualLocalZOffsetDp =
+            orbiterEntity.getPose().translation.z.metersToDp(density, pixelDensity)
+
+        assertThat(actualLocalXOffsetDp).isEqualTo(expectedLocalXOffset)
+        assertThat(actualLocalYOffsetDp).isEqualTo(expectedLocalYOffset)
+        assertThat(actualLocalZOffsetDp).isEqualTo(expectedLocalZOffset)
+
+        /*
+         * (0,0)
+         * 1-----------------------
+         * |          |    (5)    |
+         * |          |[---------]|
+         * |          |[    4    ]|
+         * -----------2[---------]-
+         * |          |           |
+         * |          |           |
+         * |          |           |
+         * -----------------------3
+         *                         (200,200)
+         *
+         * 1 is the origin (0, 0) of the 2D layout of the parent panel
+         * 2 is the center of the parent panel (100, 100), this is also the origin (0, 0, 0) in 3D
+         *   space.
+         * 3 is the bottom right corner of the parent panel, it is (200, 200) in the parent layout
+         * 4 is the center of the inner panel (150, 75)
+         * 5 is the center of the orbiter (150, 20)
+         *
+         * The expected offset is 5 relative to 2 (Subspace origin in 3D space) which is +50 dp in x
+         *  and +80 dp in y directions in 3D space.
+         */
+        val expectedWorldXOffset = 50.dp
+        val expectedWorldYOffset = 80.dp
+        val expectedWorldZOffset = 0.dp
+
+        val actualWorldPose = orbiterEntity.getPose(relativeTo = Space.ACTIVITY)
+        val actualWorldXOffsetDp = actualWorldPose.translation.x.metersToDp(density, pixelDensity)
+        val actualWorldYOffsetDp = actualWorldPose.translation.y.metersToDp(density, pixelDensity)
+        val actualWorldZOffsetDp = actualWorldPose.translation.z.metersToDp(density, pixelDensity)
+
+        assertThat(actualWorldXOffsetDp).isEqualTo(expectedWorldXOffset)
+        assertThat(actualWorldYOffsetDp).isEqualTo(expectedWorldYOffset)
+        assertThat(actualWorldZOffsetDp).isEqualTo(expectedWorldZOffset)
     }
 
     @Test
