@@ -312,11 +312,11 @@ public suspend fun AwaitPointerEventScope.awaitFirstDown(
     requireUnconsumed: Boolean = true,
     pass: PointerEventPass = PointerEventPass.Main,
 ): PointerInputChange {
-    var event: PointerEvent
-    do {
-        event = awaitPointerEvent(pass)
-    } while (!event.isChangedToDown(requireUnconsumed))
-    return event.changes[0]
+    return awaitFirstDownImpl(
+        requireUnconsumed = requireUnconsumed,
+        pass = pass,
+        onlyPrimaryMouseButton = firstDownRefersToPrimaryMouseButtonOnly(),
+    )
 }
 
 // TODO(b/384562201): Remove once [awaitFirstDown] will be aligned for all platforms and have this
@@ -325,10 +325,22 @@ internal suspend fun AwaitPointerEventScope.awaitPrimaryFirstDown(
     requireUnconsumed: Boolean = true,
     pass: PointerEventPass = PointerEventPass.Main,
 ): PointerInputChange {
+    return awaitFirstDownImpl(
+        requireUnconsumed = requireUnconsumed,
+        pass = pass,
+        onlyPrimaryMouseButton = true,
+    )
+}
+
+private suspend fun AwaitPointerEventScope.awaitFirstDownImpl(
+    requireUnconsumed: Boolean = true,
+    pass: PointerEventPass = PointerEventPass.Main,
+    onlyPrimaryMouseButton: Boolean,
+): PointerInputChange {
     var event: PointerEvent
     do {
         event = awaitPointerEvent(pass)
-    } while (!event.isChangedToDown(requireUnconsumed, onlyPrimaryMouseButton = true))
+    } while (!event.isChangedToDown(requireUnconsumed, onlyPrimaryMouseButton))
     return event.changes[0]
 }
 
