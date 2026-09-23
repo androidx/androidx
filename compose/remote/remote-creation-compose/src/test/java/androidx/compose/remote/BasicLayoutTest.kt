@@ -1269,6 +1269,89 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
         assertThat(defaultFontSize).isEqualTo(expectedDefaultPx)
         assertThat(overriddenFontSize).isEqualTo(expectedOverriddenPx)
     }
+
+    @Test
+    fun testPaddingBeforeDrawWithContent() {
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 160, 1.0f)
+        val documentBytes = runBlocking {
+            captureSingleRemoteDocument(
+                    context = context,
+                    creationDisplayInfo = displayInfo,
+                ) {
+                    CompositionLocalProvider(LocalRemoteDensity provides RemoteDensity.Host) {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.size(100.rdp)
+                                    .padding(
+                                        start = 10.rdp,
+                                        top = 20.rdp,
+                                        end = 30.rdp,
+                                        bottom = 40.rdp,
+                                    )
+                                    .drawWithContent {
+                                        drawRect(paint = RemotePaint { color = Color.Red.rc })
+                                        drawContent()
+                                    }
+                        ) {
+                            RemoteBox(
+                                modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
+                            )
+                        }
+                    }
+                }
+                .bytes
+        }
+
+        val remoteDocument = RemoteDocument(documentBytes)
+        val player = RemoteComposePlayer(context)
+        player.setDocument(remoteDocument)
+        player.setUseChoreographer(false)
+        val widthSpec = View.MeasureSpec.makeMeasureSpec(500, View.MeasureSpec.EXACTLY)
+        val heightSpec = View.MeasureSpec.makeMeasureSpec(500, View.MeasureSpec.EXACTLY)
+        player.measure(widthSpec, heightSpec)
+        player.layout(0, 0, 500, 500)
+        val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
+        player.draw(android.graphics.Canvas(bitmap))
+        // 1. Verify canvas operations structure and exact translation offsets:
+        val root = player.document.document.rootLayoutComponent!!
+        val box = root.list.first { it is LayoutComponent } as LayoutComponent
+        val canvasOps = box.getCanvasOperations()
+        assertThat(canvasOps).isNotNull()
+        val ops = canvasOps!!.list
+
+        // Verify pre-translation to padding offset (10, 20) before onDraw,
+        // translation back (-10, -20) during drawContent() so child layout is not double-offset,
+        // and re-translation (10, 20) after drawContent().
+        val translates =
+            ops.filterIsInstance<androidx.compose.remote.core.operations.MatrixTranslate>()
+        assertThat(translates.map { it.toString() })
+            .containsExactly(
+                "MatrixTranslate 10.0 20.0",
+                "MatrixTranslate -10.0 -20.0",
+                "MatrixTranslate 10.0 20.0",
+            )
+            .inOrder()
+
+        // Verify drawRect size matches the scoped content bounds:
+        // width = 100 - 10 - 30 = 60, height = 100 - 20 - 40 = 40
+        val drawRect =
+            ops.filterIsInstance<androidx.compose.remote.core.operations.DrawRect>().first()
+        assertThat(drawRect.toString())
+            .matches("DrawRect 0\\.0 0\\.0 \\[[0-9]+\\]60\\.0 \\[[0-9]+\\]40\\.0")
+
+        // 2. Verify child layout component inside box is placed at (0, 0) within the content
+        // area, and parent box padding is (10, 20, 30, 40)
+        assertThat(box.paddingLeft).isEqualTo(10f)
+        assertThat(box.paddingTop).isEqualTo(20f)
+        assertThat(box.paddingRight).isEqualTo(30f)
+        assertThat(box.paddingBottom).isEqualTo(40f)
+        val child = box.list.filterIsInstance<LayoutComponent>().firstOrNull()
+        assertThat(child).isNotNull()
+        assertThat(child!!.x).isEqualTo(0f)
+        assertThat(child.y).isEqualTo(0f)
+        assertThat(child.width).isEqualTo(20f)
+        assertThat(child.height).isEqualTo(20f)
+    }
 }
 
 private enum class Checked {

@@ -33,10 +33,10 @@ internal class PaddingModifier(
     public val top: RemoteFloat,
     public val end: RemoteFloat,
     public val bottom: RemoteFloat,
-    private val startDp: RemoteDp? = null,
-    private val topDp: RemoteDp? = null,
-    private val endDp: RemoteDp? = null,
-    private val bottomDp: RemoteDp? = null,
+    internal val startDp: RemoteDp? = null,
+    internal val topDp: RemoteDp? = null,
+    internal val endDp: RemoteDp? = null,
+    internal val bottomDp: RemoteDp? = null,
 ) : RemoteModifier.Element {
 
     public constructor(
@@ -68,40 +68,52 @@ internal class PaddingModifier(
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
-        val resolvedStart =
-            if (densityBehavior == RemoteDensityBehavior.Dp) {
-                startDp?.value ?: (start / remoteDensity.density)
-            } else {
-                start
-            }
-        val resolvedTop =
-            if (densityBehavior == RemoteDensityBehavior.Dp) {
-                topDp?.value ?: (top / remoteDensity.density)
-            } else {
-                top
-            }
-        val resolvedEnd =
-            if (densityBehavior == RemoteDensityBehavior.Dp) {
-                endDp?.value ?: (end / remoteDensity.density)
-            } else {
-                end
-            }
-        val resolvedBottom =
-            if (densityBehavior == RemoteDensityBehavior.Dp) {
-                bottomDp?.value ?: (bottom / remoteDensity.density)
-            } else {
-                bottom
-            }
-
-        val isLtr = layoutDirection == LayoutDirection.Ltr
+        val resolvedLeft = resolveLeft(this)
+        val resolvedTop = resolveTop(this)
+        val resolvedRight = resolveRight(this)
+        val resolvedBottom = resolveBottom(this)
         return CreationPaddingModifier(
-            (if (isLtr) resolvedStart else resolvedEnd).floatId,
+            resolvedLeft.floatId,
             resolvedTop.floatId,
-            (if (isLtr) resolvedEnd else resolvedStart).floatId,
+            resolvedRight.floatId,
             resolvedBottom.floatId,
         )
     }
 }
+
+internal fun PaddingModifier.resolveStart(scope: RemoteStateScope): RemoteFloat =
+    if (scope.densityBehavior == RemoteDensityBehavior.Dp) {
+        startDp?.value ?: (start / scope.remoteDensity.density)
+    } else {
+        start
+    }
+
+internal fun PaddingModifier.resolveTop(scope: RemoteStateScope): RemoteFloat =
+    if (scope.densityBehavior == RemoteDensityBehavior.Dp) {
+        topDp?.value ?: (top / scope.remoteDensity.density)
+    } else {
+        top
+    }
+
+internal fun PaddingModifier.resolveEnd(scope: RemoteStateScope): RemoteFloat =
+    if (scope.densityBehavior == RemoteDensityBehavior.Dp) {
+        endDp?.value ?: (end / scope.remoteDensity.density)
+    } else {
+        end
+    }
+
+internal fun PaddingModifier.resolveBottom(scope: RemoteStateScope): RemoteFloat =
+    if (scope.densityBehavior == RemoteDensityBehavior.Dp) {
+        bottomDp?.value ?: (bottom / scope.remoteDensity.density)
+    } else {
+        bottom
+    }
+
+internal fun PaddingModifier.resolveLeft(scope: RemoteStateScope): RemoteFloat =
+    if (scope.layoutDirection == LayoutDirection.Ltr) resolveStart(scope) else resolveEnd(scope)
+
+internal fun PaddingModifier.resolveRight(scope: RemoteStateScope): RemoteFloat =
+    if (scope.layoutDirection == LayoutDirection.Ltr) resolveEnd(scope) else resolveStart(scope)
 
 /**
  * Adds padding to each edge of the content.
