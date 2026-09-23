@@ -524,13 +524,12 @@ public sealed interface PolygonShapeScope : Density {
     /**
      * Creates polygon geometry from [vertices] with uniform [rounding].
      *
-     * Coordinates default to layout pixels (`(0f, 0f)` to `(size.width, size.height)`), or any
-     * custom coordinate space (e.g. a `[0, 1]` unit square) when paired with
-     * [PolygonShapeTransformScope.scaleToFit]. [CornerRounding.fraction] resolves against the
-     * smaller dimension of the vertex bounds, and [CornerRounding.dp] resolves with [Density].
+     * [CornerRounding.fraction] resolves against the smaller dimension of the vertex bounds, and
+     * [CornerRounding.dp] resolves with [Density].
      *
-     * @param vertices vertex positions, at least 3
-     * @param center polygon center, or [Offset.Unspecified] to compute from [vertices]
+     * @param vertices ordered vertex positions in pixels (can be transformed or fitted later via
+     *   [PolygonShape.transform]), at least 3
+     * @param center polygon center in pixels, or [Offset.Unspecified] to compute from [vertices]
      * @param rounding corner rounding applied to every vertex
      * @throws IllegalArgumentException if [vertices] has fewer than 3 entries
      */
@@ -544,14 +543,13 @@ public sealed interface PolygonShapeScope : Density {
     /**
      * Creates polygon geometry from [vertices] with per-vertex [perVertexRounding].
      *
-     * Coordinates default to layout pixels (`(0f, 0f)` to `(size.width, size.height)`), or any
-     * custom coordinate space (e.g. a `[0, 1]` unit square) when paired with
-     * [PolygonShapeTransformScope.scaleToFit]. [CornerRounding.fraction] resolves against the
-     * smaller dimension of the vertex bounds, and [CornerRounding.dp] resolves with [Density].
+     * [CornerRounding.fraction] resolves against the smaller dimension of the vertex bounds, and
+     * [CornerRounding.dp] resolves with [Density].
      *
-     * @param vertices vertex positions, at least 3
+     * @param vertices ordered vertex positions in pixels (can be transformed or fitted later via
+     *   [PolygonShape.transform]), at least 3
      * @param perVertexRounding rounding for each vertex, matching [vertices] in size
-     * @param center polygon center, or [Offset.Unspecified] to compute from [vertices]
+     * @param center polygon center in pixels, or [Offset.Unspecified] to compute from [vertices]
      * @throws IllegalArgumentException if [vertices] has fewer than 3 entries or
      *   [perVertexRounding] differs from [vertices] in size
      */
@@ -566,15 +564,13 @@ public sealed interface PolygonShapeScope : Density {
 /**
  * Defines a polygon's [vertices], [center], and corner rounding.
  *
- * - Coordinates default to layout pixels (`(0f, 0f)` to `(size.width, size.height)`), or any custom
- *   coordinate space (e.g. a `[0, 1]` unit square) when paired with
- *   [PolygonShapeTransformScope.scaleToFit] in [PolygonShape.transform].
- * - [CornerRounding.fraction] resolves against the smaller dimension of the vertex bounds, and
- *   [CornerRounding.dp] resolves with [Density].
+ * [CornerRounding.fraction] resolves against the smaller dimension of the vertex bounds, and
+ * [CornerRounding.dp] resolves with [Density].
  *
  * @sample androidx.compose.foundation.samples.UnitSpacePolygonShapeSample
- * @property vertices vertex positions, at least 3
- * @property center polygon center, or [Offset.Unspecified] when computed from [vertices]
+ * @property vertices ordered vertex positions in pixels (can be transformed via
+ *   [PolygonShape.transform]), at least 3
+ * @property center polygon center in pixels, or [Offset.Unspecified] when computed from [vertices]
  * @property rounding uniform vertex rounding, or [CornerRounding.Unrounded] when using
  *   [perVertexRounding]
  * @property perVertexRounding optional per-vertex rounding matching [vertices] in size
@@ -595,8 +591,9 @@ internal constructor(
     /**
      * Creates polygon geometry with uniform [rounding] at every vertex.
      *
-     * @param vertices vertex positions, at least 3
-     * @param center polygon center, or [Offset.Unspecified] to compute from [vertices]
+     * @param vertices ordered vertex positions in pixels (can be transformed via
+     *   [PolygonShape.transform]), at least 3
+     * @param center polygon center in pixels, or [Offset.Unspecified] to compute from [vertices]
      * @param rounding corner rounding applied to every vertex
      * @throws IllegalArgumentException if [vertices] has fewer than 3 entries
      */
@@ -610,9 +607,10 @@ internal constructor(
     /**
      * Creates polygon geometry with per-vertex [perVertexRounding].
      *
-     * @param vertices vertex positions, at least 3
+     * @param vertices ordered vertex positions in pixels (can be transformed via
+     *   [PolygonShape.transform]), at least 3
      * @param perVertexRounding rounding for each vertex, matching [vertices] in size
-     * @param center polygon center, or [Offset.Unspecified] to compute from [vertices]
+     * @param center polygon center in pixels, or [Offset.Unspecified] to compute from [vertices]
      * @throws IllegalArgumentException if [vertices] has fewer than 3 entries or
      *   [perVertexRounding] differs from [vertices] in size
      */
