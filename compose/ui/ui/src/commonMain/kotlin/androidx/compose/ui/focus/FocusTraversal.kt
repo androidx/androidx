@@ -196,10 +196,10 @@ internal fun FocusTargetNode.isOccludedByInteractionBarrier(): Boolean {
     if (activeBarriers.isEmpty()) return false
 
     val rootCoords = owner.root.coordinates
-    val myBoundsInRoot =
-        coordinator?.let {
-            if (it.isAttached) rootCoords.localBoundingBoxOf(it, false) else return false
-        } ?: return false
+    val myCoordinator = coordinator ?: return false
+    if (!myCoordinator.isAttached) return false
+    // Unclipped so off-screen scrollable candidates remain eligible for focus search.
+    val myBoundsInRoot = rootCoords.localBoundingBoxOf(myCoordinator, clipBounds = false)
 
     for (i in 0 until activeBarriers.size) {
         val barrierNode = activeBarriers[i]
@@ -208,31 +208,42 @@ internal fun FocusTargetNode.isOccludedByInteractionBarrier(): Boolean {
         if (!barrierLayoutNode.isPlaced) continue
         if (barrierLayoutNode === myLayoutNode) continue
 
-        // Fast-exit: if barrier doesn't contain focus target bounds, it cannot occlude it
+        val barrierCoordinates = barrierLayoutNode.coordinates
+        if (!barrierCoordinates.isAttached) continue
+
+        // Clipped so barriers only block focus within their visible, hit-tested bounds.
         val barrierBoundsInRoot =
-            barrierLayoutNode.coordinates.let {
-                if (it.isAttached) rootCoords.localBoundingBoxOf(it, false) else return false
-            }
+            rootCoords.localBoundingBoxOf(barrierCoordinates, clipBounds = true)
+
+        // Zero-area barriers cannot occlude anything.
+        if (barrierBoundsInRoot.isEmpty) continue
+
+        // Fast-exit if the barrier does not contain the focus target.
         if (!barrierBoundsInRoot.contains(myBoundsInRoot)) {
             continue
         }
 
-        // Check if barrier is ancestor
+        // Ancestor or descendant barriers do not occlude the focus target.
         val lca = findLca(myLayoutNode, barrierLayoutNode) ?: continue
-        if (lca === barrierLayoutNode) {
-            // Barrier is ancestor, does not occlude me
+        if (lca === barrierLayoutNode || lca === myLayoutNode) {
             continue
         }
 
-        // Compare z-order at LCA level
+        // Compare z-order at LCA level.
         val childFocus = findChildOfLca(lca, myLayoutNode) ?: continue
         val childBarrier = findChildOfLca(lca, barrierLayoutNode) ?: continue
 
         val zSorted = lca.zSortedChildren
-        val indexFocus = zSorted.indexOf(childFocus)
-        val indexBarrier = zSorted.indexOf(childBarrier)
+        var indexFocus = -1
+        var indexBarrier = -1
+        for (j in 0 until zSorted.size) {
+            val child = zSorted[j]
+            if (child === childFocus) indexFocus = j
+            if (child === childBarrier) indexBarrier = j
+            if (indexFocus >= 0 && indexBarrier >= 0) break
+        }
 
-        if (indexBarrier > indexFocus) {
+        if (indexFocus >= 0 && indexBarrier > indexFocus) {
             return true
         }
     }
