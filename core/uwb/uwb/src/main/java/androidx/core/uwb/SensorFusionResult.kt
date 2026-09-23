@@ -26,12 +26,21 @@ public sealed interface SensorFusionResult {
     /**
      * An estimate of the peer device's position produced from the sensor fusion algorithm.
      *
+     * The angles are the angle to the peer in the local device frame, that is, this device's
+     * [Android Sensor Coordinate System](https://developer.android.com/guide/topics/sensors/sensors_overview#sensors-coords).
+     * This differs from the boresight-relative angle of arrival measured by the UWB hardware and
+     * reported by a standard ranging session, see [RangingPosition].
+     *
      * @property device The peer UWB device.
      * @property distance The line-of-sight distance in meters of the ranging device.
-     * @property azimuth The azimuth angle in degrees of the ranging device, or null if not
-     *   available. The range is [-90, 90].
-     * @property elevation The elevation angle in degrees of the ranging device, or null if not
-     *   available. The range is [-90, 90].
+     * @property azimuth The azimuth angle in degrees (`[-180, 180]`) of the ranging device, or null
+     *   if not available. The angle is measured about the device's Z axis starting from its Y axis,
+     *   the top edge of the device, and is positive clockwise when viewed from the front of the
+     *   screen, so a positive azimuth means the peer is to the right of the device.
+     * @property elevation The elevation angle in degrees (`[-90, 90]`) of the ranging device, or
+     *   null if not available. The angle is measured out of the device's XY plane and is positive
+     *   towards the device's Z axis, so a positive elevation means the peer is towards the front of
+     *   the screen.
      * @property elapsedRealtimeNanos The elapsed realtime in nanos from when the system booted up
      *   to this position estimate.
      */
@@ -46,7 +55,8 @@ public sealed interface SensorFusionResult {
     /**
      * An [Estimate] backed by both odometry data and range data.
      *
-     * @property azimuth The azimuth angle in degrees of the ranging device. The range is [-90, 90].
+     * @property azimuth The azimuth angle in degrees of the ranging device, in the local device
+     *   frame described by [Estimate]. The range is `[-180, 180]`.
      */
     public class PreciseEstimate(
         public override val device: UwbDevice,
@@ -60,7 +70,8 @@ public sealed interface SensorFusionResult {
      * An [Estimate] backed by odometry data only because raw UWB range has failed. Continuous
      * drifting will lead to inaccurate results over time.
      *
-     * @property azimuth The azimuth angle in degrees of the ranging device. The range is [-90, 90].
+     * @property azimuth The azimuth angle in degrees of the ranging device, in the local device
+     *   frame described by [Estimate]. The range is `[-180, 180]`.
      */
     public class DriftingEstimate(
         public override val device: UwbDevice,

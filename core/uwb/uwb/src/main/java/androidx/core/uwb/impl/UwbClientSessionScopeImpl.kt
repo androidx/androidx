@@ -137,7 +137,9 @@ internal open class UwbClientSessionScopeImpl(
                                                 gmsDeviceToJetpack(device),
                                                 RangingMeasurement(position.distance.value),
                                                 RangingMeasurement(position.azimuth!!.value),
-                                                RangingMeasurement(position.elevation!!.value),
+                                                position.elevation?.let {
+                                                    RangingMeasurement(it.value)
+                                                },
                                                 position.elapsedRealtimeNanos,
                                             )
                                         EstimateKind.DRIFTING ->
@@ -145,7 +147,9 @@ internal open class UwbClientSessionScopeImpl(
                                                 gmsDeviceToJetpack(device),
                                                 RangingMeasurement(position.distance.value),
                                                 RangingMeasurement(position.azimuth!!.value),
-                                                RangingMeasurement(position.elevation!!.value),
+                                                position.elevation?.let {
+                                                    RangingMeasurement(it.value)
+                                                },
                                                 position.elapsedRealtimeNanos,
                                             )
                                         EstimateKind.IMPRECISE ->

@@ -19,12 +19,16 @@ package androidx.core.uwb
 /**
  * Position of a device during ranging.
  *
+ * The angles are the angle of arrival measured by the UWB hardware, relative to the boresight of
+ * this device's UWB antenna array, which is the normal to the back of the device. Sensor fusion
+ * sessions report angles in a different frame, see [SensorFusionResult.Estimate].
+ *
  * @property distance The line-of-sight distance in meters of the ranging device, or null if not
  *   available.
- * @property azimuth The azimuth angle in degrees of the ranging device, or null if not available.
- *   The range is [-90, 90].
+ * @property azimuth The azimuth angle in degrees of the ranging device, or null if not available. A
+ *   positive azimuth means the peer is to the right of the boresight. The range is `[-180, 180]`.
  * @property elevation The elevation angle in degrees of the ranging device, or null if not
- *   available. The range is [-90, 90].
+ *   available. The angle is measured out of the azimuth plane. The range is `[-90, 90]`.
  * @property elapsedRealtimeNanos The elapsed realtime in nanos from when the system booted up to
  *   this position measurement.
  */
