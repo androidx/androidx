@@ -21,8 +21,10 @@ import android.hardware.camera2.CameraDevice.CameraDeviceSetup
 import android.os.Build
 import android.util.Size
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.compat.quirk.LowLightBoostStreamUseCaseQuirk
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.core.impl.ImageFormatConstants
+import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.StreamUseCase
 import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
@@ -660,7 +662,23 @@ public object GuaranteedConfigurationsUtil {
      * Returns the entire supported stream combinations for devices with Stream Use Case capability
      */
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
-    public fun getStreamUseCaseSupportedCombinationList(): List<SurfaceCombination> {
+    public fun getStreamUseCaseSupportedCombinationList(
+        quirks: Quirks? = null
+    ): List<SurfaceCombination> {
+        if (quirks?.contains(LowLightBoostStreamUseCaseQuirk::class.java) == true) {
+            return listOf(
+                // (PRIV, PREVIEW, PREVIEW)
+                SurfaceCombination().apply {
+                    addSurfaceConfig(
+                        SurfaceConfig.create(
+                            ConfigType.PRIV,
+                            ConfigSize.PREVIEW,
+                            StreamUseCase.PREVIEW,
+                        )
+                    )
+                }
+            ) + getStreamUseCaseSupportedCombinationList(quirks = null)
+        }
         return listOf<SurfaceCombination>(
             // (PRIV, s1440p, PREVIEW_VIDEO_STILL)
             SurfaceCombination().apply {

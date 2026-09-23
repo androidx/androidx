@@ -18,6 +18,8 @@ package androidx.camera.camera2.impl
 
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY
 import android.hardware.camera2.CameraMetadata.CONTROL_LOW_LIGHT_BOOST_STATE_ACTIVE
+import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.CaptureResult.CONTROL_AE_MODE
 import android.hardware.camera2.CaptureResult.CONTROL_LOW_LIGHT_BOOST_STATE
 import android.os.Build
 import androidx.annotation.VisibleForTesting
@@ -117,16 +119,42 @@ constructor(
                             Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
                                 _requestControl != null
                         ) {
-                            // Updates the state to the LLB state live data
-                            if (isLowLightBoostOn && !isTemporarilyDisabledForFlash) {
-                                totalCaptureResult.metadata[CONTROL_LOW_LIGHT_BOOST_STATE]?.let {
-                                    _lowLightBoostState.setLiveDataValue(
-                                        when (it) {
-                                            CONTROL_LOW_LIGHT_BOOST_STATE_ACTIVE ->
-                                                LowLightBoostState.ACTIVE
-                                            else -> LowLightBoostState.INACTIVE
+                            // Updates the state to the LLB state live data.
+                            // Only evaluate capture results whose corresponding CaptureRequest
+                            // explicitly requested
+                            // CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY.
+                            // Otherwise, in-flight frames submitted with another AE mode right
+                            // before enableLowLightBoostAsync(true) took effect (or during flash
+                            // capture restoration) would cause lowLightBoostState to flicker to
+                            // OFF.
+                            if (
+                                isLowLightBoostOn &&
+                                    !isTemporarilyDisabledForFlash &&
+                                    requestMetadata[CaptureRequest.CONTROL_AE_MODE] ==
+                                        CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY
+                            ) {
+                                // CaptureResult.CONTROL_AE_MODE reports the AE mode actually
+                                // applied. If the camera device applied any AE mode other than
+                                // the requested Low Light Boost mode, Low Light Boost is not
+                                // enabled, regardless of which mode it fell back to.
+                                val resultAeMode = totalCaptureResult.metadata[CONTROL_AE_MODE]
+                                if (
+                                    resultAeMode != null &&
+                                        resultAeMode !=
+                                            CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY
+                                ) {
+                                    _lowLightBoostState.setLiveDataValue(LowLightBoostState.OFF)
+                                } else {
+                                    totalCaptureResult.metadata[CONTROL_LOW_LIGHT_BOOST_STATE]
+                                        ?.let {
+                                            _lowLightBoostState.setLiveDataValue(
+                                                when (it) {
+                                                    CONTROL_LOW_LIGHT_BOOST_STATE_ACTIVE ->
+                                                        LowLightBoostState.ACTIVE
+                                                    else -> LowLightBoostState.INACTIVE
+                                                }
+                                            )
                                         }
-                                    )
                                 }
                             }
                         }
