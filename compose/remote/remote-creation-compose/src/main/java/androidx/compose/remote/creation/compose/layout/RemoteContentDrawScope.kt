@@ -27,7 +27,7 @@ public class RemoteContentDrawScope
 internal constructor(
     remoteCanvas: RemoteCanvas,
     private val content: RemoteDrawScope.() -> Unit = {
-        remoteCanvas.internalCanvas.drawComponentContent()
+        remoteCanvas.drawComponentContent()
     },
 ) : RemoteDrawScope(remoteCanvas) {
 
