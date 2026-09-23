@@ -271,6 +271,7 @@ dependencies {
     docs(project(":metrics:metrics-performance"))
     kmpDocs(project(":navigation3:navigation3-runtime"))
     kmpDocs(project(":navigation3:navigation3-ui"))
+    docs(project(":navigation3:navigation3-dynamic-features"))
     kmpDocs(project(":navigation:navigation-common"))
     kmpDocs(project(":navigationevent:navigationevent"))
     kmpDocs(project(":navigationevent:navigationevent-compose"))
