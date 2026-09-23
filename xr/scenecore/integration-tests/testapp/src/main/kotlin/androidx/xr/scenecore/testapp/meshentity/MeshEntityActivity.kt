@@ -44,6 +44,8 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.SpatialApiVersionHelper
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.FloatSize3d
@@ -454,6 +456,7 @@ class MeshEntityActivity : AppCompatActivity() {
         text: String,
         pose: Pose,
         entities: List<MeshEntity> = emptyList(),
+        textColor: Color = Color.Black,
         extraContent: @Composable () -> Unit = {},
     ) {
         val inputCountState = mutableIntStateOf(0)
@@ -491,7 +494,7 @@ class MeshEntityActivity : AppCompatActivity() {
                         ) {
                             Text(
                                 text = text,
-                                color = Color.Black,
+                                color = textColor,
                                 fontSize = 48.sp,
                                 textAlign = TextAlign.Center,
                             )
@@ -1066,7 +1069,34 @@ class MeshEntityActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Checks if the runtime supports dynamic meshes, which require Spatial API
+     * [SpatialApiVersions.SPATIAL_API_V4], either as a stable API or as a preview API on top of
+     * [SpatialApiVersions.SPATIAL_API_V3]. The latter is what the Aura emulator ADS release
+     * reports.
+     */
+    private fun isDynamicMeshSupported(): Boolean {
+        val apiVersion = SpatialApiVersionHelper.spatialApiVersion
+        return apiVersion >= SpatialApiVersions.SPATIAL_API_V4 ||
+            (apiVersion == SpatialApiVersions.SPATIAL_API_V3 &&
+                SpatialApiVersionHelper.previewSpatialApiVersion ==
+                    SpatialApiVersions.SPATIAL_API_V4)
+    }
+
     private fun createTest8_DynamicMeshUpdates(currentSession: Session) {
+        if (!isDynamicMeshSupported()) {
+            createPanel(
+                currentSession,
+                "Dynamic Meshes: Not supported.\nRequires Spatial API " +
+                    "${SpatialApiVersions.SPATIAL_API_V4}, this device reports " +
+                    "${SpatialApiVersionHelper.spatialApiVersion} " +
+                    "(preview ${SpatialApiVersionHelper.previewSpatialApiVersion}).",
+                Pose(Vector3(4f, 0.7f, -1.5f)),
+                textColor = Color.Red,
+            )
+            return
+        }
+
         val indexSize = CUBE_INDEX_COUNT * BYTES_PER_INDEX
 
         val posNormStride = 24
