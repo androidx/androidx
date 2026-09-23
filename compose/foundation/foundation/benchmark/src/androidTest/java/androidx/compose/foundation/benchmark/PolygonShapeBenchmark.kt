@@ -16,17 +16,13 @@
 
 package androidx.compose.foundation.benchmark
 
+import androidx.compose.foundation.shape.CornerRounding
 import androidx.compose.foundation.shape.MorphPolygonShape
 import androidx.compose.foundation.shape.PolygonShape
 import androidx.compose.foundation.shape.PolygonShapeGeometry
-import androidx.compose.foundation.shape.PolygonShapeGeometry.Companion.CornerRounding
-import androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding
-import androidx.compose.foundation.shape.scaledToFit
-import androidx.compose.foundation.shape.transformed
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -86,24 +82,22 @@ class PolygonShapeBenchmark {
 
     @Test
     fun foundationPlainPolygonOutline() {
-        val shape = PolygonShape { polygon(5, rounding = CornerRounding(percent = 20)) }
+        val shape = PolygonShape { polygon(5, rounding = CornerRounding.fraction(0.2f)) }
         benchmarkRule.measureRepeated { shape.createOutline(size, LayoutDirection.Ltr, density) }
     }
 
     @Test
     fun foundationChainedResizedOutline() {
-        // Depth-3 operator chain rebuilt on every size change: measures the folded resolve
-        // (base build + one materialization regardless of chain depth).
+        // Multi-step transform rebuilt on every size change: measures the folded resolve
+        // (base build + one materialization regardless of transform operations).
         val shape =
-            PolygonShape.star(numPoints = 9, outerRounding = CornerRounding(percent = 30))
-                .transformed(
-                    matrix =
-                        Matrix().apply {
-                            rotateZ(-45f)
-                            scale(1f, 0.8f)
-                        },
-                    contentScale = ContentScale.Fit,
-                )
+            PolygonShape.star(numPoints = 9, outerRounding = CornerRounding.fraction(0.3f)).apply {
+                transform {
+                    scale(1f, 0.8f)
+                    rotate(-45f)
+                    scaleToFit(ContentScale.Fit)
+                }
+            }
         val sizes = arrayOf(size, Size(240f, 240f))
         var i = 0
         benchmarkRule.measureRepeated {
@@ -116,9 +110,9 @@ class PolygonShapeBenchmark {
     @Test
     fun foundationNormalizedPolygonOutline() {
         val shape = PolygonShape {
-            polygon(5, rounding = CornerRounding(percent = 20))
+            polygon(5, rounding = CornerRounding.fraction(0.2f))
         }
-            .scaledToFit()
+            .apply { transform { scaleToFit() } }
         benchmarkRule.measureRepeated { shape.createOutline(size, LayoutDirection.Ltr, density) }
     }
 
@@ -148,7 +142,7 @@ internal object FoundationShapes {
 
     private data class PointNRound(
         val o: Offset,
-        val r: PolygonShapeGeometry.CornerRounding = PolygonShapeGeometry.CornerRounding.Unrounded,
+        val r: CornerRounding = CornerRounding.Unrounded,
     )
 
     private fun repeat(points: List<PointNRound>, reps: Int, center: Offset): List<PointNRound> =
@@ -161,26 +155,31 @@ internal object FoundationShapes {
         val points =
             repeat(
                 listOf(
-                    PointNRound(Offset(0.193f, 0.277f), CornerRounding(0.053f)),
-                    PointNRound(Offset(0.176f, 0.055f), CornerRounding(0.053f)),
+                    PointNRound(Offset(0.193f, 0.277f), CornerRounding.fraction(0.053f)),
+                    PointNRound(Offset(0.176f, 0.055f), CornerRounding.fraction(0.053f)),
                 ),
                 reps = 10,
                 center = Offset(0.5f, 0.5f),
             )
-        PolygonShape {
-            polygon(
+        val geometry =
+            PolygonShapeGeometry(
                 vertices = points.map { it.o },
                 perVertexRounding = points.map { it.r },
                 center = Offset(0.5f, 0.5f),
             )
-        }
+        PolygonShape { geometry }.apply { transform { scaleToFit() } }
     }
 
     val cookie9Sided: PolygonShape =
         PolygonShape.star(
                 numPoints = 9,
                 innerRadiusRatio = 0.8f,
-                outerRounding = CornerRounding(percent = 50),
+                outerRounding = CornerRounding.fraction(0.5f),
             )
-            .transformed(Matrix().apply { rotateZ(-90f) }, contentScale = ContentScale.Fit)
+            .apply {
+                transform {
+                    rotate(-90f)
+                    scaleToFit(ContentScale.Fit)
+                }
+            }
 }

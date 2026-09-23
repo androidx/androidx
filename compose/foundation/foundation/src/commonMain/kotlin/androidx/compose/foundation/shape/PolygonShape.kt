@@ -18,7 +18,6 @@ package androidx.compose.foundation.shape
 
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
-import androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.ui.Alignment
@@ -52,69 +51,52 @@ import kotlin.math.roundToInt
 import kotlin.math.sin
 
 /**
- * Creates a [PolygonShape] whose geometry is defined by [builder] at layout resolution time.
+ * Creates a [PolygonShape] from geometry returned by [builder].
  *
- * [builder] runs in [PolygonShapeScope] on every resolution, with access to the resolved size,
- * layout direction, and density; the [PolygonShapeGeometry] it returns is the shape's definition.
- * Values the lambda reads are re-read on each resolution, and the outline rebuilds when the
- * resulting geometry changes. Two shapes created with the same [builder] instance compare equal.
- *
- * Use this overload when the geometry depends on the resolved size or density, such as vertices
- * placed in pixels of the layout's coordinate space or rounding given in [Dp]. For a fixed geometry
- * that scales uniformly into any container, use the [PolygonShape] overload taking a
- * [PolygonShapeGeometry].
+ * - Runs [builder] in [PolygonShapeScope] on each resolution with the resolved
+ *   [PolygonShapeScope.size], [PolygonShapeScope.layoutDirection], and [Density].
+ * - Re-reads captured state inside [builder] on each resolution and rebuilds the outline when the
+ *   returned [PolygonShapeGeometry] changes.
+ * - Interprets [PolygonShapeGeometry] coordinates in layout pixels (`(0f, 0f)` at the top-left to
+ *   `(size.width, size.height)` at the bottom-right). Call [PolygonShapeTransformScope.scaleToFit]
+ *   inside [PolygonShape.transform] to fit normalized or custom coordinates (such as a `[0, 1]`
+ *   unit square) into the layout bounds.
  *
  * @sample androidx.compose.foundation.samples.CustomPolygonShapeSample
- * @param builder lambda run in [PolygonShapeScope] returning the shape's geometry
+ * @sample androidx.compose.foundation.samples.UnitSpacePolygonShapeSample
+ * @param builder lambda run in [PolygonShapeScope] returning the shape's [PolygonShapeGeometry]
  */
 @RememberInComposition
 public fun PolygonShape(builder: PolygonShapeScope.() -> PolygonShapeGeometry): PolygonShape =
     BuilderPolygonShape(builder)
 
 /**
- * Creates a [PolygonShape] from [geometry] defined in an author-chosen coordinate space.
+ * Defines a [Shape] built from rounded polygon geometry.
  *
- * The geometry is uniformly scaled and centered to fit within the layout bounds at resolution time,
- * preserving its aspect ratio.
+ * Create instances with [PolygonShape] or companion factories like [regularPolygon] and [star].
+ * - Call [transform] to rotate, translate, scale, apply a [Matrix], or fit the geometry into the
+ *   layout bounds in place.
+ * - Call [copy] before mutating a shared shape to keep the original unchanged.
  *
- * Use this overload for a fixed shape definition, such as unit-space vertices, that scales into
- * whatever bounds the shape is used in. To define geometry against the resolved size, layout
- * direction, or density instead, use the [PolygonShape] overload taking a [PolygonShapeScope]
- * builder.
- *
- * @sample androidx.compose.foundation.samples.UnitSpacePolygonShapeSample
- * @param geometry polygon geometry to scale and center into the layout bounds
- */
-@RememberInComposition
-public fun PolygonShape(geometry: PolygonShapeGeometry): PolygonShape =
-    GeometryPolygonShape(geometry)
-
-/**
- * Shape built from rounded polygon geometry.
- *
- * Create instances using the [PolygonShape] factory functions or predefined companion factories
- * like [regularPolygon] and [star]. Instances created with equal parameters compare equal to enable
- * caching resolved outlines across recompositions.
- *
- * Shapes cache their resolved outline for their most recent layout size. Sharing a single shape
- * instance across composables with differing sizes is supported, but defining separate instances
- * per size avoids cache thrashing when repeatedly redrawing.
- *
- * Outlines returned by [createOutline] are shared between callers and must not be mutated.
+ * Note: Caches the resolved [Outline] for the most recent layout size, and shares returned
+ * [Outline] instances across callers. Do not mutate the [Outline] returned by [createOutline].
  */
 public sealed class PolygonShape : Shape {
 
-    internal abstract fun resolvePolygon(
+    /** Builds the un-transformed [RoundedPolygon] for the given resolution inputs. */
+    internal abstract fun buildPolygon(
         size: Size,
         layoutDirection: LayoutDirection,
         density: Density,
     ): RoundedPolygon
 
+    /** Creates a new instance of this subclass with the same base parameters. */
+    internal abstract fun copyBase(): PolygonShape
+
     /**
-     * Returns a version token representing dynamic inputs affecting geometry resolution.
+     * Returns a version token tracking dynamic inputs that affect [buildPolygon].
      *
-     * Used for cache invalidation when a shape's geometry depends on captured external state (such
-     * as state read inside a builder lambda). Shapes with static geometry return 0.
+     * Bumps when captured external state (such as state read inside a builder lambda) changes.
      */
     internal open fun contentVersion(
         size: Size,
@@ -122,14 +104,112 @@ public sealed class PolygonShape : Shape {
         density: Density,
     ): Int = 0
 
+    private var cachedBaseSize: Size? = null
+    private var cachedBaseLayoutDirection: LayoutDirection? = null
+    private var cachedBaseDensity: Density? = null
+    private var cachedBaseVersion = 0
+    private var cachedBasePolygon: RoundedPolygon? = null
+
+    private var transformation: PolygonTransformation? = null
+
+    private var cachedOutlinePolygon: RoundedPolygon? = null
+    private var cachedOutline: Outline? = null
+
+    /**
+     * Transforms this [PolygonShape]'s geometry in place using [block].
+     *
+     * - Runs [block] in [PolygonShapeTransformScope] during outline resolution, deferring Compose
+     *   state reads out of composition so animated transforms update without recomposition.
+     * - Replaces any transformation block previously set on this shape via [transform].
+     * - Mutates this [PolygonShape] in place; call [copy] first to keep a shared base shape
+     *   unchanged.
+     *
+     * @sample androidx.compose.foundation.samples.TransformedPolygonShapeSample
+     * @sample androidx.compose.foundation.samples.RuntimeTransformedPolygonShapeSample
+     * @param block transformation block run in [PolygonShapeTransformScope] at resolution time
+     */
+    @RememberInComposition
+    public fun transform(block: PolygonShapeTransformScope.() -> Unit) {
+        val current = transformation
+        if (current == null) {
+            transformation = PolygonTransformation(block)
+        } else {
+            current.setTransformBlock(block)
+        }
+        cachedOutline = null
+    }
+
+    /**
+     * Creates an independent copy of this [PolygonShape] and its transformations.
+     *
+     * Subsequent in-place mutations via [transform] on the returned copy do not affect this shape,
+     * and vice versa.
+     *
+     * @sample androidx.compose.foundation.samples.RuntimeTransformedPolygonShapeSample
+     * @return a new [PolygonShape] with the same base geometry and transformation configuration
+     */
+    @RememberInComposition
+    public fun copy(): PolygonShape =
+        copyBase().also { copy -> copy.transformation = this.transformation?.copy() }
+
+    private fun resolveBasePolygon(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): RoundedPolygon {
+        val version = contentVersion(size, layoutDirection, density)
+        val cached = cachedBasePolygon
+        if (
+            cached != null &&
+                size == cachedBaseSize &&
+                layoutDirection == cachedBaseLayoutDirection &&
+                density == cachedBaseDensity &&
+                version == cachedBaseVersion
+        ) {
+            return cached
+        }
+        return buildPolygon(size, layoutDirection, density).also {
+            cachedBaseSize = size
+            cachedBaseLayoutDirection = layoutDirection
+            cachedBaseDensity = density
+            cachedBaseVersion = version
+            cachedBasePolygon = it
+        }
+    }
+
+    internal fun resolvePolygon(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): RoundedPolygon {
+        val basePolygon = resolveBasePolygon(size, layoutDirection, density)
+        val currentTransform = transformation ?: return basePolygon
+        return currentTransform.resolve(basePolygon, size, layoutDirection, density)
+    }
+
+    final override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline {
+        val polygon = resolvePolygon(size, layoutDirection, density)
+        val cached = cachedOutline
+        if (cached != null && polygon === cachedOutlinePolygon) {
+            return cached
+        }
+        return Outline.Generic(polygon.asComposePath()).also {
+            cachedOutlinePolygon = polygon
+            cachedOutline = it
+        }
+    }
+
     public companion object {
         /**
-         * Creates a regular polygon [PolygonShape] with [numVertices] vertices, sized to the
-         * container's smaller dimension.
+         * Creates a regular polygon [PolygonShape] inscribed in the container's smaller dimension.
          *
-         * @sample androidx.compose.foundation.samples.PolygonShapeWithRoundingPercentSample
+         * @sample androidx.compose.foundation.samples.PolygonShapeWithRoundingFractionSample
          * @param numVertices number of vertices, at least 3
-         * @param rounding rounding applied to every vertex, resolved against the polygon's radius
+         * @param rounding corner rounding resolved against the polygon's radius
          * @throws IllegalArgumentException if [numVertices] is less than 3
          */
         public fun regularPolygon(
@@ -143,18 +223,15 @@ public sealed class PolygonShape : Shape {
         }
 
         /**
-         * Creates a star [PolygonShape] with [numPoints] points on each of the outer and inner
-         * radii, sized to the container's smaller dimension.
+         * Creates a star [PolygonShape] inscribed in the container's smaller dimension.
          *
          * @sample androidx.compose.foundation.samples.StarPolygonShapeSample
-         * @param numPoints number of points (tips) on the star, at least 2
-         * @param innerRadiusRatio ratio of inner radius to outer radius, in the range (0, 1]
-         * @param outerRounding rounding for the outer corners, resolved against the star's outer
-         *   radius
-         * @param innerRounding rounding for the inner corners, resolved the same way; matches
-         *   [outerRounding] when not specified
+         * @param numPoints number of star tips, at least 2
+         * @param innerRadiusRatio ratio of inner radius to outer radius, in `(0, 1]`
+         * @param outerRounding rounding for outer tips, resolved against the star's outer radius
+         * @param innerRounding rounding for inner corners, resolved against the star's outer radius
          * @throws IllegalArgumentException if [numPoints] is less than 2 or [innerRadiusRatio] is
-         *   outside the range (0, 1]
+         *   outside `(0, 1]`
          */
         public fun star(
             @IntRange(from = 2) numPoints: Int,
@@ -175,13 +252,11 @@ public sealed class PolygonShape : Shape {
         }
 
         /**
-         * Creates a pill [PolygonShape] with rounded ends along the shorter sides of the layout
-         * bounds.
+         * Creates a pill [PolygonShape] with rounded ends along the shorter container sides.
          *
-         * @param smoothing the amount by which the arc is "smoothed" by extending the curve from
-         *   the circular arc on each endcap to the edge between the endcaps. A value of 0 (no
-         *   smoothing) indicates that the corner is rounded by only a circular arc.
-         * @throws IllegalArgumentException if [smoothing] is outside the range 0 to 1
+         * @param smoothing transition smoothness between the endcap arcs and straight edges, in
+         *   `0f..1f` (`0f` keeps a purely circular arc)
+         * @throws IllegalArgumentException if [smoothing] is outside `0f..1f`
          */
         public fun pill(@FloatRange(0.0, 1.0) smoothing: Float = 0f): PolygonShape {
             requireValidSmoothing(smoothing)
@@ -189,35 +264,22 @@ public sealed class PolygonShape : Shape {
         }
 
         /**
-         * Creates a star [PolygonShape] with vertices placed along a pill outline.
+         * Creates a star [PolygonShape] with vertices distributed along a [pill] outline.
          *
-         * A `pillStar` is like a [pill] except it has inner and outer radii along its pill-shaped
-         * outline, just as a [star] has inner and outer radii along a circular outline. This
-         * produces an elongated star shape commonly used for badges, chips, and decorative
-         * containers.
-         *
-         * Because vertices curve around the semicircular ends of the pill, outer and inner vertices
-         * have different spacing along the curved ends depending on [innerRadiusRatio]. The
-         * [vertexSpacing] parameter controls how vertices are spaced along those curved ends:
-         * - `vertexSpacing = 0f`: Spaces inner vertices equally along the curved ends (outer
-         *   vertices will be further apart).
-         * - `vertexSpacing = 1f`: Spaces outer vertices equally along the curved ends (inner
-         *   vertices will be closer together).
-         * - `vertexSpacing = 0.5f` (default): Uses the average of the inner and outer spacing so
-         *   both sets of vertices fall symmetrically along the curved ends.
+         * [vertexSpacing] controls how vertices are spaced around the curved ends:
+         * - `0f`: spaces inner vertices evenly along the curved ends
+         * - `1f`: spaces outer vertices evenly along the curved ends
+         * - `0.5f` (default): averages inner and outer spacing symmetrically
          *
          * @sample androidx.compose.foundation.samples.PillStarPolygonShapeSample
-         * @param numPoints number of points (tips) on the star, at least 2
-         * @param innerRadiusRatio ratio of inner radius to outer radius, in the range (0, 1]
-         * @param vertexSpacing how vertices on the curved ends are spaced, from 0 (inner vertices
-         *   spaced evenly) to 1 (outer vertices spaced evenly); 0.5 takes the average
-         * @param startLocation where along the perimeter the outline starts, in the range 0 to 1
-         * @param outerRounding rounding for the outer corners, resolved against the star's outer
-         *   radius
-         * @param innerRounding rounding for the inner corners, resolved the same way; matches
-         *   [outerRounding] when not specified
-         * @throws IllegalArgumentException if [numPoints] is less than 2, or [innerRadiusRatio] is
-         *   outside (0, 1], or [vertexSpacing] or [startLocation] are outside the range 0 to 1
+         * @param numPoints number of star tips, at least 2
+         * @param innerRadiusRatio ratio of inner radius to outer radius, in `(0, 1]`
+         * @param vertexSpacing curved-end vertex spacing policy, in `0f..1f`
+         * @param startLocation perimeter offset where the outline starts, in `0f..1f`
+         * @param outerRounding rounding for outer tips, resolved against the star's outer radius
+         * @param innerRounding rounding for inner corners, resolved against the star's outer radius
+         * @throws IllegalArgumentException if [numPoints] is less than 2, [innerRadiusRatio] is
+         *   outside `(0, 1]`, or [vertexSpacing] or [startLocation] is outside `0f..1f`
          */
         public fun pillStar(
             @IntRange(from = 2) numPoints: Int,
@@ -250,17 +312,16 @@ public sealed class PolygonShape : Shape {
         /**
          * Creates a circular [PolygonShape] approximated by [numVertices] rounded vertices.
          *
-         * @param numVertices number of vertices used to approximate the circle, at least 3
+         * @param numVertices number of vertices approximating the circle, at least 3
          * @throws IllegalArgumentException if [numVertices] is less than 3
          */
         public fun circle(@IntRange(from = 3) numVertices: Int = 8): PolygonShape =
             CirclePolygonShape(numVertices)
 
         /**
-         * Creates a rectangular [PolygonShape] filling the layout bounds, with the same [rounding]
-         * at every corner.
+         * Creates a rectangular [PolygonShape] filling the layout bounds with uniform [rounding].
          *
-         * @param rounding rounding for all 4 corners, resolved against the layout bounds
+         * @param rounding corner rounding for all 4 corners, resolved against the layout bounds
          */
         public fun rectangle(rounding: CornerRounding): PolygonShape =
             RectanglePolygonShape(
@@ -271,16 +332,15 @@ public sealed class PolygonShape : Shape {
             )
 
         /**
-         * Creates a rectangular [PolygonShape] filling the layout bounds, with a separate rounding
-         * for each corner.
+         * Creates a rectangular [PolygonShape] with independent layout-direction-aware corners.
          *
-         * Corner roundings mirror automatically with the layout direction.
+         * Corner roundings mirror automatically in [LayoutDirection.Rtl].
          *
-         * @param topStartRounding rounding for the top start corner, resolved against the layout
+         * @param topStartRounding top-start corner rounding, resolved against the layout bounds
+         * @param topEndRounding top-end corner rounding, resolved against the layout bounds
+         * @param bottomEndRounding bottom-end corner rounding, resolved against the layout bounds
+         * @param bottomStartRounding bottom-start corner rounding, resolved against the layout
          *   bounds
-         * @param topEndRounding rounding for the top end corner, resolved the same way
-         * @param bottomEndRounding rounding for the bottom end corner, resolved the same way
-         * @param bottomStartRounding rounding for the bottom start corner, resolved the same way
          */
         public fun rectangle(
             topStartRounding: CornerRounding = CornerRounding.Unrounded,
@@ -297,16 +357,15 @@ public sealed class PolygonShape : Shape {
             )
 
         /**
-         * Creates an absolute rectangular [PolygonShape] filling the layout bounds, with a separate
-         * rounding for each corner.
+         * Creates a rectangular [PolygonShape] with fixed left/right corner roundings.
          *
-         * Corner roundings do not swap with the layout direction.
+         * Corner roundings do not mirror with [LayoutDirection].
          *
-         * @param topLeftRounding rounding for the top left corner, resolved against the layout
+         * @param topLeftRounding top-left corner rounding, resolved against the layout bounds
+         * @param topRightRounding top-right corner rounding, resolved against the layout bounds
+         * @param bottomRightRounding bottom-right corner rounding, resolved against the layout
          *   bounds
-         * @param topRightRounding rounding for the top right corner, resolved the same way
-         * @param bottomRightRounding rounding for the bottom right corner, resolved the same way
-         * @param bottomLeftRounding rounding for the bottom left corner, resolved the same way
+         * @param bottomLeftRounding bottom-left corner rounding, resolved against the layout bounds
          */
         public fun absoluteRectangle(
             topLeftRounding: CornerRounding = CornerRounding.Unrounded,
@@ -325,201 +384,91 @@ public sealed class PolygonShape : Shape {
 }
 
 /**
- * Returns a new [PolygonShape] with [rotation] and [translation] applied to the underlying
- * geometry.
+ * Transforms a [PolygonShape]'s geometry inside [PolygonShape.transform].
  *
- * [rotation] is applied clockwise in degrees around the geometry's center, and [translation] moves
- * the shape by the specified horizontal and vertical offsets.
- *
- * When [contentScale] is non-null, the transformed geometry is scaled and aligned into the layout
- * container bounds to prevent rotated corners from escaping the container. Pass `contentScale =
- * null` (the default) to apply only the transformation without scaling, or use [scaledToFit] to
- * adjust scaling on an existing shape.
- *
- * This function returns a new [PolygonShape] and should not be used for continuous animations. To
- * animate rotation or translation on every frame, apply
- * [androidx.compose.ui.graphics.graphicsLayer] instead to transform the rendered output without
- * rebuilding geometry.
- *
- * Leaves the receiver untouched and derives a new shape value.
+ * Exposes the layout resolution inputs ([size], [layoutDirection], and [Density]). Operations
+ * ([rotate], [translate], [scale], [transform], and [scaleToFit]) concatenate onto the
+ * transformation matrix in the exact order they are called (for example, [scale] followed by
+ * [translate] differs from [translate] followed by [scale]).
  *
  * @sample androidx.compose.foundation.samples.TransformedPolygonShapeSample
  * @sample androidx.compose.foundation.samples.RuntimeTransformedPolygonShapeSample
- * @param rotation clockwise rotation in degrees, applied around the geometry center
- * @param translation offset by which to move the shape
- * @param contentScale optional scaling policy applied after the transformation, or null to skip
- *   scaling
- * @param alignment where to place the scaled geometry within the layout bounds
  */
-@RememberInComposition
-public fun PolygonShape.transformed(
-    rotation: Float = 0f,
-    translation: Offset = Offset.Zero,
-    contentScale: ContentScale? = null,
-    alignment: Alignment = Alignment.Center,
-): PolygonShape {
-    if (rotation == 0f && translation == Offset.Zero) {
-        return if (contentScale != null) {
-            scaledToFit(contentScale, alignment)
-        } else {
-            this
-        }
-    }
-    if (
-        this is TransformedPolygonShape &&
-            this.matrix == null &&
-            this.contentScale == null &&
-            contentScale == null
-    ) {
-        if (this.translation == Offset.Zero && translation == Offset.Zero) {
-            val mergedRotation = (this.rotation + rotation) % 360f
-            return if (mergedRotation == 0f) {
-                this.inner
-            } else {
-                TransformedPolygonShape(
-                    inner = this.inner,
-                    rotation = mergedRotation,
-                    translation = Offset.Zero,
-                    matrix = null,
-                    contentScale = null,
-                    alignment = alignment,
-                )
-            }
-        }
-        if (this.rotation == 0f && rotation == 0f) {
-            val mergedTranslation = this.translation + translation
-            return if (mergedTranslation == Offset.Zero) {
-                this.inner
-            } else {
-                TransformedPolygonShape(
-                    inner = this.inner,
-                    rotation = 0f,
-                    translation = mergedTranslation,
-                    matrix = null,
-                    contentScale = null,
-                    alignment = alignment,
-                )
-            }
-        }
-    }
-    return TransformedPolygonShape(
-        inner = this,
-        rotation = rotation,
-        translation = translation,
-        matrix = null,
-        contentScale = contentScale,
-        alignment = alignment,
+public sealed interface PolygonShapeTransformScope : Density {
+    /** Size of the shape's layout container in pixels. */
+    public val size: Size
+
+    /** Layout direction of the shape. */
+    public val layoutDirection: LayoutDirection
+
+    /**
+     * Rotates the polygon clockwise by [degrees] around [pivot].
+     *
+     * @param degrees clockwise rotation in degrees
+     * @param pivot rotation center in pixels, or [Offset.Unspecified] for the polygon's center
+     */
+    public fun rotate(degrees: Float, pivot: Offset = Offset.Unspecified)
+
+    /**
+     * Translates the polygon by ([x], [y]) pixels.
+     *
+     * @param x horizontal offset in pixels
+     * @param y vertical offset in pixels
+     */
+    public fun translate(x: Float = 0f, y: Float = 0f)
+
+    /**
+     * Scales the polygon by [scaleX] horizontally and [scaleY] vertically around [pivot].
+     *
+     * @param scaleX horizontal scale factor
+     * @param scaleY vertical scale factor, defaults to [scaleX] for uniform scaling
+     * @param pivot scale center in pixels, or [Offset.Unspecified] for the polygon's center
+     */
+    public fun scale(
+        scaleX: Float,
+        scaleY: Float = scaleX,
+        pivot: Offset = Offset.Unspecified,
+    )
+
+    /**
+     * Multiplies the current transformation by the affine [matrix] around the polygon's center.
+     *
+     * Linear components (rotation, scale, skew) pivot around the polygon's center, while
+     * translation components offset the polygon directly.
+     *
+     * @param matrix affine transformation matrix to multiply
+     * @throws IllegalArgumentException if [matrix] contains perspective components
+     */
+    public fun transform(matrix: Matrix)
+
+    /**
+     * Scales and aligns the polygon's bounding box into [size] in call order.
+     *
+     * - Call before [rotate], [scale], or [translate] to fit the unrotated polygon first, then
+     *   transform it around its fitted center.
+     * - Call after [rotate] or [transform] to fit the transformed bounding box into [size].
+     * - [ContentScale.Fit] (default) scales uniformly to fit within bounds, preserving aspect ratio
+     * - [ContentScale.FillBounds] stretches each axis independently to fill the bounds
+     * - [ContentScale.Crop] fills the bounds, preserving aspect ratio and clipping overflow
+     * - [ContentScale.None] applies no scaling
+     *
+     * @sample androidx.compose.foundation.samples.ScaledToFitPolygonShapeSample
+     * @sample androidx.compose.foundation.samples.UnitSpacePolygonShapeSample
+     * @param contentScale policy for scaling the polygon's bounding box into the layout bounds
+     * @param alignment placement of the scaled polygon within the layout bounds
+     */
+    public fun scaleToFit(
+        contentScale: ContentScale = ContentScale.Fit,
+        alignment: Alignment = Alignment.Center,
     )
 }
 
 /**
- * Returns a new [PolygonShape] with [matrix] applied to the underlying geometry.
+ * Builds [PolygonShapeGeometry] for a [PolygonShape] at layout resolution.
  *
- * Rotation, scale, and skew act around the resolved geometry's center, changing the shape's
- * orientation and size in place; translation components move the shape as written.
- *
- * When [contentScale] is non-null, the transformed geometry is scaled and aligned into the layout
- * container bounds to prevent rotated corners from escaping the container. Pass `contentScale =
- * null` (the default) to apply only the matrix transformation without scaling, or use [scaledToFit]
- * to adjust scaling on an existing shape.
- *
- * This function returns a new [PolygonShape] and should not be used for continuous animations. To
- * animate rotation or scale on every frame, apply [androidx.compose.ui.graphics.graphicsLayer]
- * instead to transform the rendered output without rebuilding geometry.
- *
- * Leaves the receiver untouched and derives a new shape value holding a snapshot of [matrix].
- *
- * @param matrix affine transformation to apply to the geometry
- * @param contentScale optional scaling policy applied after the transformation, or null to skip
- *   scaling
- * @param alignment where to place the scaled geometry within the layout bounds
- * @throws IllegalArgumentException if [matrix] has perspective components
- */
-@RememberInComposition
-public fun PolygonShape.transformed(
-    matrix: Matrix,
-    contentScale: ContentScale? = null,
-    alignment: Alignment = Alignment.Center,
-): PolygonShape {
-    // Cubic control points are mapped independently at resolution, which is exact only for
-    // affine transforms; 2D points have z = 0, so only these perspective terms apply.
-    val v = matrix.values
-    require(v[3] == 0f && v[7] == 0f && v[15] == 1f) {
-        "matrix must be an affine transform, without perspective components."
-    }
-    if (matrix.isIdentity()) {
-        return if (contentScale != null) {
-            scaledToFit(contentScale, alignment)
-        } else {
-            this
-        }
-    }
-    if (
-        this is TransformedPolygonShape &&
-            this.matrix != null &&
-            this.contentScale == null &&
-            contentScale == null
-    ) {
-        val merged =
-            Matrix().apply {
-                setFrom(this@transformed.matrix)
-                timesAssign(matrix)
-            }
-        return if (merged.isIdentity()) {
-            this.inner
-        } else {
-            TransformedPolygonShape(
-                inner = this.inner,
-                rotation = 0f,
-                translation = Offset.Zero,
-                matrix = merged,
-                contentScale = null,
-                alignment = alignment,
-            )
-        }
-    }
-    return TransformedPolygonShape(
-        inner = this,
-        rotation = 0f,
-        translation = Offset.Zero,
-        matrix = matrix,
-        contentScale = contentScale,
-        alignment = alignment,
-    )
-}
-
-/**
- * Returns a new [PolygonShape] scaled and aligned into the layout bounds.
- *
- * [contentScale] selects the scaling policy and [alignment] positions the scaled geometry:
- * - [ContentScale.Fit] (the default) scales uniformly to fit within bounds, preserving aspect ratio
- * - [ContentScale.FillBounds] stretches each axis independently to fill the bounds
- * - [ContentScale.Crop] fills the bounds, preserving aspect ratio and clipping overflow
- * - [ContentScale.None] applies no scaling
- *
- * Measures the resolved geometry to place a shape accurately even when rounding pulls it inside its
- * nominal bounds. Predefined shapes and scope factories are already bounded; scaling is useful
- * after a [transformed] call or when applying non-default placement policies.
- *
- * Leaves the receiver untouched and derives a new shape value.
- *
- * @sample androidx.compose.foundation.samples.ScaledToFitPolygonShapeSample
- * @param contentScale how to scale the resolved geometry into the layout bounds
- * @param alignment where to place the scaled geometry within the layout bounds
- */
-@RememberInComposition
-public fun PolygonShape.scaledToFit(
-    contentScale: ContentScale = ContentScale.Fit,
-    alignment: Alignment = Alignment.Center,
-): PolygonShape = ScaledToFitPolygonShape(this, contentScale, alignment)
-
-/**
- * Receiver scope for the [PolygonShape] builder lambda.
- *
- * Provides the resolution inputs ([size], [layoutDirection], and [Density]) and the factories that
- * create the [PolygonShapeGeometry] the lambda returns. Coordinates are in pixels in the layout's
- * coordinate space; [Dp] values resolve with the current density, and percent values are
- * size-proportional.
+ * Exposes [size], [layoutDirection], and [Density] along with [polygon] factories. Coordinates are
+ * in layout pixels; [CornerRounding.dp] resolves with [Density], and [CornerRounding.fraction]
+ * resolves against the polygon's geometry.
  *
  * @sample androidx.compose.foundation.samples.PolygonShapeSample
  * @sample androidx.compose.foundation.samples.DirectionalPolygonShapeSample
@@ -532,17 +481,15 @@ public sealed interface PolygonShapeScope : Density {
     public val layoutDirection: LayoutDirection
 
     /**
-     * Creates a regular polygon with [numVertices] vertices on a circle of [radius] pixels around
-     * [center], with the same [rounding] at every vertex.
+     * Creates a regular polygon with [numVertices] vertices on a circle of [radius] pixels.
      *
-     * Rounding resolves against the polygon itself, not the container. A percent radius is a
-     * percentage of [radius], a [Dp] radius resolves with the current density, and a float radius
-     * is a length in pixels.
+     * [CornerRounding.fraction] resolves against [radius], and [CornerRounding.dp] resolves with
+     * the current [Density].
      *
      * @param numVertices number of vertices, at least 3
-     * @param radius radius in pixels of the circle the vertices are placed on
-     * @param center center of the polygon in pixels, defaults to the container center
-     * @param rounding rounding applied to every vertex
+     * @param radius circle radius in pixels
+     * @param center polygon center in pixels, defaults to [Size.center]
+     * @param rounding corner rounding applied to every vertex
      * @throws IllegalArgumentException if [numVertices] is less than 3
      */
     public fun polygon(
@@ -553,19 +500,17 @@ public sealed interface PolygonShapeScope : Density {
     ): PolygonShapeGeometry
 
     /**
-     * Creates a regular polygon with [numVertices] vertices on a circle of [radius] pixels around
-     * [center], with a separate rounding for each vertex.
+     * Creates a regular polygon with [numVertices] vertices and per-vertex [perVertexRounding].
      *
-     * Rounding resolves against the polygon itself, not the container. A percent radius is a
-     * percentage of [radius], a [Dp] radius resolves with the current density, and a float radius
-     * is a length in pixels. Vertex i of [perVertexRounding] rounds the vertex at angle
-     * 2πi/[numVertices] on the generating circle.
+     * [perVertexRounding] applies to vertices in clockwise order starting from the right (`0`
+     * degrees). [CornerRounding.fraction] resolves against [radius], and [CornerRounding.dp]
+     * resolves with the current [Density].
      *
      * @param numVertices number of vertices, at least 3
      * @param perVertexRounding rounding for each vertex, matching [numVertices] in size
-     * @param radius radius in pixels of the circle the vertices are placed on
-     * @param center center of the polygon in pixels, defaults to the container center
-     * @throws IllegalArgumentException if [numVertices] is less than 3, or if [perVertexRounding]
+     * @param radius circle radius in pixels
+     * @param center polygon center in pixels, defaults to [Size.center]
+     * @throws IllegalArgumentException if [numVertices] is less than 3 or [perVertexRounding]
      *   differs from [numVertices] in size
      */
     @Suppress("PrimitiveInCollection")
@@ -577,16 +522,16 @@ public sealed interface PolygonShapeScope : Density {
     ): PolygonShapeGeometry
 
     /**
-     * Creates polygon geometry from [vertices] in pixels, with the same [rounding] at every vertex.
+     * Creates polygon geometry from [vertices] with uniform [rounding].
      *
-     * Rounding resolves against the vertex bounds, not the container. A percent radius is a
-     * percentage of the bounds' smaller dimension, a [Dp] radius resolves with the current density,
-     * and a float radius is a length in pixels.
+     * Coordinates default to layout pixels (`(0f, 0f)` to `(size.width, size.height)`), or any
+     * custom coordinate space (e.g. a `[0, 1]` unit square) when paired with
+     * [PolygonShapeTransformScope.scaleToFit]. [CornerRounding.fraction] resolves against the
+     * smaller dimension of the vertex bounds, and [CornerRounding.dp] resolves with [Density].
      *
-     * @param vertices vertex positions in pixels, at least 3
-     * @param center polygon center in pixels, computed from the geometry when unspecified. An
-     *   explicit center can be specified as a custom transformation or morphing anchor.
-     * @param rounding rounding applied to every vertex
+     * @param vertices vertex positions, at least 3
+     * @param center polygon center, or [Offset.Unspecified] to compute from [vertices]
+     * @param rounding corner rounding applied to every vertex
      * @throws IllegalArgumentException if [vertices] has fewer than 3 entries
      */
     @Suppress("PrimitiveInCollection")
@@ -597,17 +542,17 @@ public sealed interface PolygonShapeScope : Density {
     ): PolygonShapeGeometry
 
     /**
-     * Creates polygon geometry from [vertices] in pixels, with a separate rounding for each vertex.
+     * Creates polygon geometry from [vertices] with per-vertex [perVertexRounding].
      *
-     * Rounding resolves against the vertex bounds, not the container. A percent radius is a
-     * percentage of the bounds' smaller dimension, a [Dp] radius resolves with the current density,
-     * and a float radius is a length in pixels.
+     * Coordinates default to layout pixels (`(0f, 0f)` to `(size.width, size.height)`), or any
+     * custom coordinate space (e.g. a `[0, 1]` unit square) when paired with
+     * [PolygonShapeTransformScope.scaleToFit]. [CornerRounding.fraction] resolves against the
+     * smaller dimension of the vertex bounds, and [CornerRounding.dp] resolves with [Density].
      *
-     * @param vertices vertex positions in pixels, at least 3
+     * @param vertices vertex positions, at least 3
      * @param perVertexRounding rounding for each vertex, matching [vertices] in size
-     * @param center polygon center in pixels, computed from the geometry when unspecified. An
-     *   explicit center can be specified as a custom transformation or morphing anchor.
-     * @throws IllegalArgumentException if [vertices] has fewer than 3 entries, or if
+     * @param center polygon center, or [Offset.Unspecified] to compute from [vertices]
+     * @throws IllegalArgumentException if [vertices] has fewer than 3 entries or
      *   [perVertexRounding] differs from [vertices] in size
      */
     @Suppress("PrimitiveInCollection")
@@ -619,22 +564,20 @@ public sealed interface PolygonShapeScope : Density {
 }
 
 /**
- * Geometry describing a polygon's [vertices], [center], and [rounding].
+ * Defines a polygon's [vertices], [center], and corner rounding.
  *
- * The consumer defines the coordinate space. [PolygonShapeScope] factories create geometry in
- * pixels in the layout's coordinate space, while geometry passed directly to [PolygonShape] uses an
- * author-chosen space and is scaled into the layout bounds at resolution time.
- *
- * Rounding resolves in the vertex coordinate space. A float radius is a length in that space, and a
- * percent radius resolves against the smaller dimension of the vertex bounds.
+ * - Coordinates default to layout pixels (`(0f, 0f)` to `(size.width, size.height)`), or any custom
+ *   coordinate space (e.g. a `[0, 1]` unit square) when paired with
+ *   [PolygonShapeTransformScope.scaleToFit] in [PolygonShape.transform].
+ * - [CornerRounding.fraction] resolves against the smaller dimension of the vertex bounds, and
+ *   [CornerRounding.dp] resolves with [Density].
  *
  * @sample androidx.compose.foundation.samples.UnitSpacePolygonShapeSample
  * @property vertices vertex positions, at least 3
- * @property center polygon center, computed from the geometry when unspecified. An explicit center
- *   can be specified as a custom transformation or morphing anchor.
- * @property rounding rounding applied to every vertex, [CornerRounding.Unrounded] for geometry
- *   created with per-vertex rounding
- * @property perVertexRounding optional per-vertex rounding, matching [vertices] in size
+ * @property center polygon center, or [Offset.Unspecified] when computed from [vertices]
+ * @property rounding uniform vertex rounding, or [CornerRounding.Unrounded] when using
+ *   [perVertexRounding]
+ * @property perVertexRounding optional per-vertex rounding matching [vertices] in size
  */
 // TODO: Add vertex overloads taking a public packed array type
 //  (an OffsetArray-style value class over an interleaved FloatArray) so each Offset is not boxed.
@@ -650,12 +593,11 @@ internal constructor(
 ) {
 
     /**
-     * Creates polygon geometry with the same [rounding] at every vertex.
+     * Creates polygon geometry with uniform [rounding] at every vertex.
      *
      * @param vertices vertex positions, at least 3
-     * @param center polygon center, computed from the geometry when unspecified. An explicit center
-     *   can be provided as a custom transformation or morphing anchor.
-     * @param rounding rounding applied to every vertex
+     * @param center polygon center, or [Offset.Unspecified] to compute from [vertices]
+     * @param rounding corner rounding applied to every vertex
      * @throws IllegalArgumentException if [vertices] has fewer than 3 entries
      */
     @Suppress("PrimitiveInCollection")
@@ -666,13 +608,12 @@ internal constructor(
     ) : this(vertices, center, rounding, perVertexRounding = null, roundingReference = null)
 
     /**
-     * Creates polygon geometry with a separate rounding for each vertex.
+     * Creates polygon geometry with per-vertex [perVertexRounding].
      *
      * @param vertices vertex positions, at least 3
      * @param perVertexRounding rounding for each vertex, matching [vertices] in size
-     * @param center polygon center, computed from the geometry when unspecified. An explicit center
-     *   can be provided as a custom transformation or morphing anchor.
-     * @throws IllegalArgumentException if [vertices] has fewer than 3 entries, or if
+     * @param center polygon center, or [Offset.Unspecified] to compute from [vertices]
+     * @throws IllegalArgumentException if [vertices] has fewer than 3 entries or
      *   [perVertexRounding] differs from [vertices] in size
      */
     @Suppress("PrimitiveInCollection")
@@ -696,7 +637,7 @@ internal constructor(
     }
 
     /**
-     * Resolves this geometry into a [RoundedPolygon]. Percent rounding resolves against the vertex
+     * Resolves this geometry into a [RoundedPolygon]. Fraction rounding resolves against the vertex
      * bounds.
      */
     internal fun toRoundedPolygon(density: Density): RoundedPolygon {
@@ -738,132 +679,94 @@ internal constructor(
     override fun toString(): String =
         "PolygonShapeGeometry(vertices=$vertices, center=$center, " +
             "rounding=$rounding, perVertexRounding=$perVertexRounding)"
+}
 
-    /**
-     * Amount and quality of rounding around a polygon vertex.
-     *
-     * A corner takes one of three forms:
-     * - unrounded, with a radius of 0, keeping the sharp vertex;
-     * - rounded with a circular arc, with a [smoothing] of 0, following an approximated circular
-     *   arc between adjacent edges;
-     * - rounded with continuous curvature, with [smoothing] > 0, where two symmetric cubic Bézier
-     *   flanking curves connect the circular arc to the edges. A [smoothing] of 0 keeps a purely
-     *   circular arc and 1 maximizes the flanking curves so they meet in the middle.
-     */
-    @Immutable
-    public class CornerRounding
-    internal constructor(
-        internal val value: Float,
-        internal val unit: Int,
-        internal val smoothing: Float,
-    ) {
+/**
+ * Defines the radius and smoothness of rounding at a polygon vertex.
+ *
+ * - [Unrounded] (`radius = 0`) keeps a sharp corner.
+ * - `smoothing = 0f` rounds the corner with a circular arc.
+ * - `smoothing > 0f` extends symmetric cubic Bézier flanking curves from the circular arc toward
+ *   the adjacent edges (`1f` maximizes the flanking curves).
+ *
+ * Create instances with [CornerRounding.dp], [CornerRounding.fraction], or [Unrounded].
+ */
+@Immutable
+public class CornerRounding
+internal constructor(
+    internal val value: Float,
+    internal val unit: Int,
+    internal val smoothing: Float,
+) {
 
-        public companion object {
-            /** Rounding with a radius of zero, producing a sharp corner at the vertex. */
-            public val Unrounded: CornerRounding = CornerRounding(0f, UnitLength, 0f)
+    public companion object {
+        /** Sharp corner with a rounding radius of zero. */
+        public val Unrounded: CornerRounding = CornerRounding(0f, UnitDp, 0f)
 
-            /**
-             * How a [CornerRounding] radius value is interpreted: a length in geometry coordinate
-             * space.
-             */
-            internal const val UnitLength = 0
+        internal const val UnitDp = 0
+        internal const val UnitFraction = 1
 
-            /** How a [CornerRounding] radius value is interpreted: a length in [Dp]. */
-            internal const val UnitDp = 1
-
-            /**
-             * How a [CornerRounding] radius value is interpreted: a percentage of a reference size.
-             */
-            internal const val UnitPercent = 2
+        /**
+         * Creates a [CornerRounding] with a [radius] in [Dp].
+         *
+         * @sample androidx.compose.foundation.samples.PolygonShapeSample
+         * @param radius corner rounding radius, at least `0.dp`
+         * @param smoothing transition smoothness from the circular arc to adjacent edges, in
+         *   `0f..1f`
+         * @throws IllegalArgumentException if [radius] is negative/unspecified or [smoothing] is
+         *   outside `0f..1f`
+         */
+        public fun dp(
+            radius: Dp,
+            @FloatRange(from = 0.0, to = 1.0) smoothing: Float = 0f,
+        ): CornerRounding {
+            require(radius.value >= 0f) { "radius must be non-negative, was $radius." }
+            requireValidSmoothing(smoothing)
+            return CornerRounding(radius.value, UnitDp, smoothing)
         }
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other !is CornerRounding) return false
-            return value == other.value && unit == other.unit && smoothing == other.smoothing
-        }
-
-        override fun hashCode(): Int {
-            var result = value.hashCode()
-            result = 31 * result + unit
-            result = 31 * result + smoothing.hashCode()
-            return result
-        }
-
-        override fun toString(): String {
-            val valueText =
-                when (unit) {
-                    UnitDp -> "${value}.dp"
-                    UnitPercent -> "$value%"
-                    else -> value.toString()
-                }
-            return "CornerRounding(radius=$valueText, smoothing=$smoothing)"
+        /**
+         * Creates a [CornerRounding] with a radius as a [fraction] of the polygon's geometry.
+         *
+         * Resolves against the generating radius for regular polygons and stars, or the smaller
+         * dimension of the vertex bounds for vertex-list geometry.
+         *
+         * @sample androidx.compose.foundation.samples.PolygonShapeWithRoundingFractionSample
+         * @param fraction rounding radius as a fraction of the geometry, in `0f..1f`
+         * @param smoothing transition smoothness from the circular arc to adjacent edges, in
+         *   `0f..1f`
+         * @throws IllegalArgumentException if [fraction] or [smoothing] is outside `0f..1f`
+         */
+        public fun fraction(
+            @FloatRange(from = 0.0, to = 1.0) fraction: Float,
+            @FloatRange(from = 0.0, to = 1.0) smoothing: Float = 0f,
+        ): CornerRounding {
+            require(fraction in 0f..1f) { "fraction must be in the range 0..1, was $fraction." }
+            requireValidSmoothing(smoothing)
+            return CornerRounding(fraction, UnitFraction, smoothing)
         }
     }
 
-    public companion object {
-        /**
-         * Creates a [CornerRounding] with a [radius] in the same coordinate space as the vertices.
-         *
-         * @sample androidx.compose.foundation.samples.UnitSpacePolygonShapeSample
-         * @param radius rounding radius in the vertex coordinate space, at least 0
-         * @param smoothing the amount by which the arc is "smoothed" by extending the curve from
-         *   the inner circular arc to the edge between vertices. A value of 0 (no smoothing)
-         *   indicates that the corner is rounded by only a circular arc; there are no flanking
-         *   curves. A value of 1 indicates that there is no circular arc in the center; the
-         *   flanking curves on either side meet at the middle.
-         * @throws IllegalArgumentException if [radius] is negative or [smoothing] is outside the
-         *   range 0 to 1
-         */
-        public fun CornerRounding(radius: Float, smoothing: Float = 0f): CornerRounding {
-            require(radius >= 0f) { "radius must be non-negative, was $radius." }
-            requireValidSmoothing(smoothing)
-            return CornerRounding(radius, CornerRounding.UnitLength, smoothing)
-        }
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CornerRounding) return false
+        return value == other.value && unit == other.unit && smoothing == other.smoothing
+    }
 
-        /**
-         * Creates a [CornerRounding] with a [radius] in [Dp], resolved with the shape's density.
-         *
-         * @param radius rounding radius of the corner, at least 0
-         * @param smoothing the amount by which the arc is "smoothed" by extending the curve from
-         *   the inner circular arc to the edge between vertices. A value of 0 (no smoothing)
-         *   indicates that the corner is rounded by only a circular arc; there are no flanking
-         *   curves. A value of 1 indicates that there is no circular arc in the center; the
-         *   flanking curves on either side meet at the middle.
-         * @throws IllegalArgumentException if [radius] is negative or unspecified, or [smoothing]
-         *   is outside the range 0 to 1
-         */
-        public fun CornerRounding(radius: Dp, smoothing: Float = 0f): CornerRounding {
-            require(radius.value >= 0f) { "radius must be non-negative, was $radius." }
-            requireValidSmoothing(smoothing)
-            return CornerRounding(radius.value, CornerRounding.UnitDp, smoothing)
-        }
+    override fun hashCode(): Int {
+        var result = value.hashCode()
+        result = 31 * result + unit
+        result = 31 * result + smoothing.hashCode()
+        return result
+    }
 
-        /**
-         * Creates a [CornerRounding] with a radius as a [percent] of the geometry it applies to.
-         *
-         * The reference is the generating radius for regular polygons and stars, or the smaller
-         * dimension of the vertex bounds for vertex-list geometry, so the radius scales with the
-         * shape rather than with the layout container.
-         *
-         * @sample androidx.compose.foundation.samples.PolygonShapeWithRoundingPercentSample
-         * @param percent rounding radius as a percentage of the geometry, in the range 0 to 100
-         * @param smoothing the amount by which the arc is "smoothed" by extending the curve from
-         *   the inner circular arc to the edge between vertices. A value of 0 (no smoothing)
-         *   indicates that the corner is rounded by only a circular arc; there are no flanking
-         *   curves. A value of 1 indicates that there is no circular arc in the center; the
-         *   flanking curves on either side meet at the middle.
-         * @throws IllegalArgumentException if [percent] is outside the range 0 to 100 or
-         *   [smoothing] is outside the range 0 to 1
-         */
-        public fun CornerRounding(
-            @IntRange(from = 0, to = 100) percent: Int,
-            smoothing: Float = 0f,
-        ): CornerRounding {
-            require(percent in 0..100) { "percent must be in the range 0..100, was $percent." }
-            requireValidSmoothing(smoothing)
-            return CornerRounding(percent.toFloat(), CornerRounding.UnitPercent, smoothing)
-        }
+    override fun toString(): String {
+        val valueText =
+            when (unit) {
+                UnitDp -> "${value}.dp"
+                else -> "fraction=$value"
+            }
+        return "CornerRounding($valueText, smoothing=$smoothing)"
     }
 }
 
@@ -893,12 +796,11 @@ private fun CornerRounding.toRoundedPolygonRounding(
     reference: Size,
     density: Density,
 ): androidx.graphics.shapes.CornerRounding {
-    if (this == CornerRounding.Unrounded) return androidx.graphics.shapes.CornerRounding.Unrounded
+    if (value == 0f) return androidx.graphics.shapes.CornerRounding.Unrounded
     val pxRadius =
         when (unit) {
             CornerRounding.UnitDp -> value * density.density
-            CornerRounding.UnitPercent -> value / 100f * reference.minDimension
-            else -> value
+            else -> value * reference.minDimension
         }
     return androidx.graphics.shapes.CornerRounding(radius = pxRadius, smoothing = smoothing)
 }
@@ -922,10 +824,10 @@ private fun requireMatchingPerVertexRounding(
 }
 
 private class PolygonShapeScopeImpl(
-    override val density: Float,
-    override val fontScale: Float,
-    override val size: Size,
-    override val layoutDirection: LayoutDirection,
+    override var density: Float,
+    override var fontScale: Float,
+    override var size: Size,
+    override var layoutDirection: LayoutDirection,
 ) : PolygonShapeScope {
 
     override fun polygon(
@@ -992,6 +894,204 @@ private class PolygonShapeScopeImpl(
         }
 }
 
+private class PolygonShapeTransformScopeImpl : PolygonShapeTransformScope {
+    override var density: Float = 1f
+    override var fontScale: Float = 1f
+    override var size: Size = Size.Zero
+    override var layoutDirection: LayoutDirection = LayoutDirection.Ltr
+
+    private var basePolygon: RoundedPolygon? = null
+    private var centerX: Float = 0f
+    private var centerY: Float = 0f
+    private val boundsBuffer = FloatArray(4)
+
+    val matrix: Matrix = Matrix()
+    var hasMatrix: Boolean = false
+
+    fun reset(
+        basePolygon: RoundedPolygon,
+        density: Float,
+        fontScale: Float,
+        size: Size,
+        layoutDirection: LayoutDirection,
+    ) {
+        this.basePolygon = basePolygon
+        this.density = density
+        this.fontScale = fontScale
+        this.size = size
+        this.layoutDirection = layoutDirection
+        this.centerX = basePolygon.centerX
+        this.centerY = basePolygon.centerY
+        if (this.hasMatrix) {
+            this.matrix.reset()
+            this.hasMatrix = false
+        }
+    }
+
+    override fun rotate(degrees: Float, pivot: Offset) {
+        if (degrees == 0f) return
+        hasMatrix = true
+        val px = if (pivot.isSpecified) pivot.x else centerX
+        val py = if (pivot.isSpecified) pivot.y else centerY
+        val radians = degrees * (PI / 180.0)
+        val c = cos(radians).toFloat()
+        val s = sin(radians).toFloat()
+        val m00 = matrix[0, 0]
+        val m01 = matrix[0, 1]
+        val m10 = matrix[1, 0]
+        val m11 = matrix[1, 1]
+        val tx = matrix[3, 0] - px
+        val ty = matrix[3, 1] - py
+        matrix[0, 0] = c * m00 - s * m01
+        matrix[0, 1] = s * m00 + c * m01
+        matrix[1, 0] = c * m10 - s * m11
+        matrix[1, 1] = s * m10 + c * m11
+        matrix[3, 0] = c * tx - s * ty + px
+        matrix[3, 1] = s * tx + c * ty + py
+    }
+
+    override fun translate(x: Float, y: Float) {
+        if (x == 0f && y == 0f) return
+        hasMatrix = true
+        matrix[3, 0] += x
+        matrix[3, 1] += y
+    }
+
+    override fun scale(scaleX: Float, scaleY: Float, pivot: Offset) {
+        if (scaleX == 1f && scaleY == 1f) return
+        hasMatrix = true
+        val px = if (pivot.isSpecified) pivot.x else centerX
+        val py = if (pivot.isSpecified) pivot.y else centerY
+        matrix[0, 0] *= scaleX
+        matrix[1, 0] *= scaleX
+        matrix[3, 0] = (matrix[3, 0] - px) * scaleX + px
+        matrix[0, 1] *= scaleY
+        matrix[1, 1] *= scaleY
+        matrix[3, 1] = (matrix[3, 1] - py) * scaleY + py
+    }
+
+    override fun transform(matrix: Matrix) {
+        // Cubic control points are mapped independently at resolution, which is exact only for
+        // affine transforms; 2D points have z = 0, so only these perspective terms apply.
+        val v = matrix.values
+        require(v[3] == 0f && v[7] == 0f && v[15] == 1f) {
+            "matrix must be an affine transform, without perspective components."
+        }
+        if (matrix.isIdentity()) return
+        hasMatrix = true
+        this.matrix[3, 0] -= centerX
+        this.matrix[3, 1] -= centerY
+        this.matrix *= matrix
+        this.matrix[3, 0] += centerX
+        this.matrix[3, 1] += centerY
+    }
+
+    override fun scaleToFit(contentScale: ContentScale, alignment: Alignment) {
+        val polygon = basePolygon ?: return
+        val currentMatrix = if (hasMatrix && !matrix.isIdentity()) matrix else null
+        polygon.calculateTransformedBounds(currentMatrix, boundsBuffer)
+        val boundsLeft = boundsBuffer[0]
+        val boundsTop = boundsBuffer[1]
+        val width = boundsBuffer[2] - boundsLeft
+        val height = boundsBuffer[3] - boundsTop
+        if (width <= 0f || height <= 0f) return
+
+        val factor = contentScale.computeScaleFactor(Size(width, height), size)
+        val position =
+            computeAlignedOffset(
+                scaledWidth = width * factor.scaleX,
+                scaledHeight = height * factor.scaleY,
+                containerSize = size,
+                alignment = alignment,
+                layoutDirection = layoutDirection,
+            )
+        val scaleX = factor.scaleX
+        val scaleY = factor.scaleY
+        val offsetX = position.x - boundsLeft * scaleX
+        val offsetY = position.y - boundsTop * scaleY
+        if (scaleX == 1f && scaleY == 1f && offsetX == 0f && offsetY == 0f) return
+
+        hasMatrix = true
+        matrix[0, 0] *= scaleX
+        matrix[1, 0] *= scaleX
+        matrix[3, 0] = matrix[3, 0] * scaleX + offsetX
+        matrix[0, 1] *= scaleY
+        matrix[1, 1] *= scaleY
+        matrix[3, 1] = matrix[3, 1] * scaleY + offsetY
+        centerX = centerX * scaleX + offsetX
+        centerY = centerY * scaleY + offsetY
+    }
+}
+
+/**
+ * Encapsulates a [PolygonShape]'s in-place transformation block, reusable scope, and single-entry
+ * transformed [RoundedPolygon] cache. Allocated lazily only when [PolygonShape.transform] is
+ * called.
+ */
+private class PolygonTransformation(
+    private var transformBlock: PolygonShapeTransformScope.() -> Unit
+) {
+    private var scope: PolygonShapeTransformScopeImpl? = null
+
+    private var cachedBasePolygon: RoundedPolygon? = null
+    private var cachedMatrixValues: FloatArray? = null
+    private var cachedTransformedPolygon: RoundedPolygon? = null
+
+    fun setTransformBlock(block: PolygonShapeTransformScope.() -> Unit) {
+        transformBlock = block
+        cachedTransformedPolygon = null
+    }
+
+    fun copy(): PolygonTransformation = PolygonTransformation(transformBlock)
+
+    fun resolve(
+        basePolygon: RoundedPolygon,
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): RoundedPolygon {
+        val activeScope = evaluateScope(basePolygon, size, layoutDirection, density)
+        if (!activeScope.hasMatrix || activeScope.matrix.isIdentity()) {
+            return basePolygon
+        }
+        val matrix = activeScope.matrix
+
+        val cached = cachedTransformedPolygon
+        if (
+            cached != null &&
+                basePolygon === cachedBasePolygon &&
+                matrix.values.contentEquals(cachedMatrixValues)
+        ) {
+            return cached
+        }
+
+        val transformed = basePolygon.transformed(matrix)
+        cachedBasePolygon = basePolygon
+        val buffer = cachedMatrixValues ?: FloatArray(16).also { cachedMatrixValues = it }
+        matrix.values.copyInto(buffer)
+        cachedTransformedPolygon = transformed
+        return transformed
+    }
+
+    private fun evaluateScope(
+        basePolygon: RoundedPolygon,
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): PolygonShapeTransformScopeImpl {
+        val instance = scope ?: PolygonShapeTransformScopeImpl().also { scope = it }
+        instance.reset(
+            basePolygon = basePolygon,
+            density = density.density,
+            fontScale = density.fontScale,
+            size = size,
+            layoutDirection = layoutDirection,
+        )
+        transformBlock(instance)
+        return instance
+    }
+}
+
 /** Transforms a [RoundedPolygon] with the given [Matrix], applied about the origin `(0, 0)`. */
 private fun RoundedPolygon.transformed(matrix: Matrix): RoundedPolygon = transformed { x, y ->
     val transformedPoint = matrix.map(Offset(x, y))
@@ -999,197 +1099,77 @@ private fun RoundedPolygon.transformed(matrix: Matrix): RoundedPolygon = transfo
 }
 
 /**
- * Computes the scale-and-place matrix that maps geometry occupying the given bounds into the
- * container [size] according to [contentScale] and [alignment], or null when the bounds are
- * degenerate.
- *
- * Bounds are measured approximately (anchor and control points), matching the convention used by
- * `RoundedPolygon.normalized()` so that fitted shapes scale identically to Material's normalized
- * polygons. [BiasAlignment]s (all the standard [Alignment] values) are applied with float
- * precision; other alignments fall back to the [Alignment.align] integer contract.
+ * Writes `[left, top, right, bottom]` of [this] polygon's control points (mapped by [matrix] if
+ * non-null) into [outBounds].
  */
-private fun computeFitMatrix(
-    boundsLeft: Float,
-    boundsTop: Float,
-    boundsRight: Float,
-    boundsBottom: Float,
-    size: Size,
-    contentScale: ContentScale,
-    alignment: Alignment,
-    layoutDirection: LayoutDirection,
-): Matrix? {
-    val width = boundsRight - boundsLeft
-    val height = boundsBottom - boundsTop
-    if (width <= 0f || height <= 0f) return null
-    val factor = contentScale.computeScaleFactor(Size(width, height), size)
-    val scaledWidth = width * factor.scaleX
-    val scaledHeight = height * factor.scaleY
-    val position =
-        if (alignment is BiasAlignment) {
-            val horizontalBias =
-                if (layoutDirection == LayoutDirection.Ltr) alignment.horizontalBias
-                else -alignment.horizontalBias
-            Offset(
-                (size.width - scaledWidth) / 2f * (1f + horizontalBias),
-                (size.height - scaledHeight) / 2f * (1f + alignment.verticalBias),
-            )
-        } else {
-            val aligned =
-                alignment.align(
-                    IntSize(scaledWidth.roundToInt(), scaledHeight.roundToInt()),
-                    IntSize(size.width.roundToInt(), size.height.roundToInt()),
-                    layoutDirection,
-                )
-            Offset(aligned.x.toFloat(), aligned.y.toFloat())
-        }
-    // x' = x * scale + offset: the scale is applied first, then the translation.
-    val matrix = Matrix()
-    matrix.scale(factor.scaleX, factor.scaleY)
-    matrix[3, 0] = position.x - boundsLeft * factor.scaleX
-    matrix[3, 1] = position.y - boundsTop * factor.scaleY
-    return matrix
+private fun RoundedPolygon.calculateTransformedBounds(matrix: Matrix?, outBounds: FloatArray) {
+    if (matrix == null) {
+        calculateBounds(outBounds, approximate = true)
+        return
+    }
+    val m00 = matrix[0, 0]
+    val m01 = matrix[0, 1]
+    val m10 = matrix[1, 0]
+    val m11 = matrix[1, 1]
+    val m30 = matrix[3, 0]
+    val m31 = matrix[3, 1]
+    var minX = Float.MAX_VALUE
+    var minY = Float.MAX_VALUE
+    var maxX = -Float.MAX_VALUE
+    var maxY = -Float.MAX_VALUE
+    val cubics = this.cubics
+    for (i in 0 until cubics.size) {
+        val c = cubics[i]
+        val a0x = m00 * c.anchor0X + m10 * c.anchor0Y + m30
+        val a0y = m01 * c.anchor0X + m11 * c.anchor0Y + m31
+        if (a0x < minX) minX = a0x
+        if (a0y < minY) minY = a0y
+        if (a0x > maxX) maxX = a0x
+        if (a0y > maxY) maxY = a0y
+
+        val c0x = m00 * c.control0X + m10 * c.control0Y + m30
+        val c0y = m01 * c.control0X + m11 * c.control0Y + m31
+        if (c0x < minX) minX = c0x
+        if (c0y < minY) minY = c0y
+        if (c0x > maxX) maxX = c0x
+        if (c0y > maxY) maxY = c0y
+
+        val c1x = m00 * c.control1X + m10 * c.control1Y + m30
+        val c1y = m01 * c.control1X + m11 * c.control1Y + m31
+        if (c1x < minX) minX = c1x
+        if (c1y < minY) minY = c1y
+        if (c1x > maxX) maxX = c1x
+        if (c1y > maxY) maxY = c1y
+    }
+    outBounds[0] = minX
+    outBounds[1] = minY
+    outBounds[2] = maxX
+    outBounds[3] = maxY
 }
 
-/** Scales and places the polygon within [size] according to [contentScale] and [alignment]. */
-private fun RoundedPolygon.scaledInto(
-    size: Size,
-    contentScale: ContentScale,
+private fun computeAlignedOffset(
+    scaledWidth: Float,
+    scaledHeight: Float,
+    containerSize: Size,
     alignment: Alignment,
     layoutDirection: LayoutDirection,
-): RoundedPolygon {
-    val b = calculateBounds(FloatArray(4), approximate = true)
-    val matrix =
-        computeFitMatrix(
-            boundsLeft = b[0],
-            boundsTop = b[1],
-            boundsRight = b[2],
-            boundsBottom = b[3],
-            size = size,
-            contentScale = contentScale,
-            alignment = alignment,
-            layoutDirection = layoutDirection,
-        ) ?: return this
-    if (matrix.isIdentity()) return this
-    return transformed(matrix)
-}
-
-/** Uniformly scales and centers the polygon to fit within [size], preserving aspect ratio. */
-private fun RoundedPolygon.fitCentered(size: Size): RoundedPolygon =
-    scaledInto(size, ContentScale.Fit, Alignment.Center, LayoutDirection.Ltr)
-
-/**
- * Base class for [PolygonShape] implementations. Caches the geometry and outline built by
- * [buildPolygon] per (size, layoutDirection, density, [contentVersion]).
- */
-internal abstract class CachingPolygonShape : PolygonShape() {
-    /**
-     * Computes the geometry for the given resolution inputs. Always builds; implementations
-     * override this and must not cache. Callers inside the library go through [resolvePolygon]
-     * instead, which memoizes the result.
-     */
-    internal abstract fun buildPolygon(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ): RoundedPolygon
-
-    /**
-     * Monotonic version of any inputs beyond (size, layoutDirection, density) that determine
-     * [buildPolygon]'s result. Implementations whose geometry can change while those keys stay
-     * equal (e.g. a builder lambda reading captured state) bump the version so the caches rebuild
-     * instead of returning stale results.
-     */
-    override fun contentVersion(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ): Int = 0
-
-    private var cachedPolygonSize: Size? = null
-    private var cachedPolygonLayoutDirection: LayoutDirection? = null
-    private var cachedPolygonDensity: Density? = null
-    private var cachedPolygonVersion = 0
-    private var cachedPolygon: RoundedPolygon? = null
-
-    private var cachedOutlineSize: Size? = null
-    private var cachedOutlineLayoutDirection: LayoutDirection? = null
-    private var cachedOutlineDensity: Density? = null
-    private var cachedOutlineVersion = 0
-    private var cachedOutline: Outline? = null
-
-    /**
-     * Returns the geometry for the given resolution inputs, rebuilding only when they (or the
-     * [contentVersion]) change. All consumers that need a materialized polygon resolve through this
-     * cache, so a shape instance shared across consumers builds its geometry once per size instead
-     * of once per consumer.
-     */
-    final override fun resolvePolygon(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ): RoundedPolygon =
-        resolvePolygon(
-            size,
-            layoutDirection,
-            density,
-            contentVersion(size, layoutDirection, density),
+): Offset {
+    if (alignment is BiasAlignment) {
+        val horizontalBias =
+            if (layoutDirection == LayoutDirection.Ltr) alignment.horizontalBias
+            else -alignment.horizontalBias
+        return Offset(
+            (containerSize.width - scaledWidth) / 2f * (1f + horizontalBias),
+            (containerSize.height - scaledHeight) / 2f * (1f + alignment.verticalBias),
         )
-
-    /**
-     * [resolvePolygon] with an already-computed [contentVersion], so a caller that has just
-     * requested the version (like [createOutline]) does not evaluate it a second time.
-     */
-    private fun resolvePolygon(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density,
-        version: Int,
-    ): RoundedPolygon {
-        val cached = cachedPolygon
-        if (
-            cached != null &&
-                size == cachedPolygonSize &&
-                layoutDirection == cachedPolygonLayoutDirection &&
-                density == cachedPolygonDensity &&
-                version == cachedPolygonVersion
-        ) {
-            return cached
-        }
-        val polygon = buildPolygon(size, layoutDirection, density)
-        cachedPolygonSize = size
-        cachedPolygonLayoutDirection = layoutDirection
-        cachedPolygonDensity = density
-        cachedPolygonVersion = version
-        cachedPolygon = polygon
-        return polygon
     }
-
-    final override fun createOutline(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ): Outline {
-        val version = contentVersion(size, layoutDirection, density)
-        // the property is mutable, so it cannot be smart-cast across the null check.
-        val cached = cachedOutline
-        if (
-            cached != null &&
-                size == cachedOutlineSize &&
-                layoutDirection == cachedOutlineLayoutDirection &&
-                density == cachedOutlineDensity &&
-                version == cachedOutlineVersion
-        ) {
-            return cached
-        }
-        val outline =
-            Outline.Generic(resolvePolygon(size, layoutDirection, density, version).asComposePath())
-        cachedOutlineSize = size
-        cachedOutlineLayoutDirection = layoutDirection
-        cachedOutlineDensity = density
-        cachedOutlineVersion = version
-        cachedOutline = outline
-        return outline
-    }
+    val aligned =
+        alignment.align(
+            IntSize(scaledWidth.roundToInt(), scaledHeight.roundToInt()),
+            IntSize(containerSize.width.roundToInt(), containerSize.height.roundToInt()),
+            layoutDirection,
+        )
+    return Offset(aligned.x.toFloat(), aligned.y.toFloat())
 }
 
 /**
@@ -1221,10 +1201,31 @@ internal fun RoundedPolygon.asComposePath(path: Path = Path()): Path {
 }
 
 private class BuilderPolygonShape(val builder: PolygonShapeScope.() -> PolygonShapeGeometry) :
-    CachingPolygonShape() {
+    PolygonShape() {
 
+    private val scope = PolygonShapeScopeImpl(1f, 1f, Size.Zero, LayoutDirection.Ltr)
     private var lastGeometry: PolygonShapeGeometry? = null
     private var version = 0
+
+    // Size-independent geometry (such as a unit-space definition fitted via scaleToFit) keeps the
+    // same value across resizes, so the built polygon is memoized on the geometry instance.
+    private var builtGeometry: PolygonShapeGeometry? = null
+    private var builtDensity: Density? = null
+    private var builtPolygon: RoundedPolygon? = null
+
+    override fun copyBase(): PolygonShape = BuilderPolygonShape(builder)
+
+    private fun evaluateGeometry(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): PolygonShapeGeometry {
+        scope.density = density.density
+        scope.fontScale = density.fontScale
+        scope.size = size
+        scope.layoutDirection = layoutDirection
+        return scope.builder()
+    }
 
     // The builder can read captured state that changes while this instance stays the same, so
     // the geometry (value data only, no polygon build) is recomputed on every resolution and the
@@ -1234,9 +1235,7 @@ private class BuilderPolygonShape(val builder: PolygonShapeScope.() -> PolygonSh
         layoutDirection: LayoutDirection,
         density: Density,
     ): Int {
-        val geometry =
-            PolygonShapeScopeImpl(density.density, density.fontScale, size, layoutDirection)
-                .builder()
+        val geometry = evaluateGeometry(size, layoutDirection, density)
         if (geometry != lastGeometry) {
             lastGeometry = geometry
             version++
@@ -1251,39 +1250,23 @@ private class BuilderPolygonShape(val builder: PolygonShapeScope.() -> PolygonSh
     ): RoundedPolygon {
         val geometry =
             lastGeometry
-                ?: PolygonShapeScopeImpl(density.density, density.fontScale, size, layoutDirection)
-                    .builder()
-                    .also { lastGeometry = it }
-        return geometry.toRoundedPolygon(density)
+                ?: evaluateGeometry(size, layoutDirection, density).also { lastGeometry = it }
+        val built = builtPolygon
+        if (built != null && geometry === builtGeometry && density == builtDensity) {
+            return built
+        }
+        return geometry.toRoundedPolygon(density).also {
+            builtGeometry = geometry
+            builtDensity = density
+            builtPolygon = it
+        }
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is BuilderPolygonShape) return false
-        return builder === other.builder
-    }
-
-    override fun hashCode(): Int = builder.hashCode()
-}
-
-private class GeometryPolygonShape(val geometry: PolygonShapeGeometry) : CachingPolygonShape() {
-    override fun buildPolygon(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ): RoundedPolygon = geometry.toRoundedPolygon(density).fitCentered(size)
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is GeometryPolygonShape) return false
-        return geometry == other.geometry
-    }
-
-    override fun hashCode(): Int = geometry.hashCode()
 }
 
 private class RegularPolygonShape(val numVertices: Int, val rounding: CornerRounding) :
-    CachingPolygonShape() {
+    PolygonShape() {
+    override fun copyBase(): PolygonShape = RegularPolygonShape(numVertices, rounding)
+
     override fun buildPolygon(
         size: Size,
         layoutDirection: LayoutDirection,
@@ -1299,14 +1282,6 @@ private class RegularPolygonShape(val numVertices: Int, val rounding: CornerRoun
             rounding = rounding.toRoundedPolygonRounding(reference, density),
         )
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is RegularPolygonShape) return false
-        return numVertices == other.numVertices && rounding == other.rounding
-    }
-
-    override fun hashCode(): Int = 31 * numVertices + rounding.hashCode()
 }
 
 private class StarPolygonShape(
@@ -1314,14 +1289,17 @@ private class StarPolygonShape(
     val innerRadiusRatio: Float,
     val outerRounding: CornerRounding,
     val innerRounding: CornerRounding,
-) : CachingPolygonShape() {
+) : PolygonShape() {
+    override fun copyBase(): PolygonShape =
+        StarPolygonShape(numPoints, innerRadiusRatio, outerRounding, innerRounding)
+
     override fun buildPolygon(
         size: Size,
         layoutDirection: LayoutDirection,
         density: Density,
     ): RoundedPolygon {
         val radius = min(size.width, size.height) / 2f
-        // Rounding resolves against the star's outer radius (geometry-relative), so a percent
+        // Rounding resolves against the star's outer radius (geometry-relative), so a fraction
         // rounding matches RoundedPolygon.star's rounding-as-fraction-of-radius convention.
         val reference = Size(radius, radius)
         return RoundedPolygon.star(
@@ -1334,26 +1312,11 @@ private class StarPolygonShape(
             centerY = size.height / 2f,
         )
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is StarPolygonShape) return false
-        return numPoints == other.numPoints &&
-            innerRadiusRatio == other.innerRadiusRatio &&
-            outerRounding == other.outerRounding &&
-            innerRounding == other.innerRounding
-    }
-
-    override fun hashCode(): Int {
-        var result = numPoints
-        result = 31 * result + innerRadiusRatio.hashCode()
-        result = 31 * result + outerRounding.hashCode()
-        result = 31 * result + innerRounding.hashCode()
-        return result
-    }
 }
 
-private class PillPolygonShape(val smoothing: Float) : CachingPolygonShape() {
+private class PillPolygonShape(val smoothing: Float) : PolygonShape() {
+    override fun copyBase(): PolygonShape = PillPolygonShape(smoothing)
+
     override fun buildPolygon(
         size: Size,
         layoutDirection: LayoutDirection,
@@ -1366,14 +1329,6 @@ private class PillPolygonShape(val smoothing: Float) : CachingPolygonShape() {
             centerX = size.width / 2f,
             centerY = size.height / 2f,
         )
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is PillPolygonShape) return false
-        return smoothing == other.smoothing
-    }
-
-    override fun hashCode(): Int = smoothing.hashCode()
 }
 
 private class PillStarPolygonShape(
@@ -1383,7 +1338,17 @@ private class PillStarPolygonShape(
     val startLocation: Float,
     val outerRounding: CornerRounding,
     val innerRounding: CornerRounding,
-) : CachingPolygonShape() {
+) : PolygonShape() {
+    override fun copyBase(): PolygonShape =
+        PillStarPolygonShape(
+            numPoints,
+            innerRadiusRatio,
+            vertexSpacing,
+            startLocation,
+            outerRounding,
+            innerRounding,
+        )
+
     override fun buildPolygon(
         size: Size,
         layoutDirection: LayoutDirection,
@@ -1397,7 +1362,7 @@ private class PillStarPolygonShape(
         val width = size.width - inset
         val height = size.height - inset
         // Rounding resolves against the star's outer radius (geometry-relative), matching the
-        // star factory's percent convention.
+        // star factory's fraction convention.
         val radius = min(width, height)
         val reference = Size(radius, radius)
         return RoundedPolygon.pillStar(
@@ -1413,30 +1378,11 @@ private class PillStarPolygonShape(
             centerY = size.height / 2f,
         )
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is PillStarPolygonShape) return false
-        return numPoints == other.numPoints &&
-            innerRadiusRatio == other.innerRadiusRatio &&
-            vertexSpacing == other.vertexSpacing &&
-            startLocation == other.startLocation &&
-            outerRounding == other.outerRounding &&
-            innerRounding == other.innerRounding
-    }
-
-    override fun hashCode(): Int {
-        var result = numPoints
-        result = 31 * result + innerRadiusRatio.hashCode()
-        result = 31 * result + vertexSpacing.hashCode()
-        result = 31 * result + startLocation.hashCode()
-        result = 31 * result + outerRounding.hashCode()
-        result = 31 * result + innerRounding.hashCode()
-        return result
-    }
 }
 
-private class CirclePolygonShape(val numVertices: Int) : CachingPolygonShape() {
+private class CirclePolygonShape(val numVertices: Int) : PolygonShape() {
+    override fun copyBase(): PolygonShape = CirclePolygonShape(numVertices)
+
     override fun buildPolygon(
         size: Size,
         layoutDirection: LayoutDirection,
@@ -1448,14 +1394,6 @@ private class CirclePolygonShape(val numVertices: Int) : CachingPolygonShape() {
             centerX = size.width / 2f,
             centerY = size.height / 2f,
         )
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is CirclePolygonShape) return false
-        return numVertices == other.numVertices
-    }
-
-    override fun hashCode(): Int = numVertices
 }
 
 private class RectanglePolygonShape(
@@ -1464,7 +1402,16 @@ private class RectanglePolygonShape(
     val bottomEndRounding: CornerRounding,
     val bottomStartRounding: CornerRounding,
     val absolute: Boolean = false,
-) : CachingPolygonShape() {
+) : PolygonShape() {
+    override fun copyBase(): PolygonShape =
+        RectanglePolygonShape(
+            topStartRounding,
+            topEndRounding,
+            bottomEndRounding,
+            bottomStartRounding,
+            absolute,
+        )
+
     override fun buildPolygon(
         size: Size,
         layoutDirection: LayoutDirection,
@@ -1493,33 +1440,12 @@ private class RectanglePolygonShape(
             centerY = size.height / 2f,
         )
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is RectanglePolygonShape) return false
-        return topStartRounding == other.topStartRounding &&
-            topEndRounding == other.topEndRounding &&
-            bottomEndRounding == other.bottomEndRounding &&
-            bottomStartRounding == other.bottomStartRounding &&
-            absolute == other.absolute
-    }
-
-    override fun hashCode(): Int {
-        var result = topStartRounding.hashCode()
-        result = 31 * result + topEndRounding.hashCode()
-        result = 31 * result + bottomEndRounding.hashCode()
-        result = 31 * result + bottomStartRounding.hashCode()
-        result = 31 * result + absolute.hashCode()
-        return result
-    }
 }
 
 /**
  * Converts a [RoundedCornerShape] to a [PolygonShape].
  *
- * Note: The resulting outline closely approximates the original shape, but is not pixel-identical
- * because [PolygonShape] and [RoundedCornerShape] use different geometry and curve calculations.
- * Avoid comparing them for 1:1 pixel equivalence.
+ * Note: Approximates [RoundedCornerShape] using cubic Bézier curves and is not pixel-identical.
  *
  * @sample androidx.compose.foundation.samples.RoundedCornerShapeToPolygonShapeSample
  */
@@ -1562,14 +1488,15 @@ public fun AbsoluteCutCornerShape.toPolygonShape(): PolygonShape =
 
 /**
  * Polygon conversion of a [CornerBasedShape] ([RoundedCornerShape]/[CutCornerShape] and their
- * absolute variants). Keyed on the [source] shape plus the [cut] and [absolute] flags; the RTL
- * corner swap is resolved at build time, so it is not part of identity.
+ * absolute variants). The RTL corner swap is resolved at build time.
  */
 private class CornerShapePolygonShape(
     val source: CornerBasedShape,
     val cut: Boolean,
     val absolute: Boolean,
-) : CachingPolygonShape() {
+) : PolygonShape() {
+    override fun copyBase(): PolygonShape = CornerShapePolygonShape(source, cut, absolute)
+
     override fun buildPolygon(
         size: Size,
         layoutDirection: LayoutDirection,
@@ -1602,19 +1529,6 @@ private class CornerShapePolygonShape(
         } else {
             roundedCornerPolygon(size, topLeft, topRight, bottomLeft, bottomRight)
         }
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is CornerShapePolygonShape) return false
-        return cut == other.cut && absolute == other.absolute && source == other.source
-    }
-
-    override fun hashCode(): Int {
-        var result = source.hashCode()
-        result = 31 * result + cut.hashCode()
-        result = 31 * result + absolute.hashCode()
-        return result
     }
 }
 
@@ -1691,133 +1605,4 @@ private fun cutCornerPolygon(
         centerX = width / 2f,
         centerY = height / 2f,
     )
-}
-
-/**
- * A [PolygonShape] that applies a transformation to its inner shape's resolved geometry and
- * optionally scales and aligns it into the container bounds.
- *
- * Holds a private snapshot of the matrix (if provided), so later caller-side mutations do not
- * affect this shape's behavior, equality, or hash code.
- */
-private class TransformedPolygonShape(
-    val inner: PolygonShape,
-    val rotation: Float = 0f,
-    val translation: Offset = Offset.Zero,
-    matrix: Matrix? = null,
-    val contentScale: ContentScale? = null,
-    val alignment: Alignment = Alignment.Center,
-) : CachingPolygonShape() {
-
-    val matrix: Matrix? = matrix?.let { Matrix().apply { setFrom(it) } }
-
-    /**
-     * A wrapper adds no versioned inputs of its own, but its inner shape can (a builder lambda
-     * reading captured state), so the inner version must key this shape's caches too; otherwise a
-     * wrapper over a builder base would serve stale outlines.
-     */
-    override fun contentVersion(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ): Int = inner.contentVersion(size, layoutDirection, density)
-
-    override fun buildPolygon(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ): RoundedPolygon {
-        val polygon = inner.resolvePolygon(size, layoutDirection, density)
-        val transformed =
-            if (matrix != null) {
-                // Pivot the matrix around the geometry center: the linear components (rotation,
-                // scale, skew) then only change the shape's orientation and size, never its
-                // position, while translation components pass through unchanged.
-                val pivot = Matrix()
-                pivot.translate(-polygon.centerX, -polygon.centerY)
-                pivot *= matrix
-                pivot[3, 0] = pivot[3, 0] + polygon.centerX
-                pivot[3, 1] = pivot[3, 1] + polygon.centerY
-                polygon.transformed(pivot)
-            } else if (rotation != 0f || translation != Offset.Zero) {
-                val pivot = Matrix()
-                pivot.translate(-polygon.centerX, -polygon.centerY)
-                if (rotation != 0f) {
-                    pivot.rotateZ(rotation)
-                }
-                pivot[3, 0] = pivot[3, 0] + polygon.centerX + translation.x
-                pivot[3, 1] = pivot[3, 1] + polygon.centerY + translation.y
-                polygon.transformed(pivot)
-            } else {
-                polygon
-            }
-        return if (contentScale != null) {
-            transformed.scaledInto(size, contentScale, alignment, layoutDirection)
-        } else {
-            transformed
-        }
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is TransformedPolygonShape) return false
-        return contentScale == other.contentScale &&
-            alignment == other.alignment &&
-            rotation == other.rotation &&
-            translation == other.translation &&
-            inner == other.inner &&
-            ((matrix == null && other.matrix == null) ||
-                (matrix != null &&
-                    other.matrix != null &&
-                    matrix.values.contentEquals(other.matrix.values)))
-    }
-
-    override fun hashCode(): Int {
-        var result = inner.hashCode()
-        result = 31 * result + rotation.hashCode()
-        result = 31 * result + translation.hashCode()
-        result = 31 * result + (matrix?.values?.contentHashCode() ?: 0)
-        result = 31 * result + (contentScale?.hashCode() ?: 0)
-        result = 31 * result + alignment.hashCode()
-        return result
-    }
-}
-
-/** A [PolygonShape] that scales and places its inner shape's resolved geometry. */
-private class ScaledToFitPolygonShape(
-    private val inner: PolygonShape,
-    private val contentScale: ContentScale,
-    private val alignment: Alignment,
-) : CachingPolygonShape() {
-
-    /** See [TransformedPolygonShape.contentVersion]. */
-    override fun contentVersion(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ): Int = inner.contentVersion(size, layoutDirection, density)
-
-    override fun buildPolygon(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ): RoundedPolygon =
-        inner
-            .resolvePolygon(size, layoutDirection, density)
-            .scaledInto(size, contentScale, alignment, layoutDirection)
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is ScaledToFitPolygonShape) return false
-        return contentScale == other.contentScale &&
-            alignment == other.alignment &&
-            inner == other.inner
-    }
-
-    override fun hashCode(): Int {
-        var result = inner.hashCode()
-        result = 31 * result + contentScale.hashCode()
-        result = 31 * result + alignment.hashCode()
-        return result
-    }
 }

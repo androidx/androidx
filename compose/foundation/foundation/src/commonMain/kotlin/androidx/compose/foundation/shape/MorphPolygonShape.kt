@@ -32,7 +32,6 @@ import androidx.graphics.shapes.RoundedPolygon
  *
  * Reads [progress] each time the outline is resolved. Values at or below `0f` resolve to [start];
  * values at or above `1f` resolve to [end]. Create a separate instance for each morphing element.
- * Two shapes created with equal endpoints and the same [progress] instance compare equal.
  *
  * @sample androidx.compose.foundation.samples.MorphPolygonShapeSample
  * @param start starting shape of the morph
@@ -99,19 +98,6 @@ private class MorphPolygonShapeImpl(
         lastProgress = p
         lastOutline = outline
         return outline
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is MorphPolygonShapeImpl) return false
-        return start == other.start && end == other.end && progress === other.progress
-    }
-
-    override fun hashCode(): Int {
-        var result = start.hashCode()
-        result = 31 * result + end.hashCode()
-        result = 31 * result + progress.hashCode()
-        return result
     }
 }
 

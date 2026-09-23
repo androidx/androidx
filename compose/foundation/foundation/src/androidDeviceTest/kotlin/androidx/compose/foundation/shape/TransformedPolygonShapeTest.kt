@@ -17,8 +17,6 @@
 package androidx.compose.foundation.shape
 
 import android.graphics.PathMeasure
-import androidx.compose.foundation.shape.PolygonShapeGeometry.Companion.CornerRounding
-import androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -30,15 +28,13 @@ import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.max
 import kotlin.math.sqrt
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
-import org.junit.Assert.assertSame
+import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -54,20 +50,17 @@ class TransformedPolygonShapeTest {
     private val tightTolerance = 2f
 
     @Test
-    fun polygonShape_chainedTransformed() {
+    fun polygonShape_transform_rotatesInPlace() {
         val base = PolygonShape { polygon(3) }
-
-        val rotated = base.transformed(Matrix().apply { rotateZ(90f) })
-
-        val outline = rotated.createOutline(size, LayoutDirection.Ltr, unitDensity)
-        assertTrue(outline is Outline.Generic)
-
-        // the resolved outline equals the base outline rotated 90 degrees around the
-        // container center (the polygon center for a scope-factory shape).
         val expected = Path().apply { addPath(base.outlinePath()) }
         expected
             .asAndroidPath()
             .transform(android.graphics.Matrix().apply { setRotate(90f, sizePx / 2f, sizePx / 2f) })
+
+        base.transform { rotate(90f) }
+
+        val outline = base.createOutline(size, LayoutDirection.Ltr, unitDensity)
+        assertTrue(outline is Outline.Generic)
         assertPathsMatch(
             "rotated triangle vs rotated base path",
             expected,
@@ -77,12 +70,12 @@ class TransformedPolygonShapeTest {
     }
 
     @Test
-    fun polygonShape_chainedScaledToFit() {
+    fun polygonShape_scaleToFit_mutatesInPlace() {
         val base = PolygonShape { polygon(5, radius = 1000f) } // gigantic radius
 
-        val scaledToFit = base.scaledToFit()
+        base.transform { scaleToFit() }
 
-        val underlying = scaledToFit.resolvePolygon(size, LayoutDirection.Ltr, unitDensity)
+        val underlying = base.resolvePolygon(size, LayoutDirection.Ltr, unitDensity)
         val bounds = underlying.calculateBounds(FloatArray(4), false)
         assertEquals(100f, (bounds[0] + bounds[2]) / 2f, 1e-2f)
         assertEquals(100f, (bounds[1] + bounds[3]) / 2f, 1e-2f)
@@ -91,15 +84,15 @@ class TransformedPolygonShapeTest {
     }
 
     @Test
-    fun roundingPercent_isRelativeToGeneratingRadius() {
-        // Geometry-relative rounding: the same percent at different explicit radii must produce
+    fun roundingFraction_isRelativeToGeneratingRadius() {
+        // Geometry-relative rounding: the same fraction at different explicit radii must produce
         // the same shape once scaled to fit, because the rounding scales with the radius.
         fun pentagonAt(radius: Float) = PolygonShape {
-            polygon(5, radius = radius, rounding = CornerRounding(percent = 20))
+            polygon(5, radius = radius, rounding = CornerRounding.fraction(0.2f))
         }
-            .scaledToFit()
+            .apply { transform { scaleToFit() } }
         assertPathsMatch(
-            "percent rounding at radius 50 vs 400",
+            "fraction rounding at radius 50 vs 400",
             pentagonAt(50f).outlinePath(),
             pentagonAt(400f).outlinePath(),
             tightTolerance,
@@ -111,10 +104,10 @@ class TransformedPolygonShapeTest {
     }
 
     @Test
-    fun scaledToFit_fitsIrregularGeometry_preservingAspectRatio() {
+    fun scaleToFit_fitsIrregularGeometry_preservingAspectRatio() {
         // 320x200 rectangle fit into a 300x150 container: scale = min(300/320, 150/200) = 0.75,
         // so the resolved bounds must be 240x150, centered. A stretch would fill 300x150.
-        val shape = wideRectangleShape().scaledToFit()
+        val shape = wideRectangleShape().apply { transform { scaleToFit() } }
         val polygon = shape.resolvePolygon(Size(300f, 150f), LayoutDirection.Ltr, unitDensity)
         val bounds = polygon.calculateBounds(FloatArray(4), false)
         assertEquals(30f, bounds[0], 1e-2f)
@@ -124,9 +117,9 @@ class TransformedPolygonShapeTest {
     }
 
     @Test
-    fun scaledToFit_centersSmallerAxis() {
+    fun scaleToFit_centersSmallerAxis() {
         // The same 1.6:1 geometry in a square container: width-bound, vertically centered.
-        val shape = wideRectangleShape().scaledToFit()
+        val shape = wideRectangleShape().apply { transform { scaleToFit() } }
         val polygon = shape.resolvePolygon(size, LayoutDirection.Ltr, unitDensity)
         val bounds = polygon.calculateBounds(FloatArray(4), false)
         assertEquals(0f, bounds[0], 1e-2f)
@@ -136,8 +129,8 @@ class TransformedPolygonShapeTest {
     }
 
     @Test
-    fun scaledToFit_fillBounds_stretchesToContainer() {
-        val shape = wideRectangleShape().scaledToFit(ContentScale.FillBounds)
+    fun scaleToFit_fillBounds_stretchesToContainer() {
+        val shape = wideRectangleShape().apply { transform { scaleToFit(ContentScale.FillBounds) } }
         val bounds =
             shape
                 .resolvePolygon(Size(300f, 150f), LayoutDirection.Ltr, unitDensity)
@@ -149,10 +142,10 @@ class TransformedPolygonShapeTest {
     }
 
     @Test
-    fun scaledToFit_crop_fillsPreservingAspectRatio() {
+    fun scaleToFit_crop_fillsPreservingAspectRatio() {
         // 320x200 geometry cropped into 300x150: scale = max(300/320, 150/200) = 0.9375, so the
         // scaled geometry is 300x187.5, horizontally exact and vertically overflowing, centered.
-        val shape = wideRectangleShape().scaledToFit(ContentScale.Crop)
+        val shape = wideRectangleShape().apply { transform { scaleToFit(ContentScale.Crop) } }
         val bounds =
             shape
                 .resolvePolygon(Size(300f, 150f), LayoutDirection.Ltr, unitDensity)
@@ -164,8 +157,9 @@ class TransformedPolygonShapeTest {
     }
 
     @Test
-    fun scaledToFit_alignment_positionsScaledGeometry() {
-        val shape = wideRectangleShape().scaledToFit(alignment = Alignment.TopStart)
+    fun scaleToFit_alignment_positionsScaledGeometry() {
+        val shape =
+            wideRectangleShape().apply { transform { scaleToFit(alignment = Alignment.TopStart) } }
         val bounds =
             shape
                 .resolvePolygon(Size(300f, 150f), LayoutDirection.Ltr, unitDensity)
@@ -177,20 +171,8 @@ class TransformedPolygonShapeTest {
     }
 
     @Test
-    fun scaledToFit_valueEquality_includesScaleAndAlignment() {
-        val base = CutCornerShape(10.dp).toPolygonShape()
-        assertEquals(base.scaledToFit(), base.scaledToFit())
-        assertEquals(
-            base.scaledToFit(ContentScale.Crop, Alignment.TopStart),
-            base.scaledToFit(ContentScale.Crop, Alignment.TopStart),
-        )
-        assertNotEquals(base.scaledToFit(), base.scaledToFit(ContentScale.FillBounds))
-        assertNotEquals(base.scaledToFit(), base.scaledToFit(alignment = Alignment.TopStart))
-    }
-
-    @Test
-    fun transformed_pivotsAroundPolygonCenter() {
-        val rotated = PolygonShape { polygon(5) }.transformed(Matrix().apply { rotateZ(36f) })
+    fun transform_pivotsAroundPolygonCenter() {
+        val rotated = PolygonShape { polygon(5) }.apply { transform { rotate(36f) } }
         val polygon = rotated.resolvePolygon(size, LayoutDirection.Ltr, unitDensity)
         assertEquals(sizePx / 2f, polygon.centerX, 1e-2f)
         assertEquals(sizePx / 2f, polygon.centerY, 1e-2f)
@@ -202,13 +184,16 @@ class TransformedPolygonShapeTest {
     }
 
     @Test
-    fun transformed_chainedRotations_composeAdditively() {
+    fun transform_multipleRotations_composeAdditively() {
         val base = PolygonShape { polygon(3) }
         val chained =
-            base
-                .transformed(Matrix().apply { rotateZ(30f) })
-                .transformed(Matrix().apply { rotateZ(60f) })
-        val single = base.transformed(Matrix().apply { rotateZ(90f) })
+            base.copy().apply {
+                transform {
+                    rotate(30f)
+                    rotate(60f)
+                }
+            }
+        val single = base.copy().apply { transform { rotate(90f) } }
         assertPathsMatch(
             "chained rotations",
             single.outlinePath(),
@@ -218,13 +203,16 @@ class TransformedPolygonShapeTest {
     }
 
     @Test
-    fun transformed_chainedUniformScales_composeMultiplicatively() {
+    fun transform_multipleUniformScales_composeMultiplicatively() {
         val base = PolygonShape { polygon(6) }
         val chained =
-            base
-                .transformed(Matrix().apply { scale(0.5f, 0.5f) })
-                .transformed(Matrix().apply { scale(0.5f, 0.5f) })
-        val single = base.transformed(Matrix().apply { scale(0.25f, 0.25f) })
+            base.copy().apply {
+                transform {
+                    scale(0.5f, 0.5f)
+                    scale(0.5f, 0.5f)
+                }
+            }
+        val single = base.copy().apply { transform { scale(0.25f, 0.25f) } }
         assertPathsMatch(
             "chained scales",
             single.outlinePath(),
@@ -234,22 +222,29 @@ class TransformedPolygonShapeTest {
     }
 
     @Test
-    fun transformed_chainOrderMatchesComposedMatrix() {
+    fun transform_callOrderMatchesComposedMatrix() {
         // Order-sensitive composition: scale then rotate. A single Matrix built as
         // rotateZ-then-scale applies the scale first (compose Matrix operations post-multiply),
-        // so it must equal the chained form. Pins the chain-composition semantics.
+        // so it must equal calling scale() then rotate() in PolygonShapeTransformScope.
         val base = PolygonShape { polygon(3) }
         val chained =
-            base
-                .transformed(Matrix().apply { scale(1f, 0.5f) })
-                .transformed(Matrix().apply { rotateZ(90f) })
-        val composed =
-            base.transformed(
-                Matrix().apply {
-                    rotateZ(90f)
+            base.copy().apply {
+                transform {
                     scale(1f, 0.5f)
+                    rotate(90f)
                 }
-            )
+            }
+        val composed =
+            base.copy().apply {
+                transform {
+                    transform(
+                        Matrix().apply {
+                            rotateZ(90f)
+                            scale(1f, 0.5f)
+                        }
+                    )
+                }
+            }
         assertPathsMatch(
             "scale-then-rotate chain vs composed matrix",
             composed.outlinePath(),
@@ -259,43 +254,32 @@ class TransformedPolygonShapeTest {
     }
 
     @Test
-    fun transformed_scaleThenRotate_staysCentered() {
+    fun transform_scaleThenRotate_staysCentered() {
         val shape = PolygonShape {
             polygon(4)
         }
-            .transformed(Matrix().apply { scale(1f, 0.5f) })
-            .transformed(Matrix().apply { rotateZ(45f) })
+            .apply {
+                transform {
+                    scale(1f, 0.5f)
+                    rotate(45f)
+                }
+            }
         val polygon = shape.resolvePolygon(size, LayoutDirection.Ltr, unitDensity)
         assertEquals(sizePx / 2f, polygon.centerX, 1e-2f)
         assertEquals(sizePx / 2f, polygon.centerY, 1e-2f)
     }
 
     @Test
-    fun transformedShape_isValueEqual() {
-        fun make() =
-            RoundedCornerShape(8.dp).toPolygonShape().transformed(Matrix().apply { rotateZ(45f) })
-        assertEquals(make(), make())
-        assertEquals(make().hashCode(), make().hashCode())
-    }
-
-    @Test
-    fun transformed_chain_staysValueEqual() {
-        // Two identically constructed chains are the same value, so outline caches survive
-        // recomposition of the chain.
-        fun make() =
-            RoundedCornerShape(12.dp)
-                .toPolygonShape()
-                .transformed(Matrix().apply { scale(2f, 1f) })
-                .transformed(Matrix().apply { rotateZ(45f) })
-        assertEquals(make(), make())
-        assertEquals(make().hashCode(), make().hashCode())
-    }
-
-    @Test
-    fun scaledToFit_afterRotation_refitsRotatedGeometryIntoContainer() {
-        // A rotated wide rectangle escapes its container; scaledToFit() measures the transformed
-        // geometry and must land it exactly inscribed.
-        val shape = wideRectangleShape().transformed(Matrix().apply { rotateZ(90f) }).scaledToFit()
+    fun scaleToFit_afterRotation_refitsRotatedGeometryIntoContainer() {
+        // A rotated wide rectangle escapes its container; scaleToFit() measures the transformed
+        // geometry in the same pass and must land it exactly inscribed.
+        val shape =
+            wideRectangleShape().apply {
+                transform {
+                    rotate(90f)
+                    scaleToFit()
+                }
+            }
         val bounds =
             shape
                 .resolvePolygon(Size(300f, 150f), LayoutDirection.Ltr, unitDensity)
@@ -309,24 +293,10 @@ class TransformedPolygonShapeTest {
     }
 
     @Test
-    fun transformed_withContentScale_fitsInSinglePass() {
-        val shape =
-            wideRectangleShape()
-                .transformed(Matrix().apply { rotateZ(90f) }, contentScale = ContentScale.Fit)
-        val bounds =
-            shape
-                .resolvePolygon(Size(300f, 150f), LayoutDirection.Ltr, unitDensity)
-                .calculateBounds(FloatArray(4), false)
-        assertEquals(103.125f, bounds[0], 1e-1f)
-        assertEquals(0f, bounds[1], 1e-1f)
-        assertEquals(196.875f, bounds[2], 1e-1f)
-        assertEquals(150f, bounds[3], 1e-1f)
-    }
-
-    @Test
-    fun scaledToFit_alignment_respectsRtl() {
+    fun scaleToFit_alignment_respectsRtl() {
         // TopStart aligns to the right edge under RTL: the horizontal bias flips.
-        val shape = wideRectangleShape().scaledToFit(alignment = Alignment.TopStart)
+        val shape =
+            wideRectangleShape().apply { transform { scaleToFit(alignment = Alignment.TopStart) } }
         val bounds =
             shape
                 .resolvePolygon(Size(300f, 150f), LayoutDirection.Rtl, unitDensity)
@@ -338,43 +308,23 @@ class TransformedPolygonShapeTest {
     }
 
     @Test
-    fun transformed_snapshotsTheMatrix() {
-        fun base() = PolygonShape.star(5, outerRounding = CornerRounding(percent = 20))
-        val matrix = Matrix().apply { rotateZ(45f) }
-        val shape = base().transformed(matrix)
-        val reference = base().transformed(Matrix().apply { rotateZ(45f) })
-        // Mutating the caller's matrix after construction must not affect the shape's equality
-        // or its resolved outline.
-        matrix.rotateZ(90f)
-        assertEquals(reference, shape)
-        assertPathsMatch(
-            "outline after caller-side matrix mutation",
-            reference.outlinePath(),
-            shape.outlinePath(),
-            tightTolerance,
-        )
-    }
-
-    @Test
-    fun transformed_rejectsPerspectiveMatrix() {
+    fun transform_rejectsPerspectiveMatrix() {
         val matrix = Matrix()
         matrix.values[3] = 0.001f
+        val shape = PolygonShape.star(5).apply { transform { transform(matrix) } }
         val exception =
             assertThrows(IllegalArgumentException::class.java) {
-                PolygonShape.star(5).transformed(matrix)
+                shape.createOutline(size, LayoutDirection.Ltr, unitDensity)
             }
         assertThat(exception).hasMessageThat().contains("perspective")
     }
 
     @Test
-    fun transformed_overBuilderShape_reflectsCapturedStateChange() {
-        // The wrapper's caches are keyed on the inner shape's content version, so a builder
-        // lambda reading captured state must produce a fresh outline when that state changes.
+    fun transform_overBuilderShape_reflectsCapturedStateChange() {
+        // A builder lambda reading captured state must produce a fresh transformed outline when
+        // that state changes.
         var radius = 40f
-        val shape = PolygonShape {
-            polygon(4, radius = radius)
-        }
-            .transformed(Matrix().apply { rotateZ(45f) })
+        val shape = PolygonShape { polygon(4, radius = radius) }.apply { transform { rotate(45f) } }
         val before = shape.outlinePath().getBounds()
         radius = 80f
         val after = shape.outlinePath().getBounds()
@@ -383,27 +333,44 @@ class TransformedPolygonShapeTest {
     }
 
     @Test
-    fun transformed_identityMatrix_returnsSameInstance() {
-        val base = PolygonShape.star(5)
-        assertSame(base, base.transformed(Matrix()))
-    }
+    fun transform_dynamicStateInTransformBlock_updatesOutlineAndMorph() {
+        var degrees = 0f
+        val start = PolygonShape { polygon(3) }.apply { transform { rotate(degrees) } }
+        val end = PolygonShape.circle()
+        val morph = MorphPolygonShape(start, end) { 0f }
 
-    @Test
-    fun transformed_identityMatrix_withContentScale_delegatesToScaledToFit() {
-        val base = PolygonShape.star(5)
-        assertEquals(
-            base.scaledToFit(ContentScale.Fit),
-            base.transformed(Matrix(), ContentScale.Fit),
-        )
-    }
+        val unrotatedOutline = start.outlinePath()
+        val morphAtZero =
+            (morph.createOutline(size, LayoutDirection.Ltr, unitDensity) as Outline.Generic).path
+        assertPathsMatch("initial morph at 0deg", unrotatedOutline, morphAtZero, tightTolerance)
 
-    @Test
-    fun transformed_translationParameter_matchesMatrixTranslation() {
-        val base = PolygonShape.star(5)
-        val translatedParam = base.transformed(translation = Offset(20f, 30f))
-        val translatedMatrix = base.transformed(Matrix().apply { translate(20f, 30f) })
+        degrees = 90f
+        val rotatedOutline = start.outlinePath()
+        val expectedRotated = PolygonShape {
+            polygon(3)
+        }
+            .apply { transform { rotate(90f) } }
+            .outlinePath()
         assertPathsMatch(
-            "translation param vs matrix translation",
+            "dynamic rotation at 90deg",
+            expectedRotated,
+            rotatedOutline,
+            tightTolerance,
+        )
+
+        val morphAtNinety =
+            (morph.createOutline(size, LayoutDirection.Ltr, unitDensity) as Outline.Generic).path
+        assertPathsMatch("updated morph at 90deg", expectedRotated, morphAtNinety, tightTolerance)
+    }
+
+    @Test
+    fun transform_translate_matchesMatrixTranslation() {
+        val base = PolygonShape.star(5)
+        val translatedParam = base.copy().apply { transform { translate(20f, 30f) } }
+        val translatedMatrix =
+            base.copy().apply { transform { transform(Matrix().apply { translate(20f, 30f) }) } }
+        assertPathsMatch(
+            "translate vs matrix translation",
             translatedMatrix.outlinePath(),
             translatedParam.outlinePath(),
             tightTolerance,
@@ -411,35 +378,26 @@ class TransformedPolygonShapeTest {
     }
 
     @Test
-    fun transformed_rotation_identity_returnsSameInstance() {
-        val base = PolygonShape.star(5)
-        assertSame(base, base.transformed(rotation = 0f, translation = Offset.Zero))
-    }
+    fun copy_createsIndependentPolygonShape() {
+        val base = PolygonShape { polygon(3) }
+        val copy = base.copy()
+        assertNotSame(base, copy)
 
-    @Test
-    fun transformed_rotation_identity_withContentScale_delegatesToScaledToFit() {
-        val base = PolygonShape.star(5)
-        assertEquals(
-            base.scaledToFit(ContentScale.Fit),
-            base.transformed(rotation = 0f, contentScale = ContentScale.Fit),
+        copy.transform { rotate(90f) }
+
+        val expectedRotated = PolygonShape {
+            polygon(3)
+        }
+            .apply { transform { rotate(90f) } }
+            .outlinePath()
+        val expectedUnrotated = PolygonShape { polygon(3) }.outlinePath()
+        assertPathsMatch(
+            "base stays unrotated",
+            expectedUnrotated,
+            base.outlinePath(),
+            tightTolerance,
         )
-    }
-
-    @Test
-    fun transformed_cancellingRotations_unwrapsToInnerShape() {
-        val base = PolygonShape.star(5)
-        val chained = base.transformed(rotation = 45f).transformed(rotation = -45f)
-        assertSame(base, chained)
-    }
-
-    @Test
-    fun transformed_cancellingTranslations_unwrapsToInnerShape() {
-        val base = PolygonShape.star(5)
-        val chained =
-            base
-                .transformed(translation = Offset(10f, 20f))
-                .transformed(translation = Offset(-10f, -20f))
-        assertSame(base, chained)
+        assertPathsMatch("copy is rotated", expectedRotated, copy.outlinePath(), tightTolerance)
     }
 
     private fun Shape.outlinePath(): Path =
