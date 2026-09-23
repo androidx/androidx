@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.foundation.lazy
 
+import android.util.Log
 import androidx.collection.IntList
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -41,6 +42,8 @@ import kotlin.math.sign
 import kotlinx.coroutines.CoroutineScope
 
 private val DEBUG_TLC_LAYOUT = false
+
+private const val TAG = "TransformingLazyColumnContentPaddingMeasurementStrategy"
 
 internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
     contentPadding: PaddingValues,
@@ -85,6 +88,10 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                 var nextBottomOffset = item.offset - itemSpacing
                 var nextIndex = item.index - 1
 
+                // Items where "additionalItem.transformedHeight + itemSpacing <= 0" should not be
+                // common, and if we keep adding them we will never stop, but a few may be
+                // legitimate, if some items are animating their appearance from size 0.
+                var maxOutliers = 10
                 while (nextBottomOffset >= minOffset && nextIndex >= minIndex) {
                     val additionalItem =
                         resolveMeasuredItemForFixedBottomOffset(
@@ -93,6 +100,10 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                             maxHeight = maxHeight,
                             measuredItemProvider = measuredItemProvider,
                         )
+                    if (additionalItem.transformedHeight + itemSpacing <= 0 && maxOutliers-- == 0) {
+                        Log.w(TAG, "Item transformed height + spacing should be positive")
+                        break
+                    }
                     addFirst(additionalItem)
                     nextBottomOffset -= additionalItem.transformedHeight + itemSpacing
                     nextIndex -= 1 // Indexes must be incremental.
@@ -108,6 +119,10 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                 var nextTopOffset = item.offset + item.transformedHeight + itemSpacing
                 var nextIndex = item.index + 1
 
+                // Items where "additionalItem.transformedHeight + itemSpacing <= 0" should not be
+                // common, and if we keep adding them we will never stop, but a few may be
+                // legitimate, if some items are animating their appearance from size 0.
+                var maxOutliers = 10
                 while (nextTopOffset < maxOffset && nextIndex <= maxIndex) {
                     val additionalItem =
                         resolveMeasuredItemForFixedTopOffset(
@@ -116,6 +131,10 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                             maxHeight = maxHeight,
                             measuredItemProvider = measuredItemProvider,
                         )
+                    if (additionalItem.transformedHeight + itemSpacing <= 0 && maxOutliers-- == 0) {
+                        Log.w(TAG, "Item transformed height + spacing should be positive")
+                        break
+                    }
                     nextTopOffset += additionalItem.transformedHeight + itemSpacing
                     add(additionalItem)
                     nextIndex += 1 // Indexes must be incremental.
