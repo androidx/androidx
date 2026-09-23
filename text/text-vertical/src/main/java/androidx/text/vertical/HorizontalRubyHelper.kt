@@ -46,17 +46,19 @@ internal class HorizontalRubySpanLayout(
     paint: Paint,
     private val rubyScale: Float,
 ) : HorizontalSpanLayout {
+
+    override val spanWidth: Int
+
     private val bodyLayout: Layout
     private val rubyLayout: Layout
     private val bodyXOffset: Float
     private val rubyXOffset: Float
-    override val spanWidth: Int
 
     init {
         val copiedBodyText = cloneWithoutReplacementSpan(text, start, end)
 
-        // TODO(b/561269843): The body and ruby StaticLayouts share the same ThreadLocal TextPaint
-        // instance. Mutating this paint during draw() races with other threads measuring.
+        // TODO(b/561269843): The StaticLayouts keep a reference to this ThreadLocal TextPaint. If
+        // draw() runs on another thread, mutating layout.paint mutates the building thread's cache.
         // Use a thread-local paint to avoid allocation overhead during measurement
         val workPaint = workingPaintCache.getOrSet { TextPaint() }
         workPaint.set(paint)
@@ -89,9 +91,11 @@ internal class HorizontalRubySpanLayout(
                 .build()
 
         // Create Ruby Layout
-        workPaint.textSize *= rubyScale
+        // The scale is dropped after the build. draw() re-applies it.
         rubyLayout =
-            StaticLayout.Builder.obtain(rubyText, 0, rubyText.length, workPaint, rubyWidth).build()
+            workPaint.withTextScale(rubyScale) {
+                StaticLayout.Builder.obtain(rubyText, 0, rubyText.length, this, rubyWidth).build()
+            }
     }
 
     private val bodyAscent = bodyLayout.getLineAscent(0)
