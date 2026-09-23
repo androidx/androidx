@@ -1713,6 +1713,23 @@ class SnapshotTests {
         assertEquals(1, state.value)
     }
 
+    @Test
+    fun readOnly_clearsParentSnapshotOnRelease() {
+        val parent = takeMutableSnapshot(readObserver = {})
+        try {
+            val readOnlySnapshot = obtainTransparentReadOnlySnapshot(parent)
+            assertSame(parent.readObserver, readOnlySnapshot.readObserver)
+            assertFalse(readOnlySnapshot.disposed)
+
+            releaseTransparentReadOnlySnapshot(readOnlySnapshot)
+
+            assertNull(readOnlySnapshot.readObserver)
+            assertTrue(readOnlySnapshot.disposed)
+        } finally {
+            parent.dispose()
+        }
+    }
+
     @Test // b/442791065 -- test adapted from the report.
     fun testMergePolicy() {
         var mergeCalled = false
