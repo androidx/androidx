@@ -149,4 +149,165 @@ class MimeMatchedVideoCapabilitiesTest {
         assertThat(videoCapabilities.getSupportedQualities(unsupportedRange)).isEmpty()
         assertThat(videoCapabilities.getResolution(HD, unsupportedRange)).isNull()
     }
+
+    @Test
+    @Config(minSdk = 34)
+    fun getSupportedDynamicRanges_av1SoftwareEncoder_filtersOutHdr() {
+        cameraInfo.supportedDynamicRanges = setOf(SDR, HLG_10_BIT)
+        val softwareEncoderInfo =
+            FakeVideoEncoderInfo(
+                isHardwareAccelerated = false,
+                mime = MediaFormat.MIMETYPE_VIDEO_AV1,
+            )
+        val caps =
+            MimeMatchedVideoCapabilities(
+                MediaFormat.MIMETYPE_VIDEO_AV1,
+                cameraInfo,
+            ) {
+                softwareEncoderInfo
+            }
+
+        assertThat(caps.getSupportedDynamicRanges()).containsExactly(SDR)
+    }
+
+    @Test
+    @Config(minSdk = 34)
+    fun getSupportedDynamicRanges_av1HardwareEncoder_includesHdr() {
+        cameraInfo.supportedDynamicRanges = setOf(SDR, HLG_10_BIT)
+        val hardwareEncoderInfo =
+            FakeVideoEncoderInfo(
+                isHardwareAccelerated = true,
+                mime = MediaFormat.MIMETYPE_VIDEO_AV1,
+            )
+        val caps =
+            MimeMatchedVideoCapabilities(
+                MediaFormat.MIMETYPE_VIDEO_AV1,
+                cameraInfo,
+            ) {
+                hardwareEncoderInfo
+            }
+
+        assertThat(caps.getSupportedDynamicRanges()).containsExactly(SDR, HLG_10_BIT)
+    }
+
+    @Test
+    @Config(minSdk = 33)
+    fun getSupportedDynamicRanges_hevcSoftwareEncoder_filtersOutHdr() {
+        cameraInfo.supportedDynamicRanges = setOf(SDR, HLG_10_BIT)
+        val softwareEncoderInfo =
+            FakeVideoEncoderInfo(
+                isHardwareAccelerated = false,
+                mime = MediaFormat.MIMETYPE_VIDEO_HEVC,
+            )
+        val caps =
+            MimeMatchedVideoCapabilities(
+                MediaFormat.MIMETYPE_VIDEO_HEVC,
+                cameraInfo,
+            ) {
+                softwareEncoderInfo
+            }
+
+        assertThat(caps.getSupportedDynamicRanges()).containsExactly(SDR)
+    }
+
+    @Test
+    @Config(minSdk = 33)
+    fun getSupportedDynamicRanges_hevcHardwareEncoder_includesHdr() {
+        cameraInfo.supportedDynamicRanges = setOf(SDR, HLG_10_BIT)
+        val hardwareEncoderInfo =
+            FakeVideoEncoderInfo(
+                isHardwareAccelerated = true,
+                mime = MediaFormat.MIMETYPE_VIDEO_HEVC,
+            )
+        val caps =
+            MimeMatchedVideoCapabilities(
+                MediaFormat.MIMETYPE_VIDEO_HEVC,
+                cameraInfo,
+            ) {
+                hardwareEncoderInfo
+            }
+
+        assertThat(caps.getSupportedDynamicRanges()).containsExactly(SDR, HLG_10_BIT)
+    }
+
+    @Test
+    @Config(minSdk = 33)
+    fun getSupportedDynamicRanges_vp9SoftwareEncoder_filtersOutHdr() {
+        cameraInfo.supportedDynamicRanges = setOf(SDR, HDR10_10_BIT)
+        val softwareEncoderInfo =
+            FakeVideoEncoderInfo(
+                isHardwareAccelerated = false,
+                mime = MediaFormat.MIMETYPE_VIDEO_VP9,
+            )
+        val caps =
+            MimeMatchedVideoCapabilities(
+                MediaFormat.MIMETYPE_VIDEO_VP9,
+                cameraInfo,
+            ) {
+                softwareEncoderInfo
+            }
+
+        assertThat(caps.getSupportedDynamicRanges()).containsExactly(SDR)
+    }
+
+    @Test
+    @Config(minSdk = 33)
+    fun getSupportedDynamicRanges_vp9HardwareEncoder_includesHdr() {
+        cameraInfo.supportedDynamicRanges = setOf(SDR, HDR10_10_BIT)
+        val hardwareEncoderInfo =
+            FakeVideoEncoderInfo(
+                isHardwareAccelerated = true,
+                mime = MediaFormat.MIMETYPE_VIDEO_VP9,
+            )
+        val caps =
+            MimeMatchedVideoCapabilities(
+                MediaFormat.MIMETYPE_VIDEO_VP9,
+                cameraInfo,
+            ) {
+                hardwareEncoderInfo
+            }
+
+        assertThat(caps.getSupportedDynamicRanges()).containsExactly(SDR, HDR10_10_BIT)
+    }
+
+    @Test
+    @Config(minSdk = 36)
+    fun getSupportedDynamicRanges_apvSoftwareEncoder_filtersOutHdr() {
+        cameraInfo.supportedDynamicRanges = setOf(SDR, HLG_10_BIT)
+        val softwareEncoderInfo =
+            FakeVideoEncoderInfo(
+                isHardwareAccelerated = false,
+                mime = MediaFormat.MIMETYPE_VIDEO_APV,
+            )
+        val caps =
+            MimeMatchedVideoCapabilities(
+                MediaFormat.MIMETYPE_VIDEO_APV,
+                cameraInfo,
+            ) {
+                softwareEncoderInfo
+            }
+
+        // APV does not support SDR, and software encoder filters out 10-bit HDR
+        assertThat(caps.getSupportedDynamicRanges()).isEmpty()
+    }
+
+    @Test
+    @Config(minSdk = 36)
+    fun getSupportedDynamicRanges_apvHardwareEncoder_includesHdr() {
+        cameraInfo.supportedDynamicRanges = setOf(SDR, HLG_10_BIT)
+        val hardwareEncoderInfo =
+            FakeVideoEncoderInfo(
+                isHardwareAccelerated = true,
+                mime = MediaFormat.MIMETYPE_VIDEO_APV,
+            )
+        val caps =
+            MimeMatchedVideoCapabilities(
+                MediaFormat.MIMETYPE_VIDEO_APV,
+                cameraInfo,
+            ) {
+                hardwareEncoderInfo
+            }
+
+        assertThat(caps.getSupportedDynamicRanges()).containsExactly(HLG_10_BIT)
+    }
 }
