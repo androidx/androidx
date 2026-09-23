@@ -673,7 +673,10 @@ public final class AudioSource {
                 maxAmplitude = Math.max(maxAmplitude, Math.abs(shortBuffer.get()));
             }
 
-            maxAmplitude = maxAmplitude / Short.MAX_VALUE;
+            // Math.abs(Short.MIN_VALUE) is 32768, which is larger than Short.MAX_VALUE
+            // (32767), so the normalized value has to be clamped to keep it within
+            // [0.0, 1.0].
+            maxAmplitude = Math.min(maxAmplitude / Short.MAX_VALUE, 1.0);
 
             mAudioAmplitude = maxAmplitude;
 
@@ -869,6 +872,9 @@ public final class AudioSource {
 
         /**
          * The method called to retrieve audio amplitude values.
+         *
+         * @param maxAmplitude the maximum amplitude of the latest audio data, normalized to the
+         *                     range [0.0, 1.0].
          */
         void onAmplitudeValue(double maxAmplitude);
     }

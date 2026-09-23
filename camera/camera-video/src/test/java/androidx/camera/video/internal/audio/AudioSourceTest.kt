@@ -472,6 +472,39 @@ class AudioSourceTest {
     }
 
     @Test
+    fun audioSource_amplitudeCallback_clampsMaxAmplitudeToOne() {
+        // Math.abs(Short.MIN_VALUE) is 32768, which is larger than Short.MAX_VALUE (32767).
+        val testAmplitudeValue = Short.MIN_VALUE
+        val audioDataProvider: (Int) -> FakeAudioStream.AudioData = { index ->
+            val buf = ByteBuffer.allocate(BYTE_BUFFER_CAPACITY).order(ByteOrder.nativeOrder())
+            val shortBuf = buf.asShortBuffer()
+            while (shortBuf.hasRemaining()) {
+                shortBuf.put(testAmplitudeValue)
+            }
+            // timestamp >= 200ms to trigger amplitude callback on first packet
+            FakeAudioStream.AudioData(buf, TimeUnit.MILLISECONDS.toNanos(200L * (index + 1)))
+        }
+
+        val audioStream = createAudioStream(audioDataProvider = audioDataProvider)
+        val audioSourceCallback = createAudioSourceCallback()
+        val audioSource =
+            createAudioSource(
+                audioStreamFactory = { _, _ -> audioStream },
+                audioSourceCallback = audioSourceCallback,
+            )
+
+        audioSource.start()
+
+        audioStream.verifyReadCall(CallTimesAtLeast(1), COMMON_TIMEOUT_MS)
+        audioSourceCallback.verifyOnAmplitudeValue(CallTimesAtLeast(1), COMMON_TIMEOUT_MS) {
+            amplitudes ->
+            assertThat(amplitudes.first()).isEqualTo(1.0)
+        }
+
+        audioSource.stop()
+    }
+
+    @Test
     fun audioProcessor_withAudioProcessors_modifiesAudioData() {
         val gainProcessor = createAudioProcessor { inputBuffer ->
             val remaining = inputBuffer.remaining()
