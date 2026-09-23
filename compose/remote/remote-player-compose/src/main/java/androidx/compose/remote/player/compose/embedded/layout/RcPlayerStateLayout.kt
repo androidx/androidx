@@ -38,6 +38,7 @@ import androidx.compose.remote.player.compose.embedded.RcPlayerComponent
 import androidx.compose.remote.player.compose.embedded.animationSpecReflection
 import androidx.compose.remote.player.compose.embedded.indexIdReflection
 import androidx.compose.remote.player.compose.embedded.mapEasing
+import androidx.compose.remote.player.compose.embedded.rcComponentContentInspector
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteIntAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -97,6 +98,7 @@ internal fun RcPlayerStateLayout(layout: StateLayout, modifier: Modifier) {
     SharedTransitionLayout(modifier = modifier) {
         AnimatedContent(
             targetState = targetIndex,
+            modifier = Modifier.rcComponentContentInspector(layout, forStateLayoutContent = true),
             contentAlignment = Alignment.Center,
             label = "RcPlayerStateLayout",
             transitionSpec = {

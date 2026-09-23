@@ -35,6 +35,8 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.InspectableValue
+import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.util.fastForEach
 import java.io.ByteArrayInputStream
 
@@ -64,7 +66,7 @@ public class RcPlayerState(
     public val document: CoreDocument,
     /** The default prefix applied to variable names (e.g. `"USER"`, or `null` for none). */
     public val defaultPrefix: String? = "USER",
-) {
+) : InspectableValue {
     internal val preprocessed: DocumentPreprocessResult = preprocessDocument(document)
     internal val remoteContext: AndroidRemoteContext =
         initializePlayerRemoteContext(
@@ -85,6 +87,23 @@ public class RcPlayerState(
                 gc.setTypefaceResolver(remoteContext.typefaceResolver)
             }
 
+    /** The initial clock timestamp (in milliseconds) when this player state was initialized. */
+    public val startClockMillis: Long
+        get() = graphContext.startClockMillis
+
+    override val nameFallback: String
+        get() = "RcPlayerState"
+
+    override val valueOverride: Any
+        get() = document
+
+    override val inspectableElements: Sequence<ValueElement>
+        get() = sequence {
+            yield(ValueElement("document", document))
+            yield(ValueElement("remoteContext", remoteContext))
+            yield(ValueElement("currentTimeMillis", currentTimeMillisState.floatValue))
+        }
+
     /**
      * Advances document time to [frameMillis] across both time-tracking paths:
      * 1. [GraphContext.updateTime] updates the expression DAG's `timeState` (driving compiled float
@@ -94,7 +113,7 @@ public class RcPlayerState(
      *    operations). It is updated whenever continuous animation is active or a discrete clock
      *    boundary was crossed so both paths stay synchronized on every frame.
      */
-    internal fun updateTime(frameMillis: Float, updateContinuous: Boolean = true): Boolean {
+    public fun updateTime(frameMillis: Float, updateContinuous: Boolean = true): Boolean {
         val updated = graphContext.updateTime(frameMillis, updateContinuous)
         // Advance the shared snapshot clock when running continuous animations or when a discrete
         // clock boundary crossed so non-DAG operations observe the same frame timestamp.
