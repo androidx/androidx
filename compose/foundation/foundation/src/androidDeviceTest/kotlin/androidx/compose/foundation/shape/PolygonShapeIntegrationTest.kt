@@ -16,8 +16,6 @@
 
 package androidx.compose.foundation.shape
 
-import androidx.compose.foundation.shape.PolygonShapeGeometry.Companion.CornerRounding
-import androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
@@ -33,11 +31,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Integration coverage for the composite usage patterns exercised by the ui-demos
- * GraphicsShapesDemo (which has no test source set of its own): Material-style shape definitions
- * built on the public API, resolved across sizes and morphed across kinds.
- */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class PolygonShapeIntegrationTest {
@@ -65,27 +58,27 @@ class PolygonShapeIntegrationTest {
                 center = center,
             )
         }
+        val softBurstGeometry =
+            repeated(
+                listOf(
+                    Offset(0.193f, 0.277f) to CornerRounding.fraction(0.053f),
+                    Offset(0.176f, 0.055f) to CornerRounding.fraction(0.053f),
+                ),
+                reps = 10,
+            )
+        val cookie4Geometry =
+            repeated(
+                listOf(
+                    Offset(1.237f, 1.236f) to CornerRounding.fraction(0.175f),
+                    Offset(0.500f, 0.918f) to CornerRounding.fraction(0.158f),
+                ),
+                reps = 4,
+            )
         return listOf(
-            PolygonShape(
-                repeated(
-                    listOf(
-                        Offset(0.193f, 0.277f) to CornerRounding(0.053f),
-                        Offset(0.176f, 0.055f) to CornerRounding(0.053f),
-                    ),
-                    reps = 10,
-                )
-            ),
-            PolygonShape.star(9, 0.8f, outerRounding = CornerRounding(percent = 50)),
-            PolygonShape(
-                repeated(
-                    listOf(
-                        Offset(1.237f, 1.236f) to CornerRounding(0.258f),
-                        Offset(0.500f, 0.918f) to CornerRounding(0.233f),
-                    ),
-                    reps = 4,
-                )
-            ),
-            PolygonShape.star(8, 0.8f, outerRounding = CornerRounding(percent = 15)),
+            PolygonShape { softBurstGeometry }.apply { transform { scaleToFit() } },
+            PolygonShape.star(9, 0.8f, outerRounding = CornerRounding.fraction(0.5f)),
+            PolygonShape { cookie4Geometry }.apply { transform { scaleToFit() } },
+            PolygonShape.star(8, 0.8f, outerRounding = CornerRounding.fraction(0.15f)),
             PolygonShape.circle(10),
             RoundedCornerShape(12.dp).toPolygonShape(),
         )

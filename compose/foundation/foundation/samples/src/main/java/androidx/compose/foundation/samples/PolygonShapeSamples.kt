@@ -22,14 +22,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CornerRounding
 import androidx.compose.foundation.shape.MorphPolygonShape
 import androidx.compose.foundation.shape.PolygonShape
 import androidx.compose.foundation.shape.PolygonShapeGeometry
-import androidx.compose.foundation.shape.PolygonShapeGeometry.Companion.CornerRounding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.shape.scaledToFit
 import androidx.compose.foundation.shape.toPolygonShape
-import androidx.compose.foundation.shape.transformed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,7 +52,7 @@ fun PolygonShapeSample() {
                 numVertices = 6,
                 radius = size.minDimension / 2f,
                 center = Offset(size.width / 2f, size.height / 2f),
-                rounding = CornerRounding(radius = 16.dp),
+                rounding = CornerRounding.dp(radius = 16.dp),
             )
         }
     }
@@ -79,7 +77,7 @@ fun DirectionalPolygonShapeSample() {
                         Offset(baseX, size.height),
                         Offset(indentX, size.height / 2f),
                     ),
-                rounding = CornerRounding(radius = 6.dp),
+                rounding = CornerRounding.dp(radius = 6.dp),
             )
         }
     }
@@ -101,7 +99,7 @@ fun CustomPolygonShapeSample() {
                         Offset(size.width / 2f, size.height),
                         Offset(0f, size.height / 2f),
                     ),
-                rounding = CornerRounding(radius = 8.dp),
+                rounding = CornerRounding.dp(radius = 8.dp),
             )
         }
     }
@@ -110,11 +108,11 @@ fun CustomPolygonShapeSample() {
 
 @Sampled
 @Composable
-fun PolygonShapeWithRoundingPercentSample() {
-    // A pentagon whose corners round to 20% of its generating radius, so the rounding scales
-    // proportionally with the shape at any size.
+fun PolygonShapeWithRoundingFractionSample() {
+    // A pentagon whose corners round to a 0.2f fraction of its generating radius, so the rounding
+    // scales proportionally with the shape at any size.
     val pentagon = remember {
-        PolygonShape.regularPolygon(numVertices = 5, rounding = CornerRounding(percent = 20))
+        PolygonShape.regularPolygon(numVertices = 5, rounding = CornerRounding.fraction(0.2f))
     }
     Box(Modifier.size(96.dp).clip(pentagon).background(Color(0xFF009688)))
 }
@@ -122,22 +120,22 @@ fun PolygonShapeWithRoundingPercentSample() {
 @Sampled
 @Composable
 fun UnitSpacePolygonShapeSample() {
-    // A kite authored in the unit square [0..1] with per-vertex rounding in the same coordinate
-    // space. The shape scales and centers into any container preserving its aspect ratio.
+    // A kite authored in the unit square [0..1] with per-vertex rounding as fractions of the
+    // bounds, scaled and centered into the container via transform { scaleToFit() }.
     val kite = remember {
-        PolygonShape(
+        val geometry =
             PolygonShapeGeometry(
                 vertices =
                     listOf(Offset(0.5f, 0f), Offset(1f, 0.4f), Offset(0.5f, 1f), Offset(0f, 0.4f)),
                 perVertexRounding =
                     listOf(
-                        CornerRounding(0.1f),
-                        CornerRounding(0.15f),
-                        CornerRounding(0.05f),
-                        CornerRounding(0.15f),
+                        CornerRounding.fraction(0.1f),
+                        CornerRounding.fraction(0.15f),
+                        CornerRounding.fraction(0.05f),
+                        CornerRounding.fraction(0.15f),
                     ),
             )
-        )
+        PolygonShape { geometry }.apply { transform { scaleToFit() } }
     }
 
     Box(Modifier.size(width = 120.dp, height = 84.dp).clip(kite).background(Color(0xFF673AB7)))
@@ -151,7 +149,7 @@ fun StarPolygonShapeSample() {
         PolygonShape.star(
             numPoints = 8,
             innerRadiusRatio = 0.6f,
-            outerRounding = CornerRounding(percent = 15, smoothing = 0.5f),
+            outerRounding = CornerRounding.fraction(0.15f, smoothing = 0.5f),
         )
     Box(Modifier.size(96.dp).clip(star).background(Color(0xFFFFC107)))
 }
@@ -164,7 +162,7 @@ fun PillStarPolygonShapeSample() {
         PolygonShape.pillStar(
             numPoints = 8,
             innerRadiusRatio = 0.6f,
-            outerRounding = CornerRounding(percent = 20, smoothing = 0.5f),
+            outerRounding = CornerRounding.fraction(0.2f, smoothing = 0.5f),
         )
     }
     Box(Modifier.size(width = 140.dp, height = 64.dp).clip(pillStar).background(Color(0xFFE91E63)))
@@ -181,12 +179,14 @@ fun MorphPolygonShapeSample() {
     val shape = remember {
         MorphPolygonShape(
             start =
-                PolygonShape { polygon(numVertices = 6, rounding = CornerRounding(percent = 20)) },
+                PolygonShape {
+                    polygon(numVertices = 6, rounding = CornerRounding.fraction(0.2f))
+                },
             end =
                 PolygonShape.star(
                     numPoints = 6,
                     innerRadiusRatio = 0.6f,
-                    outerRounding = CornerRounding(percent = 20),
+                    outerRounding = CornerRounding.fraction(0.2f),
                 ),
             progress = { progress },
         )
@@ -225,8 +225,13 @@ fun TransformedPolygonShapeSample() {
     // A square polygon rotated 45 degrees around its center and scaled into the layout bounds in a
     // single pass so the rotated diamond stays inscribed without clipping.
     val diamond = remember {
-        PolygonShape { polygon(numVertices = 4, rounding = CornerRounding(percent = 15)) }
-            .transformed(rotation = 45f, contentScale = ContentScale.Fit)
+        PolygonShape { polygon(numVertices = 4, rounding = CornerRounding.fraction(0.15f)) }
+            .apply {
+                transform {
+                    rotate(degrees = 45f)
+                    scaleToFit(contentScale = ContentScale.Fit)
+                }
+            }
     }
     Box(Modifier.size(96.dp).clip(diamond).background(Color(0xFFE91E63)))
 }
@@ -234,16 +239,16 @@ fun TransformedPolygonShapeSample() {
 @Sampled
 @Composable
 fun RuntimeTransformedPolygonShapeSample() {
-    // Pre-creates the unrotated and rotated badge shape values. The runtime decision toggles
-    // between shape instances without rebuilding or recomputing geometry on state flips.
+    // Creates an unrotated badge shape and an independent rotated copy using copy() + transform {}.
     val badge = remember {
         PolygonShape.star(
             numPoints = 8,
             innerRadiusRatio = 0.75f,
-            outerRounding = CornerRounding(percent = 40),
+            outerRounding = CornerRounding.fraction(0.4f),
         )
     }
-    val selectedBadge = remember(badge) { badge.transformed(rotation = 22.5f) }
+    val selectedBadge =
+        remember(badge) { badge.copy().apply { transform { rotate(degrees = 22.5f) } } }
     var selected by remember { mutableStateOf(false) }
     val shape = if (selected) selectedBadge else badge
     Box(
@@ -262,9 +267,9 @@ fun ScaledToFitPolygonShapeSample() {
         PolygonShape.star(
                 numPoints = 5,
                 innerRadiusRatio = 0.5f,
-                outerRounding = CornerRounding(percent = 30),
+                outerRounding = CornerRounding.fraction(0.3f),
             )
-            .scaledToFit(contentScale = ContentScale.Fit)
+            .apply { transform { scaleToFit(contentScale = ContentScale.Fit) } }
     }
     Box(Modifier.size(width = 160.dp, height = 64.dp).clip(star).background(Color(0xFF9C27B0)))
 }

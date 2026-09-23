@@ -17,7 +17,6 @@
 package androidx.compose.foundation.shape
 
 import android.graphics.PathMeasure
-import androidx.compose.foundation.shape.PolygonShapeGeometry.Companion.CornerRounding
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
@@ -34,7 +33,6 @@ import androidx.test.filters.MediumTest
 import kotlin.math.max
 import kotlin.math.sqrt
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -52,12 +50,12 @@ class MorphPolygonShapeTest {
 
     @Test
     fun morphPolygonShape_progressOutsideRange_resolvesToEndpoints() {
-        val start = PolygonShape { polygon(3, rounding = CornerRounding(percent = 10)) }
+        val start = PolygonShape { polygon(3, rounding = CornerRounding.fraction(0.1f)) }
         val end =
             PolygonShape.star(
                 numPoints = 8,
                 innerRadiusRatio = 0.5f,
-                outerRounding = CornerRounding(percent = 10),
+                outerRounding = CornerRounding.fraction(0.1f),
             )
 
         val below = MorphPolygonShape(start, end) { -0.5f }
@@ -79,12 +77,12 @@ class MorphPolygonShapeTest {
 
     @Test
     fun morphPolygonShape_boundaryProgress_matchesRestingShapes() {
-        val start = PolygonShape { polygon(3, rounding = CornerRounding(percent = 10)) }
+        val start = PolygonShape { polygon(3, rounding = CornerRounding.fraction(0.1f)) }
         val end =
             PolygonShape.star(
                 numPoints = 8,
                 innerRadiusRatio = 0.5f,
-                outerRounding = CornerRounding(percent = 10),
+                outerRounding = CornerRounding.fraction(0.1f),
             )
 
         val atStart = MorphPolygonShape(start, end) { 0f }
@@ -132,29 +130,6 @@ class MorphPolygonShapeTest {
             smallBounds.right <= 100.5f,
         )
         assertTrue(smallBounds.bottom <= 100.5f)
-    }
-
-    @Test
-    fun morphPolygonShape_isValueEqual() {
-        val start = PolygonShape.circle(10)
-        val end = PolygonShape.star(8, outerRounding = CornerRounding(percent = 20))
-        val progress: () -> Float = { 0.5f }
-        assertEquals(
-            MorphPolygonShape(start, end, progress),
-            MorphPolygonShape(start, end, progress),
-        )
-        assertEquals(
-            MorphPolygonShape(start, end, progress).hashCode(),
-            MorphPolygonShape(start, end, progress).hashCode(),
-        )
-        assertNotEquals(
-            MorphPolygonShape(start, end, progress),
-            MorphPolygonShape(start, end) { 0.5f },
-        )
-        assertNotEquals(
-            MorphPolygonShape(start, end, progress),
-            MorphPolygonShape(end, start, progress),
-        )
     }
 
     @Test
@@ -340,22 +315,15 @@ class MorphPolygonShapeTest {
     @Test
     fun cutCornerConversion_isDistinctFromRounded() {
         val cut = AbsoluteCutCornerShape(15.dp).toPolygonShape()
-        val outline = cut.toOutline()
-        assertTrue(outline is Outline.Generic)
-        assertNotEquals(cut, AbsoluteRoundedCornerShape(15.dp).toPolygonShape())
-    }
-
-    @Test
-    fun cornerShapeConversion_isValueEqual() {
-        val a = RoundedCornerShape(8.dp).toPolygonShape()
-        val b = RoundedCornerShape(8.dp).toPolygonShape()
-        // Two conversions of equal source shapes are value-equal, so outline caching is stable.
-        assertEquals(a, b)
-        assertEquals(a.hashCode(), b.hashCode())
-        assertNotEquals(
-            RoundedCornerShape(8.dp).toPolygonShape(),
-            CutCornerShape(8.dp).toPolygonShape(),
-        )
+        val rounded = AbsoluteRoundedCornerShape(15.dp).toPolygonShape()
+        val cutSamples = sampleOutline(cut.outlinePath())
+        val roundedSamples = sampleOutline(rounded.outlinePath())
+        val divergence =
+            max(
+                directedHausdorff(cutSamples, roundedSamples),
+                directedHausdorff(roundedSamples, cutSamples),
+            )
+        assertTrue("cut and rounded outlines should diverge: ${divergence}px", divergence > 2f)
     }
 
     private fun Shape.toOutline(direction: LayoutDirection = LayoutDirection.Ltr) =

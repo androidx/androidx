@@ -17,7 +17,6 @@
 package androidx.compose.foundation.shape
 
 import android.graphics.PathMeasure
-import androidx.compose.foundation.shape.PolygonShapeGeometry.Companion.CornerRounding
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
@@ -67,7 +66,7 @@ class PolygonShapeTest {
         val polygonShape =
             PolygonShape.regularPolygon(
                 numVertices = 5,
-                rounding = CornerRounding(radius = 8.dp, smoothing = 0.5f),
+                rounding = CornerRounding.dp(radius = 8.dp, smoothing = 0.5f),
             )
         val reference =
             RoundedPolygon(
@@ -86,28 +85,27 @@ class PolygonShapeTest {
     }
 
     @Test
-    fun dpRounding_matchesEquivalentPxRounding() {
-        // A raw float radius is pixels irrespective of density, so 12.dp at density 2 must equal
-        // 24f at the same density.
-        val viaDp = PolygonShape { polygon(5, rounding = CornerRounding(radius = 12.dp)) }
-        val viaPx = PolygonShape { polygon(5, rounding = CornerRounding(radius = 24f)) }
+    fun dpRounding_resolvesWithDensity() {
+        // 12.dp at density 2 is 24px, which equals a 0.24 fraction of the 100px generating radius.
+        val viaDp = PolygonShape { polygon(5, rounding = CornerRounding.dp(radius = 12.dp)) }
+        val viaFraction = PolygonShape { polygon(5, rounding = CornerRounding.fraction(0.24f)) }
         assertPathsMatch(
-            "12.dp at density 2 vs 24px",
-            viaPx.outlinePath(density),
+            "12.dp at density 2 vs 0.24 fraction at radius 100",
+            viaFraction.outlinePath(density),
             viaDp.outlinePath(density),
             tightTolerance,
         )
         assertNotEquals(
-            "dp and px shapes at different resolved radii must differ",
+            "dp shape at different densities must differ",
             sampleOutline(viaDp.outlinePath(unitDensity)).toList(),
             sampleOutline(viaDp.outlinePath(density)).toList(),
         )
     }
 
     @Test
-    fun percentRounding_isFractionOfGeneratingRadius() {
-        // 10% of the default radius (100px) is a 10px rounding.
-        val polygonShape = PolygonShape { polygon(5, rounding = CornerRounding(percent = 10)) }
+    fun fractionRounding_isFractionOfGeneratingRadius() {
+        // 0.1 fraction of the default radius (100px) is a 10px rounding.
+        val polygonShape = PolygonShape { polygon(5, rounding = CornerRounding.fraction(0.1f)) }
         val reference =
             RoundedPolygon(
                 numVertices = 5,
@@ -117,7 +115,7 @@ class PolygonShapeTest {
                 rounding = GraphicsCornerRounding(10f),
             )
         assertPathsMatch(
-            "10 percent vs 10px at radius 100",
+            "0.1 fraction vs 10px at radius 100",
             reference.asComposePath(),
             polygonShape.outlinePath(unitDensity),
             tightTolerance,
@@ -125,19 +123,23 @@ class PolygonShapeTest {
     }
 
     @Test
-    fun perVertexPercentRounding_isFractionOfGeneratingRadius() {
-        // Per-vertex percent in the count factory resolves against the generating radius too:
-        // 20% of radius 100 is a 20px rounding at every vertex.
-        val percentShape = PolygonShape {
-            polygon(4, perVertexRounding = List(4) { CornerRounding(percent = 20) }, radius = 100f)
+    fun perVertexFractionRounding_isFractionOfGeneratingRadius() {
+        // Per-vertex fraction in the count factory resolves against the generating radius too:
+        // 0.2 of radius 100 is a 20px rounding at every vertex.
+        val fractionShape = PolygonShape {
+            polygon(
+                4,
+                perVertexRounding = List(4) { CornerRounding.fraction(0.2f) },
+                radius = 100f,
+            )
         }
-        val pxShape = PolygonShape {
-            polygon(4, perVertexRounding = List(4) { CornerRounding(radius = 20f) }, radius = 100f)
+        val dpShape = PolygonShape {
+            polygon(4, perVertexRounding = List(4) { CornerRounding.dp(20.dp) }, radius = 100f)
         }
         assertPathsMatch(
-            "per-vertex 20 percent vs 20px at radius 100",
-            pxShape.outlinePath(unitDensity),
-            percentShape.outlinePath(unitDensity),
+            "per-vertex 0.2 fraction vs 20dp at density 1 and radius 100",
+            dpShape.outlinePath(unitDensity),
+            fractionShape.outlinePath(unitDensity),
             tightTolerance,
         )
     }
@@ -165,9 +167,9 @@ class PolygonShapeTest {
         val vertices = listOf(Offset(100f, 0f), Offset(200f, 200f), Offset(0f, 200f))
         val perVertex =
             listOf(
-                CornerRounding(40f),
-                PolygonShapeGeometry.CornerRounding.Unrounded,
-                CornerRounding(10f),
+                CornerRounding.dp(40.dp),
+                CornerRounding.Unrounded,
+                CornerRounding.dp(10.dp),
             )
         val shape = PolygonShape { polygon(vertices, perVertexRounding = perVertex) }
         val reference =
@@ -196,8 +198,8 @@ class PolygonShapeTest {
             PolygonShape.star(
                 numPoints = 8,
                 innerRadiusRatio = 0.5f,
-                outerRounding = CornerRounding(radius = 8.dp),
-                innerRounding = CornerRounding(radius = 4.dp),
+                outerRounding = CornerRounding.dp(radius = 8.dp),
+                innerRounding = CornerRounding.dp(radius = 4.dp),
             )
         val reference =
             RoundedPolygon.star(
@@ -243,7 +245,7 @@ class PolygonShapeTest {
         // RoundedPolygon.pillStar of 250x50 centered in the container.
         val container = Size(300f, 100f)
         val shape =
-            PolygonShape.pillStar(numPoints = 8, outerRounding = CornerRounding(radius = 12f))
+            PolygonShape.pillStar(numPoints = 8, outerRounding = CornerRounding.dp(radius = 12.dp))
         val reference =
             RoundedPolygon.pillStar(
                 width = 250f,
@@ -262,12 +264,12 @@ class PolygonShapeTest {
     }
 
     @Test
-    fun pillStar_percentRounding_isFractionOfOuterRadius() {
-        // In a 300x100 container the star's outer radius is min(250, 50) = 50, so 40 percent is
-        // a 20px rounding — matching the star factory's percent convention.
+    fun pillStar_fractionRounding_isFractionOfOuterRadius() {
+        // In a 300x100 container the star's outer radius is min(250, 50) = 50, so 0.4 fraction is
+        // a 20px rounding — matching the star factory's fraction convention.
         val container = Size(300f, 100f)
         val shape =
-            PolygonShape.pillStar(numPoints = 8, outerRounding = CornerRounding(percent = 40))
+            PolygonShape.pillStar(numPoints = 8, outerRounding = CornerRounding.fraction(0.4f))
         val reference =
             RoundedPolygon.pillStar(
                 width = 250f,
@@ -278,7 +280,7 @@ class PolygonShapeTest {
                 centerY = 50f,
             )
         assertPathsMatch(
-            "pillStar percent rounding reference",
+            "pillStar fraction rounding reference",
             reference.asComposePath(),
             shape.outlinePath(unitDensity, container),
             tightTolerance,
@@ -311,7 +313,7 @@ class PolygonShapeTest {
         )
 
         // 10.dp at density 2 is 20px.
-        val rounded = PolygonShape.rectangle(rounding = CornerRounding(radius = 10.dp))
+        val rounded = PolygonShape.rectangle(rounding = CornerRounding.dp(radius = 10.dp))
         val roundedReference =
             RoundedPolygon.rectangle(
                 width = 200f,
@@ -332,8 +334,8 @@ class PolygonShapeTest {
     fun rectangle_perCornerRounding_appliesAtMatchingCorners() {
         val shape =
             PolygonShape.rectangle(
-                topStartRounding = CornerRounding(radius = 40f),
-                bottomEndRounding = CornerRounding(radius = 12f),
+                topStartRounding = CornerRounding.dp(radius = 40.dp),
+                bottomEndRounding = CornerRounding.dp(radius = 12.dp),
             )
         val reference =
             RoundedPolygon.rectangle(
@@ -363,8 +365,8 @@ class PolygonShapeTest {
     fun rectangle_perCornerRounding_mirrorsInRtl() {
         val shape =
             PolygonShape.rectangle(
-                topStartRounding = CornerRounding(radius = 40f),
-                bottomEndRounding = CornerRounding(radius = 12f),
+                topStartRounding = CornerRounding.dp(radius = 40.dp),
+                bottomEndRounding = CornerRounding.dp(radius = 12.dp),
             )
         // In RTL, topStart is top-right and bottomEnd is bottom-left.
         val rtlReference =
@@ -395,8 +397,8 @@ class PolygonShapeTest {
     fun absoluteRectangle_doesNotMirrorInRtl() {
         val shape =
             PolygonShape.absoluteRectangle(
-                topLeftRounding = CornerRounding(radius = 40f),
-                bottomRightRounding = CornerRounding(radius = 12f),
+                topLeftRounding = CornerRounding.dp(radius = 40.dp),
+                bottomRightRounding = CornerRounding.dp(radius = 12.dp),
             )
         // In absoluteRectangle, topLeft remains topLeft and bottomRight remains bottomRight even in
         // RTL.
@@ -428,7 +430,7 @@ class PolygonShapeTest {
         val polygon = PolygonShape {
             polygon(6)
         }
-            .buildPolygon(size, LayoutDirection.Ltr, unitDensity)
+            .resolvePolygon(size, LayoutDirection.Ltr, unitDensity)
         assertEquals(sizePx / 2f, polygon.centerX, 1e-2f)
         assertEquals(sizePx / 2f, polygon.centerY, 1e-2f)
         val bounds = polygon.calculateBounds(FloatArray(4), false)
@@ -438,8 +440,8 @@ class PolygonShapeTest {
     // Unit-space geometry
 
     @Test
-    fun roundingPercent_scalesWithGeometry() {
-        // The same percent at different authoring radii produces the same shape once fit into
+    fun roundingFraction_scalesWithGeometry() {
+        // The same fraction at different authoring radii produces the same shape once fit into
         // equal bounds, because the rounding scales with the geometry.
         fun pentagonAt(radius: Float): PolygonShape {
             val vertices =
@@ -447,12 +449,13 @@ class PolygonShapeTest {
                     val angle = PI.toFloat() / 5 * 2 * i
                     Offset(radius * cos(angle), radius * sin(angle))
                 }
-            return PolygonShape(
-                PolygonShapeGeometry(vertices, rounding = CornerRounding(percent = 20))
-            )
+            return PolygonShape {
+                PolygonShapeGeometry(vertices, rounding = CornerRounding.fraction(0.2f))
+            }
+                .apply { transform { scaleToFit() } }
         }
         assertPathsMatch(
-            "percent rounding at radius 50 vs 400",
+            "fraction rounding at radius 50 vs 400",
             pentagonAt(50f).outlinePath(unitDensity),
             pentagonAt(400f).outlinePath(unitDensity),
             tightTolerance,
@@ -460,20 +463,20 @@ class PolygonShapeTest {
     }
 
     @Test
-    fun unitSpaceShape_isFitCenteredByDefault() {
-        val shape =
-            PolygonShape(
-                PolygonShapeGeometry(
-                    vertices =
-                        listOf(
-                            Offset(0.5f, 0f),
-                            Offset(1f, 0.5f),
-                            Offset(0.5f, 1f),
-                            Offset(0f, 0.5f),
-                        )
-                )
+    fun unitSpaceShape_withScaledToFit_isFitCentered() {
+        val shape = PolygonShape {
+            PolygonShapeGeometry(
+                vertices =
+                    listOf(
+                        Offset(0.5f, 0f),
+                        Offset(1f, 0.5f),
+                        Offset(0.5f, 1f),
+                        Offset(0f, 0.5f),
+                    )
             )
-        val polygon = shape.buildPolygon(size, LayoutDirection.Ltr, unitDensity)
+        }
+            .apply { transform { scaleToFit() } }
+        val polygon = shape.resolvePolygon(size, LayoutDirection.Ltr, unitDensity)
         val bounds = polygon.calculateBounds(FloatArray(4), false)
         assertEquals(0f, bounds[0], 1e-2f)
         assertEquals(0f, bounds[1], 1e-2f)
@@ -482,16 +485,15 @@ class PolygonShapeTest {
     }
 
     @Test
-    fun unitSpaceShape_fitPreservesAspectRatio() {
+    fun unitSpaceShape_withScaledToFit_preservesAspectRatio() {
         // A 2:1 author-space rectangle in a square container must not stretch.
-        val shape =
-            PolygonShape(
-                PolygonShapeGeometry(
-                    vertices =
-                        listOf(Offset(0f, 0f), Offset(2f, 0f), Offset(2f, 1f), Offset(0f, 1f))
-                )
+        val shape = PolygonShape {
+            PolygonShapeGeometry(
+                vertices = listOf(Offset(0f, 0f), Offset(2f, 0f), Offset(2f, 1f), Offset(0f, 1f))
             )
-        val polygon = shape.buildPolygon(size, LayoutDirection.Ltr, unitDensity)
+        }
+            .apply { transform { scaleToFit() } }
+        val polygon = shape.resolvePolygon(size, LayoutDirection.Ltr, unitDensity)
         val bounds = polygon.calculateBounds(FloatArray(4), false)
         assertEquals(sizePx, bounds[2] - bounds[0], 1e-2f)
         assertEquals(sizePx / 2f, bounds[3] - bounds[1], 1e-2f)
@@ -500,7 +502,7 @@ class PolygonShapeTest {
 
     @Test
     fun createOutline_sameInputs_returnsCachedInstance() {
-        val shape = PolygonShape.star(8, outerRounding = CornerRounding(percent = 20))
+        val shape = PolygonShape.star(8, outerRounding = CornerRounding.fraction(0.2f))
         val first = shape.createOutline(size, LayoutDirection.Ltr, unitDensity)
         val second = shape.createOutline(size, LayoutDirection.Ltr, unitDensity)
         assertThat(second).isSameInstanceAs(first)
@@ -533,35 +535,35 @@ class PolygonShapeTest {
 
     @Test
     fun cornerRounding_isValueEqual() {
-        assertEquals(CornerRounding(percent = 20), CornerRounding(percent = 20))
+        assertEquals(CornerRounding.fraction(0.2f), CornerRounding.fraction(0.2f))
         assertEquals(
-            CornerRounding(percent = 20).hashCode(),
-            CornerRounding(percent = 20).hashCode(),
+            CornerRounding.fraction(0.2f).hashCode(),
+            CornerRounding.fraction(0.2f).hashCode(),
         )
-        assertNotEquals(CornerRounding(percent = 20), CornerRounding(percent = 30))
-        assertNotEquals(CornerRounding(radius = 8f), CornerRounding(radius = 8.dp))
+        assertNotEquals(CornerRounding.fraction(0.2f), CornerRounding.fraction(0.3f))
+        assertNotEquals(CornerRounding.fraction(0.2f), CornerRounding.dp(radius = 0.2.dp))
     }
 
     @Test
     fun polygonGeometry_isValueEqual() {
-        fun make(percent: Int = 20) =
+        fun make(fraction: Float = 0.2f) =
             PolygonShapeGeometry(
                 vertices = listOf(Offset(0.5f, 0f), Offset(1f, 1f), Offset(0f, 1f)),
-                rounding = CornerRounding(percent = percent),
+                rounding = CornerRounding.fraction(fraction),
                 center = Offset(0.5f, 0.5f),
             )
         assertEquals(make(), make())
         assertEquals(make().hashCode(), make().hashCode())
-        assertNotEquals(make(percent = 20), make(percent = 30))
+        assertNotEquals(make(fraction = 0.2f), make(fraction = 0.3f))
 
         fun makePerVertex() =
             PolygonShapeGeometry(
                 vertices = listOf(Offset(0.5f, 0f), Offset(1f, 1f), Offset(0f, 1f)),
                 perVertexRounding =
                     listOf(
-                        CornerRounding(0.1f),
-                        CornerRounding(0.2f),
-                        PolygonShapeGeometry.CornerRounding.Unrounded,
+                        CornerRounding.fraction(0.1f),
+                        CornerRounding.fraction(0.2f),
+                        CornerRounding.Unrounded,
                     ),
             )
         assertEquals(makePerVertex(), makePerVertex())
@@ -570,76 +572,11 @@ class PolygonShapeTest {
     }
 
     @Test
-    fun namedFactories_areValueEqual() {
-        assertEquals(
-            PolygonShape.star(8, 0.6f, CornerRounding(percent = 15)),
-            PolygonShape.star(8, 0.6f, CornerRounding(percent = 15)),
-        )
-        assertNotEquals(
-            PolygonShape.star(8, 0.6f, CornerRounding(percent = 15)),
-            PolygonShape.star(8, 0.6f, CornerRounding(percent = 20)),
-        )
-        assertEquals(
-            PolygonShape.regularPolygon(5, CornerRounding(percent = 15)),
-            PolygonShape.regularPolygon(5, CornerRounding(percent = 15)),
-        )
-        assertNotEquals(
-            PolygonShape.regularPolygon(5, CornerRounding(percent = 15)),
-            PolygonShape.regularPolygon(6, CornerRounding(percent = 15)),
-        )
-        assertNotEquals(
-            PolygonShape.regularPolygon(5, CornerRounding(percent = 15)),
-            PolygonShape.regularPolygon(5, CornerRounding(percent = 20)),
-        )
-        assertEquals(PolygonShape.circle(10), PolygonShape.circle(10))
-        assertNotEquals(PolygonShape.circle(10), PolygonShape.circle(12))
-        assertEquals(PolygonShape.pill(0.3f), PolygonShape.pill(0.3f))
-        assertEquals(
-            PolygonShape.pillStar(8, 0.5f, outerRounding = CornerRounding(percent = 10)),
-            PolygonShape.pillStar(8, 0.5f, outerRounding = CornerRounding(percent = 10)),
-        )
-        assertEquals(
-            PolygonShape.rectangle(CornerRounding(percent = 30)),
-            PolygonShape.rectangle(CornerRounding(percent = 30)),
-        )
-        assertEquals(
-            PolygonShape.absoluteRectangle(topLeftRounding = CornerRounding(percent = 30)),
-            PolygonShape.absoluteRectangle(topLeftRounding = CornerRounding(percent = 30)),
-        )
-        assertNotEquals(
-            PolygonShape.rectangle(topStartRounding = CornerRounding(percent = 30)),
-            PolygonShape.absoluteRectangle(topLeftRounding = CornerRounding(percent = 30)),
-        )
-    }
-
-    @Test
-    fun geometryShape_isValueEqual() {
-        fun make() =
-            PolygonShape(
-                PolygonShapeGeometry(
-                    vertices = listOf(Offset(0.5f, 0f), Offset(1f, 1f), Offset(0f, 1f)),
-                    rounding = CornerRounding(0.2f, smoothing = 0.5f),
-                    center = Offset(0.5f, 0.5f),
-                )
-            )
-        assertEquals(make(), make())
-        assertEquals(make().hashCode(), make().hashCode())
-    }
-
-    @Test
-    fun builderShape_equalOnSameLambdaInstance() {
-        val builder: PolygonShapeScope.() -> PolygonShapeGeometry = { polygon(6) }
-        assertEquals(PolygonShape(builder), PolygonShape(builder))
-        assertEquals(PolygonShape(builder).hashCode(), PolygonShape(builder).hashCode())
-        assertNotEquals(PolygonShape(builder), PolygonShape { polygon(6) })
-    }
-
-    @Test
     fun scopeFactory_mismatchedPerVertexRounding_throwsAtResolution() {
         val invalidShape = PolygonShape {
             polygon(
                 5,
-                perVertexRounding = List(3) { PolygonShapeGeometry.CornerRounding.Unrounded },
+                perVertexRounding = List(3) { CornerRounding.Unrounded },
             )
         }
         val e =
@@ -661,7 +598,7 @@ class PolygonShapeTest {
             assertThrows(IllegalArgumentException::class.java) {
                 PolygonShapeGeometry(
                     vertices = listOf(Offset(0.5f, 0f), Offset(1f, 1f), Offset(0f, 1f)),
-                    perVertexRounding = List(2) { PolygonShapeGeometry.CornerRounding.Unrounded },
+                    perVertexRounding = List(2) { CornerRounding.Unrounded },
                 )
             }
         assertThat(mismatched).hasMessageThat().contains("perVertexRounding has 2")
@@ -670,25 +607,29 @@ class PolygonShapeTest {
     @Test
     fun cornerRounding_validatesRanges() {
         assertThat(
-                assertThrows(IllegalArgumentException::class.java) { CornerRounding(percent = 101) }
+                assertThrows(IllegalArgumentException::class.java) {
+                    CornerRounding.fraction(1.1f)
+                }
             )
             .hasMessageThat()
-            .contains("percent must be in the range 0..100")
-        assertThat(
-                assertThrows(IllegalArgumentException::class.java) { CornerRounding(radius = -1f) }
-            )
-            .hasMessageThat()
-            .contains("radius must be non-negative")
+            .contains("fraction must be in the range 0..1")
         assertThat(
                 assertThrows(IllegalArgumentException::class.java) {
-                    CornerRounding(radius = (-1).dp)
+                    CornerRounding.fraction(-0.1f)
+                }
+            )
+            .hasMessageThat()
+            .contains("fraction must be in the range 0..1")
+        assertThat(
+                assertThrows(IllegalArgumentException::class.java) {
+                    CornerRounding.dp(radius = (-1).dp)
                 }
             )
             .hasMessageThat()
             .contains("radius must be non-negative")
         assertThat(
                 assertThrows(IllegalArgumentException::class.java) {
-                    CornerRounding(radius = 0.2f, smoothing = 1.5f)
+                    CornerRounding.fraction(0.2f, smoothing = 1.5f)
                 }
             )
             .hasMessageThat()
@@ -753,12 +694,6 @@ class PolygonShapeTest {
         container: Size = size,
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     ): Path = (createOutline(container, layoutDirection, density) as Outline.Generic).path
-
-    private fun PolygonShape.buildPolygon(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ): RoundedPolygon = (this as CachingPolygonShape).buildPolygon(size, layoutDirection, density)
 
     private fun assertPathsMatch(label: String, expected: Path, actual: Path, tolerance: Float) {
         val e = sampleOutline(expected)
