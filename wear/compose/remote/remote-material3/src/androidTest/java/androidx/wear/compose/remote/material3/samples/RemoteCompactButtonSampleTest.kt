@@ -44,8 +44,8 @@ class RemoteCompactButtonSampleTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val creationDisplayInfo =
         RemoteCreationDisplayInfo(
-            500,
-            500,
+            340,
+            120,
             context.resources.displayMetrics.densityDpi,
             context.resources.configuration.fontScale,
         )
