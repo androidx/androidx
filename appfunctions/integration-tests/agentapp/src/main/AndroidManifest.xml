@@ -24,10 +24,6 @@
 
     <application
         android:name=".TestApplication"
-        android:supportsRtl="true" >
-        <receiver
-            android:name="androidx.appfunctions.internal.AppFunctionCallerVerificationReceiver"
-            android:exported="false" />
-    </application>
+        android:supportsRtl="true" />
 
 </manifest>
