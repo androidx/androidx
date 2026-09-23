@@ -906,7 +906,7 @@ class RecordingCanvasTest {
         CoreDocument(clock).apply {
             // Needed because RecordingCanvas buffers up operations to facilitate global CSE &
             // hoisting passes.
-            recordingCanvas.buffer.flush(creationState)
+            recordingCanvas.flush()
             recordingBuffer.writeToBuffer()
             val buffer = creationState.document.buffer
             buffer.buffer.index = 0
