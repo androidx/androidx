@@ -33,6 +33,7 @@ android {
             optimization {
                 enable = true
             }
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
     namespace = "androidx.wear.compose.prototypes.windowinsets"
@@ -46,7 +47,8 @@ dependencies {
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:ui:ui-util"))
 
-    // Wear Compose Local Projects
+    // Wear Local Projects
+    implementation(project(":wear:wear-core"))
     implementation(project(":wear:compose:compose-foundation"))
     implementation(project(":wear:compose:compose-material3"))
 
