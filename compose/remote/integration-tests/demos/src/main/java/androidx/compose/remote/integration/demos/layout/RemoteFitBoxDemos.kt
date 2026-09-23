@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package androidx.compose.remote.integration.demos.layout
 
 import androidx.compose.foundation.background
@@ -39,8 +37,6 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
-import androidx.compose.remote.core.operations.utilities.easing.GeneralEasing
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -50,17 +46,18 @@ import androidx.compose.remote.creation.compose.layout.RemoteFitBox
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.animationSpec
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.padding
+import androidx.compose.remote.creation.compose.modifier.sharedElement
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.integration.demos.common.RemoteDemo
@@ -171,14 +168,9 @@ private fun RemoteFitBoxResponsivePlayerDemo() {
             RemoteDemo {
                 RemoteFitBox(
                     modifier =
-                        RemoteModifier.animationSpec(
-                            animationId = 100,
-                            motionDuration = 500f,
-                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                            visibilityDuration = 500f,
-                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                        RemoteModifier.sharedElement(
+                            key = 100,
+                            spec = remoteTween(durationMillis = 500),
                         )
                 ) {
                     // Alternative 1: Wide full player (fits >= 300dp)
@@ -190,14 +182,9 @@ private fun RemoteFitBoxResponsivePlayerDemo() {
                             // Album Art
                             RemoteBox(
                                 modifier =
-                                    RemoteModifier.animationSpec(
-                                            animationId = 1,
-                                            motionDuration = 500f,
-                                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            visibilityDuration = 500f,
-                                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    RemoteModifier.sharedElement(
+                                            key = 1,
+                                            spec = remoteTween(durationMillis = 500),
                                         )
                                         .size(48.rdp)
                                         .clip(RemoteRoundedCornerShape(12.rdp))
@@ -210,14 +197,9 @@ private fun RemoteFitBoxResponsivePlayerDemo() {
                             // Song Title & Artist
                             RemoteColumn(
                                 modifier =
-                                    RemoteModifier.animationSpec(
-                                            animationId = 2,
-                                            motionDuration = 500f,
-                                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            visibilityDuration = 500f,
-                                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    RemoteModifier.sharedElement(
+                                            key = 2,
+                                            spec = remoteTween(durationMillis = 500),
                                         )
                                         .width(130.rdp)
                             ) {
@@ -236,14 +218,9 @@ private fun RemoteFitBoxResponsivePlayerDemo() {
                             // Play Button
                             RemoteBox(
                                 modifier =
-                                    RemoteModifier.animationSpec(
-                                            animationId = 3,
-                                            motionDuration = 500f,
-                                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            visibilityDuration = 500f,
-                                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    RemoteModifier.sharedElement(
+                                            key = 3,
+                                            spec = remoteTween(durationMillis = 500),
                                         )
                                         .size(40.rdp)
                                         .clip(RemoteRoundedCornerShape(20.rdp))
@@ -263,14 +240,9 @@ private fun RemoteFitBoxResponsivePlayerDemo() {
                         ) {
                             RemoteBox(
                                 modifier =
-                                    RemoteModifier.animationSpec(
-                                            animationId = 1,
-                                            motionDuration = 500f,
-                                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            visibilityDuration = 500f,
-                                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    RemoteModifier.sharedElement(
+                                            key = 1,
+                                            spec = remoteTween(durationMillis = 500),
                                         )
                                         .size(38.rdp)
                                         .clip(RemoteRoundedCornerShape(10.rdp))
@@ -282,14 +254,9 @@ private fun RemoteFitBoxResponsivePlayerDemo() {
 
                             RemoteColumn(
                                 modifier =
-                                    RemoteModifier.animationSpec(
-                                            animationId = 2,
-                                            motionDuration = 500f,
-                                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            visibilityDuration = 500f,
-                                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    RemoteModifier.sharedElement(
+                                            key = 2,
+                                            spec = remoteTween(durationMillis = 500),
                                         )
                                         .width(80.rdp)
                             ) {
@@ -302,14 +269,9 @@ private fun RemoteFitBoxResponsivePlayerDemo() {
 
                             RemoteBox(
                                 modifier =
-                                    RemoteModifier.animationSpec(
-                                            animationId = 3,
-                                            motionDuration = 500f,
-                                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            visibilityDuration = 500f,
-                                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    RemoteModifier.sharedElement(
+                                            key = 3,
+                                            spec = remoteTween(durationMillis = 500),
                                         )
                                         .size(34.rdp)
                                         .clip(RemoteRoundedCornerShape(17.rdp))
@@ -325,14 +287,9 @@ private fun RemoteFitBoxResponsivePlayerDemo() {
                     RemoteBox(modifier = RemoteModifier.width(70.rdp).height(50.rdp)) {
                         RemoteBox(
                             modifier =
-                                RemoteModifier.animationSpec(
-                                        animationId = 1,
-                                        motionDuration = 500f,
-                                        motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                        visibilityDuration = 500f,
-                                        visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                        enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                        exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                RemoteModifier.sharedElement(
+                                        key = 1,
+                                        spec = remoteTween(durationMillis = 500),
                                     )
                                     .size(46.rdp)
                                     .clip(RemoteRoundedCornerShape(23.rdp))
@@ -407,14 +364,9 @@ private fun RemoteFitBoxCardToBannerDemo() {
             RemoteDemo {
                 RemoteFitBox(
                     modifier =
-                        RemoteModifier.animationSpec(
-                            animationId = 200,
-                            motionDuration = 500f,
-                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                            visibilityDuration = 500f,
-                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                        RemoteModifier.sharedElement(
+                            key = 200,
+                            spec = remoteTween(durationMillis = 500),
                         )
                 ) {
                     // Wide Banner (fits >= 270dp)
@@ -426,14 +378,9 @@ private fun RemoteFitBoxCardToBannerDemo() {
                             // Avatar
                             RemoteBox(
                                 modifier =
-                                    RemoteModifier.animationSpec(
-                                            animationId = 11,
-                                            motionDuration = 500f,
-                                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            visibilityDuration = 500f,
-                                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    RemoteModifier.sharedElement(
+                                            key = 11,
+                                            spec = remoteTween(durationMillis = 500),
                                         )
                                         .size(54.rdp)
                                         .clip(RemoteRoundedCornerShape(27.rdp))
@@ -446,14 +393,9 @@ private fun RemoteFitBoxCardToBannerDemo() {
                             // Details (to the right of avatar in banner)
                             RemoteColumn(
                                 modifier =
-                                    RemoteModifier.animationSpec(
-                                            animationId = 12,
-                                            motionDuration = 500f,
-                                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            visibilityDuration = 500f,
-                                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    RemoteModifier.sharedElement(
+                                            key = 12,
+                                            spec = remoteTween(durationMillis = 500),
                                         )
                                         .width(120.rdp)
                             ) {
@@ -472,14 +414,9 @@ private fun RemoteFitBoxCardToBannerDemo() {
                             // Follow Action Button
                             RemoteBox(
                                 modifier =
-                                    RemoteModifier.animationSpec(
-                                            animationId = 13,
-                                            motionDuration = 500f,
-                                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            visibilityDuration = 500f,
-                                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    RemoteModifier.sharedElement(
+                                            key = 13,
+                                            spec = remoteTween(durationMillis = 500),
                                         )
                                         .size(width = 72.rdp, height = 36.rdp)
                                         .clip(RemoteRoundedCornerShape(18.rdp))
@@ -506,14 +443,9 @@ private fun RemoteFitBoxCardToBannerDemo() {
                             // Avatar centered at the top
                             RemoteBox(
                                 modifier =
-                                    RemoteModifier.animationSpec(
-                                            animationId = 11,
-                                            motionDuration = 500f,
-                                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            visibilityDuration = 500f,
-                                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    RemoteModifier.sharedElement(
+                                            key = 11,
+                                            spec = remoteTween(durationMillis = 500),
                                         )
                                         .size(64.rdp)
                                         .clip(RemoteRoundedCornerShape(32.rdp))
@@ -526,14 +458,9 @@ private fun RemoteFitBoxCardToBannerDemo() {
                             // Details placed below the avatar (centered)
                             RemoteColumn(
                                 modifier =
-                                    RemoteModifier.animationSpec(
-                                        animationId = 12,
-                                        motionDuration = 500f,
-                                        motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                        visibilityDuration = 500f,
-                                        visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                        enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                        exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    RemoteModifier.sharedElement(
+                                        key = 12,
+                                        spec = remoteTween(durationMillis = 500),
                                     ),
                                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
                             ) {
@@ -552,14 +479,9 @@ private fun RemoteFitBoxCardToBannerDemo() {
                             // Follow Action Button below the text
                             RemoteBox(
                                 modifier =
-                                    RemoteModifier.animationSpec(
-                                            animationId = 13,
-                                            motionDuration = 500f,
-                                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            visibilityDuration = 500f,
-                                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    RemoteModifier.sharedElement(
+                                            key = 13,
+                                            spec = remoteTween(durationMillis = 500),
                                         )
                                         .size(width = 96.rdp, height = 32.rdp)
                                         .clip(RemoteRoundedCornerShape(16.rdp))
@@ -639,14 +561,9 @@ private fun RemoteFitBoxRowToColumnDemo() {
             RemoteDemo {
                 RemoteFitBox(
                     modifier =
-                        RemoteModifier.animationSpec(
-                            animationId = 300,
-                            motionDuration = 500f,
-                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                            visibilityDuration = 500f,
-                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                        RemoteModifier.sharedElement(
+                            key = 300,
+                            spec = remoteTween(durationMillis = 500),
                         )
                 ) {
                     // Wide: Horizontal Row of 3 tiles (fits >= 250dp)
@@ -714,15 +631,7 @@ private fun RemoteFitBoxRowToColumnDemo() {
 private fun FitBoxTile(id: Int, label: String, color: Color, width: Int, height: Int) {
     RemoteBox(
         modifier =
-            RemoteModifier.animationSpec(
-                    animationId = id,
-                    motionDuration = 500f,
-                    motionEasingType = GeneralEasing.CUBIC_STANDARD,
-                    visibilityDuration = 500f,
-                    visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
-                    enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
-                    exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
-                )
+            RemoteModifier.sharedElement(key = id, spec = remoteTween(durationMillis = 500))
                 .width(width.rdp)
                 .height(height.rdp)
                 .clip(RemoteRoundedCornerShape(10.rdp))
