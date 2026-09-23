@@ -30,6 +30,9 @@ androidx {
     samples(project(":wear:compose:remote:remote-material3-samples"))
     addGoldenImageAssets()
     enableRobolectric()
+    deviceTests {
+        maxShardCount = 1
+    }
 }
 
 android {
