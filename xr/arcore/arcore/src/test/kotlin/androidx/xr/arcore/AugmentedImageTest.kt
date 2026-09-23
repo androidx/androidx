@@ -49,11 +49,10 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
-import org.robolectric.shadows.ShadowLooper
 
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("DEPRECATION")
+@OptIn(ExperimentalCoroutinesApi::class)
 class AugmentedImageTest {
     @Rule @JvmField val arCoreTestRule = ArCoreTestRule()
 
@@ -139,19 +138,17 @@ class AugmentedImageTest {
         runTest(testDispatcher) {
             val testImage = TestAugmentedImage(0)
             arCoreTestRule.addTrackables(testImage)
-
-            advanceUntilIdle()
-
             var underTest = emptyList<AugmentedImage>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 AugmentedImage.subscribe(session).collect { underTest = it.toList() }
             }
-
-            activityController.pause()
+            // Gather the augmented images.
             advanceUntilIdle()
+
+            assertThat(underTest).isNotEmpty()
+
             session.configure(Config.Builder().setAugmentedImageDatabase(null).build())
-            ShadowLooper.idleMainLooper()
-            activityController.resume()
+            // Propagate the effects of configure().
             advanceUntilIdle()
 
             assertThat(underTest.single().state.value.trackingState)
