@@ -48,6 +48,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -61,6 +63,15 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
         SurfaceTexture.OnFrameAvailableListener {
 
     private static final String TAG = "SurfaceProcessorImpl";
+    // Anchors active input surfaces to the running GL thread's ThreadLocalMap so they remain
+    // strongly reachable from a JVM GC root until explicitly released or the GL thread exits.
+    private static final ThreadLocal<Map<SurfaceTexture, Surface>> sInputSurfaces =
+            new ThreadLocal<>() {
+                @Override
+                protected Map<SurfaceTexture, Surface> initialValue() {
+                    return new HashMap<>();
+                }
+            };
 
     // The semaphore usually releases within 2ms. We wait for 30ms since it's the FPS.
     // At maximum, we wait until the next frame is ready.
@@ -122,11 +133,13 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
         surfaceTexture.setDefaultBufferSize(surfaceRequest.getResolution().getWidth(),
                 surfaceRequest.getResolution().getHeight());
         Surface surface = new Surface(surfaceTexture);
+        requireNonNull(sInputSurfaces.get()).put(surfaceTexture, surface);
         surfaceRequest.provideSurface(surface, mGlExecutor, result -> {
             // TODO(b/297509601): maybe release the buffer to free up memory.
             surfaceTexture.setOnFrameAvailableListener(null);
             surfaceTexture.release();
             surface.release();
+            requireNonNull(sInputSurfaces.get()).remove(surfaceTexture);
         });
         surfaceTexture.setOnFrameAvailableListener(this, mGlHandler);
 
