@@ -37,6 +37,12 @@
                 <action android:name="androidx.compose.tracing.action.STOP_RECOMPOSE_TRACING" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name="androidx.compose.runtime.tracing.internal.RecompositionTracingEnabledReceiver"
+            android:directBootAware="false"
+            android:enabled="false"
+            android:exported="false">
+        </receiver>
     </application>
 
 </manifest>

@@ -21,12 +21,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import androidx.compose.runtime.CancellationHandle
-import androidx.compose.runtime.InternalComposeTracingApi
 import androidx.compose.runtime.tooling.RecompositionTracer
-import androidx.startup.AppInitializer
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import androidx.compose.runtime.tracing.internal.RecompositionTracerState
 
 /**
  * Receives broadcast intents to start and stop the [RecompositionTracer].
@@ -62,41 +58,27 @@ public class RecompositionTracingReceiver : BroadcastReceiver() {
         }
     }
 
-    @OptIn(InternalComposeTracingApi::class)
     private fun start(context: Context) {
-        // Make sure the tracer is initialized
-        val composeTraceCollector =
-            try {
-                AppInitializer.getInstance(context)
-                    .initializeComponent(ComposeTracerInitializer::class.java)
-            } catch (e: Exception) {
-                resultCode = RESULT_CODE_FAILURE
-                throw e
-            }
-
-        synchronized(lock) {
-            if (tracingHandle == null) {
-                val tracer = RecompositionTracer(composeTraceCollector)
-                tracingHandle = tracer.installTracing(tracingContext)
-            } else {
-                resultCode = RESULT_CODE_ALREADY_IN_PROGRESS
-                return
-            }
+        try {
+            resultCode =
+                if (RecompositionTracerState.startTracing(context)) {
+                    RESULT_CODE_SUCCESS
+                } else {
+                    RESULT_CODE_ALREADY_IN_PROGRESS
+                }
+        } catch (e: Exception) {
+            resultCode = RESULT_CODE_FAILURE
+            throw e
         }
-        resultCode = RESULT_CODE_SUCCESS
     }
 
     private fun stop(context: Context) {
-        synchronized(lock) {
-            try {
-                tracingHandle?.cancel()
-                resultCode = RESULT_CODE_SUCCESS
-            } catch (e: Exception) {
-                resultCode = RESULT_CODE_FAILURE
-                throw e
-            } finally {
-                tracingHandle = null
-            }
+        try {
+            RecompositionTracerState.stopTracing(context)
+            resultCode = RESULT_CODE_SUCCESS
+        } catch (e: Exception) {
+            resultCode = RESULT_CODE_FAILURE
+            throw e
         }
     }
 
@@ -121,9 +103,5 @@ public class RecompositionTracingReceiver : BroadcastReceiver() {
         /** Stop recomposition tracing. */
         public const val ACTION_STOP: String =
             "androidx.compose.tracing.action.STOP_RECOMPOSE_TRACING"
-
-        private val lock = Any()
-        private val tracingContext = Dispatchers.Main + SupervisorJob()
-        private var tracingHandle: CancellationHandle? = null
     }
 }
