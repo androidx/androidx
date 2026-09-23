@@ -90,6 +90,8 @@ import kotlin.math.roundToInt
  * @param windowInsets a window insets of the navigation bar
  * @param arrangement the [ShortNavigationBarArrangement] of this navigation bar
  * @param content the content of this navigation bar, typically [ShortNavigationBarItem]s
+ *
+ * @material3expressive
  */
 @Composable
 public fun ShortNavigationBar(
@@ -243,6 +245,8 @@ public value class ShortNavigationBarArrangement private constructor(private val
  *   emitting [Interaction]s for this item. You can use this to change the item's appearance or
  *   preview the item in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
+ *
+ * @material3expressive
  */
 @Composable
 public fun ShortNavigationBarItem(
