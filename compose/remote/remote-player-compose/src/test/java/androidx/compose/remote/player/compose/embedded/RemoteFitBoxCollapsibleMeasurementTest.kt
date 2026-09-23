@@ -20,11 +20,13 @@ import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleColumn
 import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleRow
 import androidx.compose.remote.creation.compose.layout.RemoteFitBox
+import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxHeight
@@ -33,8 +35,11 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.modifier.visibility
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
+import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
@@ -412,5 +417,176 @@ class RemoteFitBoxCollapsibleMeasurementTest {
         rule.waitForIdle()
         rule.onNodeWithText("CompactTier").assertIsDisplayed()
         rule.onNodeWithText("ColHeader").assertDoesNotExist()
+    }
+
+    @Test
+    fun fitBox_probesCandidatesWithUnboundedConstraintsAndSelectsFittingTier() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val density = context.resources.displayMetrics.density
+        rule.setRemoteContent(
+            remoteCreationDisplayInfo =
+                createCreationDisplayInfo(
+                    context = context,
+                    size = Size(300f * density, 200f * density),
+                ),
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(300.dp, 200.dp)) {
+                    content()
+                }
+            },
+        ) {
+            RemoteFitBox(modifier = RemoteModifier.fillMaxSize()) {
+                // Candidate 0: 400dp wide (exceeds 300dp container width when probed unbounded)
+                RemoteBox(modifier = RemoteModifier.size(400.rdp, 100.rdp)) {
+                    RemoteText("TooWideCandidate".rs)
+                }
+                // Candidate 1: 200dp wide (fits within 300dp container width)
+                RemoteBox(modifier = RemoteModifier.size(200.rdp, 100.rdp)) {
+                    RemoteText("FittingCandidate".rs)
+                }
+            }
+        }
+
+        rule.mainClock.advanceTimeBy(500)
+        rule.waitForIdle()
+        rule.onNodeWithText("FittingCandidate").assertIsDisplayed()
+        rule.onNodeWithText("TooWideCandidate").assertDoesNotExist()
+    }
+
+    @Test
+    fun stateLayout_sizesToActivePageAndHidesInactivePages() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val density = context.resources.displayMetrics.density
+        rule.setRemoteContent(
+            remoteCreationDisplayInfo =
+                createCreationDisplayInfo(
+                    context = context,
+                    size = Size(300f * density, 300f * density),
+                ),
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(300.dp, 300.dp)) {
+                    content()
+                }
+            },
+        ) {
+            RemoteStateLayout(
+                currentState = rememberMutableRemoteInt(0),
+                0,
+                1,
+                modifier = RemoteModifier,
+            ) { page ->
+                when (page) {
+                    0 ->
+                        RemoteBox(modifier = RemoteModifier.size(120.rdp, 80.rdp)) {
+                            RemoteText("ActivePage0".rs)
+                        }
+                    else ->
+                        RemoteBox(modifier = RemoteModifier.size(240.rdp, 160.rdp)) {
+                            RemoteText("InactivePage1".rs)
+                        }
+                }
+            }
+        }
+
+        rule.mainClock.advanceTimeBy(500)
+        rule.waitForIdle()
+        rule.onNodeWithText("ActivePage0").assertIsDisplayed()
+        rule.onNodeWithText("InactivePage1").assertDoesNotExist()
+    }
+
+    @Test
+    fun fitBox_overridesDirectCandidateVisibilityAndHonorsNestedVisibility() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val density = context.resources.displayMetrics.density
+        rule.setRemoteContent(
+            remoteCreationDisplayInfo =
+                createCreationDisplayInfo(
+                    context = context,
+                    size = Size(300f * density, 200f * density),
+                ),
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(300.dp, 200.dp)) {
+                    content()
+                }
+            },
+        ) {
+            RemoteFitBox(modifier = RemoteModifier.fillMaxSize()) {
+                // Direct candidate 0 fits spatially (100dp x 80dp); FitBoxLayout overrides its
+                // direct visibility to OVERRIDE_VISIBLE (matching FitBoxLayout.computeWrapSize),
+                // while nested children inside the candidate still honor their own visibility.
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(100.rdp, 80.rdp)
+                            .visibility(Component.Visibility.GONE.ri)
+                ) {
+                    RemoteText("SelectedFittingCandidate".rs)
+                    RemoteBox(modifier = RemoteModifier.visibility(Component.Visibility.GONE.ri)) {
+                        RemoteText("NestedGoneChild".rs)
+                    }
+                }
+                RemoteBox(modifier = RemoteModifier.size(150.rdp, 100.rdp)) {
+                    RemoteText("UnselectedFallbackCandidate".rs)
+                }
+            }
+        }
+
+        rule.mainClock.advanceTimeBy(500)
+        rule.waitForIdle()
+        rule.onNodeWithText("SelectedFittingCandidate").assertIsDisplayed()
+        rule.onNodeWithText("NestedGoneChild").assertDoesNotExist()
+        rule.onNodeWithText("UnselectedFallbackCandidate").assertDoesNotExist()
+    }
+
+    @Test
+    fun stateLayout_overridesActivePageVisibilityAndHonorsNestedVisibility() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val density = context.resources.displayMetrics.density
+        rule.setRemoteContent(
+            remoteCreationDisplayInfo =
+                createCreationDisplayInfo(
+                    context = context,
+                    size = Size(300f * density, 300f * density),
+                ),
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(300.dp, 300.dp)) {
+                    content()
+                }
+            },
+        ) {
+            RemoteStateLayout(
+                currentState = rememberMutableRemoteInt(0),
+                0,
+                1,
+                modifier = RemoteModifier,
+            ) { page ->
+                when (page) {
+                    0 ->
+                        // StateLayout.measure explicitly sets the active state page to VISIBLE,
+                        // while nested children inside the page still honor their own visibility.
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.size(120.rdp, 80.rdp)
+                                    .visibility(Component.Visibility.GONE.ri)
+                        ) {
+                            RemoteText("ActivePage0".rs)
+                            RemoteBox(
+                                modifier = RemoteModifier.visibility(Component.Visibility.GONE.ri)
+                            ) {
+                                RemoteText("NestedGonePageChild".rs)
+                            }
+                        }
+                    else ->
+                        RemoteBox(modifier = RemoteModifier.size(240.rdp, 160.rdp)) {
+                            RemoteText("InactivePage1".rs)
+                        }
+                }
+            }
+        }
+
+        rule.mainClock.advanceTimeBy(500)
+        rule.waitForIdle()
+        rule.onNodeWithText("ActivePage0").assertIsDisplayed()
+        rule.onNodeWithText("NestedGonePageChild").assertDoesNotExist()
+        rule.onNodeWithText("InactivePage1").assertDoesNotExist()
     }
 }

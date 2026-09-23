@@ -60,6 +60,11 @@ internal fun RcPlayerStateLayout(layout: StateLayout, modifier: Modifier) {
     }
 
     val targetIndex = index.coerceIn(0, children.size - 1)
+    for (i in 0 until children.size) {
+        val child = children[i]
+        val vis = if (i == targetIndex) Component.Visibility.VISIBLE else Component.Visibility.GONE
+        child.mVisibility = vis
+    }
 
     val layoutSpec =
         layout.componentModifiers?.list?.fastFirstOrNull { it is AnimationSpec } as? AnimationSpec
