@@ -21,6 +21,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,6 +30,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
@@ -53,6 +57,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withParent
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
 import org.junit.Rule
@@ -125,6 +130,27 @@ class IsDisplayedTest(val config: TestConfig) {
         }
 
         rule.onNodeWithTag("item4").assertIsNotDisplayed()
+    }
+
+    @Test
+    fun componentInLazyColumn_notComposedAndPrefetched_isNotDisplayed() {
+        lateinit var state: LazyListState
+        setContent {
+            state = rememberLazyListState()
+            LazyColumn(state = state, modifier = Modifier.requiredSize(150.dp)) {
+                items(10) { Item(it, height = 100.dp) }
+            }
+        }
+
+        // Initially item0 (0..100.dp) and item1 (100..150.dp) are visible; item2 is not composed.
+        rule.onNodeWithTag("item0").assertIsDisplayed()
+        rule.onNodeWithTag("item2").assertDoesNotExist()
+        rule.onNodeWithTag("item2").assertIsNotDisplayed()
+
+        // Scroll slightly so LazyColumn prefetches (precomposes without placing) item2.
+        runBlocking { state.scrollBy(5f) }
+        rule.waitForIdle()
+        rule.onNodeWithTag("item2").assertIsNotDisplayed()
     }
 
     @Test
