@@ -264,6 +264,22 @@ class GltfJniMarshallingTest : BaseJniMarshallingTest() {
     }
 
     @Test
+    fun setGltfModelAnimationLoop_marshalsParams() {
+        val expectedLoop = true
+        val expectedChannelId = 1
+        ImpressApiTestHelper.nativeSetExpectedSetGltfModelAnimationLoop(
+            TEST_NODE_ID,
+            expectedLoop,
+            expectedChannelId,
+        )
+        val node = ImpressNode(TEST_NODE_ID)
+
+        mImpressApi.setGltfModelAnimationLoop(node, expectedLoop, expectedChannelId)
+
+        // This JNI call does not return any data, so the only assertion is on the native side.
+    }
+
+    @Test
     fun setGltfModelAnimationPlaybackTime_marshalsParams() {
         val expectedPlaybackTime = 1.0f
         val expectedChannelId = 1

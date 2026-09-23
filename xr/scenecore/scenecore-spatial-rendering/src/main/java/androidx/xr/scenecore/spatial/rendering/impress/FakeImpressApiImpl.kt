@@ -332,6 +332,11 @@ public class FakeImpressApiImpl : ImpressApi {
         nodeAnims?.get(channel)?.speed = speed
     }
 
+    override fun setGltfModelAnimationLoop(impressNode: ImpressNode, loop: Boolean, channel: Int) {
+        val nodeAnims = channelAnimations[impressNode]
+        nodeAnims?.get(channel)?.looping = loop
+    }
+
     override fun getGltfModelAnimationCount(impressNode: ImpressNode): Int {
         return 0
     }
