@@ -22,10 +22,19 @@ import androidx.collection.mutableObjectIntMapOf
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.managers.CollapsiblePriority
+import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
+import androidx.compose.remote.core.operations.layout.managers.RowLayout
+import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePriorityModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.RcPlayerChildren
+import androidx.compose.remote.player.compose.embedded.horizontalPositioningReflection
 import androidx.compose.remote.player.compose.embedded.rawDimensionDp
 import androidx.compose.remote.player.compose.embedded.sortWithPriorities
+import androidx.compose.remote.player.compose.embedded.verticalPositioningReflection
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
@@ -33,23 +42,10 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
-import androidx.compose.ui.util.fastMap
 
-/**
- * Renders a collapsible row/column: lay children out along the main axis and, when they don't all
- * fit in the available main-axis space, "collapse" children until the rest fit.
- *
- * The collapse *decision* reuses remote-core: children are ordered by
- * `CollapsiblePriority.sortWithPriorities` (the same ordering the View player's
- * `CollapsibleRowLayout.computeVisibleChildren` uses — highest priority first, no-priority children
- * defaulting to `Float.MAX_VALUE`), and, exactly like core's walk, children are kept in that order
- * until the first one that overflows the budget; everything after it collapses. Survivors are
- * placed in document order. Only the measurement source differs: core measures with its own layout
- * pass, here Compose owns measure/layout, so the core walk is replayed against the Compose-measured
- * sizes (measurables are assumed to align 1:1 with the component's children in document order).
- */
 @Composable
 internal fun RcPlayerCollapsible(
     layout: LayoutComponent,
@@ -60,24 +56,74 @@ internal fun RcPlayerCollapsible(
     val orientation = if (vertical) CollapsiblePriority.VERTICAL else CollapsiblePriority.HORIZONTAL
     val behavior = LocalCoreDocument.current.densityBehavior
     val density = LocalDensity.current.density
+    val horizontalPositioning =
+        when (layout) {
+            is RowLayout -> layout.horizontalPositioningReflection
+            is ColumnLayout -> layout.horizontalPositioningReflection
+            else -> RowLayout.START
+        }
+    val verticalPositioning =
+        when (layout) {
+            is RowLayout -> layout.verticalPositioningReflection
+            is ColumnLayout -> layout.verticalPositioningReflection
+            else -> ColumnLayout.TOP
+        }
+    val horizontalArrangement =
+        rowHorizontalArrangement(
+            horizontalPositioning,
+            spacedBy,
+            behavior,
+            density,
+        )
+    val verticalArrangement =
+        columnVerticalArrangement(
+            verticalPositioning,
+            spacedBy,
+            behavior,
+            density,
+        )
+    val verticalAlignment = rowVerticalAlignment(verticalPositioning)
+    val horizontalAlignment = columnHorizontalAlignment(horizontalPositioning)
 
     Layout(content = { RcPlayerChildren(layout) { Modifier } }, modifier = modifier) {
         measurables,
         constraints ->
-        // spacedBy may be a NaN-encoded variable/expression (dp recorded against the density
-        // variable), resolved by the caller; apply the density behavior here like the plain
-        // Row/Column arrangements do.
         val spacingPx =
             if (spacedBy > 0f) rawDimensionDp(spacedBy, behavior, density).roundToPx() else 0
 
-        // Measure each child at its natural preferred size on the main axis.
-        val childConstraints =
-            if (vertical) constraints.copy(minHeight = 0) else constraints.copy(minWidth = 0)
-        val placeables = measurables.fastMap { it.measure(childConstraints) }
-        val n = placeables.size
+        // Relax both minWidth and minHeight so children measure at their preferred size on both
+        // axes rather than inheriting the container's minimum cross-axis constraint.
+        val childConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+        val n = measurables.size
+        val children = layout.childrenComponents
+        val placeables = arrayOfNulls<Placeable>(n)
 
-        fun mainSize(p: Placeable) = if (vertical) p.height else p.width
-        fun crossSize(p: Placeable) = if (vertical) p.width else p.height
+        fun childWeight(child: Component): Float {
+            val mods = (child as? LayoutComponent)?.componentModifiers?.getList() ?: return 0f
+            return if (vertical) {
+                (mods.fastFirstOrNull {
+                        it is HeightModifierOperation &&
+                            it.getType() == DimensionModifierOperation.Type.WEIGHT
+                    } as? HeightModifierOperation)
+                    ?.getValue() ?: 0f
+            } else {
+                (mods.fastFirstOrNull {
+                        it is WidthModifierOperation &&
+                            it.getType() == DimensionModifierOperation.Type.WEIGHT
+                    } as? WidthModifierOperation)
+                    ?.getValue() ?: 0f
+            }
+        }
+
+        val weights = FloatArray(n) { i -> if (i < children.size) childWeight(children[i]) else 0f }
+        for (i in 0 until n) {
+            if (weights[i] <= 0f) {
+                placeables[i] = measurables[i].measure(childConstraints)
+            }
+        }
+
+        fun mainSize(p: Placeable?) = if (p == null) 0 else if (vertical) p.height else p.width
+        fun crossSize(p: Placeable?) = if (p == null) 0 else if (vertical) p.width else p.height
 
         val available =
             if (vertical) {
@@ -86,51 +132,155 @@ internal fun RcPlayerCollapsible(
                 if (constraints.hasBoundedWidth) constraints.maxWidth else Int.MAX_VALUE
             }
 
-        // Core's collapse walk (CollapsibleRowLayout.computeVisibleChildren), replayed against
-        // the Compose-measured sizes: visit children highest-priority-first (core's
-        // sortWithPriorities), keep each that fits, and once one overflows collapse it and
-        // everything after it in priority order. Like core, the walk does not include spacing in
-        // the budget.
-        val children = layout.childrenComponents
         val indexOfChild = mutableObjectIntMapOf<Component>()
-        children.fastForEachIndexed { index, child -> indexOfChild[child] = index }
+        var hasPriorities = false
+        children.fastForEachIndexed { index, child ->
+            indexOfChild[child] = index
+            if (
+                (child as? LayoutComponent)?.selfOrModifier(
+                    CollapsiblePriorityModifierOperation::class.java
+                ) != null
+            ) {
+                hasPriorities = true
+            }
+        }
+
+        // Only sort by CollapsiblePriority when at least one child defines a priority modifier;
+        // otherwise collapse in document order, matching CollapsibleRowLayout.java.
+        val visitOrder = if (hasPriorities) sortWithPriorities(children, orientation) else children
         val kept = BooleanArray(n)
-        var used = 0
+        var usedUnweighted = 0
+        var keptCount = 0
         var overflow = false
-        sortWithPriorities(children, orientation).fastForEach { child ->
+        visitOrder.fastForEach { child ->
             val index = indexOfChild.getOrDefault(child, -1)
             if (index == -1 || index >= n) return@fastForEach
+            // Skip children whose explicit visibility modifier marked them GONE.
+            val explicitVisOp =
+                (child as? LayoutComponent)?.selfOrModifier(
+                    ComponentVisibilityOperation::class.java
+                )
+            if (explicitVisOp != null && child.mVisibility == Component.Visibility.GONE) {
+                return@fastForEach
+            }
             val childSize = mainSize(placeables[index])
-            if (overflow || used + childSize > available) {
+            val neededSpacing = if (keptCount > 0) spacingPx else 0
+            if (overflow || usedUnweighted + neededSpacing + childSize > available) {
                 overflow = true
                 return@fastForEach
             }
-            used += childSize
+            usedUnweighted += neededSpacing + childSize
+            keptCount++
             kept[index] = true
         }
 
+        var visibleCount = 0
+        var totalWeight = 0f
+        for (i in 0 until n) {
+            if (kept[i]) {
+                visibleCount++
+                totalWeight += weights[i]
+            }
+        }
+
+        val totalSpacing = if (visibleCount > 1) spacingPx * (visibleCount - 1) else 0
+        if (totalWeight > 0f) {
+            val remaining = (available - usedUnweighted).coerceAtLeast(0)
+            for (i in 0 until n) {
+                if (kept[i] && weights[i] > 0f) {
+                    val share = ((remaining * (weights[i] / totalWeight)).toInt()).coerceAtLeast(0)
+                    val weightedConstraints =
+                        if (vertical) {
+                            childConstraints.copy(minHeight = share, maxHeight = share)
+                        } else {
+                            childConstraints.copy(minWidth = share, maxWidth = share)
+                        }
+                    placeables[i] = measurables[i].measure(weightedConstraints)
+                }
+            }
+        }
+
+        // Synchronize child and container visibility state with remote-core so tree/state
+        // inspection and parent containers observe collapsed vs visible components.
+        for (i in 0 until minOf(n, children.size)) {
+            val vis = if (kept[i]) Component.Visibility.VISIBLE else Component.Visibility.GONE
+            children[i].mVisibility = vis
+        }
+        val selfVis =
+            if (visibleCount == 0) Component.Visibility.GONE else Component.Visibility.VISIBLE
+        layout.mVisibility = selfVis
+
         var mainExtent = 0
         var crossExtent = 0
-        var visible = 0
+        val keptIndices = IntArray(visibleCount)
+        val mainSizes = IntArray(visibleCount)
+        var k = 0
         for (i in 0 until n) {
             if (!kept[i]) continue
-            mainExtent += mainSize(placeables[i])
-            crossExtent = maxOf(crossExtent, crossSize(placeables[i]))
-            visible++
+            val p = placeables[i]
+            val m = mainSize(p)
+            mainExtent += m
+            crossExtent = maxOf(crossExtent, crossSize(p))
+            keptIndices[k] = i
+            mainSizes[k] = m
+            k++
         }
-        if (visible > 1) mainExtent += spacingPx * (visible - 1)
-        mainExtent = mainExtent.coerceAtMost(available)
+        mainExtent = (mainExtent + totalSpacing).coerceAtMost(available)
 
-        val width = if (vertical) crossExtent else mainExtent
-        val height = if (vertical) mainExtent else crossExtent
+        val width = constraints.constrainWidth(if (vertical) crossExtent else mainExtent)
+        val height = constraints.constrainHeight(if (vertical) mainExtent else crossExtent)
+        val mainPositions = IntArray(visibleCount)
+        if (vertical) {
+            with(verticalArrangement) { arrange(height, mainSizes, mainPositions) }
+        } else {
+            with(horizontalArrangement) {
+                arrange(width, mainSizes, layoutDirection, mainPositions)
+            }
+        }
 
-        layout(constraints.constrainWidth(width), constraints.constrainHeight(height)) {
-            var pos = 0
+        layout(width, height) {
+            var kIdx = 0
+            var nextMainPos = if (visibleCount > 0) mainPositions[0] else 0
             for (i in 0 until n) {
-                if (!kept[i]) continue
-                if (vertical) placeables[i].placeRelative(0, pos)
-                else placeables[i].placeRelative(pos, 0)
-                pos += mainSize(placeables[i]) + spacingPx
+                val p = placeables[i] ?: continue
+                if (kept[i]) {
+                    val mainPos = mainPositions[kIdx]
+                    if (vertical) {
+                        val x = horizontalAlignment.align(p.width, width, layoutDirection)
+                        p.place(x, mainPos)
+                        if (i < children.size) {
+                            children[i].x = x.toFloat()
+                            children[i].y = mainPos.toFloat()
+                        }
+                    } else {
+                        val y = verticalAlignment.align(p.height, height)
+                        p.place(mainPos, y)
+                        if (i < children.size) {
+                            children[i].x = mainPos.toFloat()
+                            children[i].y = y.toFloat()
+                        }
+                    }
+                    kIdx++
+                    nextMainPos =
+                        if (kIdx < visibleCount) {
+                            mainPositions[kIdx]
+                        } else {
+                            mainPos + mainSize(p) + spacingPx
+                        }
+                } else if (i < children.size) {
+                    // Collapsed children are not placed in Compose UI, but record the main-axis
+                    // cursor and cross-axis aligned position on Component to match
+                    // ColumnLayout.java.
+                    if (vertical) {
+                        val x = horizontalAlignment.align(p.width, width, layoutDirection)
+                        children[i].x = x.toFloat()
+                        children[i].y = nextMainPos.toFloat()
+                    } else {
+                        val y = verticalAlignment.align(p.height, height)
+                        children[i].x = nextMainPos.toFloat()
+                        children[i].y = y.toFloat()
+                    }
+                }
             }
         }
     }
