@@ -84,6 +84,7 @@ import androidx.wear.compose.material3.TimeText
 import androidx.wear.compose.material3.VerticalPagerScaffold
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
+import androidx.wear.utils.WearApiVersionHelper
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -185,9 +186,8 @@ fun resolveScreenTimeText(
 @SuppressLint("BanUncheckedReflection")
 fun isDeviceStatusBarEnabled(context: Context): Boolean =
     try {
-        val helperClass = Class.forName("androidx.wear.utils.WearApiVersionHelper")
-        val apiMethod = helperClass.getMethod("isApiVersionAtLeast", String::class.java)
-        val apiResult = apiMethod.invoke(null, "WEAR_CINNAMON_BUN_2") as Boolean
+        val apiResult =
+            WearApiVersionHelper.isApiVersionAtLeast(WearApiVersionHelper.WEAR_CINNAMON_BUN_2)
 
         val settingsClass = Class.forName("com.google.wear.settings.WearSettings")
         val settingsMethod = settingsClass.getMethod("isStatusBarEnabled", Context::class.java)
@@ -328,9 +328,10 @@ private fun rememberStatusBarDiagnostics(): StatusBarDiagnostics {
         // 1. WearApiVersionHelper check
         val apiCheck =
             try {
-                val helperClass = Class.forName("androidx.wear.utils.WearApiVersionHelper")
-                val method = helperClass.getMethod("isApiVersionAtLeast", String::class.java)
-                val result = method.invoke(null, "WEAR_CINNAMON_BUN_2") as Boolean
+                val result =
+                    WearApiVersionHelper.isApiVersionAtLeast(
+                        WearApiVersionHelper.WEAR_CINNAMON_BUN_2
+                    )
                 CheckResult(value = result)
             } catch (t: Throwable) {
                 val root =
@@ -399,7 +400,7 @@ private fun rememberStatusBarDiagnostics(): StatusBarDiagnostics {
                 CheckResult(value = null, error = t)
             }
 
-        // 5. Trunk Flag: Flags.enableStatusBar()
+        // 5. Trunk Flag: Flags.enableStatusBar() (Internal to SystemUI process)
         val flagsCheck =
             try {
                 val flagsClass =
@@ -411,7 +412,12 @@ private fun rememberStatusBarDiagnostics(): StatusBarDiagnostics {
                 val root =
                     if (t is java.lang.reflect.InvocationTargetException) t.targetException ?: t
                     else t
-                CheckResult(value = null, error = root)
+                if (root is ClassNotFoundException) {
+                    // Expected when running in app process as class is private to SystemUI
+                    CheckResult(value = null)
+                } else {
+                    CheckResult(value = null, error = root)
+                }
             }
 
         val localEnabled =
