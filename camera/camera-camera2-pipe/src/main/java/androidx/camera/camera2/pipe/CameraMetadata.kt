@@ -292,6 +292,16 @@ public interface CameraMetadata : Metadata, UnsafeWrapper {
             @JvmStatic get() = this[CameraCharacteristics.CONTROL_AWB_LOCK_AVAILABLE] ?: false
 
         /**
+         * Returns `true` if the camera device has a flash unit, otherwise `false`.
+         *
+         * When this is `false`, [CaptureRequest.FLASH_MODE] settings are ignored by the camera
+         * device and the torch cannot be turned on. See
+         * [CameraCharacteristics.FLASH_INFO_AVAILABLE].
+         */
+        public val CameraMetadata.hasFlashUnit: Boolean
+            @JvmStatic get() = this[CameraCharacteristics.FLASH_INFO_AVAILABLE] ?: false
+
+        /**
          * Returns `true` if overriding zoom settings is supported on the device, otherwise `false`.
          */
         public val CameraMetadata.supportsZoomOverride: Boolean
