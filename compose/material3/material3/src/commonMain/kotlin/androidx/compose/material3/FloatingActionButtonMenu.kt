@@ -109,6 +109,8 @@ import kotlinx.coroutines.launch
  * @param modifier the [Modifier] to be applied to this FAB Menu
  * @param horizontalAlignment the horizontal alignment of the FAB Menu Items
  * @param content the content of this FAB Menu, typically a list of [FloatingActionButtonMenuItem]s
+ *
+ * @material3expressive
  */
 @Composable
 public fun FloatingActionButtonMenu(
@@ -436,6 +438,8 @@ private val MenuItemRuler = HorizontalRuler()
  *   progress value from 0-1
  * @param content the content of this Toggleable FAB, typically an [Icon] that switches from an Add
  *   to a Close sign at 50% checked progress
+ *
+ * @material3expressive
  */
 @Composable
 public fun ToggleFloatingActionButton(
