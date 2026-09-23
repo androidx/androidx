@@ -413,7 +413,7 @@ package androidx.constraintlayout.compose {
     method public operator androidx.constraintlayout.compose.ConstrainedLayoutReference component9();
   }
 
-  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class CurveFit {
+  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class CurveFit implements androidx.constraintlayout.compose.NamedPropertyOrValue {
     method @InaccessibleFromKotlin public String getName();
     property public String name;
     field public static final androidx.constraintlayout.compose.CurveFit.Companion Companion;
@@ -491,7 +491,7 @@ package androidx.constraintlayout.compose {
   public static interface Dimension.MinCoercible extends androidx.constraintlayout.compose.Dimension {
   }
 
-  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class Easing {
+  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class Easing implements androidx.constraintlayout.compose.NamedPropertyOrValue {
     method @InaccessibleFromKotlin public String getName();
     property public String name;
     field public static final androidx.constraintlayout.compose.Easing.Companion Companion;
@@ -995,6 +995,11 @@ package androidx.constraintlayout.compose {
     method @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static androidx.constraintlayout.compose.MotionScene MotionScene(kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionSceneScope,kotlin.Unit> motionSceneContent);
   }
 
+  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public interface NamedPropertyOrValue {
+    method @InaccessibleFromKotlin public String getName();
+    property public abstract String name;
+  }
+
   @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class OnSwipe {
     ctor public OnSwipe(androidx.constraintlayout.compose.ConstrainedLayoutReference anchor, androidx.constraintlayout.compose.SwipeSide side, androidx.constraintlayout.compose.SwipeDirection direction, optional float dragScale, optional float dragThreshold, optional androidx.constraintlayout.compose.ConstrainedLayoutReference? dragAround, optional androidx.constraintlayout.compose.ConstrainedLayoutReference? limitBoundsTo, optional androidx.constraintlayout.compose.SwipeTouchUp onTouchUp, optional androidx.constraintlayout.compose.SwipeMode mode);
     ctor @BytecodeOnly public OnSwipe(androidx.constraintlayout.compose.ConstrainedLayoutReference!, androidx.constraintlayout.compose.SwipeSide!, androidx.constraintlayout.compose.SwipeDirection!, float, float, androidx.constraintlayout.compose.ConstrainedLayoutReference!, androidx.constraintlayout.compose.ConstrainedLayoutReference!, androidx.constraintlayout.compose.SwipeTouchUp!, androidx.constraintlayout.compose.SwipeMode!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -1023,7 +1028,7 @@ package androidx.constraintlayout.compose {
     method public void applyTo(androidx.constraintlayout.compose.State state, java.util.List<? extends androidx.compose.ui.layout.Measurable> measurables);
   }
 
-  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class RelativePosition {
+  @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class RelativePosition implements androidx.constraintlayout.compose.NamedPropertyOrValue {
     method @InaccessibleFromKotlin public String getName();
     property public String name;
     field public static final androidx.constraintlayout.compose.RelativePosition.Companion Companion;
