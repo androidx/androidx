@@ -28,6 +28,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         RemoteComposePlayerFlags.shouldPlayerWrapContentSize = true
+        RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = true
         setContent { WearApp() }
     }
 }
