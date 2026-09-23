@@ -160,10 +160,11 @@ final class SurfaceOutputImpl implements SurfaceOutput {
                 executor.execute(() -> eventListenerRef.get().accept(
                         Event.of(Event.EVENT_REQUEST_CLOSE, SurfaceOutputImpl.this)));
             } catch (RejectedExecutionException e) {
-                // The executor might be invoked after the SurfaceOutputImpl is closed. This
-                // happens if the #close() is called after the synchronized block above but
-                // before the line below.
+                // The executor might be invoked after the SurfaceOutputImpl is closed or after the
+                // processor executor has been shut down. Ensure close() is called so downstream
+                // DeferrableSurfaces do not leak.
                 Logger.d(TAG, "Processor executor closed. Close request not posted.", e);
+                close();
             }
         }
     }
