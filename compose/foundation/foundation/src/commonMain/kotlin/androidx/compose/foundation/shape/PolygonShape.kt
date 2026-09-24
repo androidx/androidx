@@ -59,8 +59,8 @@ import kotlin.math.sin
  *   returned [PolygonShapeGeometry] changes.
  * - Interprets [PolygonShapeGeometry] coordinates in layout pixels (`(0f, 0f)` at the top-left to
  *   `(size.width, size.height)` at the bottom-right). Call [PolygonShapeTransformScope.scaleToFit]
- *   inside [PolygonShape.transform] to fit normalized or custom coordinates (such as a `[0, 1]`
- *   unit square) into the layout bounds.
+ *   inside [PolygonShape.transform] to scale custom coordinates (such as a `[0f, 1f]` unit square)
+ *   to fit the layout bounds.
  *
  * @sample androidx.compose.foundation.samples.CustomPolygonShapeSample
  * @sample androidx.compose.foundation.samples.UnitSpacePolygonShapeSample
@@ -227,21 +227,22 @@ public sealed class PolygonShape : Shape {
          *
          * @sample androidx.compose.foundation.samples.StarPolygonShapeSample
          * @param numPoints number of star tips, at least 2
-         * @param innerRadiusRatio ratio of inner radius to outer radius, in `(0, 1]`
+         * @param innerRadiusRatio ratio of inner radius to outer radius, in `(0f, 1f)`
          * @param outerRounding rounding for outer tips, resolved against the star's outer radius
          * @param innerRounding rounding for inner corners, resolved against the star's outer radius
          * @throws IllegalArgumentException if [numPoints] is less than 2 or [innerRadiusRatio] is
-         *   outside `(0, 1]`
+         *   outside `(0f, 1f)`
          */
         public fun star(
             @IntRange(from = 2) numPoints: Int,
+            @FloatRange(from = 0.0, to = 1.0, fromInclusive = false, toInclusive = false)
             innerRadiusRatio: Float = 0.5f,
             outerRounding: CornerRounding = CornerRounding.Unrounded,
             innerRounding: CornerRounding = outerRounding,
         ): PolygonShape {
             require(numPoints >= 2) { "A star requires at least 2 points, had $numPoints." }
-            require(innerRadiusRatio > 0f && innerRadiusRatio <= 1f) {
-                "innerRadiusRatio must be in the range (0, 1] but was $innerRadiusRatio."
+            require(innerRadiusRatio > 0f && innerRadiusRatio < 1f) {
+                "innerRadiusRatio must be in the range (0, 1) but was $innerRadiusRatio."
             }
             return StarPolygonShape(
                 numPoints = numPoints,
@@ -258,7 +259,7 @@ public sealed class PolygonShape : Shape {
          *   `0f..1f` (`0f` keeps a purely circular arc)
          * @throws IllegalArgumentException if [smoothing] is outside `0f..1f`
          */
-        public fun pill(@FloatRange(0.0, 1.0) smoothing: Float = 0f): PolygonShape {
+        public fun pill(@FloatRange(from = 0.0, to = 1.0) smoothing: Float = 0f): PolygonShape {
             requireValidSmoothing(smoothing)
             return PillPolygonShape(smoothing)
         }
@@ -273,25 +274,26 @@ public sealed class PolygonShape : Shape {
          *
          * @sample androidx.compose.foundation.samples.PillStarPolygonShapeSample
          * @param numPoints number of star tips, at least 2
-         * @param innerRadiusRatio ratio of inner radius to outer radius, in `(0, 1]`
+         * @param innerRadiusRatio ratio of inner radius to outer radius, in `(0f, 1f)`
          * @param vertexSpacing curved-end vertex spacing policy, in `0f..1f`
          * @param startLocation perimeter offset where the outline starts, in `0f..1f`
          * @param outerRounding rounding for outer tips, resolved against the star's outer radius
          * @param innerRounding rounding for inner corners, resolved against the star's outer radius
          * @throws IllegalArgumentException if [numPoints] is less than 2, [innerRadiusRatio] is
-         *   outside `(0, 1]`, or [vertexSpacing] or [startLocation] is outside `0f..1f`
+         *   outside `(0f, 1f)`, or [vertexSpacing] or [startLocation] is outside `0f..1f`
          */
         public fun pillStar(
             @IntRange(from = 2) numPoints: Int,
+            @FloatRange(from = 0.0, to = 1.0, fromInclusive = false, toInclusive = false)
             innerRadiusRatio: Float = 0.5f,
-            vertexSpacing: Float = 0.5f,
-            startLocation: Float = 0f,
+            @FloatRange(from = 0.0, to = 1.0) vertexSpacing: Float = 0.5f,
+            @FloatRange(from = 0.0, to = 1.0) startLocation: Float = 0f,
             outerRounding: CornerRounding = CornerRounding.Unrounded,
             innerRounding: CornerRounding = outerRounding,
         ): PolygonShape {
             require(numPoints >= 2) { "A star requires at least 2 points, had $numPoints." }
-            require(innerRadiusRatio > 0f && innerRadiusRatio <= 1f) {
-                "innerRadiusRatio must be in the range (0, 1] but was $innerRadiusRatio."
+            require(innerRadiusRatio > 0f && innerRadiusRatio < 1f) {
+                "innerRadiusRatio must be in the range (0, 1) but was $innerRadiusRatio."
             }
             require(vertexSpacing in 0f..1f) {
                 "vertexSpacing must be in the range 0..1, was $vertexSpacing."
@@ -467,8 +469,7 @@ public sealed interface PolygonShapeTransformScope : Density {
  * Builds [PolygonShapeGeometry] for a [PolygonShape] at layout resolution.
  *
  * Exposes [size], [layoutDirection], and [Density] along with [polygon] factories. Coordinates are
- * in layout pixels; [CornerRounding.dp] resolves with [Density], and [CornerRounding.fraction]
- * resolves against the polygon's geometry.
+ * in layout pixels.
  *
  * @sample androidx.compose.foundation.samples.PolygonShapeSample
  * @sample androidx.compose.foundation.samples.DirectionalPolygonShapeSample
@@ -483,8 +484,7 @@ public sealed interface PolygonShapeScope : Density {
     /**
      * Creates a regular polygon with [numVertices] vertices on a circle of [radius] pixels.
      *
-     * [CornerRounding.fraction] resolves against [radius], and [CornerRounding.dp] resolves with
-     * the current [Density].
+     * [CornerRounding.fraction] sets the corner radius as a fraction of [radius].
      *
      * @param numVertices number of vertices, at least 3
      * @param radius circle radius in pixels
@@ -493,8 +493,8 @@ public sealed interface PolygonShapeScope : Density {
      * @throws IllegalArgumentException if [numVertices] is less than 3
      */
     public fun polygon(
-        numVertices: Int,
-        radius: Float = size.minDimension / 2f,
+        @IntRange(from = 3) numVertices: Int,
+        @FloatRange(from = 0.0, fromInclusive = false) radius: Float = size.minDimension / 2f,
         center: Offset = size.center,
         rounding: CornerRounding = CornerRounding.Unrounded,
     ): PolygonShapeGeometry
@@ -503,8 +503,7 @@ public sealed interface PolygonShapeScope : Density {
      * Creates a regular polygon with [numVertices] vertices and per-vertex [perVertexRounding].
      *
      * [perVertexRounding] applies to vertices in clockwise order starting from the right (`0`
-     * degrees). [CornerRounding.fraction] resolves against [radius], and [CornerRounding.dp]
-     * resolves with the current [Density].
+     * degrees). [CornerRounding.fraction] sets the corner radius as a fraction of [radius].
      *
      * @param numVertices number of vertices, at least 3
      * @param perVertexRounding rounding for each vertex, matching [numVertices] in size
@@ -515,20 +514,23 @@ public sealed interface PolygonShapeScope : Density {
      */
     @Suppress("PrimitiveInCollection")
     public fun polygon(
-        numVertices: Int,
+        @IntRange(from = 3) numVertices: Int,
         perVertexRounding: List<CornerRounding>,
-        radius: Float = size.minDimension / 2f,
+        @FloatRange(from = 0.0, fromInclusive = false) radius: Float = size.minDimension / 2f,
         center: Offset = size.center,
     ): PolygonShapeGeometry
 
     /**
      * Creates polygon geometry from [vertices] with uniform [rounding].
      *
-     * [CornerRounding.fraction] resolves against the smaller dimension of the vertex bounds, and
-     * [CornerRounding.dp] resolves with [Density].
+     * Coordinates are in layout pixels (`(0f, 0f)` to `(size.width, size.height)`). You can also
+     * define [vertices] in a custom coordinate space (such as a `[0f, 1f]` unit square) and scale
+     * them to the layout bounds using [PolygonShapeTransformScope.scaleToFit]. Because custom
+     * [vertices] do not have a circle radius, [CornerRounding.fraction] sets the corner radius as a
+     * fraction of the polygon's smaller dimension (`min(width, height)`).
      *
-     * @param vertices ordered vertex positions in pixels (can be transformed or fitted later via
-     *   [PolygonShape.transform]), at least 3
+     * @param vertices vertex positions in pixels (or custom coordinates scaled with
+     *   [PolygonShapeTransformScope.scaleToFit]), at least 3
      * @param center polygon center in pixels, or [Offset.Unspecified] to compute from [vertices]
      * @param rounding corner rounding applied to every vertex
      * @throws IllegalArgumentException if [vertices] has fewer than 3 entries
@@ -543,11 +545,14 @@ public sealed interface PolygonShapeScope : Density {
     /**
      * Creates polygon geometry from [vertices] with per-vertex [perVertexRounding].
      *
-     * [CornerRounding.fraction] resolves against the smaller dimension of the vertex bounds, and
-     * [CornerRounding.dp] resolves with [Density].
+     * Coordinates are in layout pixels (`(0f, 0f)` to `(size.width, size.height)`). You can also
+     * define [vertices] in a custom coordinate space (such as a `[0f, 1f]` unit square) and scale
+     * them to the layout bounds using [PolygonShapeTransformScope.scaleToFit]. Because custom
+     * [vertices] do not have a circle radius, [CornerRounding.fraction] sets the corner radius as a
+     * fraction of the polygon's smaller dimension (`min(width, height)`).
      *
-     * @param vertices ordered vertex positions in pixels (can be transformed or fitted later via
-     *   [PolygonShape.transform]), at least 3
+     * @param vertices vertex positions in pixels (or custom coordinates scaled with
+     *   [PolygonShapeTransformScope.scaleToFit]), at least 3
      * @param perVertexRounding rounding for each vertex, matching [vertices] in size
      * @param center polygon center in pixels, or [Offset.Unspecified] to compute from [vertices]
      * @throws IllegalArgumentException if [vertices] has fewer than 3 entries or
@@ -564,12 +569,15 @@ public sealed interface PolygonShapeScope : Density {
 /**
  * Defines a polygon's [vertices], [center], and corner rounding.
  *
- * [CornerRounding.fraction] resolves against the smaller dimension of the vertex bounds, and
- * [CornerRounding.dp] resolves with [Density].
+ * Coordinates are in layout pixels (`(0f, 0f)` to `(size.width, size.height)`). You can also define
+ * [vertices] in a custom coordinate space (such as a `[0f, 1f]` unit square) and scale them to the
+ * layout bounds using [PolygonShapeTransformScope.scaleToFit]. Because custom [vertices] do not
+ * have a circle radius, [CornerRounding.fraction] sets the corner radius as a fraction of the
+ * polygon's smaller dimension (`min(width, height)`).
  *
  * @sample androidx.compose.foundation.samples.UnitSpacePolygonShapeSample
- * @property vertices ordered vertex positions in pixels (can be transformed via
- *   [PolygonShape.transform]), at least 3
+ * @property vertices vertex positions in pixels (or custom coordinates scaled with
+ *   [PolygonShapeTransformScope.scaleToFit]), at least 3
  * @property center polygon center in pixels, or [Offset.Unspecified] when computed from [vertices]
  * @property rounding uniform vertex rounding, or [CornerRounding.Unrounded] when using
  *   [perVertexRounding]
@@ -591,8 +599,8 @@ internal constructor(
     /**
      * Creates polygon geometry with uniform [rounding] at every vertex.
      *
-     * @param vertices ordered vertex positions in pixels (can be transformed via
-     *   [PolygonShape.transform]), at least 3
+     * @param vertices vertex positions in pixels (or custom coordinates scaled with
+     *   [PolygonShapeTransformScope.scaleToFit]), at least 3
      * @param center polygon center in pixels, or [Offset.Unspecified] to compute from [vertices]
      * @param rounding corner rounding applied to every vertex
      * @throws IllegalArgumentException if [vertices] has fewer than 3 entries
@@ -607,8 +615,8 @@ internal constructor(
     /**
      * Creates polygon geometry with per-vertex [perVertexRounding].
      *
-     * @param vertices ordered vertex positions in pixels (can be transformed via
-     *   [PolygonShape.transform]), at least 3
+     * @param vertices vertex positions in pixels (or custom coordinates scaled with
+     *   [PolygonShapeTransformScope.scaleToFit]), at least 3
      * @param perVertexRounding rounding for each vertex, matching [vertices] in size
      * @param center polygon center in pixels, or [Offset.Unspecified] to compute from [vertices]
      * @throws IllegalArgumentException if [vertices] has fewer than 3 entries or
@@ -724,13 +732,16 @@ internal constructor(
         }
 
         /**
-         * Creates a [CornerRounding] with a radius as a [fraction] of the polygon's geometry.
+         * Creates a [CornerRounding] with a radius as a [fraction] of the polygon's size.
          *
-         * Resolves against the generating radius for regular polygons and stars, or the smaller
-         * dimension of the vertex bounds for vertex-list geometry.
+         * For polygons defined with a radius (such as [PolygonShape.regularPolygon],
+         * [PolygonShape.star], and [PolygonShapeScope.polygon] with `radius`), the corner radius is
+         * `[fraction] * radius`. For polygons defined with custom `vertices`
+         * ([PolygonShapeGeometry]), which do not have a radius, the corner radius is a [fraction]
+         * of the polygon's smaller dimension (`min(width, height)`).
          *
          * @sample androidx.compose.foundation.samples.PolygonShapeWithRoundingFractionSample
-         * @param fraction rounding radius as a fraction of the geometry, in `0f..1f`
+         * @param fraction rounding radius as a fraction of the polygon's size, in `0f..1f`
          * @param smoothing transition smoothness from the circular arc to adjacent edges, in
          *   `0f..1f`
          * @throws IllegalArgumentException if [fraction] or [smoothing] is outside `0f..1f`
