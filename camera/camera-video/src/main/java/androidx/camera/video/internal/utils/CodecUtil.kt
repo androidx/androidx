@@ -18,8 +18,11 @@ package androidx.camera.video.internal.utils
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaCodecList
+import android.os.Build
 import android.util.LruCache
+import androidx.annotation.DoNotInline
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.camera.video.internal.encoder.EncoderConfig
 import androidx.camera.video.internal.encoder.InvalidConfigException
@@ -124,6 +127,52 @@ public object CodecUtil {
         synchronized(codecInfoCache) { codecInfoCache.evictAll() }
     }
 
+    /**
+     * Checks if a [MediaCodecInfo] is hardware-accelerated.
+     *
+     * On Android 10+ (API 29+), this checks [MediaCodecInfo.isHardwareAccelerated]. Below API 29,
+     * this falls back to a heuristic that estimates whether the codec is software-only, adapted
+     * from Media3's `androidx/media3/transformer/EncoderUtil.java`.
+     *
+     * @param codecInfo The codec to check.
+     * @param mimeType The MIME type of the stream.
+     * @return `true` if the codec is hardware-accelerated, `false` otherwise.
+     */
+    @JvmStatic
+    public fun isHardwareAccelerated(codecInfo: MediaCodecInfo, mimeType: String): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return Api29Impl.isHardwareAccelerated(codecInfo)
+        }
+        // codecInfo.isHardwareAccelerated() == !codecInfo.isSoftwareOnly() is not necessarily true.
+        // However, we assume this to be true as an approximation.
+        return !isSoftwareOnly(codecInfo, mimeType)
+    }
+
+    private fun isSoftwareOnly(codecInfo: MediaCodecInfo, mimeType: String): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return Api29Impl.isSoftwareOnly(codecInfo)
+        }
+
+        if (mimeType.startsWith("audio/", ignoreCase = true)) {
+            // Assume audio decoders are software only.
+            return true
+        }
+        val codecName = codecInfo.name.lowercase()
+        if (codecName.startsWith("arc.")) {
+            // App Runtime for Chrome (ARC) codecs
+            return false
+        }
+
+        // Estimate whether a codec is software-only, to emulate isSoftwareOnly on API < 29.
+        return codecName.startsWith("omx.google.") ||
+            codecName.startsWith("omx.ffmpeg.") ||
+            (codecName.startsWith("omx.sec.") && codecName.contains(".sw.")) ||
+            codecName == "omx.qcom.video.decoder.hevcswvdec" ||
+            codecName.startsWith("c2.android.") ||
+            codecName.startsWith("c2.google.") ||
+            (!codecName.startsWith("omx.") && !codecName.startsWith("c2."))
+    }
+
     @Throws(InvalidConfigException::class)
     private fun createCodec(mimeType: String): MediaCodec {
         return try {
@@ -133,5 +182,15 @@ public object CodecUtil {
         } catch (e: IllegalArgumentException) {
             throw InvalidConfigException(e)
         }
+    }
+
+    @RequiresApi(29)
+    private object Api29Impl {
+        @DoNotInline
+        fun isHardwareAccelerated(codecInfo: MediaCodecInfo): Boolean =
+            codecInfo.isHardwareAccelerated
+
+        @DoNotInline
+        fun isSoftwareOnly(codecInfo: MediaCodecInfo): Boolean = codecInfo.isSoftwareOnly
     }
 }
