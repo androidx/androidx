@@ -2167,7 +2167,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.SectionHeader build();
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setEndIcon(androidx.car.app.model.CarIcon);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setHeadline(androidx.car.app.model.CarText?);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setHeadline(CharSequence);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setHeadline(CharSequence?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setStartIcon(androidx.car.app.model.CarIcon);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionHeader.Builder setStartIcon(androidx.car.app.model.CarIcon, int);
