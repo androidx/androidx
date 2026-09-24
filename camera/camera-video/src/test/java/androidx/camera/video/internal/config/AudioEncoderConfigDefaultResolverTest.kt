@@ -16,9 +16,12 @@
 
 package androidx.camera.video.internal.config
 
-import android.media.MediaCodecInfo
+import android.media.MediaCodecInfo.CodecProfileLevel.AACObjectLC
+import android.media.MediaFormat
 import androidx.camera.core.impl.Timebase
 import androidx.camera.video.AudioSpec
+import androidx.camera.video.internal.audio.AudioSettings
+import androidx.camera.video.internal.encoder.EncoderConfig.CODEC_PROFILE_NONE
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,7 +36,7 @@ class AudioEncoderConfigDefaultResolverTest {
 
     companion object {
         const val MIME_TYPE = "audio/mp4a-latm"
-        const val ENCODER_PROFILE = MediaCodecInfo.CodecProfileLevel.AACObjectLC
+        const val ENCODER_PROFILE = AACObjectLC
         val TIMEBASE = Timebase.UPTIME
     }
 
@@ -123,5 +126,106 @@ class AudioEncoderConfigDefaultResolverTest {
                 .get()
 
         assertThat(higherSampleRateConfig.bitrate).isGreaterThan(defaultConfig.bitrate)
+    }
+
+    @Test
+    fun fallbackBitrate_amrNb_resolvesTo12200() {
+        val audioSpec = AudioSpec.builder().build()
+        val audioSettings =
+            AudioSettings.builder()
+                .setAudioSource(AudioConfigUtil.AUDIO_SOURCE_DEFAULT)
+                .setAudioFormat(AudioConfigUtil.AUDIO_SOURCE_FORMAT_DEFAULT)
+                .setChannelCount(1)
+                .setCaptureSampleRate(8000)
+                .setEncodeSampleRate(8000)
+                .build()
+
+        val config =
+            AudioEncoderConfigDefaultResolver(
+                    mimeType = MediaFormat.MIMETYPE_AUDIO_AMR_NB,
+                    audioProfile = CODEC_PROFILE_NONE,
+                    inputTimeBase = TIMEBASE,
+                    audioSpec = audioSpec,
+                    audioSettings = audioSettings,
+                )
+                .get()
+
+        assertThat(config.bitrate).isEqualTo(12_200)
+    }
+
+    @Test
+    fun fallbackBitrate_amrWb_resolvesTo23850() {
+        val audioSpec = AudioSpec.builder().build()
+        val audioSettings =
+            AudioSettings.builder()
+                .setAudioSource(AudioConfigUtil.AUDIO_SOURCE_DEFAULT)
+                .setAudioFormat(AudioConfigUtil.AUDIO_SOURCE_FORMAT_DEFAULT)
+                .setChannelCount(1)
+                .setCaptureSampleRate(16000)
+                .setEncodeSampleRate(16000)
+                .build()
+
+        val config =
+            AudioEncoderConfigDefaultResolver(
+                    mimeType = MediaFormat.MIMETYPE_AUDIO_AMR_WB,
+                    audioProfile = CODEC_PROFILE_NONE,
+                    inputTimeBase = TIMEBASE,
+                    audioSpec = audioSpec,
+                    audioSettings = audioSettings,
+                )
+                .get()
+
+        assertThat(config.bitrate).isEqualTo(23_850)
+    }
+
+    @Test
+    fun fallbackBitrate_aac_scalesBasedOnBase() {
+        val audioSpec = AudioSpec.builder().build()
+        // Stereo, 48 kHz
+        val audioSettings =
+            AudioSettings.builder()
+                .setAudioSource(AudioConfigUtil.AUDIO_SOURCE_DEFAULT)
+                .setAudioFormat(AudioConfigUtil.AUDIO_SOURCE_FORMAT_DEFAULT)
+                .setChannelCount(2)
+                .setCaptureSampleRate(48000)
+                .setEncodeSampleRate(48000)
+                .build()
+
+        val config =
+            AudioEncoderConfigDefaultResolver(
+                    mimeType = MediaFormat.MIMETYPE_AUDIO_AAC,
+                    audioProfile = AACObjectLC,
+                    inputTimeBase = TIMEBASE,
+                    audioSpec = audioSpec,
+                    audioSettings = audioSettings,
+                )
+                .get()
+
+        assertThat(config.bitrate).isEqualTo(156_000)
+    }
+
+    @Test
+    fun explicitBitrate_isRespected() {
+        val audioSpec = AudioSpec.builder().setBitrate(64000).build()
+        val audioSettings =
+            AudioSettings.builder()
+                .setAudioSource(AudioConfigUtil.AUDIO_SOURCE_DEFAULT)
+                .setAudioFormat(AudioConfigUtil.AUDIO_SOURCE_FORMAT_DEFAULT)
+                .setChannelCount(1)
+                .setCaptureSampleRate(8000)
+                .setEncodeSampleRate(8000)
+                .build()
+
+        val config =
+            AudioEncoderConfigDefaultResolver(
+                    mimeType = MediaFormat.MIMETYPE_AUDIO_AMR_NB,
+                    audioProfile = CODEC_PROFILE_NONE,
+                    inputTimeBase = TIMEBASE,
+                    audioSpec = audioSpec,
+                    audioSettings = audioSettings,
+                )
+                .get()
+
+        assertThat(config.bitrate).isEqualTo(64_000)
     }
 }

@@ -15,6 +15,7 @@
  */
 package androidx.camera.video.internal.config
 
+import android.media.MediaFormat
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.Timebase
 import androidx.camera.video.AudioSpec
@@ -50,10 +51,20 @@ public constructor(
 
         // Base config based on generic 720p AAC(LC) quality will be scaled by actual source
         // settings.
-        // TODO: These should vary based on quality/codec and be derived from actual devices
+        // Bitrates vary based on codec characteristics and device encoder limits:
+        // - AAC / Vorbis / Opus: 156 kbps base for stereo 48 kHz, scaled proportionally.
+        // - AMR-NB: 12.20 kbps (mode 7, standard high quality mode per Android CDD §5.1.1
+        //   and 3GPP TS 26.071). Valid bitrates are 4.75 to 12.20 kbps; scaling general
+        //   bitrate exceeds the codec limit (13 kbps) and fails encoder initialization.
+        // - AMR-WB: 23.85 kbps (mode 8, standard high quality mode per Android CDD §5.1.1
+        //   and 3GPP TS 26.171). Valid bitrates are 6.60 to 23.85 kbps; scaling general
+        //   bitrate exceeds the codec limit (26 kbps) and fails encoder initialization.
         private const val AUDIO_BITRATE_BASE = 156_000
         private const val AUDIO_CHANNEL_COUNT_BASE = 2
         private const val AUDIO_SAMPLE_RATE_BASE = 48_000
+
+        private const val AUDIO_BITRATE_AMR_NB_DEFAULT = 12_200
+        private const val AUDIO_BITRATE_AMR_WB_DEFAULT = 23_850
     }
 
     override fun get(): AudioEncoderConfig {
@@ -63,14 +74,21 @@ public constructor(
                 audioSpecBitrate
             } else {
                 Logger.d(TAG, "Using fallback AUDIO bitrate")
-                // We have no other information to go off of. Scale based on fallback defaults.
-                AudioConfigUtil.scaleBitrate(
-                    baseBitrate = AUDIO_BITRATE_BASE,
-                    actualChannelCount = audioSettings.getChannelCount(),
-                    baseChannelCount = AUDIO_CHANNEL_COUNT_BASE,
-                    actualSampleRate = audioSettings.getEncodeSampleRate(),
-                    baseSampleRate = AUDIO_SAMPLE_RATE_BASE,
-                )
+                when (mimeType) {
+                    MediaFormat.MIMETYPE_AUDIO_AMR_NB -> AUDIO_BITRATE_AMR_NB_DEFAULT
+                    MediaFormat.MIMETYPE_AUDIO_AMR_WB -> AUDIO_BITRATE_AMR_WB_DEFAULT
+                    else -> {
+                        // We have no other information to go off of. Scale based on fallback
+                        // defaults.
+                        AudioConfigUtil.scaleBitrate(
+                            baseBitrate = AUDIO_BITRATE_BASE,
+                            actualChannelCount = audioSettings.getChannelCount(),
+                            baseChannelCount = AUDIO_CHANNEL_COUNT_BASE,
+                            actualSampleRate = audioSettings.getEncodeSampleRate(),
+                            baseSampleRate = AUDIO_SAMPLE_RATE_BASE,
+                        )
+                    }
+                }
             }
 
         return AudioEncoderConfig.builder()
