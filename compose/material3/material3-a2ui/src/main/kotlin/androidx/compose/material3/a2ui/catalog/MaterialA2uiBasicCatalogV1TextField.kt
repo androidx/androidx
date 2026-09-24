@@ -19,6 +19,7 @@ package androidx.compose.material3.a2ui.catalog
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
 import androidx.a2ui.model.protocol.A2uiException.A2uiRuntimeException
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -28,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.hintText
@@ -119,17 +121,18 @@ internal object MaterialA2uiBasicCatalogV1TextField : A2uiBasicCatalogV1.TextFie
         val hint = accessibility?.toContentDescription()
         val textFieldModifier =
             if (hint != null || (isError && !errorMessage.isNullOrBlank())) {
-                modifier.semantics {
-                    if (hint != null) {
-                        hintText = hint
+                    modifier.semantics {
+                        if (hint != null) {
+                            hintText = hint
+                        }
+                        if (isError && !errorMessage.isNullOrBlank()) {
+                            error(errorMessage)
+                        }
                     }
-                    if (isError && !errorMessage.isNullOrBlank()) {
-                        error(errorMessage)
-                    }
+                } else {
+                    modifier
                 }
-            } else {
-                modifier
-            }
+                .wrapContentHeight(align = Alignment.Top)
 
         @Suppress("DEPRECATION") // b/553995833
         OutlinedTextField(
