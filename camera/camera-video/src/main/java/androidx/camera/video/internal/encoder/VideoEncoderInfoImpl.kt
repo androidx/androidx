@@ -16,9 +16,9 @@
 package androidx.camera.video.internal.encoder
 
 import android.media.MediaCodecInfo
-import android.os.Build
 import android.util.Range
 import androidx.camera.core.Logger
+import androidx.camera.video.internal.utils.CodecUtil
 import androidx.camera.video.internal.utils.CodecUtil.findCodecAndGetCodecInfo
 import androidx.camera.video.internal.workaround.ProfileAwareVideoEncoderInfo
 
@@ -87,20 +87,8 @@ internal constructor(codecInfo: MediaCodecInfo, mime: String) :
     override val supportedBitrateRange: Range<Int>
         get() = videoCapabilities.bitrateRange
 
-    /**
-     * Returns whether the video encoder is hardware accelerated.
-     *
-     * On Android 10+ (API 29+), this checks [MediaCodecInfo.isHardwareAccelerated]. Below API 29,
-     * this falls back to a best-effort heuristic based on the codec name prefix (e.g.
-     * non-`"OMX.google."`).
-     */
     override val isHardwareAccelerated: Boolean
-        get() =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                mediaCodecInfo.isHardwareAccelerated
-            } else {
-                !mediaCodecInfo.name.startsWith("OMX.google.", ignoreCase = true)
-            }
+        get() = CodecUtil.isHardwareAccelerated(mediaCodecInfo, mime)
 
     public companion object {
         private const val TAG = "VideoEncoderInfoImpl"

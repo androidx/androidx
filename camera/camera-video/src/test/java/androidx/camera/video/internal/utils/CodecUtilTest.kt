@@ -16,6 +16,7 @@
 
 package androidx.camera.video.internal.utils
 
+import android.media.MediaCodecInfo
 import android.media.MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
 import android.media.MediaFormat.MIMETYPE_AUDIO_AAC
 import android.media.MediaFormat.MIMETYPE_AUDIO_OPUS
@@ -23,6 +24,7 @@ import android.media.MediaFormat.MIMETYPE_VIDEO_AVC
 import android.media.MediaFormat.MIMETYPE_VIDEO_HEVC
 import android.media.MediaFormat.createAudioFormat
 import android.media.MediaFormat.createVideoFormat
+import android.os.Build
 import androidx.annotation.RequiresApi
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
@@ -111,6 +113,83 @@ class CodecUtilTest {
 
         // Assert.
         assertThat(audioTypes).containsExactly(MIMETYPE_AUDIO_AAC.lowercase())
+    }
+
+    @Config(minSdk = 29)
+    @Test
+    fun isHardwareAccelerated_api29Plus_delegatesToMediaCodecInfo() {
+        val hwCodec = createCodecInfo(name = "c2.hw.encoder", isHardwareAccelerated = true)
+        val swCodec = createCodecInfo(name = "c2.hw.encoder", isHardwareAccelerated = false)
+
+        assertThat(CodecUtil.isHardwareAccelerated(hwCodec, MIMETYPE_VIDEO_AVC)).isTrue()
+        assertThat(CodecUtil.isHardwareAccelerated(swCodec, MIMETYPE_VIDEO_AVC)).isFalse()
+    }
+
+    @Config(maxSdk = 28)
+    @Test
+    fun isHardwareAccelerated_preApi29_audioIsAlwaysFalse() {
+        val codec = createCodecInfo(name = "OMX.qcom.audio.encoder")
+
+        assertThat(CodecUtil.isHardwareAccelerated(codec, MIMETYPE_AUDIO_AAC)).isFalse()
+        assertThat(CodecUtil.isHardwareAccelerated(codec, "Audio/AAC")).isFalse()
+        assertThat(CodecUtil.isHardwareAccelerated(codec, "AUDIO/MP4A-LATM")).isFalse()
+    }
+
+    @Config(maxSdk = 28)
+    @Test
+    fun isHardwareAccelerated_preApi29_arcCodecReturnsTrue() {
+        val codec = createCodecInfo(name = "arc.video.encoder")
+
+        assertThat(CodecUtil.isHardwareAccelerated(codec, MIMETYPE_VIDEO_AVC)).isTrue()
+    }
+
+    @Config(maxSdk = 28)
+    @Test
+    fun isHardwareAccelerated_preApi29_softwareCodecsReturnFalse() {
+        val softwareNames =
+            listOf(
+                "OMX.google.h264.encoder",
+                "OMX.ffmpeg.video.encoder",
+                "OMX.SEC.avc.sw.dec",
+                "OMX.sec.avc.sw.codec",
+                "omx.qcom.video.decoder.hevcswvdec",
+                "c2.android.av1.encoder",
+                "c2.google.av1.encoder",
+                "other.software.encoder",
+            )
+        for (name in softwareNames) {
+            val codec = createCodecInfo(name = name)
+            assertThat(CodecUtil.isHardwareAccelerated(codec, MIMETYPE_VIDEO_AVC)).isFalse()
+        }
+    }
+
+    @Config(maxSdk = 28)
+    @Test
+    fun isHardwareAccelerated_preApi29_hardwareCodecsReturnTrue() {
+        val hardwareNames =
+            listOf(
+                "OMX.qcom.video.encoder.avc",
+                "c2.qti.avc.encoder",
+                "OMX.Exynos.avc.encoder",
+            )
+        for (name in hardwareNames) {
+            val codec = createCodecInfo(name = name)
+            assertThat(CodecUtil.isHardwareAccelerated(codec, MIMETYPE_VIDEO_AVC)).isTrue()
+        }
+    }
+
+    private fun createCodecInfo(
+        name: String,
+        isEncoder: Boolean = true,
+        isHardwareAccelerated: Boolean = false,
+        isSoftwareOnly: Boolean = false,
+    ): MediaCodecInfo {
+        val builder = MediaCodecInfoBuilder.newBuilder().setName(name).setIsEncoder(isEncoder)
+        if (Build.VERSION.SDK_INT >= 29) {
+            builder.setIsHardwareAccelerated(isHardwareAccelerated)
+            builder.setIsSoftwareOnly(isSoftwareOnly)
+        }
+        return builder.build()
     }
 
     @RequiresApi(29) // ShadowMediaCodecList#addCodec requires API 29
