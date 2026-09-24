@@ -128,6 +128,7 @@ abstract class ProtocolApiTask extends MetalavaTask {
                 "--quiet",
                 "--ignore-comments",
         ]
+        standardArgs.addAll(getConfigFileArgs())
         standardArgs.addAll(additionalArgs)
 
         runWithArgs(standardArgs)
@@ -150,8 +151,8 @@ abstract class GenerateProtocolApiTask extends ProtocolApiTask {
         List<String> args = [
                 "--api",
                 generatedApi.toString(),
-                "--show-annotation",
-                "androidx.car.app.annotations.CarProtocol",
+                "--api-surface",
+                "car-protocol",
         ]
 
         runMetalava(args)

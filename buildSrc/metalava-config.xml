@@ -57,5 +57,29 @@
         <annotation-rule pattern="androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)" effect="show"/>
       </selection-criteria>
     </api-surface>
+
+    <!--
+     ! The "car-protocol-base" API surface.
+     !
+     ! Base API surface for "car-protocol" that includes unannotated APIs so that `@CarProtocol`
+     ! APIs can reference or extend them without triggering ReferencesHidden or HiddenSuperclass
+     ! issues. It is separate from the "public" surface hierarchy so that `@CarProtocol` is not
+     ! treated as hidden when generating the "public" surface.
+     !-->
+    <api-surface name="car-protocol-base">
+      <selection-criteria unannotated="show"/>
+    </api-surface>
+
+    <!--
+     ! The "car-protocol" API surface.
+     !
+     ! It represents the Car App Library protocol API surface, which only includes APIs annotated
+     ! with `@CarProtocol` (used by `:car:app:app`).
+     !-->
+    <api-surface name="car-protocol" extends="car-protocol-base">
+      <selection-criteria>
+        <annotation-rule pattern="androidx.car.app.annotations.CarProtocol" effect="show"/>
+      </selection-criteria>
+    </api-surface>
   </api-surfaces>
 </config>
