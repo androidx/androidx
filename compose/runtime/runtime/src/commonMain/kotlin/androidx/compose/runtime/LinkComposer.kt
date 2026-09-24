@@ -479,7 +479,10 @@ internal class LinkComposer(
             updateValue(observerHolder)
         }
         val holder = observerHolder.wrapped as CompositionContextHolder
-        holder.ref.updateCompositionLocalScope(currentCompositionLocalScope())
+        holder.ref.updateCompositionLocalScope(
+            currentCompositionLocalScope(),
+            compositeKeyHashCode,
+        )
         endGroup()
 
         return holder.ref
@@ -1694,9 +1697,9 @@ internal class LinkComposer(
      */
     @OptIn(InternalComposeApi::class)
     private fun endRoot() {
-        endGroup()
         parentComposing = false
         parentContext.doneComposing()
+        compositeKeyHashCode = EmptyCompositeKeyHashCode
         endGroup()
         finalizeCompose()
         reader.close()
@@ -2612,6 +2615,8 @@ internal class LinkComposer(
         parentContext.startComposing()
         parentComposing = true
         val parentProvider = parentContext.getCompositionLocalScope()
+        compositeKeyHashCode = parentContext.compositeKeyHashCode
+
         providersInvalidStack.push(providersInvalid.asInt())
         providersInvalid = changed(parentProvider)
         providerCache = null
@@ -2641,8 +2646,6 @@ internal class LinkComposer(
             it.add(compositionData)
             parentContext.recordInspectionTable(it)
         }
-
-        startGroup(parentContext.compositeKeyHashCode.hashCode())
     }
 
     private fun stackTraceForGroup(group: Int, dataOffset: Int?): List<ComposeStackTraceFrame> {
@@ -2851,7 +2854,7 @@ internal class LinkComposer(
 
     @OptIn(ExperimentalComposeRuntimeApi::class, InternalComposeApi::class)
     internal inner class CompositionContextImpl(
-        override val compositeKeyHashCode: CompositeKeyHashCode,
+        override var compositeKeyHashCode: CompositeKeyHashCode,
         override val collectingParameterInformation: Boolean,
         override val collectingSourceInformation: Boolean,
         override val observerHolder: CompositionObserverHolder?,
@@ -2953,8 +2956,12 @@ internal class LinkComposer(
         override fun getCompositionLocalScope(): PersistentCompositionLocalMap =
             compositionLocalScope
 
-        fun updateCompositionLocalScope(scope: PersistentCompositionLocalMap) {
+        fun updateCompositionLocalScope(
+            scope: PersistentCompositionLocalMap,
+            newCompositeKeyHashCode: CompositeKeyHashCode,
+        ) {
             compositionLocalScope = scope
+            compositeKeyHashCode = newCompositeKeyHashCode
         }
 
         override fun recordInspectionTable(table: MutableSet<CompositionData>) {
