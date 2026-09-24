@@ -110,6 +110,7 @@ public fun ComponentModifiers.toModifier(
     var drawContentProcessed = false
     var multiClickProcessed = false
     list.fastForEach { op ->
+        modifier = modifier.rcModifierInspector(op)
         modifier =
             when (op) {
                 is PaddingModifierOperation -> modifier.padding(op)
