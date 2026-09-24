@@ -17,6 +17,16 @@ BadFuture: androidx.appcompat.widget.AppCompatTextView#setTextFuture(java.util.c
     Use ListenableFuture (library), or a combination of OutcomeReceiver<R,E>, Executor, and CancellationSignal (platform) instead of java.util.concurrent.Future (parameter future in androidx.appcompat.widget.AppCompatTextView.setTextFuture(java.util.concurrent.Future<androidx.core.text.PrecomputedTextCompat> future))
 
 
+BannedThrow: androidx.appcompat.widget.AppCompatButton#setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int):
+    Unchecked exception java.lang.IllegalArgumentException does not need to be listed in the method throws clause (only in documentation)
+BannedThrow: androidx.appcompat.widget.AppCompatButton#setAutoSizeTextTypeUniformWithPresetSizes(int[], int):
+    Unchecked exception java.lang.IllegalArgumentException does not need to be listed in the method throws clause (only in documentation)
+BannedThrow: androidx.appcompat.widget.AppCompatTextView#setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int):
+    Unchecked exception java.lang.IllegalArgumentException does not need to be listed in the method throws clause (only in documentation)
+BannedThrow: androidx.appcompat.widget.AppCompatTextView#setAutoSizeTextTypeUniformWithPresetSizes(int[], int):
+    Unchecked exception java.lang.IllegalArgumentException does not need to be listed in the method throws clause (only in documentation)
+
+
 BuilderSetStyle: androidx.appcompat.app.AlertDialog.Builder#create():
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.appcompat.app.AlertDialog.Builder.create()
 BuilderSetStyle: androidx.appcompat.app.AlertDialog.Builder#show():
@@ -603,6 +613,8 @@ MissingNullability: androidx.appcompat.widget.AppCompatAutoCompleteTextView#onCr
     Missing nullability on parameter `outAttrs` in method `onCreateInputConnection`
 MissingNullability: androidx.appcompat.widget.AppCompatAutoCompleteTextView#setTextAppearance(android.content.Context, int) parameter #0:
     Missing nullability on parameter `context` in method `setTextAppearance`
+MissingNullability: androidx.appcompat.widget.AppCompatButton#getAutoSizeTextAvailableSizes():
+    Missing nullability on method `getAutoSizeTextAvailableSizes` return
 MissingNullability: androidx.appcompat.widget.AppCompatButton#onInitializeAccessibilityEvent(android.view.accessibility.AccessibilityEvent) parameter #0:
     Missing nullability on parameter `event` in method `onInitializeAccessibilityEvent`
 MissingNullability: androidx.appcompat.widget.AppCompatButton#onInitializeAccessibilityNodeInfo(android.view.accessibility.AccessibilityNodeInfo) parameter #0:
@@ -655,6 +667,8 @@ MissingNullability: androidx.appcompat.widget.AppCompatSpinner#setPopupBackgroun
     Missing nullability on parameter `background` in method `setPopupBackgroundDrawable`
 MissingNullability: androidx.appcompat.widget.AppCompatSpinner#setPrompt(CharSequence) parameter #0:
     Missing nullability on parameter `prompt` in method `setPrompt`
+MissingNullability: androidx.appcompat.widget.AppCompatTextView#getAutoSizeTextAvailableSizes():
+    Missing nullability on method `getAutoSizeTextAvailableSizes` return
 MissingNullability: androidx.appcompat.widget.AppCompatTextView#getText():
     Missing nullability on method `getText` return
 MissingNullability: androidx.appcompat.widget.AppCompatTextView#onCreateInputConnection(android.view.inputmethod.EditorInfo):
