@@ -47,6 +47,7 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
@@ -104,7 +105,11 @@ public fun RemoteSplitRadioButton(
     secondaryLabel: @Composable @RemoteComposable (RemoteRowScope.() -> Unit)? = null,
     label: @Composable @RemoteComposable RemoteRowScope.() -> Unit,
 ) {
-    val progress = selected.select(1f.rf, 0f.rf)
+    val progress =
+        animateRemoteFloatAsState(
+            targetValue = selected.select(1f.rf, 0f.rf),
+            animationSpec = SelectionAnimationSpec,
+        )
     val containerShape = RemoteSplitRadioButtonDefaults.splitSectionsShape
     val containerColor =
         colors.containerColor(enabled = enabled, selected = selected, progress = progress)

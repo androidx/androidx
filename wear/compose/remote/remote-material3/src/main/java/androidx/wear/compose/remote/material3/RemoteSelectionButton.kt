@@ -40,15 +40,21 @@ import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.wrapContentSize
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
+import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.clamp
+import androidx.compose.remote.creation.compose.state.cos
 import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.remoteSpring
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.sin
+import androidx.compose.remote.creation.compose.state.toRad
 import androidx.compose.remote.creation.compose.state.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -60,6 +66,28 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.wear.compose.material3.TextConfiguration
+
+/**
+ * The spring stiffness of selection control animations. Matches Wear Material 3 MotionScheme
+ * fastEffectsSpec (EffectsFastStiffness = 1400f).
+ */
+internal const val SELECTION_ANIMATION_STIFFNESS: Float = 1400f
+
+/**
+ * The damping ratio of selection control animations. Matches Wear Material 3 MotionScheme
+ * fastEffectsSpec (EffectsDampingRatio = Spring.DampingRatioNoBouncy = 1.0f).
+ */
+internal const val SELECTION_ANIMATION_DAMPING_RATIO: Float = 1.0f
+
+/**
+ * The default [RemoteAnimationSpec] used for selection controls in Wear Remote Material 3. Matches
+ * Wear Material 3 fastEffectsSpec (EffectsFastStiffness = 1400f, DampingRatioNoBouncy = 1.0f).
+ */
+internal val SelectionAnimationSpec: RemoteAnimationSpec =
+    remoteSpring(
+        stiffness = SELECTION_ANIMATION_STIFFNESS,
+        dampingRatio = SELECTION_ANIMATION_DAMPING_RATIO,
+    )
 
 @Composable
 @RemoteComposable
@@ -82,6 +110,9 @@ internal fun RemoteSelectionButtonImpl(
 ) {
     val containerModifier =
         RemoteModifier.clip(shape = shape)
+            // TODO(b/564845676): Perform ToggleOn and ToggleOff haptic feedback when the selection
+            // changes, as Wear Material 3 selection controls do. A click currently triggers only
+            // the player's generic click haptic.
             .clickable(
                 action = onClick,
                 enabled = (enabled.constantValueOrNull ?: false) && onClick != Action.Empty,
@@ -208,16 +239,41 @@ internal fun RemoteCheckboxControl(
             strokeCap = StrokeCap.Round
             color = tween(Color.Transparent.rc, checkmarkColor, progress)
         }
-        drawLine(
-            paint = tickPaint,
-            start = RemoteOffset(7.4f.rdp.toPx(), 13.0f.rdp.toPx()),
-            end = RemoteOffset(9.9f.rdp.toPx(), 15.5f.rdp.toPx()),
-        )
-        drawLine(
-            paint = tickPaint,
-            start = RemoteOffset(9.9f.rdp.toPx(), 15.5f.rdp.toPx()),
-            end = RemoteOffset(16.5f.rdp.toPx(), 9.1f.rdp.toPx()),
-        )
+        val tickCenter =
+            RemoteOffset(TICK_DESIGN_CENTER_DP.rdp.toPx(), TICK_DESIGN_CENTER_DP.rdp.toPx())
+        val rotationRadians = toRad((1f.rf - progress) * TICK_ROTATION_DEGREES.rf)
+        val cosAngle = cos(rotationRadians)
+        val sinAngle = sin(rotationRadians)
+        val baseProgress = clamp(progress / TICK_BASE_PROGRESS_FRACTION.rf, 0f.rf, 1f.rf)
+        val stickProgress =
+            clamp(
+                (progress - TICK_BASE_PROGRESS_FRACTION.rf) / (1f - TICK_BASE_PROGRESS_FRACTION).rf,
+                0f.rf,
+                1f.rf,
+            )
+
+        val baseStart =
+            RemoteOffset(TICK_BASE_START_X_DP.rdp.toPx(), TICK_BASE_START_Y_DP.rdp.toPx())
+        val baseEnd = RemoteOffset(TICK_BASE_END_X_DP.rdp.toPx(), TICK_BASE_END_Y_DP.rdp.toPx())
+        val stickEnd = RemoteOffset(TICK_STICK_END_X_DP.rdp.toPx(), TICK_STICK_END_Y_DP.rdp.toPx())
+
+        val currentBaseEnd =
+            RemoteOffset(
+                lerp(baseStart.x, baseEnd.x, baseProgress),
+                lerp(baseStart.y, baseEnd.y, baseProgress),
+            )
+        val currentStickEnd =
+            RemoteOffset(
+                currentBaseEnd.x + (stickEnd.x - baseEnd.x) * stickProgress,
+                currentBaseEnd.y + (stickEnd.y - baseEnd.y) * stickProgress,
+            )
+
+        val rotatedBaseStart = baseStart.rotate(cosAngle, sinAngle, tickCenter)
+        val rotatedBaseEnd = currentBaseEnd.rotate(cosAngle, sinAngle, tickCenter)
+        val rotatedStickEnd = currentStickEnd.rotate(cosAngle, sinAngle, tickCenter)
+
+        drawLine(paint = tickPaint, start = rotatedBaseStart, end = rotatedBaseEnd)
+        drawLine(paint = tickPaint, start = rotatedBaseEnd, end = rotatedStickEnd)
     }
 }
 
@@ -310,24 +366,35 @@ internal fun RemoteSwitchControl(
         }
         drawCircle(paint = thumbPaint, radius = thumbRadiusPx, center = thumbCenter)
 
-        // Thumb tick icon
+        // Thumb tick icon. The tick's design box is placed so that its centre lands on the thumb,
+        // which is how Wear Material 3 positions the same shape, and scaled around the thumb centre
+        // by progress.
         val tickPaint = RemotePaint {
             style = PaintingStyle.Stroke
-            strokeWidth = strokeWidthPx
+            strokeWidth = strokeWidthPx * progress
             strokeCap = StrokeCap.Round
             color = thumbIconColor
         }
-        drawLine(
-            paint = tickPaint,
-            start =
-                RemoteOffset(thumbCenterXPx - 4.6f.rdp.toPx(), thumbCenterYPx + 1.0f.rdp.toPx()),
-            end = RemoteOffset(thumbCenterXPx - 2.0f.rdp.toPx(), thumbCenterYPx + 3.5f.rdp.toPx()),
-        )
-        drawLine(
-            paint = tickPaint,
-            start =
-                RemoteOffset(thumbCenterXPx - 2.0f.rdp.toPx(), thumbCenterYPx + 3.5f.rdp.toPx()),
-            end = RemoteOffset(thumbCenterXPx + 4.5f.rdp.toPx(), thumbCenterYPx - 2.9f.rdp.toPx()),
-        )
+        val baseStart =
+            RemoteOffset(
+                thumbCenterXPx +
+                    (TICK_BASE_START_X_DP - TICK_DESIGN_CENTER_DP).rdp.toPx() * progress,
+                thumbCenterYPx +
+                    (TICK_BASE_START_Y_DP - TICK_DESIGN_CENTER_DP).rdp.toPx() * progress,
+            )
+        val baseEnd =
+            RemoteOffset(
+                thumbCenterXPx + (TICK_BASE_END_X_DP - TICK_DESIGN_CENTER_DP).rdp.toPx() * progress,
+                thumbCenterYPx + (TICK_BASE_END_Y_DP - TICK_DESIGN_CENTER_DP).rdp.toPx() * progress,
+            )
+        val stickEnd =
+            RemoteOffset(
+                thumbCenterXPx +
+                    (TICK_STICK_END_X_DP - TICK_DESIGN_CENTER_DP).rdp.toPx() * progress,
+                thumbCenterYPx +
+                    (TICK_STICK_END_Y_DP - TICK_DESIGN_CENTER_DP).rdp.toPx() * progress,
+            )
+        drawLine(paint = tickPaint, start = baseStart, end = baseEnd)
+        drawLine(paint = tickPaint, start = baseEnd, end = stickEnd)
     }
 }
