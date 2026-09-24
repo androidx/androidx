@@ -24,11 +24,14 @@ import java.util.UUID
 /**
  * Executes on-device backup actions dispatched by host orchestrators.
  *
- * Stays dormant until woken up by the host orchestrator (via `am instrument`), dynamically loads
- * and instantiates requested [BackupDeviceAction]s, and returns structured execution results.
- * Handles Binder payload overflow redirection for large payloads.
+ * Stays dormant until the host orchestrator asks for an action, runs the requested
+ * [BackupDeviceAction], and returns its result.
  */
 /*
+ * NOTE: The host wakes this runner up via `am instrument`, and the action class is loaded and
+ * instantiated dynamically by name. Results larger than MAX_BINDER_PAYLOAD_SIZE_BYTES are written
+ * to a file and referenced by path, because the Binder transaction cannot carry them.
+ *
  * NOTE: This class MUST remain public. Custom `Instrumentation` subclasses must be public because
  * the Android operating system platform's system server (`system_server` via
  * `ActivityManagerService`) dynamically loads and instantiates the instrumentation class via
@@ -118,7 +121,13 @@ public class BackupRestoreTestRunner : Instrumentation() {
             }
             val payloadJson = mapToJson(resultMap)
 
-            reportResult(true, null, payloadJson, warnings = null, infos = null)
+            reportResult(
+                isSuccess = result.isSuccess,
+                errorMessage = result.errorMessage,
+                payloadJson = payloadJson,
+                warnings = null,
+                infos = null,
+            )
         } catch (e: Throwable) {
             val sw = java.io.StringWriter()
             e.printStackTrace(java.io.PrintWriter(sw))
