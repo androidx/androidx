@@ -718,6 +718,7 @@ class MaterialA2uiBasicCatalogV1ButtonTest {
         controller.waitForIdle()
         waitForIdle()
         onNode(hasTestTag("button_tag")).assertIsDisplayed()
+        onNode(hasRole(Role.Button)).assertIsDisplayed()
 
         // Transition to Error state
         controller.failComponent("stub_child", A2uiRuntimeException("Failure"))
@@ -1154,6 +1155,59 @@ class MaterialA2uiBasicCatalogV1ButtonTest {
         controller.waitForIdle()
 
         assertThat(controller.outboundEvents.single().type).isEqualTo("submit")
+    }
+
+    @Test
+    fun parentModifier_withFailedCheck_appliesModifierToContainer() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Button",
+                            properties =
+                                mapOf(
+                                    "child" to "btn_text",
+                                    "action" to mapOf("event" to mapOf("name" to "click")),
+                                    "checks" to
+                                        listOf(
+                                            mapOf(
+                                                "condition" to
+                                                    mapOf(
+                                                        "call" to "required",
+                                                        "args" to
+                                                            mapOf(
+                                                                "value" to
+                                                                    mapOf("path" to "/form/name")
+                                                            ),
+                                                    ),
+                                                "message" to "Name is required",
+                                            )
+                                        ),
+                                ),
+                        ),
+                        A2uiComponentPayload(id = "btn_text"),
+                    ),
+                componentStubs =
+                    listOf(
+                        A2uiComponentStub.withId("btn_text") { _, modifier ->
+                            Text("Submit", modifier = modifier)
+                        }
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent {
+            MaterialTheme {
+                A2uiTestSurface(surface = surface, modifier = Modifier.testTag("container_tag"))
+            }
+        }
+
+        onNodeWithTag("container_tag").assertIsDisplayed()
+        onNodeWithText("Name is required").assertIsDisplayed()
+        onNode(hasRole(Role.Button)).assertIsDisplayed().assertIsNotEnabled()
     }
 
     private fun hasRole(role: Role): SemanticsMatcher =
