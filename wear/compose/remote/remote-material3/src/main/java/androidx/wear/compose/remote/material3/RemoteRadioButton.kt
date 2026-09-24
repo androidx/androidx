@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
@@ -76,7 +77,11 @@ public fun RemoteRadioButton(
     secondaryLabel: (@Composable @RemoteComposable RemoteRowScope.() -> Unit)? = null,
     label: @Composable @RemoteComposable RemoteRowScope.() -> Unit,
 ) {
-    val progress = selected.select(1f.rf, 0f.rf)
+    val progress =
+        animateRemoteFloatAsState(
+            targetValue = selected.select(1f.rf, 0f.rf),
+            animationSpec = SelectionAnimationSpec,
+        )
 
     RemoteSelectionButtonImpl(
         onClick = onSelect,

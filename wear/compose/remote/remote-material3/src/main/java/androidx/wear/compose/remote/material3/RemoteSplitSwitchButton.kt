@@ -49,6 +49,7 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
@@ -108,7 +109,11 @@ public fun RemoteSplitSwitchButton(
     secondaryLabel: @Composable @RemoteComposable (RemoteRowScope.() -> Unit)? = null,
     label: @Composable @RemoteComposable RemoteRowScope.() -> Unit,
 ) {
-    val progress = checked.select(1f.rf, 0f.rf)
+    val progress =
+        animateRemoteFloatAsState(
+            targetValue = checked.select(1f.rf, 0f.rf),
+            animationSpec = SelectionAnimationSpec,
+        )
     val containerShape = RemoteSplitSwitchButtonDefaults.splitSectionsShape
     val containerColor =
         colors.containerColor(enabled = enabled, checked = checked, progress = progress)

@@ -17,6 +17,9 @@
 package androidx.wear.compose.remote.integration.demos.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -28,6 +31,8 @@ import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
+import androidx.wear.compose.remote.material3.RemoteSplitCheckboxButton
+import androidx.wear.compose.remote.material3.RemoteText
 import androidx.wear.compose.remote.material3.previews.RemoteSplitCheckboxButtonChecked
 import androidx.wear.compose.remote.material3.previews.RemoteSplitCheckboxButtonDisabledChecked
 import androidx.wear.compose.remote.material3.previews.RemoteSplitCheckboxButtonDisabledUnchecked
@@ -66,6 +71,19 @@ fun RemoteSplitCheckboxButtonDemos(modifier: Modifier = Modifier) {
             remoteDemoItem("Disabled Unchecked") { RemoteSplitCheckboxButtonDisabledUnchecked() }
             remoteDemoItem("With Secondary Label") { RemoteSplitCheckboxButtonWithSecondaryLabel() }
             remoteDemoItem("Sample") { RemoteSplitCheckboxButtonSample() }
+            remoteDemoItem("Animated Toggle") {
+                val checked = rememberMutableRemoteBoolean(false)
+                RemoteSplitCheckboxButton(
+                    checked = checked,
+                    onCheckedChange = valueChange(checked, !checked),
+                    toggleContentDescription = "Toggle animation".rs,
+                    onContainerClick = valueChange(checked, !checked),
+                    secondaryLabel = {
+                        RemoteText(checked.select("State: Checked".rs, "State: Unchecked".rs))
+                    },
+                    label = { RemoteText("Tap to animate".rs) },
+                )
+            }
         }
     }
 }
