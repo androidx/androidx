@@ -45,7 +45,7 @@ class RemoteEdgeButtonSampleTest {
     private val creationDisplayInfo =
         RemoteCreationDisplayInfo(
             500,
-            500,
+            260,
             context.resources.displayMetrics.densityDpi,
             context.resources.configuration.fontScale,
         )
