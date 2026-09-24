@@ -19,10 +19,12 @@ package androidx.wear.compose.remote.material3
 import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.player.compose.EnableEmbeddedPlayerRule
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
@@ -49,7 +51,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 @OptIn(ExperimentalRemotePlayerApi::class)
-@Config(sdk = [35], qualifiers = "w500dp-h500dp")
+@Config(sdk = [35], qualifiers = "w1000dp-h500dp")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @RunWith(RobolectricTestRunner::class)
 class RemotePageIndicatorUnitTest {
@@ -83,6 +85,16 @@ class RemotePageIndicatorUnitTest {
             }
         }
         return false
+    }
+
+    private fun Bitmap.countPixelsMatching(predicate: (Color) -> Boolean): Int {
+        var count = 0
+        for (y in 0 until height) {
+            for (x in 0 until width) {
+                if (predicate(Color(getPixel(x, y)))) count++
+            }
+        }
+        return count
     }
 
     @Test
@@ -122,5 +134,63 @@ class RemotePageIndicatorUnitTest {
         }
         assertThat(bitmap.hasColorMatching { it.green > 0.8f && it.red < 0.2f && it.blue < 0.2f })
             .isTrue()
+    }
+
+    @Test
+    fun vertical_page_indicator_offset80_shrinks_previous_dot() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val displayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
+        val offset80Doc = runBlocking {
+            captureRule.captureDocument(context = context, creationDisplayInfo = displayInfo) {
+                val state =
+                    rememberRemotePageIndicatorState(
+                        selectedPage = 2.ri,
+                        pageOffset = 0.8f.rf,
+                        pageCount = 5,
+                    )
+                RemoteVerticalPageIndicator(
+                    state = state,
+                    selectedColor = Color.Blue.rc,
+                    unselectedColor = Color.Green.rc,
+                    backgroundColor = Color.Black.rc,
+                )
+            }
+        }
+        val settledDoc = runBlocking {
+            captureRule.captureDocument(context = context, creationDisplayInfo = displayInfo) {
+                val state =
+                    rememberRemotePageIndicatorState(
+                        selectedPage = 3.ri,
+                        pageOffset = 0f.rf,
+                        pageCount = 5,
+                    )
+                RemoteVerticalPageIndicator(
+                    state = state,
+                    selectedColor = Color.Blue.rc,
+                    unselectedColor = Color.Green.rc,
+                    backgroundColor = Color.Black.rc,
+                )
+            }
+        }
+        composeRule.setContent {
+            Row {
+                Box(modifier = Modifier.size(500.dp, 500.dp).testTag("offset80")) {
+                    RcPlayer(document = offset80Doc)
+                }
+                Box(modifier = Modifier.size(500.dp, 500.dp).testTag("settled")) {
+                    RcPlayer(document = settledDoc)
+                }
+            }
+        }
+        val offset80Bitmap =
+            composeRule.onNodeWithTag("offset80").captureToImage().asAndroidBitmap()
+        val settledBitmap = composeRule.onNodeWithTag("settled").captureToImage().asAndroidBitmap()
+        val greenPixelsAtOffset80 = offset80Bitmap.countPixelsMatching {
+            it.green > 0.5f && it.red < 0.2f && it.blue < 0.2f
+        }
+        val greenPixelsWhenSettled = settledBitmap.countPixelsMatching {
+            it.green > 0.5f && it.red < 0.2f && it.blue < 0.2f
+        }
+        assertThat(greenPixelsAtOffset80).isLessThan(greenPixelsWhenSettled)
     }
 }
