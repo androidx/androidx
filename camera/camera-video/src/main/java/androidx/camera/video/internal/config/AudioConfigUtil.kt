@@ -17,6 +17,8 @@ package androidx.camera.video.internal.config
 
 import android.media.MediaCodecInfo
 import android.media.MediaFormat.MIMETYPE_AUDIO_AAC
+import android.media.MediaFormat.MIMETYPE_AUDIO_AMR_NB
+import android.media.MediaFormat.MIMETYPE_AUDIO_AMR_WB
 import android.media.MediaFormat.MIMETYPE_AUDIO_OPUS
 import android.media.MediaFormat.MIMETYPE_AUDIO_VORBIS
 import android.util.Rational
@@ -38,13 +40,18 @@ import kotlin.math.sign
 public object AudioConfigUtil {
     private const val TAG = "AudioConfigUtil"
 
-    // Default to 44100 Hz for AAC/general audio as mandated by Android CDD 5.4.
+    // Default to 44100 Hz for AAC/general audio as mandated by Android CDD §5.4.
     public const val AUDIO_SAMPLE_RATE_DEFAULT: Int = 44100
 
-    // Opus strictly requires 8k, 12k, 16k, 24k, or 48k Hz (RFC 6716, RFC 7845, Android CDD 5.1.1).
+    // Opus strictly requires 8k, 12k, 16k, 24k, or 48k Hz (RFC 6716, RFC 7845, Android CDD §5.1.1).
     // 48000 Hz is the standard fullband Opus sample rate.
     public const val AUDIO_SAMPLE_RATE_OPUS_DEFAULT: Int = 48000
 
+    // AMR-NB strictly requires 8000 Hz (3GPP TS 26.071, Android CDD §5.1.1).
+    public const val AUDIO_SAMPLE_RATE_AMR_NB_DEFAULT: Int = 8000
+
+    // AMR-WB strictly requires 16000 Hz (3GPP TS 26.171, Android CDD §5.1.1).
+    public const val AUDIO_SAMPLE_RATE_AMR_WB_DEFAULT: Int = 16000
     // Default to mono since that should be supported on the most devices.
     public const val AUDIO_CHANNEL_COUNT_DEFAULT: Int = AudioSpec.CHANNEL_COUNT_MONO
 
@@ -126,10 +133,11 @@ public object AudioConfigUtil {
     ): AudioSettings {
         val resolvedMime = audioMime ?: audioSpec.mimeType
         val defaultSampleRate =
-            if (resolvedMime == MIMETYPE_AUDIO_OPUS) {
-                AUDIO_SAMPLE_RATE_OPUS_DEFAULT
-            } else {
-                AUDIO_SAMPLE_RATE_DEFAULT
+            when (resolvedMime) {
+                MIMETYPE_AUDIO_OPUS -> AUDIO_SAMPLE_RATE_OPUS_DEFAULT
+                MIMETYPE_AUDIO_AMR_NB -> AUDIO_SAMPLE_RATE_AMR_NB_DEFAULT
+                MIMETYPE_AUDIO_AMR_WB -> AUDIO_SAMPLE_RATE_AMR_WB_DEFAULT
+                else -> AUDIO_SAMPLE_RATE_DEFAULT
             }
         return if (compatibleAudioProfile != null) {
                 resolveAudioSettings(
@@ -138,6 +146,7 @@ public object AudioConfigUtil {
                     baseSampleRate = compatibleAudioProfile.sampleRate,
                     channelCountFallbacks =
                         listOf(compatibleAudioProfile.channels, AUDIO_CHANNEL_COUNT_DEFAULT),
+                    defaultSampleRate = defaultSampleRate,
                     captureToEncodeRatio = captureToEncodeRatio,
                 )
             } else {
@@ -146,6 +155,7 @@ public object AudioConfigUtil {
                     baseChannelCount = AUDIO_CHANNEL_COUNT_DEFAULT,
                     baseSampleRate = defaultSampleRate,
                     channelCountFallbacks = listOf(AUDIO_CHANNEL_COUNT_DEFAULT),
+                    defaultSampleRate = defaultSampleRate,
                     captureToEncodeRatio = captureToEncodeRatio,
                 )
             }
@@ -153,8 +163,10 @@ public object AudioConfigUtil {
                 Logger.d(
                     TAG,
                     "Resolved AUDIO settings: $it " +
-                        "[audioSpec: $audioSpec, compatibleAudioProfile: $compatibleAudioProfile, " +
-                        "captureToEncodeRatio: $captureToEncodeRatio, audioMime: $audioMime]",
+                        "[audioSpec: $audioSpec, " +
+                        "compatibleAudioProfile: $compatibleAudioProfile, " +
+                        "captureToEncodeRatio: $captureToEncodeRatio, " +
+                        "audioMime: $audioMime]",
                 )
             }
     }
@@ -182,6 +194,7 @@ public object AudioConfigUtil {
      * @param baseSampleRate The initial sample rate to use if unspecified in [audioSpec].
      * @param channelCountFallbacks A list of fallback channel counts to attempt if the primary
      *   combination is unsupported by the hardware.
+     * @param defaultSampleRate The fallback sample rate to use if no supported rate can be found.
      * @param captureToEncodeRatio The ratio used to calculate capture vs. encode sample rates.
      * @return A fully resolved [AudioSettings] object.
      */
@@ -190,6 +203,7 @@ public object AudioConfigUtil {
         baseChannelCount: Int,
         baseSampleRate: Int,
         channelCountFallbacks: List<Int>,
+        defaultSampleRate: Int,
         captureToEncodeRatio: Rational?,
     ): AudioSettings {
         // Resolve audio source
@@ -246,10 +260,10 @@ public object AudioConfigUtil {
                 TAG,
                 "No sample rate found or supported by audio source. Falling" +
                     " back to default channel count $AUDIO_CHANNEL_COUNT_DEFAULT and" +
-                    " sample rate of $AUDIO_SAMPLE_RATE_DEFAULT Hz",
+                    " sample rate of $defaultSampleRate Hz",
             )
             resolvedChannelCount = AUDIO_CHANNEL_COUNT_DEFAULT
-            val captureRate = AUDIO_SAMPLE_RATE_DEFAULT
+            val captureRate = defaultSampleRate
             val encodeRate =
                 if (captureToEncodeRatio == null) {
                     captureRate
