@@ -16,6 +16,9 @@
 
 package androidx.test.backup.host
 
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+
 /**
  * Mirrors `androidx.test.backup.BackupActionInputKeys` for the host.
  *
@@ -71,4 +74,22 @@ internal object BackupActionValues {
     const val VALUE_TYPE_STRING = "STRING"
     const val STATUS_SUCCESS = "success"
     const val STATUS_FAILURE = "failure"
+}
+
+/** Encoding shared with the device-side actions in `androidx.test.backup`. */
+internal object BackupActionWireProtocol {
+
+    /**
+     * Encodes column name/value pairs into the [BackupActionInputKeys.VALUES] wire format.
+     *
+     * Both halves of every pair are percent-encoded in UTF-8, which is what lets a column value
+     * contain `&`, `=`, `%` or `+`. The device decodes this with `java.net.URLDecoder`, so the two
+     * sides must stay symmetric: writing the pairs unencoded corrupts any value containing a
+     * separator.
+     */
+    fun encodeColumnValues(pairs: List<Pair<String, String>>): String =
+        pairs.joinToString("&") { (name, value) -> "${encode(name)}=${encode(value)}" }
+
+    private fun encode(value: String): String =
+        URLEncoder.encode(value, StandardCharsets.UTF_8.name())
 }
