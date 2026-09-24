@@ -308,6 +308,7 @@ public fun RcPlayer(
                         Modifier.semantics { contentDescription = rootContentDescription }
                     else Modifier
                 )
+                .rcPlayerRootInspector(state)
                 .onPlaced {
                     val position = it.positionOnScreen()
                     document.setOrigin(position.x, position.y)
@@ -547,12 +548,14 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
                         Modifier
                     }
                 )
+                .rcComponentOuterInspector(component)
                 .then(
                     component.componentModifiers.toModifier(
                         component.getDrawContentOperationsListReflection(),
                         ignoreVisibility = visibilityDelegatedToParent,
                     )
                 )
+                .rcComponentContentInspector(component)
                 .then(modifier)
 
         // Publish the component's measured WIDTH/HEIGHT (read by ComponentValue expressions) from
