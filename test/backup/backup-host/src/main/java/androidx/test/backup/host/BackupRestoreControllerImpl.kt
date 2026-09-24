@@ -102,7 +102,7 @@ internal class BackupRestoreControllerImpl(
                     pairs.add(storage.primaryKeyCol to storage.primaryKeyVal.toString())
                 }
                 args[BackupActionInputKeys.VALUES] =
-                    pairs.joinToString("&") { "${it.first}=${it.second}" }
+                    BackupActionWireProtocol.encodeColumnValues(pairs)
             }
             is StorageDomain.TextFile -> {
                 args[BackupActionInputKeys.STORAGE_TYPE] = BackupActionValues.STORAGE_TYPE_FILES
@@ -337,8 +337,8 @@ internal class BackupRestoreControllerImpl(
         pub(BackupReportKeys.TOTAL_DURATION, summary.totalDuration.toMillis().toString())
         pub(
             BackupReportKeys.STATUS,
-            if (summary.isSuccess) BackupReportKeys.STATUS_SUCCESS
-            else BackupReportKeys.STATUS_FAILURE,
+            if (summary.isSuccess) BackupReportKeys.REPORT_STATUS_SUCCESS
+            else BackupReportKeys.REPORT_STATUS_FAILURE,
         )
         if (!summary.isSuccess) {
             pub(BackupReportKeys.ERROR_CODE, summary.errorCode.name)
@@ -462,16 +462,28 @@ internal class BackupRestoreControllerImpl(
             }
 
         val isSuccess = jsonObject["isSuccess"]?.jsonPrimitive?.booleanOrNull ?: false
-        if (!isSuccess) {
-            val errMsg =
-                jsonObject["errorMessage"]?.jsonPrimitive?.contentOrNull
-                    ?: "Unknown device failure."
-            val stack = jsonObject["stackTrace"]?.jsonPrimitive?.contentOrNull
-            return BackupActionResult.Failure(errorMessage = errMsg, stackTrace = stack)
-        }
+        val runnerFailure =
+            if (isSuccess) {
+                null
+            } else {
+                BackupActionResult.Failure(
+                    errorMessage =
+                        jsonObject["errorMessage"]?.jsonPrimitive?.contentOrNull
+                            ?: "Unknown device failure.",
+                    stackTrace = jsonObject["stackTrace"]?.jsonPrimitive?.contentOrNull,
+                )
+            }
 
         // Handle Binder overflow redirection
         val payloadPath = jsonObject["payload_path"]?.jsonPrimitive?.contentOrNull
+        val inlinePayload = jsonObject["payloadJson"]?.jsonPrimitive?.contentOrNull
+
+        // A failure with no payload is a crash or a runner error; nothing more to read. A failure
+        // that does carry a payload is an action reporting its own failure, and the payload is
+        // still read: it names the specific error, and an overflow file must not be left behind.
+        if (runnerFailure != null && payloadPath == null && inlinePayload == null) {
+            return runnerFailure
+        }
         if (payloadPath != null) {
             val tempLocalFile = File.createTempFile("overflow_", ".json")
             try {
@@ -490,7 +502,7 @@ internal class BackupRestoreControllerImpl(
                 val innerPayload = pulledObj["payloadJson"]?.jsonPrimitive?.contentOrNull ?: ""
                 val dataMap = parseStringMap(innerPayload)
 
-                return BackupActionResult.Success(dataMap)
+                return reconcile(runnerFailure, toActionResult(dataMap, actionClassName))
             } catch (e: Exception) {
                 return BackupActionResult.Failure(
                     "Failed to pull Binder overflow payload: " + e.message
@@ -500,14 +512,69 @@ internal class BackupRestoreControllerImpl(
             }
         }
 
-        val payloadJson = jsonObject["payloadJson"]?.jsonPrimitive?.contentOrNull ?: ""
-        logger.info("Successfully executed $actionClassName on device.")
+        val payloadJson = inlinePayload ?: ""
+        logger.info("Executed $actionClassName on device.")
         if (payloadJson.isNotEmpty()) {
             logger.info("Payload returned: $payloadJson")
         }
 
         val dataMap = parseStringMap(payloadJson)
 
+        return reconcile(runnerFailure, toActionResult(dataMap, actionClassName))
+    }
+
+    /**
+     * Combines the runner's verdict with the one derived from the payload.
+     *
+     * The payload decides the message, but a failure reported by the runner is never downgraded to
+     * a success, so a runner that is stricter than the payload rule still wins.
+     */
+    private fun reconcile(
+        runnerFailure: BackupActionResult.Failure?,
+        fromPayload: BackupActionResult,
+    ): BackupActionResult =
+        if (runnerFailure != null && fromPayload is BackupActionResult.Success) {
+            runnerFailure
+        } else {
+            fromPayload
+        }
+
+    /**
+     * Converts a device action's result payload into a [BackupActionResult].
+     *
+     * An action reports a problem in-band through [BackupActionOutputKeys.STATUS] rather than by
+     * throwing. Reading it here keeps the host correct even against a runner that reports only
+     * whether the action threw, and supplies the specific error message.
+     *
+     * This mirrors `androidx.test.backup.BackupDeviceActionResult.isSuccess` exactly, so the device
+     * and the host never disagree about the same payload:
+     * - A reported status decides on its own. Only the recognized failure value
+     *   [BackupActionValues.STATUS_FAILURE] marks the action as failed; `status` is a generic key
+     *   that custom actions legitimately publish their own vocabulary through, so an unrecognized
+     *   value is reported as a success rather than being guessed at.
+     * - With no status at all, a non-empty [BackupActionOutputKeys.ERROR] marks the action as
+     *   failed, so an action that reports only an error is not read as passing.
+     *
+     * Actions that want their failures honored should use
+     * `androidx.test.backup.BackupDeviceActionResult.failure`, which emits the recognized value.
+     */
+    private fun toActionResult(
+        dataMap: Map<String, String>,
+        actionClassName: String,
+    ): BackupActionResult {
+        val status = dataMap[BackupActionOutputKeys.STATUS]
+        val error = dataMap[BackupActionOutputKeys.ERROR]
+        if (status != null) {
+            if (status.equals(BackupActionValues.STATUS_FAILURE, ignoreCase = true)) {
+                return BackupActionResult.Failure(
+                    error
+                        ?: "$actionClassName reported ${BackupActionOutputKeys.STATUS}='$status' without an " +
+                            "${BackupActionOutputKeys.ERROR} message."
+                )
+            }
+        } else if (!error.isNullOrEmpty()) {
+            return BackupActionResult.Failure(error)
+        }
         return BackupActionResult.Success(dataMap)
     }
 

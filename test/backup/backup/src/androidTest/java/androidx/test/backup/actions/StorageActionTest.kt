@@ -25,6 +25,8 @@ import androidx.test.backup.BackupRestoreTestRunner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -435,6 +437,148 @@ public class StorageActionTest {
             )
         val verifyResult = verifyAction.execute(context, verifyArgs)
         assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            verifyResult.payload[BackupActionOutputKeys.STATUS],
+        )
+    }
+
+    /**
+     * Verifies that a column value containing the wire-format separators survives the round trip.
+     *
+     * Before the `values` argument was percent-encoded on both sides, an embedded `&` or `=` split
+     * the value into bogus extra columns.
+     */
+    @Test
+    public fun testDatabaseValuesContainingSeparators() {
+        val dbName = "test_escaped_db_store.db"
+        val table = "test_escaped_table"
+        val colName = "note"
+        val colVal = "a&b=c 100%"
+        val encoded =
+            URLEncoder.encode(colName, StandardCharsets.UTF_8.name()) +
+                "=" +
+                URLEncoder.encode(colVal, StandardCharsets.UTF_8.name())
+
+        context.deleteDatabase(dbName)
+
+        val putResult =
+            PopulateStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_DATABASE,
+                            BackupActionInputKeys.DB_NAME to dbName,
+                            BackupActionInputKeys.TABLE to table,
+                            BackupActionInputKeys.VALUES to encoded,
+                        )
+                    ),
+                )
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            putResult.payload[BackupActionOutputKeys.STATUS],
+        )
+
+        val verifyResult =
+            AssertStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_DATABASE,
+                            BackupActionInputKeys.DB_NAME to dbName,
+                            BackupActionInputKeys.TABLE to table,
+                            BackupActionInputKeys.KEY_COL to colName,
+                            BackupActionInputKeys.KEY_VAL to colVal,
+                            BackupActionInputKeys.VALUES to encoded,
+                        )
+                    ),
+                )
+        assertEquals(
+            "Verification failed: ${verifyResult.payload[BackupActionOutputKeys.ERROR]}",
+            BackupActionValues.STATUS_SUCCESS,
+            verifyResult.payload[BackupActionOutputKeys.STATUS],
+        )
+    }
+
+    /** A malformed `values` segment fails the action instead of being silently dropped. */
+    @Test
+    public fun testDatabaseRejectsMalformedValues() {
+        val result =
+            PopulateStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_DATABASE,
+                            BackupActionInputKeys.DB_NAME to "test_malformed_db.db",
+                            BackupActionInputKeys.TABLE to "t",
+                            BackupActionInputKeys.VALUES to "col1=val1&orphan",
+                        )
+                    ),
+                )
+
+        assertEquals(
+            BackupActionValues.STATUS_FAILURE,
+            result.payload[BackupActionOutputKeys.STATUS],
+        )
+    }
+
+    /**
+     * A bare `value` carries no column pair, so database verification still falls back to the
+     * explicit `expected_col` and `expected_val` arguments.
+     */
+    @Test
+    public fun testDatabaseBareValueFallsBackToExpectedColumns() {
+        val dbName = "test_bare_value_db.db"
+        val table = "test_table"
+        val colName = "test_col"
+        val colVal = "test_val"
+
+        context.deleteDatabase(dbName)
+
+        val putResult =
+            PopulateStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_DATABASE,
+                            BackupActionInputKeys.DB_NAME to dbName,
+                            BackupActionInputKeys.TABLE to table,
+                            BackupActionInputKeys.VALUES to "$colName=$colVal",
+                        )
+                    ),
+                )
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            putResult.payload[BackupActionOutputKeys.STATUS],
+        )
+
+        val verifyResult =
+            AssertStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_DATABASE,
+                            BackupActionInputKeys.DB_NAME to dbName,
+                            BackupActionInputKeys.TABLE to table,
+                            BackupActionInputKeys.KEY_COL to colName,
+                            BackupActionInputKeys.KEY_VAL to colVal,
+                            BackupActionInputKeys.VALUE to "a bare value",
+                            BackupActionInputKeys.EXPECTED_COL to colName,
+                            BackupActionInputKeys.EXPECTED_VAL to colVal,
+                        )
+                    ),
+                )
+        assertEquals(
+            "Verification failed: ${verifyResult.payload[BackupActionOutputKeys.ERROR]}",
             BackupActionValues.STATUS_SUCCESS,
             verifyResult.payload[BackupActionOutputKeys.STATUS],
         )

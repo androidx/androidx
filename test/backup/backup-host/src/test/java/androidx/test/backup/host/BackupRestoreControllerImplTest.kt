@@ -32,6 +32,8 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -211,6 +213,227 @@ class BackupRestoreControllerImplTest {
         val failureResult = result as BackupActionResult.Failure
         assertEquals("Something broke", failureResult.errorMessage)
         assertEquals("at MyAction.kt:15", failureResult.stackTrace)
+    }
+
+    /**
+     * A failed assertion inside AssertStorageAction shows up as `status=failure` in the payload.
+     * The envelope here reports `isSuccess=true`, as an older runner does, so this pins that the
+     * host reads the payload rather than trusting the envelope alone.
+     */
+    @Test
+    fun testRunOnDeviceSurfacesInBandActionFailure() = runBlocking {
+        val device =
+            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
+
+        mockInstrumentationStdout(
+            runnerStdout("""{"status":"failure","error":"Expected 'a' but found 'b'"}""")
+        )
+
+        val result = device.runOnDevice("com.example.MyAction", emptyMap())
+
+        assertTrue(result is BackupActionResult.Failure)
+        assertEquals(
+            "Expected 'a' but found 'b'",
+            (result as BackupActionResult.Failure).errorMessage,
+        )
+    }
+
+    /** A failure with no error message still fails, naming the action so the report is usable. */
+    @Test
+    fun testRunOnDeviceSurfacesInBandFailureWithoutMessage() = runBlocking {
+        val device =
+            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
+
+        mockInstrumentationStdout(runnerStdout("""{"status":"failure"}"""))
+
+        val result = device.runOnDevice("com.example.MyAction", emptyMap())
+
+        assertTrue(result is BackupActionResult.Failure)
+        assertTrue(
+            (result as BackupActionResult.Failure).errorMessage.contains("com.example.MyAction")
+        )
+    }
+
+    /**
+     * Only the recognized failure value fails an action.
+     *
+     * `status` predates this convention and custom actions publish their own vocabulary through it
+     * — the AddressBook sample reports `status=verified` to mean "all checks passed". Treating
+     * every non-success value as a failure broke that app, so unrecognized values must pass.
+     */
+    @Test
+    fun testRunOnDeviceAcceptsUnrecognizedActionStatus() = runBlocking {
+        val device =
+            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
+
+        mockInstrumentationStdout(runnerStdout("""{"status":"verified","authVerified":"true"}"""))
+
+        val result = device.runOnDevice("com.example.MyAction", emptyMap())
+        assertTrue(result is BackupActionResult.Success)
+        assertEquals("verified", (result as BackupActionResult.Success).data["status"])
+    }
+
+    @Test
+    fun testRunOnDeviceAcceptsInBandActionSuccess() = runBlocking {
+        val device =
+            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
+
+        mockInstrumentationStdout(runnerStdout("""{"status":"success","rows":"3"}"""))
+
+        val result = device.runOnDevice("com.example.MyAction", emptyMap())
+
+        assertTrue(result is BackupActionResult.Success)
+        assertEquals("3", (result as BackupActionResult.Success).data["rows"])
+    }
+
+    /** Custom actions are not required to report a status; silence still means success. */
+    @Test
+    fun testRunOnDeviceTreatsAbsentStatusAsSuccess() = runBlocking {
+        val device =
+            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
+
+        mockInstrumentationStdout(runnerStdout("""{"rows":"3"}"""))
+
+        assertTrue(
+            device.runOnDevice("com.example.MyAction", emptyMap()) is BackupActionResult.Success
+        )
+    }
+
+    /**
+     * An action that reports an error but forgets the status still fails.
+     *
+     * Mirrors `androidx.test.backup.BackupDeviceActionResult.isSuccess`; without this the host
+     * would report a Success carrying the error text in its data map.
+     */
+    @Test
+    fun testRunOnDeviceSurfacesErrorWithoutStatus() = runBlocking {
+        val device =
+            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
+
+        mockInstrumentationStdout(runnerStdout("""{"error":"Disk full"}"""))
+
+        val result = device.runOnDevice("com.example.MyAction", emptyMap())
+
+        assertTrue(result is BackupActionResult.Failure)
+        assertEquals("Disk full", (result as BackupActionResult.Failure).errorMessage)
+    }
+
+    /**
+     * An empty error without a status is not a failure.
+     *
+     * The AddressBook sample returns an empty `restore_credential_error` alongside a passing
+     * verification, so the presence of the key alone cannot decide the outcome.
+     */
+    @Test
+    fun testRunOnDeviceIgnoresEmptyErrorWithoutStatus() = runBlocking {
+        val device =
+            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
+
+        mockInstrumentationStdout(runnerStdout("""{"error":""}"""))
+
+        assertTrue(
+            device.runOnDevice("com.example.MyAction", emptyMap()) is BackupActionResult.Success
+        )
+    }
+
+    /**
+     * The runner reports the action's own verdict and its error, and still forwards the payload.
+     * The host reads the payload for the specific message.
+     */
+    @Test
+    fun testRunOnDeviceReadsPayloadWhenRunnerReportsFailure() = runBlocking {
+        val device =
+            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
+
+        mockInstrumentationStdout(
+            runnerStdout(
+                """{"status":"failure","error":"Expected 'a' but found 'b'"}""",
+                isSuccess = false,
+                errorMessage = "Expected 'a' but found 'b'",
+            )
+        )
+
+        val result = device.runOnDevice("com.example.MyAction", emptyMap())
+
+        assertTrue(result is BackupActionResult.Failure)
+        assertEquals(
+            "Expected 'a' but found 'b'",
+            (result as BackupActionResult.Failure).errorMessage,
+        )
+    }
+
+    /**
+     * With no error on the action, the runner has no message to report; the payload still lets the
+     * host name the action instead of falling back to "Unknown device failure.".
+     */
+    @Test
+    fun testRunOnDeviceNamesActionWhenRunnerReportsFailureWithoutMessage() = runBlocking {
+        val device =
+            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
+
+        mockInstrumentationStdout(runnerStdout("""{"status":"failure"}""", isSuccess = false))
+
+        val result = device.runOnDevice("com.example.MyAction", emptyMap())
+
+        assertTrue(result is BackupActionResult.Failure)
+        assertTrue(
+            (result as BackupActionResult.Failure).errorMessage.contains("com.example.MyAction")
+        )
+    }
+
+    /** A failure reported by the runner is never downgraded by a payload that looks successful. */
+    @Test
+    fun testRunOnDeviceRunnerFailureWinsOverSuccessfulPayload() = runBlocking {
+        val device =
+            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
+
+        mockInstrumentationStdout(
+            runnerStdout("""{"rows":"3"}""", isSuccess = false, errorMessage = "Runner said no")
+        )
+
+        val result = device.runOnDevice("com.example.MyAction", emptyMap())
+
+        assertTrue(result is BackupActionResult.Failure)
+        assertEquals("Runner said no", (result as BackupActionResult.Failure).errorMessage)
+    }
+
+    /** Wraps an action payload in the envelope the on-device runner prints to stdout. */
+    private fun runnerStdout(
+        payloadJson: String,
+        isSuccess: Boolean = true,
+        errorMessage: String? = null,
+    ): String {
+        val envelope = buildJsonObject {
+            put("isSuccess", isSuccess)
+            errorMessage?.let { put("errorMessage", it) }
+            put("payloadJson", payloadJson)
+        }
+            .toString()
+        return "BACKUP_RESTORE_RESULT: $envelope\n"
+    }
+
+    private fun mockInstrumentationStdout(stdout: String) {
+        `when`(
+                mockDeviceServices.shell(
+                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
+                    any(String::class.java) ?: "",
+                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
+                    any(),
+                    any(),
+                    any(Duration::class.java) ?: Duration.ofSeconds(1),
+                    anyInt(),
+                    anyBoolean(),
+                    anyBoolean(),
+                )
+            )
+            .thenAnswer { invocation ->
+                val cmd = invocation.getArgument(1) as String
+                if (cmd.contains("am instrument")) {
+                    flowOf(com.android.adblib.ShellCommandOutput(stdout, "", 0))
+                } else {
+                    flowOf("")
+                }
+            }
     }
 
     @Test
