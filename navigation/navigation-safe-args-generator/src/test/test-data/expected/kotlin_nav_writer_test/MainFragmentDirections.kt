@@ -12,7 +12,8 @@ public class MainFragmentDirections private constructor() {
     public val main: String,
     public val optional: String = "bla",
   ) : NavDirections {
-    public override val actionId: Int = R.id.next
+    public override val actionId: Int
+      get() = R.id.next
 
     public override val arguments: Bundle
       get() {
