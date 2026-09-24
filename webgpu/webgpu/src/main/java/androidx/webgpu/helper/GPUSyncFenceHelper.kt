@@ -26,6 +26,7 @@ import android.opengl.EGLSurface
 import android.opengl.EGLSync
 import android.os.Build
 import android.os.ParcelFileDescriptor
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.webgpu.ExperimentalWebGpuApi
 import androidx.webgpu.GPUSyncFence
@@ -153,7 +154,9 @@ internal object GPUSyncFenceHelper {
                 // EGL extension is missing. Wait for the fence to signal before closing to prevent
                 // visual artifacts.
                 GPUSyncFence.fromParcelFileDescriptor(pfd).use {
-                    val unused = it.await(SYNC_FENCE_TIMEOUT_MS)
+                    if (!it.await(SYNC_FENCE_TIMEOUT_MS)) {
+                        Log.w("GPUSyncFenceHelper", "Timed out waiting for sync fence to signal")
+                    }
                 }
                 return null
             }
