@@ -64,17 +64,18 @@ import kotlinx.coroutines.launch
  * [VerticalPagerScaffold] instances.
  *
  * @param appTimeText The default time text composable provided by [AppScaffold].
- * @param appShowStatusBar Whether the system status bar overlay is enabled at the app level.
+ * @param doesAppScaffoldWantStatusBar Whether the system status bar overlay is enabled at the app
+ *   level.
  * @param appWindowView The [View] associated with the root [AppScaffold] window.
  */
 internal class ScaffoldState(
     appTimeText: State<@Composable () -> Unit> = mutableStateOf({}),
-    appShowStatusBar: State<Boolean> = mutableStateOf(true),
+    doesAppScaffoldWantStatusBar: State<Boolean> = mutableStateOf(true),
     appWindowView: State<View>,
 ) {
     val screenContent =
         ScreenContent(
-            appShowStatusBar = appShowStatusBar,
+            doesAppScaffoldWantStatusBar = doesAppScaffoldWantStatusBar,
             appTimeText = appTimeText,
             appWindowView = appWindowView,
         )
@@ -100,12 +101,13 @@ internal class ScaffoldState(
  * screen's window orchestrator, and automatically disposes window orchestrators when they are no
  * longer in use.
  *
- * @param appShowStatusBar Default status bar overlay visibility configured by [AppScaffold].
+ * @param doesAppScaffoldWantStatusBar Default status bar overlay visibility configured by
+ *   [AppScaffold].
  * @param appTimeText Default application-level [TimeText] composable.
  * @param appWindowView The [View] associated with the root [AppScaffold] window.
  */
 internal class ScreenContent(
-    private val appShowStatusBar: State<Boolean>,
+    private val doesAppScaffoldWantStatusBar: State<Boolean>,
     private val appTimeText: State<@Composable () -> Unit>,
     private val appWindowView: State<View>,
 ) {
@@ -127,15 +129,15 @@ internal class ScreenContent(
 
     /**
      * Evaluates status bar visibility for the active top-most screen on the stack, falling back to
-     * [appShowStatusBar] if no screen is on the stack.
+     * [doesAppScaffoldWantStatusBar] if no screen is on the stack.
      */
-    val currentScreenShowStatusBar: State<Boolean> = derivedStateOf {
-        statusBarItems.lastOrNull()?.showStatusBar?.value ?: appShowStatusBar.value
+    val shouldActiveWindowShowStatusBar: State<Boolean> = derivedStateOf {
+        statusBarItems.lastOrNull()?.showStatusBar?.value ?: doesAppScaffoldWantStatusBar.value
     }
 
     /**
      * Evaluates status bar visibility specifically for the root App Window by selecting the
-     * top-most screen belonging to [appWindowView], falling back to [appShowStatusBar].
+     * top-most screen belonging to [appWindowView], falling back to [doesAppScaffoldWantStatusBar].
      *
      * Used by [AppScaffold] to determine whether the status bar should be shown on the root App
      * Window.
@@ -146,7 +148,7 @@ internal class ScreenContent(
             .toList()
             .fastLastOrNull { appView.isSameWindow(it.view.value) }
             ?.showStatusBar
-            ?.value ?: appShowStatusBar.value
+            ?.value ?: doesAppScaffoldWantStatusBar.value
     }
 
     /**
@@ -175,7 +177,7 @@ internal class ScreenContent(
      */
     val currentTimeText: State<@Composable () -> Unit> = derivedStateOf {
         screenItems.toList().fastLastOrNull { it.timeText.value != null }?.timeText?.value
-            ?: if (shouldAppWindowShowStatusBar.value) {
+            ?: if (doesAppScaffoldWantStatusBar.value) {
                 {}
             } else {
                 appTimeText.value

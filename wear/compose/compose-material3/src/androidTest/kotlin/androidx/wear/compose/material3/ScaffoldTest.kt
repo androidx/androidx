@@ -1067,7 +1067,8 @@ class ScaffoldTest {
         }
 
         rule.runOnIdle {
-            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isFalse()
+            assertThat(scaffoldState?.screenContent?.shouldActiveWindowShowStatusBar?.value)
+                .isFalse()
         }
     }
 
@@ -1084,7 +1085,8 @@ class ScaffoldTest {
         }
 
         rule.runOnIdle {
-            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isTrue()
+            assertThat(scaffoldState?.screenContent?.shouldActiveWindowShowStatusBar?.value)
+                .isTrue()
         }
     }
 
@@ -1135,12 +1137,13 @@ class ScaffoldTest {
     @Test
     fun screenScaffold_inheritStatusBarMode_whenNoParentScreen_inheritsFromAppScaffold() {
         var screenShow: Boolean? = null
-        var appShowStatusBar by mutableStateOf(true)
+        var doesAppScaffoldWantStatusBar by mutableStateOf(true)
 
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
                 AppScaffold(
-                    timeText = if (appShowStatusBar) AppScaffoldDefaults.timeText else ({})
+                    timeText =
+                        if (doesAppScaffoldWantStatusBar) AppScaffoldDefaults.timeText else ({})
                 ) {
                     ScreenScaffold { screenShow = LocalInheritedShowStatusBar.current }
                 }
@@ -1149,19 +1152,20 @@ class ScaffoldTest {
 
         rule.runOnIdle { assertThat(screenShow).isTrue() }
 
-        rule.runOnUiThread { appShowStatusBar = false }
+        rule.runOnUiThread { doesAppScaffoldWantStatusBar = false }
         rule.runOnIdle { assertThat(screenShow).isFalse() }
     }
 
     @Test
     fun pagerScaffold_inheritStatusBarMode_inheritsFromAppScaffold() {
         var pageScreenShow: Boolean? = null
-        var appShowStatusBar by mutableStateOf(true)
+        var doesAppScaffoldWantStatusBar by mutableStateOf(true)
 
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
                 AppScaffold(
-                    timeText = if (appShowStatusBar) AppScaffoldDefaults.timeText else ({})
+                    timeText =
+                        if (doesAppScaffoldWantStatusBar) AppScaffoldDefaults.timeText else ({})
                 ) {
                     val pagerState = rememberPagerState { 1 }
                     HorizontalPagerScaffold(pagerState = pagerState) {
@@ -1173,7 +1177,7 @@ class ScaffoldTest {
 
         rule.runOnIdle { assertThat(pageScreenShow).isTrue() }
 
-        rule.runOnUiThread { appShowStatusBar = false }
+        rule.runOnUiThread { doesAppScaffoldWantStatusBar = false }
         rule.runOnIdle { assertThat(pageScreenShow).isFalse() }
     }
 
@@ -1193,7 +1197,8 @@ class ScaffoldTest {
 
         rule.runOnIdle {
             assertThat(scaffoldState?.screenContent?.currentScrollInfoProvider?.value).isNotNull()
-            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isTrue()
+            assertThat(scaffoldState?.screenContent?.shouldActiveWindowShowStatusBar?.value)
+                .isTrue()
         }
     }
 
@@ -1214,7 +1219,8 @@ class ScaffoldTest {
         }
 
         rule.runOnIdle {
-            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isFalse()
+            assertThat(scaffoldState?.screenContent?.shouldActiveWindowShowStatusBar?.value)
+                .isFalse()
         }
     }
 
@@ -1233,7 +1239,8 @@ class ScaffoldTest {
         }
 
         rule.runOnIdle {
-            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isFalse()
+            assertThat(scaffoldState?.screenContent?.shouldActiveWindowShowStatusBar?.value)
+                .isFalse()
         }
     }
 
@@ -1253,7 +1260,8 @@ class ScaffoldTest {
 
         rule.runOnIdle {
             assertThat(scaffoldState?.screenContent?.currentScrollInfoProvider?.value).isNotNull()
-            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isTrue()
+            assertThat(scaffoldState?.screenContent?.shouldActiveWindowShowStatusBar?.value)
+                .isTrue()
         }
     }
 
@@ -1274,7 +1282,8 @@ class ScaffoldTest {
         }
 
         rule.runOnIdle {
-            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isFalse()
+            assertThat(scaffoldState?.screenContent?.shouldActiveWindowShowStatusBar?.value)
+                .isFalse()
         }
     }
 
@@ -1293,7 +1302,8 @@ class ScaffoldTest {
         }
 
         rule.runOnIdle {
-            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isFalse()
+            assertThat(scaffoldState?.screenContent?.shouldActiveWindowShowStatusBar?.value)
+                .isFalse()
         }
     }
 
@@ -1346,19 +1356,22 @@ class ScaffoldTest {
 
         rule.runOnIdle {
             // When screen is active, its Disabled mode takes precedence
-            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isFalse()
+            assertThat(scaffoldState?.screenContent?.shouldActiveWindowShowStatusBar?.value)
+                .isFalse()
         }
 
         rule.runOnUiThread { screenIsActive = false }
         rule.runOnIdle {
             // When screen is inactive, it leaves the stack and falls back to AppScaffold (true)
-            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isTrue()
+            assertThat(scaffoldState?.screenContent?.shouldActiveWindowShowStatusBar?.value)
+                .isTrue()
         }
 
         rule.runOnUiThread { screenIsActive = true }
         rule.runOnIdle {
             // When reactivated, it re-joins the top of stack and its Disabled mode takes precedence
-            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isFalse()
+            assertThat(scaffoldState?.screenContent?.shouldActiveWindowShowStatusBar?.value)
+                .isFalse()
         }
     }
 
@@ -1469,7 +1482,8 @@ class ScaffoldTest {
         rule.runOnIdle {
             assertThat(scaffoldState?.screenContent?.currentScrollInfoProvider?.value)
                 .isEqualTo(stateProvider)
-            assertThat(scaffoldState?.screenContent?.currentScreenShowStatusBar?.value).isFalse()
+            assertThat(scaffoldState?.screenContent?.shouldActiveWindowShowStatusBar?.value)
+                .isFalse()
         }
     }
 }
