@@ -345,7 +345,7 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
         val paintBundle = PaintBundle()
 
         tracker.reset(forceSendingPaint || document.checkAndClearForceSendingNewPaint())
-        tracker.updateWithPaint(paint, paintBundle, this)
+        tracker.updateWithPaint(paint, paintBundle, creationState)
 
         if (tracker.isChanged) {
             document.buffer.addPaint(paintBundle)
