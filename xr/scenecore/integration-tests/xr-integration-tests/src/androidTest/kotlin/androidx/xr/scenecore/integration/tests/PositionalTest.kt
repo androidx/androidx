@@ -21,7 +21,6 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
@@ -30,7 +29,6 @@ import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 import androidx.xr.testutils.XrDeviceTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,14 +38,14 @@ import org.junit.runner.RunWith
 class PositionalTest {
     @get:Rule val activityScenarioRule = ActivityScenarioRule(ComponentActivity::class.java)
 
+    private lateinit var session: Session
+
     @Test
     @XrDeviceTest
     fun getPose_inActivitySpace_composesParentTransforms() {
         activityScenarioRule.scenario.onActivity { activity ->
             // 1. Create the XR Session.
-            val sessionResult = runBlocking { Session.create(context = activity) }
-            check(sessionResult is SessionCreateSuccess) { "Failed to create XR session" }
-            val session = sessionResult.session
+            session = createXrSession(activity)
 
             // 2. Create the root Sun entity attached to ActivitySpace.
             val sunPos = Vector3(-0.5f, 0.5f, -1f)
