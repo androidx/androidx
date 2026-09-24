@@ -850,10 +850,14 @@ internal class LinkComposer(
     ) {
         trace("Compose:insertMovableContent") {
             var completed = false
+            val observer = observerHolder.pin()
+            observer?.onBeginComposition(composition)
             try {
                 insertMovableContentGuarded(references)
                 completed = true
             } finally {
+                observer?.onEndComposition(composition)
+                observerHolder.unpin()
                 if (completed) {
                     cleanUpCompose()
                 } else {
@@ -1465,7 +1469,6 @@ internal class LinkComposer(
         content: (@Composable () -> Unit)?,
     ) {
         runtimeCheck(!isComposing) { "Reentrant composition is not supported" }
-        val observer = observerHolder.current()
         trace("Compose:recompose") {
             compositionToken = currentSnapshot().snapshotId.hashCode()
             providerUpdates = null
@@ -1473,6 +1476,7 @@ internal class LinkComposer(
             nodeIndex = 0
             var complete = false
             isComposing = true
+            val observer = observerHolder.pin()
             observer?.onBeginComposition(composition)
             try {
                 startRoot()
@@ -1509,6 +1513,7 @@ internal class LinkComposer(
                 throw e.attachComposeStackTrace { currentStackTrace() }
             } finally {
                 observer?.onEndComposition(composition)
+                observerHolder.unpin()
                 isComposing = false
                 if (!complete) abortRoot()
                 resetInsertBuilder(dispose = !complete)
