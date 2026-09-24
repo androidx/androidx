@@ -67,9 +67,18 @@ internal object BackupReportKeys {
     /** Reported for [LIBRARY_VERSION] when the packaged version resource cannot be read. */
     const val UNKNOWN_LIBRARY_VERSION = "unknown"
 
-    /** Value reported for [STATUS] when the execution completed without failures. */
-    const val STATUS_SUCCESS = "SUCCESS"
+    /**
+     * Value reported for [STATUS] when the execution completed without failures.
+     *
+     * This is the status of a whole backup and restore execution and is distinct from the
+     * per-action [BackupActionValues.STATUS_SUCCESS], which the device reports in lower case.
+     */
+    const val REPORT_STATUS_SUCCESS = "SUCCESS"
 
-    /** Value reported for [STATUS] when the execution failed. */
-    const val STATUS_FAILURE = "FAILURE"
+    /**
+     * Value reported for [STATUS] when the execution failed.
+     *
+     * @see REPORT_STATUS_SUCCESS
+     */
+    const val REPORT_STATUS_FAILURE = "FAILURE"
 }

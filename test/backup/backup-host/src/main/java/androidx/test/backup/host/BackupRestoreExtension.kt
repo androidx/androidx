@@ -328,7 +328,7 @@ private constructor(
         errorMessage: String,
     ) {
         val context = this ?: return
-        context.publishReportEntry(BackupReportKeys.STATUS, BackupReportKeys.STATUS_FAILURE)
+        context.publishReportEntry(BackupReportKeys.STATUS, BackupReportKeys.REPORT_STATUS_FAILURE)
         context.publishReportEntry(BackupReportKeys.ERROR_CODE, errorCode.name)
         context.publishReportEntry(
             BackupReportKeys.FAILURE_STAGE,
