@@ -71,8 +71,7 @@ class PaintTrackerTest {
                 size,
             )
         val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap)
-        recordingCanvas.creationState = creationState
+        recordingCanvas = RecordingCanvas(bitmap, creationState)
         tracker = PaintTracker()
         remoteContext = AndroidRemoteContext()
         remoteContext.useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))

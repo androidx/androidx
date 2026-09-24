@@ -55,7 +55,6 @@ import java.time.ZonedDateTime
 import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.sin
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -91,7 +90,7 @@ class RemoteBitmapFontTest {
         RemoteComposeCreationState(Size(WIDTH.toFloat(), HEIGHT.toFloat()), profile)
 
     private val recordingCanvas =
-        RecordingCanvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
+        RecordingCanvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888), creationState)
 
     private val font = ResourcesCompat.getFont(context, R.font.karla_regular)!!
 
@@ -102,11 +101,6 @@ class RemoteBitmapFontTest {
             ZonedDateTime.of(LocalDateTime.of(2025, 11, 20, 10, 30, 25), timeZone).toInstant(),
             timeZone,
         )
-
-    @Before
-    fun setUp() {
-        recordingCanvas.setRemoteComposeCreationState(creationState)
-    }
 
     @Test
     fun drawBitmapFontTextRun_glyphSpacingTest() {
