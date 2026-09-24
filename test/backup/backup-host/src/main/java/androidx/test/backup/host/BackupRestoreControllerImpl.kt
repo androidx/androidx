@@ -102,7 +102,7 @@ internal class BackupRestoreControllerImpl(
                     pairs.add(storage.primaryKeyCol to storage.primaryKeyVal.toString())
                 }
                 args[BackupActionInputKeys.VALUES] =
-                    pairs.joinToString("&") { "${it.first}=${it.second}" }
+                    BackupActionWireProtocol.encodeColumnValues(pairs)
             }
             is StorageDomain.TextFile -> {
                 args[BackupActionInputKeys.STORAGE_TYPE] = BackupActionValues.STORAGE_TYPE_FILES

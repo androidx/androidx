@@ -101,28 +101,21 @@ public class PopulateStorageAction : BackupDeviceAction {
                     val valuesStr =
                         args[VALUES]
                             ?: return failure("Missing '$VALUES' argument for DATABASE populate.")
+                    val columns =
+                        try {
+                            decodeColumnValues(valuesStr)
+                        } catch (e: IllegalArgumentException) {
+                            return failure(e.message ?: "Malformed '$VALUES' argument.")
+                        }
 
                     targetContext.openOrCreateDatabase(dbName, Context.MODE_PRIVATE, null).use { db
                         ->
                         // Ensure the table exists
                         val cv = ContentValues()
                         val colDefs = mutableListOf<String>()
-                        valuesStr.split("&").forEach { pair ->
-                            val kv = pair.split("=")
-                            if (kv.size == 2) {
-                                val columnName =
-                                    java.net.URLDecoder.decode(
-                                        kv[0],
-                                        java.nio.charset.StandardCharsets.UTF_8.name(),
-                                    )
-                                val columnValue =
-                                    java.net.URLDecoder.decode(
-                                        kv[1],
-                                        java.nio.charset.StandardCharsets.UTF_8.name(),
-                                    )
-                                colDefs.add("`$columnName` TEXT")
-                                cv.put(columnName, columnValue)
-                            }
+                        for ((columnName, columnValue) in columns) {
+                            colDefs.add("`$columnName` TEXT")
+                            cv.put(columnName, columnValue)
                         }
                         db.execSQL(
                             "CREATE TABLE IF NOT EXISTS `$table` (${colDefs.joinToString(", ")})"

@@ -138,17 +138,24 @@ public class AssertStorageAction : BackupDeviceAction {
                     val keyCol = args[KEY_COL] ?: return failure("Missing '$KEY_COL' argument.")
                     val keyVal = args[KEY_VAL] ?: return failure("Missing '$KEY_VAL' argument.")
 
-                    // Extract column name and expected column value from parameters.
-                    // If 'values' is provided as a 'colName=colVal' pair, parse it.
-                    // Otherwise, rely on separate 'expected_col' and 'expected_val' arguments.
+                    // Extract the column name and expected column value. When 'values' is
+                    // supplied it carries the row that PopulateStorageAction inserted, encoded
+                    // the same way; otherwise rely on the explicit 'expected_col' and
+                    // 'expected_val' arguments. The legacy 'value' fallback is a bare single
+                    // value for preference and file storage, so it is only treated as a pair
+                    // list when it actually looks like one.
                     val expectedCol: String
                     val expectedVal: String
-                    val values = args[VALUES] ?: args[VALUE]
-                    if ((values != null) && values.contains("=")) {
-                        val pair = values.split("&").firstOrNull { it.contains("=") } ?: ""
-                        val parts = pair.split("=", limit = 2)
-                        expectedCol = parts[0]
-                        expectedVal = if (parts.size > 1) parts[1] else ""
+                    val values = (args[VALUES] ?: args[VALUE])?.takeIf { it.contains("=") }
+                    if (values != null) {
+                        val first =
+                            try {
+                                decodeColumnValues(values).first()
+                            } catch (e: IllegalArgumentException) {
+                                return failure(e.message ?: "Malformed '$VALUES' argument.")
+                            }
+                        expectedCol = first.first
+                        expectedVal = first.second
                     } else {
                         expectedCol =
                             args[EXPECTED_COL]

@@ -16,6 +16,8 @@
 
 package androidx.test.backup.host
 
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -69,4 +71,43 @@ class BackupActionWireProtocolTest {
         assertEquals("success", BackupActionValues.STATUS_SUCCESS)
         assertEquals("failure", BackupActionValues.STATUS_FAILURE)
     }
+
+    @Test
+    fun encodesPlainPairs() {
+        assertEquals(
+            "col1=val1&col2=val2",
+            BackupActionWireProtocol.encodeColumnValues(listOf("col1" to "val1", "col2" to "val2")),
+        )
+    }
+
+    /** Unencoded separators used to corrupt the column list on arrival. */
+    @Test
+    fun encodesSeparatorsInsideValues() {
+        assertEquals(
+            "q=a%26b%3Dc",
+            BackupActionWireProtocol.encodeColumnValues(listOf("q" to "a&b=c")),
+        )
+    }
+
+    @Test
+    fun encodesAnEmptyValue() {
+        assertEquals("col=", BackupActionWireProtocol.encodeColumnValues(listOf("col" to "")))
+    }
+
+    /** What the host writes has to survive the decoder the device applies to it. */
+    @Test
+    fun roundTripsThroughTheDeviceDecoder() {
+        val pairs = listOf("a&b" to "c=d", "e%f" to "g+h", "unicode" to "café", "empty" to "")
+
+        val decoded =
+            BackupActionWireProtocol.encodeColumnValues(pairs).split("&").map { segment ->
+                val separator = segment.indexOf('=')
+                decode(segment.substring(0, separator)) to decode(segment.substring(separator + 1))
+            }
+
+        assertEquals(pairs, decoded)
+    }
+
+    private fun decode(value: String): String =
+        URLDecoder.decode(value, StandardCharsets.UTF_8.name())
 }
