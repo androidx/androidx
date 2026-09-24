@@ -79,9 +79,13 @@ public class Camera2ExtensionsVendorExtender(private val mode: Int) : VendorExte
 
     override fun getSupportedCaptureOutputResolutions(): List<Pair<Int, Array<Size>>> {
         checkInitialized()
-        return getExtensionSupportedSizes(
-            intArrayOf(ImageFormat.JPEG, ImageFormat.YUV_420_888, ImageFormat.JPEG_R)
-        )
+        val formats =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                intArrayOf(ImageFormat.JPEG, ImageFormat.YUV_420_888, ImageFormat.JPEG_R)
+            } else {
+                intArrayOf(ImageFormat.JPEG, ImageFormat.YUV_420_888)
+            }
+        return getExtensionSupportedSizes(formats)
     }
 
     private fun getExtensionSupportedSizes(formats: IntArray): List<Pair<Int, Array<Size>>> {
