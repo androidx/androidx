@@ -50,6 +50,8 @@ import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.FloatFunctionCall
 import androidx.compose.remote.core.operations.ParticlesCreate
 import androidx.compose.remote.core.operations.ParticlesLoop
+import androidx.compose.remote.core.operations.PathCombine
+import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.Component
@@ -1463,3 +1465,26 @@ private val multiClickTypeField =
 
 internal val MultiClickModifier.clickTypeReflection: Int
     get() = multiClickTypeField.getInt(this)
+
+// 15. PathCombine and PathData Reflection
+private val pathCombineOperationField =
+    PathCombine::class.java.getDeclaredField("mOperation").apply { isAccessible = true }
+
+internal val PathCombine.operationReflection: Byte
+    get() = pathCombineOperationField.getByte(this)
+
+private val pathDataInstanceIdField =
+    PathData::class.java.getDeclaredField("mInstanceId").apply { isAccessible = true }
+private val pathDataOutputPathField =
+    PathData::class.java.getDeclaredField("mOutputPath").apply { isAccessible = true }
+private val pathDataChangedField =
+    PathData::class.java.getDeclaredField("mPathChanged").apply { isAccessible = true }
+
+internal fun PathData.applyReflection(context: RemoteContext) {
+    val instanceId = pathDataInstanceIdField.getInt(this)
+    val outputPath = pathDataOutputPathField.get(this) as? FloatArray
+    if (outputPath != null && context.getPathData(instanceId) !== outputPath) {
+        pathDataChangedField.setBoolean(this, true)
+    }
+    apply(context)
+}
