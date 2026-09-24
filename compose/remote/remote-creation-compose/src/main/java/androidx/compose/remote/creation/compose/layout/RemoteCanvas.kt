@@ -32,7 +32,6 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.ui.graphics.ClipOp
-import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.PathFillType
 import androidx.graphics.shapes.RoundedPolygon
 
@@ -142,15 +141,6 @@ public class RemoteCanvas(private val internalCanvas: RecordingCanvas) :
     public fun rotate(degrees: RemoteFloat, centerX: RemoteFloat, centerY: RemoteFloat) {
         // Temporarily use Android graphics Canvas rotate
         internalCanvas.rotate(degrees.floatId, centerX.floatId, centerY.floatId)
-    }
-
-    /**
-     * Applies a transformation [matrix] to the canvas.
-     *
-     * @param matrix The [Matrix] to concatenate with the current canvas transformation.
-     */
-    public fun transform(matrix: Matrix) {
-        internalCanvas.concat(matrix)
     }
 
     private fun recordRenderingOp(action: () -> Unit): CanvasOperationBuffer.SpanOp {

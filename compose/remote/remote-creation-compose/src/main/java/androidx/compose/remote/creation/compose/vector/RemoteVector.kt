@@ -48,7 +48,6 @@ import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.ShaderBrush
@@ -243,8 +242,6 @@ internal class RemotePathComponent : RemoteVNode() {
 }
 
 internal class RemoteGroupComponent : RemoteVNode() {
-    private var groupMatrix: Matrix? = null
-
     private val children = mutableListOf<RemoteVNode>()
 
     /**
@@ -384,9 +381,8 @@ internal class RemoteGroupComponent : RemoteVNode() {
                 Operations.CLIP_PATH in
                     this@draw.remoteCanvas.creationState.profile.supportedOperations
 
-        if (hasTransform || hasClip || groupMatrix != null) {
+        if (hasTransform || hasClip) {
             withTransform({
-                groupMatrix?.let { transform(it) }
                 if (hasTransform) {
                     translate(translationX + pivotX, translationY + pivotY)
                     rotate(rotation)

@@ -19,7 +19,6 @@ package androidx.compose.remote.creation.compose.capture
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Matrix as AndroidMatrix
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Rect
@@ -58,7 +57,6 @@ import androidx.compose.remote.creation.compose.state.StandardRemotePaint
 import androidx.compose.remote.creation.compose.state.asRemotePaint
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.Matrix as ComposeMatrix
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
@@ -594,21 +592,6 @@ public open class RecordingCanvas(
     public fun skew(sx: RemoteFloat, sy: RemoteFloat) {
         val op = recordRenderingOp(CanvasOp.Transform(PendingOp.Skew(sx, sy)))
         buffer.addRoots(op, sx, sy)
-    }
-
-    /**
-     * Preconcat the current matrix with the specified [matrix].
-     *
-     * @param matrix The [ComposeMatrix] to concatenate with the current canvas transformation.
-     */
-    public fun concat(matrix: ComposeMatrix) {
-        concat(
-            AndroidMatrix().apply {
-                matrix.values.let { v ->
-                    setValues(floatArrayOf(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]))
-                }
-            }
-        )
     }
 
     public fun drawBitmap(bitmap: ImageBitmap, left: Float, top: Float, paint: Paint?) {
