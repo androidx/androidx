@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.OrientationEventListener
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
@@ -38,8 +39,11 @@ import androidx.camera.core.SessionConfig
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_BACK
 import androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_FRONT
+import androidx.camera.integration.view.MainActivity.IMPLEMENTATION_MODE_EMBEDDED
 import androidx.camera.integration.view.MainActivity.INTENT_EXTRA_CAMERA_DIRECTION
+import androidx.camera.integration.view.MainActivity.INTENT_EXTRA_IMPLEMENTATION_MODE
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.impl.FileUtil.writeTextToExternalFile
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
 import androidx.camera.viewfinder.core.FocusState
@@ -72,10 +76,12 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -83,6 +89,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -93,8 +102,16 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import java.io.File
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.roundToInt
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+private const val PREFIX_INFORMATION = "test_information"
+private const val KEY_ORIENTATION = "device_orientation"
+private const val KEY_STREAM_SHARING_STATE = "is_stream_sharing_enabled"
+private val EXPORT_BUTTON_COLOR = Color(0xAA2255FF)
 
 /** A fragment that demonstrates how to use [ComposeView] to display camera preview. */
 class ComposeUiFragment : Fragment() {
@@ -139,9 +156,28 @@ class ComposeUiFragment : Fragment() {
                 LENS_FACING_BACK
             }
 
+        val initialImplementationMode =
+            bundle?.getString(INTENT_EXTRA_IMPLEMENTATION_MODE)?.let {
+                when (it.lowercase(Locale.ROOT)) {
+                    IMPLEMENTATION_MODE_EMBEDDED -> ImplementationMode.EMBEDDED
+                    else -> ImplementationMode.EXTERNAL
+                }
+            } ?: ImplementationMode.EXTERNAL
+
+        val initialStreamSharingEnabled = MainActivity.parseEnableStreamSharing(bundle)
+
         val window = activity?.window
         return ComposeView(requireContext()).apply {
-            setContent { CameraScreen(initialLensFacing, contentScale, alignment, window) }
+            setContent {
+                CameraScreen(
+                    initialLensFacing,
+                    contentScale,
+                    alignment,
+                    window,
+                    initialImplementationMode,
+                    initialStreamSharingEnabled,
+                )
+            }
         }
     }
 }
@@ -156,6 +192,7 @@ private val SCALE_OPTIONS: List<Triple<String, ContentScale, Alignment>> =
         Triple("FIT_END", ContentScale.Fit, Alignment.BottomEnd),
     )
 
+@OptIn(ExperimentalComposeUiApi::class)
 @SuppressLint("RestrictedApiAndroidX")
 @Composable
 private fun CameraScreen(
@@ -163,9 +200,12 @@ private fun CameraScreen(
     initialContentScale: ContentScale,
     initialAlignment: Alignment,
     window: Window?,
+    initialImplementationMode: ImplementationMode = ImplementationMode.EXTERNAL,
+    initialStreamSharingEnabled: Boolean = false,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    val coroutineScope = rememberCoroutineScope()
 
     var lensFacing by rememberSaveable { mutableIntStateOf(initialLensFacing) }
     var implementationMode by
@@ -173,10 +213,10 @@ private fun CameraScreen(
             saver =
                 Saver<MutableState<ImplementationMode>, Int>(
                     save = { it.value.ordinal },
-                    restore = { mutableStateOf(ImplementationMode.values()[it]) },
+                    restore = { mutableStateOf(ImplementationMode.entries[it]) },
                 )
         ) {
-            mutableStateOf(ImplementationMode.EXTERNAL)
+            mutableStateOf(initialImplementationMode)
         }
     var selectedScaleIndex by rememberSaveable {
         mutableIntStateOf(
@@ -190,9 +230,10 @@ private fun CameraScreen(
     val alignment = SCALE_OPTIONS[selectedScaleIndex].third
 
     var hasEffect by rememberSaveable { mutableStateOf(false) }
-    var isStreamSharingEnabled by rememberSaveable { mutableStateOf(false) }
+    var isStreamSharingEnabled by rememberSaveable { mutableStateOf(initialStreamSharingEnabled) }
     var surfaceRequest by remember { mutableStateOf<SurfaceRequest?>(null) }
     var cameraProvider by remember { mutableStateOf<ProcessCameraProvider?>(null) }
+    val deviceOrientation = remember { AtomicInteger(OrientationEventListener.ORIENTATION_UNKNOWN) }
 
     val preview = remember { Preview.Builder().build() }
     val imageCapture = remember { ImageCapture.Builder().build() }
@@ -204,6 +245,25 @@ private fun CameraScreen(
 
     val toneMappingEffect = remember {
         ToneMappingSurfaceEffect(CameraEffect.PREVIEW or CameraEffect.VIDEO_CAPTURE)
+    }
+
+    fun exportTestInformation() {
+        val fileName = "${PREFIX_INFORMATION}_${System.currentTimeMillis()}"
+        val information =
+            "$KEY_ORIENTATION:${deviceOrientation.get()}\n" +
+                "$KEY_STREAM_SHARING_STATE:$isStreamSharingEnabled"
+        writeTextToExternalFile(information, fileName)
+    }
+
+    DisposableEffect(context) {
+        val orientationEventListener =
+            object : OrientationEventListener(context.applicationContext) {
+                override fun onOrientationChanged(orientation: Int) {
+                    deviceOrientation.set(orientation)
+                }
+            }
+        orientationEventListener.enable()
+        onDispose { orientationEventListener.disable() }
     }
 
     DisposableEffect(toneMappingEffect) { onDispose { toneMappingEffect.release() } }
@@ -267,7 +327,12 @@ private fun CameraScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier =
+            Modifier.fillMaxSize().semantics {
+                testTagsAsResourceId = true
+            }
+    ) {
         surfaceRequest?.let { request ->
             CameraXViewfinder(
                 surfaceRequest = request,
@@ -378,6 +443,23 @@ private fun CameraScreen(
             modifier = Modifier.align(Alignment.CenterEnd).padding(end = 5.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            // Export Test Information Button
+            Button(
+                onClick = { coroutineScope.launch(Dispatchers.IO) { exportTestInformation() } },
+                shape = CircleShape,
+                modifier =
+                    Modifier.size(46.dp)
+                        .testTag("androidx.camera.integration.view:id/export_button"),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        backgroundColor = EXPORT_BUTTON_COLOR,
+                        contentColor = Color.White,
+                    ),
+                contentPadding = PaddingValues(0.dp),
+            ) {
+                Text(text = "EXP", fontSize = 14.sp)
+            }
+
             // Stream Sharing Toggle
             Button(
                 onClick = { isStreamSharingEnabled = !isStreamSharingEnabled },

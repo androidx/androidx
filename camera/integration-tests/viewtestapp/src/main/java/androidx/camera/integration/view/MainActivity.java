@@ -85,7 +85,25 @@ public class MainActivity extends AppCompatActivity {
     // The default scale type is FILL_CENTER.
     public static final int DEFAULT_SCALE_TYPE_ID = 1;
 
+    // Launch the activity with the specified implementation mode.
+    // Possible values (case-insensitive): "external", "embedded".
+    public static final String INTENT_EXTRA_IMPLEMENTATION_MODE = "implementation_mode";
+    public static final String IMPLEMENTATION_MODE_EXTERNAL = "external";
+    public static final String IMPLEMENTATION_MODE_EMBEDDED = "embedded";
+
+    // Launch the activity with stream sharing enabled or disabled.
+    public static final String INTENT_EXTRA_ENABLE_STREAM_SHARING = "enable_stream_sharing";
+
     private static final String KEY_FRAGMENT_TYPE = "fragment_type";
+
+    /** Parses the stream sharing boolean extra from a Bundle (supports boolean or String). */
+    public static boolean parseEnableStreamSharing(@Nullable Bundle bundle) {
+        if (bundle == null || !bundle.containsKey(INTENT_EXTRA_ENABLE_STREAM_SHARING)) {
+            return false;
+        }
+        return bundle.getBoolean(INTENT_EXTRA_ENABLE_STREAM_SHARING, false)
+                || Boolean.parseBoolean(bundle.getString(INTENT_EXTRA_ENABLE_STREAM_SHARING));
+    }
 
     private boolean mCheckedPermissions = false;
     private FragmentType mFragmentType = FragmentType.CAMERA_CONTROLLER;
