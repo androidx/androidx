@@ -162,6 +162,7 @@ constructor(
                         streamUseHint = output.streamUseHint,
                         sensorPixelModes = output.sensorPixelModes,
                         externalOutputConfig = getOutputConfigurationOrNull(output),
+                        useReadoutTimestamp = output.useReadoutTimestamp,
                     )
                 internalOutputConfigMap[output] = outputConfig
                 outputConfigListBuilder.add(outputConfig)
@@ -189,6 +190,7 @@ constructor(
                             outputConfig.streamUseCase,
                             outputConfig.deferredOutputType,
                             outputConfig.streamUseHint,
+                            outputConfig.useReadoutTimestamp,
                         )
                     streamOutputConfigMap[outputStream] = outputConfig
                     outputStream
@@ -252,6 +254,7 @@ constructor(
         val streamUseCase: OutputStream.StreamUseCase?,
         val streamUseHint: OutputStream.StreamUseHint?,
         val sensorPixelModes: List<OutputStream.SensorPixelMode>,
+        val useReadoutTimestamp: Boolean,
     ) {
         internal val streamBuilder = mutableListOf<CameraStream>()
         val streams: List<CameraStream>
@@ -277,7 +280,7 @@ constructor(
         override val streamUseCase: OutputStream.StreamUseCase? = null,
         override val outputType: OutputStream.OutputType? = null,
         override val streamUseHint: OutputStream.StreamUseHint? = null,
-        internal val useReadoutTimestamp: Boolean = false,
+        override val useReadoutTimestamp: Boolean = false,
     ) : OutputStream {
         override lateinit var stream: CameraStream
 

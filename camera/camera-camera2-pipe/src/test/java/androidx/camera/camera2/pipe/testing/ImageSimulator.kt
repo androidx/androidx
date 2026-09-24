@@ -63,6 +63,10 @@ internal class ImageSimulator(
         return fakeImageSources[streamId]!!.simulateExpectedOutputs(timestamp, outputIds)
     }
 
+    fun checkImagesClosed() {
+        fakeImageSources.checkImagesClosed()
+    }
+
     override fun close() {
         fakeSurfaces.close()
     }
