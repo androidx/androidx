@@ -34,6 +34,7 @@ import androidx.appsearch.testutil.AppSearchTestUtils;
 import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import org.jspecify.annotations.NonNull;
 import org.junit.After;
@@ -45,6 +46,7 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @RequiresFlagsEnabled(Flags.FLAG_ENABLE_PCC_DATA_ENCAPSULATION)
@@ -525,5 +527,367 @@ public class PccEncapsulationUtilTest {
                         NON_PCC_UID,
                         ImmutableList.of(schemaA, schemaB));
         assertThat(resultNullChecker).isEmpty();
+    }
+
+    @Test
+    public void testUpdateSetBlobVisibilityConfigs_initialAssignment_nonPcc() throws Exception {
+        InternalVisibilityConfig config1 = new InternalVisibilityConfig.Builder("ns1").build();
+        InternalVisibilityConfig config2 = new InternalVisibilityConfig.Builder("ns2").build();
+        List<InternalVisibilityConfig> visibilityConfigs =
+                new ArrayList<>(ImmutableList.of(config1, config2));
+        PccEncapsulationUtil.updateSetBlobVisibilityConfigs(
+                "pkg",
+                "db",
+                NON_PCC_UID,
+                visibilityConfigs,
+                /* existingPrefixedBlobNamespaces= */ Collections.emptySet());
+
+        assertThat(visibilityConfigs).hasSize(2);
+        assertThat(visibilityConfigs.get(0).getWriterUid()).isEqualTo(NON_PCC_UID);
+        assertThat(visibilityConfigs.get(1).getWriterUid()).isEqualTo(NON_PCC_UID);
+    }
+
+    @Test
+    public void testUpdateSetBlobVisibilityConfigs_initialAssignment_pcc() throws Exception {
+        InternalVisibilityConfig config = new InternalVisibilityConfig.Builder("ns1").build();
+        List<InternalVisibilityConfig> visibilityConfigs =
+                new ArrayList<>(ImmutableList.of(config));
+        PccEncapsulationUtil.updateSetBlobVisibilityConfigs(
+                "pkg",
+                "db",
+                PCC_UID,
+                visibilityConfigs,
+                /* existingPrefixedBlobNamespaces= */ Collections.emptySet());
+
+        assertThat(visibilityConfigs).hasSize(1);
+        assertThat(visibilityConfigs.get(0).getWriterUid()).isEqualTo(PCC_UID);
+    }
+
+    @Test
+    public void
+            testUpdateSetBlobVisibilityConfigs_missingVisibilityConfigs_pcc()
+                    throws Exception {
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        InternalVisibilityConfig config1 = new InternalVisibilityConfig.Builder("ns1").build();
+        // The request only configures ns1, but ns2 also exists in the database. Since
+        // setBlobVisibility replaces the visibility of the whole database, ns2 is reverted to
+        // default visibility and also gets the caller's writerUid.
+        List<InternalVisibilityConfig> visibilityConfigs =
+                new ArrayList<>(ImmutableList.of(config1));
+        PccEncapsulationUtil.updateSetBlobVisibilityConfigs(
+                "pkg",
+                "db",
+                PCC_UID,
+                visibilityConfigs,
+                /* existingPrefixedBlobNamespaces= */ ImmutableSet.of(
+                        prefix + "ns1", prefix + "ns2"));
+
+        assertThat(visibilityConfigs).hasSize(2);
+        assertThat(visibilityConfigs.get(0).getWriterUid()).isEqualTo(PCC_UID);
+        assertThat(visibilityConfigs.get(1).getWriterUid()).isEqualTo(PCC_UID);
+    }
+
+    @Test
+    public void
+            testUpdateSetBlobVisibilityConfigs_emptyVisibilityConfigs_nonPcc()
+                    throws Exception {
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        List<InternalVisibilityConfig> visibilityConfigs = new ArrayList<>();
+        PccEncapsulationUtil.updateSetBlobVisibilityConfigs(
+                "pkg",
+                "db",
+                NON_PCC_UID,
+                visibilityConfigs,
+                ImmutableSet.of(prefix + "ns1"));
+
+        assertThat(visibilityConfigs).hasSize(1);
+        assertThat(visibilityConfigs.get(0).getSchemaType()).isEqualTo("ns1");
+        assertThat(visibilityConfigs.get(0).getWriterUid()).isEqualTo(NON_PCC_UID);
+    }
+
+    @Test
+    public void testUpdateSetBlobVisibilityConfigs_invalidUid_returnsInputConfigs()
+            throws Exception {
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        InternalVisibilityConfig config1 = new InternalVisibilityConfig.Builder("ns1").build();
+        List<InternalVisibilityConfig> visibilityConfigs =
+                new ArrayList<>(ImmutableList.of(config1));
+        PccEncapsulationUtil.updateSetBlobVisibilityConfigs(
+                "pkg",
+                "db",
+                InternalVisibilityConfig.INVALID_UID,
+                visibilityConfigs,
+                ImmutableSet.of(prefix + "ns1", prefix + "ns2"));
+
+        assertThat(visibilityConfigs).containsExactly(config1);
+    }
+
+    @Test
+    public void testCalculateDowngradedPccBlobNamespaces_newNamespaces_returnsEmpty()
+            throws Exception {
+        VisibilityStore blobVisibilityStore =
+                VisibilityStore.createBlobVisibilityStore(
+                        mAppSearchImpl, /*callStatsBuilder=*/ null);
+        InternalVisibilityConfig config1 = new InternalVisibilityConfig.Builder("ns1").build();
+        InternalVisibilityConfig config2 = new InternalVisibilityConfig.Builder("ns2").build();
+
+        assertThat(
+                        PccEncapsulationUtil.calculateDowngradedPccBlobNamespaces(
+                                blobVisibilityStore,
+                                mVisibilityChecker,
+                                "pkg",
+                                "db",
+                                NON_PCC_UID,
+                                ImmutableList.of(config1, config2),
+                                /* existingPrefixedBlobNamespaces= */ Collections.emptySet()))
+                .isEmpty();
+
+        assertThat(
+                        PccEncapsulationUtil.calculateDowngradedPccBlobNamespaces(
+                                blobVisibilityStore,
+                                mVisibilityChecker,
+                                "pkg",
+                                "db",
+                                PCC_UID,
+                                ImmutableList.of(config1, config2),
+                                /* existingPrefixedBlobNamespaces= */ Collections.emptySet()))
+                .isEmpty();
+    }
+
+    @Test
+    public void testCalculateDowngradedPccBlobNamespaces_upgradeNonPccToPcc_returnsEmpty()
+            throws Exception {
+        VisibilityStore blobVisibilityStore =
+                VisibilityStore.createBlobVisibilityStore(
+                        mAppSearchImpl, /*callStatsBuilder=*/ null);
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        InternalVisibilityConfig existingConfig =
+                new InternalVisibilityConfig.Builder(prefix + "ns1")
+                        .setWriterUid(NON_PCC_UID)
+                        .build();
+        blobVisibilityStore.setVisibility(
+                ImmutableList.of(existingConfig), /* callStatsBuilder= */ null);
+
+        InternalVisibilityConfig newConfig = new InternalVisibilityConfig.Builder("ns1").build();
+        List<String> downgradedNamespaces =
+                PccEncapsulationUtil.calculateDowngradedPccBlobNamespaces(
+                        blobVisibilityStore,
+                        mVisibilityChecker,
+                        "pkg",
+                        "db",
+                        PCC_UID,
+                        ImmutableList.of(newConfig),
+                        ImmutableSet.of(prefix + "ns1"));
+
+        assertThat(downgradedNamespaces).isEmpty();
+    }
+
+    @Test
+    public void testCalculateDowngradedPccBlobNamespaces_downgradePccToNonPcc_returnsNamespace()
+            throws Exception {
+        VisibilityStore blobVisibilityStore =
+                VisibilityStore.createBlobVisibilityStore(
+                        mAppSearchImpl, /*callStatsBuilder=*/ null);
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        InternalVisibilityConfig existingConfig =
+                new InternalVisibilityConfig.Builder(prefix + "ns1").setWriterUid(PCC_UID).build();
+        blobVisibilityStore.setVisibility(
+                ImmutableList.of(existingConfig), /* callStatsBuilder= */ null);
+
+        InternalVisibilityConfig newConfig = new InternalVisibilityConfig.Builder("ns1").build();
+        List<String> downgradedNamespaces =
+                PccEncapsulationUtil.calculateDowngradedPccBlobNamespaces(
+                        blobVisibilityStore,
+                        mVisibilityChecker,
+                        "pkg",
+                        "db",
+                        NON_PCC_UID,
+                        ImmutableList.of(newConfig),
+                        ImmutableSet.of(prefix + "ns1"));
+
+        assertThat(downgradedNamespaces).containsExactly("ns1");
+    }
+
+    @Test
+    public void testCalculateDowngradedPccBlobNamespaces_defaultEmptyVisibility_returnsNamespace()
+            throws Exception {
+        VisibilityStore blobVisibilityStore =
+                VisibilityStore.createBlobVisibilityStore(
+                        mAppSearchImpl, /*callStatsBuilder=*/ null);
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        InternalVisibilityConfig existingConfig =
+                new InternalVisibilityConfig.Builder(prefix + "ns1").setWriterUid(PCC_UID).build();
+        blobVisibilityStore.setVisibility(
+                ImmutableList.of(existingConfig), /* callStatsBuilder= */ null);
+
+        // Non-PCC caller provides empty visibility configs, reverting ns1
+        List<String> downgradedNamespaces =
+                PccEncapsulationUtil.calculateDowngradedPccBlobNamespaces(
+                        blobVisibilityStore,
+                        mVisibilityChecker,
+                        "pkg",
+                        "db",
+                        NON_PCC_UID,
+                        /* visibilityConfigs= */ Collections.emptyList(),
+                        ImmutableSet.of(prefix + "ns1"));
+
+        assertThat(downgradedNamespaces).containsExactly("ns1");
+    }
+
+    @Test
+    public void testCalculateDowngradedPccBlobNamespaces_mixedNamespaces_nonPccCaller()
+            throws Exception {
+        VisibilityStore blobVisibilityStore =
+                VisibilityStore.createBlobVisibilityStore(
+                        mAppSearchImpl, /*callStatsBuilder=*/ null);
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        InternalVisibilityConfig nonPccConfig1 =
+                new InternalVisibilityConfig.Builder(prefix + "nsNonPcc1")
+                        .setWriterUid(NON_PCC_UID)
+                        .build();
+        InternalVisibilityConfig nonPccConfig2 =
+                new InternalVisibilityConfig.Builder(prefix + "nsNonPcc2")
+                        .setWriterUid(NON_PCC_UID)
+                        .build();
+        InternalVisibilityConfig pccConfig1 =
+                new InternalVisibilityConfig.Builder(prefix + "nsPcc1")
+                        .setWriterUid(PCC_UID)
+                        .build();
+        InternalVisibilityConfig pccConfig2 =
+                new InternalVisibilityConfig.Builder(prefix + "nsPcc2")
+                        .setWriterUid(PCC_UID)
+                        .build();
+        blobVisibilityStore.setVisibility(
+                ImmutableList.of(nonPccConfig1, nonPccConfig2, pccConfig1, pccConfig2),
+                /* callStatsBuilder= */ null);
+
+        InternalVisibilityConfig inputNew1 =
+                new InternalVisibilityConfig.Builder("nsNew1").build();
+        InternalVisibilityConfig inputNew2 =
+                new InternalVisibilityConfig.Builder("nsNew2").build();
+        InternalVisibilityConfig inputNonPcc1 =
+                new InternalVisibilityConfig.Builder("nsNonPcc1").build();
+        InternalVisibilityConfig inputNonPcc2 =
+                new InternalVisibilityConfig.Builder("nsNonPcc2").build();
+        InternalVisibilityConfig inputPcc1 =
+                new InternalVisibilityConfig.Builder("nsPcc1").build();
+        InternalVisibilityConfig inputPcc2 =
+                new InternalVisibilityConfig.Builder("nsPcc2").build();
+
+        List<String> downgradedNamespaces =
+                PccEncapsulationUtil.calculateDowngradedPccBlobNamespaces(
+                        blobVisibilityStore,
+                        mVisibilityChecker,
+                        "pkg",
+                        "db",
+                        NON_PCC_UID,
+                        ImmutableList.of(
+                                inputNew1,
+                                inputNew2,
+                                inputNonPcc1,
+                                inputNonPcc2,
+                                inputPcc1,
+                                inputPcc2),
+                        ImmutableSet.of(
+                                prefix + "nsNonPcc1",
+                                prefix + "nsNonPcc2",
+                                prefix + "nsPcc1",
+                                prefix + "nsPcc2"));
+
+        assertThat(downgradedNamespaces).containsExactly("nsPcc1", "nsPcc2");
+    }
+
+    @Test
+    public void testCalculateDowngradedPccBlobNamespaces_mixedNamespaces_pccCaller()
+            throws Exception {
+        VisibilityStore blobVisibilityStore =
+                VisibilityStore.createBlobVisibilityStore(
+                        mAppSearchImpl, /*callStatsBuilder=*/ null);
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        InternalVisibilityConfig nonPccConfig1 =
+                new InternalVisibilityConfig.Builder(prefix + "nsNonPcc1")
+                        .setWriterUid(NON_PCC_UID)
+                        .build();
+        InternalVisibilityConfig nonPccConfig2 =
+                new InternalVisibilityConfig.Builder(prefix + "nsNonPcc2")
+                        .setWriterUid(NON_PCC_UID)
+                        .build();
+        InternalVisibilityConfig pccConfig1 =
+                new InternalVisibilityConfig.Builder(prefix + "nsPcc1")
+                        .setWriterUid(PCC_UID)
+                        .build();
+        InternalVisibilityConfig pccConfig2 =
+                new InternalVisibilityConfig.Builder(prefix + "nsPcc2")
+                        .setWriterUid(PCC_UID)
+                        .build();
+        blobVisibilityStore.setVisibility(
+                ImmutableList.of(nonPccConfig1, nonPccConfig2, pccConfig1, pccConfig2),
+                /* callStatsBuilder= */ null);
+
+        InternalVisibilityConfig inputNew1 =
+                new InternalVisibilityConfig.Builder("nsNew1").build();
+        InternalVisibilityConfig inputNew2 =
+                new InternalVisibilityConfig.Builder("nsNew2").build();
+        InternalVisibilityConfig inputNonPcc1 =
+                new InternalVisibilityConfig.Builder("nsNonPcc1").build();
+        InternalVisibilityConfig inputNonPcc2 =
+                new InternalVisibilityConfig.Builder("nsNonPcc2").build();
+        InternalVisibilityConfig inputPcc1 =
+                new InternalVisibilityConfig.Builder("nsPcc1").build();
+        InternalVisibilityConfig inputPcc2 =
+                new InternalVisibilityConfig.Builder("nsPcc2").build();
+
+        List<String> downgradedNamespaces =
+                PccEncapsulationUtil.calculateDowngradedPccBlobNamespaces(
+                        blobVisibilityStore,
+                        mVisibilityChecker,
+                        "pkg",
+                        "db",
+                        PCC_UID,
+                        ImmutableList.of(
+                                inputNew1,
+                                inputNew2,
+                                inputNonPcc1,
+                                inputNonPcc2,
+                                inputPcc1,
+                                inputPcc2),
+                        ImmutableSet.of(
+                                prefix + "nsNonPcc1",
+                                prefix + "nsNonPcc2",
+                                prefix + "nsPcc1",
+                                prefix + "nsPcc2"));
+
+        assertThat(downgradedNamespaces).isEmpty();
+    }
+
+    @Test
+    public void testCalculateDowngradedPccBlobNamespaces_nullVisibilityStoreOrChecker_returnsEmpty()
+            throws Exception {
+        VisibilityStore blobVisibilityStore =
+                VisibilityStore.createBlobVisibilityStore(
+                        mAppSearchImpl, /*callStatsBuilder=*/ null);
+        InternalVisibilityConfig config = new InternalVisibilityConfig.Builder("ns1").build();
+
+        assertThat(
+                        PccEncapsulationUtil.calculateDowngradedPccBlobNamespaces(
+                                /* blobVisibilityStore= */ null,
+                                mVisibilityChecker,
+                                "pkg",
+                                "db",
+                                NON_PCC_UID,
+                                ImmutableList.of(config),
+                                /* existingPrefixedBlobNamespaces= */ Collections.emptySet()))
+                .isEmpty();
+
+        assertThat(
+                        PccEncapsulationUtil.calculateDowngradedPccBlobNamespaces(
+                                blobVisibilityStore,
+                                /* visibilityChecker= */ null,
+                                "pkg",
+                                "db",
+                                NON_PCC_UID,
+                                ImmutableList.of(config),
+                                /* existingPrefixedBlobNamespaces= */ Collections.emptySet()))
+                .isEmpty();
     }
 }

@@ -23,6 +23,7 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.InternalVisibilityConfig;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.Flags;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 import androidx.collection.ArraySet;
@@ -31,6 +32,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -133,8 +135,8 @@ public final class PccEncapsulationUtil {
      * @param callingUid Operating system UID of the caller.
      * @param schemas List of {@link AppSearchSchema} objects included in the {@code setSchema}
      *     request.
-     * @return List of unprefixed PCC schema types that must be wiped before a non-PCC host can
-     *     replace them, or an empty list if no wipe is needed.
+     * @return Unmodifiable list of unprefixed PCC schema types that must be wiped before a non-PCC
+     *     host can replace them, or an empty list if no wipe is needed.
      */
     @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
     public static @NonNull List<String> calculatePccSchemasToWipe(
@@ -148,9 +150,7 @@ public final class PccEncapsulationUtil {
                 || callingUid == InternalVisibilityConfig.INVALID_UID
                 || visibilityStore == null
                 || visibilityChecker == null) {
-            // Skip and return -- use arrayList here to avoid mixing mutable and immutable return
-            // types
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
 
         boolean isPccCaller = isPccUid(visibilityChecker, callingUid);
@@ -178,6 +178,157 @@ public final class PccEncapsulationUtil {
                 }
             }
         }
-        return pccSchemasToWipeUnprefixed;
+        return Collections.unmodifiableList(pccSchemasToWipeUnprefixed);
+    }
+
+    /**
+     * Updates {@link InternalVisibilityConfig} items in-place for a {@code setBlobVisibility}
+     * request to populate the caller's {@code writerUid}.
+     *
+     * <p>Every blob namespace in the request has its {@link InternalVisibilityConfig} in {@code
+     * visibilityConfigs} updated in-place so that {@link InternalVisibilityConfig#getWriterUid()}
+     * is set to {@code callingUid}. Any existing blob namespace in the database (from {@code
+     * existingPrefixedBlobNamespaces}) that is not explicitly configured in {@code
+     * visibilityConfigs} has a default {@link InternalVisibilityConfig} created and added with
+     * {@code writerUid} set to {@code callingUid}.
+     *
+     * @param callingPackageName Package name of the calling app.
+     * @param databaseName Name of the database being updated.
+     * @param callingUid Operating system UID of the caller.
+     * @param visibilityConfigs List of {@link InternalVisibilityConfig} objects from the request,
+     *     updated in-place with caller's {@code writerUid}.
+     * @param existingPrefixedBlobNamespaces Set of existing prefixed blob namespaces in this
+     *     database, or null.
+     */
+    @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
+    public static void updateSetBlobVisibilityConfigs(
+            @NonNull String callingPackageName,
+            @NonNull String databaseName,
+            int callingUid,
+            @NonNull List<InternalVisibilityConfig> visibilityConfigs,
+            @Nullable Set<String> existingPrefixedBlobNamespaces)
+            throws AppSearchException {
+        if (!Flags.enablePccDataEncapsulation()
+                || callingUid == InternalVisibilityConfig.INVALID_UID) {
+            return;
+        }
+
+        String prefix = PrefixUtil.createPrefix(callingPackageName, databaseName);
+
+        // Iterate through the visibility configs and update writerUid if needed.
+        Set<String> handledNamespaces = new ArraySet<>(visibilityConfigs.size());
+        for (int i = 0; i < visibilityConfigs.size(); i++) {
+            InternalVisibilityConfig config = visibilityConfigs.get(i);
+            if (config.getWriterUid() != callingUid) {
+                config =
+                        new InternalVisibilityConfig.Builder(config)
+                                .setWriterUid(callingUid)
+                                .build();
+                visibilityConfigs.set(i, config);
+            }
+            // Note: InternalVisibilityConfig reuses the schemaType field to store the blob
+            // namespace.
+            handledNamespaces.add(config.getSchemaType());
+        }
+
+        // Create default visibility configs for any existing blob namespaces not explicitly
+        // configured. These namespaces will have default package-private visibility but still
+        // need to have the writerUid field populated.
+        if (existingPrefixedBlobNamespaces != null) {
+            for (String prefixedNamespace : existingPrefixedBlobNamespaces) {
+                if (prefixedNamespace.startsWith(prefix)) {
+                    String namespace = PrefixUtil.removePrefix(prefixedNamespace);
+                    if (!handledNamespaces.contains(namespace)) {
+                        visibilityConfigs.add(
+                                new InternalVisibilityConfig.Builder(namespace)
+                                        .setWriterUid(callingUid)
+                                        .build());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Calculates the unprefixed blob namespaces that a {@code setBlobVisibility} request would
+     * downgrade from Private Compute Core (PCC) ownership to non-PCC ownership.
+     *
+     * <p>A blob namespace would be downgraded if it is currently written by a PCC caller and
+     * {@code callingUid} is not a PCC UID. Since {@code setBlobVisibility} replaces the visibility
+     * of all blob namespaces in the database, both the namespaces configured in {@code
+     * visibilityConfigs} and the existing namespaces of the database in {@code
+     * existingPrefixedBlobNamespaces} are checked. If {@code callingUid} is a PCC UID, the blob
+     * namespaces currently written by a non-PCC caller will be upgraded to PCC ownership by the
+     * request, and are logged.
+     *
+     * @param blobVisibilityStore The blob {@link VisibilityStore} instance.
+     * @param visibilityChecker The {@link VisibilityChecker} instance.
+     * @param callingPackageName Package name of the calling app.
+     * @param databaseName Name of the database being updated.
+     * @param callingUid Operating system UID of the caller.
+     * @param visibilityConfigs List of {@link InternalVisibilityConfig} objects from the request.
+     * @param existingPrefixedBlobNamespaces Set of existing prefixed blob namespaces in this
+     *     database, or null.
+     * @return list of unprefixed PCC blob namespaces that the request would downgrade to non-PCC
+     *      ownership, or an empty list if the request would not downgrade any namespaces.
+     */
+    @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
+    public static @NonNull List<String> calculateDowngradedPccBlobNamespaces(
+            @Nullable VisibilityStore blobVisibilityStore,
+            @Nullable VisibilityChecker visibilityChecker,
+            @NonNull String callingPackageName,
+            @NonNull String databaseName,
+            int callingUid,
+            @NonNull List<InternalVisibilityConfig> visibilityConfigs,
+            @Nullable Set<String> existingPrefixedBlobNamespaces)
+            throws AppSearchException {
+        if (!Flags.enablePccDataEncapsulation()
+                || callingUid == InternalVisibilityConfig.INVALID_UID
+                || blobVisibilityStore == null
+                || visibilityChecker == null) {
+            return Collections.emptyList();
+        }
+
+        boolean isPccCaller = isPccUid(visibilityChecker, callingUid);
+        String prefix = PrefixUtil.createPrefix(callingPackageName, databaseName);
+
+        // Collect all unprefixed blob namespaces affected by this full-replacement request,
+        // including both explicitly configured namespaces and existing namespaces in the database
+        // that are being reverted to default visibility.
+        Set<String> namespacesToCheck = new ArraySet<>(visibilityConfigs.size());
+        for (int i = 0; i < visibilityConfigs.size(); i++) {
+            // Note: InternalVisibilityConfig reuses the schemaType field to store the blob
+            // namespace.
+            namespacesToCheck.add(visibilityConfigs.get(i).getSchemaType());
+        }
+        if (existingPrefixedBlobNamespaces != null) {
+            for (String prefixedNamespace : existingPrefixedBlobNamespaces) {
+                if (prefixedNamespace.startsWith(prefix)) {
+                    namespacesToCheck.add(PrefixUtil.removePrefix(prefixedNamespace));
+                }
+            }
+        }
+
+        List<String> downgradedPccNamespacesUnprefixed = new ArrayList<>();
+        for (String namespace : namespacesToCheck) {
+            String prefixedNamespace = prefix + namespace;
+            InternalVisibilityConfig existingConfig =
+                    blobVisibilityStore.getVisibility(prefixedNamespace);
+
+            if (existingConfig != null
+                    && existingConfig.getWriterUid() != InternalVisibilityConfig.INVALID_UID) {
+                boolean isExistingPcc = isPccUid(visibilityChecker, existingConfig.getWriterUid());
+                if (!isExistingPcc && isPccCaller) {
+                    Log.i(
+                            TAG,
+                            "Blob namespace " + prefixedNamespace
+                                    + " will be upgraded to PCC by UID "
+                                    + callingUid);
+                } else if (isExistingPcc && !isPccCaller) {
+                    downgradedPccNamespacesUnprefixed.add(namespace);
+                }
+            }
+        }
+        return Collections.unmodifiableList(downgradedPccNamespacesUnprefixed);
     }
 }

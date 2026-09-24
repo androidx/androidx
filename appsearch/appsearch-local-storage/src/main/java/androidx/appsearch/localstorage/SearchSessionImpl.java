@@ -559,6 +559,9 @@ class SearchSessionImpl implements AppSearchSession {
                     mPackageName,
                     mDatabaseName,
                     visibilityConfigs,
+                    // UID enforcement and PCC only applies to platform-storage and GMS-storage, so
+                    // calling this with INVALID_UID is valid here for local-storage.
+                    /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                     /*callStatsBuilder=*/null);
             mIsMutated = true;
             return null;

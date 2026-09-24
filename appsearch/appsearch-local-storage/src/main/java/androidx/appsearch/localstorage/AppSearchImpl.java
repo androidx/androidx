@@ -2676,6 +2676,20 @@ public final class AppSearchImpl implements Closeable {
      *
      * <p>This method configures the visibility blob namespaces in the given specific database.
      *
+     * <p>When Private Compute Core (PCC) data encapsulation is enabled and a valid {@code
+     * callingUid} is provided:
+     * <ul>
+     *   <li>Each configured or existing blob namespace in the database has its {@code writerUid}
+     *       set to {@code callingUid}.
+     *   <li>If a PCC caller modifies an existing non-PCC blob namespace, the namespace is
+     *       implicitly upgraded to PCC ownership while preserving existing blobs.
+     *   <li>If a non-PCC caller modifies or reverts an existing PCC blob namespace, the downgrade
+     *       is only allowed if no blobs currently exist in that namespace; if any blobs exist in
+     *       the downgraded PCC namespace, an {@link AppSearchException} with {@link
+     *       AppSearchResult#RESULT_SECURITY_ERROR} is thrown and the visibility downgrade is
+     *       rejected until the caller deletes the PCC blobs.
+     * </ul>
+     *
      * <p>After applying the new visibility configurations, the method identifies and removes any
      * existing visibility settings that do not included in the new visibility configurations from
      * the visibility store.
@@ -2684,14 +2698,17 @@ public final class AppSearchImpl implements Closeable {
      * @param databaseName      The databaseName these blobs resides in.
      * @param visibilityConfigs a list of {@link InternalVisibilityConfig} objects representing the
      *                          visibility configurations to be set for the specified namespace.
-     * @throws AppSearchException if an error occurs while updating the visibility configurations.
-     *                            This could happen if the database is closed or in an invalid
-     *                            state.
+     * @param callingUid        The UID of the caller calling setBlobVisibility.
+     * @param callStatsBuilder  The builder for returning call stats.
+     * @throws AppSearchException if an error occurs while updating the visibility configurations or
+     *                            if a non-PCC caller attempts to downgrade a PCC blob namespace
+     *                            that still contains blobs.
      */
     public void setBlobNamespaceVisibility(
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull List<InternalVisibilityConfig> visibilityConfigs,
+            int callingUid,
             CallStats.@Nullable Builder callStatsBuilder) throws AppSearchException {
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
         long javaLockAcquisitionEndTimeMillis = 0;
@@ -2714,6 +2731,45 @@ public final class AppSearchImpl implements Closeable {
                     // wrap it to allow rewriteVisibilityConfigs modify it.
                     removedVisibilityConfigs = new ArraySet<>(removedVisibilityConfigs);
                 }
+
+                if (Flags.enablePccDataEncapsulation()
+                        && callingUid != InternalVisibilityConfig.INVALID_UID) {
+                    List<String> downgradedPccNamespacesUnprefixed =
+                            PccEncapsulationUtil.calculateDowngradedPccBlobNamespaces(
+                                    mBlobVisibilityStoreLocked,
+                                    mVisibilityCheckerLocked,
+                                    packageName,
+                                    databaseName,
+                                    callingUid,
+                                    visibilityConfigs,
+                                    removedVisibilityConfigs);
+                    if (!downgradedPccNamespacesUnprefixed.isEmpty()) {
+                        Set<String> nonEmptyPccNamespaces =
+                                getNonEmptyBlobNamespacesLocked(
+                                        packageName,
+                                        databaseName,
+                                        new ArraySet<>(downgradedPccNamespacesUnprefixed));
+                        if (!nonEmptyPccNamespaces.isEmpty()) {
+                            throw new AppSearchException(
+                                    AppSearchResult.RESULT_SECURITY_ERROR,
+                                    "Cannot modify PCC-written blob namespace(s) from a non-PCC "
+                                            + "caller while PCC blobs exist in namespace(s): "
+                                            + nonEmptyPccNamespaces
+                                            + ". Please delete the PCC blobs in these namespaces "
+                                            + "first.");
+                        }
+                    }
+                    // Make a mutable copy so that updateSetBlobVisibilityConfigs can modify
+                    // visibilityConfigs in-place.
+                    visibilityConfigs = new ArrayList<>(visibilityConfigs);
+                    PccEncapsulationUtil.updateSetBlobVisibilityConfigs(
+                            packageName,
+                            databaseName,
+                            callingUid,
+                            visibilityConfigs,
+                            removedVisibilityConfigs);
+                }
+
                 List<InternalVisibilityConfig> prefixedVisibilityConfigs = rewriteVisibilityConfigs(
                         prefix, visibilityConfigs, removedVisibilityConfigs);
                 for (int i = 0; i < prefixedVisibilityConfigs.size(); i++) {
@@ -2741,6 +2797,38 @@ public final class AppSearchImpl implements Closeable {
                     callStatsBuilder);
             mReadWriteLock.writeLock().unlock();
         }
+    }
+
+    /**
+     * Returns the unprefixed blob namespaces from {@code unprefixedNamespaces} that currently
+     * contain at least one blob in Icing for the specified package and database.
+     *
+     * @throws AppSearchException if retrieving blob infos from Icing fails.
+     */
+    @GuardedBy("mReadWriteLock")
+    private @NonNull Set<String> getNonEmptyBlobNamespacesLocked(
+            @NonNull String packageName,
+            @NonNull String databaseName,
+            @NonNull Set<String> unprefixedNamespaces)
+            throws AppSearchException {
+        String prefix = createPrefix(packageName, databaseName);
+        // TODO(b/514734827): add an Icing API to retrieve blob infos for a subset of namespaces,
+        // instead of getting all blob infos and doing extra filtering work here.
+        BlobProto allBlobInfos = mIcingSearchEngineLocked.getAllBlobInfos();
+        checkSuccess(allBlobInfos.getStatus());
+        Set<String> nonEmptyNamespaces = new ArraySet<>();
+        for (int i = 0; i < allBlobInfos.getBlobInfoProtosCount(); i++) {
+            String prefixedNamespace =
+                    allBlobInfos.getBlobInfoProtos(i).getBlobHandle().getNamespace();
+            if (!prefixedNamespace.startsWith(prefix)) {
+                continue;
+            }
+            String unprefixedNamespace = PrefixUtil.removePrefix(prefixedNamespace);
+            if (unprefixedNamespaces.contains(unprefixedNamespace)) {
+                nonEmptyNamespaces.add(unprefixedNamespace);
+            }
+        }
+        return nonEmptyNamespaces;
     }
 
     /**

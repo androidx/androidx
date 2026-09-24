@@ -22,7 +22,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.os.ParcelFileDescriptor;
+
 import androidx.appsearch.app.AppSearchBatchResult;
+import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
@@ -55,6 +58,8 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.security.MessageDigest;
 import java.util.Collections;
 
 @RequiresFlagsEnabled(Flags.FLAG_ENABLE_PCC_DATA_ENCAPSULATION)
@@ -97,6 +102,8 @@ public class AppSearchImplPccTest {
     private final AppSearchUserPlugins mPlugins =
             new AppSearchUserPlugins.Builder()
                     .setVisibilityChecker(mVisibilityChecker)
+                    .setRevocableFileDescriptorStore(
+                            new JetpackRevocableFileDescriptorStore(mUnlimitedConfig))
                     .build();
 
     private AppSearchImpl mAppSearchImpl;
@@ -943,6 +950,334 @@ public class AppSearchImplPccTest {
         assertThat(getWriterUid("SchemaA")).isEqualTo(NON_PCC_UID);
     }
 
+    @Test
+    public void testSetBlobNamespaceVisibility_nonPccCaller_setsWriterUidInVisibilityStore()
+            throws Exception {
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        InternalVisibilityConfig config = new InternalVisibilityConfig.Builder("ns1").build();
+        mAppSearchImpl.setBlobNamespaceVisibility(
+                "pkg", "db", ImmutableList.of(config), NON_PCC_UID, /* callStatsBuilder= */ null);
+
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "ns1")
+                .getWriterUid())
+                .isEqualTo(NON_PCC_UID);
+    }
+
+    @Test
+    public void testSetBlobNamespaceVisibility_pccCaller_setsWriterUidInVisibilityStore()
+            throws Exception {
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        InternalVisibilityConfig config = new InternalVisibilityConfig.Builder("ns1").build();
+        mAppSearchImpl.setBlobNamespaceVisibility(
+                "pkg", "db", ImmutableList.of(config), PCC_UID, /* callStatsBuilder= */ null);
+
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "ns1")
+                .getWriterUid())
+                .isEqualTo(PCC_UID);
+    }
+
+    @Test
+    public void testSetBlobNamespaceVisibility_nonPccToPcc_implicitUpgrade() throws Exception {
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        InternalVisibilityConfig config = new InternalVisibilityConfig.Builder("ns1").build();
+        mAppSearchImpl.setBlobNamespaceVisibility(
+                "pkg", "db", ImmutableList.of(config), NON_PCC_UID, /* callStatsBuilder= */ null);
+
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "ns1")
+                .getWriterUid())
+                .isEqualTo(NON_PCC_UID);
+
+        byte[] blobData = "testData".getBytes();
+        byte[] digest = writeBlob("pkg", "db", "ns1", blobData);
+
+        // PCC caller upgrades the blob namespace
+        mAppSearchImpl.setBlobNamespaceVisibility(
+                "pkg", "db", ImmutableList.of(config), PCC_UID, /* callStatsBuilder= */ null);
+
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "ns1")
+                .getWriterUid())
+                .isEqualTo(PCC_UID);
+
+        // Blob is preserved
+        AppSearchBlobHandle handle =
+                AppSearchBlobHandle.createWithSha256(digest, "pkg", "db", "ns1");
+        try (ParcelFileDescriptor pfd =
+                mAppSearchImpl.openReadBlob("pkg", "db", handle, /* callStatsBuilder= */ null)) {
+            assertThat(pfd).isNotNull();
+        }
+    }
+
+    @Test
+    public void testSetBlobNamespaceVisibility_pccToNonPcc_rejectedUntilPccBlobsRemoved()
+            throws Exception {
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        InternalVisibilityConfig config1 = new InternalVisibilityConfig.Builder("ns1").build();
+        InternalVisibilityConfig config2 = new InternalVisibilityConfig.Builder("ns2").build();
+        mAppSearchImpl.setBlobNamespaceVisibility(
+                "pkg",
+                "db",
+                ImmutableList.of(config1, config2),
+                PCC_UID,
+                /* callStatsBuilder= */ null);
+
+        byte[] blobData1 = "blob1".getBytes();
+        byte[] digest1 = writeBlob("pkg", "db", "ns1", blobData1);
+        byte[] blobData2 = "blob2".getBytes();
+        byte[] digest2 = writeBlob("pkg", "db", "ns2", blobData2);
+
+        AppSearchBlobHandle handle1 =
+                AppSearchBlobHandle.createWithSha256(digest1, "pkg", "db", "ns1");
+        AppSearchBlobHandle handle2 =
+                AppSearchBlobHandle.createWithSha256(digest2, "pkg", "db", "ns2");
+
+        // Non-PCC caller attempts to downgrade ns1 and ns2 while PCC blobs exist
+        AppSearchException e =
+                assertThrows(
+                        AppSearchException.class,
+                        () ->
+                                mAppSearchImpl.setBlobNamespaceVisibility(
+                                        "pkg",
+                                        "db",
+                                        ImmutableList.of(config1, config2),
+                                        NON_PCC_UID,
+                                        /* callStatsBuilder= */ null));
+        assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
+
+        // Verify writerUid remains PCC_UID and both blobs are preserved
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "ns1")
+                .getWriterUid())
+                .isEqualTo(PCC_UID);
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "ns2")
+                .getWriterUid())
+                .isEqualTo(PCC_UID);
+        try (ParcelFileDescriptor pfd1 =
+                        mAppSearchImpl.openReadBlob(
+                                "pkg", "db", handle1, /* callStatsBuilder= */ null);
+                ParcelFileDescriptor pfd2 =
+                        mAppSearchImpl.openReadBlob(
+                                "pkg", "db", handle2, /* callStatsBuilder= */ null)) {
+            assertThat(pfd1).isNotNull();
+            assertThat(pfd2).isNotNull();
+        }
+
+        // Delete the PCC blobs first, then retry the visibility update from the non-PCC caller
+        mAppSearchImpl.removeBlob("pkg", "db", handle1, /* callStatsBuilder= */ null);
+        mAppSearchImpl.removeBlob("pkg", "db", handle2, /* callStatsBuilder= */ null);
+
+        mAppSearchImpl.setBlobNamespaceVisibility(
+                "pkg",
+                "db",
+                ImmutableList.of(config1, config2),
+                NON_PCC_UID,
+                /* callStatsBuilder= */ null);
+
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "ns1")
+                .getWriterUid())
+                .isEqualTo(NON_PCC_UID);
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "ns2")
+                .getWriterUid())
+                .isEqualTo(NON_PCC_UID);
+    }
+
+    @Test
+    public void testSetBlobNamespaceVisibility_mixedNamespaces_entireCallRejectedWhenPccBlobsExist()
+            throws Exception {
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        InternalVisibilityConfig pccConfig =
+                new InternalVisibilityConfig.Builder("nsPcc").build();
+        InternalVisibilityConfig nonPccConfig1 =
+                new InternalVisibilityConfig.Builder("nsNonPcc1").build();
+        InternalVisibilityConfig nonPccConfig2 =
+                new InternalVisibilityConfig.Builder("nsNonPcc2").build();
+
+        // 1. Non-PCC caller sets visibility and writes blobs in nsNonPcc1 and nsNonPcc2
+        mAppSearchImpl.setBlobNamespaceVisibility(
+                "pkg",
+                "db",
+                ImmutableList.of(nonPccConfig1, nonPccConfig2),
+                NON_PCC_UID,
+                /* callStatsBuilder= */ null);
+        byte[] blobNonPccData1 = "blobInNonPcc1".getBytes();
+        byte[] digestNonPcc1 = writeBlob("pkg", "db", "nsNonPcc1", blobNonPccData1);
+        AppSearchBlobHandle handleNonPcc1 =
+                AppSearchBlobHandle.createWithSha256(digestNonPcc1, "pkg", "db", "nsNonPcc1");
+
+        byte[] blobNonPccData2 = "blobInNonPcc2".getBytes();
+        byte[] digestNonPcc2 = writeBlob("pkg", "db", "nsNonPcc2", blobNonPccData2);
+        AppSearchBlobHandle handleNonPcc2 =
+                AppSearchBlobHandle.createWithSha256(digestNonPcc2, "pkg", "db", "nsNonPcc2");
+
+        // 2. Write a blob in nsPcc and set PCC ownership in mBlobVisibilityStoreLocked
+        byte[] blobPccData = "blobInPcc".getBytes();
+        byte[] digestPcc = writeBlob("pkg", "db", "nsPcc", blobPccData);
+        AppSearchBlobHandle handlePcc =
+                AppSearchBlobHandle.createWithSha256(digestPcc, "pkg", "db", "nsPcc");
+        mAppSearchImpl.mBlobVisibilityStoreLocked.setVisibility(
+                ImmutableList.of(
+                        new InternalVisibilityConfig.Builder(prefix + "nsPcc")
+                                .setWriterUid(PCC_UID)
+                                .build()),
+                /* callStatsBuilder= */ null);
+
+        // Verify initial state: nsPcc is PCC-owned, and the non-PCC namespaces are owned by
+        // NON_PCC_UID with default (displayed-by-system) visibility.
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "nsPcc")
+                .getWriterUid())
+                .isEqualTo(PCC_UID);
+        InternalVisibilityConfig storedNonPccConfig1 =
+                mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "nsNonPcc1");
+        InternalVisibilityConfig storedNonPccConfig2 =
+                mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "nsNonPcc2");
+        assertThat(storedNonPccConfig1.getWriterUid()).isEqualTo(NON_PCC_UID);
+        assertThat(storedNonPccConfig1.isNotDisplayedBySystem()).isFalse();
+        assertThat(storedNonPccConfig2.getWriterUid()).isEqualTo(NON_PCC_UID);
+        assertThat(storedNonPccConfig2.isNotDisplayedBySystem()).isFalse();
+
+        // 3. Non-PCC caller attempts to update all 3 namespaces in a single call while nsPcc still
+        // contains a PCC blob. The request also hides the non-PCC namespaces from the system so
+        // that any partial application of the call would be observable.
+        InternalVisibilityConfig hiddenNonPccConfig1 =
+                new InternalVisibilityConfig.Builder("nsNonPcc1")
+                        .setNotDisplayedBySystem(true)
+                        .build();
+        InternalVisibilityConfig hiddenNonPccConfig2 =
+                new InternalVisibilityConfig.Builder("nsNonPcc2")
+                        .setNotDisplayedBySystem(true)
+                        .build();
+        AppSearchException exception =
+                assertThrows(
+                        AppSearchException.class,
+                        () ->
+                                mAppSearchImpl.setBlobNamespaceVisibility(
+                                        "pkg",
+                                        "db",
+                                        ImmutableList.of(
+                                                pccConfig,
+                                                hiddenNonPccConfig1,
+                                                hiddenNonPccConfig2),
+                                        NON_PCC_UID,
+                                        /* callStatsBuilder= */ null));
+        assertThat(exception.getResultCode()).isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
+
+        // 4. Verify the entire call was rejected: nsPcc remains PCC-owned with its blob preserved,
+        // and the non-PCC namespaces' visibility settings were not updated either.
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "nsPcc")
+                .getWriterUid())
+                .isEqualTo(PCC_UID);
+        try (ParcelFileDescriptor pfdPcc =
+                mAppSearchImpl.openReadBlob("pkg", "db", handlePcc, /* callStatsBuilder= */ null)) {
+            assertThat(pfdPcc).isNotNull();
+        }
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "nsNonPcc1"))
+                .isEqualTo(storedNonPccConfig1);
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "nsNonPcc2"))
+                .isEqualTo(storedNonPccConfig2);
+
+        // 5. Delete the PCC blob in nsPcc, then retry the same update from the non-PCC caller
+        mAppSearchImpl.removeBlob("pkg", "db", handlePcc, /* callStatsBuilder= */ null);
+        mAppSearchImpl.setBlobNamespaceVisibility(
+                "pkg",
+                "db",
+                ImmutableList.of(pccConfig, hiddenNonPccConfig1, hiddenNonPccConfig2),
+                NON_PCC_UID,
+                /* callStatsBuilder= */ null);
+
+        // 6. Verify the update is now fully applied: all namespaces are owned by NON_PCC_UID and
+        // the non-PCC namespaces are hidden from the system.
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "nsPcc")
+                .getWriterUid())
+                .isEqualTo(NON_PCC_UID);
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "nsNonPcc1")
+                .getWriterUid())
+                .isEqualTo(NON_PCC_UID);
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "nsNonPcc2")
+                .getWriterUid())
+                .isEqualTo(NON_PCC_UID);
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "nsPcc")
+                .isNotDisplayedBySystem())
+                .isFalse();
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "nsNonPcc1")
+                .isNotDisplayedBySystem())
+                .isTrue();
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "nsNonPcc2")
+                .isNotDisplayedBySystem())
+                .isTrue();
+
+        // 7. Verify Non-PCC blobs are still intact and readable
+        try (ParcelFileDescriptor pfd1 =
+                        mAppSearchImpl.openReadBlob(
+                                "pkg", "db", handleNonPcc1, /* callStatsBuilder= */ null);
+                ParcelFileDescriptor pfd2 =
+                        mAppSearchImpl.openReadBlob(
+                                "pkg", "db", handleNonPcc2, /* callStatsBuilder= */ null)) {
+            assertThat(pfd1).isNotNull();
+            assertThat(pfd2).isNotNull();
+        }
+    }
+
+    @Test
+    public void testSetBlobNamespaceVisibility_pccToNonPcc_emptyVisibilityRejectedWhenBlobsExist()
+            throws Exception {
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        InternalVisibilityConfig config = new InternalVisibilityConfig.Builder("ns1").build();
+        mAppSearchImpl.setBlobNamespaceVisibility(
+                "pkg", "db", ImmutableList.of(config), PCC_UID, /* callStatsBuilder= */ null);
+
+        byte[] blobData = "blobToRevert".getBytes();
+        byte[] digest = writeBlob("pkg", "db", "ns1", blobData);
+        AppSearchBlobHandle handle =
+                AppSearchBlobHandle.createWithSha256(digest, "pkg", "db", "ns1");
+
+        // setBlobNamespaceVisibility is a full-replacement API for the database: passing an empty
+        // visibilityConfigs list reverts all existing blob namespaces in the database (including
+        // ns1) to default package-private visibility. Since this call tries to downgrade
+        // non-empty pcc namespace to non-pcc, it's rejected with RESULT_SECURITY_ERROR.
+        AppSearchException e =
+                assertThrows(
+                        AppSearchException.class,
+                        () ->
+                                mAppSearchImpl.setBlobNamespaceVisibility(
+                                        "pkg",
+                                        "db",
+                                        Collections.emptyList(),
+                                        NON_PCC_UID,
+                                        /* callStatsBuilder= */ null));
+        assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "ns1")
+                .getWriterUid())
+                .isEqualTo(PCC_UID);
+
+        // Once the PCC blob is deleted, reverting visibility via an empty list succeeds.
+        mAppSearchImpl.removeBlob("pkg", "db", handle, /* callStatsBuilder= */ null);
+        mAppSearchImpl.setBlobNamespaceVisibility(
+                "pkg", "db", Collections.emptyList(), NON_PCC_UID, /* callStatsBuilder= */ null);
+
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "ns1")
+                .getWriterUid())
+                .isEqualTo(NON_PCC_UID);
+    }
+
+    @Test
+    public void testSetBlobNamespaceVisibility_pccToNonPcc_namespaceWithNoBlobsSucceeds()
+            throws Exception {
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        InternalVisibilityConfig config = new InternalVisibilityConfig.Builder("ns1").build();
+        mAppSearchImpl.setBlobNamespaceVisibility(
+                "pkg", "db", ImmutableList.of(config), PCC_UID, /* callStatsBuilder= */ null);
+
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "ns1")
+                .getWriterUid())
+                .isEqualTo(PCC_UID);
+
+        // Non-PCC caller downgrades empty blob namespaces.
+        mAppSearchImpl.setBlobNamespaceVisibility(
+                "pkg", "db", ImmutableList.of(config), NON_PCC_UID, /* callStatsBuilder= */ null);
+
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "ns1")
+                .getWriterUid())
+                .isEqualTo(NON_PCC_UID);
+    }
+
     /**
      * Sets the given schema types, each with a single string property "prop", in database "db" of
      * package "pkg" as the caller with {@code callingUid}.
@@ -1005,5 +1340,23 @@ public class AppSearchImplPccTest {
         return mAppSearchImpl.mDocumentVisibilityStoreLocked
                 .getVisibility(PrefixUtil.createPrefix("pkg", "db") + schemaType)
                 .getWriterUid();
+    }
+
+    private byte[] writeBlob(String packageName, String databaseName, String namespace, byte[] data)
+            throws Exception {
+        byte[] digest = MessageDigest.getInstance("SHA-256").digest(data);
+        AppSearchBlobHandle handle =
+                AppSearchBlobHandle.createWithSha256(
+                        digest, packageName, databaseName, namespace);
+        try (ParcelFileDescriptor pfd =
+                        mAppSearchImpl.openWriteBlob(
+                                packageName, databaseName, handle, /* callStatsBuilder= */ null);
+                FileOutputStream outputStream =
+                        new ParcelFileDescriptor.AutoCloseOutputStream(pfd)) {
+            outputStream.write(data);
+            outputStream.flush();
+        }
+        mAppSearchImpl.commitBlob(packageName, databaseName, handle, /* callStatsBuilder= */ null);
+        return digest;
     }
 }
