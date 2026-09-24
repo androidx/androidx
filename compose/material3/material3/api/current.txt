@@ -3704,8 +3704,8 @@ package androidx.compose.material3 {
     ctor @androidx.compose.runtime.annotation.RememberInComposition public SliderState();
     ctor @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public SliderState(float, int, kotlin.ranges.ClosedFloatingPointRange!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @androidx.compose.runtime.annotation.RememberInComposition public SliderState(optional float value, optional @IntRange(from=0L) int steps, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> trackRange);
-    method @BytecodeOnly @Deprecated public void dispatchRawDelta(float);
-    method @BytecodeOnly @Deprecated public Object! drag(androidx.compose.foundation.MutatePriority!, kotlin.jvm.functions.Function2!, kotlin.coroutines.Continuation!);
+    method public void dispatchRawDelta(float delta);
+    method public suspend Object? drag(optional androidx.compose.foundation.MutatePriority dragPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.DragScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @InaccessibleFromKotlin @FloatRange(from=0.0, to=1.0) public float getCoercedValueAsFraction();
     method @InaccessibleFromKotlin public int getSteps();
     method @InaccessibleFromKotlin public kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> getTrackRange();
