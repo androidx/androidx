@@ -39,6 +39,7 @@ import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.SubspacePlaceable
 import androidx.xr.compose.subspace.layout.SubspaceRootMeasurePolicy
 import androidx.xr.compose.subspace.layout.applyCoreEntityNodes
+import androidx.xr.compose.subspace.layout.metersToPx
 import androidx.xr.compose.subspace.layout.requireCoordinator
 import androidx.xr.compose.subspace.semantics.SubspaceSemanticsConfiguration
 import androidx.xr.compose.subspace.semantics.createSubspaceSemanticsPropertyReceiver
@@ -46,6 +47,7 @@ import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.Entity
+import androidx.xr.scenecore.Space
 import java.util.concurrent.atomic.AtomicInteger
 
 private var lastIdentifier = AtomicInteger(0)
@@ -422,6 +424,20 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
         /** The position of this node relative to the root of this Compose hierarchy, in pixels. */
         override val poseInRoot: Pose
             get() = parentCoordinates?.poseInRoot?.compose(pose) ?: pose
+
+        /** The position of this node relative to ActivitySpace, in pixels. */
+        override val poseInActivitySpace: Pose
+            get() {
+                // Nodes under the subspace root have a parentCoordinates value.
+                parentCoordinates?.let {
+                    return it.poseInActivitySpace.compose(pose)
+                }
+
+                // For the subspace root, return its pose in ActivitySpace.
+                val pixelDensity = coreEntity?.pixelDensity ?: return Pose.Identity
+                return coreEntity?.getPose(Space.ACTIVITY)?.metersToPx(pixelDensity)
+                    ?: Pose.Identity
+            }
 
         /**
          * The coordinates of the immediate parent in the layout hierarchy.

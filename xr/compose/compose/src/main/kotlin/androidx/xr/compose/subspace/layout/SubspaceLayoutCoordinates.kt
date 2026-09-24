@@ -16,6 +16,7 @@
 
 package androidx.xr.compose.subspace.layout
 
+import androidx.annotation.RestrictTo
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.runtime.math.Pose
 
@@ -35,6 +36,11 @@ public interface SubspaceLayoutCoordinates {
      * translation values in pixels.
      */
     public val poseInRoot: Pose
+
+    /** The pose of this layout relative to ActivitySpace, with translation values in pixels. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    public val poseInActivitySpace: Pose
+        get() = Pose.Identity
 
     /**
      * The coordinates of the immediate parent in the layout hierarchy.

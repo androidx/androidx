@@ -26,18 +26,25 @@ import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.compose.subspace.layout.SubspaceLayout
+import androidx.xr.compose.subspace.layout.SubspaceLayoutCoordinates
 import androidx.xr.compose.subspace.layout.SubspaceMeasurable
 import androidx.xr.compose.subspace.layout.SubspaceMeasurePolicy
 import androidx.xr.compose.subspace.layout.SubspaceMeasureResult
 import androidx.xr.compose.subspace.layout.SubspaceMeasureScope
 import androidx.xr.compose.subspace.layout.SubspaceModifier
+import androidx.xr.compose.subspace.layout.metersToPx
+import androidx.xr.compose.subspace.layout.onGloballyPositioned
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.TestLogger
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.VolumeConstraints
+import androidx.xr.runtime.Session
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.Entity
+import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
@@ -304,5 +311,106 @@ class SubspaceLayoutNodeTest {
         val cachedConfig2 = assertNotNull(node.measurableLayout.semanticsConfiguration)
 
         assertThat(cachedConfig2[SemanticsProperties.TestTag]).isEqualTo("tagB")
+    }
+
+    @Test
+    fun poseInActivitySpace_withoutRootEntity_returnsPoseInRoot() {
+        val owner = createOwner()
+        val node = SubspaceLayoutNode()
+        owner.root.insertAt(0, node)
+
+        node.measurePolicy =
+            object : SubspaceMeasurePolicy {
+                override fun SubspaceMeasureScope.measure(
+                    measurables: List<SubspaceMeasurable>,
+                    constraints: VolumeConstraints,
+                ): SubspaceMeasureResult {
+                    return layout(10, 20, 30) {}
+                }
+            }
+
+        val expectedPose = Pose(Vector3(10f, 20f, 30f))
+        node.measurableLayout.measure(constraints = VolumeConstraints())
+        node.measurableLayout.placeAt(expectedPose)
+
+        assertThat(owner.root.measurableLayout.poseInActivitySpace).isEqualTo(Pose.Identity)
+        assertThat(node.measurableLayout.poseInActivitySpace).isEqualTo(expectedPose)
+    }
+
+    @Test
+    fun poseInActivitySpace_withRootEntity_composesRootActivityPoseWithPoseInRoot() {
+        var childCoordinates: SubspaceLayoutCoordinates? = null
+
+        composeTestRule.setContent {
+            Subspace {
+                SubspaceLayout(
+                    content = {
+                        SubspaceLayout(
+                            content = {},
+                            modifier =
+                                SubspaceModifier.onGloballyPositioned { coordinates ->
+                                    childCoordinates = coordinates
+                                },
+                        ) { _, _ ->
+                            layout(0, 0, 0) {}
+                        }
+                    }
+                ) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    layout(0, 0, 0) { placeable.place(Pose(Vector3(100f, 200f, 300f))) }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        val coords = assertNotNull(childCoordinates)
+        val expectedPoseInRoot = Pose(Vector3(100f, 200f, 300f))
+        assertThat(coords.poseInRoot).isEqualTo(expectedPoseInRoot)
+        assertThat(coords.poseInActivitySpace).isEqualTo(expectedPoseInRoot)
+    }
+
+    @Test
+    fun poseInActivitySpace_withOffsetRootEntity_includesSubspaceRootPose() = runTest {
+        val testDispatcher = StandardTestDispatcher()
+        val owner = AndroidComposeSpatialElement(testDispatcher)
+        val node = SubspaceLayoutNode()
+        owner.root.insertAt(0, node)
+
+        var session: Session? = null
+        composeTestRule.setContent { session = LocalSession.current }
+        testDispatcher.scheduler.advanceUntilIdle()
+        composeTestRule.waitForIdle()
+
+        val activeSession = assertNotNull(session)
+        val rootOffsetPose = Pose(Vector3(1f, 2f, 3f))
+        val rootEntity =
+            Entity.create(
+                session = activeSession,
+                name = "root",
+                parent = activeSession.scene.activitySpace,
+            )
+        val pixelDensity = activeSession.scene.virtualPixelDensity
+        owner.root.coreEntity = CoreGroupEntity(pixelDensity, rootEntity)
+        rootEntity.setPose(relativeTo = Space.ACTIVITY, pose = rootOffsetPose)
+
+        node.measurePolicy =
+            object : SubspaceMeasurePolicy {
+                override fun SubspaceMeasureScope.measure(
+                    measurables: List<SubspaceMeasurable>,
+                    constraints: VolumeConstraints,
+                ): SubspaceMeasureResult {
+                    return layout(0, 0, 0) {}
+                }
+            }
+        node.measurableLayout.measure(constraints = VolumeConstraints())
+        node.measurableLayout.placeAt(Pose(Vector3(50f, 0f, 0f)))
+
+        val expectedPoseInRoot = Pose(Vector3(50f, 0f, 0f))
+        assertThat(node.measurableLayout.poseInRoot).isEqualTo(expectedPoseInRoot)
+
+        val expectedActivityPose =
+            rootOffsetPose.metersToPx(pixelDensity).compose(expectedPoseInRoot)
+        assertThat(node.measurableLayout.poseInActivitySpace).isEqualTo(expectedActivityPose)
     }
 }
