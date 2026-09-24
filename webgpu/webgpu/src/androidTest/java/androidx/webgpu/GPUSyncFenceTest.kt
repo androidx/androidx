@@ -210,7 +210,7 @@ class GPUSyncFenceTest {
     @MediumTest
     @ApiRequirement(minApi = 29, onlySkipOnEmulator = true)
     fun testSyncFence_lifecycleAndAwaiting() = runBlocking {
-        val unused = webGpu.execute {
+        webGpu.execute {
             val (rgbBuffer, wrapper) = createTestTextureWrapper()
 
             val pipeline = setupPipelineAndDraw(wrapper)
@@ -244,10 +244,10 @@ class GPUSyncFenceTest {
     @ApiRequirement(minApi = 33, onlySkipOnEmulator = true)
     @androidx.test.filters.SdkSuppress(minSdkVersion = 33)
     fun testSyncFence_fromPlatformSyncFence() = runBlocking {
-        val unused = webGpu.execute {
+        webGpu.execute {
             val (rgbBuffer, wrapper) = createTestTextureWrapper()
 
-            val unusedPipeline = setupPipelineAndDraw(wrapper)
+            setupPipelineAndDraw(wrapper).close()
             val fence = requireNotNull(wrapper.endAccess()) { "Sync fence should not be null" }
 
             try {

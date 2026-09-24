@@ -129,7 +129,7 @@ class SurfaceTest {
     @Test
     fun configure_withInvalidParameters_fails() {
         runBlocking {
-            val unused = webGpu.execute {
+            webGpu.execute<Unit> {
                 val surface = webGpu.webgpuSurface
                 val invalidConfig =
                     GPUSurfaceConfiguration(
