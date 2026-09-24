@@ -63,7 +63,8 @@ class ScrollerTestCase : LayeredComposeTestCase(), ToggleableTestCase {
  *
  * [toggleState] injects mouse wheel events to scroll forward and backwards repeatedly.
  */
-class MouseWheelScrollerTestCase() : LayeredComposeTestCase(), ToggleableTestCase {
+class MouseWheelScrollerTestCase(private val step: Int = 25) :
+    LayeredComposeTestCase(), ToggleableTestCase {
     private lateinit var scrollState: ScrollState
     private var view: View? = null
     private var currentEventTime: Long = 0
@@ -75,7 +76,7 @@ class MouseWheelScrollerTestCase() : LayeredComposeTestCase(), ToggleableTestCas
         scrollState = rememberScrollState()
         Column(Modifier.verticalScroll(scrollState)) {
             // A lower step causes benchmark issues due to the resulting size / number of nodes
-            ColorStripes(step = 5, Modifier.fillMaxHeight())
+            ColorStripes(step = step, Modifier.fillMaxHeight())
         }
     }
 
