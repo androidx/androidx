@@ -109,6 +109,48 @@ public interface PaintChanges {
             int tileMode);
 
     /**
+     * Sets a shader that draws a radial gradient given the center and radius.
+     *
+     * @param startX      The x-coordinate of the center of the starting circle of the radial
+     *                    gradient,
+     *                    often referred to as the focal point.
+     * @param startY      The y-coordinate of the center of the starting circle of the radial
+     *                    gradient,
+     *                    often referred to as the focal point.
+     * @param startRadius The radius of the starting circle of the radial gradient, often
+     *                    referred to as
+     *                    the focal radius. Must be greater than or equal to zero.
+     * @param endX        The x-coordinate of the center of the radius for the end circle of the
+     *                    radial
+     *                    gradient
+     * @param endY        The y-coordinate of the center of the radius for the end circle of the
+     *                    radial
+     *                    gradient
+     * @param endRadius   The radius of the ending circle for this gradient. This must be
+     *                    strictly greater
+     *                    than zero. A radius value equal to zero is not allowed.
+     * @param colors      The sRGB colors to be distributed between the center and edge of the
+     *                    circle
+     * @param stops       May be <code>null</code>. Valid values are between <code>0.0f</code> and
+     *                    <code>1.0f</code>. The relative position of each corresponding color in
+     *                    the colors array.
+     *                    If <code>null</code>, colors are distributed evenly between the center
+     *                    and edge of the
+     *                    circle.
+     * @param tileMode    The Shader tiling mode
+     */
+    void setRadialGradient(
+            int @NonNull [] colors,
+            float @Nullable [] stops,
+            float startX,
+            float startY,
+            float startRadius,
+            float endX,
+            float endY,
+            float endRadius,
+            int tileMode);
+
+    /**
      * Set a sweep gradient fill
      *
      * @param stopsArray // todo: standardize naming to either "positions" or "stops"

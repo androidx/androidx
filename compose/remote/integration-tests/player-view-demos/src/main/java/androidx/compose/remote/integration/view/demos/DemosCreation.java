@@ -52,6 +52,7 @@ import androidx.compose.remote.integration.view.demos.dsl.DslModernShowcaseDemoK
 import androidx.compose.remote.integration.view.demos.dsl.DslPieChartKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPlotDemosKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPressureGaugeKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslRadialGradientFocusDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslRcSimpleSwitchKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslRcStateLayout3StatesKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslRcStateLayoutRowToColumnKt;
@@ -468,6 +469,8 @@ public abstract class DemosCreation {
                     get("1/30/Plot3", DslPlotDemosKt::dslPlot3),
                     get("1/31/Plot4", DslPlotDemosKt::dslPlot4),
                     get("1/32/PressureGauge", DslPressureGaugeKt::dslDemoPressureGauge),
+                    get("1/33/RadialGradientFocus",
+                        DslRadialGradientFocusDemoKt::dslRadialGradientFocusDemo),
 
 //                    get("1/0/RcScrollview", DslRcScrollviewKt::dslRcScrollview),
                     get("1/37/RcSimpleSwitch", DslRcSimpleSwitchKt::dslRcSimpleSwitchDemo),
