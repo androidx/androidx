@@ -20,26 +20,28 @@ import android.app.backup.BackupManager
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
-import androidx.test.backup.ActionPhase
+import androidx.test.backup.BackupActionInputKeys.DB_NAME
+import androidx.test.backup.BackupActionInputKeys.IS_BINARY
+import androidx.test.backup.BackupActionInputKeys.IS_DEVICE_PROTECTED
+import androidx.test.backup.BackupActionInputKeys.PATH
+import androidx.test.backup.BackupActionInputKeys.PREF_KEY
+import androidx.test.backup.BackupActionInputKeys.PREF_NAME
+import androidx.test.backup.BackupActionInputKeys.STORAGE_TYPE
+import androidx.test.backup.BackupActionInputKeys.TABLE
+import androidx.test.backup.BackupActionInputKeys.VALUE
+import androidx.test.backup.BackupActionInputKeys.VALUES
+import androidx.test.backup.BackupActionInputKeys.VALUE_TYPE
+import androidx.test.backup.BackupActionPhase
+import androidx.test.backup.BackupActionValues.DEFAULT_PREF_NAME
+import androidx.test.backup.BackupActionValues.STORAGE_TYPE_DATABASE
+import androidx.test.backup.BackupActionValues.STORAGE_TYPE_FILES
+import androidx.test.backup.BackupActionValues.STORAGE_TYPE_PREFS
+import androidx.test.backup.BackupActionValues.VALUE_TYPE_BOOLEAN
+import androidx.test.backup.BackupActionValues.VALUE_TYPE_FLOAT
+import androidx.test.backup.BackupActionValues.VALUE_TYPE_INT
+import androidx.test.backup.BackupActionValues.VALUE_TYPE_LONG
+import androidx.test.backup.BackupActionValues.VALUE_TYPE_STRING
 import androidx.test.backup.BackupDeviceAction
-import androidx.test.backup.BackupDeviceAction.Companion.KEY_DB_NAME
-import androidx.test.backup.BackupDeviceAction.Companion.KEY_ERROR
-import androidx.test.backup.BackupDeviceAction.Companion.KEY_IS_BINARY
-import androidx.test.backup.BackupDeviceAction.Companion.KEY_IS_DEVICE_PROTECTED
-import androidx.test.backup.BackupDeviceAction.Companion.KEY_PATH
-import androidx.test.backup.BackupDeviceAction.Companion.KEY_PREF_KEY
-import androidx.test.backup.BackupDeviceAction.Companion.KEY_PREF_NAME
-import androidx.test.backup.BackupDeviceAction.Companion.KEY_STATUS
-import androidx.test.backup.BackupDeviceAction.Companion.KEY_STORAGE_TYPE
-import androidx.test.backup.BackupDeviceAction.Companion.KEY_TABLE
-import androidx.test.backup.BackupDeviceAction.Companion.KEY_VALUE
-import androidx.test.backup.BackupDeviceAction.Companion.KEY_VALUES
-import androidx.test.backup.BackupDeviceAction.Companion.KEY_VALUE_TYPE
-import androidx.test.backup.BackupDeviceAction.Companion.STATUS_FAILURE
-import androidx.test.backup.BackupDeviceAction.Companion.STATUS_SUCCESS
-import androidx.test.backup.BackupDeviceAction.Companion.STORAGE_TYPE_DATABASE
-import androidx.test.backup.BackupDeviceAction.Companion.STORAGE_TYPE_FILES
-import androidx.test.backup.BackupDeviceAction.Companion.STORAGE_TYPE_PREFS
 import androidx.test.backup.BackupDeviceActionArgs
 import androidx.test.backup.BackupDeviceActionResult
 import java.io.File
@@ -47,42 +49,43 @@ import java.io.File
 /**
  * Populates test data inside the application sandbox before a backup.
  *
- * Parses the incoming [BackupDeviceAction.KEY_STORAGE_TYPE] argument and seeds the specified data
- * into [android.content.SharedPreferences], SQLite database, or raw file storage.
+ * Parses the incoming [androidx.test.backup.BackupActionInputKeys.STORAGE_TYPE] argument and seeds
+ * the specified data into [android.content.SharedPreferences], SQLite database, or raw file
+ * storage. See [androidx.test.backup.BackupActionInputKeys] for the keys each storage type
+ * consumes.
  */
 public class PopulateStorageAction : BackupDeviceAction {
-    @get:ActionPhase override val phase: Int = BackupDeviceAction.PHASE_POPULATE
+    @get:BackupActionPhase override val phase: Int = BackupDeviceAction.PHASE_POPULATE
 
     override fun execute(context: Context, args: BackupDeviceActionArgs): BackupDeviceActionResult {
-        val payload = args.payload
-        val isDeviceProtected = payload[KEY_IS_DEVICE_PROTECTED]?.toBoolean() ?: false
+        val isDeviceProtected = args[IS_DEVICE_PROTECTED]?.toBoolean() ?: false
         val targetContext =
             if (isDeviceProtected) {
                 context.createDeviceProtectedStorageContext()
             } else {
                 context
             }
-        val storageTypeStr = payload[KEY_STORAGE_TYPE] ?: STORAGE_TYPE_PREFS
+        val storageType = args[STORAGE_TYPE] ?: STORAGE_TYPE_PREFS
 
         return try {
-            when (storageTypeStr) {
+            when (storageType) {
                 STORAGE_TYPE_PREFS -> {
-                    val prefName = payload[KEY_PREF_NAME] ?: "default_prefs"
+                    val prefName = args[PREF_NAME] ?: DEFAULT_PREF_NAME
                     val key =
-                        payload[KEY_PREF_KEY]
-                            ?: return errorResult("Missing 'pref_key' argument for PREFS populate.")
+                        args[PREF_KEY]
+                            ?: return failure("Missing '$PREF_KEY' argument for PREFS populate.")
                     val value =
-                        payload[KEY_VALUE]
-                            ?: return errorResult("Missing 'value' argument for PREFS populate.")
-                    val valueType = payload[KEY_VALUE_TYPE] ?: "STRING"
+                        args[VALUE]
+                            ?: return failure("Missing '$VALUE' argument for PREFS populate.")
+                    val valueType = args[VALUE_TYPE] ?: VALUE_TYPE_STRING
 
                     val editor =
                         targetContext.getSharedPreferences(prefName, Context.MODE_PRIVATE).edit()
                     when (valueType.uppercase()) {
-                        "INT" -> editor.putInt(key, value.toInt())
-                        "LONG" -> editor.putLong(key, value.toLong())
-                        "FLOAT" -> editor.putFloat(key, value.toFloat())
-                        "BOOLEAN" -> editor.putBoolean(key, value.toBoolean())
+                        VALUE_TYPE_INT -> editor.putInt(key, value.toInt())
+                        VALUE_TYPE_LONG -> editor.putLong(key, value.toLong())
+                        VALUE_TYPE_FLOAT -> editor.putFloat(key, value.toFloat())
+                        VALUE_TYPE_BOOLEAN -> editor.putBoolean(key, value.toBoolean())
                         else -> editor.putString(key, value)
                     }
                     editor.commit()
@@ -90,18 +93,14 @@ public class PopulateStorageAction : BackupDeviceAction {
 
                 STORAGE_TYPE_DATABASE -> {
                     val dbName =
-                        payload[KEY_DB_NAME]
-                            ?: return errorResult(
-                                "Missing 'db_name' argument for DATABASE populate."
-                            )
+                        args[DB_NAME]
+                            ?: return failure("Missing '$DB_NAME' argument for DATABASE populate.")
                     val table =
-                        payload[KEY_TABLE]
-                            ?: return errorResult("Missing 'table' argument for DATABASE populate.")
+                        args[TABLE]
+                            ?: return failure("Missing '$TABLE' argument for DATABASE populate.")
                     val valuesStr =
-                        payload[KEY_VALUES]
-                            ?: return errorResult(
-                                "Missing 'values' argument for DATABASE populate."
-                            )
+                        args[VALUES]
+                            ?: return failure("Missing '$VALUES' argument for DATABASE populate.")
 
                     targetContext.openOrCreateDatabase(dbName, Context.MODE_PRIVATE, null).use { db
                         ->
@@ -134,11 +133,10 @@ public class PopulateStorageAction : BackupDeviceAction {
 
                 STORAGE_TYPE_FILES -> {
                     val path =
-                        payload[KEY_PATH]
-                            ?: return errorResult("Missing 'path' argument for FILES populate.")
+                        args[PATH] ?: return failure("Missing '$PATH' argument for FILES populate.")
                     val value =
-                        payload[KEY_VALUE]
-                            ?: return errorResult("Missing 'value' argument for FILES populate.")
+                        args[VALUE]
+                            ?: return failure("Missing '$VALUE' argument for FILES populate.")
 
                     val file =
                         File(path).let {
@@ -150,7 +148,7 @@ public class PopulateStorageAction : BackupDeviceAction {
                         }
                     file.parentFile?.mkdirs()
 
-                    val isBinary = payload[KEY_IS_BINARY]?.toBoolean() ?: false
+                    val isBinary = args[IS_BINARY]?.toBoolean() ?: false
                     if (isBinary) {
                         val bytes = android.util.Base64.decode(value, android.util.Base64.DEFAULT)
                         file.writeBytes(bytes)
@@ -159,19 +157,18 @@ public class PopulateStorageAction : BackupDeviceAction {
                     }
                 }
 
-                else -> return errorResult("Unsupported storage type: $storageTypeStr")
+                else -> return failure("Unsupported $STORAGE_TYPE: $storageType")
             }
 
             // Automatically notify BackupManager that data has changed
             BackupManager(targetContext).dataChanged()
 
-            BackupDeviceActionResult(mapOf(KEY_STATUS to STATUS_SUCCESS))
+            BackupDeviceActionResult.success()
         } catch (e: Exception) {
-            errorResult("PopulateStorageAction exception: ${e.message}")
+            failure("PopulateStorageAction exception: ${e.message}")
         }
     }
 
-    private fun errorResult(message: String): BackupDeviceActionResult {
-        return BackupDeviceActionResult(mapOf(KEY_STATUS to STATUS_FAILURE, KEY_ERROR to message))
-    }
+    private fun failure(message: String): BackupDeviceActionResult =
+        BackupDeviceActionResult.failure(message)
 }

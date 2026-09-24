@@ -51,21 +51,32 @@ class BackupDeviceActionTest {
     }
 
     @Test
+    fun testBackupDeviceActionArgsGet() {
+        val args =
+            BackupDeviceActionArgs(
+                mapOf(BackupActionInputKeys.PREF_NAME to "prefs", "unrelated" to "ignored")
+            )
+
+        assertEquals("prefs", args[BackupActionInputKeys.PREF_NAME])
+        assertNull(args[BackupActionInputKeys.PREF_KEY])
+    }
+
+    @Test
     fun testBackupDeviceActionResultPayload() {
         val payload =
             mapOf(
-                BackupDeviceAction.KEY_STATUS to BackupDeviceAction.STATUS_SUCCESS,
+                BackupActionOutputKeys.STATUS to BackupActionValues.STATUS_SUCCESS,
                 "custom" to "result",
             )
         val result = BackupDeviceActionResult(payload)
 
         assertEquals(2, result.payload.size)
         assertEquals(
-            BackupDeviceAction.STATUS_SUCCESS,
-            result.payload[BackupDeviceAction.KEY_STATUS],
+            BackupActionValues.STATUS_SUCCESS,
+            result.payload[BackupActionOutputKeys.STATUS],
         )
         assertEquals("result", result.payload["custom"])
-        assertTrue(result.payload.containsKey(BackupDeviceAction.KEY_STATUS))
+        assertTrue(result.payload.containsKey(BackupActionOutputKeys.STATUS))
     }
 
     @Test
@@ -81,38 +92,153 @@ class BackupDeviceActionTest {
     }
 
     @Test
-    fun testActionPhaseConstants() {
-        assertEquals(1, BackupDeviceAction.PHASE_POPULATE)
-        assertEquals(2, BackupDeviceAction.PHASE_VERIFY)
-        assertEquals(BackupDeviceAction.PHASE_POPULATE, ActionPhase.POPULATE)
-        assertEquals(BackupDeviceAction.PHASE_VERIFY, ActionPhase.VERIFY)
+    fun testSuccessFactory() {
+        val result = BackupDeviceActionResult.success()
+
+        assertEquals(BackupActionValues.STATUS_SUCCESS, result.status)
+        assertTrue(result.isSuccess)
+        assertNull(result.errorMessage)
+        assertEquals(1, result.payload.size)
     }
 
     @Test
-    fun testBackupDeviceActionConstants() {
-        assertEquals("storage_type", BackupDeviceAction.KEY_STORAGE_TYPE)
-        assertEquals("PREFS", BackupDeviceAction.STORAGE_TYPE_PREFS)
-        assertEquals("DATABASE", BackupDeviceAction.STORAGE_TYPE_DATABASE)
-        assertEquals("FILES", BackupDeviceAction.STORAGE_TYPE_FILES)
-        assertEquals("pref_name", BackupDeviceAction.KEY_PREF_NAME)
-        assertEquals("pref_key", BackupDeviceAction.KEY_PREF_KEY)
-        assertEquals("value", BackupDeviceAction.KEY_VALUE)
-        assertEquals("value_type", BackupDeviceAction.KEY_VALUE_TYPE)
-        assertEquals("db_name", BackupDeviceAction.KEY_DB_NAME)
-        assertEquals("table", BackupDeviceAction.KEY_TABLE)
-        assertEquals("values", BackupDeviceAction.KEY_VALUES)
-        assertEquals("path", BackupDeviceAction.KEY_PATH)
-        assertEquals("is_binary", BackupDeviceAction.KEY_IS_BINARY)
-        assertEquals("is_device_protected", BackupDeviceAction.KEY_IS_DEVICE_PROTECTED)
-        assertEquals("key_col", BackupDeviceAction.KEY_KEY_COL)
-        assertEquals("key_val", BackupDeviceAction.KEY_KEY_VAL)
-        assertEquals("expected_col", BackupDeviceAction.KEY_EXPECTED_COL)
-        assertEquals("expected_val", BackupDeviceAction.KEY_EXPECTED_VAL)
-        assertEquals("expected", BackupDeviceAction.KEY_EXPECTED)
-        assertEquals("expect_null", BackupDeviceAction.KEY_EXPECT_NULL)
-        assertEquals("status", BackupDeviceAction.KEY_STATUS)
-        assertEquals("success", BackupDeviceAction.STATUS_SUCCESS)
-        assertEquals("failure", BackupDeviceAction.STATUS_FAILURE)
-        assertEquals("error", BackupDeviceAction.KEY_ERROR)
+    fun testSuccessFactoryCarriesExtraDataAndOwnsStatus() {
+        val result =
+            BackupDeviceActionResult.success(
+                mapOf(
+                    "rows" to "3",
+                    BackupActionOutputKeys.STATUS to BackupActionValues.STATUS_FAILURE,
+                )
+            )
+
+        assertEquals("3", result["rows"])
+        assertEquals(BackupActionValues.STATUS_SUCCESS, result.status)
+        assertTrue(result.isSuccess)
+    }
+
+    @Test
+    fun testFailureFactory() {
+        val result = BackupDeviceActionResult.failure("Expected 'a' but found 'b'")
+
+        assertEquals(BackupActionValues.STATUS_FAILURE, result.status)
+        assertFalse(result.isSuccess)
+        assertEquals("Expected 'a' but found 'b'", result.errorMessage)
+        assertEquals("Expected 'a' but found 'b'", result[BackupActionOutputKeys.ERROR])
+    }
+
+    @Test
+    fun testFailureFactoryCarriesExtraData() {
+        val result = BackupDeviceActionResult.failure("boom", mapOf("rows" to "0"))
+
+        assertEquals("0", result["rows"])
+        assertFalse(result.isSuccess)
+        assertEquals("boom", result.errorMessage)
+    }
+
+    /** An action that does not report a status is treated as successful. */
+    @Test
+    fun testIsSuccessDefaultsToTrueWithoutStatus() {
+        val result = BackupDeviceActionResult(mapOf("rows" to "1"))
+
+        assertNull(result.status)
+        assertTrue(result.isSuccess)
+        assertNull(result.errorMessage)
+    }
+
+    @Test
+    fun testIsSuccessIgnoresStatusCase() {
+        assertTrue(BackupDeviceActionResult(mapOf("status" to "SUCCESS")).isSuccess)
+        assertFalse(BackupDeviceActionResult(mapOf("status" to "FAILURE")).isSuccess)
+    }
+
+    /**
+     * `status` is a generic key that custom actions use for their own vocabulary, so only the
+     * recognized failure value marks a result as failed.
+     *
+     * A real custom action in a sample app reports `status=verified` to mean "all checks passed";
+     * treating any non-success value as a failure broke it.
+     */
+    @Test
+    fun testIsSuccessAcceptsUnrecognizedStatus() {
+        assertTrue(BackupDeviceActionResult(mapOf("status" to "partial")).isSuccess)
+        assertTrue(BackupDeviceActionResult(mapOf("status" to "verified")).isSuccess)
+    }
+
+    /**
+     * [BackupDeviceActionResult.errorMessage] is reported only for a failed result.
+     *
+     * A successful action may carry its own `error` entry — the AddressBook sample returns an empty
+     * `restore_credential_error` alongside a passing verification — and reporting that as the
+     * failure message would be misleading.
+     */
+    @Test
+    fun testErrorMessageIsNullForSuccessfulResult() {
+        assertNull(BackupDeviceActionResult.success(mapOf("error" to "not a failure")).errorMessage)
+        assertNull(BackupDeviceActionResult(mapOf("error" to "")).errorMessage)
+        assertNull(
+            BackupDeviceActionResult(mapOf("status" to "verified", "error" to "")).errorMessage
+        )
+    }
+
+    @Test
+    fun testErrorMessageIsReportedForFailedResult() {
+        assertEquals("boom", BackupDeviceActionResult.failure("boom").errorMessage)
+        assertEquals(
+            "boom",
+            BackupDeviceActionResult(mapOf("status" to "failure", "error" to "boom")).errorMessage,
+        )
+    }
+
+    /**
+     * An action that reports an error but forgets the status is still a failure.
+     *
+     * Hand-built payloads are legal — [BackupDeviceActionResult] takes a raw map — so a custom
+     * action that only sets `error` must not be read as passing.
+     */
+    @Test
+    fun testIsSuccessFailsOnErrorWithoutStatus() {
+        val result = BackupDeviceActionResult(mapOf("error" to "Disk full"))
+
+        assertNull(result.status)
+        assertFalse(result.isSuccess)
+        assertEquals("Disk full", result.errorMessage)
+    }
+
+    /**
+     * An empty `error` without a status is not a failure.
+     *
+     * The AddressBook sample returns an empty `restore_credential_error` alongside a passing
+     * verification, so the presence of the key alone cannot decide the outcome.
+     */
+    @Test
+    fun testIsSuccessIgnoresEmptyErrorWithoutStatus() {
+        val result = BackupDeviceActionResult(mapOf("error" to ""))
+
+        assertTrue(result.isSuccess)
+        assertNull(result.errorMessage)
+    }
+
+    /**
+     * A reported status wins over an `error` entry.
+     *
+     * Only the recognized failure value marks a result as failed, so a success that carries a
+     * diagnostic `error` of its own stays a success.
+     */
+    @Test
+    fun testStatusOverridesErrorEntry() {
+        assertTrue(
+            BackupDeviceActionResult(mapOf("status" to "success", "error" to "stale")).isSuccess
+        )
+        assertTrue(
+            BackupDeviceActionResult(mapOf("status" to "verified", "error" to "stale")).isSuccess
+        )
+    }
+
+    @Test
+    fun testActionPhaseConstants() {
+        assertEquals(1, BackupDeviceAction.PHASE_POPULATE)
+        assertEquals(2, BackupDeviceAction.PHASE_VERIFY)
+        assertEquals(BackupDeviceAction.PHASE_POPULATE, BackupActionPhase.POPULATE)
+        assertEquals(BackupDeviceAction.PHASE_VERIFY, BackupActionPhase.VERIFY)
     }
 }
