@@ -20,8 +20,10 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewParent
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
-import androidx.compose.ui.platform.ComposeView
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.viewtree.setViewTreeDisjointParent
@@ -33,9 +35,38 @@ import androidx.navigationevent.findViewTreeNavigationEventDispatcherOwner
 import androidx.navigationevent.setViewTreeNavigationEventDispatcherOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import androidx.xr.compose.R
+import androidx.xr.compose.subspace.layout.CorePanelEntity
+
+internal class SpatialComposeView(context: Context) : AbstractComposeView(context) {
+    private val content = mutableStateOf<(@Composable () -> Unit)?>(null)
+
+    @Suppress("RedundantVisibilityModifier")
+    protected override var shouldCreateCompositionOnAttachedToWindow: Boolean = false
+        private set
+
+    @Composable
+    override fun Content() {
+        content.value?.invoke()
+    }
+
+    public fun setContent(content: @Composable () -> Unit) {
+        shouldCreateCompositionOnAttachedToWindow = true
+        this.content.value = content
+        if (isAttachedToWindow) {
+            createComposition()
+        }
+    }
+
+    override fun requestLayout() {
+        super.requestLayout()
+        val coreEntity = getTag(R.id.compose_xr_local_view_entity) as? CorePanelEntity
+        coreEntity?.layout?.requestMeasure()
+    }
+}
 
 /**
- * Creates and initializes a new [ComposeView] configured for use within a spatial context.
+ * Creates and initializes a new [SpatialComposeView] configured for use within a spatial context.
  *
  * This function sets up the necessary ViewTree owners (Lifecycle, ViewModelStore,
  * SavedStateRegistry) by inheriting them from the [LocalView]. It also links the parent composition
@@ -45,19 +76,19 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
  * @param parentView The view from which to retrieve the ViewTree owners (Lifecycle, ViewModelStore,
  *   SavedStateRegistry). This is typically the view hosting the composition (e.g.,
  *   LocalView.current).
- * @param context The context used to create the [ComposeView].
+ * @param context The context used to create the [SpatialComposeView].
  * @param compositionContext The parent [CompositionContext] to link the new view's composition to.
  *   This ensures that the new composition can access CompositionLocals from the parent.
  * @param localId A unique identifier for this view.
- * @return A new, detached [ComposeView] ready to be embedded in a PanelEntity.
+ * @return A new, detached [SpatialComposeView] ready to be embedded in a PanelEntity.
  */
 internal fun spatialComposeView(
     parentView: View,
     context: Context,
     compositionContext: CompositionContext,
     localId: Long,
-): ComposeView =
-    ComposeView(context).apply {
+): SpatialComposeView =
+    SpatialComposeView(context).apply {
         id = View.generateViewId()
         // Set WRAP_CONTENT LayoutParams so that when the view is reparented or hosted in a
         // ViewGroup (such as SceneCore's FrameLayout wrapper), it does not default to MATCH_PARENT
