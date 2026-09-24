@@ -89,10 +89,9 @@ class CanvasOperationBufferTest {
     @Test
     fun testConditionalSpanSaveScopeElisionPreservation() {
         val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-        // Enable optimizations to test elisionPass behavior
-        val canvas = RecordingCanvas(bitmap, enableOptimizations = true)
         val creationState = RemoteComposeCreationState(RcPlatformServices.None, Size(100f, 100f))
-        canvas.setRemoteComposeCreationState(creationState)
+        // Enable optimizations to test elisionPass behavior
+        val canvas = RecordingCanvas(bitmap, creationState, enableOptimizations = true)
 
         canvas.save()
         canvas.translate(50f, 50f)
@@ -144,9 +143,8 @@ class CanvasOperationBufferTest {
     @Test
     fun testPendingOpSkewWithVariables() {
         val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-        val canvas = RecordingCanvas(bitmap, enableOptimizations = true)
         val creationState = RemoteComposeCreationState(RcPlatformServices.None, Size(100f, 100f))
-        canvas.setRemoteComposeCreationState(creationState)
+        val canvas = RecordingCanvas(bitmap, creationState, enableOptimizations = true)
 
         val sx = RemoteFloat(0.5f)
         val sy = RemoteFloat(0.2f)

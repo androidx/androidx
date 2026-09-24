@@ -69,8 +69,7 @@ class RemoteCanvasTest {
                 size,
             )
         val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap)
-        recordingCanvas.creationState = creationState
+        recordingCanvas = RecordingCanvas(bitmap, creationState)
         remoteCanvas = RemoteCanvas(recordingCanvas)
     }
 
@@ -95,8 +94,7 @@ class RemoteCanvasTest {
             RemoteComposeCreationState(RemoteCreationDisplayInfo(500, 500, 160, 1f), null, profile)
 
         val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap)
-        recordingCanvas.creationState = creationState
+        recordingCanvas = RecordingCanvas(bitmap, creationState)
         remoteCanvas = RemoteCanvas(recordingCanvas)
 
         val settings = FontVariation.Settings(FontVariation.weight(500), FontVariation.width(100f))
@@ -154,8 +152,7 @@ class RemoteCanvasTest {
             RemoteComposeCreationState(RemoteCreationDisplayInfo(500, 500, 160, 1f), null, profile)
 
         val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap)
-        recordingCanvas.creationState = creationState
+        recordingCanvas = RecordingCanvas(bitmap, creationState)
         remoteCanvas = RemoteCanvas(recordingCanvas)
 
         val x = createNamedRemoteFloat("x", 10f)
@@ -243,8 +240,7 @@ class RemoteCanvasTest {
             RemoteComposeCreationState(RemoteCreationDisplayInfo(500, 500, 160, 1f), null, profile)
 
         val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap)
-        recordingCanvas.creationState = creationState
+        recordingCanvas = RecordingCanvas(bitmap, creationState)
         remoteCanvas = RemoteCanvas(recordingCanvas)
 
         val x = createNamedRemoteFloat("x", 10f)
@@ -310,8 +306,7 @@ class RemoteCanvasTest {
             RemoteComposeCreationState(RemoteCreationDisplayInfo(500, 500, 160, 1f), null, profile)
 
         val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap)
-        recordingCanvas.creationState = creationState
+        recordingCanvas = RecordingCanvas(bitmap, creationState)
         remoteCanvas = RemoteCanvas(recordingCanvas)
 
         val x = createNamedRemoteFloat("x", 10f)
@@ -364,8 +359,7 @@ class RemoteCanvasTest {
 
         val bitmap =
             android.graphics.Bitmap.createBitmap(100, 100, android.graphics.Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap)
-        recordingCanvas.creationState = creationState
+        recordingCanvas = RecordingCanvas(bitmap, creationState)
         remoteCanvas = RemoteCanvas(recordingCanvas)
 
         val condition = createNamedRemoteBoolean("cond", true)
@@ -412,8 +406,7 @@ class RemoteCanvasTest {
 
         val bitmap =
             android.graphics.Bitmap.createBitmap(100, 100, android.graphics.Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap)
-        recordingCanvas.creationState = creationState
+        recordingCanvas = RecordingCanvas(bitmap, creationState)
         remoteCanvas = RemoteCanvas(recordingCanvas)
 
         val from = createNamedRemoteFloat("from", 0f)
@@ -462,8 +455,7 @@ class RemoteCanvasTest {
 
         val bitmap =
             android.graphics.Bitmap.createBitmap(100, 100, android.graphics.Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap)
-        recordingCanvas.creationState = creationState
+        recordingCanvas = RecordingCanvas(bitmap, creationState)
         remoteCanvas = RemoteCanvas(recordingCanvas)
 
         val x = createNamedRemoteFloat("x", 10f)

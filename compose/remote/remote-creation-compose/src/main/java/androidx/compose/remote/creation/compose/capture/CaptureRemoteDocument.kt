@@ -207,10 +207,7 @@ public suspend fun captureSingleRemoteDocument(
         }
 
         val document = Snapshot.withMutableSnapshot {
-            val recordingCanvas =
-                RecordingCanvas(createBitmap(1, 1)).apply {
-                    setRemoteComposeCreationState(creationState)
-                }
+            val recordingCanvas = RecordingCanvas(createBitmap(1, 1), creationState)
 
             val remoteCanvas = RemoteCanvas(recordingCanvas)
 
@@ -362,10 +359,7 @@ public fun captureRemoteDocument(
                             creationState.remoteVariableToId.clear()
                             creationState.floatArrayCache.clear()
                             creationState.longArrayCache.clear()
-                            val recordingCanvas =
-                                RecordingCanvas(createBitmap(1, 1)).apply {
-                                    setRemoteComposeCreationState(creationState)
-                                }
+                            val recordingCanvas = RecordingCanvas(createBitmap(1, 1), creationState)
 
                             val remoteCanvas = RemoteCanvas(recordingCanvas)
 
