@@ -240,37 +240,27 @@ class CallSessionLegacyTest : BaseTelecomTest() {
         runBlocking {
             val callSession = initCallSessionLegacy(coroutineContext, null)
 
-            // Setup the available endpoints
-            val supportedRouteMask =
+            // 1. Start on wired headset
+            val initialSupportedRouteMask =
                 CallAudioState.ROUTE_EARPIECE or
                     CallAudioState.ROUTE_SPEAKER or
                     CallAudioState.ROUTE_WIRED_HEADSET
-            val endpoints =
-                EndpointUtils.toCallEndpointsCompat(
-                    CallAudioState(false, CallAudioState.ROUTE_EARPIECE, supportedRouteMask),
-                    mSessionId,
-                )
-
-            // Assume the previous endpoint was the wired headset
-            val previousEndpoint = endpoints.first {
-                it.type == CallEndpointCompat.TYPE_WIRED_HEADSET
-            }
-            // Assume the new endpoint is the earpiece
-            val newEndpoint = endpoints.first { it.type == CallEndpointCompat.TYPE_EARPIECE }
+            callSession.onCallAudioStateChanged(
+                CallAudioState(false, CallAudioState.ROUTE_WIRED_HEADSET, initialSupportedRouteMask)
+            )
 
             callSession.mLastClientRequestedEndpoint = null
 
-            // Simulate call upgrade to video
+            // 2. Simulate call upgrade to video
             callSession.requestVideoState(
                 androidx.core.telecom.CallAttributesCompat.CALL_TYPE_VIDEO_CALL
             )
 
-            // Trigger the headset disconnect logic natively by calling
-            // maybeSwitchToSpeakerOnHeadsetDisconnect
-            callSession.maybeSwitchToSpeakerOnHeadsetDisconnect(
-                newEndpoint,
-                previousEndpoint,
-                endpoints,
+            // 3. Simulate wired headset disconnecting and platform defaulting to EARPIECE
+            val disconnectedRouteMask =
+                CallAudioState.ROUTE_EARPIECE or CallAudioState.ROUTE_SPEAKER
+            callSession.onCallAudioStateChanged(
+                CallAudioState(false, CallAudioState.ROUTE_EARPIECE, disconnectedRouteMask)
             )
 
             kotlinx.coroutines.yield()
