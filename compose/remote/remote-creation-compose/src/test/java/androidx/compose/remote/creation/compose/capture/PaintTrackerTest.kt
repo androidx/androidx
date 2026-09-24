@@ -718,6 +718,18 @@ class PaintTrackerTest {
             tileMode: Int,
         ) {}
 
+        override fun setRadialGradient(
+            colors: IntArray,
+            stops: FloatArray?,
+            startX: Float,
+            startY: Float,
+            startRadius: Float,
+            endX: Float,
+            endY: Float,
+            endRadius: Float,
+            tileMode: Int,
+        ) {}
+
         override fun setSweepGradient(
             colorsArray: IntArray,
             stopsArray: FloatArray?,

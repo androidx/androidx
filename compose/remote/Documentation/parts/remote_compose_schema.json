@@ -1476,6 +1476,7 @@
         },
         "radialGradient": {
           "type": "object",
+          "description": "Single-circle form (centerX, centerY, radius) or two-circle focal form (startX/startY/startR plus endX/endY/endR, or focalX/focalY/focalR layered on centerX/centerY/radius). The two-circle form requires API 31 on the player.",
           "properties": {
             "centerX": {
               "$ref": "#/$defs/FloatOrExpr"
@@ -1484,6 +1485,42 @@
               "$ref": "#/$defs/FloatOrExpr"
             },
             "radius": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "startX": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "startY": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "startR": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "startRadius": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "endX": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "endY": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "endR": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "endRadius": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "focalX": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "focalY": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "focalR": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "focalRadius": {
               "$ref": "#/$defs/FloatOrExpr"
             },
             "colors": {
@@ -1510,9 +1547,6 @@
             }
           },
           "required": [
-            "centerX",
-            "centerY",
-            "radius",
             "colors"
           ]
         },

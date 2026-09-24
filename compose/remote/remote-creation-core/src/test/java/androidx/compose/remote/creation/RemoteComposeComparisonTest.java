@@ -1521,6 +1521,107 @@ public class RemoteComposeComparisonTest {
     }
 
     @Test
+    public void testRadialGradientFocalComparison() throws JSONException {
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"profiles\": 769, \"width\": 400,"
+                + " \"height\": 400, \"contentDescription\": \"RadialFocal\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"canvas\","
+                + "    \"modifiers\": [ { \"fillMaxSize\": 1.0 } ],"
+                + "    \"commands\": ["
+                + "      { \"type\": \"paint\", \"radialGradient\": {"
+                + " \"startX\": 120.0, \"startY\": 130.0, \"startR\": 20.0,"
+                + " \"endX\": 200.0, \"endY\": 210.0, \"endR\": 180.0,"
+                + " \"colors\": [\"#FFFFFF\", \"#2266FF\"], \"stops\": [0.0, 1.0],"
+                + " \"tileMode\": 2 } }"
+                + "    ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            RcPaint paint = expectedWriter.getRcPaint();
+            paint.setRadialGradient(
+                    120.0f,
+                    130.0f,
+                    20.0f,
+                    200.0f,
+                    210.0f,
+                    180.0f,
+                    new int[] {0xFFFFFFFF, 0xFF2266FF},
+                    0,
+                    new float[] {0.0f, 1.0f},
+                    2);
+            paint.commit();
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    /**
+     * The {@code focal*} keys are shorthand: they layer a focal circle on top of a regular
+     * {@code centerX}/{@code centerY}/{@code radius} gradient, which becomes the end circle.
+     */
+    @Test
+    public void testRadialGradientFocalShorthandComparison() throws JSONException {
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"profiles\": 769, \"width\": 400,"
+                + " \"height\": 400, \"contentDescription\": \"RadialFocalShorthand\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"canvas\","
+                + "    \"modifiers\": [ { \"fillMaxSize\": 1.0 } ],"
+                + "    \"commands\": ["
+                + "      { \"type\": \"paint\", \"radialGradient\": {"
+                + " \"centerX\": 200.0, \"centerY\": 200.0, \"radius\": 150.0,"
+                + " \"focalX\": 160.0, \"focalY\": 170.0,"
+                + " \"colors\": [\"#FF0000\", \"#000000\"] } }"
+                + "    ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            RcPaint paint = expectedWriter.getRcPaint();
+            paint.setRadialGradient(
+                    160.0f,
+                    170.0f,
+                    0.0f,
+                    200.0f,
+                    200.0f,
+                    150.0f,
+                    new int[] {0xFFFF0000, 0xFF000000},
+                    0,
+                    null,
+                    0);
+            paint.commit();
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
     public void testDrawScaledBitmapComparison() throws JSONException {
         String json = "{"
                 + "  \"header\": { \"apiLevel\": 7, \"profiles\": 769, \"width\": 400,"

@@ -107,6 +107,18 @@ public class PaintChangeAdapter implements PaintChanges {
             int tileMode) {}
 
     @Override
+    public void setRadialGradient(
+            int @NonNull [] colors,
+            float @Nullable [] stops,
+            float startX,
+            float startY,
+            float startRadius,
+            float endX,
+            float endY,
+            float endRadius,
+            int tileMode) {}
+
+    @Override
     public void setSweepGradient(
             int @NonNull [] colorsArray,
             float @Nullable [] stopsArray,

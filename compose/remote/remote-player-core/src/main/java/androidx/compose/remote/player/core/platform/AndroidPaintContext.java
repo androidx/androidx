@@ -23,6 +23,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.BlendMode;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ComposePathEffect;
 import android.graphics.DashPathEffect;
 import android.graphics.DiscretePathEffect;
@@ -1341,6 +1342,39 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
                 }
 
                 @Override
+                public void setRadialGradient(
+                        int @NonNull [] colors,
+                        float @Nullable [] stops,
+                        float startX,
+                        float startY,
+                        float startRadius,
+                        float endX,
+                        float endY,
+                        float endRadius,
+                        int tileMode) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        // unavoidable short term allocation for now but little used API.
+                        // Long term could cache the data
+                        long[] colorLong = new long[colors.length];
+                        for (int i = 0; i < colorLong.length; i++) {
+                            colorLong[i] = Color.pack(colors[i]);
+                        }
+                        mPaint.setShader(
+                                new RadialGradient(
+                                        startX, startY, startRadius,
+                                        endX, endY, endRadius,
+                                        colorLong, stops, mTileModes[tileMode]));
+                    } else {
+                        // The two-circle (focal) form needs API 31. Degrade to the end circle
+                        // so the document still renders something sensible.
+                        mPaint.setShader(
+                                new RadialGradient(
+                                        endX, endY, endRadius,
+                                        colors, stops, mTileModes[tileMode]));
+                    }
+                }
+
+                @Override
                 public void setSweepGradient(
                         int @NonNull [] colors,
                         float @Nullable [] stops,
@@ -1702,8 +1736,8 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
         Matrix m = new Matrix();
         // [duX, duY, dvX, dvY, originX, originY] -> the 3x3 Android wants, row major
         m.setValues(
-                new float[] {
-                    affine[0], affine[2], affine[4], affine[1], affine[3], affine[5], 0f, 0f, 1f
+                new float[]{
+                        affine[0], affine[2], affine[4], affine[1], affine[3], affine[5], 0f, 0f, 1f
                 });
         mCanvas.concat(m);
     }

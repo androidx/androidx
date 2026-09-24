@@ -191,6 +191,42 @@ public interface RcPaintScope {
         colorMask: Int = 0,
     )
 
+    /**
+     * Radial gradient between two circles: the start (focal) circle and the end circle.
+     *
+     * The gradient runs from the edge of the start circle to the edge of the end circle, which
+     * allows off-center highlights, cone-like sweeps and "tunnel" effects that the single-circle
+     * [radialGradient] cannot express. Setting [startX]/[startY] equal to [endX]/[endY] and
+     * [startRadius] to `0f` reproduces the single-circle behavior.
+     *
+     * Any coordinate or radius may be a dynamic value, passed as `someRcFloat.toFloat()`.
+     *
+     * Requires API 31 on the player; below that the end circle alone is used.
+     *
+     * @param startX x-coordinate of the start (focal) circle center
+     * @param startY y-coordinate of the start (focal) circle center
+     * @param startRadius radius of the start (focal) circle, must be >= 0
+     * @param endX x-coordinate of the end circle center
+     * @param endY y-coordinate of the end circle center
+     * @param endRadius radius of the end circle, must be > 0
+     * @param colors sRGB colors distributed between the start and end circle
+     * @param positions relative position of each color, or `null` for even distribution
+     * @param tileMode how the gradient repeats outside the end circle
+     * @param colorMask bit mask marking which entries of [colors] are color ids
+     */
+    public fun radialGradient(
+        startX: Float,
+        startY: Float,
+        startRadius: Float,
+        endX: Float,
+        endY: Float,
+        endRadius: Float,
+        colors: IntArray,
+        positions: FloatArray? = null,
+        tileMode: RcTileMode = RcTileMode.Clamp,
+        colorMask: Int = 0,
+    )
+
     /** Sweep gradient around a center point. */
     public fun sweepGradient(
         centerX: Float,
@@ -349,6 +385,32 @@ internal class RcPaintScopeImpl(override val raw: RcPaint) : RcPaintScope {
             centerX,
             centerY,
             radius,
+            colors,
+            colorMask,
+            positions,
+            tileMode.value.toInt(),
+        )
+    }
+
+    override fun radialGradient(
+        startX: Float,
+        startY: Float,
+        startRadius: Float,
+        endX: Float,
+        endY: Float,
+        endRadius: Float,
+        colors: IntArray,
+        positions: FloatArray?,
+        tileMode: RcTileMode,
+        colorMask: Int,
+    ) {
+        raw.setRadialGradient(
+            startX,
+            startY,
+            startRadius,
+            endX,
+            endY,
+            endRadius,
             colors,
             colorMask,
             positions,

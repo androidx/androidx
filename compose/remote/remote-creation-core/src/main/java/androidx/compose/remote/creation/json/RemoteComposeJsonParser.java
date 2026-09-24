@@ -1019,36 +1019,10 @@ public class RemoteComposeJsonParser {
                                     paint.setTextSize(parseFloat(op.get(key)));
                                     break;
                                 case "radialgradient": {
-                                    JSONObject g = op.getJSONObject("radialGradient");
-                                    JSONArray colorsArr = g.getJSONArray("colors");
-                                    int[] colors = new int[colorsArr.length()];
-                                    int mask = 0;
-                                    for (int j = 0; j < colorsArr.length(); j++) {
-                                        Object c = colorsArr.get(j);
-                                        if (c instanceof String
-                                                && (((String) c).startsWith("$colors.")
-                                                || ((String) c).startsWith("@colors."))) {
-                                            mask |= (1 << j);
-                                        }
-                                        colors[j] = parseColor(c);
-                                    }
-                                    JSONArray stopsArr = g.optJSONArray("stops");
-                                    float[] stops = null;
-                                    if (stopsArr != null) {
-                                        stops = new float[stopsArr.length()];
-                                        for (int j = 0; j < stopsArr.length(); j++) {
-                                            stops[j] = (float) stopsArr.getDouble(j);
-                                        }
-                                    }
-                                    paint.setRadialGradient(
-                                            parseFloat(g.get("centerX")),
-                                            parseFloat(g.get("centerY")),
-                                            parseFloat(g.get("radius")),
-                                            colors,
-                                            mask,
-                                            stops,
-                                            g.optInt("tileMode", 0)
-                                    );
+                                    JSONObject g = op.has("radialGradient")
+                                            ? op.getJSONObject("radialGradient")
+                                            : op.getJSONObject(key);
+                                    applyRadialGradient(paint, g);
                                     break;
                                 }
                                 case "sweepgradient": {
@@ -1136,6 +1110,9 @@ public class RemoteComposeJsonParser {
                     }
                     if (command.has("textSize")) {
                         paint.setTextSize(parseFloat(command.get("textSize")));
+                    }
+                    if (command.has("radialGradient")) {
+                        applyRadialGradient(paint, command.getJSONObject("radialGradient"));
                     }
                     if (command.has("sweepGradient")) {
                         JSONObject g = command.getJSONObject("sweepGradient");
@@ -2524,6 +2501,103 @@ public class RemoteComposeJsonParser {
             return varVal;
         }
         return Float.NaN;
+    }
+
+    /**
+     * Applies a {@code radialGradient} JSON object to {@code paint}. Supports both the classic
+     * single-circle form ({@code centerX}, {@code centerY}, {@code radius}) and the two-circle
+     * focal form ({@code startX}/{@code startY}/{@code startR} plus {@code endX}/{@code endY}/
+     * {@code endR}, or {@code focal*} layered on top of {@code center*}).
+     */
+    private void applyRadialGradient(@NonNull RcPaint paint, @NonNull JSONObject g)
+            throws JSONException {
+        JSONArray colorsArr = g.getJSONArray("colors");
+        int[] colors = new int[colorsArr.length()];
+        int mask = 0;
+        for (int j = 0; j < colorsArr.length(); j++) {
+            Object c = colorsArr.get(j);
+            if (c instanceof String
+                    && (((String) c).startsWith("$colors.")
+                    || ((String) c).startsWith("@colors."))) {
+                mask |= (1 << j);
+            }
+            colors[j] = parseColor(c);
+        }
+        JSONArray stopsArr = g.optJSONArray("stops");
+        float[] stops = null;
+        if (stopsArr != null) {
+            stops = new float[stopsArr.length()];
+            for (int j = 0; j < stopsArr.length(); j++) {
+                stops[j] = (float) stopsArr.getDouble(j);
+            }
+        }
+        int tileMode = g.optInt("tileMode", 0);
+        if (isFocalRadialGradient(g)) {
+            // Two-circle (focal) form. The end circle falls back to centerX/centerY/radius so the
+            // focal* keys can simply be layered on top of a regular radial gradient.
+            float endX = parseFloatKeys(g, 0f, "endX", "centerX");
+            float endY = parseFloatKeys(g, 0f, "endY", "centerY");
+            float endRadius = parseFloatKeys(g, 0f, "endR", "endRadius", "radius");
+            float startX = parseFloatKeys(g, endX, "startX", "focalX");
+            float startY = parseFloatKeys(g, endY, "startY", "focalY");
+            float startRadius =
+                    parseFloatKeys(g, 0f, "startR", "startRadius", "focalR", "focalRadius");
+            paint.setRadialGradient(
+                    startX,
+                    startY,
+                    startRadius,
+                    endX,
+                    endY,
+                    endRadius,
+                    colors,
+                    mask,
+                    stops,
+                    tileMode);
+        } else {
+            paint.setRadialGradient(
+                    parseFloat(g.get("centerX")),
+                    parseFloat(g.get("centerY")),
+                    parseFloat(g.get("radius")),
+                    colors,
+                    mask,
+                    stops,
+                    tileMode);
+        }
+    }
+
+    /**
+     * Keys that select the two-circle (focal) form of {@code radialGradient}. If none of these are
+     * present the gradient is parsed as the classic single-circle form.
+     */
+    private static final String[] FOCAL_RADIAL_KEYS = {
+        "startX", "startY", "startR", "startRadius",
+        "endX", "endY", "endR", "endRadius",
+        "focalX", "focalY", "focalR", "focalRadius"
+    };
+
+    /** Returns true if the gradient object uses the two-circle (focal) form. */
+    private static boolean isFocalRadialGradient(@NonNull JSONObject gradient) {
+        for (String k : FOCAL_RADIAL_KEYS) {
+            if (gradient.has(k)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Parses the first of {@code keys} present on {@code gradient}, or returns {@code defaultValue}
+     * when none are. Values may be plain numbers or expressions, as elsewhere in the parser.
+     */
+    private float parseFloatKeys(
+            @NonNull JSONObject gradient, float defaultValue, String @NonNull ... keys)
+            throws JSONException {
+        for (String k : keys) {
+            if (gradient.has(k)) {
+                return parseFloat(gradient.get(k));
+            }
+        }
+        return defaultValue;
     }
 
     float parseFloat(@Nullable Object value) throws JSONException {
