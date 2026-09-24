@@ -10,7 +10,8 @@ public class InnerSettingsDirections private constructor() {
   private data class Exit(
     public val exitReason: Int,
   ) : NavDirections {
-    public override val actionId: Int = R.id.exit
+    public override val actionId: Int
+      get() = R.id.exit
 
     public override val arguments: Bundle
       get() {

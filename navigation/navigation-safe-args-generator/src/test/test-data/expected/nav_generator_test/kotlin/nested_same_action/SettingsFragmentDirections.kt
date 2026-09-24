@@ -11,7 +11,8 @@ public class SettingsFragmentDirections private constructor() {
   private data class Exit(
     public val exitReason: String = "DIFFERENT",
   ) : NavDirections {
-    public override val actionId: Int = R.id.exit
+    public override val actionId: Int
+      get() = R.id.exit
 
     public override val arguments: Bundle
       get() {

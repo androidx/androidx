@@ -19,7 +19,8 @@ private data class Next(
   public val optionalInt: Int = 239,
   public val optionalParcelable: ActivityInfo? = null,
 ) : NavDirections {
-  public override val actionId: Int = R.id.next
+  public override val actionId: Int
+    get() = R.id.next
 
   public override val arguments: Bundle
     @Suppress("CAST_NEVER_SUCCEEDS")

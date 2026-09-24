@@ -15,7 +15,8 @@ public class MainFragmentDefaultParamDirections private constructor() {
     public val optionalFloat: Float = 0.1F,
     public val optionalInt: Int = 1,
   ) : NavDirections {
-    public override val actionId: Int = R.id.next
+    public override val actionId: Int
+      get() = R.id.next
 
     public override val arguments: Bundle
       get() {
