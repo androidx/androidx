@@ -19,6 +19,7 @@ package androidx.compose.runtime
 import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntObjectMap
 import androidx.compose.runtime.mock.CompositionTestScope
+import androidx.compose.runtime.mock.EmptyApplier
 import androidx.compose.runtime.mock.NonReusableText
 import androidx.compose.runtime.mock.compositionTest
 import androidx.compose.runtime.mock.expectNoChanges
@@ -105,6 +106,59 @@ class CompoundHashKeyTests {
         assertEquals(keyOnEnter, keyOnExit)
     }
 
+    @Test
+    fun testReusableContentWithSubcompose() = compositionTest {
+        var outerHash = EmptyCompositeKeyHashCode
+        var innerHash = EmptyCompositeKeyHashCode
+        lateinit var innerScope: RecomposeScope
+        var subcomposition: ReusableComposition? = null
+
+        var outerKey by mutableStateOf(0)
+
+        compose {
+            ReusableContent(outerKey) {
+                outerHash = currentCompositeKeyHashCode
+                val parentContext = rememberCompositionContext()
+                val sub =
+                    subcomposition
+                        ?: ReusableComposition(EmptyApplier(), parentContext).also {
+                            subcomposition = it
+                        }
+                sub.setContentWithReuse {
+                    ReusableContent(0) {
+                        innerScope = currentRecomposeScope
+                        innerHash = currentCompositeKeyHashCode
+                    }
+                }
+            }
+        }
+
+        val initialOuterHash = outerHash
+        val initialInnerHash = innerHash
+        assertNotEquals(EmptyCompositeKeyHashCode, initialOuterHash)
+        assertNotEquals(EmptyCompositeKeyHashCode, initialInnerHash)
+
+        outerKey = 1
+        advance()
+
+        val reusedOuterHash = outerHash
+        val reusedInnerHash = innerHash
+        assertNotEquals(initialOuterHash, reusedOuterHash)
+        assertNotEquals(initialInnerHash, reusedInnerHash)
+
+        innerHash = EmptyCompositeKeyHashCode
+        innerScope.invalidate()
+        advance()
+        assertEquals(reusedInnerHash, innerHash)
+
+        outerKey = 0
+        advance()
+        assertEquals(initialOuterHash, outerHash)
+        assertEquals(initialInnerHash, innerHash)
+
+        subcomposition?.dispose()
+    }
+
     @Test // b/287537290
     fun adjacentCallsProduceUniqueKeys() = compositionTest {
         expectUniqueHashCodes {
@@ -169,7 +223,7 @@ class CompoundHashKeyTests {
 
         validate {}
         val originalHash = lastRecordedHash
-        lastRecordedHash = -1
+        lastRecordedHash = CompositeKeyHashCode(-1)
         scope.invalidate()
         expectNoChanges()
         revalidate()
