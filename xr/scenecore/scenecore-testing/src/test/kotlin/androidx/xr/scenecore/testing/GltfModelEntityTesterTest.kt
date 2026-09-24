@@ -162,6 +162,22 @@ class GltfModelEntityTesterTest {
         assertThat(animation.speed).isEqualTo(3.0f)
     }
 
+    @Test
+    fun testAnimation_loop_updatesLoopPropertyWhilePlaying() {
+        // Arrange
+        val animation = TestGltfAnimation(animationName = "anim")
+        tester.addAnimation(animation)
+
+        // Act
+        val gltfAnimation = gltfModelEntity.getAnimations()[0]
+        gltfAnimation.start()
+        gltfAnimation.loop = true
+
+        // Assert
+        assertThat(gltfAnimation.loop).isTrue()
+        assertThat(animation.shouldLoop).isTrue()
+    }
+
     @Test(expected = IllegalStateException::class)
     fun testAnimation_accessPropertiesBeforeAdding_throwsException() {
         val animation = TestGltfAnimation(animationName = "anim")
