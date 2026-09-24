@@ -82,6 +82,10 @@ internal constructor(
         fakeInternal.setAnimationSpeed(speed)
     }
 
+    override fun setAnimationLoop(loop: Boolean) {
+        fakeInternal.setAnimationLoop(loop)
+    }
+
     override fun addAnimationStateListener(executor: Executor, listener: Consumer<Int>) {
         fakeInternal.addAnimationStateListener(executor, listener)
     }

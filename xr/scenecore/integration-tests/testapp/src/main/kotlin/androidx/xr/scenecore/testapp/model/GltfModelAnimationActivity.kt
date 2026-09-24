@@ -124,6 +124,12 @@ class GltfModelAnimationActivity : AppCompatActivity() {
 
         loopToggleButton = findViewById(R.id.loop_toggle_button)
         loopToggleButton.isChecked = false
+        loopToggleButton.setOnCheckedChangeListener { _, isChecked ->
+            if (selectedIndexAtAnimationList < 0 || animations.isEmpty()) {
+                return@setOnCheckedChangeListener
+            }
+            animations[selectedIndexAtAnimationList].loop = isChecked
+        }
 
         speedText = findViewById(R.id.speed_textview)
         speedSlider = findViewById(R.id.speed_slider)
@@ -286,7 +292,7 @@ class GltfModelAnimationActivity : AppCompatActivity() {
                     animationStateMap[position]?.toString()
                         ?: GltfAnimation.AnimationState.STOPPED.toString()
 
-                loopToggleButton.isChecked = false
+                loopToggleButton.isChecked = animations[position].loop
 
                 seekPlaySlider.value = 0f
                 seekPlaySlider.valueFrom = 0f

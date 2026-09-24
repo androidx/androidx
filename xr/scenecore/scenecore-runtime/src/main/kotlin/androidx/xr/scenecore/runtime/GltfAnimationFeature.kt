@@ -73,6 +73,13 @@ public interface GltfAnimationFeature {
     @MainThread public fun setAnimationSpeed(speed: Float)
 
     /**
+     * Sets whether the animation should loop when playing.
+     *
+     * @param loop true if the animation should loop, false otherwise.
+     */
+    @MainThread public fun setAnimationLoop(loop: Boolean)
+
+    /**
      * Adds a listener that will be called whenever the animation state of the glTF is updated.
      *
      * @param executor The executor to run the listener on.
