@@ -66,6 +66,7 @@ import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.findNearestParentEntity
 import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
+import androidx.xr.compose.subspace.SpatialComposeView
 import androidx.xr.compose.subspace.layout.CoreEntity
 import androidx.xr.compose.subspace.layout.CorePanelEntity
 import androidx.xr.compose.subspace.layout.SpatialAbsoluteAlignment
@@ -1567,7 +1568,7 @@ private class SpatialOrbiter(
     initialPoseProvider: OrbiterPoseProvider,
     initialShape: SpatialShape,
 ) : RememberObserver {
-    private var view: ComposeView? = null
+    private var view: SpatialComposeView? = null
     private var panelEntity: CorePanelEntity? = null
     var content: @Composable () -> Unit by mutableStateOf(EmptyContent)
     var poseProvider: OrbiterPoseProvider by mutableStateOf(initialPoseProvider)
