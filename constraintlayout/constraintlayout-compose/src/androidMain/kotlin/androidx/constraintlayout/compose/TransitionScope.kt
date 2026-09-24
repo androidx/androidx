@@ -448,7 +448,6 @@ sealed class BaseKeyFrameScope {
      *
      * E.g.: `var curveFit: CurveFit? by addNameOnPropertyChange(null)`
      */
-    @Suppress("EXPOSED_TYPE_PARAMETER_BOUND_DEPRECATION_WARNING")
     protected fun <E : NamedPropertyOrValue?> addNameOnPropertyChange(
         initialValue: E,
         nameOverride: String? = null,
@@ -602,7 +601,8 @@ class KeyCycleScope internal constructor() : BaseKeyFrameScope() {
     // TODO: Add Wave Shape & Custom Wave
 }
 
-internal interface NamedPropertyOrValue {
+@ExperimentalMotionApi
+interface NamedPropertyOrValue {
     val name: String
 }
 
