@@ -102,6 +102,7 @@ internal constructor(public val id: StreamId, public val outputs: List<OutputStr
                 streamUseHint: OutputStream.StreamUseHint? = null,
                 sensorPixelModes: List<OutputStream.SensorPixelMode> = emptyList(),
                 imageSourceConfig: ImageSourceConfig? = null,
+                useReadoutTimestamp: Boolean = false,
             ): Config =
                 create(
                     OutputStream.Config.create(
@@ -115,6 +116,7 @@ internal constructor(public val id: StreamId, public val outputs: List<OutputStr
                         streamUseCase,
                         streamUseHint,
                         sensorPixelModes,
+                        useReadoutTimestamp,
                     ),
                     imageSourceConfig,
                 )
@@ -172,6 +174,7 @@ public interface OutputStream {
     public val streamUseCase: StreamUseCase?
     public val outputType: OutputType?
     public val streamUseHint: StreamUseHint?
+    public val useReadoutTimestamp: Boolean
 
     // TODO: Consider adding sensor mode and/or other metadata
 
@@ -189,7 +192,13 @@ public interface OutputStream {
         public val streamUseCase: StreamUseCase?,
         public val streamUseHint: StreamUseHint?,
         public val sensorPixelModes: List<SensorPixelMode>,
+        public val useReadoutTimestamp: Boolean = false,
     ) {
+        init {
+            check(!useReadoutTimestamp || Build.VERSION.SDK_INT >= 34) {
+                "onReadoutStarted is not supported with API < 34"
+            }
+        }
 
         public companion object {
             public fun create(
@@ -203,6 +212,7 @@ public interface OutputStream {
                 streamUseCase: StreamUseCase? = null,
                 streamUseHint: StreamUseHint? = null,
                 sensorPixelModes: List<SensorPixelMode> = emptyList(),
+                useReadoutTimestamp: Boolean = false,
             ): Config =
                 // TODO(b/430431303): Move this lazy/non-lazy selection logic to backend
                 if (outputType.isLazilyConfigurable()) {
@@ -217,6 +227,7 @@ public interface OutputStream {
                         streamUseCase,
                         streamUseHint,
                         sensorPixelModes,
+                        useReadoutTimestamp,
                     )
                 } else {
                     check(outputType == OutputType.SURFACE)
@@ -230,6 +241,7 @@ public interface OutputStream {
                         streamUseCase,
                         streamUseHint,
                         sensorPixelModes,
+                        useReadoutTimestamp,
                     )
                 }
 
@@ -252,16 +264,17 @@ public interface OutputStream {
                 externalOutputConfig: OutputConfiguration,
                 streamUseHint: StreamUseHint?,
                 sensorPixelModes: List<SensorPixelMode> = emptyList(),
-            ): Config {
-                return ExternalOutputConfig(
+                useReadoutTimestamp: Boolean = false,
+            ): Config =
+                ExternalOutputConfig(
                     size,
                     format,
                     camera,
                     output = externalOutputConfig,
                     streamUseHint,
                     sensorPixelModes,
+                    useReadoutTimestamp,
                 )
-            }
         }
 
         /** Most outputs only need to define size, format, and cameraId. */
@@ -275,6 +288,7 @@ public interface OutputStream {
             streamUseCase: StreamUseCase?,
             streamUseHint: StreamUseHint?,
             sensorPixelModes: List<SensorPixelMode>,
+            useReadoutTimestamp: Boolean,
         ) :
             Config(
                 size,
@@ -286,6 +300,7 @@ public interface OutputStream {
                 streamUseCase,
                 streamUseHint,
                 sensorPixelModes,
+                useReadoutTimestamp,
             )
 
         /**
@@ -308,6 +323,7 @@ public interface OutputStream {
             streamUseCase: StreamUseCase?,
             streamUseHint: StreamUseHint?,
             sensorPixelModes: List<SensorPixelMode>,
+            useReadoutTimestamp: Boolean,
         ) :
             Config(
                 size,
@@ -319,6 +335,7 @@ public interface OutputStream {
                 streamUseCase,
                 streamUseHint,
                 sensorPixelModes,
+                useReadoutTimestamp,
             )
 
         /**
@@ -339,6 +356,7 @@ public interface OutputStream {
             val output: OutputConfiguration,
             streamUseHint: StreamUseHint?,
             sensorPixelModes: List<SensorPixelMode>,
+            useReadoutTimestamp: Boolean,
         ) :
             Config(
                 size,
@@ -350,10 +368,11 @@ public interface OutputStream {
                 StreamUseCase(Api33Compat.getStreamUseCase(output)),
                 streamUseHint,
                 sensorPixelModes,
+                useReadoutTimestamp,
             )
 
         override fun toString(): String {
-            return "Config(size=$size, format=$format, camera=$camera, mirrorMode=$mirrorMode, timestampBase=$timestampBase, dynamicRangeProfile=$dynamicRangeProfile, streamUseCase=$streamUseCase, streamUseHint=$streamUseHint, sensorPixelModes=$sensorPixelModes)"
+            return "Config(size=$size, format=$format, camera=$camera, mirrorMode=$mirrorMode, timestampBase=$timestampBase, dynamicRangeProfile=$dynamicRangeProfile, streamUseCase=$streamUseCase, streamUseHint=$streamUseHint, sensorPixelModes=$sensorPixelModes, useReadoutTimestamp=$useReadoutTimestamp)"
         }
     }
 

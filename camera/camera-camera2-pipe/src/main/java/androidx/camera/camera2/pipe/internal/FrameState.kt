@@ -26,7 +26,6 @@ import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.internal.FrameState.State.COMPLETE
 import androidx.camera.camera2.pipe.internal.FrameState.State.FRAME_INFO_COMPLETE
 import androidx.camera.camera2.pipe.internal.FrameState.State.STARTED
@@ -75,8 +74,7 @@ internal class FrameState(
                 val outputs = imageStream.outputs
                 val remainingOutputResults = atomic(outputs.size)
                 for (i in outputs.indices) {
-                    val useReadoutTimestamp =
-                        (outputs[i] as StreamGraphImpl.OutputStreamImpl).useReadoutTimestamp
+                    val useReadoutTimestamp = outputs[i].useReadoutTimestamp
                     val imageOutput =
                         ImageOutput(
                             streamId,
