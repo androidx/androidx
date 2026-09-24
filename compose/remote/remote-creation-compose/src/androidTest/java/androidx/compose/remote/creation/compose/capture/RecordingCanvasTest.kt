@@ -81,7 +81,6 @@ import java.time.Clock
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -120,7 +119,7 @@ class RecordingCanvasTest {
         RemoteComposeCreationState(Size(WIDTH.toFloat(), HEIGHT.toFloat()), profile)
 
     private val recordingCanvas =
-        RecordingCanvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
+        RecordingCanvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888), creationState)
 
     private val remoteContext = AndroidRemoteContext()
     private val timeZone = ZoneId.of("America/New_York")
@@ -141,11 +140,6 @@ class RecordingCanvasTest {
             centerY = 300f,
             rounding = CornerRounding(radius = .5f),
         )
-
-    @Before
-    fun setUp() {
-        recordingCanvas.setRemoteComposeCreationState(creationState)
-    }
 
     @Test
     fun creationDisplayInfo() {

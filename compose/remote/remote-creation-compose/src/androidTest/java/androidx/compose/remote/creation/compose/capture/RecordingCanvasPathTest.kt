@@ -32,7 +32,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -57,12 +56,7 @@ class RecordingCanvasPathTest {
 
     private val creationState = RemoteComposeCreationState(Size(400f, 400f), profile)
     private val recordingCanvas =
-        RecordingCanvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
-
-    @Before
-    fun setUp() {
-        recordingCanvas.setRemoteComposeCreationState(creationState)
-    }
+        RecordingCanvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888), creationState)
 
     private fun inflateOperations(): ArrayList<Operation> {
         recordingCanvas.flush()

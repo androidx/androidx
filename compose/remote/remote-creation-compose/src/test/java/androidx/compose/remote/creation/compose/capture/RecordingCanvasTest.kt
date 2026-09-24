@@ -123,8 +123,7 @@ class RecordingCanvasTest {
             RemoteComposeCreationState(RemoteCreationDisplayInfo(500, 500, 160, 1f), null, profile)
 
         val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap)
-        recordingCanvas.creationState = creationState
+        recordingCanvas = RecordingCanvas(bitmap, creationState)
     }
 
     @Test
@@ -1960,9 +1959,9 @@ class RecordingCanvasTest {
         val localCanvas =
             RecordingCanvas(
                 Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888),
+                localCreationState,
                 enableOptimizations = true,
             )
-        localCanvas.setRemoteComposeCreationState(localCreationState)
 
         action(localCanvas, optimizingBuffer)
     }
@@ -2958,8 +2957,11 @@ class RecordingCanvasTest {
                 null,
                 RcPlatformProfiles.ANDROIDX,
             )
-        val localCanvas = RecordingCanvas(Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888))
-        localCanvas.setRemoteComposeCreationState(localCreationState)
+        val localCanvas =
+            RecordingCanvas(
+                Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888),
+                localCreationState,
+            )
 
         val calls = ArrayList<String>()
         val testBuffer = OptimizingTestRemoteComposeBuffer(calls)
@@ -3453,8 +3455,7 @@ class RecordingCanvasTest {
         val creationState =
             RemoteComposeCreationState(RemoteCreationDisplayInfo(500, 500, 160, 1f), null, profile)
         val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
-        val canvas = RecordingCanvas(bitmap)
-        canvas.creationState = creationState
+        val canvas = RecordingCanvas(bitmap, creationState)
 
         canvas.save()
         canvas.translate(20f, 30f)

@@ -100,8 +100,7 @@ class RemoteRoundedCornerShapeTest {
                 profile,
             )
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val recordingCanvas = RecordingCanvas(bitmap)
-        recordingCanvas.creationState = creationState
+        val recordingCanvas = RecordingCanvas(bitmap, creationState)
         val remoteCanvas = RemoteCanvas(recordingCanvas)
         return RemoteDrawScope(remoteCanvas) to recordingCanvas
     }

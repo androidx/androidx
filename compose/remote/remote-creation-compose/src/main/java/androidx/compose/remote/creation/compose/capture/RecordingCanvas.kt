@@ -81,18 +81,28 @@ import androidx.graphics.shapes.RoundedPolygon
  * Note [flush] MUST be called to commit commands to the underlying document.
  *
  * @param bitmap The backing [Bitmap] for the Android [Canvas].
+ * @param creationState Optional [RemoteComposeCreationState] to initialize [creationState].
  * @param enableOptimizations Whether to enable save/restore elision and transform fusing
  *   optimizations. Defaults to `false`.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations: Boolean = false) :
-    Canvas(bitmap), RemoteStateScope {
+public open class RecordingCanvas(
+    bitmap: Bitmap,
+    creationState: RemoteComposeCreationState? = null,
+    public val enableOptimizations: Boolean = false,
+) : Canvas(bitmap), RemoteStateScope {
 
     internal val tracker = PaintTracker()
 
     internal val buffer: CanvasOperationBuffer = CanvasOperationBuffer(enableOptimizations)
 
     internal lateinit var creationState: RemoteComposeCreationState
+
+    init {
+        if (creationState != null) {
+            this.creationState = creationState
+        }
+    }
 
     override val parentScope: RemoteStateScope
         get() = creationState
