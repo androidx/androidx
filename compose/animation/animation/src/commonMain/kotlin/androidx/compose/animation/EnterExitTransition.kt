@@ -32,10 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
@@ -1199,35 +1196,14 @@ internal operator fun <T : TransitionEffect> ExitTransition.get(key: TransitionE
 @OptIn(ExperimentalAnimationApi::class)
 @Suppress("ModifierFactoryExtensionFunction", "ComposableModifierFactory")
 @Composable
-internal fun Transition<EnterExitState>.createModifier(
-    enter: EnterTransition,
-    exit: ExitTransition,
-    trackActiveEnterExit: Boolean = true,
+internal fun Transition<EnterExitState>.createEnterExitModifier(
+    state: EnterExitModifierState,
     isEnabled: () -> Boolean = { true },
-    sharedMutableTransformState: SharedMutableTransformState? = null,
     label: String,
 ): Modifier {
-    val activeMutableState =
-        if (trackActiveEnterExit || sharedMutableTransformState == null) {
-            // When null, it indicates the caller has not provided an external state to track.
-            // In this case, an empty `SharedMutableTransformState` is created internally
-            // to satisfy non-null requirements, but no actual mutable data will be tracked.
-            trackActiveMutableState(sharedMutableTransformState)
-        } else {
-            sharedMutableTransformState
-        }
-    val activeEnter =
-        if (trackActiveEnterExit) {
-            trackActiveEnter(enter = enter, activeMutableState = activeMutableState)
-        } else {
-            enter
-        }
-    val activeExit =
-        if (trackActiveEnterExit) {
-            trackActiveExit(exit = exit, activeMutableState = activeMutableState)
-        } else {
-            exit
-        }
+    val activeEnter = state.enter
+    val activeExit = state.exit
+    val activeMutableState = state.transformState
 
     val shouldAnimateVeil =
         activeEnter.config.veil != null ||
@@ -1307,128 +1283,190 @@ internal fun Transition<EnterExitState>.createModifier(
         .then(if (!shouldVeilMatchParentSize) veilModifierElement else Modifier)
 }
 
-/**
- * Invokes [effect] whenever the transition settles (i.e., reaches its target state) or when it is
- * interrupted by a new target state without deferred phase (i.e. via `animateTo()`, not by
- * `defer()`).
- */
-@Composable
-internal fun <S> Transition<S>.DeferredTransitionCleanupEffect(effect: () -> Unit) {
-    val isMutating = pendingTargetState != null
+internal class EnterExitModifierState(
+    val transformState: SharedMutableTransformState,
+    val enter: EnterTransition,
+    val exit: ExitTransition,
+)
 
-    if (currentState == targetState && !isMutating) {
-        effect()
+private class EnterExitTransitionTracker {
+    val activeTransformState: SharedMutableTransformState = SharedMutableTransformState()
+
+    private var wasMutating = false
+    private var lastTarget: EnterExitState? = null
+    var startTransformStateCatchup: Boolean = false
+
+    private lateinit var activeEnter: EnterTransition
+    private lateinit var activeExit: ExitTransition
+
+    fun update(
+        mutableTransformData: MutableTransform?,
+        enter: EnterTransition,
+        exit: ExitTransition,
+        pendingTargetState: EnterExitState?,
+        currentState: EnterExitState,
+        targetState: EnterExitState,
+        isSeeking: Boolean,
+    ): EnterExitModifierState {
+        trackActiveMutableState(
+            mutableTransformData,
+            pendingTargetState,
+            currentState,
+            targetState,
+        )
+        trackActiveEnter(enter, currentState, targetState, isSeeking)
+        trackActiveExit(exit, currentState, targetState, isSeeking)
+        return EnterExitModifierState(activeTransformState, activeEnter, activeExit)
     }
 
-    val wasMutating = remember { booleanArrayOf(isMutating) }
-    val lastTarget = remember { arrayOfNulls<Any?>(1) }
-    if (lastTarget[0] != targetState) {
-        if (!isMutating && !wasMutating[0]) {
-            effect()
+    private fun trackActiveMutableState(
+        mutableTransformData: MutableTransform?,
+        pendingTargetState: EnterExitState?,
+        currentState: EnterExitState,
+        targetState: EnterExitState,
+    ) {
+        val activeState = activeTransformState
+        activeState.mutableData = mutableTransformData
+        val isMutating = pendingTargetState != null && activeState.mutableData != null
+        val isSettled = currentState == targetState
+        activeState.updateMutationState(isMutating, isSettled)
+
+        val shouldCleanupState =
+            lastTarget != null &&
+                ((isSettled && !isMutating) ||
+                    (lastTarget != targetState && !isMutating && !wasMutating))
+
+        if (shouldCleanupState) {
+            activeState.clear()
         }
-        lastTarget[0] = targetState
-    }
-    wasMutating[0] = isMutating
-}
 
-@Composable
-internal fun Transition<EnterExitState>.trackActiveMutableState(
-    sharedMutableTransformState: SharedMutableTransformState?
-): SharedMutableTransformState {
-    val shared = sharedMutableTransformState ?: remember(this) { SharedMutableTransformState() }
-    val isMutating = pendingTargetState != null && shared.mutableData != null
-    val isSettled = currentState == targetState
-    shared.updateMutationState(isMutating, isSettled)
-
-    LaunchedEffect(isMutating) {
-        if (isMutating && !isSettled) {
-            shared.startCatchUp()
-        }
+        lastTarget = targetState
+        wasMutating = isMutating
+        startTransformStateCatchup = isMutating && !isSettled
     }
 
-    DeferredTransitionCleanupEffect { shared.clear() }
-    return shared
-}
-
-@Composable
-internal fun Transition<EnterExitState>.trackActiveEnter(
-    enter: EnterTransition,
-    activeMutableState: SharedMutableTransformState? = null,
-): EnterTransition {
-    // Active enter & active exit reference the enter and exit transition that is currently being
-    // used. It is important to preserve the active enter/exit that was previously used before
-    // changing target state, such that if the previous enter/exit is interrupted, we still hold
-    // reference to the enter/exit that define those animations and therefore could recover.
-    var activeEnter by remember(this) { mutableStateOf(enter) }
-    if (currentState == targetState && currentState == EnterExitState.Visible) {
-        if (isSeeking) {
-            // When seeking, the timing is different and there's no need to handle interruptions.
+    private fun trackActiveEnter(
+        enter: EnterTransition,
+        currentState: EnterExitState,
+        targetState: EnterExitState,
+        isSeeking: Boolean,
+    ) {
+        if (!::activeEnter.isInitialized) {
             activeEnter = enter
-        } else {
-            activeEnter = EnterTransition.None
         }
-    } else if (targetState != EnterExitState.PostExit) {
-        // Generate a fallback enter transition to seamlessly handoff deferred animations.
-        // This ensures properties modified during the deferred phase remain tracked even if
-        // not specified in the enter transition spec, so that they don't snap if interrupted.
-        // User-specified `enter` properties will automatically override these fallback values
-        // when combined via the `+` operator below.
-        val handoffEnter = activeMutableState?.getHandoffEnter() ?: EnterTransition.None
-        activeEnter += handoffEnter + enter
+        // Active enter & active exit reference the enter and exit transition that is currently
+        // being used. It is important to preserve the active enter/exit that was previously used
+        // before changing target state, such that if the previous enter/exit is interrupted, we
+        // still hold reference to the enter/exit that define those animations and therefore could
+        // recover.
+        if (currentState == targetState && currentState == EnterExitState.Visible) {
+            activeEnter =
+                if (isSeeking) {
+                    // When seeking, the timing is different and there's no need to handle
+                    // interruptions.
+                    enter
+                } else {
+                    EnterTransition.None
+                }
+        } else if (targetState != EnterExitState.PostExit) {
+            // Generate a fallback enter transition to seamlessly handoff deferred animations.
+            // This ensures properties modified during the deferred phase remain tracked even if
+            // not specified in the enter transition spec, so that they don't snap if interrupted.
+            // User-specified `enter` properties will automatically override these fallback values
+            // when combined via the `+` operator below.
+            val handoffEnter = activeTransformState.getHandoffEnter()
+            activeEnter += handoffEnter + enter
+        }
     }
-    return activeEnter
+
+    private fun trackActiveExit(
+        exit: ExitTransition,
+        currentState: EnterExitState,
+        targetState: EnterExitState,
+        isSeeking: Boolean,
+    ) {
+        if (!::activeExit.isInitialized) {
+            activeExit = exit
+        }
+        // Active enter & active exit reference the enter and exit transition that is currently
+        // being
+        // used. It is important to preserve the active enter/exit that was previously used before
+        // changing target state, such that if the previous enter/exit is interrupted, we still hold
+        // reference to the enter/exit that define those animations and therefore could recover.
+        if (currentState == targetState && currentState == EnterExitState.Visible) {
+            activeExit =
+                if (isSeeking) {
+                    // When seeking, the timing is different and there's no need to handle
+                    // interruptions.
+                    exit
+                } else {
+                    ExitTransition.None
+                }
+        } else if (targetState != EnterExitState.Visible) {
+            // The exit transition accumulates when the content goes from exiting, to incoming,
+            // to then again exiting. In this scenario, we first neutralize the previous exit
+            // animations
+            // by animating them to their resting state (e.g. scale = 1f, alpha = 1f).
+            // This ensures seamless animations without jump cuts and prevents old exit animations
+            // from bleeding into the new exit transition (e.g. preventing a previous `scaleOut`
+            // from mistakenly combining with a new `slideOut`).
+            val neutralizedExit =
+                if (activeTransformState.isMutating) {
+                    // Manual transforms are applied on top of any potentially still running
+                    // animations.
+                    // Therefore, we shouldn't neutralize in this case and continue the running
+                    // animation.
+                    activeExit
+                } else {
+                    ExitTransitionImpl(
+                        activeExit.config.copy(
+                            fade = activeExit.config.fade?.copy(alpha = 1f),
+                            scale = activeExit.config.scale?.copy(scale = 1f),
+                            slide = activeExit.config.slide?.copy(slideOffset = NeutralSlideOffset),
+                            changeSize =
+                                activeExit.config.changeSize?.copy(size = NeutralChangeSize),
+                            veil =
+                                activeExit.config.veil?.let {
+                                    it.copy(targetColor = it.initialColor)
+                                },
+                        )
+                    )
+                }
+            // Generate an exit transition to sustain deferred animations that were active at
+            // handoff.
+            // User-specified `exit` properties will automatically override these sustained values
+            // when combined via the `+` operator below.
+            val handoffExit = activeTransformState.getHandoffExit()
+
+            activeExit = neutralizedExit + handoffExit + exit
+        }
+    }
 }
 
 @Composable
-internal fun Transition<EnterExitState>.trackActiveExit(
+internal fun updateEnterExitModifierState(
+    transition: Transition<EnterExitState>,
+    enter: EnterTransition,
     exit: ExitTransition,
-    activeMutableState: SharedMutableTransformState? = null,
-): ExitTransition {
-    // Active enter & active exit reference the enter and exit transition that is currently being
-    // used. It is important to preserve the active enter/exit that was previously used before
-    // changing target state, such that if the previous enter/exit is interrupted, we still hold
-    // reference to the enter/exit that define those animations and therefore could recover.
-    var activeExit by remember(this) { mutableStateOf(exit) }
-    if (currentState == targetState && currentState == EnterExitState.Visible) {
-        if (isSeeking) {
-            // When seeking, the timing is different and there's no need to handle interruptions.
-            activeExit = exit
-        } else {
-            activeExit = ExitTransition.None
+    mutableTransformData: MutableTransform? = null,
+): EnterExitModifierState {
+    val tracker = remember(transition) { EnterExitTransitionTracker() }
+    val modifierState =
+        tracker.update(
+            mutableTransformData,
+            enter,
+            exit,
+            transition.pendingTargetState,
+            transition.currentState,
+            transition.targetState,
+            transition.isSeeking,
+        )
+    if (tracker.startTransformStateCatchup) {
+        LaunchedEffect(tracker) {
+            tracker.activeTransformState.startCatchUp()
         }
-    } else if (targetState != EnterExitState.Visible) {
-        // The exit transition accumulates when the content goes from exiting, to incoming,
-        // to then again exiting. In this scenario, we first neutralize the previous exit animations
-        // by animating them to their resting state (e.g. scale = 1f, alpha = 1f).
-        // This ensures seamless animations without jump cuts and prevents old exit animations
-        // from bleeding into the new exit transition (e.g. preventing a previous `scaleOut`
-        // from mistakenly combining with a new `slideOut`).
-        val neutralizedExit =
-            if (activeMutableState?.isMutating == true) {
-                // Manual transforms are applied on top of any potentially still running animations.
-                // Therefore, we shouldn't neutralize in this case and continue the running
-                // animation.
-                activeExit
-            } else {
-                ExitTransitionImpl(
-                    activeExit.config.copy(
-                        fade = activeExit.config.fade?.copy(alpha = 1f),
-                        scale = activeExit.config.scale?.copy(scale = 1f),
-                        slide = activeExit.config.slide?.copy(slideOffset = NeutralSlideOffset),
-                        changeSize = activeExit.config.changeSize?.copy(size = NeutralChangeSize),
-                        veil =
-                            activeExit.config.veil?.let { it.copy(targetColor = it.initialColor) },
-                    )
-                )
-            }
-        // Generate an exit transition to sustain deferred animations that were active at handoff.
-        // User-specified `exit` properties will automatically override these sustained values
-        // when combined via the `+` operator below.
-        val handoffExit = activeMutableState?.getHandoffExit() ?: ExitTransition.None
-
-        activeExit = neutralizedExit + handoffExit + exit
     }
-    return activeExit
+    return modifierState
 }
 
 internal fun interface GraphicsLayerBlockForEnterExit {
@@ -1451,7 +1489,6 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
         enter.config.scale != null ||
             exit.config.scale != null ||
             mutableTransformState.scaleRequiresAnimation
-
     // Fade - it's important to put fade in the end. Otherwise fade will clip slide.
     // We'll animate if at any point during the transition fadeIn/fadeOut becomes non-null. This
     // would ensure the removal of fadeIn/Out amid a fade animation doesn't result in a jump.

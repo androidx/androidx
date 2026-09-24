@@ -727,7 +727,12 @@ public interface AnimatedVisibilityScope {
                     properties["label"] = label
                 }
         ) {
-            this.then(transition.createModifier(enter, exit, label = label))
+            this.then(
+                transition.createEnterExitModifier(
+                    updateEnterExitModifierState(transition, enter, exit),
+                    label = label,
+                )
+            )
         }
 }
 
@@ -810,18 +815,19 @@ internal fun <T> AnimatedEnterExitImpl(
                 transition.targetEnterExit(visible, it)
             }
 
-        val sharedState = remember(transition) { SharedMutableTransformState() }
-        sharedState.mutableData = mutableTransformData
-        val activeMutableState = childTransition.trackActiveMutableState(sharedState)
-
         // Hoist the active enter/exit tracking to this scope to survive the temporary disposal
         // of the Layout and its modifiers when an exit transition finishes. If an interruption
         // occurs (e.g. A -> B -> A) after the layout for A has been removed, the hoisted
         // tracking preserves the original exit boundaries. Without this, the tracking would
         // re-initialize with the new parameters (which could be ExitTransition.None in
         // AnimatedContent), causing the animation to lose its start/end values and snap.
-        val activeEnter = childTransition.trackActiveEnter(enter, activeMutableState)
-        val activeExit = childTransition.trackActiveExit(exit, activeMutableState)
+        val modifierState =
+            updateEnterExitModifierState(
+                childTransition,
+                enter,
+                exit,
+                mutableTransformData,
+            )
 
         val shouldDisposeAfterExit by
             remember(childTransition, shouldDisposeBlock) {
@@ -836,17 +842,16 @@ internal fun <T> AnimatedEnterExitImpl(
 
         if (!childTransition.exitFinished || !shouldDisposeAfterExit) {
             val scope =
-                remember(transition) { AnimatedVisibilityScopeImpl(childTransition, sharedState) }
+                remember(childTransition) {
+                    AnimatedVisibilityScopeImpl(childTransition, modifierState.transformState)
+                }
             Layout(
                 content = { scope.content() },
                 modifier =
                     modifier.then(
                         childTransition
-                            .createModifier(
-                                activeEnter,
-                                activeExit,
-                                trackActiveEnterExit = false,
-                                sharedMutableTransformState = activeMutableState,
+                            .createEnterExitModifier(
+                                modifierState,
                                 label = "Built-in",
                             )
                             .then(

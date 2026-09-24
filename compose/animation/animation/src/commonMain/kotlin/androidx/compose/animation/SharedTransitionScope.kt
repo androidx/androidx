@@ -1131,9 +1131,12 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
             )
             .composed {
                 animatedVisibilityScope.transition
-                    .createModifier(
-                        enter = enter,
-                        exit = exit,
+                    .createEnterExitModifier(
+                        updateEnterExitModifierState(
+                            animatedVisibilityScope.transition,
+                            enter,
+                            exit,
+                        ),
                         // Since we don't know if a match is found when this is composed,
                         // we have to defer the decision to enable or disable content
                         // scaling until later in the frame. This later time could be
