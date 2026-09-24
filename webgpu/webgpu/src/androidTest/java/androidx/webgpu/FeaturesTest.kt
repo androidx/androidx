@@ -63,7 +63,7 @@ class FeaturesTest {
                 webGpu.processEventsLoop()
             }
             try {
-                val unused = webGpu.execute {
+                webGpu.execute {
                     val deviceFeatures = device.getFeatures().features
                     requiredFeatures.forEach {
                         assert(deviceFeatures.contains(it)) {
