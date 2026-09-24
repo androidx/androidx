@@ -65,6 +65,7 @@ import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.findNearestParentEntity
 import androidx.xr.compose.platform.getActivity
 import androidx.xr.compose.platform.isEmbedded
+import androidx.xr.compose.subspace.SpatialComposeView
 import androidx.xr.compose.subspace.layout.CoreEntity
 import androidx.xr.compose.subspace.layout.CorePanelEntity
 import androidx.xr.compose.subspace.spatialComposeView
@@ -283,7 +284,7 @@ private class SpatialPopupRenderer(
     var parentEntity: CoreEntity? by mutableStateOf(null)
 
     private var panelEntity: CorePanelEntity? = null
-    private var view: ComposeView? = null
+    private var view: SpatialComposeView? = null
 
     override fun onRemembered() {
         val view = spatialComposeView(parentView, context, compositionContext, localId)
