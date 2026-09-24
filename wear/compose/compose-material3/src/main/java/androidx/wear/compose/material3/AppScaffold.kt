@@ -113,7 +113,7 @@ public fun AppScaffold(
     // Run the animator coordinator if needed.
     AnimationCoordinator.Looper()
 
-    val appShowStatusBarState =
+    val doesAppScaffoldWantStatusBarState =
         rememberShowStatusBarState(
             if (timeText === AppScaffoldDefaults.timeText) StatusBarMode.Enabled
             else StatusBarMode.Disabled
@@ -124,7 +124,7 @@ public fun AppScaffold(
     val scaffoldState = remember {
         ScaffoldState(
             appTimeText = timeTextState,
-            appShowStatusBar = appShowStatusBarState,
+            doesAppScaffoldWantStatusBar = doesAppScaffoldWantStatusBarState,
             appWindowView = appWindowViewState,
         )
     }
@@ -137,7 +137,8 @@ public fun AppScaffold(
         val showStatusBarOverlay by remember {
             derivedStateOf {
                 val screenContent = scaffoldState.screenContent
-                if (!screenContent.currentScreenShowStatusBar.value) return@derivedStateOf false
+                if (!screenContent.shouldActiveWindowShowStatusBar.value)
+                    return@derivedStateOf false
 
                 val stage = screenContent.screenStage.value
                 val provider = screenContent.currentScrollInfoProvider.value
@@ -167,7 +168,7 @@ public fun AppScaffold(
     CompositionLocalProvider(
         LocalScaffoldState provides scaffoldState,
         LocalContentColor provides contentColor,
-        LocalInheritedShowStatusBar provides appShowStatusBarState.value,
+        LocalInheritedShowStatusBar provides doesAppScaffoldWantStatusBarState.value,
     ) {
         Box(Modifier.fillMaxSize().background(containerColor)) {
             Box(
