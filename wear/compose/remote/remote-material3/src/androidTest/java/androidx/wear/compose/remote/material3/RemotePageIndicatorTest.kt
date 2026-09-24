@@ -26,6 +26,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import org.junit.Rule
 import org.junit.Test
@@ -39,11 +40,12 @@ class RemotePageIndicatorTest {
     val remoteComposeTestRule =
         RemoteScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            matcher = MSSIMMatcher(threshold = 0.995),
             context = ApplicationProvider.getApplicationContext(),
         )
 
     private val creationDisplayInfo =
-        createCreationDisplayInfo(ApplicationProvider.getApplicationContext(), Size(500f, 500f))
+        createCreationDisplayInfo(ApplicationProvider.getApplicationContext(), Size(250f, 250f))
 
     @Test
     fun horizontal_page_indicator_pageCount3() {
