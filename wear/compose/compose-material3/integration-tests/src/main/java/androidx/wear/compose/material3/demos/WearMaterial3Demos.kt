@@ -30,6 +30,7 @@ import androidx.wear.compose.material3.samples.AnimatedTextSampleSharedFontRegis
 import androidx.wear.compose.material3.samples.ButtonGroupSample
 import androidx.wear.compose.material3.samples.ButtonGroupThreeButtonsSample
 import androidx.wear.compose.material3.samples.ButtonWithImageSample
+import androidx.wear.compose.material3.samples.CurveToEdgeSample
 import androidx.wear.compose.material3.samples.CustomCompositingStrategyTransformationSpecSample
 import androidx.wear.compose.material3.samples.DynamicColorSchemeSample
 import androidx.wear.compose.material3.samples.EdgeButtonSample
@@ -38,6 +39,7 @@ import androidx.wear.compose.material3.samples.FadingExpandingLabelButtonSample
 import androidx.wear.compose.material3.samples.ImageCardSample
 import androidx.wear.compose.material3.samples.LevelIndicatorSample
 import androidx.wear.compose.material3.samples.ListHeaderSample
+import androidx.wear.compose.material3.samples.LongCurveToEdgeSample
 import androidx.wear.compose.material3.samples.NonClickableImageCardSample
 import androidx.wear.compose.material3.samples.NonClickableTitleCardWithImageWithTimeAndTitleSample
 import androidx.wear.compose.material3.samples.PullToRefreshCustomIndicatorSample
@@ -58,7 +60,7 @@ import androidx.wear.compose.material3.samples.TransformingLazyColumnMinimumVert
 val WearMaterial3Demos =
     Material3DemoCategory(
         "Material 3",
-        listOf(
+        listOfNotNull(
                 ComposableDemo("LevelIndicator") { Centralize { LevelIndicatorSample() } },
                 ComposableDemo("Haptics") { Centralize { HapticsDemos() } },
                 ComposableDemo("Performance") { Centralize { PerformanceDemos() } },
@@ -96,6 +98,34 @@ val WearMaterial3Demos =
                         ComposableDemo("Exhaustive") { DynamicColorSchemeDemos() },
                     ),
                 ),
+                if (Build.VERSION.SDK_INT >= 33)
+                    Material3DemoCategory(
+                        "CurveToEdge Modifier",
+                        listOf(
+                            ComposableDemo("Curved Text") { CurveToEdgeSample() },
+                            ComposableDemo("Long Curved Text") { LongCurveToEdgeSample() },
+                            ComposableDemo("CurveToEdge Text with anchor") {
+                                CurveToEdgeTextAnchorDemo()
+                            },
+                            ComposableDemo("CurveToEdge Text with sweep angle") {
+                                CurveToEdgeTextAngleDemo()
+                            },
+                            ComposableDemo("Counter Clockwise CurveToEdge Text") {
+                                CounterClockwiseCurveToEdgeTextDemo()
+                            },
+                            ComposableDemo("Cursive CurveToEdge Text") {
+                                CursiveCurveToEdgeTextDemo()
+                            },
+                            ComposableDemo("Cursive RTL CurveToEdge Text") {
+                                CursiveRTLCurveToEdgeTextDemo()
+                            },
+                            ComposableDemo("CurveToEdge Image") { CurveToEdgeImageDemo() },
+                            ComposableDemo("CurveToEdge Row") { CurveToEdgeRowDemo() },
+                            ComposableDemo("Four Circles") { FourCirclesDemo() },
+                            ComposableDemo("Dual Curves") { DualCurvesDemo() },
+                        ),
+                    )
+                else null,
                 Material3DemoCategory("Curved Text", CurvedTextDemos),
                 Material3DemoCategory("Alert Dialog", AlertDialogDemos),
                 Material3DemoCategory("Confirmation Dialog", ComfirmationDialogDemos),
