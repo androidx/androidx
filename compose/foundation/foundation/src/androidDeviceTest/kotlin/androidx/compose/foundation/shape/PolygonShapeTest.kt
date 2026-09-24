@@ -657,6 +657,13 @@ class PolygonShapeTest {
             .contains("innerRadiusRatio")
         assertThat(
                 assertThrows(IllegalArgumentException::class.java) {
+                    PolygonShape.star(8, innerRadiusRatio = 1f)
+                }
+            )
+            .hasMessageThat()
+            .contains("innerRadiusRatio")
+        assertThat(
+                assertThrows(IllegalArgumentException::class.java) {
                     PolygonShape.pill(smoothing = -0.5f)
                 }
             )
