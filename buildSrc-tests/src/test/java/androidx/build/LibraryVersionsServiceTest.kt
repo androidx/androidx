@@ -66,9 +66,7 @@ class LibraryVersionsServiceTest {
             )
         assertThrows<Exception> { service.libraryGroups["G1"] }
             .hasMessageThat()
-            .contains(
-                "libraryversions.toml:line 5, column 23: Duplicate key"
-            )
+            .contains("libraryversions.toml:line 5, column 23: Duplicate key")
     }
 
     @Test
@@ -165,11 +163,11 @@ class LibraryVersionsServiceTest {
         val service =
             createLibraryVersionsService(
                 """
-            [versions]
-            V1 = "1.2.3"
-            V2 = "2.0.0-alpha01"
-            [groups]
-            """
+                [versions]
+                V1 = "1.2.3"
+                V2 = "2.0.0-alpha01"
+                [groups]
+                """
                     .trimIndent()
             )
         assertThat(service.libraryVersions["V1"]).isEqualTo(Version("1.2.3"))
@@ -181,10 +179,10 @@ class LibraryVersionsServiceTest {
         val service =
             createLibraryVersionsService(
                 """
-            [versions]
-            V1 = "not_a_valid_semver"
-            [groups]
-            """
+                [versions]
+                V1 = "not_a_valid_semver"
+                [groups]
+                """
                     .trimIndent()
             )
         assertThrows<Exception> { service.libraryVersions["V1"] }
@@ -197,9 +195,9 @@ class LibraryVersionsServiceTest {
         val service =
             createLibraryVersionsService(
                 """
-            [groups]
-            G1 = { group = "g.g1" }
-            """
+                [groups]
+                G1 = { group = "g.g1" }
+                """
                     .trimIndent()
             )
         assertThrows<Exception> { service.libraryVersions }
@@ -212,9 +210,9 @@ class LibraryVersionsServiceTest {
         val service =
             createLibraryVersionsService(
                 """
-            [versions]
-            V1 = "1.2.3"
-            """
+                [versions]
+                V1 = "1.2.3"
+                """
                     .trimIndent()
             )
         assertThrows<Exception> { service.libraryGroups }
@@ -227,11 +225,11 @@ class LibraryVersionsServiceTest {
         val service =
             createLibraryVersionsService(
                 """
-            [versions]
-            V1 = "1.2.3"
-            [groups]
-            G1 = { atomicGroupVersion = "versions.V1" }
-            """
+                [versions]
+                V1 = "1.2.3"
+                [groups]
+                G1 = { atomicGroupVersion = "versions.V1" }
+                """
                     .trimIndent()
             )
         assertThrows<Exception> { service.libraryGroups["G1"] }
@@ -244,11 +242,11 @@ class LibraryVersionsServiceTest {
         val service =
             createLibraryVersionsService(
                 """
-            [versions]
-            [groups]
-            G1 = { group = "g.g1" }
-            G2 = { group = "g.g1" }
-            """
+                [versions]
+                [groups]
+                G1 = { group = "g.g1" }
+                G2 = { group = "g.g1" }
+                """
                     .trimIndent()
             )
         assertThrows<Exception> { service.libraryGroupsByGroupId["g.g1"] }
@@ -264,11 +262,11 @@ class LibraryVersionsServiceTest {
         val service =
             createLibraryVersionsService(
                 """
-            [versions]
-            [groups]
-            G1 = { group = "g.g1" }
-            G2 = { group = "g.g1", overrideInclude = [":other:project"] }
-            """
+                [versions]
+                [groups]
+                G1 = { group = "g.g1" }
+                G2 = { group = "g.g1", overrideInclude = [":other:project"] }
+                """
                     .trimIndent()
             )
         assertThat(service.libraryGroupsByGroupId["g.g1"]?.group).isEqualTo("g.g1")
@@ -281,22 +279,52 @@ class LibraryVersionsServiceTest {
         val service =
             createLibraryVersionsService(
                 """
-            [versions]
-            V1 = "1.0.0"
-            V2 = "1.1.0"
-            [groups]
-            CAM1 = { group = "androidx.camera", atomicGroupVersion = "versions.V1" }
-            CAM2 = { group = "androidx.camera", atomicGroupVersion = "versions.V2", overrideInclude = [":camera:camera-extensions"] }
-            """
+                [versions]
+                V1 = "1.0.0"
+                V2 = "1.1.0"
+                [groups]
+                CAM1 = { group = "androidx.camera", atomicGroupVersion = "versions.V1" }
+                CAM2 = { group = "androidx.camera", atomicGroupVersion = "versions.V2", overrideInclude = [":camera:camera-extensions"] }
+                """
                     .trimIndent()
             )
         assertThat(service.libraryGroupsByGroupId["androidx.camera"]?.atomicGroupVersion)
             .isEqualTo(Version("1.0.0"))
+        assertThat(service.libraryGroupsByGroupId["androidx.camera"]?.requireSameVersion).isTrue()
         assertThat(
                 service.overrideLibraryGroupsByProjectPath[":camera:camera-extensions"]
                     ?.atomicGroupVersion
             )
             .isEqualTo(Version("1.1.0"))
+        assertThat(
+                service.overrideLibraryGroupsByProjectPath[":camera:camera-extensions"]
+                    ?.requireSameVersion
+            )
+            .isFalse()
+    }
+
+    // Edge case: when an overrideInclude entry specifies the same atomicGroupVersion as the base
+    // group (or is the sole entry mapping a project from another directory), default to keeping
+    // the group atomic (requireSameVersion = true).
+    @Test
+    fun overrideIncludeWithSameAtomicGroupVersionKeepsRequireSameVersionTrue() {
+        val service =
+            createLibraryVersionsService(
+                """
+                [versions]
+                V1 = "1.0.0"
+                [groups]
+                M3 = { group = "androidx.compose.material3", atomicGroupVersion = "versions.V1" }
+                M3_NAV = { group = "androidx.compose.material3", atomicGroupVersion = "versions.V1", overrideInclude = [":compose:material3:material3-adaptive-navigation-suite"] }
+                """
+                    .trimIndent()
+            )
+        assertThat(
+                service.overrideLibraryGroupsByProjectPath[
+                        ":compose:material3:material3-adaptive-navigation-suite"]
+                    ?.requireSameVersion
+            )
+            .isTrue()
     }
 
     @Test
@@ -304,9 +332,9 @@ class LibraryVersionsServiceTest {
         val service =
             createLibraryVersionsService(
                 """
-            [versions
-            V1 = "1.2.3"
-            """
+                [versions
+                V1 = "1.2.3"
+                """
                     .trimIndent()
             )
         assertThrows<Exception> { service.libraryVersions }
