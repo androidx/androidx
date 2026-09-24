@@ -224,7 +224,6 @@ COMPOSE_FOUNDATION = { group = "androidx.compose.foundation", atomicGroupVersion
 COMPOSE_MATERIAL = { group = "androidx.compose.material" }
 COMPOSE_MATERIAL3 = { group = "androidx.compose.material3", atomicGroupVersion = "versions.COMPOSE_MATERIAL3" }
 COMPOSE_MATERIAL3_ADAPTIVE = { group = "androidx.compose.material3.adaptive", atomicGroupVersion = "versions.COMPOSE_MATERIAL3_ADAPTIVE" }
-COMPOSE_MATERIAL3_ADAPTIVE_NAVIGATION_SUITE = { group = "androidx.compose.material3", atomicGroupVersion = "versions.COMPOSE_MATERIAL3", overrideInclude = [ ":compose:material3:material3-adaptive-navigation-suite" ] }
 COMPOSE_MATERIAL3_XR = { group = "androidx.xr.compose.material3", atomicGroupVersion = "versions.COMPOSE_MATERIAL3_XR" }
 COMPOSE_REMOTE_FOUNDATION = { group = "androidx.compose.remote.foundation", atomicGroupVersion = "versions.COMPOSE_REMOTE_FOUNDATION" }
 COMPOSE_RUNTIME = { group = "androidx.compose.runtime", atomicGroupVersion = "versions.COMPOSE" }
