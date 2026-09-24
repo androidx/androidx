@@ -48,6 +48,7 @@ import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.GltfModelNode
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.PixelDensity
+import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
 import kotlin.math.PI
@@ -91,6 +92,8 @@ internal sealed class CoreEntity(val pixelDensity: PixelDensity, initialEntity: 
                 }
             }
         }
+
+    internal fun getPose(space: Space): Pose = entity?.getPose(space) ?: Pose.Identity
 
     /** Get the [Entity] associated with this [CoreEntity] for testing purposes. */
     internal val semanticsEntity: Entity?

@@ -26,10 +26,13 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.arcore.testing.ArCoreTestRule
 import androidx.xr.compose.platform.LocalSession
+import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import androidx.xr.compose.spatial.LocalSubspaceRootNode
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialPanel
+import androidx.xr.compose.subspace.animation.follow.FollowMode
+import androidx.xr.compose.subspace.animation.follow.FollowTarget
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.assertRotationInRootIsEqualTo
@@ -48,10 +51,13 @@ import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -59,7 +65,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.android.controller.ActivityController
 
-@OptIn(ExperimentalRotateToLookAtUserApi::class)
+@OptIn(ExperimentalRotateToLookAtUserApi::class, ExperimentalFollowingSubspaceApi::class)
 @RunWith(AndroidJUnit4::class)
 class RotateToLookAtUserTest {
     private val testDispatcher = StandardTestDispatcher()
@@ -72,8 +78,14 @@ class RotateToLookAtUserTest {
 
     @Before
     fun setUp() {
+        FollowMode.dispatcherOverride = testDispatcher
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.get()
+    }
+
+    @After
+    fun tearDown() {
+        FollowMode.dispatcherOverride = Dispatchers.Default
     }
 
     @Test
@@ -664,6 +676,101 @@ class RotateToLookAtUserTest {
                 .assertRotationInRootIsEqualTo(expectedRotation)
         }
 
+    @Test
+    fun rotateToLookAtUser_inFollowingSubspace_retainsRotationAngleWhenUserMoves() =
+        runTest(testDispatcher) {
+            createSession()
+            val session = assertNotNull(composeTestRule.session)
+
+            composeTestRule.setContent {
+                val density = LocalDensity.current
+                val pixelDensity = session.scene.virtualPixelDensity
+                Subspace(follow = FollowTarget.view(mode = FollowMode.soft())) {
+                    SpatialPanel(
+                        SubspaceModifier.testTag("TheWatcher")
+                            .offset(x = 0.5f.metersToDp(density, pixelDensity))
+                            .rotateToLookAtUser()
+                    ) {}
+                }
+            }
+
+            testDispatcher.scheduler.advanceUntilIdle()
+            composeTestRule.waitForIdle()
+
+            val watcherEntity = composeTestRule.getTaggedEntity("TheWatcher")
+            val watcherWorldTranslation = watcherEntity.getPose(Space.ACTIVITY).translation
+            val expectedRotation = Quaternion.fromLookTowards(-watcherWorldTranslation, Vector3.Up)
+
+            // Before movement, confirm calculated expectedRotation is correct.
+            composeTestRule
+                .onSubspaceNodeWithTag("TheWatcher")
+                .assertRotationInRootIsEqualTo(expectedRotation)
+
+            // With a FollowingSubspace, when user changes translation, it should not change the
+            // rotateToLookAtUser pose.
+            val newTranslation = Vector3(x = 0F, y = 0F, z = 10F)
+            translateDevice(offset = newTranslation, durationMs = 3000L)
+
+            // After user moves, panel inside FollowingSubspace retains its inward angle
+            // (expectedRotation)
+            composeTestRule
+                .onSubspaceNodeWithTag("TheWatcher")
+                .assertRotationInRootIsEqualTo(expectedRotation)
+        }
+
+    @Test
+    fun pitchLimits_validRange_createsSuccessfully() {
+        val limits = PitchLimits(minimumPitch = -30f, maximumPitch = 45f)
+        assertThat(limits.minimumPitch).isEqualTo(-30f)
+        assertThat(limits.maximumPitch).isEqualTo(45f)
+    }
+
+    @Test
+    fun pitchLimits_fullRange_hasFullRange() {
+        val limits = PitchLimits.FullRange
+        assertThat(limits.minimumPitch).isEqualTo(-90f)
+        assertThat(limits.maximumPitch).isEqualTo(90f)
+    }
+
+    @Test
+    fun pitchLimits_minimumPitchBelowLimit_throwsIllegalArgumentException() {
+        assertFailsWith<IllegalArgumentException> {
+            PitchLimits(minimumPitch = -90.1f, maximumPitch = 0f)
+        }
+    }
+
+    @Test
+    fun pitchLimits_maximumPitchAboveLimit_throwsIllegalArgumentException() {
+        assertFailsWith<IllegalArgumentException> {
+            PitchLimits(minimumPitch = 0f, maximumPitch = 90.1f)
+        }
+    }
+
+    @Test
+    fun pitchLimits_minimumGreaterThanMaximum_throwsIllegalArgumentException() {
+        assertFailsWith<IllegalArgumentException> {
+            PitchLimits(minimumPitch = 10f, maximumPitch = -10f)
+        }
+    }
+
+    @Test
+    fun pitchLimits_equalsAndHashCode_workCorrectly() {
+        val limits1 = PitchLimits(-15f, 15f)
+        val limits2 = PitchLimits(-15f, 15f)
+        val limits3 = PitchLimits(-10f, 15f)
+
+        assertThat(limits1).isEqualTo(limits2)
+        assertThat(limits1.hashCode()).isEqualTo(limits2.hashCode())
+        assertThat(limits1).isNotEqualTo(limits3)
+    }
+
+    @Test
+    fun pitchLimits_toString_returnsExpectedFormat() {
+        val limits = PitchLimits(-10f, 20f)
+        assertThat(limits.toString())
+            .isEqualTo("PitchLimits(minimumPitch=-10.0, maximumPitch=20.0)")
+    }
+
     private fun createSession() {
         val sessionCreateResult = runBlocking {
             Session.create(context = composeTestRule.activity, coroutineContext = testDispatcher)
@@ -692,5 +799,24 @@ class RotateToLookAtUserTest {
         // Calculate the quaternion that rotates from (0,0,1) to the new XZ target.
         val initialForwardVector = Vector3(0f, 0f, 1f)
         return fromRotation(initialForwardVector, flatTargetVector)
+    }
+
+    private fun translateDevice(offset: Vector3, durationMs: Long? = null) {
+        arCoreTestRule.deviceTester.pose =
+            arCoreTestRule.deviceTester.pose.translate(translation = offset)
+        testDispatcher.scheduler.advanceUntilIdle()
+        advanceTimeBy(durationMs)
+    }
+
+    private fun advanceTimeBy(durationMs: Long?) {
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        if (durationMs != null) {
+            val frames = (durationMs / 16L).toInt() + 1
+            for (i in 0..frames) {
+                composeTestRule.mainClock.advanceTimeByFrame()
+                testDispatcher.scheduler.advanceUntilIdle()
+            }
+        }
     }
 }

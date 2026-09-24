@@ -17,7 +17,6 @@ package androidx.xr.compose.subspace.layout
 
 import androidx.xr.arcore.ArDevice
 import androidx.xr.compose.platform.LocalSession
-import androidx.xr.compose.spatial.LocalSubspaceRootNode
 import androidx.xr.compose.subspace.node.CompositionLocalConsumerSubspaceModifierNode
 import androidx.xr.compose.subspace.node.SubspaceLayoutAwareModifierNode
 import androidx.xr.compose.subspace.node.SubspaceLayoutModifierNode
@@ -30,8 +29,6 @@ import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.Entity
-import androidx.xr.scenecore.PixelDensity
 import androidx.xr.scenecore.scene
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -59,9 +56,6 @@ public annotation class ExperimentalRotateToLookAtUserApi
  * be granted by the calling application. `session.configure( config =
  * Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build() )`
  *
- * This modifier might not work as expected when used on content within a
- * [androidx.xr.compose.spatial.FollowingSubspace].
- *
  * The preceding rotate modifiers will be disregarded because this modifier will override them. But
  * the rotate after the `rotateToLookAtUser` modifier will be respected.
  *
@@ -80,7 +74,6 @@ public annotation class ExperimentalRotateToLookAtUserApi
  * @param pitchLimits The limits for the Pitch (X-axis rotation) to track the user. Defaults to
  *   [PitchLimits.FullRange]. This parameter is ignored if [isPitchUpdateEnabled] is `false`.
  */
-// TODO(b/461808266): RotateToLookAtUser and FollowingSubspace not compatible with each other
 // TODO(b/487087894): [Moohan Emulator] ARCore ArDevice emit identity pose until user moves
 @ExperimentalRotateToLookAtUserApi
 public fun SubspaceModifier.rotateToLookAtUser(
@@ -138,7 +131,6 @@ private class RotateToLookAtUserNode(
     SubspaceLayoutAwareModifierNode,
     CompositionLocalConsumerSubspaceModifierNode {
     private lateinit var session: Session
-    private lateinit var spatialDensity: PixelDensity
     private lateinit var arDevice: ArDevice
     private var headPoseJob: Job? = null
     private var currentHeadPose: Pose = Pose()
@@ -151,7 +143,6 @@ private class RotateToLookAtUserNode(
             checkNotNull(currentValueOf(LocalSession)) {
                 "LocalSession must be available during onAttach."
             }
-        spatialDensity = session.scene.virtualPixelDensity
 
         if (session.config.deviceTracking == DeviceTrackingMode.DISABLED) {
             return
@@ -173,26 +164,10 @@ private class RotateToLookAtUserNode(
         val placeable: SubspacePlaceable = measurable.measure(constraints = constraints)
 
         return layout(width = placeable.width, height = placeable.height, depth = placeable.depth) {
-            // Get the pose of the node in the Compose root space.
-            // Transform from Node space to root space.
-            val rootFromNodePixels: Pose = coordinates?.poseInRoot ?: Pose.Identity
-
-            // Convert the node's pose in Compose root from pixels to meters.
-            val rootFromNodeMeters: Pose = rootFromNodePixels.pxToMeters(spatialDensity)
-
-            // Fetch the root node directly from composition locals.
-            val rootNode: Entity? = currentValueOf(LocalSubspaceRootNode)
-
-            // Chain (compose) the transforms: Node -> Root -> Activity.
-            // Using transformPoseTo() which automatically handle the positioning, rotation, AND
-            // accumulated scale
-            val activitySpaceFromNode: Pose =
-                rootNode?.transformPoseTo(
-                    pose = rootFromNodeMeters,
-                    destination = session.scene.activitySpace,
-                ) ?: rootFromNodeMeters
-
             // Extract Translation in Activity Space.
+            val activitySpaceFromNode: Pose =
+                coordinates?.poseInActivitySpace?.pxToMeters(session.scene.virtualPixelDensity)
+                    ?: Pose.Identity
             val nodeActivitySpaceTranslation: Vector3 = activitySpaceFromNode.translation
             val headActivitySpaceTranslation: Vector3 = currentHeadPose.translation
 
