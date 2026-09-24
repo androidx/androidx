@@ -252,7 +252,7 @@ internal class ContentInViewNode(
                                 // TODO(b/239671493) Should this trigger nested scrolling?
                                 animationJob.cancel(
                                     "Scroll animation cancelled because scroll was not consumed " +
-                                        "($consumedScroll < $delta)"
+                                        "(|$consumedScroll| < |$delta|)"
                                 )
                             }
                         },
