@@ -127,9 +127,12 @@ private constructor(rtAnchorEntity: RtAnchorEntity, entityRegistry: EntityRegist
             @JvmField public val TIMED_OUT: State = State(2)
 
             /**
-             * An AnchorSpace in the ERROR state indicates that an unexpected error has occurred and
-             * this AnchorSpace is invalid, without the possibility of recovery. Logcat may include
-             * additional information about the error.
+             * Indicates that an unrecoverable error occurred and this [AnchorSpace] is invalid.
+             *
+             * Note: [create] transitions to [ERROR] if the underlying [Anchor] cannot be exported
+             * or bound to the scene graph (for example, when the
+             * [androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_COARSE] permission is not granted).
+             * Check Logcat for additional error details.
              */
             @JvmField public val ERROR: State = State(-1)
         }
@@ -371,10 +374,17 @@ private constructor(rtAnchorEntity: RtAnchorEntity, entityRegistry: EntityRegist
         }
 
         /**
-         * Public factory for an AnchorSpace which uses an [Anchor] from ARCore for Jetpack XR.
+         * Creates an [AnchorSpace] backed by an [Anchor] from ARCore for Jetpack XR.
          *
-         * @param session [Session] in which to create the AnchorSpace.
-         * @param anchor The [Anchor] to use for this AnchorSpace.
+         * Note: Exporting and binding [anchor] to the scene graph requires the
+         * [androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_COARSE] permission, even when [anchor]
+         * is a spatial anchor created from a static [Pose] via [Anchor.create]. If this permission
+         * is not granted or if [anchor] cannot be bound to the scene graph, the returned
+         * [AnchorSpace] immediately transitions to [State.ERROR].
+         *
+         * @param session [Session] in which to create the [AnchorSpace]
+         * @param anchor [Anchor] to bind to this [AnchorSpace]
+         * @return the created [AnchorSpace]
          */
         @JvmStatic
         public fun create(session: Session, anchor: Anchor): AnchorSpace {
@@ -386,7 +396,9 @@ private constructor(rtAnchorEntity: RtAnchorEntity, entityRegistry: EntityRegist
                     entity.updateState(entity.fromRtState(state))
                 }::invoke
             )
-            rtAnchorEntity.setAnchor(anchor)
+            if (!rtAnchorEntity.setAnchor(anchor)) {
+                anchorSpace.updateState(State.ERROR)
+            }
             return anchorSpace
         }
     }
