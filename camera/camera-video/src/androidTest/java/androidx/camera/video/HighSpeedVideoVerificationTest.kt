@@ -16,19 +16,18 @@
 
 package androidx.camera.video
 
-import android.annotation.SuppressLint
 import android.content.Context
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_CONSTRAINED_HIGH_SPEED_VIDEO
+import android.media.MediaExtractor
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import android.util.Range
-import android.util.Rational
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA
-import androidx.camera.core.CameraSelector.DEFAULT_FRONT_CAMERA
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.DynamicRange.HLG_10_BIT
@@ -44,8 +43,8 @@ import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.getCaptureFps
-import androidx.camera.testing.impl.getDurationMs
 import androidx.camera.testing.impl.getRotatedResolution
+import androidx.camera.testing.impl.getVideoSampleTimesUs
 import androidx.camera.testing.impl.useAndRelease
 import androidx.camera.testing.impl.video.AudioChecker
 import androidx.camera.testing.impl.video.RecordingSession
@@ -57,7 +56,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import java.lang.Thread.sleep
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume.assumeTrue
@@ -87,31 +85,50 @@ class HighSpeedVideoVerificationTest(
         private const val SLOW_MOTION_ENCODE_FRAME_RATE = 30
         private val cameraConfigs =
             arrayOf(Camera2Config::class.simpleName to Camera2Config.defaultConfig())
-        private val cameraSelectors = arrayOf(DEFAULT_BACK_CAMERA, DEFAULT_FRONT_CAMERA)
         private val dynamicRanges = arrayOf("SDR" to SDR, "HLG" to HLG_10_BIT)
         private val qualities = arrayOf(SD, HD, FHD, UHD)
         private val captureFrameRates = arrayOf(FPS_120_120, FPS_240_240, FPS_480_480)
 
         @JvmStatic
+        private fun getHighSpeedCameraSelectors(): List<CameraSelector> {
+            return try {
+                CameraUtil.getAvailableCameraSelectors().filter { selector ->
+                    val lensFacing = selector.lensFacing ?: return@filter false
+                    val characteristics = CameraUtil.getCameraCharacteristics(lensFacing)
+                    val capabilities =
+                        characteristics?.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
+                    capabilities?.contains(
+                        REQUEST_AVAILABLE_CAPABILITIES_CONSTRAINED_HIGH_SPEED_VIDEO
+                    ) == true
+                }
+            } catch (e: Throwable) {
+                emptyList()
+            }
+        }
+
+        @JvmStatic
         @Parameterized.Parameters(
             name = "quality={7}, captureFrameRate={8}, config={1}, lensFacing={3}, dynamicRange={5}"
         )
-        fun data(): List<Array<Any?>> = cameraConfigs.flatMap { (cameraConfigName, cameraConfig) ->
-            cameraSelectors.flatMap { cameraSelector ->
-                dynamicRanges.flatMap { (dynamicRangeName, dynamicRange) ->
-                    qualities.flatMap { quality ->
-                        captureFrameRates.map { captureFrameRate ->
-                            arrayOf(
-                                cameraConfig,
-                                cameraConfigName,
-                                cameraSelector,
-                                cameraSelector.lensFacing,
-                                dynamicRange,
-                                dynamicRangeName,
-                                quality,
-                                (quality as Quality.ConstantQuality).name,
-                                captureFrameRate,
-                            )
+        fun data(): List<Array<Any?>> {
+            val highSpeedCameraSelectors = getHighSpeedCameraSelectors()
+            return cameraConfigs.flatMap { (cameraConfigName, cameraConfig) ->
+                highSpeedCameraSelectors.flatMap { cameraSelector ->
+                    dynamicRanges.flatMap { (dynamicRangeName, dynamicRange) ->
+                        qualities.flatMap { quality ->
+                            captureFrameRates.map { captureFrameRate ->
+                                arrayOf(
+                                    cameraConfig,
+                                    cameraConfigName,
+                                    cameraSelector,
+                                    cameraSelector.lensFacing,
+                                    dynamicRange,
+                                    dynamicRangeName,
+                                    quality,
+                                    (quality as Quality.ConstantQuality).name,
+                                    captureFrameRate,
+                                )
+                            }
                         }
                     }
                 }
@@ -222,7 +239,6 @@ class HighSpeedVideoVerificationTest(
         testRecording(isSlowMotionEnabled = true)
     }
 
-    @SuppressLint("BanThreadSleep")
     private fun testRecording(isSlowMotionEnabled: Boolean = false) {
         // Arrange.
         val highSpeedVideoConfig =
@@ -238,10 +254,8 @@ class HighSpeedVideoVerificationTest(
         }
 
         // Act & Verify.
-        val recordingDurationMs = 1000L
         val recording =
             recordingSession.createRecording(recorder = videoCapture.output).startAndVerify()
-        sleep(recordingDurationMs)
         val finalize = recording.stopAndVerify()
 
         // Verify: verify video metadata.
@@ -255,26 +269,43 @@ class HighSpeedVideoVerificationTest(
 
             assertThat(it.getRotatedResolution()).isEqualTo(expectedResolution)
 
-            // Verify video duration for slow-motion recording.
-            if (isSlowMotionEnabled) {
-                if (Build.VERSION.SDK_INT >= 30) {
-                    // MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE is used to access
-                    // "com.android.capture.fps" video metadata.
-                    // Starting with API 30, MediaMuxer will write "com.android.capture.fps" video
-                    // metadata when "time-lapse-fps" value is set. This allows that Photos can
-                    // correctly identify the video as a slow-motion video.
-                    assertThat(it.getCaptureFps()).isEqualTo(captureFrameRate.upper)
-                }
+            // Verify video capture fps metadata for slow-motion recording.
+            if (isSlowMotionEnabled && Build.VERSION.SDK_INT >= 30) {
+                // MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE is used to access
+                // "com.android.capture.fps" video metadata.
+                // Starting with API 30, MediaMuxer will write "com.android.capture.fps" video
+                // metadata when "time-lapse-fps" value is set. This allows that Photos can
+                // correctly identify the video as a slow-motion video.
+                assertThat(it.getCaptureFps()).isEqualTo(captureFrameRate.upper)
+            }
+        }
 
-                // ex: For 1/4x slow-motion recording, i.e. 120 capture fps to 30 encoding fps,
-                // and the recording duration is 1 second at least,
-                // the recorded duration should be (1 / 1/4x) = 4 second at least.
-                val captureEncodeRatio =
-                    Rational(captureFrameRate.upper, SLOW_MOTION_ENCODE_FRAME_RATE)
-                val atLeastVideoDurationMs =
-                    (recordingDurationMs * captureEncodeRatio.toDouble()).toLong()
+        // Verify video sample fps for slow-motion recording.
+        if (isSlowMotionEnabled) {
+            MediaExtractor().useAndRelease { extractor ->
+                extractor.setDataSource(finalize.file.absolutePath)
+                val sampleTimesUs = extractor.getVideoSampleTimesUs(maxSamples = 30)
+                assertThat(sampleTimesUs.size).isAtLeast(2)
 
-                assertThat(it.getDurationMs()).isAtLeast(atLeastVideoDurationMs)
+                // Calculate sample delta intervals between consecutive frames.
+                val intervalsUs =
+                    sampleTimesUs.zipWithNext { t1, t2 -> t2 - t1 }.filter { it > 0 }.sorted()
+                assertThat(intervalsUs).isNotEmpty()
+
+                // For slow-motion recording, presentation timestamps are stretched by the
+                // slow-motion
+                // factor (captureFrameRate / encodeFrameRate, e.g. 120 / 30 = 4x). The nominal
+                // playback frame rate should match the encode frame rate (30 fps) rather than the
+                // high-speed capture frame rate (e.g. 120 fps).
+                //
+                // On devices that drop frames at the HAL layer during high-speed capture, missing
+                // frames produce larger gaps (multiples of ~33ms). We use the median interval which
+                // remains robust against dropped frames to derive the effective playback fps.
+                val medianIntervalUs = intervalsUs[intervalsUs.size / 2].toDouble()
+                val actualPlaybackFps = TimeUnit.SECONDS.toMicros(1L) / medianIntervalUs
+                val expectedFps = SLOW_MOTION_ENCODE_FRAME_RATE.toDouble()
+                val toleranceFps = expectedFps * 0.25
+                assertThat(actualPlaybackFps).isWithin(toleranceFps).of(expectedFps)
             }
         }
     }
