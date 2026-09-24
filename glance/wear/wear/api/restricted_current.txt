@@ -18,6 +18,16 @@ package androidx.glance.wear {
     method @MainThread public abstract suspend Object? provideWidgetData(android.content.Context context, androidx.glance.wear.core.WearWidgetParams params, kotlin.coroutines.Continuation<? super androidx.glance.wear.WearWidgetData>);
     method public final suspend Object? triggerUpdate(android.content.Context context, androidx.glance.wear.core.WidgetInstanceId instanceId, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public final suspend Object? triggerUpdateAll(android.content.Context context, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    field public static final String CATEGORY_PROVIDER_CONFIG = "com.google.android.clockwork.tiles.category.PROVIDER_CONFIG";
+    field public static final androidx.glance.wear.GlanceWearWidget.Companion Companion;
+    field public static final String EXTRA_CONFIG_PROVIDER_COMPONENT = "com.google.android.clockwork.EXTRA_CONFIG_PROVIDER_COMPONENT";
+    field public static final String EXTRA_CONFIG_WIDGET_ID = "com.google.android.clockwork.EXTRA_PROVIDER_CONFIG_TILE_ID";
+  }
+
+  public static final class GlanceWearWidget.Companion {
+    property public static String CATEGORY_PROVIDER_CONFIG;
+    property public static String EXTRA_CONFIG_PROVIDER_COMPONENT;
+    property public static String EXTRA_CONFIG_WIDGET_ID;
   }
 
   public final class GlanceWearWidgetManager {
