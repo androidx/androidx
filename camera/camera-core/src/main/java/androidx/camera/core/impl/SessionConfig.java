@@ -734,13 +734,37 @@ public final class SessionConfig {
         }
 
         /**
+         * Add a surface with the provided physical camera ID for the session which only used for
+         * single captures.
+         *
+         * <p>The dynamic range of this surface will default to {@link DynamicRange#SDR}.
+         */
+        public @NonNull Builder addNonRepeatingSurface(
+                @NonNull DeferrableSurface surface,
+                @Nullable String physicalCameraId) {
+            return addNonRepeatingSurface(surface, DynamicRange.SDR, physicalCameraId);
+        }
+
+        /**
          * Add a surface with the provided dynamic range for the session which only used for
          * single captures.
          */
         public @NonNull Builder addNonRepeatingSurface(@NonNull DeferrableSurface surface,
                 @NonNull DynamicRange dynamicRange) {
+            return addNonRepeatingSurface(surface, dynamicRange, null);
+        }
+
+        /**
+         * Add a surface with the provided dynamic range and physical camera ID for the session
+         * which only used for single captures.
+         */
+        public @NonNull Builder addNonRepeatingSurface(
+                @NonNull DeferrableSurface surface,
+                @NonNull DynamicRange dynamicRange,
+                @Nullable String physicalCameraId) {
             OutputConfig outputConfig = OutputConfig.builder(surface)
                     .setDynamicRange(dynamicRange)
+                    .setPhysicalCameraId(physicalCameraId)
                     .build();
             mOutputConfigs.add(outputConfig);
             return this;
@@ -750,7 +774,18 @@ public final class SessionConfig {
          * Sets the postview surface.
          */
         public @NonNull Builder setPostviewSurface(@NonNull DeferrableSurface surface) {
-            mPostviewOutputConfig = OutputConfig.builder(surface).build();
+            return setPostviewSurface(surface, null);
+        }
+
+        /**
+         * Sets the postview surface with the provided physical camera ID.
+         */
+        public @NonNull Builder setPostviewSurface(
+                @NonNull DeferrableSurface surface,
+                @Nullable String physicalCameraId) {
+            mPostviewOutputConfig = OutputConfig.builder(surface)
+                    .setPhysicalCameraId(physicalCameraId)
+                    .build();
             return this;
         }
 

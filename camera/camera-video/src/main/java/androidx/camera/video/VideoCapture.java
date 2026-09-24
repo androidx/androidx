@@ -1146,10 +1146,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             if (isStreamActive) {
                 sessionConfigBuilder.addSurface(mDeferrableSurface,
                         dynamicRange,
-                        null,
+                        getPhysicalCameraId(),
                         MirrorMode.MIRROR_MODE_UNSPECIFIED);
             } else {
-                sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface, dynamicRange);
+                sessionConfigBuilder.addNonRepeatingSurface(
+                        mDeferrableSurface, dynamicRange, getPhysicalCameraId());
             }
         } // Don't attach surface when stream is invalid.
 

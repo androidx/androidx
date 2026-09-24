@@ -530,7 +530,7 @@ public class StreamSharing extends UseCase {
         DeferrableSurface deferrableSurface = surfaceEdge.getDeferrableSurface();
         builder.addSurface(deferrableSurface,
                 streamSpec.getDynamicRange(),
-                null,
+                getPhysicalCameraId(),
                 MirrorMode.MIRROR_MODE_UNSPECIFIED);
         builder.addRepeatingCameraCaptureCallback(
                 mVirtualCameraAdapter.getParentMetadataCallback());
