@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.material3.macrobenchmark.common
+package androidx.wear.compose.material3.macrobenchmark.target
 
-import androidx.benchmark.macro.MacrobenchmarkScope
-import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.runtime.Composable
+import androidx.wear.compose.material3.macrobenchmark.common.OneHandedGestureClickIndicatorBenchmark
 
-/** Represents a screen that can be used in Macrobenchmark tests. */
-interface MacrobenchmarkScreen {
-    val content: @Composable BoxScope.() -> Unit
-
-    val setup: MacrobenchmarkScope.() -> Unit
-        get() = {}
-
-    val exercise: MacrobenchmarkScope.() -> Unit
-        get() = { device.waitForIdle() }
-}
+class OneHandedGestureActivity : BenchmarkBaseActivity(OneHandedGestureClickIndicatorBenchmark)
