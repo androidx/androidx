@@ -223,14 +223,18 @@ public final class SectionHeader {
          * #build()} will throw an {@link IllegalStateException}.
          *
          * @param headline the headline to set
-         * @throws NullPointerException if {@code headline} is {@code null}
-         * @throws IllegalArgumentException if {@code headline} contains unsupported spans
+         * @throws IllegalArgumentException if {@code headline} contains spans unsupported by
+         * {@link CarTextConstraints#TEXT_ONLY}
          * @see CarText
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setHeadline(@NonNull CharSequence headline) {
-            mHeadline = CarText.create(headline);
-            CarTextConstraints.TEXT_ONLY.validateOrThrow(mHeadline);
+        public @NonNull Builder setHeadline(@Nullable CharSequence headline) {
+            if (headline == null) {
+                mHeadline = null;
+            } else {
+                mHeadline = CarText.create(headline);
+                CarTextConstraints.TEXT_ONLY.validateOrThrow(mHeadline);
+            }
             return this;
         }
 
@@ -244,7 +248,8 @@ public final class SectionHeader {
          * #build()} will throw an {@link IllegalStateException}.
          *
          * @param headline the headline to set
-         * @throws IllegalArgumentException if {@code headline} contains unsupported spans
+         * @throws IllegalArgumentException if {@code headline} contains spans unsupported by
+         * {@link CarTextConstraints#TEXT_ONLY}
          * @see CarText
          */
         @CanIgnoreReturnValue
@@ -266,7 +271,8 @@ public final class SectionHeader {
          * #build()} will throw an {@link IllegalStateException}.
          *
          * @param subtitle the subtitle to set
-         * @throws IllegalArgumentException if {@code subtitle} contains unsupported spans
+         * @throws IllegalArgumentException if {@code headline} contains spans unsupported, by
+         * {@link CarTextConstraints#TEXT_WITH_COLORS}
          * @see CarText
          */
         @CanIgnoreReturnValue
@@ -290,7 +296,8 @@ public final class SectionHeader {
          * #build()} will throw an {@link IllegalStateException}.
          *
          * @param subtitle the subtitle to set
-         * @throws IllegalArgumentException if {@code subtitle} contains unsupported spans
+         * @throws IllegalArgumentException if {@code headline} contains spans unsupported, by
+         * {@link CarTextConstraints#TEXT_WITH_COLORS}
          * @see CarText
          */
         @CanIgnoreReturnValue
