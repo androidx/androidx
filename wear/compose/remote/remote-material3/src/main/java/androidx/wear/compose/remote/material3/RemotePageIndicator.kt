@@ -508,7 +508,7 @@ private fun calculateShrinkThresholdEnd(
     (spacingPx / 2f.rf + indicatorSizePx) / max(0.001f.rf, spacingPx + indicatorSizePx) / 2f.rf
 
 private fun inverseLerp(start: RemoteFloat, stop: RemoteFloat, value: RemoteFloat): RemoteFloat {
-    return ((value - start) / max(0.001f.rf, stop - start)).coerceIn(0f.rf, 1f.rf)
+    return ((value - start) / (stop - start)).coerceIn(0f.rf, 1f.rf)
 }
 
 private fun calculateAdjacentShrinkRatio(
