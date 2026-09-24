@@ -68,29 +68,27 @@ internal class BackupRestoreControllerImpl(
         val args = mutableMapOf<String, String>()
         when (storage) {
             is StorageDomain.Preference -> {
-                args[KEY_STORAGE_TYPE] = TYPE_PREFS
-                args[KEY_PREF_NAME] = storage.prefName
-                args[KEY_PREF_KEY] = storage.key
+                args[BackupActionInputKeys.STORAGE_TYPE] = BackupActionValues.STORAGE_TYPE_PREFS
+                args[BackupActionInputKeys.PREF_NAME] = storage.prefName
+                args[BackupActionInputKeys.PREF_KEY] = storage.key
                 val v = storage.value
                 if (v != null) {
-                    args[KEY_VALUE] = v.toString()
+                    args[BackupActionInputKeys.VALUE] = v.toString()
                     val valueType =
                         when (v) {
-                            is Int -> "INT"
-                            is Long -> "LONG"
-                            is Float -> "FLOAT"
-                            is Boolean -> "BOOLEAN"
-                            else -> "STRING"
+                            is Int -> BackupActionValues.VALUE_TYPE_INT
+                            is Long -> BackupActionValues.VALUE_TYPE_LONG
+                            is Float -> BackupActionValues.VALUE_TYPE_FLOAT
+                            is Boolean -> BackupActionValues.VALUE_TYPE_BOOLEAN
+                            else -> BackupActionValues.VALUE_TYPE_STRING
                         }
-                    args[KEY_VALUE_TYPE] = valueType
+                    args[BackupActionInputKeys.VALUE_TYPE] = valueType
                 }
             }
             is StorageDomain.Database -> {
-                args[KEY_STORAGE_TYPE] = TYPE_DATABASE
-                args[KEY_DB_NAME] = storage.dbName
-                args[KEY_TABLE] = storage.table
-                // Build the raw values string that PopulateStorageAction expects:
-                // "key1=val1&key2=val2"
+                args[BackupActionInputKeys.STORAGE_TYPE] = BackupActionValues.STORAGE_TYPE_DATABASE
+                args[BackupActionInputKeys.DB_NAME] = storage.dbName
+                args[BackupActionInputKeys.TABLE] = storage.table
                 val pairs =
                     storage.columnValues.entries
                         .map { it.key to (it.value?.toString() ?: "") }
@@ -103,18 +101,20 @@ internal class BackupRestoreControllerImpl(
                 ) {
                     pairs.add(storage.primaryKeyCol to storage.primaryKeyVal.toString())
                 }
-                args[KEY_VALUES] = pairs.joinToString("&") { "${it.first}=${it.second}" }
+                args[BackupActionInputKeys.VALUES] =
+                    pairs.joinToString("&") { "${it.first}=${it.second}" }
             }
             is StorageDomain.TextFile -> {
-                args[KEY_STORAGE_TYPE] = TYPE_FILES
-                args[KEY_PATH] = storage.path
-                args[KEY_VALUE] = storage.content
+                args[BackupActionInputKeys.STORAGE_TYPE] = BackupActionValues.STORAGE_TYPE_FILES
+                args[BackupActionInputKeys.PATH] = storage.path
+                args[BackupActionInputKeys.VALUE] = storage.content
             }
             is StorageDomain.BinaryFile -> {
-                args[KEY_STORAGE_TYPE] = TYPE_FILES
-                args[KEY_PATH] = storage.path
-                args[KEY_VALUE] = java.util.Base64.getEncoder().encodeToString(storage.content)
-                args[KEY_IS_BINARY] = "true"
+                args[BackupActionInputKeys.STORAGE_TYPE] = BackupActionValues.STORAGE_TYPE_FILES
+                args[BackupActionInputKeys.PATH] = storage.path
+                args[BackupActionInputKeys.VALUE] =
+                    java.util.Base64.getEncoder().encodeToString(storage.content)
+                args[BackupActionInputKeys.IS_BINARY] = "true"
             }
             else -> {
                 throw IllegalArgumentException("Unsupported storage domain type: $storage")
@@ -131,15 +131,15 @@ internal class BackupRestoreControllerImpl(
         when (storage) {
             is StorageDomain.Preference -> {
                 if (storage.value != null) {
-                    verifyArgs[KEY_EXPECTED] = storage.value.toString()
+                    verifyArgs[BackupActionInputKeys.EXPECTED] = storage.value.toString()
                 } else {
-                    verifyArgs[KEY_EXPECT_NULL] = "true"
+                    verifyArgs[BackupActionInputKeys.EXPECT_NULL] = "true"
                 }
             }
             is StorageDomain.Database -> {
                 // Map the database verification arguments for AssertStorageAction
-                verifyArgs[KEY_KEY_COL] = storage.primaryKeyCol
-                verifyArgs[KEY_KEY_VAL] = storage.primaryKeyVal.toString()
+                verifyArgs[BackupActionInputKeys.KEY_COL] = storage.primaryKeyCol
+                verifyArgs[BackupActionInputKeys.KEY_VAL] = storage.primaryKeyVal.toString()
 
                 // Let's assert on the first column to verify
                 val firstCol =
@@ -147,16 +147,16 @@ internal class BackupRestoreControllerImpl(
                         ?: throw IllegalArgumentException(
                             "DATABASE storage domain must specify at least one column/value pair to verify."
                         )
-                verifyArgs[KEY_EXPECTED_COL] = firstCol.key
-                verifyArgs[KEY_EXPECTED_VAL] = firstCol.value?.toString() ?: ""
+                verifyArgs[BackupActionInputKeys.EXPECTED_COL] = firstCol.key
+                verifyArgs[BackupActionInputKeys.EXPECTED_VAL] = firstCol.value?.toString() ?: ""
             }
             is StorageDomain.TextFile -> {
-                verifyArgs[KEY_EXPECTED] = storage.content
+                verifyArgs[BackupActionInputKeys.EXPECTED] = storage.content
             }
             is StorageDomain.BinaryFile -> {
-                verifyArgs[KEY_EXPECTED] =
+                verifyArgs[BackupActionInputKeys.EXPECTED] =
                     java.util.Base64.getEncoder().encodeToString(storage.content)
-                verifyArgs[KEY_IS_BINARY] = "true"
+                verifyArgs[BackupActionInputKeys.IS_BINARY] = "true"
             }
             else -> {}
         }
@@ -1100,31 +1100,6 @@ internal class BackupRestoreControllerImpl(
          * backup transport emulation service library.
          */
         private const val MIN_GMS_VERSION = 240913000
-
-        // Argument keys used for PopulateStorageAction and AssertStorageAction
-        private const val KEY_STORAGE_TYPE = "storage_type"
-        private const val KEY_PREF_NAME = "pref_name"
-        private const val KEY_PREF_KEY = "pref_key"
-        private const val KEY_VALUE = "value"
-        private const val KEY_VALUE_TYPE = "value_type"
-        private const val KEY_DB_NAME = "db_name"
-        private const val KEY_TABLE = "table"
-        private const val KEY_VALUES = "values"
-        private const val KEY_PATH = "path"
-        private const val KEY_IS_BINARY = "is_binary"
-        private const val KEY_EXPECT_NULL = "expect_null"
-
-        // AssertStorageAction verification keys
-        private const val KEY_EXPECTED = "expected"
-        private const val KEY_KEY_COL = "key_col"
-        private const val KEY_KEY_VAL = "key_val"
-        private const val KEY_EXPECTED_COL = "expected_col"
-        private const val KEY_EXPECTED_VAL = "expected_val"
-
-        // Storage type values
-        private const val TYPE_PREFS = "PREFS"
-        private const val TYPE_DATABASE = "DATABASE"
-        private const val TYPE_FILES = "FILES"
 
         private val RESTORE_SESSION_REGEX =
             Regex("""(?i)(?:Restore session|Active restore):\s*(?!null\b|none\b)\S+""")

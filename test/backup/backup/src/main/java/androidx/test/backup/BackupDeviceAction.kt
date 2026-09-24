@@ -23,11 +23,25 @@ import androidx.annotation.RestrictTo
 /**
  * Arguments passed from the host orchestrator to a [BackupDeviceAction].
  *
- * @property payload key-value arguments for the action
+ * The payload is a flat map of string keys to string values. [BackupActionInputKeys] documents
+ * every key the actions bundled with this library understand, and [BackupActionValues] documents
+ * the values those keys accept. Keys an action does not recognize are ignored, so one payload can
+ * drive both phases of a flow. Custom [BackupDeviceAction] implementations may define keys of their
+ * own.
+ *
+ * @property payload key-value arguments for the action, keyed by [BackupActionInputKeys]
  */
 public class BackupDeviceActionArgs
 @JvmOverloads
 constructor(public val payload: Map<String, String> = emptyMap()) {
+    /**
+     * Returns the argument stored under [key], or `null` when the host did not supply it.
+     *
+     * Any key may be read, so a custom [BackupDeviceAction] can query keys of its own alongside the
+     * [BackupActionInputKeys] constants.
+     */
+    public operator fun get(@BackupActionInputKey key: String): String? = payload[key]
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is BackupDeviceActionArgs) return false
@@ -42,11 +56,68 @@ constructor(public val payload: Map<String, String> = emptyMap()) {
 /**
  * Results returned from a [BackupDeviceAction] back to the host orchestrator.
  *
- * @property payload key-value results produced by the action
+ * [BackupActionOutputKeys] documents every key the actions bundled with this library produce.
+ * Actions built with [success] and [failure] always report [BackupActionOutputKeys.STATUS], and
+ * report [BackupActionOutputKeys.ERROR] only alongside a failure. Additional keys may be returned
+ * to carry data back to the host, which forwards the whole payload to the caller.
+ *
+ * @property payload key-value results produced by the action, keyed by [BackupActionOutputKeys]
  */
 public class BackupDeviceActionResult
 @JvmOverloads
 constructor(public val payload: Map<String, String> = emptyMap()) {
+    /**
+     * Returns the result stored under [key], or `null` when the action did not produce it.
+     *
+     * Any key may be read, so a custom [BackupDeviceAction] can return keys of its own alongside
+     * the [BackupActionOutputKeys] constants.
+     */
+    public operator fun get(@BackupActionOutputKey key: String): String? = payload[key]
+
+    /**
+     * The reported [BackupActionOutputKeys.STATUS], or `null` for an action that does not report
+     * one.
+     */
+    @get:BackupActionStatus
+    public val status: String?
+        get() = payload[BackupActionOutputKeys.STATUS]
+
+    /**
+     * Whether the action completed its work.
+     *
+     * Resolved in two steps:
+     * - A reported [BackupActionOutputKeys.STATUS] decides on its own. Only
+     *   [BackupActionValues.STATUS_FAILURE], compared without regard to case, means failure;
+     *   `status` is a generic key that custom actions also use to publish their own vocabulary, so
+     *   an unrecognized value is reported as successful rather than being guessed at.
+     * - With no `status` at all, a non-empty [BackupActionOutputKeys.ERROR] means failure. An
+     *   action that reports only an error would otherwise be read as passing.
+     *
+     * Use [BackupDeviceActionResult.failure] to report a failure that callers and the host will
+     * honor.
+     */
+    public val isSuccess: Boolean
+        get() {
+            val status = status
+            if (status != null) {
+                return !status.equals(BackupActionValues.STATUS_FAILURE, ignoreCase = true)
+            }
+            return payload[BackupActionOutputKeys.ERROR].isNullOrEmpty()
+        }
+
+    /**
+     * The reported [BackupActionOutputKeys.ERROR], or `null` when the action did not fail.
+     *
+     * Reported only for a result that [isSuccess] rejects. A successful action may legitimately
+     * carry a [BackupActionOutputKeys.ERROR] entry of its own — an empty string, or a diagnostic
+     * unrelated to the outcome — and surfacing that as a failure message would be misleading. This
+     * mirrors the host, which reads the key under exactly the same conditions.
+     *
+     * @see isSuccess
+     */
+    public val errorMessage: String?
+        get() = if (isSuccess) null else payload[BackupActionOutputKeys.ERROR]
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is BackupDeviceActionResult) return false
@@ -56,9 +127,51 @@ constructor(public val payload: Map<String, String> = emptyMap()) {
     override fun hashCode(): Int = payload.hashCode()
 
     override fun toString(): String = "BackupDeviceActionResult(payload=$payload)"
+
+    public companion object {
+        /**
+         * Returns a result reporting [BackupActionValues.STATUS_SUCCESS].
+         *
+         * @param payload additional data to return to the host; a [BackupActionOutputKeys.STATUS]
+         *   entry it contains is overwritten
+         */
+        @JvmStatic
+        @JvmOverloads
+        public fun success(payload: Map<String, String> = emptyMap()): BackupDeviceActionResult =
+            BackupDeviceActionResult(
+                payload + (BackupActionOutputKeys.STATUS to BackupActionValues.STATUS_SUCCESS)
+            )
+
+        /**
+         * Returns a result reporting [BackupActionValues.STATUS_FAILURE] together with
+         * [errorMessage].
+         *
+         * @param errorMessage human-readable description of the failure, surfaced to the host as
+         *   [BackupActionOutputKeys.ERROR]
+         * @param payload additional data to return to the host; [BackupActionOutputKeys.STATUS] and
+         *   [BackupActionOutputKeys.ERROR] entries it contains are overwritten
+         */
+        @JvmStatic
+        @JvmOverloads
+        public fun failure(
+            errorMessage: String,
+            payload: Map<String, String> = emptyMap(),
+        ): BackupDeviceActionResult =
+            BackupDeviceActionResult(
+                payload +
+                    mapOf(
+                        BackupActionOutputKeys.STATUS to BackupActionValues.STATUS_FAILURE,
+                        BackupActionOutputKeys.ERROR to errorMessage,
+                    )
+            )
+    }
 }
 
-/** Phase during the backup and restore lifecycle when an action runs. */
+/**
+ * Denotes that the annotated [Int] is a backup and restore lifecycle phase.
+ *
+ * Unlike [BackupActionStatus] this set is closed: the host dispatches on exactly these two phases.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(BackupDeviceAction.PHASE_POPULATE, BackupDeviceAction.PHASE_VERIFY)
@@ -69,7 +182,7 @@ constructor(public val payload: Map<String, String> = emptyMap()) {
     AnnotationTarget.TYPE,
     AnnotationTarget.FUNCTION,
 )
-public annotation class ActionPhase {
+public annotation class BackupActionPhase {
     public companion object {
         /** Seeds data inside the application sandbox before a backup. */
         public const val POPULATE: Int = BackupDeviceAction.PHASE_POPULATE
@@ -83,6 +196,12 @@ public annotation class ActionPhase {
  * Runs an action inside the application sandbox on the target device.
  *
  * Implementations must provide a public no-arg constructor to enable dynamic instantiation.
+ *
+ * An action reads its configuration from [BackupDeviceActionArgs], whose documented keys are listed
+ * in [BackupActionInputKeys], and reports its outcome through [BackupDeviceActionResult], whose
+ * documented keys are listed in [BackupActionOutputKeys]. Build the outcome with
+ * [BackupDeviceActionResult.success] or [BackupDeviceActionResult.failure] so that the host can
+ * tell the two apart.
  */
 public interface BackupDeviceAction {
     public companion object {
@@ -91,136 +210,22 @@ public interface BackupDeviceAction {
 
         /** Verifies restored data inside the application sandbox after a restore. */
         public const val PHASE_VERIFY: Int = 2
-        /**
-         * Key specifying the target storage medium.
-         *
-         * Must be set to one of the following storage type constants:
-         * - [STORAGE_TYPE_PREFS]
-         * - [STORAGE_TYPE_DATABASE]
-         * - [STORAGE_TYPE_FILES]
-         */
-        public const val KEY_STORAGE_TYPE: String = "storage_type"
-
-        /** Storage type value indicating SharedPreferences. */
-        public const val STORAGE_TYPE_PREFS: String = "PREFS"
-
-        /** Storage type value indicating SQLite database. */
-        public const val STORAGE_TYPE_DATABASE: String = "DATABASE"
-
-        /** Storage type value indicating raw file storage. */
-        public const val STORAGE_TYPE_FILES: String = "FILES"
-
-        /** Key specifying the SharedPreferences filename. */
-        public const val KEY_PREF_NAME: String = "pref_name"
-
-        /** Key specifying the SharedPreferences preference key. */
-        public const val KEY_PREF_KEY: String = "pref_key"
-
-        /** Key specifying the value to write or verify. */
-        public const val KEY_VALUE: String = "value"
-
-        /**
-         * Key specifying the primitive value type for SharedPreferences entries.
-         *
-         * Must be one of `"INT"`, `"LONG"`, `"BOOLEAN"`, `"FLOAT"`, or `"STRING"`.
-         */
-        public const val KEY_VALUE_TYPE: String = "value_type"
-
-        /** Key specifying the SQLite database filename. */
-        public const val KEY_DB_NAME: String = "db_name"
-
-        /** Key specifying the table name inside the SQLite database. */
-        public const val KEY_TABLE: String = "table"
-
-        /**
-         * Key specifying query or insert key-value pairs formatted as an ampersand-separated
-         * string.
-         *
-         * For example, `"column1=value1&column2=value2"`.
-         */
-        public const val KEY_VALUES: String = "values"
-
-        /** Key specifying a relative or absolute file path. */
-        public const val KEY_PATH: String = "path"
-
-        /**
-         * Key specifying whether a file value is base64-encoded binary data.
-         *
-         * Accepted values are `"true"` or `"false"`. When `"true"`, file contents are decoded using
-         * [android.util.Base64.DEFAULT].
-         */
-        public const val KEY_IS_BINARY: String = "is_binary"
-
-        /**
-         * Key specifying whether device-protected storage context should be used.
-         *
-         * When set to `"true"`, operations target
-         * [android.content.Context.createDeviceProtectedStorageContext] instead of default
-         * credential-encrypted storage. Accepted values are `"true"` or `"false"`.
-         */
-        public const val KEY_IS_DEVICE_PROTECTED: String = "is_device_protected"
-
-        /** Key specifying the primary key column name in SQL query verification. */
-        public const val KEY_KEY_COL: String = "key_col"
-
-        /** Key specifying the primary key column value to filter on in SQL verification. */
-        public const val KEY_KEY_VAL: String = "key_val"
-
-        /** Key specifying the column containing the expected value in SQL verification. */
-        public const val KEY_EXPECTED_COL: String = "expected_col"
-
-        /**
-         * Key specifying the expected column value in SQL verification.
-         *
-         * Must be passed as a string representation of the expected column value (e.g., `"true"` or
-         * `"false"` for SQLite booleans, or string values).
-         */
-        public const val KEY_EXPECTED_VAL: String = "expected_val"
-
-        /** Key specifying the expected value in verification. */
-        public const val KEY_EXPECTED: String = "expected"
-
-        /**
-         * Key specifying whether to assert that a preference or value is null.
-         *
-         * Accepted values are `"true"` or `"false"`. When `"true"`, verification asserts that the
-         * preference key, column, or file does not exist.
-         */
-        public const val KEY_EXPECT_NULL: String = "expect_null"
-
-        /**
-         * Key indicating the execution status in [BackupDeviceActionResult].
-         *
-         * The returned value will be one of the status constants: [STATUS_SUCCESS] or
-         * [STATUS_FAILURE]. Since this key tracks non-binary, extensible status categories (e.g.,
-         * which could include future warnings or partial success info), it is represented as a
-         * string rather than a simple boolean.
-         */
-        public const val KEY_STATUS: String = "status"
-
-        /** Status value indicating successful execution. */
-        public const val STATUS_SUCCESS: String = "success"
-
-        /** Status value indicating failed execution. */
-        public const val STATUS_FAILURE: String = "failure"
-
-        /**
-         * Key containing the error message in [BackupDeviceActionResult] upon failure.
-         *
-         * Present when [KEY_STATUS] is [STATUS_FAILURE].
-         */
-        public const val KEY_ERROR: String = "error"
     }
 
     /** Lifecycle phase when this action runs. */
-    @get:ActionPhase public val phase: Int
+    @get:BackupActionPhase public val phase: Int
 
     /**
      * Runs the action payload.
      *
+     * Implementations should report a recoverable problem, such as a missing argument or a failed
+     * assertion, by returning [BackupDeviceActionResult.failure] rather than by throwing. The host
+     * treats a thrown exception as a crash of the action and reports it with a stack trace.
+     *
      * @param context application context on the target device
-     * @param args input arguments passed from the host orchestrator
-     * @return result returned to the host
+     * @param args input arguments passed from the host orchestrator, keyed by
+     *   [BackupActionInputKeys]
+     * @return result returned to the host, keyed by [BackupActionOutputKeys]
      */
     public fun execute(context: Context, args: BackupDeviceActionArgs): BackupDeviceActionResult
 }
