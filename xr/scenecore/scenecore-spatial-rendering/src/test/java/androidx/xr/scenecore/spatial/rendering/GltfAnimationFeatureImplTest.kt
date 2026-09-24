@@ -157,6 +157,30 @@ class GltfAnimationFeatureImplTest {
     }
 
     @Test
+    fun setAnimationLoop_updatesLoop() = runTest {
+        // startAnimation() transitions the feature to PLAYING synchronously, but it dispatches
+        // animateGltfModel() onto the feature's own executor (the Robolectric main looper), which
+        // runTest's scheduler does not drive. Seed the channel on the fake directly so that the
+        // assertions below are deterministic.
+        animationFeature.startAnimation(loop = true, speed = 1f, seekStartTimeSeconds = 0f)
+        fakeImpressApi.animateGltfModel(
+            /* impressNode= */ modelImpressNode,
+            /* animationName= */ animationName,
+            /* looping= */ true,
+            /* speed= */ 1f,
+            /* startTime= */ 0f,
+            /* channel= */ animationIndex,
+        )
+
+        animationFeature.setAnimationLoop(false)
+
+        val channelAnimations = fakeImpressApi.getChannelAnimations(modelImpressNode)
+        assertThat(channelAnimations).isNotNull()
+        assertThat(channelAnimations).containsKey(animationIndex)
+        assertThat(channelAnimations!![animationIndex]?.looping).isFalse()
+    }
+
+    @Test
     fun animationName_returnsNull_whenInputIsEmpty() {
         val feature =
             GltfAnimationFeatureImpl(

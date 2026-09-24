@@ -126,6 +126,27 @@ class FakeGltfAnimationFeatureTest {
     }
 
     @Test
+    fun setAnimationLoop_whenStopped_doesNotUpdateLoop() {
+        underTest.setAnimationLoop(true)
+        assertThat(underTest.isLooping).isFalse()
+    }
+
+    @Test
+    fun setAnimationLoop_whenPlaying_updatesLoop() {
+        underTest.startAnimation(loop = false, speed = 1.0f, seekStartTimeSeconds = 0.0f)
+        underTest.setAnimationLoop(true)
+        assertThat(underTest.isLooping).isTrue()
+    }
+
+    @Test
+    fun setAnimationLoop_whenPaused_updatesLoop() {
+        underTest.startAnimation(loop = false, speed = 1.0f, seekStartTimeSeconds = 0.0f)
+        underTest.pauseAnimation()
+        underTest.setAnimationLoop(true)
+        assertThat(underTest.isLooping).isTrue()
+    }
+
+    @Test
     fun addAnimationStateListener_invokesListener() {
         var lastState = -1
         val listener = Consumer<Int> { state -> lastState = state }

@@ -163,6 +163,19 @@ internal class GltfAnimationFeatureImpl(
         }
     }
 
+    override fun setAnimationLoop(loop: Boolean) {
+        if (
+            animationState == GltfEntity.AnimationState.PLAYING ||
+                animationState == GltfEntity.AnimationState.PAUSED
+        ) {
+            impressApi.setGltfModelAnimationLoop(
+                modelImpressNode,
+                /* loop= */ loop,
+                /* channelId= */ index,
+            )
+        }
+    }
+
     override fun addAnimationStateListener(executor: Executor, listener: Consumer<Int>) {
         animationStateListeners.putIfAbsent(listener, executor)
     }
