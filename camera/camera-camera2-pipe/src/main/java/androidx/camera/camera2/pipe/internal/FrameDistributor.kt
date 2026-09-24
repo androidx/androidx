@@ -103,7 +103,7 @@ internal class FrameDistributor(
     private val imageDistributors: Map<StreamId, Map<OutputId, OutputDistributor<OutputImage>>>
     private val imageStreams: Set<CameraStream>
     private val concurrentImageStreams: Set<StreamId>?
-    private val usesReadoutTimestamp: Boolean
+    private val useReadoutTimestamp: Boolean
 
     private val lock = Any()
 
@@ -184,10 +184,8 @@ internal class FrameDistributor(
 
         imageStreams = streams
         concurrentImageStreams = if (concurrentStreams.isEmpty()) null else concurrentStreams
-        usesReadoutTimestamp = streams.any { stream ->
-            stream.outputs.any {
-                (it as StreamGraphImpl.OutputStreamImpl).useReadoutTimestamp
-            }
+        useReadoutTimestamp = streams.any { stream ->
+            stream.outputs.any { it.useReadoutTimestamp }
         }
     }
 
@@ -222,7 +220,7 @@ internal class FrameDistributor(
 
         startImageOutputs(frameState, frameState.exposureImageOutputs, timestamp, requestMetadata)
 
-        if (usesReadoutTimestamp && frameState.expectsReadoutTimestamp) {
+        if (useReadoutTimestamp && frameState.expectsReadoutTimestamp) {
             synchronized(lock) { startedFrameStates.add(frameState) }
         }
 
@@ -261,7 +259,7 @@ internal class FrameDistributor(
     ) {
         // In API 34+, Android Camera2 may invoke onReadoutStarted even when no streams are
         // configured to use readout timestamps. In this case, we silently ignore the callback.
-        if (!usesReadoutTimestamp) {
+        if (!useReadoutTimestamp) {
             return
         }
 
@@ -287,7 +285,7 @@ internal class FrameDistributor(
         frameNumber: FrameNumber,
         result: FrameInfo,
     ) {
-        if (usesReadoutTimestamp) {
+        if (useReadoutTimestamp) {
             val frameState = synchronized(lock) { removeStartedFrameState(frameNumber) }
             if (frameState != null) {
                 // The frame completed without ever receiving onReadoutStarted, so the readout
@@ -313,7 +311,7 @@ internal class FrameDistributor(
     ) {
         val imageDistributorMap = imageDistributors[streamId] ?: return
 
-        if (usesReadoutTimestamp && supportsReadoutStarted(streamId, outputId)) {
+        if (useReadoutTimestamp && supportsReadoutStarted(streamId, outputId)) {
             failReadoutOutputForBufferLost(frameNumber, streamId, outputId)
         }
 
@@ -351,7 +349,7 @@ internal class FrameDistributor(
         //    failed, and camera2 will not invoke onBufferLost. We are responsible for marking all
         //    outputs as failed.
         if (!requestFailure.wasImageCaptured) {
-            if (usesReadoutTimestamp) {
+            if (useReadoutTimestamp) {
                 val frameState = synchronized(lock) { removeStartedFrameState(frameNumber) }
                 if (frameState != null) {
                     failPendingReadoutOutputs(frameState, OutputStatus.ERROR_OUTPUT_FAILED)
@@ -521,9 +519,7 @@ internal class FrameDistributor(
 
     private fun supportsReadoutStarted(streamId: StreamId, outputId: OutputId): Boolean {
         val stream = imageStreams.firstOrNull { it.id == streamId } ?: return false
-        return stream.outputs.any {
-            it.id == outputId && (it as StreamGraphImpl.OutputStreamImpl).useReadoutTimestamp
-        }
+        return stream.outputs.any { it.id == outputId && it.useReadoutTimestamp }
     }
 
     @Suppress("NOTHING_TO_INLINE")
@@ -542,9 +538,6 @@ internal class FrameDistributor(
             //
             // See frameworks/av/services/camera/libcameraservice/device3/Camera3OutputStream.cpp
             // for more details.
-
-            // TODO: Add support for OutputConfiguration.setReadoutTimestampEnabled which changes
-            //   the timestamps of images being produced by the ImageReader.
 
             // TODO: Consider altering the detection delta for inexact ratios during high-speed
             //   recording.
