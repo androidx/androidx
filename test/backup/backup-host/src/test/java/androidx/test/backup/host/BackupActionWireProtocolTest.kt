@@ -72,6 +72,15 @@ class BackupActionWireProtocolTest {
         assertEquals("failure", BackupActionValues.STATUS_FAILURE)
     }
 
+    /** The action status is lower case; the telemetry report status is upper case. */
+    @Test
+    fun actionStatusIsDistinctFromReportStatus() {
+        assertEquals("success", BackupActionValues.STATUS_SUCCESS)
+        assertEquals("SUCCESS", BackupReportKeys.REPORT_STATUS_SUCCESS)
+        assertEquals("failure", BackupActionValues.STATUS_FAILURE)
+        assertEquals("FAILURE", BackupReportKeys.REPORT_STATUS_FAILURE)
+    }
+
     @Test
     fun encodesPlainPairs() {
         assertEquals(
