@@ -31,7 +31,6 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -92,7 +91,7 @@ class AugmentedObjectTest {
             advanceUntilIdle()
 
             var underTest = emptyList<AugmentedObject>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 AugmentedObject.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -113,7 +112,7 @@ class AugmentedObjectTest {
             advanceUntilIdle()
 
             var underTest = emptyList<AugmentedObject>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 AugmentedObject.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -138,7 +137,7 @@ class AugmentedObjectTest {
             advanceUntilIdle()
 
             var underTest = emptyList<AugmentedObject>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 AugmentedObject.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -183,7 +182,7 @@ class AugmentedObjectTest {
             advanceUntilIdle()
 
             var underTest = emptyList<AugmentedObject>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 AugmentedObject.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -205,7 +204,7 @@ class AugmentedObjectTest {
             advanceUntilIdle()
 
             var underTest = emptyList<AugmentedObject>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 AugmentedObject.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()

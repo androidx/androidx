@@ -31,12 +31,12 @@ import androidx.xr.runtime.math.Ray
 import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -58,11 +58,13 @@ class InteractionTest {
     private lateinit var activityController: ActivityController<ComponentActivity>
     private lateinit var activity: ComponentActivity
     private lateinit var testDispatcher: TestDispatcher
+    private lateinit var testScope: TestScope
     private lateinit var session: Session
 
     @Before
     fun setUp(): Unit = runBlocking {
         testDispatcher = StandardTestDispatcher()
+        testScope = TestScope(testDispatcher)
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.get()
 
@@ -86,11 +88,10 @@ class InteractionTest {
             arCoreTestRule.deviceTester.pose = devicePose
             arCoreTestRule.addTrackables(testPlane)
             testPlane.centerPose = expectedHitPose
-            advanceUntilIdle()
 
             // 2. Detect the Plane
             var foundPlanes = emptyList<Plane>()
-            backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Plane.subscribe(session).collect { foundPlanes = it.toList() }
             }
             advanceUntilIdle()

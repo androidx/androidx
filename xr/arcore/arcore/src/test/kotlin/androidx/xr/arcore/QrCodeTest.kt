@@ -31,7 +31,6 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -88,7 +87,7 @@ class QrCodeTest {
             advanceUntilIdle()
 
             var underTest = emptyList<QrCode>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 QrCode.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -112,7 +111,7 @@ class QrCodeTest {
             advanceUntilIdle()
 
             var underTest = emptyList<QrCode>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 QrCode.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -158,7 +157,7 @@ class QrCodeTest {
             advanceUntilIdle()
 
             var underTest = emptyList<QrCode>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 QrCode.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -181,7 +180,7 @@ class QrCodeTest {
             advanceUntilIdle()
 
             var underTest = emptyList<QrCode>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 QrCode.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -204,7 +203,7 @@ class QrCodeTest {
             advanceUntilIdle()
 
             var underTest = emptyList<QrCode>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 QrCode.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
