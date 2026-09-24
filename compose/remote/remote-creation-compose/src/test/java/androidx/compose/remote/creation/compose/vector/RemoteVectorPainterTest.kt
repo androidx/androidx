@@ -149,8 +149,7 @@ class RemoteVectorPainterTest {
                 size,
             )
         val bitmap = Bitmap.createBitmap(24, 24, Bitmap.Config.ARGB_8888)
-        val recordingCanvas = RecordingCanvas(bitmap)
-        recordingCanvas.creationState = creationState
+        val recordingCanvas = RecordingCanvas(bitmap, creationState)
         val remoteCanvas = RemoteCanvas(recordingCanvas)
 
         // Draw procedurally using the new RemoteImageVector.draw extension
