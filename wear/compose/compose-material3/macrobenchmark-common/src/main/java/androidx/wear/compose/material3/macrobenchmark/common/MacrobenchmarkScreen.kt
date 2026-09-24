@@ -23,6 +23,10 @@ import androidx.compose.runtime.Composable
 /** Represents a screen that can be used in Macrobenchmark tests. */
 interface MacrobenchmarkScreen {
     val content: @Composable BoxScope.() -> Unit
+
+    val setup: MacrobenchmarkScope.() -> Unit
+        get() = {}
+
     val exercise: MacrobenchmarkScope.() -> Unit
         get() = { device.waitForIdle() }
 }
