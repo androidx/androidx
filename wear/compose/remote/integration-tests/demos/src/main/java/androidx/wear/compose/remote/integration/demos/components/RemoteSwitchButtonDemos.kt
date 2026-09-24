@@ -17,6 +17,9 @@
 package androidx.wear.compose.remote.integration.demos.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -28,6 +31,8 @@ import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
+import androidx.wear.compose.remote.material3.RemoteSwitchButton
+import androidx.wear.compose.remote.material3.RemoteText
 import androidx.wear.compose.remote.material3.previews.RemoteSwitchButtonChecked
 import androidx.wear.compose.remote.material3.previews.RemoteSwitchButtonDisabledChecked
 import androidx.wear.compose.remote.material3.previews.RemoteSwitchButtonDisabledUnchecked
@@ -68,6 +73,17 @@ fun RemoteSwitchButtonDemos(modifier: Modifier = Modifier) {
             remoteDemoItem("With Icon") { RemoteSwitchButtonWithIcon() }
             remoteDemoItem("With Secondary Label") { RemoteSwitchButtonWithSecondaryLabel() }
             remoteDemoItem("Sample") { RemoteSwitchButtonSample() }
+            remoteDemoItem("Animated Toggle") {
+                val checked = rememberMutableRemoteBoolean(false)
+                RemoteSwitchButton(
+                    checked = checked,
+                    onCheckedChange = valueChange(checked, !checked),
+                    secondaryLabel = {
+                        RemoteText(checked.select("State: Checked".rs, "State: Unchecked".rs))
+                    },
+                    label = { RemoteText("Tap to animate".rs) },
+                )
+            }
         }
     }
 }

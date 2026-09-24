@@ -17,6 +17,9 @@
 package androidx.wear.compose.remote.integration.demos.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -28,6 +31,8 @@ import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
+import androidx.wear.compose.remote.material3.RemoteSplitRadioButton
+import androidx.wear.compose.remote.material3.RemoteText
 import androidx.wear.compose.remote.material3.previews.RemoteSplitRadioButtonDisabledSelected
 import androidx.wear.compose.remote.material3.previews.RemoteSplitRadioButtonDisabledUnselected
 import androidx.wear.compose.remote.material3.previews.RemoteSplitRadioButtonSelected
@@ -66,6 +71,19 @@ fun RemoteSplitRadioButtonDemos(modifier: Modifier = Modifier) {
             remoteDemoItem("Disabled Unselected") { RemoteSplitRadioButtonDisabledUnselected() }
             remoteDemoItem("With Secondary Label") { RemoteSplitRadioButtonWithSecondaryLabel() }
             remoteDemoItem("Sample") { RemoteSplitRadioButtonSample() }
+            remoteDemoItem("Animated Toggle") {
+                val selected = rememberMutableRemoteBoolean(false)
+                RemoteSplitRadioButton(
+                    selected = selected,
+                    onSelectionClick = valueChange(selected, !selected),
+                    selectionContentDescription = "Toggle animation".rs,
+                    onContainerClick = valueChange(selected, !selected),
+                    secondaryLabel = {
+                        RemoteText(selected.select("State: Selected".rs, "State: Unselected".rs))
+                    },
+                    label = { RemoteText("Tap to animate".rs) },
+                )
+            }
         }
     }
 }
