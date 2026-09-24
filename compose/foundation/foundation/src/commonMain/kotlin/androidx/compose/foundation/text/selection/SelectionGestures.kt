@@ -114,7 +114,7 @@ internal suspend fun PointerInputScope.awaitSelectionGestures(
     val clicksCounter = ClicksCounter(viewConfiguration)
     awaitEachGesture {
         val downEvent = awaitDown()
-        clicksCounter.update(downEvent)
+        clicksCounter.update(downEvent.changes[0])
         val isPrecise = downEvent.isMouseOrTouchPad()
         if (
             isPrecise &&
@@ -315,11 +315,13 @@ internal suspend fun AwaitPointerEventScope.mouseSelection(
 
 internal class ClicksCounter(private val viewConfiguration: ViewConfiguration) {
     var clicks = 0
-    var prevClick: PointerInputChange? = null
+        private set
 
-    fun update(event: PointerEvent) {
+    private var prevClick: PointerInputChange? = null
+
+    // CMP uses this where `PointerEvent` is not available; only `PointerInputChange`
+    fun update(newClick: PointerInputChange) {
         val currentPrevClick = prevClick
-        val newClick = event.changes[0]
         if (
             currentPrevClick != null &&
                 timeIsTolerable(currentPrevClick, newClick) &&
