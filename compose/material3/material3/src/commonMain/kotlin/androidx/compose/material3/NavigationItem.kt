@@ -450,14 +450,15 @@ internal fun AnimatedNavigationItem(
     noLabelIndicatorPadding: Dp,
     startIconToLabelHorizontalPadding: Dp,
     itemHorizontalPadding: Dp,
-    colors: NavigationItemColors,
+    textColor: Color,
+    iconColor: Color,
+    indicatorColor: Color,
     modifier: Modifier,
     enabled: Boolean,
     label: @Composable (() -> Unit)?,
     iconPosition: NavigationItemIconPosition,
     interactionSource: MutableInteractionSource,
 ) {
-    val iconColor = colors.iconColor(selected = selected, enabled = enabled)
     val styledIcon: @Composable () -> Unit = {
         CompositionLocalProvider(LocalContentColor provides iconColor, content = icon)
     }
@@ -503,7 +504,7 @@ internal fun AnimatedNavigationItem(
                     StyledLabel(
                         selected = selected,
                         labelTextStyle = textStyle,
-                        color = colors.textColor(selected, enabled, isIconPositionTop),
+                        color = textColor,
                         enabled = enabled,
                         animateColor = true,
                         content = label,
@@ -535,7 +536,7 @@ internal fun AnimatedNavigationItem(
 
         AnimatedNavigationItemLayout(
             interactionSource = offsetInteractionSource ?: interactionSource,
-            indicatorColor = colors.selectedIndicatorColor,
+            indicatorColor = indicatorColor,
             indicatorShape = indicatorShape,
             indicatorAnimationProgress = { indicatorAnimationProgress.value.coerceAtLeast(0f) },
             icon = styledIcon,

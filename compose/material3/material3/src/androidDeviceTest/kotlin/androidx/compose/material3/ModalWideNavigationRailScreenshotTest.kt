@@ -66,6 +66,28 @@ class ModalWideNavigationRailScreenshotTest {
         )
     }
 
+    @Test
+    fun wideNavigationRail_withStyle_modalWideNavigationRail_lightTheme() {
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            DefaultStyleableModalWideNavigationRail()
+        }
+
+        assertModalExpandedNavigationRailMatches(
+            "wideNavigationRail_withStyle_modalWideNavigationRail_lightTheme_defaultColors"
+        )
+    }
+
+    @Test
+    fun wideNavigationRail_withStyle_modalWideNavigationRail_darkTheme() {
+        composeTestRule.setMaterialContent(darkColorScheme()) {
+            DefaultStyleableModalWideNavigationRail()
+        }
+
+        assertModalExpandedNavigationRailMatches(
+            "wideNavigationRail_withStyle_modalWideNavigationRail_darkTheme_defaultColors"
+        )
+    }
+
     /**
      * Asserts that the ModalExpandedNavigationRail matches the screenshot with identifier
      * [goldenIdentifier].
@@ -109,6 +131,42 @@ private fun DefaultModalWideNavigationRail() {
             onClick = {},
         )
         WideNavigationRailItem(
+            railExpanded = true,
+            icon = { Icon(Icons.Filled.Search, null) },
+            label = { Text("Search") },
+            selected = false,
+            onClick = {},
+        )
+    }
+}
+
+@Composable
+private fun DefaultStyleableModalWideNavigationRail() {
+    StyleableModalWideNavigationRail(
+        state = rememberWideNavigationRailState(WideNavigationRailValue.Expanded),
+        header = {
+            Column {
+                IconButton(modifier = Modifier.padding(start = 24.dp), onClick = {}) {
+                    Icon(Icons.Filled.Menu, "Menu")
+                }
+            }
+        },
+    ) {
+        StyleableWideNavigationRailItem(
+            railExpanded = true,
+            icon = { Icon(Icons.Filled.Favorite, null) },
+            label = { Text("Favorites") },
+            selected = true,
+            onClick = {},
+        )
+        StyleableWideNavigationRailItem(
+            railExpanded = true,
+            icon = { Icon(Icons.Filled.Home, null) },
+            label = { Text("Home") },
+            selected = false,
+            onClick = {},
+        )
+        StyleableWideNavigationRailItem(
             railExpanded = true,
             icon = { Icon(Icons.Filled.Search, null) },
             label = { Text("Search") },
