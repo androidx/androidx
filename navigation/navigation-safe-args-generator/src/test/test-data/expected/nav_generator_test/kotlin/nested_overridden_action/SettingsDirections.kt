@@ -10,7 +10,8 @@ public class SettingsDirections private constructor() {
   private data class Main(
     public val enterReason: String = "DEFAULT",
   ) : NavDirections {
-    public override val actionId: Int = R.id.main
+    public override val actionId: Int
+      get() = R.id.main
 
     public override val arguments: Bundle
       get() {
@@ -23,7 +24,8 @@ public class SettingsDirections private constructor() {
   private data class Exit(
     public val exitReason: String = "DEFAULT",
   ) : NavDirections {
-    public override val actionId: Int = R.id.exit
+    public override val actionId: Int
+      get() = R.id.exit
 
     public override val arguments: Bundle
       get() {
