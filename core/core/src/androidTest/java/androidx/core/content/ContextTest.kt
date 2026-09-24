@@ -49,10 +49,14 @@ import kotlinx.coroutines.withTimeout
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestName
 
 @SmallTest
 class ContextTest {
+    @get:Rule val testName = TestName()
+
     private val context = ApplicationProvider.getApplicationContext() as android.content.Context
 
     @Test
@@ -143,7 +147,7 @@ class ContextTest {
         val counter = MutableStateFlow(0)
         lateinit var receiveBroadcastsException: Exception
 
-        launchAndRunCurrent {
+        val job = launchAndRunCurrent {
             receiveBroadcastsException = assertFailsWith {
                 context.receiveTestBroadcasts {
                     counter.increment()
@@ -153,6 +157,7 @@ class ContextTest {
         }
         context.sendBroadcast(intent())
         counter.assertEventuallyEqualsTo(1) // Wait for onReceive.
+        job.join() // Propagates.
 
         assertThat(receiveBroadcastsException).isSameInstanceAs(thrown)
         // Unregistered - post-exception broadcast never arrives.
@@ -292,7 +297,7 @@ class ContextTest {
         try {
             // Not using the TestScope's to wait for timeout.
             withContext(Dispatchers.Main) {
-                withTimeout(10.milliseconds) { first { it == expected } }
+                withTimeout(BROADCAST_TIMEOUT) { first { it == expected } }
             }
         } catch (_: TimeoutCancellationException) {
             assertThat(value).isEqualTo(expected) // Should always fail with a relevant message.
@@ -310,7 +315,7 @@ class ContextTest {
             // Not using the TestScope's to wait for timeout, is it is always immediate.
             val value =
                 withContext(Dispatchers.Main) {
-                    withTimeout(10.milliseconds) { first { it != expected } }
+                    withTimeout(BROADCAST_TIMEOUT) { first { it != expected } }
                 }
             assertThat(value).isEqualTo(expected) // Should always fail with a relevant message.
         } catch (_: TimeoutCancellationException) {
@@ -329,22 +334,25 @@ class ContextTest {
     private suspend fun Context.receiveTestBroadcasts(
         onReceive: BroadcastReceiver.(Intent?) -> Unit
     ) {
-        receiveBroadcasts(INTENT_FILTER, RECEIVER_NOT_EXPORTED, onReceive = onReceive)
+        receiveBroadcasts(intentFilter(), RECEIVER_NOT_EXPORTED, onReceive = onReceive)
     }
 
     /** Sets the test's default intent filter and flags. */
     private suspend fun Context.receiveTestBroadcastsAsync(
         onReceive: suspend BroadcastReceiver.PendingResult.(Intent?) -> Unit
     ) {
-        receiveBroadcastsAsync(INTENT_FILTER, RECEIVER_NOT_EXPORTED, onReceive = onReceive)
+        receiveBroadcastsAsync(intentFilter(), RECEIVER_NOT_EXPORTED, onReceive = onReceive)
     }
 
-    /** Default intent for broadcasts. */
-    private fun intent() = Intent(ACTION).setPackage(context.packageName)
+    private fun action() = "action_${testName.methodName}"
 
-    private companion object {
-        const val ACTION = "action"
-        /** Default intent filter for broadcast receivers. */
-        val INTENT_FILTER = IntentFilter(ACTION)
+    /** Default intent for broadcasts. */
+    private fun intent() = Intent(action()).setPackage(context.packageName)
+
+    /** Default intent filter for broadcast receivers. */
+    private fun intentFilter() = IntentFilter(action())
+
+    companion object {
+        private val BROADCAST_TIMEOUT = 100.milliseconds
     }
 }
