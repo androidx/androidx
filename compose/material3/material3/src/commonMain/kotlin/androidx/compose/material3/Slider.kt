@@ -3448,10 +3448,6 @@ public constructor(
         )
     }
 
-    @Deprecated(
-        message = "Maintained for binary compatibility.",
-        level = DeprecationLevel.HIDDEN,
-    )
     override suspend fun drag(
         dragPriority: MutatePriority,
         block: suspend DragScope.() -> Unit,
@@ -3464,10 +3460,6 @@ public constructor(
         }
     }
 
-    @Deprecated(
-        message = "Maintained for binary compatibility.",
-        level = DeprecationLevel.HIDDEN,
-    )
     override fun dispatchRawDelta(delta: Float) {
         dispatchRawDeltaInternal(delta)
     }
