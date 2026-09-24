@@ -3684,6 +3684,147 @@ package androidx.compose.ui.layout {
 
 }
 
+package androidx.compose.ui.lighting {
+
+  @androidx.compose.runtime.Stable public final class DirectionalLight extends androidx.compose.ui.lighting.Light {
+    ctor @KotlinOnly public DirectionalLight(androidx.compose.ui.graphics.Color color, float directionX, float directionY, float directionZ, @FloatRange(from=0.0) float intensity);
+    ctor @BytecodeOnly public DirectionalLight(long, float, float, float, @FloatRange(from=0.0) float, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @BytecodeOnly public long getColor-0d7_KjU();
+    method @InaccessibleFromKotlin public float getDirectionX();
+    method @InaccessibleFromKotlin public float getDirectionY();
+    method @InaccessibleFromKotlin public float getDirectionZ();
+    method @InaccessibleFromKotlin public float getIntensity();
+    property public androidx.compose.ui.graphics.Color color;
+    property public float directionX;
+    property public float directionY;
+    property public float directionZ;
+    property public float intensity;
+    field public static final androidx.compose.ui.lighting.DirectionalLight.Companion Companion;
+  }
+
+  public static final class DirectionalLight.Companion {
+    method @KotlinOnly public androidx.compose.ui.lighting.DirectionalLight fromAngles(androidx.compose.ui.graphics.Color color, float planeAngleDegrees, float elevationDegrees, @FloatRange(from=0.0) float intensity);
+    method @BytecodeOnly public androidx.compose.ui.lighting.DirectionalLight fromAngles-Iv8Zu3U(long, float, float, @FloatRange(from=0.0) float);
+  }
+
+  @androidx.compose.runtime.Stable public abstract class Light {
+    method @BytecodeOnly public abstract long getColor-0d7_KjU();
+    method @InaccessibleFromKotlin public abstract float getIntensity();
+    method @InaccessibleFromKotlin public androidx.compose.ui.lighting.LightPosition getPosition();
+    property public abstract androidx.compose.ui.graphics.Color color;
+    property public abstract float intensity;
+    property public androidx.compose.ui.lighting.LightPosition position;
+  }
+
+  @androidx.compose.runtime.Stable public final class LightAnchorState {
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public LightAnchorState();
+  }
+
+  public abstract class LightPosition {
+    method @BytecodeOnly public abstract long getOffset-RKDOV3M();
+    property public abstract androidx.compose.ui.unit.DpOffset offset;
+  }
+
+  public static final class LightPosition.Anchored extends androidx.compose.ui.lighting.LightPosition {
+    ctor @KotlinOnly public LightPosition.Anchored(androidx.compose.ui.lighting.LightAnchorState state, optional androidx.compose.ui.unit.DpOffset offset);
+    ctor @BytecodeOnly public LightPosition.Anchored(androidx.compose.ui.lighting.LightAnchorState!, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public LightPosition.Anchored(androidx.compose.ui.lighting.LightAnchorState!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @BytecodeOnly public long getOffset-RKDOV3M();
+    method @InaccessibleFromKotlin public androidx.compose.ui.lighting.LightAnchorState getState();
+    property public androidx.compose.ui.unit.DpOffset offset;
+    property public androidx.compose.ui.lighting.LightAnchorState state;
+  }
+
+  public static final class LightPosition.Global extends androidx.compose.ui.lighting.LightPosition {
+    ctor @KotlinOnly public LightPosition.Global(androidx.compose.ui.unit.DpOffset offset);
+    ctor @BytecodeOnly public LightPosition.Global(long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @BytecodeOnly public long getOffset-RKDOV3M();
+    property public androidx.compose.ui.unit.DpOffset offset;
+  }
+
+  public static final class LightPosition.Local extends androidx.compose.ui.lighting.LightPosition {
+    ctor @KotlinOnly public LightPosition.Local(androidx.compose.ui.unit.DpOffset offset);
+    ctor @BytecodeOnly public LightPosition.Local(long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @BytecodeOnly public long getOffset-RKDOV3M();
+    property public androidx.compose.ui.unit.DpOffset offset;
+  }
+
+  @androidx.compose.runtime.Stable public final class PointLight extends androidx.compose.ui.lighting.Light {
+    ctor @KotlinOnly public PointLight(androidx.compose.ui.graphics.Color color, androidx.compose.ui.lighting.LightPosition position, androidx.compose.ui.unit.Dp elevation, androidx.compose.ui.unit.Dp falloffRadius, @FloatRange(from=0.0) float intensity);
+    ctor @BytecodeOnly public PointLight(long, androidx.compose.ui.lighting.LightPosition!, float, float, @FloatRange(from=0.0) float, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @BytecodeOnly public long getColor-0d7_KjU();
+    method @BytecodeOnly public float getElevation-D9Ej5fM();
+    method @BytecodeOnly public float getFalloffRadius-D9Ej5fM();
+    method @InaccessibleFromKotlin public float getIntensity();
+    property public androidx.compose.ui.graphics.Color color;
+    property public androidx.compose.ui.unit.Dp elevation;
+    property public androidx.compose.ui.unit.Dp falloffRadius;
+    property public float intensity;
+    property public androidx.compose.ui.lighting.LightPosition position;
+  }
+
+  @androidx.compose.runtime.Stable public final class SpotLight extends androidx.compose.ui.lighting.Light {
+    ctor @KotlinOnly public SpotLight(androidx.compose.ui.graphics.Color color, androidx.compose.ui.lighting.LightPosition position, androidx.compose.ui.unit.DpOffset targetOffset, androidx.compose.ui.unit.Dp elevation, androidx.compose.ui.unit.Dp falloffRadius, @FloatRange(from=0.0, to=180.0) float coneAngleDegrees, @FloatRange(from=0.0) float intensity);
+    ctor @BytecodeOnly public SpotLight(long, androidx.compose.ui.lighting.LightPosition!, long, float, float, @FloatRange(from=0.0, to=180.0) float, @FloatRange(from=0.0) float, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @BytecodeOnly public long getColor-0d7_KjU();
+    method @InaccessibleFromKotlin public float getConeAngleDegrees();
+    method @BytecodeOnly public float getElevation-D9Ej5fM();
+    method @BytecodeOnly public float getFalloffRadius-D9Ej5fM();
+    method @InaccessibleFromKotlin public float getIntensity();
+    method @BytecodeOnly public long getTargetOffset-RKDOV3M();
+    property public androidx.compose.ui.graphics.Color color;
+    property public float coneAngleDegrees;
+    property public androidx.compose.ui.unit.Dp elevation;
+    property public androidx.compose.ui.unit.Dp falloffRadius;
+    property public float intensity;
+    property public androidx.compose.ui.lighting.LightPosition position;
+    property public androidx.compose.ui.unit.DpOffset targetOffset;
+    field public static final androidx.compose.ui.lighting.SpotLight.Companion Companion;
+  }
+
+  public static final class SpotLight.Companion {
+    method @KotlinOnly public androidx.compose.ui.lighting.SpotLight fromAngles(androidx.compose.ui.graphics.Color color, androidx.compose.ui.lighting.LightPosition position, float planeAngleDegrees, @FloatRange(from=0.0, to=90.0, fromInclusive=false) float elevationDegrees, androidx.compose.ui.unit.Dp elevation, androidx.compose.ui.unit.Dp falloffRadius, @FloatRange(from=0.0, to=180.0) float coneAngleDegrees, @FloatRange(from=0.0) float intensity);
+    method @BytecodeOnly public androidx.compose.ui.lighting.SpotLight fromAngles-dOjXtpA(long, androidx.compose.ui.lighting.LightPosition, float, @FloatRange(from=0.0, to=90.0, fromInclusive=false) float, float, float, @FloatRange(from=0.0, to=180.0) float, @FloatRange(from=0.0) float);
+  }
+
+  @androidx.compose.runtime.Immutable public abstract sealed nonexhaustive class SurfaceGeometrySpec {
+    field public static final androidx.compose.ui.lighting.SurfaceGeometrySpec.Companion Companion;
+  }
+
+  public static final class SurfaceGeometrySpec.Companion {
+    method @KotlinOnly public androidx.compose.ui.lighting.SurfaceGeometrySpec concave(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.unit.Dp thickness, androidx.compose.ui.unit.Dp bevelWidth);
+    method @BytecodeOnly public androidx.compose.ui.lighting.SurfaceGeometrySpec concave-VpY3zN4(androidx.compose.ui.graphics.Shape, float, float);
+    method @KotlinOnly public androidx.compose.ui.lighting.SurfaceGeometrySpec convex(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.unit.Dp thickness, androidx.compose.ui.unit.Dp bevelWidth);
+    method @BytecodeOnly public androidx.compose.ui.lighting.SurfaceGeometrySpec convex-VpY3zN4(androidx.compose.ui.graphics.Shape, float, float);
+    method @KotlinOnly public androidx.compose.ui.lighting.SurfaceGeometrySpec flat(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.unit.Dp thickness);
+    method @BytecodeOnly public androidx.compose.ui.lighting.SurfaceGeometrySpec flat-3ABfNKs(androidx.compose.ui.graphics.Shape, float);
+  }
+
+  @androidx.compose.runtime.Immutable public final class SurfaceMaterial {
+    ctor @BytecodeOnly public SurfaceMaterial();
+    ctor @BytecodeOnly public SurfaceMaterial(long, long, float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @KotlinOnly public androidx.compose.ui.lighting.SurfaceMaterial diffuse(androidx.compose.ui.graphics.Color color);
+    method @BytecodeOnly public androidx.compose.ui.lighting.SurfaceMaterial diffuse-8_81llA(long);
+    method public androidx.compose.ui.lighting.SurfaceMaterial fresnel(@FloatRange(from=0.0, to=1.0) float reflectivity, optional @FloatRange(from=0.0, to=1.0) float intensity);
+    method @BytecodeOnly public static androidx.compose.ui.lighting.SurfaceMaterial! fresnel$default(androidx.compose.ui.lighting.SurfaceMaterial!, float, float, int, Object!);
+    method @KotlinOnly public androidx.compose.ui.lighting.SurfaceMaterial specular(androidx.compose.ui.graphics.Color color, @FloatRange(from=0.0, fromInclusive=false) float shininess);
+    method @BytecodeOnly public androidx.compose.ui.lighting.SurfaceMaterial specular-DxMtmZc(long, @FloatRange(from=0.0, fromInclusive=false) float);
+    field public static final androidx.compose.ui.lighting.SurfaceMaterial.Companion Companion;
+  }
+
+  public static final class SurfaceMaterial.Companion {
+    method @KotlinOnly public androidx.compose.ui.lighting.SurfaceMaterial diffuse(androidx.compose.ui.graphics.Color color);
+    method @BytecodeOnly public androidx.compose.ui.lighting.SurfaceMaterial diffuse-8_81llA(long);
+    method public androidx.compose.ui.lighting.SurfaceMaterial fresnel(@FloatRange(from=0.0, to=1.0) float reflectivity, optional @FloatRange(from=0.0, to=1.0) float intensity);
+    method @BytecodeOnly public static androidx.compose.ui.lighting.SurfaceMaterial! fresnel$default(androidx.compose.ui.lighting.SurfaceMaterial.Companion!, float, float, int, Object!);
+    method @InaccessibleFromKotlin public androidx.compose.ui.lighting.SurfaceMaterial getNone();
+    method @KotlinOnly public androidx.compose.ui.lighting.SurfaceMaterial specular(androidx.compose.ui.graphics.Color color, @FloatRange(from=0.0, fromInclusive=false) float shininess);
+    method @BytecodeOnly public androidx.compose.ui.lighting.SurfaceMaterial specular-DxMtmZc(long, @FloatRange(from=0.0, fromInclusive=false) float);
+    property public androidx.compose.ui.lighting.SurfaceMaterial None;
+  }
+
+}
+
 package androidx.compose.ui.modifier {
 
   @androidx.compose.runtime.Stable public abstract sealed exhaustive class ModifierLocal<T> {

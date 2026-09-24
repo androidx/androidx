@@ -1506,6 +1506,55 @@ abstract class androidx.compose.ui.layout/Placeable : androidx.compose.ui.layout
     }
 }
 
+abstract class androidx.compose.ui.lighting/Light { // androidx.compose.ui.lighting/Light|null[0]
+    abstract val color // androidx.compose.ui.lighting/Light.color|{}color[0]
+        abstract fun <get-color>(): androidx.compose.ui.graphics/Color // androidx.compose.ui.lighting/Light.color.<get-color>|<get-color>(){}[0]
+    abstract val intensity // androidx.compose.ui.lighting/Light.intensity|{}intensity[0]
+        abstract fun <get-intensity>(): kotlin/Float // androidx.compose.ui.lighting/Light.intensity.<get-intensity>|<get-intensity>(){}[0]
+    open val position // androidx.compose.ui.lighting/Light.position|{}position[0]
+        open fun <get-position>(): androidx.compose.ui.lighting/LightPosition // androidx.compose.ui.lighting/Light.position.<get-position>|<get-position>(){}[0]
+}
+
+abstract class androidx.compose.ui.lighting/LightPosition { // androidx.compose.ui.lighting/LightPosition|null[0]
+    abstract val offset // androidx.compose.ui.lighting/LightPosition.offset|{}offset[0]
+        abstract fun <get-offset>(): androidx.compose.ui.unit/DpOffset // androidx.compose.ui.lighting/LightPosition.offset.<get-offset>|<get-offset>(){}[0]
+
+    final class Anchored : androidx.compose.ui.lighting/LightPosition { // androidx.compose.ui.lighting/LightPosition.Anchored|null[0]
+        constructor <init>(androidx.compose.ui.lighting/LightAnchorState, androidx.compose.ui.unit/DpOffset = ...) // androidx.compose.ui.lighting/LightPosition.Anchored.<init>|<init>(androidx.compose.ui.lighting.LightAnchorState;androidx.compose.ui.unit.DpOffset){}[0]
+
+        final val offset // androidx.compose.ui.lighting/LightPosition.Anchored.offset|{}offset[0]
+            final fun <get-offset>(): androidx.compose.ui.unit/DpOffset // androidx.compose.ui.lighting/LightPosition.Anchored.offset.<get-offset>|<get-offset>(){}[0]
+        final val state // androidx.compose.ui.lighting/LightPosition.Anchored.state|{}state[0]
+            final fun <get-state>(): androidx.compose.ui.lighting/LightAnchorState // androidx.compose.ui.lighting/LightPosition.Anchored.state.<get-state>|<get-state>(){}[0]
+
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.lighting/LightPosition.Anchored.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.compose.ui.lighting/LightPosition.Anchored.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.compose.ui.lighting/LightPosition.Anchored.toString|toString(){}[0]
+    }
+
+    final class Global : androidx.compose.ui.lighting/LightPosition { // androidx.compose.ui.lighting/LightPosition.Global|null[0]
+        constructor <init>(androidx.compose.ui.unit/DpOffset) // androidx.compose.ui.lighting/LightPosition.Global.<init>|<init>(androidx.compose.ui.unit.DpOffset){}[0]
+
+        final val offset // androidx.compose.ui.lighting/LightPosition.Global.offset|{}offset[0]
+            final fun <get-offset>(): androidx.compose.ui.unit/DpOffset // androidx.compose.ui.lighting/LightPosition.Global.offset.<get-offset>|<get-offset>(){}[0]
+
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.lighting/LightPosition.Global.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.compose.ui.lighting/LightPosition.Global.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.compose.ui.lighting/LightPosition.Global.toString|toString(){}[0]
+    }
+
+    final class Local : androidx.compose.ui.lighting/LightPosition { // androidx.compose.ui.lighting/LightPosition.Local|null[0]
+        constructor <init>(androidx.compose.ui.unit/DpOffset) // androidx.compose.ui.lighting/LightPosition.Local.<init>|<init>(androidx.compose.ui.unit.DpOffset){}[0]
+
+        final val offset // androidx.compose.ui.lighting/LightPosition.Local.offset|{}offset[0]
+            final fun <get-offset>(): androidx.compose.ui.unit/DpOffset // androidx.compose.ui.lighting/LightPosition.Local.offset.<get-offset>|<get-offset>(){}[0]
+
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.lighting/LightPosition.Local.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.compose.ui.lighting/LightPosition.Local.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.compose.ui.lighting/LightPosition.Local.toString|toString(){}[0]
+    }
+}
+
 abstract class androidx.compose.ui.node/DelegatingNode : androidx.compose.ui/Modifier.Node { // androidx.compose.ui.node/DelegatingNode|null[0]
     constructor <init>() // androidx.compose.ui.node/DelegatingNode.<init>|<init>(){}[0]
 
@@ -2066,6 +2115,97 @@ final class androidx.compose.ui.layout/VerticalRuler : androidx.compose.ui.layou
         final fun derived(kotlin/Function2<androidx.compose.ui.layout/Placeable.PlacementScope, kotlin/Float, kotlin/Float>): androidx.compose.ui.layout/VerticalRuler // androidx.compose.ui.layout/VerticalRuler.Companion.derived|derived(kotlin.Function2<androidx.compose.ui.layout.Placeable.PlacementScope,kotlin.Float,kotlin.Float>){}[0]
         final fun maxOf(kotlin/Array<out androidx.compose.ui.layout/VerticalRuler>...): androidx.compose.ui.layout/VerticalRuler // androidx.compose.ui.layout/VerticalRuler.Companion.maxOf|maxOf(kotlin.Array<out|androidx.compose.ui.layout.VerticalRuler>...){}[0]
         final fun minOf(kotlin/Array<out androidx.compose.ui.layout/VerticalRuler>...): androidx.compose.ui.layout/VerticalRuler // androidx.compose.ui.layout/VerticalRuler.Companion.minOf|minOf(kotlin.Array<out|androidx.compose.ui.layout.VerticalRuler>...){}[0]
+    }
+}
+
+final class androidx.compose.ui.lighting/DirectionalLight : androidx.compose.ui.lighting/Light { // androidx.compose.ui.lighting/DirectionalLight|null[0]
+    constructor <init>(androidx.compose.ui.graphics/Color, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float) // androidx.compose.ui.lighting/DirectionalLight.<init>|<init>(androidx.compose.ui.graphics.Color;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+
+    final val color // androidx.compose.ui.lighting/DirectionalLight.color|{}color[0]
+        final fun <get-color>(): androidx.compose.ui.graphics/Color // androidx.compose.ui.lighting/DirectionalLight.color.<get-color>|<get-color>(){}[0]
+    final val directionX // androidx.compose.ui.lighting/DirectionalLight.directionX|{}directionX[0]
+        final fun <get-directionX>(): kotlin/Float // androidx.compose.ui.lighting/DirectionalLight.directionX.<get-directionX>|<get-directionX>(){}[0]
+    final val directionY // androidx.compose.ui.lighting/DirectionalLight.directionY|{}directionY[0]
+        final fun <get-directionY>(): kotlin/Float // androidx.compose.ui.lighting/DirectionalLight.directionY.<get-directionY>|<get-directionY>(){}[0]
+    final val directionZ // androidx.compose.ui.lighting/DirectionalLight.directionZ|{}directionZ[0]
+        final fun <get-directionZ>(): kotlin/Float // androidx.compose.ui.lighting/DirectionalLight.directionZ.<get-directionZ>|<get-directionZ>(){}[0]
+    final val intensity // androidx.compose.ui.lighting/DirectionalLight.intensity|{}intensity[0]
+        final fun <get-intensity>(): kotlin/Float // androidx.compose.ui.lighting/DirectionalLight.intensity.<get-intensity>|<get-intensity>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.lighting/DirectionalLight.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.ui.lighting/DirectionalLight.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.ui.lighting/DirectionalLight.toString|toString(){}[0]
+
+    final object Companion { // androidx.compose.ui.lighting/DirectionalLight.Companion|null[0]
+        final fun fromAngles(androidx.compose.ui.graphics/Color, kotlin/Float, kotlin/Float, kotlin/Float): androidx.compose.ui.lighting/DirectionalLight // androidx.compose.ui.lighting/DirectionalLight.Companion.fromAngles|fromAngles(androidx.compose.ui.graphics.Color;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+    }
+}
+
+final class androidx.compose.ui.lighting/LightAnchorState { // androidx.compose.ui.lighting/LightAnchorState|null[0]
+    constructor <init>() // androidx.compose.ui.lighting/LightAnchorState.<init>|<init>(){}[0]
+}
+
+final class androidx.compose.ui.lighting/PointLight : androidx.compose.ui.lighting/Light { // androidx.compose.ui.lighting/PointLight|null[0]
+    constructor <init>(androidx.compose.ui.graphics/Color, androidx.compose.ui.lighting/LightPosition, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, kotlin/Float) // androidx.compose.ui.lighting/PointLight.<init>|<init>(androidx.compose.ui.graphics.Color;androidx.compose.ui.lighting.LightPosition;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;kotlin.Float){}[0]
+
+    final val color // androidx.compose.ui.lighting/PointLight.color|{}color[0]
+        final fun <get-color>(): androidx.compose.ui.graphics/Color // androidx.compose.ui.lighting/PointLight.color.<get-color>|<get-color>(){}[0]
+    final val elevation // androidx.compose.ui.lighting/PointLight.elevation|{}elevation[0]
+        final fun <get-elevation>(): androidx.compose.ui.unit/Dp // androidx.compose.ui.lighting/PointLight.elevation.<get-elevation>|<get-elevation>(){}[0]
+    final val falloffRadius // androidx.compose.ui.lighting/PointLight.falloffRadius|{}falloffRadius[0]
+        final fun <get-falloffRadius>(): androidx.compose.ui.unit/Dp // androidx.compose.ui.lighting/PointLight.falloffRadius.<get-falloffRadius>|<get-falloffRadius>(){}[0]
+    final val intensity // androidx.compose.ui.lighting/PointLight.intensity|{}intensity[0]
+        final fun <get-intensity>(): kotlin/Float // androidx.compose.ui.lighting/PointLight.intensity.<get-intensity>|<get-intensity>(){}[0]
+    final val position // androidx.compose.ui.lighting/PointLight.position|{}position[0]
+        final fun <get-position>(): androidx.compose.ui.lighting/LightPosition // androidx.compose.ui.lighting/PointLight.position.<get-position>|<get-position>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.lighting/PointLight.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.ui.lighting/PointLight.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.ui.lighting/PointLight.toString|toString(){}[0]
+}
+
+final class androidx.compose.ui.lighting/SpotLight : androidx.compose.ui.lighting/Light { // androidx.compose.ui.lighting/SpotLight|null[0]
+    constructor <init>(androidx.compose.ui.graphics/Color, androidx.compose.ui.lighting/LightPosition, androidx.compose.ui.unit/DpOffset, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, kotlin/Float, kotlin/Float) // androidx.compose.ui.lighting/SpotLight.<init>|<init>(androidx.compose.ui.graphics.Color;androidx.compose.ui.lighting.LightPosition;androidx.compose.ui.unit.DpOffset;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;kotlin.Float;kotlin.Float){}[0]
+
+    final val color // androidx.compose.ui.lighting/SpotLight.color|{}color[0]
+        final fun <get-color>(): androidx.compose.ui.graphics/Color // androidx.compose.ui.lighting/SpotLight.color.<get-color>|<get-color>(){}[0]
+    final val coneAngleDegrees // androidx.compose.ui.lighting/SpotLight.coneAngleDegrees|{}coneAngleDegrees[0]
+        final fun <get-coneAngleDegrees>(): kotlin/Float // androidx.compose.ui.lighting/SpotLight.coneAngleDegrees.<get-coneAngleDegrees>|<get-coneAngleDegrees>(){}[0]
+    final val elevation // androidx.compose.ui.lighting/SpotLight.elevation|{}elevation[0]
+        final fun <get-elevation>(): androidx.compose.ui.unit/Dp // androidx.compose.ui.lighting/SpotLight.elevation.<get-elevation>|<get-elevation>(){}[0]
+    final val falloffRadius // androidx.compose.ui.lighting/SpotLight.falloffRadius|{}falloffRadius[0]
+        final fun <get-falloffRadius>(): androidx.compose.ui.unit/Dp // androidx.compose.ui.lighting/SpotLight.falloffRadius.<get-falloffRadius>|<get-falloffRadius>(){}[0]
+    final val intensity // androidx.compose.ui.lighting/SpotLight.intensity|{}intensity[0]
+        final fun <get-intensity>(): kotlin/Float // androidx.compose.ui.lighting/SpotLight.intensity.<get-intensity>|<get-intensity>(){}[0]
+    final val position // androidx.compose.ui.lighting/SpotLight.position|{}position[0]
+        final fun <get-position>(): androidx.compose.ui.lighting/LightPosition // androidx.compose.ui.lighting/SpotLight.position.<get-position>|<get-position>(){}[0]
+    final val targetOffset // androidx.compose.ui.lighting/SpotLight.targetOffset|{}targetOffset[0]
+        final fun <get-targetOffset>(): androidx.compose.ui.unit/DpOffset // androidx.compose.ui.lighting/SpotLight.targetOffset.<get-targetOffset>|<get-targetOffset>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.lighting/SpotLight.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.ui.lighting/SpotLight.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.ui.lighting/SpotLight.toString|toString(){}[0]
+
+    final object Companion { // androidx.compose.ui.lighting/SpotLight.Companion|null[0]
+        final fun fromAngles(androidx.compose.ui.graphics/Color, androidx.compose.ui.lighting/LightPosition, kotlin/Float, kotlin/Float, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, kotlin/Float, kotlin/Float): androidx.compose.ui.lighting/SpotLight // androidx.compose.ui.lighting/SpotLight.Companion.fromAngles|fromAngles(androidx.compose.ui.graphics.Color;androidx.compose.ui.lighting.LightPosition;kotlin.Float;kotlin.Float;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;kotlin.Float;kotlin.Float){}[0]
+    }
+}
+
+final class androidx.compose.ui.lighting/SurfaceMaterial { // androidx.compose.ui.lighting/SurfaceMaterial|null[0]
+    final fun diffuse(androidx.compose.ui.graphics/Color): androidx.compose.ui.lighting/SurfaceMaterial // androidx.compose.ui.lighting/SurfaceMaterial.diffuse|diffuse(androidx.compose.ui.graphics.Color){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.lighting/SurfaceMaterial.equals|equals(kotlin.Any?){}[0]
+    final fun fresnel(kotlin/Float, kotlin/Float = ...): androidx.compose.ui.lighting/SurfaceMaterial // androidx.compose.ui.lighting/SurfaceMaterial.fresnel|fresnel(kotlin.Float;kotlin.Float){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.ui.lighting/SurfaceMaterial.hashCode|hashCode(){}[0]
+    final fun specular(androidx.compose.ui.graphics/Color, kotlin/Float): androidx.compose.ui.lighting/SurfaceMaterial // androidx.compose.ui.lighting/SurfaceMaterial.specular|specular(androidx.compose.ui.graphics.Color;kotlin.Float){}[0]
+    final fun toString(): kotlin/String // androidx.compose.ui.lighting/SurfaceMaterial.toString|toString(){}[0]
+
+    final object Companion { // androidx.compose.ui.lighting/SurfaceMaterial.Companion|null[0]
+        final val None // androidx.compose.ui.lighting/SurfaceMaterial.Companion.None|{}None[0]
+            final fun <get-None>(): androidx.compose.ui.lighting/SurfaceMaterial // androidx.compose.ui.lighting/SurfaceMaterial.Companion.None.<get-None>|<get-None>(){}[0]
+
+        final fun diffuse(androidx.compose.ui.graphics/Color): androidx.compose.ui.lighting/SurfaceMaterial // androidx.compose.ui.lighting/SurfaceMaterial.Companion.diffuse|diffuse(androidx.compose.ui.graphics.Color){}[0]
+        final fun fresnel(kotlin/Float, kotlin/Float = ...): androidx.compose.ui.lighting/SurfaceMaterial // androidx.compose.ui.lighting/SurfaceMaterial.Companion.fresnel|fresnel(kotlin.Float;kotlin.Float){}[0]
+        final fun specular(androidx.compose.ui.graphics/Color, kotlin/Float): androidx.compose.ui.lighting/SurfaceMaterial // androidx.compose.ui.lighting/SurfaceMaterial.Companion.specular|specular(androidx.compose.ui.graphics.Color;kotlin.Float){}[0]
     }
 }
 
@@ -3562,6 +3702,14 @@ sealed class androidx.compose.ui.layout/AlignmentLine { // androidx.compose.ui.l
 
 sealed class androidx.compose.ui.layout/Ruler // androidx.compose.ui.layout/Ruler|null[0]
 
+sealed class androidx.compose.ui.lighting/SurfaceGeometrySpec { // androidx.compose.ui.lighting/SurfaceGeometrySpec|null[0]
+    final object Companion { // androidx.compose.ui.lighting/SurfaceGeometrySpec.Companion|null[0]
+        final fun concave(androidx.compose.ui.graphics/Shape, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp): androidx.compose.ui.lighting/SurfaceGeometrySpec // androidx.compose.ui.lighting/SurfaceGeometrySpec.Companion.concave|concave(androidx.compose.ui.graphics.Shape;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+        final fun convex(androidx.compose.ui.graphics/Shape, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp): androidx.compose.ui.lighting/SurfaceGeometrySpec // androidx.compose.ui.lighting/SurfaceGeometrySpec.Companion.convex|convex(androidx.compose.ui.graphics.Shape;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+        final fun flat(androidx.compose.ui.graphics/Shape, androidx.compose.ui.unit/Dp): androidx.compose.ui.lighting/SurfaceGeometrySpec // androidx.compose.ui.lighting/SurfaceGeometrySpec.Companion.flat|flat(androidx.compose.ui.graphics.Shape;androidx.compose.ui.unit.Dp){}[0]
+    }
+}
+
 sealed class androidx.compose.ui.modifier/ModifierLocalMap // androidx.compose.ui.modifier/ModifierLocalMap|null[0]
 
 final object androidx.compose.ui.semantics/SemanticsActions { // androidx.compose.ui.semantics/SemanticsActions|null[0]
@@ -3915,6 +4063,17 @@ final val androidx.compose.ui.layout/isUnspecified // androidx.compose.ui.layout
     final inline fun (androidx.compose.ui.layout/ScaleFactor).<get-isUnspecified>(): kotlin/Boolean // androidx.compose.ui.layout/isUnspecified.<get-isUnspecified>|<get-isUnspecified>@androidx.compose.ui.layout.ScaleFactor(){}[0]
 final val androidx.compose.ui.layout/layoutId // androidx.compose.ui.layout/layoutId|@androidx.compose.ui.layout.Measurable{}layoutId[0]
     final fun (androidx.compose.ui.layout/Measurable).<get-layoutId>(): kotlin/Any? // androidx.compose.ui.layout/layoutId.<get-layoutId>|<get-layoutId>@androidx.compose.ui.layout.Measurable(){}[0]
+final val androidx.compose.ui.lighting/androidx_compose_ui_lighting_DirectionalLight$stableprop // androidx.compose.ui.lighting/androidx_compose_ui_lighting_DirectionalLight$stableprop|#static{}androidx_compose_ui_lighting_DirectionalLight$stableprop[0]
+final val androidx.compose.ui.lighting/androidx_compose_ui_lighting_Light$stableprop // androidx.compose.ui.lighting/androidx_compose_ui_lighting_Light$stableprop|#static{}androidx_compose_ui_lighting_Light$stableprop[0]
+final val androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightAnchorState$stableprop // androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightAnchorState$stableprop|#static{}androidx_compose_ui_lighting_LightAnchorState$stableprop[0]
+final val androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightPosition$stableprop // androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightPosition$stableprop|#static{}androidx_compose_ui_lighting_LightPosition$stableprop[0]
+final val androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightPosition_Anchored$stableprop // androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightPosition_Anchored$stableprop|#static{}androidx_compose_ui_lighting_LightPosition_Anchored$stableprop[0]
+final val androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightPosition_Global$stableprop // androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightPosition_Global$stableprop|#static{}androidx_compose_ui_lighting_LightPosition_Global$stableprop[0]
+final val androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightPosition_Local$stableprop // androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightPosition_Local$stableprop|#static{}androidx_compose_ui_lighting_LightPosition_Local$stableprop[0]
+final val androidx.compose.ui.lighting/androidx_compose_ui_lighting_PointLight$stableprop // androidx.compose.ui.lighting/androidx_compose_ui_lighting_PointLight$stableprop|#static{}androidx_compose_ui_lighting_PointLight$stableprop[0]
+final val androidx.compose.ui.lighting/androidx_compose_ui_lighting_SpotLight$stableprop // androidx.compose.ui.lighting/androidx_compose_ui_lighting_SpotLight$stableprop|#static{}androidx_compose_ui_lighting_SpotLight$stableprop[0]
+final val androidx.compose.ui.lighting/androidx_compose_ui_lighting_SurfaceGeometrySpec$stableprop // androidx.compose.ui.lighting/androidx_compose_ui_lighting_SurfaceGeometrySpec$stableprop|#static{}androidx_compose_ui_lighting_SurfaceGeometrySpec$stableprop[0]
+final val androidx.compose.ui.lighting/androidx_compose_ui_lighting_SurfaceMaterial$stableprop // androidx.compose.ui.lighting/androidx_compose_ui_lighting_SurfaceMaterial$stableprop|#static{}androidx_compose_ui_lighting_SurfaceMaterial$stableprop[0]
 final val androidx.compose.ui.modifier/androidx_compose_ui_modifier_ModifierLocal$stableprop // androidx.compose.ui.modifier/androidx_compose_ui_modifier_ModifierLocal$stableprop|#static{}androidx_compose_ui_modifier_ModifierLocal$stableprop[0]
 final val androidx.compose.ui.modifier/androidx_compose_ui_modifier_ModifierLocalMap$stableprop // androidx.compose.ui.modifier/androidx_compose_ui_modifier_ModifierLocalMap$stableprop|#static{}androidx_compose_ui_modifier_ModifierLocalMap$stableprop[0]
 final val androidx.compose.ui.modifier/androidx_compose_ui_modifier_ProvidableModifierLocal$stableprop // androidx.compose.ui.modifier/androidx_compose_ui_modifier_ProvidableModifierLocal$stableprop|#static{}androidx_compose_ui_modifier_ProvidableModifierLocal$stableprop[0]
@@ -4450,6 +4609,17 @@ final fun androidx.compose.ui.layout/lerp(androidx.compose.ui.layout/ScaleFactor
 final fun androidx.compose.ui.layout/materializerOf(androidx.compose.ui/Modifier): kotlin/Function3<androidx.compose.runtime/SkippableUpdater<androidx.compose.ui.node/ComposeUiNode>, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit> // androidx.compose.ui.layout/materializerOf|materializerOf(androidx.compose.ui.Modifier){}[0]
 final fun androidx.compose.ui.layout/materializerOfWithCompositionLocalInjection(androidx.compose.ui/Modifier): kotlin/Function3<androidx.compose.runtime/SkippableUpdater<androidx.compose.ui.node/ComposeUiNode>, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit> // androidx.compose.ui.layout/materializerOfWithCompositionLocalInjection|materializerOfWithCompositionLocalInjection(androidx.compose.ui.Modifier){}[0]
 final fun androidx.compose.ui.layout/onVisibilityChangedNode(kotlin/Long = ..., kotlin/Float = ..., androidx.compose.ui.layout/LayoutBoundsHolder? = ..., kotlin/Function1<kotlin/Boolean, kotlin/Unit>): androidx.compose.ui.node/DelegatableNode // androidx.compose.ui.layout/onVisibilityChangedNode|onVisibilityChangedNode(kotlin.Long;kotlin.Float;androidx.compose.ui.layout.LayoutBoundsHolder?;kotlin.Function1<kotlin.Boolean,kotlin.Unit>){}[0]
+final fun androidx.compose.ui.lighting/androidx_compose_ui_lighting_DirectionalLight$stableprop_getter(): kotlin/Int // androidx.compose.ui.lighting/androidx_compose_ui_lighting_DirectionalLight$stableprop_getter|androidx_compose_ui_lighting_DirectionalLight$stableprop_getter(){}[0]
+final fun androidx.compose.ui.lighting/androidx_compose_ui_lighting_Light$stableprop_getter(): kotlin/Int // androidx.compose.ui.lighting/androidx_compose_ui_lighting_Light$stableprop_getter|androidx_compose_ui_lighting_Light$stableprop_getter(){}[0]
+final fun androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightAnchorState$stableprop_getter(): kotlin/Int // androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightAnchorState$stableprop_getter|androidx_compose_ui_lighting_LightAnchorState$stableprop_getter(){}[0]
+final fun androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightPosition$stableprop_getter(): kotlin/Int // androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightPosition$stableprop_getter|androidx_compose_ui_lighting_LightPosition$stableprop_getter(){}[0]
+final fun androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightPosition_Anchored$stableprop_getter(): kotlin/Int // androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightPosition_Anchored$stableprop_getter|androidx_compose_ui_lighting_LightPosition_Anchored$stableprop_getter(){}[0]
+final fun androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightPosition_Global$stableprop_getter(): kotlin/Int // androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightPosition_Global$stableprop_getter|androidx_compose_ui_lighting_LightPosition_Global$stableprop_getter(){}[0]
+final fun androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightPosition_Local$stableprop_getter(): kotlin/Int // androidx.compose.ui.lighting/androidx_compose_ui_lighting_LightPosition_Local$stableprop_getter|androidx_compose_ui_lighting_LightPosition_Local$stableprop_getter(){}[0]
+final fun androidx.compose.ui.lighting/androidx_compose_ui_lighting_PointLight$stableprop_getter(): kotlin/Int // androidx.compose.ui.lighting/androidx_compose_ui_lighting_PointLight$stableprop_getter|androidx_compose_ui_lighting_PointLight$stableprop_getter(){}[0]
+final fun androidx.compose.ui.lighting/androidx_compose_ui_lighting_SpotLight$stableprop_getter(): kotlin/Int // androidx.compose.ui.lighting/androidx_compose_ui_lighting_SpotLight$stableprop_getter|androidx_compose_ui_lighting_SpotLight$stableprop_getter(){}[0]
+final fun androidx.compose.ui.lighting/androidx_compose_ui_lighting_SurfaceGeometrySpec$stableprop_getter(): kotlin/Int // androidx.compose.ui.lighting/androidx_compose_ui_lighting_SurfaceGeometrySpec$stableprop_getter|androidx_compose_ui_lighting_SurfaceGeometrySpec$stableprop_getter(){}[0]
+final fun androidx.compose.ui.lighting/androidx_compose_ui_lighting_SurfaceMaterial$stableprop_getter(): kotlin/Int // androidx.compose.ui.lighting/androidx_compose_ui_lighting_SurfaceMaterial$stableprop_getter|androidx_compose_ui_lighting_SurfaceMaterial$stableprop_getter(){}[0]
 final fun androidx.compose.ui.modifier/androidx_compose_ui_modifier_ModifierLocal$stableprop_getter(): kotlin/Int // androidx.compose.ui.modifier/androidx_compose_ui_modifier_ModifierLocal$stableprop_getter|androidx_compose_ui_modifier_ModifierLocal$stableprop_getter(){}[0]
 final fun androidx.compose.ui.modifier/androidx_compose_ui_modifier_ModifierLocalMap$stableprop_getter(): kotlin/Int // androidx.compose.ui.modifier/androidx_compose_ui_modifier_ModifierLocalMap$stableprop_getter|androidx_compose_ui_modifier_ModifierLocalMap$stableprop_getter(){}[0]
 final fun androidx.compose.ui.modifier/androidx_compose_ui_modifier_ProvidableModifierLocal$stableprop_getter(): kotlin/Int // androidx.compose.ui.modifier/androidx_compose_ui_modifier_ProvidableModifierLocal$stableprop_getter|androidx_compose_ui_modifier_ProvidableModifierLocal$stableprop_getter(){}[0]
