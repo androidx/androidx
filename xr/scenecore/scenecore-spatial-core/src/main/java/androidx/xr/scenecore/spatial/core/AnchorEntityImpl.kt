@@ -77,7 +77,12 @@ internal class AnchorEntityImpl(
             if (_state == AnchorEntity.State.ERROR) {
                 return false
             }
-            return anchor.anchorToken?.let { anchorToken ->
+            val anchorToken = anchor.anchorToken
+            if (anchorToken == null) {
+                updateState(AnchorEntity.State.ERROR)
+                return false
+            }
+            try {
                 extensions.createNodeTransaction().use { transaction ->
                     // Attach to the root CPM node. This will enable the anchored content to be
                     // visible. Note that the parent of the Entity is null, but the CPM Node is
@@ -87,9 +92,12 @@ internal class AnchorEntityImpl(
                         .setAnchorId(node, anchorToken)
                         .apply()
                 }
-                updateState(AnchorEntity.State.ANCHORED)
-                return true
-            } ?: false
+            } catch (e: Throwable) {
+                updateState(AnchorEntity.State.ERROR)
+                return false
+            }
+            updateState(AnchorEntity.State.ANCHORED)
+            return true
         }
     }
 
