@@ -67,7 +67,12 @@ import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.core.operations.ParticlesCompare
 import androidx.compose.remote.core.operations.ParticlesLoop
+import androidx.compose.remote.core.operations.PathAppend
+import androidx.compose.remote.core.operations.PathCombine
+import androidx.compose.remote.core.operations.PathCreate
 import androidx.compose.remote.core.operations.PathData
+import androidx.compose.remote.core.operations.PathExpression
+import androidx.compose.remote.core.operations.PathTween
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.ContainerEnd
@@ -84,7 +89,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathMeasure
+import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -100,6 +107,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
+import kotlin.math.abs
+import kotlin.math.atan2
 
 /** Dereference a PaintOperation image/path id (mirrors PaintOperation.getId's PTR_DEREFERENCE). */
 internal fun derefId(rawId: Int, context: RemoteContext): Int =
@@ -178,6 +187,8 @@ internal fun DrawScope.executeOperations(
     // suppresses writes during evaluation — so they stay on `remoteContext` (the real store).
     // GraphContext shares that store, so leaf reads are identical either way.
     val read: RemoteContext = graph ?: remoteContext
+    remoteContext.clearLastOpCount()
+    graph?.clearLastOpCount()
     var canvasLevel = 0
     // For DRAW_TO_BITMAP: the original on-screen canvas, saved the first time the draw target is
     // redirected to an offscreen bitmap so it can be restored (on a `bitmapId == 0` reset, and
@@ -1019,9 +1030,9 @@ internal fun DrawScope.executeOperations(
                         sweepDegrees = -sweepDegrees
                         when (alignment) {
                             DrawTextOnCircle.Alignment.CENTER ->
-                                finalStartAngle = startAngle + kotlin.math.abs(sweepDegrees) / 2f
+                                finalStartAngle = startAngle + abs(sweepDegrees) / 2f
                             DrawTextOnCircle.Alignment.END ->
-                                finalStartAngle = startAngle + kotlin.math.abs(sweepDegrees)
+                                finalStartAngle = startAngle + abs(sweepDegrees)
                             else -> {}
                         }
                     } else {
@@ -1301,7 +1312,7 @@ internal fun DrawScope.executeOperations(
                                 val tangent = pathMeasure.getTangent(fraction * pathLength)
                                 val angle =
                                     Math.toDegrees(
-                                            Math.atan2(tangent.y.toDouble(), tangent.x.toDouble())
+                                            atan2(tangent.y.toDouble(), tangent.x.toDouble())
                                         )
                                         .toFloat()
 
@@ -1334,7 +1345,56 @@ internal fun DrawScope.executeOperations(
                 onDrawContent()
             }
             is PathData -> {
+                op.applyReflection(remoteContext)
+            }
+            is PathCreate -> {
                 op.apply(remoteContext)
+            }
+            is PathAppend -> {
+                op.apply(remoteContext)
+            }
+            is PathExpression -> {
+                op.apply(remoteContext)
+            }
+            is PathTween -> {
+                val state = remoteContext.mRemoteComposeState
+                val path1Id = derefId(op.mPathId1, read)
+                val path2Id = derefId(op.mPathId2, read)
+                val outId = derefId(op.mOutId, read)
+                val tween = op.mTweenOut
+                val data1 = state.getPathData(path1Id)
+                val data2 = state.getPathData(path2Id)
+                val tmp =
+                    when {
+                        tween <= 0f || data2 == null -> data1
+                        tween >= 1f || data1 == null -> data2
+                        else ->
+                            FloatArray(data2.size) { i ->
+                                if (data1[i].isNaN() || data2[i].isNaN()) data1[i]
+                                else (data2[i] - data1[i]) * tween + data1[i]
+                            }
+                    }
+                if (tmp != null) {
+                    state.putPathData(outId, tmp)
+                }
+            }
+            is PathCombine -> {
+                val state = remoteContext.mRemoteComposeState
+                val path1Id = derefId(op.mPathId1, read)
+                val path2Id = derefId(op.mPathId2, read)
+                val outId = derefId(op.mOutId, read)
+                val p1 = state.getPath(path1Id, 0f, 1f)
+                val p2 = state.getPath(path2Id, 0f, 1f)
+                val pathOp =
+                    when (op.operationReflection) {
+                        PathCombine.OP_DIFFERENCE -> PathOperation.Difference
+                        PathCombine.OP_INTERSECT -> PathOperation.Intersect
+                        PathCombine.OP_REVERSE_DIFFERENCE -> PathOperation.ReverseDifference
+                        PathCombine.OP_UNION -> PathOperation.Union
+                        PathCombine.OP_XOR -> PathOperation.Xor
+                        else -> PathOperation.Union
+                    }
+                state.putPath(outId, Path.combine(pathOp, p1, p2))
             }
             is ComponentValue -> {
                 val w = this.size.width
