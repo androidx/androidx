@@ -26,9 +26,7 @@ internal fun pressHome() {
 }
 
 internal fun disableChargingExperience() {
-    val instrumentation = InstrumentationRegistry.getInstrumentation()
-    val device = UiDevice.getInstance(instrumentation)
-    device.executeShellCommand(
+    executeShellCommand(
         "am broadcast -a " +
             "com.google.android.clockwork.sysui.charging.ENABLE_CHARGING_EXPERIENCE " +
             "--ez value \"false\" com.google.android.wearable.sysui"
@@ -36,13 +34,17 @@ internal fun disableChargingExperience() {
 }
 
 internal fun enableChargingExperience() {
-    val instrumentation = InstrumentationRegistry.getInstrumentation()
-    val device = UiDevice.getInstance(instrumentation)
-    device.executeShellCommand(
+    executeShellCommand(
         "am broadcast -a " +
             "com.google.android.clockwork.sysui.charging.ENABLE_CHARGING_EXPERIENCE " +
             "--ez value \"true\" com.google.android.wearable.sysui"
     )
+}
+
+internal fun executeShellCommand(command: String) {
+    val instrumentation = InstrumentationRegistry.getInstrumentation()
+    val device = UiDevice.getInstance(instrumentation)
+    device.executeShellCommand(command)
 }
 
 internal const val PACKAGE_NAME = "androidx.wear.compose.material3.macrobenchmark.target"

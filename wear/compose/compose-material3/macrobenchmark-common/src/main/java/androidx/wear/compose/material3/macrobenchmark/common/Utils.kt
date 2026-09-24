@@ -85,3 +85,5 @@ internal fun retryIfStale(block: () -> UiObject2): UiObject2 =
     }
 
 internal const val FIND_OBJECT_TIMEOUT_MS = 10_000L
+
+internal const val PACKAGE_NAME = "androidx.wear.compose.material3.macrobenchmark.target"

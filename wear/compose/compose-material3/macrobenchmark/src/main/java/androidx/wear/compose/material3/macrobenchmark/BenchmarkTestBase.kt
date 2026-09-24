@@ -61,6 +61,7 @@ abstract class BenchmarkTestBase(
             compilationMode = compilationMode,
             iterations = iterations,
             setupBlock = {
+                macrobenchmarkScreen.setup.invoke(this)
                 val intent = Intent()
                 intent.action = "$PACKAGE_NAME.$actionSuffix"
                 startActivityAndWait(intent)
