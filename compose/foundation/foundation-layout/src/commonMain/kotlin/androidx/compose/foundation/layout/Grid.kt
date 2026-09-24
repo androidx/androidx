@@ -901,11 +901,18 @@ internal class GridMeasurePolicy(
             val columnOffsets =
                 calculateTrackOffsets(trackSizes.columnWidths, trackSizes.columnGapPx)
             val rowOffsets = calculateTrackOffsets(trackSizes.rowHeights, trackSizes.rowGapPx)
+            val isRtl = layoutDirection == LayoutDirection.Rtl
             resolvedGridItemsResult.gridItems.forEach { gridItem ->
                 val placeable = gridItem.placeable
                 // Only place if measurement succeeded (guard against edge cases)
                 if (placeable != null) {
-                    val x = columnOffsets[gridItem.column] + gridItem.offsetX
+                    val columnOffset =
+                        if (isRtl) {
+                            layoutWidth - columnOffsets[gridItem.column] - gridItem.spannedWidth
+                        } else {
+                            columnOffsets[gridItem.column]
+                        }
+                    val x = columnOffset + gridItem.offsetX
                     val y = rowOffsets[gridItem.row] + gridItem.offsetY
                     placeable.place(x, y)
                 }
@@ -1030,6 +1037,7 @@ private class GridItem(
     var placeable: Placeable? = null,
     var offsetX: Int = 0,
     var offsetY: Int = 0,
+    var spannedWidth: Int = 0,
 )
 
 /**
@@ -2428,6 +2436,7 @@ private fun measureItems(
                 )
 
             item.placeable = placeable
+            item.spannedWidth = width
             // Alignment.align already accounts for RTL (Start = right side) relative to 0,0.
             item.offsetX = alignmentOffset.x
             item.offsetY = alignmentOffset.y
