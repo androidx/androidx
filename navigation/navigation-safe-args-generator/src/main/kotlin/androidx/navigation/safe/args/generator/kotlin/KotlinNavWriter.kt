@@ -141,7 +141,9 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
 
         val actionIdPropSpec =
             PropertySpec.builder("actionId", Int::class, KModifier.PUBLIC, KModifier.OVERRIDE)
-                .initializer("%L", action.id.accessor())
+                .getter(
+                    FunSpec.getterBuilder().addStatement("return %L", action.id.accessor()).build()
+                )
                 .build()
 
         val argumentsPropSpec =
