@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -40,6 +42,7 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.remotePath
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.vector.RemotePathScope
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -731,5 +734,135 @@ class RcPlayerPathBuildingTest {
         bitmap.assertWhiteAt(95, 5, "outside top-right corner")
         bitmap.assertWhiteAt(5, 95, "outside bottom-left corner")
         bitmap.assertWhiteAt(95, 95, "outside bottom-right corner")
+    }
+
+    private fun renderWriterToBitmap(
+        widthDp: Dp = 100.dp,
+        heightDp: Dp = 100.dp,
+        build: RemoteComposeWriterAndroid.() -> Unit,
+    ): Bitmap {
+        val writer = RemoteComposeWriterAndroid(100, 100, "test", AndroidxRcPlatformServices())
+        writer.root {
+            writer.getRcPaint().setColor(0xFFFFFFFF.toInt()).setStyle(0).commit()
+            writer.drawRect(0f, 0f, 100f, 100f)
+            writer.build()
+        }
+        val bytes = writer.buffer()
+        val document =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                ByteArrayInputStream(bytes, 0, writer.bufferSize()).use {
+                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                }
+            }
+        rule.setContent {
+            Box(modifier = Modifier.size(widthDp, heightDp).testTag("playerBox")) {
+                RcPlayer(document = document)
+            }
+        }
+        rule.waitForIdle()
+        return rule.onNodeWithTag("playerBox").captureToImage().asAndroidBitmap()
+    }
+
+    @Test
+    fun drawPath_pathCreateAndPathAppend_rendersDynamicContour() {
+        val bitmap = renderWriterToBitmap {
+            getRcPaint().setColor(0xFFFF0000.toInt()).setStyle(0).commit()
+            val pathId = pathCreate(20f, 20f)
+            pathAppendLineTo(pathId, 80f, 20f)
+            pathAppendLineTo(pathId, 80f, 80f)
+            pathAppendLineTo(pathId, 20f, 80f)
+            pathAppendClose(pathId)
+            drawPath(pathId)
+        }
+
+        // Inside [20, 20, 80, 80]
+        bitmap.assertRedAt(50, 50, "dynamic contour center")
+        bitmap.assertRedAt(25, 25, "dynamic contour top-left")
+        bitmap.assertRedAt(75, 75, "dynamic contour bottom-right")
+
+        // Outside [20, 20, 80, 80]
+        bitmap.assertWhiteAt(10, 10, "outside top-left")
+        bitmap.assertWhiteAt(90, 90, "outside bottom-right")
+        bitmap.assertWhiteAt(50, 10, "outside top edge")
+        bitmap.assertWhiteAt(50, 90, "outside bottom edge")
+    }
+
+    @Test
+    fun drawPath_pathCombineDifference_punchesInnerHole() {
+        val bitmap = renderWriterToBitmap {
+            getRcPaint().setColor(0xFFFF0000.toInt()).setStyle(0).commit()
+            val outerId = pathCreate(10f, 10f)
+            pathAppendLineTo(outerId, 90f, 10f)
+            pathAppendLineTo(outerId, 90f, 90f)
+            pathAppendLineTo(outerId, 10f, 90f)
+            pathAppendClose(outerId)
+
+            val innerId = pathCreate(30f, 30f)
+            pathAppendLineTo(innerId, 70f, 30f)
+            pathAppendLineTo(innerId, 70f, 70f)
+            pathAppendLineTo(innerId, 30f, 70f)
+            pathAppendClose(innerId)
+
+            val diffId = pathCombine(outerId, innerId, RemoteComposeWriter.COMBINE_DIFFERENCE)
+            drawPath(diffId)
+        }
+
+        // Outer frame [10..30] and [70..90] is red
+        bitmap.assertRedAt(20, 50, "left frame ring")
+        bitmap.assertRedAt(80, 50, "right frame ring")
+        bitmap.assertRedAt(50, 20, "top frame ring")
+        bitmap.assertRedAt(50, 80, "bottom frame ring")
+
+        // Punched inner hole [30..70, 30..70] is white
+        bitmap.assertWhiteAt(50, 50, "punched center hole")
+        bitmap.assertWhiteAt(40, 40, "punched hole top-left")
+        bitmap.assertWhiteAt(60, 60, "punched hole bottom-right")
+
+        // Outside outer frame is white
+        bitmap.assertWhiteAt(5, 5, "outside top-left")
+        bitmap.assertWhiteAt(95, 95, "outside bottom-right")
+    }
+
+    @Test
+    fun drawPath_nestedPathCombine_combinesPreviouslyCombinedPath() {
+        val bitmap = renderWriterToBitmap {
+            getRcPaint().setColor(0xFFFF0000.toInt()).setStyle(0).commit()
+            // Outer rect [10, 10, 90, 90]
+            val outerId = pathCreate(10f, 10f)
+            pathAppendLineTo(outerId, 90f, 10f)
+            pathAppendLineTo(outerId, 90f, 90f)
+            pathAppendLineTo(outerId, 10f, 90f)
+            pathAppendClose(outerId)
+
+            // Hole rect [25, 25, 75, 75]
+            val holeId = pathCreate(25f, 25f)
+            pathAppendLineTo(holeId, 75f, 25f)
+            pathAppendLineTo(holeId, 75f, 75f)
+            pathAppendLineTo(holeId, 25f, 75f)
+            pathAppendClose(holeId)
+
+            // First PathCombine (DIFFERENCE): hollow frame
+            val ringId = pathCombine(outerId, holeId, RemoteComposeWriter.COMBINE_DIFFERENCE)
+
+            // Center island [40, 40, 60, 60]
+            val islandId = pathCreate(40f, 40f)
+            pathAppendLineTo(islandId, 60f, 40f)
+            pathAppendLineTo(islandId, 60f, 60f)
+            pathAppendLineTo(islandId, 40f, 60f)
+            pathAppendClose(islandId)
+
+            // Second (nested) PathCombine (UNION): hollow frame + center island
+            val nestedId = pathCombine(ringId, islandId, RemoteComposeWriter.COMBINE_UNION)
+            drawPath(nestedId)
+        }
+
+        // Outer ring [10..25] is red
+        bitmap.assertRedAt(18, 50, "outer ring left")
+        bitmap.assertRedAt(82, 50, "outer ring right")
+        // Moat [25..40] is white
+        bitmap.assertWhiteAt(32, 50, "moat left")
+        bitmap.assertWhiteAt(68, 50, "moat right")
+        // Center island [40..60] is red
+        bitmap.assertRedAt(50, 50, "nested union center island")
     }
 }

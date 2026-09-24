@@ -47,6 +47,8 @@ class CoreReflectionGuardTest {
     private val reflectiveFields: Map<String, List<String>> =
         mapOf(
             "$ops.ClipPath" to listOf("mId", "mRegionOp"),
+            "$ops.PathCombine" to listOf("mOperation"),
+            "$ops.PathData" to listOf("mInstanceId", "mOutputPath", "mPathChanged"),
             "$ops.DrawTextOnPath" to listOf("mPathId", "mOutHOffset", "mOutVOffset"),
             "$ops.DrawTextAnchored" to
                 listOf("mTextID", "mOutX", "mOutY", "mOutPanX", "mOutPanY", "mFlags"),

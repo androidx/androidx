@@ -60,6 +60,11 @@ import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.ParticlesCompare
 import androidx.compose.remote.core.operations.ParticlesLoop
+import androidx.compose.remote.core.operations.PathCombine
+import androidx.compose.remote.core.operations.PathCreate
+import androidx.compose.remote.core.operations.PathData
+import androidx.compose.remote.core.operations.PathExpression
+import androidx.compose.remote.core.operations.PathTween
 import androidx.compose.remote.core.operations.TextFromFloat
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.core.operations.TimeAttribute
@@ -713,7 +718,15 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
             hasWakeIn = true
         }
 
-        if (op is VariableSupport && op is VariableProvider) {
+        if (
+            op is VariableSupport &&
+                op is VariableProvider &&
+                op !is PathData &&
+                op !is PathCreate &&
+                op !is PathCombine &&
+                op !is PathTween &&
+                op !is PathExpression
+        ) {
             val animated = op is FloatExpression && op.mFloatAnimation != null
             val id = op.id
             if (!animated && id > 0 && !computedOpIndex.containsKey(id)) {
