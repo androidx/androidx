@@ -455,4 +455,30 @@ class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
         Truth.assertThat(NodeRepository.getInstance().getParent(anchorEntity.getNode()))
             .isEqualTo(activitySpace.getNode())
     }
+
+    private fun createAnchorWithNullToken(): Anchor {
+        val anchor = (Anchor.create(session, Pose.Identity) as AnchorCreateSuccess).anchor
+        val field = Anchor::class.java.getDeclaredField("anchorToken")
+        field.isAccessible = true
+        field.set(anchor, null)
+        return anchor
+    }
+
+    @Test
+    fun setAnchor_nullAnchorToken_updatesStateToErrorAndReturnsFalse() {
+        val anchorEntity = createUnanchoredAnchorEntity()
+        anchorEntity.setOnStateChangedListener(anchorStateListener)
+        verify(anchorStateListener, never()).onStateChanged(AnchorEntity.State.ERROR)
+
+        val anchor = createAnchorWithNullToken()
+        Truth.assertThat(anchor.anchorToken).isNull()
+
+        val result = anchorEntity.setAnchor(anchor)
+
+        Truth.assertThat(result).isFalse()
+        Truth.assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
+        verify(anchorStateListener).onStateChanged(AnchorEntity.State.ERROR)
+        Truth.assertThat(NodeRepository.getInstance().getAnchorId(anchorEntity.getNode())).isNull()
+        Truth.assertThat(NodeRepository.getInstance().getParent(anchorEntity.getNode())).isNull()
+    }
 }
