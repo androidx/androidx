@@ -194,6 +194,44 @@ class Painter {
     }
 
     /**
+     * Sets a shader that draws a radial gradient given the center and radius.
+     *
+     * @param startX The x-coordinate of the center of the starting circle of the radial gradient,
+     *     often referred to as the focal point.
+     * @param startY The y-coordinate of the center of the starting circle of the radial gradient,
+     *     often referred to as the focal point.
+     * @param startR The radius of the starting circle of the radial gradient, often referred to as
+     *     the focal radius. Must be greater than or equal to zero.
+     * @param endX The x-coordinate of the center of the radius for the end circle of the radial
+     *     gradient
+     * @param endY The y-coordinate of the center of the radius for the end circle of the radial
+     *     gradient
+     * @param endR The radius of the ending circle for this gradient. This must be strictly greater
+     *     than zero. A radius value equal to zero is not allowed.
+     * @param colors The sRGB colors to be distributed between the center and edge of the circle
+     * @param positions May be <code>null</code>. Valid values are between <code>0.0f</code> and
+     *     <code>1.0f</code>. The relative position of each corresponding color in the colors array.
+     *     If <code>null</code>, colors are distributed evenly between the center and edge of the
+     *     circle.
+     * @param tileMode The Shader tiling mode
+     */
+    @NonNull
+    public Painter setRadialGradient(
+            float startX,
+            float startY,
+            float startR,
+            float endX,
+            float endY,
+            float endR,
+            int @NonNull [] colors,
+            float @Nullable [] positions,
+            int tileMode) {
+        mPaint.setRadialGradient(
+                colors, 0, positions, startX, startY, startR, endX, endY, endR, tileMode);
+        return this;
+    }
+
+    /**
      * Set a shader that draws a sweep gradient around a center point.
      *
      * @param centerX The x-coordinate of the center

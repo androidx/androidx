@@ -154,6 +154,12 @@ public class PaintBundle implements Serializable {
         } else if (type == RADIAL_GRADIENT) {
             array[ret] = resolveFloatId(array[ret], buffer);
             ret++;
+        } else if (type == RADIAL_GRADIENT2) {
+            // startRadius, endX, endY, endRadius (startX/startY consumed above)
+            for (int j = 0; j < 4; j++) {
+                array[ret] = resolveFloatId(array[ret], buffer);
+                ret++;
+            }
         }
         ret++; // tileMode
         return ret;
@@ -548,6 +554,36 @@ public class PaintBundle implements Serializable {
 
                 tileMode = array[ret++]; // tile Mode
                 break;
+            case RADIAL_GRADIENT2:
+                if (len > 0) {
+
+                    for (int j = 0; j < len; j++) {
+                        int color = array[ret++];
+                        if ((register & (1 << j)) != 0) {
+                            context.listensTo(color, support);
+                        }
+                    }
+                }
+                len = array[ret++]; // stops
+                for (int j = 0; j < len; j++) {
+                    registerFloat(array[ret++], context, support);
+                }
+
+                //  start x
+                registerFloat(array[ret++], context, support);
+                //  start y
+                registerFloat(array[ret++], context, support);
+                // start radius
+                registerFloat(array[ret++], context, support);
+                //  start center x
+                registerFloat(array[ret++], context, support);
+                //  start center y
+                registerFloat(array[ret++], context, support);
+                // start radius
+                registerFloat(array[ret++], context, support);
+
+                tileMode = array[ret++]; // tile Mode
+                break;
                 /* see {@link #setSweepGradient} */
             case SWEEP_GRADIENT:
                 if (len > 0) {
@@ -713,6 +749,18 @@ public class PaintBundle implements Serializable {
                 tileMode = array[ret++];
                 p.setRadialGradient(colors, stops, centerX, centerY, radius, tileMode);
                 break;
+            case RADIAL_GRADIENT2:
+                startX = Float.intBitsToFloat(array[ret++]);
+                startY = Float.intBitsToFloat(array[ret++]);
+                float startR = Float.intBitsToFloat(array[ret++]);
+                endX = Float.intBitsToFloat(array[ret++]);
+                endY = Float.intBitsToFloat(array[ret++]);
+                float endR = Float.intBitsToFloat(array[ret++]);
+
+                tileMode = array[ret++];
+                p.setRadialGradient(
+                        colors, stops, startX, startY, startR, endX, endY, endR, tileMode);
+                break;
             case SWEEP_GRADIENT:
                 centerX = Float.intBitsToFloat(array[ret++]);
                 centerY = Float.intBitsToFloat(array[ret++]);
@@ -831,6 +879,7 @@ public class PaintBundle implements Serializable {
     public static final int LINEAR_GRADIENT = 0;
     public static final int RADIAL_GRADIENT = 1;
     public static final int SWEEP_GRADIENT = 2;
+    public static final int RADIAL_GRADIENT2 = 3;
 
     private int mLastShaderSet = -1;
     private boolean mColorFilterSet = false;
@@ -948,6 +997,60 @@ public class PaintBundle implements Serializable {
         mArray[mPos++] = Float.floatToRawIntBits(centerX);
         mArray[mPos++] = Float.floatToRawIntBits(centerY);
         mArray[mPos++] = Float.floatToRawIntBits(radius);
+        mArray[mPos++] = tileMode;
+    }
+
+    /**
+     * Sets a shader that draws a radial gradient given the center and radius.
+     *
+     * @param colors The sRGB colors distributed between the center and edge
+     * @param idMask The id mask for the shader
+     * @param stops May be <code>null</code>. Valid values are between <code>0.0f</code> and <code>
+     *                    1.0f</code>. The relative position of each corresponding color in the
+     *     colors array. If <code>null</code>, colors are distributed evenly between the center and
+     *     edge of the circle.
+     * @param startX The x-coordinate of the center of the starting circle of the radial gradient,
+     *     often referred to as the focal point.
+     * @param startY The y-coordinate of the center of the starting circle of the radial gradient,
+     *     often referred to as the focal point.
+     * @param startRadius The radius of the starting circle of the radial gradient, often referred
+     *     to as the focal radius. Must be greater than or equal to zero. Value is 0.0f or greater
+     * @param endX The x-coordinate of the center of the radius for the end circle of the radial
+     *     gradient
+     * @param endY The y-coordinate of the center of the radius for the end circle of the radial
+     *     gradient
+     * @param endRadius The radius of the ending circle for this gradient. This must be strictly
+     *     greater than zero. A radius value equal to zero is not allowed. Value is 0.0f or greater
+     * @param tileMode The Shader tiling mode
+     */
+    public void setRadialGradient(
+            int @NonNull [] colors,
+            int idMask,
+            float @Nullable [] stops,
+            float startX,
+            float startY,
+            float startRadius,
+            float endX,
+            float endY,
+            float endRadius,
+            int tileMode) {
+        int len;
+        mArray[mPos++] = GRADIENT | (RADIAL_GRADIENT2 << 16);
+        mArray[mPos++] = (idMask << 16) | (len = colors.length);
+        for (int i = 0; i < len; i++) {
+            mArray[mPos++] = colors[i];
+        }
+        mArray[mPos++] = len = (stops == null) ? 0 : stops.length;
+
+        for (int i = 0; i < len; i++) {
+            mArray[mPos++] = Float.floatToRawIntBits(stops[i]);
+        }
+        mArray[mPos++] = Float.floatToRawIntBits(startX);
+        mArray[mPos++] = Float.floatToRawIntBits(startY);
+        mArray[mPos++] = Float.floatToRawIntBits(startRadius);
+        mArray[mPos++] = Float.floatToRawIntBits(endX);
+        mArray[mPos++] = Float.floatToRawIntBits(endY);
+        mArray[mPos++] = Float.floatToRawIntBits(endRadius);
         mArray[mPos++] = tileMode;
     }
 
@@ -1573,6 +1676,44 @@ public class PaintBundle implements Serializable {
                 ret++;
                 ret++; // tileMode
                 break;
+            case RADIAL_GRADIENT2:
+                //   RadialGradient2
+                if (len > 0) {
+
+                    for (int j = 0; j < len; j++) {
+                        int color = array[ret];
+                        if ((register & (1 << j)) != 0) {
+                            out[ret] = fixColor(color, context);
+                        }
+                        ret++;
+                    }
+                }
+                len = array[ret++];
+                if (len > 0) {
+                    for (int j = 0; j < len; j++) {
+                        out[ret] = fixFloatVar(array[ret], context);
+                        ret++;
+                    }
+                }
+
+                //    start
+                out[ret] = fixFloatVar(array[ret], context);
+                ret++;
+                out[ret] = fixFloatVar(array[ret], context);
+                ret++;
+                //     start radius
+                out[ret] = fixFloatVar(array[ret], context);
+                ret++;
+                //    end
+                out[ret] = fixFloatVar(array[ret], context);
+                ret++;
+                out[ret] = fixFloatVar(array[ret], context);
+                ret++;
+                //     end radius
+                out[ret] = fixFloatVar(array[ret], context);
+                ret++;
+                ret++; // tileMode
+                break;
             case SWEEP_GRADIENT:
                 //   SweepGradient
                 if (len > 0) {
@@ -1785,6 +1926,37 @@ public class PaintBundle implements Serializable {
                                 getVariable(centerY),
                                 "radius",
                                 getVariable(radius),
+                                "tileMode",
+                                tileMode));
+                break;
+            case RADIAL_GRADIENT2:
+                startX = array[ret++];
+                startY = array[ret++];
+                int startR = array[ret++];
+                endX = array[ret++];
+                endY = array[ret++];
+                int endR = array[ret++];
+                tileMode = array[ret++];
+                list.add(
+                        orderedOf(
+                                "type",
+                                "RadialGradientFocal",
+                                "colors",
+                                colors,
+                                "stops",
+                                stops == null ? List.of() : stops,
+                                "startX",
+                                getVariable(startX),
+                                "startY",
+                                getVariable(startY),
+                                "startR",
+                                getVariable(startR),
+                                "endX",
+                                getVariable(endX),
+                                "endY",
+                                getVariable(endY),
+                                "endR",
+                                getVariable(endR),
                                 "tileMode",
                                 tileMode));
                 break;
