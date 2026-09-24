@@ -42,6 +42,27 @@ import androidx.compose.runtime.tracing.internal.RecompositionTracerState
  * - [RESULT_CODE_SUCCESS] - Successfully installed the tracer
  * - [RESULT_CODE_ALREADY_IN_PROGRESS] - Tracing is already in progress
  * - [RESULT_CODE_FAILURE] - Failed to install or stop the tracer
+ *
+ * This receiver is generally not expected to be called directly by the user and should only be used
+ * by surrounding tooling (e.g. macrobenchmarks) to actually start and stop the tracing.
+ *
+ * To start the receiver, use:
+ * ```
+ *  adb shell am broadcast \
+ * -a androidx.compose.tracing.action.START_RECOMPOSE_TRACING \
+ * $package/androidx.compose.runtime.tracing.RecompositionTracingReceiver
+ * ```
+ *
+ * To stop the receiver, use:
+ * ```
+ * adb shell am broadcast \
+ * -a androidx.compose.tracing.action.STOP_RECOMPOSE_TRACING \
+ * $package/androidx.compose.runtime.tracing.RecompositionTracingReceiver
+ * ```
+ *
+ * Where `$package` is your application's package name.
+ *
+ * Note that enabled / disabled state for recomposition tracing is persisted until app reinstall.
  */
 public class RecompositionTracingReceiver : BroadcastReceiver() {
     /** Handles broadcast intents for starting or stopping recomposition tracing. */
