@@ -652,9 +652,7 @@ w: .*\/androidx\/room3\/integration-tests\/room-testapp-kotlin\/build\/generated
 w: .*\/ink\/ink-authoring\/src\/androidDeviceTest\/kotlin\/androidx\/ink\/authoring\/.*\.kt:[0-9]+:[0-9]+ Variable is unused\.
 w: .*\/ink\/ink-authoring\/src\/androidDeviceTest\/kotlin\/androidx\/ink\/authoring\/.*\.kt:[0-9]+:[0-9]+ This 'var' property is never written to, it can be declared as 'val'\.
 # b/552571938
-w: .*\/webgpu\/.*\.kt:[0-9]+:[0-9]+ Variable is unused\.
-w: .*\/webgpu\/.*\.kt:[0-9]+:[0-9]+ This 'var' property is never written to, it can be declared as 'val'\.
-w: .*\/webgpu\/.*\.kt:[0-9]+:[0-9]+ Expression is unused\.
+w: .*\/webgpu\/webgpu\/src\/main\/java\/androidx\/webgpu\/helper\/GPUSyncFenceHelper\.kt:[0-9]+:[0-9]+ Variable is unused\.
 # b/554101833
 w: .*\/glance\/.*.kt:[0-9]+:[0-9]+ Initializer is redundant\.
 w: .*\/glance\/.*.kt:[0-9]+:[0-9]+ Variable is unused\.
