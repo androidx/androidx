@@ -1,0 +1,134 @@
+// Klib ABI Dump
+// Targets: [linuxX64.linuxx64Stubs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.compose.material3:material3-ripple>
+final class androidx.compose.material3.ripple/RippleNodeConfiguration { // androidx.compose.material3.ripple/RippleNodeConfiguration|null[0]
+    constructor <init>(kotlin/Boolean, androidx.compose.ui.unit/Dp, androidx.compose.ui.graphics/ColorProducer, androidx.compose.material3.ripple/RippleNodeConfiguration.PressConfiguration, androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration, androidx.compose.material3.ripple/RippleNodeConfiguration.HoverConfiguration, androidx.compose.material3.ripple/RippleNodeConfiguration.DragConfiguration) // androidx.compose.material3.ripple/RippleNodeConfiguration.<init>|<init>(kotlin.Boolean;androidx.compose.ui.unit.Dp;androidx.compose.ui.graphics.ColorProducer;androidx.compose.material3.ripple.RippleNodeConfiguration.PressConfiguration;androidx.compose.material3.ripple.RippleNodeConfiguration.FocusConfiguration;androidx.compose.material3.ripple.RippleNodeConfiguration.HoverConfiguration;androidx.compose.material3.ripple.RippleNodeConfiguration.DragConfiguration){}[0]
+
+    final val color // androidx.compose.material3.ripple/RippleNodeConfiguration.color|{}color[0]
+        final fun <get-color>(): androidx.compose.ui.graphics/ColorProducer // androidx.compose.material3.ripple/RippleNodeConfiguration.color.<get-color>|<get-color>(){}[0]
+    final val dragConfiguration // androidx.compose.material3.ripple/RippleNodeConfiguration.dragConfiguration|{}dragConfiguration[0]
+        final fun <get-dragConfiguration>(): androidx.compose.material3.ripple/RippleNodeConfiguration.DragConfiguration // androidx.compose.material3.ripple/RippleNodeConfiguration.dragConfiguration.<get-dragConfiguration>|<get-dragConfiguration>(){}[0]
+    final val focusConfiguration // androidx.compose.material3.ripple/RippleNodeConfiguration.focusConfiguration|{}focusConfiguration[0]
+        final fun <get-focusConfiguration>(): androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration // androidx.compose.material3.ripple/RippleNodeConfiguration.focusConfiguration.<get-focusConfiguration>|<get-focusConfiguration>(){}[0]
+    final val hoverConfiguration // androidx.compose.material3.ripple/RippleNodeConfiguration.hoverConfiguration|{}hoverConfiguration[0]
+        final fun <get-hoverConfiguration>(): androidx.compose.material3.ripple/RippleNodeConfiguration.HoverConfiguration // androidx.compose.material3.ripple/RippleNodeConfiguration.hoverConfiguration.<get-hoverConfiguration>|<get-hoverConfiguration>(){}[0]
+    final val isBounded // androidx.compose.material3.ripple/RippleNodeConfiguration.isBounded|{}isBounded[0]
+        final fun <get-isBounded>(): kotlin/Boolean // androidx.compose.material3.ripple/RippleNodeConfiguration.isBounded.<get-isBounded>|<get-isBounded>(){}[0]
+    final val pressConfiguration // androidx.compose.material3.ripple/RippleNodeConfiguration.pressConfiguration|{}pressConfiguration[0]
+        final fun <get-pressConfiguration>(): androidx.compose.material3.ripple/RippleNodeConfiguration.PressConfiguration // androidx.compose.material3.ripple/RippleNodeConfiguration.pressConfiguration.<get-pressConfiguration>|<get-pressConfiguration>(){}[0]
+    final val radius // androidx.compose.material3.ripple/RippleNodeConfiguration.radius|{}radius[0]
+        final fun <get-radius>(): androidx.compose.ui.unit/Dp // androidx.compose.material3.ripple/RippleNodeConfiguration.radius.<get-radius>|<get-radius>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3.ripple/RippleNodeConfiguration.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.material3.ripple/RippleNodeConfiguration.hashCode|hashCode(){}[0]
+
+    sealed interface DragConfiguration { // androidx.compose.material3.ripple/RippleNodeConfiguration.DragConfiguration|null[0]
+        final class Opacity : androidx.compose.material3.ripple/RippleNodeConfiguration.DragConfiguration { // androidx.compose.material3.ripple/RippleNodeConfiguration.DragConfiguration.Opacity|null[0]
+            constructor <init>(kotlin/Float) // androidx.compose.material3.ripple/RippleNodeConfiguration.DragConfiguration.Opacity.<init>|<init>(kotlin.Float){}[0]
+
+            final val alpha // androidx.compose.material3.ripple/RippleNodeConfiguration.DragConfiguration.Opacity.alpha|{}alpha[0]
+                final fun <get-alpha>(): kotlin/Float // androidx.compose.material3.ripple/RippleNodeConfiguration.DragConfiguration.Opacity.alpha.<get-alpha>|<get-alpha>(){}[0]
+
+            final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3.ripple/RippleNodeConfiguration.DragConfiguration.Opacity.equals|equals(kotlin.Any?){}[0]
+            final fun hashCode(): kotlin/Int // androidx.compose.material3.ripple/RippleNodeConfiguration.DragConfiguration.Opacity.hashCode|hashCode(){}[0]
+        }
+
+        final object None : androidx.compose.material3.ripple/RippleNodeConfiguration.DragConfiguration // androidx.compose.material3.ripple/RippleNodeConfiguration.DragConfiguration.None|null[0]
+    }
+
+    sealed interface FocusConfiguration { // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration|null[0]
+        final class InsetRing : androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration { // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing|null[0]
+            constructor <init>(androidx.compose.ui.graphics/Shape, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.ui.graphics/ColorProducer, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.ui.graphics/ColorProducer, androidx.compose.animation.core/FiniteAnimationSpec<kotlin/Float>, androidx.compose.animation.core/FiniteAnimationSpec<kotlin/Float>) // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.<init>|<init>(androidx.compose.ui.graphics.Shape;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.graphics.ColorProducer;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.graphics.ColorProducer;androidx.compose.animation.core.FiniteAnimationSpec<kotlin.Float>;androidx.compose.animation.core.FiniteAnimationSpec<kotlin.Float>){}[0]
+
+            final val focusingAnimationSpec // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.focusingAnimationSpec|{}focusingAnimationSpec[0]
+                final fun <get-focusingAnimationSpec>(): androidx.compose.animation.core/FiniteAnimationSpec<kotlin/Float> // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.focusingAnimationSpec.<get-focusingAnimationSpec>|<get-focusingAnimationSpec>(){}[0]
+            final val innerStrokeColor // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.innerStrokeColor|{}innerStrokeColor[0]
+                final fun <get-innerStrokeColor>(): androidx.compose.ui.graphics/ColorProducer // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.innerStrokeColor.<get-innerStrokeColor>|<get-innerStrokeColor>(){}[0]
+            final val innerStrokeInset // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.innerStrokeInset|{}innerStrokeInset[0]
+                final fun <get-innerStrokeInset>(): androidx.compose.ui.unit/Dp // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.innerStrokeInset.<get-innerStrokeInset>|<get-innerStrokeInset>(){}[0]
+            final val innerStrokeWidth // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.innerStrokeWidth|{}innerStrokeWidth[0]
+                final fun <get-innerStrokeWidth>(): androidx.compose.ui.unit/Dp // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.innerStrokeWidth.<get-innerStrokeWidth>|<get-innerStrokeWidth>(){}[0]
+            final val outerStrokeColor // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.outerStrokeColor|{}outerStrokeColor[0]
+                final fun <get-outerStrokeColor>(): androidx.compose.ui.graphics/ColorProducer // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.outerStrokeColor.<get-outerStrokeColor>|<get-outerStrokeColor>(){}[0]
+            final val outerStrokeInset // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.outerStrokeInset|{}outerStrokeInset[0]
+                final fun <get-outerStrokeInset>(): androidx.compose.ui.unit/Dp // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.outerStrokeInset.<get-outerStrokeInset>|<get-outerStrokeInset>(){}[0]
+            final val outerStrokeWidth // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.outerStrokeWidth|{}outerStrokeWidth[0]
+                final fun <get-outerStrokeWidth>(): androidx.compose.ui.unit/Dp // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.outerStrokeWidth.<get-outerStrokeWidth>|<get-outerStrokeWidth>(){}[0]
+            final val shape // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.shape|{}shape[0]
+                final fun <get-shape>(): androidx.compose.ui.graphics/Shape // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.shape.<get-shape>|<get-shape>(){}[0]
+            final val unfocusingAnimationSpec // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.unfocusingAnimationSpec|{}unfocusingAnimationSpec[0]
+                final fun <get-unfocusingAnimationSpec>(): androidx.compose.animation.core/FiniteAnimationSpec<kotlin/Float> // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.unfocusingAnimationSpec.<get-unfocusingAnimationSpec>|<get-unfocusingAnimationSpec>(){}[0]
+
+            final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.equals|equals(kotlin.Any?){}[0]
+            final fun hashCode(): kotlin/Int // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.InsetRing.hashCode|hashCode(){}[0]
+        }
+
+        final class Opacity : androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration { // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.Opacity|null[0]
+            constructor <init>(kotlin/Float) // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.Opacity.<init>|<init>(kotlin.Float){}[0]
+
+            final val alpha // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.Opacity.alpha|{}alpha[0]
+                final fun <get-alpha>(): kotlin/Float // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.Opacity.alpha.<get-alpha>|<get-alpha>(){}[0]
+
+            final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.Opacity.equals|equals(kotlin.Any?){}[0]
+            final fun hashCode(): kotlin/Int // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.Opacity.hashCode|hashCode(){}[0]
+        }
+
+        final object None : androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration // androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration.None|null[0]
+    }
+
+    sealed interface HoverConfiguration { // androidx.compose.material3.ripple/RippleNodeConfiguration.HoverConfiguration|null[0]
+        final class Opacity : androidx.compose.material3.ripple/RippleNodeConfiguration.HoverConfiguration { // androidx.compose.material3.ripple/RippleNodeConfiguration.HoverConfiguration.Opacity|null[0]
+            constructor <init>(kotlin/Float) // androidx.compose.material3.ripple/RippleNodeConfiguration.HoverConfiguration.Opacity.<init>|<init>(kotlin.Float){}[0]
+
+            final val alpha // androidx.compose.material3.ripple/RippleNodeConfiguration.HoverConfiguration.Opacity.alpha|{}alpha[0]
+                final fun <get-alpha>(): kotlin/Float // androidx.compose.material3.ripple/RippleNodeConfiguration.HoverConfiguration.Opacity.alpha.<get-alpha>|<get-alpha>(){}[0]
+
+            final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3.ripple/RippleNodeConfiguration.HoverConfiguration.Opacity.equals|equals(kotlin.Any?){}[0]
+            final fun hashCode(): kotlin/Int // androidx.compose.material3.ripple/RippleNodeConfiguration.HoverConfiguration.Opacity.hashCode|hashCode(){}[0]
+        }
+
+        final object None : androidx.compose.material3.ripple/RippleNodeConfiguration.HoverConfiguration // androidx.compose.material3.ripple/RippleNodeConfiguration.HoverConfiguration.None|null[0]
+    }
+
+    sealed interface PressConfiguration { // androidx.compose.material3.ripple/RippleNodeConfiguration.PressConfiguration|null[0]
+        final class Opacity : androidx.compose.material3.ripple/RippleNodeConfiguration.PressConfiguration { // androidx.compose.material3.ripple/RippleNodeConfiguration.PressConfiguration.Opacity|null[0]
+            constructor <init>(kotlin/Float) // androidx.compose.material3.ripple/RippleNodeConfiguration.PressConfiguration.Opacity.<init>|<init>(kotlin.Float){}[0]
+
+            final val alpha // androidx.compose.material3.ripple/RippleNodeConfiguration.PressConfiguration.Opacity.alpha|{}alpha[0]
+                final fun <get-alpha>(): kotlin/Float // androidx.compose.material3.ripple/RippleNodeConfiguration.PressConfiguration.Opacity.alpha.<get-alpha>|<get-alpha>(){}[0]
+
+            final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3.ripple/RippleNodeConfiguration.PressConfiguration.Opacity.equals|equals(kotlin.Any?){}[0]
+            final fun hashCode(): kotlin/Int // androidx.compose.material3.ripple/RippleNodeConfiguration.PressConfiguration.Opacity.hashCode|hashCode(){}[0]
+        }
+
+        final object None : androidx.compose.material3.ripple/RippleNodeConfiguration.PressConfiguration // androidx.compose.material3.ripple/RippleNodeConfiguration.PressConfiguration.None|null[0]
+    }
+}
+
+final val androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration$stableprop // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration$stableprop|#static{}androidx_compose_material3_ripple_RippleNodeConfiguration$stableprop[0]
+final val androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_None$stableprop // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_None$stableprop|#static{}androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_None$stableprop[0]
+final val androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_Opacity$stableprop // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_Opacity$stableprop|#static{}androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_Opacity$stableprop[0]
+final val androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_FocusConfiguration_InsetRing$stableprop // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_FocusConfiguration_InsetRing$stableprop|#static{}androidx_compose_material3_ripple_RippleNodeConfiguration_FocusConfiguration_InsetRing$stableprop[0]
+final val androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_FocusConfiguration_None$stableprop // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_FocusConfiguration_None$stableprop|#static{}androidx_compose_material3_ripple_RippleNodeConfiguration_FocusConfiguration_None$stableprop[0]
+final val androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_FocusConfiguration_Opacity$stableprop // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_FocusConfiguration_Opacity$stableprop|#static{}androidx_compose_material3_ripple_RippleNodeConfiguration_FocusConfiguration_Opacity$stableprop[0]
+final val androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_HoverConfiguration_None$stableprop // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_HoverConfiguration_None$stableprop|#static{}androidx_compose_material3_ripple_RippleNodeConfiguration_HoverConfiguration_None$stableprop[0]
+final val androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_HoverConfiguration_Opacity$stableprop // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_HoverConfiguration_Opacity$stableprop|#static{}androidx_compose_material3_ripple_RippleNodeConfiguration_HoverConfiguration_Opacity$stableprop[0]
+final val androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_PressConfiguration_None$stableprop // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_PressConfiguration_None$stableprop|#static{}androidx_compose_material3_ripple_RippleNodeConfiguration_PressConfiguration_None$stableprop[0]
+final val androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_PressConfiguration_Opacity$stableprop // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_PressConfiguration_Opacity$stableprop|#static{}androidx_compose_material3_ripple_RippleNodeConfiguration_PressConfiguration_Opacity$stableprop[0]
+
+final fun androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration$stableprop_getter(): kotlin/Int // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration$stableprop_getter|androidx_compose_material3_ripple_RippleNodeConfiguration$stableprop_getter(){}[0]
+final fun androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_None$stableprop_getter(): kotlin/Int // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_None$stableprop_getter|androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_None$stableprop_getter(){}[0]
+final fun androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_Opacity$stableprop_getter(): kotlin/Int // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_Opacity$stableprop_getter|androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_Opacity$stableprop_getter(){}[0]
+final fun androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_FocusConfiguration_InsetRing$stableprop_getter(): kotlin/Int // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_FocusConfiguration_InsetRing$stableprop_getter|androidx_compose_material3_ripple_RippleNodeConfiguration_FocusConfiguration_InsetRing$stableprop_getter(){}[0]
+final fun androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_FocusConfiguration_None$stableprop_getter(): kotlin/Int // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_FocusConfiguration_None$stableprop_getter|androidx_compose_material3_ripple_RippleNodeConfiguration_FocusConfiguration_None$stableprop_getter(){}[0]
+final fun androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_FocusConfiguration_Opacity$stableprop_getter(): kotlin/Int // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_FocusConfiguration_Opacity$stableprop_getter|androidx_compose_material3_ripple_RippleNodeConfiguration_FocusConfiguration_Opacity$stableprop_getter(){}[0]
+final fun androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_HoverConfiguration_None$stableprop_getter(): kotlin/Int // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_HoverConfiguration_None$stableprop_getter|androidx_compose_material3_ripple_RippleNodeConfiguration_HoverConfiguration_None$stableprop_getter(){}[0]
+final fun androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_HoverConfiguration_Opacity$stableprop_getter(): kotlin/Int // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_HoverConfiguration_Opacity$stableprop_getter|androidx_compose_material3_ripple_RippleNodeConfiguration_HoverConfiguration_Opacity$stableprop_getter(){}[0]
+final fun androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_PressConfiguration_None$stableprop_getter(): kotlin/Int // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_PressConfiguration_None$stableprop_getter|androidx_compose_material3_ripple_RippleNodeConfiguration_PressConfiguration_None$stableprop_getter(){}[0]
+final fun androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_PressConfiguration_Opacity$stableprop_getter(): kotlin/Int // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_PressConfiguration_Opacity$stableprop_getter|androidx_compose_material3_ripple_RippleNodeConfiguration_PressConfiguration_Opacity$stableprop_getter(){}[0]
+final fun androidx.compose.material3.ripple/createRippleModifierNode(androidx.compose.foundation.interaction/InteractionSource, kotlin/Function0<androidx.compose.material3.ripple/RippleNodeConfiguration>): androidx.compose.ui.node/DelegatableNode // androidx.compose.material3.ripple/createRippleModifierNode|createRippleModifierNode(androidx.compose.foundation.interaction.InteractionSource;kotlin.Function0<androidx.compose.material3.ripple.RippleNodeConfiguration>){}[0]
