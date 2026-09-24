@@ -21,64 +21,48 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
+import android.widget.RemoteViews
 import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
-import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
 import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
-import org.mockito.kotlin.clearInvocations
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.atLeastOnce
+import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
+import org.mockito.kotlin.spy
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
+/**
+ * Tests the orchestration performed by [BaseWidgetDelegate]: resolving target widgets through the
+ * repository, handing them to [GlanceRemoteViewsComposer] and delivering the result to
+ * [AppWidgetManager].
+ *
+ * How individual compositions are grouped, sized and rendered is covered by
+ * [GlanceRemoteViewsComposerTest].
+ */
 @Config(sdk = [Config.TARGET_SDK])
 @RunWith(RobolectricTestRunner::class)
 class BaseWidgetDelegateTest {
 
     private class TestTemplate : AdaptiveGlanceTemplate
-
-    private lateinit var mockRenderer: (TestTemplate, GlanceSurface) -> Unit
-
-    @Before
-    fun setUp() {
-        mockRenderer = mock()
-        AppWidgetTemplateRegistry.resetForTesting()
-        AppWidgetTemplateRegistry.register(
-            TestTemplate::class.java,
-            TemplateRenderer { template, constraints ->
-                { mockRenderer(template, constraints.surface) }
-            },
-        )
-    }
-
-    @Test
-    fun pushUpdate_withoutReceivers_completesWithoutErrors() = runTest {
-        val delegate = BaseWidgetDelegate(ApplicationProvider.getApplicationContext())
-        delegate.pushUpdate(widgetName = "test_widget", currentData = TestTemplate())
-        verify(mockRenderer, never()).invoke(any(), any())
-    }
-
-    @Test
-    fun pushUpdate_withExplicitEmptyWidgetIds_completesWithoutErrors() = runTest {
-        val delegate = BaseWidgetDelegate(ApplicationProvider.getApplicationContext())
-        delegate.pushUpdate(
-            widgetName = "test_widget",
-            currentData = TestTemplate(),
-            widgetIds = emptySet(),
-        )
-        verify(mockRenderer, never()).invoke(any(), any())
-    }
 
     private class TestReceiver : GlanceAdaptiveWidgetReceiver() {
         override val widgetName: String = "test_widget"
@@ -88,249 +72,250 @@ class BaseWidgetDelegateTest {
         override val widgetName: String = "other_widget"
     }
 
+    private val context: Context = ApplicationProvider.getApplicationContext()
+    private lateinit var appWidgetManager: AppWidgetManager
+    private lateinit var mockRenderer: (TestTemplate, GlanceSurface) -> Unit
+
+    @Before
+    fun setUp() {
+        mockRenderer = mock()
+        appWidgetManager = spy(AppWidgetManager.getInstance(context))
+        GlanceRemoteViewsComposer.resetForTesting()
+        AppWidgetTemplateRegistry.resetForTesting()
+        AppWidgetTemplateRegistry.register(
+            TestTemplate::class.java,
+            TemplateRenderer { template, constraints ->
+                { mockRenderer(template, constraints.surface) }
+            },
+        )
+    }
+
+    private fun delegate() =
+        BaseWidgetDelegate(context = context, appWidgetManager = appWidgetManager)
+
+    // region pushUpdate
+
     @Test
-    fun pushUpdate_withWidgetIds_filtersMatchingWidgetIds() = runTest {
-        val context = ApplicationProvider.getApplicationContext<Context>()
+    fun pushUpdate_withoutReceivers_doesNotComposeOrUpdate() = runTest {
+        delegate().pushUpdate(widgetName = "test_widget", currentData = TestTemplate())
 
-        setupBoundWidget(context, 101, TestReceiver::class.java.name, widgetId = "widget_123")
-        setupBoundWidget(context, 102, TestReceiver::class.java.name, widgetId = "widget_456")
-        setupBoundWidget(context, 103, TestReceiver::class.java.name, widgetId = "widget_789")
-        registerReceiverInManifest(context, TestReceiver::class.java.name)
-
-        val delegate = BaseWidgetDelegate(context)
-        val testData = TestTemplate()
-
-        // Target widget_123 & widget_456: matches 101 and 102
-        delegate.pushUpdate(
-            widgetName = "test_widget",
-            currentData = testData,
-            widgetIds = setOf("widget_123", "widget_456"),
-        )
-        verify(mockRenderer).invoke(eq(testData), any())
-        clearInvocations(mockRenderer)
-
-        // Target widget_unknown: no matching widget
-        delegate.pushUpdate(
-            widgetName = "test_widget",
-            currentData = testData,
-            widgetIds = setOf("widget_unknown"),
-        )
         verify(mockRenderer, never()).invoke(any(), any())
+        verify(appWidgetManager, never()).updateAppWidget(any<IntArray>(), any<RemoteViews>())
+    }
+
+    @Test
+    fun pushUpdate_withExplicitEmptyWidgetIds_doesNotComposeOrUpdate() = runTest {
+        setupBoundWidget(201, TestReceiver::class.java.name)
+        registerReceiverInManifest(TestReceiver::class.java.name)
+
+        delegate()
+            .pushUpdate(
+                widgetName = "test_widget",
+                currentData = TestTemplate(),
+                widgetIds = emptySet(),
+            )
+
+        verify(mockRenderer, never()).invoke(any(), any())
+        verify(appWidgetManager, never()).updateAppWidget(any<IntArray>(), any<RemoteViews>())
+    }
+
+    @Test
+    fun pushUpdate_withMismatchingReceiver_doesNotComposeOrUpdate() = runTest {
+        setupBoundWidget(301, OtherReceiver::class.java.name)
+        registerReceiverInManifest(OtherReceiver::class.java.name)
+
+        delegate().pushUpdate(widgetName = "test_widget", currentData = TestTemplate())
+
+        verify(mockRenderer, never()).invoke(any(), any())
+        verify(appWidgetManager, never()).updateAppWidget(any<IntArray>(), any<RemoteViews>())
     }
 
     @Test
     fun pushUpdate_rendersTemplateAndUpdatesAppWidgetManager() = runTest {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-
-        setupBoundWidget(context, 201, TestReceiver::class.java.name)
-        registerReceiverInManifest(context, TestReceiver::class.java.name)
-
-        val delegate = BaseWidgetDelegate(context)
+        setupBoundWidget(201, TestReceiver::class.java.name)
+        registerReceiverInManifest(TestReceiver::class.java.name)
         val testData = TestTemplate()
-        delegate.pushUpdate(widgetName = "test_widget", currentData = testData)
+
+        delegate().pushUpdate(widgetName = "test_widget", currentData = testData)
 
         verify(mockRenderer).invoke(eq(testData), any())
+        assertThat(capturedUpdatedIds()).containsExactly(listOf(201))
     }
 
     @Test
-    fun pushUpdate_withMismatchingReceiver_doesNotRender() = runTest {
-        val context = ApplicationProvider.getApplicationContext<Context>()
+    fun pushUpdate_withWidgetIds_updatesOnlyMatchingWidgets() = runTest {
+        setupBoundWidget(101, TestReceiver::class.java.name, widgetId = "widget_123")
+        setupBoundWidget(102, TestReceiver::class.java.name, widgetId = "widget_456")
+        setupBoundWidget(103, TestReceiver::class.java.name, widgetId = "widget_789")
+        registerReceiverInManifest(TestReceiver::class.java.name)
 
-        setupBoundWidget(context, 301, OtherReceiver::class.java.name)
-        registerReceiverInManifest(context, OtherReceiver::class.java.name)
+        delegate()
+            .pushUpdate(
+                widgetName = "test_widget",
+                currentData = TestTemplate(),
+                widgetIds = setOf("widget_123", "widget_456"),
+            )
 
-        val delegate = BaseWidgetDelegate(context)
-        val testData = TestTemplate()
-        delegate.pushUpdate(widgetName = "test_widget", currentData = testData)
-        verify(mockRenderer, never()).invoke(any(), any())
+        assertThat(capturedUpdatedIds().flatten()).containsExactly(101, 102)
     }
+
+    @Test
+    fun pushUpdate_withUnknownWidgetIds_doesNotComposeOrUpdate() = runTest {
+        setupBoundWidget(101, TestReceiver::class.java.name, widgetId = "widget_123")
+        registerReceiverInManifest(TestReceiver::class.java.name)
+
+        delegate()
+            .pushUpdate(
+                widgetName = "test_widget",
+                currentData = TestTemplate(),
+                widgetIds = setOf("widget_unknown"),
+            )
+
+        verify(mockRenderer, never()).invoke(any(), any())
+        verify(appWidgetManager, never()).updateAppWidget(any<IntArray>(), any<RemoteViews>())
+    }
+
+    @Test
+    fun pushUpdate_updatesEachRenderTargetWithItsOwnWidgets() = runTest {
+        setupBoundWidget(
+            401,
+            TestReceiver::class.java.name,
+            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
+        )
+        setupBoundWidget(
+            402,
+            TestReceiver::class.java.name,
+            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
+        )
+        registerReceiverInManifest(TestReceiver::class.java.name)
+
+        delegate().pushUpdate(widgetName = "test_widget", currentData = TestTemplate())
+
+        // Different surfaces compose separately, and each result goes only to its own instances.
+        assertThat(capturedUpdatedIds()).containsExactly(listOf(401), listOf(402))
+    }
+
+    @Test
+    fun pushUpdate_whenUpdateFailsForOneTarget_stillUpdatesRemainingTargets() = runTest {
+        setupBoundWidget(
+            401,
+            TestReceiver::class.java.name,
+            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
+        )
+        setupBoundWidget(
+            402,
+            TestReceiver::class.java.name,
+            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
+        )
+        registerReceiverInManifest(TestReceiver::class.java.name)
+        // Fail whichever target is delivered first, then behave normally.
+        doThrow(IllegalStateException("Simulated host failure"))
+            .doCallRealMethod()
+            .whenever(appWidgetManager)
+            .updateAppWidget(any<IntArray>(), any<RemoteViews>())
+
+        delegate().pushUpdate(widgetName = "test_widget", currentData = TestTemplate())
+
+        assertThat(capturedUpdatedIds()).containsExactly(listOf(401), listOf(402))
+    }
+
+    // endregion
+
+    // region setPreview
 
     @Test
     @Config(sdk = [35])
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM)
     fun setPreview_sdk35_withMatchingReceiver_rendersAndCallsSetWidgetPreview() = runTest {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        registerReceiverInManifest(context, TestReceiver::class.java.name)
-        val delegate = BaseWidgetDelegate(context)
+        registerReceiverInManifest(TestReceiver::class.java.name)
         val testData = TestTemplate()
 
-        delegate.setPreview(widgetName = "test_widget", previewData = testData)
+        delegate().setPreview(widgetName = "test_widget", previewData = testData)
 
-        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
-        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN)
+        // A home screen provider also gets a keyguard picker entry by default.
+        verify(mockRenderer, times(2)).invoke(eq(testData), any())
+        verify(appWidgetManager)
+            .setWidgetPreview(
+                eq(componentOf(TestReceiver::class.java.name)),
+                eq(AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN),
+                any(),
+            )
+        verify(appWidgetManager)
+            .setWidgetPreview(
+                eq(componentOf(TestReceiver::class.java.name)),
+                eq(AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD),
+                any(),
+            )
     }
 
     @Test
     @Config(sdk = [34])
-    fun setPreview_preSdk35_gracefullyNoOpsWithoutCallingSetWidgetPreview() = runTest {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        registerReceiverInManifest(context, TestReceiver::class.java.name)
-        val delegate = BaseWidgetDelegate(context)
-        val testData = TestTemplate()
+    fun setPreview_preSdk35_gracefullyNoOps() = runTest {
+        registerReceiverInManifest(TestReceiver::class.java.name)
 
-        delegate.setPreview(widgetName = "test_widget", previewData = testData)
+        delegate().setPreview(widgetName = "test_widget", previewData = TestTemplate())
 
         verify(mockRenderer, never()).invoke(any(), any())
     }
 
     @Test
     @Config(sdk = [35])
-    fun setPreview_withoutMatchingReceivers_doesNotRenderOrUpdate() = runTest {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val delegate = BaseWidgetDelegate(context)
-
-        delegate.setPreview(widgetName = "unregistered_widget", previewData = TestTemplate())
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    fun setPreview_withoutMatchingReceivers_doesNotComposeOrSetPreview() = runTest {
+        delegate().setPreview(widgetName = "unregistered_widget", previewData = TestTemplate())
 
         verify(mockRenderer, never()).invoke(any(), any())
-    }
-
-    @Test
-    fun pushUpdate_routesSurfacePerWidgetInstance() = runTest {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-
-        setupBoundWidget(
-            context,
-            appWidgetId = 401,
-            receiverName = TestReceiver::class.java.name,
-            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
-        )
-        setupBoundWidget(
-            context,
-            appWidgetId = 402,
-            receiverName = TestReceiver::class.java.name,
-            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
-        )
-        setupBoundWidget(
-            context,
-            appWidgetId = 403,
-            receiverName = TestReceiver::class.java.name,
-            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_NOT_KEYGUARD,
-        )
-        registerReceiverInManifest(context, TestReceiver::class.java.name)
-
-        val delegate = BaseWidgetDelegate(context)
-        val testData = TestTemplate()
-        delegate.pushUpdate(widgetName = "test_widget", currentData = testData)
-
-        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
-        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN)
-    }
-
-    private class LockScreenReceiver : GlanceAdaptiveWidgetReceiver() {
-        override val widgetName: String = "test_widget"
+        verify(appWidgetManager, never())
+            .setWidgetPreview(any<ComponentName>(), any<Int>(), any<RemoteViews>())
     }
 
     @Test
     @Config(sdk = [35])
-    fun setPreview_sdk35_routesSurfacePerProviderCategory() = runTest {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        registerReceiverInManifest(
-            context,
-            TestReceiver::class.java.name,
-            widgetCategory =
-                AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN or
-                    AppWidgetProviderInfo.WIDGET_CATEGORY_NOT_KEYGUARD,
-        )
-        registerReceiverInManifest(
-            context,
-            LockScreenReceiver::class.java.name,
-            widgetCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
-        )
-        val delegate = BaseWidgetDelegate(context)
-        val testData = TestTemplate()
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    fun setPreview_whenSetWidgetPreviewFailsForOneEntry_stillSetsRemainingPreviews() = runTest {
+        registerReceiverInManifest(TestReceiver::class.java.name)
+        // Fail whichever picker entry is delivered first, then behave normally.
+        doThrow(IllegalStateException("Simulated host failure"))
+            .doCallRealMethod()
+            .whenever(appWidgetManager)
+            .setWidgetPreview(any<ComponentName>(), any<Int>(), any<RemoteViews>())
 
-        delegate.setPreview(widgetName = "test_widget", previewData = testData)
+        delegate().setPreview(widgetName = "test_widget", previewData = TestTemplate())
 
-        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
-        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN)
+        verify(appWidgetManager)
+            .setWidgetPreview(
+                eq(componentOf(TestReceiver::class.java.name)),
+                eq(AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN),
+                any(),
+            )
+        verify(appWidgetManager)
+            .setWidgetPreview(
+                eq(componentOf(TestReceiver::class.java.name)),
+                eq(AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD),
+                any(),
+            )
     }
 
-    private class MultiCategoryReceiver : GlanceAdaptiveWidgetReceiver() {
-        override val widgetName: String = "multi_widget"
+    // endregion
+
+    /** The appWidgetIds of every [AppWidgetManager.updateAppWidget] call, in call order. */
+    private fun capturedUpdatedIds(): List<List<Int>> {
+        val idsCaptor = argumentCaptor<IntArray>()
+        verify(appWidgetManager, atLeastOnce())
+            .updateAppWidget(idsCaptor.capture(), any<RemoteViews>())
+        return idsCaptor.allValues.map { it.toList() }
     }
 
-    @Test
-    @Config(sdk = [35])
-    fun setPreview_sdk35_withMultiCategoryReceiver_rendersBothSurfaces() = runTest {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        registerReceiverInManifest(
-            context,
-            MultiCategoryReceiver::class.java.name,
-            widgetCategory =
-                AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN or
-                    AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
-        )
-        val delegate = BaseWidgetDelegate(context)
-        val testData = TestTemplate()
-
-        delegate.setPreview(widgetName = "multi_widget", previewData = testData)
-
-        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
-        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN)
-    }
-
-    private class NotKeyguardReceiver : GlanceAdaptiveWidgetReceiver() {
-        override val widgetName: String = "not_keyguard_widget"
-    }
-
-    @Test
-    @Config(sdk = [35])
-    fun setPreview_sdk35_withNotKeyguardCategoryReceiver_routesToHomeScreen() = runTest {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        registerReceiverInManifest(
-            context,
-            NotKeyguardReceiver::class.java.name,
-            widgetCategory =
-                AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN or
-                    AppWidgetProviderInfo.WIDGET_CATEGORY_NOT_KEYGUARD,
-        )
-        val delegate = BaseWidgetDelegate(context)
-        val testData = TestTemplate()
-
-        delegate.setPreview(widgetName = "not_keyguard_widget", previewData = testData)
-
-        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
-        verify(mockRenderer, never()).invoke(any(), eq(AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN))
-    }
-
-    @Test
-    fun pushUpdate_gracefullyHandlesOptionsFailureAndUpdatesRemainingWidgets() = runTest {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-
-        setupBoundWidget(
-            context,
-            appWidgetId = 501,
-            receiverName = TestReceiver::class.java.name,
-            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
-        )
-        // Widget 502 with no options bundle set (null options)
-        setupBoundWidget(
-            context,
-            appWidgetId = 502,
-            receiverName = TestReceiver::class.java.name,
-            hostCategory = null,
-        )
-        registerReceiverInManifest(context, TestReceiver::class.java.name)
-
-        val delegate = BaseWidgetDelegate(context)
-        val testData = TestTemplate()
-        delegate.pushUpdate(widgetName = "test_widget", currentData = testData)
-
-        // Both default to or route to HOME_SCREEN
-        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
-    }
+    private fun componentOf(receiverName: String) = ComponentName(context.packageName, receiverName)
 
     private fun setupBoundWidget(
-        context: Context,
         appWidgetId: Int,
         receiverName: String,
         widgetId: String? = null,
         hostCategory: Int? = null,
     ) {
-        val appWidgetManager = AppWidgetManager.getInstance(context)
-        val shadowManager = shadowOf(appWidgetManager)
-        val componentName = ComponentName(context.packageName, receiverName)
-        val info = AppWidgetProviderInfo().apply { provider = componentName }
-        shadowManager.addBoundWidget(appWidgetId, info)
+        val info = AppWidgetProviderInfo().apply { provider = componentOf(receiverName) }
+        shadowOf(AppWidgetManager.getInstance(context)).addBoundWidget(appWidgetId, info)
 
         val bundle = Bundle()
         if (widgetId != null) {
@@ -340,29 +325,27 @@ class BaseWidgetDelegateTest {
             bundle.putInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY, hostCategory)
         }
         if (!bundle.isEmpty) {
-            appWidgetManager.updateAppWidgetOptions(appWidgetId, bundle)
+            AppWidgetManager.getInstance(context).updateAppWidgetOptions(appWidgetId, bundle)
         }
     }
 
     private fun registerReceiverInManifest(
-        context: Context,
         receiverName: String,
         widgetCategory: Int = AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
     ) {
-        val componentName = ComponentName(context.packageName, receiverName)
+        val componentName = componentOf(receiverName)
         val shadowPackageManager = shadowOf(context.packageManager)
         shadowPackageManager.addReceiverIfNotPresent(componentName)
         shadowPackageManager.addIntentFilterForReceiver(
             componentName,
             IntentFilter(AppWidgetManager.ACTION_APPWIDGET_UPDATE),
         )
-        val appWidgetManager = AppWidgetManager.getInstance(context)
-        val shadowManager = shadowOf(appWidgetManager)
         val info =
             AppWidgetProviderInfo().apply {
                 provider = componentName
                 this.widgetCategory = widgetCategory
             }
+        val shadowManager = shadowOf(AppWidgetManager.getInstance(context))
         shadowManager.addInstalledProvider(info)
         shadowManager.addInstalledProvidersForProfile(null, info)
     }

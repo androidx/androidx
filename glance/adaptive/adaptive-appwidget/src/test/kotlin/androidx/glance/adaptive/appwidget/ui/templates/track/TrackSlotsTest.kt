@@ -172,6 +172,14 @@ class TrackSlotsTest {
     }
 
     @Test
+    fun containedRing_fallsBackToCompactMinimumForZeroDimensions() {
+        val unspecified = TrackSlots.from(SizeTiers(WidthTier.W1, HeightTier.H0), Dimensions(0, 0))
+
+        assertThat(unspecified.containedRingContainer).isEqualTo(48.dp)
+        assertThat(unspecified.ringSize).isEqualTo(40.dp)
+    }
+
+    @Test
     fun containedRingContainer_isUnsetWhereThereIsNoContainedRing() {
         assertThat(slotsAt(WidthTier.W1, HeightTier.H4).containedRingContainer).isEqualTo(0.dp)
         assertThat(slotsAt(WidthTier.W4, HeightTier.H4).containedRingContainer).isEqualTo(0.dp)

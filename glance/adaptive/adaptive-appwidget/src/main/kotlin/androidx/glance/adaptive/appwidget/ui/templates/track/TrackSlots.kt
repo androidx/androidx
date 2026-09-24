@@ -33,6 +33,13 @@ private const val TITLE_ROW_HEIGHT_DP = 56f
 private const val RING_SIZE_DP = 56f
 
 /**
+ * Smallest diameter the contained ring's circular container may take, in DP, so a newly pinned
+ * `0x0` widget (before the host reports `OPTION_APPWIDGET_MIN_WIDTH`) still renders a valid compact
+ * fallback rather than collapsing to a zero or negative diameter.
+ */
+private const val MIN_CONTAINED_RING_CONTAINER_DP = 48
+
+/**
  * Gap between the progress ring, the headline metric and the unit label.
  *
  * Lives here rather than in the renderer because the metric's width budget has to subtract it.
@@ -266,7 +273,13 @@ internal constructor(
             // The container circle spans the shorter axis; the design then insets the ring inside
             // it, by 4 dp on the 88 dp frame it was drawn at.
             val containerDp =
-                if (containedRing) minOf(dimensions.widthDp, dimensions.heightDp).toFloat() else 0f
+                if (containedRing) {
+                    minOf(dimensions.widthDp, dimensions.heightDp)
+                        .coerceAtLeast(MIN_CONTAINED_RING_CONTAINER_DP)
+                        .toFloat()
+                } else {
+                    0f
+                }
             // Beside the metric the ring defines the row's height; stacked above it, it is bounded
             // by the content width instead. Launcher cells rarely land on the design's exact grid —
             // this device reports an 88 dp cell as 85 dp — and a ring that overflows is clipped

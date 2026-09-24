@@ -63,7 +63,7 @@ internal fun createProgressRingBitmap(
     @ColorInt progressColor: Int,
     @ColorInt containerColor: Int,
 ): Bitmap {
-    val edge = sizePx.coerceIn(1, MAX_RING_SIZE_PX)
+    val edge = sizePx.coerceIn(2, MAX_RING_SIZE_PX)
     val bitmap = Bitmap.createBitmap(edge, edge, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bitmap)
     val stroke = strokeWidthPx.coerceIn(1f, edge / 2f)
