@@ -43,13 +43,13 @@ import kotlin.test.assertNotNull
 class ErrorTraceTests {
     @Test
     fun setContent() =
-        exceptionTest(listOf("<lambda>(ErrorTraceTests.kt:<unknown line>)"), groupKeyTrace(1)) {
+        exceptionTest(listOf("<lambda>(ErrorTraceTests.kt:<unknown line>)"), groupKeyTrace(0)) {
             compose { throwTestException() }
         }
 
     @Test
     fun recompose() =
-        exceptionTest(listOf("<lambda>(ErrorTraceTests.kt:<unknown line>)"), groupKeyTrace(1)) {
+        exceptionTest(listOf("<lambda>(ErrorTraceTests.kt:<unknown line>)"), groupKeyTrace(0)) {
             var state by mutableStateOf(false)
             compose {
                 if (state) {
@@ -71,7 +71,7 @@ class ErrorTraceTests {
                 "Linear(ErrorTraceComposables.kt:73)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(3),
+            groupKeyTrace(2),
         ) {
             compose { Linear { throwTestException() } }
         }
@@ -86,7 +86,7 @@ class ErrorTraceTests {
                 "Linear(ErrorTraceComposables.kt:73)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(3),
+            groupKeyTrace(2),
         ) {
             var state by mutableStateOf(false)
             compose {
@@ -111,7 +111,7 @@ class ErrorTraceTests {
                 "InlineLinear(ErrorTraceComposables.kt:83)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(1), // All frames except from initial lambda are source markers
+            groupKeyTrace(0), // All frames are source markers
         ) {
             compose { InlineLinear { throwTestException() } }
         }
@@ -126,7 +126,7 @@ class ErrorTraceTests {
                 "InlineLinear(ErrorTraceComposables.kt:83)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(1),
+            groupKeyTrace(0),
         ) {
             var state by mutableStateOf(false)
 
@@ -150,7 +150,7 @@ class ErrorTraceTests {
                 "InlineWrapper(ErrorTraceComposables.kt:57)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(2),
+            groupKeyTrace(1),
         ) {
             compose {
                 InlineWrapper {
@@ -172,7 +172,7 @@ class ErrorTraceTests {
                 "InlineWrapper(ErrorTraceComposables.kt:57)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(2),
+            groupKeyTrace(1),
         ) {
             var state by mutableStateOf(false)
 
@@ -199,7 +199,7 @@ class ErrorTraceTests {
                 "Repeated(ErrorTraceComposables.kt:94)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(3),
+            groupKeyTrace(2),
         ) {
             compose {
                 Repeated(List(10) { it }) {
@@ -217,7 +217,7 @@ class ErrorTraceTests {
                 "Repeated(ErrorTraceComposables.kt:94)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(3),
+            groupKeyTrace(2),
         ) {
             var state by mutableStateOf(false)
 
@@ -243,7 +243,7 @@ class ErrorTraceTests {
                 "Subcompose(ErrorTraceComposables.kt:62)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(4),
+            groupKeyTrace(2),
         ) {
             compose { Subcompose { throwTestException() } }
         }
@@ -260,7 +260,7 @@ class ErrorTraceTests {
                 "Subcompose(ErrorTraceComposables.kt:62)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(7),
+            groupKeyTrace(4),
         ) {
             compose { Subcompose { Subcompose { throwTestException() } } }
         }
@@ -274,7 +274,7 @@ class ErrorTraceTests {
                 "Subcompose(ErrorTraceComposables.kt:62)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(4),
+            groupKeyTrace(2),
         ) {
             var state by mutableStateOf(false)
 
@@ -298,7 +298,7 @@ class ErrorTraceTests {
                 "ComposableWithDefaults(ErrorTraceComposables.kt:109)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(3),
+            groupKeyTrace(2),
         ) {
             compose { ComposableWithDefaults { throwTestException() } }
         }
@@ -311,7 +311,7 @@ class ErrorTraceTests {
                 "ComposableWithDefaults(ErrorTraceComposables.kt:109)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(3),
+            groupKeyTrace(2),
         ) {
             var state by mutableStateOf(false)
 
@@ -334,7 +334,7 @@ class ErrorTraceTests {
                 "remember(ErrorTraceTests.kt:<unknown line>)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(1),
+            groupKeyTrace(0),
         ) {
             compose { remember { throwTestException() } }
         }
@@ -347,7 +347,7 @@ class ErrorTraceTests {
                 "DisposableEffect(Effects.kt:<line number>)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(1),
+            groupKeyTrace(0),
         ) {
             compose { DisposableEffect(Unit) { throwTestException() } }
         }
@@ -360,7 +360,7 @@ class ErrorTraceTests {
                 "DisposableEffect(Effects.kt:<line number>)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(1),
+            groupKeyTrace(0),
         ) {
             var state by mutableStateOf(false)
             compose {
@@ -385,7 +385,7 @@ class ErrorTraceTests {
                 "ReusableContent(Composables.kt:<line number>)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(2),
+            groupKeyTrace(1),
             ComposerToUse.Gap,
         ) {
             var state by mutableStateOf(false)
@@ -415,7 +415,7 @@ class ErrorTraceTests {
                 "ReusableContent(Composables.kt:<line number>)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(2),
+            groupKeyTrace(1),
             ComposerToUse.Link,
         ) {
             var state by mutableStateOf(false)
@@ -437,7 +437,7 @@ class ErrorTraceTests {
                 "ReusableContentHost(Composables.kt:<line number>)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(3),
+            groupKeyTrace(2),
         ) {
             var active by mutableStateOf(true)
             compose {
@@ -460,7 +460,7 @@ class ErrorTraceTests {
                 "InlineWrapper(ErrorTraceComposables.kt:57)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(2),
+            groupKeyTrace(1),
         ) {
             compose { InlineWrapper { NodeWithCallbacks(onAttach = { throwTestException() }) } }
         }
@@ -475,7 +475,7 @@ class ErrorTraceTests {
                 "Wrapper(ErrorTraceComposables.kt:149)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(5),
+            groupKeyTrace(4),
         ) {
             var state by mutableStateOf(false)
             compose {
@@ -502,7 +502,7 @@ class ErrorTraceTests {
                 //                "InlineWrapper(ErrorTraceComposables.kt:148)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(3),
+            groupKeyTrace(2),
         ) {
             var state by mutableStateOf(false)
             compose {
@@ -526,7 +526,7 @@ class ErrorTraceTests {
                 "InlineWrapper(ErrorTraceComposables.kt:57)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(4),
+            groupKeyTrace(3),
         ) {
             @Suppress("PrimitiveInCollection") val list = listOf(1, 2, 3)
             var content: (@Composable () -> Unit)? = null
@@ -548,7 +548,7 @@ class ErrorTraceTests {
                 "Wrapper(ErrorTraceComposables.kt:149)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(4),
+            groupKeyTrace(3),
         ) {
             compose { Wrapper { NodeWithCallbacks(onUpdate = { throwTestException() }) } }
         }
@@ -563,7 +563,7 @@ class ErrorTraceTests {
                 "Wrapper(ErrorTraceComposables.kt:149)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(5),
+            groupKeyTrace(4),
         ) {
             var state by mutableStateOf(false)
             compose {
@@ -596,7 +596,7 @@ class ErrorTraceTests {
                 "MovableWrapper(ErrorTraceComposables.kt:156)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(6),
+            groupKeyTrace(5),
         ) {
             compose { MovableWrapper { throwTestException() } }
         }
@@ -612,7 +612,7 @@ class ErrorTraceTests {
                 "MovableWrapper(ErrorTraceComposables.kt:156)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(6),
+            groupKeyTrace(5),
         ) {
             var state by mutableStateOf(false)
             compose {
@@ -638,7 +638,7 @@ class ErrorTraceTests {
                 "WrappedMovableContent(ErrorTraceComposables.kt:166)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(7),
+            groupKeyTrace(6),
         ) {
             var state by mutableStateOf(false)
             compose {
@@ -672,7 +672,7 @@ class ErrorTraceTests {
                 "WrappedMovableContent(ErrorTraceComposables.kt:166)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(7),
+            groupKeyTrace(6),
         ) {
             var state by mutableStateOf(false)
             compose {
@@ -708,7 +708,7 @@ class ErrorTraceTests {
                 "WrappedMovableContent(ErrorTraceComposables.kt:166)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
-            groupKeyTrace(9),
+            groupKeyTrace(8),
         ) {
             var state by mutableStateOf(true)
             compose {
