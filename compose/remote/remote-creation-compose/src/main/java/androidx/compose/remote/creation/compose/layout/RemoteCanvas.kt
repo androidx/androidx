@@ -52,7 +52,7 @@ public class RemoteCanvas(private val internalCanvas: RecordingCanvas) :
 
     /** Draws the content of the component. */
     internal fun drawComponentContent() {
-        internalCanvas.drawComponentContent()
+        recordRenderingOp { document.drawComponentContent() }
     }
 
     /** Emits a custom component with custom properties. */
