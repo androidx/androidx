@@ -364,6 +364,17 @@ public class BinaryRoundTripTest {
                         (short) 1,
                         AnimationSpec.ANIMATION.values()[0],
                         AnimationSpec.ANIMATION.values()[0]));
+        originalOps.add(
+                new AnimationSpec(
+                        2,
+                        500,
+                        1,
+                        500,
+                        1,
+                        AnimationSpec.ANIMATION.CUSTOM,
+                        AnimationSpec.ANIMATION.CUSTOM,
+                        42,
+                        43));
 
         // --- Particles ---
         originalOps.add(new ParticlesCreate(800, new int[] {1}, new float[][] {{1}}, 100));

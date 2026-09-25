@@ -207,6 +207,42 @@ public interface RcScope {
     /** In the context of a draw modifier, draw the component content */
     public fun drawComponentContent()
 
+    /**
+     * Define a custom visibility animation function. The block receives the target `component` as
+     * an [RcComponent] along with `progress`, `width`, `height`, `x`, `y` as [RcFloat] variables.
+     * Call [drawComponentContent] or [drawComponentToBitmap] inside the block to render the
+     * component content.
+     *
+     * @return the function ID that can be passed to `Modifier.animationSpec`.
+     */
+    public fun defineVisibilityAnimation(
+        block:
+            RcCanvasScope.(
+                component: RcComponent,
+                progress: RcFloat,
+                width: RcFloat,
+                height: RcFloat,
+                x: RcFloat,
+                y: RcFloat,
+            ) -> Unit
+    ): Int
+
+    /**
+     * Define a custom visibility animation function without requiring the component ID parameter.
+     */
+    public fun defineVisibilityAnimation(
+        block:
+            RcCanvasScope.(
+                progress: RcFloat,
+                width: RcFloat,
+                height: RcFloat,
+                x: RcFloat,
+                y: RcFloat,
+            ) -> Unit
+    ): Int = defineVisibilityAnimation { _, progress, width, height, x, y ->
+        block(progress, width, height, x, y)
+    }
+
     /** Registers a text resource and returns its reference. */
     public fun remoteText(text: String): RcText
 
@@ -745,12 +781,31 @@ public interface RcScope {
     /** Registers a new bitmap resource with the given dimensions. */
     public fun createBitmap(width: Int, height: Int): RcImage
 
+    /**
+     * Reserves an offscreen bitmap handle whose backing bitmap is lazily acquired from the player's
+     * reusable bitmap pool when drawn into via [drawComponentToBitmap] or [drawOnBitmap].
+     */
+    public fun createOffscreenBitmap(): RcImage
+
+    /** Convenience alias for [createOffscreenBitmap]. */
+    public fun createBitmap(): RcImage = createOffscreenBitmap()
+
+    /** Renders the [component] into the specified offscreen [image]. */
+    public fun drawComponentToBitmap(component: RcComponent, image: RcImage)
+
+    /** Renders the [component] into the specified offscreen [image]. */
+    public fun drawComponentToBitmap(image: RcImage, component: RcComponent): Unit =
+        drawComponentToBitmap(component, image)
+
+    /** Renders the active component's content into the specified offscreen [image]. */
+    public fun drawComponentToBitmap(image: RcImage)
+
     /** Redirects subsequent drawing operations to the specified bitmap resource. */
     public fun drawOnBitmap(
         image: RcImage,
         mode: DrawOnBitmapMode = DrawOnBitmapMode.CLEAR,
-        color: RcColorValue,
-        block: RcScope.() -> Unit,
+        color: RcColorValue = 0.rcColor(),
+        block: RcCanvasScope.() -> Unit,
     )
 
     /**

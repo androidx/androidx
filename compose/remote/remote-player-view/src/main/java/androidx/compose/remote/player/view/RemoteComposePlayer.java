@@ -1112,6 +1112,10 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     @RestrictTo(LIBRARY_GROUP)
     public void setShaderControl(@NonNull ShaderControl ctl) {
         mShaderControl = ctl;
+        if (mInner != null && mInner.getDocument() != null) {
+            mInner.checkShaders(mShaderControl);
+            mInner.invalidate();
+        }
     }
 
     /** This is a prepared document. */

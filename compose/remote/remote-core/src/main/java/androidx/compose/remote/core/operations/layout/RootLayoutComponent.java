@@ -370,7 +370,9 @@ public class RootLayoutComponent extends Component {
                                     mAnimationSpec.getEnterAnimation(),
                                     mAnimationSpec.getExitAnimation(),
                                     mAnimationSpec.getMotionEasingType(),
-                                    mAnimationSpec.getVisibilityEasingType());
+                                    mAnimationSpec.getVisibilityEasingType(),
+                                    mAnimationSpec.getEnterFunctionId(),
+                                    mAnimationSpec.getExitFunctionId());
                 } else {
                     mLastReportedOriginX = targetOriginX;
                     mLastReportedOriginY = targetOriginY;

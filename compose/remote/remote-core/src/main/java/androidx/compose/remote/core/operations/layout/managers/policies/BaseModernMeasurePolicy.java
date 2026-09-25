@@ -359,7 +359,7 @@ public class BaseModernMeasurePolicy implements MeasurePolicy {
         ComponentMeasure m = measure.get(layout);
         m.setW(measuredWidth);
         m.setH(measuredHeight);
-        m.setVisibility(layout.getScheduledVisibility());
+        m.setVisibility(layout.getMeasureVisibility(context.getContext()));
 
         layout.internalLayoutMeasure(context, measure);
     }

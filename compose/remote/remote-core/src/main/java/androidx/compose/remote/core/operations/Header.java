@@ -28,6 +28,7 @@ import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteComposeOperation;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.operations.utilities.IntMap;
@@ -49,7 +50,7 @@ import java.util.List;
  * dimensions of the document in pixels.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class Header extends Operation implements RemoteComposeOperation {
+public class Header extends Operation implements RemoteComposeOperation, VariableSupport {
     private static final int OP_CODE = Operations.HEADER;
     private static final String CLASS_NAME = "Header";
     private static final int MAGIC_NUMBER = 0x048C0000; // to uniquely identify the protocol
@@ -398,6 +399,16 @@ public class Header extends Operation implements RemoteComposeOperation {
                 + "]"
                 + prop;
     }
+
+    @Override
+    public void registerListening(@NonNull RemoteContext context) {
+        if (context.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP) {
+            context.listensTo(RemoteContext.ID_DENSITY, this);
+        }
+    }
+
+    @Override
+    public void updateVariables(@NonNull RemoteContext context) {}
 
     @Override
     public void apply(@NonNull RemoteContext context) {

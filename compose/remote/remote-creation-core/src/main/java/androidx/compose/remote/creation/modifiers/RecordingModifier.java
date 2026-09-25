@@ -19,6 +19,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.core.operations.layout.MultiClickModifier;
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec.ANIMATION;
+import androidx.compose.remote.core.operations.layout.animation.AnimationSpec.SEQUENCE;
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation;
 import androidx.compose.remote.creation.Rc;
@@ -188,6 +189,57 @@ public class RecordingModifier {
         mList.add(new AnimateSpecModifier(animationId,
                 motionDuration, motionEasingType, visibilityDuration, visibilityEasingType,
                 enterAnimation, exitAnimation));
+        return this;
+    }
+
+    /**
+     * Add an animation spec modifier with custom enter/exit function IDs
+     *
+     * @param animationId          the animation id
+     * @param motionDuration       the motion duration
+     * @param motionEasingType     the motion easing type
+     * @param visibilityDuration   the visibility duration
+     * @param visibilityEasingType the visibility easing type
+     * @param enterAnimation       the enter animation
+     * @param exitAnimation        the exit animation
+     * @param enterFunctionId      the enter function id
+     * @param exitFunctionId       the exit function id
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull RecordingModifier animationSpec(int animationId,
+            float motionDuration,
+            int motionEasingType,
+            float visibilityDuration,
+            int visibilityEasingType,
+            @NonNull ANIMATION enterAnimation,
+            @NonNull ANIMATION exitAnimation,
+            int enterFunctionId,
+            int exitFunctionId) {
+        mList.add(new AnimateSpecModifier(animationId,
+                motionDuration, motionEasingType, visibilityDuration, visibilityEasingType,
+                enterAnimation, exitAnimation, enterFunctionId, exitFunctionId));
+        return this;
+    }
+
+    /**
+     * Add an animation spec modifier with custom enter/exit function IDs and sequences
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull RecordingModifier animationSpec(int animationId,
+            float motionDuration,
+            int motionEasingType,
+            float visibilityDuration,
+            int visibilityEasingType,
+            @NonNull ANIMATION enterAnimation,
+            @NonNull ANIMATION exitAnimation,
+            int enterFunctionId,
+            int exitFunctionId,
+            @NonNull SEQUENCE enterSequence,
+            @NonNull SEQUENCE exitSequence) {
+        mList.add(new AnimateSpecModifier(animationId,
+                motionDuration, motionEasingType, visibilityDuration, visibilityEasingType,
+                enterAnimation, exitAnimation, enterFunctionId, exitFunctionId,
+                enterSequence, exitSequence));
         return this;
     }
 

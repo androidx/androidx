@@ -19,6 +19,7 @@ import static androidx.compose.remote.core.documentation.DocumentedOperation.FLO
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -116,10 +117,15 @@ public class TextLayout extends LayoutManager implements VariableSupport, Access
         if (isAtLeastVersion7(context)) {
             if (Float.isNaN(mFontSize)) {
                 context.listensTo(Utils.idFromNan(mFontSize), this);
+            } else if (context.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP) {
+                context.listensTo(RemoteContext.ID_DENSITY, this);
             }
             if (mIsDynamicColorEnabled) {
                 context.listensTo(mColor, this);
             }
+        } else if (context.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP
+                && !Float.isNaN(mFontSize)) {
+            context.listensTo(RemoteContext.ID_DENSITY, this);
         }
     }
 
@@ -138,11 +144,16 @@ public class TextLayout extends LayoutManager implements VariableSupport, Access
 
     @Override
     public void updateVariables(@NonNull RemoteContext context) {
+        float prevFontSize = mFontSizeValue;
         if (isAtLeastVersion7(context)) {
             mFontSizeValue =
                     Float.isNaN(mFontSize)
                             ? context.getFloat(Utils.idFromNan(mFontSize))
                             : mFontSize;
+            if (context.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP
+                    && !Float.isNaN(mFontSize)) {
+                mFontSizeValue *= context.getDensity();
+            }
 
             mTextAlignValue = (short) (mTextAlign & 0xFFFF);
             if (mIsDynamicColorEnabled) {
@@ -158,8 +169,15 @@ public class TextLayout extends LayoutManager implements VariableSupport, Access
             }
         } else {
             mFontSizeValue = mFontSize;
+            if (context.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP
+                    && !Float.isNaN(mFontSize)) {
+                mFontSizeValue *= context.getDensity();
+            }
             mColorValue = mColor;
             mTextAlignValue = mTextAlign;
+        }
+        if (prevFontSize != mFontSizeValue && mComputedTextLayout != null) {
+            invalidateMeasure();
         }
         String cachedString = context.getText(mTextId);
         if (cachedString != null && cachedString.equalsIgnoreCase(mCachedString)) {

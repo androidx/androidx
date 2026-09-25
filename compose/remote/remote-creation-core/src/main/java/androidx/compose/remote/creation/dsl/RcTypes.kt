@@ -37,6 +37,11 @@ import androidx.compose.remote.creation.dsl.RcTextFromFloatSpec.Companion.of
 @JvmInline
 public value class RcImage internal constructor(internal val id: Int)
 
+/** Type-safe reference for a remote component. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcComponent internal constructor(internal val id: Int)
+
 /** Type-safe reference for a raw inline PCM sound resource registered via [RcScope.addSound]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
