@@ -16,6 +16,7 @@
 
 package androidx.compose.integration.hero.pokedex.macrobenchmark.internal.mockserver
 
+import androidx.compose.integration.hero.pokedex.macrobenchmark.trace
 import java.io.File
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -89,15 +90,18 @@ private class PokedexMockDispatcher(private val json: Json, private val imagesDi
      * fly will affect the benchmark.
      */
     private fun pokemonImageHandler(request: RecordedRequest): MockResponse {
-        val requestUrl = request.requestUrl
-        if (requestUrl == null) return MockResponse().setResponseCode(404)
+        val requestUrl = request.requestUrl ?: return MockResponse().setResponseCode(404)
 
         val pathSegments = requestUrl.pathSegments
         val pokemonName = pathSegments[pathSegments.size - 2]
-        val image = File(imagesDir, "$pokemonName.png")
-        if (!image.exists()) return MockResponse().setResponseCode(404)
-
-        val buffer = Buffer().apply { writeAll(image.source()) }
-        return MockResponse().setResponseCode(200).setBody(buffer)
+        return trace("pokemonImageHandler") {
+            val image = File(imagesDir, "$pokemonName.png")
+            if (!image.exists()) {
+                MockResponse().setResponseCode(404)
+            } else {
+                val buffer = Buffer().apply { writeAll(image.source()) }
+                MockResponse().setResponseCode(200).setBody(buffer)
+            }
+        }
     }
 }
