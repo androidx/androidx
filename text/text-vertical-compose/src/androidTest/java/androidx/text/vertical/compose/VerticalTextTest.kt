@@ -16,9 +16,12 @@
 
 package androidx.text.vertical.compose
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Typeface
-import android.os.Build
 import android.text.SpannableString
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
@@ -27,8 +30,10 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import androidx.text.vertical.TextOrientation
+import androidx.text.vertical.VerticalTextLayout
+import com.google.common.truth.Truth.assertWithMessage
+import kotlin.math.ceil
 import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertSame
 import org.junit.Test
@@ -36,7 +41,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
 class VerticalTextTest {
 
     @OptIn(ExperimentalTestApi::class)
@@ -54,7 +58,6 @@ class VerticalTextTest {
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
 class VerticalTextLayoutCacheTest {
 
     @Test
@@ -155,5 +158,47 @@ class VerticalTextLayoutCacheTest {
         val layout2 = cache.getLayout(text, 100, TextOrientation.Mixed, style, typeface2, density)
 
         assertNotSame(layout1, layout2)
+    }
+
+    @Test
+    fun cache_clearsBackground_whenStyleBackgroundBecomesUnspecified() {
+        val cache = VerticalTextLayoutCache()
+        val text = SpannableString("Hello")
+        val withBg = VerticalTextStyle(fontSize = 24.sp, background = Color.Yellow)
+        val withoutBg = VerticalTextStyle(fontSize = 24.sp, background = Color.Unspecified)
+        val typeface = Typeface.DEFAULT
+        val density = Density(1f)
+        val layoutHeight = 200
+
+        // Assert on layout1 before the second getLayout call, because VerticalTextLayoutCache
+        // reuses a single cachedPaint instance that layout1 references directly.
+        val layout1 =
+            cache.getLayout(text, layoutHeight, TextOrientation.Mixed, withBg, typeface, density)
+        assertWithMessage("layout1 must draw the yellow background")
+            .that(layout1.countColorPixels(Color.Yellow.toArgb(), layoutHeight))
+            .isGreaterThan(0)
+
+        val layout2 =
+            cache.getLayout(text, layoutHeight, TextOrientation.Mixed, withoutBg, typeface, density)
+        assertWithMessage("layout2 must not draw a yellow background")
+            .that(layout2.countColorPixels(Color.Yellow.toArgb(), layoutHeight))
+            .isEqualTo(0)
+        assertWithMessage("layout2 must draw black text")
+            .that(layout2.countColorPixels(Color.Black.toArgb(), layoutHeight))
+            .isGreaterThan(0)
+    }
+}
+
+/** Draws this layout into a new bitmap and returns the number of pixels that are [targetColor]. */
+private fun VerticalTextLayout.countColorPixels(targetColor: Int, height: Int): Int {
+    val bitmapWidth = ceil(width).toInt().coerceAtLeast(1)
+    val bitmap = Bitmap.createBitmap(bitmapWidth, height, Bitmap.Config.ARGB_8888)
+    try {
+        draw(Canvas(bitmap), bitmapWidth.toFloat(), 0f)
+        val pixels = IntArray(bitmap.width * bitmap.height)
+        bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+        return pixels.count { it == targetColor }
+    } finally {
+        bitmap.recycle()
     }
 }
