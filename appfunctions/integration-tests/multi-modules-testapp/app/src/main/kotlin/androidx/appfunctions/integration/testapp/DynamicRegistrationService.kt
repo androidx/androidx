@@ -228,6 +228,45 @@ class DynamicRegistrationService : Service() {
                     appFunctionManager.handleAppFunction(request)
                 }
             }
+            ACTION_REGISTER_ADAPTER_SELF -> {
+                val adapter =
+                    appFunctionManager.getHandleAppFunctionRequestAdapter<
+                        DynamicSelfAccessSignature
+                    >()
+                val implementation = DynamicSelfAccessSignature { message ->
+                    "self_echo_$message"
+                }
+                val request = adapter.adapt(implementation)
+                suspendRegistrationJob = scope.launch {
+                    appFunctionManager.handleAppFunction(request)
+                }
+            }
+            ACTION_REGISTER_ADAPTER_SELF_DISABLED_COMPAT -> {
+                val adapter =
+                    appFunctionManager.getHandleAppFunctionRequestAdapter<
+                        DynamicSelfAccessDisabledCompatSignature
+                    >()
+                val implementation = DynamicSelfAccessDisabledCompatSignature {
+                    "self_disabled_compat_success"
+                }
+                val request = adapter.adapt(implementation)
+                suspendRegistrationJob = scope.launch {
+                    appFunctionManager.handleAppFunction(request)
+                }
+            }
+            ACTION_REGISTER_ADAPTER_SYSTEM -> {
+                val adapter =
+                    appFunctionManager.getHandleAppFunctionRequestAdapter<
+                        DynamicSystemAccessSignature
+                    >()
+                val implementation = DynamicSystemAccessSignature {
+                    "system_success"
+                }
+                val request = adapter.adapt(implementation)
+                suspendRegistrationJob = scope.launch {
+                    appFunctionManager.handleAppFunction(request)
+                }
+            }
             ACTION_UNREGISTER -> {
                 registration?.unregister()
                 registration = null
@@ -305,5 +344,11 @@ class DynamicRegistrationService : Service() {
             "androidx.appfunctions.integration.action.REGISTER_ADAPTER_VOID"
         const val ACTION_REGISTER_ADAPTER_THROWING =
             "androidx.appfunctions.integration.action.REGISTER_ADAPTER_THROWING"
+        const val ACTION_REGISTER_ADAPTER_SELF =
+            "androidx.appfunctions.integration.action.REGISTER_ADAPTER_SELF"
+        const val ACTION_REGISTER_ADAPTER_SELF_DISABLED_COMPAT =
+            "androidx.appfunctions.integration.action.REGISTER_ADAPTER_SELF_DISABLED_COMPAT"
+        const val ACTION_REGISTER_ADAPTER_SYSTEM =
+            "androidx.appfunctions.integration.action.REGISTER_ADAPTER_SYSTEM"
     }
 }

@@ -324,7 +324,7 @@ class AppFunctionMetadataTest {
             )
         assertThat(stableMetadata.accessLevel)
             .isEqualTo(AppFunctionMetadata.ACCESS_LEVEL_ANDROID_TRUSTED)
-        assertThat(stableMetadata.isCompatEnforcementEnabled).isTrue()
+        assertThat(stableMetadata.isCompatEnforcementEnabled).isFalse()
 
         // Experimental secondary constructor
         val experimentalMetadata =
