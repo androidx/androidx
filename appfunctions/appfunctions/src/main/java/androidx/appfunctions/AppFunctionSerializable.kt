@@ -16,6 +16,7 @@
 
 package androidx.appfunctions
 
+// LINT.IfChange(supported_proxies)
 /**
  * Annotates a class to indicate that it can be serialized and transferred between processes using
  * AppFunction.
@@ -49,13 +50,15 @@ package androidx.appfunctions
  *     * `List<String>`
  *     * Another class annotated with `@AppFunctionSerializable` (enabling nested structures) or a
  *       list of a class annotated with `@AppFunctionSerializable`
+ *     * Supported proxy types: [android.net.Uri], [java.time.LocalDate], [java.time.LocalTime],
+ *       [java.time.LocalDateTime], [java.time.Instant], [java.time.ZoneId], or a [List] of these
+ *       types
  *     * Any implementation of [android.os.Parcelable] type. For `Parcelable` types not defined by
  *       the Android platform (e.g., custom classes shared between agents and apps), forward and
  *       backward compatibility is **not guaranteed** by AppFunctions library. Implementers are
  *       responsible for managing any compatibility and versioning concerns.
  * * **Public Primary Constructor:** The primary constructor of the annotated class must have public
  *   visibility to allow instantiation.
- * * **
  *
  * **IMPORTANT:** When the default value is set in the constructor parameter, the field would be
  * exposed to the caller as optional in the
@@ -95,6 +98,7 @@ package androidx.appfunctions
  *
  * @see androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
  */
+// LINT.ThenChange(/appfunctions/appfunctions/src/main/java/androidx/appfunctions/internal/serializableproxies/BuiltInSerializableProxies.kt:supported_proxies, /appfunctions/appfunctions-compiler/src/main/java/androidx/appfunctions/compiler/core/AppFunctionTypeReference.kt:supported_proxies)
 // Use BINARY here so that the annotation is kept around at the aggregation stage.
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS)

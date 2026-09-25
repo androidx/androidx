@@ -409,7 +409,7 @@ class AppFunctionTypeReference(val selfTypeReference: KSTypeReference) {
             )
 
         private val SUPPORTED_SINGLE_URI_TYPES = setOf(ANDROID_URI)
-        // LINT.ThenChange(/appfunctions/appfunctions/src/main/java/androidx/appfunctions/internal/serializableproxies/BuiltInSerializableProxies.kt:supported_proxies)
+        // LINT.ThenChange(/appfunctions/appfunctions/src/main/java/androidx/appfunctions/internal/serializableproxies/BuiltInSerializableProxies.kt:supported_proxies, /appfunctions/appfunctions/src/main/java/androidx/appfunctions/AppFunctionSerializable.kt:supported_proxies)
 
         private val SUPPORTED_PRIMITIVE_TYPES_IN_LIST = setOf(String::class.ensureQualifiedName())
 

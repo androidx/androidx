@@ -44,7 +44,7 @@ public object BuiltInSerializableProxies {
             Instant::class.java to { `$InstantFactory`() },
             ZoneId::class.java to { `$ZoneIdFactory`() },
         )
-    // LINT.ThenChange(/appfunctions/appfunctions-compiler/src/main/java/androidx/appfunctions/compiler/core/AppFunctionTypeReference.kt:supported_proxies)
+    // LINT.ThenChange(/appfunctions/appfunctions-compiler/src/main/java/androidx/appfunctions/compiler/core/AppFunctionTypeReference.kt:supported_proxies, /appfunctions/appfunctions/src/main/java/androidx/appfunctions/AppFunctionSerializable.kt:supported_proxies)
 
     /** The set of classes supported as built-in serializable proxies. */
     public val supportedProxyClasses: Set<Class<*>> = FACTORY_MAP.keys
