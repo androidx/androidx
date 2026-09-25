@@ -17,20 +17,19 @@
 package androidx.text.vertical
 
 import android.graphics.Paint
-import android.os.Build
 import android.text.SpannableString
 import android.text.TextPaint
-import androidx.test.filters.SdkSuppress
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
 import androidx.text.vertical.TextOrientationSpan.CombineUpright
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 private const val SPAN_FLAG = SpannableString.SPAN_INCLUSIVE_EXCLUSIVE
 
-@RunWith(JUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+@RunWith(AndroidJUnit4::class)
+@SmallTest
 class LineBreakerTest {
     private val PREFIX = "PREFIX_PREFIX_PREFIX"
     private val SUFFIX = "SUFFIX_SUFFIX_SUFFIX"
@@ -40,24 +39,13 @@ class LineBreakerTest {
 
     private val PAINT = TextPaint().apply { textSize = EM }
 
-    private fun getVerticalAdvance(text: String): Float {
-        PAINT.flags = PAINT.flags or Paint.VERTICAL_TEXT_FLAG
-        return PAINT.measureText(text)
-    }
+    private fun getVerticalAdvance(text: String): Float = PAINT.measureTextVertical(text)
 
-    private fun getHorizontalAdvance(text: String, scaleFactor: Float = 1.0f): Float {
-        PAINT.flags = PAINT.flags and Paint.VERTICAL_TEXT_FLAG.inv()
-        PAINT.textSize = EM * scaleFactor
-        try {
-            return PAINT.measureText(text)
-        } finally {
-            PAINT.textSize = EM
-        }
-    }
+    private fun getHorizontalAdvance(text: String): Float = PAINT.measureText(text)
 
     private fun getHorizontalLineHeight(text: String): Float {
         val fm = Paint.FontMetricsInt()
-        PAINT.getFontMetricsInt(text, 0, text.length, 0, text.length, false, fm)
+        PAINT.getFontMetricsIntCompat(text, 0, text.length, 0, text.length, false, fm)
         return (fm.descent - fm.ascent).toFloat()
     }
 
