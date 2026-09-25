@@ -32,6 +32,28 @@ import java.util.Objects
  */
 internal val workingPaintCache = ThreadLocal<TextPaint>()
 
+private val defaultTextPaint = TextPaint()
+
+/**
+ * Copies all fields from [src] into this [TextPaint].
+ *
+ * Because [ReplacementSpan] callbacks receive a parameter with static type [Paint], a direct
+ * `set(paint)` call resolves to [Paint.set] and skips [TextPaint] fields (`bgColor`, `linkColor`,
+ * `baselineShift`, `drawableState`, `density`, `underlineColor`, and `underlineThickness`). When
+ * [src] is a plain [Paint], this resets the [TextPaint] fields from [defaultTextPaint] before
+ * copying [src]. Do not replace this copy with direct field assignments: `underlineColor` and
+ * `underlineThickness` are public only on API 29 and higher, and this copy clears them on all API
+ * levels.
+ */
+internal fun TextPaint.setFrom(src: Paint) {
+    if (src is TextPaint) {
+        set(src)
+    } else {
+        set(defaultTextPaint)
+        set(src)
+    }
+}
+
 /** Interface for managing the layout and rendering of horizontal text spans. */
 internal interface HorizontalSpanLayout {
     /**

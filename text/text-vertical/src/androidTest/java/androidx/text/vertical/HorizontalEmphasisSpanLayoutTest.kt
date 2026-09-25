@@ -16,14 +16,17 @@
 
 package androidx.text.vertical
 
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.text.Layout
 import android.text.SpannableString
+import android.text.Spanned
 import android.text.SpannedString
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.text.style.RelativeSizeSpan
+import android.text.style.SuperscriptSpan
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -155,6 +158,143 @@ class HorizontalEmphasisSpanLayoutTest {
     }
 
     @Test
+    fun constructor_copiesTextPaintFieldsToWorkingPaint() {
+        val callerPaint =
+            TextPaint().apply {
+                textSize = 100f
+                linkColor = 0xFF445566.toInt()
+                density = 2.5f
+                drawableState = intArrayOf(android.R.attr.state_pressed)
+            }
+
+        HorizontalEmphasisSpanLayout(
+            text,
+            0,
+            text.length,
+            emphasisMark,
+            AnnotationPosition.Before,
+            callerPaint,
+            0.5f,
+        )
+
+        // The Layout constructor sets baselineShift and bgColor on workPaint to 0 for all text.
+        // Thus, this test checks linkColor, density, and drawableState.
+        // draw_copiesTextPaintFieldsAndResetsForPlainPaint checks baselineShift and bgColor.
+        val workPaint = workingPaintCache.get()!!
+        assertThat(workPaint.linkColor).isEqualTo(0xFF445566.toInt())
+        assertThat(workPaint.density).isEqualTo(2.5f)
+        assertThat(workPaint.drawableState).isEqualTo(intArrayOf(android.R.attr.state_pressed))
+    }
+
+    @Test
+    fun constructor_resetsTextPaintFieldsForPlainPaint() {
+        HorizontalEmphasisSpanLayout(
+            text,
+            0,
+            text.length,
+            emphasisMark,
+            AnnotationPosition.Before,
+            TextPaint().apply {
+                textSize = 100f
+                linkColor = 0xFF445566.toInt()
+                density = 2.5f
+                drawableState = intArrayOf(android.R.attr.state_pressed)
+            },
+            0.5f,
+        )
+
+        HorizontalEmphasisSpanLayout(
+            text,
+            0,
+            text.length,
+            emphasisMark,
+            AnnotationPosition.Before,
+            Paint().apply { textSize = 100f },
+            0.5f,
+        )
+
+        // The Layout constructor sets baselineShift and bgColor to 0. Thus, this test checks
+        // linkColor, density, and drawableState.
+        val workPaint = workingPaintCache.get()!!
+        assertThat(workPaint.linkColor).isEqualTo(0)
+        assertThat(workPaint.density).isEqualTo(1.0f)
+        assertThat(workPaint.drawableState).isNull()
+    }
+
+    @Test
+    fun draw_copiesTextPaintFieldsAndResetsForPlainPaint() {
+        val layout =
+            HorizontalEmphasisSpanLayout(
+                text,
+                0,
+                text.length,
+                emphasisMark,
+                AnnotationPosition.Before,
+                TextPaint().apply { textSize = 100f },
+                0.5f,
+            )
+
+        val richDrawPaint =
+            TextPaint().apply {
+                textSize = 100f
+                baselineShift = 18
+                bgColor = 0xFFAA0000.toInt()
+                linkColor = 0xFF00BB00.toInt()
+                density = 3.0f
+            }
+        layout.draw(Canvas(), 0f, 0f, richDrawPaint)
+
+        // TODO(b/561269843): bodyLayout.paint currently aliases workingPaintCache. Update this
+        // test when b/561269843 gives the layout its own paint.
+        // draw() sets baselineShift to 0. draw_appliesSuperscriptBaselineShiftToBodyOnce shows why.
+        val workPaintAfterRichDraw = workingPaintCache.get()!!
+        assertThat(workPaintAfterRichDraw.baselineShift).isEqualTo(0)
+        assertThat(workPaintAfterRichDraw.bgColor).isEqualTo(0xFFAA0000.toInt())
+        assertThat(workPaintAfterRichDraw.linkColor).isEqualTo(0xFF00BB00.toInt())
+        assertThat(workPaintAfterRichDraw.density).isEqualTo(3.0f)
+
+        val plainPaint = Paint().apply { textSize = 100f }
+        layout.draw(Canvas(), 0f, 0f, plainPaint)
+
+        val workPaintAfterPlainDraw = workingPaintCache.get()!!
+        assertThat(workPaintAfterPlainDraw.baselineShift).isEqualTo(0)
+        assertThat(workPaintAfterPlainDraw.bgColor).isEqualTo(0)
+        assertThat(workPaintAfterPlainDraw.linkColor).isEqualTo(0)
+        assertThat(workPaintAfterPlainDraw.density).isEqualTo(1.0f)
+    }
+
+    @Test
+    fun draw_appliesSuperscriptBaselineShiftToBodyOnce() {
+        val superscriptText =
+            SpannableString(text).apply {
+                setSpan(SuperscriptSpan(), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        val layout =
+            HorizontalEmphasisSpanLayout(
+                superscriptText,
+                0,
+                superscriptText.length,
+                emphasisMark,
+                AnnotationPosition.Before,
+                TextPaint().apply { textSize = 100f },
+                0.5f,
+            )
+
+        // In horizontal text, TextLine applies the SuperscriptSpan to the paint that it gives to
+        // the replacement span. The body layout keeps the SuperscriptSpan and applies it again.
+        val superscriptPaint =
+            TextPaint().apply {
+                textSize = 100f
+                SuperscriptSpan().updateDrawState(this)
+            }
+        val plainPaint = TextPaint().apply { textSize = 100f }
+
+        val superscriptYs = recordTextRunYs(layout, superscriptPaint)
+        assertThat(superscriptYs).isNotEmpty()
+        assertThat(superscriptYs).isEqualTo(recordTextRunYs(layout, plainPaint))
+    }
+
+    @Test
     fun fillFontMetrics_reservesSpaceForTheScaledMark() {
         val relSize = 0.5f
         val basePaint = TextPaint().apply { textSize = 100f }
@@ -261,5 +401,48 @@ class HorizontalEmphasisSpanLayoutTest {
             assertThat(markTop).isEqualTo(drawY + bodyLayout.getLineDescent(0))
         }
         assertThat(drawnXs).containsExactlyElementsIn(expectedXs).inOrder()
+    }
+
+    /**
+     * Draws [layout] and returns the y of each text run. Only the body layout draws text runs,
+     * because the emphasis marks are drawn with [Canvas.drawText].
+     */
+    private fun recordTextRunYs(layout: HorizontalSpanLayout, paint: Paint): List<Float> {
+        val ys = mutableListOf<Float>()
+        // Layout.draw skips lines outside the clip, so the canvas needs a bitmap.
+        val bitmap = Bitmap.createBitmap(1000, 1000, Bitmap.Config.ARGB_8888)
+        val canvas =
+            object : Canvas(bitmap) {
+                override fun drawTextRun(
+                    text: CharArray,
+                    index: Int,
+                    count: Int,
+                    contextIndex: Int,
+                    contextCount: Int,
+                    x: Float,
+                    y: Float,
+                    isRtl: Boolean,
+                    paint: Paint,
+                ) {
+                    ys.add(y)
+                }
+
+                override fun drawTextRun(
+                    text: CharSequence,
+                    start: Int,
+                    end: Int,
+                    contextStart: Int,
+                    contextEnd: Int,
+                    x: Float,
+                    y: Float,
+                    isRtl: Boolean,
+                    paint: Paint,
+                ) {
+                    ys.add(y)
+                }
+            }
+        layout.draw(canvas, 0f, 500f, paint)
+        bitmap.recycle()
+        return ys
     }
 }
