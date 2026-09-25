@@ -624,6 +624,34 @@ public class RemoteComposeView extends FrameLayout
     }
 
     /**
+     * Returns true if the document declares vertical scrolling.
+     *
+     * <p>See {@link CoreDocument#hasVerticalScroll()}.
+     *
+     * @return true if the document contains a vertical scroll container, false otherwise
+     */
+    public boolean isVerticallyScrollable() {
+        if (mDocument == null) {
+            return false;
+        }
+        return mDocument.getDocument().hasVerticalScroll();
+    }
+
+    /**
+     * Returns true if the document declares horizontal scrolling.
+     *
+     * <p>See {@link CoreDocument#hasHorizontalScroll()}.
+     *
+     * @return true if the document contains a horizontal scroll container, false otherwise
+     */
+    public boolean isHorizontallyScrollable() {
+        if (mDocument == null) {
+            return false;
+        }
+        return mDocument.getDocument().hasHorizontalScroll();
+    }
+
+    /**
      * Check shaders and disable them
      *
      * @param shaderControl the callback to validate the shader

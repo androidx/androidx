@@ -392,6 +392,34 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     }
 
     /**
+     * Returns true if the document declares vertical scrolling.
+     *
+     * <p>Note: this is a structural check that ignores layout and visibility. It returns true even
+     * if the scrollable content currently fits in its container, or is hidden. See
+     * {@link CoreDocument#hasVerticalScroll()}.
+     *
+     * @return true if the document contains a vertical scroll container, false otherwise
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public boolean isVerticallyScrollable() {
+        return mInner.isVerticallyScrollable();
+    }
+
+    /**
+     * Returns true if the document declares horizontal scrolling.
+     *
+     * <p>Note: this is a structural check that ignores layout and visibility. It returns true even
+     * if the scrollable content currently fits in its container, or is hidden. See
+     * {@link CoreDocument#hasHorizontalScroll()}.
+     *
+     * @return true if the document contains a horizontal scroll container, false otherwise
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public boolean isHorizontallyScrollable() {
+        return mInner.isHorizontallyScrollable();
+    }
+
+    /**
      * Turn on debug information
      *
      * @param debugFlags 1 to set debug on
