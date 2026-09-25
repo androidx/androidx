@@ -18,7 +18,17 @@ package androidx.compose.remote.player.compose.embedded
 
 import android.content.Context
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.operations.layout.LayoutComponent
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.OffsetModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.RoundedClipRectModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -27,11 +37,13 @@ import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.contentDescription
+import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.heightIn
 import androidx.compose.remote.creation.compose.modifier.offset
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.modifier.widthIn
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.rdp
@@ -42,11 +54,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
+import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -55,6 +67,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 /**
  * Verifies the embedded player honors the document's `Header.DOC_DENSITY_BEHAVIOR`.
@@ -69,17 +82,19 @@ import org.robolectric.annotation.Config
  * explicit density-2 override.
  */
 @RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [35])
 class RcPlayerDensityBehaviorTest {
 
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
-
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
     @get:Rule val captureRule = RemoteCaptureTestRule()
 
     private val paddingUnits = 16f
     private val renderDensity = 2f
+
+    private fun CoreDocument.firstLayoutComponent(): LayoutComponent =
+        rootLayoutComponent!!.list.filterIsInstance<LayoutComponent>().first()
 
     /** A 100×100 outer box padded by [paddingUnits], wrapping a 20×20 inner box. */
     private fun documentWith(behavior: Int): CoreDocument = runBlocking {
@@ -108,6 +123,14 @@ class RcPlayerDensityBehaviorTest {
 
     /** Renders [document] at [renderDensity] and returns the inner box's left inset, in dp. */
     private fun paddingInsetDp(document: CoreDocument): Float {
+        val outerBox = document.firstLayoutComponent()
+        val modifiers = outerBox.componentModifiers.list
+        assertThat(modifiers.filterIsInstance<WidthModifierOperation>().single().type)
+            .isEqualTo(DimensionModifierOperation.Type.EXACT_DP)
+        assertThat(modifiers.filterIsInstance<HeightModifierOperation>().single().type)
+            .isEqualTo(DimensionModifierOperation.Type.EXACT_DP)
+        assertThat(modifiers.filterIsInstance<PaddingModifierOperation>()).hasSize(1)
+
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(renderDensity, 1f)) {
                 Box(modifier = Modifier) { RcPlayer(document = document) }
@@ -225,6 +248,12 @@ class RcPlayerDensityBehaviorTest {
             )
         }
 
+        val modifiers = document.firstLayoutComponent().componentModifiers.list
+        assertThat(modifiers.filterIsInstance<WidthModifierOperation>().single().type)
+            .isEqualTo(DimensionModifierOperation.Type.EXACT_DP)
+        assertThat(modifiers.filterIsInstance<HeightModifierOperation>().single().type)
+            .isEqualTo(DimensionModifierOperation.Type.EXACT_DP)
+
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(renderDensity, 1f)) {
                 Box(modifier = Modifier) { RcPlayer(document = document) }
@@ -272,6 +301,9 @@ class RcPlayerDensityBehaviorTest {
     }
 
     private fun widthInDp(document: CoreDocument): Float {
+        val modifiers = document.firstLayoutComponent().componentModifiers.list
+        assertThat(modifiers.filterIsInstance<WidthInModifierOperation>()).hasSize(1)
+
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(renderDensity, 1f)) {
                 Box(modifier = Modifier) { RcPlayer(document = document) }
@@ -327,6 +359,9 @@ class RcPlayerDensityBehaviorTest {
     }
 
     private fun heightInDp(document: CoreDocument): Float {
+        val modifiers = document.firstLayoutComponent().componentModifiers.list
+        assertThat(modifiers.filterIsInstance<HeightInModifierOperation>()).hasSize(1)
+
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(renderDensity, 1f)) {
                 Box(modifier = Modifier) { RcPlayer(document = document) }
@@ -401,6 +436,9 @@ class RcPlayerDensityBehaviorTest {
     @Test
     fun dpBehaviorScalesClipCornerByDensity() {
         val doc = documentWithClip(CoreDocument.DENSITY_BEHAVIOR_DP, 26f)
+        val modifiers = doc.firstLayoutComponent().componentModifiers.list
+        assertThat(modifiers.filterIsInstance<RoundedClipRectModifierOperation>()).hasSize(1)
+
         // Verify document renders under DP behavior without error
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(renderDensity, 1f)) {
@@ -626,6 +664,9 @@ class RcPlayerDensityBehaviorTest {
                 },
             )
         }
+        val modifiers = document.firstLayoutComponent().componentModifiers.list
+        assertThat(modifiers.filterIsInstance<OffsetModifierOperation>()).hasSize(1)
+
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(renderDensity, 1f)) {
                 Box(modifier = Modifier) { RcPlayer(document = document) }
@@ -651,5 +692,126 @@ class RcPlayerDensityBehaviorTest {
     @Test
     fun authoringWithRemoteDpProducesConsistentResult_offset_legacy() {
         testRemoteDpOffset(RemoteDensityBehavior.Legacy)
+    }
+
+    @Test
+    fun dpBehaviorScalesWidthAndHeightByDensity() {
+        val doc =
+            rule.setRemoteContent(
+                remoteCreationDisplayInfo =
+                    RemoteCreationDisplayInfo(
+                        width = 200,
+                        height = 200,
+                        densityDpi = 160,
+                        fontScale = 1f,
+                        densityBehavior = RemoteDensityBehavior.Dp,
+                    ),
+                playComposableWrapper = { content ->
+                    // Density = 2.0f -> 50dp x 40dp component measures at 100px x 80px (50dp x
+                    // 40dp)
+                    CompositionLocalProvider(LocalDensity provides Density(renderDensity, 1f)) {
+                        Box(modifier = Modifier.size(200.dp)) { content() }
+                    }
+                },
+            ) {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.width(50.rf).height(40.rf).semantics {
+                            contentDescription = "box".rs
+                        }
+                )
+            }
+        rule.waitForIdle()
+
+        assertThat(doc.densityBehavior).isEqualTo(CoreDocument.DENSITY_BEHAVIOR_DP)
+        val modifiers = doc.firstLayoutComponent().componentModifiers.list
+        val widthOp = modifiers.filterIsInstance<WidthModifierOperation>().single()
+        val heightOp = modifiers.filterIsInstance<HeightModifierOperation>().single()
+        assertThat(widthOp.type).isEqualTo(DimensionModifierOperation.Type.EXACT)
+        assertThat(heightOp.type).isEqualTo(DimensionModifierOperation.Type.EXACT)
+
+        val bounds = rule.onNodeWithContentDescription("box").getUnclippedBoundsInRoot()
+        assertThat(bounds.right.value - bounds.left.value).isWithin(0.5f).of(50f)
+        assertThat(bounds.bottom.value - bounds.top.value).isWithin(0.5f).of(40f)
+    }
+
+    @Test
+    fun pixelsBehaviorTreatsWidthAndHeightAsPixels() {
+        val doc =
+            rule.setRemoteContent(
+                remoteCreationDisplayInfo =
+                    RemoteCreationDisplayInfo(
+                        width = 200,
+                        height = 200,
+                        densityDpi = 160,
+                        fontScale = 1f,
+                        densityBehavior = RemoteDensityBehavior.Pixels,
+                    ),
+                playComposableWrapper = { content ->
+                    // Density = 2.0f -> 50px x 40px component measures at 25dp x 20dp
+                    CompositionLocalProvider(LocalDensity provides Density(renderDensity, 1f)) {
+                        Box(modifier = Modifier.size(200.dp)) { content() }
+                    }
+                },
+            ) {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.width(50.rf).height(40.rf).semantics {
+                            contentDescription = "box".rs
+                        }
+                )
+            }
+        rule.waitForIdle()
+
+        assertThat(doc.densityBehavior).isEqualTo(CoreDocument.DENSITY_BEHAVIOR_PIXELS)
+        val modifiers = doc.firstLayoutComponent().componentModifiers.list
+        val widthOp = modifiers.filterIsInstance<WidthModifierOperation>().single()
+        val heightOp = modifiers.filterIsInstance<HeightModifierOperation>().single()
+        assertThat(widthOp.type).isEqualTo(DimensionModifierOperation.Type.EXACT)
+        assertThat(heightOp.type).isEqualTo(DimensionModifierOperation.Type.EXACT)
+
+        val bounds = rule.onNodeWithContentDescription("box").getUnclippedBoundsInRoot()
+        assertThat(bounds.right.value - bounds.left.value).isWithin(0.5f).of(50f / renderDensity)
+        assertThat(bounds.bottom.value - bounds.top.value).isWithin(0.5f).of(40f / renderDensity)
+    }
+
+    @Test
+    fun legacyBehaviorTreatsWidthAndHeightAsPixels() {
+        val doc =
+            rule.setRemoteContent(
+                remoteCreationDisplayInfo =
+                    RemoteCreationDisplayInfo(
+                        width = 200,
+                        height = 200,
+                        densityDpi = 160,
+                        fontScale = 1f,
+                        densityBehavior = RemoteDensityBehavior.Legacy,
+                    ),
+                playComposableWrapper = { content ->
+                    // Density = 2.0f -> 50px x 40px component measures at 25dp x 20dp
+                    CompositionLocalProvider(LocalDensity provides Density(renderDensity, 1f)) {
+                        Box(modifier = Modifier.size(200.dp)) { content() }
+                    }
+                },
+            ) {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.width(50.rf).height(40.rf).semantics {
+                            contentDescription = "box".rs
+                        }
+                )
+            }
+        rule.waitForIdle()
+
+        assertThat(doc.densityBehavior).isEqualTo(CoreDocument.DENSITY_BEHAVIOR_LEGACY)
+        val modifiers = doc.firstLayoutComponent().componentModifiers.list
+        val widthOp = modifiers.filterIsInstance<WidthModifierOperation>().single()
+        val heightOp = modifiers.filterIsInstance<HeightModifierOperation>().single()
+        assertThat(widthOp.type).isEqualTo(DimensionModifierOperation.Type.EXACT)
+        assertThat(heightOp.type).isEqualTo(DimensionModifierOperation.Type.EXACT)
+
+        val bounds = rule.onNodeWithContentDescription("box").getUnclippedBoundsInRoot()
+        assertThat(bounds.right.value - bounds.left.value).isWithin(0.5f).of(50f / renderDensity)
+        assertThat(bounds.bottom.value - bounds.top.value).isWithin(0.5f).of(40f / renderDensity)
     }
 }
