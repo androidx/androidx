@@ -107,7 +107,7 @@ public open class RecordingCanvas(
 
     internal var forceSendingPaint = false
 
-    public var globalSaveCounter: Int = 0
+    private var globalSaveCounter: Int = 0
     internal var initialSpanSaveCount: Int = 0
     internal var currentDrawToBitmapId = 0
     internal var currentSaveRestoreNode: CanvasOp.SaveRestore? = null
