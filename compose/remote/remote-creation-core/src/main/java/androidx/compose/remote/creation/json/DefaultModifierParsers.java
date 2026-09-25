@@ -16,7 +16,9 @@
 package androidx.compose.remote.creation.json;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.operations.layout.animation.AnimationSpec;
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation;
+import androidx.compose.remote.core.operations.utilities.easing.GeneralEasing;
 import androidx.compose.remote.core.semantics.CoreSemantics;
 import androidx.compose.remote.creation.actions.Action;
 import androidx.compose.remote.creation.actions.HostAction;
@@ -306,7 +308,61 @@ class DefaultModifierParsers {
             recordingModifier.spacedBy(parser.parseFloat(mod.get(key)));
         });
         p.registerModifierParser("animationspec", (mod, key, recordingModifier, parser) -> {
-            recordingModifier.animationSpec(mod.getInt(key));
+            Object specVal = mod.get(key);
+            if (specVal instanceof JSONObject) {
+                JSONObject obj = (JSONObject) specVal;
+                int animationId = obj.optInt("animationId", -1);
+                float motionDuration = (float) obj.optDouble("motionDuration", 300.0);
+                int motionEasingType = parseEasingType(
+                        obj.has("motionEasingType")
+                                ? obj.get("motionEasingType")
+                                : obj.opt("motionEasing"),
+                        GeneralEasing.CUBIC_STANDARD);
+                float visibilityDuration = (float) obj.optDouble("visibilityDuration", 300.0);
+                int visibilityEasingType = parseEasingType(
+                        obj.has("visibilityEasingType")
+                                ? obj.get("visibilityEasingType")
+                                : obj.opt("visibilityEasing"),
+                        GeneralEasing.CUBIC_STANDARD);
+                int enterFnId = resolveFunctionId(
+                        obj.has("enterFunctionId")
+                                ? obj.get("enterFunctionId")
+                                : obj.opt("enterFunction"),
+                        parser);
+                int exitFnId = resolveFunctionId(
+                        obj.has("exitFunctionId")
+                                ? obj.get("exitFunctionId")
+                                : obj.opt("exitFunction"),
+                        parser);
+                AnimationSpec.ANIMATION enterAnim = parseAnimationType(
+                        obj.opt("enterAnimation"),
+                        enterFnId != -1
+                                ? AnimationSpec.ANIMATION.CUSTOM
+                                : AnimationSpec.ANIMATION.FADE_IN);
+                AnimationSpec.ANIMATION exitAnim = parseAnimationType(
+                        obj.opt("exitAnimation"),
+                        exitFnId != -1
+                                ? AnimationSpec.ANIMATION.CUSTOM
+                                : AnimationSpec.ANIMATION.FADE_OUT);
+                AnimationSpec.SEQUENCE enterSeq = parseSequenceType(
+                        obj.opt("enterSequence"), AnimationSpec.SEQUENCE.CONCURRENT);
+                AnimationSpec.SEQUENCE exitSeq = parseSequenceType(
+                        obj.opt("exitSequence"), AnimationSpec.SEQUENCE.CONCURRENT);
+                recordingModifier.animationSpec(
+                        animationId,
+                        motionDuration,
+                        motionEasingType,
+                        visibilityDuration,
+                        visibilityEasingType,
+                        enterAnim,
+                        exitAnim,
+                        enterFnId,
+                        exitFnId,
+                        enterSeq,
+                        exitSeq);
+            } else {
+                recordingModifier.animationSpec(mod.getInt(key));
+            }
         });
         p.registerModifierParser("alignbybaseline",
                 (mod, key, recordingModifier, parser) -> {
@@ -490,5 +546,112 @@ class DefaultModifierParsers {
             default:
                 throw new JSONException("Unknown action type: " + type);
         }
+    }
+
+    private static int resolveFunctionId(Object val, RemoteComposeJsonParser parser)
+            throws JSONException {
+        if (val == null || val == JSONObject.NULL) {
+            return -1;
+        }
+        if (val instanceof Number) {
+            return ((Number) val).intValue();
+        }
+        if (val instanceof String) {
+            String str = (String) val;
+            String name = RemoteComposeJsonParser.isVariableRef(str)
+                    ? RemoteComposeJsonParser.getVariableNameFromRef(str)
+                    : str;
+            Float fnVal = parser.mVariables.get(name);
+            if (fnVal != null) {
+                if (Float.isNaN(fnVal)) {
+                    return androidx.compose.remote.core.operations.Utils.idFromNan(fnVal);
+                }
+                return fnVal.intValue();
+            }
+            return parser.resolveTextId(val);
+        }
+        return -1;
+    }
+
+    private static int parseEasingType(Object val, int defaultVal) {
+        if (val == null || val == JSONObject.NULL) {
+            return defaultVal;
+        }
+        if (val instanceof Number) {
+            return ((Number) val).intValue();
+        }
+        if (val instanceof String) {
+            switch (((String) val).toUpperCase(java.util.Locale.ROOT)) {
+                case "CUBIC_STANDARD":
+                case "STANDARD":
+                    return GeneralEasing.CUBIC_STANDARD;
+                case "CUBIC_ACCELERATE":
+                case "ACCELERATE":
+                    return GeneralEasing.CUBIC_ACCELERATE;
+                case "CUBIC_DECELERATE":
+                case "DECELERATE":
+                    return GeneralEasing.CUBIC_DECELERATE;
+                case "CUBIC_LINEAR":
+                case "LINEAR":
+                    return GeneralEasing.CUBIC_LINEAR;
+                case "CUBIC_ANTICIPATE":
+                case "ANTICIPATE":
+                    return GeneralEasing.CUBIC_ANTICIPATE;
+                case "CUBIC_OVERSHOOT":
+                case "OVERSHOOT":
+                    return GeneralEasing.CUBIC_OVERSHOOT;
+                default:
+                    return defaultVal;
+            }
+        }
+        return defaultVal;
+    }
+
+    private static AnimationSpec.ANIMATION parseAnimationType(
+            Object val, AnimationSpec.ANIMATION defaultVal) {
+        if (val == null || val == JSONObject.NULL) {
+            return defaultVal;
+        }
+        if (val instanceof Number) {
+            int ord = ((Number) val).intValue();
+            AnimationSpec.ANIMATION[] values = AnimationSpec.ANIMATION.values();
+            if (ord >= 0 && ord < values.length) {
+                return values[ord];
+            }
+            return defaultVal;
+        }
+        if (val instanceof String) {
+            try {
+                return AnimationSpec.ANIMATION.valueOf(
+                        ((String) val).toUpperCase(java.util.Locale.ROOT));
+            } catch (IllegalArgumentException e) {
+                return defaultVal;
+            }
+        }
+        return defaultVal;
+    }
+
+    private static AnimationSpec.SEQUENCE parseSequenceType(
+            Object val, AnimationSpec.SEQUENCE defaultVal) {
+        if (val == null || val == JSONObject.NULL) {
+            return defaultVal;
+        }
+        if (val instanceof Number) {
+            int ord = ((Number) val).intValue();
+            AnimationSpec.SEQUENCE[] values = AnimationSpec.SEQUENCE.values();
+            if (ord >= 0 && ord < values.length) {
+                return values[ord];
+            }
+            return defaultVal;
+        }
+        if (val instanceof String) {
+            try {
+                return AnimationSpec.SEQUENCE.valueOf(
+                        ((String) val).toUpperCase(java.util.Locale.ROOT));
+            } catch (IllegalArgumentException e) {
+                return defaultVal;
+            }
+        }
+        return defaultVal;
     }
 }

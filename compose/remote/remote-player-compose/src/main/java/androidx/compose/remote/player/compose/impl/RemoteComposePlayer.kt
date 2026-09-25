@@ -53,6 +53,7 @@ import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -82,6 +83,7 @@ public fun RemoteComposePlayer(
     var lastAnimationTime by remember(document) { mutableFloatStateOf(0.1f) }
     val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
+    val density = LocalDensity.current.density
 
     var disable by remember(document) { mutableStateOf(false) }
     var errorMessage by remember(document) { mutableStateOf("") }
@@ -89,6 +91,7 @@ public fun RemoteComposePlayer(
     val remoteContext by
         remember(document) {
             val composeRemoteContext = ComposeRemoteContext(SystemClock())
+            composeRemoteContext.density = density
             try {
                 document.initializeContext(composeRemoteContext)
             } catch (e: Exception) {

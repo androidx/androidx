@@ -223,4 +223,81 @@ public class AndroidPaintContextTest {
         // Ensure drawComplexText executes and translates canvas cleanly without exceptions
         mPaintContext.drawComplexText(layout);
     }
+
+    @Test
+    public void testDrawToBitmap_lazilyAcquiresAndReusesPooledBitmaps() {
+        int bitmapId1 = 42;
+        int bitmapId2 = 43;
+
+        androidx.compose.remote.core.operations.BitmapData bd1 =
+                new androidx.compose.remote.core.operations.BitmapData(
+                        bitmapId1,
+                        androidx.compose.remote.core.operations.BitmapData.TYPE_RAW8888,
+                        (short) 1,
+                        androidx.compose.remote.core.operations.BitmapData
+                                .ENCODING_COMPONENT_OFFSCREEN_BUFFER,
+                        (short) 1,
+                        new byte[0]);
+        androidx.compose.remote.core.operations.BitmapData bd2 =
+                new androidx.compose.remote.core.operations.BitmapData(
+                        bitmapId2,
+                        androidx.compose.remote.core.operations.BitmapData.TYPE_RAW8888,
+                        (short) 1,
+                        androidx.compose.remote.core.operations.BitmapData
+                                .ENCODING_COMPONENT_OFFSCREEN_BUFFER,
+                        (short) 1,
+                        new byte[0]);
+
+        // Before a component is active, applying bd1 does not allocate a dummy 1x1 bitmap
+        bd1.apply(mRemoteContext);
+        assertEquals(null, mRemoteContext.mRemoteComposeState.getFromId(bitmapId1));
+
+        // Simulate active component with runtime dimensions 320x90
+        androidx.compose.remote.core.operations.layout.Component comp =
+                new androidx.compose.remote.core.operations.layout.Component(
+                        null, 10, -1, 0f, 0f, 320f, 90f);
+        mRemoteContext.mLastComponent = comp;
+
+        bd1.apply(mRemoteContext);
+        mPaintContext.drawToBitmap(bitmapId1, 0, 0);
+        mPaintContext.drawToBitmap(0, 0, 0);
+
+        assertEquals(320, bd1.getWidth());
+        assertEquals(90, bd1.getHeight());
+        Bitmap firstAllocated = (Bitmap) mRemoteContext.mRemoteComposeState.getFromId(bitmapId1);
+        assertNotNull(firstAllocated);
+        assertEquals(320, firstAllocated.getWidth());
+        assertEquals(90, firstAllocated.getHeight());
+
+        // Simulate larger component (480x120): pool allocates a larger 480x120 bitmap
+        comp.setWidth(480f);
+        comp.setHeight(120f);
+        bd1.apply(mRemoteContext);
+        mPaintContext.drawToBitmap(bitmapId1, 0, 0);
+        mPaintContext.drawToBitmap(0, 0, 0);
+
+        assertEquals(480, bd1.getWidth());
+        assertEquals(120, bd1.getHeight());
+        Bitmap largerAllocated = (Bitmap) mRemoteContext.mRemoteComposeState.getFromId(bitmapId1);
+        assertNotNull(largerAllocated);
+        assertEquals(480, largerAllocated.getWidth());
+        assertEquals(120, largerAllocated.getHeight());
+
+        // Simulate next frame reset() and a smaller component (200x60) on a different bitmapId2:
+        // The pool should reuse the existing 480x120 bitmap without allocating a new one!
+        mPaintContext.reset();
+        comp.setWidth(200f);
+        comp.setHeight(60f);
+        bd2.apply(mRemoteContext);
+        mPaintContext.drawToBitmap(bitmapId2, 0, 0);
+        mPaintContext.drawToBitmap(0, 0, 0);
+
+        assertEquals(200, bd2.getWidth());
+        assertEquals(60, bd2.getHeight());
+        Bitmap reusedFromPool = (Bitmap) mRemoteContext.mRemoteComposeState.getFromId(bitmapId2);
+        assertNotNull(reusedFromPool);
+        assertEquals(largerAllocated, reusedFromPool);
+        assertEquals(480, reusedFromPool.getWidth());
+        assertEquals(120, reusedFromPool.getHeight());
+    }
 }

@@ -4768,6 +4768,54 @@ public class RemoteComposeWriter {
     }
 
     /**
+     * Reserve an offscreen bitmap ID whose backing bitmap will be lazily acquired from the player's
+     * bitmap pool when drawn to via {@link #drawOnBitmap} or {@link #drawComponentToBitmap}.
+     *
+     * @return id of the offscreen bitmap
+     */
+    public int createOffscreenBitmap() {
+        return createOffscreenBitmap(0);
+    }
+
+    /**
+     * Reserve an offscreen bitmap handle whose backing bitmap is dynamically sized to the specified
+     * component and lazily acquired from the player's reusable bitmap pool.
+     *
+     * @param componentId the component id (or 0 to use the active component)
+     * @return id of the offscreen bitmap
+     */
+    public int createOffscreenBitmap(int componentId) {
+        int id = mState.createNextAvailableId();
+        return mBuffer.createOffscreenBitmap(id, componentId);
+    }
+
+    /**
+     * Render the specified component's content into the specified offscreen bitmap.
+     *
+     * @param componentId the component id (or variable id holding the component id)
+     * @param bitmapId the id of the bitmap to render the component into
+     */
+    public void drawComponentToBitmap(int componentId, int bitmapId) {
+        drawOnBitmap(
+                bitmapId,
+                androidx.compose.remote.core.operations.DrawToBitmap.MODE_COMPONENT_ID,
+                componentId);
+        drawComponentContent();
+        drawOnBitmap(0, 0, 0);
+    }
+
+    /**
+     * Render the active component's content into the specified offscreen bitmap.
+     *
+     * @param bitmapId the id of the bitmap to render the component into
+     */
+    public void drawComponentToBitmap(int bitmapId) {
+        drawOnBitmap(bitmapId, 0, 0);
+        drawComponentContent();
+        drawOnBitmap(0, 0, 0);
+    }
+
+    /**
      * Draw on a bitmap, all subsequent operations will be applied to the bitmap
      *
      * @param bitmapId if 0 draw on main canvas
@@ -5123,6 +5171,40 @@ public class RemoteComposeWriter {
                 visibilityEasingType,
                 enterAnimation,
                 exitAnimation);
+    }
+
+    /**
+     * Add an animation spec modifier with custom enter/exit function IDs
+     *
+     * @param animationId          the animation id
+     * @param motionDuration       the motion duration
+     * @param motionEasingType     the motion easing type
+     * @param visibilityDuration   the visibility duration
+     * @param visibilityEasingType the visibility easing type
+     * @param enterAnimation       the enter animation
+     * @param exitAnimation        the exit animation
+     * @param enterFunctionId      the enter function id
+     * @param exitFunctionId       the exit function id
+     */
+    public void addAnimationSpecModifier(int animationId,
+            float motionDuration,
+            int motionEasingType,
+            float visibilityDuration,
+            int visibilityEasingType,
+            int enterAnimation,
+            int exitAnimation,
+            int enterFunctionId,
+            int exitFunctionId) {
+        mBuffer.addAnimationSpecModifier(
+                animationId,
+                motionDuration,
+                motionEasingType,
+                visibilityDuration,
+                visibilityEasingType,
+                enterAnimation,
+                exitAnimation,
+                enterFunctionId,
+                exitFunctionId);
     }
 
     /**

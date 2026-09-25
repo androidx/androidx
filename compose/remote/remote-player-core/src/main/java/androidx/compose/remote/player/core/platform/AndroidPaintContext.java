@@ -221,9 +221,14 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
         mCanvas.save();
     }
 
+    private final Paint mLayerPaint = new Paint();
+
     @Override
     public void saveLayer(float x, float y, float width, float height) {
-        mCanvas.saveLayer(x, y, x + width, y + height, mPaint);
+        mLayerPaint.reset();
+        mLayerPaint.setAlpha(mPaint.getAlpha());
+        mCanvas.saveLayer(x, y, x + width, y + height, mLayerPaint);
+        mPaint.setAlpha(255);
     }
 
     @Override
@@ -1223,14 +1228,31 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
                     for (int i = 0; i < names.length; i++) {
                         String name = names[i];
                         float[] val = data.getUniformFloats(name);
-                        if (val.length == 1 && Float.isNaN(val[0])) {
-                            // check if dynamic array
-                            float[] values =
-                                    mContext.getCollectionsAccess()
-                                            .getDynamicFloats(Utils.idFromNan(val[0]));
-                            shader.setFloatUniform(name, values);
+                        if (val.length == 1) {
+                            if (Float.isNaN(val[0])) {
+                                int varId = Utils.idFromNan(val[0]);
+                                float[] values =
+                                        mContext.getCollectionsAccess() != null
+                                                ? mContext.getCollectionsAccess()
+                                                .getDynamicFloats(varId)
+                                                : null;
+                                if (values != null) {
+                                    shader.setFloatUniform(name, values);
+                                } else {
+                                    shader.setFloatUniform(name, mContext.getFloat(varId));
+                                }
+                            } else {
+                                shader.setFloatUniform(name, val[0]);
+                            }
                         } else {
-                            shader.setFloatUniform(name, val);
+                            float[] evaluated = new float[val.length];
+                            for (int k = 0; k < val.length; k++) {
+                                evaluated[k] =
+                                        Float.isNaN(val[k])
+                                                ? mContext.getFloat(Utils.idFromNan(val[k]))
+                                                : val[k];
+                            }
+                            shader.setFloatUniform(name, evaluated);
                         }
                     }
                     names = data.getUniformIntegerNames();
@@ -1512,6 +1534,7 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
         // segmentation violation
         mPaint.setTypeface(Typeface.DEFAULT);
         mPaint.reset();
+        releaseOffscreenBitmaps();
     }
 
     private Path getPath(int path1Id, int path2Id, float tween, float start, float end) {
@@ -1742,7 +1765,7 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
         mCanvas.concat(m);
     }
 
-    HashMap<Bitmap, Canvas> mCCache = new HashMap<>();
+    java.util.WeakHashMap<Bitmap, Canvas> mCCache = new java.util.WeakHashMap<>();
 
     @Override
     public void drawToBitmap(int bitmapId, int mode, int color) {
@@ -1753,6 +1776,7 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
             mCanvas = mMainCanvas;
             return;
         }
+        mPaint.setAlpha(255);
         Bitmap bitmap = (Bitmap) mContext.mRemoteComposeState.getFromId(bitmapId);
         Objects.requireNonNull(bitmap);
         if (mCCache.containsKey(bitmap)) {

@@ -630,11 +630,19 @@ public abstract class RemoteContext {
             int height,
             long capabilities,
             @Nullable IntMap<Object> properties) {
-        mRemoteComposeState.setWindowWidth(width);
-        mRemoteComposeState.setWindowHeight(height);
+        int scaledWidth = width;
+        int scaledHeight = height;
+        if (mDocument.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP
+                && !Float.isNaN(mDensity)
+                && mDensity > 0f) {
+            scaledWidth = Math.round(width * mDensity);
+            scaledHeight = Math.round(height * mDensity);
+        }
+        mRemoteComposeState.setWindowWidth(scaledWidth);
+        mRemoteComposeState.setWindowHeight(scaledHeight);
         mDocument.setVersion(majorVersion, minorVersion, patchVersion);
-        mDocument.setWidth(width);
-        mDocument.setHeight(height);
+        mDocument.setWidth(scaledWidth);
+        mDocument.setHeight(scaledHeight);
         mDocument.setRequiredCapabilities(capabilities);
         mDocument.setProperties(properties);
     }

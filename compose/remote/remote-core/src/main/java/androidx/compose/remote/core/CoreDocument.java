@@ -30,6 +30,7 @@ import androidx.compose.remote.core.operations.DataListIds;
 import androidx.compose.remote.core.operations.DrawContent;
 import androidx.compose.remote.core.operations.FloatConstant;
 import androidx.compose.remote.core.operations.FloatExpression;
+import androidx.compose.remote.core.operations.FloatFunctionDefine;
 import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.IntegerExpression;
 import androidx.compose.remote.core.operations.NamedVariable;
@@ -1275,9 +1276,13 @@ public class CoreDocument implements Serializable {
                     currentLastLayout = (LayoutComponent) component;
                 }
             } else if (o instanceof Container) {
-                finishInflation(((Container) o).getList(), parent, currentLastLayout);
-                if (o instanceof CanvasOperations) {
-                    ((CanvasOperations) o).setComponent(currentLastLayout);
+                if (o instanceof FloatFunctionDefine) {
+                    finishInflation(((Container) o).getList(), null, null);
+                } else {
+                    finishInflation(((Container) o).getList(), parent, currentLastLayout);
+                    if (o instanceof CanvasOperations) {
+                        ((CanvasOperations) o).setComponent(currentLastLayout);
+                    }
                 }
             } else if (o instanceof DrawContent) {
                 ((DrawContent) o).setComponent(currentLastLayout);
@@ -2320,6 +2325,12 @@ public class CoreDocument implements Serializable {
                 mRepaintNext = 1;
                 mRootLayoutComponent.clearNeedsBoundsAnimation();
                 mRootLayoutComponent.animatingBounds(context);
+                if (mRootLayoutComponent.needsMeasure()) {
+                    mRootLayoutComponent.layout(context);
+                    if (mLayoutCallback != null) {
+                        mLayoutCallback.onRequestLayout();
+                    }
+                }
             }
             if (DEBUG) {
                 String hierarchy = mRootLayoutComponent.displayHierarchy();
@@ -2635,6 +2646,7 @@ public class CoreDocument implements Serializable {
                 String str = context.getText(id);
                 if (str != null) {
                     sd.enable(ctl.isShaderValid(str));
+                    sd.apply(context);
                 }
             }
         }

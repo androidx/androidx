@@ -351,7 +351,8 @@
             "referencedoperations",
             "include",
             "resources",
-            "variable"
+            "variable",
+            "defineVisibilityAnimation"
           ]
         },
         "children": {
@@ -731,6 +732,168 @@
         "visibility": {
           "$ref": "#/$defs/FloatOrExpr"
         },
+        "animationSpec": {
+          "type": "object",
+          "properties": {
+            "animationId": {
+              "type": "integer"
+            },
+            "motionDuration": {
+              "type": "number"
+            },
+            "motionEasingType": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "linear",
+                    "standard",
+                    "accelerate",
+                    "decelerate",
+                    "overshoot",
+                    "bounce"
+                  ]
+                }
+              ]
+            },
+            "visibilityDuration": {
+              "type": "number"
+            },
+            "visibilityEasingType": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "linear",
+                    "standard",
+                    "accelerate",
+                    "decelerate",
+                    "overshoot",
+                    "bounce"
+                  ]
+                }
+              ]
+            },
+            "enterAnimation": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "default",
+                    "fadeIn",
+                    "slideLeft",
+                    "slideRight",
+                    "slideTop",
+                    "slideBottom"
+                  ]
+                }
+              ]
+            },
+            "exitAnimation": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "default",
+                    "fadeOut",
+                    "slideLeft",
+                    "slideRight",
+                    "slideTop",
+                    "slideBottom"
+                  ]
+                }
+              ]
+            },
+            "enterFunction": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "enterFunctionId": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "exitFunction": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "exitFunctionId": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "enterSequence": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "CONCURRENT",
+                    "BEFORE",
+                    "AFTER",
+                    "concurrent",
+                    "before",
+                    "after"
+                  ]
+                }
+              ]
+            },
+            "exitSequence": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "CONCURRENT",
+                    "BEFORE",
+                    "AFTER",
+                    "concurrent",
+                    "before",
+                    "after"
+                  ]
+                }
+              ]
+            }
+          }
+        },
         "zIndex": {
           "$ref": "#/$defs/FloatOrExpr"
         },
@@ -866,7 +1029,25 @@
               "$ref": "#/$defs/FloatOrExpr"
             },
             "shader": {
-              "type": "integer"
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "agsl": {
+                      "type": "string"
+                    },
+                    "uniforms": {
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "agsl"
+                  ]
+                }
+              ]
             }
           }
         },
@@ -1221,13 +1402,94 @@
         "save": {
           "type": [
             "boolean",
-            "object"
+            "object",
+            "array"
           ]
         },
         "restore": {
           "type": [
             "boolean",
             "object"
+          ]
+        },
+        "defineVisibilityAnimation": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "params": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "parameters": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "commands": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DrawCommand"
+              }
+            }
+          },
+          "required": [
+            "name",
+            "commands"
+          ]
+        },
+        "drawComponentContent": {
+          "type": [
+            "boolean",
+            "object"
+          ]
+        },
+        "drawContent": {
+          "type": [
+            "boolean",
+            "object"
+          ]
+        },
+        "createOffscreenBitmap": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        },
+        "drawComponentToBitmap": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "bitmap": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "bitmapId": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "color": {
+              "$ref": "#/$defs/ColorOrRef"
+            }
+          },
+          "required": [
+            "bitmap"
           ]
         },
         "translate": {

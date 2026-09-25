@@ -87,6 +87,7 @@ import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.integration.view.demos.dsl.dslClock
 import androidx.compose.remote.integration.view.demos.dsl.dslDemo
+import androidx.compose.remote.integration.view.demos.dsl.dslRcCustomVisibilityAnimationDemo
 import androidx.compose.remote.integration.view.demos.dsl.dslRcStateLayout3StatesDemo
 import androidx.compose.remote.integration.view.demos.dsl.dslRcStateLayoutRowToColumnDemo
 import androidx.compose.remote.integration.view.demos.dsl.dslRcStateLayoutToggleDemo
@@ -146,6 +147,7 @@ import androidx.compose.remote.integration.view.demos.examples.cube3d
 import androidx.compose.remote.integration.view.demos.examples.cubeInteractive
 import androidx.compose.remote.integration.view.demos.examples.demoGraphs2
 import androidx.compose.remote.integration.view.demos.examples.demoLinearRegression
+import androidx.compose.remote.integration.view.demos.examples.rcJsonCustomVisibilityDemo
 import androidx.compose.remote.integration.view.demos.examples.rcJsonGraphs2
 import androidx.compose.remote.integration.view.demos.examples.rcJsonLinearRegression
 import androidx.compose.remote.integration.view.demos.examples.rcJsonMacroDemo
@@ -503,6 +505,8 @@ class ExperimentActivity : ComponentActivity() {
                 ),
             "Procedural..." to
                 listOf(
+                    getb("DSL Custom Visibility Anim") { dslRcCustomVisibilityAnimationDemo() },
+                    getpc("JSON Custom Visibility Anim") { rcJsonCustomVisibilityDemo() },
                     getb("DSL StateLayout Row") { dslRcStateLayoutToggleDemo() },
                     getb("DSL StateLayout Row to Column") { dslRcStateLayoutRowToColumnDemo() },
                     getb("DSL StateLayout 3-States") { dslRcStateLayout3StatesDemo() },
@@ -1093,10 +1097,10 @@ private fun DocumentView(
                     .size(documentWidth.value.dp, documentHeight.value.dp),
             factory = {
                 val player = RemoteComposePlayer(it)
+                player.setShaderControl(shaderControl)
                 if (currentDocument.value != null) {
                     player.setDocument(RemoteDocument(currentDocument.value!!))
                 }
-                player.setShaderControl(shaderControl)
                 player.addIdActionListener { _id, _metadata -> println("click $_id $_metadata") }
                 player
             },
@@ -1214,10 +1218,10 @@ fun DisplayStats(fileReady: Boolean, func: RemoteComposeFunc) {
                 modifier = Modifier.size(documentWidth.dp, documentHeight.dp),
                 factory = {
                     val player = RemoteComposePlayer(it)
+                    player.setShaderControl(shaderControl)
                     if (currentDocument.value != null) {
                         player.setDocument(RemoteDocument(currentDocument.value!!))
                     }
-                    player.setShaderControl(shaderControl)
                     playerRef.value = player
                     player.addIdActionListener { _id, _metadata ->
                         println("click $_id $_metadata")
@@ -1329,10 +1333,10 @@ fun DisplayDoc(fileReady: Boolean, func: RemoteComposeFunc) {
                 modifier = Modifier.size(documentWidth.dp, documentHeight.dp),
                 factory = {
                     val player = RemoteComposePlayer(it)
+                    player.setShaderControl(shaderControl)
                     if (currentDocument.value != null) {
                         player.setDocument(RemoteDocument(currentDocument.value!!))
                     }
-                    player.setShaderControl(shaderControl)
                     player.addIdActionListener { _id, _metadata ->
                         println("click $_id $_metadata")
                     }
@@ -1398,10 +1402,10 @@ fun DisplayMain(
                         modifier = Modifier, // .size(documentWidth.dp, documentHeight.dp),
                         factory = {
                             val player = RemoteComposePlayer(it)
+                            player.setShaderControl(shaderControl)
                             if (currentDocument.value != null) {
                                 player.setDocument(RemoteDocument(currentDocument.value!!))
                             }
-                            player.setShaderControl(shaderControl)
                             player.addIdActionListener { _id, _metadata ->
                                 id = _id
                                 metadata = _metadata ?: "empty"
