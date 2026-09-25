@@ -33,6 +33,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -45,6 +47,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
@@ -57,6 +60,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
@@ -82,35 +88,73 @@ import kotlin.math.roundToInt
  * One tab in the sample app.
  *
  * @param title the label of the tab.
- * @param content the demo that the tab shows.
+ * @param styleColorsInitiallyEnabled whether the style colors are on when the app starts.
+ * @param content the demo that the tab shows. It gets whether the style colors are on.
  */
-private class DemoTab(val title: String, val content: @Composable () -> Unit)
+private class DemoTab(
+    val title: String,
+    val styleColorsInitiallyEnabled: Boolean = false,
+    val content: @Composable (styleColorsEnabled: Boolean) -> Unit,
+)
 
 class VerticalTextSampleActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val tabs =
+            val tabs = remember {
                 arrayOf(
-                    DemoTab("Vertical Text") { ZoomableVerticalText { LongText(it) } },
-                    DemoTab("Vertical Multi-style Text") {
-                        ZoomableVerticalText { ComplexText(it) }
+                    DemoTab("Vertical Text") { enabled ->
+                        ZoomableVerticalText(styleColorsEnabled = enabled) { LongText(it) }
                     },
-                    DemoTab("Horizontal Text") {
-                        ZoomableVerticalText(isVertical = false) { LongHorizontalText(it) }
+                    DemoTab("Vertical Multi-style Text") { enabled ->
+                        ZoomableVerticalText(styleColorsEnabled = enabled) { ComplexText(it) }
                     },
-                    DemoTab("Horizontal Multi-style Text") {
-                        ZoomableVerticalText(isVertical = false) { ComplexHorizontalText(it) }
+                    DemoTab("Horizontal Text") { enabled ->
+                        ZoomableVerticalText(isVertical = false, styleColorsEnabled = enabled) {
+                            LongHorizontalText(it)
+                        }
                     },
-                    DemoTab("Style Colors") { ZoomableVerticalText { StyleColorsText(it) } },
+                    DemoTab("Horizontal Multi-style Text") { enabled ->
+                        ZoomableVerticalText(isVertical = false, styleColorsEnabled = enabled) {
+                            ComplexHorizontalText(it)
+                        }
+                    },
+                    DemoTab("Style Colors", styleColorsInitiallyEnabled = true) { enabled ->
+                        ZoomableVerticalText(styleColorsEnabled = enabled) { StyleColorsText(it) }
+                    },
                 )
+            }
+            var selectedTabIndex by remember {
+                mutableIntStateOf(intent.getIntExtra("tab", 0).coerceIn(tabs.indices))
+            }
+            val styleColorsEnabled = remember {
+                tabs.map { it.styleColorsInitiallyEnabled }.toMutableStateList()
+            }
 
-            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                floatingActionButton = {
+                    val enabled = styleColorsEnabled[selectedTabIndex]
+                    ExtendedFloatingActionButton(
+                        text = { Text("Style Colors") },
+                        icon = {
+                            Icon(
+                                painter =
+                                    painterResource(
+                                        if (enabled) R.drawable.checkbox
+                                        else R.drawable.checkbox_outline_blank
+                                    ),
+                                contentDescription = null,
+                            )
+                        },
+                        onClick = { styleColorsEnabled[selectedTabIndex] = !enabled },
+                        modifier =
+                            Modifier.semantics { stateDescription = if (enabled) "On" else "Off" },
+                    )
+                },
+            ) { innerPadding ->
                 Column(modifier = Modifier.padding(innerPadding)) {
-                    var selectedTabIndex by remember {
-                        mutableIntStateOf(intent.getIntExtra("tab", 0).coerceIn(tabs.indices))
-                    }
                     PrimaryTabRow(
                         selectedTabIndex = selectedTabIndex,
                         modifier = Modifier.fillMaxWidth(),
@@ -123,7 +167,9 @@ class VerticalTextSampleActivity : ComponentActivity() {
                             )
                         }
                     }
-                    key(selectedTabIndex) { tabs[selectedTabIndex].content() }
+                    key(selectedTabIndex) {
+                        tabs[selectedTabIndex].content(styleColorsEnabled[selectedTabIndex])
+                    }
                 }
             }
         }
@@ -149,6 +195,7 @@ private class PanLimits {
 @Composable
 fun ZoomableVerticalText(
     isVertical: Boolean = true,
+    styleColorsEnabled: Boolean = false,
     content: @Composable (VerticalTextStyle) -> Unit,
 ) {
     val fontSize = 32f
@@ -157,10 +204,12 @@ fun ZoomableVerticalText(
     var offsetY by remember { mutableFloatStateOf(0f) }
     val panLimits = remember { PanLimits() }
     val style =
-        remember(zoom) {
+        remember(zoom, styleColorsEnabled) {
             VerticalTextStyle(
                 fontSize = (fontSize * zoom).sp,
                 fontFamily = FontFamily.Serif,
+                color = if (styleColorsEnabled) Color(0xFF1A237E) else Color.Unspecified,
+                background = if (styleColorsEnabled) Color(0xFFFFF59D) else Color.Unspecified,
                 localeList =
                     LocaleList(
                         Locale(
@@ -250,11 +299,6 @@ fun LegacyHorizontalText(text: Spanned, style: VerticalTextStyle, modifier: Modi
                 )
                 .value as Typeface
         }
-    remember(paint, style, typeface, density) {
-        paint.reset()
-        setStyleToPaint(style, typeface, density, paint)
-        paint
-    }
     Layout(
         modifier =
             modifier.drawWithContent {
@@ -262,8 +306,17 @@ fun LegacyHorizontalText(text: Spanned, style: VerticalTextStyle, modifier: Modi
             },
         content = {},
     ) { _, constraints ->
+        // Set up the paint here and not in composition. This block captures the style, so a
+        // change of the style gives a new measure policy, a new measure pass, and a new
+        // StaticLayout to draw.
+        paint.reset()
+        setStyleToPaint(style, typeface, density, paint)
+        val bgColor = paint.bgColor
         val layout =
             StaticLayout.Builder.obtain(text, 0, text.length, paint, constraints.maxWidth).build()
+        // The Layout constructor sets paint.bgColor to 0. Set it again, so that draw() shows the
+        // background color.
+        paint.bgColor = bgColor
         hTextLayout = layout
         layout(constraints.maxWidth, layout.height) {}
     }
@@ -424,11 +477,6 @@ private fun buildComplexText(density: Density) =
 
 @Composable
 fun StyleColorsText(style: VerticalTextStyle, modifier: Modifier = Modifier) {
-    val coloredStyle =
-        style.copy(
-            color = Color(0xFF1A237E),
-            background = Color(0xFFFFF59D),
-        )
     val density = LocalDensity.current
     val text =
         remember(density) {
@@ -439,8 +487,8 @@ fun StyleColorsText(style: VerticalTextStyle, modifier: Modifier = Modifier) {
             }
         }
     Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        VerticalText(text, style = coloredStyle, overflow = TextOverflow.Visible)
-        VerticalText("プレーン文字列", style = coloredStyle, overflow = TextOverflow.Visible)
+        VerticalText(text, style = style, overflow = TextOverflow.Visible)
+        VerticalText("プレーン文字列", style = style, overflow = TextOverflow.Visible)
     }
 }
 
@@ -458,9 +506,15 @@ private fun setStyleToPaint(
         if (style.color.isSpecified) {
             out.color = style.color.toArgb()
         }
-        if (style.background.isSpecified) {
-            out.bgColor = style.background.toArgb()
-        }
+        // The caller reuses the TextPaint, and Paint.reset() does not reset the fields that
+        // TextPaint adds, such as bgColor. Assign each TextPaint field that this function sets
+        // every time, also when the style does not specify a value.
+        out.bgColor =
+            if (style.background.isSpecified) {
+                style.background.toArgb()
+            } else {
+                android.graphics.Color.TRANSPARENT
+            }
         if (Build.VERSION.SDK_INT >= 25) {
             style.localeList
                 ?.map { it.platformLocale }
