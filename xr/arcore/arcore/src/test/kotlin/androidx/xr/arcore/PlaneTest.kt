@@ -32,7 +32,6 @@ import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -94,11 +93,11 @@ class PlaneTest {
             advanceUntilIdle()
 
             var underTest = emptyList<Plane>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Plane.subscribe(session).collect { underTest = it.toList() }
             }
-            check(underTest.size == 3)
             advanceUntilIdle()
+            check(underTest.size == 3)
 
             assertThat(underTest.count { it.type == PlaneType.HORIZONTAL_UPWARD_FACING })
                 .isEqualTo(1)
@@ -119,11 +118,11 @@ class PlaneTest {
             advanceUntilIdle()
 
             var underTest = emptyList<Plane>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Plane.subscribe(session).collect { underTest = it.toList() }
             }
-            check(underTest.size == 5)
             advanceUntilIdle()
+            check(underTest.size == 5)
 
             assertThat(underTest.count { it.state.value.label == PlaneLabel.UNKNOWN }).isEqualTo(1)
             assertThat(underTest.count { it.state.value.label == PlaneLabel.WALL }).isEqualTo(1)
@@ -140,7 +139,7 @@ class PlaneTest {
             advanceUntilIdle()
 
             var underTest = emptyList<Plane>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Plane.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -165,9 +164,10 @@ class PlaneTest {
             advanceUntilIdle()
 
             var underTest: Plane? = null
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Plane.subscribe(session).collect { underTest = it.first() }
             }
+            advanceUntilIdle()
             check(underTest != null)
 
             val anchorPose = Pose(Vector3(1.0f, 2.0f, 3.0f), Quaternion(1.0f, 2.0f, 3.0f, 4.0f))
@@ -189,9 +189,10 @@ class PlaneTest {
             advanceUntilIdle()
 
             var underTest = emptyList<Plane>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Plane.subscribe(session).collect { underTest = it.toList() }
             }
+            advanceUntilIdle()
 
             repeat(arCoreTestRule.anchorResourceLimit) { underTest.single().createAnchor(Pose()) }
 
@@ -230,7 +231,7 @@ class PlaneTest {
             advanceUntilIdle()
 
             var underTest = emptyList<Plane>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Plane.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -276,7 +277,7 @@ class PlaneTest {
             advanceUntilIdle()
 
             var underTest = emptyList<Plane>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Plane.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -299,7 +300,7 @@ class PlaneTest {
             advanceUntilIdle()
 
             var underTest = emptyList<Plane>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Plane.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -322,7 +323,7 @@ class PlaneTest {
             advanceUntilIdle()
 
             var underTest = emptyList<Plane>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Plane.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -346,7 +347,7 @@ class PlaneTest {
             advanceUntilIdle()
 
             var underTest = emptyList<Plane>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Plane.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
