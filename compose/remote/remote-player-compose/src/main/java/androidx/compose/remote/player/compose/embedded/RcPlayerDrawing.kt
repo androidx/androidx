@@ -19,7 +19,6 @@
 package androidx.compose.remote.player.compose.embedded
 
 import android.graphics.Bitmap
-import android.graphics.Path as AndroidPath
 import android.graphics.drawable.BitmapDrawable
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.PaintOperation
@@ -88,6 +87,7 @@ import androidx.compose.remote.player.compose.utils.getPath
 import androidx.compose.remote.player.compose.utils.getTweenPath
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ClipOp
@@ -98,8 +98,6 @@ import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.text.TextMeasurer
@@ -367,14 +365,7 @@ private fun DrawScope.executeOperationsInPass(
                 }
             }
             is DrawCircle -> {
-                val style =
-                    if (paintState.isStroke)
-                        Stroke(
-                            width = paintState.strokeWidth,
-                            cap = mapStrokeCap(paintState.strokeCap),
-                            join = mapStrokeJoin(paintState.strokeJoin),
-                        )
-                    else Fill
+                val style = paintState.toDrawStyle()
                 val data = op.readDataReflection()
                 val v1 = resolveFloat(data.value1, data.v1, read)
                 val v2 = resolveFloat(data.value2, data.v2, read)
@@ -396,19 +387,13 @@ private fun DrawScope.executeOperationsInPass(
                         center = Offset(v1, v2),
                         radius = v3,
                         style = style,
+                        colorFilter = paintState.colorFilter,
                         blendMode = paintState.blendMode,
                     )
                 }
             }
             is DrawRect -> {
-                val style =
-                    if (paintState.isStroke)
-                        Stroke(
-                            width = paintState.strokeWidth,
-                            cap = mapStrokeCap(paintState.strokeCap),
-                            join = mapStrokeJoin(paintState.strokeJoin),
-                        )
-                    else Fill
+                val style = paintState.toDrawStyle()
                 val data = op.readDataReflection()
                 val x1 = resolveFloat(data.x1Value, data.x1, read)
                 val y1 = resolveFloat(data.y1Value, data.y1, read)
@@ -432,6 +417,7 @@ private fun DrawScope.executeOperationsInPass(
                         topLeft = Offset(x1, y1),
                         size = Size(x2 - x1, y2 - y1),
                         style = style,
+                        colorFilter = paintState.colorFilter,
                         blendMode = paintState.blendMode,
                     )
                 }
@@ -443,24 +429,34 @@ private fun DrawScope.executeOperationsInPass(
                 val x2 = resolveFloat(data.x2Value, data.x2, read)
                 val y2 = resolveFloat(data.y2Value, data.y2, read)
 
-                drawLine(
-                    color = paintState.effectiveColor(),
-                    start = Offset(x1, y1),
-                    end = Offset(x2, y2),
-                    strokeWidth = paintState.strokeWidth,
-                    cap = mapStrokeCap(paintState.strokeCap),
-                    blendMode = paintState.blendMode,
-                )
+                val brush = paintState.brush
+                if (brush != null) {
+                    drawLine(
+                        brush = brush,
+                        start = Offset(x1, y1),
+                        end = Offset(x2, y2),
+                        strokeWidth = paintState.strokeWidth,
+                        cap = mapStrokeCap(paintState.strokeCap),
+                        pathEffect = paintState.pathEffect,
+                        alpha = paintState.alpha,
+                        colorFilter = paintState.colorFilter,
+                        blendMode = paintState.blendMode,
+                    )
+                } else {
+                    drawLine(
+                        color = paintState.effectiveColor(),
+                        start = Offset(x1, y1),
+                        end = Offset(x2, y2),
+                        strokeWidth = paintState.strokeWidth,
+                        cap = mapStrokeCap(paintState.strokeCap),
+                        pathEffect = paintState.pathEffect,
+                        colorFilter = paintState.colorFilter,
+                        blendMode = paintState.blendMode,
+                    )
+                }
             }
             is DrawOval -> {
-                val style =
-                    if (paintState.isStroke)
-                        Stroke(
-                            width = paintState.strokeWidth,
-                            cap = mapStrokeCap(paintState.strokeCap),
-                            join = mapStrokeJoin(paintState.strokeJoin),
-                        )
-                    else Fill
+                val style = paintState.toDrawStyle()
                 val data = op.readDataReflection()
                 val x1 = resolveFloat(data.x1Value, data.x1, read)
                 val y1 = resolveFloat(data.y1Value, data.y1, read)
@@ -483,19 +479,13 @@ private fun DrawScope.executeOperationsInPass(
                         topLeft = Offset(x1, y1),
                         size = Size(x2 - x1, y2 - y1),
                         style = style,
+                        colorFilter = paintState.colorFilter,
                         blendMode = paintState.blendMode,
                     )
                 }
             }
             is DrawRoundRect -> {
-                val style =
-                    if (paintState.isStroke)
-                        Stroke(
-                            width = paintState.strokeWidth,
-                            cap = mapStrokeCap(paintState.strokeCap),
-                            join = mapStrokeJoin(paintState.strokeJoin),
-                        )
-                    else Fill
+                val style = paintState.toDrawStyle()
                 val data = op.readDataReflection()
                 val v1 = resolveFloat(data.value1, data.v1, read)
                 val v2 = resolveFloat(data.value2, data.v2, read)
@@ -523,19 +513,13 @@ private fun DrawScope.executeOperationsInPass(
                         size = Size(v3 - v1, v4 - v2),
                         cornerRadius = CornerRadius(v5, v6),
                         style = style,
+                        colorFilter = paintState.colorFilter,
                         blendMode = paintState.blendMode,
                     )
                 }
             }
             is DrawSector -> {
-                val style =
-                    if (paintState.isStroke)
-                        Stroke(
-                            width = paintState.strokeWidth,
-                            cap = mapStrokeCap(paintState.strokeCap),
-                            join = mapStrokeJoin(paintState.strokeJoin),
-                        )
-                    else Fill
+                val style = paintState.toDrawStyle()
                 val data = op.readDataReflection()
                 val v1 = resolveFloat(data.value1, data.v1, read)
                 val v2 = resolveFloat(data.value2, data.v2, read)
@@ -567,19 +551,13 @@ private fun DrawScope.executeOperationsInPass(
                         topLeft = Offset(v1, v2),
                         size = Size(v3 - v1, v4 - v2),
                         style = style,
+                        colorFilter = paintState.colorFilter,
                         blendMode = paintState.blendMode,
                     )
                 }
             }
             is DrawArc -> {
-                val style =
-                    if (paintState.isStroke)
-                        Stroke(
-                            width = paintState.strokeWidth,
-                            cap = mapStrokeCap(paintState.strokeCap),
-                            join = mapStrokeJoin(paintState.strokeJoin),
-                        )
-                    else Fill
+                val style = paintState.toDrawStyle()
                 val data = op.readDataReflection()
                 val v1 = resolveFloat(data.value1, data.v1, read)
                 val v2 = resolveFloat(data.value2, data.v2, read)
@@ -611,6 +589,7 @@ private fun DrawScope.executeOperationsInPass(
                         topLeft = Offset(v1, v2),
                         size = Size(v3 - v1, v4 - v2),
                         style = style,
+                        colorFilter = paintState.colorFilter,
                         blendMode = paintState.blendMode,
                     )
                 }
@@ -658,14 +637,7 @@ private fun DrawScope.executeOperationsInPass(
                 val data = op.readDataReflection()
                 val pathId = derefId(data.id, read)
                 val path = remoteContext.mRemoteComposeState.getPath(pathId, data.start, data.end)
-                val style =
-                    if (paintState.isStroke)
-                        Stroke(
-                            width = paintState.strokeWidth,
-                            cap = mapStrokeCap(paintState.strokeCap),
-                            join = mapStrokeJoin(paintState.strokeJoin),
-                        )
-                    else Fill
+                val style = paintState.toDrawStyle()
                 val brush = paintState.brush
                 if (brush != null) {
                     drawPath(
@@ -950,14 +922,7 @@ private fun DrawScope.executeOperationsInPass(
                         start,
                         stop,
                     )
-                val style =
-                    if (paintState.isStroke)
-                        Stroke(
-                            width = paintState.strokeWidth,
-                            cap = mapStrokeCap(paintState.strokeCap),
-                            join = mapStrokeJoin(paintState.strokeJoin),
-                        )
-                    else Fill
+                val style = paintState.toDrawStyle()
                 val brush = paintState.brush
                 if (brush != null) {
                     drawPath(
@@ -1067,19 +1032,21 @@ private fun DrawScope.executeOperationsInPass(
                         }
                     }
                     val textPath =
-                        AndroidPath().apply {
+                        Path().apply {
                             addArc(
-                                centerX - finalRadius,
-                                centerY - finalRadius,
-                                centerX + finalRadius,
-                                centerY + finalRadius,
+                                Rect(
+                                    centerX - finalRadius,
+                                    centerY - finalRadius,
+                                    centerX + finalRadius,
+                                    centerY + finalRadius,
+                                ),
                                 finalStartAngle,
                                 sweepDegrees,
                             )
                         }
                     drawContext.canvas.nativeCanvas.drawTextOnPath(
                         full,
-                        textPath,
+                        textPath.asAndroidPath(),
                         0f,
                         0f,
                         nativePaint,
