@@ -40,6 +40,7 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchBlobHandle;
@@ -216,6 +217,9 @@ public final class AppSearchImpl implements Closeable {
     @VisibleForTesting
     static final int PRUNE_PACKAGE_USING_FULL_SET_SCHEMA_THRESHOLD = 20;
 
+    @VisibleForTesting
+    static final PersistType.@NonNull Code DEFAULT_PERSIST_TYPE = PersistType.Code.RECOVERY_PROOF;
+
     /** A GetResultSpec that uses projection to skip all properties. */
     private static final GetResultSpecProto GET_RESULT_SPEC_NO_PROPERTIES =
             GetResultSpecProto.newBuilder().addTypePropertyMasks(
@@ -327,7 +331,8 @@ public final class AppSearchImpl implements Closeable {
     private boolean mClosedLocked = false;
 
     /**
-     * Whether AppSearchImpl has mutated the database and needs to call {@link #persistToDisk}.
+     * Whether AppSearchImpl has mutated the database and needs to call {@link #persistToDisk} with
+     * the required type.
      *
      * <p>Since there are some internal logic (e.g. visibility document changes) here which
      * potentially mutates the database, {@link AppSearchImpl} has to provide a public method for
@@ -335,7 +340,8 @@ public final class AppSearchImpl implements Closeable {
      */
     // TODO(b/417463182): this is a temporary solution. In the future we might want to consider
     //   some other better implementations, e.g. listener or return value.
-    private final AtomicReference<Boolean> mNeedsPersistToDisk = new AtomicReference<>();
+    private final @NonNull AtomicReference<PersistType.Code> mNeedsPersistType =
+            new AtomicReference<>(PersistType.Code.UNKNOWN);
 
     /**
      * Creates and initializes an instance of {@link AppSearchImpl} which writes data to the given
@@ -390,7 +396,7 @@ public final class AppSearchImpl implements Closeable {
         mRevocableFileDescriptorStore = appSearchUserPlugins.getRevocableFileDescriptorStore();
         CallStats.Builder callStatsBuilder = appSearchUserPlugins.getCallStatsBuilder();
         InitializeStats.Builder initStatsBuilder = appSearchUserPlugins.getInitStatsBuilder();
-        mNeedsPersistToDisk.set(false);
+        getAndResetNeedsPersistType();
 
         // By default, we don't perform any retries.
         int maxInitRetries = 0;
@@ -469,7 +475,7 @@ public final class AppSearchImpl implements Closeable {
                 }
                 checkSuccess(initializeResultProto.getStatus());
                 if (hasDatabaseStateChangedAfterInit(initializeResultProto)) {
-                    mNeedsPersistToDisk.set(true);
+                    updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
                 }
 
                 if (Flags.enableAppSearchManageBlobFiles() && !mBlobFilesDir.exists()
@@ -744,13 +750,24 @@ public final class AppSearchImpl implements Closeable {
     }
 
     /**
-     * Gets whether AppSearch data needs to be flushed, and resets the flag to false atomically.
+     * Gets the flush type that AppSearch data needs, and resets it atomically.
      *
      * <p>The caller should call this method after any write APIs, and invoke {@link #persistToDisk}
-     * or schedule a background job for it if this method returns true.
+     * or schedule a background job for it according to the type.
      */
-    public boolean getAndResetNeedPersistToDisk() {
-        return mNeedsPersistToDisk.getAndSet(false);
+    @CanIgnoreReturnValue
+    public PersistType.@NonNull Code getAndResetNeedsPersistType() {
+        return mNeedsPersistType.getAndSet(PersistType.Code.UNKNOWN);
+    }
+
+    /** Updates the flush type if the new type has stronger flush level than the current one. */
+    @VisibleForTesting
+    void updateNeedsPersistType(PersistType.@NonNull Code newPersistType) {
+        mNeedsPersistType.updateAndGet(currPersistType -> {
+            int currLevel = getPersistTypeLevel(currPersistType);
+            int newLevel = getPersistTypeLevel(newPersistType);
+            return currLevel > newLevel ? currPersistType : newPersistType;
+        });
     }
 
     /**
@@ -773,7 +790,7 @@ public final class AppSearchImpl implements Closeable {
                 mRevocableFileDescriptorStore.revokeAll();
             }
             ResetResultProto unused = mIcingSearchEngineLocked.clearAndDestroy();
-            mNeedsPersistToDisk.set(false);
+            getAndResetNeedsPersistType();
             mClosedLocked = true;
         } catch (IOException e) {
             Log.w(TAG, "Error when clearAndDestroy AppSearchImpl.", e);
@@ -1224,7 +1241,7 @@ public final class AppSearchImpl implements Closeable {
                     || setSchemaResultProto.getHasIntegerIndexRestored()
                     || setSchemaResultProto.getHasQualifiedIdJoinIndexRestored()
                     || setSchemaResultProto.getHasEmbeddingIndexRestored()) {
-                mNeedsPersistToDisk.set(true);
+                updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
             }
         } catch (AppSearchException e) {
             // Swallow the exception for the incompatible change case. We will generate a failed
@@ -1757,9 +1774,9 @@ public final class AppSearchImpl implements Closeable {
                     mIcingSearchEngineLocked.batchPut(requestProto);
             // Put API may fail, but Icing has internal logic to delete the proto or rebuild index
             // after failure so we need PersistToDisk regardless of the result.
-            // TODO(b/417463182): add boolean field(s) into BatchPutResultProto indicating whether
-            //   ground truths and derived files have changed or not.
-            mNeedsPersistToDisk.set(true);
+            // TODO(b/417463182): add needsPersistType field into BatchPutResultProto and update the
+            //   type according to it instead of using DEFAULT_PERSIST_TYPE.
+            updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
             if (callStatsBuilder != null) {
                 callStatsBuilder
                         .addGetVmLatencyMillis(batchPutResultProto.getGetVmLatencyMs())
@@ -1954,9 +1971,9 @@ public final class AppSearchImpl implements Closeable {
             PutResultProto putResultProto = mIcingSearchEngineLocked.put(finalDocument);
             // Put API may fail, but Icing has internal logic to delete the proto or rebuild index
             // after failure so we need PersistToDisk regardless of the result.
-            // TODO(b/417463182): add boolean field(s) into PutResultProto indicating whether
-            //   ground truths and derived files have changed or not.
-            mNeedsPersistToDisk.set(true);
+            // TODO(b/417463182): add needsPersistType field into PutResultProto and update the type
+            //   according to it instead of using DEFAULT_PERSIST_TYPE.
+            updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
             LogUtil.piiTrace(
                     TAG, "putDocument, response", putResultProto.getStatus(), putResultProto);
 
@@ -2117,7 +2134,9 @@ public final class AppSearchImpl implements Closeable {
             PropertyProto.BlobHandleProto blobHandleProto =
                     BlobHandleToProtoConverter.toBlobHandleProto(handle);
             BlobProto result = mIcingSearchEngineLocked.openWriteBlob(blobHandleProto);
-            mNeedsPersistToDisk.set(true);
+            // TODO(b/417463182): add needsPersistType field into BlobProto and update the type
+            //   according to it instead of using DEFAULT_PERSIST_TYPE.
+            updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
             if (callStatsBuilder != null) {
                 callStatsBuilder
                         .addGetVmLatencyMillis(result.getGetVmLatencyMs())
@@ -2189,7 +2208,9 @@ public final class AppSearchImpl implements Closeable {
                                 result.getSerializedSize());
             }
             checkSuccess(result.getStatus());
-            mNeedsPersistToDisk.set(true);
+            // TODO(b/417463182): add needsPersistType field into BlobProto and update the type
+            //   according to it instead of using DEFAULT_PERSIST_TYPE.
+            updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
             if (Flags.enableAppSearchManageBlobFiles()) {
                 File blobFileToRemove = getSafeBlobFileLocked(result.getFileName());
                 if (!blobFileToRemove.delete()) {
@@ -2232,7 +2253,9 @@ public final class AppSearchImpl implements Closeable {
         BlobProto result = mIcingSearchEngineLocked.openWriteBlob(
                 BlobHandleToProtoConverter.toBlobHandleProto(handle));
         checkSuccess(result.getStatus());
-        mNeedsPersistToDisk.set(true);
+        // TODO(b/417463182): add needsPersistType field into BlobProto and update the type
+        //   according to it instead of using DEFAULT_PERSIST_TYPE.
+        updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
         File blobFile = getSafeBlobFileLocked(result.getFileName());
         boolean fileExists = blobFile.exists();
         boolean digestMatches = false;
@@ -2264,7 +2287,9 @@ public final class AppSearchImpl implements Closeable {
             BlobProto removeResult = mIcingSearchEngineLocked.removeBlob(
                     BlobHandleToProtoConverter.toBlobHandleProto(handle));
             checkSuccess(removeResult.getStatus());
-            mNeedsPersistToDisk.set(true);
+            // TODO(b/417463182): add needsPersistType field into BlobProto and update the type
+            //   according to it instead of using DEFAULT_PERSIST_TYPE.
+            updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
 
             if (!fileExists) {
                 throw new AppSearchException(AppSearchResult.RESULT_NOT_FOUND,
@@ -2332,7 +2357,9 @@ public final class AppSearchImpl implements Closeable {
                                 result.getSerializedSize());
             }
             checkSuccess(result.getStatus());
-            mNeedsPersistToDisk.set(true);
+            // TODO(b/417463182): add needsPersistType field into BlobProto and update the type
+            //   according to it instead of using DEFAULT_PERSIST_TYPE.
+            updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
             // The blob is committed and sealed, revoke the sent pfd for writing.
             mRevocableFileDescriptorStore.revokeFdForWrite(packageName, handle);
         } finally {
@@ -3757,9 +3784,12 @@ public final class AppSearchImpl implements Closeable {
             checkSuccess(resultProto.getStatus());
 
             // PersistToDisk is needed if any document was purged.
+            // TODO(b/417463182): add needsPersistType field into HandleExpiredDocumentsResultProto
+            //   and update the type according to it instead of checking other fields or using
+            //   DEFAULT_PERSIST_TYPE.
             if (resultProto.getNumExpiredDocuments() > 0
                     || resultProto.getNumPropagatedDeletedDocuments() > 0) {
-                mNeedsPersistToDisk.set(true);
+                updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
             }
 
             return resultProto;
@@ -3804,7 +3834,10 @@ public final class AppSearchImpl implements Closeable {
             // PersistToDisk is needed if any iterations were performed, meaning the index
             // was modified.
             if (resultProto.getActualIterations() > 0) {
-                mNeedsPersistToDisk.set(true);
+                // TODO(b/417463182): add needsPersistType field into MaintainAnnIndexResultProto
+                //   and update the type according to it instead of checking other field(s) or
+                //   using DEFAULT_PERSIST_TYPE.
+                updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
             }
 
             return resultProto;
@@ -3864,7 +3897,9 @@ public final class AppSearchImpl implements Closeable {
             checkSuccess(result.getStatus());
 
             // Report usage changes document store derived files, so persistToDisk is needed.
-            mNeedsPersistToDisk.set(true);
+            // TODO(b/417463182): add needsPersistType field into ReportUsageResultProto and update
+            //   the type according to it instead of using DEFAULT_PERSIST_TYPE.
+            updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
         } finally {
             logWriteOperationLatencyLocked(totalLatencyStartMillis,
                     javaLockAcquisitionEndTimeMillis,
@@ -3960,7 +3995,9 @@ public final class AppSearchImpl implements Closeable {
                         removeStatsBuilder);
             }
             checkSuccess(deleteResultProto.getStatus());
-            mNeedsPersistToDisk.set(true);
+            // TODO(b/417463182): add needsPersistType field into DeleteResultProto and update the
+            //   type according to it instead of using DEFAULT_PERSIST_TYPE.
+            updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
 
             // Update derived maps
             mDocumentLimiterLocked.reportDocumentsRemoved(packageName, /*numDocumentsDeleted=*/1);
@@ -4148,7 +4185,9 @@ public final class AppSearchImpl implements Closeable {
         // not in the DB because it was not there or was successfully deleted.
         checkCodeOneOf(deleteResultProto.getStatus(),
                 StatusProto.Code.OK, StatusProto.Code.NOT_FOUND);
-        mNeedsPersistToDisk.set(true);
+        // TODO(b/417463182): add needsPersistType field into DeleteByQueryResultProto and update
+        //   the type according to it instead of using DEFAULT_PERSIST_TYPE.
+        updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
 
         // Update derived maps
         int numDocumentsDeleted =
@@ -4593,7 +4632,14 @@ public final class AppSearchImpl implements Closeable {
                                 (int) (SystemClock.elapsedRealtime() - totalLatencyStartMillis));
             }
             checkSuccess(persistToDiskResultProto.getStatus());
-            mNeedsPersistToDisk.set(false);
+            mNeedsPersistType.updateAndGet(currNeedsPersistType -> {
+                int currNeedsPersistLevel = getPersistTypeLevel(currNeedsPersistType);
+                int completedPersistLevel = getPersistTypeLevel(persistType);
+                // Reset mNeedsPersistType ONLY IF persistToDisk was completed with persistType
+                // level no lower than the current mNeedsPersistType's level.
+                return completedPersistLevel >= currNeedsPersistLevel ? PersistType.Code.UNKNOWN
+                        : currNeedsPersistType;
+            });
         } finally {
             logWriteOperationLatencyLocked(totalLatencyStartMillis,
                     javaLockAcquisitionEndTimeMillis,
@@ -4707,7 +4753,8 @@ public final class AppSearchImpl implements Closeable {
 
                     // Determine whether it succeeded.
                     checkSuccess(setSchemaResultProto.getStatus());
-                    mNeedsPersistToDisk.set(true);
+                    // TODO(b/417463182): switch to use needsPersistType in setSchemaResultProto.
+                    updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
                 }
                 successfullyDeletedData = true;
             }
@@ -4785,7 +4832,8 @@ public final class AppSearchImpl implements Closeable {
 
         // Determine whether it succeeded.
         checkSuccess(setSchemaResultProto.getStatus());
-        mNeedsPersistToDisk.set(true);
+        // TODO(b/417463182): switch to use needsPersistType in setSchemaResultProto.
+        updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
     }
 
     /**
@@ -4867,7 +4915,9 @@ public final class AppSearchImpl implements Closeable {
         }
 
         checkSuccess(resetResultProto.getStatus());
-        mNeedsPersistToDisk.set(true);
+        // TODO(b/417463182): add needsPersistType field into ResetResultProto and update the type
+        //   according to it instead of using DEFAULT_PERSIST_TYPE.
+        updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
 
         // Delete all blob files if AppSearch manages them.
         deleteBlobFilesLocked();
@@ -5484,6 +5534,26 @@ public final class AppSearchImpl implements Closeable {
             return mIcingSearchEngineLocked.getAllBlobInfos();
         } finally {
             mReadWriteLock.readLock().unlock();
+        }
+    }
+
+    /** Gets the flush guarantee level of the given type. Larger level means stronger guarantee. */
+    private static int getPersistTypeLevel(PersistType.@NonNull Code persistType) {
+        switch (persistType) {
+            case LITE:
+                return 1;
+            case RECOVERY_PROOF:
+                // fall through
+            case SHUTDOWN:
+                return 2;
+            case FULL:
+                // fall through
+            case DESTRUCTOR:
+                return 3;
+            case UNKNOWN:
+                // fall through
+            default:
+                return 0;
         }
     }
 
