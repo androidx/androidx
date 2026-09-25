@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import androidx.build.IosMetalHelper
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.apache.commons.io.FileUtils
@@ -23,8 +24,6 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 plugins {
     id("AndroidXPlugin")
 }
-
-evaluationDependsOn(":ink:ink-storage")
 
 androidXMultiplatform {
     androidLibrary {
@@ -71,33 +70,7 @@ androidXMultiplatform {
     }
 }
 
-interface InjectedExecOps {
-    @Inject
-    ExecOperations getExecOps()
-}
-
-tasks.named("iosSimulatorArm64Test") {
-    // Metal renderer does not work on the simulator if it's started with
-    // --standalone, which is the default. If that is disabled, there needs to
-    // be some setup/teardown to boot and shut down the simulator. That's not
-    // currently handled by the KMP Gradle Plugin, see
-    // https://youtrack.jetbrains.com/issue/KMT-2955.
-    mustRunAfter(":ink:ink-storage:iosSimulatorArm64Test")
-    standalone = false
-    def injected = project.objects.newInstance(InjectedExecOps)
-    doFirst {
-        injected.execOps.exec {
-            commandLine "xcrun", "simctl", "boot", device.get()
-            ignoreExitValue = true
-        }
-    }
-    doLast {
-        injected.execOps.exec {
-            commandLine "xcrun", "simctl", "shutdown", device.get()
-            ignoreExitValue = true
-        }
-    }
-}
+IosMetalHelper.enableIosMetalSupport(project, tasks.named("iosSimulatorArm64Test"))
 
 // Put resources into the bundle, so that MetalRendererTest can read them with NSBundle.
 // Technique copied from room3/integration-tests/multiplatformtestapp/build.gradle
