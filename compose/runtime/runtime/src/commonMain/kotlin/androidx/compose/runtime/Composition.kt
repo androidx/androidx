@@ -1595,13 +1595,36 @@ internal object ScopeInvalidated
 internal class CompositionObserverHolder(
     var observer: CompositionObserver? = null,
     var root: Boolean = false,
-    private val parent: CompositionContext,
+    parent: CompositionContext,
 ) {
+    /** Resolved once, as [CompositionContext.observerHolder] never changes for a given parent. */
+    private val parentHolder: CompositionObserverHolder? = parent.observerHolder
+
+    /** The observer pinned by [pin] for the current composition pass, returned from [current]. */
+    var pinnedObserver: CompositionObserver? = null
+        private set
+
+    /** True between [pin] and [unpin], even if the pinned observer is `null`. */
+    private var pinned = false
+
+    /** Resolves [current] and keeps returning it from [current] until [unpin] is called. */
+    fun pin(): CompositionObserver? {
+        val observer = current()
+        pinnedObserver = observer
+        pinned = true
+        return observer
+    }
+
+    fun unpin() {
+        pinnedObserver = null
+        pinned = false
+    }
+
     fun current(): CompositionObserver? {
+        if (pinned) return pinnedObserver
         return if (root) {
             observer
         } else {
-            val parentHolder = parent.observerHolder
             val parentObserver = parentHolder?.observer
             if (parentObserver != observer) {
                 observer = parentObserver

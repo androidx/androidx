@@ -18,6 +18,8 @@ package androidx.compose.runtime
 
 import androidx.compose.runtime.mock.ComposerToUse
 import androidx.compose.runtime.mock.Text
+import androidx.compose.runtime.mock.View
+import androidx.compose.runtime.mock.ViewApplier
 import androidx.compose.runtime.mock.compositionTest
 import androidx.compose.runtime.mock.expectChanges
 import androidx.compose.runtime.mock.revalidate
@@ -63,6 +65,31 @@ class CompositionObserverTests {
         override fun onReadInScope(scope: RecomposeScope, value: Any) {}
 
         override fun onScopeInvalidated(scope: RecomposeScope, value: Any?) {}
+    }
+
+    private class ReadObserver : CompositionObserver {
+        val reads = mutableListOf<Any>()
+        var scopeEvents = 0
+
+        override fun onBeginComposition(composition: ObservableComposition) {}
+
+        override fun onEndComposition(composition: ObservableComposition) {}
+
+        override fun onScopeEnter(scope: RecomposeScope) {
+            scopeEvents++
+        }
+
+        override fun onScopeExit(scope: RecomposeScope) {
+            scopeEvents++
+        }
+
+        override fun onReadInScope(scope: RecomposeScope, value: Any) {
+            reads += value
+        }
+
+        override fun onScopeInvalidated(scope: RecomposeScope, value: Any?) {}
+
+        override fun onScopeDisposed(scope: RecomposeScope) {}
     }
 
     @Test
@@ -628,6 +655,105 @@ class CompositionObserverTests {
     }
 
     @Test
+    fun observeComposition_observeSubcompose_replaced() = compositionTest {
+        class TestObserver : CompositionObserver {
+            val compositionsSeen = mutableSetOf<ObservableComposition>()
+            var beginCount = 0
+
+            override fun onBeginComposition(composition: ObservableComposition) {
+                compositionsSeen += composition
+                beginCount++
+            }
+
+            override fun onEndComposition(composition: ObservableComposition) {}
+
+            override fun onScopeEnter(scope: RecomposeScope) {}
+
+            override fun onScopeExit(scope: RecomposeScope) {}
+
+            override fun onReadInScope(scope: RecomposeScope, value: Any) {}
+
+            override fun onScopeDisposed(scope: RecomposeScope) {}
+
+            override fun onScopeInvalidated(scope: RecomposeScope, value: Any?) {}
+        }
+
+        var data by mutableStateOf(0)
+        var seen = data
+        compose {
+            Text("Root: $data")
+
+            TestSubcomposition { seen = data }
+        }
+
+        val composition = composition ?: error("No composition found")
+        val observer1 = TestObserver()
+        composition.setObserver(observer1)
+        data++
+        expectChanges()
+
+        assertEquals(data, seen)
+        assertEquals(2, observer1.compositionsSeen.size)
+        val lastBeginCountOne = observer1.beginCount
+
+        // Replace the root observer without disposing the first one.
+        val observer2 = TestObserver()
+        composition.setObserver(observer2)
+        data++
+        expectChanges()
+
+        assertEquals(data, seen)
+        assertEquals(lastBeginCountOne, observer1.beginCount)
+        assertEquals(2, observer2.compositionsSeen.size)
+    }
+
+    @Test
+    fun observeComposition_insertMovableContent() = compositionTest {
+        var depth = 0
+        var scopeEventsOutsideComposition = 0
+        val observer =
+            object : CompositionObserver {
+                override fun onBeginComposition(composition: ObservableComposition) {
+                    depth++
+                }
+
+                override fun onEndComposition(composition: ObservableComposition) {
+                    depth--
+                }
+
+                override fun onScopeEnter(scope: RecomposeScope) {
+                    if (depth == 0) scopeEventsOutsideComposition++
+                }
+
+                override fun onScopeExit(scope: RecomposeScope) {
+                    if (depth == 0) scopeEventsOutsideComposition++
+                }
+
+                override fun onReadInScope(scope: RecomposeScope, value: Any) {}
+
+                override fun onScopeInvalidated(scope: RecomposeScope, value: Any?) {}
+
+                override fun onScopeDisposed(scope: RecomposeScope) {}
+            }
+
+        val content = movableContentOf { Text("Movable") }
+        var inSubcomposition by mutableStateOf(false)
+
+        compose(observer) {
+            if (!inSubcomposition) content()
+            ViewSubcomposition { if (inSubcomposition) content() }
+        }
+
+        // Moving the content into the subcomposition inserts it with insertMovableContent, which
+        // must report its scopes between onBeginComposition and onEndComposition.
+        inSubcomposition = true
+        expectChanges()
+
+        assertEquals(0, depth)
+        assertEquals(0, scopeEventsOutsideComposition)
+    }
+
+    @Test
     fun observeDataChanges() = compositionTest {
         val data = Array(4) { mutableStateOf(0) }
         val expectedScopes = Array<RecomposeScope?>(4) { null }
@@ -803,4 +929,89 @@ class CompositionObserverTests {
 
         revalidate()
     }
+
+    @Test
+    fun replaceObserverDuringComposition() = compositionTest {
+        val first = mutableStateOf(0)
+        val second = mutableStateOf(0)
+        val firstObserver = ReadObserver()
+        val secondObserver = ReadObserver()
+        var replaceObserver = false
+
+        compose {
+            Text("${first.value}")
+            if (replaceObserver) {
+                composition?.setObserver(secondObserver)
+            }
+            Text("${second.value}")
+        }
+
+        val composition = composition ?: error("No composition")
+        composition.setObserver(firstObserver)
+
+        val expectedReads = listOf<Any>(first, second)
+
+        // Replace the observer in the middle of the pass. The observer is resolved once per pass,
+        // so reads after the replacement are still reported to the first observer.
+        replaceObserver = true
+        first.value++
+        second.value++
+        expectChanges()
+
+        assertEquals(expectedReads, firstObserver.reads)
+        assertEquals(emptyList(), secondObserver.reads)
+        assertEquals(0, secondObserver.scopeEvents)
+
+        // The replacement takes effect on the next pass.
+        replaceObserver = false
+        first.value++
+        second.value++
+        expectChanges()
+
+        assertEquals(expectedReads, firstObserver.reads)
+        assertEquals(expectedReads, secondObserver.reads)
+    }
+
+    @Test
+    fun setObserverDuringComposition() = compositionTest {
+        val first = mutableStateOf(0)
+        val second = mutableStateOf(0)
+        val observer = ReadObserver()
+        var setObserver = false
+
+        compose {
+            Text("${first.value}")
+            if (setObserver) {
+                composition?.setObserver(observer)
+            }
+            Text("${second.value}")
+        }
+
+        // Set the observer in the middle of a pass that started without one. It takes effect on
+        // the next pass.
+        setObserver = true
+        first.value++
+        second.value++
+        expectChanges()
+
+        assertEquals(emptyList(), observer.reads)
+        assertEquals(0, observer.scopeEvents)
+
+        setObserver = false
+        first.value++
+        second.value++
+        expectChanges()
+
+        assertEquals(listOf<Any>(first, second), observer.reads)
+    }
+}
+
+@Composable
+private fun ViewSubcomposition(content: @Composable () -> Unit) {
+    val host = View().also { it.name = "SubcomposeHost" }
+    ComposeNode<View, ViewApplier>(factory = { host }, update = {})
+    val parent = rememberCompositionContext()
+    val composition = Composition(ViewApplier(host), parent)
+    composition.setContent(content)
+    DisposableEffect(Unit) { onDispose { composition.dispose() } }
 }
