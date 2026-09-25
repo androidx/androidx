@@ -127,20 +127,7 @@ public class RemoteCanvas(private val internalCanvas: RecordingCanvas) :
      * @param pivot The pivot point around which to rotate.
      */
     public fun rotate(degrees: RemoteFloat, pivot: RemoteOffset) {
-        // Temporarily use Android graphics Canvas rotate, with does translate/rotate/translate
         internalCanvas.rotate(degrees, pivot.x, pivot.y)
-    }
-
-    /**
-     * Rotates the canvas by [degrees] around the pivot point ([centerX], [centerY]).
-     *
-     * @param degrees The angle of rotation in degrees.
-     * @param centerX The x-coordinate of the pivot point.
-     * @param centerY The y-coordinate of the pivot point.
-     */
-    public fun rotate(degrees: RemoteFloat, centerX: RemoteFloat, centerY: RemoteFloat) {
-        // Temporarily use Android graphics Canvas rotate
-        internalCanvas.rotate(degrees.floatId, centerX.floatId, centerY.floatId)
     }
 
     private fun recordRenderingOp(action: () -> Unit): CanvasOperationBuffer.SpanOp {
