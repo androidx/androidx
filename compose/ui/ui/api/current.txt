@@ -3707,6 +3707,34 @@ package androidx.compose.ui.lighting {
     method @BytecodeOnly public androidx.compose.ui.lighting.DirectionalLight fromAngles-Iv8Zu3U(long, float, float, @FloatRange(from=0.0) float);
   }
 
+  public final class IlluminationModifierKt {
+    method @KotlinOnly public static androidx.compose.ui.Modifier illuminate(androidx.compose.ui.Modifier, optional androidx.compose.ui.graphics.BlendMode blendMode, kotlin.jvm.functions.Function1<androidx.compose.ui.lighting.IlluminationScope,kotlin.Unit> block);
+    method @KotlinOnly public static androidx.compose.ui.Modifier illuminate(androidx.compose.ui.Modifier, java.util.List<androidx.compose.ui.lighting.Light> lights, androidx.compose.ui.lighting.SurfaceMaterial surfaceMaterial, androidx.compose.ui.lighting.SurfaceGeometrySpec surfaceGeometrySpec, optional androidx.compose.ui.graphics.BlendMode blendMode);
+    method @BytecodeOnly public static androidx.compose.ui.Modifier illuminate-TPEHhCM(androidx.compose.ui.Modifier, int, kotlin.jvm.functions.Function1<? super androidx.compose.ui.lighting.IlluminationScope!,kotlin.Unit!>);
+    method @BytecodeOnly public static androidx.compose.ui.Modifier! illuminate-TPEHhCM$default(androidx.compose.ui.Modifier!, int, kotlin.jvm.functions.Function1!, int, Object!);
+    method @BytecodeOnly public static androidx.compose.ui.Modifier illuminate-UXdrQoc(androidx.compose.ui.Modifier, java.util.List<? extends androidx.compose.ui.lighting.Light!>, androidx.compose.ui.lighting.SurfaceMaterial, androidx.compose.ui.lighting.SurfaceGeometrySpec, int);
+    method @BytecodeOnly public static androidx.compose.ui.Modifier! illuminate-UXdrQoc$default(androidx.compose.ui.Modifier!, java.util.List!, androidx.compose.ui.lighting.SurfaceMaterial!, androidx.compose.ui.lighting.SurfaceGeometrySpec!, int, int, Object!);
+  }
+
+  public final class IlluminationScope {
+    method @InaccessibleFromKotlin public java.util.List<androidx.compose.ui.lighting.Light> getLights();
+    method @InaccessibleFromKotlin public androidx.compose.ui.lighting.SurfaceGeometrySpec getSurfaceGeometrySpec();
+    method @InaccessibleFromKotlin public androidx.compose.ui.lighting.SurfaceMaterial getSurfaceMaterial();
+    method @InaccessibleFromKotlin public void setLights(java.util.List<? extends androidx.compose.ui.lighting.Light>);
+    method @InaccessibleFromKotlin public void setSurfaceGeometrySpec(androidx.compose.ui.lighting.SurfaceGeometrySpec);
+    method @InaccessibleFromKotlin public void setSurfaceMaterial(androidx.compose.ui.lighting.SurfaceMaterial);
+    property public java.util.List<androidx.compose.ui.lighting.Light> lights;
+    property public androidx.compose.ui.lighting.SurfaceGeometrySpec surfaceGeometrySpec;
+    property public androidx.compose.ui.lighting.SurfaceMaterial surfaceMaterial;
+    field public static final androidx.compose.ui.lighting.IlluminationScope.Companion Companion;
+  }
+
+  public static final class IlluminationScope.Companion {
+    method @InaccessibleFromKotlin public int getMaxLightsAllowed();
+    method public boolean isSupported();
+    property public int MaxLightsAllowed;
+  }
+
   @androidx.compose.runtime.Stable public abstract class Light {
     method @BytecodeOnly public abstract long getColor-0d7_KjU();
     method @InaccessibleFromKotlin public abstract float getIntensity();
@@ -3714,6 +3742,10 @@ package androidx.compose.ui.lighting {
     property public abstract androidx.compose.ui.graphics.Color color;
     property public abstract float intensity;
     property public androidx.compose.ui.lighting.LightPosition position;
+  }
+
+  public final class LightAnchorModifierKt {
+    method public static androidx.compose.ui.Modifier lightAnchor(androidx.compose.ui.Modifier, androidx.compose.ui.lighting.LightAnchorState state);
   }
 
   @androidx.compose.runtime.Stable public final class LightAnchorState {

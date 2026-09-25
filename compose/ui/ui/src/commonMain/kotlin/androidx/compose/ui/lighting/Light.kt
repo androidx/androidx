@@ -107,9 +107,9 @@ public abstract class LightPosition internal constructor() {
     }
 
     /**
-     * A position measured from the composable that [state] is attached to with
-     * Modifier.lightAnchor. The anchor must be in the same composition hierarchy as the lit
-     * composable. An anchor in a different Popup, Dialog or ComposeView contributes no light.
+     * A position measured from the composable that [state] is attached to with [lightAnchor]. The
+     * anchor must be in the same composition hierarchy as the lit composable. An anchor in a
+     * different Popup, Dialog or ComposeView contributes no light.
      *
      * The light follows that composable wherever it is laid out, without either composable needing
      * to know about the other. Until the anchored composable has been placed the position cannot be
@@ -118,6 +118,7 @@ public abstract class LightPosition internal constructor() {
      * @param state the anchor to position against. Two anchored positions are equal only when they
      *   share the same state instance.
      * @param offset position of the light relative to the anchored composable's top-left corner.
+     * @sample androidx.compose.ui.samples.LightAnchorSample
      */
     public class Anchored(
         public val state: LightAnchorState,
@@ -324,6 +325,7 @@ private fun calculateTargetOffsetFromAngles(
  * @param directionZ the `z` component of the vector pointing towards the light. Positive values are
  *   towards the viewer. Larger values light the surface more evenly, as the light moves towards
  *   being head on.
+ * @sample androidx.compose.ui.samples.IlluminateWithDirectionalLightSample
  */
 @Stable
 public class DirectionalLight(
@@ -431,6 +433,7 @@ public class DirectionalLight(
  * @param intensity multiplier applied to [color]. A light with an intensity of `0` contributes
  *   nothing.
  * @throws IllegalArgumentException if [elevation] or [falloffRadius] is [Dp.Unspecified].
+ * @sample androidx.compose.ui.samples.IlluminateSample
  */
 @Stable
 public class PointLight(
@@ -530,6 +533,7 @@ public class PointLight(
  *   nothing.
  * @throws IllegalArgumentException if [targetOffset] is [DpOffset.Unspecified], or if [elevation]
  *   or [falloffRadius] is [Dp.Unspecified].
+ * @sample androidx.compose.ui.samples.IlluminateWithSpotLightSample
  */
 @Stable
 public class SpotLight(
