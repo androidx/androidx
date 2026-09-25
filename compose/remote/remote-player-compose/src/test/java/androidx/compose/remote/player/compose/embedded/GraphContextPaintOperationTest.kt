@@ -30,6 +30,12 @@ import androidx.compose.remote.core.operations.layout.CanvasOperations
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -206,5 +212,96 @@ class GraphContextPaintOperationTest {
         assertThat(registered).isNotNull()
         assertThat(registered!!.width).isEqualTo(64)
         assertThat(registered.height).isEqualTo(48)
+    }
+
+    @Test
+    fun buildFontVariationSettingsPreservesWeightAndStyleWhenNotExplicit() {
+        val state = SnapshotRemoteComposeState()
+        state.cacheData(1, "wdth")
+        state.cacheData(2, "wght")
+        val graphContext =
+            GraphContext(
+                realState = state,
+                computedOps = mutableIntObjectMapOf(),
+                timeMillis = mutableFloatStateOf(0f),
+                clock = RemoteClock.SYSTEM,
+            )
+
+        // Only "wdth" is in fontAxis -> "wght" (from FontWeight.Bold) and "ital" (from Italic) are
+        // appended so variable-font resolution does not revert to 400/upright.
+        val settingsWithWdthOnly =
+            buildFontVariationSettings(
+                fontAxis = intArrayOf(1),
+                fontAxisValues = floatArrayOf(110f),
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Italic,
+                context = graphContext,
+            )
+        assertThat(settingsWithWdthOnly).isNotNull()
+        val byTag =
+            settingsWithWdthOnly!!.settings.associate { it.axisName to it.toVariationValue(null) }
+        assertThat(byTag["wdth"]).isEqualTo(110f)
+        assertThat(byTag["wght"]).isEqualTo(700f)
+        assertThat(byTag["ital"]).isEqualTo(1f)
+
+        // Explicit "wght" in fontAxis is preserved and not overwritten by fontWeight.
+        val settingsWithExplicitWght =
+            buildFontVariationSettings(
+                fontAxis = intArrayOf(2),
+                fontAxisValues = floatArrayOf(550f),
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Normal,
+                context = graphContext,
+            )
+        assertThat(settingsWithExplicitWght).isNotNull()
+        val explicitByTag =
+            settingsWithExplicitWght!!.settings.associate {
+                it.axisName to it.toVariationValue(null)
+            }
+        assertThat(explicitByTag["wght"]).isEqualTo(550f)
+        assertThat(explicitByTag.containsKey("ital")).isFalse()
+    }
+
+    @Test
+    fun resolveCoreTextLineHeightUsesEffectiveFontSizeAndAutosizeRelativeEm() {
+        val density = Density(density = 2f, fontScale = 1f)
+
+        // Default multiplier=1f, add=0f -> Unspecified
+        assertThat(
+                resolveCoreTextLineHeight(
+                    fontSize = 40f,
+                    lineHeightMultiplier = 1f,
+                    lineHeightAdd = 0f,
+                    autosize = false,
+                    density = density,
+                )
+            )
+            .isEqualTo(TextUnit.Unspecified)
+
+        // Fixed font size (e.g. from PaintBundle = 40px at density 2 -> 20sp) * 1.5 multiplier =
+        // 30sp
+        assertThat(
+                resolveCoreTextLineHeight(
+                    fontSize = 40f,
+                    lineHeightMultiplier = 1.5f,
+                    lineHeightAdd = 0f,
+                    autosize = false,
+                    density = density,
+                )
+            )
+            .isEqualTo(30.sp)
+
+        // Autosize with multiplier and no additive offset -> relative em so lineHeight scales with
+        // the auto-sized font size.
+        assertThat(
+                resolveCoreTextLineHeight(
+                    fontSize = 36f,
+                    lineHeightMultiplier = 1.25f,
+                    lineHeightAdd = 0f,
+                    autosize = true,
+                    density = density,
+                )
+            )
+            .isEqualTo(1.25.em)
     }
 }
