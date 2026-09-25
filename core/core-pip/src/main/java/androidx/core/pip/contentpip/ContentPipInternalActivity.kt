@@ -20,6 +20,7 @@ import android.app.Activity
 import android.app.PictureInPictureParams
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 
@@ -56,18 +57,23 @@ internal class ContentPipInternalActivity : ComponentActivity() {
         super.onStart()
         if (!hasRequestedEnterPip) {
             hasRequestedEnterPip = true
-            // Trigger PiP from the backgrounded state
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val entered = enterPictureInPictureMode(pictureInPictureParams)
-                if (!entered) {
-                    // The enterPictureInPictureMode attempt failed, finish content PiP process
-                    // as if PiP is closed.
-                    ContentPipManager.onTeardown(true)
-                    finishAndRemoveTask()
-                    return
+            try {
+                // Trigger PiP from the backgrounded state
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val entered = enterPictureInPictureMode(pictureInPictureParams)
+                    if (!entered) {
+                        // The enterPictureInPictureMode attempt failed, finish content PiP process
+                        // as if PiP is closed.
+                        teardown(isDismissed = true)
+                        return
+                    }
+                } else {
+                    @Suppress("DEPRECATION") enterPictureInPictureMode()
                 }
-            } else {
-                @Suppress("DEPRECATION") enterPictureInPictureMode()
+            } catch (e: IllegalStateException) {
+                Log.w(TAG, "enterPictureInPictureMode failed", e)
+                teardown(isDismissed = true)
+                return
             }
         }
         isStopped = false
@@ -75,8 +81,12 @@ internal class ContentPipInternalActivity : ComponentActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun setPictureInPictureParams(params: PictureInPictureParams) {
-        super.setPictureInPictureParams(params)
-        pictureInPictureParams = params
+        try {
+            super.setPictureInPictureParams(params)
+            pictureInPictureParams = params
+        } catch (e: IllegalStateException) {
+            Log.w(TAG, "setPictureInPictureParams failed", e)
+        }
     }
 
     override fun onPictureInPictureModeChanged(
@@ -87,14 +97,18 @@ internal class ContentPipInternalActivity : ComponentActivity() {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
         if (!isInPictureInPictureMode) {
             // Expanding, teardown the task
-            ContentPipManager.onTeardown(isStopped)
-            finishAndRemoveTask()
+            teardown(isDismissed = isStopped)
         }
     }
 
     override fun onStop() {
         super.onStop()
         isStopped = true
+    }
+
+    private fun teardown(isDismissed: Boolean) {
+        ContentPipManager.onTeardown(isDismissed)
+        finishAndRemoveTask()
     }
 
     private fun applyZeroTransitions() {
@@ -104,5 +118,9 @@ internal class ContentPipInternalActivity : ComponentActivity() {
         } else {
             @Suppress("DEPRECATION") overridePendingTransition(0, 0)
         }
+    }
+
+    private companion object {
+        private const val TAG = "ContentPipInternalActivity"
     }
 }
