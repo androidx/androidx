@@ -20,6 +20,9 @@ import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_HOVER_ENTER
+import android.view.MotionEvent.ACTION_HOVER_EXIT
+import android.view.MotionEvent.ACTION_HOVER_MOVE
 import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_OUTSIDE
 import android.view.MotionEvent.ACTION_POINTER_DOWN
@@ -29,10 +32,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewParent
 import androidx.compose.runtime.remember
+import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastAll
@@ -98,6 +103,7 @@ public class RequestDisallowInterceptTouchEvent : (Boolean) -> Unit {
  * Similar to the 2 argument overload of [pointerInteropFilter], but connects directly to an
  * [AndroidViewHolder] for more seamless interop with Android.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 internal fun Modifier.pointerInteropFilter(view: AndroidViewHolder): Modifier {
     val filter = PointerInteropFilter()
     filter.onTouchEvent = { motionEvent ->
@@ -109,9 +115,27 @@ internal fun Modifier.pointerInteropFilter(view: AndroidViewHolder): Modifier {
             ACTION_POINTER_UP,
             ACTION_OUTSIDE,
             ACTION_CANCEL -> view.dispatchTouchEvent(motionEvent)
-            // ACTION_HOVER_ENTER,
-            // ACTION_HOVER_MOVE,
-            // ACTION_HOVER_EXIT,
+            ACTION_HOVER_ENTER,
+            ACTION_HOVER_MOVE,
+            ACTION_HOVER_EXIT -> {
+                val owner = view.layoutNode.owner as? AndroidComposeView
+                // In AndroidComposeView.dispatchHoverEvent(), all hover MotionEvents (including
+                // finger touch exploration and hardware mouse/stylus hover) are first sent to
+                // AndroidComposeViewAccessibilityDelegateCompat.dispatchHoverEvent(). When touch
+                // exploration is active, the accessibility delegate acts as the sole dispatcher of
+                // hover events to androidViewsHandler: it forwards hover to uncovered interop views
+                // and blocks hover when covered by Compose semantics nodes. Returning false here
+                // avoids bypassing non-pointer-input Compose semantics overlays (e.g. Text) and
+                // prevents duplicate hover dispatches to uncovered interop views.
+                if (
+                    AndroidComposeUiFlags.isInteropHoverZOrderEnabled &&
+                        owner?.isTouchExplorationEnabled == true
+                ) {
+                    false
+                } else {
+                    view.dispatchGenericMotionEvent(motionEvent)
+                }
+            }
             // ACTION_BUTTON_PRESS,
             // ACTION_BUTTON_RELEASE,
             else -> view.dispatchGenericMotionEvent(motionEvent)
