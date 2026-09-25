@@ -115,6 +115,21 @@ class ItemSnapshotListFlowTest {
     }
 
     @Test
+    fun appendBeforeRefresh() {
+        val pager = Pager(config, pagingSourceFactory = { TestPagingSource(items = emptyList()) })
+
+        testScope.runTest {
+            val result = collectOnPager(pager.flow)
+            pager.append()
+            advanceUntilIdle()
+            val list = result.loadedLists.firstOrNull()
+            assertThat(list).isEmpty()
+
+            result.job.cancel()
+        }
+    }
+
+    @Test
     fun prepend() {
         val pager = Pager(config, initialKey = 50, pagingSourceFactory = pagingSourceFactory)
 
@@ -140,6 +155,21 @@ class ItemSnapshotListFlowTest {
             assertThat(result.loadedLists.last().items)
                 .containsExactly(46, 47, 48, 49, 50, 51, 52, 53, 54)
                 .inOrder()
+
+            result.job.cancel()
+        }
+    }
+
+    @Test
+    fun prependBeforeRefresh() {
+        val pager = Pager(config, pagingSourceFactory = { TestPagingSource(items = emptyList()) })
+
+        testScope.runTest {
+            val result = collectOnPager(pager.flow)
+            pager.prepend()
+            advanceUntilIdle()
+            val list = result.loadedLists.firstOrNull()
+            assertThat(list).isEmpty()
 
             result.job.cancel()
         }

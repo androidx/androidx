@@ -616,6 +616,10 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     val originalPageOffsetFirst = -initialPageIndex
                     val originalPageOffsetLast = pages.size - initialPageIndex - 1
 
+                    // if users of ItemSnapshotListFlow called append/prepend before refresh
+                    // completes
+                    if (pages.isEmpty()) return
+
                     if (loadType == APPEND) {
                         ViewportHint.Access(
                             pageOffset = originalPageOffsetLast,
