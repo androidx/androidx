@@ -16,15 +16,23 @@
 
 package androidx.text.vertical.testapp
 
+import android.graphics.Paint
+import android.graphics.RectF
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
 import android.text.Layout
+import android.text.NoCopySpan
+import android.text.SpannableString
 import android.text.Spanned
 import android.text.StaticLayout
 import android.text.TextPaint
+import android.text.style.CharacterStyle
+import android.text.style.MetricAffectingSpan
+import android.text.style.ReplacementSpan
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -282,12 +290,97 @@ fun ZoomableVerticalText(
     }
 }
 
+/**
+ * Sets [TextPaint.bgColor] to 0 for the text that it covers.
+ *
+ * The platform fills the background of plain text from the line top to the line bottom. This span
+ * stops that fill. [LegacyHorizontalText] fills each plain text run from the font top to the font
+ * bottom instead, so the background does not go into the ruby or emphasis band. The platform
+ * applies only [MetricAffectingSpan]s to the paint of a [ReplacementSpan]. Thus,
+ * [androidx.text.vertical.RubySpan] and [androidx.text.vertical.EmphasisSpan] still get the
+ * background color from the paint.
+ *
+ * This span implements [NoCopySpan] so that inner layouts cloned by [ReplacementSpan] helpers do
+ * not copy it. Attach this span with a priority above 0 in the [Spanned.SPAN_PRIORITY] bits. The
+ * platform then applies it before inline background spans, so these spans can still set the color.
+ */
+private object NoTextBackgroundSpan : CharacterStyle(), NoCopySpan {
+    override fun updateDrawState(tp: TextPaint) {
+        tp.bgColor = 0
+    }
+}
+
+/**
+ * Returns the background boxes of the text runs that are not in a [ReplacementSpan].
+ *
+ * Each box goes from the start to the end of the run, and from the font top to the font bottom of
+ * the run. The base text of [androidx.text.vertical.RubySpan] and
+ * [androidx.text.vertical.EmphasisSpan] uses the same edges, so the fills meet. This function
+ * supports only left-to-right text. [LegacyHorizontalText] uses it to fill the style-level
+ * [TextPaint.bgColor].
+ *
+ * @param layout the layout of [text].
+ * @param text the text to find the runs in.
+ * @param paint the paint that [layout] uses.
+ */
+@VisibleForTesting
+internal fun plainTextBackgroundRects(
+    layout: Layout,
+    text: Spanned,
+    paint: TextPaint,
+): List<RectF> {
+    val rects = mutableListOf<RectF>()
+    val workPaint = TextPaint()
+    val fm = Paint.FontMetricsInt()
+    for (line in 0 until layout.lineCount) {
+        val lineStart = layout.getLineStart(line)
+        val lineEnd = layout.getLineVisibleEnd(line)
+        val baseline = layout.getLineBaseline(line).toFloat()
+        var start = lineStart
+        while (start < lineEnd) {
+            val end = text.nextSpanTransition(start, lineEnd, MetricAffectingSpan::class.java)
+            val spans = text.getSpans(start, end, MetricAffectingSpan::class.java)
+            if (spans.none { it is ReplacementSpan }) {
+                workPaint.set(paint)
+                spans.forEach { it.updateMeasureState(workPaint) }
+                // RubySpan and EmphasisSpan lay out their base text with includePad. Thus, their
+                // base text goes from the font top to the font bottom. Use the same edges so that
+                // the fills meet.
+                workPaint.getFontMetricsInt(fm)
+                val left = layout.getPrimaryHorizontal(start)
+                val right =
+                    if (end < layout.getLineEnd(line)) {
+                        layout.getPrimaryHorizontal(end)
+                    } else {
+                        layout.getLineRight(line)
+                    }
+                rects += RectF(left, baseline + fm.top, right, baseline + fm.bottom)
+            }
+            start = end
+        }
+    }
+    return rects
+}
+
 @Composable
 fun LegacyHorizontalText(text: Spanned, style: VerticalTextStyle, modifier: Modifier = Modifier) {
     var hTextLayout by remember { mutableStateOf<Layout?>(null) }
+    var plainBackgroundRects by remember { mutableStateOf(emptyList<RectF>()) }
+    val drawText =
+        remember(text) {
+            SpannableString(text).apply {
+                setSpan(
+                    NoTextBackgroundSpan,
+                    0,
+                    length,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE or (1 shl Spanned.SPAN_PRIORITY_SHIFT),
+                )
+            }
+        }
     val density = LocalDensity.current
     val resolver = LocalFontFamilyResolver.current
     val paint = remember(density, resolver) { TextPaint() }
+    val backgroundPaint = remember { Paint() }
     val typeface =
         remember(resolver, style) {
             resolver
@@ -302,7 +395,14 @@ fun LegacyHorizontalText(text: Spanned, style: VerticalTextStyle, modifier: Modi
     Layout(
         modifier =
             modifier.drawWithContent {
-                drawIntoCanvas { c -> hTextLayout?.draw(c.nativeCanvas) }
+                drawIntoCanvas { c ->
+                    val canvas = c.nativeCanvas
+                    if (plainBackgroundRects.isNotEmpty() && style.background.isSpecified) {
+                        backgroundPaint.color = style.background.toArgb()
+                        plainBackgroundRects.forEach { canvas.drawRect(it, backgroundPaint) }
+                    }
+                    hTextLayout?.draw(canvas)
+                }
             },
         content = {},
     ) { _, constraints ->
@@ -313,11 +413,14 @@ fun LegacyHorizontalText(text: Spanned, style: VerticalTextStyle, modifier: Modi
         setStyleToPaint(style, typeface, density, paint)
         val bgColor = paint.bgColor
         val layout =
-            StaticLayout.Builder.obtain(text, 0, text.length, paint, constraints.maxWidth).build()
-        // The Layout constructor sets paint.bgColor to 0. Set it again, so that draw() shows the
-        // background color.
+            StaticLayout.Builder.obtain(drawText, 0, drawText.length, paint, constraints.maxWidth)
+                .build()
+        // The Layout constructor sets paint.bgColor to 0. Set it again, so that the RubySpan and
+        // the EmphasisSpan get the background color.
         paint.bgColor = bgColor
         hTextLayout = layout
+        plainBackgroundRects =
+            if (bgColor != 0) plainTextBackgroundRects(layout, drawText, paint) else emptyList()
         layout(constraints.maxWidth, layout.height) {}
     }
 }
