@@ -522,6 +522,11 @@ internal fun applyOperationsWithoutBitmaps(context: RemoteContext, list: List<Op
                 op.apply(context)
             }
             applyOperationsWithoutBitmaps(context, (op as Container).list)
+            if (op is LayoutComponent) {
+                op.getDrawContentOperationsListReflection()?.let { canvasOps ->
+                    applyOperationsWithoutBitmaps(context, canvasOps)
+                }
+            }
         } else {
             op.apply(context)
         }
@@ -535,6 +540,11 @@ private fun registerNestedBitmapMetadata(context: RemoteContext, list: List<Oper
             context.putObject(op.mImageId, op)
         } else if (op is Container) {
             registerNestedBitmapMetadata(context, op.list)
+            if (op is LayoutComponent) {
+                op.getDrawContentOperationsListReflection()?.let { canvasOps ->
+                    registerNestedBitmapMetadata(context, canvasOps)
+                }
+            }
         }
     }
 }

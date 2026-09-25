@@ -43,8 +43,14 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Density
 
 /*
  * Paint state + PaintBundle decoding for the embedded player's canvas draw path. Splits the paint
@@ -129,10 +135,140 @@ public class ComposeLocalPaint {
         return Paint().apply {
             isAntiAlias = true
             color = effectiveColor().toArgb()
-            textSize = this@ComposeLocalPaint.textSize
+            if (!this@ComposeLocalPaint.textSize.isNaN()) {
+                textSize = this@ComposeLocalPaint.textSize
+            }
             typeface = fontInstance.getTypeface()
         }
     }
+
+    internal fun toTextStyle(density: Density, context: RemoteContext): TextStyle {
+        val weight = FontWeight(fontWeight)
+        val resolver =
+            (context as? AndroidRemoteContext)?.typefaceResolver
+                ?: (context as? GraphContext)?.typefaceResolver
+        val resolvedFontFamily =
+            if (
+                resolver != null &&
+                    resolver !is EmbeddedPlayerTypefaceResolver &&
+                    resolver !is GmsFontTypefaceResolver
+            ) {
+                val italic = fontStyle == FontStyle.Italic
+                val fi =
+                    if (isTypefaceSet && fontFamily !in 0..3) {
+                        val name = context.getText(fontFamily)
+                        if (name != null) {
+                            resolver.resolve(name, fontWeight, italic, null, 400, false)
+                        } else {
+                            resolver.resolve(0, fontWeight, italic, null, 400, false)
+                        }
+                    } else {
+                        resolver.resolve(
+                            if (isTypefaceSet) fontFamily else 0,
+                            fontWeight,
+                            italic,
+                            null,
+                            400,
+                            false,
+                        )
+                    }
+                FontFamily(fi.getTypeface())
+            } else {
+                when (if (isTypefaceSet) fontFamily else 0) {
+                    1 -> FontFamily.SansSerif
+                    2 -> FontFamily.Serif
+                    3 -> FontFamily.Monospace
+                    else -> FontFamily.Default
+                }
+            }
+        val drawStyle =
+            if (isStroke) {
+                Stroke(
+                    width = strokeWidth,
+                    cap = mapStrokeCap(strokeCap),
+                    join = mapStrokeJoin(strokeJoin),
+                )
+            } else {
+                Fill
+            }
+        val resolvedPx = if (textSize.isNaN()) 12f else textSize
+        val fontSizeSp = with(density) { resolvedPx.toSp() }
+        return if (brush != null) {
+            TextStyle(
+                brush = brush,
+                alpha = alpha,
+                fontSize = fontSizeSp,
+                fontWeight = weight,
+                fontStyle = fontStyle,
+                fontFamily = resolvedFontFamily,
+                drawStyle = drawStyle,
+            )
+        } else {
+            TextStyle(
+                color = effectiveColor(),
+                fontSize = fontSizeSp,
+                fontWeight = weight,
+                fontStyle = fontStyle,
+                fontFamily = resolvedFontFamily,
+                drawStyle = drawStyle,
+            )
+        }
+    }
+
+    public fun reset() {
+        color = 0xFF000000.toInt()
+        isColorSet = false
+        strokeWidth = 1f
+        isStrokeWidthSet = false
+        isStroke = false
+        isStyleSet = false
+        strokeCap = 0
+        isStrokeCapSet = false
+        strokeJoin = 0
+        isStrokeJoinSet = false
+        textSize = Float.NaN
+        isTextSizeSet = false
+        fontFamily = 0
+        isTypefaceSet = false
+        fontWeight = 400
+        fontStyle = FontStyle.Normal
+        brush = null
+        nativeShader = null
+        colorFilter = null
+        blendMode = BlendMode.SrcOver
+        isBlendModeSet = false
+        filterQuality = FilterQuality.Low
+        alpha = 1f
+        sourceBundles.clear()
+    }
+
+    internal fun copy(): ComposeLocalPaint =
+        ComposeLocalPaint().also { copy ->
+            copy.color = color
+            copy.isColorSet = isColorSet
+            copy.strokeWidth = strokeWidth
+            copy.isStrokeWidthSet = isStrokeWidthSet
+            copy.isStroke = isStroke
+            copy.isStyleSet = isStyleSet
+            copy.strokeCap = strokeCap
+            copy.isStrokeCapSet = isStrokeCapSet
+            copy.strokeJoin = strokeJoin
+            copy.isStrokeJoinSet = isStrokeJoinSet
+            copy.textSize = textSize
+            copy.isTextSizeSet = isTextSizeSet
+            copy.fontFamily = fontFamily
+            copy.isTypefaceSet = isTypefaceSet
+            copy.fontWeight = fontWeight
+            copy.fontStyle = fontStyle
+            copy.brush = brush
+            copy.nativeShader = nativeShader
+            copy.colorFilter = colorFilter
+            copy.blendMode = blendMode
+            copy.isBlendModeSet = isBlendModeSet
+            copy.filterQuality = filterQuality
+            copy.alpha = alpha
+            copy.sourceBundles.addAll(sourceBundles)
+        }
 }
 
 internal fun mapStrokeCap(cap: Int): StrokeCap =

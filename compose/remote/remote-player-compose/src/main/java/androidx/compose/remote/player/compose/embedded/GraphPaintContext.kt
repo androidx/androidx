@@ -16,17 +16,46 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import android.content.Context
+import android.content.ContextWrapper
+import android.graphics.Typeface
 import androidx.compose.remote.core.PaintContext
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.paint.PaintBundle
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.createFontFamilyResolver
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import java.util.HashMap
 
 /**
- * A dummy, draw-nothing [PaintContext] for evaluating value-producing
- * [androidx.compose.remote.core.PaintOperation]s in [GraphContext].
+ * A draw-nothing [PaintContext] for evaluating value-producing
+ * [androidx.compose.remote.core.PaintOperation]s (such as `TextMeasure`, `ColorAttribute`, and
+ * `ImageAttribute`) in [GraphContext] and the embedded draw pass, using Compose's [TextMeasurer]
+ * for cached text measurement.
  */
-internal class GraphPaintContext(context: RemoteContext) : PaintContext(context) {
+internal class GraphPaintContext(
+    context: RemoteContext,
+    private val readContext: RemoteContext = context,
+    internal var textMeasurer: TextMeasurer? = null,
+) : PaintContext(context) {
+    internal var paintState: ComposeLocalPaint = ComposeLocalPaint()
+    private val paintStack = ArrayDeque<ComposeLocalPaint>()
+    private var fallbackTextMeasurer: TextMeasurer? = null
+
+    @Suppress("DEPRECATION")
+    private fun obtainFallbackTextMeasurer(): TextMeasurer =
+        fallbackTextMeasurer
+            ?: TextMeasurer(
+                    defaultFontFamilyResolver = obtainFallbackFontFamilyResolver(),
+                    defaultDensity = Density(1f),
+                    defaultLayoutDirection = LayoutDirection.Ltr,
+                )
+                .also { fallbackTextMeasurer = it }
+
     override fun drawBitmap(
         imageId: Int,
         srcLeft: Int,
@@ -74,11 +103,20 @@ internal class GraphPaintContext(context: RemoteContext) : PaintContext(context)
 
     override fun drawRect(left: Float, top: Float, right: Float, bottom: Float) {}
 
-    override fun savePaint() {}
+    override fun savePaint() {
+        paintStack.addLast(paintState.copy())
+    }
 
-    override fun restorePaint() {}
+    override fun restorePaint() {
+        if (paintStack.isNotEmpty()) {
+            paintState = paintStack.removeLast()
+        }
+    }
 
-    override fun replacePaint(paintBundle: PaintBundle) {}
+    override fun replacePaint(paintBundle: PaintBundle) {
+        paintState = ComposeLocalPaint()
+        updatePaintFromBundle(paintBundle, paintState, mContext)
+    }
 
     override fun drawRoundRect(
         left: Float,
@@ -91,7 +129,56 @@ internal class GraphPaintContext(context: RemoteContext) : PaintContext(context)
 
     override fun drawTextOnPath(textId: Int, pathId: Int, hOffset: Float, vOffset: Float) {}
 
-    override fun getTextBounds(textId: Int, start: Int, end: Int, flags: Int, bounds: FloatArray) {}
+    override fun getTextBounds(textId: Int, start: Int, end: Int, flags: Int, bounds: FloatArray) {
+        val str = getText(textId)
+        if (str == null) {
+            bounds[0] = 0f
+            bounds[1] = 0f
+            bounds[2] = 0f
+            bounds[3] = 0f
+            return
+        }
+        val safeStart = start.coerceIn(0, str.length)
+        val safeEnd =
+            if (end == -1 || end > str.length) {
+                str.length
+            } else {
+                end.coerceIn(safeStart, str.length)
+            }
+        val substring = str.substring(safeStart, safeEnd)
+        val density = Density(readContext.density.takeIf { it > 0f } ?: 1f)
+        val measurer = textMeasurer ?: obtainFallbackTextMeasurer()
+        val result =
+            measurer.measure(
+                text = substring,
+                style = paintState.toTextStyle(density, readContext),
+                softWrap = false,
+                maxLines = 1,
+                density = density,
+            )
+        val left = if (result.lineCount > 0) result.getLineLeft(0) else 0f
+        val lineWidth =
+            if (result.lineCount > 0) {
+                result.getLineRight(0) - left
+            } else {
+                result.size.width.toFloat()
+            }
+        val width =
+            if ((flags and TEXT_MEASURE_SPACES) != 0) {
+                result.size.width.toFloat().coerceAtLeast(lineWidth)
+            } else {
+                lineWidth
+            }
+        val baseline = result.firstBaseline
+        val top = (if (result.lineCount > 0) result.getLineTop(0) else 0f) - baseline
+        val bottom =
+            (if (result.lineCount > 0) result.getLineBottom(0) else result.size.height.toFloat()) -
+                baseline
+        bounds[0] = if ((flags and TEXT_MEASURE_SPACES) != 0) 0f else left
+        bounds[1] = top
+        bounds[2] = bounds[0] + width
+        bounds[3] = bottom
+    }
 
     override fun layoutComplexText(
         textId: Int,
@@ -138,7 +225,9 @@ internal class GraphPaintContext(context: RemoteContext) : PaintContext(context)
 
     override fun combinePath(out: Int, path1: Int, path2: Int, operation: Byte) {}
 
-    override fun applyPaint(mPaintData: PaintBundle) {}
+    override fun applyPaint(mPaintData: PaintBundle) {
+        updatePaintFromBundle(mPaintData, paintState, mContext)
+    }
 
     override fun matrixScale(scaleX: Float, scaleY: Float, centerX: Float, centerY: Float) {}
 
@@ -173,9 +262,28 @@ internal class GraphPaintContext(context: RemoteContext) : PaintContext(context)
 
     override fun endGraphicsLayer() {}
 
-    override fun getText(id: Int): String? = mContext.getText(id)
+    override fun getText(id: Int): String? = readContext.getText(id)
 
     override fun matrixFromPath(pathId: Int, fraction: Float, vOffset: Float, flags: Int) {}
 
     override fun drawToBitmap(bitmapId: Int, mode: Int, color: Int) {}
 }
+
+private var fallbackFontFamilyResolver: FontFamily.Resolver? = null
+
+@Suppress("DEPRECATION")
+private fun obtainFallbackFontFamilyResolver(): FontFamily.Resolver =
+    fallbackFontFamilyResolver
+        ?: run {
+            val stubContext =
+                object : ContextWrapper(null) {
+                    override fun getApplicationContext(): Context = this
+                }
+            val resourceLoader =
+                object : Font.ResourceLoader {
+                    @Deprecated("Replaced by FontFamily.Resolver")
+                    override fun load(font: Font): Any = Typeface.DEFAULT
+                }
+            createFontFamilyResolver(resourceLoader, stubContext)
+        }
+            .also { fallbackFontFamilyResolver = it }

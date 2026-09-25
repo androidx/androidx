@@ -34,6 +34,7 @@ import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.runtime.IntState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.ui.text.TextMeasurer
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -99,6 +100,17 @@ internal class GraphContext(
     override fun getClock(): RemoteClock = _timeState?.reactiveClock ?: super.getClock()
 
     private val graphPaintContext = GraphPaintContext(this)
+    private val textMeasurePaints = MutableIntObjectMap<ComposeLocalPaint>()
+
+    internal var textMeasurer: TextMeasurer?
+        get() = graphPaintContext.textMeasurer
+        set(value) {
+            graphPaintContext.textMeasurer = value
+        }
+
+    internal fun setTextMeasurePaint(id: Int, paintState: ComposeLocalPaint) {
+        textMeasurePaints[id] = paintState
+    }
 
     @Suppress("BanConcurrentHashMap")
     internal val particlesInitialized: MutableSet<Int> = ConcurrentHashMap.newKeySet()
@@ -135,6 +147,7 @@ internal class GraphContext(
         state.depth++
         val prevId = state.captureId
         val prevCaptured = state.captured
+        val prevPaintState = graphPaintContext.paintState
         state.captureId = id
         state.captured = null
         state.computing.add(id)
@@ -142,9 +155,11 @@ internal class GraphContext(
             if (op is VariableSupport) {
                 op.updateVariables(this) // reads inputs (tracked)
             }
-            // Value-producing PaintOperations (e.g. ColorAttribute) compute and write
-            // their outputs during paint(paintContext) rather than apply(remoteContext).
+            // Value-producing PaintOperations (e.g. ColorAttribute, TextMeasure, ImageAttribute)
+            // compute and write their outputs during paint(paintContext) rather than
+            // apply(remoteContext).
             if (op is PaintOperation && op !is Component) {
+                graphPaintContext.paintState = textMeasurePaints[id] ?: ComposeLocalPaint()
                 op.paint(graphPaintContext)
             } else {
                 op.apply(this) // writes output -> captured
@@ -154,6 +169,7 @@ internal class GraphContext(
             state.memoValues[id] = result
             return result
         } finally {
+            graphPaintContext.paintState = prevPaintState
             state.captureId = prevId
             state.captured = prevCaptured
             state.computing.remove(id)
