@@ -50,6 +50,23 @@ Available in `:compose:remote:remote-player-compose-testutils`:
 
 - **`RemoteInteractionTestRule`**: Use for testing user interactions on the player (such as clicks, gestures, and named actions) and recording dispatched events via `clickEvents`.
 
+- **`RcPlayerTestRule`** (`androidx.compose.remote.player.compose.RcPlayerTestRule` / `androidx.compose.remote.player.compose.embedded.RcPlayerTestRule`): Dedicated rule for testing the embedded player (`RcPlayer`).
+  - Automatically enables `RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = true` for the duration of the test (replacing manual `EnableEmbeddedPlayerRule` + `createComposeRule()`).
+  - Provides `setRemoteContent { ... }`, which captures a `@RemoteComposable` block into a `CoreDocument`, hosts it in `RcPlayer`, awaits initial document creation, and returns the captured `CoreDocument`.
+  - Implements `ComposeContentTestRule`, so standard Compose test finders/assertions (`onNodeWithText`, `onRoot().captureToImage()`, `mainClock`, etc.) can be invoked directly on the rule.
+  - Usage:
+    ```kotlin
+    @get:Rule val rule = RcPlayerTestRule()
+
+    @Test
+    fun playerRendersContent() {
+        val document = rule.setRemoteContent {
+            RemoteText("Hello Embedded Player".rs)
+        }
+        rule.onNodeWithText("Hello Embedded Player").assertIsDisplayed()
+    }
+    ```
+
 ---
 
 ### 2. Core Testing Rules (`androidx.compose.remote.testing`)
@@ -100,6 +117,7 @@ Available in `:compose:remote:remote-testing`:
 ## Best Practices & Guidelines
 
 ### 1. Prefer Specialized Test Rules
+- **For Embedded Player (`RcPlayer`) Tests**: ALWAYS use `RcPlayerTestRule` and `rule.setRemoteContent { ... }`. Do NOT combine `EnableEmbeddedPlayerRule()` + `createComposeRule()` with manual `captureSingleRemoteDocument` / `RcPlayer(...)` composition inside `rule.setContent { ... }`.
 - **For Screenshot Tests**: ALWAYS use `RemoteScreenshotTestRule` (or `RemoteDocScreenshotTestRule`). Avoid manual setups using `createComposeRule()`, manual `rememberRemoteDocument`, and `AndroidXScreenshotTestRule`.
 - **For RTL / Layout Direction Tests**: Use `RemoteScreenshotTestRule` with `creationComposableWrapper = ComposableWrappers.rtl` and/or `playComposableWrapper = ComposableWrappers.rtl`. Avoid custom in-test `rememberRemoteDocument` wrappers.
 - **For Accessibility and Semantics**: Use `RemoteContentTestRule` and `uiAutomator`.
