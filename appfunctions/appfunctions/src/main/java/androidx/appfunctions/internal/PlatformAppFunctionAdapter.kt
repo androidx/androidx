@@ -16,6 +16,7 @@
 
 package androidx.appfunctions.internal
 
+import android.content.Context
 import android.os.Build
 import android.os.CancellationSignal
 import android.os.OutcomeReceiver
@@ -44,6 +45,7 @@ import kotlinx.coroutines.launch
 internal fun AppFunction.toPlatformAppFunction(
     appFunctionReader: AppFunctionReader,
     executor: Executor,
+    context: Context,
 ): android.app.appfunctions.AppFunction {
     return object : android.app.appfunctions.AppFunction {
         override fun onExecuteAppFunction(
@@ -83,6 +85,11 @@ internal fun AppFunction.toPlatformAppFunction(
                                     "Function ${request.functionIdentifier} not found in " +
                                         "package ${request.targetPackageName}"
                                 )
+                        CallerAccessVerifier.verifyCallerAccess(
+                            context = context,
+                            metadata = functionMetadata,
+                            extras = request.extras,
+                        )
                         val compatRequest =
                             request.toCompatExecuteAppFunctionRequest(functionMetadata)
                         onExecuteAppFunction(compatRequest, delegateSignal) { response ->
@@ -120,11 +127,12 @@ internal fun AppFunction.toPlatformAppFunction(
 @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
 @OptIn(ExperimentalAppFunctionsApi::class)
 internal fun RegisterAppFunctionRequest.toPlatformRegisterAppFunctionRequest(
-    appFunctionReader: AppFunctionReader
+    appFunctionReader: AppFunctionReader,
+    context: Context,
 ): android.app.appfunctions.RegisterAppFunctionRequest {
     return android.app.appfunctions.RegisterAppFunctionRequest(
         functionIdentifier,
         executor,
-        appFunction.toPlatformAppFunction(appFunctionReader, executor),
+        appFunction.toPlatformAppFunction(appFunctionReader, executor, context),
     )
 }

@@ -63,6 +63,20 @@ class AppFunctionCompilerTest {
     }
 
     @Test
+    fun testAppFunctionSignature_withAccessLevel_success() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("signatures/valid/AccessLevelSignature.KT")
+            )
+
+        compilationTestHelper.assertSuccessWithResourceContent(
+            report = report,
+            expectGeneratedResourceFileName = "app_level_app_functions.xml",
+            goldenFileName = "xml/accessLevelSignature_app_level_app_functions.xml",
+        )
+    }
+
+    @Test
     fun testAppFunctionSignature_withSerializable_success() {
         val report =
             compilationTestHelper.compileAll(

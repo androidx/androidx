@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<appfunctions>
+    <appfunction>
+        <id>com.test.AccessLevelSignature#doSomething</id>
+        <scope>global</scope>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>7</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>a</name>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>8</type>
+            </valueType>
+        </response>
+        <accessLevel>self</accessLevel>
+        <isCompatEnforcementEnabled>true</isCompatEnforcementEnabled>
+        <functionId>com.test.AccessLevelSignature#doSomething</functionId>
+    </appfunction>
+</appfunctions>

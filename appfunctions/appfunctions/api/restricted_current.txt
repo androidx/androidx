@@ -5,7 +5,7 @@ package androidx.appfunctions {
     method public void onExecuteAppFunction(androidx.appfunctions.ExecuteAppFunctionRequest request, android.os.CancellationSignal cancellationSignal, java.util.function.Consumer<androidx.appfunctions.ExecuteAppFunctionResponse> callback);
   }
 
-  @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface AppFunctionAccessLevel {
+  @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CLASS}) public @interface AppFunctionAccessLevel {
     ctor @KotlinOnly public AppFunctionAccessLevel(int level, boolean isCompatEnforcementEnabled);
     method @InaccessibleFromKotlin public abstract boolean isCompatEnforcementEnabled();
     method @InaccessibleFromKotlin public abstract int level();

@@ -18,6 +18,7 @@
 
 package androidx.appfunctions.integration.testapp
 
+import androidx.appfunctions.AppFunctionAccessLevel
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionSignature
 import androidx.appfunctions.ExperimentalAppFunctionsApi
@@ -86,4 +87,40 @@ fun interface DynamicActivityScopeSignature {
 )
 fun interface DynamicThrowingSignature {
     suspend fun processAndThrow(exceptionType: String): String
+}
+
+@AppFunctionSignature(
+    scope = AppFunctionMetadata.SCOPE_GLOBAL,
+    appFunctionXmlFileName = "dynamic_signature_definitions",
+)
+@AppFunctionAccessLevel(
+    level = AppFunctionMetadata.ACCESS_LEVEL_SELF,
+    isCompatEnforcementEnabled = true,
+)
+fun interface DynamicSelfAccessSignature {
+    suspend fun executeSelf(message: String): String
+}
+
+@AppFunctionSignature(
+    scope = AppFunctionMetadata.SCOPE_GLOBAL,
+    appFunctionXmlFileName = "dynamic_signature_definitions",
+)
+@AppFunctionAccessLevel(
+    level = AppFunctionMetadata.ACCESS_LEVEL_SELF,
+    isCompatEnforcementEnabled = false,
+)
+fun interface DynamicSelfAccessDisabledCompatSignature {
+    suspend fun executeSelfDisabledCompat(): String
+}
+
+@AppFunctionSignature(
+    scope = AppFunctionMetadata.SCOPE_GLOBAL,
+    appFunctionXmlFileName = "dynamic_signature_definitions",
+)
+@AppFunctionAccessLevel(
+    level = AppFunctionMetadata.ACCESS_LEVEL_SYSTEM,
+    isCompatEnforcementEnabled = true,
+)
+fun interface DynamicSystemAccessSignature {
+    suspend fun executeSystem(): String
 }
