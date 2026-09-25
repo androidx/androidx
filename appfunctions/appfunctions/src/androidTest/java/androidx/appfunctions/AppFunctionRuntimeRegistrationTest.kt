@@ -130,6 +130,50 @@ class AppFunctionRuntimeRegistrationTest {
     }
 
     @Test
+    fun selfExecuteRegisteredFunction_withSelfAccessLevel_shouldSucceed() {
+        val functionId = AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_SELF_ACCESS
+        val expectedResult = "self_execution_result"
+
+        runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
+            val appFunction = AppFunction { _, _, callback ->
+                callback.accept(createReturnStringResponse(expectedResult))
+            }
+
+            val registration =
+                activityAppFunctionManager.registerAppFunction(
+                    functionId,
+                    activity.mainExecutor,
+                    appFunction,
+                )
+
+            try {
+                val request =
+                    ExecuteAppFunctionRequest(
+                        targetPackageName =
+                            AppFunctionMetadataTestHelper.FunctionMetadata
+                                .DYNAMIC_REGISTRATION_SELF_ACCESS
+                                .packageName,
+                        functionIdentifier = functionId,
+                        functionParameters = AppFunctionData.EMPTY,
+                    )
+
+                val response = appFunctionManager.executeAppFunction(request)
+
+                assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+                val successResponse = response as ExecuteAppFunctionResponse.Success
+                assertThat(
+                        successResponse.returnValue.getString(
+                            ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
+                        )
+                    )
+                    .isEqualTo(expectedResult)
+            } finally {
+                registration.unregister()
+            }
+        }
+    }
+
+    @Test
     fun getAppFunctionActivityStates_thenExecuteAppFunction_shouldSucceed() {
         val functionId =
             AppFunctionMetadataTestHelper.FunctionIds.ACTIVITY_DYNAMIC_REGISTRATION_RETURN_SUCCESS

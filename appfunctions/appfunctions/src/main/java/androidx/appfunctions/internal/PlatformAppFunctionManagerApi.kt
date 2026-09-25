@@ -203,7 +203,7 @@ internal class PlatformAppFunctionManagerApi(
         requests: List<RegisterAppFunctionRequest>
     ): AppFunctionRegistration {
         val platformRequests = requests.map {
-            it.toPlatformRegisterAppFunctionRequest(appFunctionReader)
+            it.toPlatformRegisterAppFunctionRequest(appFunctionReader, context)
         }
         return appFunctionManager.registerAppFunctions(platformRequests)
     }

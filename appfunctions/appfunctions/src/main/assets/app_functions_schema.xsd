@@ -119,5 +119,6 @@
             type="appfn:AppFunctionDeprecationMetadataDocument" />
         <xs:element name="accessLevel" cardinality="2" indexingType="1" tokenizerType="2"
             type="xs:string" />
+        <xs:element name="isCompatEnforcementEnabled" cardinality="2" type="xs:boolean" />
     </xs:documentType>
 </xs:schema>
