@@ -16,7 +16,6 @@
 
 package androidx.appsearch.localstorage;
 
-import static androidx.appsearch.app.AppSearchResult.RESULT_ABORTED;
 import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_ARGUMENT;
 import static androidx.appsearch.app.AppSearchResult.RESULT_NOT_FOUND;
 import static androidx.appsearch.app.AppSearchResult.RESULT_OUT_OF_SPACE;
@@ -2443,6 +2442,151 @@ public class AppSearchImplTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_OPTIMIZE_RESULT_STATES)
+    public void testGetNextPageAfterOptimize_flagEnabledShouldRetrievePage() throws Exception {
+        // Insert package1 schema
+        List<AppSearchSchema> schema1 =
+                ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
+                "package1",
+                "database1",
+                schema1,
+                /*visibilityConfigs=*/ Collections.emptyList(),
+                /*accountPropertyPaths=*/ ImmutableMap.of(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /* setSchemaStatsBuilder= */ null,
+                /*callStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+
+        // Insert two package1 documents
+        GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
+                "schema1").build();
+        GenericDocument document2 = new GenericDocument.Builder<>("namespace", "id2",
+                "schema1").build();
+        mAppSearchImpl.putDocument(
+                "package1",
+                "database1",
+                document1,
+                /*sendChangeNotifications=*/ false,
+                /*logger=*/ null,
+                /*callStatsBuilder=*/ null);
+        mAppSearchImpl.putDocument(
+                "package1",
+                "database1",
+                document2,
+                /*sendChangeNotifications=*/ false,
+                /*logger=*/ null,
+                /*callStatsBuilder=*/ null);
+
+        // Query for only 1 result per page
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
+                .setResultCountPerPage(1)
+                .build();
+        SearchResultPage searchResultPage = mAppSearchImpl.globalQuery(
+                /*queryExpression=*/ "",
+                searchSpec,
+                new CallerAccess(/*callingPackageName=*/"package1"),
+                /*logger=*/ null,
+                /*callStatsBuilder=*/ null);
+
+        // Document2 will come first because it was inserted last and default return order is
+        // most recent.
+        assertThat(searchResultPage.getResults()).hasSize(1);
+        assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(document2);
+
+        long nextPageToken = searchResultPage.getNextPageToken();
+        assertThat(nextPageToken).isNotEqualTo(0);
+
+        // Call Optimize.
+        mAppSearchImpl.optimize(/*optimizeStatsBuilder=*/ null, /*callStatsBuilder=*/ null);
+
+        // getNextPage should still be able to retrieve pages after Optimize.
+        SearchResultPage searchResultPage2 =
+                mAppSearchImpl.getNextPage("package1", nextPageToken,
+                        /*maxResults=*/ Integer.MAX_VALUE,
+                        /*statsBuilder=*/ null,
+                        /*callStatsBuilder=*/null);
+        assertThat(searchResultPage2.getResults()).hasSize(1);
+        assertThat(searchResultPage2.getResults().get(0).getGenericDocument()).isEqualTo(document1);
+        assertThat(searchResultPage2.getNextPageToken()).isEqualTo(0);
+    }
+
+    @Test
+    @RequiresFlagsDisabled(Flags.FLAG_ENABLE_OPTIMIZE_RESULT_STATES)
+    public void testGetNextPageAfterOptimize_flagDisabledShouldReturnEmptyResult()
+            throws Exception {
+        // Insert package1 schema
+        List<AppSearchSchema> schema1 =
+                ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
+                "package1",
+                "database1",
+                schema1,
+                /*visibilityConfigs=*/ Collections.emptyList(),
+                /*accountPropertyPaths=*/ ImmutableMap.of(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /* setSchemaStatsBuilder= */ null,
+                /*callStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+
+        // Insert two package1 documents
+        GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
+                "schema1").build();
+        GenericDocument document2 = new GenericDocument.Builder<>("namespace", "id2",
+                "schema1").build();
+        mAppSearchImpl.putDocument(
+                "package1",
+                "database1",
+                document1,
+                /*sendChangeNotifications=*/ false,
+                /*logger=*/ null,
+                /*callStatsBuilder=*/ null);
+        mAppSearchImpl.putDocument(
+                "package1",
+                "database1",
+                document2,
+                /*sendChangeNotifications=*/ false,
+                /*logger=*/ null,
+                /*callStatsBuilder=*/ null);
+
+        // Query for only 1 result per page
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
+                .setResultCountPerPage(1)
+                .build();
+        SearchResultPage searchResultPage = mAppSearchImpl.globalQuery(
+                /*queryExpression=*/ "",
+                searchSpec,
+                new CallerAccess(/*callingPackageName=*/"package1"),
+                /*logger=*/ null,
+                /*callStatsBuilder=*/ null);
+
+        // Document2 will come first because it was inserted last and default return order is
+        // most recent.
+        assertThat(searchResultPage.getResults()).hasSize(1);
+        assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(document2);
+
+        long nextPageToken = searchResultPage.getNextPageToken();
+        assertThat(nextPageToken).isNotEqualTo(0);
+
+        // Call Optimize.
+        mAppSearchImpl.optimize(/*optimizeStatsBuilder=*/ null, /*callStatsBuilder=*/ null);
+
+        // All page tokens are evicted after optimize. getNextPage should return an empty page if
+        // the flag is disabled.
+        SearchResultPage searchResultPage2 =
+                mAppSearchImpl.getNextPage("package1", nextPageToken,
+                        /*maxResults=*/ Integer.MAX_VALUE,
+                        /*statsBuilder=*/ null,
+                        /*callStatsBuilder=*/null);
+        assertThat(searchResultPage2.getResults()).isEmpty();
+        assertThat(searchResultPage2.getNextPageToken()).isEqualTo(0);
+    }
+
+    @Test
     public void testInvalidateNextPageToken_query() throws Exception {
         // Insert package1 schema
         List<AppSearchSchema> schema1 =
@@ -2773,154 +2917,6 @@ public class AppSearchImplTest {
                 /*callStatsBuilder=*/null);
         assertThat(searchResultPage.getResults()).hasSize(1);
         assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(document1);
-    }
-
-    @Test
-    @RequiresFlagsEnabled({
-            Flags.FLAG_ENABLE_RESULT_ABORTED,
-            Flags.FLAG_ENABLE_THROW_EXCEPTION_FOR_NATIVE_NOT_FOUND_PAGE_TOKEN})
-    public void testEvictedNextPageToken_flagEnabledShouldThrow() throws Exception {
-        // Insert package1 schema
-        List<AppSearchSchema> schema1 =
-                ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
-        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
-                "package1",
-                "database1",
-                schema1,
-                /*visibilityConfigs=*/ Collections.emptyList(),
-                /*accountPropertyPaths=*/ ImmutableMap.of(),
-                /*forceOverride=*/ false,
-                /*version=*/ 0,
-                /* setSchemaStatsBuilder= */ null,
-                /*callStatsBuilder=*/ null);
-        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
-
-        // Insert two package1 documents
-        GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
-                "schema1").build();
-        GenericDocument document2 = new GenericDocument.Builder<>("namespace", "id2",
-                "schema1").build();
-        mAppSearchImpl.putDocument(
-                "package1",
-                "database1",
-                document1,
-                /*sendChangeNotifications=*/ false,
-                /*logger=*/ null,
-                /*callStatsBuilder=*/ null);
-        mAppSearchImpl.putDocument(
-                "package1",
-                "database1",
-                document2,
-                /*sendChangeNotifications=*/ false,
-                /*logger=*/ null,
-                /*callStatsBuilder=*/ null);
-
-        // Query for only 1 result per page
-        SearchSpec searchSpec = new SearchSpec.Builder()
-                .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
-                .setResultCountPerPage(1)
-                .build();
-        SearchResultPage searchResultPage = mAppSearchImpl.globalQuery(
-                /*queryExpression=*/ "",
-                searchSpec,
-                new CallerAccess(/*callingPackageName=*/"package1"),
-                /*logger=*/ null,
-                /*callStatsBuilder=*/ null);
-
-        // Document2 will come first because it was inserted last and default return order is
-        // most recent.
-        assertThat(searchResultPage.getResults()).hasSize(1);
-        assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(document2);
-
-        long nextPageToken = searchResultPage.getNextPageToken();
-        assertThat(nextPageToken).isNotEqualTo(0);
-
-        // Call Optimize.
-        mAppSearchImpl.optimize(/*optimizeStatsBuilder=*/ null, /*callStatsBuilder=*/ null);
-
-        // All page tokens are evicted after optimize, so AppSearchException with code
-        // RESULT_ABORTED will be thrown.
-        AppSearchException e = assertThrows(AppSearchException.class,
-                () -> mAppSearchImpl.getNextPage("package1",
-                        nextPageToken,
-                        /*maxResults=*/ Integer.MAX_VALUE,
-                        /*statsBuilder=*/ null,
-                /*callStatsBuilder=*/null));
-        assertThat(e.getResultCode()).isEqualTo(RESULT_ABORTED);
-        assertThat(e).hasMessageThat().contains(
-                "Page token not found. It is usually caused by pagination cache eviction.");
-    }
-
-    @Test
-    @RequiresFlagsDisabled(Flags.FLAG_ENABLE_THROW_EXCEPTION_FOR_NATIVE_NOT_FOUND_PAGE_TOKEN)
-    public void testEvictedNextPageToken_flagDisabledShouldReturnEmptyResult() throws Exception {
-        // Insert package1 schema
-        List<AppSearchSchema> schema1 =
-                ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
-        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
-                "package1",
-                "database1",
-                schema1,
-                /*visibilityConfigs=*/ Collections.emptyList(),
-                /*accountPropertyPaths=*/ ImmutableMap.of(),
-                /*forceOverride=*/ false,
-                /*version=*/ 0,
-                /* setSchemaStatsBuilder= */ null,
-                /*callStatsBuilder=*/ null);
-        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
-
-        // Insert two package1 documents
-        GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
-                "schema1").build();
-        GenericDocument document2 = new GenericDocument.Builder<>("namespace", "id2",
-                "schema1").build();
-        mAppSearchImpl.putDocument(
-                "package1",
-                "database1",
-                document1,
-                /*sendChangeNotifications=*/ false,
-                /*logger=*/ null,
-                /*callStatsBuilder=*/ null);
-        mAppSearchImpl.putDocument(
-                "package1",
-                "database1",
-                document2,
-                /*sendChangeNotifications=*/ false,
-                /*logger=*/ null,
-                /*callStatsBuilder=*/ null);
-
-        // Query for only 1 result per page
-        SearchSpec searchSpec = new SearchSpec.Builder()
-                .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
-                .setResultCountPerPage(1)
-                .build();
-        SearchResultPage searchResultPage = mAppSearchImpl.globalQuery(
-                /*queryExpression=*/ "",
-                searchSpec,
-                new CallerAccess(/*callingPackageName=*/"package1"),
-                /*logger=*/ null,
-                /*callStatsBuilder=*/ null);
-
-        // Document2 will come first because it was inserted last and default return order is
-        // most recent.
-        assertThat(searchResultPage.getResults()).hasSize(1);
-        assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(document2);
-
-        long nextPageToken = searchResultPage.getNextPageToken();
-        assertThat(nextPageToken).isNotEqualTo(0);
-
-        // Call Optimize.
-        mAppSearchImpl.optimize(/*optimizeStatsBuilder=*/ null, /*callStatsBuilder=*/ null);
-
-        // All page tokens are evicted after optimize. getNextPage should return an empty page if
-        // the flag is disabled.
-        SearchResultPage searchResultPage2 =
-                mAppSearchImpl.getNextPage("package1", nextPageToken,
-                        /*maxResults=*/ Integer.MAX_VALUE,
-                        /*statsBuilder=*/ null,
-                        /*callStatsBuilder=*/null);
-        assertThat(searchResultPage2.getResults()).isEmpty();
-        assertThat(searchResultPage2.getNextPageToken()).isEqualTo(0);
     }
 
     @Test
