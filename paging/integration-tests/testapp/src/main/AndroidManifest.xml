@@ -20,6 +20,24 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
         <activity
+            android:name=".v3room.V3RoomItemSnapshotActivity"
+            android:exported="true"
+            android:label="V3 Room ItemSnapshot">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".v3room.V3RoomActivity"
+            android:exported="true"
+            android:label="V3 Room">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".custom.PagedListSampleActivity"
             android:exported="true"
             android:label="PagedList Sample">
@@ -62,15 +80,6 @@
             android:label="PagedList Observable"
             android:exported="true"
             android:theme="@style/Theme.AppCompat">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".v3room.V3RoomActivity"
-            android:exported="true"
-            android:label="V3 Room">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
