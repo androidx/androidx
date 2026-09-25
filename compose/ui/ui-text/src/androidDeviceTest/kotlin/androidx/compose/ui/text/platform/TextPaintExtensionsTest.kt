@@ -373,7 +373,7 @@ class TextPaintExtensionsTest {
     @Test
     fun setTextMotion_setsCorrectFlags_forFontHintingAndSubpixel() {
         val textMotion = TextMotion(TextMotion.Linearity.FontHinting, true)
-        val tp = AndroidTextPaint(0, density.density)
+        val tp = AndroidTextPaint(TextPaint.LINEAR_TEXT_FLAG, density.density)
         tp.setTextMotion(textMotion)
 
         assertThat(tp.flags and TextPaint.LINEAR_TEXT_FLAG).isEqualTo(0)
@@ -385,7 +385,7 @@ class TextPaintExtensionsTest {
     @Test
     fun setTextMotion_setsCorrectFlags_forNoneAndSubpixel() {
         val textMotion = TextMotion(TextMotion.Linearity.None, true)
-        val tp = AndroidTextPaint(0, density.density)
+        val tp = AndroidTextPaint(TextPaint.LINEAR_TEXT_FLAG, density.density)
         tp.setTextMotion(textMotion)
 
         assertThat(tp.flags and TextPaint.LINEAR_TEXT_FLAG).isEqualTo(0)
@@ -397,7 +397,7 @@ class TextPaintExtensionsTest {
     @Test
     fun setTextMotion_setsCorrectFlags_forLinear() {
         val textMotion = TextMotion(TextMotion.Linearity.Linear, false)
-        val tp = AndroidTextPaint(0, density.density)
+        val tp = AndroidTextPaint(TextPaint.SUBPIXEL_TEXT_FLAG, density.density)
         tp.setTextMotion(textMotion)
 
         assertThat(tp.flags and TextPaint.LINEAR_TEXT_FLAG).isEqualTo(TextPaint.LINEAR_TEXT_FLAG)
@@ -408,7 +408,11 @@ class TextPaintExtensionsTest {
     @Test
     fun setTextMotion_setsCorrectFlags_forFontHinting() {
         val textMotion = TextMotion(TextMotion.Linearity.FontHinting, false)
-        val tp = AndroidTextPaint(0, density.density)
+        val tp =
+            AndroidTextPaint(
+                TextPaint.LINEAR_TEXT_FLAG or TextPaint.SUBPIXEL_TEXT_FLAG,
+                density.density,
+            )
         tp.setTextMotion(textMotion)
 
         assertThat(tp.flags and TextPaint.LINEAR_TEXT_FLAG).isEqualTo(0)
@@ -419,7 +423,11 @@ class TextPaintExtensionsTest {
     @Test
     fun setTextMotion_setsCorrectFlags_forNone() {
         val textMotion = TextMotion(TextMotion.Linearity.None, false)
-        val tp = AndroidTextPaint(0, density.density)
+        val tp =
+            AndroidTextPaint(
+                TextPaint.LINEAR_TEXT_FLAG or TextPaint.SUBPIXEL_TEXT_FLAG,
+                density.density,
+            )
         tp.setTextMotion(textMotion)
 
         assertThat(tp.flags and TextPaint.LINEAR_TEXT_FLAG).isEqualTo(0)

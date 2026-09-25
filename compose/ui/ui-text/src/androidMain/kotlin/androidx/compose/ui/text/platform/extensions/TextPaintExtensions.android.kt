@@ -169,11 +169,11 @@ internal fun AndroidTextPaint.setTextMotion(textMotion: TextMotion?) {
             hinting = TextPaint.HINTING_OFF
         }
         TextMotion.Linearity.FontHinting -> {
-            flags and TextPaint.LINEAR_TEXT_FLAG.inv()
+            flags = flags and TextPaint.LINEAR_TEXT_FLAG.inv()
             hinting = TextPaint.HINTING_ON
         }
         TextMotion.Linearity.None -> {
-            flags and TextPaint.LINEAR_TEXT_FLAG.inv()
+            flags = flags and TextPaint.LINEAR_TEXT_FLAG.inv()
             hinting = TextPaint.HINTING_OFF
         }
         else -> flags
