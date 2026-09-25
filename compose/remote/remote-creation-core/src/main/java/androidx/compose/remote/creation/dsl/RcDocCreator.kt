@@ -103,3 +103,21 @@ public fun createRawRcBuffer(
     createRcBufferInternal(profile, *tags, experimental = experimental) { _, scope ->
         scope.content()
     }
+
+/**
+ * A bridge to connect to a writer in a canvas This can be used to bridge Frontend code to the new
+ * DSL
+ *
+ * ### Example:
+ * ```
+ *   RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+ *      RcCanvas(remoteComposeCreationState.document) {
+ *         //dsl code
+ *       }
+ *    }
+ * ```
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RcCanvas(writer: RemoteComposeWriter, content: RcCanvasScope.() -> Unit) {
+    RcCanvasScopeImpl(writer).content()
+}
