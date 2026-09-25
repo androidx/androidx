@@ -27,7 +27,7 @@ import androidx.compose.ui.internal.requirePrecondition
  * Describes how a surface reflects the light that reaches it.
  *
  * A material has three independent reflection components that are evaluated for every light
- * illuminating the surface and summed, so adding a component can only make the result brighter:
+ * illuminating the surface and summed:
  * - [diffuse] scatters light evenly in every direction and provides the overall shading.
  * - [specular] adds the tight highlight of a glossy surface.
  * - [fresnel] brightens the surface where it is viewed at a grazing angle.
