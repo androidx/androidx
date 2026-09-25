@@ -38,6 +38,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.Parcelable;
 import android.os.RemoteException;
 import android.os.SystemClock;
 
@@ -279,10 +280,15 @@ public class KeyedAppStatesServiceTest {
     }
 
     @Test
-    public void send_messsageWithInvalidState_doesNotCallback() throws RemoteException {
+    public void send_messageWithInvalidStates_doesNotCallback() throws RemoteException {
         Bundle invalidStateBundle = createDefaultStateBundle();
         invalidStateBundle.remove(APP_STATE_KEY);
-        Bundle bundle = buildStatesBundleFromBundles(singleton(invalidStateBundle));
+        Bundle bundle =
+                buildStatesBundleFromBundles(
+                        asList(
+                                invalidStateBundle,
+                                new Intent("hostile_action"),
+                                null));
         Message message = createStateMessage(bundle);
 
         mMessenger.send(message);
@@ -298,7 +304,11 @@ public class KeyedAppStatesServiceTest {
         invalidStateBundle.remove(APP_STATE_KEY);
         Bundle bundle =
                 buildStatesBundleFromBundles(
-                        asList(createDefaultStateBundle(), invalidStateBundle));
+                        asList(
+                                createDefaultStateBundle(),
+                                invalidStateBundle,
+                                new Intent("hostile_action"),
+                                null));
         Message message = createStateMessage(bundle);
 
         mMessenger.send(message);
@@ -319,7 +329,8 @@ public class KeyedAppStatesServiceTest {
         return createStateMessage(buildStatesBundle(singleton(STATE)));
     }
 
-    private static Bundle buildStatesBundleFromBundles(Collection<Bundle> bundles) {
+    private static Bundle buildStatesBundleFromBundles(
+            Collection<? extends Parcelable> bundles) {
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList(APP_STATES, new ArrayList<>(bundles));
         return bundle;
