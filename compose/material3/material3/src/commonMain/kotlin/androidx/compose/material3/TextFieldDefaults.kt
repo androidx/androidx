@@ -1629,7 +1629,7 @@ public object OutlinedTextFieldDefaults {
         }
             ?: TextFieldColors(
                     // Unfocused
-                    unfocusedContainerColor = fromToken(ColorSchemeKeyTokens.OnPrimary),
+                    unfocusedContainerColor = Color.Transparent,
                     unfocusedIndicatorColor = fromToken(ColorSchemeKeyTokens.OutlineVariant),
                     unfocusedTextColor = fromToken(ColorSchemeKeyTokens.OnSurface),
                     unfocusedLabelColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
@@ -1641,7 +1641,7 @@ public object OutlinedTextFieldDefaults {
                     unfocusedSuffixColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
 
                     // Focused
-                    focusedContainerColor = fromToken(ColorSchemeKeyTokens.OnPrimary),
+                    focusedContainerColor = Color.Transparent,
                     focusedIndicatorColor = fromToken(ColorSchemeKeyTokens.OutlineVariant),
                     focusedTextColor = fromToken(ColorSchemeKeyTokens.OnBackground),
                     focusedLabelColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
@@ -1653,9 +1653,7 @@ public object OutlinedTextFieldDefaults {
                     focusedSuffixColor = fromToken(ColorSchemeKeyTokens.OnBackground),
 
                     // Disabled
-                    disabledContainerColor =
-                        fromToken(ColorSchemeKeyTokens.OnPrimary)
-                            .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
+                    disabledContainerColor = Color.Transparent,
                     disabledIndicatorColor = fromToken(ColorSchemeKeyTokens.OutlineVariant),
                     disabledTextColor =
                         fromToken(ColorSchemeKeyTokens.OnSurface)
@@ -1683,7 +1681,7 @@ public object OutlinedTextFieldDefaults {
                             .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
 
                     // Error
-                    errorContainerColor = fromToken(ColorSchemeKeyTokens.ErrorContainer),
+                    errorContainerColor = Color.Transparent,
                     errorIndicatorColor = fromToken(ColorSchemeKeyTokens.Error),
                     errorTextColor = fromToken(ColorSchemeKeyTokens.OnBackground),
                     errorLabelColor = fromToken(ColorSchemeKeyTokens.Error),
