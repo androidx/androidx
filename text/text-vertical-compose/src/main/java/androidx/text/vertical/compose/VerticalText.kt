@@ -217,9 +217,15 @@ private fun setStyleToPaint(
         if (style.color.isSpecified) {
             out.color = style.color.toArgb()
         }
-        if (style.background.isSpecified) {
-            out.bgColor = style.background.toArgb()
-        }
+        // The caller reuses the TextPaint, and Paint.reset() does not reset the fields that
+        // TextPaint adds, such as bgColor. Assign each TextPaint field that this function sets
+        // every time, also when the style does not specify a value.
+        out.bgColor =
+            if (style.background.isSpecified) {
+                style.background.toArgb()
+            } else {
+                android.graphics.Color.TRANSPARENT
+            }
         if (Build.VERSION.SDK_INT >= 25) {
             style.localeList
                 ?.map { it.platformLocale }
