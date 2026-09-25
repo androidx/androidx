@@ -20,6 +20,7 @@ package androidx.compose.remote.creation.dsl
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.MultiClickModifier
+import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.modifiers.ClickActionModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -250,8 +251,36 @@ public fun Modifier.dynamicBorder(
 public fun Modifier.visibility(visible: RcInteger): Modifier = then(VisibilityModifier(visible))
 
 /** animationSpec modifier. */
-public fun Modifier.animationSpec(animationId: Int): Modifier =
-    then(AnimationSpecModifier(animationId))
+public fun Modifier.animationSpec(
+    animationId: Int = -1,
+    motionDuration: Float = 300f,
+    motionEasingType: Int =
+        androidx.compose.remote.core.operations.utilities.easing.GeneralEasing.CUBIC_STANDARD,
+    visibilityDuration: Float = 300f,
+    visibilityEasingType: Int =
+        androidx.compose.remote.core.operations.utilities.easing.GeneralEasing.CUBIC_STANDARD,
+    enterAnimation: AnimationSpec.ANIMATION = AnimationSpec.ANIMATION.FADE_IN,
+    exitAnimation: AnimationSpec.ANIMATION = AnimationSpec.ANIMATION.FADE_OUT,
+    enterFunctionId: Int = -1,
+    exitFunctionId: Int = -1,
+    enterSequence: AnimationSpec.SEQUENCE = AnimationSpec.SEQUENCE.CONCURRENT,
+    exitSequence: AnimationSpec.SEQUENCE = AnimationSpec.SEQUENCE.CONCURRENT,
+): Modifier =
+    then(
+        AnimationSpecModifier(
+            animationId,
+            motionDuration,
+            motionEasingType,
+            visibilityDuration,
+            visibilityEasingType,
+            enterAnimation,
+            exitAnimation,
+            enterFunctionId,
+            exitFunctionId,
+            enterSequence,
+            exitSequence,
+        )
+    )
 
 public fun Modifier.animationSpec(spec: RcAnimationSpec): Modifier =
     then(AnimationSpecModifier(spec.id))
@@ -700,9 +729,49 @@ internal class VisibilityModifier(val visible: RcInteger) : Modifier.Element {
     }
 }
 
-internal class AnimationSpecModifier(val animationId: Int) : Modifier.Element {
+internal class AnimationSpecModifier(
+    val animationId: Int = -1,
+    val motionDuration: Float = 300f,
+    val motionEasingType: Int =
+        androidx.compose.remote.core.operations.utilities.easing.GeneralEasing.CUBIC_STANDARD,
+    val visibilityDuration: Float = 300f,
+    val visibilityEasingType: Int =
+        androidx.compose.remote.core.operations.utilities.easing.GeneralEasing.CUBIC_STANDARD,
+    val enterAnimation: AnimationSpec.ANIMATION = AnimationSpec.ANIMATION.FADE_IN,
+    val exitAnimation: AnimationSpec.ANIMATION = AnimationSpec.ANIMATION.FADE_OUT,
+    val enterFunctionId: Int = -1,
+    val exitFunctionId: Int = -1,
+    val enterSequence: AnimationSpec.SEQUENCE = AnimationSpec.SEQUENCE.CONCURRENT,
+    val exitSequence: AnimationSpec.SEQUENCE = AnimationSpec.SEQUENCE.CONCURRENT,
+) : Modifier.Element, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
-        modifier.animationSpec(animationId)
+        modifier.animationSpec(
+            animationId,
+            motionDuration,
+            motionEasingType,
+            visibilityDuration,
+            visibilityEasingType,
+            enterAnimation,
+            exitAnimation,
+            enterFunctionId,
+            exitFunctionId,
+            enterSequence,
+            exitSequence,
+        )
+    }
+
+    override fun write(writer: RemoteComposeWriter) {
+        writer.addAnimationSpecModifier(
+            animationId,
+            motionDuration,
+            motionEasingType,
+            visibilityDuration,
+            visibilityEasingType,
+            AnimationSpec.packAnimation(enterAnimation, enterSequence),
+            AnimationSpec.packAnimation(exitAnimation, exitSequence),
+            enterFunctionId,
+            exitFunctionId,
+        )
     }
 }
 

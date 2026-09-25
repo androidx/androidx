@@ -981,6 +981,152 @@ public class RemoteComposeJsonParserTest {
         assertNotNull(result);
     }
 
+    @Test
+    public void testCustomVisibilityAnimationInJson() throws JSONException {
+        String json = "{\n"
+                + "  \"header\": { \"apiLevel\": 8, \"profiles\": 513, \"densityBehavior\": 2 },\n"
+                + "  \"root\": [\n"
+                + "    { \"variable\": { \"name\": \"cardVis\", \"vtype\": \"integer\", "
+                + "\"value\": 1 } },\n"
+                + "    { \"createOffscreenBitmap\": \"offscreenTex\" },\n"
+                + "    {\n"
+                + "      \"defineVisibilityAnimation\": {\n"
+                + "        \"name\": \"customEnter\",\n"
+                + "        \"params\": [\"progress\", \"w\", \"h\", \"x\", \"y\"],\n"
+                + "        \"commands\": [\n"
+                + "          { \"variable\": { \"name\": \"cx\", \"value\": \"@x + @w / 2\" } },\n"
+                + "          { \"variable\": { \"name\": \"cy\", \"value\": \"@y + @h / 2\" } },\n"
+                + "          { \"drawComponentToBitmap\": \"@offscreenTex\" },\n"
+                + "          {\n"
+                + "            \"save\": [\n"
+                + "              { \"paint\": { \"alpha\": \"@progress\" } },\n"
+                + "              { \"rotate\": { \"angle\": \"(1 - @progress) * -90\", "
+                + "\"pivotX\": \"@cx\", \"pivotY\": \"@cy\" } },\n"
+                + "              { \"scale\": { \"sx\": \"@progress\", \"sy\": \"@progress\","
+                + " \"pivotX\": \"@cx\", \"pivotY\": \"@cy\" } },\n"
+                + "              { \"type\": \"drawComponentContent\" }\n"
+                + "            ]\n"
+                + "          }\n"
+                + "        ]\n"
+                + "      }\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"defineVisibilityAnimation\": {\n"
+                + "        \"name\": \"customExit\",\n"
+                + "        \"params\": [\"progress\", \"w\", \"h\", \"x\", \"y\"],\n"
+                + "        \"commands\": [\n"
+                + "          { \"paint\": { \"alpha\": \"1 - @progress\" } },\n"
+                + "          { \"type\": \"drawComponentContent\" }\n"
+                + "        ]\n"
+                + "      }\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"box\": {\n"
+                + "        \"modifiers\": [\n"
+                + "          { \"visibility\": \"@cardVis\" },\n"
+                + "          {\n"
+                + "            \"animationSpec\": {\n"
+                + "              \"visibilityDuration\": 500,\n"
+                + "              \"enterFunction\": \"@customEnter\",\n"
+                + "              \"exitFunction\": \"@customExit\"\n"
+                + "            }\n"
+                + "          },\n"
+                + "          {\n"
+                + "            \"onclick\": {\n"
+                + "              \"type\": \"ValueIntegerExpressionChange\",\n"
+                + "              \"targetId\": \"@cardVis\",\n"
+                + "              \"value\": \"1 - @cardVis\"\n"
+                + "            }\n"
+                + "          }\n"
+                + "        ]\n"
+                + "      }\n"
+                + "    }\n"
+                + "  ]\n"
+                + "}";
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        int apiLevel = RemoteComposeJsonParser.parseApiLevel(json);
+        RemoteComposeWriter writer = new RemoteComposeWriter(new MockPlatform(), apiLevel, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(writer);
+        parser.parse(json);
+        byte[] result = writer.encodeToByteArray();
+        assertNotNull(result);
+        androidx.compose.remote.core.CoreDocument doc =
+                new androidx.compose.remote.core.CoreDocument();
+        doc.initFromBuffer(writer.getBuffer());
+    }
+
+    @Test
+    public void testParseDefineVisibilityAnimationWithShaderAndOffscreenBitmap() throws Exception {
+        String json = "{\n"
+                + "  \"header\": { \"apiLevel\": 8, \"width\": 360, \"height\": 520,"
+                + " \"profiles\": 513 },\n"
+                + "  \"root\": [\n"
+                + "    { \"variable\": { \"name\": \"card3Vis\", \"vtype\": \"integer\","
+                + " \"value\": 1 } },\n"
+                + "    {\n"
+                + "      \"defineVisibilityAnimation\": {\n"
+                + "        \"name\": \"shaderMeltExit\",\n"
+                + "        \"params\": [\"progress\", \"w\", \"h\", \"x\", \"y\", \"id\"],\n"
+                + "        \"commands\": [\n"
+                + "          { \"createOffscreenBitmap\": \"offscreenBitmap\" },\n"
+                + "          { \"drawComponentToBitmap\": { \"id\": \"@id\","
+                + " \"bitmap\": \"@offscreenBitmap\" } },\n"
+                + "          {\n"
+                + "            \"save\": [\n"
+                + "              { \"translate\": { \"dx\": \"@x\", \"dy\": \"@y\" } },\n"
+                + "              {\n"
+                + "                \"paint\": {\n"
+                + "                  \"shader\": {\n"
+                + "                    \"agsl\": \"uniform shader uTexture; uniform float"
+                + " uProgress; uniform float2 uResolution; half4 main(vec2 fc) { return"
+                + " uTexture.eval(fc); }\",\n"
+                + "                    \"uniforms\": {\n"
+                + "                      \"uTexture\": \"@offscreenBitmap\",\n"
+                + "                      \"uProgress\": \"@progress\",\n"
+                + "                      \"uResolution\": [\"@w\", \"@h\"]\n"
+                + "                    }\n"
+                + "                  }\n"
+                + "                }\n"
+                + "              },\n"
+                + "              { \"drawRoundRect\": { \"left\": 0, \"top\": 0,"
+                + " \"right\": \"@w\", \"bottom\": \"@h\", \"rx\": \"@h * 0.35\","
+                + " \"ry\": \"@h * 0.35\" } },\n"
+                + "              { \"paint\": { \"shader\": 0 } }\n"
+                + "            ]\n"
+                + "          }\n"
+                + "        ]\n"
+                + "      }\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"box\": {\n"
+                + "        \"modifiers\": [\n"
+                + "          { \"visibility\": \"@card3Vis\" },\n"
+                + "          {\n"
+                + "            \"animationSpec\": {\n"
+                + "              \"visibilityDuration\": 1000,\n"
+                + "              \"exitAnimation\": \"CUSTOM\",\n"
+                + "              \"exitFunction\": \"shaderMeltExit\",\n"
+                + "              \"enterSequence\": \"AFTER\",\n"
+                + "              \"exitSequence\": \"BEFORE\"\n"
+                + "            }\n"
+                + "          }\n"
+                + "        ]\n"
+                + "      }\n"
+                + "    }\n"
+                + "  ]\n"
+                + "}";
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        int apiLevel = RemoteComposeJsonParser.parseApiLevel(json);
+        RemoteComposeWriter writer = new RemoteComposeWriter(new MockPlatform(), apiLevel, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(writer);
+        parser.parse(json);
+        byte[] result = writer.encodeToByteArray();
+        assertNotNull(result);
+        androidx.compose.remote.core.CoreDocument doc =
+                new androidx.compose.remote.core.CoreDocument();
+        doc.initFromBuffer(writer.getBuffer());
+    }
+
     private static class MockPlatform implements RcPlatformServices {
         @Override
         public float[] pathToFloatArray(Object path) {

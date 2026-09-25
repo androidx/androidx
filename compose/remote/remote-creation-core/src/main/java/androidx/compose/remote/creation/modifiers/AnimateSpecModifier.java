@@ -32,6 +32,10 @@ public class AnimateSpecModifier implements RecordingModifier.Element {
     int mVisibilityEasingType;
     AnimationSpec.@NonNull ANIMATION mEnterAnimation;
     AnimationSpec.@NonNull ANIMATION mExitAnimation;
+    int mEnterFunctionId = -1;
+    int mExitFunctionId = -1;
+    AnimationSpec.@NonNull SEQUENCE mEnterSequence = AnimationSpec.SEQUENCE.CONCURRENT;
+    AnimationSpec.@NonNull SEQUENCE mExitSequence = AnimationSpec.SEQUENCE.CONCURRENT;
 
     public AnimateSpecModifier(int animationId) {
         this(animationId,
@@ -49,6 +53,56 @@ public class AnimateSpecModifier implements RecordingModifier.Element {
             int visibilityEasingType,
             AnimationSpec.@NonNull ANIMATION enterAnimation,
             AnimationSpec.@NonNull ANIMATION exitAnimation) {
+        this(
+                animationId,
+                motionDuration,
+                motionEasingType,
+                visibilityDuration,
+                visibilityEasingType,
+                enterAnimation,
+                exitAnimation,
+                -1,
+                -1,
+                AnimationSpec.SEQUENCE.CONCURRENT,
+                AnimationSpec.SEQUENCE.CONCURRENT);
+    }
+
+    public AnimateSpecModifier(
+            int animationId,
+            float motionDuration,
+            int motionEasingType,
+            float visibilityDuration,
+            int visibilityEasingType,
+            AnimationSpec.@NonNull ANIMATION enterAnimation,
+            AnimationSpec.@NonNull ANIMATION exitAnimation,
+            int enterFunctionId,
+            int exitFunctionId) {
+        this(
+                animationId,
+                motionDuration,
+                motionEasingType,
+                visibilityDuration,
+                visibilityEasingType,
+                enterAnimation,
+                exitAnimation,
+                enterFunctionId,
+                exitFunctionId,
+                AnimationSpec.SEQUENCE.CONCURRENT,
+                AnimationSpec.SEQUENCE.CONCURRENT);
+    }
+
+    public AnimateSpecModifier(
+            int animationId,
+            float motionDuration,
+            int motionEasingType,
+            float visibilityDuration,
+            int visibilityEasingType,
+            AnimationSpec.@NonNull ANIMATION enterAnimation,
+            AnimationSpec.@NonNull ANIMATION exitAnimation,
+            int enterFunctionId,
+            int exitFunctionId,
+            AnimationSpec.@NonNull SEQUENCE enterSequence,
+            AnimationSpec.@NonNull SEQUENCE exitSequence) {
         mAnimationId = animationId;
         mMotionDuration = motionDuration;
         mMotionEasingType = motionEasingType;
@@ -56,6 +110,10 @@ public class AnimateSpecModifier implements RecordingModifier.Element {
         mVisibilityEasingType = visibilityEasingType;
         mEnterAnimation = enterAnimation;
         mExitAnimation = exitAnimation;
+        mEnterFunctionId = enterFunctionId;
+        mExitFunctionId = exitFunctionId;
+        mEnterSequence = enterSequence;
+        mExitSequence = exitSequence;
     }
 
     @Override
@@ -66,7 +124,9 @@ public class AnimateSpecModifier implements RecordingModifier.Element {
                 mMotionEasingType,
                 mVisibilityDuration,
                 mVisibilityEasingType,
-                mEnterAnimation.ordinal(),
-                mExitAnimation.ordinal());
+                AnimationSpec.packAnimation(mEnterAnimation, mEnterSequence),
+                AnimationSpec.packAnimation(mExitAnimation, mExitSequence),
+                mEnterFunctionId,
+                mExitFunctionId);
     }
 }

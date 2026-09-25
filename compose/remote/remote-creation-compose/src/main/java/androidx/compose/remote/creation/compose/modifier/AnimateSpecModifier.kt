@@ -26,7 +26,8 @@ import androidx.compose.remote.creation.modifiers.AnimateSpecModifier as Creatio
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 
 /** Transition effect applied when a component enters a state layout. */
-public class RemoteEnterTransition internal constructor(internal val animation: ANIMATION) {
+public class RemoteEnterTransition
+internal constructor(internal val animation: ANIMATION, internal val functionId: Int = -1) {
     public companion object {
         /** Fades the component in from transparent to opaque. */
         public val FadeIn: RemoteEnterTransition = RemoteEnterTransition(ANIMATION.FADE_IN)
@@ -50,18 +51,28 @@ public class RemoteEnterTransition internal constructor(internal val animation: 
 
         /** Applies a particle effect during entry. */
         public val Particle: RemoteEnterTransition = RemoteEnterTransition(ANIMATION.PARTICLE)
+
+        /** Applies a custom float function animation during entry. */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun Custom(functionId: Int): RemoteEnterTransition =
+            RemoteEnterTransition(ANIMATION.CUSTOM, functionId)
     }
 
     override fun equals(other: Any?): Boolean =
-        other is RemoteEnterTransition && animation == other.animation
+        other is RemoteEnterTransition &&
+            animation == other.animation &&
+            functionId == other.functionId
 
-    override fun hashCode(): Int = animation.hashCode()
+    override fun hashCode(): Int = 31 * animation.hashCode() + functionId
 
-    override fun toString(): String = "RemoteEnterTransition.${animation.name}"
+    override fun toString(): String =
+        if (functionId != -1) "RemoteEnterTransition.${animation.name}($functionId)"
+        else "RemoteEnterTransition.${animation.name}"
 }
 
 /** Transition effect applied when a component exits a state layout. */
-public class RemoteExitTransition internal constructor(internal val animation: ANIMATION) {
+public class RemoteExitTransition
+internal constructor(internal val animation: ANIMATION, internal val functionId: Int = -1) {
     public companion object {
         /** Fades the component out from opaque to transparent. */
         public val FadeOut: RemoteExitTransition = RemoteExitTransition(ANIMATION.FADE_OUT)
@@ -84,14 +95,23 @@ public class RemoteExitTransition internal constructor(internal val animation: A
 
         /** Applies a particle effect during exit. */
         public val Particle: RemoteExitTransition = RemoteExitTransition(ANIMATION.PARTICLE)
+
+        /** Applies a custom float function animation during exit. */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun Custom(functionId: Int): RemoteExitTransition =
+            RemoteExitTransition(ANIMATION.CUSTOM, functionId)
     }
 
     override fun equals(other: Any?): Boolean =
-        other is RemoteExitTransition && animation == other.animation
+        other is RemoteExitTransition &&
+            animation == other.animation &&
+            functionId == other.functionId
 
-    override fun hashCode(): Int = animation.hashCode()
+    override fun hashCode(): Int = 31 * animation.hashCode() + functionId
 
-    override fun toString(): String = "RemoteExitTransition.${animation.name}"
+    override fun toString(): String =
+        if (functionId != -1) "RemoteExitTransition.${animation.name}($functionId)"
+        else "RemoteExitTransition.${animation.name}"
 }
 
 /** Creates a fade-in enter transition for Remote Compose state layouts. */
@@ -108,6 +128,14 @@ internal class AnimateSpecModifier(
     val visibilityEasingType: Int,
     val enterAnimation: ANIMATION,
     val exitAnimation: ANIMATION,
+    val enterFunctionId: Int = -1,
+    val exitFunctionId: Int = -1,
+    val enterSequence:
+        androidx.compose.remote.core.operations.layout.animation.AnimationSpec.SEQUENCE =
+        androidx.compose.remote.core.operations.layout.animation.AnimationSpec.SEQUENCE.CONCURRENT,
+    val exitSequence:
+        androidx.compose.remote.core.operations.layout.animation.AnimationSpec.SEQUENCE =
+        androidx.compose.remote.core.operations.layout.animation.AnimationSpec.SEQUENCE.CONCURRENT,
 ) : RemoteModifier.Element {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
@@ -119,6 +147,10 @@ internal class AnimateSpecModifier(
             visibilityEasingType,
             enterAnimation,
             exitAnimation,
+            enterFunctionId,
+            exitFunctionId,
+            enterSequence,
+            exitSequence,
         )
     }
 }
@@ -151,6 +183,8 @@ public fun RemoteModifier.sharedElement(
             visibilityEasingType = easing,
             enterAnimation = enter.animation,
             exitAnimation = exit.animation,
+            enterFunctionId = enter.functionId,
+            exitFunctionId = exit.functionId,
         )
     )
 }
@@ -193,6 +227,8 @@ public fun RemoteModifier.animateEnterExit(
             visibilityEasingType = easing,
             enterAnimation = enter.animation,
             exitAnimation = exit.animation,
+            enterFunctionId = enter.functionId,
+            exitFunctionId = exit.functionId,
         )
     )
 }
@@ -224,6 +260,8 @@ public fun RemoteModifier.animationSpec(
             visibilityEasingType = visibilityEasing,
             enterAnimation = enter.animation,
             exitAnimation = exit.animation,
+            enterFunctionId = enter.functionId,
+            exitFunctionId = exit.functionId,
         )
     )
 }
@@ -275,6 +313,44 @@ public fun RemoteModifier.animationSpec(
             visibilityEasingType = visibilityEasingType,
             enterAnimation = enterAnimation,
             exitAnimation = exitAnimation,
+            enterFunctionId = -1,
+            exitFunctionId = -1,
+        )
+    )
+}
+
+/** Applies an animation specification to match elements for shared transitions across states. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteModifier.animationSpec(
+    animationId: Int = -1,
+    motionDuration: Float = 300f,
+    motionEasingType: Int = GeneralEasing.CUBIC_STANDARD,
+    visibilityDuration: Float = motionDuration,
+    visibilityEasingType: Int = motionEasingType,
+    enterAnimation: ANIMATION = ANIMATION.FADE_IN,
+    exitAnimation: ANIMATION = ANIMATION.FADE_OUT,
+    enterFunctionId: Int = -1,
+    exitFunctionId: Int = -1,
+    enterSequence: androidx.compose.remote.core.operations.layout.animation.AnimationSpec.SEQUENCE =
+        androidx.compose.remote.core.operations.layout.animation.AnimationSpec.SEQUENCE.CONCURRENT,
+    exitSequence: androidx.compose.remote.core.operations.layout.animation.AnimationSpec.SEQUENCE =
+        androidx.compose.remote.core.operations.layout.animation.AnimationSpec.SEQUENCE.CONCURRENT,
+    enabled: Boolean = true,
+): RemoteModifier {
+    val id = if (enabled) animationId else 0
+    return then(
+        AnimateSpecModifier(
+            animationId = id,
+            motionDuration = motionDuration,
+            motionEasingType = motionEasingType,
+            visibilityDuration = visibilityDuration,
+            visibilityEasingType = visibilityEasingType,
+            enterAnimation = enterAnimation,
+            exitAnimation = exitAnimation,
+            enterFunctionId = enterFunctionId,
+            exitFunctionId = exitFunctionId,
+            enterSequence = enterSequence,
+            exitSequence = exitSequence,
         )
     )
 }

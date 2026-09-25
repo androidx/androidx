@@ -486,6 +486,18 @@ internal class ComposePaintContext(
         matrixStack.add(Matrix(currentMatrix.values.clone()))
     }
 
+    private val layerPaint = Paint()
+
+    override fun saveLayer(x: Float, y: Float, width: Float, height: Float) {
+        layerPaint.alpha = paint.alpha
+        canvas.saveLayer(
+            androidx.compose.ui.geometry.Rect(x, y, x + width, y + height),
+            layerPaint,
+        )
+        matrixStack.add(Matrix(currentMatrix.values.clone()))
+        paint.alpha = 1f
+    }
+
     override fun matrixRestore() {
         canvas.restore()
         if (matrixStack.size > 1) {
@@ -539,6 +551,7 @@ internal class ComposePaintContext(
             setTypeface(Typeface.DEFAULT)
             reset()
         }
+        releaseOffscreenBitmaps()
     }
 
     override fun startGraphicsLayer(w: Int, h: Int) {
@@ -844,6 +857,7 @@ internal class ComposePaintContext(
             canvas = mainCanvas!!
             return
         }
+        paint.alpha = 1f
         val bitmap = mContext.mRemoteComposeState.getFromId(bitmapId)!! as Bitmap
         if (canvasCache.containsKey(bitmap)) {
             canvas = canvasCache[bitmap]!!

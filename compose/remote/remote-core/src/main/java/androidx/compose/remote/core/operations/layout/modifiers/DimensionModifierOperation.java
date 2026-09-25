@@ -16,6 +16,7 @@
 package androidx.compose.remote.core.operations.layout.modifiers;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.VariableSupport;
@@ -86,13 +87,24 @@ public abstract class DimensionModifierOperation extends Operation
     @Override
     public void updateVariables(@NonNull RemoteContext context) {
         if (mType == Type.EXACT) {
+            float pre = mOutValue;
             mOutValue = Float.isNaN(mValue) ? context.getFloat(Utils.idFromNan(mValue)) : mValue;
+            if (context.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP) {
+                mOutValue *= context.getDensity();
+            }
+            if (pre != mOutValue
+                    && context.getDocument() != null
+                    && context.getDocument().getRootLayoutComponent() != null) {
+                context.getDocument().getRootLayoutComponent().invalidateMeasure();
+            }
         }
         if (mType == Type.EXACT_DP) {
             float pre = mOutValue;
             mOutValue = Float.isNaN(mValue) ? context.getFloat(Utils.idFromNan(mValue)) : mValue;
             mOutValue *= context.getDensity();
-            if (pre != mOutValue) {
+            if (pre != mOutValue
+                    && context.getDocument() != null
+                    && context.getDocument().getRootLayoutComponent() != null) {
                 context.getDocument().getRootLayoutComponent().invalidateMeasure();
             }
         }
@@ -104,11 +116,15 @@ public abstract class DimensionModifierOperation extends Operation
             if (Float.isNaN(mValue)) {
                 context.listensTo(Utils.idFromNan(mValue), this);
             }
+            if (context.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP) {
+                context.listensTo(RemoteContext.ID_DENSITY, this);
+            }
         }
         if (mType == Type.EXACT_DP) {
             if (Float.isNaN(mValue)) {
                 context.listensTo(Utils.idFromNan(mValue), this);
             }
+            context.listensTo(RemoteContext.ID_DENSITY, this);
         }
     }
 

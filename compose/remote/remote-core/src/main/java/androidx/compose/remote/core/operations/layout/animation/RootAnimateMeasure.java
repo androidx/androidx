@@ -47,7 +47,9 @@ public class RootAnimateMeasure extends AnimateMeasure {
             AnimationSpec.@NonNull ANIMATION enterAnimation,
             AnimationSpec.@NonNull ANIMATION exitAnimation,
             int motionEasingType,
-            int visibilityEasingType) {
+            int visibilityEasingType,
+            int enterFunctionId,
+            int exitFunctionId) {
         super(
                 startTime,
                 component,
@@ -58,11 +60,47 @@ public class RootAnimateMeasure extends AnimateMeasure {
                 enterAnimation,
                 exitAnimation,
                 motionEasingType,
-                visibilityEasingType);
+                visibilityEasingType,
+                enterFunctionId,
+                exitFunctionId);
         this.mOriginalOriginX = originalOriginX;
         this.mOriginalOriginY = originalOriginY;
         this.mTargetOriginX = targetOriginX;
         this.mTargetOriginY = targetOriginY;
+    }
+
+    public RootAnimateMeasure(
+            long startTime,
+            @NonNull Component component,
+            @NonNull ComponentMeasure original,
+            @NonNull ComponentMeasure target,
+            float originalOriginX,
+            float originalOriginY,
+            float targetOriginX,
+            float targetOriginY,
+            float duration,
+            float durationVisibilityChange,
+            AnimationSpec.@NonNull ANIMATION enterAnimation,
+            AnimationSpec.@NonNull ANIMATION exitAnimation,
+            int motionEasingType,
+            int visibilityEasingType) {
+        this(
+                startTime,
+                component,
+                original,
+                target,
+                originalOriginX,
+                originalOriginY,
+                targetOriginX,
+                targetOriginY,
+                duration,
+                durationVisibilityChange,
+                enterAnimation,
+                exitAnimation,
+                motionEasingType,
+                visibilityEasingType,
+                -1,
+                -1);
     }
 
     @Override

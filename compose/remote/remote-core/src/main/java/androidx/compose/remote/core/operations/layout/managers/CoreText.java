@@ -24,6 +24,7 @@ import static androidx.compose.remote.core.documentation.DocumentedOperation.INT
 import static java.lang.Math.floor;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -242,6 +243,8 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
         }
         if (Float.isNaN(mFontSize)) {
             context.listensTo(Utils.idFromNan(mFontSize), this);
+        } else if (context.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP) {
+            context.listensTo(RemoteContext.ID_DENSITY, this);
         }
         if (Float.isNaN(mFontWeight)) {
             context.listensTo(Utils.idFromNan(mFontWeight), this);
@@ -263,8 +266,16 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
                 applyStyle((TextStyle) styleObj);
             }
         }
+        float prevFontSize = mFontSizeValue;
         mFontSizeValue =
                 Float.isNaN(mFontSize) ? context.getFloat(Utils.idFromNan(mFontSize)) : mFontSize;
+        if (context.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP
+                && !Float.isNaN(mFontSize)) {
+            mFontSizeValue *= context.getDensity();
+        }
+        if (prevFontSize != mFontSizeValue && mComputedTextLayout != null) {
+            invalidateMeasure();
+        }
         mFontWeightValue =
                 Float.isNaN(mFontWeight)
                         ? context.getFloat(Utils.idFromNan(mFontWeight))

@@ -611,6 +611,36 @@ public class Component extends PaintOperation
     }
 
     /**
+     * Returns true if this component is currently holding its pre-change layout space while
+     * playing a BEFORE exit animation.
+     */
+    public boolean isHoldingLayoutForBeforeAnimation(@Nullable RemoteContext context) {
+        if (mFirstLayout
+                || context == null
+                || !context.isAnimationEnabled()
+                || !mAnimationSpec.isAnimationEnabled()) {
+            return false;
+        }
+        if (mVisibility != mScheduledVisibility
+                && Visibility.isVisible(mVisibility)
+                && (Visibility.isGone(mScheduledVisibility)
+                        || Visibility.isInvisible(mScheduledVisibility))) {
+            return mAnimationSpec.getExitSequence() == AnimationSpec.SEQUENCE.BEFORE;
+        }
+        return false;
+    }
+
+    /**
+     * Returns the effective visibility to use during measure passes.
+     */
+    public int getMeasureVisibility(@Nullable RemoteContext context) {
+        if (isHoldingLayoutForBeforeAnimation(context)) {
+            return mVisibility;
+        }
+        return mScheduledVisibility;
+    }
+
+    /**
      * Set the visibility of the component
      *
      * @param visibility can be VISIBLE, INVISIBLE or GONE
@@ -707,11 +737,16 @@ public class Component extends PaintOperation
     @Override
     public void layout(@NonNull RemoteContext context, @NonNull MeasurePass measure) {
         ComponentMeasure m = measure.get(this);
+        int targetVisibility =
+                isHoldingLayoutForBeforeAnimation(context)
+                        ? mScheduledVisibility
+                        : m.getVisibility();
         if (!mFirstLayout
                 && context.isAnimationEnabled()
                 && mAnimationSpec.isAnimationEnabled()
                 && m.getAllowsAnimation()
-                && !(this instanceof LayoutComponentContent)) {
+                && !(this instanceof LayoutComponentContent)
+                && !(Visibility.isGone(mVisibility) && Visibility.isGone(targetVisibility))) {
             if (mAnimateMeasure == null) {
                 ComponentMeasurePool pool = context.getComponentMeasurePool();
                 ComponentMeasure origin =
@@ -723,7 +758,7 @@ public class Component extends PaintOperation
                                 m.getY(),
                                 m.getW(),
                                 m.getH(),
-                                m.getVisibility());
+                                targetVisibility);
                 if (!target.same(origin)) {
                     mAnimateMeasure =
                             new AnimateMeasure(
@@ -736,13 +771,20 @@ public class Component extends PaintOperation
                                     mAnimationSpec.getEnterAnimation(),
                                     mAnimationSpec.getExitAnimation(),
                                     mAnimationSpec.getMotionEasingType(),
-                                    mAnimationSpec.getVisibilityEasingType());
+                                    mAnimationSpec.getVisibilityEasingType(),
+                                    mAnimationSpec.getEnterFunctionId(),
+                                    mAnimationSpec.getExitFunctionId(),
+                                    mAnimationSpec.getEnterSequence(),
+                                    mAnimationSpec.getExitSequence());
                 } else {
                     pool.recycle(origin);
                     pool.recycle(target);
                 }
             } else {
+                int savedVis = m.getVisibility();
+                m.setVisibility(targetVisibility);
                 mAnimateMeasure.updateTarget(context, m, context.currentTime);
+                m.setVisibility(savedVis);
             }
         }
         if (mAnimateMeasure == null) {
@@ -770,12 +812,20 @@ public class Component extends PaintOperation
             mAnimateMeasure.apply(context);
             updateComponentValues(context, mWidth, mHeight);
             if (mAnimateMeasure.isDone()) {
+                boolean triggerLayout = mAnimateMeasure.isBeforeLayout();
+                mVisibility = mAnimateMeasure.getTarget().getVisibility();
                 ComponentMeasurePool pool = context.getComponentMeasurePool();
                 pool.recycle(mAnimateMeasure.getOriginal());
                 pool.recycle(mAnimateMeasure.getTarget());
                 mAnimateMeasure = null;
                 if (mParent != null) {
                     clearNeedsBoundsAnimation();
+                }
+                if (triggerLayout) {
+                    invalidateMeasure();
+                    if (mParent != null) {
+                        mParent.invalidateMeasure();
+                    }
                 }
             } else {
                 markNeedsBoundsAnimation();
@@ -1597,12 +1647,20 @@ public class Component extends PaintOperation
         if (context.isAnimationEnabled() && mAnimateMeasure != null) {
             mAnimateMeasure.paint(context);
             if (mAnimateMeasure.isDone()) {
+                boolean triggerLayout = mAnimateMeasure.isBeforeLayout();
+                mVisibility = mAnimateMeasure.getTarget().getVisibility();
                 ComponentMeasurePool pool = context.getContext().getComponentMeasurePool();
                 pool.recycle(mAnimateMeasure.getOriginal());
                 pool.recycle(mAnimateMeasure.getTarget());
                 mAnimateMeasure = null;
                 if (mParent != null) {
                     clearNeedsBoundsAnimation();
+                }
+                if (triggerLayout) {
+                    invalidateMeasure();
+                    if (mParent != null) {
+                        mParent.invalidateMeasure();
+                    }
                 }
                 needsRepaint();
             } else {
