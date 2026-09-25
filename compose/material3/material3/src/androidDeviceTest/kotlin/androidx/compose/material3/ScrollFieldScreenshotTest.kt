@@ -82,6 +82,20 @@ class ScrollFieldScreenshotTest() {
         assertScrollFieldAgainstGolden("scrollField_focused")
     }
 
+    @Test
+    fun scrollField_lightTheme_focused_defaultIndication() {
+        rule.setMaterialContent(lightColorScheme()) { TestContent() }
+        rule.onNodeWithTag(ScrollFieldTestTag).requestFocus()
+        assertScrollFieldAgainstGolden("scrollField_lightTheme_focused_defaultIndication")
+    }
+
+    @Test
+    fun scrollField_darkTheme_focused_defaultIndication() {
+        rule.setMaterialContent(darkColorScheme()) { TestContent() }
+        rule.onNodeWithTag(ScrollFieldTestTag).requestFocus()
+        assertScrollFieldAgainstGolden("scrollField_darkTheme_focused_defaultIndication")
+    }
+
     private fun assertScrollFieldAgainstGolden(goldenIdentifier: String) {
         rule
             .onNodeWithTag(ScrollFieldTestTag)

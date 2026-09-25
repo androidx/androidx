@@ -37,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -214,11 +215,8 @@ public fun ScrollField(
         userScrollEnabled = enabled,
         modifier =
             modifier
-                .indication(
-                    interactionSource,
-                    @OptIn(ExperimentalMaterial3Api::class)
-                    ripple(focusRingShape = ScrollFieldDefaults.shape),
-                )
+                .clip(ScrollFieldDefaults.shape)
+                .indication(interactionSource, ripple(focusRingShape = ScrollFieldDefaults.shape))
                 .background(
                     color = if (enabled) colors.containerColor else colors.disabledContainerColor,
                     shape = ScrollFieldDefaults.shape,
