@@ -2302,10 +2302,14 @@ internal class GapComposer(
     ) {
         trace("Compose:insertMovableContent") {
             var completed = false
+            val observer = observerHolder.pin()
+            observer?.onBeginComposition(composition)
             try {
                 insertMovableContentGuarded(references)
                 completed = true
             } finally {
+                observer?.onEndComposition(composition)
+                observerHolder.unpin()
                 if (completed) {
                     cleanUpCompose()
                 } else {
@@ -2638,7 +2642,6 @@ internal class GapComposer(
         content: (@Composable () -> Unit)?,
     ) {
         runtimeCheck(!isComposing) { "Reentrant composition is not supported" }
-        val observer = observerHolder.current()
         trace("Compose:recompose") {
             compositionToken = currentSnapshot().snapshotId.hashCode()
             providerUpdates = null
@@ -2646,6 +2649,7 @@ internal class GapComposer(
             nodeIndex = 0
             var complete = false
             isComposing = true
+            val observer = observerHolder.pin()
             observer?.onBeginComposition(composition)
             try {
                 startRoot()
@@ -2682,6 +2686,7 @@ internal class GapComposer(
                 throw e.attachComposeStackTrace { currentStackTrace() }
             } finally {
                 observer?.onEndComposition(composition)
+                observerHolder.unpin()
                 isComposing = false
                 invalidations.clear()
                 if (!complete) abortRoot()
