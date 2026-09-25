@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import androidx.compose.remote.core.operations.layout.managers.Custom
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,10 +49,22 @@ class CoreReflectionGuardTest {
         mapOf(
             "$ops.ClipPath" to listOf("mId", "mRegionOp"),
             "$ops.PathCombine" to listOf("mOperation"),
-            "$ops.PathData" to listOf("mInstanceId", "mOutputPath", "mPathChanged"),
-            "$ops.DrawTextOnPath" to listOf("mPathId", "mOutHOffset", "mOutVOffset"),
+            "$ops.PathData" to listOf("mInstanceId", "mOutputPath", "mPathChanged", "mFloatPath"),
+            "$ops.DrawTextOnPath" to
+                listOf("mPathId", "mOutHOffset", "mOutVOffset", "mHOffset", "mVOffset"),
             "$ops.DrawTextAnchored" to
-                listOf("mTextID", "mOutX", "mOutY", "mOutPanX", "mOutPanY", "mFlags"),
+                listOf(
+                    "mTextID",
+                    "mOutX",
+                    "mOutY",
+                    "mOutPanX",
+                    "mOutPanY",
+                    "mX",
+                    "mY",
+                    "mPanX",
+                    "mPanY",
+                    "mFlags",
+                ),
             "$ops.DrawTextOnCircle" to
                 listOf(
                     "mCenterX",
@@ -120,11 +133,22 @@ class CoreReflectionGuardTest {
             // Particle rendering is bridged to the core paint() implementations; only the
             // loop's source is read reflectively (for the once-per-document seeding).
             "$ops.ParticlesLoop" to listOf("mParticlesSource"),
-            "$ops.ConditionalOperations" to listOf("mVarAOut", "mVarBOut", "mType"),
+            "$ops.ConditionalOperations" to
+                listOf("mVarA", "mVarB", "mVarAOut", "mVarBOut", "mType"),
             "$ops.layout.LoopOperation" to
-                listOf("mFromOut", "mUntilOut", "mStepOut", "mIndexVariableId"),
+                listOf(
+                    "mFrom",
+                    "mUntil",
+                    "mStep",
+                    "mFromOut",
+                    "mUntilOut",
+                    "mStepOut",
+                    "mIndexVariableId",
+                ),
+            "$ops.layout.ImpulseOperation" to listOf("mDuration", "mStartAt"),
             "$ops.layout.Component" to listOf("mAnimationSpec"),
-            "$ops.FloatFunctionCall" to listOf("mFunction", "mOutArgs"),
+            "$ops.FloatFunctionDefine" to listOf("mId", "mFloatVarId"),
+            "$ops.FloatFunctionCall" to listOf("mId", "mArgs", "mFunction", "mOutArgs"),
             "$managers.CoreText" to
                 listOf(
                     "mColorValue",
@@ -171,5 +195,7 @@ class CoreReflectionGuardTest {
             }
         }
         assertThat(missing).isEmpty()
+        assertThat(Custom.CustomProperty(0, Custom.CustomProperty.INT_PROP, 1).typeNameReflection)
+            .isEqualTo("INT_PROP")
     }
 }
