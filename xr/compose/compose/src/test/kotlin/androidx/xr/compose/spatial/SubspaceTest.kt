@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -41,6 +42,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -1573,6 +1575,230 @@ class SubspaceTest {
         assertThat(actualWorldXOffsetDp).isEqualTo(expectedWorldXOffset)
         assertThat(actualWorldYOffsetDp).isEqualTo(expectedWorldYOffset)
         assertThat(actualWorldZOffsetDp).isEqualTo(expectedWorldZOffset)
+    }
+
+    @Test
+    fun planarEmbeddedSubspace_whenSpatialPopupInSpatialPanel_hasCorrectPose() {
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(SubspaceModifier.size(200.dp).testTag("panel")) {
+                    Row {
+                        Spacer(Modifier.size(100.dp))
+                        Column {
+                            Spacer(Modifier.size(25.dp))
+                            PlanarEmbeddedSubspace {
+                                SpatialPanel(SubspaceModifier.size(100.dp).testTag("innerPanel")) {
+                                    SpatialPopup(
+                                        alignment = Alignment.TopStart,
+                                        offset = IntOffset.Zero,
+                                        elevation = 0.dp,
+                                    ) {
+                                        Box(Modifier.size(10.dp).testTag("popupContent"))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("innerPanel").assertExists()
+        composeTestRule.onNodeWithTag("popupContent").assertExists()
+
+        val subspaceRootContainerEntity =
+            assertNotNull(
+                composeTestRule
+                    .onSubspaceNodeWithTag("panel")
+                    .fetchSemanticsNode()
+                    .semanticsEntity
+                    ?.children
+                    ?.single()
+            )
+        composeTestRule
+            .onSubspaceNodeWithTag("innerPanel")
+            .assertEntityIsDescendantOf(subspaceRootContainerEntity)
+
+        val innerPanelEntity =
+            assertNotNull(
+                composeTestRule
+                    .onSubspaceNodeWithTag("innerPanel")
+                    .fetchSemanticsNode()
+                    .semanticsEntity
+            )
+        val popupEntity = assertNotNull(innerPanelEntity.children.singleOrNull())
+
+        val session = checkNotNull(composeTestRule.session) { "session must be initialized" }
+        val pixelDensity = session.scene.virtualPixelDensity
+        val density = composeTestRule.density
+
+        // Expected local offset of the SpatialPopup relative to the inner panel:
+        // TopStart alignment aligns the top-left of the popup (10x10 dp) with the top-left of the
+        // inner panel (100x100 dp).
+        // Relative to the center of the inner panel (0, 0, 0) in 3D:
+        // x = - (inner panel width / 2) + (popup width / 2) = -50.dp + 5.dp = -45.dp
+        // y = (inner panel height / 2) - (popup height / 2) = 50.dp - 5.dp = +45.dp
+        // z = 0.dp
+        val expectedLocalXOffset = -45.dp
+        val expectedLocalYOffset = 45.dp
+        val expectedLocalZOffset = 0.dp
+
+        val actualLocalXOffsetDp =
+            popupEntity.getPose().translation.x.metersToDp(density, pixelDensity)
+        val actualLocalYOffsetDp =
+            popupEntity.getPose().translation.y.metersToDp(density, pixelDensity)
+        val actualLocalZOffsetDp =
+            popupEntity.getPose().translation.z.metersToDp(density, pixelDensity)
+
+        assertThat(actualLocalXOffsetDp).isEqualTo(expectedLocalXOffset)
+        assertThat(actualLocalYOffsetDp).isEqualTo(expectedLocalYOffset)
+        assertThat(actualLocalZOffsetDp).isEqualTo(expectedLocalZOffset)
+
+        /*
+         * (0,0)
+         * 1-----------------------
+         * |          |           |
+         * |          |[(5)------]|
+         * |          |[    4    ]|
+         * -----------2[---------]-
+         * |          |           |
+         * |          |           |
+         * |          |           |
+         * -----------------------3
+         *                         (200,200)
+         *
+         * 1 is the origin (0, 0) of the 2D layout of the parent panel
+         * 2 is the center of the parent panel (100, 100), this is also the origin (0, 0, 0) in 3D
+         *   space.
+         * 3 is the bottom right corner of the parent panel, it is (200, 200) in the parent layout
+         * 4 is the center of the inner panel (150, 75)
+         * 5 is the center of the popup (105, 30)
+         *
+         * The expected offset is 5 relative to 2 (Subspace origin in 3D space) which is +5 dp in x
+         *  and +70 dp in y directions in 3D space.
+         */
+        val expectedWorldXOffset = 5.dp
+        val expectedWorldYOffset = 70.dp
+        val expectedWorldZOffset = 0.dp
+
+        val actualWorldPose = popupEntity.getPose(relativeTo = Space.ACTIVITY)
+        val actualWorldXOffsetDp = actualWorldPose.translation.x.metersToDp(density, pixelDensity)
+        val actualWorldYOffsetDp = actualWorldPose.translation.y.metersToDp(density, pixelDensity)
+        val actualWorldZOffsetDp = actualWorldPose.translation.z.metersToDp(density, pixelDensity)
+
+        assertThat(actualWorldXOffsetDp.value).isWithin(0.001f).of(expectedWorldXOffset.value)
+        assertThat(actualWorldYOffsetDp.value).isWithin(0.001f).of(expectedWorldYOffset.value)
+        assertThat(actualWorldZOffsetDp.value).isWithin(0.001f).of(expectedWorldZOffset.value)
+    }
+
+    @Test
+    fun planarEmbeddedSubspace_whenSpatialElevationInSpatialPanel_hasCorrectPose() {
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(SubspaceModifier.size(200.dp).testTag("panel")) {
+                    Row {
+                        Spacer(Modifier.size(100.dp))
+                        Column {
+                            Spacer(Modifier.size(25.dp))
+                            PlanarEmbeddedSubspace {
+                                SpatialPanel(SubspaceModifier.size(100.dp).testTag("innerPanel")) {
+                                    SpatialElevation(elevation = 10.dp) {
+                                        Box(Modifier.size(10.dp).testTag("elevatedContent"))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("innerPanel").assertExists()
+        composeTestRule.onNodeWithTag("elevatedContent").assertExists()
+
+        val subspaceRootContainerEntity =
+            assertNotNull(
+                composeTestRule
+                    .onSubspaceNodeWithTag("panel")
+                    .fetchSemanticsNode()
+                    .semanticsEntity
+                    ?.children
+                    ?.single()
+            )
+        composeTestRule
+            .onSubspaceNodeWithTag("innerPanel")
+            .assertEntityIsDescendantOf(subspaceRootContainerEntity)
+
+        val innerPanelEntity =
+            assertNotNull(
+                composeTestRule
+                    .onSubspaceNodeWithTag("innerPanel")
+                    .fetchSemanticsNode()
+                    .semanticsEntity
+            )
+        val elevatedEntity = assertNotNull(innerPanelEntity.children.singleOrNull())
+
+        val session = checkNotNull(composeTestRule.session) { "session must be initialized" }
+        val pixelDensity = session.scene.virtualPixelDensity
+        val density = composeTestRule.density
+
+        // Expected local offset of the SpatialElevation relative to the inner panel:
+        // SpatialElevation places the elevated panel (10x10 dp) at the top-left (0, 0) of the
+        // inner panel (100x100 dp) with z = 10.dp elevation.
+        // Relative to the center of the inner panel (0, 0, 0) in 3D:
+        // x = - (inner panel width / 2) + (elevated panel width / 2) = -50.dp + 5.dp = -45.dp
+        // y = (inner panel height / 2) - (elevated panel height / 2) = 50.dp - 5.dp = +45.dp
+        // z = 10.dp
+        val expectedLocalXOffset = -45.dp
+        val expectedLocalYOffset = 45.dp
+        val expectedLocalZOffset = 10.dp
+
+        val actualLocalXOffsetDp =
+            elevatedEntity.getPose().translation.x.metersToDp(density, pixelDensity)
+        val actualLocalYOffsetDp =
+            elevatedEntity.getPose().translation.y.metersToDp(density, pixelDensity)
+        val actualLocalZOffsetDp =
+            elevatedEntity.getPose().translation.z.metersToDp(density, pixelDensity)
+
+        assertThat(actualLocalXOffsetDp).isEqualTo(expectedLocalXOffset)
+        assertThat(actualLocalYOffsetDp).isEqualTo(expectedLocalYOffset)
+        assertThat(actualLocalZOffsetDp).isEqualTo(expectedLocalZOffset)
+
+        /*
+         * (0,0)
+         * 1-----------------------
+         * |          |           |
+         * |          |[(5)------]|
+         * |          |[    4    ]|
+         * -----------2[---------]-
+         * |          |           |
+         * |          |           |
+         * |          |           |
+         * -----------------------3
+         *                         (200,200)
+         *
+         * 1 is the origin (0, 0) of the 2D layout of the parent panel
+         * 2 is the center of the parent panel (100, 100), this is also the origin (0, 0, 0) in 3D
+         *   space.
+         * 3 is the bottom right corner of the parent panel, it is (200, 200) in the parent layout
+         * 4 is the center of the inner panel (150, 75)
+         * 5 is the center of the elevated panel (105, 30) with +10 dp z-elevation
+         *
+         * The expected offset is 5 relative to 2 (Subspace origin in 3D space) which is +5 dp in x,
+         *  +70 dp in y, and +10 dp in z directions in 3D space.
+         */
+        val expectedWorldXOffset = 5.dp
+        val expectedWorldYOffset = 70.dp
+        val expectedWorldZOffset = 10.dp
+
+        val actualWorldPose = elevatedEntity.getPose(relativeTo = Space.ACTIVITY)
+        val actualWorldXOffsetDp = actualWorldPose.translation.x.metersToDp(density, pixelDensity)
+        val actualWorldYOffsetDp = actualWorldPose.translation.y.metersToDp(density, pixelDensity)
+        val actualWorldZOffsetDp = actualWorldPose.translation.z.metersToDp(density, pixelDensity)
+
+        assertThat(actualWorldXOffsetDp.value).isWithin(0.001f).of(expectedWorldXOffset.value)
+        assertThat(actualWorldYOffsetDp.value).isWithin(0.001f).of(expectedWorldYOffset.value)
+        assertThat(actualWorldZOffsetDp.value).isWithin(0.001f).of(expectedWorldZOffset.value)
     }
 
     @Test
