@@ -94,3 +94,9 @@ dependencies {
     androidTestImplementation libs.junit
     androidTestImplementation libs.testCore
 }
+
+androidx {
+    deviceTests {
+        maxShardCount = 1
+    }
+}
