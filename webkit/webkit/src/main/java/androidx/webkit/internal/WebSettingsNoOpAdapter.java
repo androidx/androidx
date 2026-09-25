@@ -178,6 +178,7 @@ public class WebSettingsNoOpAdapter extends WebSettingsAdapter {
      * {@link androidx.webkit.WebSettingsCompat#getAttributionRegistrationBehavior(WebSettings)}
      */
     @Override
+    @SuppressWarnings("deprecation")
     public int getAttributionRegistrationBehavior() {
         return WebSettingsCompat.ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_WEB_TRIGGER;
     }

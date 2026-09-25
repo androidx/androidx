@@ -518,7 +518,7 @@ package androidx.webkit {
 
   public class WebSettingsCompat {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.COOKIE_INTERCEPT, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean areCookiesIncludedInShouldInterceptRequest(android.webkit.WebSettings);
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.ATTRIBUTION_REGISTRATION_BEHAVIOR, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static int getAttributionRegistrationBehavior(android.webkit.WebSettings);
+    method @Deprecated @RequiresFeature(name=androidx.webkit.WebViewFeature.ATTRIBUTION_REGISTRATION_BEHAVIOR, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static int getAttributionRegistrationBehavior(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.BACK_FORWARD_CACHE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean getBackForwardCacheEnabled(android.webkit.WebSettings);
     method @SuppressCompatibility @RequiresFeature(name=androidx.webkit.WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @androidx.webkit.WebSettingsCompat.ExperimentalBackForwardCacheSettings public static androidx.webkit.BackForwardCacheSettings getBackForwardCacheSettings(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static int getDisabledActionModeMenuItems(android.webkit.WebSettings);
@@ -537,7 +537,7 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEBVIEW_MEDIA_INTEGRITY_API_STATUS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static androidx.webkit.WebViewMediaIntegrityApiStatusConfig getWebViewMediaIntegrityApiStatus(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.ALGORITHMIC_DARKENING, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean isAlgorithmicDarkeningAllowed(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.ALGORITHMIC_DARKENING, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setAlgorithmicDarkeningAllowed(android.webkit.WebSettings, boolean);
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.ATTRIBUTION_REGISTRATION_BEHAVIOR, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setAttributionRegistrationBehavior(android.webkit.WebSettings, int);
+    method @Deprecated @RequiresFeature(name=androidx.webkit.WebViewFeature.ATTRIBUTION_REGISTRATION_BEHAVIOR, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setAttributionRegistrationBehavior(android.webkit.WebSettings, int);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.BACK_FORWARD_CACHE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setBackForwardCacheEnabled(android.webkit.WebSettings, boolean);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.COOKIE_INTERCEPT, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setCookiesIncludedInShouldInterceptRequest(android.webkit.WebSettings, boolean);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setDisabledActionModeMenuItems(android.webkit.WebSettings, int);
@@ -555,10 +555,10 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.USER_AGENT_METADATA, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setUserAgentMetadata(android.webkit.WebSettings, androidx.webkit.UserAgentMetadata);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_AUTHENTICATION, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static void setWebAuthenticationSupport(android.webkit.WebSettings, int);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEBVIEW_MEDIA_INTEGRITY_API_STATUS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setWebViewMediaIntegrityApiStatus(android.webkit.WebSettings, androidx.webkit.WebViewMediaIntegrityApiStatusConfig);
-    field public static final int ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_APP_TRIGGER = 3; // 0x3
-    field public static final int ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_WEB_TRIGGER = 1; // 0x1
-    field public static final int ATTRIBUTION_BEHAVIOR_DISABLED = 0; // 0x0
-    field public static final int ATTRIBUTION_BEHAVIOR_WEB_SOURCE_AND_WEB_TRIGGER = 2; // 0x2
+    field @Deprecated public static final int ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_APP_TRIGGER = 3; // 0x3
+    field @Deprecated public static final int ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_WEB_TRIGGER = 1; // 0x1
+    field @Deprecated public static final int ATTRIBUTION_BEHAVIOR_DISABLED = 0; // 0x0
+    field @Deprecated public static final int ATTRIBUTION_BEHAVIOR_WEB_SOURCE_AND_WEB_TRIGGER = 2; // 0x2
     field @Deprecated public static final int DARK_STRATEGY_PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING = 2; // 0x2
     field @Deprecated public static final int DARK_STRATEGY_USER_AGENT_DARKENING_ONLY = 0; // 0x0
     field @Deprecated public static final int DARK_STRATEGY_WEB_THEME_DARKENING_ONLY = 1; // 0x1
@@ -711,7 +711,7 @@ package androidx.webkit {
     method public static boolean isStartupFeatureSupported(android.content.Context, String);
     field @SuppressCompatibility @androidx.webkit.Profile.ExperimentalAddQuicHints public static final String ADD_QUIC_HINTS_V1 = "ADD_QUIC_HINTS";
     field public static final String ALGORITHMIC_DARKENING = "ALGORITHMIC_DARKENING";
-    field public static final String ATTRIBUTION_REGISTRATION_BEHAVIOR = "ATTRIBUTION_REGISTRATION_BEHAVIOR";
+    field @Deprecated public static final String ATTRIBUTION_REGISTRATION_BEHAVIOR = "ATTRIBUTION_REGISTRATION_BEHAVIOR";
     field public static final String BACK_FORWARD_CACHE = "BACK_FORWARD_CACHE";
     field public static final String BACK_FORWARD_CACHE_SETTINGS = "BACK_FORWARD_CACHE_SETTINGS";
     field public static final String BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3 = "BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3";
