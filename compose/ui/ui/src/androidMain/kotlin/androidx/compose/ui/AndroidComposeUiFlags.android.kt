@@ -122,7 +122,7 @@ public object AndroidComposeUiFlags {
     // TODO: Remove this flag once it has soaked (b/531596705)
     @field:Suppress("MutableBareField")
     @JvmField
-    public var isDelayedWindowInsetsRulersEnabled: Boolean = true
+    public var isDelayedWindowInsetsRulersEnabled: Boolean = false
 
     /**
      * This flag enables dispatching accessibility focus events (TYPE_VIEW_ACCESSIBILITY_FOCUSED)
