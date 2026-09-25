@@ -770,24 +770,147 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
     private val operationMap = HashMap<RemoteStateCacheKey, SpanOp>()
     private val usageMap = LinkedHashMap<RemoteStateCacheKey, ArrayList<SpanOp>>()
     private val expressionMap = LinkedHashMap<RemoteStateCacheKey, BaseRemoteState<*>>()
+    private var globalSaveCounter: Int = 0
+    internal var initialSpanSaveCount: Int = 0
+    internal var currentSaveRestoreNode: CanvasOp.SaveRestore? = null
     internal var lastRenderingOp: SpanOp? = null
 
+    public val saveCount: Int
+        get() = globalSaveCounter
+
     /**
-     * Records a structured rendering operation into the current active span.
+     * Propagates a flag up the active save block hierarchy ([currentSaveRestoreNode] and its
+     * parents) marking them as containing at least one draw call.
      *
-     * This method creates a [SpanOp] wrapping the given [op], adds it to the current [insertPoint]
-     * span, and automatically establishes a sequential dependency on the previously recorded
-     * rendering operation (if any) to preserve execution order.
+     * This is used during optimization to ensure that save/restore blocks that actually perform
+     * drawing are preserved, while empty save/restore blocks can be pruned.
+     */
+    private fun markDrawCall() {
+        var s = currentSaveRestoreNode
+        while (s != null) {
+            s.hasDrawCalls = true
+            s = s.parent
+        }
+    }
+
+    /**
+     * Records a structured rendering operation into the current active span or active save block.
+     *
+     * If optimizations are enabled and the buffer is currently inside a save block
+     * ([currentSaveRestoreNode] is not null), the operation is added to the active save node's
+     * children list for post-processing/optimization rather than being immediately recorded.
+     *
+     * If the operation is a [CanvasOp.Draw], this method also triggers [markDrawCall] to mark the
+     * active save hierarchy as containing drawing operations, ensuring they are not optimized away.
      *
      * @param op The structured canvas operation to record.
      * @return The created [SpanOp] representing this operation in the dependency graph.
      */
     public fun recordRenderingOp(op: CanvasOp): SpanOp {
-        val spanOp = SpanOp(insertPoint, op)
-        insertPoint.operations.add(spanOp)
-        lastRenderingOp?.let { spanOp.deps.add(it) }
-        lastRenderingOp = spanOp
-        return spanOp
+        if (op.triggersDrawCall()) {
+            markDrawCall()
+        }
+        if (currentSaveRestoreNode != null) {
+            currentSaveRestoreNode!!.children.add(op)
+            return currentSaveRestoreNode!!.getRootSaveNode().spanOp!!
+        } else {
+            val spanOp = SpanOp(insertPoint, op)
+            insertPoint.operations.add(spanOp)
+            lastRenderingOp?.let { spanOp.deps.add(it) }
+            lastRenderingOp = spanOp
+            if (op is CanvasOp.SaveRestore) {
+                op.spanOp = spanOp
+            }
+            return spanOp
+        }
+    }
+
+    /**
+     * Pushes a new save/restore scope onto the save hierarchy, or emits a standalone save command
+     * if reinstating an outer frame inside a child span.
+     *
+     * @return The updated [saveCount].
+     */
+    public fun save(): Int {
+        if (globalSaveCounter < initialSpanSaveCount) {
+            recordRenderingOp(CanvasOp.Draw { it.save() })
+            globalSaveCounter++
+        } else {
+            val node = CanvasOp.SaveRestore(parent = currentSaveRestoreNode)
+            recordRenderingOp(node)
+            currentSaveRestoreNode = node
+            globalSaveCounter++
+        }
+        return globalSaveCounter
+    }
+
+    /** Restores the canvas state from the previous [save] call. */
+    public fun restore() {
+        if (currentSaveRestoreNode != null) {
+            currentSaveRestoreNode = currentSaveRestoreNode?.parent
+            globalSaveCounter--
+        } else if (globalSaveCounter > 0) {
+            recordRenderingOp(CanvasOp.Draw { it.restore() })
+            globalSaveCounter--
+        } else {
+            throw IllegalStateException("Underflow in restore - more restores than saves")
+        }
+    }
+
+    /**
+     * Restores the canvas state to the specified [saveCount].
+     *
+     * @param saveCount The save count to restore to.
+     */
+    public fun restoreToCount(saveCount: Int) {
+        while (globalSaveCounter > saveCount) {
+            restore()
+        }
+    }
+
+    /**
+     * Records commands within an isolated child span, restoring previous insertion points and save
+     * scopes when done.
+     *
+     * @param action The block containing drawing operations to record into the child span.
+     * @return The recorded child [Span].
+     */
+    public inline fun recordInChildSpan(action: () -> Unit): Span {
+        val childSpan = insertPoint.createChildSpan()
+        val prevInsertPoint = insertPoint
+        val prevSaveNode = currentSaveRestoreNode
+        val prevLastRenderingOp = lastRenderingOp
+        val prevGlobalSaveCounter = globalSaveCounter
+        val prevInitialSpanSaveCount = initialSpanSaveCount
+        insertPoint = childSpan
+        currentSaveRestoreNode = null
+        lastRenderingOp = null
+        initialSpanSaveCount = globalSaveCounter
+        var exceptionThrown = false
+        try {
+            action()
+        } catch (e: Throwable) {
+            exceptionThrown = true
+            throw e
+        } finally {
+            val netSaveCountChange = globalSaveCounter - prevGlobalSaveCounter
+            val exitGlobalSaveCounter = globalSaveCounter
+
+            insertPoint = prevInsertPoint
+            currentSaveRestoreNode = prevSaveNode
+            lastRenderingOp = prevLastRenderingOp
+            initialSpanSaveCount = prevInitialSpanSaveCount
+            globalSaveCounter = prevGlobalSaveCounter
+
+            if (!exceptionThrown && netSaveCountChange != 0) {
+                throw IllegalStateException(
+                    "Unbalanced save/restore in child span: net save count change was " +
+                        "$netSaveCountChange (must be 0, entered at " +
+                        "$prevGlobalSaveCounter, exited at $exitGlobalSaveCounter)"
+                )
+            }
+        }
+        return childSpan
     }
 
     /**
