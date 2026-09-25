@@ -348,9 +348,7 @@ internal fun Carousel(
             CarouselPageSize(keylineList, beforeContentPadding, afterContentPadding)
         }
 
-    val snapPosition = remember(pageSize) { KeylineSnapPosition(pageSize) }
-
-    val bringIntoViewSpec = remember(state, pageSize) { CarouselBringIntoViewSpec(state, pageSize) }
+    val snapPosition = KeylineSnapPosition(pageSize)
 
     if (orientation == Orientation.Horizontal) {
         HorizontalPager(
@@ -367,7 +365,6 @@ internal fun Carousel(
             snapPosition = snapPosition,
             flingBehavior = flingBehavior,
             userScrollEnabled = userScrollEnabled,
-            bringIntoViewSpec = bringIntoViewSpec,
             modifier = modifier.semantics { role = Role.Carousel },
         ) { page ->
             val carouselItemInfo = remember { CarouselItemDrawInfoImpl() }
@@ -413,7 +410,6 @@ internal fun Carousel(
             snapPosition = snapPosition,
             flingBehavior = flingBehavior,
             userScrollEnabled = userScrollEnabled,
-            bringIntoViewSpec = bringIntoViewSpec,
             modifier = modifier.semantics { role = Role.Carousel },
         ) { page ->
             val carouselItemInfo = remember { CarouselItemDrawInfoImpl() }
