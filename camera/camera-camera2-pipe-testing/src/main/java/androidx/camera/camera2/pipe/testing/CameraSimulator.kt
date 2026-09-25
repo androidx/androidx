@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.hardware.HardwareBuffer
+import android.hardware.camera2.CaptureResult
 import android.media.ImageReader
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
@@ -100,4 +101,17 @@ public interface CameraSimulator {
         timestamp: Long,
         outputIds: Set<OutputId>,
     )
+
+    /**
+     * Utility function to simulate a Frame end-to-end.
+     *
+     * This will simulate the next frame, simulate expected outputs if multi-output streams exist,
+     * simulate images, and simulate capture completion.
+     */
+    public fun simulateAndCompleteNextFrame(
+        resultMetadata: Map<CaptureResult.Key<*>, Any?> = emptyMap(),
+        physicalCameraIds: Set<CameraId> = emptySet(),
+        hardwareBuffers: Map<OutputId, HardwareBuffer> = emptyMap(),
+        advanceClockByNanos: Long = 33_366_666,
+    ): CameraGraphSimulator.FrameSimulator
 }

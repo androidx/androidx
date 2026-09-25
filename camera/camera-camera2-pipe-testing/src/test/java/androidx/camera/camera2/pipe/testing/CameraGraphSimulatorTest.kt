@@ -456,6 +456,47 @@ class CameraGraphSimulatorTest {
     }
 
     @Test
+    fun simulatorCanSimulateAndCompleteNextFrame() = testScope.runTest {
+        val streamConfig = CameraStream.Config.create(Size(1280, 720), StreamFormat.YUV_420_888)
+        val graphConfig = CameraGraph.Config(metadata.camera, listOf(streamConfig))
+        val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
+        val cameraStream = checkNotNull(simulator.streams[streamConfig])
+        val fakeImageReader = simulator.fakeImageReaders.create(cameraStream, 5)
+
+        var lastStreamId: StreamId? = null
+        var lastOutputId: OutputId? = null
+        var lastImage: ImageWrapper? = null
+        fakeImageReader.onImageListener =
+            ImageReaderWrapper.OnImageListener { streamId, outputId, image ->
+                lastStreamId = streamId
+                lastOutputId = outputId
+                lastImage = image
+            }
+
+        val listener = FakeRequestListener()
+        simulator.setSurface(cameraStream.id, fakeImageReader.surface)
+        simulator.simulateCameraStarted()
+
+        val request = Request(streams = listOf(cameraStream.id), listeners = listOf(listener))
+        simulator.acquireSession().use { it.submit(request) }
+
+        val resultMetadata = mapOf<CaptureResult.Key<*>, Any?>(CaptureResult.LENS_APERTURE to 1.8f)
+        val completedFrame = simulator.simulateAndCompleteNextFrame(resultMetadata = resultMetadata)
+        advanceUntilIdle()
+
+        assertThat(lastStreamId).isEqualTo(cameraStream.id)
+        assertThat(lastOutputId).isEqualTo(cameraStream.outputs.single().id)
+        assertThat(lastImage).isNotNull()
+
+        val completeEvent = listener.onCompleteFlow.first()
+        assertThat(completeEvent.frameNumber).isEqualTo(completedFrame.frameNumber)
+        assertThat(completeEvent.frameInfo.metadata[CaptureResult.LENS_APERTURE]).isEqualTo(1.8f)
+
+        fakeImageReader.close()
+        simulator.close()
+    }
+
+    @Test
     fun simulatorShouldThrowWhenDifferentExternalSurfaceIsSet() = testScope.runTest {
         val fakeSurfaces = FakeSurfaces()
         val fakeSurface = fakeSurfaces.createFakeSurface(Size(1280, 720))
