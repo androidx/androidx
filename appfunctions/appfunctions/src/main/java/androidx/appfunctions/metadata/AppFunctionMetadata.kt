@@ -114,7 +114,7 @@ constructor(
     /** Whether access level enforcement is enabled on older platform versions (pre-17.2). */
     @property:ExperimentalAppFunctionsApi
     @Suppress("ExperimentalPropertyAnnotation")
-    public val isCompatEnforcementEnabled: Boolean = true,
+    public val isCompatEnforcementEnabled: Boolean = false,
 ) {
     @JvmOverloads
     public constructor(
@@ -155,7 +155,7 @@ constructor(
         deprecation = deprecation,
         scope = scope,
         accessLevel = ACCESS_LEVEL_ANDROID_TRUSTED,
-        isCompatEnforcementEnabled = true,
+        isCompatEnforcementEnabled = false,
     )
 
     @ExperimentalAppFunctionsApi
@@ -190,7 +190,7 @@ constructor(
         /** The minimum access level required to invoke the app function. */
         @AccessLevel accessLevel: Int = ACCESS_LEVEL_ANDROID_TRUSTED,
         /** Whether access level enforcement is enabled on older platform versions. */
-        isCompatEnforcementEnabled: Boolean = true,
+        isCompatEnforcementEnabled: Boolean = false,
     ) : this(
         id = name.functionIdentifier,
         packageName = name.packageName,
@@ -508,7 +508,7 @@ constructor(
                 scope = scopeXmlValueToScope(staticMetadataDocument.scope),
                 accessLevel = accessLevelXmlValueToAccessLevel(staticMetadataDocument.accessLevel),
                 isCompatEnforcementEnabled =
-                    staticMetadataDocument.isCompatEnforcementEnabled ?: true,
+                    staticMetadataDocument.isCompatEnforcementEnabled ?: false,
             )
         }
 

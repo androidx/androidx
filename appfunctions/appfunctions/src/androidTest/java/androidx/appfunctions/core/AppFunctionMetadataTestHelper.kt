@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalAppFunctionsApi::class)
 
 package androidx.appfunctions.core
 
@@ -20,6 +21,7 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionManager
+import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.internal.consumeAll
 import androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionAppMetadata
@@ -166,6 +168,8 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
             "androidx.appfunctions.test.FakeClass#dynamic_registration_return_success"
         const val DYNAMIC_REGISTRATION_RETURN_SUCCESS_2 =
             "androidx.appfunctions.test.FakeClass#dynamic_registration_return_success_2"
+        const val DYNAMIC_REGISTRATION_SELF_ACCESS =
+            "androidx.appfunctions.test.FakeClass#dynamic_registration_self_access"
         const val ACTIVITY_DYNAMIC_REGISTRATION_RETURN_SUCCESS =
             "androidx.appfunctions.test.FakeClass#activity_dynamic_registration_return_success"
 
@@ -244,6 +248,30 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                     ),
                 description = "",
                 scope = AppFunctionMetadata.SCOPE_GLOBAL,
+            )
+
+        val DYNAMIC_REGISTRATION_SELF_ACCESS =
+            AppFunctionMetadata(
+                name =
+                    AppFunctionName(
+                        packageName = TEST_PACKAGE_NAME,
+                        functionIdentifier = FunctionIds.DYNAMIC_REGISTRATION_SELF_ACCESS,
+                    ),
+                schema = null,
+                parameters = emptyList<AppFunctionParameterMetadata>(),
+                response =
+                    AppFunctionResponseMetadata(
+                        valueType = AppFunctionStringTypeMetadata(isNullable = false)
+                    ),
+                packageMetadata =
+                    AppFunctionPackageMetadata(
+                        packageName = TEST_PACKAGE_NAME,
+                        components = sharedComponents,
+                    ),
+                description = "",
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
+                accessLevel = AppFunctionMetadata.ACCESS_LEVEL_SELF,
+                isCompatEnforcementEnabled = false,
             )
 
         val ACTIVITY_DYNAMIC_REGISTRATION_RETURN_SUCCESS =

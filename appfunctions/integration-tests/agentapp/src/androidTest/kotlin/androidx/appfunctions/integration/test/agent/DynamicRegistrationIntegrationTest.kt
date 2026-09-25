@@ -23,6 +23,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.appfunctions.AppFunctionAppUnknownException
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDeniedException
 import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionSearchSpec
@@ -42,13 +43,15 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import kotlin.test.Ignore
 import kotlin.test.assertIs
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import org.junit.After
 import org.junit.Assert.assertThrows
+import org.junit.Assume.assumeFalse
+import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 @OptIn(ExperimentalAppFunctionsApi::class)
@@ -506,9 +509,140 @@ class DynamicRegistrationIntegrationTest {
         }
     }
 
+    @Test
+    fun executeAppFunction_dynamicSelfAccess_fromForeignApp_denied() = doBlocking {
+        runWithDynamicAppFunctionRegistered(
+            registerAction = ACTION_REGISTER_ADAPTER_SELF,
+            targetFunctionId = DYNAMIC_SELF_ACCESS_SIGNATURE_ID,
+            verifyEnabledState = false,
+        ) {
+            val dynamicResponse =
+                appFunctionManager.executeAppFunction(
+                    request =
+                        ExecuteAppFunctionRequest(
+                            TARGET_APP_PACKAGE,
+                            DYNAMIC_SELF_ACCESS_SIGNATURE_ID,
+                            AppFunctionData.EMPTY,
+                        )
+                )
+
+            val errorResponse = assertIs<ExecuteAppFunctionResponse.Error>(dynamicResponse)
+            assertThat(errorResponse.error).isInstanceOf(AppFunctionDeniedException::class.java)
+        }
+    }
+
+    @Test
+    fun executeAppFunction_dynamicSystemAccess_withoutSystemPermission_denied() = doBlocking {
+        runWithDynamicAppFunctionRegistered(
+            registerAction = ACTION_REGISTER_ADAPTER_SYSTEM,
+            targetFunctionId = DYNAMIC_SYSTEM_ACCESS_SIGNATURE_ID,
+            verifyEnabledState = false,
+        ) {
+            val dynamicResponse =
+                appFunctionManager.executeAppFunction(
+                    request =
+                        ExecuteAppFunctionRequest(
+                            TARGET_APP_PACKAGE,
+                            DYNAMIC_SYSTEM_ACCESS_SIGNATURE_ID,
+                            AppFunctionData.EMPTY,
+                        )
+                )
+
+            val errorResponse = assertIs<ExecuteAppFunctionResponse.Error>(dynamicResponse)
+            assertThat(errorResponse.error).isInstanceOf(AppFunctionDeniedException::class.java)
+        }
+    }
+
+    @Test
+    fun executeAppFunction_dynamicSelfAccess_compatDisabled_enforcedOnPlatform_fromForeignApp_denied() =
+        doBlocking {
+            assumeTrue(isPlatformAccessEnforcementEnabled())
+            runWithDynamicAppFunctionRegistered(
+                registerAction = ACTION_REGISTER_ADAPTER_SELF_DISABLED_COMPAT,
+                targetFunctionId = DYNAMIC_SELF_ACCESS_DISABLED_COMPAT_SIGNATURE_ID,
+                verifyEnabledState = false,
+            ) {
+                val dynamicResponse =
+                    appFunctionManager.executeAppFunction(
+                        request =
+                            ExecuteAppFunctionRequest(
+                                TARGET_APP_PACKAGE,
+                                DYNAMIC_SELF_ACCESS_DISABLED_COMPAT_SIGNATURE_ID,
+                                AppFunctionData.EMPTY,
+                            )
+                    )
+
+                val errorResponse = assertIs<ExecuteAppFunctionResponse.Error>(dynamicResponse)
+                assertThat(errorResponse.error).isInstanceOf(AppFunctionDeniedException::class.java)
+            }
+        }
+
+    @Test
+    fun executeAppFunction_dynamicSelfAccess_compatDisabled_notEnforcedOnPlatform_fromForeignApp_success() =
+        doBlocking {
+            assumeFalse(isPlatformAccessEnforcementEnabled())
+            runWithDynamicAppFunctionRegistered(
+                registerAction = ACTION_REGISTER_ADAPTER_SELF_DISABLED_COMPAT,
+                targetFunctionId = DYNAMIC_SELF_ACCESS_DISABLED_COMPAT_SIGNATURE_ID,
+            ) {
+                val dynamicResponse =
+                    appFunctionManager.executeAppFunction(
+                        request =
+                            ExecuteAppFunctionRequest(
+                                TARGET_APP_PACKAGE,
+                                DYNAMIC_SELF_ACCESS_DISABLED_COMPAT_SIGNATURE_ID,
+                                AppFunctionData.EMPTY,
+                            )
+                    )
+
+                val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(dynamicResponse)
+                assertThat(
+                        successResponse.returnValue.getString(
+                            ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
+                        )
+                    )
+                    .isEqualTo("self_disabled_compat_success")
+            }
+        }
+
+    @Test
+    fun executeAppFunction_dynamicSystemAccess_withSystemPermission_success() = doBlocking {
+        uiAutomation.adoptShellPermissionIdentity("android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM")
+        try {
+            runWithDynamicAppFunctionRegistered(
+                registerAction = ACTION_REGISTER_ADAPTER_SYSTEM,
+                targetFunctionId = DYNAMIC_SYSTEM_ACCESS_SIGNATURE_ID,
+            ) {
+                val dynamicResponse =
+                    appFunctionManager.executeAppFunction(
+                        request =
+                            ExecuteAppFunctionRequest(
+                                TARGET_APP_PACKAGE,
+                                DYNAMIC_SYSTEM_ACCESS_SIGNATURE_ID,
+                                AppFunctionData.EMPTY,
+                            )
+                    )
+
+                val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(dynamicResponse)
+                assertThat(
+                        successResponse.returnValue.getString(
+                            ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
+                        )
+                    )
+                    .isEqualTo("system_success")
+            }
+        } finally {
+            uiAutomation.adoptShellPermissionIdentity(
+                Manifest.permission.INSTALL_PACKAGES,
+                Manifest.permission.EXECUTE_APP_FUNCTIONS,
+            )
+        }
+    }
+
     private suspend fun runWithDynamicAppFunctionRegistered(
         registerAction: String,
         targetFunctionId: String,
+        verifyEnabledState: Boolean = true,
         block: suspend () -> Unit,
     ) {
         // 1. Start service to trigger dynamic registration inside testapp
@@ -516,11 +650,15 @@ class DynamicRegistrationIntegrationTest {
 
         try {
             // 2. Wait for the app function to be indexed and enabled
-            retryAssert {
-                appFunctionManager.assertAppFunctionEnabledState(
-                    AppFunctionName(TARGET_APP_PACKAGE, targetFunctionId),
-                    true,
-                )
+            if (verifyEnabledState) {
+                retryAssert {
+                    appFunctionManager.assertAppFunctionEnabledState(
+                        AppFunctionName(TARGET_APP_PACKAGE, targetFunctionId),
+                        true,
+                    )
+                }
+            } else {
+                delay(1000)
             }
 
             block()
@@ -547,6 +685,12 @@ class DynamicRegistrationIntegrationTest {
                 )
             assertThat(functionIds).isNotEmpty()
         }
+    }
+
+    private fun isPlatformAccessEnforcementEnabled(): Boolean {
+        // Platform natively enforces access restrictions only starting in Android 17.2
+        // (CINNAMON_BUN_2).
+        return Build.VERSION.SDK_INT_FULL >= 3700002
     }
 
     private companion object {
@@ -591,5 +735,20 @@ class DynamicRegistrationIntegrationTest {
             "androidx.appfunctions.integration.action.REGISTER_ADAPTER_THROWING"
         const val DYNAMIC_THROWING_SIGNATURE_ID =
             "androidx.appfunctions.integration.testapp.DynamicThrowingSignature#processAndThrow"
+
+        const val ACTION_REGISTER_ADAPTER_SELF =
+            "androidx.appfunctions.integration.action.REGISTER_ADAPTER_SELF"
+        const val DYNAMIC_SELF_ACCESS_SIGNATURE_ID =
+            "androidx.appfunctions.integration.testapp.DynamicSelfAccessSignature#executeSelf"
+
+        const val ACTION_REGISTER_ADAPTER_SELF_DISABLED_COMPAT =
+            "androidx.appfunctions.integration.action.REGISTER_ADAPTER_SELF_DISABLED_COMPAT"
+        const val DYNAMIC_SELF_ACCESS_DISABLED_COMPAT_SIGNATURE_ID =
+            "androidx.appfunctions.integration.testapp.DynamicSelfAccessDisabledCompatSignature#executeSelfDisabledCompat"
+
+        const val ACTION_REGISTER_ADAPTER_SYSTEM =
+            "androidx.appfunctions.integration.action.REGISTER_ADAPTER_SYSTEM"
+        const val DYNAMIC_SYSTEM_ACCESS_SIGNATURE_ID =
+            "androidx.appfunctions.integration.testapp.DynamicSystemAccessSignature#executeSystem"
     }
 }

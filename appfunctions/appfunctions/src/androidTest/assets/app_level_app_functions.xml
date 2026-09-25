@@ -39,4 +39,18 @@
         </response>
         <functionId>androidx.appfunctions.test.FakeClass#dynamic_registration_return_success_2</functionId>
     </appfunction>
+    <appfunction>
+        <id>androidx.appfunctions.test.FakeClass#dynamic_registration_self_access</id>
+        <scope>global</scope>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>8</type>
+            </valueType>
+        </response>
+        <accessLevel>self</accessLevel>
+        <functionId>androidx.appfunctions.test.FakeClass#dynamic_registration_self_access</functionId>
+    </appfunction>
 </appfunctions>

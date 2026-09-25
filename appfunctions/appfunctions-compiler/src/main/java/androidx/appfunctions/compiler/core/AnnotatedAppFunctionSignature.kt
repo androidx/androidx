@@ -24,6 +24,7 @@ import androidx.appfunctions.compiler.core.metadata.AppFunctionResponseMetadata
 import androidx.appfunctions.compiler.core.metadata.CompileTimeAppFunctionMetadata
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.symbol.ClassKind
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -136,6 +137,10 @@ data class AnnotatedAppFunctionSignature(
                 seenDataTypeQualifiers = seenDataTypeQualifiers,
                 functionAnnotations = functionDeclaration.annotations,
             )
+        val annotationProperties =
+            metadataCreatorHelper.computeAppFunctionAnnotationProperties(
+                accessLevelAnnotation = findAccessLevelAnnotation()
+            )
         return CompileTimeAppFunctionMetadata(
             id = getAppFunctionIdentifier(functionDeclaration),
             isEnabledByDefault = null,
@@ -150,6 +155,8 @@ data class AnnotatedAppFunctionSignature(
             description = functionDescription,
             deprecation = null,
             scope = scope,
+            accessLevel = annotationProperties.accessLevel,
+            isCompatEnforcementEnabled = annotationProperties.isCompatEnforcementEnabled,
         )
     }
 
@@ -247,5 +254,11 @@ data class AnnotatedAppFunctionSignature(
         } else {
             ""
         }
+    }
+
+    private fun findAccessLevelAnnotation(): KSAnnotation? {
+        return classDeclaration.annotations.findAnnotation(
+            IntrospectionHelper.AppFunctionAccessLevelAnnotation.CLASS_NAME
+        )
     }
 }

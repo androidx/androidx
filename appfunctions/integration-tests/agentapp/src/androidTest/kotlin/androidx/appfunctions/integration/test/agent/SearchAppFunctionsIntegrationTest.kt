@@ -387,7 +387,7 @@ class SearchAppFunctionsIntegrationTest {
         return if (isDynamicIndexerAvailable(targetContext)) {
             val baseFunctionCount = 24
             val multiServiceFunctionCount = 6
-            val dynamicFunctionsCount = 6
+            val dynamicFunctionsCount = 9
             if (Build.VERSION.SDK_INT >= 37) {
                 baseFunctionCount + multiServiceFunctionCount + dynamicFunctionsCount
             } else {

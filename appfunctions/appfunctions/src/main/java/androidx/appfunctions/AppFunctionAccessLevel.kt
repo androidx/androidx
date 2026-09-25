@@ -47,7 +47,7 @@ import androidx.appfunctions.metadata.AppFunctionMetadata
  * Android 17.2+ (e.g., using [androidx.appfunctions.AppFunctionManager.setAppFunctionEnabled] or
  * [androidx.appfunctions.AppFunctionManager.registerAppFunction]).
  *
- * Example usage:
+ * Example usage for service-based functions:
  * ```kotlin
  * @AppFunctionDeclaration
  * @AppFunctionAccessLevel(
@@ -55,6 +55,21 @@ import androidx.appfunctions.metadata.AppFunctionMetadata
  *     isCompatEnforcementEnabled = true,
  * )
  * fun executeTask(params: TaskParams): TaskResult { ... }
+ * ```
+ *
+ * Example usage for dynamically registered functions:
+ * ```kotlin
+ * @AppFunctionSignature(
+ *     scope = AppFunctionMetadata.SCOPE_GLOBAL,
+ *     appFunctionXmlFileName = "dynamic_signature_definitions",
+ * )
+ * @AppFunctionAccessLevel(
+ *     level = AppFunctionMetadata.ACCESS_LEVEL_SELF,
+ *     isCompatEnforcementEnabled = true,
+ * )
+ * fun interface DynamicTaskSignature {
+ *     suspend fun executeTask(params: TaskParams): TaskResult
+ * }
  * ```
  *
  * @param level minimum access level required to invoke the function. Possible values are
@@ -65,7 +80,7 @@ import androidx.appfunctions.metadata.AppFunctionMetadata
  *   versions prior to Android 17.2.
  */
 @ExperimentalAppFunctionsApi
-@Target(AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
 public annotation class AppFunctionAccessLevel(
     @AppFunctionMetadata.AccessLevel public val level: Int,
