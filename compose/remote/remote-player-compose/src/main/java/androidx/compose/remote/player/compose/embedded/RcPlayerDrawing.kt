@@ -178,6 +178,27 @@ internal fun DrawScope.executeOperations(
     onDrawContent: () -> Unit = {},
     graph: GraphContext? = null,
 ) {
+    remoteContext.withOpCountReset {
+        graph?.clearLastOpCount()
+        executeOperationsInPass(
+            operations = operations,
+            remoteContext = remoteContext,
+            textMeasurer = textMeasurer,
+            paintState = paintState,
+            onDrawContent = onDrawContent,
+            graph = graph,
+        )
+    }
+}
+
+private fun DrawScope.executeOperationsInPass(
+    operations: List<Operation>,
+    remoteContext: RemoteContext,
+    textMeasurer: TextMeasurer,
+    paintState: ComposeLocalPaint = ComposeLocalPaint(),
+    onDrawContent: () -> Unit = {},
+    graph: GraphContext? = null,
+) {
     // Reads route through the GraphContext when present: it resolves time ids from the Compose
     // frame clock and computed ids via per-pass DAG memoization over reactive leaf states, and a
     // leaf id falls through to the same shared snapshot store. So reading a time/variable-driven
@@ -187,14 +208,13 @@ internal fun DrawScope.executeOperations(
     // suppresses writes during evaluation — so they stay on `remoteContext` (the real store).
     // GraphContext shares that store, so leaf reads are identical either way.
     val read: RemoteContext = graph ?: remoteContext
-    remoteContext.clearLastOpCount()
-    graph?.clearLastOpCount()
     var canvasLevel = 0
     // For DRAW_TO_BITMAP: the original on-screen canvas, saved the first time the draw target is
     // redirected to an offscreen bitmap so it can be restored (on a `bitmapId == 0` reset, and
     // defensively at the end of the op stream).
     var mainCanvas: Canvas? = null
     operations.fastForEach { op ->
+        remoteContext.incrementOpCount()
         if (op is VariableSupport) {
             op.updateVariables(read)
         }
@@ -238,7 +258,7 @@ internal fun DrawScope.executeOperations(
                 // /
                 // duration gating isn't modelled here — the children always run — so impulse-driven
                 // content (e.g. particles) renders continuously rather than on event.
-                executeOperations(
+                executeOperationsInPass(
                     (op as Container).list,
                     remoteContext,
                     textMeasurer,
@@ -264,7 +284,7 @@ internal fun DrawScope.executeOperations(
                         else -> a >= b // TYPE_GTE
                     }
                 if (run)
-                    executeOperations(
+                    executeOperationsInPass(
                         op.list,
                         remoteContext,
                         textMeasurer,
@@ -288,8 +308,9 @@ internal fun DrawScope.executeOperations(
                     var i = from
                     var guard = 0
                     while (i < until && guard < MAX_LOOP_ITERATIONS) {
+                        remoteContext.incrementOpCount()
                         if (indexId != 0) remoteContext.loadFloat(indexId, i)
-                        executeOperations(
+                        executeOperationsInPass(
                             op.list,
                             remoteContext,
                             textMeasurer,
