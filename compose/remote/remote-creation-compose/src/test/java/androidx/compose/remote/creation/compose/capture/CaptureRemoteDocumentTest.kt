@@ -453,6 +453,7 @@ class CaptureRemoteDocumentTest {
      * - The captured [CoreDocument] reflects all state updates from background coroutines.
      */
     @Test
+    @Repeat(20)
     fun captureSingleRemoteDocument_withMultiThreadedBackgroundDispatcher_serializesFramesAndCaptures() =
         runTest {
             val capturedInterceptor = AtomicReference<ContinuationInterceptor?>(null)
@@ -552,13 +553,15 @@ class CaptureRemoteDocumentTest {
     /**
      * Case 5b: Calling with a non-[CoroutineDispatcher] [ContinuationInterceptor] (such as
      * `ApplyingContinuationInterceptor` in Compose UI tests) off the main looper thread. Verifies
-     * that the custom interceptor is preserved and intercepts continuations during capture.
+     * that the custom interceptor is preserved and intercepts continuations during capture. Like
+     * `ApplyingContinuationInterceptor`, the custom interceptor wraps a single-threaded dispatcher.
      */
     @Test
+    @Repeat(20)
     fun captureSingleRemoteDocument_withNonDispatcherContinuationInterceptor_preservesInterceptorAndCaptures() =
         runTest {
             withContext(Dispatchers.Default) {
-                val baseInterceptor = currentCoroutineContext()[ContinuationInterceptor]!!
+                val baseInterceptor = Dispatchers.Default.limitedParallelism(1)
                 val interceptedCount = AtomicInteger(0)
                 val customInterceptor =
                     object :
@@ -828,6 +831,7 @@ class CaptureRemoteDocumentTest {
      * `Dispatchers.Default`.
      */
     @Test
+    @Repeat(20)
     fun captureRemoteDocument_concurrentMultiThreadedCapturesAndStateWrites_areThreadSafe() =
         runTest {
             val workerCount = 4
