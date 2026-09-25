@@ -102,15 +102,9 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
 
         generateApi(
             createProjectXmlFile(sourceSets.get()),
-            sourcePaths.files,
-            compiledSources.files.singleOrNull(),
-            apiLocation.get(),
             ApiLintMode.CheckBaseline(baselines.get().apiLintFile, targetsJavaConsumers.get()),
-            generateRestrictToLibraryGroupAPIs.get(),
             levelsArgs,
-            manifestPath.orNull?.asFile?.absolutePath,
             multiplatform.get(),
-            hasJvmOrAndroidTarget.get(),
         )
     }
 
@@ -120,15 +114,9 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
      */
     protected fun generateApi(
         projectXml: File,
-        sourcePaths: Collection<File>,
-        compiledSources: File?,
-        apiLocation: ApiLocation,
         apiLintMode: ApiLintMode,
-        includeRestrictToLibraryGroupApis: Boolean,
         apiLevelsArgs: List<String>,
-        pathToManifest: String? = null,
         multiplatform: Boolean,
-        hasJvmOrAndroidTarget: Boolean,
     ) {
         val generateApiConfigs: MutableList<Pair<GenerateApiMode, ApiLintMode>> =
             mutableListOf(GenerateApiMode.PublicApi to apiLintMode)
@@ -140,8 +128,8 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
         // jvm
         // based projects.
         @Suppress("LiftReturnOrAssignment")
-        if (hasJvmOrAndroidTarget) {
-            if (includeRestrictToLibraryGroupApis) {
+        if (hasJvmOrAndroidTarget.get()) {
+            if (generateRestrictToLibraryGroupAPIs.get()) {
                 generateApiConfigs += GenerateApiMode.AllRestrictedApis to ApiLintMode.Skip
             } else {
                 generateApiConfigs +=
@@ -150,50 +138,25 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
         }
 
         generateApiConfigs.forEach { (generateApiMode, apiLintMode) ->
-            generateApi(
-                projectXml,
-                sourcePaths,
-                compiledSources,
-                apiLocation,
-                generateApiMode,
-                apiLintMode,
-                apiLevelsArgs,
-                pathToManifest,
-                multiplatform,
-                hasJvmOrAndroidTarget,
-            )
+            val args = buildList {
+                addAll(
+                    getMultiSurfaceArgs(
+                        projectXml,
+                        sourcePaths.files,
+                        includeCompiledSources = true,
+                    )
+                )
+                addAll(
+                    getSingleSurfaceArgs(
+                        apiLocation.get(),
+                        generateApiMode,
+                        apiLintMode,
+                        apiLevelsArgs,
+                        multiplatform,
+                    )
+                )
+            }
+            runWithArgs(args)
         }
-    }
-
-    /**
-     * Gets arguments for generating the specified api file (and a version history JSON if the
-     * [generateApiMode] is [GenerateApiMode.PublicApi].
-     */
-    private fun generateApi(
-        projectXml: File,
-        sourcePaths: Collection<File>,
-        compiledSources: File?,
-        outputLocation: ApiLocation,
-        generateApiMode: GenerateApiMode,
-        apiLintMode: ApiLintMode,
-        apiLevelsArgs: List<String>,
-        pathToManifest: String? = null,
-        multiplatform: Boolean,
-        hasJvmOrAndroidTarget: Boolean,
-    ) {
-        val args =
-            getGenerateApiArgs(
-                projectXml,
-                sourcePaths,
-                compiledSources,
-                outputLocation,
-                generateApiMode,
-                apiLintMode,
-                apiLevelsArgs,
-                pathToManifest,
-                multiplatform,
-                hasJvmOrAndroidTarget,
-            )
-        runWithArgs(args)
     }
 }

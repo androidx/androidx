@@ -222,41 +222,25 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
     }
 
     /**
-     * Generates the specified api file, and a version history JSON if the [generateApiMode] is
+     * Returns a list of arguments for generating the API for a particular surface.
+     *
+     * Includes [apiLevelsArgs] to generate a version history JSON if the [generateApiMode] is
      * [GenerateApiMode.PublicApi].
      */
-    protected fun getGenerateApiArgs(
-        projectXml: File,
-        sourcePaths: Collection<File>,
-        compiledSources: File?,
+    protected fun getSingleSurfaceArgs(
         outputLocation: ApiLocation?,
         generateApiMode: GenerateApiMode,
         apiLintMode: ApiLintMode,
         apiLevelsArgs: List<String>,
-        pathToManifest: String? = null,
         multiplatform: Boolean,
-        hasJvmOrAndroidTarget: Boolean,
     ): List<String> {
-        val args =
-            mutableListOf("--project", projectXml.path, "--format=4.0", "--warnings-as-errors")
+        val args = mutableListOf("--format=4.0", "--warnings-as-errors")
 
         // Generate public API txt if there is a jvm/android target. If there isn't, the
         // `generateApi`
         // task will just run API lint without creating a signature file.
-        if (hasJvmOrAndroidTarget) {
-            args +=
-                listOf(
-                    "--source-path",
-                    sourcePaths.filter { it.exists() }.joinToString(File.pathSeparator),
-                )
-
-            // Include the jar file to generate bytecode-only APIs if this project has any Kotlin
-            // source.
-            if (compiledSources != null && sourcePaths.any { containsKotlinFiles(it) }) {
-                args += listOf("--compiled-sources", compiledSources.absolutePath)
-            }
-
-            pathToManifest?.let { args += listOf("--manifest", pathToManifest) }
+        if (hasJvmOrAndroidTarget.get()) {
+            manifestPath.orNull?.asFile?.absolutePath?.let { args += listOf("--manifest", it) }
 
             if (outputLocation != null) {
                 when (generateApiMode) {
@@ -353,22 +337,53 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
             }
         }
 
-        args += getConfigFileArgs()
-        args +=
-            listOf(
-                "--kotlin-source",
-                kotlinSourceLevel.get().version,
-                // Skip reading comments in Metalava for two reasons:
-                // - We prefer for developers to specify api information via annotations instead
-                //   of just javadoc comments (like @hide)
-                // - This allows us to improve cacheability of Metalava tasks
-                "--ignore-comments",
-            )
         args += commonIssueArgs
         args += excludeAnnotationArgs
         args += suppressCompatibilityAnnotationArgs
 
         return args
+    }
+
+    /**
+     * Returns a list of args which describe how sources should be parsed, not specific to the API
+     * surface.
+     */
+    protected fun getMultiSurfaceArgs(
+        projectXml: File,
+        sourcePaths: Collection<File>,
+        includeCompiledSources: Boolean,
+    ): List<String> {
+        return buildList {
+            addAll(getConfigFileArgs())
+
+            add("--project")
+            add(projectXml.path)
+
+            add("--kotlin-source")
+            add(kotlinSourceLevel.get().version)
+
+            // Skip reading comments in Metalava for two reasons:
+            // - We prefer for developers to specify api information via annotations instead
+            //   of just javadoc comments (like @hide)
+            // - This allows us to improve cacheability of Metalava tasks
+            add("--ignore-comments")
+
+            if (hasJvmOrAndroidTarget.get()) {
+                add("--source-path")
+                add(sourcePaths.filter { it.exists() }.joinToString(File.pathSeparator))
+
+                // Include the jar file to generate bytecode-only APIs if this project has any
+                // Kotlin
+                // source.
+                if (includeCompiledSources) {
+                    val compiledSources = compiledSources.singleOrNull()
+                    if (compiledSources != null && sourcePaths.any { containsKotlinFiles(it) }) {
+                        add("--compiled-sources")
+                        add(compiledSources.absolutePath)
+                    }
+                }
+            }
+        }
     }
 
     /** Whether the [file] is a kotlin file or is a directory containing one (recursively). */
