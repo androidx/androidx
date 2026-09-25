@@ -25,6 +25,8 @@ import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Until
 import androidx.testutils.defaultMemoryMetrics
 import org.junit.Rule
 import org.junit.Test
@@ -93,6 +95,8 @@ class RemoteComposeFirstFrameBenchmark(val compilationMode: CompilationMode) {
                 intent.action = FIRST_FRAME_ACTIVITY
                 intent.putExtra(BENCHMARK_MODE_ARG, MODE_WEB_VIEW)
                 startActivityAndWait(intent)
+                device.wait(Until.hasObject(By.desc(LIST_CONTENT_DESCRIPTION)), 5_000)
+                device.waitForIdle()
             },
         )
     }
