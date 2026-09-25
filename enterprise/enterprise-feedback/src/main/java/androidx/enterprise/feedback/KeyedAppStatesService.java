@@ -28,6 +28,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.Parcelable;
 import android.util.Log;
 
 import org.jspecify.annotations.NonNull;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -138,37 +140,36 @@ public abstract class KeyedAppStatesService extends Service {
         @SuppressWarnings("deprecation")
         private static Collection<ReceivedKeyedAppState> extractReceivedKeyedAppStates(
                 Message message, String packageName, long timestamp) {
-            Bundle bundle;
-
-            try {
-                bundle = (Bundle) message.obj;
-            } catch (ClassCastException e) {
-                Log.e(LOG_TAG, "Could not extract state bundles from message", e);
-                return Collections.emptyList();
-            }
-
-            if (bundle == null) {
+            if (!(message.obj instanceof Bundle)) {
                 Log.e(LOG_TAG, "Could not extract state bundles from message");
                 return Collections.emptyList();
             }
+            Bundle bundle = (Bundle) message.obj;
 
-            Collection<Bundle> stateBundles = bundle.getParcelableArrayList(APP_STATES);
+            List<Parcelable> stateBundles =
+                    bundle.getParcelableArrayList(APP_STATES);
 
             if (stateBundles == null) {
                 Log.e(LOG_TAG, "Could not extract state bundles from message");
                 return Collections.emptyList();
             }
 
-            Collection<ReceivedKeyedAppState> states = new ArrayList<>();
-            for (Bundle stateBundle : stateBundles) {
+            List<ReceivedKeyedAppState> states = new ArrayList<>();
+            for (Parcelable p : stateBundles) {
+                if (!(p instanceof Bundle)) {
+                    Log.e(LOG_TAG, "Non-Bundle KeyedAppState in message");
+                    continue;
+                }
+                Bundle stateBundle = (Bundle) p;
                 if (!KeyedAppState.isValid(stateBundle)) {
                     Log.e(LOG_TAG, "Invalid KeyedAppState in bundle");
                     continue;
                 }
-                states.add(ReceivedKeyedAppState.fromBundle(stateBundle, packageName, timestamp));
+                states.add(
+                        ReceivedKeyedAppState.fromBundle(
+                                stateBundle, packageName, timestamp));
             }
-
-            return Collections.unmodifiableCollection(states);
+            return Collections.unmodifiableList(states);
         }
 
         private static Collection<ReceivedKeyedAppState> deduplicateStates(
