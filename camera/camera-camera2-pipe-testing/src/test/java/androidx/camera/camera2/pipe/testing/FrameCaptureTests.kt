@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.content.Context
+import android.hardware.camera2.CaptureResult
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
@@ -278,6 +279,75 @@ class FrameCaptureTests {
 
         frameSimulator.simulateImages(physicalCameraIds = expectedPhysicalCameras)
         frameSimulator.simulateComplete(emptyMap())
+
+        advanceUntilIdle()
+        assertThat(frameCaptureJob.isCompleted).isTrue() // Ensure verification is complete
+        frameGraphSimulator.close()
+    }
+
+    @Test
+    fun frameCaptureCanBeSimulatedWithSimulateAndCompleteNextFrame() = testScope.runTest {
+        val expectedPhysicalCameras = physicalCameraIds.take(2).toSet()
+
+        startFrameGraph()
+
+        // Capture an image using the frameGraph
+        val frameCapture = frameGraph.useSession { session ->
+            session.capture(Request(streams = listOf(jpegStream.id, concurrentRawStream.id)))
+        }
+        advanceUntilIdle()
+
+        // Verify a capture sequence with all of the frame interactions
+        val frameCaptureJob = launch {
+            val frame = checkNotNull(frameCapture.awaitFrame())
+
+            assertThat(frame.frameId.value).isGreaterThan(0)
+            assertThat(frame.frameTimestamp.value).isGreaterThan(0)
+
+            val image = checkNotNull(frame.awaitImage(jpegStream.id))
+            val concurrentRawImages = frame.awaitImages(concurrentRawStream.id)
+
+            assertThat(frame.imageStatus(jpegStream.id)).isEqualTo(OutputStatus.AVAILABLE)
+            assertThat(frame.imageStatus(rawStream.id)).isEqualTo(OutputStatus.UNAVAILABLE)
+            assertThat(frame.imageStatus(concurrentRawStream.id)).isEqualTo(OutputStatus.AVAILABLE)
+            assertThat(frame.imageStatus(viewfinderStream.id)).isEqualTo(OutputStatus.UNAVAILABLE)
+
+            assertThat(image.timestamp).isEqualTo(frame.frameTimestamp.value)
+            image.close()
+
+            assertThat(concurrentRawImages).hasSize(expectedPhysicalCameras.size)
+            for (rawImage in concurrentRawImages) {
+                assertThat(rawImage.timestamp).isEqualTo(frame.frameTimestamp.value)
+                rawImage.close()
+            }
+
+            assertThat(frame.imageStatus(jpegStream.id)).isEqualTo(OutputStatus.AVAILABLE)
+            assertThat(frame.imageStatus(rawStream.id)).isEqualTo(OutputStatus.UNAVAILABLE)
+            assertThat(frame.imageStatus(concurrentRawStream.id)).isEqualTo(OutputStatus.AVAILABLE)
+            assertThat(frame.imageStatus(viewfinderStream.id)).isEqualTo(OutputStatus.UNAVAILABLE)
+
+            val frameInfo = checkNotNull(frame.awaitFrameInfo())
+
+            assertThat(frame.isFrameInfoAvailable).isTrue()
+            assertThat(frameInfo.frameNumber).isEqualTo(frame.frameNumber)
+            assertThat(frameInfo.metadata[CaptureResult.LENS_APERTURE]).isEqualTo(2.4f)
+
+            frame.close()
+
+            assertThat(frame.imageStatus(jpegStream.id)).isEqualTo(OutputStatus.UNAVAILABLE)
+            assertThat(frame.imageStatus(rawStream.id)).isEqualTo(OutputStatus.UNAVAILABLE)
+            assertThat(frame.imageStatus(concurrentRawStream.id))
+                .isEqualTo(OutputStatus.UNAVAILABLE)
+            assertThat(frame.imageStatus(viewfinderStream.id)).isEqualTo(OutputStatus.UNAVAILABLE)
+            assertThat(frame.isFrameInfoAvailable).isFalse()
+        }
+
+        // Simulate camera interactions end-to-end with simulateAndCompleteNextFrame
+        val resultMetadata = mapOf<CaptureResult.Key<*>, Any?>(CaptureResult.LENS_APERTURE to 2.4f)
+        frameGraphSimulator.simulateAndCompleteNextFrame(
+            resultMetadata = resultMetadata,
+            physicalCameraIds = expectedPhysicalCameras,
+        )
 
         advanceUntilIdle()
         assertThat(frameCaptureJob.isCompleted).isTrue() // Ensure verification is complete

@@ -206,6 +206,32 @@ internal constructor(
         return generateNextFrame().also { it.simulateStarted(clockNanos) }
     }
 
+    override fun simulateAndCompleteNextFrame(
+        resultMetadata: Map<CaptureResult.Key<*>, Any?>,
+        physicalCameraIds: Set<CameraId>,
+        hardwareBuffers: Map<OutputId, HardwareBuffer>,
+        advanceClockByNanos: Long,
+    ): FrameSimulator {
+        val frame = simulateNextFrame(advanceClockByNanos = advanceClockByNanos)
+        for (streamId in frame.request.streams) {
+            val stream = checkNotNull(streams[streamId])
+            if (stream.outputs.size > 1) {
+                val outputIds =
+                    stream.outputs
+                        .filter { physicalCameraIds.contains(it.camera) }
+                        .map { it.id }
+                        .toSet()
+                frame.simulateExpectedOutputs(streamId, outputIds = outputIds)
+            }
+        }
+        frame.simulateImages(
+            physicalCameraIds = physicalCameraIds,
+            hardwareBuffers = hardwareBuffers,
+        )
+        frame.simulateComplete(resultMetadata)
+        return frame
+    }
+
     private fun generateNextFrame(): FrameSimulator {
         val captureSequenceProcessor = cameraController.currentCaptureSequenceProcessor
         check(captureSequenceProcessor != null) {
