@@ -63,11 +63,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
 
 /** Unit tests for path building DSL and operations rendered with the embedded [RcPlayer]. */
 @RunWith(RobolectricTestRunner::class)
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [35])
 class RcPlayerPathBuildingTest {
 
