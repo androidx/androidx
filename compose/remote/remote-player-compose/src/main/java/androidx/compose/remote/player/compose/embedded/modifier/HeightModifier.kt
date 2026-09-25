@@ -21,6 +21,7 @@ package androidx.compose.remote.player.compose.embedded.modifier
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation
@@ -42,10 +43,17 @@ internal fun Modifier.height(op: HeightModifierOperation): Modifier {
             // See WidthModifier.width: resolve the raw source value (`mValue`, the variable id for
             // dynamic dimensions) reactively rather than the core-flattened `getValue()`, so
             // time-/animation-/host-driven heights update like normal Compose.
+            val behavior = LocalCoreDocument.current.densityBehavior
             val resolved = rememberRemoteFloatAsState(dimensionRawValue(op)).value
             val heightDp =
-                if (op.type == DimensionModifierOperation.Type.EXACT) resolved / density
-                else resolved
+                if (
+                    op.type == DimensionModifierOperation.Type.EXACT &&
+                        behavior != CoreDocument.DENSITY_BEHAVIOR_DP
+                ) {
+                    resolved / density
+                } else {
+                    resolved
+                }
             this.height(heightDp.dp)
         }
         DimensionModifierOperation.Type.FILL,
