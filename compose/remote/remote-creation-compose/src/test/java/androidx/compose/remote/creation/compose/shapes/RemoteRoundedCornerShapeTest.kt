@@ -78,7 +78,7 @@ class RemoteRoundedCornerShapeTest {
         width: Int = 100,
         height: Int = 50,
         fakeBuffer: TestRemoteComposeBuffer,
-    ): Pair<RemoteDrawScope, RecordingCanvas> {
+    ): Pair<RemoteDrawScope, RemoteCanvas> {
         val platform = AndroidxRcPlatformServices()
         val profile =
             Profile(CoreDocument.DOCUMENT_API_LEVEL, RcProfiles.PROFILE_ANDROIDX, platform) {
@@ -102,7 +102,7 @@ class RemoteRoundedCornerShapeTest {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val recordingCanvas = RecordingCanvas(bitmap, creationState)
         val remoteCanvas = RemoteCanvas(recordingCanvas)
-        return RemoteDrawScope(remoteCanvas) to recordingCanvas
+        return RemoteDrawScope(remoteCanvas) to remoteCanvas
     }
 
     @Test
@@ -167,7 +167,7 @@ class RemoteRoundedCornerShapeTest {
     @Test
     fun drawOutline_rounded_withOffsetAndNullSize() {
         val fakeBuffer = TestRemoteComposeBuffer()
-        val (drawScope, recordingCanvas) =
+        val (drawScope, remoteCanvas) =
             createRemoteDrawScope(width = 100, height = 50, fakeBuffer = fakeBuffer)
         val outline =
             RemoteOutline.Rounded(
@@ -180,7 +180,7 @@ class RemoteRoundedCornerShapeTest {
             )
 
         drawScope.drawOutline(outline, RemotePaint())
-        recordingCanvas.flush()
+        remoteCanvas.flush()
 
         assertThat(fakeBuffer.calls)
             .containsExactly(
@@ -196,7 +196,7 @@ class RemoteRoundedCornerShapeTest {
     @Test
     fun drawOutline_rounded_withZeroOffsetAndNullSize() {
         val fakeBuffer = TestRemoteComposeBuffer()
-        val (drawScope, recordingCanvas) =
+        val (drawScope, remoteCanvas) =
             createRemoteDrawScope(width = 100, height = 50, fakeBuffer = fakeBuffer)
         val outline =
             RemoteOutline.Rounded(
@@ -209,7 +209,7 @@ class RemoteRoundedCornerShapeTest {
             )
 
         drawScope.drawOutline(outline, RemotePaint())
-        recordingCanvas.flush()
+        remoteCanvas.flush()
 
         assertThat(fakeBuffer.calls)
             .containsExactly(
@@ -223,7 +223,7 @@ class RemoteRoundedCornerShapeTest {
     @Test
     fun drawOutline_rounded_withOffsetAndSize() {
         val fakeBuffer = TestRemoteComposeBuffer()
-        val (drawScope, recordingCanvas) =
+        val (drawScope, remoteCanvas) =
             createRemoteDrawScope(width = 100, height = 50, fakeBuffer = fakeBuffer)
         val outline =
             RemoteOutline.Rounded(
@@ -236,7 +236,7 @@ class RemoteRoundedCornerShapeTest {
             )
 
         drawScope.drawOutline(outline, RemotePaint())
-        recordingCanvas.flush()
+        remoteCanvas.flush()
 
         assertThat(fakeBuffer.calls)
             .containsExactly("addPaint", "addDrawRoundRect(5.0, 5.0, 95.0, 45.0, 10.0, 10.0)")
@@ -245,7 +245,7 @@ class RemoteRoundedCornerShapeTest {
     @Test
     fun drawOutline_circleShape_withDynamicSize_usesDrawRoundRect() {
         val fakeBuffer = TestRemoteComposeBuffer()
-        val (drawScope, recordingCanvas) =
+        val (drawScope, remoteCanvas) =
             createRemoteDrawScope(width = 100, height = 50, fakeBuffer = fakeBuffer)
         val outline =
             RemoteCircleShape.createOutline(
@@ -255,7 +255,7 @@ class RemoteRoundedCornerShapeTest {
             )
 
         drawScope.drawOutline(outline, RemotePaint())
-        recordingCanvas.flush()
+        remoteCanvas.flush()
 
         assertThat(fakeBuffer.calls.any { it.startsWith("addDrawRoundRect(") }).isTrue()
         assertThat(fakeBuffer.calls.any { it.startsWith("addDrawPath(") }).isFalse()
@@ -264,7 +264,7 @@ class RemoteRoundedCornerShapeTest {
     @Test
     fun drawOutline_rectangle() {
         val fakeBuffer = TestRemoteComposeBuffer()
-        val (drawScope, recordingCanvas) =
+        val (drawScope, remoteCanvas) =
             createRemoteDrawScope(width = 100, height = 50, fakeBuffer = fakeBuffer)
         val outline =
             RemoteOutline.Rectangle(
@@ -273,7 +273,7 @@ class RemoteRoundedCornerShapeTest {
             )
 
         drawScope.drawOutline(outline, RemotePaint())
-        recordingCanvas.flush()
+        remoteCanvas.flush()
 
         assertThat(fakeBuffer.calls)
             .containsExactly("addPaint", "addDrawRect(10.0, 20.0, 90.0, 50.0)")
@@ -282,7 +282,7 @@ class RemoteRoundedCornerShapeTest {
     @Test
     fun drawOutline_generic() {
         val fakeBuffer = TestRemoteComposeBuffer()
-        val (drawScope, recordingCanvas) =
+        val (drawScope, remoteCanvas) =
             createRemoteDrawScope(width = 100, height = 50, fakeBuffer = fakeBuffer)
         val path = drawScope.remotePath {
             moveTo(0f.rf, 0f.rf)
@@ -291,7 +291,7 @@ class RemoteRoundedCornerShapeTest {
         val outline = RemoteOutline.Generic(path)
 
         drawScope.drawOutline(outline, RemotePaint())
-        recordingCanvas.flush()
+        remoteCanvas.flush()
 
         assertThat(fakeBuffer.calls)
             .containsExactly("addPaint", "addPathData(42)", "addDrawPath(42)")
@@ -300,7 +300,7 @@ class RemoteRoundedCornerShapeTest {
     @Test
     fun drawOutline_generic_withBlock() {
         val fakeBuffer = TestRemoteComposeBuffer()
-        val (drawScope, recordingCanvas) =
+        val (drawScope, remoteCanvas) =
             createRemoteDrawScope(width = 100, height = 50, fakeBuffer = fakeBuffer)
         val outline = RemoteOutline.Generic {
             moveTo(0f.rf, 0f.rf)
@@ -308,7 +308,7 @@ class RemoteRoundedCornerShapeTest {
         }
 
         drawScope.drawOutline(outline, RemotePaint())
-        recordingCanvas.flush()
+        remoteCanvas.flush()
 
         assertThat(fakeBuffer.calls)
             .containsExactly("addPaint", "addPathData(42)", "addDrawPath(42)")
