@@ -37,7 +37,6 @@ import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
 import java.nio.ByteBuffer
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -103,7 +102,7 @@ class SpatialAnnotationTest {
             advanceUntilIdle()
 
             var underTest = emptyList<SpatialAnnotation>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 SpatialAnnotation.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -131,7 +130,7 @@ class SpatialAnnotationTest {
             advanceUntilIdle()
 
             var underTest = emptyList<SpatialAnnotation>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 SpatialAnnotation.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -181,7 +180,7 @@ class SpatialAnnotationTest {
             advanceUntilIdle()
 
             var underTest = emptyList<SpatialAnnotation>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 SpatialAnnotation.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -204,7 +203,7 @@ class SpatialAnnotationTest {
             advanceUntilIdle()
 
             var underTest = emptyList<SpatialAnnotation>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 SpatialAnnotation.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -233,7 +232,7 @@ class SpatialAnnotationTest {
             advanceUntilIdle()
 
             var underTest = emptyList<SpatialAnnotation>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 SpatialAnnotation.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -262,7 +261,7 @@ class SpatialAnnotationTest {
             advanceUntilIdle()
 
             var underTest = emptyList<SpatialAnnotation>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 SpatialAnnotation.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -291,7 +290,7 @@ class SpatialAnnotationTest {
             advanceUntilIdle()
 
             var underTest = emptyList<SpatialAnnotation>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 SpatialAnnotation.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -370,7 +369,7 @@ class SpatialAnnotationTest {
             advanceUntilIdle()
 
             var underTest = emptyList<SpatialAnnotation>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 SpatialAnnotation.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -397,7 +396,7 @@ class SpatialAnnotationTest {
             advanceUntilIdle()
 
             var underTest = emptyList<SpatialAnnotation>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 SpatialAnnotation.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()
@@ -427,7 +426,7 @@ class SpatialAnnotationTest {
             advanceUntilIdle()
 
             var underTest = emptyList<SpatialAnnotation>()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 SpatialAnnotation.subscribe(session).collect { underTest = it.toList() }
             }
             advanceUntilIdle()

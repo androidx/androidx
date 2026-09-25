@@ -33,7 +33,6 @@ import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
 import java.util.UUID
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -137,7 +136,7 @@ class AnchorTest {
             arCoreTestRule.addTrackables(testPlane)
             advanceUntilIdle()
             var trackable: Plane? = null
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Plane.subscribe(session).collect { trackable = it.first() }
             }
             advanceUntilIdle()
