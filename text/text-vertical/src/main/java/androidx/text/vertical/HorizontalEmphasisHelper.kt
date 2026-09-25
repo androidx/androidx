@@ -65,7 +65,7 @@ internal class HorizontalEmphasisSpanLayout(
         // draw() runs on another thread, mutating layout.paint mutates the building thread's cache.
         // Use a thread-local paint to avoid allocation overhead during measurement
         val workPaint = workingPaintCache.getOrSet { TextPaint() }
-        workPaint.set(paint)
+        workPaint.setFrom(paint)
 
         // Measure Body Width
         spanWidth =
@@ -157,7 +157,10 @@ internal class HorizontalEmphasisSpanLayout(
 
             // The paint object stored in the layout is a shared cache, so reset it to the drawing
             // paint before calling draw ops.
-            bodyLayout.paint.set(paint)
+            bodyLayout.paint.setFrom(paint)
+            // The body text keeps the spans that set baselineShift on paint, for example
+            // SuperscriptSpan. Set baselineShift to 0 so that the body text does not move twice.
+            bodyLayout.paint.baselineShift = 0
             bodyLayout.draw(this)
         }
 
