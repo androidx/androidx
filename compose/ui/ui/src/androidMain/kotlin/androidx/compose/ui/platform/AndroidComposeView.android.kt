@@ -30,6 +30,7 @@ import android.graphics.Rect
 import android.hardware.input.InputManager
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES.BAKLAVA
 import android.os.Build.VERSION_CODES.CINNAMON_BUN
 import android.os.Build.VERSION_CODES.M
 import android.os.Build.VERSION_CODES.N
@@ -37,6 +38,7 @@ import android.os.Build.VERSION_CODES.O
 import android.os.Build.VERSION_CODES.Q
 import android.os.Build.VERSION_CODES.S
 import android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM
+import android.os.Build.VERSION_CODES_FULL.BAKLAVA_1
 import android.os.Build.VERSION_CODES_FULL.CINNAMON_BUN_1
 import android.os.Handler
 import android.os.Looper
@@ -3765,10 +3767,12 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun dispatchOnScrollChanged(delta: Offset) {
-        // TODO(levima) b/402138549: Use viewTreeObserver.dispatchOnScrollChanged()
-        dispatchOnScrollChanged(viewTreeObserver)
+        if (SDK_INT >= BAKLAVA && Build.VERSION.SDK_INT_FULL >= BAKLAVA_1) {
+            Api36_1Impl.dispatchOnScrollChanged(viewTreeObserver)
+        } else {
+            Api21Impl.dispatchOnScrollChanged(viewTreeObserver)
+        }
     }
 
     // executed when the layout pass has been finished. as a result of it our view could be
@@ -3821,7 +3825,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         private var addChangeCallbackMethod: Method? = null
         private val composeViews = mutableObjectListOf<AndroidComposeView>()
         private var systemPropertiesChangedRunnable: Runnable? = null
-        private var dispatchOnScrollChangedMethod: Method? = null
         private var getAccessibilityViewIdMethod: Method? = null
         private var findViewByAccessibilityIdTraversalMethod: Method? = null
 
@@ -3964,23 +3967,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             if (SDK_INT > 28) {
                 synchronized(composeViews) { composeViews -= composeView }
             }
-        }
-
-        // Back compat implementation
-        @SuppressLint(
-            "BanUncheckedReflection",
-            "PrivateApi",
-        ) // suppress for now, the API is available in MIN_SDK
-        fun dispatchOnScrollChanged(viewTreeObserver: ViewTreeObserver) {
-            try {
-                if (dispatchOnScrollChangedMethod == null) {
-                    dispatchOnScrollChangedMethod =
-                        viewTreeObserver.javaClass
-                            .getDeclaredMethod("dispatchOnScrollChanged")
-                            .also { it.isAccessible = true }
-                }
-                dispatchOnScrollChangedMethod?.invoke(viewTreeObserver)
-            } catch (_: Exception) {}
         }
     }
 
@@ -4280,8 +4266,10 @@ private fun dot(m1: Matrix, row: Int, m2: Matrix, column: Int): Float {
 }
 
 // --- Top-Level SDK Implementation Helper Objects ---
-
 private object Api21Impl {
+
+    private var dispatchOnScrollChangedMethod: Method? = null
+
     @JvmStatic
     @DoNotInline
     fun calculateMatrixToWindow(
@@ -4325,6 +4313,19 @@ private object Api21Impl {
     private fun Matrix.preConcat(other: android.graphics.Matrix, tmpMatrix: Matrix) {
         tmpMatrix.setFrom(other)
         preTransform(tmpMatrix)
+    }
+
+    @SuppressLint("PrivateApi", "BanUncheckedReflection")
+    fun dispatchOnScrollChanged(viewTreeObserver: ViewTreeObserver) {
+        try {
+            if (dispatchOnScrollChangedMethod == null) {
+                dispatchOnScrollChangedMethod =
+                    viewTreeObserver.javaClass.getDeclaredMethod("dispatchOnScrollChanged").also {
+                        it.isAccessible = true
+                    }
+            }
+            dispatchOnScrollChangedMethod?.invoke(viewTreeObserver)
+        } catch (_: Exception) {}
     }
 }
 
@@ -4542,6 +4543,15 @@ private object Api35Impl {
     @DoNotInline
     fun setRequestedFrameRate(view: View, frameRate: Float) {
         view.requestedFrameRate = frameRate
+    }
+}
+
+@RequiresApi(BAKLAVA_1)
+private object Api36_1Impl {
+    @JvmStatic
+    @DoNotInline
+    fun dispatchOnScrollChanged(viewTreeObserver: ViewTreeObserver) {
+        viewTreeObserver.dispatchOnScrollChanged()
     }
 }
 
