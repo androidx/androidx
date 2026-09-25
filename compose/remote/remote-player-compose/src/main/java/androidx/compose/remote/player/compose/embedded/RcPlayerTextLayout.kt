@@ -51,6 +51,7 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -59,7 +60,7 @@ import androidx.compose.ui.unit.sp
 internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
     val textId = layout.textId ?: return
     val text by rememberRemoteStringAsState(textId)
-    val paintState = ComposeLocalPaint()
+    val paintState = remember { ComposeLocalPaint() }.apply { reset() }
     updatePaintFromBundle(layout.mPaint, paintState, LocalRemoteContext.current)
 
     val data = layout.readDataReflection()
@@ -73,7 +74,8 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
             Color(data.colorValue)
         }
     val fontSize = if (paintState.isTextSizeSet) paintState.textSize else data.fontSizeValue
-    val fontSizeSp = with(LocalDensity.current) { fontSize.toSp() }
+    val density = LocalDensity.current
+    val fontSizeSp = with(density) { fontSize.toSp() }
 
     val remoteContext = LocalRemoteContext.current
 
@@ -115,11 +117,9 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
     val autoSize =
         if (data.autosize) {
             val min =
-                if (data.minFontSize <= 0f) 4.sp
-                else with(LocalDensity.current) { data.minFontSize.toSp() }
+                if (data.minFontSize <= 0f) 4.sp else with(density) { data.minFontSize.toSp() }
             val max =
-                if (data.maxFontSize <= 0f) 400.sp
-                else with(LocalDensity.current) { data.maxFontSize.toSp() }
+                if (data.maxFontSize <= 0f) 400.sp else with(density) { data.maxFontSize.toSp() }
             TextAutoSize.StepBased(minFontSize = min, maxFontSize = max, stepSize = 0.5.sp)
         } else {
             null
@@ -167,14 +167,13 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
                 hyphens = hyphens,
                 letterSpacing = data.letterSpacing.em,
                 lineHeight =
-                    if (data.lineHeightMultiplier != 1f || data.lineHeightAdd != 0f) {
-                        with(LocalDensity.current) {
-                            (data.fontSizeValue * data.lineHeightMultiplier + data.lineHeightAdd)
-                                .toSp()
-                        }
-                    } else {
-                        TextUnit.Unspecified
-                    },
+                    resolveCoreTextLineHeight(
+                        fontSize = fontSize,
+                        lineHeightMultiplier = data.lineHeightMultiplier,
+                        lineHeightAdd = data.lineHeightAdd,
+                        autosize = data.autosize,
+                        density = density,
+                    ),
                 textDecoration = textDecoration,
             ),
         overflow = overflow,
@@ -182,11 +181,24 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
     )
 }
 
+internal fun resolveCoreTextLineHeight(
+    fontSize: Float,
+    lineHeightMultiplier: Float,
+    lineHeightAdd: Float,
+    autosize: Boolean,
+    density: Density,
+): TextUnit =
+    when {
+        lineHeightMultiplier == 1f && lineHeightAdd == 0f -> TextUnit.Unspecified
+        autosize && lineHeightAdd == 0f -> lineHeightMultiplier.em
+        else -> with(density) { (fontSize * lineHeightMultiplier + lineHeightAdd).toSp() }
+    }
+
 @Composable
 internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
     val textId = layout.textId ?: return
     val text by rememberRemoteStringAsState(textId)
-    val paintState = ComposeLocalPaint()
+    val paintState = remember { ComposeLocalPaint() }.apply { reset() }
     updatePaintFromBundle(layout.mPaint, paintState, LocalRemoteContext.current)
 
     val data = layout.readDataReflection()
@@ -283,20 +295,34 @@ private fun rememberCustomFontName(fontFamilyType: Int, context: RemoteContext):
     }
 }
 
-private fun buildFontVariationSettings(
+internal fun buildFontVariationSettings(
     fontAxis: IntArray?,
     fontAxisValues: FloatArray?,
+    fontWeight: FontWeight,
+    fontStyle: FontStyle,
     context: RemoteContext,
 ): FontVariation.Settings? {
     if (fontAxis == null || fontAxisValues == null) return null
     val list = ArrayList<FontVariation.Setting>()
-    for (i in 0 until fontAxis.size) {
+    var hasWght = false
+    var hasItal = false
+    val count = minOf(fontAxis.size, fontAxisValues.size)
+    for (i in 0 until count) {
         val name = context.getText(fontAxis[i])
         if (name != null) {
+            if (name == "wght") hasWght = true
+            if (name == "ital") hasItal = true
             list.add(FontVariation.Setting(name, fontAxisValues[i]))
         }
     }
-    return if (list.isNotEmpty()) FontVariation.Settings(*list.toTypedArray()) else null
+    if (list.isEmpty()) return null
+    if (!hasWght) {
+        list.add(FontVariation.weight(fontWeight.weight))
+    }
+    if (!hasItal && fontStyle == FontStyle.Italic) {
+        list.add(FontVariation.italic(1f))
+    }
+    return FontVariation.Settings(*list.toTypedArray())
 }
 
 private fun resolveFontFamily(
@@ -393,11 +419,13 @@ private fun resolveFontFamily(
             else -> FontFamily.Default
         }
 
-    val settings = buildFontVariationSettings(fontAxis, fontAxisValues, context)
+    val settings =
+        buildFontVariationSettings(fontAxis, fontAxisValues, fontWeight, fontStyle, context)
     if (settings != null) {
+        val systemFamilyName = if (standardName == "default") "sans-serif" else standardName
         return FontFamily(
             Font(
-                DeviceFontFamilyName(standardName),
+                DeviceFontFamilyName(systemFamilyName),
                 weight = fontWeight,
                 style = fontStyle,
                 variationSettings = settings,
@@ -417,7 +445,8 @@ private fun createDeviceFontFamily(
     context: RemoteContext,
 ): FontFamily {
     val settings =
-        buildFontVariationSettings(fontAxis, fontAxisValues, context) ?: FontVariation.Settings()
+        buildFontVariationSettings(fontAxis, fontAxisValues, fontWeight, fontStyle, context)
+            ?: FontVariation.Settings()
 
     return FontFamily(
         Font(
