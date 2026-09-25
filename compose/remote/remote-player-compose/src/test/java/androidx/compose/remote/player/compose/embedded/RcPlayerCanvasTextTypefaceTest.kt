@@ -19,10 +19,16 @@ package androidx.compose.remote.player.compose.embedded
 import android.graphics.Typeface
 import androidx.collection.emptyIntObjectMap
 import androidx.compose.remote.core.RemoteClock
+import androidx.compose.remote.core.operations.paint.PaintBundle
+import androidx.compose.remote.core.operations.paint.PaintPathEffects
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.remote.player.core.platform.FontInstance
 import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Density
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -101,7 +107,6 @@ class RcPlayerCanvasTextTypefaceTest {
         val playerContext =
             AndroidRemoteContext(RemoteClock.SYSTEM).apply { setTypefaceResolver(testResolver) }
         val snapshotState = SnapshotRemoteComposeState()
-        val timeState = androidx.compose.runtime.mutableFloatStateOf(0f)
         val graphContext =
             GraphContext(
                     snapshotState,
@@ -116,5 +121,61 @@ class RcPlayerCanvasTextTypefaceTest {
 
         assertThat(testResolver.resolveCalled).isTrue()
         assertThat(nativePaint.typeface).isEqualTo(testTypeface)
+    }
+
+    @Test
+    fun toTextStyleUsesContextTypefaceResolver() {
+        val testTypeface = Typeface.MONOSPACE
+        val testResolver = CustomTestTypefaceResolver(testTypeface)
+        val context =
+            AndroidRemoteContext(RemoteClock.SYSTEM).apply { setTypefaceResolver(testResolver) }
+
+        val paint = ComposeLocalPaint().apply { textSize = 24f }
+        val textStyle = paint.toTextStyle(Density(1f), context)
+
+        assertThat(testResolver.resolveCalled).isTrue()
+        assertThat(textStyle.fontFamily).isNotNull()
+    }
+
+    @Test
+    fun toTextStylePreservesFontWeightAndStyleWhenFontAxisIsSet() {
+        val context = AndroidRemoteContext(RemoteClock.SYSTEM)
+        context.loadText(10, "device:sans-serif")
+        context.loadText(20, "wdth")
+
+        val bundle =
+            PaintBundle().apply {
+                setTextStyle(10, 700, true)
+                setTextAxis(intArrayOf(20), floatArrayOf(85f))
+                setTextSize(18f)
+            }
+        val paint = ComposeLocalPaint()
+        updatePaintFromBundle(bundle, paint, context)
+
+        val textStyle = paint.toTextStyle(Density(1f), context)
+        assertThat(textStyle.fontWeight).isEqualTo(FontWeight(700))
+        assertThat(textStyle.fontStyle).isEqualTo(FontStyle.Italic)
+        assertThat(textStyle.fontFamily).isNotNull()
+    }
+
+    @Test
+    fun toDrawStylePopulatesStrokeMiterAndPathEffectFromPaintBundle() {
+        val context = AndroidRemoteContext(RemoteClock.SYSTEM)
+        val bundle =
+            PaintBundle().apply {
+                setStyle(PaintBundle.STYLE_STROKE)
+                setStrokeWidth(6f)
+                setStrokeMiter(8.5f)
+                setPathEffect(PaintPathEffects.dash(0f, 10f, 5f))
+            }
+        val paint = ComposeLocalPaint()
+        updatePaintFromBundle(bundle, paint, context)
+
+        val style = paint.toDrawStyle()
+        assertThat(style).isInstanceOf(Stroke::class.java)
+        val stroke = style as Stroke
+        assertThat(stroke.width).isEqualTo(6f)
+        assertThat(stroke.miter).isEqualTo(8.5f)
+        assertThat(stroke.pathEffect).isNotNull()
     }
 }

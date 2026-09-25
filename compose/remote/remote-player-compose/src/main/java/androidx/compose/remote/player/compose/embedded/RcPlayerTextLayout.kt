@@ -325,7 +325,7 @@ internal fun buildFontVariationSettings(
     return FontVariation.Settings(*list.toTypedArray())
 }
 
-private fun resolveFontFamily(
+internal fun resolveFontFamily(
     fontFamilyType: Int,
     fontName: String?,
     fontWeight: FontWeight,
@@ -369,18 +369,20 @@ private fun resolveFontFamily(
         when {
             fontName.startsWith("device:") -> {
                 val familyName = fontName.substring("device:".length)
-                return createDeviceFontFamily(
-                    familyName,
-                    fontWeight,
-                    fontStyle,
-                    fontAxis,
-                    fontAxisValues,
-                    context,
-                )
+                if (familyName.isNotEmpty()) {
+                    return createDeviceFontFamily(
+                        familyName,
+                        fontWeight,
+                        fontStyle,
+                        fontAxis,
+                        fontAxisValues,
+                        context,
+                    )
+                }
             }
             fontName.startsWith("google:") -> {
-                if (fontCertsResId != 0) {
-                    val actualName = fontName.substring("google:".length)
+                val actualName = fontName.substring("google:".length)
+                if (fontCertsResId != 0 && actualName.isNotEmpty()) {
                     val googleFont = GoogleFont(actualName)
                     val provider =
                         GoogleFont.Provider(
@@ -388,7 +390,6 @@ private fun resolveFontFamily(
                             providerPackage = "com.google.android.gms",
                             certificates = fontCertsResId,
                         )
-                    // TODO: Support variation settings for Google fonts if needed
                     return FontFamily(
                         GoogleFontFactory(
                             googleFont = googleFont,
@@ -396,6 +397,15 @@ private fun resolveFontFamily(
                             weight = fontWeight,
                             style = fontStyle,
                         )
+                    )
+                } else if (actualName.isNotEmpty()) {
+                    return createDeviceFontFamily(
+                        actualName,
+                        fontWeight,
+                        fontStyle,
+                        fontAxis,
+                        fontAxisValues,
+                        context,
                     )
                 }
             }
@@ -413,10 +423,23 @@ private fun resolveFontFamily(
 
     val standardFontFamily =
         when (standardName) {
+            "default" -> FontFamily.Default
             "sans-serif" -> FontFamily.SansSerif
             "serif" -> FontFamily.Serif
             "monospace" -> FontFamily.Monospace
-            else -> FontFamily.Default
+            else ->
+                if (standardName.isNotEmpty()) {
+                    return createDeviceFontFamily(
+                        standardName,
+                        fontWeight,
+                        fontStyle,
+                        fontAxis,
+                        fontAxisValues,
+                        context,
+                    )
+                } else {
+                    FontFamily.Default
+                }
         }
 
     val settings =
