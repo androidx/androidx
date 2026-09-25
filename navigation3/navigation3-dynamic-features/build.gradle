@@ -46,6 +46,18 @@ dependencies {
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(project(":kruth:kruth"))
     testImplementation(project(":compose:runtime:runtime-test-utils"))
+
+    androidTestImplementation(project(":navigation3:navigation3-ui"))
+    androidTestImplementation(project(":compose:ui:ui-test"))
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":compose:test-utils"))
+    androidTestImplementation("androidx.compose.material3:material3:1.3.1")
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testExtJunitKtx)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(project(":kruth:kruth"))
 }
 
 android {
