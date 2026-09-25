@@ -47,7 +47,7 @@ public class VideoEncoderCrashQuirk implements VideoQualityQuirk {
     /** Checks if the given Quality type is a problematic quality. */
     @Override
     public boolean isProblematicVideoQuality(@NonNull CameraInfoInternal cameraInfo,
-            @NonNull Quality quality) {
+            @NonNull Quality quality, int profileQuality) {
         if (isPositivoTwist2Pro()) {
             // The problem can not be workaround by enabling surface processing. See
             // b/218841498#comment5.

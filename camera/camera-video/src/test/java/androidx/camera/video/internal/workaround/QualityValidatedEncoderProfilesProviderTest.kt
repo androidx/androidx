@@ -138,6 +138,7 @@ class QualityValidatedEncoderProfilesProviderTest {
         override fun isProblematicVideoQuality(
             cameraInfo: CameraInfoInternal,
             quality: Quality,
+            profileQuality: Int,
         ): Boolean {
             return unsupportedQualities.contains(quality)
         }
