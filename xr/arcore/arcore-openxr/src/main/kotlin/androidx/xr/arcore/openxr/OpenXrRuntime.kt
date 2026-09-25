@@ -154,6 +154,14 @@ internal class OpenXrRuntime(
         }
     }
 
+    override suspend fun prepareForUpdate() {
+        // Block the call for a time that is appropriate for OpenXR devices.
+        // TODO: b/359871229 - Implement dynamic delay. We start with a fixed 20ms delay as it is
+        // a nice round number that produces a reasonable frame rate @50 Hz, but this value may need
+        // to be adjusted in the future.
+        delay(20.milliseconds)
+    }
+
     override suspend fun update(): ComparableTimeMark {
         // TODO: b/345314364 - Implement this method properly once the native manager supports it.
         // Currently the native manager handles this via an internal looping mechanism.
@@ -181,11 +189,6 @@ internal class OpenXrRuntime(
         }
 
         perceptionManager.update(xrTime)
-        // Block the call for a time that is appropriate for OpenXR devices.
-        // TODO: b/359871229 - Implement dynamic delay. We start with a fixed 20ms delay as it is
-        // a nice round number that produces a reasonable frame rate @50 Hz, but this value may need
-        // to be adjusted in the future.
-        delay(20.milliseconds)
         return now
     }
 
