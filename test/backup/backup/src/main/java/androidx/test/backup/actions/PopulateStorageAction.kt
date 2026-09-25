@@ -49,10 +49,13 @@ import java.io.File
 /**
  * Populates test data inside the application sandbox before a backup.
  *
- * Parses the incoming [androidx.test.backup.BackupActionInputKeys.STORAGE_TYPE] argument and seeds
- * the specified data into [android.content.SharedPreferences], SQLite database, or raw file
+ * Reads [androidx.test.backup.BackupActionInputKeys.STORAGE_TYPE] from the incoming arguments and
+ * seeds the specified data into [android.content.SharedPreferences], a SQLite database, or raw file
  * storage. See [androidx.test.backup.BackupActionInputKeys] for the keys each storage type
  * consumes.
+ *
+ * Once the data is written, [BackupManager.dataChanged] is called so the platform knows the app has
+ * backup-eligible changes pending.
  */
 public class PopulateStorageAction : BackupDeviceAction {
     @get:BackupActionPhase override val phase: Int = BackupDeviceAction.PHASE_POPULATE
@@ -65,7 +68,7 @@ public class PopulateStorageAction : BackupDeviceAction {
             } else {
                 context
             }
-        val storageType = args[STORAGE_TYPE] ?: STORAGE_TYPE_PREFS
+        val storageType = args[STORAGE_TYPE]?.uppercase() ?: STORAGE_TYPE_PREFS
 
         return try {
             when (storageType) {
@@ -77,16 +80,17 @@ public class PopulateStorageAction : BackupDeviceAction {
                     val value =
                         args[VALUE]
                             ?: return failure("Missing '$VALUE' argument for PREFS populate.")
-                    val valueType = args[VALUE_TYPE] ?: VALUE_TYPE_STRING
+                    val valueType = args[VALUE_TYPE]?.uppercase() ?: VALUE_TYPE_STRING
 
                     val editor =
                         targetContext.getSharedPreferences(prefName, Context.MODE_PRIVATE).edit()
-                    when (valueType.uppercase()) {
+                    when (valueType) {
                         VALUE_TYPE_INT -> editor.putInt(key, value.toInt())
                         VALUE_TYPE_LONG -> editor.putLong(key, value.toLong())
                         VALUE_TYPE_FLOAT -> editor.putFloat(key, value.toFloat())
                         VALUE_TYPE_BOOLEAN -> editor.putBoolean(key, value.toBoolean())
-                        else -> editor.putString(key, value)
+                        VALUE_TYPE_STRING -> editor.putString(key, value)
+                        else -> return failure("Unsupported $VALUE_TYPE: ${args[VALUE_TYPE]}")
                     }
                     editor.commit()
                 }
@@ -120,7 +124,24 @@ public class PopulateStorageAction : BackupDeviceAction {
                         db.execSQL(
                             "CREATE TABLE IF NOT EXISTS `$table` (${colDefs.joinToString(", ")})"
                         )
-                        db.insertWithOnConflict(table, null, cv, SQLiteDatabase.CONFLICT_REPLACE)
+                        // SQLite errors (unknown column, constraint violation) propagate out of
+                        // insertWithOnConflict as SQLException and are turned into a failure by
+                        // the catch below. A -1 return means the statement ran but inserted no
+                        // row, which CONFLICT_REPLACE should never produce; check it anyway so a
+                        // future change to the conflict algorithm cannot seed nothing silently.
+                        val rowId =
+                            db.insertWithOnConflict(
+                                table,
+                                null,
+                                cv,
+                                SQLiteDatabase.CONFLICT_REPLACE,
+                            )
+                        if (rowId == -1L) {
+                            return failure(
+                                "Insert into table '$table' did not add a row " +
+                                    "(insertWithOnConflict returned -1)."
+                            )
+                        }
                     }
                 }
 
@@ -150,7 +171,7 @@ public class PopulateStorageAction : BackupDeviceAction {
                     }
                 }
 
-                else -> return failure("Unsupported $STORAGE_TYPE: $storageType")
+                else -> return failure("Unsupported $STORAGE_TYPE: ${args[STORAGE_TYPE]}")
             }
 
             // Automatically notify BackupManager that data has changed

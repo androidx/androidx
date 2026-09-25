@@ -71,7 +71,7 @@ public class AssertStorageAction : BackupDeviceAction {
             } else {
                 context
             }
-        val storageType = args[STORAGE_TYPE] ?: STORAGE_TYPE_PREFS
+        val storageType = args[STORAGE_TYPE]?.uppercase() ?: STORAGE_TYPE_PREFS
 
         return try {
             when (storageType) {
@@ -86,18 +86,20 @@ public class AssertStorageAction : BackupDeviceAction {
                     val expectNull = args[EXPECT_NULL]?.toBoolean() ?: false
                     val sharedPrefs =
                         targetContext.getSharedPreferences(prefName, Context.MODE_PRIVATE)
-                    val valueType = args[VALUE_TYPE] ?: VALUE_TYPE_STRING
+                    val valueType = args[VALUE_TYPE]?.uppercase() ?: VALUE_TYPE_STRING
 
                     val actual =
                         if (!sharedPrefs.contains(key)) {
                             null
                         } else {
-                            when (valueType.uppercase()) {
+                            when (valueType) {
                                 VALUE_TYPE_INT -> sharedPrefs.getInt(key, 0).toString()
                                 VALUE_TYPE_LONG -> sharedPrefs.getLong(key, 0L).toString()
                                 VALUE_TYPE_FLOAT -> sharedPrefs.getFloat(key, 0.0f).toString()
                                 VALUE_TYPE_BOOLEAN -> sharedPrefs.getBoolean(key, false).toString()
-                                else -> sharedPrefs.getString(key, null)
+                                VALUE_TYPE_STRING -> sharedPrefs.getString(key, null)
+                                else ->
+                                    return failure("Unsupported $VALUE_TYPE: ${args[VALUE_TYPE]}")
                             }
                         }
 
@@ -138,53 +140,68 @@ public class AssertStorageAction : BackupDeviceAction {
                     val keyCol = args[KEY_COL] ?: return failure("Missing '$KEY_COL' argument.")
                     val keyVal = args[KEY_VAL] ?: return failure("Missing '$KEY_VAL' argument.")
 
-                    // Extract the column name and expected column value. When 'values' is
-                    // supplied it carries the row that PopulateStorageAction inserted, encoded
-                    // the same way; otherwise rely on the explicit 'expected_col' and
-                    // 'expected_val' arguments. The legacy 'value' fallback is a bare single
-                    // value for preference and file storage, so it is only treated as a pair
-                    // list when it actually looks like one.
-                    val expectedCol: String
-                    val expectedVal: String
-                    val values = (args[VALUES] ?: args[VALUE])?.takeIf { it.contains("=") }
-                    if (values != null) {
-                        val first =
+                    // Collect every column to verify. When 'values' is supplied it carries the
+                    // whole row that PopulateStorageAction inserted, so every pair is checked —
+                    // verifying only the first would let a restore that corrupts a later column
+                    // pass. Otherwise fall back to the single explicit 'expected_col' /
+                    // 'expected_val' pair.
+                    //
+                    // 'values' is always an encoded pair list, so a malformed one is reported as
+                    // such rather than silently falling through to 'expected_col'. The legacy
+                    // 'value' fallback is a bare single value for preference and file storage, so
+                    // it is only treated as a pair list when it actually looks like one.
+                    val values = args[VALUES] ?: args[VALUE]?.takeIf { it.contains("=") }
+                    val expectedColumns: List<Pair<String, String>> =
+                        if (values != null) {
                             try {
-                                decodeColumnValues(values).first()
+                                decodeColumnValues(values)
                             } catch (e: IllegalArgumentException) {
                                 return failure(e.message ?: "Malformed '$VALUES' argument.")
                             }
-                        expectedCol = first.first
-                        expectedVal = first.second
-                    } else {
-                        expectedCol =
-                            args[EXPECTED_COL]
-                                ?: return failure("Missing '$EXPECTED_COL' argument.")
-                        expectedVal =
-                            args[EXPECTED_VAL]
-                                ?: return failure("Missing '$EXPECTED_VAL' argument.")
-                    }
+                        } else {
+                            val expectedCol =
+                                args[EXPECTED_COL]
+                                    ?: return failure("Missing '$EXPECTED_COL' argument.")
+                            val expectedVal =
+                                args[EXPECTED_VAL]
+                                    ?: return failure("Missing '$EXPECTED_VAL' argument.")
+                            listOf(expectedCol to expectedVal)
+                        }
 
                     targetContext.openOrCreateDatabase(dbName, Context.MODE_PRIVATE, null).use { db
                         ->
-                        val cursor =
-                            db.rawQuery(
-                                "SELECT `$expectedCol` FROM `$table` WHERE `$keyCol` = ?",
+                        val projection = expectedColumns.joinToString(", ") { "`${it.first}`" }
+                        db.rawQuery(
+                                "SELECT $projection FROM `$table` WHERE `$keyCol` = ?",
                                 arrayOf(keyVal),
                             )
-                        var actual: String? = null
-                        if (cursor.moveToFirst()) {
-                            actual = cursor.getString(0)
-                        }
-                        cursor.close()
-
-                        if (actual == expectedVal) {
-                            BackupDeviceActionResult.success()
-                        } else {
-                            failure(
-                                "Expected column '$expectedCol' to be '$expectedVal' but was '$actual'"
-                            )
-                        }
+                            .use { cursor ->
+                                // A restore that did not happen at all leaves the row missing
+                                // rather than the column null, so the two are reported
+                                // differently.
+                                if (!cursor.moveToFirst()) {
+                                    return failure(
+                                        "No row with $keyCol='$keyVal' in table '$table'."
+                                    )
+                                }
+                                // Report every mismatch at once; failing on the first would hide
+                                // the shape of a partial restore.
+                                val mismatches =
+                                    expectedColumns.mapIndexedNotNull { index, (column, expected) ->
+                                        val actual = cursor.getString(index)
+                                        if (actual == expected) {
+                                            null
+                                        } else {
+                                            "Expected column '$column' to be '$expected' but " +
+                                                "was '$actual'"
+                                        }
+                                    }
+                                if (mismatches.isEmpty()) {
+                                    BackupDeviceActionResult.success()
+                                } else {
+                                    failure(mismatches.joinToString("; "))
+                                }
+                            }
                     }
                 }
 
@@ -231,7 +248,7 @@ public class AssertStorageAction : BackupDeviceAction {
                     }
                 }
 
-                else -> return failure("Unsupported $STORAGE_TYPE: $storageType")
+                else -> return failure("Unsupported $STORAGE_TYPE: ${args[STORAGE_TYPE]}")
             }
         } catch (e: Exception) {
             failure("AssertStorageAction exception: ${e.message}")
