@@ -22,6 +22,7 @@ import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.NodeHolder
+import androidx.xr.scenecore.runtime.ReformAffordanceFlag
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.MoreExecutors.directExecutor
 import org.junit.Before
@@ -57,7 +58,7 @@ class FakeMeshEntityTest {
             .isEqualTo(BoundingBox.fromMinMax(Vector3.Zero, Vector3.One))
         assertThat(underTest.materials[0]).isSameInstanceAs(initialMaterial)
         assertThat(underTest.reformAffordanceEnabled).isFalse()
-        assertThat(underTest.systemMovable).isFalse()
+        assertThat(ReformAffordanceFlag.anySet(underTest.reformFlag)).isFalse()
     }
 
     @Test
@@ -84,21 +85,24 @@ class FakeMeshEntityTest {
     @Test
     fun setReformAffordanceEnabled_withExecutor_updatesProperties() {
         val isEnabled = true
-        val isSystemMovable = true
+        val reformFlag = ReformAffordanceFlag.MOVABLE
 
-        underTest.setReformAffordanceEnabled(enabled = isEnabled, systemMovable = isSystemMovable)
+        underTest.setReformAffordanceEnabled(enabled = isEnabled, reformAffordanceFlag = reformFlag)
 
         assertThat(underTest.reformAffordanceEnabled).isEqualTo(isEnabled)
-        assertThat(underTest.systemMovable).isEqualTo(isSystemMovable)
+        assertThat(underTest.reformFlag).isEqualTo(reformFlag.toInt())
     }
 
     @Test
     fun setReformAffordanceEnabled_withoutExecutor_doesNothing() {
         val entityWithoutExecutor = FakeMeshEntity(meshFeature, executor = null)
 
-        entityWithoutExecutor.setReformAffordanceEnabled(enabled = true, systemMovable = true)
+        entityWithoutExecutor.setReformAffordanceEnabled(
+            enabled = true,
+            reformAffordanceFlag = ReformAffordanceFlag.MOVABLE,
+        )
 
         assertThat(entityWithoutExecutor.reformAffordanceEnabled).isFalse()
-        assertThat(entityWithoutExecutor.systemMovable).isFalse()
+        assertThat(ReformAffordanceFlag.anySet(entityWithoutExecutor.reformFlag)).isFalse()
     }
 }

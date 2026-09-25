@@ -32,6 +32,7 @@ import androidx.xr.scenecore.runtime.MovableComponent
 import androidx.xr.scenecore.runtime.MoveEvent
 import androidx.xr.scenecore.runtime.MoveEventListener
 import androidx.xr.scenecore.runtime.PanelEntity
+import androidx.xr.scenecore.runtime.ReformAffordanceFlag
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.spatial.core.RuntimeUtils.getPose
@@ -255,15 +256,17 @@ internal class MovableComponentImpl(
         (entity as GltfEntity).setReformAffordanceEnabled(
             enabled = true,
             // Ensure system movable is not handled in api-bindings.
-            // TODO(b/495927805): Remove system movable flag from the SVXR forked component.
-            systemMovable = false,
+            ReformAffordanceFlag.MOVABLE,
         )
         (entity as AndroidXrEntity).addInputEventListener(runtimeExecutor, inputEventListener)
         return true
     }
 
     private fun updateReformsForMeshEntity(): Boolean {
-        (entity as MeshEntity).setReformAffordanceEnabled(enabled = true, systemMovable = false)
+        (entity as MeshEntity).setReformAffordanceEnabled(
+            enabled = true,
+            reformAffordanceFlag = ReformAffordanceFlag.MOVABLE,
+        )
         (entity as AndroidXrEntity).addInputEventListener(runtimeExecutor, inputEventListener)
         return true
     }
@@ -321,16 +324,13 @@ internal class MovableComponentImpl(
     override fun onDetach(entity: Entity) {
         when (entity) {
             is GltfEntity -> {
-                entity.setReformAffordanceEnabled(
-                    enabled = false,
-                    systemMovable = systemMovable && !userAnchorable,
-                )
+                entity.setReformAffordanceEnabled(enabled = false, ReformAffordanceFlag.MOVABLE)
                 entity.removeInputEventListener(inputEventListener)
             }
             is MeshEntity -> {
                 entity.setReformAffordanceEnabled(
                     enabled = false,
-                    systemMovable = systemMovable && !userAnchorable,
+                    reformAffordanceFlag = ReformAffordanceFlag.MOVABLE,
                 )
                 entity.removeInputEventListener(inputEventListener)
             }

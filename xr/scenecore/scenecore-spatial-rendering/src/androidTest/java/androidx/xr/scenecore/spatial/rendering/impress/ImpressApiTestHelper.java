@@ -46,7 +46,7 @@ final class ImpressApiTestHelper {
             int nodeId, boolean enableCollider);
 
     static native void nativeSetExpectedSetGltfReformAffordanceEnabled(
-            int impressNodeId, boolean enabled, boolean systemMovable);
+            int impressNodeId, int reformFlag);
 
     static native void nativeSetExpectedAnimateGltfModel(
             int nodeId,
