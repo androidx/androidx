@@ -19,6 +19,7 @@ package androidx.compose.remote.integration.macrobenchmark.target
 import android.os.Bundle
 import android.view.Gravity
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.view.WindowManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
@@ -80,6 +81,9 @@ class SimpleLayoutActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setShowWhenLocked(true)
+        setTurnScreenOn(true)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         when (intent.getStringExtra(BENCHMARK_MODE_ARG)) {
             MODE_COMPOSE -> setContent { LiveCompose() }
             MODE_WEB_VIEW -> setWebViewContent()
@@ -89,6 +93,7 @@ class SimpleLayoutActivity : ComponentActivity() {
     }
 
     private fun setWebViewContent() {
+        fullyDrawnReporter.addReporter()
         setContentView(
             WebView(this@SimpleLayoutActivity).apply {
                 webViewClient =
@@ -104,15 +109,17 @@ class SimpleLayoutActivity : ComponentActivity() {
                                 requestId,
                                 object : WebView.VisualStateCallback() {
                                     override fun onComplete(id: Long) {
-                                        try {
-                                            reportFullyDrawn()
-                                        } catch (ignored: SecurityException) {}
+                                        fullyDrawnReporter.addOnReportDrawnListener {
+                                            view.contentDescription = LIST_CONTENT_DESCRIPTION
+                                        }
+                                        view.requestLayout()
+                                        view.invalidate()
+                                        fullyDrawnReporter.removeReporter()
                                     }
                                 },
                             )
                         }
                     }
-                contentDescription = LIST_CONTENT_DESCRIPTION
                 val htmlBuilder = java.lang.StringBuilder()
                 htmlBuilder.append(
                     """

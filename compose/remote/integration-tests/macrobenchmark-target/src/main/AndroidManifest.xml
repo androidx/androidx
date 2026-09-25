@@ -45,8 +45,9 @@
             android:name=".SimpleLayoutActivity"
             android:exported="true"
             android:label="First frame"
+            android:showWhenLocked="true"
             android:taskAffinity=""
-
+            android:turnScreenOn="true"
             android:theme="@android:style/Theme.DeviceDefault">
             <intent-filter>
                 <action android:name="androidx.compose.remote.integration.macrobenchmark.target.FIRST_FRAME_ACTIVITY" />
