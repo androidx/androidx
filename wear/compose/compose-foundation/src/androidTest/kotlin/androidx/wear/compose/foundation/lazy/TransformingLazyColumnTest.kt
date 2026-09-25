@@ -70,9 +70,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.TEST_TAG
-import androidx.wear.compose.foundation.WearComposeFoundationFlags
 import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -82,11 +80,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
-import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TransformingLazyColumnTest {
@@ -1487,7 +1483,6 @@ class TransformingLazyColumnTest {
 
     @Test
     fun pinnedItemIsComposedAndPlacedWhenScrolledOut() {
-        assumeTrue(WearComposeFoundationFlags.isTransformingLazyColumnPinnableContainerEnabled)
         val itemSizeDp = with(rule.density) { 10.toDp() }
         lateinit var state: TransformingLazyColumnState
         var pinnableContainer: PinnableContainer? = null
@@ -1535,7 +1530,6 @@ class TransformingLazyColumnTest {
 
     @Test
     fun pinnedItemIsDisposedWhenReleased() {
-        assumeTrue(WearComposeFoundationFlags.isTransformingLazyColumnPinnableContainerEnabled)
         val itemSizeDp = with(rule.density) { 10.toDp() }
         lateinit var state: TransformingLazyColumnState
         var pinnableContainer: PinnableContainer? = null
@@ -1578,7 +1572,6 @@ class TransformingLazyColumnTest {
 
     @Test
     fun pinnedItemIsComposedAndPlacedWhenScrolledOut_extraItemsAfter() {
-        assumeTrue(WearComposeFoundationFlags.isTransformingLazyColumnPinnableContainerEnabled)
         val itemSizeDp = with(rule.density) { 10.toDp() }
         lateinit var state: TransformingLazyColumnState
         var pinnableContainer: PinnableContainer? = null
@@ -1621,7 +1614,6 @@ class TransformingLazyColumnTest {
 
     @Test
     fun pinnedMultipleItemsAreComposedAndPlaced_mixed() {
-        assumeTrue(WearComposeFoundationFlags.isTransformingLazyColumnPinnableContainerEnabled)
         val itemSizeDp = with(rule.density) { 10.toDp() }
         lateinit var state: TransformingLazyColumnState
         var pinnableContainer1: PinnableContainer? = null
