@@ -16,7 +16,10 @@
 
 package androidx.test.backup.actions
 
+import android.content.ContentValues
 import android.content.Context
+import android.database.SQLException
+import android.database.sqlite.SQLiteDatabase
 import androidx.test.backup.BackupActionInputKeys
 import androidx.test.backup.BackupActionOutputKeys
 import androidx.test.backup.BackupActionValues
@@ -27,8 +30,11 @@ import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.util.Locale
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -72,7 +78,7 @@ public class StorageActionTest {
                     BackupActionInputKeys.PREF_NAME to prefName,
                     BackupActionInputKeys.PREF_KEY to key,
                     BackupActionInputKeys.VALUE to value,
-                    BackupActionInputKeys.VALUE_TYPE to "STRING",
+                    BackupActionInputKeys.VALUE_TYPE to BackupActionValues.VALUE_TYPE_STRING,
                 )
             )
         val putResult = putAction.execute(context, putArgs)
@@ -94,7 +100,7 @@ public class StorageActionTest {
                     BackupActionInputKeys.PREF_NAME to prefName,
                     BackupActionInputKeys.PREF_KEY to key,
                     BackupActionInputKeys.VALUE to value,
-                    BackupActionInputKeys.VALUE_TYPE to "STRING",
+                    BackupActionInputKeys.VALUE_TYPE to BackupActionValues.VALUE_TYPE_STRING,
                 )
             )
         val verifyResult = verifyAction.execute(context, verifyArgs)
@@ -123,7 +129,7 @@ public class StorageActionTest {
                     BackupActionInputKeys.PREF_NAME to prefName,
                     BackupActionInputKeys.PREF_KEY to key,
                     BackupActionInputKeys.VALUE to value.toString(),
-                    BackupActionInputKeys.VALUE_TYPE to "INT",
+                    BackupActionInputKeys.VALUE_TYPE to BackupActionValues.VALUE_TYPE_INT,
                 )
             )
         val putResult = putAction.execute(context, putArgs)
@@ -145,7 +151,7 @@ public class StorageActionTest {
                     BackupActionInputKeys.PREF_NAME to prefName,
                     BackupActionInputKeys.PREF_KEY to key,
                     BackupActionInputKeys.VALUE to value.toString(),
-                    BackupActionInputKeys.VALUE_TYPE to "INT",
+                    BackupActionInputKeys.VALUE_TYPE to BackupActionValues.VALUE_TYPE_INT,
                 )
             )
         val verifyResult = verifyAction.execute(context, verifyArgs)
@@ -174,7 +180,7 @@ public class StorageActionTest {
                     BackupActionInputKeys.PREF_NAME to prefName,
                     BackupActionInputKeys.PREF_KEY to key,
                     BackupActionInputKeys.VALUE to value.toString(),
-                    BackupActionInputKeys.VALUE_TYPE to "BOOLEAN",
+                    BackupActionInputKeys.VALUE_TYPE to BackupActionValues.VALUE_TYPE_BOOLEAN,
                 )
             )
         val putResult = putAction.execute(context, putArgs)
@@ -196,7 +202,7 @@ public class StorageActionTest {
                     BackupActionInputKeys.PREF_NAME to prefName,
                     BackupActionInputKeys.PREF_KEY to key,
                     BackupActionInputKeys.VALUE to value.toString(),
-                    BackupActionInputKeys.VALUE_TYPE to "BOOLEAN",
+                    BackupActionInputKeys.VALUE_TYPE to BackupActionValues.VALUE_TYPE_BOOLEAN,
                 )
             )
         val verifyResult = verifyAction.execute(context, verifyArgs)
@@ -354,6 +360,123 @@ public class StorageActionTest {
         assertEquals(
             BackupActionValues.STATUS_SUCCESS,
             verifyResult.payload[BackupActionOutputKeys.STATUS],
+        )
+    }
+
+    /**
+     * A mismatch in a column other than the first fails the assertion.
+     *
+     * [AssertStorageAction] used to verify only the first pair of [BackupActionInputKeys.VALUES],
+     * so a restore that corrupted any later column of the row passed silently.
+     */
+    @Test
+    public fun testDatabaseVerifyDetectsNonFirstColumnMismatch() {
+        val dbName = "test_multi_mismatch_db.db"
+        val table = "test_multi_mismatch_table"
+
+        context.deleteDatabase(dbName)
+
+        val putResult =
+            PopulateStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_DATABASE,
+                            BackupActionInputKeys.DB_NAME to dbName,
+                            BackupActionInputKeys.TABLE to table,
+                            BackupActionInputKeys.VALUES to "id=row1&payload=stored&extra=kept",
+                        )
+                    ),
+                )
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            putResult.payload[BackupActionOutputKeys.STATUS],
+        )
+
+        // The key column still matches, so the row is found; only 'payload' differs.
+        val verifyResult =
+            AssertStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_DATABASE,
+                            BackupActionInputKeys.DB_NAME to dbName,
+                            BackupActionInputKeys.TABLE to table,
+                            BackupActionInputKeys.KEY_COL to "id",
+                            BackupActionInputKeys.KEY_VAL to "row1",
+                            BackupActionInputKeys.VALUES to "id=row1&payload=corrupted&extra=kept",
+                        )
+                    ),
+                )
+
+        assertEquals(
+            BackupActionValues.STATUS_FAILURE,
+            verifyResult.payload[BackupActionOutputKeys.STATUS],
+        )
+        val error = verifyResult.payload[BackupActionOutputKeys.ERROR]
+        assertNotNull(error)
+        assertTrue(
+            "Expected the mismatching column to be named, but was: $error",
+            error!!.contains("payload"),
+        )
+        assertTrue(
+            "Expected the actual stored value to be reported, but was: $error",
+            error.contains("stored"),
+        )
+    }
+
+    /** Every mismatching column is reported at once, so a partial restore is diagnosable. */
+    @Test
+    public fun testDatabaseVerifyReportsEveryColumnMismatch() {
+        val dbName = "test_multi_all_mismatch_db.db"
+        val table = "test_multi_all_mismatch_table"
+
+        context.deleteDatabase(dbName)
+
+        PopulateStorageAction()
+            .execute(
+                context,
+                BackupDeviceActionArgs(
+                    mapOf(
+                        BackupActionInputKeys.STORAGE_TYPE to
+                            BackupActionValues.STORAGE_TYPE_DATABASE,
+                        BackupActionInputKeys.DB_NAME to dbName,
+                        BackupActionInputKeys.TABLE to table,
+                        BackupActionInputKeys.VALUES to "id=row1&first=a&second=b",
+                    )
+                ),
+            )
+
+        val verifyResult =
+            AssertStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_DATABASE,
+                            BackupActionInputKeys.DB_NAME to dbName,
+                            BackupActionInputKeys.TABLE to table,
+                            BackupActionInputKeys.KEY_COL to "id",
+                            BackupActionInputKeys.KEY_VAL to "row1",
+                            BackupActionInputKeys.VALUES to "id=row1&first=x&second=y",
+                        )
+                    ),
+                )
+
+        assertEquals(
+            BackupActionValues.STATUS_FAILURE,
+            verifyResult.payload[BackupActionOutputKeys.STATUS],
+        )
+        val error = verifyResult.payload[BackupActionOutputKeys.ERROR]
+        assertNotNull(error)
+        assertTrue(
+            "Expected both mismatching columns to be reported, but was: $error",
+            error!!.contains("first") && error.contains("second"),
         )
     }
 
@@ -527,6 +650,157 @@ public class StorageActionTest {
         )
     }
 
+    /** An unrecognized value type fails rather than silently degrading to a string preference. */
+    @Test
+    public fun testPrefsRejectsUnsupportedValueType() {
+        val result =
+            PopulateStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_PREFS,
+                            BackupActionInputKeys.PREF_NAME to "test_bad_type_prefs",
+                            BackupActionInputKeys.PREF_KEY to "k",
+                            BackupActionInputKeys.VALUE to "1",
+                            BackupActionInputKeys.VALUE_TYPE to "DOUBLE",
+                        )
+                    ),
+                )
+
+        assertEquals(
+            BackupActionValues.STATUS_FAILURE,
+            result.payload[BackupActionOutputKeys.STATUS],
+        )
+    }
+
+    /** Storage and value types are matched without regard to case. */
+    @Test
+    public fun testTypesAreCaseInsensitive() {
+        val prefName = "test_case_prefs"
+
+        val putResult =
+            PopulateStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to "prefs",
+                            BackupActionInputKeys.PREF_NAME to prefName,
+                            BackupActionInputKeys.PREF_KEY to "k",
+                            BackupActionInputKeys.VALUE to "7",
+                            BackupActionInputKeys.VALUE_TYPE to "int",
+                        )
+                    ),
+                )
+
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            putResult.payload[BackupActionOutputKeys.STATUS],
+        )
+        assertEquals(7, context.getSharedPreferences(prefName, Context.MODE_PRIVATE).getInt("k", 0))
+    }
+
+    /**
+     * Type matching must not depend on the device locale.
+     *
+     * In Turkish and Azerbaijani, `"i"` uppercases to a dotted `İ`, so a locale-sensitive fold
+     * would turn `"files"` into `FİLES` and `"int"` into `İNT`, neither of which matches the
+     * declared constants. The actions rely on [String.uppercase], which folds with the invariant
+     * locale rather than the default one; this test pins that guarantee so a future switch to the
+     * locale-sensitive [String.uppercase] overload or to `toUpperCase()` is caught here.
+     */
+    @Test
+    public fun testTypesAreCaseInsensitiveInTurkishLocale() {
+        val original = Locale.getDefault()
+        Locale.setDefault(Locale.forLanguageTag("tr-TR"))
+        try {
+            // Guards the guard: if the hostile locale were not actually in effect, the assertions
+            // below would pass for the wrong reason.
+            assertEquals("İNT", "int".uppercase(Locale.getDefault()))
+
+            val prefName = "test_turkish_prefs"
+            val putResult =
+                PopulateStorageAction()
+                    .execute(
+                        context,
+                        BackupDeviceActionArgs(
+                            mapOf(
+                                BackupActionInputKeys.STORAGE_TYPE to "prefs",
+                                BackupActionInputKeys.PREF_NAME to prefName,
+                                BackupActionInputKeys.PREF_KEY to "k",
+                                BackupActionInputKeys.VALUE to "7",
+                                BackupActionInputKeys.VALUE_TYPE to "int",
+                            )
+                        ),
+                    )
+            assertEquals(
+                BackupActionValues.STATUS_SUCCESS,
+                putResult.payload[BackupActionOutputKeys.STATUS],
+            )
+            assertEquals(
+                7,
+                context.getSharedPreferences(prefName, Context.MODE_PRIVATE).getInt("k", 0),
+            )
+
+            // 'files' is the storage type most affected by the dotted-I fold.
+            val fileName = "turkish_locale.txt"
+            val fileResult =
+                PopulateStorageAction()
+                    .execute(
+                        context,
+                        BackupDeviceActionArgs(
+                            mapOf(
+                                BackupActionInputKeys.STORAGE_TYPE to "files",
+                                BackupActionInputKeys.PATH to fileName,
+                                BackupActionInputKeys.VALUE to "content",
+                            )
+                        ),
+                    )
+            assertEquals(
+                BackupActionValues.STATUS_SUCCESS,
+                fileResult.payload[BackupActionOutputKeys.STATUS],
+            )
+            assertEquals("content", File(context.filesDir, fileName).readText())
+        } finally {
+            Locale.setDefault(original)
+        }
+    }
+
+    /**
+     * A malformed `values` reports itself rather than being reported as a missing `expected_col`.
+     */
+    @Test
+    public fun testDatabaseMalformedValuesIsNotMaskedAsMissingColumn() {
+        val result =
+            AssertStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_DATABASE,
+                            BackupActionInputKeys.DB_NAME to "test_masked_db.db",
+                            BackupActionInputKeys.TABLE to "t",
+                            BackupActionInputKeys.KEY_COL to "k",
+                            BackupActionInputKeys.KEY_VAL to "v",
+                            BackupActionInputKeys.VALUES to "orphan",
+                        )
+                    ),
+                )
+
+        assertEquals(
+            BackupActionValues.STATUS_FAILURE,
+            result.payload[BackupActionOutputKeys.STATUS],
+        )
+        val error = result.payload[BackupActionOutputKeys.ERROR]
+        assertTrue(
+            "Expected a malformed-argument error but was '$error'",
+            error != null && !error.contains(BackupActionInputKeys.EXPECTED_COL),
+        )
+    }
+
     /**
      * A bare `value` carries no column pair, so database verification still falls back to the
      * explicit `expected_col` and `expected_val` arguments.
@@ -582,5 +856,142 @@ public class StorageActionTest {
             BackupActionValues.STATUS_SUCCESS,
             verifyResult.payload[BackupActionOutputKeys.STATUS],
         )
+    }
+
+    /**
+     * A row that is absent is reported differently from a column that is present but null.
+     *
+     * A restore that did not run at all produces the absent-row case, which is the single most
+     * common real failure; conflating it with a null column sends you looking in the wrong place.
+     */
+    @Test
+    public fun testDatabaseMissingRowIsReportedDistinctly() {
+        val dbName = "test_missing_row_db.db"
+        val table = "test_table"
+
+        context.deleteDatabase(dbName)
+
+        val putResult =
+            PopulateStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_DATABASE,
+                            BackupActionInputKeys.DB_NAME to dbName,
+                            BackupActionInputKeys.TABLE to table,
+                            BackupActionInputKeys.VALUES to "id=row1&payload=hello",
+                        )
+                    ),
+                )
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            putResult.payload[BackupActionOutputKeys.STATUS],
+        )
+
+        // Ask for a row that was never inserted.
+        val verifyResult =
+            AssertStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_DATABASE,
+                            BackupActionInputKeys.DB_NAME to dbName,
+                            BackupActionInputKeys.TABLE to table,
+                            BackupActionInputKeys.KEY_COL to "id",
+                            BackupActionInputKeys.KEY_VAL to "row_that_does_not_exist",
+                            BackupActionInputKeys.EXPECTED_COL to "payload",
+                            BackupActionInputKeys.EXPECTED_VAL to "hello",
+                        )
+                    ),
+                )
+
+        assertEquals(
+            BackupActionValues.STATUS_FAILURE,
+            verifyResult.payload[BackupActionOutputKeys.STATUS],
+        )
+        val error = verifyResult.payload[BackupActionOutputKeys.ERROR]
+        assertTrue(
+            "Expected a missing-row error but was '$error'",
+            error != null && error.contains("No row with"),
+        )
+    }
+
+    /**
+     * A column named in `values` that the existing table does not have fails the populate, and the
+     * underlying SQLite error is surfaced rather than swallowed.
+     */
+    @Test
+    public fun testDatabaseInsertFailureIsReported() {
+        val dbName = "test_insert_fail_db.db"
+        val table = "test_table"
+
+        context.deleteDatabase(dbName)
+
+        // Create the table with a single column so a later insert naming an unknown column fails.
+        context.openOrCreateDatabase(dbName, Context.MODE_PRIVATE, null).use { db ->
+            db.execSQL("CREATE TABLE IF NOT EXISTS `$table` (`id` TEXT)")
+        }
+
+        val result =
+            PopulateStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_DATABASE,
+                            BackupActionInputKeys.DB_NAME to dbName,
+                            BackupActionInputKeys.TABLE to table,
+                            BackupActionInputKeys.VALUES to "id=row1&unknown_column=boom",
+                        )
+                    ),
+                )
+
+        assertEquals(
+            BackupActionValues.STATUS_FAILURE,
+            result.payload[BackupActionOutputKeys.STATUS],
+        )
+        // Assert on the specific cause, otherwise this test would also pass for an unrelated
+        // failure such as a missing argument.
+        val error = result.payload[BackupActionOutputKeys.ERROR]
+        assertTrue(
+            "Expected the SQLite error naming the bad column but was '$error'",
+            error != null && error.contains("unknown_column"),
+        )
+    }
+
+    /**
+     * Pins the [SQLiteDatabase.insertWithOnConflict] contract that [PopulateStorageAction] relies
+     * on: SQLite errors are thrown, they are not reported as a `-1` return. Only
+     * [SQLiteDatabase .insert] and [SQLiteDatabase.replace] convert the exception to `-1`. If this
+     * ever changes, the `catch` in [PopulateStorageAction] would stop being the path that reports
+     * bad inserts.
+     */
+    @Test
+    public fun testInsertWithOnConflictThrowsRatherThanReturningMinusOne() {
+        val dbName = "test_insert_contract_db.db"
+        val table = "test_table"
+
+        context.deleteDatabase(dbName)
+
+        context.openOrCreateDatabase(dbName, Context.MODE_PRIVATE, null).use { db ->
+            db.execSQL("CREATE TABLE IF NOT EXISTS `$table` (`id` TEXT)")
+            val cv = ContentValues().apply { put("unknown_column", "boom") }
+
+            try {
+                val rowId =
+                    db.insertWithOnConflict(table, null, cv, SQLiteDatabase.CONFLICT_REPLACE)
+                fail("Expected insertWithOnConflict to throw, but it returned $rowId")
+            } catch (expected: SQLException) {
+                // Expected.
+            }
+
+            // The forgiving convenience wrapper is the one that returns -1.
+            assertEquals(-1L, db.insert(table, null, cv))
+        }
     }
 }
