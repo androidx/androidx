@@ -43,6 +43,11 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
     private val overriddenColors: SnapshotStateMap<Int, Boolean> = mutableStateMapOf()
     private val overriddenData: SnapshotStateMap<Int, Boolean> = mutableStateMapOf()
 
+    /**
+     * Re-entrancy depth for [withOpCountReset], matching the lifecycle of `RemoteContext.mOpCount`.
+     */
+    internal var opCountDepth: Int = 0
+
     // --- Float ---
     override fun getFloat(id: Int): Float {
         if (id !in floats) {
