@@ -403,18 +403,11 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
     override fun draw(canvas: Canvas, originX: Float, originY: Float, paint: TextPaint) {
         var y = originY
         text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, bgColor, fontShear, emphasis ->
-            if (bgColor != 0) {
-                tempPaint { bgWorkPaint ->
-                    bgWorkPaint.color = bgColor
-                    canvas.drawRect(
-                        originX + leftSideOffset,
-                        y,
-                        originX + rightSideOffset,
-                        y + height,
-                        bgWorkPaint,
-                    )
-                }
-            }
+            val runHeight = rPaint.measureTextVertical(text, rStart, rEnd)
+            // Use `width` (`leftSideOffset..rightSideOffset`) so mixed font sizes share a uniform
+            // column width and emphasis marks stay inside the background.
+            // Use `runHeight` so each style run covers only its own vertical advance.
+            canvas.drawBackground(originX + leftSideOffset, y, width, runHeight, bgColor)
 
             if (fontShear == 0f) {
                 canvas.drawTextVertical(text, rStart, rEnd, originX, y, rPaint)
@@ -470,7 +463,7 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
                 }
             }
 
-            y += rPaint.measureTextVertical(text, rStart, rEnd)
+            y += runHeight
         }
     }
 

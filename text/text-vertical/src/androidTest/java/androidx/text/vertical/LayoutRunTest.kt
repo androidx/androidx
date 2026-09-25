@@ -22,7 +22,11 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Paint.FontMetricsInt
 import android.os.Build
+import android.text.SpannableString
+import android.text.Spanned
 import android.text.TextPaint
+import android.text.style.BackgroundColorSpan
+import android.text.style.RelativeSizeSpan
 import androidx.test.filters.SdkSuppress
 import androidx.text.vertical.ResolvedOrientation.Rotate
 import androidx.text.vertical.ResolvedOrientation.TateChuYoko
@@ -87,8 +91,30 @@ class LayoutRunTest {
         orientation: ResolvedOrientation,
     ) = createLayoutRun(text, start, end, PAINT, orientation)
 
-    private class MockCanvas(val drawTextCallback: (CharSequence, Int, Int, Paint) -> Unit) :
-        Canvas() {
+    private data class DrawRectCall(
+        val left: Float,
+        val top: Float,
+        val right: Float,
+        val bottom: Float,
+        val color: Int,
+    )
+
+    private class MockCanvas(
+        val drawTextCallback: (CharSequence, Int, Int, Paint) -> Unit = { _, _, _, _ -> }
+    ) : Canvas() {
+        val drawnRects = mutableListOf<DrawRectCall>()
+
+        override fun drawRect(
+            left: Float,
+            top: Float,
+            right: Float,
+            bottom: Float,
+            paint: Paint,
+        ) {
+            super.drawRect(left, top, right, bottom, paint)
+            drawnRects.add(DrawRectCall(left, top, right, bottom, paint.color))
+        }
+
         override fun drawText(
             text: CharSequence,
             start: Int,
@@ -336,6 +362,42 @@ class LayoutRunTest {
             )
             .that(bitmap.hasPixelWithColor(Color.YELLOW, rubyLeft, top, rubyRight, bottom))
             .isTrue()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    fun uprightLayoutRun_multiStyleRuns_drawsBackgroundWithinRunHeight() {
+        val text =
+            SpannableString("あい").apply {
+                setSpan(BackgroundColorSpan(Color.RED), 0, 1, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+                setSpan(BackgroundColorSpan(Color.BLUE), 1, 2, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+                setSpan(RelativeSizeSpan(2f), 1, 2, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+            }
+        val run = createLayoutRun(text, 0, text.length, PAINT, Upright)
+        val canvas = MockCanvas()
+        run.draw(canvas, ORIGIN_X, ORIGIN_Y, PAINT)
+
+        val run1Height = PAINT.measureTextVertical("あ")
+        val run2Paint = TextPaint(PAINT).apply { textSize = PAINT.textSize * 2f }
+        val run2Height = run2Paint.measureTextVertical("い")
+        assertThat(canvas.drawnRects)
+            .containsExactly(
+                DrawRectCall(
+                    left = ORIGIN_X + run.leftSideOffset,
+                    top = ORIGIN_Y,
+                    right = ORIGIN_X + run.rightSideOffset,
+                    bottom = ORIGIN_Y + run1Height,
+                    color = Color.RED,
+                ),
+                DrawRectCall(
+                    left = ORIGIN_X + run.leftSideOffset,
+                    top = ORIGIN_Y + run1Height,
+                    right = ORIGIN_X + run.rightSideOffset,
+                    bottom = ORIGIN_Y + run1Height + run2Height,
+                    color = Color.BLUE,
+                ),
+            )
+            .inOrder()
     }
 
     private fun assertRunDrawsBackground(run: LayoutRun, bgPaint: TextPaint) {
