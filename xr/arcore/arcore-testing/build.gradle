@@ -52,4 +52,5 @@ androidx {
     inceptionYear = "2025"
     description = "Provides Fake implementations of ARCore classes for unit testing."
     enableRobolectric()
+    samples(project(":xr:arcore:arcore-samples"))
 }
