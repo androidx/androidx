@@ -58,12 +58,19 @@ internal fun Modifier.width(op: WidthModifierOperation): Modifier {
             // sizes update like normal Compose. (`mValue` is package private in remote-core, which
             // we
             // leave unchanged, so read it reflectively — same approach as RcPlayerColumnLayout.)
+            val behavior = LocalCoreDocument.current.densityBehavior
             val resolved = rememberRemoteFloatAsState(dimensionRawValue(op)).value
-            // EXACT stores px (getFloat resolves to px); EXACT_DP stores dp (the core multiplies by
-            // density into mOutValue, which we deliberately bypass by reading mValue).
+            // EXACT stores px unless DENSITY_BEHAVIOR_DP is set on the document; EXACT_DP always
+            // stores dp.
             val widthDp =
-                if (op.type == DimensionModifierOperation.Type.EXACT) resolved / density
-                else resolved
+                if (
+                    op.type == DimensionModifierOperation.Type.EXACT &&
+                        behavior != CoreDocument.DENSITY_BEHAVIOR_DP
+                ) {
+                    resolved / density
+                } else {
+                    resolved
+                }
             this.width(widthDp.dp)
         }
         DimensionModifierOperation.Type.FILL,
