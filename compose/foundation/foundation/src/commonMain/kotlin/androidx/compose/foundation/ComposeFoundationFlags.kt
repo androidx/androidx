@@ -265,7 +265,7 @@ public object ComposeFoundationFlags {
     // TODO: b/535884139
     @field:Suppress("MutableBareField")
     @JvmField
-    public var isCacheWindowLookaheadCheckEnabled: Boolean = true
+    public var isCacheWindowLookaheadCheckEnabled: Boolean = false
 
     /**
      * This flag controls whether [androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow]

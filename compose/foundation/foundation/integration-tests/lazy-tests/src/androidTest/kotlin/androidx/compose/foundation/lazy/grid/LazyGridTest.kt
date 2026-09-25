@@ -21,6 +21,8 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.AutoTestFrameClock
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -109,6 +111,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -2196,9 +2199,10 @@ class LazyGridTest(private val orientation: Orientation) :
         }
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun testDisposeHappensAfterNoLongerNeededByEitherPass() {
-
+        assumeTrue(ComposeFoundationFlags.isCacheWindowLookaheadCheckEnabled)
         val disposed = mutableListOf<Boolean>().apply { repeat(20) { this.add(false) } }
         var lookaheadHeight by mutableIntStateOf(1000)
         var approachHeight by mutableIntStateOf(1000)
