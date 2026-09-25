@@ -20,7 +20,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.lazy.layout.LazyLayoutSemanticState
 import androidx.compose.foundation.lazy.layout.estimatedLazyMaxScrollOffset
 import androidx.compose.foundation.lazy.layout.estimatedLazyScrollOffset
-import androidx.compose.runtime.computedStateOf
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.semantics.CollectionInfo
 
@@ -31,7 +31,7 @@ internal fun LazyLayoutSemanticState(
     object : LazyLayoutSemanticState {
 
         // The total number of items in the list, derived from layout info.
-        private val totalItemsCount by computedStateOf { state.layoutInfo.totalItemsCount }
+        private val totalItemsCount by derivedStateOf { state.layoutInfo.totalItemsCount }
 
         override val scrollOffset: Float
             get() =

@@ -31,7 +31,7 @@ import androidx.compose.animation.core.repeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.computedStateOf
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -238,7 +238,7 @@ private class PathPropertyValues : PropertyValues<List<PathNode>>() {
                 if (atEnd) overallDuration.toFloat() else 0f
             }
         @Suppress("UnrememberedMutableState") // b/279909531
-        return computedStateOf { interpolate(timeState.value) }
+        return derivedStateOf { interpolate(timeState.value) }
     }
 
     private fun interpolate(timeMillis: Float): List<PathNode> {
