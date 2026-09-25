@@ -305,16 +305,6 @@ public open class RecordingCanvas(
         paint.asRemotePaint()
 
     /**
-     * Forces the next `usePaint` call to send all Paint attributes, regardless of changes. This is
-     * useful for ensuring the remote side has the complete, up-to-date paint state.
-     *
-     * @param value If `true`, the next `usePaint` call will send all Paint attributes.
-     */
-    public fun forceSendingPaint(value: Boolean) {
-        forceSendingPaint = value
-    }
-
-    /**
      * Sets the [RemoteComposeCreationState] and [RemoteComposeWriter] instances. These are critical
      * for the `RecordingCanvas` to interact with the remote document and capture context. This must
      * be called before any drawing operations.
@@ -1006,53 +996,6 @@ public open class RecordingCanvas(
         buffer.addRoots(op, text, bitmapFont)
     }
 
-    /**
-     * Draws a substring of [text] with [bitmapFont] centered position [x], [y] with additional
-     * translation from [panx] & [pany]
-     *
-     * @param text The [RemoteString] to draw
-     * @param bitmapFont The [RemoteBitmapFont] to draw [text] with
-     * @param start The character to start drawing from
-     * @param end The character to stop drawing at. Note if this is -1 then all characters from
-     *   [start] until the last character of [text] are drawn
-     * @param x The left x-coordinate to start rendering from
-     * @param y The top y-coordinate to start rendering from
-     * @param panx A horizontal translation applied to the text. A value of -1 = left aligned, 0 =
-     *   centered horizontally, 1 = right aligned.
-     * @param pany A vertical translation applied to the text. A value of -1 = top aligned, 0 =
-     *   centered vertically, 1 = bottom aligned.
-     * @param glyphSpacing Horizontal adjustment in pixels between glyphs
-     * @param paint The [Paint] to render with
-     */
-    public fun drawAnchoredBitmapFontTextRun(
-        text: RemoteString,
-        bitmapFont: RemoteBitmapFont,
-        start: Int,
-        end: Int,
-        x: RemoteFloat,
-        y: RemoteFloat,
-        panx: RemoteFloat,
-        pany: RemoteFloat,
-        glyphSpacing: RemoteFloat,
-        paint: Paint,
-    ) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawBitmapTextAnchored(
-                    text.getIdForCreationState(creationState),
-                    bitmapFont.getIdForCreationState(creationState),
-                    start.toFloat(),
-                    end.toFloat(),
-                    x.getFloatIdForCreationState(creationState),
-                    y.getFloatIdForCreationState(creationState),
-                    panx.getFloatIdForCreationState(creationState),
-                    pany.getFloatIdForCreationState(creationState),
-                    glyphSpacing.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, text, bitmapFont, x, y, panx, pany, glyphSpacing)
-    }
-
     override fun drawPath(path: Path, paint: Paint) {
         val pathSnapshot = Path(path)
         recordRenderingOp(paint) { document.drawPath(pathSnapshot) }
@@ -1213,33 +1156,6 @@ public open class RecordingCanvas(
         buffer.addRoots(op, text, path, hOffset, vOffset)
     }
 
-    /*
-    public fun drawTextOnCircle(
-        text: RemoteString,
-        centerX: RemoteFloat,
-        centerY: RemoteFloat,
-        radius: RemoteFloat,
-        startAngle: RemoteFloat,
-        warpRadiusOffset: RemoteFloat,
-        alignment: Int,
-        placement: Int,
-        paint: Paint
-    ) {
-        recordRenderingOp(paint) {
-            document.drawTextOnCircle(
-                text.getIdForCreationState(creationState),
-                centerX.getFloatIdForCreationState(creationState),
-                centerY.getFloatIdForCreationState(creationState),
-                radius.getFloatIdForCreationState(creationState),
-                startAngle.getFloatIdForCreationState(creationState),
-                warpRadiusOffset.getFloatIdForCreationState(creationState),
-                alignment,
-                placement,
-            )
-        }
-    }
-    */
-
     override fun drawArc(
         left: Float,
         top: Float,
@@ -1319,75 +1235,6 @@ public open class RecordingCanvas(
     }
 
     /**
-     * Draws text with an anchor point and translation factors, allowing for flexible positioning
-     * relative to a given anchor.
-     *
-     * @param text The [String] of text to draw.
-     * @param anchorX The X-coordinate of the anchor point.
-     * @param anchorY The Y-coordinate of the anchor point.
-     * @param panx A horizontal translation factor (-1 = left, 0 = center, 1 = right).
-     * @param pany A vertical translation factor (-1 = top, 0 = center, 1 = bottom).
-     * @param flags Additional flags for text anchoring/alignment.
-     * @param paint The [Paint] object for styling.
-     */
-    public fun drawAnchoredText(
-        text: String,
-        anchorX: RemoteFloat,
-        anchorY: RemoteFloat,
-        panx: RemoteFloat,
-        pany: RemoteFloat,
-        flags: Int,
-        paint: Paint,
-    ) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawTextAnchored(
-                    text,
-                    anchorX.getFloatIdForCreationState(creationState),
-                    anchorY.getFloatIdForCreationState(creationState),
-                    panx.getFloatIdForCreationState(creationState),
-                    pany.getFloatIdForCreationState(creationState),
-                    flags,
-                )
-            }
-        buffer.addRoots(op, anchorX, anchorY, panx, pany)
-    }
-
-    /**
-     * Draws text from a [RemoteString] with an anchor point and translation factors.
-     *
-     * @param text The [RemoteString] to draw.
-     * @param anchorX The X-coordinate of the anchor point.
-     * @param anchorY The Y-coordinate of the anchor point.
-     * @param panx A horizontal translation factor (-1 = left, 0 = center, 1 = right).
-     * @param pany A vertical translation factor (-1 = left, 0 = center, 1 = right).
-     * @param flags Additional flags for text anchoring/alignment.
-     * @param paint The [Paint] object for styling.
-     */
-    public fun drawAnchoredText(
-        text: RemoteString,
-        anchorX: RemoteFloat,
-        anchorY: RemoteFloat,
-        panx: RemoteFloat,
-        pany: RemoteFloat,
-        flags: Int,
-        paint: Paint,
-    ) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawTextAnchored(
-                    text.getIdForCreationState(creationState),
-                    anchorX.getFloatIdForCreationState(creationState),
-                    anchorY.getFloatIdForCreationState(creationState),
-                    panx.getFloatIdForCreationState(creationState),
-                    pany.getFloatIdForCreationState(creationState),
-                    flags,
-                )
-            }
-        buffer.addRoots(op, text, anchorX, anchorY, panx, pany)
-    }
-
-    /**
      * Draws a path that is an interpolation (tween) between two Compose UI [Path] objects.
      *
      * This allows for smooth animation between different path shapes. If the input paths are
@@ -1462,10 +1309,6 @@ public open class RecordingCanvas(
                 )
             }
         buffer.addRoots(op, path1, path2, tween, start, stop)
-    }
-
-    public fun paint(canvas: Canvas) {
-        canvas.restoreToCount(1)
     }
 
     /**
@@ -1644,28 +1487,6 @@ public open class RecordingCanvas(
                 }
             )
         buffer.addRoots(op, until)
-    }
-
-    /**
-     * Sets the position to align with a [fraction]al point along the given [path] and the rotation
-     * to align with the path's tangent at that point.
-     *
-     * @param path The [Path]
-     * @param fraction The fraction along the path. Note a whole number such as 1 wraps around to
-     *   the beginning.
-     * @param tangentalOffset An offset in pixels from from the path along the tangent.
-     */
-    public fun setMatrixFromPath(path: Path, fraction: RemoteFloat, tangentalOffset: RemoteFloat) {
-        val pathSnapshot = Path(path)
-        val op = recordRenderingOp {
-            document.matrixFromPath(
-                document.addPathData(pathSnapshot),
-                fraction.getFloatIdForCreationState(creationState),
-                tangentalOffset.getFloatIdForCreationState(creationState),
-                3,
-            )
-        }
-        buffer.addRoots(op, fraction, tangentalOffset)
     }
 
     /**
@@ -2684,11 +2505,6 @@ public open class RecordingCanvas(
         for (i in 0 until recordingModifier.list.size) {
             recordingModifier.list[i].write(writer)
         }
-    }
-
-    /** Draws the component content within a custom drawing stream. */
-    public fun drawComponentContent() {
-        recordRenderingOp { document.drawComponentContent() }
     }
 
     /**
