@@ -17,6 +17,8 @@
 package androidx.compose.remote.player.compose.embedded
 
 import androidx.collection.mutableIntObjectMapOf
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteClock
@@ -28,15 +30,23 @@ import androidx.compose.remote.core.operations.TextData
 import androidx.compose.remote.core.operations.TextMeasure
 import androidx.compose.remote.core.operations.layout.CanvasOperations
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
+import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers
+import androidx.compose.remote.core.operations.layout.modifiers.RippleModifierOperation
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -47,6 +57,8 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [35])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class GraphContextPaintOperationTest {
+
+    @get:Rule val rule = RcPlayerTestRule()
 
     @Test
     fun colorAttributeEvaluatesThroughPaintContextInGraphContext() {
@@ -303,5 +315,23 @@ class GraphContextPaintOperationTest {
                 )
             )
             .isEqualTo(1.25.em)
+    }
+
+    @Test
+    fun standaloneRippleModifierHandlesTouchWithoutSpuriousClickSemantics() {
+        val modifiers = ComponentModifiers().apply { add(RippleModifierOperation()) }
+        rule.setContent {
+            Box(modifier = modifiers.toModifier().size(48.dp).testTag("rippleOnly"))
+        }
+        rule.waitForIdle()
+
+        val node = rule.onNodeWithTag("rippleOnly")
+        assertThat(SemanticsActions.OnClick in node.fetchSemanticsNode().config).isFalse()
+
+        node.performTouchInput {
+            down(center)
+            up()
+        }
+        rule.waitForIdle()
     }
 }

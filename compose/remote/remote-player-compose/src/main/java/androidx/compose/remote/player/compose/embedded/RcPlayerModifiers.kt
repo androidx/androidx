@@ -92,6 +92,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 
@@ -102,13 +103,13 @@ public fun ComponentModifiers.toModifier(
     drawOpsList: List<Operation>? = null,
     ignoreVisibility: Boolean = false,
 ): Modifier {
-    val textMeasurer = rememberTextMeasurer()
     var modifier: Modifier = Modifier
     // Track whether a DrawContentOperation has already been attached to the modifier chain, so
     // that subsequent clip operations are hoisted before drawWithContent without bypassing
     // preceding padding.
     var drawContentProcessed = false
     var multiClickProcessed = false
+    val hasClickModifier = list.fastAny { it is ClickModifierOperation || it is MultiClickModifier }
     list.fastForEach { op ->
         modifier = modifier.rcModifierInspector(op)
         modifier =
@@ -124,7 +125,7 @@ public fun ComponentModifiers.toModifier(
                     modifier.roundedClipRect(op, drawContentProcessed)
                 is ZIndexModifierOperation -> modifier.zIndex(op)
                 is GraphicsLayerModifierOperation -> modifier.graphicsLayer(op)
-                is RippleModifierOperation -> modifier.ripple(op)
+                is RippleModifierOperation -> modifier.ripple(op, hasClickModifier)
                 is ScrollModifierOperation -> modifier.scroll(op)
                 is WidthInModifierOperation -> modifier.widthIn(op)
                 is HeightInModifierOperation -> modifier.heightIn(op)
@@ -155,6 +156,7 @@ public fun ComponentModifiers.toModifier(
                 is DrawContentOperation -> {
                     drawContentProcessed = true
                     if (drawOpsList != null) {
+                        val textMeasurer = rememberTextMeasurer()
                         val remoteContext = LocalRemoteContext.current
                         val graph = LocalGraphContext.current
                         modifier.drawWithContent {
@@ -187,6 +189,7 @@ public fun ComponentModifiers.toModifier(
             }
     }
     if (drawOpsList != null && !drawContentProcessed) {
+        val textMeasurer = rememberTextMeasurer()
         val remoteContext = LocalRemoteContext.current
         val graph = LocalGraphContext.current
         modifier = modifier.drawWithContent {
