@@ -36,3 +36,9 @@ android {
     compileSdk { version = release(37) }
     namespace = "androidx.compose.ui.graphics.benchmark.test"
 }
+
+androidx {
+    deviceTests {
+        maxShardCount = 1
+    }
+}
