@@ -851,13 +851,15 @@ internal fun initializePlayerRemoteContext(
         document.setRemoteComposeState(SnapshotRemoteComposeState())
         document.recollectCollectionsReflection()
     }
-    document.initializeContext(ctx, null)
-    document.applyDataOperationsWithoutBitmaps(ctx)
-    document.setLayoutCallback {}
-    document.applyOperationsReflection(ctx, preprocessed.globalOps)
-    document.applyOperationsReflection(ctx, preprocessed.constantOps)
-    val dataOps = ArrayList<Operation>()
-    document.rootLayoutComponent?.getData(dataOps, true)
-    document.applyOperationsReflection(ctx, dataOps)
+    ctx.withOpCountReset {
+        document.initializeContext(ctx, null)
+        document.applyDataOperationsWithoutBitmaps(ctx)
+        document.setLayoutCallback {}
+        document.applyOperationsReflection(ctx, preprocessed.globalOps)
+        document.applyOperationsReflection(ctx, preprocessed.constantOps)
+        val dataOps = ArrayList<Operation>()
+        document.rootLayoutComponent?.getData(dataOps, true)
+        document.applyOperationsReflection(ctx, dataOps)
+    }
     return ctx
 }
