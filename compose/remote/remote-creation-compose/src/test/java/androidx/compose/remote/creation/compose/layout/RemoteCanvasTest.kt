@@ -112,7 +112,7 @@ class RemoteCanvasTest {
         val paint2 = RemotePaint { fontVariationSettings = null }
         remoteCanvas.drawText("World".rs, 10f.rf, 10f.rf, paint2)
 
-        recordingCanvas.flush()
+        remoteCanvas.flush()
         val documentOps = getOperations(recordingCanvas.document.buffer)
         val paintDataOps = documentOps.filterIsInstance<PaintData>()
         assertThat(paintDataOps).hasSize(2)
@@ -166,22 +166,22 @@ class RemoteCanvasTest {
         remoteCanvas.drawConditionally(condition1) {
             remoteCanvas.drawConditionally(condition2) {
                 remoteCanvas.drawConditionally(condition3) {
-                    recordingCanvas.save()
-                    recordingCanvas.translate(1f, 1f)
+                    remoteCanvas.save()
+                    remoteCanvas.translate(1f.rf, 1f.rf)
                     remoteCanvas.drawRect(sub, 0f.rf, 0f.rf, 0f.rf, null)
-                    recordingCanvas.restore()
+                    remoteCanvas.restore()
                 }
             }
         }
 
         remoteCanvas.drawConditionally(condition2) {
-            recordingCanvas.save()
-            recordingCanvas.translate(1f, 1f)
+            remoteCanvas.save()
+            remoteCanvas.translate(1f.rf, 1f.rf)
             remoteCanvas.drawRect(sub, 10f.rf, 10f.rf, 10f.rf, null)
-            recordingCanvas.restore()
+            remoteCanvas.restore()
         }
 
-        recordingCanvas.flush()
+        remoteCanvas.flush()
 
         // Verify that sub is hoisted to Root level because it is used in two different branches of
         // condition2 if condition2 was top level, or just Root because condition2 is used in two
@@ -263,7 +263,7 @@ class RemoteCanvasTest {
         // Use b in another place to make it common too!
         remoteCanvas.drawRect(b, 20f.rf, 20f.rf, 20f.rf, null)
 
-        recordingCanvas.flush()
+        remoteCanvas.flush()
 
         assertThat(fakeBuffer.calls)
             .containsExactly(
@@ -322,7 +322,7 @@ class RemoteCanvasTest {
         // Use c in one place
         remoteCanvas.drawRect(c, 20f.rf, 20f.rf, 20f.rf, null)
 
-        recordingCanvas.flush()
+        remoteCanvas.flush()
 
         assertThat(fakeBuffer.calls)
             .containsExactly(
@@ -375,7 +375,7 @@ class RemoteCanvasTest {
         // This test guards against operations after drawConditionally being reordered.
         // If drawConditionally uses record instead of recordRenderingOp, it fails to add
         // itself to the dependency chain, allowing subsequent operations to be reordered.
-        recordingCanvas.flush()
+        remoteCanvas.flush()
 
         val calls = fakeBuffer.calls
         val idx3 = calls.indexOfFirst { it.startsWith("addConditionalOperations") }
@@ -424,7 +424,7 @@ class RemoteCanvasTest {
         // This test guards against operations after loop being reordered.
         // If loop uses record instead of recordRenderingOp, it fails to add
         // itself to the dependency chain, allowing subsequent operations to be reordered.
-        recordingCanvas.flush()
+        remoteCanvas.flush()
 
         val calls = fakeBuffer.calls
         val idx3 = calls.indexOfFirst { it.startsWith("addLoopStart") }
@@ -477,7 +477,7 @@ class RemoteCanvasTest {
         // This test guards against arbitrary iteration order in CSE Pass 1.
         // Propagation of ideal spans must happen in root-to-leaf order. If a child is processed
         // before its parent, it might miss the span propagated from the parent.
-        recordingCanvas.flush()
+        remoteCanvas.flush()
 
         val animatedFloatCalls = fakeBuffer.calls.filter { it.startsWith("addAnimatedFloat") }
         assertThat(animatedFloatCalls.size).isEqualTo(3)
