@@ -76,9 +76,9 @@ public annotation class Index(
     val orders: Array<Order> = [],
 
     /**
-     * Name of the index. If not set, Room will set it to the list of columns joined by '_' and
-     * prefixed by "index_${tableName}". So if you have a table with name "Foo" and with an index of
-     * "bar" and "baz", generated index name will be "index_Foo_bar_baz". If you need to specify the
+     * Name of the index. If not set, Room will set it to the list of columns joined by `_` and
+     * prefixed by `index_${tableName}_`. So if you have a table with name `Foo` and with an index of
+     * `bar` and `baz`, generated index name will be `index_Foo_bar_baz`. If you need to specify the
      * index in a query, you should never rely on this name, instead, specify a name for your index
      * via this annotation value.
      *
