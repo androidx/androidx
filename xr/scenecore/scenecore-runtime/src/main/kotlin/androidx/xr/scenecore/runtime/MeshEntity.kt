@@ -31,6 +31,9 @@ public interface MeshEntity : Entity {
      */
     public val meshBoundingBox: BoundingBox
 
+    /** The current affordance state based on user interaction. */
+    public var affordanceState: GeometryAffordanceState
+
     /**
      * Sets a material for a mesh subset.
      *
@@ -50,9 +53,12 @@ public interface MeshEntity : Entity {
      * Enable/disable the reform affordances for [MeshEntity].
      *
      * @param enabled Whether the reform affordances should be enabled.
-     * @param systemMovable Whether the entity should be movable by the system.
+     * @param reformAffordanceFlag Flag of reform affordance to enable/disable.
      */
-    public fun setReformAffordanceEnabled(enabled: Boolean, systemMovable: Boolean)
+    public fun setReformAffordanceEnabled(
+        enabled: Boolean,
+        reformAffordanceFlag: ReformAffordanceFlag,
+    )
 
     /**
      * Enable/disable the collider for the [MeshEntity].
@@ -91,14 +97,12 @@ public interface MeshFeature : RenderingFeature {
      *
      * @param entity The MeshEntity to attach the reform affordance to.
      * @param enabled Whether the affordance is enabled.
-     * @param executor The executor to run the listener on.
-     * @param systemMovable Whether the system should handle move events.
+     * @param reformFlag The reform affordance flag to enable/disable.
      */
     public fun setReformAffordanceEnabled(
         entity: MeshEntity,
         enabled: Boolean,
-        executor: java.util.concurrent.Executor,
-        systemMovable: Boolean,
+        reformFlag: ReformAffordanceFlag,
     )
 
     /**

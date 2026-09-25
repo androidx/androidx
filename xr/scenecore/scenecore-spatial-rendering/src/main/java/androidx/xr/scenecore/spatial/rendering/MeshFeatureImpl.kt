@@ -19,16 +19,19 @@ package androidx.xr.scenecore.spatial.rendering
 import androidx.annotation.MainThread
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Matrix4
+import androidx.xr.scenecore.runtime.GeometryAffordanceState
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.MeshEntity
 import androidx.xr.scenecore.runtime.MeshFeature
+import androidx.xr.scenecore.runtime.ReformAffordanceFlag
 import androidx.xr.scenecore.spatial.core.AndroidXrEntity
 import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi
 import androidx.xr.scenecore.spatial.rendering.impress.ImpressNode
 import androidx.xr.scenecore.spatial.rendering.impress.Material
 import com.android.extensions.xr.XrExtensions
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager
-import java.util.concurrent.Executor
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 
 internal class MeshFeatureImpl(
     impressApi: ImpressApi,
@@ -37,6 +40,8 @@ internal class MeshFeatureImpl(
     private val impressNode: ImpressNode,
     override val meshBoundingBox: BoundingBox,
 ) : BaseRenderingFeature(impressApi, splitEngineSubspaceManager, extensions), MeshFeature {
+    private var reformAffordanceMask: Int = 0
+
     init {
         bindImpressNodeToSubspace("mesh_entity_subspace_", impressNode)
     }
@@ -57,21 +62,26 @@ internal class MeshFeatureImpl(
     override fun setReformAffordanceEnabled(
         entity: MeshEntity,
         enabled: Boolean,
-        executor: Executor,
-        systemMovable: Boolean,
+        reformFlag: ReformAffordanceFlag,
     ) {
-        impressApi.setCustomMeshReformAffordanceEnabled(impressNode, enabled, systemMovable)
-        if (enabled) {
+        val wasAnyEnabled = ReformAffordanceFlag.anySet(reformAffordanceMask)
+        reformAffordanceMask = reformFlag.setEnabled(reformAffordanceMask, enabled)
+        val isAnyEnabled = ReformAffordanceFlag.anySet(reformAffordanceMask)
+        impressApi.setReformAffordanceEnabled(impressNode, reformAffordanceMask)
+        if (isAnyEnabled && !wasAnyEnabled) {
             subspace?.let { splitEngineSubspace ->
-                splitEngineSubspace.subspaceNode?.listenForInput(executor) { inputEvent ->
+                splitEngineSubspace.subspaceNode?.listenForInput(Dispatchers.Main.asExecutor()) {
+                    inputEvent ->
                     splitEngineSubspaceManager.forwardInputEvent(
                         inputEvent,
                         splitEngineSubspace.subspaceId,
                     )
+                    val state = impressApi.getReformAffordanceState(impressNode)
+                    entity.affordanceState = GeometryAffordanceState.fromInt(state)
                     (entity as AndroidXrEntity).handleInputEvent(inputEvent)
                 }
             }
-        } else {
+        } else if (!isAnyEnabled && wasAnyEnabled) {
             subspace?.subspaceNode?.stopListeningForInput()
         }
     }

@@ -125,6 +125,12 @@ public class FakeImpressApiImpl : ImpressApi {
         public var isReskinningScheduled: Boolean = false
         public val nodeMaterialOverrides: MutableMap<Int, MaterialData> = HashMap()
 
+        public var reformAffordanceMask: Int = 0
+        public var reformAffordanceState: Int = -1
+        public var reformAffordanceMinSize: Float = 0f
+        public var reformAffordanceMaxSize: Float = 0f
+        public var recommendedAffordanceTransform: Matrix4 = Matrix4.Identity
+
         /** Sets the material override for a specific mesh of a specific node */
         public fun setGltfModelNodeMaterialOverride(
             materialData: MaterialData,
@@ -252,20 +258,42 @@ public class FakeImpressApiImpl : ImpressApi {
         throw IllegalArgumentException("not implemented")
     }
 
-    override fun setGltfReformAffordanceEnabled(
-        impressNode: ImpressNode,
-        enabled: Boolean,
-        systemMovable: Boolean,
-    ) {
-        throw IllegalArgumentException("not implemented")
+    override fun setReformAffordanceEnabled(impressNode: ImpressNode, reformAffordanceMask: Int) {
+        val nodeData =
+            getGltfNodeData(impressNode) ?: throw IllegalArgumentException("not implemented")
+        nodeData.reformAffordanceMask = reformAffordanceMask
     }
 
+    // TODO (b/520111090): Clean up redundant mesh reform affordance API
     override fun setCustomMeshReformAffordanceEnabled(
         node: ImpressNode,
         enableAffordance: Boolean,
         systemMovable: Boolean,
     ) {
         throw IllegalArgumentException("not implemented")
+    }
+
+    override fun getReformAffordanceState(impressNode: ImpressNode): Int {
+        val nodeData =
+            getGltfNodeData(impressNode) ?: throw IllegalArgumentException("not implemented")
+        return nodeData.reformAffordanceState
+    }
+
+    override fun setReformAffordanceSizeLimits(
+        impressNode: ImpressNode,
+        minSize: Float,
+        maxSize: Float,
+    ) {
+        val nodeData =
+            getGltfNodeData(impressNode) ?: throw IllegalArgumentException("not implemented")
+        nodeData.reformAffordanceMinSize = minSize
+        nodeData.reformAffordanceMaxSize = maxSize
+    }
+
+    override fun getRecommendedAffordanceTransform(impressNode: ImpressNode): Matrix4 {
+        val nodeData =
+            getGltfNodeData(impressNode) ?: throw IllegalArgumentException("not implemented")
+        return nodeData.recommendedAffordanceTransform
     }
 
     override suspend fun animateGltfModel(

@@ -27,6 +27,9 @@ public interface GltfEntity : Entity {
     /** The flattened list of all nodes contained within this glTF model entity. */
     public val nodes: List<GltfModelNodeFeature>
 
+    /** The current affordance state based on user interaction. */
+    public var affordanceState: GeometryAffordanceState
+
     /**
      * Retrieves the axis-aligned bounding box (AABB) of an instanced glTF model in meters in the
      * model's local coordinate space.
@@ -70,9 +73,12 @@ public interface GltfEntity : Entity {
      * Enable/disable the reform affordances for glTF entity.
      *
      * @param enabled Whether the reform affordances should be enabled.
-     * @param systemMovable Whether the entity should be movable by the system.
+     * @param reformAffordanceFlag Flag of reform affordance to enable/disable.
      */
-    public fun setReformAffordanceEnabled(enabled: Boolean, systemMovable: Boolean)
+    public fun setReformAffordanceEnabled(
+        enabled: Boolean,
+        reformAffordanceFlag: ReformAffordanceFlag,
+    )
 
     /** Specifies the current animation state of the [GltfEntity]. */
     public annotation class AnimationStateValue

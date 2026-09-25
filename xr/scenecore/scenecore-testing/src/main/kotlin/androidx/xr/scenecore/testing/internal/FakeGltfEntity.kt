@@ -17,10 +17,12 @@
 package androidx.xr.scenecore.testing.internal
 
 import androidx.xr.runtime.math.BoundingBox
+import androidx.xr.scenecore.runtime.GeometryAffordanceState
 import androidx.xr.scenecore.runtime.GltfAnimationFeature
 import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.GltfModelNodeFeature
 import androidx.xr.scenecore.runtime.NodeHolder
+import androidx.xr.scenecore.runtime.ReformAffordanceFlag
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import java.util.concurrent.Executor
 import java.util.function.Consumer
@@ -38,6 +40,8 @@ internal open class FakeGltfEntity(
 
     override val nodes: List<GltfModelNodeFeature>
         get() = feature.nodes
+
+    override var affordanceState: GeometryAffordanceState = GeometryAffordanceState.NONE
 
     /**
      * Adds a node to the list of nodes in this fake glTF entity.
@@ -84,7 +88,10 @@ internal open class FakeGltfEntity(
         feature.removeOnBoundsUpdateListener(listener)
     }
 
-    override fun setReformAffordanceEnabled(enabled: Boolean, systemMovable: Boolean) {
-        feature.setReformAffordanceEnabled(this, enabled, executor, systemMovable)
+    override fun setReformAffordanceEnabled(
+        enabled: Boolean,
+        reformAffordanceFlag: ReformAffordanceFlag,
+    ) {
+        feature.setReformAffordanceEnabled(this, enabled, reformAffordanceFlag)
     }
 }

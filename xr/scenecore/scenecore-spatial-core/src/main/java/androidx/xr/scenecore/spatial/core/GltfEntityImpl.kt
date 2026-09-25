@@ -18,10 +18,12 @@ package androidx.xr.scenecore.spatial.core
 import android.content.Context
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.scenecore.runtime.Entity
+import androidx.xr.scenecore.runtime.GeometryAffordanceState
 import androidx.xr.scenecore.runtime.GltfAnimationFeature
 import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.GltfModelNodeFeature
+import androidx.xr.scenecore.runtime.ReformAffordanceFlag
 import com.android.extensions.xr.XrExtensions
 import java.util.concurrent.ScheduledExecutorService
 import java.util.function.Consumer
@@ -52,6 +54,8 @@ internal class GltfEntityImpl(
     override val animations: List<GltfAnimationFeature>
         get() = gltfFeature.getAnimations(scheduledExecutor)
 
+    override var affordanceState: GeometryAffordanceState = GeometryAffordanceState.NONE
+
     override fun setColliderEnabled(enabled: Boolean) {
         gltfFeature.setColliderEnabled(enabled)
     }
@@ -64,7 +68,10 @@ internal class GltfEntityImpl(
         gltfFeature.removeOnBoundsUpdateListener(listener)
     }
 
-    override fun setReformAffordanceEnabled(enabled: Boolean, systemMovable: Boolean) {
-        gltfFeature.setReformAffordanceEnabled(this, enabled, scheduledExecutor, systemMovable)
+    override fun setReformAffordanceEnabled(
+        enabled: Boolean,
+        reformAffordanceFlag: ReformAffordanceFlag,
+    ) {
+        gltfFeature.setReformAffordanceEnabled(this, enabled, reformAffordanceFlag)
     }
 }
